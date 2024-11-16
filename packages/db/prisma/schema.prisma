@@ -1,0 +1,131 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum RoleType {
+  ADMIN
+  OWNER
+  MEMBER
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  SCHEDULED
+}
+
+model User {
+  id            String       @id @default(cuid())
+  name          String?
+  email         String       @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  posts         Post[]
+  createdSites  Site[]       @relation("SiteOwner")
+  siteMembers   SiteMember[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model Site {
+  id          String       @id @default(cuid())
+  name        String
+  description String?
+  domain      String?      @unique
+  slug        String       @unique
+  ownerId     String
+  owner       User         @relation("SiteOwner", fields: [ownerId], references: [id])
+  members     SiteMember[]
+  posts       Post[]
+  tags        Tag[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model SiteMember {
+  id        String   @id @default(cuid())
+  userId    String
+  siteId    String
+  role      RoleType @default(MEMBER)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  site      Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, siteId])
+}
+
+model Post {
+  id          String     @id @default(cuid())
+  title       String
+  content     String
+  coverImage  String?
+  contentJson Json
+  description String
+  siteId      String
+  site        Site       @relation(fields: [siteId], references: [id])
+  views       Int        @default(0)
+  slug        String
+  authorId    String
+  status      PostStatus @default(DRAFT)
+  featured    Boolean    @default(false)
+  tags        Tag[]
+  updatedAt   DateTime   @updatedAt
+  createdAt   DateTime   @default(now())
+  author      User       @relation(fields: [authorId], references: [id])
+
+  @@unique([siteId, slug])
+}
+
+model Tag {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  slug        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  posts       Post[]
+  siteId      String 
+  site        Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@unique([siteId, name, slug])
+}
+
+// auth stuff
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
