@@ -1,4 +1,5 @@
 "use client";
+import * as React from "react";
 
 import {
   BadgeCheck,
@@ -29,10 +30,10 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@repo/ui/components/sidebar";
+import { Skeleton } from "@repo/ui/components/skeleton";
+import type { User } from "next-auth";
 import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react";
-import { Skeleton } from "@repo/ui/components/skeleton";
-import { User } from "next-auth";
 
 interface NavUserProps {
   user: User | undefined;
@@ -65,7 +66,7 @@ export function NavUser({ user }: NavUserProps) {
                   }
                   alt={user?.name || "users profile image"}
                 />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                <AvatarFallback className="rounded-lg">X</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">{user?.name}</span>
@@ -89,7 +90,7 @@ export function NavUser({ user }: NavUserProps) {
                     }
                     alt={user?.name || "users profile image"}
                   />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <AvatarFallback className="rounded-lg">X</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">{user?.name}</span>

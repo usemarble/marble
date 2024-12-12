@@ -1,0 +1,124 @@
+---
+import Container from "./Container.astro";
+import Discord from "./icons/Discord.astro";
+import Github from "./icons/Github.astro";
+import X from "./icons/X.astro";
+---
+
+<section class="pb-48">
+  <Container>
+    <footer class="rounded-xl border bg-gray-50 p-10 lg:p-12">
+      <div class="flex flex-col justify-between gap-10 md:flex-row">
+        <div class="sm:col-span-3">
+          <a href="/" class="mb-2 flex items-center gap-2 tracking-widest font-medium">
+            <p>marble.</p>
+          </a>
+          <p class="mb-1 text-sm text-muted-foreground tracking-wider">
+            Content simplified.
+          </p>
+        </div>
+  
+        <div class="grid grid-cols-1 gap-8 md:grid-cols-3 lg:gap-20">
+          <div class="flex flex-col gap-4 text-sm">
+            <p class="font-medium mb-2">Legal</p>
+            <a
+              href="/terms"
+              class="text-muted-foreground underline-offset-2 hover:underline"
+            >
+              Terms
+            </a>
+            <a
+              href="/privacy"
+              class="text-muted-foreground underline-offset-2 hover:underline"
+            >
+              Privacy
+            </a>
+          </div>
+  
+          <div class="flex flex-col gap-4 text-sm">
+            <p class="font-medium mb-2">Resources</p>
+            <a
+              href="/blog"
+              class="text-muted-foreground underline-offset-2 hover:underline"
+            >
+              Blog
+            </a>
+            <a
+              href="/templates"
+              class="text-muted-foreground underline-offset-2 hover:underline"
+            >
+              Templates
+            </a>
+            <a
+              href="/pricing"
+              class="text-muted-foreground underline-offset-2 hover:underline"
+            >
+              Pricing
+            </a>
+          </div>
+  
+          <div class="flex flex-col gap-4 text-sm">
+            <p class="font-medium mb-2">Developers</p>
+            <a
+              href="https://docs.marble.com"
+              target="_blank"
+              class="text-muted-foreground underline-offset-2 hover:underline"
+            >
+              Documentation
+            </a>
+            <a
+              href="https://github.com/taqh/marblecms"
+              target="_blank"
+              class="text-muted-foreground underline-offset-2 hover:underline"
+            >
+              Contribute
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="flex gap-6 flex-col items-center justify-center md:flex-row lg:items-end lg:justify-between mt-10 lg:mt-20">
+        <ul class="flex gap-6">
+          <li>
+            <a
+              href="https://x.com/rahimtkb"
+              target="_blank"
+              class="text-muted-foreground hover:text-primary transition duration-300"
+            >
+            <span class="sr-only">
+              Twitter
+            </span>
+              <X />
+            </a>
+          </li>
+          <li>
+            <a
+              href="https://github.com/taqh"
+              target="_blank"
+              class="text-muted-foreground hover:text-primary transition duration-300"
+            >
+            <span class="sr-only">
+              Github
+            </span>
+            <Github />
+            </a>
+          </li>
+          <li>
+            <a
+              href="https://discord.gg/taqib"
+              target="_blank"
+              class="text-muted-foreground hover:text-primary transition duration-300"
+            >
+            <span class="sr-only">
+              Discord
+            </span>
+            <Discord />
+            </a>
+          </li>
+        </ul>
+        <p class="text-xs text-muted-foreground">
+          &copy; {new Date().getFullYear()} all rights reserved
+        </p>
+      </div>
+    </footer>
+  </Container>
+</section>

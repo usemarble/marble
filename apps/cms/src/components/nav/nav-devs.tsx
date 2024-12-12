@@ -8,36 +8,41 @@ import {
   SidebarMenuItem,
 } from "@repo/ui/components/sidebar";
 
-import { BookOpen, Frame, PieChart } from "lucide-react";
+import { BookOpen, Frame, PieChart, Webhook } from "lucide-react";
 import Link from "next/link";
 
 const items = [
   {
     name: "API Keys",
-    url: "#",
+    url: "/account/keys",
     icon: Frame,
   },
   {
     name: "Analytics",
-    url: "#",
+    url: "/analytics",
     icon: PieChart,
   },
   {
+    name: "Webhooks",
+    url: "/webhooks",
+    icon: Webhook,
+  },
+  {
     name: "Documentation",
-    url: "#",
+    url: "/docs",
     icon: BookOpen,
   },
 ];
 
 export function NavDevs() {
   return (
-    <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+    <SidebarGroup>
       <SidebarGroupLabel>Developers</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => (
           <SidebarMenuItem key={item.name}>
             <SidebarMenuButton asChild>
-              <Link href={item.url}>
+              <Link href={item.url} className="hover:bg-muted">
                 <item.icon />
                 <span>{item.name}</span>
               </Link>

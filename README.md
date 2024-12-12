@@ -1,4 +1,4 @@
-# MarbleCMS
+# marble
 
 Super simple headless cms for all.
 
@@ -6,11 +6,12 @@ Super simple headless cms for all.
 
 This repository is a monorepo and is structured as follows
 
+```text
 /
 ├── apps/
 │ ├─ api/
 │ ├─ cms/
-│ ├─ docs/  
+│ ├─ app/  
 │ └─ web/
 ├── packages/
 │ ├─ db/
@@ -23,6 +24,7 @@ This repository is a monorepo and is structured as follows
 ├── pnpm-worksapce.yaml
 ├── README.md
 └── turbo.json
+```
 
 ## Apps
 
@@ -31,7 +33,7 @@ This directory contains the source code for all related applications
 - api: A [Hono](https://hono.dev) app for the api
 - cms: A [Next.js](https://nextjs.org) app for the dashboard
 - docs: A [Next.js](https://nextjs.org) app for api documentation
-- web: A [Next.js](https://nextjs.org) app for the website
+- web: An [Astro.js](https://astro.build) app for the website
 
 ## Packages
 

@@ -16,6 +16,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "uploadthing.com",
       },
+      {
+        protocol: "https",
+        hostname: "avatar.vercel.sh",
+      },
     ],
   },
 };

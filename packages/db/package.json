@@ -11,12 +11,12 @@
     "db:studio": "prisma studio"
   },
   "dependencies": {
-    "@prisma/client": "^5.20.0"
+    "@prisma/client": "^6.0.1"
   },
   "devDependencies": {
-    "prisma": "5.20.0",
-    "typescript": "^5.6.3",
+    "@repo/tsconfig": "workspace:*",
     "@types/node": "22.9.0",
-    "@repo/tsconfig": "workspace:*"
+    "prisma": "6.0.1",
+    "typescript": "^5.6.3"
   }
 }

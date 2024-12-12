@@ -1,0 +1,65 @@
+---
+import Container from "./Container.astro";
+---
+
+<header id="header" class="bg-background/90 z-50 relative py-4 backdrop-blur-md">
+  <Container>
+    <nav id="nav" class="flex justify-between transition">
+      <a
+        href={"/"}
+        class="text-lg font-medium flex items-center gap-1 tracking-wider"
+      >
+        <span>marble.</span>
+      </a>
+      <ul class="flex items-center gap-7 text-sm">
+        <li
+         class="relative after:absolute after:bg-primary after:h-0.5 after:w-full after:top-auto after:bottom-0 after:left-0 after:scale-x-0 after:origin-right hover:after:scale-x-100 hover:after:origin-left transition after:transition after:duration-500"
+        >
+          <a href={"#about"}>
+            <span>About</span>
+          </a>
+        </li>
+        <li
+          class="relative after:absolute after:bg-primary after:h-0.5 after:w-full after:top-auto after:bottom-0 after:left-0 after:scale-x-0 after:origin-right hover:after:scale-x-100 hover:after:origin-left transition after:transition after:duration-500"
+        >
+          <a href={"/pricing"}>
+            <span>Pricing</span>
+          </a>
+        </li>
+        <li
+          class="relative after:absolute after:bg-primary after:h-0.5 after:w-full after:top-auto after:bottom-0 after:left-0 after:scale-x-0 after:origin-right hover:after:scale-x-100 hover:after:origin-left transition after:transition after:duration-500"
+        >
+          <a href={"/blog"}>
+            <span>Blog</span>
+          </a>
+        </li>
+      </ul>
+      <a
+        href="#signin"
+        class="font-medium hover:bg-muted p-2 w-24 flex items-center justify-center transition duration-300 rounded-sm text-sm border"
+      >
+        <span>Sign in</span>
+      </a>
+    </nav>
+  </Container>
+</header>
+
+<script>
+  document.addEventListener('astro:page-load', () => {
+    const header = document.getElementById('header');
+    const nav = document.getElementById('nav');
+
+    if (nav && header) {
+      window.addEventListener('scroll', () => {
+        const isScrolled = window.scrollY >= 64;
+        const headerRect = header.getBoundingClientRect();
+        const isHeaderVisible = headerRect.bottom >= window.innerHeight;
+
+        nav.classList.toggle(
+          'sticky top-0 bg-background/90 border rounded-lg py-4 backdrop-blur-md py-2 px-4',
+          window.scrollY >= 64 || !isHeaderVisible
+        );
+      });
+    }
+  });
+</script>

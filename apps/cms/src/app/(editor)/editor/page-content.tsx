@@ -1,21 +1,20 @@
 "use client";
 
-import Link from "next/link";
-import { JSONContent } from "novel";
-import { useForm } from "react-hook-form";
-import { publishArticle } from "./actions";
 import Editor from "@/components/editor/editor";
-import { toast } from "@repo/ui/components/sonner";
-import { useEffect, useRef, useState } from "react";
-import { Button } from "@repo/ui/components/button";
+import { PublishSettings } from "@/components/editor/publish-setings";
+import { type PostValues, postSchema } from "@/lib/validations/post";
 import { generateSlug } from "@/utils/generate-slug";
 import { sanitizeHtml } from "@/utils/sanitize-html";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ThemeSwitch } from "@/components/theme-switch";
-import { ArrowUpRight, HelpCircle } from "lucide-react";
-import { postSchema, PostValues } from "@/lib/validations/post";
-import { PublishSettings } from "@/components/editor/publish-setings";
+import { Button } from "@repo/ui/components/button";
+import { toast } from "@repo/ui/components/sonner";
+import { HelpCircle, Undo } from "lucide-react";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
+import type { JSONContent } from "novel";
+import { useEffect, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
+import { publishArticle } from "./actions";
 
 function PageContent() {
   const [saving, setSaving] = useState(false);
@@ -83,9 +82,9 @@ function PageContent() {
         <header className="bg-background/90 sticky top-0 px-4 py-2 backdrop-blur-lg border-b z-50 flex justify-between">
           <div className="flex gap-4 items-center">
             <Button asChild disabled={saving} variant="ghost" size="sm">
-              <Link href="/">
+              <Link href="/" className="flex items-center gap-2 text-xs">
+                <Undo className="size-4 text-muted-foreground ml-2" />
                 <span>Dashboard</span>
-                <ArrowUpRight className="size-4 text-muted-foreground ml-2" />
               </Link>
             </Button>
           </div>
@@ -101,9 +100,10 @@ function PageContent() {
             <p className="text-xs">{session ? "Connected" : "Connecting..."}</p>
           </div>
           <div className="flex gap-4 justify-end items-center">
-            <Button disabled={saving} variant="outline" size={"icon"}>
-              <HelpCircle className="size-4 text-muted-foreground" />
-            </Button>
+            <div className="flex flex-col text-xs text-right text-muted-foreground">
+              <p>251 words</p>
+              <p>2453 characters</p>
+            </div>
             <PublishSettings
               errors={errors}
               control={control}
@@ -119,11 +119,14 @@ function PageContent() {
           <form
             ref={formRef}
             onSubmit={handleSubmit(onSubmit)}
-            className="dark:border-foreground-50 space-y-5 rounded-md border px-4 py-10"
+            className="space-y-5 rounded-md px-4 py-10"
           >
             <div className="flex flex-col">
-              <label htmlFor="title" className="sr-only" />
+              <label htmlFor="title" className="sr-only">
+                Enter post your title
+              </label>
               <input
+                id="title"
                 placeholder="Title"
                 {...register("title")}
                 onKeyDown={handleKeyDown}
@@ -148,9 +151,6 @@ function PageContent() {
             </div>
           </form>
         </main>
-      </div>
-      <div className="fixed right-10 bottom-10">
-        <ThemeSwitch />
       </div>
     </>
   );

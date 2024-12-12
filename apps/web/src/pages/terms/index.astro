@@ -1,0 +1,31 @@
+---
+import { getEntry, render } from "astro:content";
+import Container from "@/components/Container.astro";
+import Prose from "@/components/Prose.astro";
+import Layout from "@/layouts/Layout.astro";
+
+const entry = await getEntry("page", "terms");
+
+if (!entry) {
+  throw new Error("Page not found");
+}
+
+const { Content } = await render(entry);
+---
+
+
+<Layout>
+  <Container class="max-w-lg py-14 mb-20">
+    <div class='max-w-2xl mx-auto mb-10 space-y-2'>
+      <h1 class='font-medium text-2xl leading-[1.1] sm:text-3xl md:text-4xl italic text-center'>
+        Terms of Service.
+      </h1>
+      <p class='text-muted-foreground text-center'>Marble's terms of service</p>
+        <p class="text-center font-medium text-muted-foreground">Last updated {entry.data.lastUpdated.toDateString()}</p>
+    </div>
+
+    <Prose class="prose-sm max-w-screen-sm">
+      <Content/>
+    </Prose>
+  </Container>
+</Layout>

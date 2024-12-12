@@ -1,0 +1,36 @@
+---
+import { getCollection } from "astro:content";
+import Container from "@/components/Container.astro";
+import Layout from "@/layouts/Layout.astro";
+const articles = await getCollection("blog");
+---
+
+<Layout title={`dsdsds`} description={`sdsdsdsd`}>
+  <Container class='border-t border-dashed mb-14'>
+    <section class='py-20 sm:border-x sm:border-dashed sm:bg-background min-h-[calc(100vh-88px)] sm:min-h-[calc(100vh-103px)] lg:min-h-[calc(100vh-120px)]'>
+      <div class='max-w-2xl mx-auto mb-10 space-y-2'>
+        <h1 class='font-medium text-2xl leading-[1.1] sm:text-3xl md:text-4xl italic text-center'>
+          The marble blog.
+        </h1>
+        <p class='text-muted-foreground text-center'>Bits and pieces about marble and efficient content publishing.</p>
+      </div>
+      <ul class='flex flex-col gap-6 max-w-2xl mx-auto'>
+        {
+          articles.map((article) => (
+            <li>
+              <a
+                href={`/blog/${article.id}`}
+                class='space-y-1 p-4 border border-dashed rounded-lg hover:bg-muted block transition duration-300'
+              >
+                <div>
+                  <h2 class='font-semibold tracking-wide text-lg italic'>{article.data.title}</h2>
+                  <p class='text-muted-foreground font-mono text-sm'>{article.data.description}</p>
+                </div>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+  </Container>
+</Layout>

@@ -1,0 +1,215 @@
+---
+import Container from "@/components/Container.astro";
+import Layout from "@/layouts/Layout.astro";
+import editorImage from "../assets/editor.png";
+import { Image } from "astro:assets";
+---
+
+<Layout>
+	<!-- Hero section -->
+	<section class="grid place-items-center py-12 md:py-16 lg:py-28">
+		<div>
+			<div class="relative mx-auto flex flex-col items-center text-center lg:items-start">
+				<h1 class="relative text-balance text-2xl sm:text-3xl font-medium tracking-tight md:text-4xl lg:text-5xl max-w-4xl">
+					A Smarter, Simpler Way to Manage Your Content.
+				</h1>
+				<p class="mx-auto mt-8 max-w-prose text-balance text-center text-lg text-muted-foreground md:text-wrap font-medium">
+					Everything you need, nothing you don’t just easy, effective content management.
+				</p>
+			</div>
+			<div class="mt-8 flex w-full items-center justify-center">
+				<div>
+					<a href={"/"}
+						class="flex gap-2 group bg-primary rounded-md text-primary-foreground items-center py-2 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 transition-all duration-300 ease-out px-8 group"
+					>
+						<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 group-hover:rotate-180 group-focus-visible:rotate-180 transition duration-300">
+							<path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
+						</svg>
+						<span>Get started</span>
+					</a>
+				</div>
+			</div>
+		</div>
+	</section>
+	<!-- section 2 value proposition -->
+	<section class="py-12">
+		<Container class="mb-10 space-y-10">
+			<div class="border bg-gray-50/80 backdrop-blur-md p-1.5 rounded-xl">
+				<div class="border rounded-[8px] bg-background h-[400px] w-full">
+						<Image src={editorImage} alt="An screenshot of marble's minimal editor" class="object-cover w-full h-full rounded-[8px] pointer-events-none" />
+				</div>
+			</div>
+		</Container>
+	</section>
+
+	<!-- Pricing section -->
+	<section class="py-12">
+		<Container class="mb-10 space-y-10 lg:space-y-14">
+			<div class="relative flex flex-col items-center space-y-4">
+				<h2 class="relative text-center text-balance text-xl sm:text-2xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
+					Simple Pricing, No Surprises.
+				</h2>
+				<p class="max-w-prose text-lg text-muted-foreground text-center">
+				Choose a plan that fits your needs, with no hidden fees or unnecessary complexity.
+				</p>
+			</div>
+			<ul class="grid gap-5 lg:gap-10 sm:grid-cols-2 lg:grid-cols-3">
+				<li class="border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl">
+					<div class="border flex flex-col gap-5 rounded-[8px] bg-background min-h-96 h-full w-full p-4">
+						<div class="flex flex-col gap-4 pb-4 border-b border-dashed">
+							<h4 class="text-medium text-2xl">Free</h4>
+							<div class="">
+								<p><span class="font-bold text-2xl">$0</span>{' '}<span>per month.</span></p>
+								<p class="text-muted-foreground text-sm">For solo individuals</p>
+							</div>
+						</div>
+						<!-- Plan perks -->
+						<ul class="flex flex-col gap-2">
+							<li class="flex items-center gap-2">
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
+									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+								</svg>
+								<span>Unlimited sites.</span>
+							</li>
+							<li class="flex items-center gap-2">
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
+									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+								</svg>
+								<span>Unlimited posts.</span>
+							</li>
+							<li class="flex items-center gap-2">
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
+									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+								</svg>
+								<span>10k API requests per month.</span>
+							</li>
+						</ul>
+					<!-- Action -->
+						<a 
+							href={"http://localhost:3000/"}
+							target="_blank"
+							class="flex bg-primary gap-2 group rounded-md text-primary-foreground items-center justify-center py-2 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 transition-all duration-300 ease-out px-8 group mt-auto"
+						>
+							<span>Start for free</span>
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 group-hover:translate-x-1 transition duration-300">
+								<path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
+							</svg>
+						</a>
+					</div>
+				</li>
+				<li class="border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl">
+					<div class="border flex flex-col gap-5 rounded-[8px] bg-background min-h-96 h-full w-full p-4">
+						<!-- plan name and price -->
+						<div class="flex flex-col gap-4 pb-4 border-b border-dashed">
+							<h4 class="text-medium text-2xl">Starter</h4>
+							<div class="">
+								<p><span class="font-bold text-2xl">$0</span>{' '}<span>per month.</span></p>
+								<p class="text-muted-foreground text-sm">For small teams</p>
+							</div>
+						</div>
+						<!-- Plan perks -->
+						<ul class="flex flex-col gap-2">
+							<li class="flex items-center gap-2">
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
+									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+								</svg>
+								<span>Unlimited sites.</span>
+							</li>
+							<li class="flex items-center gap-2">
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
+									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+								</svg>
+								<span>Unlimited posts.</span>
+							</li>
+							<li class="flex items-center gap-2">
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
+									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+								</svg>
+								<span>50k API requests per month.</span>
+							</li>
+							<li class="flex items-center gap-2">
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
+									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+								</svg>
+								<span>Team management.</span>
+							</li>
+						</ul>
+						<!-- action -->
+						<a 
+							href={"http://localhost:3000/"}
+							target="_blank"
+							class="flex bg-primary gap-2 group rounded-md text-primary-foreground items-center justify-center py-2 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 transition-all duration-300 ease-out px-8 group mt-auto"
+						>
+							<span>Get starter</span>
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 group-hover:translate-x-1 transition duration-300">
+								<path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
+							</svg>
+						</a>
+					</div>
+				</li>
+				<li class="border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl">
+					<div class="border flex flex-col gap-5 rounded-[8px] bg-background min-h-96 w-full p-4">
+						<!-- plan name and price -->
+						<div class="flex flex-col gap-4 border-b border-dashed pb-4">
+							<h4 class="text-medium text-xl text-medium">Pro</h4>
+							<div class="">
+								<p><span class="font-bold text-2xl">$0</span>{' '}<span>per month.</span></p>
+								<p class="text-muted-foreground text-sm">For growing businesses</p>
+							</div>
+						</div>
+						<!-- perks -->
+						<ul class="flex flex-col gap-2">
+							<li class="flex items-center gap-2">
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
+									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+								</svg>
+								<span>Unlimited sites.</span>
+							</li>
+							<li class="flex items-center gap-2">
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
+									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+								</svg>
+								<span>Unlimited posts.</span>
+							</li>
+							<li class="flex items-center gap-2">
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
+									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+								</svg>
+								<span>100k API requests per month.</span>
+							</li>
+							<li class="flex items-center gap-2">
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
+									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+								</svg>
+								<span>Team management.</span>
+							</li>
+							<li class="flex items-center gap-2">
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
+									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+								</svg>
+								<span>Collaborative editor.</span>
+							</li>
+							<li class="flex items-center gap-2">
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
+									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+								</svg>
+								<span>Webhooks.</span>
+							</li>
+						</ul>
+						<!-- action -->
+						<a 
+							href={"http://localhost:3000/"}
+							target="_blank"
+							class="flex bg-primary gap-2 group rounded-md text-primary-foreground items-center justify-center py-2 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 transition-all duration-300 ease-out px-8 group"
+						>
+							<span>Get pro</span>
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 group-hover:translate-x-1 transition duration-300">
+								<path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
+							</svg>
+						</a>
+					</div>
+				</li>
+			</ul>
+		</Container>
+	</section>
+</Layout>

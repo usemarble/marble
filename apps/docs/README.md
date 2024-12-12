@@ -1,3 +1,0 @@
-# Docs
-
-Documentation for developers.

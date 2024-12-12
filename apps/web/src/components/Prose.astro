@@ -1,0 +1,6 @@
+---
+const { class: classNames } = Astro.props;
+---
+<article class={`prose max-w-3xl prose-headings:font-mono mx-auto ${classNames}`}>
+  <slot />
+</article>

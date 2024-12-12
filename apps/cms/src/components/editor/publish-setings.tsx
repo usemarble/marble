@@ -1,3 +1,7 @@
+import type { PostValues } from "@/lib/validations/post";
+import { Button } from "@repo/ui/components/button";
+import { Input } from "@repo/ui/components/input";
+import { Label } from "@repo/ui/components/label";
 import {
   Sheet,
   SheetClose,
@@ -8,20 +12,16 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@repo/ui/components/sheet";
-import { Button } from "@repo/ui/components/button";
-import { Input } from "@repo/ui/components/input";
-import { Label } from "@repo/ui/components/label";
-import { Textarea } from "@repo/ui/components/textarea";
-import { PostValues } from "@/lib/validations/post";
 import { toast } from "@repo/ui/components/sonner";
-import TagInput from "./tag-input";
+import { Textarea } from "@repo/ui/components/textarea";
 import { Loader2 } from "lucide-react";
+import TagInput from "./tag-input";
 
-import {
+import type {
   Control,
+  FieldErrors,
   UseFormRegister,
   UseFormSetValue,
-  FieldErrors,
   UseFormTrigger,
 } from "react-hook-form";
 
@@ -63,7 +63,7 @@ export function PublishSettings({
       <SheetTrigger asChild>
         <Button size="sm">Publish</Button>
       </SheetTrigger>
-      <SheetContent>
+      <SheetContent className="h-[96%] right-3 top-3.5 border rounded-md">
         <SheetHeader>
           <SheetTitle>Publish settings</SheetTitle>
           <SheetDescription>
