@@ -29,7 +29,7 @@ import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
 
 import { useForm } from "react-hook-form";
-import { CreateSiteValues, siteSchema } from "@/lib/validations/site";
+import { type CreateSiteValues, siteSchema } from "@/lib/validations/site";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ErrorMessage } from "@/components/auth/error-message";
 import { Textarea } from "@repo/ui/components/textarea";
@@ -38,11 +38,11 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@repo/ui/components/avatar";
-import { cn } from "@repo/ui/cn";
+import { cn } from "@repo/ui/lib/utils";
 import { checkSlug, createSiteAction } from "@/lib/actions/create-site";
 import { toast } from "@repo/ui/components/sonner";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Site } from "@repo/db/client";
+import type { Site } from "@repo/db/client";
 
 interface SiteSwitcherProps {
   sites: Site[];
