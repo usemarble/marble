@@ -39,7 +39,8 @@ const Editor = ({ value, onChange }: EditorProps) => {
             keydown: (_view, event) => handleCommandNavigation(event),
           },
           attributes: {
-            class: 'prose lg:prose-lg dark:prose-invert min-h-96 sm:px-4 focus:outline-none max-w-full',
+            class:
+              "prose lg:prose-lg dark:prose-invert min-h-96 sm:px-4 focus:outline-none max-w-full",
           },
         }}
       >

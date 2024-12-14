@@ -6,7 +6,7 @@ import Layout from "@/layouts/Layout.astro";
 
 const entry = await getEntry("page", "privacy");
 
-if(!entry) {
+if (!entry) {
   throw new Error("Page not found");
 }
 

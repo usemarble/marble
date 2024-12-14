@@ -1,14 +1,11 @@
 "use client";
 
-
-import {
-  Collapsible
-} from "@repo/ui/components/collapsible";
+import { Collapsible } from "@repo/ui/components/collapsible";
 import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarMenu,
-  SidebarMenuButton
+  SidebarMenuButton,
 } from "@repo/ui/components/sidebar";
 
 import { Globe, Settings2, Users2 } from "@repo/ui/lib/icons";
