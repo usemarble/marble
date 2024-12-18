@@ -1,45 +1,95 @@
 ---
 import Container from "./Container.astro";
+import ThemeSwitch from "./ThemeSwitch.astro";
 ---
 
 <header id="header" class="bg-background/90 z-50 relative py-4 backdrop-blur-md">
   <Container>
-    <nav id="nav" class="flex justify-between transition">
-      <a
-        href={"/"}
-        class="text-lg font-medium flex items-center gap-1 tracking-wider"
+    <nav id="nav" class="group grid grid-cols-2 md:grid-cols-3 transition items-center">
+      <!-- mobile nav -->
+      <div 
+        id="mobile-nav"
+        class="hidden data-[expanded]:block data-[expanded]:fixed data-[expanded]:inset-0 z-50 pt-20 px-6 h-screen bg-background/80 backdrop-blur-[5px] md:hidden"
       >
-        <span>marble.</span>
-      </a>
-      <ul class="flex items-center gap-7 text-sm">
-        <li
-         class="relative after:absolute after:bg-primary after:h-0.5 after:w-full after:top-auto after:bottom-0 after:left-0 after:scale-x-0 after:origin-right hover:after:scale-x-100 hover:after:origin-left transition after:transition after:duration-500"
-        >
-          <a href={"#about"}>
-            <span>About</span>
-          </a>
-        </li>
-        <li
+        <ul class="flex flex-col gap-6">
+          <li
+            class="relative after:absolute after:bg-primary after:h-full after:w-0.5 after:top-auto after:bottom-0 after:left-0 after:scale-y-0 after:origin-top hover:after:scale-y-100 hover:after:origin-bottom transition after:transition after:duration-500 w-fit px-2"
+          >
+            <a href={"/pricing"}>
+              <span>Integrations</span>
+            </a>
+          </li>
+          <li
+            class="relative after:absolute after:bg-primary after:h-full after:w-0.5 after:top-auto after:bottom-0 after:left-0 after:scale-y-0 after:origin-top hover:after:scale-y-100 hover:after:origin-bottom transition after:transition after:duration-500 w-fit px-2"
+          >
+            <a href={"/pricing"}>
+              <span>Pricing</span>
+            </a>
+          </li>
+          <li
+            class="relative after:absolute after:bg-primary after:h-full after:w-0.5 after:top-auto after:bottom-0 after:left-0 after:scale-y-0 after:origin-top hover:after:scale-y-100 hover:after:origin-bottom transition after:transition after:duration-500 w-fit px-2"
+          >
+            <a href={"/blog"}>
+              <span>Blog</span>
+            </a>
+          </li>
+          <li
+            class="relative after:absolute after:bg-primary after:h-full after:w-0.5 after:top-auto after:bottom-0 after:left-0 after:scale-y-0 after:origin-top hover:after:scale-y-100 hover:after:origin-bottom transition after:transition after:duration-500 w-fit px-2"
+          >
+            <a href={"/blog"}>
+              <span>Sign up</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+      <!-- -->
+      <div class="flex items-center gap-4 justify-start z-[100]">
+        <a
+          href={"/"}
+          class="text-lg font-medium tracking-wider"
+          >
+          <span>Marble</span>
+        </a>
+      </div>
+        <ul class="items-center gap-7 text-sm justify-center hidden md:flex">
+          <li
           class="relative after:absolute after:bg-primary after:h-0.5 after:w-full after:top-auto after:bottom-0 after:left-0 after:scale-x-0 after:origin-right hover:after:scale-x-100 hover:after:origin-left transition after:transition after:duration-500"
-        >
-          <a href={"/pricing"}>
-            <span>Pricing</span>
-          </a>
-        </li>
-        <li
-          class="relative after:absolute after:bg-primary after:h-0.5 after:w-full after:top-auto after:bottom-0 after:left-0 after:scale-x-0 after:origin-right hover:after:scale-x-100 hover:after:origin-left transition after:transition after:duration-500"
-        >
-          <a href={"/blog"}>
-            <span>Blog</span>
-          </a>
-        </li>
-      </ul>
-      <a
-        href="#signin"
-        class="font-medium hover:bg-muted p-2 w-24 flex items-center justify-center transition duration-300 rounded-sm text-sm border"
-      >
-        <span>Sign in</span>
-      </a>
+          >
+            <a href={"#docs"}>
+              <span>Docs</span>
+            </a>
+          </li>
+          <li
+            class="relative after:absolute after:bg-primary after:h-0.5 after:w-full after:top-auto after:bottom-0 after:left-0 after:scale-x-0 after:origin-right hover:after:scale-x-100 hover:after:origin-left transition after:transition after:duration-500"
+          >
+            <a href={"/pricing"}>
+              <span>Pricing</span>
+            </a>
+          </li>
+          <li
+            class="relative after:absolute after:bg-primary after:h-0.5 after:w-full after:top-auto after:bottom-0 after:left-0 after:scale-x-0 after:origin-right hover:after:scale-x-100 hover:after:origin-left transition after:transition after:duration-500"
+          >
+            <a href={"/blog"}>
+              <span>Blog</span>
+            </a>
+          </li>
+        </ul>
+        <div class="hidden md:flex items-center justify-end">
+          <a
+          href="#signin"
+          class="font-medium hover:bg-muted p-2 w-24 flex items-center justify-center transition duration-300 rounded-sm text-sm border"
+          >
+          <span>Sign in</span>
+        </a>
+      </div>
+      <!-- mobile nav toggle -->
+      <div class="flex items-center justify-end md:hidden z-[100]">
+        <button id="toggle" class="flex flex-col justify-center gap-1.5 size-6 focus-visible:outline-dashed focus-visible:outline-offset-1">
+          <span id="bar" class="h-0.5 self-start bg-foreground w-1/2 data-[expanded]:w-[calc(50%-3px)] data-[expanded]:rotate-45 data-[expanded]:translate-y-[2px] data-[expanded]:translate-x-[2px] transition duration-300"></span>
+          <span id="bar" class="h-0.5 w-full bg-foreground data-[expanded]:-rotate-45 transition duration-300"></span>
+          <span id="bar" class="h-0.5 self-end bg-foreground w-1/2 data-[expanded]:w-[calc(50%-3px)] data-[expanded]:rotate-45 data-[expanded]:-translate-y-[3px] data-[expanded]:-translate-x-0.5 transition duration-300"></span>
+        </button>
+      </div>
     </nav>
   </Container>
 </header>
@@ -62,4 +112,27 @@ import Container from "./Container.astro";
       });
     }
   });
+</script>
+
+<script>
+  function initMobileNav() {
+    const toggle = document.getElementById('toggle');
+    const nav = document.getElementById('mobile-nav');
+
+    const toggleNav = () => {
+      nav?.toggleAttribute("data-expanded")
+      document.body.classList.toggle('overflow-y-hidden');
+      document.querySelectorAll('#bar').forEach(el => el.toggleAttribute("data-expanded"));
+    };
+    
+    if (toggle) {
+      toggle.addEventListener('click', toggleNav);
+    }
+  }
+
+  // Initialize on first load
+  initMobileNav();
+
+  // Re-initialize after page transitions
+  document.addEventListener('astro:after-swap', initMobileNav);
 </script>

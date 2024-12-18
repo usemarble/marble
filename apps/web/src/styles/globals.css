@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 140 60% 99%;
     --foreground: 0 0% 9%;
     --card: 0 0% 100%;
     --card-foreground: 0 0% 9%;
@@ -54,4 +54,9 @@
   body {
     @apply bg-background text-foreground;
   }
+  .bgfgdf {
+    background-color: hsl(140, 60%, 99%);
+  }
 }
+
+

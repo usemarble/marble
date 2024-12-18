@@ -1,56 +1,17 @@
 ---
 import Container from "@/components/Container.astro";
 import Layout from "@/layouts/Layout.astro";
-import editorImage from "../assets/editor.png";
-import { Image } from "astro:assets";
 ---
 
-<Layout>
-	<!-- Hero section -->
-	<section class="grid place-items-center py-24 md:py-28 lg:py-32">
-		<Container>
-			<div class="relative mx-auto flex flex-col items-center text-center lg:items-start">
-				<h1 class="relative text-balance text-2xl sm:text-3xl font-medium tracking-wide md:text-4xl lg:text-6xl max-w-prose">
-					A smarter way to manage your blog.
-				</h1>
-				<p class="mx-auto mt-4 md:mt-8 max-w-prose text-balance text-center text-lg text-muted-foreground md:text-wrap font-medium">
-					Everything you need, nothing you don’t. Just easy, efficient content management.
-				</p>
-			</div>
-			<div class="mt-8 flex w-full items-center justify-center">
-				<div>
-					<a href={"/"}
-						class="flex gap-2 group bg-primary rounded-md text-primary-foreground items-center py-2 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 transition-all duration-300 ease-out px-8 group"
-					>
-						<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 group-hover:rotate-180 group-focus-visible:rotate-180 transition duration-300">
-							<path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
-						</svg>
-						<span>Get started</span>
-					</a>
-				</div>
-			</div>
-		</Container>
-	</section>
-	<!-- section 2 value proposition -->
-	<section class="py-12">
-		<Container class="mb-10 space-y-10">
-			<div class="border bg-gray-50/80 backdrop-blur-md p-1.5 rounded-xl">
-				<div class="border rounded-[8px] bg-background h-[200px] md:h-[300px] lg:h-[400px] w-full">
-						<Image src={editorImage} alt="An screenshot of marble's minimal editor" class="object-cover w-full h-full rounded-[8px] pointer-events-none" />
-				</div>
-			</div>
-		</Container>
-	</section>
-
-	<!-- Pricing section -->
-	<section class="py-12">
-		<Container class="mb-10 space-y-10 lg:space-y-14">
-			<div class="relative flex flex-col items-center space-y-4">
+<Layout title="Page not found">
+  <Container class="mb-10 md:mb-20">
+     <section class='flex gap-14 py-14 lg:py-20 min-h-[calc(100vh-64px)] flex-col items-center justify-center'>
+       <div class="relative flex flex-col items-center space-y-4">
 				<h2 class="relative text-center text-balance text-xl sm:text-2xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
 					Simple Pricing, No Surprises.
 				</h2>
 				<p class="max-w-prose text-lg text-muted-foreground text-center">
-				Choose a plan that fits your needs, with no hidden fees or unnecessary complexity.
+					Get all the tools you need without breaking the bank.
 				</p>
 			</div>
 			<ul class="grid gap-5 lg:gap-10 sm:grid-cols-2 lg:grid-cols-3">
@@ -210,6 +171,6 @@ import { Image } from "astro:assets";
 					</div>
 				</li>
 			</ul>
-		</Container>
-	</section>
+     </section>
+  </Container>
 </Layout>
