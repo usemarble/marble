@@ -19,47 +19,90 @@ enum PostStatus {
   SCHEDULED
 }
 
+enum PlanType {
+  FREE
+  STARTER
+  PRO
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  EXPIRED
+}
+
 model User {
-  id            String       @id @default(cuid())
-  name          String?
-  email         String       @unique
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
-  posts         Post[]
-  createdSites  Site[]       @relation("SiteOwner")
-  siteMembers   SiteMember[]
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  id                   String            @id @default(cuid())
+  name                 String?
+  email                String            @unique
+  emailVerified        DateTime?
+  image                String?
+  accounts             Account[]
+  sessions             Session[]
+  posts                Post[]
+  workspaces           Workspace[]       @relation("WorkspaceOwner")
+  workspaceMemberships WorkspaceMember[]
+  invites              Invite[]
+  subscription         Subscription?
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+}
+
+model Subscription {
+  id        String             @id @default(cuid())
+  userId    String             @unique
+  plan      PlanType           @default(FREE)
+  status    SubscriptionStatus @default(ACTIVE)
+  startedAt DateTime           @default(now())
+  expiresAt DateTime?
+  updatedAt DateTime           @updatedAt
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Workspace {
+  id          String            @id @default(cuid())
+  name        String
+  description String?
+  slug        String            @unique
+  ownerId     String
+  members     WorkspaceMember[]
+  sites       Site[]
+  invites     Invite[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  owner       User              @relation("WorkspaceOwner", fields: [ownerId], references: [id])
+}
+
+model WorkspaceMember {
+  id          String    @id @default(cuid())
+  userId      String
+  workspaceId String
+  role        RoleType  @default(MEMBER)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, workspaceId])
 }
 
 model Site {
-  id          String       @id @default(cuid())
+  id          String    @id @default(cuid())
   name        String
   description String?
-  domain      String?      @unique
-  slug        String       @unique
-  ownerId     String
-  owner       User         @relation("SiteOwner", fields: [ownerId], references: [id])
-  members     SiteMember[]
+  subdomain   String?   @unique
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   posts       Post[]
   tags        Tag[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-}
-
-model SiteMember {
-  id        String   @id @default(cuid())
-  userId    String
-  siteId    String
-  role      RoleType @default(MEMBER)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  site      Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([userId, siteId])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model Post {
@@ -92,13 +135,29 @@ model Tag {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   posts       Post[]
-  siteId      String 
+  siteId      String
   site        Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
 
   @@unique([siteId, name, slug])
 }
 
-// auth stuff
+model Invite {
+  id          String       @id @default(cuid())
+  email       String // Email of the invitee
+  workspaceId String
+  inviterId   String // User who sent the invite
+  role        RoleType     @default(MEMBER) // Role assigned upon acceptance
+  status      InviteStatus @default(PENDING) // PENDING, ACCEPTED, DECLINED
+  expiresAt   DateTime?
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  inviter   User      @relation(fields: [inviterId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// auth-related models
 model Account {
   userId            String
   type              String

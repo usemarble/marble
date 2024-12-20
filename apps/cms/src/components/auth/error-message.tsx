@@ -1,24 +1,20 @@
 import { cn } from "@repo/ui/lib/utils";
-import React, { forwardRef } from "react";
+import { forwardRef } from "react";
 
-interface ErrorMessageProps extends React.HTMLAttributes<HTMLParagraphElement> {
-  message: string | undefined;
-}
+interface ErrorMessageProps
+  extends React.HTMLAttributes<HTMLParagraphElement> {}
 
-const ErrorMessage = forwardRef<HTMLParagraphElement, ErrorMessageProps>(
-  ({ className, message, ...props }, ref) => {
-    return (
-      <p
-        ref={ref}
-        aria-live="polite"
-        className={cn("text-xs px-1 font-medium text-destructive", className)}
-        {...props}
-      >
-        {message}
-      </p>
-    );
-  },
-);
+const ErrorMessage = ({ children, className, ...props }: ErrorMessageProps) => {
+  return (
+    <p
+      aria-live="polite"
+      className={cn("text-xs px-1 font-medium text-destructive", className)}
+      {...props}
+    >
+      {children}
+    </p>
+  );
+};
 
 ErrorMessage.displayName = "ErrorMessage";
 

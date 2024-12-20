@@ -1,31 +1,20 @@
 import { LoginForm } from "@/components/auth/login-form";
-import { AcmeLogo } from "@/components/shared/icons";
-import getSession from "@/lib/auth/get-session";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Login",
 };
 
 export default async function LoginPage() {
-  const session = await getSession();
-  if (session) redirect("/");
   return (
     <div className="grid min-h-screen w-full place-content-center p-4">
       <div className="flex min-w-[300px] flex-col gap-8 rounded-md p-6 lg:w-[384px] lg:px-8 lg:py-10">
-        <div className="flex flex-col items-center gap-4 leading-3">
-          {/* <div>
-            <AcmeLogo className="text-primary" size={40} />
-          </div> */}
-
-          <div className="flex flex-col items-center">
-            <h1 className="text-xl font-semibold lg:text-2xl">Login</h1>
-            <p className="text-muted-foreground text-center text-sm">
-              Choose a sign-in method below to continue.
-            </p>
-          </div>
+        <div className="flex flex-col items-center">
+          <h1 className="text-xl font-semibold lg:text-2xl">Login</h1>
+          <p className="text-muted-foreground text-center text-sm">
+            Choose a sign-in method below to continue.
+          </p>
         </div>
 
         <LoginForm />

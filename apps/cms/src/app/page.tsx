@@ -1,8 +1,7 @@
 import { redirectIfLoggedIn } from "@/utils/verifications";
 
 async function Page() {
-  const redirect = await redirectIfLoggedIn();
-  return redirect;
+  return await redirectIfLoggedIn();
 }
 
 export default Page;

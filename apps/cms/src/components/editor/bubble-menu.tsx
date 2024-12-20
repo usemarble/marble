@@ -1,7 +1,7 @@
 import { EditorBubble } from "novel";
 import React from "react";
-import { TextButtons } from "./text-buttons";
 import { LinkSelector } from "./link-selector";
+import { TextButtons } from "./text-buttons";
 
 function BubbleMenu() {
   return (

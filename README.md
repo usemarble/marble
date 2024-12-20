@@ -1,6 +1,6 @@
 # marble
 
-Super simple headless cms for all.
+A smarter way to manage your blog.
 
 ## Structure
 

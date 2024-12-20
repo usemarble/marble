@@ -33,44 +33,47 @@ export function RegisterForm() {
     const signInResult = await signIn("credentials", {
       email: data.email.toLowerCase(),
       redirect: false,
-      callbackUrl: searchParams?.get("from") || "/app",
+      redirectTo: searchParams?.get("from") || "/",
     });
 
     setIsCredentialsLoading(false);
 
-    if (!signInResult?.ok) {
-      return toast("Your sign in request failed. Please try again.");
+    if (signInResult?.ok) {
+      return toast("Sign in successful");
     }
+    return toast("Your sign in request failed. Please try again.");
   }
 
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
 
     const signInResult = await signIn("google", {
-      redirect: false,
-      callbackUrl: searchParams?.get("from") || "/app",
+      redirect: true,
+      redirectTo: searchParams?.get("from") || "/",
     });
 
     setIsGoogleLoading(false);
 
-    if (!signInResult?.ok) {
-      return toast("Your sign in request failed. Please try again.");
+    if (signInResult?.ok) {
+      return toast("Sign in successful");
     }
+    return toast("Your sign in request failed. Please try again.");
   };
 
   const handleGithubSignIn = async () => {
     setIsGithubLoading(true);
 
-    const signInResult = await signIn("apple", {
-      redirect: false,
-      callbackUrl: searchParams?.get("from") || "/app",
+    const signInResult = await signIn("github", {
+      redirect: true,
+      redirectTo: searchParams?.get("from") || "/",
     });
 
     setIsGithubLoading(false);
 
-    if (!signInResult?.ok) {
-      return toast("Your sign in request failed. Please try again.");
+    if (signInResult?.ok) {
+      return toast("Sign in successful");
     }
+    return toast("Your sign in request failed. Please try again.");
   };
 
   return (

@@ -1,4 +1,4 @@
-import { ThemeSwitch } from "@/components/settings/theme-switch";
+import { ThemeSwitch } from "@/components/settings/theme";
 import {
   Card,
   CardContent,

@@ -19,7 +19,7 @@ export const extensions = [...defaultExtensions, slashCommand];
 interface EditorProps {
   value?: JSONContent;
   onChange: (html: string, json: JSONContent) => void;
-  ref?: React.RefObject<HTMLDivElement>;
+  ref?: React.RefObject<HTMLDivElement | null>;
 }
 
 const Editor = ({ value, onChange }: EditorProps) => {

@@ -8,14 +8,14 @@ import {
   SidebarMenuItem,
 } from "@repo/ui/components/sidebar";
 
-import { BookOpen, Frame, PieChart, Webhook } from "lucide-react";
+import { BookOpen, Key, PieChart, Webhook } from "lucide-react";
 import Link from "next/link";
 
 const items = [
   {
     name: "API Keys",
     url: "/account/keys",
-    icon: Frame,
+    icon: Key,
   },
   {
     name: "Analytics",
@@ -41,8 +41,11 @@ export function NavDevs() {
       <SidebarMenu>
         {items.map((item) => (
           <SidebarMenuItem key={item.name}>
-            <SidebarMenuButton asChild>
-              <Link href={item.url} className="hover:bg-muted">
+            <SidebarMenuButton
+              asChild
+              className="hover:bg-muted border border-transparent hover:border-border"
+            >
+              <Link href={item.url}>
                 <item.icon />
                 <span>{item.name}</span>
               </Link>

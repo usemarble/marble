@@ -31,7 +31,7 @@ interface PublishSettingsProps {
   setValue: UseFormSetValue<PostValues>;
   errors: FieldErrors<PostValues>;
   trigger: UseFormTrigger<PostValues>;
-  formRef: React.RefObject<HTMLFormElement>;
+  formRef: React.RefObject<HTMLFormElement | null>;
   isSubmitting: boolean;
   defaultCoverImage?: string | null;
 }

@@ -1,16 +1,16 @@
 import {
+  HorizontalRule,
+  Placeholder,
+  StarterKit,
+  TaskItem,
+  TaskList,
   TiptapImage,
   TiptapLink,
   UpdatedImage,
-  TaskList,
-  TaskItem,
-  HorizontalRule,
-  StarterKit,
-  Placeholder,
 } from "novel/extensions";
 
-import { UploadImagesPlugin } from "novel/plugins";
 import { cx } from "class-variance-authority";
+import { UploadImagesPlugin } from "novel/plugins";
 
 // TODO I am using cx here to get tailwind autocomplete working, idk if someone else can write a regex to just capture the class key in objects
 

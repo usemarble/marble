@@ -1,9 +1,9 @@
-import { Input } from "@repo/ui/components/input";
+import type { PostValues } from "@/lib/validations/post";
 import { Badge } from "@repo/ui/components/badge";
-import { PostValues } from "@/lib/validations/post";
-import { useState, ChangeEvent, useEffect } from "react";
-import { useController, Control } from "react-hook-form";
+import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
+import { type ChangeEvent, useEffect, useState } from "react";
+import { type Control, useController } from "react-hook-form";
 
 interface TagInputProps {
   control: Control<PostValues>;

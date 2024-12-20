@@ -1,8 +1,8 @@
+import getSession from "@/lib/auth/get-session";
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import React from "react";
 import PageContent from "./page-content";
-import { Metadata } from "next";
-import getSession from "@/lib/auth/get-session";
-import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Editor",

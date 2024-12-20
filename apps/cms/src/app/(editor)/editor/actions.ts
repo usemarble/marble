@@ -1,8 +1,8 @@
 "use server";
 
-import prisma from "@repo/db";
 import getSession from "@/lib/auth/get-session";
-import { postSchema, PostValues } from "@/lib/validations/post";
+import { type PostValues, postSchema } from "@/lib/validations/post";
+import prisma from "@repo/db";
 import { redirect } from "next/navigation";
 import { NextResponse } from "next/server";
 

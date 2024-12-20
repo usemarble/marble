@@ -1,13 +1,12 @@
-import getSession from "@/lib/auth/get-session";
-import { redirect } from "next/navigation";
 import { AppSidebar } from "@/components/nav/app-sidebar";
+import getSession from "@/lib/auth/get-session";
 import { Separator } from "@repo/ui/components/separator";
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
 } from "@repo/ui/components/sidebar";
-import prisma from "@repo/db";
+import { redirect } from "next/navigation";
 
 export default async function DashboardLayout({
   children,
@@ -15,12 +14,7 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   const session = await getSession();
-  const user = session?.user;
   if (!session) return redirect("/login");
-
-  const userSites = await prisma.site.findMany({
-    where: { ownerId: user?.id },
-  });
 
   return (
     <SidebarProvider>

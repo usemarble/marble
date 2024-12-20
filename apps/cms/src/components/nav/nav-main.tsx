@@ -14,17 +14,17 @@ import Link from "next/link";
 const items = [
   {
     name: "Teams",
-    url: "/teams",
+    url: "./team",
     icon: Users2,
   },
   {
     name: "Sites",
-    url: "/sites",
+    url: "./sites",
     icon: Globe,
   },
   {
     name: "Settings",
-    url: "/settings",
+    url: "./settings",
     icon: Settings2,
   },
 ];
@@ -32,7 +32,7 @@ const items = [
 export function NavMain() {
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Platform</SidebarGroupLabel>
+      <SidebarGroupLabel>Workspace</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => (
           <Collapsible
@@ -41,8 +41,11 @@ export function NavMain() {
             defaultOpen={false}
             className="group/collapsible"
           >
-            <SidebarMenuButton asChild>
-              <Link href={item.url} className="hover:bg-muted">
+            <SidebarMenuButton
+              asChild
+              className="hover:bg-muted border border-transparent hover:border-border"
+            >
+              <Link href={item.url}>
                 <item.icon />
                 <span>{item.name}</span>
               </Link>

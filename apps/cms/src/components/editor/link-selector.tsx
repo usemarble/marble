@@ -1,10 +1,10 @@
-import { cn } from "@repo/ui/lib/utils";
-import { useEditor } from "novel";
-import { Check, LinkIcon, Trash } from "lucide-react";
-import { useEffect, useRef } from "react";
-import { Popover, PopoverTrigger } from "@repo/ui/components/popover";
 import { Button } from "@repo/ui/components/button";
+import { Popover, PopoverTrigger } from "@repo/ui/components/popover";
 import { PopoverContent } from "@repo/ui/components/popover";
+import { cn } from "@repo/ui/lib/utils";
+import { Check, LinkIcon, Trash } from "lucide-react";
+import { useEditor } from "novel";
+import { useEffect, useRef } from "react";
 
 export function isValidUrl(url: string) {
   try {
