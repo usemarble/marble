@@ -1,8 +1,8 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect } from "react";
-import { usePathname, useParams } from "next/navigation";
 import type { Workspace } from "@repo/db/client";
+import { useParams, usePathname } from "next/navigation";
+import { createContext, useContext, useEffect, useState } from "react";
 
 interface WorkspaceContextType {
   workspace: Pick<Workspace, "id" | "slug"> | null;

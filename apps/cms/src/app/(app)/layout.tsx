@@ -1,5 +1,5 @@
 import { AppSidebar } from "@/components/nav/app-sidebar";
-import getSession from "@/lib/auth/get-session";
+import getSession from "@/lib/auth/session";
 import { Separator } from "@repo/ui/components/separator";
 import {
   SidebarInset,
@@ -26,7 +26,7 @@ export default async function DashboardLayout({
             <Separator orientation="vertical" className="mr-2 h-4" />
           </div>
         </header>
-        <main className="flex min-h-[calc(100vh-48px)] flex-1 flex-col gap-4 px-4 py-2">
+        <main className="flex min-h-[calc(100vh-64px)] flex-1 flex-col gap-4 px-4 py-2">
           {children}
           <div className="fixed bottom-8 right-8" />
         </main>

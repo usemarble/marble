@@ -1,6 +1,8 @@
 import { LoginForm } from "@/components/auth/login-form";
+import getSession from "@/lib/auth/session";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 export const metadata: Metadata = {
@@ -8,6 +10,8 @@ export const metadata: Metadata = {
 };
 
 export default async function LoginPage() {
+  const session = await getSession();
+  if (session) redirect("/");
   return (
     <div className="grid min-h-screen w-full place-content-center p-4">
       <div className="flex min-w-[300px] flex-col gap-8 rounded-md p-6 lg:w-[384px] lg:px-8 lg:py-10">

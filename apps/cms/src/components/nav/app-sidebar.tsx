@@ -1,4 +1,4 @@
-import getSession from "@/lib/auth/get-session";
+import getSession from "@/lib/auth/session";
 import prisma from "@repo/db";
 import {
   Sidebar,

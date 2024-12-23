@@ -2,7 +2,7 @@
 
 import prisma from "@repo/db";
 import { revalidatePath } from "next/cache";
-import getSession from "../auth/get-session";
+import getSession from "../auth/session";
 import { type CreateSiteValues, siteSchema } from "../validations/site";
 
 export async function createSiteAction(

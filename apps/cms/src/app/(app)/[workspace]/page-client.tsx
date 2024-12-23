@@ -2,6 +2,7 @@
 
 import { CreateSiteModal } from "@/components/create-site-modal";
 import { Add } from "@/components/icons";
+import { useWorkspace } from "@/components/providers/workspace";
 import { Button } from "@repo/ui/components/button";
 import {
   Card,
@@ -21,6 +22,7 @@ interface PageClientProps {
 
 function PageClient({ sites }: PageClientProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const { workspace } = useWorkspace();
 
   return (
     <>
@@ -28,7 +30,7 @@ function PageClient({ sites }: PageClientProps) {
         <ul className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4 p-4">
           {sites.map((site) => (
             <li key={site.id}>
-              <Link href={`./${site.id}`}>
+              <Link href={`${workspace?.slug}/${site.id}`}>
                 <Card>
                   <CardHeader>
                     <CardTitle>{site.name}</CardTitle>

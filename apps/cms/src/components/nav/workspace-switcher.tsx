@@ -94,19 +94,19 @@ export function WorkspaceSwitcher({ workspaces }: WorkspaceSwitcherProps) {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:bg-muted"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:bg-muted border border-transparent hover:border-border"
             >
               <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square">
                 <Avatar className="size-8 rounded-none">
                   <AvatarImage
                     src={`https://avatar.vercel.sh/${currWorkspace?.name}.svg?text=${avatarText}W`}
-                    className="rounded-md"
+                    className="rounded-[4px]"
                   />
                   <AvatarFallback>HA</AvatarFallback>
                 </Avatar>
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">
+                <span className="truncate font-medium text-sm">
                   {currWorkspace?.name}
                 </span>
                 <span className="truncate text-xs text-primary">

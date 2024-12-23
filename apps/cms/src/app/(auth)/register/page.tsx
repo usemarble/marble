@@ -1,5 +1,5 @@
 import { RegisterForm } from "@/components/auth/register-form";
-import getSession from "@/lib/auth/get-session";
+import getSession from "@/lib/auth/session";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";

@@ -1,5 +1,5 @@
+import type { Workspace } from "@repo/db/client";
 import { cookies } from "next/headers";
-import { type Workspace } from "@repo/db/client";
 
 const WORKSPACE_COOKIE_NAME = "active_workspace";
 

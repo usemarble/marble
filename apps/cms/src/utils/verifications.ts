@@ -1,4 +1,4 @@
-import getSession from "@/lib/auth/get-session";
+import getSession from "@/lib/auth/session";
 import db from "@repo/db";
 import { redirect } from "next/navigation";
 

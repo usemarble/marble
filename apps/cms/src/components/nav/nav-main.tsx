@@ -14,18 +14,18 @@ import { useWorkspace } from "../providers/workspace";
 
 const items = [
   {
-    name: "Teams",
-    url: "/team",
-    icon: Users2,
-  },
-  {
     name: "Sites",
-    url: "/sites",
+    url: "sites",
     icon: Globe,
   },
   {
+    name: "Teams",
+    url: "team",
+    icon: Users2,
+  },
+  {
     name: "Settings",
-    url: "/settings",
+    url: "settings",
     icon: Settings2,
   },
 ];
@@ -47,7 +47,7 @@ export function NavMain() {
               asChild
               className="hover:bg-muted border border-transparent hover:border-border"
             >
-              <Link href={`${workspace?.slug}${item.url}`}>
+              <Link href={`./${workspace?.slug}/${item.url}`}>
                 <item.icon />
                 <span>{item.name}</span>
               </Link>
