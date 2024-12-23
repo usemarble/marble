@@ -3,6 +3,7 @@ import { getCollection, render } from "astro:content";
 import Container from "@/components/Container.astro";
 import Prose from "@/components/Prose.astro";
 import Layout from "@/layouts/Layout.astro";
+import { SITE } from "@/lib/constants";
 export const prerender = true;
 
 export async function getStaticPaths() {
@@ -27,8 +28,9 @@ const formattedDate = new Date(entry.data.published).toLocaleDateString(
 ---
 
 <Layout
-  title={`marble - ${entry.data.title}`}
+  title={`${entry.data.title} | ${SITE.TITLE}`}
   description={entry.data.description}
+  image={entry.data.cover.src}
 >
   <Container>
     <div

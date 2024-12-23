@@ -1,11 +1,15 @@
 ---
 import { Image } from "astro:assets";
+import editorImage from "@/assets/images/editor.png";
 import Container from "@/components/Container.astro";
 import Layout from "@/layouts/Layout.astro";
-import editorImage from "@/assets/images/editor.png";
+import { SITE } from "@/lib/constants";
 ---
 
-<Layout>
+<Layout 
+	title={SITE.TITLE}
+	description={SITE.DESCRIPTION}
+>
 	<!-- Hero section -->
 	<section class="grid place-items-center py-24 md:py-28 lg:py-32">
 		<Container>

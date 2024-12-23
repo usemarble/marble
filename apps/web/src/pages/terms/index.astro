@@ -3,6 +3,7 @@ import { getEntry, render } from "astro:content";
 import Container from "@/components/Container.astro";
 import Prose from "@/components/Prose.astro";
 import Layout from "@/layouts/Layout.astro";
+import { SITE } from "@/lib/constants";
 
 const entry = await getEntry("page", "terms");
 
@@ -14,7 +15,10 @@ const { Content } = await render(entry);
 ---
 
 
-<Layout>
+<Layout
+  title={`Terms of Service | ${SITE.TITLE}`}
+  description="Marble's terms of service."
+>
   <Container class="max-w-lg py-14 mb-20">
     <div class='max-w-2xl mx-auto mb-10 space-y-2'>
       <h1 class='font-medium text-2xl leading-[1.1] sm:text-3xl md:text-4xl italic text-center'>

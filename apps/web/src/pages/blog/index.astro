@@ -3,10 +3,11 @@ import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
 import Container from "@/components/Container.astro";
 import Layout from "@/layouts/Layout.astro";
+import { SITE } from "@/lib/constants";
 const articles = await getCollection("blog");
 ---
 
-<Layout title={"Blog"} description={`bits and pieces about marble, and efficient content publishing.`}>
+<Layout title={`Blog | ${SITE.TITLE}`} description={`bits and pieces about marble, and efficient content publishing.`}>
   <Container class='border-t border-dashed mb-14'>
     <section class='py-20 sm:border-x sm:border-dashed sm:bg-background min-h-[calc(100vh-88px)] sm:min-h-[calc(100vh-103px)] lg:min-h-[calc(100vh-120px)]'>
       <div class='max-w-2xl mx-auto mb-10 space-y-2'>

@@ -1,9 +1,10 @@
 ---
 import Container from "@/components/Container.astro";
 import Layout from "@/layouts/Layout.astro";
+import { SITE } from "@/lib/constants";
 ---
 
-<Layout title="Page not found">
+<Layout title={`Pricing | ${SITE.TITLE}`} description="Pricing plans for marble.">
   <Container class="mb-10 md:mb-20">
      <section class='flex gap-14 py-14 lg:py-20 min-h-[calc(100vh-64px)] flex-col items-center justify-center'>
        <div class="relative flex flex-col items-center space-y-4">

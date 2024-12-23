@@ -10,7 +10,7 @@ const { title, description, image } = Astro.props;
 <!doctype html>
 <html lang="en">
 	<head>
-		<Head title="Marble" description="Content simplified." />
+		<Head title={title} description={description} image={image} />
 	</head>
 	<body>
 		<Header />
