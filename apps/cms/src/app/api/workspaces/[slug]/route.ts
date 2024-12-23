@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
+import { setActiveWorkspace } from "@/lib/auth/workspace";
 import prisma from "@repo/db";
-import { setActiveWorkspace } from "@/lib/workspace";
+import { NextResponse } from "next/server";
 
 export async function GET(
   request: Request,

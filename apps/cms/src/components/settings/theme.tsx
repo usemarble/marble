@@ -46,7 +46,9 @@ export function ThemeSwitch() {
                 <div className="flex justify-center p-4">
                   <item.Icon className="size-32 text-primary" />
                 </div>
-                <div className="p-4 text-center font-medium border-t">{item.label}</div>
+                <div className="p-4 text-center font-medium border-t">
+                  {item.label}
+                </div>
               </CardContent>
             </Card>
           </Label>

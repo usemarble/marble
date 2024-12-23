@@ -4,11 +4,11 @@ import prisma from "@repo/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import getSession from "../auth/session";
+import { setActiveWorkspace } from "../auth/workspace";
 import {
   type CreateWorkspaceValues,
   workspaceSchema,
 } from "../validations/site";
-import { setActiveWorkspace } from "../workspace";
 
 export async function createWorkspaceAction(payload: CreateWorkspaceValues) {
   const session = await getSession();

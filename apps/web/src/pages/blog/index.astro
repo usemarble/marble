@@ -6,7 +6,7 @@ import Layout from "@/layouts/Layout.astro";
 const articles = await getCollection("blog");
 ---
 
-<Layout title={`dsdsds`} description={`sdsdsdsd`}>
+<Layout title={"Blog"} description={`bits and pieces about marble, and efficient content publishing.`}>
   <Container class='border-t border-dashed mb-14'>
     <section class='py-20 sm:border-x sm:border-dashed sm:bg-background min-h-[calc(100vh-88px)] sm:min-h-[calc(100vh-103px)] lg:min-h-[calc(100vh-120px)]'>
       <div class='max-w-2xl mx-auto mb-10 space-y-2'>
@@ -23,9 +23,9 @@ const articles = await getCollection("blog");
                 href={`/blog/${article.id}`}
                 class='space-y-1 p-4 rounded-lg hover:bg-muted transition duration-300 flex gap-4'
               >
-                <div class="w-full">
+                <div class="w-full  ">
                   <Image
-                    class='w-[250px] object-cover rounded-sm'
+                    class='w-[240px] object-cover rounded-sm'
                     src={article.data.cover.src}
                     alt={article.data.cover.alt}
                   />

@@ -22,9 +22,7 @@ function page() {
         <Card>
           <CardHeader>
             <CardTitle>App theme</CardTitle>
-            <CardDescription>
-              Configure how your app looks.
-            </CardDescription>
+            <CardDescription>Configure how your app looks.</CardDescription>
           </CardHeader>
           <CardContent>
             <div>
@@ -35,9 +33,7 @@ function page() {
         <Card>
           <CardHeader>
             <CardTitle>App theme</CardTitle>
-            <CardDescription>
-              Configure how your app looks.
-            </CardDescription>
+            <CardDescription>Configure how your app looks.</CardDescription>
           </CardHeader>
           <CardContent>
             <div>

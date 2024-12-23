@@ -1,10 +1,10 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import prisma from "@repo/db";
 import { nanoid } from "nanoid";
-import NextAuth, { NextAuthResult } from "next-auth";
+import NextAuth, { type NextAuthResult } from "next-auth";
 import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
-import { setActiveWorkspace } from "../workspace";
+import { setActiveWorkspace } from "./workspace";
 
 export const result = NextAuth({
   pages: {
