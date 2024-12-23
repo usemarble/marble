@@ -1,11 +1,12 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import prisma from "@repo/db";
 import { nanoid } from "nanoid";
-import NextAuth from "next-auth";
+import NextAuth, { NextAuthResult } from "next-auth";
 import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
+import { setActiveWorkspace } from "../workspace";
 
-export const { handlers, signIn, signOut, auth } = NextAuth({
+export const result = NextAuth({
   pages: {
     signIn: "/login",
   },
@@ -19,7 +20,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       const defaultWorkspaceSlug = `${firstname?.toLowerCase()}-${nanoid(6)}`;
 
       if (hasNoWorkspaces && message.user.id) {
-        await prisma.workspace.create({
+        const firstWorkspace = await prisma.workspace.create({
           data: {
             ownerId: message.user.id,
             name: `${firstname}'s Workspace`,
@@ -27,7 +28,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             slug: defaultWorkspaceSlug,
           },
         });
+        setActiveWorkspace({
+          id: firstWorkspace.id,
+          slug: firstWorkspace.slug,
+        });
       }
     },
   },
 });
+
+export const handlers: NextAuthResult["handlers"] = result.handlers;
+export const auth: NextAuthResult["auth"] = result.auth;
+export const signIn: NextAuthResult["signIn"] = result.signIn;
+export const signOut: NextAuthResult["signOut"] = result.signOut;

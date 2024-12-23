@@ -8,28 +8,30 @@ import {
   SidebarMenuButton,
 } from "@repo/ui/components/sidebar";
 
-import { Globe, Settings2, Users2 } from "lucide-react";
+import { Globe, Settings2, Users2 } from "@repo/ui/lib/icons";
 import Link from "next/link";
+import { useWorkspace } from "../providers/workspace";
 
 const items = [
   {
     name: "Teams",
-    url: "./team",
+    url: "/team",
     icon: Users2,
   },
   {
     name: "Sites",
-    url: "./sites",
+    url: "/sites",
     icon: Globe,
   },
   {
     name: "Settings",
-    url: "./settings",
+    url: "/settings",
     icon: Settings2,
   },
 ];
 
 export function NavMain() {
+  const { workspace } = useWorkspace();
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Workspace</SidebarGroupLabel>
@@ -45,7 +47,7 @@ export function NavMain() {
               asChild
               className="hover:bg-muted border border-transparent hover:border-border"
             >
-              <Link href={item.url}>
+              <Link href={`${workspace?.slug}${item.url}`}>
                 <item.icon />
                 <span>{item.name}</span>
               </Link>

@@ -1,8 +1,8 @@
 import { Button } from "@repo/ui/components/button";
 import { Popover, PopoverTrigger } from "@repo/ui/components/popover";
 import { PopoverContent } from "@repo/ui/components/popover";
+import { Check, LinkIcon, Trash } from "@repo/ui/lib/icons";
 import { cn } from "@repo/ui/lib/utils";
-import { Check, LinkIcon, Trash } from "lucide-react";
 import { useEditor } from "novel";
 import { useEffect, useRef } from "react";
 
@@ -37,7 +37,7 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
 
   // Autofocus on input by default
   useEffect(() => {
-    inputRef.current && inputRef.current?.focus();
+    inputRef.current?.focus();
   });
   if (!editor) return null;
 

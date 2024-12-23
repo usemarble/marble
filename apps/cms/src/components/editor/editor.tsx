@@ -14,7 +14,9 @@ import BubbleMenu from "./bubble-menu";
 import { defaultExtensions } from "./extensions";
 import { slashCommand, suggestionItems } from "./slash-command";
 
-export const extensions = [...defaultExtensions, slashCommand];
+import { Extension } from "@tiptap/core";
+
+export const extensions = [...defaultExtensions, slashCommand] as Extension[];
 
 interface EditorProps {
   value?: JSONContent;

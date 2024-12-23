@@ -8,7 +8,7 @@ import {
   SidebarMenuItem,
 } from "@repo/ui/components/sidebar";
 
-import { BookOpen, Key, PieChart, Webhook } from "lucide-react";
+import { BookOpen, Key, PieChart, Webhook } from "@repo/ui/lib/icons";
 import Link from "next/link";
 
 const items = [
@@ -16,11 +16,6 @@ const items = [
     name: "API Keys",
     url: "/account/keys",
     icon: Key,
-  },
-  {
-    name: "Analytics",
-    url: "/analytics",
-    icon: PieChart,
   },
   {
     name: "Webhooks",

@@ -3,6 +3,7 @@ import getSession from "@/lib/auth/get-session";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Register",
@@ -25,7 +26,9 @@ export default async function RegisterPage() {
           </div>
         </div>
 
-        <RegisterForm />
+        <Suspense>
+          <RegisterForm />
+        </Suspense>
 
         <p className="text-muted-foreground px-8 text-center text-sm">
           By clicking continue, you agree to our{" "}

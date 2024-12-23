@@ -1,16 +1,20 @@
 import type { Config } from "tailwindcss";
-import animate from "tailwindcss-animate";
+import tailwindcssAnimate from "tailwindcss-animate";
+import { fontFamily } from "tailwindcss/defaultTheme";
 
 const config: Config = {
   darkMode: ["class"],
   content: [
-    "./components/**/*.{ts,tsx}",
-    "./lib/**/*.{ts,tsx}",
-    "./app/**/*.{ts,tsx}",
-    "./providers/**/*.{ts,tsx}",
+    "app/**/*.{ts,tsx}",
+    "components/**/*.{ts,tsx}",
+    "../../packages/ui/src/components/**/*.{ts,tsx}",
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["var(--font-sans)", ...fontFamily.sans],
+        mono: ["var(--font-mono)", ...fontFamily.mono],
+      },
       colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
@@ -70,6 +74,6 @@ const config: Config = {
       },
     },
   },
-  plugins: [animate],
+  plugins: [tailwindcssAnimate],
 };
 export default config;

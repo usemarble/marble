@@ -14,7 +14,7 @@ import {
 } from "@repo/ui/components/sheet";
 import { toast } from "@repo/ui/components/sonner";
 import { Textarea } from "@repo/ui/components/textarea";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@repo/ui/lib/icons";
 import TagInput from "./tag-input";
 
 import type {

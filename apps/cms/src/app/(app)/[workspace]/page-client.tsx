@@ -1,6 +1,7 @@
 "use client";
 
 import { CreateSiteModal } from "@/components/create-site-modal";
+import { Add } from "@/components/icons";
 import { Button } from "@repo/ui/components/button";
 import {
   Card,
@@ -9,8 +10,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/card";
-import { Plus } from "lucide-react";
+import { Plus } from "@repo/ui/lib/icons";
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 
 interface PageClientProps {
@@ -26,29 +28,26 @@ function PageClient({ sites }: PageClientProps) {
         <ul className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4 p-4">
           {sites.map((site) => (
             <li key={site.id}>
-              <Card>
-                <CardHeader>
-                  <CardTitle>{site.name}</CardTitle>
-                  <CardDescription>{site.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p>dsds</p>
-                </CardContent>
-              </Card>
+              <Link href={`./${site.id}`}>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>{site.name}</CardTitle>
+                    <CardDescription>{site.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p>view site</p>
+                  </CardContent>
+                </Card>
+              </Link>
             </li>
           ))}
         </ul>
       ) : (
         <section className="grid h-full w-full place-content-center">
           <div className="flex flex-col items-center">
-            <Image
-              width={300}
-              height={300}
-              src={"/vacation.svg"}
-              alt="You have no articles yet"
-            />
-            <div className="flex flex-col items-center space-y-4">
-              <p className="text-balance">
+            <Add className="size-40 text-primary" />
+            <div className="flex flex-col items-center gap-10">
+              <p className="text-balance max-w-2xl mx-auto text-center">
                 You have no sites yet. Create a site to start writing articles.
                 only takes a minute
               </p>

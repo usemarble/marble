@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ChevronsUpDown, Loader, Plus } from "lucide-react";
+import { Check, ChevronsUpDown, Loader, Plus } from "@repo/ui/lib/icons";
 import { useState } from "react";
 
 import { Button } from "@repo/ui/components/button";
@@ -46,8 +46,9 @@ import {
 } from "@repo/ui/components/avatar";
 import { toast } from "@repo/ui/components/sonner";
 import { Textarea } from "@repo/ui/components/textarea";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { useWorkspace } from "@/components/providers/workspace";
 
 interface WorkspaceWithPlan extends Workspace {
   plan: string;
@@ -59,24 +60,16 @@ interface WorkspaceSwitcherProps {
 
 export function WorkspaceSwitcher({ workspaces }: WorkspaceSwitcherProps) {
   const { isMobile } = useSidebar();
-  const { workspace } = useParams();
+  const { workspace, setWorkspace } = useWorkspace();
   const router = useRouter();
-
-  // Ensure `workspace` is a string
-  const workspaceSlug = Array.isArray(workspace) ? workspace[0] : workspace;
-
-  // Find the current workspace based on the slug
-  const currWorkspace = workspaces.find((ws) => ws.slug === workspaceSlug);
-
-  // State for active workspace
-  const [activeWorkspace, setActiveWorkspace] = useState<
-    WorkspaceWithPlan | undefined
-  >(currWorkspace);
   const [open, setOpen] = useState(false);
 
-  const avatarText = activeWorkspace?.name.split(" ")[0]?.slice(0, 1);
+  // Find the current workspace with full details including plan
+  const currWorkspace = workspaces.find((ws) => ws.id === workspace?.id);
 
-  // Function to switch workspaces
+  const avatarText = currWorkspace?.name.split(" ")[0]?.slice(0, 1);
+
+  // switch workspace function
   function switchWorkspace(slug: string) {
     const selectedWorkspace = workspaces.find((ws) => ws.slug === slug);
     if (!selectedWorkspace) {
@@ -84,8 +77,14 @@ export function WorkspaceSwitcher({ workspaces }: WorkspaceSwitcherProps) {
       return;
     }
 
-    setActiveWorkspace(selectedWorkspace);
+    setWorkspace({ id: selectedWorkspace.id, slug: selectedWorkspace.slug });
     router.push(`/${slug}`);
+  }
+
+  function getFirstLetter(index: number) {
+    const workspace = workspaces[index];
+    if (!workspace) return "";
+    return workspace.name.split(" ")[0]?.slice(0, 1);
   }
 
   return (
@@ -100,7 +99,7 @@ export function WorkspaceSwitcher({ workspaces }: WorkspaceSwitcherProps) {
               <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square">
                 <Avatar className="size-8 rounded-none">
                   <AvatarImage
-                    src={`https://avatar.vercel.sh/${activeWorkspace?.name}.svg?text=${avatarText}W`}
+                    src={`https://avatar.vercel.sh/${currWorkspace?.name}.svg?text=${avatarText}W`}
                     className="rounded-md"
                   />
                   <AvatarFallback>HA</AvatarFallback>
@@ -108,9 +107,11 @@ export function WorkspaceSwitcher({ workspaces }: WorkspaceSwitcherProps) {
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">
-                  {activeWorkspace?.name}
+                  {currWorkspace?.name}
                 </span>
-                <span className="truncate text-xs">{currWorkspace?.plan}</span>
+                <span className="truncate text-xs text-primary">
+                  {currWorkspace?.plan}
+                </span>
               </div>
               <ChevronsUpDown className="ml-auto" />
             </SidebarMenuButton>
@@ -124,10 +125,10 @@ export function WorkspaceSwitcher({ workspaces }: WorkspaceSwitcherProps) {
             <DropdownMenuLabel className="text-muted-foreground text-xs">
               Workspaces
             </DropdownMenuLabel>
-            {workspaces.map((workspace) => (
+            {workspaces.map((workspace, index) => (
               <DropdownMenuItem
                 key={workspace.id}
-                onClick={() => setActiveWorkspace(workspace)}
+                onClick={() => setWorkspace(workspace)}
               >
                 <button
                   type="button"
@@ -136,12 +137,12 @@ export function WorkspaceSwitcher({ workspaces }: WorkspaceSwitcherProps) {
                 >
                   <Avatar className="size-6 rounded-[0.2rem]">
                     <AvatarImage
-                      src={`https://avatar.vercel.sh/${workspace?.name}.svg?text=${avatarText}W`}
+                      src={`https://avatar.vercel.sh/${workspace?.name}.svg?text=${getFirstLetter(index)}W`}
                     />
                     <AvatarFallback>XX</AvatarFallback>
                   </Avatar>
                   {workspace.name}
-                  {activeWorkspace === workspace && (
+                  {currWorkspace === workspace && (
                     <Check className="text-muted-foreground absolute right-0 size-4" />
                   )}
                 </button>
@@ -212,8 +213,8 @@ export const CreateWorkspaceModal = ({
         <DialogHeader>
           <DialogTitle>Create a new workspace</DialogTitle>
           <DialogDescription>
-            A Workspace is a way for you to manage multiple blogs / sites
-            keeping them organized.
+            A Workspace is a way for you to manage multiple sites keeping them
+            organized.
           </DialogDescription>
         </DialogHeader>
         {/*  */}

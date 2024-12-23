@@ -7,6 +7,8 @@ import {
   type CreateWorkspaceValues,
   workspaceSchema,
 } from "../validations/site";
+import { setActiveWorkspace } from "../workspace";
+import { redirect } from "next/navigation";
 
 export async function createWorkspaceAction(payload: CreateWorkspaceValues) {
   const session = await getSession();
@@ -16,16 +18,19 @@ export async function createWorkspaceAction(payload: CreateWorkspaceValues) {
 
   const parsedPayload = workspaceSchema.parse(payload);
 
-  const site = await prisma.workspace.create({
+  const workspace = await prisma.workspace.create({
     data: {
       ...parsedPayload,
       slug: parsedPayload.slug.toLocaleLowerCase(),
       ownerId: session.user.id,
     },
   });
+  setActiveWorkspace({ id: workspace.id, slug: workspace.slug });
 
+  // I need to update to the corre ct path
   revalidatePath("/");
-  return site;
+  // redirect(`/${workspace.slug}`);
+  return workspace;
 }
 
 export async function checkWorkspaceSlug(slug: string): Promise<boolean> {

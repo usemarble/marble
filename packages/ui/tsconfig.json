@@ -7,6 +7,6 @@
       "@repo/ui/*": ["./src/*"]
     }
   },
-  "include": ["src"],
+  "include": ["."],
   "exclude": ["node_modules", "dist"]
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader } from "lucide-react";
+import { Loader } from "@repo/ui/lib/icons";
 
 import { Button } from "@repo/ui/components/button";
 import {
@@ -47,7 +47,7 @@ export const CreateSiteModal = ({
   const onSubmit = async (data: CreateSiteValues) => {
     try {
       await createSiteAction(data, workspaceSlug as string).then((res) =>
-        router.push(res.id),
+        router.push(`./${res.id}`),
       );
       setOpen(false);
       toast.success("Site created successfully");

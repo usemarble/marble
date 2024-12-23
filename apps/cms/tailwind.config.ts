@@ -1,16 +1,19 @@
-import typography from "@tailwindcss/typography";
 import type { Config } from "tailwindcss";
-import animate from "tailwindcss-animate";
+import tailwindcssAnimate from "tailwindcss-animate";
+import { fontFamily } from "tailwindcss/defaultTheme";
 
 const config: Config = {
   darkMode: ["class"],
-  content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
+  content: [
+    "./src/app/**/*.{ts,tsx,mdx}",
+    "./src/components/**/*.{ts,tsx,mdx}",
+    "../../packages/ui/src/components/**/*.{ts,tsx}",
+  ],
   theme: {
     extend: {
-      borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+      fontFamily: {
+        sans: ["var(--font-sans)", ...fontFamily.sans],
+        mono: ["var(--font-mono)", ...fontFamily.mono],
       },
       colors: {
         background: "hsl(var(--background))",
@@ -64,8 +67,13 @@ const config: Config = {
           ring: "hsl(var(--sidebar-ring))",
         },
       },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+      },
     },
   },
-  plugins: [animate, typography],
+  plugins: [tailwindcssAnimate],
 };
 export default config;

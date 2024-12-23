@@ -15,22 +15,31 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
+
+const formattedDate = new Date(entry.data.published).toLocaleDateString(
+  "en-US",
+  {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  },
+);
 ---
 
 <Layout
   title={`marble - ${entry.data.title}`}
   description={entry.data.description}
 >
-  <Container class='border-t border-dashed'>
+  <Container>
     <div
-      class='sm:border-x sm:border-dashed sm:px-2 bg-background min-h-[calc(100vh-88px)] sm:min-h-[calc(100vh-103px)] lg:min-h-[calc(100vh-120px)] py-6 sm:py-8 md:py-10'
+      class='sm:px-2 bg-background min-h-[calc(100vh-88px)] sm:min-h-[calc(100vh-103px)] lg:min-h-[calc(100vh-120px)] md:py-20 py-10 md:pb-24'
     >
       <section class='max-w-3xl mx-auto mb-10 space-y-6'>
-        <a href="/blog" class='w-fit'>Back to blog</a>
-        <div class='space-y-3'>
-          <h1 class='font-bold text-3xl sm:leading-tight sm:text-4xl md:text-5xl'>
+        <div class='space-y-4 text-center'>
+          <h1 class='font-semibold text-3xl leading-loose max-w-[60ch] mx-auto text-balance'>
             {entry.data.title}
           </h1>
+          <time datetime={entry.data.published} class="text-muted-foreground font-medium">Publised on {formattedDate}</time>
         </div>
       </section>
 

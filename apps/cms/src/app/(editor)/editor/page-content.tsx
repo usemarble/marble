@@ -8,13 +8,13 @@ import { sanitizeHtml } from "@/utils/sanitize-html";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@repo/ui/components/button";
 import { toast } from "@repo/ui/components/sonner";
-import { HelpCircle, Undo } from "lucide-react";
+import { HelpCircle, Undo } from "@repo/ui/lib/icons";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import type { JSONContent } from "novel";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { publishArticle } from "./actions";
+// import { publishArticle } from "./actions";
 
 function PageContent() {
   const [saving, setSaving] = useState(false);
@@ -57,7 +57,8 @@ function PageContent() {
 
   async function onSubmit(values: PostValues) {
     try {
-      await publishArticle(values);
+      // await publishArticle(values);
+      console.log(values);
     } catch {
       toast.error("Something went wrong, please try again.", {
         style: {

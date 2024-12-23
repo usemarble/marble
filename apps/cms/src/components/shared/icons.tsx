@@ -1,4 +1,4 @@
-import type { LucideIcon, LucideProps } from "lucide-react";
+import type { LucideIcon, LucideProps } from "@repo/ui/lib/icons";
 
 export type Icon = LucideIcon;
 

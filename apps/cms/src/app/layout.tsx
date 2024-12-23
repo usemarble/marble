@@ -2,14 +2,23 @@ import type { Metadata } from "next";
 import "@/styles/globals.css";
 import "@/styles/editor.css";
 import { siteConfig } from "@/lib/site-config";
-import { GeistMono } from "geist/font/mono";
-import { GeistSans } from "geist/font/sans";
+import { Geist, Geist_Mono } from "next/font/google";
 import Providers from "./providers";
 
 export const metadata: Metadata = {
-  title: `${siteConfig.title} - ${siteConfig.description}`,
+  title: `${siteConfig.title}`,
   description: siteConfig.description,
 };
+
+const fontSans = Geist({
+  subsets: ["latin"],
+  variable: "--font-sans",
+});
+
+const fontMono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+});
 
 export default function RootLayout({
   children,
@@ -17,8 +26,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${GeistSans.variable} ${GeistMono.variable}`}>
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className={`${fontSans.className} ${fontMono.className} antialiased`}
+      >
         <Providers>{children}</Providers>
       </body>
     </html>

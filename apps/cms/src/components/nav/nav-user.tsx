@@ -8,7 +8,7 @@ import {
   CreditCard,
   LogOut,
   Sparkles,
-} from "lucide-react";
+} from "@repo/ui/lib/icons";
 
 import {
   Avatar,
@@ -106,7 +106,7 @@ export function NavUser({ user }: NavUserProps) {
                   className="flex w-full items-center gap-4"
                 >
                   <Sparkles className="text-muted-foreground size-4" />
-                  Upgrade to Pro
+                  Upgrade Plan
                 </button>
               </DropdownMenuItem>
             </DropdownMenuGroup>

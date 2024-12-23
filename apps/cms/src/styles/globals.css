@@ -34,7 +34,7 @@
     --scrollbar-thumb-hover: 0 0% 40%;
   }
   .dark {
-    --background: 0 0% 9%;
+    --background: 150 4% 9%;
     --foreground: 0 0% 98%;
     --card: 0 0% 9%;
     --card-foreground: 0 0% 98%;
@@ -69,6 +69,12 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  .darkbackground {
+    background-color: hsl(150, 4%, 9%);
+  }
+  .lightbackground {
+    background-color: hsl(165, 100%, 97%);
   }
 }
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@repo/ui/components/button";
-import { Undo } from "lucide-react";
+import { Undo } from "@repo/ui/lib/icons";
 import Link from "next/link";
 
 export default function NotFound() {

@@ -1,12 +1,12 @@
 import { Button } from "@repo/ui/components/button";
-import { cn } from "@repo/ui/lib/utils";
 import {
   BoldIcon,
   ItalicIcon,
   type LucideIcon,
   StrikethroughIcon,
   UnderlineIcon,
-} from "lucide-react";
+} from "@repo/ui/lib/icons";
+import { cn } from "@repo/ui/lib/utils";
 import { EditorBubbleItem, useEditor } from "novel";
 
 export type SelectorItem = {

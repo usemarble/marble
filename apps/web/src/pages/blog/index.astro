@@ -1,4 +1,5 @@
 ---
+import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
 import Container from "@/components/Container.astro";
 import Layout from "@/layouts/Layout.astro";
@@ -20,10 +21,17 @@ const articles = await getCollection("blog");
             <li>
               <a
                 href={`/blog/${article.id}`}
-                class='space-y-1 p-4 border border-dashed rounded-lg hover:bg-muted block transition duration-300'
+                class='space-y-1 p-4 rounded-lg hover:bg-muted transition duration-300 flex gap-4'
               >
+                <div class="w-full">
+                  <Image
+                    class='w-[250px] object-cover rounded-sm'
+                    src={article.data.cover.src}
+                    alt={article.data.cover.alt}
+                  />
+                </div>
                 <div>
-                  <h2 class='font-semibold tracking-wide text-lg italic'>{article.data.title}</h2>
+                  <h2 class='font-semibold tracking-wide text-lg'>{article.data.title}</h2>
                   <p class='text-muted-foreground font-mono text-sm'>{article.data.description}</p>
                 </div>
               </a>

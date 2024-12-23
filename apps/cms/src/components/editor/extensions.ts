@@ -86,13 +86,15 @@ const starterKit = StarterKit.configure({
   gapcursor: false,
 });
 
-export const defaultExtensions = [
+import { Extension } from "@tiptap/core";
+
+export const defaultExtensions: Extension[] = [
   starterKit,
   placeholder,
-  UpdatedImage,
-  tiptapLink,
-  taskList,
-  taskItem,
-  horizontalRule,
-  tiptapImage,
+  UpdatedImage as unknown as Extension,
+  tiptapLink as unknown as Extension,
+  taskList as unknown as Extension,
+  taskItem as unknown as Extension,
+  horizontalRule as unknown as Extension,
+  tiptapImage as unknown as Extension,
 ];

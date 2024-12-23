@@ -1,6 +1,6 @@
 import React from "react";
 
-function Page() {
+async function Page() {
   return <div>Page</div>;
 }
 
