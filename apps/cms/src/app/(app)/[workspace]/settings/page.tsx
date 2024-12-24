@@ -9,7 +9,7 @@ import {
 
 function page() {
   return (
-    <div className="w-full max-w-screen-sm mx-auto space-y-6">
+    <div className="w-full max-w-screen-md mx-auto space-y-6">
       <section>
         <div>
           <h1 className="text-lg font-medium">Settings</h1>
@@ -37,7 +37,7 @@ function page() {
           </CardHeader>
           <CardContent>
             <div>
-              <ThemeSwitch />
+              sdsdsdsd
             </div>
           </CardContent>
         </Card>

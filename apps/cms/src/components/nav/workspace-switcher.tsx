@@ -78,7 +78,8 @@ export function WorkspaceSwitcher({ workspaces }: WorkspaceSwitcherProps) {
     }
 
     setWorkspace({ id: selectedWorkspace.id, slug: selectedWorkspace.slug });
-    router.push(`/${slug}`);
+    // Add loading state
+    router.push(`/${slug}`, { scroll: false });
   }
 
   function getFirstLetter(index: number) {
