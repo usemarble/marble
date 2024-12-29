@@ -78,10 +78,10 @@ export function LoginForm() {
 
   return (
     <div className="grid gap-6">
-      <div className="grid grid-cols-2 gap-2">
+      <div className="flex flex-col gap-4">
         <button
           type="button"
-          className={cn(buttonVariants({ variant: "outline" }))}
+          className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
           onClick={handleGoogleSignIn}
           disabled={isCredentialsLoading || isGoogleLoading || isGithubLoading}
         >
@@ -94,7 +94,7 @@ export function LoginForm() {
         </button>
         <button
           type="button"
-          className={cn(buttonVariants({ variant: "outline" }))}
+          className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
           onClick={handleGithubSignIn}
           disabled={isCredentialsLoading || isGoogleLoading || isGithubLoading}
         >
@@ -106,14 +106,14 @@ export function LoginForm() {
           GitHub
         </button>
       </div>
-      <div className="relative flex items-center">
+      {/* <div className="relative flex items-center">
         <span className="bg-border inline-block h-px w-full border-t" />
         <span className="text-muted-foreground shrink-0 px-2 text-xs uppercase">
           Or
         </span>
         <span className="bg-border inline-block h-px w-full border-t" />
-      </div>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      </div> */}
+      {/* <form onSubmit={handleSubmit(onSubmit)}>
         <div className="grid gap-3">
           <div className="grid gap-1">
             <Label className="sr-only" htmlFor="email">
@@ -170,7 +170,7 @@ export function LoginForm() {
             Continue
           </Button>
         </div>
-      </form>
+      </form> */}
     </div>
   );
 }

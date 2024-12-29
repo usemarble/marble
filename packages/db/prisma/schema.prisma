@@ -148,7 +148,7 @@ model Invite {
   inviterId   String // User who sent the invite
   role        RoleType     @default(MEMBER) // Role assigned upon acceptance
   status      InviteStatus @default(PENDING) // PENDING, ACCEPTED, DECLINED
-  expiresAt   DateTime?
+  expiresAt   DateTime
 
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   inviter   User      @relation(fields: [inviterId], references: [id], onDelete: Cascade)

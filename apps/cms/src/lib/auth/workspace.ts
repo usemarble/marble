@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 const WORKSPACE_COOKIE_NAME = "active_workspace";
 
 export async function setActiveWorkspace(
-  workspace: Pick<Workspace, "id" | "slug">,
+  workspace: Pick<Workspace, "id" | "slug" | "name">,
 ) {
   (await cookies()).set(WORKSPACE_COOKIE_NAME, JSON.stringify(workspace), {
     path: "/",
@@ -19,7 +19,10 @@ export async function getActiveWorkspace() {
   if (!workspaceCookie) return null;
 
   try {
-    return JSON.parse(workspaceCookie.value) as Pick<Workspace, "id" | "slug">;
+    return JSON.parse(workspaceCookie.value) as Pick<
+      Workspace,
+      "id" | "slug" | "name"
+    >;
   } catch {
     return null;
   }

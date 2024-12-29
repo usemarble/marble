@@ -8,7 +8,7 @@ import {
   SidebarMenuButton,
 } from "@repo/ui/components/sidebar";
 
-import { Globe, Settings2, Users2 } from "@repo/ui/lib/icons";
+import { Globe, LayoutPanelTop, Settings2, Users2 } from "@repo/ui/lib/icons";
 import Link from "next/link";
 import { useWorkspace } from "../providers/workspace";
 
@@ -19,7 +19,7 @@ const items = [
     icon: Globe,
   },
   {
-    name: "Teams",
+    name: "Team",
     url: "team",
     icon: Users2,
   },
@@ -36,6 +36,21 @@ export function NavMain() {
     <SidebarGroup>
       <SidebarGroupLabel>Workspace</SidebarGroupLabel>
       <SidebarMenu>
+        <Collapsible
+          asChild
+          defaultOpen={false}
+          className="group/collapsible"
+        >
+          <SidebarMenuButton
+            asChild
+            className="hover:bg-muted border border-transparent hover:border-border"
+          >
+            <Link href={`/${workspace?.slug}`}>
+              <LayoutPanelTop size={16} />
+              <span>Overview</span>
+            </Link>
+          </SidebarMenuButton>
+        </Collapsible>
         {items.map((item) => (
           <Collapsible
             key={item.name}
@@ -47,7 +62,7 @@ export function NavMain() {
               asChild
               className="hover:bg-muted border border-transparent hover:border-border"
             >
-              <Link href={`./${workspace?.slug}/${item.url}`}>
+              <Link href={`/${workspace?.slug}/${item.url}`}>
                 <item.icon />
                 <span>{item.name}</span>
               </Link>

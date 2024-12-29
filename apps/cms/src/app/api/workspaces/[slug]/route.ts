@@ -10,7 +10,7 @@ export async function GET(
 
   const workspace = await prisma.workspace.findUnique({
     where: { slug: slug },
-    select: { id: true, slug: true },
+    select: { id: true, slug: true, name: true },
   });
 
   if (!workspace) {

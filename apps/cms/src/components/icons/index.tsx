@@ -141,8 +141,8 @@ export const Sync = ({ ...props }: LucideProps) => (
     viewBox="0 0 108 85"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
-    stroke-width="0.5px"
-    stroke-linecap="round"
+    strokeWidth="0.5px"
+    strokeLinecap="round"
     strokeLinejoin="round"
     {...props}
   >

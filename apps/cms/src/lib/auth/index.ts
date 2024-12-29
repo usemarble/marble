@@ -17,7 +17,7 @@ export const result = NextAuth({
       const hasNoWorkspaces = message.isNewUser;
       const fullname = message.user.name;
       const firstname = fullname?.split(" ")[0];
-      const defaultWorkspaceSlug = `${firstname?.toLowerCase()}-${nanoid(6)}`;
+      const defaultWorkspaceSlug = nanoid(16);
 
       if (hasNoWorkspaces && message.user.id) {
         const firstWorkspace = await prisma.workspace.create({
@@ -31,6 +31,7 @@ export const result = NextAuth({
         setActiveWorkspace({
           id: firstWorkspace.id,
           slug: firstWorkspace.slug,
+          name: firstWorkspace.name,
         });
       }
     },

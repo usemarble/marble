@@ -1,6 +1,7 @@
 import { LoginForm } from "@/components/auth/login-form";
 import getSession from "@/lib/auth/session";
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
@@ -13,29 +14,48 @@ export default async function LoginPage() {
   const session = await getSession();
   if (session) redirect("/");
   return (
-    <div className="grid min-h-screen w-full place-content-center p-4">
-      <div className="flex min-w-[300px] flex-col gap-8 rounded-md p-6 lg:w-[384px] lg:px-8 lg:py-10">
-        <div className="flex flex-col items-center">
-          <h1 className="text-xl font-semibold lg:text-2xl">Login</h1>
-          <p className="text-muted-foreground text-center text-sm">
-            Choose a sign-in method below to continue.
+    <div className="md:grid h-screen w-full md:grid-cols-[55%,45%] p-4 max-w-screen-xl mx-auto">
+      <section className="flex flex-col items-center justify-between h-full">
+        <div className="self-start">
+          <h1 className="font-semibold uppercase">Marble</h1>
+        </div>
+        <div className="flex min-w-[300px] flex-col gap-8 rounded-md p-6 lg:w-[384px] lg:px-8 lg:py-10">
+          <div className="text-center">
+            <h1 className="text-xl font-semibold lg:text-2xl">Welcome back</h1>
+            <p className="text-muted-foreground text-sm">
+              Please sign-in to continue.
+            </p>
+          </div>
+
+          <Suspense>
+            <LoginForm />
+          </Suspense>
+
+          <p className="text-muted-foreground px-8 text-center text-xs">
+            Don&apos;t have an account?{" "}
+            <Link
+              href="/register"
+              className="hover:text-primary underline underline-offset-4 block"
+            >
+              Register
+            </Link>
           </p>
         </div>
-
-        <Suspense>
-          <LoginForm />
-        </Suspense>
-
-        <p className="text-muted-foreground px-8 text-center text-sm">
-          Don&apos;t have an account?{" "}
-          <Link
-            href="/register"
-            className="hover:text-primary underline underline-offset-4"
-          >
-            Register
-          </Link>
-        </p>
-      </div>
+        <div>
+          <p className="text-muted-foreground text-center text-xs">
+            &copy; {new Date().getFullYear()} Marble. All rights reserved.
+          </p>
+        </div>
+      </section>
+      <section className="overflow-hidden rounded-md hidden md:block">
+        <Image
+          src={"/login.jpg"}
+          alt="login page"
+          width={350}
+          height={680}
+          className="w-full h-full"
+        />
+      </section>
     </div>
   );
 }

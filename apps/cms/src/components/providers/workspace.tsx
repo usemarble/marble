@@ -5,8 +5,8 @@ import { useParams, usePathname } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
 
 interface WorkspaceContextType {
-  workspace: Pick<Workspace, "id" | "slug"> | null;
-  setWorkspace: (workspace: Pick<Workspace, "id" | "slug"> | null) => void;
+  workspace: Pick<Workspace, "id" | "slug" | "name"> | null;
+  setWorkspace: (workspace: Pick<Workspace, "id" | "slug" | "name"> | null) => void;
 }
 
 const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
@@ -16,11 +16,12 @@ const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
 export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const [workspace, setWorkspace] = useState<Pick<
     Workspace,
-    "id" | "slug"
+    "id" | "slug"| "name"
   > | null>(null);
   const params = useParams();
   const pathname = usePathname();
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <ignore>
   useEffect(() => {
     // Update workspace from URL when path changes
     const workspaceSlug = Array.isArray(params.workspace)
@@ -30,7 +31,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       // Fetch workspace details from API
       fetch(`/api/workspaces/${workspaceSlug}`)
         .then((res) => res.json())
-        .then((data) => setWorkspace({ id: data.id, slug: data.slug }));
+        .then((data) => setWorkspace({ id: data.id, slug: data.slug, name: data.name }));
     }
   }, [pathname, params.workspace]);
 

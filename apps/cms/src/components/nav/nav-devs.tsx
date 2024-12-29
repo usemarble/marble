@@ -8,7 +8,7 @@ import {
   SidebarMenuItem,
 } from "@repo/ui/components/sidebar";
 
-import { BookOpen, Key, PieChart, Webhook } from "@repo/ui/lib/icons";
+import { BookOpen, Key, Webhook } from "@repo/ui/lib/icons";
 import Link from "next/link";
 
 const items = [
