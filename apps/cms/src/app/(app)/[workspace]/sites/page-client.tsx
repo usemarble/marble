@@ -1,6 +1,6 @@
 "use client";
 
-import { Add } from "@/components/icons";
+import { Add } from "@/components/icons/isometric";
 import { useWorkspace } from "@/components/providers/workspace";
 import { CreateSiteModal } from "@/components/site/create-site-modal";
 import { Button } from "@repo/ui/components/button";

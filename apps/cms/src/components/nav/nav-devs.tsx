@@ -8,24 +8,26 @@ import {
   SidebarMenuItem,
 } from "@repo/ui/components/sidebar";
 
-import { BookOpen, Key, Webhook } from "@repo/ui/lib/icons";
 import Link from "next/link";
+import { WebhookIcon } from "../icons/animated/webhook";
+import { BookTextIcon } from "../icons/animated/book-text";
+import { ConnectIcon } from "../icons/animated/connect";
 
 const items = [
   {
     name: "API Keys",
     url: "/account/keys",
-    icon: Key,
+    icon: ConnectIcon,
   },
   {
     name: "Webhooks",
     url: "/webhooks",
-    icon: Webhook,
+    icon: WebhookIcon,
   },
   {
     name: "Documentation",
     url: "/docs",
-    icon: BookOpen,
+    icon: BookTextIcon,
   },
 ];
 

@@ -1,12 +1,12 @@
 "use client";
 
-import { Add } from "@/components/icons";
+import { Add } from "@/components/icons/isometric";
 import { InviteMemberModal } from "@/components/team/invite-member-modal";
 import { MembersList } from "@/components/team/members-list";
+import type { InviteStatus, RoleType } from "@repo/db/client";
 import { Button } from "@repo/ui/components/button";
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import type { RoleType, InviteStatus } from "@repo/db/client";
 
 type Member = {
   id: string;
@@ -36,10 +36,10 @@ interface PageClientProps {
   workspaceId: string;
 }
 
-function PageClient({ 
-  members = [], 
+function PageClient({
+  members = [],
   invites = [],
-  workspaceId 
+  workspaceId,
 }: PageClientProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -80,7 +80,11 @@ function PageClient({
           <span>Invite member</span>
         </Button>
       </div>
-      <MembersList members={members} invites={invites} workspaceId={workspaceId} />
+      <MembersList
+        members={members}
+        invites={invites}
+        workspaceId={workspaceId}
+      />
       <InviteMemberModal open={isOpen} setOpen={setIsOpen} />
     </div>
   );

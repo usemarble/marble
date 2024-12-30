@@ -8,9 +8,12 @@ import {
   SidebarMenuButton,
 } from "@repo/ui/components/sidebar";
 
-import { Globe, LayoutPanelTop, Settings2, Users2 } from "@repo/ui/lib/icons";
+import { Globe } from "@repo/ui/lib/icons";
 import Link from "next/link";
 import { useWorkspace } from "../providers/workspace";
+import { UsersIcon } from "../icons/animated/users";
+import { LayoutPanelTopIcon } from "../icons/animated/layout-panel-top";
+import { SettingsIcon } from "../icons/animated/settings";
 
 const items = [
   {
@@ -21,12 +24,12 @@ const items = [
   {
     name: "Team",
     url: "team",
-    icon: Users2,
+    icon: UsersIcon,
   },
   {
     name: "Settings",
     url: "settings",
-    icon: Settings2,
+    icon: SettingsIcon,
   },
 ];
 
@@ -46,7 +49,7 @@ export function NavMain() {
             className="hover:bg-muted border border-transparent hover:border-border"
           >
             <Link href={`/${workspace?.slug}`}>
-              <LayoutPanelTop size={16} />
+              <LayoutPanelTopIcon />
               <span>Overview</span>
             </Link>
           </SidebarMenuButton>

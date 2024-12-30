@@ -1,6 +1,6 @@
 "use client";
 
-import { Add } from "@/components/icons";
+import { Add } from "@/components/icons/isometric";
 import { useWorkspace } from "@/components/providers/workspace";
 import { CreateSiteModal } from "@/components/site/create-site-modal";
 import { Button } from "@repo/ui/components/button";
@@ -35,7 +35,9 @@ function PageClient({ workspace }: PageClientProps) {
   return (
     <>
       <div className="p-4">
-        <h1 className="text-2xl font-semibold mb-6">{workspace.name} Dashboard</h1>
+        <h1 className="text-2xl font-semibold mb-6">
+          {workspace.name} Dashboard
+        </h1>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card>
             <CardHeader>

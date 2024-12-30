@@ -48,18 +48,16 @@ async function page() {
           </TabsList>
           {/*  */}
           <TabsContent value="workspace">
-            <Card>
-              <CardHeader>
-                <CardTitle>Workspace</CardTitle>
-                <CardDescription>
+            <section className="space-y-10">
+              <div>
+                <h1 className="text-lg font-semibold">Workspace</h1>
+                <p className="text-muted-foreground text-sm">
                   Make changes to your account here. Click save when you're
                   done.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <WorkspaceForm {...currWorkspace} />
-              </CardContent>
-            </Card>
+                </p>
+              </div>
+              <WorkspaceForm {...currWorkspace} />
+            </section>
           </TabsContent>
           {/*  */}
           <TabsContent value="account" className="space-y-14">
@@ -149,8 +147,10 @@ async function page() {
               </ul>
             </section>
             <Separator />
-            <section className="flex gap-4 items-end">
-              <Button variant="outline" size="sm">Cancel</Button>
+            <section className="flex gap-4 justify-end w-full">
+              <Button variant="outline" size="sm">
+                Cancel
+              </Button>
               <Button size="sm">Save</Button>
             </section>
           </TabsContent>

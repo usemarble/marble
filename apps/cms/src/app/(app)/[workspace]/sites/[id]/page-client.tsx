@@ -1,6 +1,6 @@
 "use client";
 
-import { Folder } from "@/components/icons";
+import { Folder } from "@/components/icons/isometric";
 import { CreateSiteModal } from "@/components/site/create-site-modal";
 import { Button, buttonVariants } from "@repo/ui/components/button";
 import {
