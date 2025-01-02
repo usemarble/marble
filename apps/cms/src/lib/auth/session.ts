@@ -1,4 +1,15 @@
-import { cache } from "react";
-import { auth } from ".";
+import { auth } from "../auth";
+import { headers } from "next/headers";
 
-export default cache(auth);
+async function getServerSession() {
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+    return session;
+  } catch (error) {
+    return null;
+  }
+}
+
+export default getServerSession;

@@ -1,6 +1,7 @@
 "use client";
 
 import { Github, Google } from "@/components/shared/icons";
+import { authClient } from "@/lib/auth/client";
 import { type LoginData, loginSchema } from "@/lib/validations/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, buttonVariants } from "@repo/ui/components/button";
@@ -44,37 +45,26 @@ export function LoginForm() {
     return toast("Your sign in request failed. Please try again.");
   }
 
-  const handleGoogleSignIn = async () => {
-    setIsGoogleLoading(true);
 
-    const signInResult = await signIn("google", {
-      redirect: true,
-      redirectTo: searchParams?.get("from") || "/",
-    });
-
-    setIsGoogleLoading(false);
-
-    if (signInResult?.ok) {
-      return toast("Sign in successful");
-    }
-    return toast("Your sign in request failed. Please try again.");
-  };
-
-  const handleGithubSignIn = async () => {
-    setIsGithubLoading(true);
-
-    const signInResult = await signIn("github", {
-      redirect: true,
-      redirectTo: searchParams?.get("from") || "/",
-    });
-
-    setIsGithubLoading(false);
-
-    if (signInResult?.ok) {
-      return toast("Sign in successful");
-    }
-    return toast("Your sign in request failed. Please try again.");
-  };
+   const handleSocialSignIn = async (provider: "google" | "github") => {
+      provider === "google" ? setIsGoogleLoading(true) : setIsGithubLoading(true);
+  
+      try {
+        const signInResult = await authClient.signIn.social({
+          provider,
+          callbackURL: searchParams?.get("from") || "/",
+        });
+        if (signInResult.data) {
+          return toast("Sign in successful");
+        }
+      } catch (error) {
+        return toast("Your sign in request failed. Please try again.");
+      } finally {
+        provider === "google"
+          ? setIsGoogleLoading(false)
+          : setIsGithubLoading(false);
+      }
+    };
 
   return (
     <div className="grid gap-6">
@@ -82,7 +72,7 @@ export function LoginForm() {
         <button
           type="button"
           className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
-          onClick={handleGoogleSignIn}
+          onClick={async () => handleSocialSignIn("google")}
           disabled={isCredentialsLoading || isGoogleLoading || isGithubLoading}
         >
           {isGoogleLoading ? (
@@ -95,7 +85,7 @@ export function LoginForm() {
         <button
           type="button"
           className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
-          onClick={handleGithubSignIn}
+          onClick={async () => handleSocialSignIn("github")}
           disabled={isCredentialsLoading || isGoogleLoading || isGithubLoading}
         >
           {isGithubLoading ? (
