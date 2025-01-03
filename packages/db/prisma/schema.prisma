@@ -175,16 +175,17 @@ model Verification {
 model Organization {
   id          String      @id @default(cuid())
   name        String
-  slug        String?
+  slug        String
   logo        String?
-  createdAt   DateTime
   metadata    String?
+  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime  @default(now())
+  sites       Site[]
   members     Member[]
   invitations Invitation[]
-  sites       Site[]
 
   @@unique([slug])
-  @@map("organization")
+  @@map("workspace")
 }
 
 model Member {

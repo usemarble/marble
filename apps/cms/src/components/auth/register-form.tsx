@@ -2,7 +2,7 @@
 
 import { Github, Google } from "@/components/shared/icons";
 import { authClient } from "@/lib/auth/client";
-import { type RegisterData, registerSchema } from "@/lib/validations/auth";
+import { type CredentialData, credentialSchema } from "@/lib/validations/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, buttonVariants } from "@repo/ui/components/button";
 import { Input } from "@repo/ui/components/input";
@@ -10,8 +10,7 @@ import { Label } from "@repo/ui/components/label";
 import { toast } from "@repo/ui/components/sonner";
 import { Loader } from "@repo/ui/lib/icons";
 import { cn } from "@repo/ui/lib/utils";
-import { signIn } from "next-auth/react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -20,29 +19,38 @@ export function RegisterForm() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<RegisterData>({
-    resolver: zodResolver(registerSchema),
+  } = useForm<CredentialData>({
+    resolver: zodResolver(credentialSchema),
   });
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isGithubLoading, setIsGithubLoading] = useState(false);
   const [isCredentialsLoading, setIsCredentialsLoading] = useState(false);
   const searchParams = useSearchParams();
+  const router = useRouter();
 
-  async function onSubmit(data: RegisterData) {
+  async function onSubmit(data: CredentialData) {
     setIsCredentialsLoading(true);
 
-    const signInResult = await signIn("credentials", {
-      email: data.email.toLowerCase(),
-      redirect: false,
-      redirectTo: searchParams?.get("from") || "/",
-    });
-
-    setIsCredentialsLoading(false);
-
-    if (signInResult?.ok) {
+    try {
+      const res = await authClient.signUp.email(
+        {
+          email: data.email.toLowerCase(),
+          password: data.password,
+          name: data.email.toLowerCase().split("@")[0] || "User",
+          image: `https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=${data.email.toLowerCase().split("@")[0]}`,
+        },
+        {
+          onSuccess: (ctx) => {
+            router.push("/");
+          },
+        },
+      );
       return toast("Sign in successful");
+    } catch (error) {
+      return toast("Your sign in request failed. Please try again.");
+    } finally {
+      setIsCredentialsLoading(false);
     }
-    return toast("Your sign in request failed. Please try again.");
   }
 
   const handleSocialSignIn = async (provider: "google" | "github") => {
@@ -95,7 +103,7 @@ export function RegisterForm() {
           GitHub
         </button>
       </div>
-      {/* <div className="relative flex items-center">
+      <div className="relative flex items-center">
         <span className="bg-border inline-block h-px w-full border-t" />
         <span className="text-muted-foreground shrink-0 px-2 text-xs uppercase">
           Or
@@ -104,27 +112,6 @@ export function RegisterForm() {
       </div>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="grid gap-3">
-          <div className="grid gap-1">
-            <Label className="sr-only" htmlFor="name">
-              name
-            </Label>
-            <Input
-              id="name"
-              placeholder="john doe"
-              autoCapitalize="none"
-              autoComplete="off"
-              autoCorrect="off"
-              disabled={
-                isCredentialsLoading || isGoogleLoading || isGithubLoading
-              }
-              {...register("name")}
-            />
-            {errors?.name && (
-              <p className="text-sm px-1 font-medium text-destructive">
-                {errors.name.message}
-              </p>
-            )}
-          </div>
           <div className="grid gap-1">
             <Label className="sr-only" htmlFor="email">
               Email
@@ -180,7 +167,7 @@ export function RegisterForm() {
             Continue
           </Button>
         </div>
-      </form> */}
+      </form>
     </div>
   );
 }

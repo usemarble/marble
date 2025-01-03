@@ -2,15 +2,7 @@ import { ColorSwitch } from "@/components/settings/color";
 import { CookieSettings } from "@/components/settings/cookies";
 import { ThemeSwitch } from "@/components/settings/theme";
 import WorkspaceForm from "@/components/settings/workspace-form";
-import { getActiveWorkspace } from "@/lib/auth/workspace";
 import { Button } from "@repo/ui/components/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@repo/ui/components/card";
 import { Checkbox } from "@repo/ui/components/checkbox";
 import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
@@ -23,8 +15,6 @@ import {
 } from "@repo/ui/components/tabs";
 
 async function page() {
-  const currWorkspace = await getActiveWorkspace();
-
   return (
     <div className="w-full max-w-screen-md mx-auto space-y-12 pb-14">
       <div>
@@ -56,7 +46,7 @@ async function page() {
                   done.
                 </p>
               </div>
-              <WorkspaceForm {...currWorkspace} />
+              <WorkspaceForm />
             </section>
           </TabsContent>
           {/*  */}

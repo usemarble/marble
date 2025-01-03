@@ -1,4 +1,4 @@
-import getSession from "@/lib/auth/session";
+import getServerSession from "@/lib/auth/session";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import React from "react";
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 async function Page() {
-  const session = getSession();
+  const session = getServerSession();
   if (!session) return redirect("/login");
   return <PageContent />;
 }

@@ -1,5 +1,5 @@
 import { AppSidebar } from "@/components/nav/app-sidebar";
-import getSession from "@/lib/auth/session";
+import getServerSession from "@/lib/auth/session";
 import { Separator } from "@repo/ui/components/separator";
 import {
   SidebarInset,
@@ -13,7 +13,8 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getSession();
+  // BAD!!! layouts dont re render move to middleware later
+  const session = await getServerSession();
   if (!session) return redirect("/login");
 
   return (

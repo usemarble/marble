@@ -18,7 +18,7 @@ import { Loader } from "@repo/ui/lib/icons";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { createInviteAction } from "@/lib/actions/team";
+import { authClient } from "@/lib/auth/client";
 import { RoleType } from "@repo/db/client";
 import {
   Select,
@@ -35,8 +35,6 @@ export const InviteMemberModal = ({
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
-  const { workspace } = useWorkspace();
-
   const inviteSchema = z.object({
     email: z.string().email({ message: "Invalid email address" }),
     role: z.enum([RoleType.ADMIN, RoleType.MEMBER], {
@@ -60,11 +58,14 @@ export const InviteMemberModal = ({
 
   const onSubmit = async (data: InviteMemberValues) => {
     try {
-      if (!workspace) throw new Error("No workspace selected");
-
-      await createInviteAction(data.email, workspace.id);
-      setOpen(false);
-      toast.success("Invitation sent successfully");
+      const res = await authClient.organization.inviteMember({
+        email: data.email,
+        role: data.role,
+      });
+      if (res.data) {
+        setOpen(false);
+        toast.success("Invitation sent successfully");
+      }
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to send invite",

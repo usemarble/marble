@@ -2,7 +2,7 @@
 
 import { Github, Google } from "@/components/shared/icons";
 import { authClient } from "@/lib/auth/client";
-import { type LoginData, loginSchema } from "@/lib/validations/auth";
+import { type CredentialData, credentialSchema } from "@/lib/validations/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, buttonVariants } from "@repo/ui/components/button";
 import { Input } from "@repo/ui/components/input";
@@ -10,8 +10,7 @@ import { Label } from "@repo/ui/components/label";
 import { toast } from "@repo/ui/components/sonner";
 import { Loader } from "@repo/ui/lib/icons";
 import { cn } from "@repo/ui/lib/utils";
-import { signIn } from "next-auth/react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -20,51 +19,58 @@ export function LoginForm() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginData>({
-    resolver: zodResolver(loginSchema),
+  } = useForm<CredentialData>({
+    resolver: zodResolver(credentialSchema),
   });
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isGithubLoading, setIsGithubLoading] = useState(false);
   const [isCredentialsLoading, setIsCredentialsLoading] = useState(false);
+
   const searchParams = useSearchParams();
+  const router = useRouter();
 
-  async function onSubmit(data: LoginData) {
-    setIsCredentialsLoading(true);
+    async function onSubmit(data: CredentialData) {
+      setIsCredentialsLoading(true);
 
-    const signInResult = await signIn("credentials", {
-      email: data.email.toLowerCase(),
-      redirect: false,
-      redirectTo: searchParams?.get("from") || "/",
-    });
+      const res = await authClient.signIn.email(
+        {
+          email: data.email.toLowerCase(),
+          password: data.password,
+        },
+        {
+          onSuccess: (ctx) => {
+            router.push("/");
+          },
+        },
+      );
 
-    setIsCredentialsLoading(false);
+      setIsCredentialsLoading(false);
 
-    if (signInResult?.ok) {
+      if (res.error) {
+        return toast("Your sign in request failed. Please try again.");
+      }
       return toast("Sign in successful");
     }
-    return toast("Your sign in request failed. Please try again.");
-  }
 
+  const handleSocialSignIn = async (provider: "google" | "github") => {
+    provider === "google" ? setIsGoogleLoading(true) : setIsGithubLoading(true);
 
-   const handleSocialSignIn = async (provider: "google" | "github") => {
-      provider === "google" ? setIsGoogleLoading(true) : setIsGithubLoading(true);
-  
-      try {
-        const signInResult = await authClient.signIn.social({
-          provider,
-          callbackURL: searchParams?.get("from") || "/",
-        });
-        if (signInResult.data) {
-          return toast("Sign in successful");
-        }
-      } catch (error) {
-        return toast("Your sign in request failed. Please try again.");
-      } finally {
-        provider === "google"
-          ? setIsGoogleLoading(false)
-          : setIsGithubLoading(false);
+    try {
+      const signInResult = await authClient.signIn.social({
+        provider,
+        callbackURL: searchParams?.get("from") || "/",
+      });
+      if (signInResult.data) {
+        return toast("Sign in successful");
       }
-    };
+    } catch (error) {
+      return toast("Your sign in request failed. Please try again.");
+    } finally {
+      provider === "google"
+        ? setIsGoogleLoading(false)
+        : setIsGithubLoading(false);
+    }
+  };
 
   return (
     <div className="grid gap-6">
@@ -96,14 +102,14 @@ export function LoginForm() {
           GitHub
         </button>
       </div>
-      {/* <div className="relative flex items-center">
+      <div className="relative flex items-center">
         <span className="bg-border inline-block h-px w-full border-t" />
         <span className="text-muted-foreground shrink-0 px-2 text-xs uppercase">
           Or
         </span>
         <span className="bg-border inline-block h-px w-full border-t" />
-      </div> */}
-      {/* <form onSubmit={handleSubmit(onSubmit)}>
+      </div>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <div className="grid gap-3">
           <div className="grid gap-1">
             <Label className="sr-only" htmlFor="email">
@@ -160,7 +166,7 @@ export function LoginForm() {
             Continue
           </Button>
         </div>
-      </form> */}
+      </form>
     </div>
   );
 }

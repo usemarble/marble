@@ -39,19 +39,19 @@ import {
   workspaceSchema,
 } from "@/lib/validations/site";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { Workspace } from "@repo/db/client";
+import type { Organization } from "@repo/db/client";
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
 } from "@repo/ui/components/avatar";
+import { Skeleton } from "@repo/ui/components/skeleton";
 import { toast } from "@repo/ui/components/sonner";
 import { Textarea } from "@repo/ui/components/textarea";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { Skeleton } from "@repo/ui/components/skeleton";
 
-interface WorkspaceWithPlan extends Workspace {
+interface WorkspaceWithPlan extends Organization {
   plan: string;
 }
 
@@ -68,8 +68,6 @@ export function WorkspaceSwitcher({ workspaces }: WorkspaceSwitcherProps) {
   // Find the current workspace with full details including plan
   const currWorkspace = workspaces.find((ws) => ws.id === workspace?.id);
 
-  const avatarText = currWorkspace?.name.split(" ")[0]?.slice(0, 1);
-
   // switch workspace function
   function switchWorkspace(slug: string) {
     const selectedWorkspace = workspaces.find((ws) => ws.slug === slug);
@@ -82,15 +80,10 @@ export function WorkspaceSwitcher({ workspaces }: WorkspaceSwitcherProps) {
       id: selectedWorkspace.id,
       slug: selectedWorkspace.slug,
       name: selectedWorkspace.name,
+      logo: selectedWorkspace.logo,
     });
-    
-    router.push(`/${slug}`, { scroll: false });
-  }
 
-  function getFirstLetter(index: number) {
-    const workspace = workspaces[index];
-    if (!workspace) return "";
-    return workspace.name.split(" ")[0]?.slice(0, 1);
+    router.push(`/${slug}`, { scroll: false });
   }
 
   return (
@@ -106,7 +99,7 @@ export function WorkspaceSwitcher({ workspaces }: WorkspaceSwitcherProps) {
                 <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square">
                   <Avatar className="size-8 rounded-none">
                     <AvatarImage
-                      src={`https://avatar.vercel.sh/${currWorkspace?.name}.svg?text=${avatarText}W`}
+                      src={workspace.logo ?? ""}
                       className="rounded-[4px]"
                     />
                     <AvatarFallback>HA</AvatarFallback>
@@ -147,7 +140,7 @@ export function WorkspaceSwitcher({ workspaces }: WorkspaceSwitcherProps) {
                 >
                   <Avatar className="size-6 rounded-[0.2rem]">
                     <AvatarImage
-                      src={`https://avatar.vercel.sh/${workspace?.name}.svg?text=${getFirstLetter(index)}W`}
+                      src={workspace.logo ?? ""}
                     />
                     <AvatarFallback>XX</AvatarFallback>
                   </Avatar>

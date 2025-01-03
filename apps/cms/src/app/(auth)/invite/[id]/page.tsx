@@ -1,6 +1,7 @@
 import PageLoader from "@/components/shared/page-loader";
-import { acceptInvite, verifyInvite } from "@/lib/actions/invite";
-import getSession from "@/lib/auth/session";
+import { verifyInvite } from "@/lib/actions/invite";
+import { authClient } from "@/lib/auth/client";
+import getServerSession from "@/lib/auth/session";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
@@ -20,15 +21,17 @@ export default async function InvitePage(props: {
 }
 
 async function InvitePageComponent({ code }: { code: string }) {
-  const session = await getSession();
+  const session = await getServerSession();
 
   if (!session || !session.user) {
     redirect(`/login/?from=/invite/${code}`);
   }
 
-  const invite = await verifyInvite(code);
+  const inviteEmail = await verifyInvite(code);
 
-  if (!invite) {
+  
+
+  if (!inviteEmail) {
     return (
       <div className="mx-auto max-w-md space-y-6">
         <div className="space-y-2 text-center">
@@ -41,10 +44,13 @@ async function InvitePageComponent({ code }: { code: string }) {
     );
   }
 
-  if (session.user.email === invite.email) {
+  if (session.user.email === inviteEmail) {
     try {
-      const workspace = await acceptInvite(code);
-      redirect(`/${workspace.id}`);
+      const workspace = await authClient.organization.acceptInvitation({
+        invitationId: "invitation-id",
+      });
+      redirect(`/${workspace.data?.invitation.organizationId}`);
+      // this should be a slug please fix
     } catch (error) {
       return (
         <div className="mx-auto max-w-md space-y-6">
@@ -64,8 +70,8 @@ async function InvitePageComponent({ code }: { code: string }) {
       <div className="space-y-2 text-center">
         <h1 className="text-2xl font-bold">Wrong Account</h1>
         <p className="text-muted-foreground">
-          This invite is for {invite.email}. Please sign in with that email
-          address.
+          This invite is for {inviteEmail}. Please sign in with that email
+          address or request for an invite to this email.
         </p>
       </div>
     </div>;

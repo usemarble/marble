@@ -19,22 +19,16 @@ export async function AppSidebar({
   const session = await getSession();
   const user = session?.user;
 
-  const userWorkspaces = await prisma.workspace.findMany({
+  const userWorkspaces = await prisma.organization.findMany({
     where: {
-      OR: [
-        { ownerId: user?.id }, // Workspaces owned by the user
-        { members: { some: { userId: user?.id } } }, // Workspaces where the user is a member
-      ],
-    },
-    include: {
-      owner: { select: { subscription: { select: { plan: true } } } }, // Get the owner's subscription plan
+      members: { some: { userId: user?.id } } , // Workspaces where the user is a member
     },
   });
 
   // Add the subscription plan to each workspace for display
   const workspacesWithPlan = userWorkspaces.map((workspace) => ({
     ...workspace,
-    plan: workspace.owner?.subscription?.plan || "FREE", // Default to 'FREE' if no subscription exists
+    plan: "FREE", // Default to 'FREE' if no subscription exists
   }));
 
   return (

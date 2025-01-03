@@ -24,8 +24,10 @@ interface WorkspaceFormProps {
   slug?: string | null;
 }
 
+
 function WorkspaceForm({ name, slug, id }: WorkspaceFormProps) {
   const router = useRouter();
+  
   const {
     register,
     handleSubmit,
@@ -38,6 +40,8 @@ function WorkspaceForm({ name, slug, id }: WorkspaceFormProps) {
       slug: slug || "",
     }
   });
+
+
 
   const onSubmit = async (data: WorkspaceData) => {
     try {

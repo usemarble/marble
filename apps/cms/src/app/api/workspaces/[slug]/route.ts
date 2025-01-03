@@ -8,7 +8,7 @@ export async function GET(
 ) {
   const slug = (await params).slug;
 
-  const workspace = await prisma.workspace.findUnique({
+  const workspace = await prisma.organization.findUnique({
     where: { slug: slug },
     select: { id: true, slug: true, name: true },
   });
@@ -18,7 +18,7 @@ export async function GET(
   }
 
   // Update the active workspace in cookies
-  setActiveWorkspace(workspace);
+  // setActiveWorkspace(workspace);
 
   return NextResponse.json(workspace);
 }

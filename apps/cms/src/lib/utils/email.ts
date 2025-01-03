@@ -12,7 +12,7 @@ export async function sendInviteEmail({
   inviteLink,
 }: {
   inviteeEmail: string;
-  inviteeUsername: string;
+  inviteeUsername?: string;
   inviterName: string;
   inviterEmail: string;
   workspaceName: string;
@@ -23,7 +23,7 @@ export async function sendInviteEmail({
     to: inviteeEmail,
     subject: `Join ${workspaceName} on Marble`,
     react: VercelInviteUserEmail({
-      username: inviteeUsername,
+      username: inviteeUsername ?? "User",
       invitedByUsername: inviterName,
       invitedByEmail: inviterEmail,
       teamName: workspaceName,
