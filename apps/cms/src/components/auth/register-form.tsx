@@ -8,7 +8,7 @@ import { Button, buttonVariants } from "@repo/ui/components/button";
 import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
 import { toast } from "@repo/ui/components/sonner";
-import { Loader } from "@repo/ui/lib/icons";
+import { EyeClosedIcon, EyeIcon, Loader } from "@repo/ui/lib/icons";
 import { cn } from "@repo/ui/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -25,6 +25,7 @@ export function RegisterForm() {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isGithubLoading, setIsGithubLoading] = useState(false);
   const [isCredentialsLoading, setIsCredentialsLoading] = useState(false);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -41,11 +42,11 @@ export function RegisterForm() {
         },
         {
           onSuccess: (ctx) => {
+            toast.success("Sign in successful");
             router.push("/");
           },
         },
       );
-      return toast("Sign in successful");
     } catch (error) {
       return toast("Your sign in request failed. Please try again.");
     } finally {
@@ -75,7 +76,7 @@ export function RegisterForm() {
 
   return (
     <div className="grid gap-6">
-      <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-2 gap-4">
         <button
           type="button"
           className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
@@ -138,17 +139,31 @@ export function RegisterForm() {
             <Label className="sr-only" htmlFor="password">
               Password
             </Label>
-            <Input
-              id="password"
-              placeholder="your password"
-              type="password"
-              autoCapitalize="none"
-              autoCorrect="off"
-              disabled={
-                isCredentialsLoading || isGoogleLoading || isGithubLoading
-              }
-              {...register("password")}
-            />
+            <div className="relative">
+              <Input
+                id="password"
+                placeholder="Your password"
+                type={isPasswordVisible ? "text" : "password"}
+                autoCapitalize="none"
+                autoCorrect="off"
+                disabled={
+                  isCredentialsLoading || isGoogleLoading || isGithubLoading
+                }
+                className="pr-9"
+                {...register("password")}
+              />
+              <button
+                type="button"
+                className="absolute right-4 top-3"
+                onClick={() => setIsPasswordVisible((prev) => !prev)}
+              >
+                {isPasswordVisible ? (
+                  <EyeIcon className="size-4" />
+                ) : (
+                  <EyeClosedIcon className="size-4" />
+                )}
+              </button>
+            </div>
             {errors?.password && (
               <p className="text-sm px-1 font-medium text-destructive">
                 {errors.password.message}

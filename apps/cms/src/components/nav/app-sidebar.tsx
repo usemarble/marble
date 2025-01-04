@@ -44,7 +44,7 @@ export async function AppSidebar({
         <GreetingCard />
         <NavUser user={user} />
       </SidebarFooter>
-      <SidebarRail />
+      {/* <SidebarRail /> */}
     </Sidebar>
   );
 }

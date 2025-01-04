@@ -3,8 +3,8 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { createAuthMiddleware } from "better-auth/api";
 import { customSession, organization } from "better-auth/plugins";
-import { nanoid } from "nanoid";
-import { sendInviteEmail } from "../utils/email";
+import { redirect } from "next/navigation";
+import { sendInviteEmail } from "../../utils/email";
 import { authClient } from "./client";
 
 export const auth = betterAuth({
@@ -44,7 +44,7 @@ export const auth = betterAuth({
       },
     }),
     customSession(async ({ user, session }) => {
-      const { data: activeOrganization } = authClient.useActiveOrganization();
+      // const { data: activeOrganization } = authClient.useActiveOrganization();
       return {
         user: {
           name: user.name,
@@ -55,8 +55,8 @@ export const auth = betterAuth({
         session: {
           id: session.id,
           token: session.token,
-          organizationId: activeOrganization.id as string,
-          organizationSlug: activeOrganization.slug as string,
+          // organizationId: activeOrganization.id as string,
+          // organizationSlug: activeOrganization.slug as string,
         },
       };
     }),
@@ -65,11 +65,7 @@ export const auth = betterAuth({
     after: createAuthMiddleware(async (ctx) => {
       const newSession = ctx.context.newSession;
       if (newSession) {
-        await authClient.organization.create({
-          name: newSession.user.email,
-          slug: nanoid(6),
-          logo: `https://avatar.vercel.sh/${newSession?.user.name}.svg?text=${newSession?.user.name.split(" ")[0]?.slice(0, 1)}W`,
-        });
+        redirect("/onboarding");
       }
     }),
   },

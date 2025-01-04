@@ -7,7 +7,7 @@ import { setActiveWorkspace } from "../auth/workspace";
 import {
   type CreateWorkspaceValues,
   workspaceSchema,
-} from "../validations/site";
+} from "../validations/workspace";
 
 export async function createWorkspaceAction(payload: CreateWorkspaceValues) {
   const session = await getSession();
@@ -23,23 +23,26 @@ export async function createWorkspaceAction(payload: CreateWorkspaceValues) {
       slug: parsedPayload.slug.toLocaleLowerCase(),
     },
   });
-  setActiveWorkspace(workspace.slug) ;
+  setActiveWorkspace(workspace.slug);
 
   // not too sure this works
   revalidatePath(`/${workspace.slug}`);
   return workspace;
 }
 
-export async function checkWorkspaceSlug(slug: string, currentWorkspaceId?: string): Promise<boolean> {
+export async function checkWorkspaceSlug(
+  slug: string,
+  currentWorkspaceId?: string,
+) {
   const session = await getSession();
   if (!session?.user) {
     throw new Error("Unauthorized");
   }
 
   const workspace = await prisma.organization.findFirst({
-    where: { 
+    where: {
       slug,
-      NOT: currentWorkspaceId ? { id: currentWorkspaceId } : undefined
+      NOT: currentWorkspaceId ? { id: currentWorkspaceId } : undefined,
     },
   });
 
@@ -48,7 +51,7 @@ export async function checkWorkspaceSlug(slug: string, currentWorkspaceId?: stri
 
 export async function updateWorkspaceAction(
   workspaceId: string,
-  payload: CreateWorkspaceValues
+  payload: CreateWorkspaceValues,
 ) {
   const session = await getSession();
   if (!session?.user || !session?.user.id) {

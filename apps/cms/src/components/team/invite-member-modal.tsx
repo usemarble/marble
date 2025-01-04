@@ -1,7 +1,6 @@
 "use client";
 
 import { ErrorMessage } from "@/components/auth/error-message";
-import { useWorkspace } from "@/components/providers/workspace";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@repo/ui/components/button";
 import {
@@ -16,9 +15,9 @@ import { Label } from "@repo/ui/components/label";
 import { toast } from "@repo/ui/components/sonner";
 import { Loader } from "@repo/ui/lib/icons";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 
 import { authClient } from "@/lib/auth/client";
+import { type InviteData, inviteSchema } from "@/lib/validations/auth";
 import { RoleType } from "@repo/db/client";
 import {
   Select,
@@ -35,28 +34,19 @@ export const InviteMemberModal = ({
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
-  const inviteSchema = z.object({
-    email: z.string().email({ message: "Invalid email address" }),
-    role: z.enum([RoleType.ADMIN, RoleType.MEMBER], {
-      required_error: "Please select a role",
-    }),
-  });
-
-  type InviteMemberValues = z.infer<typeof inviteSchema>;
-
   const {
     register,
     handleSubmit,
     setValue,
     formState: { errors, isSubmitting },
-  } = useForm<InviteMemberValues>({
+  } = useForm<InviteData>({
     resolver: zodResolver(inviteSchema),
     defaultValues: {
-      role: RoleType.MEMBER,
+      role: RoleType.member,
     },
   });
 
-  const onSubmit = async (data: InviteMemberValues) => {
+  const onSubmit = async (data: InviteData) => {
     try {
       const res = await authClient.organization.inviteMember({
         email: data.email,
@@ -99,17 +89,17 @@ export const InviteMemberModal = ({
           <div className="grid flex-1 gap-2">
             <Label htmlFor="role">Role</Label>
             <Select
-              onValueChange={(value: Exclude<RoleType, "OWNER">) =>
+              onValueChange={(value: Exclude<RoleType, "owner">) =>
                 setValue("role", value)
               }
-              defaultValue={RoleType.MEMBER}
+              defaultValue={RoleType.member}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select a role" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={RoleType.MEMBER}>Member</SelectItem>
-                <SelectItem value={RoleType.ADMIN}>Admin</SelectItem>
+                <SelectItem value={RoleType.member}>Member</SelectItem>
+                <SelectItem value={RoleType.member}>Admin</SelectItem>
               </SelectContent>
             </Select>
             {errors.role && <ErrorMessage>{errors.role.message}</ErrorMessage>}

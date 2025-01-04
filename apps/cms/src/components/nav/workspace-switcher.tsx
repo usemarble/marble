@@ -37,7 +37,7 @@ import {
 import {
   type CreateWorkspaceValues,
   workspaceSchema,
-} from "@/lib/validations/site";
+} from "@/lib/validations/workspace";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Organization } from "@repo/db/client";
 import {
@@ -139,9 +139,7 @@ export function WorkspaceSwitcher({ workspaces }: WorkspaceSwitcherProps) {
                   className="relative flex w-full items-center gap-4"
                 >
                   <Avatar className="size-6 rounded-[0.2rem]">
-                    <AvatarImage
-                      src={workspace.logo ?? ""}
-                    />
+                    <AvatarImage src={workspace.logo ?? ""} />
                     <AvatarFallback>XX</AvatarFallback>
                   </Avatar>
                   {workspace.name}
@@ -229,14 +227,16 @@ export const CreateWorkspaceModal = ({
           </div>
           <div className="grid flex-1 gap-2">
             <Label htmlFor="slug">Workspace slug</Label>
-            <div className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-within:ring-ring flex h-10 w-full rounded-md border px-3 text-sm focus-within:ring-2 focus-within:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
-              <span className="py-2">app.marblecms.com/</span>
+            <div className="flex w-full rounded-md border border-input bg-background text-base placeholder:text-muted-foreground focus-within:outline-none focus-within:border-primary focus-within:ring-2 focus-within:ring-emerald-200 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm overflow-hidden">
+              <span className="py-2.5 px-2 bg-gray-100 border-r">
+                app.marblecms.com/
+              </span>
               <input
                 id="slug"
                 placeholder="john"
                 {...register("slug")}
                 autoComplete="off"
-                className="w-full bg-transparent py-2 pl-1 outline-none ring-0"
+                className="w-full bg-transparent py-2 outline-none ring-0 pl-2"
               />
             </div>
             {errors.slug && <ErrorMessage>{errors.slug.message}</ErrorMessage>}

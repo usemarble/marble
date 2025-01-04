@@ -6,7 +6,7 @@ async function Page(props: { params: Promise<{ site: string }> }) {
   const { site } = params;
 
   const articles = await db.post.findMany({
-    where: { siteId: site },
+    where: { workspaceId: site },
     select: { id: true, title: true, description: true, createdAt: true },
   });
 

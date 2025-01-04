@@ -8,9 +8,9 @@ datasource db {
 }
 
 enum RoleType {
-  ADMIN
-  OWNER
-  MEMBER
+  admin
+  owner
+  member
 }
 
 enum PostStatus {
@@ -50,58 +50,60 @@ model Subscription {
   @@map("subscription")
 }
 
-
-
-model Site {
-  id          String    @id @default(cuid())
+model Organization {
+  id          String       @id @default(cuid())
   name        String
-  description String?
-  subdomain   String?   @unique
-  workspaceId String
-  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  posts       Post[]
-  tags        Tag[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  slug        String
+  logo        String?
+  metadata    String?
+  description String?      
+  subdomain   String?      @unique 
+  updatedAt   DateTime     @updatedAt
+  createdAt   DateTime     @default(now())
+  posts       Post[]       
+  tags        Tag[]        
+  members     Member[]
+  invitations Invitation[]
 
-  @@map("site")
+  @@unique([slug])
+  @@map("workspace")
 }
 
 model Post {
-  id          String     @id @default(cuid())
-  title       String
-  content     String
-  coverImage  String?
-  contentJson Json
-  description String
-  siteId      String
-  site        Site       @relation(fields: [siteId], references: [id])
-  views       Int        @default(0)
-  slug        String
-  authorId    String
-  status      PostStatus @default(DRAFT)
-  featured    Boolean    @default(false)
-  tags        Tag[]
-  updatedAt   DateTime   @updatedAt
-  createdAt   DateTime   @default(now())
-  author      User       @relation(fields: [authorId], references: [id])
+  id           String     @id @default(cuid())
+  title        String
+  content      String
+  coverImage   String?
+  contentJson  Json
+  description  String
+  workspaceId  String     // changed from siteId
+  workspace    Organization @relation(fields: [workspaceId], references: [id]) // changed from site
+  views        Int        @default(0)
+  slug         String
+  authorId     String
+  status       PostStatus @default(DRAFT)
+  featured     Boolean    @default(false)
+  tags         Tag[]
+  updatedAt    DateTime   @updatedAt
+  createdAt    DateTime   @default(now())
+  author       User       @relation(fields: [authorId], references: [id])
 
-  @@unique([siteId, slug])
+  @@unique([workspaceId, slug]) // changed from siteId
   @@map("post")
 }
 
 model Tag {
-  id          String   @id @default(cuid())
+  id          String       @id @default(cuid())
   name        String
   description String?
   slug        String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
   posts       Post[]
-  siteId      String
-  site        Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  workspaceId String       // changed from siteId
+  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade) // changed from site
 
-  @@unique([siteId, name, slug])
+  @@unique([workspaceId, name, slug]) // changed from siteId
   @@map("tag")
 }
 
@@ -170,22 +172,6 @@ model Verification {
   updatedAt  DateTime?
 
   @@map("verification")
-}
-
-model Organization {
-  id          String      @id @default(cuid())
-  name        String
-  slug        String
-  logo        String?
-  metadata    String?
-  updatedAt   DateTime  @updatedAt
-  createdAt   DateTime  @default(now())
-  sites       Site[]
-  members     Member[]
-  invitations Invitation[]
-
-  @@unique([slug])
-  @@map("workspace")
 }
 
 model Member {

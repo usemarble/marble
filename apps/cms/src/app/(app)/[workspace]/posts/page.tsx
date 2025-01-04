@@ -5,7 +5,7 @@ import PageClient from "./page-client";
 async function Page(params: { params: Promise<{ workspace: string }> }) {
   const { workspace } = await params.params;
 
-  const workspaceToShow = await db.workspace.findUnique({
+  const workspaceToShow = await db.organization.findUnique({
     where: { slug: workspace },
     select: { id: true },
   });
@@ -14,12 +14,12 @@ async function Page(params: { params: Promise<{ workspace: string }> }) {
     return notFound();
   }
 
-  const workspaceSites = await db.site.findMany({
+  const workspaceSites = await db.post.findMany({
     where: { workspaceId: workspaceToShow.id },
-    select: { name: true, description: true, id: true },
+    select: { title: true, description: true, id: true, workspaceId: true },
   });
 
-  return <PageClient sites={workspaceSites} />;
+  return <PageClient posts={workspaceSites} />;
 }
 
 export default Page;

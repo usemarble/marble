@@ -33,14 +33,19 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     if (workspaceSlug && (!workspace || workspace.slug !== workspaceSlug)) {
       // Fetch workspace details from API
       const { data: activeOrganization } = authClient.useActiveOrganization();
-//       await authClient.organization.setActive({
-//   organizationId: "organization-id"
-// })
-      
+      //       await authClient.organization.setActive({
+      //   organizationId: "organization-id"
+      // })
+
       fetch(`/api/workspaces/${workspaceSlug}`)
         .then((res) => res.json())
         .then((data) =>
-          setWorkspace({ id: data.id, slug: data.slug, name: data.name, logo: data.logo }),
+          setWorkspace({
+            id: data.id,
+            slug: data.slug,
+            name: data.name,
+            logo: data.logo,
+          }),
         );
     }
   }, [pathname, params.workspace]);

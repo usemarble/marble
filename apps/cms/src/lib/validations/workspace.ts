@@ -1,10 +1,10 @@
 import { z } from "zod";
 
-export const siteSchema = z.object({
+export const tagSchema = z.object({
   name: z.string().min(1, { message: "Name cannot be empty" }),
-  description: z.string().optional(),
+  slug: z.string().min(1, { message: "Slug cannot be empty" }),
 });
-export type CreateSiteValues = z.infer<typeof siteSchema>;
+export type CreateTagValues = z.infer<typeof tagSchema>;
 
 export const workspaceSchema = z.object({
   name: z.string().min(1, { message: "Name cannot be empty" }),
