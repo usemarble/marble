@@ -8,19 +8,20 @@ import {
   SidebarMenuButton,
 } from "@repo/ui/components/sidebar";
 
-import { Globe, Layers, Tags } from "@repo/ui/lib/icons";
+import { Globe, Tags } from "@repo/ui/lib/icons";
 import Link from "next/link";
 import { useWorkspace } from "../providers/workspace";
 import { UsersIcon } from "../icons/animated/users";
 import { LayoutPanelTopIcon } from "../icons/animated/layout-panel-top";
 import { SettingsIcon } from "../icons/animated/settings";
 import { usePathname } from "next/navigation";
+import { LayersIcon } from "../icons/animated/layers";
 
 const items = [
   {
     name: "Posts",
     url: "posts",
-    icon: Layers,
+    icon: LayersIcon,
   },
   {
     name: "Tags",

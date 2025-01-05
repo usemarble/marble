@@ -2,6 +2,17 @@
 
 import { ErrorMessage } from "@/components/auth/error-message";
 import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@repo/ui/components/alert-dialog";
 import { Button } from "@repo/ui/components/button";
 import {
   Dialog,
@@ -19,6 +30,7 @@ import { checkTagSlugAction, createTagAction } from "@/lib/actions/tag";
 import { authClient } from "@/lib/auth/client";
 import { type CreateTagValues, tagSchema } from "@/lib/validations/workspace";
 import { generateSlug } from "@/utils/generate-slug";
+import type { Tag } from "./columns";
 
 export const CreateTagModal = ({
   open,
@@ -40,17 +52,22 @@ export const CreateTagModal = ({
   });
 
   const { name } = watch();
+  const { data: activeOrganization } = authClient.useActiveOrganization();
 
   const onSubmit = async (data: CreateTagValues) => {
-    const wk = authClient.useActiveOrganization();
-    const isTaken = await checkTagSlugAction(data.slug, wk.data.id);
+  
+    console.log(activeOrganization);
+    const isTaken = await checkTagSlugAction(
+      data.slug,
+      activeOrganization.id as string,
+    );
 
     if (isTaken) {
       setError("slug", { message: "You already have a tag with that slug" });
     }
 
     try {
-      const res = await createTagAction(data, wk.data.id);
+      const res = await createTagAction(data, activeOrganization.id);
       if (!res) {
         setOpen(false);
         toast.success("Tag created successfully");
@@ -105,7 +122,7 @@ export const UpdateTagModal = ({
 }: {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  tagData: { name: string; slug: string } | null;
+  tagData: Tag;
 }) => {
   const {
     register,
@@ -154,10 +171,7 @@ export const UpdateTagModal = ({
           </div>
           <div className="grid flex-1 gap-2">
             <Label htmlFor="slug">Slug</Label>
-            <Input
-              id="slug"
-              {...register("slug")}
-            />
+            <Input id="slug" {...register("slug")} />
             {errors.slug && <ErrorMessage>{errors.slug.message}</ErrorMessage>}
           </div>
           <Button
@@ -172,5 +186,41 @@ export const UpdateTagModal = ({
         </form>
       </DialogContent>
     </Dialog>
+  );
+};
+
+export const DeleteTagModal = ({
+  open,
+  setOpen,
+  id,
+  name,
+}: {
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  id: string;
+  name: string;
+}) => {
+  async function deleteTag() {
+    console.log(id);
+  }
+
+  return (
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete {name}?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will permanently delete this tag from your list and you can no
+            longer use this in articles.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={() => setOpen(false)}>
+            Cancel
+          </AlertDialogCancel>
+          <AlertDialogAction onClick={deleteTag}>Continue</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 };

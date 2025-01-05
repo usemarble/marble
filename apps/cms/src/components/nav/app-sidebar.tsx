@@ -1,11 +1,10 @@
-import getSession from "@/lib/auth/session";
+import getServerSession from "@/lib/auth/session";
 import prisma from "@repo/db";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  SidebarRail,
 } from "@repo/ui/components/sidebar";
 import GreetingCard from "../walkthrough/greeting-card";
 import { NavDevs } from "./nav-devs";
@@ -16,12 +15,12 @@ import { WorkspaceSwitcher } from "./workspace-switcher";
 export async function AppSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
-  const session = await getSession();
+  const session = await getServerSession();
   const user = session?.user;
 
   const userWorkspaces = await prisma.organization.findMany({
     where: {
-      members: { some: { userId: user?.id } } , // Workspaces where the user is a member
+      members: { some: { userId: user?.id } }, // Workspaces where the user is a member
     },
   });
 
@@ -44,7 +43,6 @@ export async function AppSidebar({
         <GreetingCard />
         <NavUser user={user} />
       </SidebarFooter>
-      {/* <SidebarRail /> */}
     </Sidebar>
   );
 }

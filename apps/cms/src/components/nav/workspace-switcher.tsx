@@ -50,6 +50,7 @@ import { toast } from "@repo/ui/components/sonner";
 import { Textarea } from "@repo/ui/components/textarea";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { authClient } from "@/lib/auth/client";
 
 interface WorkspaceWithPlan extends Organization {
   plan: string;
@@ -69,12 +70,17 @@ export function WorkspaceSwitcher({ workspaces }: WorkspaceSwitcherProps) {
   const currWorkspace = workspaces.find((ws) => ws.id === workspace?.id);
 
   // switch workspace function
-  function switchWorkspace(slug: string) {
+ async function switchWorkspace(slug: string) {
     const selectedWorkspace = workspaces.find((ws) => ws.slug === slug);
     if (!selectedWorkspace) {
       toast.error("Workspace not found!");
       return;
     }
+
+    await authClient.organization.setActive({
+      organizationSlug: slug
+    })
+ 
 
     setWorkspace({
       id: selectedWorkspace.id,

@@ -30,6 +30,8 @@
     --chart-5: 27 87% 67%;
     --radius: 0.85rem;
 
+    --sidebar-background: 0 0% 100%;
+
     --scrollbar-thumb: 0 0% 37%;
     --scrollbar-thumb-hover: 0 0% 40%;
   }
@@ -58,6 +60,8 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+
+    --sidebar-background: 0 0% 9%;
 
     --scrollbar-thumb: 0, 0%, 60%;
     --scrollbar-thumb-hover: 0, 0%, 53%;
