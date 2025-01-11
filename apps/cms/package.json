@@ -17,7 +17,7 @@
     "@tanstack/react-table": "^8.20.5",
     "@tiptap/core": "^2.10.4",
     "@tiptap/react": "^2.8.0",
-    "better-auth": "^1.1.8",
+    "better-auth": "^1.1.11",
     "class-variance-authority": "^0.7.0",
     "lucide-react": "^0.452.0",
     "motion": "^11.15.0",

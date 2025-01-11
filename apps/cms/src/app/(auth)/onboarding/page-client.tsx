@@ -17,6 +17,7 @@ import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
 import { toast } from "@repo/ui/components/sonner";
 import { set } from "better-auth";
+import { organization } from "@/lib/auth/client";
 import { Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -42,13 +43,17 @@ function PageClient() {
     }
 
     try {
-      const response = await authClient.organization.create({
+      const response = await organization.create({
         name: data.name,
         slug: data.slug,
         logo: `https://avatar.vercel.sh/${data.name}.svg?text=${data.name.split(" ")[0]?.slice(0, 1)}W`,
       });
-
+      
       if (response.data) {
+        await organization.setActive({
+          organizationId: response.data.id,
+        });
+
         router.push(`/${response.data.slug}`);
       }
     } catch (error) {

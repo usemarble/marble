@@ -36,7 +36,7 @@ interface NavUserProps {
   user: {
     name: string;
     id: string;
-    image: string | null | undefined;
+    image?: string | null | undefined;
     email: string;
   } | undefined;
 }

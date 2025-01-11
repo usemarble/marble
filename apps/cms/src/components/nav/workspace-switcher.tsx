@@ -29,17 +29,25 @@ import {
 } from "@repo/ui/components/sidebar";
 
 import { ErrorMessage } from "@/components/auth/error-message";
-import { useWorkspace } from "@/components/providers/workspace";
 import {
   checkWorkspaceSlug,
-  createWorkspaceAction,
 } from "@/lib/actions/workspace";
+import {
+  organization,
+  useActiveOrganization,
+  useListOrganizations,
+  useSession,
+} from "@/lib/auth/client";
+import type {
+  ActiveOrganization,
+  Organization,
+  Session,
+} from "@/lib/auth/types";
 import {
   type CreateWorkspaceValues,
   workspaceSchema,
 } from "@/lib/validations/workspace";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { Organization } from "@repo/db/client";
 import {
   Avatar,
   AvatarFallback,
@@ -50,46 +58,49 @@ import { toast } from "@repo/ui/components/sonner";
 import { Textarea } from "@repo/ui/components/textarea";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { authClient } from "@/lib/auth/client";
+import { generateSlug } from "@/utils/generate-slug";
 
 interface WorkspaceWithPlan extends Organization {
   plan: string;
 }
 
 interface WorkspaceSwitcherProps {
-  workspaces: WorkspaceWithPlan[];
+  session: Session | null;
+  activeOrganization: ActiveOrganization | null;
 }
 
-export function WorkspaceSwitcher({ workspaces }: WorkspaceSwitcherProps) {
+export function WorkspaceSwitcher(props: WorkspaceSwitcherProps) {
   const { isMobile } = useSidebar();
-  const { workspace, setWorkspace } = useWorkspace();
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const organizations = useListOrganizations();
+  const [optimisticOrg, setOptimisticOrg] = useState<ActiveOrganization | null>(
+    props.activeOrganization,
+  );
+  const { data } = useSession();
+  const session = data || props.session;
 
-  // Find the current workspace with full details including plan
-  const currWorkspace = workspaces.find((ws) => ws.id === workspace?.id);
+  const currOrg = useActiveOrganization();
 
-  // switch workspace function
- async function switchWorkspace(slug: string) {
-    const selectedWorkspace = workspaces.find((ws) => ws.slug === slug);
-    if (!selectedWorkspace) {
-      toast.error("Workspace not found!");
+  console.log("organizations", organizations.data);
+  console.log("active org", currOrg.data);
+  async function switchWorkspace(org: Organization) {
+    if (org.slug === optimisticOrg?.slug) {
       return;
     }
 
-    await authClient.organization.setActive({
-      organizationSlug: slug
-    })
- 
-
-    setWorkspace({
-      id: selectedWorkspace.id,
-      slug: selectedWorkspace.slug,
-      name: selectedWorkspace.name,
-      logo: selectedWorkspace.logo,
+    setOptimisticOrg({
+      members: [],
+      invitations: [],
+      ...org,
     });
 
-    router.push(`/${slug}`, { scroll: false });
+    const { data } = await organization.setActive({
+      organizationSlug: org.slug,
+    });
+
+    setOptimisticOrg(data);
+    router.push(`/${org.slug}`, { scroll: false });
   }
 
   return (
@@ -97,7 +108,7 @@ export function WorkspaceSwitcher({ workspaces }: WorkspaceSwitcherProps) {
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            {workspace ? (
+            {optimisticOrg ? (
               <SidebarMenuButton
                 size="lg"
                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:bg-muted border border-transparent hover:border-border"
@@ -105,7 +116,7 @@ export function WorkspaceSwitcher({ workspaces }: WorkspaceSwitcherProps) {
                 <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square">
                   <Avatar className="size-8 rounded-none">
                     <AvatarImage
-                      src={workspace.logo ?? ""}
+                      src={optimisticOrg.logo ?? ""}
                       className="rounded-[4px]"
                     />
                     <AvatarFallback>HA</AvatarFallback>
@@ -113,10 +124,10 @@ export function WorkspaceSwitcher({ workspaces }: WorkspaceSwitcherProps) {
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium text-sm">
-                    {currWorkspace?.name}
+                    {optimisticOrg?.name || "Personal"}
                   </span>
                   <span className="truncate text-xs text-primary">
-                    {currWorkspace?.plan}
+                    {optimisticOrg?.members.length || 1} members
                   </span>
                 </div>
                 <ChevronsUpDown className="ml-auto" />
@@ -134,22 +145,19 @@ export function WorkspaceSwitcher({ workspaces }: WorkspaceSwitcherProps) {
             <DropdownMenuLabel className="text-muted-foreground text-xs">
               Workspaces
             </DropdownMenuLabel>
-            {workspaces.map((workspace, index) => (
-              <DropdownMenuItem
-                key={workspace.id}
-                onClick={() => setWorkspace(workspace)}
-              >
+            {organizations.data?.map((org: Organization) => (
+              <DropdownMenuItem key={org.id}>
                 <button
                   type="button"
-                  onClick={() => switchWorkspace(workspace.slug)}
+                  onClick={() => switchWorkspace(org)}
                   className="relative flex w-full items-center gap-4"
                 >
                   <Avatar className="size-6 rounded-[0.2rem]">
-                    <AvatarImage src={workspace.logo ?? ""} />
+                    <AvatarImage src={org.logo ?? ""} />
                     <AvatarFallback>XX</AvatarFallback>
                   </Avatar>
-                  {workspace.name}
-                  {currWorkspace === workspace && (
+                  {org.name}
+                  {optimisticOrg?.id === org.id && (
                     <Check className="text-muted-foreground absolute right-0 size-4" />
                   )}
                 </button>
@@ -186,29 +194,39 @@ export const CreateWorkspaceModal = ({
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const {
+    watch,
+    setError,
     register,
     handleSubmit,
-    setError,
     formState: { errors, isSubmitting },
   } = useForm<CreateWorkspaceValues>({
     resolver: zodResolver(workspaceSchema),
-    defaultValues: { name: "", slug: "", description: "" },
+    defaultValues: { name: "" },
   });
   const router = useRouter();
+  const { name } = watch()
 
   const onSubmit = async (data: CreateWorkspaceValues) => {
     try {
-      const slugExists = await checkWorkspaceSlug(
-        data.slug.toLocaleLowerCase(),
-      );
+      const slugExists = await checkWorkspaceSlug(data.slug.toLocaleLowerCase());
       if (slugExists) {
         setError("slug", { message: "This slug is in use" });
         return;
       }
 
-      await createWorkspaceAction(data).then((res) => router.push(res.slug));
-      setOpen(false);
-      toast.success("Workspace created successfully");
+      const response = await organization.create({
+        name: data.name,
+        slug: data.slug,
+        logo: `https://avatar.vercel.sh/${data.name}`,
+      });
+
+      if (response.data) {
+        await organization.setActive({
+          organizationId: response.data.id,
+        });
+
+        router.push(`/${response.data.slug}`);
+      }
     } catch (error) {
       toast.error("Failed to create workspace");
     }
@@ -239,25 +257,12 @@ export const CreateWorkspaceModal = ({
               </span>
               <input
                 id="slug"
-                placeholder="john"
                 {...register("slug")}
-                autoComplete="off"
+                defaultValue={generateSlug(name)}
                 className="w-full bg-transparent py-2 outline-none ring-0 pl-2"
               />
             </div>
             {errors.slug && <ErrorMessage>{errors.slug.message}</ErrorMessage>}
-          </div>
-          <div className="grid flex-1 gap-2">
-            <Label htmlFor="description">Workspace description</Label>
-            <Textarea
-              id="description"
-              placeholder="My cool business workspace"
-              {...register("description")}
-              className="resize-none"
-            />
-            {errors.description && (
-              <ErrorMessage>{errors.description.message}</ErrorMessage>
-            )}
           </div>
           <div className="mt-2">
             <Button

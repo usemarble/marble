@@ -16,7 +16,7 @@ import { toast } from "@repo/ui/components/sonner";
 import { Loader } from "@repo/ui/lib/icons";
 import { useForm } from "react-hook-form";
 
-import { authClient } from "@/lib/auth/client";
+import { organization } from "@/lib/auth/client";
 import { type InviteData, inviteSchema } from "@/lib/validations/auth";
 import { RoleType } from "@repo/db/client";
 import {
@@ -42,13 +42,13 @@ export const InviteMemberModal = ({
   } = useForm<InviteData>({
     resolver: zodResolver(inviteSchema),
     defaultValues: {
-      role: RoleType.member,
+      role: "member",
     },
   });
 
   const onSubmit = async (data: InviteData) => {
     try {
-      const res = await authClient.organization.inviteMember({
+      const res = await organization.inviteMember({
         email: data.email,
         role: data.role,
       });
@@ -67,14 +67,14 @@ export const InviteMemberModal = ({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Invite team member</DialogTitle>
+          <DialogTitle>Invite Member</DialogTitle>
           <DialogDescription>
-            Invite a team member to collaborate in your workspace.
+            Invite a team member to your workspace.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
           <div className="grid flex-1 gap-2">
-            <Label htmlFor="email">Email address</Label>
+            <Label htmlFor="email">Email</Label>
             <Input
               id="email"
               {...register("email")}
@@ -98,8 +98,8 @@ export const InviteMemberModal = ({
                 <SelectValue placeholder="Select a role" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={RoleType.member}>Member</SelectItem>
-                <SelectItem value={RoleType.member}>Admin</SelectItem>
+                <SelectItem value="member">Member</SelectItem>
+                <SelectItem value="admin">Admin</SelectItem>
               </SelectContent>
             </Select>
             {errors.role && <ErrorMessage>{errors.role.message}</ErrorMessage>}
@@ -111,7 +111,7 @@ export const InviteMemberModal = ({
             className="flex w-full gap-2"
           >
             {isSubmitting && <Loader className="size-4 animate-spin" />}
-            Send Invite
+            Invite
           </Button>
         </form>
       </DialogContent>

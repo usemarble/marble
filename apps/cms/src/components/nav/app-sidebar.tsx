@@ -1,11 +1,11 @@
-import getServerSession from "@/lib/auth/session";
-import prisma from "@repo/db";
+import { auth } from "@/lib/auth/auth";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
 } from "@repo/ui/components/sidebar";
+import { headers } from "next/headers";
 import GreetingCard from "../walkthrough/greeting-card";
 import { NavDevs } from "./nav-devs";
 import { NavMain } from "./nav-main";
@@ -15,25 +15,25 @@ import { WorkspaceSwitcher } from "./workspace-switcher";
 export async function AppSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
-  const session = await getServerSession();
-  const user = session?.user;
+  const [session, organization] = await Promise.all([
+    auth.api.getSession({
+      headers: await headers(),
+    }),
+    auth.api.getFullOrganization({
+      headers: await headers(),
+    }),
+  ]);
 
-  const userWorkspaces = await prisma.organization.findMany({
-    where: {
-      members: { some: { userId: user?.id } }, // Workspaces where the user is a member
-    },
-  });
-
-  // Add the subscription plan to each workspace for display
-  const workspacesWithPlan = userWorkspaces.map((workspace) => ({
-    ...workspace,
-    plan: "FREE", // Default to 'FREE' if no subscription exists
-  }));
+  console.log("session", session);
+  console.log("organization", organization);
 
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <WorkspaceSwitcher workspaces={workspacesWithPlan} />
+        <WorkspaceSwitcher
+          session={session}
+          activeOrganization={organization}
+        />
       </SidebarHeader>
       <SidebarContent>
         <NavMain />
@@ -41,7 +41,7 @@ export async function AppSidebar({
       </SidebarContent>
       <SidebarFooter>
         <GreetingCard />
-        <NavUser user={user} />
+        <NavUser user={session?.user} />
       </SidebarFooter>
     </Sidebar>
   );

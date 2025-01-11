@@ -50,7 +50,7 @@ export function LoginForm() {
     if (res.error) {
       return toast("Your sign in request failed. Please try again.");
     }
-    return toast("Sign in successful");
+    return toast.loading("Redirecting...");
   }
 
   const handleSocialSignIn = async (provider: "google" | "github") => {

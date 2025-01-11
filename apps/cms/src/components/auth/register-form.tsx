@@ -63,7 +63,7 @@ export function RegisterForm() {
         callbackURL: searchParams?.get("from") || "/",
       });
       if (signInResult.data) {
-        return toast("Sign in successful");
+        return toast.loading("Redirecting...");
       }
     } catch (error) {
       return toast("Your sign in request failed. Please try again.");
