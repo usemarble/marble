@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "@/styles/globals.css";
 import "@/styles/editor.css";
 import { siteConfig } from "@/lib/site-config";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist } from "next/font/google";
 import Providers from "./providers";
 
 export const metadata: Metadata = {
@@ -13,11 +13,6 @@ export const metadata: Metadata = {
 const fontSans = Geist({
   subsets: ["latin"],
   variable: "--font-sans",
-});
-
-const fontMono = Geist_Mono({
-  subsets: ["latin"],
-  variable: "--font-mono",
 });
 
 export default function RootLayout({

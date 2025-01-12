@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 // auth form
-export const loginSchema = z.object({
+export const credentialSchema = z.object({
   email: z
     .string({ required_error: "Email is required" })
     .min(1, "Email is required")
@@ -12,9 +12,24 @@ export const loginSchema = z.object({
     .min(8, "Password must be more than 8 characters")
     .max(32, "Password must be less than 32 characters"),
 });
-export type LoginData = z.infer<typeof loginSchema>;
+export type CredentialData = z.infer<typeof credentialSchema>;
 
-export const registerSchema = loginSchema.extend({
-  name: z.string({ required_error: "Please enter a name" }),
+export const onboardingSchema = z.object({
+  name: z
+    .string()
+    .min(1, "Name is required")
+    .max(11, "Name must be less than 11 characters"),
+  slug: z
+    .string()
+    .min(4, "Slug should be more than 4 characters")
+    .max(32, "Slug should be less than 32 characters"),
 });
-export type RegisterData = z.infer<typeof registerSchema>;
+export type OnboardingData = z.infer<typeof onboardingSchema>;
+
+export const inviteSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  role: z.enum(["admin", "member"], {
+    message: "Please select a role",
+  }),
+});
+export type InviteData = z.infer<typeof inviteSchema>;

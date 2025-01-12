@@ -1,5 +1,8 @@
+"use client";
+
 import type { PostValues } from "@/lib/validations/post";
 import { Button } from "@repo/ui/components/button";
+import { Calendar } from "@repo/ui/components/calendar";
 import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
 import {
@@ -14,9 +17,37 @@ import {
 } from "@repo/ui/components/sheet";
 import { toast } from "@repo/ui/components/sonner";
 import { Textarea } from "@repo/ui/components/textarea";
-import { Loader2 } from "@repo/ui/lib/icons";
-import TagInput from "./tag-input";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@repo/ui/components/tooltip";
+import {
+  CalendarDays,
+  InfoIcon,
+  Loader2,
+  SettingsIcon,
+} from "@repo/ui/lib/icons";
 
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@repo/ui/components/popover";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@repo/ui/components/select";
+import { cn } from "@repo/ui/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { format } from "date-fns";
+import { useState } from "react";
 import type {
   Control,
   FieldErrors,
@@ -24,6 +55,7 @@ import type {
   UseFormSetValue,
   UseFormTrigger,
 } from "react-hook-form";
+import { TagSelector } from "./tag-selector";
 
 interface PublishSettingsProps {
   control: Control<PostValues>;
@@ -35,6 +67,13 @@ interface PublishSettingsProps {
   isSubmitting: boolean;
   defaultCoverImage?: string | null;
 }
+
+interface TagResponse {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 export function PublishSettings({
   control,
   register,
@@ -44,6 +83,24 @@ export function PublishSettings({
   isSubmitting,
 }: PublishSettingsProps) {
   const hasErrors = Object.keys(errors).length > 0;
+  const [date, setDate] = useState<Date | undefined>(new Date());
+
+  const { data } = useQuery({
+    queryKey: ["tags"],
+    queryFn: async () => {
+      const res = await fetch("/api/tags");
+      const data: TagResponse[] = await res.json();
+      return data;
+    },
+  });
+  const { data: categories } = useQuery({
+    queryKey: ["categories"],
+    queryFn: async () => {
+      const res = await fetch("/api/categories");
+      const data: TagResponse[] = await res.json();
+      return data;
+    },
+  });
 
   const triggerSubmit = async () => {
     if (hasErrors) {
@@ -61,22 +118,38 @@ export function PublishSettings({
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button size="sm">Publish</Button>
+        <Button size="icon" variant="outline">
+          <SettingsIcon />
+        </Button>
       </SheetTrigger>
-      <SheetContent className="h-[96%] right-3 top-3.5 border rounded-md">
+      <SheetContent className="h-[97%] right-3 top-3 border rounded-md overflow-y-auto">
         <SheetHeader>
           <SheetTitle>Publish settings</SheetTitle>
-          <SheetDescription>
-            Final touches to your article. Click publish when you&apos;re done.
-          </SheetDescription>
+          <SheetDescription>Setup article metadata.</SheetDescription>
         </SheetHeader>
         <section className="grid gap-6 py-6">
-          <div className="flex flex-col gap-4">
-            <Label htmlFor="description">Description</Label>
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-1">
+              <Label htmlFor="description">Description</Label>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <InfoIcon className="size-4 text-gray-400" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-muted-foreground text-xs max-w-64">
+                      A short description of your post recommended to be 155
+                      characters or less
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+
             <Textarea
               id="description"
               {...register("description")}
-              placeholder="Enter a very captivating excerpt..."
+              placeholder="A short description of your post"
               className="col-span-3"
             />
             {errors.description && (
@@ -85,8 +158,23 @@ export function PublishSettings({
               </p>
             )}
           </div>
-          <div className="flex flex-col gap-4">
-            <Label htmlFor="slug">Slug</Label>
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-1">
+              <Label htmlFor="slug">Slug</Label>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <InfoIcon className="size-4 text-gray-400" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-muted-foreground text-xs max-w-64">
+                      A url friendly string that can be used to access your
+                      post, recommended to be all lowercase.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
             <Input
               id="slug"
               {...register("slug")}
@@ -99,7 +187,89 @@ export function PublishSettings({
               </p>
             )}
           </div>
-          <TagInput control={control} />
+          <TagSelector options={data || []} control={control} />
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-1">
+              <Label htmlFor="categorg">Category</Label>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <InfoIcon className="size-4 text-gray-400" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-muted-foreground text-xs max-w-64">
+                      Good for grouping posts together. You can have one
+                      category per post.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            <Select
+              onValueChange={(value) => {
+                setValue("category", value);
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Choose a category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Categories</SelectLabel>
+                  {categories?.map((category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            {errors.category && (
+              <p className="text-sm px-1 font-medium text-destructive">
+                {errors.category.message}
+              </p>
+            )}
+          </div>
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-1">
+              <Label htmlFor="publishedAt">Published On</Label>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <InfoIcon className="size-4 text-gray-400" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-muted-foreground text-xs max-w-64">
+                      The date your post was published. This is set by default
+                      but you can change it to any date.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "justify-between text-left font-normal",
+                    !date && "text-muted-foreground",
+                  )}
+                >
+                  {date ? format(date, "PPP") : <span>Pick a date</span>}
+                  <CalendarDays className="text-muted-foreground"/>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={setDate}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
         </section>
         <SheetFooter>
           <SheetClose asChild>

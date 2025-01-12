@@ -1,0 +1,34 @@
+"use client";
+
+import type { ColumnDef } from "@tanstack/react-table";
+import TableActions from "./table-actions";
+
+export type Tag = {
+  id: string;
+  name: string;
+  slug: string;
+};
+
+export const columns: ColumnDef<Tag>[] = [
+  {
+    accessorKey: "name",
+    header: "Name",
+  },
+  {
+    accessorKey: "slug",
+    header: "Slug",
+  },
+  {
+    id: "actions",
+    header: ({ column }) => <div className="flex justify-end pr-10">Actions</div>,
+    cell: ({ row }) => {
+      const tag = row.original;
+
+      return (
+        <div className="flex justify-end pr-10">
+          <TableActions {...tag} />
+        </div>
+      );
+    },
+  },
+];

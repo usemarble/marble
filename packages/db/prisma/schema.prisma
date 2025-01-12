@@ -8,9 +8,9 @@ datasource db {
 }
 
 enum RoleType {
-  ADMIN
-  OWNER
-  MEMBER
+  admin
+  owner
+  member
 }
 
 enum PostStatus {
@@ -37,23 +37,6 @@ enum SubscriptionStatus {
   EXPIRED
 }
 
-model User {
-  id                   String            @id @default(cuid())
-  name                 String?
-  email                String            @unique
-  emailVerified        DateTime?
-  image                String?
-  accounts             Account[]
-  sessions             Session[]
-  posts                Post[]
-  workspaces           Workspace[]       @relation("WorkspaceOwner")
-  workspaceMemberships WorkspaceMember[]
-  invites              Invite[]
-  subscription         Subscription?
-  createdAt            DateTime          @default(now())
-  updatedAt            DateTime          @updatedAt
-}
-
 model Subscription {
   id        String             @id @default(cuid())
   userId    String             @unique
@@ -63,128 +46,175 @@ model Subscription {
   expiresAt DateTime?
   updatedAt DateTime           @updatedAt
   user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscription")
 }
 
-model Workspace {
-  id          String            @id @default(cuid())
+model Organization {
+  id          String       @id @default(cuid())
   name        String
+  slug        String
+  logo        String?
+  metadata    String?
   description String?
-  slug        String            @unique
-  ownerId     String
-  members     WorkspaceMember[]
-  sites       Site[]
-  invites     Invite[]
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-  owner       User              @relation("WorkspaceOwner", fields: [ownerId], references: [id])
-}
-
-model WorkspaceMember {
-  id          String    @id @default(cuid())
-  userId      String
-  workspaceId String
-  role        RoleType  @default(MEMBER)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, workspaceId])
-}
-
-model Site {
-  id          String    @id @default(cuid())
-  name        String
-  description String?
-  subdomain   String?   @unique
-  workspaceId String
-  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  subdomain   String?      @unique
+  updatedAt   DateTime     @updatedAt
+  createdAt   DateTime     @default(now())
   posts       Post[]
   tags        Tag[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  categories  Category[]
+  members     Member[]
+  invitations Invitation[]
+
+  @@unique([slug])
+  @@map("workspace")
 }
 
 model Post {
-  id          String     @id @default(cuid())
+  id          String       @id @default(cuid())
   title       String
   content     String
   coverImage  String?
   contentJson Json
   description String
-  siteId      String
-  site        Site       @relation(fields: [siteId], references: [id])
-  views       Int        @default(0)
+  views       Int          @default(0)
+  workspaceId String
   slug        String
   authorId    String
-  status      PostStatus @default(DRAFT)
-  featured    Boolean    @default(false)
+  categoryId  String
+  status      PostStatus   @default(DRAFT)
+  featured    Boolean      @default(false)
   tags        Tag[]
-  updatedAt   DateTime   @updatedAt
-  createdAt   DateTime   @default(now())
-  author      User       @relation(fields: [authorId], references: [id])
+  updatedAt   DateTime     @updatedAt
+  createdAt   DateTime     @default(now())
+  publishedAt DateTime     @default(now())
+  author      User         @relation(fields: [authorId], references: [id])
+  category    Category     @relation(fields: [categoryId], references: [id])
+  workspace   Organization @relation(fields: [workspaceId], references: [id])
 
-  @@unique([siteId, slug])
+  @@unique([workspaceId, slug])
+  @@map("post")
 }
 
 model Tag {
-  id          String   @id @default(cuid())
+  id          String       @id @default(cuid())
   name        String
   description String?
   slug        String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
   posts       Post[]
-  siteId      String
-  site        Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  workspaceId String
+  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
-  @@unique([siteId, name, slug])
+  @@unique([workspaceId, slug])
+  @@map("tag")
 }
 
-model Invite {
+model Category {
   id          String       @id @default(cuid())
-  email       String // Email of the invitee
+  name        String
+  description String?
+  slug        String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  posts       Post[]
   workspaceId String
-  inviterId   String // User who sent the invite
-  role        RoleType     @default(MEMBER) // Role assigned upon acceptance
-  status      InviteStatus @default(PENDING) // PENDING, ACCEPTED, DECLINED
-  expiresAt   DateTime
+  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
-  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  inviter   User      @relation(fields: [inviterId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  @@unique([workspaceId, slug])
+  @@map("category")
 }
 
 // auth-related models
-model Account {
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String?
-  access_token      String?
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String?
-  session_state     String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model User {
+  id            String        @id @default(cuid())
+  name          String
+  email         String
+  emailVerified Boolean
+  image         String?
+  createdAt     DateTime
+  updatedAt     DateTime
+  sessions      Session[]
+  accounts      Account[]
+  members       Member[]
+  posts         Post[]
+  invitations   Invitation[]
+  subscription  Subscription?
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@id([provider, providerAccountId])
+  @@unique([email])
+  @@map("user")
 }
 
 model Session {
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                   String   @id @default(cuid())
+  expiresAt            DateTime
+  token                String
+  createdAt            DateTime
+  updatedAt            DateTime
+  ipAddress            String?
+  userAgent            String?
+  userId               String
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activeOrganizationId String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  @@unique([token])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("verification")
+}
+
+model Member {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role           String
+  createdAt      DateTime
+
+  @@map("member")
+}
+
+model Invitation {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  email          String
+  role           String?
+  status         String
+  expiresAt      DateTime
+  inviterId      String
+  user           User         @relation(fields: [inviterId], references: [id], onDelete: Cascade)
+
+  @@map("invitation")
 }

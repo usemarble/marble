@@ -1,18 +1,44 @@
-import getSession from "@/lib/auth/session";
+import getServerSession from "@/lib/auth/session";
 import db from "@repo/db";
 import { redirect } from "next/navigation";
 
 export const redirectIfLoggedIn = async () => {
-  const session = await getSession();
+  const session = await getServerSession();
   if (!session) return redirect("/login");
 
-  // This is faulty because what happens if the user is an invited user and they dont have a workspace?
-
-  const workspaceSlug = await db.workspace.findFirst({
+  // First try to find a workspace where user is owner
+  const ownerWorkspace = await db.organization.findFirst({
     where: {
-      ownerId: session?.user?.id,
+      members: {
+        some: {
+          userId: session.user.id,
+          role: "OWNER"
+        }
+      }
     },
     select: { slug: true },
   });
-  return redirect(`/${workspaceSlug?.slug}`);
+
+  if (ownerWorkspace) {
+    return redirect(`/${ownerWorkspace.slug}`);
+  }
+
+  // If no owner workspace, check for any workspace user is a member of
+  const memberWorkspace = await db.organization.findFirst({
+    where: {
+      members: {
+        some: {
+          userId: session.user.id
+        }
+      }
+    },
+    select: { slug: true },
+  });
+
+  if (memberWorkspace) {
+    return redirect(`/${memberWorkspace.slug}`);
+  }
+
+  // If no workspace at all, redirect to onboarding
+  return redirect("/onboarding");
 };

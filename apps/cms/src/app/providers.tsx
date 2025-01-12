@@ -1,17 +1,21 @@
-import { WorkspaceProvider } from "@/components/providers/workspace";
+"use client";
+
 import { Toaster } from "@repo/ui/components/sonner";
-import { SessionProvider } from "next-auth/react";
+import {
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
+  const queryClient = new QueryClient();
+
   return (
-    <SessionProvider>
-      <WorkspaceProvider>
-        <ThemeProvider attribute="class" enableSystem disableTransitionOnChange>
-          {children}
-          <Toaster />
-        </ThemeProvider>
-      </WorkspaceProvider>
-    </SessionProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider attribute="class" enableSystem disableTransitionOnChange>
+        {children}
+        <Toaster />
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }

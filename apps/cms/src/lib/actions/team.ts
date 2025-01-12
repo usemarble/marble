@@ -1,9 +1,9 @@
 "use server";
 
 import getSession from "@/lib/auth/session";
+import { sendInviteEmail } from "@/utils/email";
 import db from "@repo/db";
 import { InviteStatus } from "@repo/db/client";
-import { sendInviteEmail } from "@/lib/utils/email";
 
 export async function createInviteAction(email: string, workspaceId: string) {
   const session = await getSession();
@@ -12,9 +12,9 @@ export async function createInviteAction(email: string, workspaceId: string) {
   }
 
   // Check if user is already a member
-  const existingMember = await db.workspaceMember.findFirst({
+  const existingMember = await db.member.findFirst({
     where: {
-      workspace: { id: workspaceId },
+      organization: { id: workspaceId },
       user: { email },
     },
   });
@@ -24,10 +24,10 @@ export async function createInviteAction(email: string, workspaceId: string) {
   }
 
   // Check for existing pending invite
-  const existingInvite = await db.invite.findFirst({
+  const existingInvite = await db.invitation.findFirst({
     where: {
       email,
-      workspaceId,
+      organizationId: workspaceId,
       status: InviteStatus.PENDING,
     },
   });
@@ -37,27 +37,27 @@ export async function createInviteAction(email: string, workspaceId: string) {
   }
 
   // Create new invite
-  const invite = await db.invite.create({
+  const invite = await db.invitation.create({
     data: {
       email,
-      workspaceId,
+      organizationId: workspaceId,
       status: InviteStatus.PENDING,
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
       inviterId: session.user.id,
     },
     include: {
-      workspace: true,
-      inviter: true,
-    }
+      organization: true,
+      user: true,
+    },
   });
 
   // Send invite email
   await sendInviteEmail({
     inviteeEmail: email,
-    inviteeUsername: "User", // Simple username from email
-    inviterName: invite.inviter.name ?? 'A team member',
-    inviterEmail: invite.inviter.email ?? '',
-    workspaceName: invite.workspace.name,
+    inviteeUsername: "User",
+    inviterName: invite.user.name ?? "A team member",
+    inviterEmail: invite.user.email ?? "",
+    workspaceName: invite.organization.name,
     inviteLink: `${process.env.NEXT_PUBLIC_APP_URL}/invite/${invite.id}`,
   });
 

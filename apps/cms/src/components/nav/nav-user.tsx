@@ -1,5 +1,4 @@
 "use client";
-import * as React from "react";
 
 import {
   BadgeCheck,
@@ -10,6 +9,7 @@ import {
   Sparkles,
 } from "@repo/ui/lib/icons";
 
+import { authClient } from "@/lib/auth/client";
 import {
   Avatar,
   AvatarFallback,
@@ -31,12 +31,14 @@ import {
   useSidebar,
 } from "@repo/ui/components/sidebar";
 import { Skeleton } from "@repo/ui/components/skeleton";
-import type { User } from "next-auth";
-import { signOut } from "next-auth/react";
-import { useSession } from "next-auth/react";
 
 interface NavUserProps {
-  user: User | undefined;
+  user: {
+    name: string;
+    id: string;
+    image?: string | null | undefined;
+    email: string;
+  } | undefined;
 }
 
 export function NavUser({ user }: NavUserProps) {
@@ -144,7 +146,7 @@ export function NavUser({ user }: NavUserProps) {
             <DropdownMenuItem>
               <button
                 type="button"
-                onClick={() => signOut()}
+                onClick={async () => await authClient.signOut()}
                 className="flex w-full items-center gap-4"
               >
                 <LogOut className="text-muted-foreground size-4" />

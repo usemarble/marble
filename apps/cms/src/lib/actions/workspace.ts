@@ -7,7 +7,7 @@ import { setActiveWorkspace } from "../auth/workspace";
 import {
   type CreateWorkspaceValues,
   workspaceSchema,
-} from "../validations/site";
+} from "../validations/workspace";
 
 export async function createWorkspaceAction(payload: CreateWorkspaceValues) {
   const session = await getSession();
@@ -17,39 +17,41 @@ export async function createWorkspaceAction(payload: CreateWorkspaceValues) {
 
   const parsedPayload = workspaceSchema.parse(payload);
 
-  const workspace = await prisma.workspace.create({
+  const workspace = await prisma.organization.create({
     data: {
       ...parsedPayload,
       slug: parsedPayload.slug.toLocaleLowerCase(),
-      ownerId: session.user.id,
     },
   });
-  setActiveWorkspace({ id: workspace.id, slug: workspace.slug, name: workspace.name });
+  setActiveWorkspace(workspace.slug);
 
   // not too sure this works
   revalidatePath(`/${workspace.slug}`);
   return workspace;
 }
 
-export async function checkWorkspaceSlug(slug: string, currentWorkspaceId?: string): Promise<boolean> {
+export async function checkWorkspaceSlug(
+  slug: string,
+  currentWorkspaceId?: string,
+) {
   const session = await getSession();
   if (!session?.user) {
     throw new Error("Unauthorized");
   }
 
-  const workspace = await prisma.workspace.findFirst({
-    where: { 
+  const workspace = await prisma.organization.findFirst({
+    where: {
       slug,
-      NOT: currentWorkspaceId ? { id: currentWorkspaceId } : undefined
+      NOT: currentWorkspaceId ? { id: currentWorkspaceId } : undefined,
     },
   });
 
-  return !workspace; // Return true if slug is available (no workspace found)
+  return !!workspace; // Return true if slug is in use (workspace found)
 }
 
 export async function updateWorkspaceAction(
   workspaceId: string,
-  payload: CreateWorkspaceValues
+  payload: CreateWorkspaceValues,
 ) {
   const session = await getSession();
   if (!session?.user || !session?.user.id) {
@@ -58,7 +60,7 @@ export async function updateWorkspaceAction(
 
   const parsedPayload = workspaceSchema.parse(payload);
 
-  const workspace = await prisma.workspace.update({
+  const workspace = await prisma.organization.update({
     where: { id: workspaceId },
     data: parsedPayload,
   });

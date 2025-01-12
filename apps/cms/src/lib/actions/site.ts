@@ -1,53 +1,23 @@
 "use server";
 
 import db from "@repo/db";
-import { revalidatePath } from "next/cache";
 import getSession from "../auth/session";
-import { type CreateSiteValues, siteSchema } from "../validations/site";
+import { authClient } from "../auth/client";
+import { getActiveOrganization } from "../queries/workspace";
 
-export async function createSiteAction(
-  payload: CreateSiteValues,
-  workspaceSlug: string,
-) {
+
+export const createTagAction = async (name: string) => {
   const session = await getSession();
   if (!session?.user) {
     throw new Error("Unauthorized");
   }
 
-  const parsedPayload = siteSchema.parse(payload);
-
-  const workspaceMatch = await db.workspace.findUnique({
-    where: { slug: workspaceSlug },
-    select: { id: true },
-  });
-
-  if (!workspaceMatch) {
-    throw new Error("Workspace not found");
-  }
-
-  const site = await db.site.create({
+  const activeOrg = await getActiveOrganization(session.user.id);
+  return await db.tag.create({
     data: {
-      ...parsedPayload,
-      workspaceId: workspaceMatch.id,
+      name,
+      slug: name.toLowerCase().replace(/ /g, "-"),
+      workspaceId: activeOrg?.id as string,
     },
   });
-
-  revalidatePath("/");
-  return site;
 }
-
-
-// export const createTagAction = async (name: string) => {
-//   const session = await getSession();
-//   if (!session?.user) {
-//     throw new Error("Unauthorized");
-//   }
-
-//   return await prisma.tag.create({
-//     data: {
-//       name,
-//       slug,
-//       siteId: session.user.id,
-//     },
-//   });
-// }

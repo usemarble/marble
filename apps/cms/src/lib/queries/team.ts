@@ -2,8 +2,8 @@ import db from "@repo/db";
 import { InviteStatus } from "@repo/db/client";
 
 export async function getWorkspaceMembers(workspaceId: string) {
-  const members = await db.workspaceMember.findMany({
-    where: { workspaceId },
+  const members = await db.member.findMany({
+    where: { organizationId: workspaceId },
     include: {
       user: {
         select: {
@@ -16,13 +16,13 @@ export async function getWorkspaceMembers(workspaceId: string) {
     },
   });
 
-  const invites = await db.invite.findMany({
+  const invites = await db.invitation.findMany({
     where: {
-      workspaceId,
+      organizationId: workspaceId,
       status: InviteStatus.PENDING,
     },
     include: {
-      inviter: {
+      user: {
         select: {
           name: true,
           email: true,

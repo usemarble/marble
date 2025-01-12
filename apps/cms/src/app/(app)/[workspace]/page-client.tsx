@@ -2,7 +2,6 @@
 
 import { Add } from "@/components/icons/isometric";
 import { useWorkspace } from "@/components/providers/workspace";
-import { CreateSiteModal } from "@/components/site/create-site-modal";
 import { Button } from "@repo/ui/components/button";
 import {
   Card,
@@ -20,7 +19,6 @@ interface WorkspaceData {
   id: string;
   name: string;
   _count: {
-    sites: number;
     members: number;
   };
 }
@@ -30,7 +28,6 @@ interface PageClientProps {
 }
 
 function PageClient({ workspace }: PageClientProps) {
-  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <>
@@ -39,14 +36,6 @@ function PageClient({ workspace }: PageClientProps) {
           {workspace.name} Dashboard
         </h1>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Total Sites</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-medium">{workspace._count.sites}</p>
-            </CardContent>
-          </Card>
           <Card>
             <CardHeader>
               <CardTitle>Team Members</CardTitle>
