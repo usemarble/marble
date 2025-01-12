@@ -12,7 +12,7 @@ async function Page() {
   if (!session) {
     return redirect("/login");
   }
-  
+
   return (
     <div className="h-screen grid place-items-center">
       <PageClient />

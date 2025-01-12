@@ -33,12 +33,14 @@ import {
 import { Skeleton } from "@repo/ui/components/skeleton";
 
 interface NavUserProps {
-  user: {
-    name: string;
-    id: string;
-    image?: string | null | undefined;
-    email: string;
-  } | undefined;
+  user:
+    | {
+        name: string;
+        id: string;
+        image?: string | null | undefined;
+        email: string;
+      }
+    | undefined;
 }
 
 export function NavUser({ user }: NavUserProps) {

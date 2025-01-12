@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import type { Transition } from 'motion/react';
-import { motion, useAnimation } from 'motion/react';
-import { useEffect } from 'react';
+import type { Transition } from "motion/react";
+import { motion, useAnimation } from "motion/react";
+import { useEffect } from "react";
 
 const defaultTransition: Transition = {
-  type: 'spring',
+  type: "spring",
   stiffness: 100,
   damping: 14,
   mass: 1,
@@ -15,16 +15,16 @@ const LayersIcon = () => {
   const controls = useAnimation();
 
   const handleMouseEnter = async () => {
-    await controls.start('firstState');
-    await controls.start('secondState');
+    await controls.start("firstState");
+    await controls.start("secondState");
   };
 
   const handleMouseLeave = () => {
-    controls.start('normal');
+    controls.start("normal");
   };
 
   useEffect(() => {
-    controls.start('normal');
+    controls.start("normal");
   }, [controls]);
 
   return (

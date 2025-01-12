@@ -1,5 +1,5 @@
-import { Resend } from 'resend';
-import { VercelInviteUserEmail } from '@/components/emails/invite';
+import { Resend } from "resend";
+import { VercelInviteUserEmail } from "@/components/emails/invite";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -19,7 +19,7 @@ export async function sendInviteEmail({
   inviteLink: string;
 }) {
   return resend.emails.send({
-    from: 'Marble <onboarding@resend.dev>',
+    from: "Marble <onboarding@resend.dev>",
     to: inviteeEmail,
     subject: `Join ${workspaceName} on Marble`,
     react: VercelInviteUserEmail({
@@ -33,6 +33,6 @@ export async function sendInviteEmail({
       inviteFromLocation: "Unknown",
       userImage: `https://avatar.vercel.sh/${inviteeEmail}`,
       teamImage: `https://avatar.vercel.sh/${workspaceName}`,
-    })
+    }),
   });
 }

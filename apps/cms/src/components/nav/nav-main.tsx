@@ -59,15 +59,13 @@ export function NavMain() {
     <SidebarGroup>
       <SidebarGroupLabel>Workspace</SidebarGroupLabel>
       <SidebarMenu>
-        <Collapsible
-          asChild
-          defaultOpen={false}
-          className="group/collapsible"
-        >
+        <Collapsible asChild defaultOpen={false} className="group/collapsible">
           <SidebarMenuButton
             asChild
             className={`border border-transparent ${
-              isOverviewActive ? "bg-muted border-border" : "hover:bg-muted hover:border-border"
+              isOverviewActive
+                ? "bg-muted border-border"
+                : "hover:bg-muted hover:border-border"
             }`}
           >
             <Link href={`/${workspace?.slug}`}>
@@ -86,7 +84,9 @@ export function NavMain() {
             <SidebarMenuButton
               asChild
               className={`border border-transparent ${
-                isActive(item.url) ? "bg-muted border-border" : "hover:bg-muted hover:border-border"
+                isActive(item.url)
+                  ? "bg-muted border-border"
+                  : "hover:bg-muted hover:border-border"
               }`}
             >
               <Link href={`/${workspace?.slug}/${item.url}`}>

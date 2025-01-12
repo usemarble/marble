@@ -5,7 +5,6 @@ import getSession from "../auth/session";
 import { authClient } from "../auth/client";
 import { getActiveOrganization } from "../queries/workspace";
 
-
 export const createTagAction = async (name: string) => {
   const session = await getSession();
   if (!session?.user) {
@@ -20,4 +19,4 @@ export const createTagAction = async (name: string) => {
       workspaceId: activeOrg?.id as string,
     },
   });
-}
+};

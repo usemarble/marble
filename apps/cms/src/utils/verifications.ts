@@ -12,9 +12,9 @@ export const redirectIfLoggedIn = async () => {
       members: {
         some: {
           userId: session.user.id,
-          role: "OWNER"
-        }
-      }
+          role: "OWNER",
+        },
+      },
     },
     select: { slug: true },
   });
@@ -28,9 +28,9 @@ export const redirectIfLoggedIn = async () => {
     where: {
       members: {
         some: {
-          userId: session.user.id
-        }
-      }
+          userId: session.user.id,
+        },
+      },
     },
     select: { slug: true },
   });

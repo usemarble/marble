@@ -20,7 +20,9 @@ export const columns: ColumnDef<Tag>[] = [
   },
   {
     id: "actions",
-    header: ({ column }) => <div className="flex justify-end pr-10">Actions</div>,
+    header: ({ column }) => (
+      <div className="flex justify-end pr-10">Actions</div>
+    ),
     cell: ({ row }) => {
       const tag = row.original;
 

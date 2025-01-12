@@ -48,7 +48,7 @@ function PageClient() {
         slug: data.slug,
         logo: `https://avatar.vercel.sh/${data.name}.svg?text=${data.name.split(" ")[0]?.slice(0, 1)}W`,
       });
-      
+
       if (response.data) {
         await organization.setActive({
           organizationId: response.data.id,

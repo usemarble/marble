@@ -28,7 +28,6 @@ export async function createTagAction(
       workspaceId,
     },
   });
-
 }
 
 export async function updateTagAction(payload: CreateTagValues, id: string) {

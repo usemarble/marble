@@ -1,6 +1,9 @@
 "use client";
 
-import { checkWorkspaceSlug, updateWorkspaceAction } from "@/lib/actions/workspace";
+import {
+  checkWorkspaceSlug,
+  updateWorkspaceAction,
+} from "@/lib/actions/workspace";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@repo/ui/components/button";
 import { Input } from "@repo/ui/components/input";
@@ -24,10 +27,9 @@ interface WorkspaceFormProps {
   slug?: string | null;
 }
 
-
 function WorkspaceForm({ name, slug, id }: WorkspaceFormProps) {
   const router = useRouter();
-  
+
   const {
     register,
     handleSubmit,
@@ -38,10 +40,8 @@ function WorkspaceForm({ name, slug, id }: WorkspaceFormProps) {
     defaultValues: {
       name: name || "",
       slug: slug || "",
-    }
+    },
   });
-
-
 
   const onSubmit = async (data: WorkspaceData) => {
     try {
@@ -58,7 +58,6 @@ function WorkspaceForm({ name, slug, id }: WorkspaceFormProps) {
       const updatedWorkspace = await updateWorkspaceAction(id, data);
       router.replace(`/${updatedWorkspace.slug}/settings`);
       router.refresh(); // Refresh the page to get updated data from server
-
     } catch (error) {
       console.error(error);
       // Handle error appropriately
@@ -67,25 +66,20 @@ function WorkspaceForm({ name, slug, id }: WorkspaceFormProps) {
 
   return (
     <div>
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col space-y-4">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex flex-col space-y-4"
+      >
         <div className="flex flex-col gap-2">
           <Label htmlFor="name">Name</Label>
-          <Input
-            id="name"
-            {...register("name")}
-            placeholder="Technology"
-          />
+          <Input id="name" {...register("name")} placeholder="Technology" />
           {errors.name && (
             <p className="text-xs text-destructive">{errors.name.message}</p>
           )}
         </div>
         <div className="flex flex-col gap-2">
           <Label htmlFor="slug">Slug</Label>
-          <Input
-            id="slug"
-            {...register("slug")}
-            placeholder="workspace"
-          />
+          <Input id="slug" {...register("slug")} placeholder="workspace" />
           {errors.slug && (
             <p className="text-xs text-destructive">{errors.slug.message}</p>
           )}

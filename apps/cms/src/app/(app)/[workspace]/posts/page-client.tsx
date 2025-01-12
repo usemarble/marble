@@ -24,14 +24,18 @@ import Link from "next/link";
 import { useState } from "react";
 
 interface PageClientProps {
-  posts: { title: string; id: string; description: string | null, workspaceId: string }[];
+  posts: {
+    title: string;
+    id: string;
+    description: string | null;
+    workspaceId: string;
+  }[];
 }
 
 function PageClient({ posts }: PageClientProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState("ascending");
   const [search, setSearch] = useState("");
-
 
   const handleSort = (order: string) => {
     setPosition(order);
@@ -86,7 +90,7 @@ function PageClient({ posts }: PageClientProps) {
         <div>
           <Link
             href="/create"
-            className={buttonVariants({ variant: "default", size: "sm"})}
+            className={buttonVariants({ variant: "default", size: "sm" })}
           >
             <Plus size={16} />
             <span>New article</span>

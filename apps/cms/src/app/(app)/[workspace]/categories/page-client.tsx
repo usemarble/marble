@@ -8,7 +8,6 @@ interface PageClientProps {
 }
 
 function PageClient({ categories }: PageClientProps) {
-
   return (
     <div className="h-full flex flex-col max-w-screen-lg mx-auto pt-16">
       <DataTable data={categories} columns={columns} />

@@ -9,7 +9,7 @@ const Tabs = TabsPrimitive.Root;
 const TabsList = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.List>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.List> & {
-    variant?: "default" | "underline"
+    variant?: "default" | "underline";
   }
 >(({ className, variant = "default", ...props }, ref) => (
   <TabsPrimitive.List

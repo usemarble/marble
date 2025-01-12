@@ -7,4 +7,3 @@ export default function WorkspaceLayout({
 }) {
   return <div className="h-full">{children}</div>;
 }
-

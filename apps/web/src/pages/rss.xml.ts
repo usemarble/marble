@@ -8,9 +8,11 @@ export async function GET(context: APIContext) {
     const blog = await getCollection("blog");
 
     const posts = [...blog].sort(
-      (a, b) => new Date(b.data.published).valueOf() - new Date(a.data.published).valueOf(),
+      (a, b) =>
+        new Date(b.data.published).valueOf() -
+        new Date(a.data.published).valueOf(),
     );
-  
+
     return rss({
       title: SITE.TITLE,
       description: SITE.DESCRIPTION,
@@ -22,7 +24,6 @@ export async function GET(context: APIContext) {
         link: `/${post.collection}/${post.id}/`,
       })),
     });
-
   } catch (error) {
     console.error("Error generating RSS feed:", error);
     return new Response("Error generating RSS feed", { status: 500 });

@@ -7,7 +7,7 @@ async function Page(params: { params: Promise<{ workspace: string }> }) {
   const { workspace } = await params.params;
 
   const session = await getServerSession();
-  
+
   const workspaceData = await db.organization.findUnique({
     where: { slug: workspace },
     select: {
@@ -20,9 +20,9 @@ async function Page(params: { params: Promise<{ workspace: string }> }) {
       },
       members: {
         where: {
-          userId: session?.user.id
-        }
-      }
+          userId: session?.user.id,
+        },
+      },
     },
   });
 

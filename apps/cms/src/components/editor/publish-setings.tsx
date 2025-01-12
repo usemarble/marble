@@ -257,7 +257,7 @@ export function PublishSettings({
                   )}
                 >
                   {date ? format(date, "PPP") : <span>Pick a date</span>}
-                  <CalendarDays className="text-muted-foreground"/>
+                  <CalendarDays className="text-muted-foreground" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0">

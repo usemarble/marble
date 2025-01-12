@@ -28,7 +28,6 @@ interface PageClientProps {
 }
 
 function PageClient({ workspace }: PageClientProps) {
-
   return (
     <>
       <div className="p-4">

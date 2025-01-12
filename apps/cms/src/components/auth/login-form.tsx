@@ -156,7 +156,11 @@ export function LoginForm() {
                 className="absolute right-4 top-3"
                 onClick={() => setIsPasswordVisible((prev) => !prev)}
               >
-                {isPasswordVisible ? <EyeIcon className="size-4"/> : <EyeClosedIcon className="size-4"/>}
+                {isPasswordVisible ? (
+                  <EyeIcon className="size-4" />
+                ) : (
+                  <EyeClosedIcon className="size-4" />
+                )}
               </button>
             </div>
             {errors?.password && (

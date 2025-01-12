@@ -89,7 +89,7 @@ function PageContent() {
               </Link>
             </Button>
           </div>
-          
+
           <div className="flex gap-4 justify-end items-center">
             <PublishSettings
               errors={errors}

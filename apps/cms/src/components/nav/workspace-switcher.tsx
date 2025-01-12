@@ -29,9 +29,7 @@ import {
 } from "@repo/ui/components/sidebar";
 
 import { ErrorMessage } from "@/components/auth/error-message";
-import {
-  checkWorkspaceSlug,
-} from "@/lib/actions/workspace";
+import { checkWorkspaceSlug } from "@/lib/actions/workspace";
 import {
   organization,
   useActiveOrganization,
@@ -205,7 +203,7 @@ export const CreateWorkspaceModal = ({
     defaultValues: { name: "" },
   });
   const router = useRouter();
-  const { name } = watch()
+  const { name } = watch();
 
   useEffect(() => {
     if (name) {
@@ -217,7 +215,8 @@ export const CreateWorkspaceModal = ({
   const onSubmit = async (data: CreateWorkspaceValues) => {
     try {
       const slugExists = await checkWorkspaceSlug(data.slug);
-      if (slugExists) { // This check is now correct - if true, the slug is in use
+      if (slugExists) {
+        // This check is now correct - if true, the slug is in use
         setError("slug", { message: "This slug is in use" });
         return;
       }

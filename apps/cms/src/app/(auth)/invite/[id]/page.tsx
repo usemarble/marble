@@ -29,8 +29,6 @@ async function InvitePageComponent({ code }: { code: string }) {
 
   const inviteEmail = await verifyInvite(code);
 
-  
-
   if (!inviteEmail) {
     return (
       <div className="mx-auto max-w-md space-y-6">

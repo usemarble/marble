@@ -41,7 +41,7 @@ export function CookieSettings() {
     setPreferences((prev) =>
       prev.includes(cookieId)
         ? prev.filter((id) => id !== cookieId)
-        : [...prev, cookieId]
+        : [...prev, cookieId],
     );
   };
 
