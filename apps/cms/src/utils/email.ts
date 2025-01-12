@@ -1,5 +1,5 @@
-import { Resend } from "resend";
 import { VercelInviteUserEmail } from "@/components/emails/invite";
+import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 

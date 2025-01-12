@@ -7,7 +7,11 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "ignore": ["packages/ui/src/components/*.{tsx,ts}"]
+    "ignore": [
+      "packages/ui/src/components/**",
+      "packages/ui/src/lib/**",
+      "packages/ui/src/hooks/**"
+    ]
   },
   "formatter": {
     "enabled": true,

@@ -86,7 +86,7 @@ const starterKit = StarterKit.configure({
   gapcursor: false,
 });
 
-import { Extension } from "@tiptap/core";
+import type { Extension } from "@tiptap/core";
 
 export const defaultExtensions: Extension[] = [
   starterKit,

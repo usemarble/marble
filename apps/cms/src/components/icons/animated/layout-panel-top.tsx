@@ -1,5 +1,5 @@
-import { motion, useAnimation } from "motion/react";
 import { LucideProps } from "lucide-react";
+import { motion, useAnimation } from "motion/react";
 
 const LayoutPanelTopIcon = () => {
   const controls = useAnimation();

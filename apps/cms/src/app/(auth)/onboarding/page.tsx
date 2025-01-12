@@ -1,7 +1,7 @@
 import getServerSession from "@/lib/auth/session";
 import type { Metadata } from "next";
-import PageClient from "./page-client";
 import { redirect } from "next/navigation";
+import PageClient from "./page-client";
 
 export const metadata: Metadata = {
   title: "Onboarding",

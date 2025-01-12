@@ -9,9 +9,9 @@ import {
 } from "@repo/ui/components/sidebar";
 
 import Link from "next/link";
-import { WebhookIcon } from "../icons/animated/webhook";
 import { BookTextIcon } from "../icons/animated/book-text";
 import { ConnectIcon } from "../icons/animated/connect";
+import { WebhookIcon } from "../icons/animated/webhook";
 
 const items = [
   {

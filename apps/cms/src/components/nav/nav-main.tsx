@@ -8,14 +8,14 @@ import {
   SidebarMenuButton,
 } from "@repo/ui/components/sidebar";
 
+import { useActiveOrganization } from "@/lib/auth/client";
 import { Group, Tags } from "@repo/ui/lib/icons";
 import Link from "next/link";
-import { UsersIcon } from "../icons/animated/users";
-import { LayoutPanelTopIcon } from "../icons/animated/layout-panel-top";
-import { SettingsIcon } from "../icons/animated/settings";
 import { usePathname } from "next/navigation";
 import { LayersIcon } from "../icons/animated/layers";
-import { useActiveOrganization } from "@/lib/auth/client";
+import { LayoutPanelTopIcon } from "../icons/animated/layout-panel-top";
+import { SettingsIcon } from "../icons/animated/settings";
+import { UsersIcon } from "../icons/animated/users";
 
 const items = [
   {

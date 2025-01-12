@@ -53,9 +53,9 @@ export const TextButtons = () => {
 
   return (
     <div className="flex flex-col md:flex-row">
-      {items.map((item, index) => (
+      {items.map((item) => (
         <EditorBubbleItem
-          key={index}
+          key={`item-${Math.random()}`}
           onSelect={(editor) => {
             item.command(editor);
           }}

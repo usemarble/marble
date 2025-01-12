@@ -21,7 +21,8 @@ export const uploadFn = createImageUpload({
     if (!file.type.includes("image/")) {
       toast.error("File type not supported.");
       return false;
-    } else if (file.size / 1024 / 1024 > 4) {
+    }
+    if (file.size / 1024 / 1024 > 4) {
       toast.error("File size too big (max 4MB).");
       return false;
     }

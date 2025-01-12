@@ -45,6 +45,7 @@ import {
   type CreateWorkspaceValues,
   workspaceSchema,
 } from "@/lib/validations/workspace";
+import { generateSlug } from "@/utils/generate-slug";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Avatar,
@@ -56,7 +57,6 @@ import { toast } from "@repo/ui/components/sonner";
 import { Textarea } from "@repo/ui/components/textarea";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { generateSlug } from "@/utils/generate-slug";
 
 interface WorkspaceWithPlan extends Organization {
   plan: string;

@@ -1,7 +1,7 @@
 "use client";
 
-import { DataTable } from "@/components/tags/data-table";
 import { columns } from "@/components/tags/columns";
+import { DataTable } from "@/components/tags/data-table";
 
 interface PageClientProps {
   tags: { id: string; name: string; slug: string }[];

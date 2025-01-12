@@ -1,7 +1,7 @@
+import getServerSession from "@/lib/auth/session";
 import db from "@repo/db";
 import { notFound } from "next/navigation";
 import PageClient from "./page-client";
-import getServerSession from "@/lib/auth/session";
 
 async function Page(params: { params: Promise<{ workspace: string }> }) {
   const { workspace } = await params.params;
