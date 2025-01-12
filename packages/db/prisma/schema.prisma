@@ -56,12 +56,13 @@ model Organization {
   slug        String
   logo        String?
   metadata    String?
-  description String?      
-  subdomain   String?      @unique 
+  description String?
+  subdomain   String?      @unique
   updatedAt   DateTime     @updatedAt
   createdAt   DateTime     @default(now())
-  posts       Post[]       
-  tags        Tag[]        
+  posts       Post[]
+  tags        Tag[]
+  categories  Category[]
   members     Member[]
   invitations Invitation[]
 
@@ -70,25 +71,28 @@ model Organization {
 }
 
 model Post {
-  id           String     @id @default(cuid())
-  title        String
-  content      String
-  coverImage   String?
-  contentJson  Json
-  description  String
-  workspaceId  String     // changed from siteId
-  workspace    Organization @relation(fields: [workspaceId], references: [id]) // changed from site
-  views        Int        @default(0)
-  slug         String
-  authorId     String
-  status       PostStatus @default(DRAFT)
-  featured     Boolean    @default(false)
-  tags         Tag[]
-  updatedAt    DateTime   @updatedAt
-  createdAt    DateTime   @default(now())
-  author       User       @relation(fields: [authorId], references: [id])
+  id          String       @id @default(cuid())
+  title       String
+  content     String
+  coverImage  String?
+  contentJson Json
+  description String
+  views       Int          @default(0)
+  workspaceId String
+  slug        String
+  authorId    String
+  categoryId  String
+  status      PostStatus   @default(DRAFT)
+  featured    Boolean      @default(false)
+  tags        Tag[]
+  updatedAt   DateTime     @updatedAt
+  createdAt   DateTime     @default(now())
+  publishedAt DateTime     @default(now())
+  author      User         @relation(fields: [authorId], references: [id])
+  category    Category     @relation(fields: [categoryId], references: [id])
+  workspace   Organization @relation(fields: [workspaceId], references: [id])
 
-  @@unique([workspaceId, slug]) // changed from siteId
+  @@unique([workspaceId, slug])
   @@map("post")
 }
 
@@ -100,17 +104,32 @@ model Tag {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   posts       Post[]
-  workspaceId String       // changed from siteId
-  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade) // changed from site
+  workspaceId String
+  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
-  @@unique([workspaceId, name, slug]) // changed from siteId
+  @@unique([workspaceId, slug])
   @@map("tag")
+}
+
+model Category {
+  id          String       @id @default(cuid())
+  name        String
+  description String?
+  slug        String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  posts       Post[]
+  workspaceId String
+  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, slug])
+  @@map("category")
 }
 
 // auth-related models
 
 model User {
-  id            String       @id @default(cuid())
+  id            String        @id @default(cuid())
   name          String
   email         String
   emailVerified Boolean

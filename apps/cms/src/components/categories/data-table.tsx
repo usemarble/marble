@@ -22,7 +22,7 @@ import {
 } from "@repo/ui/components/table";
 import { Plus, SearchIcon, XIcon } from "lucide-react";
 import { useState } from "react";
-import { CreateTagModal } from "./tag-modals";
+import { CreateCategoryModal } from "./category-modals";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -64,7 +64,7 @@ export function DataTable<TData, TValue>({
             onChange={(event) =>
               table.getColumn("name")?.setFilterValue(event.target.value)
             }
-            placeholder="Search tags..."
+            placeholder="Search categories..."
             className="px-8 w-72"
           />
           {(table.getColumn("name")?.getFilterValue() as string) && (
@@ -85,7 +85,7 @@ export function DataTable<TData, TValue>({
             variant="outline"
           >
             <Plus size={16} />
-            <span>create tag</span>
+            <span>new category</span>
           </Button>
         </div>
       </div>
@@ -133,7 +133,7 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-96 text-center"
                 >
-                  No tags to show.
+                  No categories to show.
                 </TableCell>
               </TableRow>
             )}
@@ -141,7 +141,10 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
 
-      <CreateTagModal open={showCreateModal} setOpen={setShowCreateModal} />
+      <CreateCategoryModal
+        open={showCreateModal}
+        setOpen={setShowCreateModal}
+      />
     </div>
   );
 }

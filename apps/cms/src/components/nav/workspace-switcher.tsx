@@ -1,7 +1,7 @@
 "use client";
 
 import { Check, ChevronsUpDown, Loader, Plus } from "@repo/ui/lib/icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@repo/ui/components/button";
 import {
@@ -197,6 +197,7 @@ export const CreateWorkspaceModal = ({
     watch,
     setError,
     register,
+    setValue,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<CreateWorkspaceValues>({
@@ -206,10 +207,17 @@ export const CreateWorkspaceModal = ({
   const router = useRouter();
   const { name } = watch()
 
+  useEffect(() => {
+    if (name) {
+      const slug = generateSlug(name);
+      setValue("slug", slug);
+    }
+  }, [name, setValue]);
+
   const onSubmit = async (data: CreateWorkspaceValues) => {
     try {
-      const slugExists = await checkWorkspaceSlug(data.slug.toLocaleLowerCase());
-      if (slugExists) {
+      const slugExists = await checkWorkspaceSlug(data.slug);
+      if (slugExists) { // This check is now correct - if true, the slug is in use
         setError("slug", { message: "This slug is in use" });
         return;
       }
@@ -217,14 +225,14 @@ export const CreateWorkspaceModal = ({
       const response = await organization.create({
         name: data.name,
         slug: data.slug,
-        logo: `https://avatar.vercel.sh/${data.name}`,
+        logo: `https://avatar.vercel.sh/${data.name}.svg?text=${data.name.split(" ")[0]?.slice(0, 1)}W`,
       });
 
       if (response.data) {
         await organization.setActive({
           organizationId: response.data.id,
         });
-
+        setOpen(false);
         router.push(`/${response.data.slug}`);
       }
     } catch (error) {

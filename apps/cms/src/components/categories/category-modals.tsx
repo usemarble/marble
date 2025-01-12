@@ -11,7 +11,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@repo/ui/components/alert-dialog";
 import { Button } from "@repo/ui/components/button";
 import {
@@ -27,17 +26,20 @@ import { Loader } from "@repo/ui/lib/icons";
 import { useForm } from "react-hook-form";
 
 import {
-  checkTagSlugAction,
-  createTagAction,
-  deleteTagAction,
-} from "@/lib/actions/tag";
+  checkCategorySlugAction,
+  createCategoryAction,
+  deleteCategoryAction,
+} from "@/lib/actions/category";
 import { useActiveOrganization } from "@/lib/auth/client";
-import { type CreateTagValues, tagSchema } from "@/lib/validations/workspace";
+import {
+  type CreateCategoryValues,
+  categorySchema,
+} from "@/lib/validations/workspace";
 import { generateSlug } from "@/utils/generate-slug";
 import { useEffect, useState } from "react";
-import type { Tag } from "./columns";
+import type { Category } from "./columns";
 
-export const CreateTagModal = ({
+export const CreateCategoryModal = ({
   open,
   setOpen,
 }: {
@@ -51,8 +53,8 @@ export const CreateTagModal = ({
     watch,
     setError,
     formState: { errors, isSubmitting },
-  } = useForm<CreateTagValues>({
-    resolver: zodResolver(tagSchema),
+  } = useForm<CreateCategoryValues>({
+    resolver: zodResolver(categorySchema),
     defaultValues: { name: "" },
   });
 
@@ -63,26 +65,26 @@ export const CreateTagModal = ({
     setValue("slug", generateSlug(name));
   }, [name, setValue]);
 
-  const onSubmit = async (data: CreateTagValues) => {
-    const isTaken = await checkTagSlugAction(
+  const onSubmit = async (data: CreateCategoryValues) => {
+    const isTaken = await checkCategorySlugAction(
       data.slug,
       activeOrganization.id as string,
     );
 
     if (isTaken) {
-      setError("slug", { message: "You already have a tag with that slug" });
+      setError("slug", {
+        message: "You already have a category with that slug",
+      });
     }
 
     try {
-      const res = await createTagAction(data, activeOrganization.id);
+      const res = await createCategoryAction(data, activeOrganization.id);
       if (!res) {
         setOpen(false);
-        toast.success("Tag created successfully");
+        toast.success("Category created successfully");
       }
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to send invite",
-      );
+      toast.error("Failed to create category");
     }
   };
 
@@ -90,7 +92,7 @@ export const CreateTagModal = ({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-w-sm">
         <DialogHeader>
-          <DialogTitle>Create tag</DialogTitle>
+          <DialogTitle>Create category</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2">
           <div className="grid flex-1 gap-2">
@@ -114,7 +116,7 @@ export const CreateTagModal = ({
             size={"sm"}
           >
             {isSubmitting && <Loader className="size-4 animate-spin" />}
-            Create tag
+            Create category
           </Button>
         </form>
       </DialogContent>
@@ -122,14 +124,14 @@ export const CreateTagModal = ({
   );
 };
 
-export const UpdateTagModal = ({
+export const UpdateCategoryModal = ({
   open,
   setOpen,
-  tagData,
+  categoryData,
 }: {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  tagData: Tag;
+  categoryData: Category;
 }) => {
   const {
     register,
@@ -138,9 +140,9 @@ export const UpdateTagModal = ({
     watch,
     setError,
     formState: { errors, isSubmitting },
-  } = useForm<CreateTagValues>({
-    resolver: zodResolver(tagSchema),
-    defaultValues: { ...tagData },
+  } = useForm<CreateCategoryValues>({
+    resolver: zodResolver(categorySchema),
+    defaultValues: { ...categoryData },
   });
 
   const { name } = watch();
@@ -151,23 +153,26 @@ export const UpdateTagModal = ({
     setValue("slug", generateSlug(name));
   }, [name, setValue]);
 
-  const onSubmit = async (data: CreateTagValues) => {
-    const isTaken = await checkTagSlugAction(data.slug, activeWorkspace.id);
+  const onSubmit = async (data: CreateCategoryValues) => {
+    const isTaken = await checkCategorySlugAction(
+      data.slug,
+      activeWorkspace.id,
+    );
 
     if (isTaken) {
-      setError("slug", { message: "You already have a tag with that slug" });
+      setError("slug", {
+        message: "You already have a category with that slug",
+      });
     }
 
     try {
-      const res = await createTagAction(data, activeWorkspace.id);
+      const res = await createCategoryAction(data, activeWorkspace.id);
       if (!res) {
         setOpen(false);
-        toast.success("Tag created successfully");
+        toast.success("Category created successfully");
       }
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to send invite",
-      );
+      toast.error("Failed to create category");
     }
   };
 
@@ -175,7 +180,7 @@ export const UpdateTagModal = ({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-w-sm">
         <DialogHeader>
-          <DialogTitle>Update tag</DialogTitle>
+          <DialogTitle>Update category</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2">
           <div className="grid flex-1 gap-2">
@@ -195,7 +200,7 @@ export const UpdateTagModal = ({
             size={"sm"}
           >
             {isSubmitting && <Loader className="size-4 animate-spin" />}
-            Update tag
+            Update category
           </Button>
         </form>
       </DialogContent>
@@ -203,7 +208,7 @@ export const UpdateTagModal = ({
   );
 };
 
-export const DeleteTagModal = ({
+export const DeleteCategoryModal = ({
   open,
   setOpen,
   id,
@@ -216,13 +221,13 @@ export const DeleteTagModal = ({
 }) => {
   const [loading, setLoading] = useState(false);
 
-  async function deleteTag() {
+  async function deleteCategory() {
     setLoading(true);
     try {
-      await deleteTagAction(id);
-      toast.success("Tag deleted successfully");
+      await deleteCategoryAction(id);
+      toast.success("Category deleted successfully");
     } catch (error) {
-      toast.error("Failed to delete tag.");
+      toast.error("Failed to delete category.");
     } finally {
       setLoading(false);
       setOpen(false);
@@ -245,7 +250,7 @@ export const DeleteTagModal = ({
           </AlertDialogCancel>
           <AlertDialogAction asChild>
             <Button
-              onClick={deleteTag}
+              onClick={deleteCategory}
               disabled={loading}
               variant="destructive"
             >

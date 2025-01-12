@@ -2,6 +2,7 @@
 
 import Editor from "@/components/editor/editor";
 import { PublishSettings } from "@/components/editor/publish-setings";
+import { useSession } from "@/lib/auth/client";
 import { type PostValues, postSchema } from "@/lib/validations/post";
 import { generateSlug } from "@/utils/generate-slug";
 import { sanitizeHtml } from "@/utils/sanitize-html";
@@ -9,7 +10,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@repo/ui/components/button";
 import { toast } from "@repo/ui/components/sonner";
 import { HelpCircle, Undo } from "@repo/ui/lib/icons";
-import { useSession } from "next-auth/react";
 import Link from "next/link";
 import type { JSONContent } from "novel";
 import { useEffect, useRef, useState } from "react";
@@ -89,22 +89,8 @@ function PageContent() {
               </Link>
             </Button>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="relative flex size-2">
-              <span
-                className={`animate-ping absolute inline-flex h-full w-full rounded-full ${session ? "bg-green-400" : "bg-yellow-400"} opacity-75`}
-              />
-              <span
-                className={`relative inline-flex rounded-full size-2 ${session ? "bg-green-500" : "bg-yellow-500"} `}
-              />
-            </span>
-            <p className="text-xs">{session ? "Connected" : "Connecting..."}</p>
-          </div>
+          
           <div className="flex gap-4 justify-end items-center">
-            <div className="flex flex-col text-xs text-right text-muted-foreground">
-              <p>251 words</p>
-              <p>2453 characters</p>
-            </div>
             <PublishSettings
               errors={errors}
               control={control}

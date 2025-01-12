@@ -14,7 +14,7 @@ import BubbleMenu from "./bubble-menu";
 import { defaultExtensions } from "./extensions";
 import { slashCommand, suggestionItems } from "./slash-command";
 
-import { Extension } from "@tiptap/core";
+import type { Extension } from "@tiptap/core";
 
 export const extensions = [...defaultExtensions, slashCommand] as Extension[];
 

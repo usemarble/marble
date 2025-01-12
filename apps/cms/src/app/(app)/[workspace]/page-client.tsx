@@ -28,7 +28,6 @@ interface PageClientProps {
 }
 
 function PageClient({ workspace }: PageClientProps) {
-  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <>

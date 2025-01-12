@@ -9,7 +9,7 @@ async function Page({ params }: { params: Promise<{ workspace: string }> }) {
     headers: await headers(),
   });
 
-  const tagsToShow = await db.tag.findMany({
+  const availableCategories = await db.category.findMany({
     where: { workspaceId: workspace?.id },
     select: {
       id: true,
@@ -19,7 +19,7 @@ async function Page({ params }: { params: Promise<{ workspace: string }> }) {
   });
   return (
     <div>
-      <PageClient tags={tagsToShow} />
+      <PageClient categories={availableCategories} />
     </div>
   );
 }

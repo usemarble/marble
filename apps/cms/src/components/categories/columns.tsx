@@ -3,13 +3,13 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import TableActions from "./table-actions";
 
-export type Tag = {
+export type Category = {
   id: string;
   name: string;
   slug: string;
 };
 
-export const columns: ColumnDef<Tag>[] = [
+export const columns: ColumnDef<Category>[] = [
   {
     accessorKey: "name",
     header: "Name",
@@ -20,7 +20,9 @@ export const columns: ColumnDef<Tag>[] = [
   },
   {
     id: "actions",
-    header: ({ column }) => <div className="flex justify-end pr-10">Actions</div>,
+    header: ({ column }) => (
+      <div className="flex justify-end pr-10">Actions</div>
+    ),
     cell: ({ row }) => {
       const tag = row.original;
 

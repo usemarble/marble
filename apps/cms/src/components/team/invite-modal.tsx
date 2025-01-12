@@ -27,7 +27,7 @@ import {
   SelectValue,
 } from "@repo/ui/components/select";
 
-export const InviteMemberModal = ({
+export const InviteModal = ({
   open,
   setOpen,
 }: {

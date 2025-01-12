@@ -46,7 +46,7 @@ export async function checkWorkspaceSlug(
     },
   });
 
-  return !workspace; // Return true if slug is available (no workspace found)
+  return !!workspace; // Return true if slug is in use (workspace found)
 }
 
 export async function updateWorkspaceAction(

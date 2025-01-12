@@ -8,20 +8,25 @@ import {
   SidebarMenuButton,
 } from "@repo/ui/components/sidebar";
 
-import { Globe, Tags } from "@repo/ui/lib/icons";
+import { Group, Tags } from "@repo/ui/lib/icons";
 import Link from "next/link";
-import { useWorkspace } from "../providers/workspace";
 import { UsersIcon } from "../icons/animated/users";
 import { LayoutPanelTopIcon } from "../icons/animated/layout-panel-top";
 import { SettingsIcon } from "../icons/animated/settings";
 import { usePathname } from "next/navigation";
 import { LayersIcon } from "../icons/animated/layers";
+import { useActiveOrganization } from "@/lib/auth/client";
 
 const items = [
   {
     name: "Posts",
     url: "posts",
     icon: LayersIcon,
+  },
+  {
+    name: "Categories",
+    url: "categories",
+    icon: Group,
   },
   {
     name: "Tags",
@@ -41,7 +46,7 @@ const items = [
 ];
 
 export function NavMain() {
-  const { workspace } = useWorkspace();
+  const { data: workspace } = useActiveOrganization();
   const pathname = usePathname();
 
   const isActive = (url: string) => {

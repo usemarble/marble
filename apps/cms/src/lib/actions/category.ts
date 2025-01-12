@@ -1,0 +1,56 @@
+"use server";
+
+import db from "@repo/db";
+import { NextResponse } from "next/server";
+import getServerSession from "../auth/session";
+import type { CreateCategoryValues } from "../validations/workspace";
+
+export async function checkCategorySlugAction(slug: string, workspaceId: string) {
+  const result = await db.category.findFirst({
+    where: { workspaceId: workspaceId, slug: slug },
+  });
+
+  return !!result;
+}
+
+export async function createCategoryAction(
+  data: CreateCategoryValues,
+  workspaceId: string,
+) {
+  const isAllowed = await getServerSession();
+  if (!isAllowed) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  await db.category.create({
+    data: {
+      ...data,
+      workspaceId,
+    },
+  });
+}
+
+export async function updateCategoryAction(payload: CreateCategoryValues, id: string) {
+  const isAllowed = await getServerSession();
+  if (!isAllowed) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  await db.category.update({
+    where: { id: id },
+    data: payload,
+  });
+}
+
+export async function deleteCategoryAction(id: string) {
+  const isAllowed = await getServerSession();
+  if (!isAllowed) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  await db.category.delete({
+    where: { id: id },
+  });
+
+  return NextResponse.json({ status: 200 });
+}

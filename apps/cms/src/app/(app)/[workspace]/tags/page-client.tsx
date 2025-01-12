@@ -1,7 +1,6 @@
 "use client";
 
 import { DataTable } from "@/components/tags/data-table";
-import { useState } from "react";
 import { columns } from "@/components/tags/columns";
 
 interface PageClientProps {

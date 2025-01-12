@@ -23,6 +23,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   > | null>(null);
   const params = useParams();
   const pathname = usePathname();
+  const { data: activeOrganization } = authClient.useActiveOrganization();
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <ignore>
   useEffect(() => {
@@ -32,7 +33,6 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       : params.workspace;
     if (workspaceSlug && (!workspace || workspace.slug !== workspaceSlug)) {
       // Fetch workspace details from API
-      const { data: activeOrganization } = authClient.useActiveOrganization();
       //       await authClient.organization.setActive({
       //   organizationId: "organization-id"
       // })

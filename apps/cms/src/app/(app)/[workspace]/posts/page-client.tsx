@@ -32,11 +32,9 @@ function PageClient({ posts }: PageClientProps) {
   const [position, setPosition] = useState("ascending");
   const [search, setSearch] = useState("");
 
-  const wkspcId = posts[0]?.workspaceId;
 
   const handleSort = (order: string) => {
     setPosition(order);
-    console.log("sort");
   };
 
   return (
@@ -87,7 +85,7 @@ function PageClient({ posts }: PageClientProps) {
 
         <div>
           <Link
-            href={`/editor/${wkspcId}/new?from=${encodeURIComponent(window.location.href)}`}
+            href="/create"
             className={buttonVariants({ variant: "default", size: "sm"})}
           >
             <Plus size={16} />

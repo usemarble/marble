@@ -1,19 +1,17 @@
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
-import type { Tag } from "./columns";
+import type { Category } from "./columns";
 
 import { Button } from "@repo/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@repo/ui/components/dropdown-menu";
 import { useState } from "react";
-import { DeleteTagModal, UpdateTagModal } from "./tag-modals";
+import { DeleteCategoryModal, UpdateCategoryModal } from "./category-modals";
 
-export default function TableActions(props: Tag) {
+export default function TableActions(props: Category) {
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
@@ -27,7 +25,6 @@ export default function TableActions(props: Tag) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuItem>
             <button
               type="button"
@@ -49,13 +46,13 @@ export default function TableActions(props: Tag) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <UpdateTagModal
+      <UpdateCategoryModal
         open={showUpdateModal}
         setOpen={setShowUpdateModal}
-        tagData={{ ...props }}
+        categoryData={{ ...props }}
       />
 
-      <DeleteTagModal
+      <DeleteCategoryModal
         open={showDeleteModal}
         setOpen={setShowDeleteModal}
         name={props.name}
