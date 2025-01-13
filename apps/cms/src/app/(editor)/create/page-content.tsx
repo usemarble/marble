@@ -2,30 +2,28 @@
 
 import Editor from "@/components/editor/editor";
 import { PublishSettings } from "@/components/editor/publish-setings";
-import { useSession } from "@/lib/auth/client";
+import { createPostAction } from "@/lib/actions/post";
 import { type PostValues, postSchema } from "@/lib/validations/post";
 import { generateSlug } from "@/utils/generate-slug";
 import { sanitizeHtml } from "@/utils/sanitize-html";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@repo/ui/components/button";
 import { toast } from "@repo/ui/components/sonner";
-import { HelpCircle, Undo } from "@repo/ui/lib/icons";
+import { CornerUpLeft, Undo } from "@repo/ui/lib/icons";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { JSONContent } from "novel";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-// import { publishArticle } from "./actions";
 
 function PageContent() {
   const [saving, setSaving] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
-  const session = useSession();
-  // NOT exactly working just placeholder for now I guess
-  // Trying to indicate users connection status
+  const router = useRouter();
 
   const form = useForm<PostValues>({
     resolver: zodResolver(postSchema),
-    defaultValues: { coverImage: null, contentJson: "{}" },
+    defaultValues: { coverImage: null, contentJson: "{}", status: "published" },
   });
   const {
     register,
@@ -57,7 +55,7 @@ function PageContent() {
 
   async function onSubmit(values: PostValues) {
     try {
-      // await publishArticle(values);
+      await createPostAction(values);
       console.log(values);
     } catch {
       toast.error("Something went wrong, please try again.", {
@@ -79,14 +77,17 @@ function PageContent() {
 
   return (
     <>
-      <div className="">
-        <header className="bg-background/90 sticky top-0 px-4 py-2 backdrop-blur-lg border-b z-50 flex justify-between">
+      <div>
+        <header className="bg-background/90 sticky top-0 px-4 py-2 backdrop-blur-lg z-50 flex justify-between">
           <div className="flex gap-4 items-center">
-            <Button asChild disabled={saving} variant="ghost" size="sm">
-              <Link href="/" className="flex items-center gap-2 text-xs">
-                <Undo className="size-4 text-muted-foreground ml-2" />
-                <span>Dashboard</span>
-              </Link>
+            <Button
+              disabled={saving}
+              variant="ghost"
+              size="icon"
+              onClick={() => router.back()}
+              className="group"
+            >
+              <CornerUpLeft className="size-4 text-muted-foreground group-hover:text-foreground" />
             </Button>
           </div>
 
@@ -98,15 +99,16 @@ function PageContent() {
               formRef={formRef}
               register={register}
               setValue={setValue}
+              watch={watch}
               isSubmitting={isSubmitting}
             />
           </div>
         </header>
-        <main className="mx-auto w-full max-w-4xl py-6">
+        <main className="mx-auto w-full max-w-4xl py-4">
           <form
             ref={formRef}
             onSubmit={handleSubmit(onSubmit)}
-            className="space-y-5 rounded-md px-4 py-10"
+            className="space-y-5 rounded-md px-4 pt-6 pb-10"
           >
             <div className="flex flex-col">
               <label htmlFor="title" className="sr-only">

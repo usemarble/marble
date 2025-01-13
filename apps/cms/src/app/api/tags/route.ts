@@ -8,10 +8,8 @@ export async function GET() {
   if (!session?.user) {
     throw new Error("Unauthorized");
   }
-  const activeOrg = await getActiveOrganization(session.user.id);
-
   const tags = await db.tag.findMany({
-    where: { workspaceId: activeOrg?.id },
+    where: { workspaceId: session.session?.activeOrganizationId as string },
     select: {
       id: true,
       name: true,

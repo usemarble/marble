@@ -1,6 +1,8 @@
+import { auth } from "@/lib/auth/auth";
 import getServerSession from "@/lib/auth/session";
 import { getActiveOrganization } from "@/lib/queries/workspace";
 import db from "@repo/db";
+import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 
 export async function GET() {
@@ -8,10 +10,9 @@ export async function GET() {
   if (!session?.user) {
     throw new Error("Unauthorized");
   }
-  const activeOrg = await getActiveOrganization(session.user.id);
 
   const categories = await db.category.findMany({
-    where: { workspaceId: activeOrg?.id },
+    where: { workspaceId: session.session.activeOrganizationId as string },
     select: {
       id: true,
       name: true,

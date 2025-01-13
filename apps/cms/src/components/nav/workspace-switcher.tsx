@@ -82,6 +82,7 @@ export function WorkspaceSwitcher(props: WorkspaceSwitcherProps) {
 
   console.log("organizations", organizations.data);
   console.log("active org", currOrg.data);
+
   async function switchWorkspace(org: Organization) {
     if (org.slug === optimisticOrg?.slug) {
       return;
@@ -98,6 +99,7 @@ export function WorkspaceSwitcher(props: WorkspaceSwitcherProps) {
     });
 
     setOptimisticOrg(data);
+
     router.push(`/${org.slug}`, { scroll: false });
   }
 

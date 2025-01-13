@@ -26,6 +26,7 @@ export const postSchema = z.object({
   contentJson: z.string().min(10),
   tags: z.array(z.string().min(1)).min(1, "At least one tag is required"),
   category: z.string().min(1, "Category is required").uuid(),
+  status: z.enum(["published", "unpublished"]),
 });
 
 export type PostValues = z.infer<typeof postSchema>;

@@ -8,6 +8,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
+  CommandSeparator,
 } from "@repo/ui/components/command";
 import { Label } from "@repo/ui/components/label";
 import {
@@ -22,9 +23,10 @@ import {
   TooltipTrigger,
 } from "@repo/ui/components/tooltip";
 import { cn } from "@repo/ui/lib/utils";
-import { Check, ChevronsUpDown, InfoIcon, XIcon } from "lucide-react";
+import { Check, ChevronsUpDown, InfoIcon, Plus, XIcon } from "lucide-react";
 import { useState } from "react";
 import { type Control, useController } from "react-hook-form";
+import { CreateTagModal } from "../tags/tag-modals";
 
 interface Option {
   id: string;
@@ -56,22 +58,7 @@ export const TagSelector = ({
     defaultValue: [],
   });
   const [selected, setSelected] = useState<Option[]>([]);
-
-  const handleSelect = (value: string) => {
-    const option = options.find((opt) => opt.id === value);
-    if (!option) return;
-
-    const isSelected = selected.some((item) => item.id === value);
-    if (isSelected) {
-      onChange(selected.filter((item) => item.id !== value));
-    } else {
-      onChange([...selected, option]);
-    }
-  };
-
-  const handleRemove = (valueToRemove: string) => {
-    onChange(selected.filter((item) => item.id !== valueToRemove));
-  };
+  const [openTagModal, setOpenTagModal] = useState(false);
 
   const addTag = (tagToAdd: string) => {
     if (value.includes(tagToAdd)) return;
@@ -140,7 +127,7 @@ export const TagSelector = ({
         </PopoverTrigger>
         <PopoverContent className="min-w-full p-0" align="start">
           <Command className="w-full">
-            <CommandInput placeholder="Search..." />
+            <CommandInput placeholder="Search tags..." />
             <CommandList>
               <CommandEmpty>No results found.</CommandEmpty>
               <CommandGroup>
@@ -162,10 +149,27 @@ export const TagSelector = ({
                   </CommandItem>
                 ))}
               </CommandGroup>
+              <CommandSeparator />
+              <CommandItem asChild className="rounded-none">
+                <button
+                  type="button"
+                  onClick={() => setOpenTagModal(true)}
+                  className="flex w-full items-center gap-2"
+                >
+                  <div className="bg-background flex size-6 items-center justify-center rounded-md border">
+                    <Plus className="size-4" />
+                  </div>
+                  <div className="text-muted-foreground font-medium">
+                    add tag
+                  </div>
+                </button>
+              </CommandItem>
             </CommandList>
           </Command>
         </PopoverContent>
       </Popover>
+
+      <CreateTagModal open={openTagModal} setOpen={setOpenTagModal} />
     </div>
   );
 };

@@ -14,9 +14,8 @@ enum RoleType {
 }
 
 enum PostStatus {
-  DRAFT
-  PUBLISHED
-  SCHEDULED
+  published
+  unpublished
 }
 
 enum PlanType {
@@ -82,7 +81,7 @@ model Post {
   slug        String
   authorId    String
   categoryId  String
-  status      PostStatus   @default(DRAFT)
+  status      PostStatus   @default(published)
   featured    Boolean      @default(false)
   tags        Tag[]
   updatedAt   DateTime     @updatedAt
