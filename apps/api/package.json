@@ -3,8 +3,7 @@
   "version": "0.1.0",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy --minify",
-    "postinstall": "prisma generate --schema=./../../../packages/db/prisma/schema.prisma"
+    "deploy": "wrangler deploy --minify"
   },
   "dependencies": {
     "@repo/db": "workspace:*",
