@@ -11,6 +11,10 @@ app.get("/", (c) => {
   return c.text("Hello from marble");
 });
 
+app.get("/status", (c) => {
+  return c.json({ status: "ok" }, 200);
+});
+
 app.get("/tags/:id", async (c) => {
   try {
     const url = c.env.DATABASE_URL;
