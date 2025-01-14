@@ -8,7 +8,6 @@ export type Env = {
 const app = new Hono<{ Bindings: Env }>();
 
 app.get("/", (c) => {
-  console.log(c.env.DATABASE_URL);
   return c.text("Hello from marble");
 });
 
