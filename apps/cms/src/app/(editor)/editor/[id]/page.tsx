@@ -30,7 +30,13 @@ async function Page(props: { params: Promise<{ id: string }> }) {
   }
 
   const structuredData = {
-    ...post,
+    slug: post.slug,
+    title: post.title,
+    status: post.status,
+    content: post.content,
+    coverImage: post.coverImage,
+    description: post.description,
+    publishedAt: post.publishedAt,
     contentJson: JSON.stringify(post.contentJson),
     tags: post.tags.map((tag) => tag.id),
     category: post.categoryId,
@@ -38,7 +44,7 @@ async function Page(props: { params: Promise<{ id: string }> }) {
 
   return (
     <>
-      <PageClient data={structuredData} />
+      <PageClient data={structuredData} id={post.id} />
     </>
   );
 }

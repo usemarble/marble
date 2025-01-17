@@ -2,7 +2,7 @@
 
 import Editor from "@/components/editor/editor";
 import { PublishSettings } from "@/components/editor/publish-setings";
-import { createPostAction } from "@/lib/actions/post";
+import { updatePostAction } from "@/lib/actions/post";
 import { type PostValues, postSchema } from "@/lib/validations/post";
 import { generateSlug } from "@/utils/generate-slug";
 import { sanitizeHtml } from "@/utils/sanitize-html";
@@ -17,9 +17,10 @@ import { useForm } from "react-hook-form";
 
 interface PageClientProps {
   data: PostValues;
+  id: string;
 }
 
-function PageClient({ data }: PageClientProps) {
+function PageClient({ data, id }: PageClientProps) {
   const [saving, setSaving] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const [showSettings, setShowSettings] = useState(false);
@@ -60,13 +61,11 @@ function PageClient({ data }: PageClientProps) {
   async function onSubmit(values: PostValues) {
     console.log(values);
     try {
-      await createPostAction(values);
-      toast.success("Post created successfully", { position: "top-center" });
+      await updatePostAction(values, id);
+      toast.success("Post updated", { position: "top-center" });
     } catch {
-      toast.error("Something went wrong, please try again.", {
-        style: {
-          border: "1px solid hsl(354 84% 57%)",
-        },
+      toast.error("Something went wrong.", {
+        position: "top-center",
       });
     } finally {
       setShowSettings(false);
