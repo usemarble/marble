@@ -67,7 +67,7 @@ export const updatePostAction = async (post: PostValues, id: string) => {
       tags: {
         connect: values.tags.map((id) => ({ id })),
       },
-    }
+    },
   });
 
   return postUpdated.id;

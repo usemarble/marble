@@ -55,7 +55,6 @@ function PageClient({ data, id }: PageClientProps) {
     }
     setValue("content", sanitizeHtml(html));
     setValue("contentJson", JSON.stringify(json));
-    console.log(json);
   };
 
   async function onSubmit(values: PostValues) {

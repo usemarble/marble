@@ -7,6 +7,7 @@ import {
   TaskList,
   TiptapImage,
   TiptapLink,
+  TiptapUnderline,
   UpdatedImage,
 } from "novel/extensions";
 
@@ -58,6 +59,12 @@ const horizontalRule = HorizontalRule.configure({
   },
 });
 
+const underline = TiptapUnderline.configure({
+  HTMLAttributes: {
+    class: cx("underline"),
+  },
+});
+
 const starterKit = StarterKit.configure({
   bulletList: {
     HTMLAttributes: {
@@ -90,10 +97,11 @@ const starterKit = StarterKit.configure({
 export const defaultExtensions: Extension[] = [
   starterKit,
   placeholder,
-  UpdatedImage as unknown as Extension,
+  // UpdatedImage as unknown as Extension,
   tiptapLink as unknown as Extension,
   taskList as unknown as Extension,
   taskItem as unknown as Extension,
   horizontalRule as unknown as Extension,
+  underline as unknown as Extension,
   tiptapImage as unknown as Extension,
 ];

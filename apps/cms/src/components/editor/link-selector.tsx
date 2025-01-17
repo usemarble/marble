@@ -1,10 +1,12 @@
 import { Button } from "@repo/ui/components/button";
+import { Label } from "@repo/ui/components/label";
 import { Popover, PopoverTrigger } from "@repo/ui/components/popover";
 import { PopoverContent } from "@repo/ui/components/popover";
+import { Switch } from "@repo/ui/components/switch";
 import { Check, LinkIcon, Trash } from "@repo/ui/lib/icons";
 import { cn } from "@repo/ui/lib/utils";
 import { useEditor } from "novel";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export function isValidUrl(url: string) {
   try {
@@ -34,6 +36,7 @@ interface LinkSelectorProps {
 export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { editor } = useEditor();
+  const [openInNewTab, setOpenInNewTab] = useState(true);
 
   // Autofocus on input by default
   useEffect(() => {
@@ -44,15 +47,13 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
   return (
     <Popover modal={true} open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" className="gap-2 rounded-none border-none">
+        <Button
+          variant="ghost"
+          className={cn("gap-2 rounded-none border-none", {
+            "text-emerald-500": editor.isActive("link"),
+          })}
+        >
           <LinkIcon className="size-4" />
-          <p
-            className={cn("underline decoration-stone-400 underline-offset-4", {
-              "text-blue-500": editor.isActive("link"),
-            })}
-          >
-            Link
-          </p>
         </Button>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-60 p-0" sideOffset={10}>
@@ -62,34 +63,71 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
             e.preventDefault();
             const input = target[0] as HTMLInputElement;
             const url = getUrlFromString(input.value);
-            url && editor.chain().focus().setLink({ href: url }).run();
+            url &&
+              editor
+                .chain()
+                .focus()
+                .setLink({
+                  href: url,
+                  target: openInNewTab ? "_blank" : "_self",
+                })
+                .run();
           }}
-          className="flex p-1"
+          className="flex flex-col p-1"
         >
-          <input
-            ref={inputRef}
-            type="text"
-            placeholder="Paste or type link"
-            className="flex-1 bg-background p-1 text-sm outline-none"
-            defaultValue={editor.getAttributes("link").href || ""}
-          />
-          {editor.getAttributes("link").href ? (
-            <Button
-              size="icon"
-              variant="outline"
-              type="button"
-              className="flex h-8 items-center rounded-sm p-1 text-red-600 transition-all hover:bg-red-100 dark:hover:bg-red-800"
-              onClick={() => {
-                editor.chain().focus().unsetLink().run();
-              }}
-            >
-              <Trash className="h-4 w-4" />
-            </Button>
-          ) : (
-            <Button type="button" variant="outline" size="icon" className="h-8">
-              <Check className="h-4 w-4" />
-            </Button>
-          )}
+          <div className="flex">
+            <input
+              ref={inputRef}
+              type="text"
+              placeholder="Paste or type link"
+              className="flex-1 bg-background p-1 text-sm outline-none"
+              defaultValue={editor.getAttributes("link").href || ""}
+            />
+            {editor.getAttributes("link").href ? (
+              <Button
+                size="icon"
+                variant="outline"
+                type="button"
+                className="flex h-8 items-center rounded-sm text-destructive transition-all hover:bg-destructive hover:text-white"
+                onClick={() => {
+                  editor.chain().focus().unsetLink().run();
+                }}
+              >
+                <Trash className="h-4 w-4" />
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={() => {
+                  const url = getUrlFromString(inputRef.current?.value || "");
+                  if (url) {
+                    editor
+                      .chain()
+                      .focus()
+                      .setLink({
+                        href: url,
+                        target: openInNewTab ? "_blank" : "_self",
+                      })
+                      .run();
+                  }
+                }}
+              >
+                <Check className="size-4" />
+              </Button>
+            )}
+          </div>
+          <div className="flex items-center space-x-2 p-2">
+            <Switch
+              id="new-tab"
+              checked={openInNewTab}
+              onCheckedChange={setOpenInNewTab}
+            />
+            <Label htmlFor="new-tab" className="text-muted-foreground text-xs">
+              Open in new tab
+            </Label>
+          </div>
         </form>
       </PopoverContent>
     </Popover>
