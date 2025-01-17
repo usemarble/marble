@@ -9,21 +9,25 @@ import { sanitizeHtml } from "@/utils/sanitize-html";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@repo/ui/components/button";
 import { toast } from "@repo/ui/components/sonner";
-import { CornerUpLeft, Undo } from "@repo/ui/lib/icons";
-import Link from "next/link";
+import { CornerUpLeft } from "@repo/ui/lib/icons";
 import { useRouter } from "next/navigation";
 import type { JSONContent } from "novel";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 
-function PageContent() {
+interface PageClientProps {
+  data: PostValues;
+}
+
+function PageClient({ data }: PageClientProps) {
   const [saving, setSaving] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
+  const [showSettings, setShowSettings] = useState(false);
   const router = useRouter();
 
   const form = useForm<PostValues>({
     resolver: zodResolver(postSchema),
-    defaultValues: { coverImage: null, contentJson: "{}", status: "published" },
+    defaultValues: { ...data },
   });
   const {
     register,
@@ -54,15 +58,18 @@ function PageContent() {
   };
 
   async function onSubmit(values: PostValues) {
+    console.log(values);
     try {
       await createPostAction(values);
-      console.log(values);
+      toast.success("Post created successfully", { position: "top-center" });
     } catch {
       toast.error("Something went wrong, please try again.", {
         style: {
           border: "1px solid hsl(354 84% 57%)",
         },
       });
+    } finally {
+      setShowSettings(false);
     }
   }
 
@@ -72,8 +79,9 @@ function PageContent() {
     if (title) {
       const slug = generateSlug(title);
       setValue("slug", slug);
+      clearErrors("slug");
     }
-  }, [title, setValue]);
+  }, [title, setValue, clearErrors]);
 
   return (
     <>
@@ -99,12 +107,15 @@ function PageContent() {
               formRef={formRef}
               register={register}
               setValue={setValue}
+              clearErrors={clearErrors}
               watch={watch}
               isSubmitting={isSubmitting}
+              isOpen={showSettings}
+              setIsOpen={setShowSettings}
             />
           </div>
         </header>
-        <main className="mx-auto w-full max-w-4xl py-4">
+        <main className="mx-auto w-full max-w-3xl py-4">
           <form
             ref={formRef}
             onSubmit={handleSubmit(onSubmit)}
@@ -119,7 +130,7 @@ function PageContent() {
                 placeholder="Title"
                 {...register("title")}
                 onKeyDown={handleKeyDown}
-                className="h-20 w-full bg-transparent sm:px-4 text-4xl font-bold focus:outline-none focus:ring-0"
+                className="h-20 w-full bg-transparent sm:px-4 text-4xl font-semibold focus:outline-none focus:ring-0"
               />
               {errors.title && (
                 <p className="text-sm px-1 font-medium text-destructive">
@@ -145,4 +156,4 @@ function PageContent() {
   );
 }
 
-export default PageContent;
+export default PageClient;

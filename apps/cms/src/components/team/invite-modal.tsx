@@ -17,8 +17,9 @@ import { Loader } from "@repo/ui/lib/icons";
 import { useForm } from "react-hook-form";
 
 import { organization } from "@/lib/auth/client";
+import type { ActiveOrganization } from "@/lib/auth/types";
 import { type InviteData, inviteSchema } from "@/lib/validations/auth";
-import { RoleType } from "@repo/db/client";
+// import { RoleType } from "@repo/db/client";
 import {
   Select,
   SelectContent,
@@ -30,9 +31,13 @@ import {
 export const InviteModal = ({
   open,
   setOpen,
+  setOptimisticOrg,
 }: {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setOptimisticOrg: React.Dispatch<
+    React.SetStateAction<ActiveOrganization | null>
+  >;
 }) => {
   const {
     register,
@@ -55,6 +60,14 @@ export const InviteModal = ({
       if (res.data) {
         setOpen(false);
         toast.success("Invitation sent successfully");
+        setOptimisticOrg((prev) =>
+          prev
+            ? {
+                ...prev,
+                invitations: [...prev.invitations, res.data],
+              }
+            : null,
+        );
       }
     } catch (error) {
       toast.error(
@@ -89,10 +102,10 @@ export const InviteModal = ({
           <div className="grid flex-1 gap-2">
             <Label htmlFor="role">Role</Label>
             <Select
-              onValueChange={(value: Exclude<RoleType, "owner">) =>
+              onValueChange={(value: "member" | "admin") =>
                 setValue("role", value)
               }
-              defaultValue={RoleType.member}
+              defaultValue="member"
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select a role" />

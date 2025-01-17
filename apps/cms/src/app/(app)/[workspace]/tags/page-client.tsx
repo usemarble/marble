@@ -9,7 +9,7 @@ interface PageClientProps {
 
 function PageClient({ tags }: PageClientProps) {
   return (
-    <div className="h-full flex flex-col max-w-screen-lg mx-auto pt-16">
+    <div className="h-full flex flex-col mx-auto pt-16 max-w-4xl">
       <DataTable data={tags} columns={columns} />
     </div>
   );

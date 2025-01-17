@@ -1,19 +1,12 @@
 "use client";
 
-import { Add } from "@/components/icons/isometric";
-import { useWorkspace } from "@/components/providers/workspace";
-import { Button } from "@repo/ui/components/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/card";
-import { Plus } from "@repo/ui/lib/icons";
-import Image from "next/image";
-import Link from "next/link";
-import { useState } from "react";
+
 
 interface WorkspaceData {
   id: string;

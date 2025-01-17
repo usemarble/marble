@@ -1,3 +1,4 @@
+import type { Extension } from "@tiptap/core";
 import {
   HorizontalRule,
   Placeholder,
@@ -86,7 +87,6 @@ const starterKit = StarterKit.configure({
   gapcursor: false,
 });
 
-import type { Extension } from "@tiptap/core";
 
 export const defaultExtensions: Extension[] = [
   starterKit,

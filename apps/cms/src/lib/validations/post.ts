@@ -17,15 +17,17 @@ const requiredEditorString = z
 export const postSchema = z.object({
   title: z
     .string()
-    .min(1, "Title cannot be empty")
-    .max(100, "Title is too long"),
+    .min(1, { message: "Title cannot be empty" })
+    .max(100, { message: "Title is too long" }),
   coverImage: z.string().url().nullable().optional(),
-  description: z.string().min(1),
-  slug: z.string().min(1),
+  description: z.string().min(1, { message: "Description cannot be empty" }),
+  slug: z.string().min(1, { message: "Slug cannot be empty" }),
   content: requiredEditorString,
   contentJson: z.string().min(10),
-  tags: z.array(z.string().min(1)).min(1, "At least one tag is required"),
-  category: z.string().min(1, "Category is required").uuid(),
+  tags: z
+    .array(z.string().min(1))
+    .min(1, { message: "At least one tag is required" }),
+  category: z.string().min(1, { message: "Category is required" }),
   status: z.enum(["published", "unpublished"]),
 });
 

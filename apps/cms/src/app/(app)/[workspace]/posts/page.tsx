@@ -14,12 +14,18 @@ async function Page(params: { params: Promise<{ workspace: string }> }) {
     return notFound();
   }
 
-  const workspaceSites = await db.post.findMany({
+  const workspacePosts = await db.post.findMany({
     where: { workspaceId: workspaceToShow.id },
-    select: { title: true, description: true, id: true, workspaceId: true },
+    select: {
+      id: true,
+      title: true,
+      status: true,
+      publishedAt: true,
+      updatedAt: true,
+    },
   });
 
-  return <PageClient posts={workspaceSites} />;
+  return <PageClient posts={workspacePosts} />;
 }
 
 export default Page;

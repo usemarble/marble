@@ -7,7 +7,6 @@ import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
 import {
   Sheet,
-  SheetClose,
   SheetContent,
   SheetDescription,
   SheetFooter,
@@ -30,8 +29,10 @@ import {
   Loader2,
   PlusIcon,
   SettingsIcon,
+  Trash2,
 } from "@repo/ui/lib/icons";
 
+import { useUploadThing } from "@/utils/uploadthing";
 import {
   Popover,
   PopoverContent,
@@ -51,10 +52,12 @@ import { Switch } from "@repo/ui/components/switch";
 import { cn } from "@repo/ui/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { useState } from "react";
+import { s } from "node_modules/better-auth/dist/index-DwXoFQKD";
+import { useEffect, useState } from "react";
 import type {
   Control,
   FieldErrors,
+  UseFormClearErrors,
   UseFormRegister,
   UseFormSetValue,
   UseFormTrigger,
@@ -67,12 +70,15 @@ interface PublishSettingsProps {
   control: Control<PostValues>;
   register: UseFormRegister<PostValues>;
   setValue: UseFormSetValue<PostValues>;
+  clearErrors: UseFormClearErrors<PostValues>;
   errors: FieldErrors<PostValues>;
   trigger: UseFormTrigger<PostValues>;
   watch: UseFormWatch<PostValues>;
   formRef: React.RefObject<HTMLFormElement | null>;
   isSubmitting: boolean;
   defaultCoverImage?: string | null;
+  isOpen: boolean;
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 interface TagResponse {
@@ -89,22 +95,32 @@ export function PublishSettings({
   formRef,
   isSubmitting,
   watch,
+  isOpen,
+  setIsOpen,
+  clearErrors,
 }: PublishSettingsProps) {
   const hasErrors = Object.keys(errors).length > 0;
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [showCategoyModal, setShowCategoryModal] = useState(false);
-  const { status } = watch();
+  const { status, category } = watch();
+  const [file, setFile] = useState<File | undefined>();
+  const { coverImage } = watch();
 
+  // Fetch tags
   const { data } = useQuery({
     queryKey: ["tags"],
+    staleTime: 1000 * 60 * 60,
     queryFn: async () => {
       const res = await fetch("/api/tags");
       const data: TagResponse[] = await res.json();
       return data;
     },
   });
+
+  // Fetch categories
   const { data: categories } = useQuery({
     queryKey: ["categories"],
+    staleTime: 1000 * 60 * 60,
     queryFn: async () => {
       const res = await fetch("/api/categories");
       const data: TagResponse[] = await res.json();
@@ -112,6 +128,7 @@ export function PublishSettings({
     },
   });
 
+  // Trigger form submit
   const triggerSubmit = async () => {
     if (hasErrors) {
       return toast.error("Please fill in all required fields", {
@@ -125,9 +142,44 @@ export function PublishSettings({
     }
   };
 
+  // Upload cover image
+  const { startUpload } = useUploadThing("posts", {
+    onClientUploadComplete: (res) => {
+      const imageUrl = res[0]?.url;
+      if (imageUrl) {
+        setValue("coverImage", imageUrl);
+      }
+      toast.success("uploaded successfully!", {
+        id: "uploading",
+        position: "top-center",
+      });
+      setIsOpen(false);
+    },
+    onUploadError: () => {
+      toast.error("Failed to upload", {
+        id: "uploading",
+        position: "top-center",
+      });
+    },
+    onUploadBegin: (filename) => {
+      console.log("upload has begun for", filename);
+      toast.loading("uploading...", {
+        id: "uploading",
+        position: "top-center",
+      });
+    },
+  });
+
+  // Start upload when file is selected
+  useEffect(() => {
+    if (file) {
+      startUpload([file]);
+    }
+  }, [file, startUpload]);
+
   return (
     <>
-      <Sheet>
+      <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetTrigger asChild>
           <Button size="icon" variant="ghost" className="group">
             <SettingsIcon className="size-4 text-muted-foreground group-hover:text-foreground" />
@@ -187,18 +239,59 @@ export function PublishSettings({
                 </TooltipProvider>
               </div>
 
-              <div>
-                <Label
-                  htmlFor="coverImage"
-                  className="w-full h-44 rounded-md border border-dashed flex items-center justify-center cursor-pointer"
-                >
-                  <div className="flex flex-col items-center gap-2">
-                    <ImageIcon className="size-4" />
-                    <p className="text-sm font-medium">Upload Image</p>
-                  </div>
-                  <Input id="coverImage" type="file" className="sr-only" />
-                </Label>
-              </div>
+              {coverImage ? (
+                <div className="relative w-full h-44">
+                  <img
+                    alt="cover"
+                    src={coverImage}
+                    className="w-full h-full object-cover rounded-md"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setValue("coverImage", null)}
+                    className="bg-white hover:text-destructive rounded-full p-1.5 absolute top-2 right-2"
+                  >
+                    <Trash2 className="size-4" />
+                    <span className="sr-only">remove image</span>
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  {file ? (
+                    <div className="relative w-full h-44">
+                      <img
+                        alt="cover"
+                        src={URL.createObjectURL(file)}
+                        className="w-full h-full object-cover rounded-md"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setFile(undefined)}
+                        className="bg-white hover:text-destructive rounded-full p-1.5 absolute top-2 right-2"
+                      >
+                        <Trash2 className="size-4" />
+                        <span className="sr-only">remove image</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <Label
+                      htmlFor="coverImage"
+                      className="w-full h-44 rounded-md border border-dashed flex items-center justify-center cursor-pointer hover:border-primary"
+                    >
+                      <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                        <ImageIcon className="size-4" />
+                        <p className="text-sm font-medium">Upload Image</p>
+                      </div>
+                      <Input
+                        type="file"
+                        id="coverImage"
+                        onChange={(e) => setFile(e.target.files?.[0])}
+                        className="sr-only"
+                      />
+                    </Label>
+                  )}
+                </div>
+              )}
             </div>
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-1">
@@ -259,7 +352,13 @@ export function PublishSettings({
                 </p>
               )}
             </div>
-            <TagSelector options={data || []} control={control} />
+
+            <TagSelector
+              options={data || []}
+              control={control}
+              defaultTags={watch("tags")}
+            />
+
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-1">
                 <Label htmlFor="category">Category</Label>
@@ -278,8 +377,10 @@ export function PublishSettings({
                 </TooltipProvider>
               </div>
               <Select
+                value={category}
                 onValueChange={(value) => {
                   setValue("category", value);
+                  clearErrors("category");
                 }}
               >
                 <SelectTrigger>
@@ -358,12 +459,15 @@ export function PublishSettings({
             </div>
           </section>
           <SheetFooter>
-            <SheetClose asChild>
-              <Button type="button" onClick={triggerSubmit} className="mt-4">
-                {isSubmitting && <Loader2 className="size-4 animate-spin" />}
-                {isSubmitting ? "Publishing..." : "Save"}
-              </Button>
-            </SheetClose>
+            <Button
+              type="button"
+              disabled={isSubmitting}
+              onClick={triggerSubmit}
+              className="mt-4"
+            >
+              {isSubmitting && <Loader2 className="size-4 animate-spin" />}
+              {isSubmitting ? "Saving..." : "Save"}
+            </Button>
           </SheetFooter>
         </SheetContent>
       </Sheet>

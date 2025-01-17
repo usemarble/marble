@@ -4,6 +4,7 @@
   color: hsl(var(--muted-foreground));
   pointer-events: none;
   height: 0;
+  font-size: 16px;
 }
 .ProseMirror .is-empty::before {
   content: attr(data-placeholder);

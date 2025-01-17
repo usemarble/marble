@@ -25,6 +25,11 @@ app.get("/tags/:id", async (c) => {
       where: {
         workspaceId: id,
       },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+      }
     });
     return c.json(tags);
   } catch (error) {
@@ -41,6 +46,11 @@ app.get("/categories/:id", async (c) => {
     const tags = await db.category.findMany({
       where: {
         workspaceId: id,
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
       },
     });
     return c.json(tags);
@@ -59,6 +69,36 @@ app.get("/posts/:id", async (c) => {
       where: {
         workspaceId: id,
         status: "published",
+      },
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        content: true,
+        coverImage: true,
+        description: true,
+        publishedAt: true,
+        author: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
+        category: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+        tags: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
       },
     });
     return c.json(tags);

@@ -134,15 +134,6 @@ export function NavUser({ user }: NavUserProps) {
                   Billing
                 </button>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <button
-                  type="button"
-                  className="flex w-full items-center gap-4"
-                >
-                  <Bell className="text-muted-foreground size-4" />
-                  Notifications
-                </button>
-              </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem>

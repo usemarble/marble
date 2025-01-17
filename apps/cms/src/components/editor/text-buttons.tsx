@@ -8,6 +8,7 @@ import {
 } from "@repo/ui/lib/icons";
 import { cn } from "@repo/ui/lib/utils";
 import { EditorBubbleItem, useEditor } from "novel";
+import { nanoid } from "nanoid";
 
 export type SelectorItem = {
   name: string;
@@ -55,7 +56,7 @@ export const TextButtons = () => {
     <div className="flex flex-col md:flex-row">
       {items.map((item) => (
         <EditorBubbleItem
-          key={`item-${Math.random()}`}
+          key={`item-${nanoid(6)}`}
           onSelect={(editor) => {
             item.command(editor);
           }}
@@ -68,7 +69,7 @@ export const TextButtons = () => {
           >
             <item.icon
               className={cn("h-4 w-4", {
-                "text-blue-500": item.isActive(editor),
+                "text-emerald-500": item.isActive(editor),
               })}
             />
           </Button>

@@ -1,7 +1,7 @@
 "use server";
 
 import { type PostValues, postSchema } from "@/lib/validations/post";
-import prisma from "@repo/db";
+import db from "@repo/db";
 import { redirect } from "next/navigation";
 import { NextResponse } from "next/server";
 import getServerSession from "../auth/session";
@@ -19,7 +19,7 @@ export const createPostAction = async (post: PostValues) => {
   const authorId = session?.user.id;
   const contentJson = JSON.parse(values.contentJson);
 
-  await prisma.post.create({
+  const postCreated = await db.post.create({
     data: {
       authorId,
       contentJson,
@@ -36,5 +36,18 @@ export const createPostAction = async (post: PostValues) => {
     },
   });
 
-  return redirect("/");
+  return postCreated.id;
 };
+
+export async function deletePostAction(id: string) {
+  const isAllowed = await getServerSession();
+  if (!isAllowed) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  await db.post.delete({
+    where: { id: id },
+  });
+
+  return NextResponse.json({ status: 200 });
+}

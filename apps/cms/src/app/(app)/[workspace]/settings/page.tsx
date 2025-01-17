@@ -16,7 +16,7 @@ import {
 
 async function page() {
   return (
-    <div className="w-full max-w-screen-md mx-auto space-y-12 pb-14">
+    <div className="w-full max-w-screen-md mx-auto space-y-12 pt-10 pb-14">
       <div>
         <h1 className="text-lg font-semibold">Settings</h1>
         <p className="text-muted-foreground text-sm">

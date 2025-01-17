@@ -28,7 +28,6 @@ export const suggestionItems = createSuggestionItems([
         .run();
     },
   },
-
   {
     title: "Heading 2",
     description: "Medium section heading.",

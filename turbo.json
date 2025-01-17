@@ -15,7 +15,8 @@
         "GOOGLE_CLIENT_SECRET",
         "GITHUB_ID",
         "GITHUB_SECRET",
-        "RESEND_API_KEY"
+        "RESEND_API_KEY",
+        "UPLOADTHING_TOKEN"
       ]
     },
     "lint": {

@@ -31,7 +31,7 @@ export default async function DashboardLayout({
             <AppBreadcrumb />
           </div>
         </header>
-        <main className="flex min-h-screen flex-1 flex-col gap-4 px-4 py-2">
+        <main className="flex min-h-[calc(100vh-56px)] flex-1 flex-col gap-4 px-4 py-2">
           {children}
           <div className="fixed bottom-8 right-8" />
         </main>

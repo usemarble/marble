@@ -1,3 +1,5 @@
+"use client";
+
 import type { PostValues } from "@/lib/validations/post";
 import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
@@ -24,8 +26,9 @@ import {
 } from "@repo/ui/components/tooltip";
 import { cn } from "@repo/ui/lib/utils";
 import { Check, ChevronsUpDown, InfoIcon, Plus, XIcon } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { type Control, useController } from "react-hook-form";
+import { ErrorMessage } from "../auth/error-message";
 import { CreateTagModal } from "../tags/tag-modals";
 
 interface Option {
@@ -40,6 +43,7 @@ interface MultiSelectPopoverProps {
   placeholder?: string;
   isOpen?: boolean;
   setIsOpen?: (open: boolean) => void;
+  defaultTags?: string[];
 }
 
 export const TagSelector = ({
@@ -48,6 +52,7 @@ export const TagSelector = ({
   placeholder,
   isOpen,
   setIsOpen,
+  defaultTags = [],
 }: MultiSelectPopoverProps) => {
   const {
     field: { onChange, value },
@@ -59,6 +64,14 @@ export const TagSelector = ({
   });
   const [selected, setSelected] = useState<Option[]>([]);
   const [openTagModal, setOpenTagModal] = useState(false);
+
+  useEffect(() => {
+    if (defaultTags.length > 0 && options.length > 0) {
+      const initialSelected = options.filter(opt => defaultTags.includes(opt.id));
+      setSelected(initialSelected);
+      onChange(defaultTags);
+    }
+  }, [options, defaultTags, onChange]);
 
   const addTag = (tagToAdd: string) => {
     if (value.includes(tagToAdd)) return;
@@ -125,6 +138,7 @@ export const TagSelector = ({
             </div>
           </div>
         </PopoverTrigger>
+        {error && <ErrorMessage>{error.message}</ErrorMessage>}
         <PopoverContent className="min-w-full p-0" align="start">
           <Command className="w-full">
             <CommandInput placeholder="Search tags..." />
