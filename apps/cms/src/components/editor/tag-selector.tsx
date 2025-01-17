@@ -67,7 +67,9 @@ export const TagSelector = ({
 
   useEffect(() => {
     if (defaultTags.length > 0 && options.length > 0) {
-      const initialSelected = options.filter(opt => defaultTags.includes(opt.id));
+      const initialSelected = options.filter((opt) =>
+        defaultTags.includes(opt.id),
+      );
       setSelected(initialSelected);
       onChange(defaultTags);
     }

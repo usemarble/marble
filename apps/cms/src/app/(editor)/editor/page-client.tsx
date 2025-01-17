@@ -94,7 +94,7 @@ function PageContent() {
               <CornerUpLeft className="size-4 text-muted-foreground group-hover:text-foreground" />
             </Button>
           </div>
-        
+
           <div className="flex gap-4 justify-end items-center">
             <PublishSettings
               errors={errors}

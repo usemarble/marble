@@ -87,7 +87,6 @@ const starterKit = StarterKit.configure({
   gapcursor: false,
 });
 
-
 export const defaultExtensions: Extension[] = [
   starterKit,
   placeholder,

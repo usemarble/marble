@@ -28,10 +28,7 @@ interface ImageUploadModalProps {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export function ImageUploadModal({
-  isOpen,
-  setIsOpen,
-}: ImageUploadModalProps) {
+export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
   const [embedUrl, setEmbedUrl] = useState("");
   const [file, setFile] = useState<File | undefined>();
   const editorInstance = useEditor();
@@ -40,7 +37,11 @@ export function ImageUploadModal({
     onClientUploadComplete: (res) => {
       const imageUrl = res[0]?.url;
       if (imageUrl && editorInstance) {
-        editorInstance.editor?.chain().focus().setImage({ src: imageUrl }).run();
+        editorInstance.editor
+          ?.chain()
+          .focus()
+          .setImage({ src: imageUrl })
+          .run();
       }
       toast.success("uploaded successfully!", {
         id: "uploading",

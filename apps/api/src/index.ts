@@ -29,7 +29,7 @@ app.get("/tags/:id", async (c) => {
         id: true,
         name: true,
         slug: true,
-      }
+      },
     });
     return c.json(tags);
   } catch (error) {

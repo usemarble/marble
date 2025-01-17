@@ -7,7 +7,6 @@ import {
   CardTitle,
 } from "@repo/ui/components/card";
 
-
 interface WorkspaceData {
   id: string;
   name: string;
