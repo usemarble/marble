@@ -20,8 +20,8 @@ import {
   TabsList,
   TabsTrigger,
 } from "@repo/ui/components/tabs";
-import { useState } from "react";
 import { useEditor } from "novel";
+import { useState } from "react";
 
 interface ImageUploadModalProps {
   isOpen: boolean;

@@ -7,8 +7,8 @@ import {
   UnderlineIcon,
 } from "@repo/ui/lib/icons";
 import { cn } from "@repo/ui/lib/utils";
-import { EditorBubbleItem, useEditor } from "novel";
 import { nanoid } from "nanoid";
+import { EditorBubbleItem, useEditor } from "novel";
 
 export type SelectorItem = {
   name: string;

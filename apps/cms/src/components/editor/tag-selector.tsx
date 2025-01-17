@@ -26,7 +26,7 @@ import {
 } from "@repo/ui/components/tooltip";
 import { cn } from "@repo/ui/lib/utils";
 import { Check, ChevronsUpDown, InfoIcon, Plus, XIcon } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { type Control, useController } from "react-hook-form";
 import { ErrorMessage } from "../auth/error-message";
 import { CreateTagModal } from "../tags/tag-modals";

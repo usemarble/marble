@@ -1,6 +1,6 @@
+import typography from "@tailwindcss/typography";
 import type { Config } from "tailwindcss";
 import tailwindcssAnimate from "tailwindcss-animate";
-import typography from "@tailwindcss/typography";
 import { fontFamily } from "tailwindcss/defaultTheme";
 
 const config: Config = {

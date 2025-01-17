@@ -9,9 +9,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@repo/ui/components/dropdown-menu";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { DeletePostModal } from "./post-modals";
-import { useRouter } from "next/navigation";
 
 export default function PostTableActions(props: Post) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
