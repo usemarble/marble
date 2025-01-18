@@ -15,7 +15,7 @@ export async function verifyInvite(inviteId: string) {
     throw new Error("Invite not found");
   }
 
-  if (invite.status !== InviteStatus.PENDING) {
+  if (invite.status !== "pending") {
     throw new Error("Invite is no longer valid");
   }
 

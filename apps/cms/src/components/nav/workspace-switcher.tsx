@@ -54,13 +54,8 @@ import {
 } from "@repo/ui/components/avatar";
 import { Skeleton } from "@repo/ui/components/skeleton";
 import { toast } from "@repo/ui/components/sonner";
-import { Textarea } from "@repo/ui/components/textarea";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-
-interface WorkspaceWithPlan extends Organization {
-  plan: string;
-}
 
 interface WorkspaceSwitcherProps {
   session: Session | null;
@@ -80,8 +75,8 @@ export function WorkspaceSwitcher(props: WorkspaceSwitcherProps) {
 
   const currOrg = useActiveOrganization();
 
-  console.log("organizations", organizations.data);
-  console.log("active org", currOrg.data);
+  // console.log("organizations", organizations.data);
+  // console.log("active org", currOrg.data);
 
   async function switchWorkspace(org: Organization) {
     if (org.slug === optimisticOrg?.slug) {

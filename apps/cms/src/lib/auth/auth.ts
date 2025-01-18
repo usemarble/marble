@@ -1,10 +1,10 @@
+import { sendInviteEmailAction } from "@/lib/actions/email";
 import db from "@repo/db";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { createAuthMiddleware } from "better-auth/api";
 import { organization } from "better-auth/plugins";
 import { redirect } from "next/navigation";
-import { sendInviteEmail } from "../../utils/email";
 import { getActiveOrganization } from "../queries/workspace";
 
 export const auth = betterAuth({
@@ -33,12 +33,13 @@ export const auth = betterAuth({
   plugins: [
     organization({
       async sendInvitationEmail(data) {
-        const inviteLink = `https://example.com/accept-invitation/${data.id}`;
-        sendInviteEmail({
+        const inviteLink = `${process.env.NEXT_PUBLIC_APP_URL}/invite/${data.organization.id}`;
+        sendInviteEmailAction({
           inviteeEmail: data.email,
           inviterName: data.inviter.user.name,
           inviterEmail: data.inviter.user.email,
           workspaceName: data.organization.name,
+          teamLogo: data.organization.logo,
           inviteLink,
         });
       },

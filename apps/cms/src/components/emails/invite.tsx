@@ -17,31 +17,27 @@ import {
 } from "@react-email/components";
 import * as React from "react";
 
-interface VercelInviteUserEmailProps {
-  username?: string;
-  userImage?: string;
-  invitedByUsername?: string;
-  invitedByEmail?: string;
-  teamName?: string;
-  teamImage?: string;
-  inviteLink?: string;
-  inviteFromIp?: string;
-  inviteFromLocation?: string;
+interface InviteUserEmailProps {
+  inviteeEmail: string;
+  invitedByUsername: string;
+  invitedByEmail: string;
+  teamName: string;
+  teamImage: string;
+  userImage: string;
+  inviteLink: string;
 }
 
 const baseUrl = "https://marblecms-app.vercel.app";
 
-export const VercelInviteUserEmail = ({
-  username,
+export const InviteUserEmail = ({
+  inviteeEmail,
   userImage,
   invitedByUsername,
   invitedByEmail,
   teamName,
   teamImage,
   inviteLink,
-  inviteFromIp,
-  inviteFromLocation,
-}: VercelInviteUserEmailProps) => {
+}: InviteUserEmailProps) => {
   const previewText = `Join ${invitedByUsername} on Marble`;
 
   return (
@@ -61,10 +57,10 @@ export const VercelInviteUserEmail = ({
               />
             </Section>
             <Heading className="text-black text-[24px] font-normal text-center p-0 my-[30px] mx-0">
-              Join <strong>{teamName}</strong> on <strong>Vercel</strong>
+              Join <strong>{teamName}</strong> on <strong>Marble</strong>
             </Heading>
             <Text className="text-black text-[14px] leading-[24px]">
-              Hello {username},
+              Hello,
             </Text>
             <Text className="text-black text-[14px] leading-[24px]">
               <strong>{invitedByUsername}</strong> (
@@ -122,13 +118,10 @@ export const VercelInviteUserEmail = ({
             <Hr className="border border-solid border-[#eaeaea] my-[26px] mx-0 w-full" />
             <Text className="text-[#666666] text-[12px] leading-[24px]">
               This invitation was intended for{" "}
-              <span className="text-black">{username}</span>. This invite was
-              sent from <span className="text-black">{inviteFromIp}</span>{" "}
-              located in{" "}
-              <span className="text-black">{inviteFromLocation}</span>. If you
-              were not expecting this invitation, you can ignore this email. If
-              you are concerned about your account's safety, please reply to
-              this email to get in touch with us.
+              <span className="text-black">{inviteeEmail}</span>. If you were
+              not expecting this invitation, you can ignore this email. If you
+              are concerned about your account's safety, please reply to this
+              email to get in touch with us.
             </Text>
           </Container>
         </Body>
@@ -137,16 +130,14 @@ export const VercelInviteUserEmail = ({
   );
 };
 
-VercelInviteUserEmail.PreviewProps = {
-  username: "alanturing",
-  userImage: `${baseUrl}/static/vercel-user.png`,
-  invitedByUsername: "Alan",
-  invitedByEmail: "alan.turing@example.com",
-  teamName: "Enigma",
-  teamImage: `${baseUrl}/static/vercel-team.png`,
-  inviteLink: "https://vercel.com/teams/invite/foo",
-  inviteFromIp: "204.13.186.218",
-  inviteFromLocation: "São Paulo, Brazil",
-} as VercelInviteUserEmailProps;
+InviteUserEmail.PreviewProps = {
+  inviteeEmail: "user@example.com",
+  invitedByUsername: "Demo User",
+  invitedByEmail: "demo@example.com",
+  teamName: "Demo Team",
+  teamImage: "https://api.dicebear.com/9.x/glass/svg?seed=demo",
+  userImage: "https://api.dicebear.com/9.x/notionists-neutral/svg?seed=demo",
+  inviteLink: "https://example.com/invite/demo",
+} as InviteUserEmailProps;
 
-export default VercelInviteUserEmail;
+export default InviteUserEmail;
