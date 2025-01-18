@@ -3,27 +3,9 @@
 import { Folder } from "@/components/icons/isometric";
 import { type Post, columns } from "@/components/posts/columns";
 import { PostDataTable } from "@/components/posts/data-table";
-import { Button, buttonVariants } from "@repo/ui/components/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@repo/ui/components/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@repo/ui/components/dropdown-menu";
-import { Input } from "@repo/ui/components/input";
-import { Plus, SearchIcon, XIcon } from "lucide-react";
+import { buttonVariants } from "@repo/ui/components/button";
+import { Plus } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
 
 interface PageClientProps {
   posts: Post[];
@@ -47,7 +29,7 @@ function PageClient({ posts }: PageClientProps) {
                 className={buttonVariants({ variant: "default", size: "sm" })}
               >
                 <Plus size={16} />
-                <span>New article</span>
+                <span>New post</span>
               </Link>
             </div>
           </div>

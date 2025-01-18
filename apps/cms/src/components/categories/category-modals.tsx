@@ -29,6 +29,8 @@ import {
   checkCategorySlugAction,
   createCategoryAction,
   deleteCategoryAction,
+  updateCategoryAction,
+  checkCategorySlugForUpdateAction,
 } from "@/lib/actions/category";
 import { useActiveOrganization } from "@/lib/auth/client";
 import {
@@ -154,25 +156,27 @@ export const UpdateCategoryModal = ({
   }, [name, setValue]);
 
   const onSubmit = async (data: CreateCategoryValues) => {
-    const isTaken = await checkCategorySlugAction(
+    const isTaken = await checkCategorySlugForUpdateAction(
       data.slug,
       activeWorkspace.id,
+      categoryData.id
     );
 
     if (isTaken) {
       setError("slug", {
         message: "You already have a category with that slug",
       });
+      return;
     }
 
     try {
-      const res = await createCategoryAction(data, activeWorkspace.id);
+      const res = await updateCategoryAction(data, categoryData.id);
       if (!res) {
         setOpen(false);
-        toast.success("Category created successfully");
+        toast.success("Category updated successfully");
       }
     } catch (error) {
-      toast.error("Failed to create category");
+      toast.error("Failed to update category");
     }
   };
 

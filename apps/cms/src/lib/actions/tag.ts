@@ -13,6 +13,24 @@ export async function checkTagSlugAction(slug: string, workspaceId: string) {
   return !!result;
 }
 
+export async function checkTagSlugForUpdateAction(
+  slug: string,
+  workspaceId: string,
+  currentTagId: string,
+) {
+  const result = await db.tag.findFirst({
+    where: {
+      workspaceId: workspaceId,
+      slug: slug,
+      NOT: {
+        id: currentTagId,
+      },
+    },
+  });
+
+  return !!result;
+}
+
 export async function createTagAction(
   data: CreateTagValues,
   workspaceId: string,

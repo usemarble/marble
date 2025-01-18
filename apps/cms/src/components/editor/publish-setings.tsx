@@ -24,10 +24,12 @@ import {
 } from "@repo/ui/components/tooltip";
 import {
   CalendarDays,
+  CheckIcon,
   ImageIcon,
   InfoIcon,
   Loader2,
   PlusIcon,
+  Save,
   SettingsIcon,
   Trash2,
 } from "@repo/ui/lib/icons";
@@ -49,6 +51,12 @@ import {
 } from "@repo/ui/components/select";
 import { Separator } from "@repo/ui/components/separator";
 import { Switch } from "@repo/ui/components/switch";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@repo/ui/components/tabs";
 import { cn } from "@repo/ui/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -63,8 +71,14 @@ import type {
   UseFormTrigger,
   UseFormWatch,
 } from "react-hook-form";
+import { z } from "zod";
 import { CreateCategoryModal } from "../categories/category-modals";
 import { TagSelector } from "./tag-selector";
+
+// Add URL schema
+const urlSchema = z.string().url({
+  message: "Please enter a valid URL",
+});
 
 interface PublishSettingsProps {
   control: Control<PostValues>;
@@ -105,6 +119,9 @@ export function PublishSettings({
   const { status, category } = watch();
   const [file, setFile] = useState<File | undefined>();
   const { coverImage } = watch();
+  const [embedUrl, setEmbedUrl] = useState<string>("");
+  const [isValidatingUrl, setIsValidatingUrl] = useState(false);
+  const [urlError, setUrlError] = useState<string | null>(null);
 
   // Fetch tags
   const { data } = useQuery({
@@ -169,6 +186,35 @@ export function PublishSettings({
       });
     },
   });
+
+  const handleEmbed = async (url: string) => {
+    if (!url) return;
+
+    setIsValidatingUrl(true);
+    setUrlError(null);
+
+    try {
+      await urlSchema.parseAsync(url);
+      const img = new Image();
+      img.onload = () => {
+        setValue("coverImage", url);
+        setEmbedUrl("");
+        setIsValidatingUrl(false);
+      };
+      img.onerror = () => {
+        setUrlError("Invalid image URL");
+        setIsValidatingUrl(false);
+      };
+      img.src = url;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setUrlError(error.errors?.[0]?.message || "Invalid URL");
+      } else {
+        setUrlError("Invalid URL");
+      }
+      setIsValidatingUrl(false);
+    }
+  };
 
   // Start upload when file is selected
   useEffect(() => {
@@ -239,8 +285,9 @@ export function PublishSettings({
                 </TooltipProvider>
               </div>
 
-              {coverImage ? (
-                <div className="relative w-full h-44">
+              {/* Image Preview */}
+              {coverImage && (
+                <div className="relative w-full h-48 mb-4">
                   <img
                     alt="cover"
                     src={coverImage}
@@ -255,42 +302,87 @@ export function PublishSettings({
                     <span className="sr-only">remove image</span>
                   </button>
                 </div>
-              ) : (
-                <div>
-                  {file ? (
-                    <div className="relative w-full h-44">
-                      <img
-                        alt="cover"
-                        src={URL.createObjectURL(file)}
-                        className="w-full h-full object-cover rounded-md"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setFile(undefined)}
-                        className="bg-white hover:text-destructive rounded-full p-1.5 absolute top-2 right-2"
-                      >
-                        <Trash2 className="size-4" />
-                        <span className="sr-only">remove image</span>
-                      </button>
-                    </div>
-                  ) : (
-                    <Label
-                      htmlFor="coverImage"
-                      className="w-full h-44 rounded-md border border-dashed flex items-center justify-center cursor-pointer hover:border-primary"
-                    >
-                      <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                        <ImageIcon className="size-4" />
-                        <p className="text-sm font-medium">Upload Image</p>
+              )}
+              {!coverImage && (
+                <Tabs defaultValue="upload" className="w-full">
+                  <TabsList
+                    variant="underline"
+                    className="flex justify-start mb-4"
+                  >
+                    <TabsTrigger variant="underline" value="upload">
+                      Upload
+                    </TabsTrigger>
+                    <TabsTrigger variant="underline" value="embed">
+                      Embed
+                    </TabsTrigger>
+                  </TabsList>
+                  {/*  */}
+                  <TabsContent value="upload">
+                    {file ? (
+                      <div className="relative w-full h-44">
+                        <img
+                          alt="cover"
+                          src={URL.createObjectURL(file)}
+                          className="w-full h-full object-cover rounded-md"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setFile(undefined)}
+                          className="bg-white hover:text-destructive rounded-full p-1.5 absolute top-2 right-2"
+                        >
+                          <Trash2 className="size-4" />
+                          <span className="sr-only">remove image</span>
+                        </button>
                       </div>
-                      <Input
-                        type="file"
-                        id="coverImage"
-                        onChange={(e) => setFile(e.target.files?.[0])}
-                        className="sr-only"
-                      />
-                    </Label>
-                  )}
-                </div>
+                    ) : (
+                      <Label
+                        htmlFor="coverImage"
+                        className="w-full h-44 rounded-md border border-dashed flex items-center justify-center cursor-pointer hover:border-primary"
+                      >
+                        <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                          <ImageIcon className="size-4" />
+                          <p className="text-sm font-medium">Upload Image</p>
+                        </div>
+                        <Input
+                          type="file"
+                          id="coverImage"
+                          onChange={(e) => setFile(e.target.files?.[0])}
+                          className="sr-only"
+                        />
+                      </Label>
+                    )}
+                  </TabsContent>
+                  <TabsContent value="embed">
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center gap-2">
+                        <Input
+                          value={embedUrl}
+                          onChange={({ target }) => {
+                            setEmbedUrl(target.value);
+                            setUrlError(null);
+                          }}
+                          placeholder="Paste your cover image link"
+                          className={cn(urlError && "border-destructive")}
+                        />
+                        <Button
+                          className="shrink-0"
+                          size="icon"
+                          onClick={() => handleEmbed(embedUrl)}
+                          disabled={isValidatingUrl || !embedUrl}
+                        >
+                          {isValidatingUrl ? (
+                            <Loader2 className="size-4 animate-spin" />
+                          ) : (
+                            <CheckIcon className="size-4" />
+                          )}
+                        </Button>
+                      </div>
+                      {urlError && (
+                        <p className="text-sm text-destructive">{urlError}</p>
+                      )}
+                    </div>
+                  </TabsContent>
+                </Tabs>
               )}
             </div>
             <div className="flex flex-col gap-2">

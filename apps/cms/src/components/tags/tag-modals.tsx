@@ -28,8 +28,10 @@ import { useForm } from "react-hook-form";
 
 import {
   checkTagSlugAction,
+  checkTagSlugForUpdateAction,
   createTagAction,
   deleteTagAction,
+  updateTagAction,
 } from "@/lib/actions/tag";
 import { useActiveOrganization } from "@/lib/auth/client";
 import { type CreateTagValues, tagSchema } from "@/lib/validations/workspace";
@@ -152,22 +154,25 @@ export const UpdateTagModal = ({
   }, [name, setValue]);
 
   const onSubmit = async (data: CreateTagValues) => {
-    const isTaken = await checkTagSlugAction(data.slug, activeWorkspace.id);
+    const isTaken = await checkTagSlugForUpdateAction(
+      data.slug,
+      activeWorkspace.id,
+      tagData.id,
+    );
 
     if (isTaken) {
       setError("slug", { message: "You already have a tag with that slug" });
+      return;
     }
 
     try {
-      const res = await createTagAction(data, activeWorkspace.id);
+      const res = await updateTagAction(data, tagData.id);
       if (!res) {
         setOpen(false);
-        toast.success("Tag created successfully");
+        toast.success("Tag updated successfully");
       }
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to send invite",
-      );
+      toast.error("Failed to update tag");
     }
   };
 

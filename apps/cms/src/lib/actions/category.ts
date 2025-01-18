@@ -16,6 +16,24 @@ export async function checkCategorySlugAction(
   return !!result;
 }
 
+export async function checkCategorySlugForUpdateAction(
+  slug: string,
+  workspaceId: string,
+  currentCategoryId: string,
+) {
+  const result = await db.category.findFirst({
+    where: {
+      workspaceId: workspaceId,
+      slug: slug,
+      NOT: {
+        id: currentCategoryId,
+      },
+    },
+  });
+
+  return !!result;
+}
+
 export async function createCategoryAction(
   data: CreateCategoryValues,
   workspaceId: string,
