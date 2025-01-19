@@ -8,9 +8,12 @@ export const metadata: Metadata = {
 };
 
 async function Page() {
-  const session = await getServerSession();
-  if (!session) {
+  const sessionInfo = await getServerSession();
+  if (!sessionInfo?.session) {
     return redirect("/login");
+  }
+  if (sessionInfo.session.activeOrganizationId) {
+    return redirect("/");
   }
 
   return (

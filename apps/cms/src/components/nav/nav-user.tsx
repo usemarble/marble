@@ -31,6 +31,7 @@ import {
   useSidebar,
 } from "@repo/ui/components/sidebar";
 import { Skeleton } from "@repo/ui/components/skeleton";
+import { useRouter } from "next/navigation";
 
 interface NavUserProps {
   user:
@@ -45,6 +46,7 @@ interface NavUserProps {
 
 export function NavUser({ user }: NavUserProps) {
   const { isMobile } = useSidebar();
+  const router = useRouter();
 
   if (!user) {
     return (
@@ -139,7 +141,10 @@ export function NavUser({ user }: NavUserProps) {
             <DropdownMenuItem>
               <button
                 type="button"
-                onClick={async () => await authClient.signOut()}
+                onClick={async () => {
+                  await authClient.signOut();
+                  router.push("/login");
+                }}
                 className="flex w-full items-center gap-4"
               >
                 <LogOut className="text-muted-foreground size-4" />

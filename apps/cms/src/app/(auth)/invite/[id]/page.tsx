@@ -1,6 +1,6 @@
 import PageLoader from "@/components/shared/page-loader";
 import { verifyInvite } from "@/lib/actions/invite";
-import { authClient } from "@/lib/auth/client";
+import { organization } from "@/lib/auth/client";
 import getServerSession from "@/lib/auth/session";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
@@ -44,8 +44,8 @@ async function InvitePageComponent({ code }: { code: string }) {
 
   if (session.user.email === inviteEmail) {
     try {
-      const workspace = await authClient.organization.acceptInvitation({
-        invitationId: "invitation-id",
+      const workspace = await organization.acceptInvitation({
+        invitationId: code,
       });
       redirect(`/${workspace.data?.invitation.organizationId}`);
       // this should be a slug please fix

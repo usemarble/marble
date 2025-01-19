@@ -8,7 +8,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@repo/ui/components/breadcrumb";
-import { Slash } from "lucide-react";
 import { usePathname } from "next/navigation";
 import React from "react";
 const formatSegment = (segment: string) => {

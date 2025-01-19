@@ -2,7 +2,6 @@
 
 import { type PostValues, postSchema } from "@/lib/validations/post";
 import db from "@repo/db";
-import { redirect } from "next/navigation";
 import { NextResponse } from "next/server";
 import getServerSession from "../auth/session";
 
@@ -25,9 +24,11 @@ export const createPostAction = async (post: PostValues) => {
       contentJson,
       slug: values.slug,
       title: values.title,
+      status: values.status,
       content: values.content,
       categoryId: values.category,
       coverImage: values.coverImage,
+      publishedAt: values.publishedAt,
       description: values.description,
       workspaceId: session?.session.activeOrganizationId,
       tags: {
@@ -49,16 +50,15 @@ export const updatePostAction = async (post: PostValues, id: string) => {
 
   const values = postSchema.parse(post);
 
-  const authorId = session?.user.id;
   const contentJson = JSON.parse(values.contentJson);
 
   const postUpdated = await db.post.update({
     where: { id },
     data: {
-      authorId,
       contentJson,
       slug: values.slug,
       title: values.title,
+      status: values.status,
       content: values.content,
       categoryId: values.category,
       coverImage: values.coverImage,
@@ -74,14 +74,15 @@ export const updatePostAction = async (post: PostValues, id: string) => {
 };
 
 export async function deletePostAction(id: string) {
-  const isAllowed = await getServerSession();
-  if (!isAllowed) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const session = await getServerSession();
+
+  if (!session?.user) {
+    throw new Error("Unauthorized");
   }
 
   await db.post.delete({
-    where: { id: id },
+    where: { id },
   });
 
-  return NextResponse.json({ status: 200 });
+  return { success: true };
 }

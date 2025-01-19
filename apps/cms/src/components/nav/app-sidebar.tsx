@@ -24,9 +24,6 @@ export async function AppSidebar({
     }),
   ]);
 
-  console.log("session", session);
-  console.log("organization", organization);
-
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>

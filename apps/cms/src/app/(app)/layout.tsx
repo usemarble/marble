@@ -22,7 +22,7 @@ export default async function DashboardLayout({
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-14 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-10 md:px-8 sticky top-0 bg-background border-b">
+        <header className="flex z-10 h-14 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-10 md:px-8 sticky top-0 bg-background border-b">
           <div className="flex md:hidden items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1 size-4" />
             <Separator orientation="vertical" className="mr-2 h-4" />

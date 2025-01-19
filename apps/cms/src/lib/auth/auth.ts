@@ -55,19 +55,21 @@ export const auth = betterAuth({
       }
     }),
   },
-  // databaseHooks: {
-  //   session: {
-  //     create: {
-  //       before: async (session) => {
-  //         const organization = await getActiveOrganization(session.userId);
-  //         return {
-  //           data: {
-  //             ...session,
-  //             activeOrganizationId: organization?.id,
-  //           },
-  //         };
-  //       },
-  //     },
-  //   },
-  // },
+  databaseHooks: {
+    // To set active organization when a session is created
+    // This works but only when user isnt a new user i.e they already have an organization
+    session: {
+      create: {
+        before: async (session) => {
+          const organization = await getActiveOrganization(session.userId);
+          return {
+            data: {
+              ...session,
+              activeOrganizationId: organization?.id,
+            },
+          };
+        },
+      },
+    },
+  },
 });

@@ -12,7 +12,7 @@ export const redirectIfLoggedIn = async () => {
       members: {
         some: {
           userId: session.user.id,
-          role: "OWNER",
+          role: "owner",
         },
       },
     },

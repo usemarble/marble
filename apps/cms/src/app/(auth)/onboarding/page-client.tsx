@@ -2,7 +2,6 @@
 
 import { ErrorMessage } from "@/components/auth/error-message";
 import { checkWorkspaceSlug } from "@/lib/actions/workspace";
-import { authClient } from "@/lib/auth/client";
 import { organization } from "@/lib/auth/client";
 import { type OnboardingData, onboardingSchema } from "@/lib/validations/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,7 +16,6 @@ import {
 import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
 import { toast } from "@repo/ui/components/sonner";
-import { set } from "better-auth";
 import { Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";

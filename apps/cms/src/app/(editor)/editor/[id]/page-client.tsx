@@ -58,7 +58,7 @@ function PageClient({ data, id }: PageClientProps) {
   };
 
   async function onSubmit(values: PostValues) {
-    console.log(values);
+    // console.log(values);
     try {
       await updatePostAction(values, id);
       toast.success("Post updated", { position: "top-center" });

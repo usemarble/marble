@@ -57,15 +57,12 @@ export function LoginForm() {
     provider === "google" ? setIsGoogleLoading(true) : setIsGithubLoading(true);
 
     try {
-      const signInResult = await authClient.signIn.social({
+      await authClient.signIn.social({
         provider,
         callbackURL: searchParams?.get("from") || "/",
       });
-      if (signInResult.data) {
-        return toast("Sign in successful");
-      }
     } catch (error) {
-      return toast("Your sign in request failed. Please try again.");
+      return toast("Sign in failed. Please try again.");
     } finally {
       provider === "google"
         ? setIsGoogleLoading(false)

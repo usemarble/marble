@@ -114,7 +114,7 @@ export function PublishSettings({
   clearErrors,
 }: PublishSettingsProps) {
   const hasErrors = Object.keys(errors).length > 0;
-  const { coverImage, publishedAt } = watch();
+  const { coverImage } = watch();
   const [date, setDate] = useState<Date | undefined>(
     watch("publishedAt") ? new Date(watch("publishedAt")) : new Date(),
   );

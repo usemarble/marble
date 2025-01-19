@@ -33,7 +33,7 @@ export function RegisterForm() {
     setIsCredentialsLoading(true);
 
     try {
-      const res = await authClient.signUp.email(
+      await authClient.signUp.email(
         {
           email: data.email.toLowerCase(),
           password: data.password,
@@ -41,7 +41,7 @@ export function RegisterForm() {
           image: `https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=${data.email.toLowerCase().split("@")[0]}`,
         },
         {
-          onSuccess: (ctx) => {
+          onSuccess: () => {
             toast.success("Sign in successful");
             router.push("/");
           },
@@ -58,13 +58,10 @@ export function RegisterForm() {
     provider === "google" ? setIsGoogleLoading(true) : setIsGithubLoading(true);
 
     try {
-      const signInResult = await authClient.signIn.social({
+      await authClient.signIn.social({
         provider,
         callbackURL: searchParams?.get("from") || "/",
       });
-      if (signInResult.data) {
-        return toast.loading("Redirecting...");
-      }
     } catch (error) {
       return toast("Your sign in request failed. Please try again.");
     } finally {

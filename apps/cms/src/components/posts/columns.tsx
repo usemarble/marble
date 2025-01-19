@@ -1,6 +1,7 @@
 "use client";
 
 import { Badge } from "@repo/ui/components/badge";
+import { cn } from "@repo/ui/lib/utils";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import TableActions from "./table-actions";
@@ -17,6 +18,14 @@ export const columns: ColumnDef<Post>[] = [
   {
     accessorKey: "title",
     header: "Title",
+    cell: ({ row }) => {
+      const title = row.original.title;
+      return (
+        <div className="max-w-72 overflow-x-auto">
+          <p className="truncate">{title}</p>
+        </div>
+      );
+    },
   },
   {
     accessorKey: "status",
@@ -26,13 +35,14 @@ export const columns: ColumnDef<Post>[] = [
       return (
         <Badge
           variant="outline"
-          className={
-            status === "published"
-              ? "bg-emerald-100 text-emerald-600 border-emerald-400"
-              : "bg-amber-100 text-amber-600 border-amber-400"
-          }
+          className={cn("rounded-[6px] w-full text-center justify-center", {
+            "bg-emerald-50 text-emerald-500 border-emerald-300":
+              status === "published",
+            "bg-amber-50 text-orange-500 border-amber-300":
+              status === "unpublished",
+          })}
         >
-          {status}
+          {status === "published" ? "Published" : "Draft"}
         </Badge>
       );
     },

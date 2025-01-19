@@ -12,7 +12,6 @@ import {
 } from "@repo/ui/components/alert-dialog";
 import { Button } from "@repo/ui/components/button";
 import { toast } from "@repo/ui/components/sonner";
-import { Loader } from "@repo/ui/lib/icons";
 
 import { deletePostAction } from "@/lib/actions/post";
 import { useState } from "react";
@@ -31,13 +30,18 @@ export const DeletePostModal = ({
   async function deletePost() {
     setLoading(true);
     try {
-      await deletePostAction(id);
-      toast.success("Deleted post");
+      toast.promise(deletePostAction(id), {
+        loading: "Deleting post...",
+        success: () => {
+          setOpen(false);
+          return "Post deleted successfully";
+        },
+        error: "Failed to delete post",
+      });
     } catch (error) {
-      toast.error("Failed to delete.");
+      console.error("Delete error:", error);
     } finally {
       setLoading(false);
-      setOpen(false);
     }
   }
 
@@ -51,16 +55,14 @@ export const DeletePostModal = ({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={() => setOpen(false)}>
-            Cancel
-          </AlertDialogCancel>
+          <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
           <AlertDialogAction asChild>
             <Button
               onClick={deletePost}
               disabled={loading}
               variant="destructive"
             >
-              {loading ? <Loader className="size-4 animate-spin" /> : "Delete"}
+              Delete
             </Button>
           </AlertDialogAction>
         </AlertDialogFooter>

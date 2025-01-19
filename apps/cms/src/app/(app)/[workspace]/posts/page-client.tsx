@@ -13,7 +13,7 @@ interface PageClientProps {
 
 function PageClient({ posts }: PageClientProps) {
   return (
-    <div className="h-full flex flex-col max-w-4xl mx-auto pt-16">
+    <div className="h-full flex flex-col max-w-4xl mx-auto py-16">
       {posts.length > 0 ? (
         <PostDataTable columns={columns} data={posts} />
       ) : (
