@@ -9,6 +9,7 @@ import {
   TiptapLink,
   TiptapUnderline,
   UpdatedImage,
+  Youtube,
 } from "novel/extensions";
 
 import { cx } from "class-variance-authority";
@@ -65,6 +66,14 @@ const underline = TiptapUnderline.configure({
   },
 });
 
+const youtube = Youtube.configure({
+  HTMLAttributes: {
+    class: cx("w-full aspect-video"),
+    controls: false,
+    nocookie: true,
+  },
+});
+
 const starterKit = StarterKit.configure({
   bulletList: {
     HTMLAttributes: {
@@ -98,6 +107,7 @@ export const defaultExtensions: Extension[] = [
   starterKit,
   placeholder,
   // UpdatedImage as unknown as Extension,
+  youtube as unknown as Extension,
   tiptapLink as unknown as Extension,
   taskList as unknown as Extension,
   taskItem as unknown as Extension,

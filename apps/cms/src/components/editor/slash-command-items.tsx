@@ -8,6 +8,7 @@ import {
   ListOrdered,
   Quote,
   Text,
+  YoutubeIcon,
 } from "@repo/ui/lib/icons";
 import { createSuggestionItems } from "novel/extensions";
 import { Command, renderItems } from "novel/extensions";
@@ -131,6 +132,11 @@ export const suggestionItems = createSuggestionItems([
       };
       input.click();
     },
+  },
+  {
+    title: "YouTube",
+    description: "Embed a YouTube video",
+    icon: <YoutubeIcon className="size-4" />,
   },
 ]);
 

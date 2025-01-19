@@ -65,7 +65,7 @@ app.get("/posts/:id", async (c) => {
     const id = c.req.param("id");
     const db = createClient(url);
 
-    const tags = await db.post.findMany({
+    const posts = await db.post.findMany({
       where: {
         workspaceId: id,
         status: "published",
@@ -101,7 +101,7 @@ app.get("/posts/:id", async (c) => {
         },
       },
     });
-    return c.json(tags);
+    return c.json(posts);
   } catch (error) {
     return c.json({ error: "Failed to fetch posts" }, 500);
   }

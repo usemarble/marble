@@ -7,10 +7,12 @@ import {
 } from "novel";
 import { useState } from "react";
 import { ImageUploadModal } from "./image-upload-modal";
+import { YoutubeEmbedModal } from "./youtube-embed-modal";
 import { suggestionItems } from "./slash-command-items";
 
 function SlashCommandMenu() {
-  const [open, setOpen] = useState(false);
+  const [imageModalOpen, setImageModalOpen] = useState(false);
+  const [youtubeModalOpen, setYoutubeModalOpen] = useState(false);
   const editor = useEditor();
 
   return (
@@ -25,7 +27,9 @@ function SlashCommandMenu() {
               value={item.title}
               onCommand={(val) => {
                 if (item.title === "Image") {
-                  setOpen(true);
+                  setImageModalOpen(true);
+                } else if (item.title === "YouTube") {
+                  setYoutubeModalOpen(true);
                 } else {
                   item.command?.(val);
                 }
@@ -43,7 +47,8 @@ function SlashCommandMenu() {
           ))}
         </EditorCommandList>
       </EditorCommand>
-      <ImageUploadModal isOpen={open} setIsOpen={setOpen} />
+      <ImageUploadModal isOpen={imageModalOpen} setIsOpen={setImageModalOpen} />
+      <YoutubeEmbedModal isOpen={youtubeModalOpen} setIsOpen={setYoutubeModalOpen} />
     </>
   );
 }
