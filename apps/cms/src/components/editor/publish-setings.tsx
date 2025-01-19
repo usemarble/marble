@@ -114,11 +114,13 @@ export function PublishSettings({
   clearErrors,
 }: PublishSettingsProps) {
   const hasErrors = Object.keys(errors).length > 0;
-  const [date, setDate] = useState<Date | undefined>(new Date());
+  const { coverImage, publishedAt } = watch();
+  const [date, setDate] = useState<Date | undefined>(
+    watch("publishedAt") ? new Date(watch("publishedAt")) : new Date(),
+  );
   const [showCategoyModal, setShowCategoryModal] = useState(false);
   const { status, category } = watch();
   const [file, setFile] = useState<File | undefined>();
-  const { coverImage } = watch();
   const [embedUrl, setEmbedUrl] = useState<string>("");
   const [isValidatingUrl, setIsValidatingUrl] = useState(false);
   const [urlError, setUrlError] = useState<string | null>(null);
@@ -222,6 +224,13 @@ export function PublishSettings({
       startUpload([file]);
     }
   }, [file, startUpload]);
+
+  // Add an effect to update the form value when date changes
+  useEffect(() => {
+    if (date) {
+      setValue("publishedAt", date.toISOString());
+    }
+  }, [date, setValue]);
 
   return (
     <>
