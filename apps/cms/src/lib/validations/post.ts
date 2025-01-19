@@ -29,7 +29,7 @@ export const postSchema = z.object({
     .min(1, { message: "At least one tag is required" }),
   category: z.string().min(1, { message: "Category is required" }),
   status: z.enum(["published", "unpublished"]),
-  publishedAt: z.string().datetime(),
+  publishedAt: z.coerce.date(),
 });
 
 export type PostValues = z.infer<typeof postSchema>;
