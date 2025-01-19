@@ -228,7 +228,7 @@ export function PublishSettings({
   // Add an effect to update the form value when date changes
   useEffect(() => {
     if (date) {
-      setValue("publishedAt", date.toISOString());
+      setValue("publishedAt", date);
     }
   }, [date, setValue]);
 
