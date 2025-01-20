@@ -9,8 +9,14 @@ import { Suspense } from "react";
 export const metadata: Metadata = {
   title: "Login",
 };
+type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
-export default async function LoginPage() {
+export default async function LoginPage(props: {
+  searchParams: SearchParams;
+}) {
+  const searchParams = await props.searchParams;
+  const from = searchParams.from;
+
   const session = await getServerSession();
   if (session) redirect("/");
   return (
@@ -34,7 +40,7 @@ export default async function LoginPage() {
           <p className="text-muted-foreground px-8 text-center text-xs">
             Don&apos;t have an account?{" "}
             <Link
-              href="/register"
+              href={from ? `/register?from=${from}` : "/register"}
               className="hover:text-primary underline underline-offset-4 block"
             >
               Register

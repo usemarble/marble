@@ -70,6 +70,9 @@ app.get("/posts/:id", async (c) => {
         workspaceId: id,
         status: "published",
       },
+      orderBy: {
+        publishedAt: "desc",
+      },
       select: {
         id: true,
         slug: true,
