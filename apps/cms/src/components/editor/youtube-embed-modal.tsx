@@ -17,13 +17,20 @@ interface YoutubeEmbedModalProps {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export function YoutubeEmbedModal({ isOpen, setIsOpen }: YoutubeEmbedModalProps) {
+export function YoutubeEmbedModal({
+  isOpen,
+  setIsOpen,
+}: YoutubeEmbedModalProps) {
   const [url, setUrl] = useState("");
   const editorInstance = useEditor();
 
   const handleEmbed = (url: string) => {
     if (editorInstance) {
-      editorInstance.editor?.chain().focus().setYoutubeVideo({ src: url }).run();
+      editorInstance.editor
+        ?.chain()
+        .focus()
+        .setYoutubeVideo({ src: url })
+        .run();
       setIsOpen(false);
       setUrl("");
     }

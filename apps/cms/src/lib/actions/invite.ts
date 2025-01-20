@@ -2,7 +2,6 @@
 
 import getSession from "@/lib/auth/session";
 import db from "@repo/db";
-import { InviteStatus } from "@repo/db/client";
 
 export async function verifyInvite(inviteId: string) {
   const session = await getSession();

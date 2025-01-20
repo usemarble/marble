@@ -159,7 +159,7 @@ export const UpdateCategoryModal = ({
     const isTaken = await checkCategorySlugForUpdateAction(
       data.slug,
       activeWorkspace.id,
-      categoryData.id
+      categoryData.id,
     );
 
     if (isTaken) {

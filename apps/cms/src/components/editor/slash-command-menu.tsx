@@ -48,7 +48,10 @@ function SlashCommandMenu() {
         </EditorCommandList>
       </EditorCommand>
       <ImageUploadModal isOpen={imageModalOpen} setIsOpen={setImageModalOpen} />
-      <YoutubeEmbedModal isOpen={youtubeModalOpen} setIsOpen={setYoutubeModalOpen} />
+      <YoutubeEmbedModal
+        isOpen={youtubeModalOpen}
+        setIsOpen={setYoutubeModalOpen}
+      />
     </>
   );
 }
