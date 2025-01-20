@@ -72,11 +72,15 @@ export function WorkspaceSwitcher(props: WorkspaceSwitcherProps) {
   );
   const { data } = useSession();
   const session = data || props.session;
-
   const currOrg = useActiveOrganization();
 
   // console.log("organizations", organizations.data);
   // console.log("active org", currOrg.data);
+  useEffect(() => {
+    if (currOrg.data) {
+      setOptimisticOrg(currOrg.data);
+    }
+  }, [currOrg.data]);
 
   async function switchWorkspace(org: Organization) {
     if (org.slug === optimisticOrg?.slug) {

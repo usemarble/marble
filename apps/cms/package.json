@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.0",
-    "@hookform/resolvers": "^3.9.0",
+    "@hookform/resolvers": "^3.10.0",
     "@react-email/components": "0.0.31",
     "@repo/db": "workspace:*",
     "@repo/ui": "workspace:*",
@@ -31,12 +31,12 @@
     "novel": "^0.5.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-hook-form": "^7.53.0",
+    "react-hook-form": "^7.54.2",
     "resend": "^4.0.1",
     "sanitize-html": "^2.14.0",
     "tailwindcss-animate": "^1.0.7",
     "uploadthing": "^7.4.4",
-    "zod": "^3.23.8"
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@repo/tsconfig": "workspace:*",
