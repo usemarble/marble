@@ -1,11 +1,20 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import getServerSession from "./lib/auth/session";
+import type { Session } from "./lib/auth/types";
 import { getFirstOrganization } from "./utils/organization";
 
 export async function middleware(request: NextRequest) {
-  // Get user session
-  const session = await getServerSession();
+  // Get session from API route
+  const sessionRes = await fetch(
+    `${request.nextUrl.origin}/api/auth/session`,
+    {
+      headers: {
+        cookie: request.headers.get("cookie") || "",
+      },
+    },
+  );
+
+  const session: Session = sessionRes.ok ? await sessionRes.json() : null;
 
   const path = request.nextUrl.pathname;
   const isAuthPage = path.startsWith("/login") || path.startsWith("/register");
