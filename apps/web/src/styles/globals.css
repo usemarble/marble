@@ -5,12 +5,12 @@
 @layer base {
   :root {
     --background: 60 5% 96%;
-    --foreground: 0 0% 9%;
+    --foreground: 240 15% 14%;
     --card: 0 0% 100%;
     --card-foreground: 0 0% 9%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 9%;
-    --primary: 0 0% 9%;
+    --primary: 240 10% 14%;
     --primary-foreground: 0 0% 98%;
     --secondary: 0 0% 96.1%;
     --secondary-foreground: 0 0% 9%;
@@ -25,29 +25,38 @@
     --ring: 0 0% 9%;
     --radius: 0.7rem;
   }
-  .dark {
-    --background: 0 0% 9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-  }
 }
 @layer base {
+  @font-face {
+    font-family: "Manrope";
+    src: url("/fonts/Manrope-Variable.ttf") format("truetype");
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Funnel-Sans";
+    src: url("/fonts/FunnelSans-Variable.ttf") format("truetype");
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Literata";
+    src: url("/fonts/Literata-Variable.ttf") format("truetype");
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    color: hsl(var(--foreground));
+    background: hsl(var(--background));
+    font-family: Funnel-Sans, system-ui, sans-serif;
+  }
   * {
     @apply border-border;
   }
@@ -55,7 +64,6 @@
     @apply bg-background text-foreground antialiased;
   }
   .bgfgdf {
-    background-color: hsl(140, 60%, 99%);
-    background-color: hsl(60, 5%, 96%);
+    color: hsl(240, 15%, 14%);
   }
 }

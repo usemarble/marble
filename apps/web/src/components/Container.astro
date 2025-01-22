@@ -4,6 +4,6 @@ interface Props extends HTMLAttributes<"div"> {}
 const { class: classNames, ...attrs } = Astro.props;
 ---
 
-<div {...attrs} class={`h-full mx-auto w-full max-w-screen-lg px-8 md:px-12 lg:px-16 ${classNames}`}>
+<div {...attrs} class={`h-full mx-auto w-full max-w-6xl px-8 md:px-12 lg:px-16 ${classNames}`}>
   <slot />
 </div>

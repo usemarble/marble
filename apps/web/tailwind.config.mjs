@@ -1,9 +1,16 @@
+import defaultTheme from "tailwindcss/defaultTheme";
+
 /** @type {import('tailwindcss').Config} */
 
 export default {
   content: ["./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}"],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["Funnel-Sans", ...defaultTheme.fontFamily.sans],
+        mono: ["NovaMono", ...defaultTheme.fontFamily.mono],
+        serif: ["Literata", ...defaultTheme.fontFamily.serif],
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
