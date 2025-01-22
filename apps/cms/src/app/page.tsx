@@ -3,18 +3,19 @@ import { getFirstOrganization } from "@/utils/organization";
 import { redirect } from "next/navigation";
 
 async function Page() {
-  const session = await getServerSession();
+  // const session = await getServerSession();
 
-  if (!session) {
-    redirect("/login");
-  }
+  // if (!session) {
+  //   redirect("/login");
+  // }
 
-  const firstWorkspaceSlug = await getFirstOrganization(session.user.id);
-  if (firstWorkspaceSlug) {
-    redirect(`/${firstWorkspaceSlug}`);
-  }
+  // const firstWorkspaceSlug = await getFirstOrganization(session.user.id);
+  // if (firstWorkspaceSlug) {
+  //   redirect(`/${firstWorkspaceSlug}`);
+  // }
 
-  redirect("/onboarding");
+  // redirect("/onboarding");
+  return <div>Homepage</div>
 }
 
 export default Page;
