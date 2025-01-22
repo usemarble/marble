@@ -5,28 +5,37 @@ import { SITE } from "@/lib/constants";
 ---
 
 <Layout title={`Pricing | ${SITE.TITLE}`} description="Pricing plans for marble.">
-  <Container class="mb-10 md:mb-20">
-     <section class='flex gap-14 py-14 lg:py-20 min-h-[calc(100vh-64px)] flex-col items-center justify-center'>
-       <div class="relative flex flex-col items-center space-y-4">
-				<h2 class="relative text-center text-balance text-xl sm:text-2xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
+  <Container class="mb-10 md:mb-20 border-y border-dashed">
+     <section class='flex gap-14 py-14 lg:py-20 min-h-[calc(100vh-64px)] flex-col items-center justify-center border-x border-dashed'>
+       <div class="relative flex flex-col items-center space-y-2 md:space-y-3">
+				<h2 class="relative text-center text-balance text-2xl sm:text-3xl font-medium tracking-tight md:text-4xl lg:text-5xl max-w-4xl">
 					Simple Pricing, No Surprises.
 				</h2>
-				<p class="max-w-prose text-lg text-muted-foreground text-center">
+				<p class="max-w-prose Md:text-lg text-muted-foreground text-center">
 					Get all the tools you need without breaking the bank.
 				</p>
 			</div>
 			<ul class="grid gap-5 lg:gap-10 sm:grid-cols-2 lg:grid-cols-3">
 				<li class="border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl">
-					<div class="border flex flex-col gap-5 rounded-[8px] bg-white min-h-96 h-full w-full p-4">
-						<div class="flex flex-col gap-4 pb-4 border-b border-dashed">
+					<div class="border flex flex-col gap-5 rounded-[8px] bg-white min-h-96 h-full w-full px-4 py-6">
+						<div class="flex flex-col gap-4">
 							<h4 class="text-medium text-2xl">Hobby</h4>
 							<div class="">
 								<p><span class="font-bold text-2xl">$0</span>{' '}<span>per month.</span></p>
-								<p class="text-muted-foreground text-sm mt-1">For solo individuals</p>
+								<p class="text-muted-foreground text-sm">For solo individuals</p>
 							</div>
 						</div>
+						<div class="border-y border-dashed py-4">
+							<a 
+								href={"#"}
+								target="_blank"
+								class="flex bg-primary gap-2 group rounded-md text-primary-foreground items-center justify-center py-2 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 transition-all duration-300 ease-out px-8 group mt-auto"
+								>
+								<span>Start for free</span>
+							</a>
+						</div>
 						<!-- Plan perks -->
-						<ul class="flex flex-col gap-2">
+						<ul class="flex flex-col gap-2 text-sm">
 							<li class="flex items-center gap-2">
 								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
 									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
@@ -43,34 +52,44 @@ import { SITE } from "@/lib/constants";
 								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
 									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
 								</svg>
+								<span>Limited media storage.</span>
+							</li>
+							<li class="flex items-center gap-2">
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
+									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+								</svg>
+								<span>3 members per workspace.</span>
+							</li>
+							<li class="flex items-center gap-2">
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
+									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+								</svg>
 								<span>10k API requests per month.</span>
 							</li>
 						</ul>
-					<!-- Action -->
-						<a 
-							href={"http://localhost:3000/"}
-							target="_blank"
-							class="flex bg-primary gap-2 group rounded-md text-primary-foreground items-center justify-center py-2 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 transition-all duration-300 ease-out px-8 group mt-auto"
-						>
-							<span>Start for free</span>
-							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 group-hover:translate-x-1 transition duration-300">
-								<path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
-							</svg>
-						</a>
 					</div>
 				</li>
 				<li class="border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl">
-					<div class="border flex flex-col gap-5 rounded-[8px] bg-white min-h-96 h-full w-full p-4">
+					<div class="border flex flex-col gap-5 rounded-[8px] bg-white min-h-96 h-full w-full px-4 py-6">
 						<!-- plan name and price -->
-						<div class="flex flex-col gap-4 pb-4 border-b border-dashed">
+						<div class="flex flex-col gap-4">
 							<h4 class="text-medium text-2xl">Starter</h4>
 							<div class="">
 								<p><span class="font-bold text-2xl">$0</span>{' '}<span>per month.</span></p>
-								<p class="text-muted-foreground text-sm mt-1">For small teams</p>
+								<p class="text-muted-foreground text-sm">For small teams</p>
 							</div>
 						</div>
+						<div class="border-y border-dashed py-4">
+							<a 
+								href={"#"}
+								target="_blank"
+								class="flex bg-primary gap-2 group rounded-md text-primary-foreground items-center justify-center py-2 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 transition-all duration-300 ease-out px-8 group mt-auto"
+							>
+								<span>Get Starter</span>
+							</a>
+						</div>
 						<!-- Plan perks -->
-						<ul class="flex flex-col gap-2">
+						<ul class="flex flex-col gap-2 text-sm">
 							<li class="flex items-center gap-2">
 								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
 									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
@@ -87,40 +106,46 @@ import { SITE } from "@/lib/constants";
 								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
 									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
 								</svg>
-								<span>50k API requests per month.</span>
+								<span>Limited media storage.</span>
 							</li>
 							<li class="flex items-center gap-2">
 								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
 									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
 								</svg>
-								<span>Team management.</span>
+								<span>10 Members per workspace</span>
+							</li>
+							<li class="flex items-center gap-2">
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
+									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+								</svg>
+								<span>50k API requests per month.</span>
 							</li>
 						</ul>
-						<!-- action -->
-						<a 
-							href={"http://localhost:3000/"}
-							target="_blank"
-							class="flex bg-primary gap-2 group rounded-md text-primary-foreground items-center justify-center py-2 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 transition-all duration-300 ease-out px-8 group mt-auto"
-						>
-							<span>Get starter</span>
-							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 group-hover:translate-x-1 transition duration-300">
-								<path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
-							</svg>
-						</a>
 					</div>
 				</li>
-				<li class="border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl">
-					<div class="border flex flex-col gap-5 rounded-[8px] bg-white min-h-96 w-full p-4">
+				<li class="border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl sm:col-span-2 lg:col-span-1 sm:h-fit">
+					<div class="border flex flex-col sm:flex-row sm:px-14 sm:py-10 lg:py-6 sm:justify-center sm:gap-20 lg:gap-4 lg:px-4 lg:flex-col gap-5 rounded-[8px] bg-white min-h-96 sm:min-h-fit lg:min-h-96 w-full px-4 py-6">
 						<!-- plan name and price -->
-						<div class="flex flex-col gap-4 border-b border-dashed pb-4">
-							<h4 class="text-medium text-xl text-medium">Pro</h4>
-							<div class="">
-								<p><span class="font-bold text-2xl">$0</span>{' '}<span>per month.</span></p>
-								<p class="text-muted-foreground text-sm mt-1">For growing businesses</p>
-							</div>
-						</div>
+						 <div class="flex flex-col gap-5 sm:min-w-60 lg:min-w-0">
+							 <div class="flex flex-col gap-4">
+								 <h4 class="text-medium text-xl text-medium">Pro</h4>
+								 <div class="">
+									 <p><span class="font-bold text-2xl">$0</span>{' '}<span>per month.</span></p>
+									 <p class="text-muted-foreground text-sm">For growing businesses</p>
+								 </div>
+							 </div>
+							 <div class="border-y border-dashed py-4">
+								 <a 
+									 href={"#"}
+									 target="_blank"
+									 class="flex bg-primary gap-2 group rounded-md text-primary-foreground items-center justify-center py-2 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 transition-all duration-300 ease-out px-8 group mt-auto"
+									 >
+									 <span>Get Pro</span>
+								 </a>
+							 </div>
+							</div>	
 						<!-- perks -->
-						<ul class="flex flex-col gap-2">
+						<ul class="flex flex-col gap-2 text-sm">
 							<li class="flex items-center gap-2">
 								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
 									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
@@ -137,13 +162,19 @@ import { SITE } from "@/lib/constants";
 								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
 									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
 								</svg>
-								<span>100k API requests per month.</span>
+								<span>Unlimited media storage.</span>
 							</li>
 							<li class="flex items-center gap-2">
 								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
 									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
 								</svg>
-								<span>Team management.</span>
+								<span>20 members per workspace</span>
+							</li>
+							<li class="flex items-center gap-2">
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
+									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+								</svg>
+								<span>100k API requests per month.</span>
 							</li>
 							<li class="flex items-center gap-2">
 								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
@@ -152,17 +183,6 @@ import { SITE } from "@/lib/constants";
 								<span>Webhooks.</span>
 							</li>
 						</ul>
-						<!-- action -->
-						<a 
-							href={"http://localhost:3000/"}
-							target="_blank"
-							class="flex bg-primary gap-2 group rounded-md text-primary-foreground items-center justify-center py-2 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 transition-all duration-300 ease-out px-8 group"
-						>
-							<span>Get pro</span>
-							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 group-hover:translate-x-1 transition duration-300">
-								<path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
-							</svg>
-						</a>
 					</div>
 				</li>
 			</ul>

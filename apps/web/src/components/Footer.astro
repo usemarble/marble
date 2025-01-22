@@ -5,9 +5,9 @@ import Github from "./icons/Github.astro";
 import X from "./icons/X.astro";
 ---
 
-<section class="pb-28 md:pb-40 xl:pb-48">
+<footer class="pb-28 md:pb-40 xl:pb-48">
   <Container>
-    <footer class="rounded-xl border bg-white p-10 lg:p-12">
+    <section class="rounded-xl border bg-white p-10 lg:p-12 md:min-h-96 flex flex-col justify-between gap-5">
       <div class="flex flex-col justify-between gap-10 md:flex-row">
         <div class="sm:col-span-3">
           <a href="/" class="mb-2 flex items-center gap-2 tracking-widest font-medium">
@@ -119,6 +119,6 @@ import X from "./icons/X.astro";
           &copy; {new Date().getFullYear()} all rights reserved
         </p>
       </div>
-    </footer>
+    </section>
   </Container>
-</section>
+</footer>
