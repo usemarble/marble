@@ -6,7 +6,7 @@ import { getFirstOrganization } from "./utils/organization";
 export async function middleware(request: NextRequest) {
   // Get session from API route
   const sessionRes = await fetch(
-    `${request.nextUrl.origin}/api/auth/session`,
+    `${request.nextUrl.origin}/api/auth/get-session`,
     {
       headers: {
         cookie: request.headers.get("cookie") || "",

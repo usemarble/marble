@@ -6,6 +6,7 @@ import { createAuthMiddleware } from "better-auth/api";
 import { organization } from "better-auth/plugins";
 import { redirect } from "next/navigation";
 import { getActiveOrganization } from "../queries/workspace";
+import { nextCookies } from "better-auth/next-js";
 
 export const auth = betterAuth({
   database: prismaAdapter(db, {
@@ -44,6 +45,7 @@ export const auth = betterAuth({
         });
       },
     }),
+    nextCookies(),
   ],
   hooks: {
     after: createAuthMiddleware(async (ctx) => {
