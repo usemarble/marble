@@ -15,7 +15,7 @@ async function Page() {
   // }
 
   // redirect("/onboarding");
-  return <div>Homepage</div>
+  return <div>Homepage</div>;
 }
 
 export default Page;
