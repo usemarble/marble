@@ -1,6 +1,6 @@
 "use server";
 
-import prisma from "@repo/db";
+import db from "@repo/db";
 import { revalidatePath } from "next/cache";
 import getSession from "../auth/session";
 import { setActiveWorkspace } from "../auth/workspace";
@@ -17,7 +17,7 @@ export async function createWorkspaceAction(payload: CreateWorkspaceValues) {
 
   const parsedPayload = workspaceSchema.parse(payload);
 
-  const workspace = await prisma.organization.create({
+  const workspace = await db.organization.create({
     data: {
       ...parsedPayload,
       slug: parsedPayload.slug.toLocaleLowerCase(),
@@ -39,7 +39,7 @@ export async function checkWorkspaceSlug(
     throw new Error("Unauthorized");
   }
 
-  const workspace = await prisma.organization.findFirst({
+  const workspace = await db.organization.findFirst({
     where: {
       slug,
       NOT: currentWorkspaceId ? { id: currentWorkspaceId } : undefined,
@@ -60,10 +60,21 @@ export async function updateWorkspaceAction(
 
   const parsedPayload = workspaceSchema.parse(payload);
 
-  const workspace = await prisma.organization.update({
+  const workspace = await db.organization.update({
     where: { id: workspaceId },
     data: parsedPayload,
   });
 
   return workspace;
+}
+
+export async function deleteWorkspaceAction(workspaceId: string) {
+  const session = await getSession();
+  if (!session?.user || !session?.user.id) {
+    throw new Error("Unauthorized");
+  }
+
+  await db.organization.delete({ where: { id: workspaceId } });
+
+  return true;
 }

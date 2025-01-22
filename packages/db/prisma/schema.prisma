@@ -65,6 +65,7 @@ model Organization {
   categories  Category[]
   members     Member[]
   invitations Invitation[]
+  media       Media[]
 
   @@unique([slug])
   @@map("workspace")
@@ -109,6 +110,20 @@ model Tag {
 
   @@unique([workspaceId, slug])
   @@map("tag")
+}
+
+model Media {
+  id          String       @id @default(cuid())
+  name        String
+  url         String
+  type        String?
+  size        Int?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  workspaceId String
+  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@map("media")
 }
 
 model Category {

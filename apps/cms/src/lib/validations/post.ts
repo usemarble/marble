@@ -22,7 +22,7 @@ export const postSchema = z.object({
   coverImage: z.string().url().nullable().optional(),
   description: z.string().min(1, { message: "Description cannot be empty" }),
   slug: z.string().min(1, { message: "Slug cannot be empty" }),
-  content: requiredEditorString,
+  content: z.string(),
   contentJson: z.string().min(10),
   tags: z
     .array(z.string().min(1))

@@ -37,7 +37,6 @@ export async function AppSidebar({
         <NavDevs />
       </SidebarContent>
       <SidebarFooter>
-        <GreetingCard />
         <NavUser user={session?.user} />
       </SidebarFooter>
     </Sidebar>

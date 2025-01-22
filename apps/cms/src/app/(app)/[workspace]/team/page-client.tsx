@@ -230,18 +230,18 @@ function PageClient(props: PageClientProps) {
                       </div>
                       <div className="flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Button
-                          variant="ghost"
+                          variant="outline"
                           size="sm"
                           onClick={() => copyInviteLink(invite.id)}
                         >
                           <CopyIcon className="h-4 w-4" />
                         </Button>
                         <Button
-                          variant="ghost"
                           size="sm"
+                          variant="outline"
                           disabled={isCancelingInvite}
                           onClick={() => cancelInvite(invite.id)}
-                          className="text-destructive"
+                          className="text-destructive hover:text-destructive"
                         >
                           <UserMinus className="h-4 w-4" />
                         </Button>

@@ -9,7 +9,7 @@ import {
 } from "@repo/ui/components/sidebar";
 
 import { useActiveOrganization } from "@/lib/auth/client";
-import { Group, Tags } from "@repo/ui/lib/icons";
+import { Group, ImageIcon, Tags } from "@repo/ui/lib/icons";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayersIcon } from "../icons/animated/layers";
@@ -32,6 +32,11 @@ const items = [
     name: "Tags",
     url: "tags",
     icon: Tags,
+  },
+  {
+    name: "Media",
+    url: "media",
+    icon: ImageIcon,
   },
   {
     name: "Team",
@@ -64,8 +69,8 @@ export function NavMain() {
             asChild
             className={`border border-transparent ${
               isOverviewActive
-                ? "bg-muted border-border"
-                : "hover:bg-muted hover:border-border"
+                ? "bg-background border-border hover:bg-background hover:border-primary"
+                : "hover:bg-background hover:border-border"
             }`}
           >
             <Link href={`/${workspace?.slug}`}>
@@ -85,8 +90,8 @@ export function NavMain() {
               asChild
               className={`border border-transparent ${
                 isActive(item.url)
-                  ? "bg-muted border-border"
-                  : "hover:bg-muted hover:border-border"
+                  ? "bg-background border-border hover:bg-background"
+                  : "hover:bg-background hover:border-border"
               }`}
             >
               <Link href={`/${workspace?.slug}/${item.url}`}>

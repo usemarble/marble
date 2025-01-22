@@ -1,10 +1,12 @@
+import Account from "@/components/settings/account";
 import { ColorSwitch } from "@/components/settings/color";
 import { CookieSettings } from "@/components/settings/cookies";
+import DestroyWorkspace from "@/components/settings/destroy-workspace";
 import { ThemeSwitch } from "@/components/settings/theme";
 import WorkspaceForm from "@/components/settings/workspace-form";
 import { Button } from "@repo/ui/components/button";
+
 import { Checkbox } from "@repo/ui/components/checkbox";
-import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
 import { Separator } from "@repo/ui/components/separator";
 import {
@@ -14,9 +16,9 @@ import {
   TabsTrigger,
 } from "@repo/ui/components/tabs";
 
-async function page() {
+async function Page() {
   return (
-    <div className="w-full max-w-screen-md mx-auto space-y-12 pt-10 pb-14">
+    <div className="w-full max-w-screen-sm mx-auto space-y-12 pt-10 pb-14">
       <div>
         <h1 className="text-lg font-semibold">Settings</h1>
         <p className="text-muted-foreground text-sm">
@@ -46,7 +48,10 @@ async function page() {
                   done.
                 </p>
               </div>
+
               <WorkspaceForm />
+
+              <DestroyWorkspace />
             </section>
           </TabsContent>
           {/*  */}
@@ -59,40 +64,7 @@ async function page() {
                   billing.
                 </p>
               </div>
-              <div className="flex flex-col gap-4">
-                <div className="grid gap-6 grid-cols-2">
-                  <div>
-                    <Label>Firstname</Label>
-                    <Input />
-                  </div>
-                  <div>
-                    <Label>Lastname</Label>
-                    <Input />
-                  </div>
-                </div>
-                <div>
-                  <Label>Email</Label>
-                  <Input />
-                </div>
-                <div>
-                  <Label>Address</Label>
-                  <Input />
-                </div>
-                <div className="grid grid-cols-3 gap-6">
-                  <div>
-                    <Label>Country</Label>
-                    <Input />
-                  </div>
-                  <div>
-                    <Label>City</Label>
-                    <Input />
-                  </div>
-                  <div>
-                    <Label>Zip / Postal code</Label>
-                    <Input />
-                  </div>
-                </div>
-              </div>
+              <Account />
             </section>
             <Separator />
             <section className="space-y-8">
@@ -109,8 +81,8 @@ async function page() {
                   <div className="flex flex-col gap-2">
                     <Label htmlFor="newsletter">Receive newsletter</Label>
                     <p className="text-muted-foreground text-sm">
-                      I want to receive updates from Company about relevant
-                      products or services.
+                      I want to receive updates about relevant products or
+                      services.
                     </p>
                   </div>
                 </li>
@@ -119,8 +91,8 @@ async function page() {
                   <div className="flex flex-col gap-2">
                     <Label htmlFor="member">Member activities</Label>
                     <p className="text-muted-foreground text-sm">
-                      Stay informed and receive notifications when new team
-                      members join or leave this workspace.
+                      Stay informed and receive notifications when team members
+                      join or leave this workspace.
                     </p>
                   </div>
                 </li>
@@ -153,19 +125,19 @@ async function page() {
               </p>
             </div>
             <ul className="flex flex-col divide-y border-y">
-              <li className="flex items-center justify-between py-4">
+              <li className="flex items-center justify-between py-6">
                 <div>
                   <p className="font-medium">Theme</p>
                 </div>
                 <ThemeSwitch />
               </li>
-              <li className="flex items-center justify-between py-4">
+              <li className="flex items-center justify-between py-6">
                 <div>
                   <p className="font-medium">Cookies</p>
                 </div>
                 <CookieSettings />
               </li>
-              <li className="flex items-center justify-between py-4">
+              <li className="flex items-center justify-between py-6">
                 <div>
                   <p className="font-medium">Primary color</p>
                 </div>
@@ -179,4 +151,4 @@ async function page() {
   );
 }
 
-export default page;
+export default Page;

@@ -224,26 +224,33 @@ export default PageClient;
 
 function InviteError() {
   return (
-    <div>
-      <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-bold">Invalid Invite</h1>
-        <p className="text-muted-foreground">
-          The invitation you're trying to access is either invalid or you don't
-          have the correct permissions. Please check your email for a valid
-          invitation or contact the person who sent it.
-        </p>
-      </div>
-      <Link
-        href="/"
-        className={buttonVariants({
-          variant: "outline",
-          className: "gap-2 items-center flex",
-        })}
-      >
-        <Undo className="size-4" />
-        <span>Back home</span>
-      </Link>
-    </div>
+    <Card className="w-full max-w-md">
+      <CardHeader className="text-center">
+        <CardTitle>Invalid Invite</CardTitle>
+        <CardDescription className="sr-only">
+          This invite is invalid or you don't have the correct permissions.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="flex flex-col items-center gap-6">
+          <p className="text-muted-foreground text-center">
+            The invitation you're trying to access is either invalid or you
+            don't have the correct permissions. Please check your email for a
+            valid invitation or contact the person who sent it.
+          </p>
+          <Link
+            href="/"
+            className={buttonVariants({
+              variant: "outline",
+              className: "gap-2 items-center flex",
+            })}
+          >
+            <Undo className="size-4" />
+            <span>Back home</span>
+          </Link>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 

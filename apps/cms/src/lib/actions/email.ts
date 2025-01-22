@@ -3,6 +3,7 @@
 import { InviteUserEmail } from "@/components/emails/invite";
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import getServerSession from "../auth/session";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -28,6 +29,14 @@ export async function sendInviteEmailAction({
   if (!process.env.RESEND_API_KEY) {
     console.error("RESEND_API_KEY is not set");
     return { error: "Email configuration missing" };
+  }
+  const session = await getServerSession();
+
+  if (!session) {
+    return NextResponse.json(
+      { error: "Failed to send email" },
+      { status: 401 },
+    );
   }
 
   try {

@@ -40,7 +40,7 @@ export function NavDevs() {
           <SidebarMenuItem key={item.name}>
             <SidebarMenuButton
               asChild
-              className="hover:bg-muted border border-transparent hover:border-border"
+              className="hover:bg-background border border-transparent hover:border-border"
             >
               <Link href={item.url}>
                 <item.icon />

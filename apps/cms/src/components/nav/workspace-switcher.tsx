@@ -110,7 +110,7 @@ export function WorkspaceSwitcher(props: WorkspaceSwitcherProps) {
             {optimisticOrg ? (
               <SidebarMenuButton
                 size="lg"
-                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:bg-muted border border-transparent hover:border-border"
+                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:bg-background border border-transparent hover:border-border"
               >
                 <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square">
                   <Avatar className="size-8 rounded-none">

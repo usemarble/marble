@@ -17,7 +17,7 @@ export default async function RegisterPage() {
     <div className="md:grid h-screen w-full md:grid-cols-[55%,45%] p-4 max-w-screen-xl mx-auto">
       <section className="flex flex-col items-center justify-between h-full">
         <div className="self-start">
-          <h1 className="font-semibold uppercase">Marble</h1>
+          <h1 className="font-semibold uppercase sr-only">Marble</h1>
         </div>
         <div className="flex w-full max-w-96 flex-col gap-8 rounded-md p-6 lg:px-8 lg:py-10">
           <div className="text-center">
@@ -61,8 +61,8 @@ export default async function RegisterPage() {
       </section>
       <section className="overflow-hidden rounded-md hidden md:block">
         <Image
-          src={"/register.jpg"}
-          alt="login page"
+          src={"/login.jpg"}
+          alt=""
           width={350}
           height={680}
           className="w-full h-full"

@@ -1,4 +1,5 @@
 import getServerSession from "@/lib/auth/session";
+import db from "@repo/db";
 import { type FileRouter, createUploadthing } from "uploadthing/next";
 import { UploadThingError } from "uploadthing/server";
 
@@ -14,9 +15,24 @@ export const ourFileRouter: FileRouter = {
     .middleware(async ({ req }) => {
       const sessionInfo = await getServerSession();
       if (!sessionInfo) throw new UploadThingError("Unauthorized");
-      return { userId: sessionInfo.user.id };
+      return {
+        userId: sessionInfo.user.id,
+        orgId: sessionInfo.session.activeOrganizationId,
+      };
     })
     .onUploadComplete(async ({ metadata, file }) => {
+      try {
+        await db.media.create({
+          data: {
+            name: file.name,
+            url: file.url,
+            size: file.size,
+            workspaceId: metadata.orgId as string,
+          },
+        });
+      } catch (error) {
+        console.error("Error saving media to database", error);
+      }
       return { uploadedBy: metadata.userId, url: file.url };
     }),
 } satisfies FileRouter;

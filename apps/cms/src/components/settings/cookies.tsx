@@ -16,7 +16,7 @@ const cookieOptions = [
   {
     id: "essential",
     label: "Essential Cookies",
-    description: "Required for basic site functionality",
+    description: "Required for basic app functionality",
     required: true,
   },
   {
@@ -28,7 +28,7 @@ const cookieOptions = [
   {
     id: "analytics",
     label: "Analytics Cookies",
-    description: "Help us improve our website",
+    description: "Help us improve the app",
     required: false,
   },
 ];

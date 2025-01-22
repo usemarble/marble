@@ -49,10 +49,10 @@ export const InviteUserEmail = ({
           <Container className="border border-solid border-[#eaeaea] rounded my-[40px] mx-auto p-[20px] max-w-[465px]">
             <Section className="mt-[32px]">
               <Img
-                src={`${baseUrl}/vercel-logo.png`}
+                src={`${baseUrl}/logo.png`}
                 width="40"
                 height="37"
-                alt="Vercel"
+                alt="logo"
                 className="my-0 mx-auto"
               />
             </Section>
@@ -84,12 +84,9 @@ export const InviteUserEmail = ({
                   />
                 </Column>
                 <Column align="center">
-                  <Img
-                    src={`${baseUrl}/vercel-arrow.png`}
-                    width="12"
-                    height="9"
-                    alt="invited you to"
-                  />
+                  <Text className="text-black text-[14px] leading-[24px]">
+                    &rarr;
+                  </Text>
                 </Column>
                 <Column align="left">
                   <Img
@@ -120,8 +117,8 @@ export const InviteUserEmail = ({
               This invitation was intended for{" "}
               <span className="text-black">{inviteeEmail}</span>. If you were
               not expecting this invitation, you can ignore this email. If you
-              are concerned about your account's safety, please reply to this
-              email to get in touch with us.
+              are concerned about your account's safety, please send an email to
+              support@marble.blog to get in touch with us.
             </Text>
           </Container>
         </Body>
