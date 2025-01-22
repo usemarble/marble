@@ -61,13 +61,18 @@ export const auth = betterAuth({
     session: {
       create: {
         before: async (session) => {
-          const organization = await getActiveOrganization(session.userId);
-          return {
-            data: {
-              ...session,
-              activeOrganizationId: organization?.id,
-            },
-          };
+          try {
+            const organization = await getActiveOrganization(session.userId);
+            return {
+              data: {
+                ...session,
+                activeOrganizationId: organization?.id || null,
+              },
+            };
+          } catch (error) {
+            // If there's an error, just create the session without an active org
+            return { data: session };
+          }
         },
       },
     },

@@ -1,7 +1,5 @@
-import { redirectIfLoggedIn } from "@/utils/verifications";
-
 async function Page() {
-  return await redirectIfLoggedIn();
+  <div>Home page</div>;
 }
 
 export default Page;

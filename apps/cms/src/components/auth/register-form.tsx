@@ -1,6 +1,5 @@
 "use client";
 
-import { Github, Google } from "@/components/shared/icons";
 import { authClient } from "@/lib/auth/client";
 import { type CredentialData, credentialSchema } from "@/lib/validations/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,6 +12,7 @@ import { cn } from "@repo/ui/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { Github, Google } from "../icons/brand";
 
 export function RegisterForm() {
   const {
