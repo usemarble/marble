@@ -18,7 +18,7 @@ export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const isRootPage = path === "/";
   const isInvitePage = path.startsWith("/invite");
-  const isOnboardingPage = path.startsWith("/onboarding");
+  const isOnboardingPage = path.startsWith("/new");
   const isAuthPage = path.startsWith("/login") || path.startsWith("/register");
 
   // Allow invite flows to proceed normally
@@ -32,7 +32,7 @@ export async function middleware(request: NextRequest) {
     if (isAuthPage) {
       return NextResponse.next();
     }
-    
+
     // Redirect to login for protected routes
     const callbackUrl = encodeURIComponent(request.nextUrl.pathname);
     return NextResponse.redirect(
@@ -55,7 +55,7 @@ export async function middleware(request: NextRequest) {
           new URL(`/${firstWorkspaceSlug}`, request.url),
         );
       }
-      return NextResponse.redirect(new URL("/onboarding", request.url));
+      return NextResponse.redirect(new URL("/new", request.url));
     }
   }
 

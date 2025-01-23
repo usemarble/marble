@@ -40,5 +40,5 @@ export const redirectIfLoggedIn = async () => {
   }
 
   // If no workspace at all, redirect to onboarding
-  return redirect("/onboarding");
+  return redirect("/new");
 };
