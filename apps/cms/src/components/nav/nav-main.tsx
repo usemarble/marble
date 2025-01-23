@@ -69,7 +69,7 @@ export function NavMain() {
             asChild
             className={`border border-transparent ${
               isOverviewActive
-                ? "bg-background border-border hover:bg-background hover:border-primary"
+                ? "bg-background border-border hover:bg-background"
                 : "hover:bg-background hover:border-border"
             }`}
           >

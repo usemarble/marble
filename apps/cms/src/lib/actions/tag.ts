@@ -40,12 +40,15 @@ export async function createTagAction(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  await db.tag.create({
+  const tagToCreate = await db.tag.create({
     data: {
       ...data,
       workspaceId,
     },
   });
+
+  const resData = { id: tagToCreate.id, name: tagToCreate.name, slug: tagToCreate.slug };
+  return resData;
 }
 
 export async function updateTagAction(payload: CreateTagValues, id: string) {

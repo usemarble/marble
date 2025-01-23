@@ -40,15 +40,18 @@ export async function createCategoryAction(
 ) {
   const isAllowed = await getServerSession();
   if (!isAllowed) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return 
   }
 
-  await db.category.create({
+  const categoryToCreate = await db.category.create({
     data: {
       ...data,
       workspaceId,
     },
   });
+
+  const resData = { id: categoryToCreate.id, name: categoryToCreate.name, slug: categoryToCreate.slug };
+  return resData;
 }
 
 export async function updateCategoryAction(

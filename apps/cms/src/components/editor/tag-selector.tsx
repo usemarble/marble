@@ -108,7 +108,7 @@ export const TagSelector = ({
       </div>
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
-          <div className="relative w-full cursor-pointer rounded-md border border-input bg-transparent px-3 py-2 text-sm">
+          <div className="relative w-full cursor-pointer rounded-md border border-input bg-transparent px-3 py-2 text-sm h-10">
             <div className="flex items-center justify-between gap-2">
               <ul className="flex flex-wrap gap-1">
                 {selected.length === 0 && (
@@ -136,41 +136,43 @@ export const TagSelector = ({
                   </li>
                 ))}
               </ul>
-              <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
+              <ChevronsUpDown className="size-4 shrink-0 opacity-50" />
             </div>
           </div>
         </PopoverTrigger>
         {error && <ErrorMessage>{error.message}</ErrorMessage>}
-        <PopoverContent className="min-w-full p-0" align="start">
+        <PopoverContent className="min-w-[364.67px] p-0" align="start">
           <Command className="w-full">
             <CommandInput placeholder="Search tags..." />
             <CommandList>
               <CommandEmpty>No results found.</CommandEmpty>
-              <CommandGroup>
-                {options.map((option) => (
-                  <CommandItem
-                    key={option.id}
-                    id={option.id}
-                    onSelect={() => addTag(option.id)}
-                  >
-                    {option.name}
-                    <Check
-                      className={cn(
-                        "ml-auto h-4 w-4",
-                        selected.some((item) => item.id === option.id)
-                          ? "opacity-100"
-                          : "opacity-0",
-                      )}
-                    />
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-              <CommandSeparator />
+              {options.length > 0 && (
+                <CommandGroup>
+                  {options.map((option) => (
+                    <CommandItem
+                      key={option.id}
+                      id={option.id}
+                      onSelect={() => addTag(option.id)}
+                    >
+                      {option.name}
+                      <Check
+                        className={cn(
+                          "ml-auto h-4 w-4",
+                          selected.some((item) => item.id === option.id)
+                            ? "opacity-100"
+                            : "opacity-0",
+                        )}
+                      />
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              )}
+              {options.length > 0 && <CommandSeparator />}
               <CommandItem asChild className="rounded-none">
                 <button
                   type="button"
                   onClick={() => setOpenTagModal(true)}
-                  className="flex w-full items-center gap-2"
+                  className="flex w-full items-center gap-2 hover:cursor-pointer"
                 >
                   <div className="bg-background flex size-6 items-center justify-center rounded-md border">
                     <Plus className="size-4" />

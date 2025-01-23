@@ -59,8 +59,7 @@ import {
 } from "@repo/ui/components/tabs";
 import { cn } from "@repo/ui/lib/utils";
 import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
-import { s } from "node_modules/better-auth/dist/index-DwXoFQKD";
+import { format, set } from "date-fns";
 import { useEffect, useState } from "react";
 import type {
   Control,
@@ -124,6 +123,7 @@ export function PublishSettings({
   const [embedUrl, setEmbedUrl] = useState<string>("");
   const [isValidatingUrl, setIsValidatingUrl] = useState(false);
   const [urlError, setUrlError] = useState<string | null>(null);
+  const [optimisticCategories, setOptimisticCategories] = useState<TagResponse[]>([]);
 
   // Fetch tags
   const { data } = useQuery({
@@ -143,6 +143,7 @@ export function PublishSettings({
     queryFn: async () => {
       const res = await fetch("/api/categories");
       const data: TagResponse[] = await res.json();
+      setOptimisticCategories(data);
       return data;
     },
   });
@@ -231,6 +232,10 @@ export function PublishSettings({
       setValue("publishedAt", date);
     }
   }, [date, setValue]);
+
+  const handleUpdateCategoryList = async (data: TagResponse) => {
+    setOptimisticCategories([...optimisticCategories, data]);
+  }
 
   return (
     <>
@@ -491,7 +496,7 @@ export function PublishSettings({
                   <SelectGroup>
                     <SelectLabel className="font-normal px-2 text-xs flex items-center gap-1 justify-between">
                       <span className="text-muted-foreground text-xs">
-                        {categories?.length === 0
+                        {optimisticCategories.length === 0
                           ? "No categories"
                           : "Categories"}
                       </span>
@@ -504,7 +509,7 @@ export function PublishSettings({
                         <span className="sr-only">Add New Category</span>
                       </button>
                     </SelectLabel>
-                    {categories?.map((category) => (
+                    {optimisticCategories.map((category) => (
                       <SelectItem key={category.id} value={category.id}>
                         {category.name}
                       </SelectItem>
@@ -576,6 +581,7 @@ export function PublishSettings({
       <CreateCategoryModal
         open={showCategoyModal}
         setOpen={setShowCategoryModal}
+        onCategoryCreated={handleUpdateCategoryList}
       />
     </>
   );

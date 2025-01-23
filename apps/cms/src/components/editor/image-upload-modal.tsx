@@ -20,8 +20,15 @@ import {
   TabsList,
   TabsTrigger,
 } from "@repo/ui/components/tabs";
+import { useQuery } from "@tanstack/react-query";
 import { useEditor } from "novel";
 import { useState } from "react";
+
+interface MediaResponse {
+  id: string;
+  name: string;
+  url: string;
+}
 
 interface ImageUploadModalProps {
   isOpen: boolean;
@@ -73,6 +80,17 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
     }
   };
 
+  // fetch media
+  const { data: media } = useQuery({
+    queryKey: ["media"],
+    staleTime: 1000 * 60 * 60,
+    queryFn: async () => {
+      const res = await fetch("/api/media");
+      const data: MediaResponse[] = await res.json();
+      return data;
+    },
+  });
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogHeader className="sr-only">
@@ -89,6 +107,9 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
             </TabsTrigger>
             <TabsTrigger variant="underline" value="embed">
               Embed
+            </TabsTrigger>
+            <TabsTrigger variant="underline" value="media">
+              Media
             </TabsTrigger>
           </TabsList>
           {/*  */}
@@ -160,6 +181,30 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
                   Save
                 </Button>
               </div>
+            </section>
+          </TabsContent>
+          <TabsContent value="media">
+            <section className="space-y-8 min-h-72">
+              {media && media.length > 0 ? (
+                <ul className="grid grid-cols-2 gap-2 overflow-y-auto">
+                  {media.map((item) => (
+                    <li key={item.id} className="border">
+                      <button
+                        type="button"
+                        onClick={() => handleEmbed(item.url)}
+                      >
+                        <img src={item.url} alt={item.name} className="h-44" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="h-full grid place-content-center">
+                  <div className="flex flex-col items-center gap-4">
+                    <p>Your previously uploaded media will show up here </p>
+                  </div>
+                </div>
+              )}
             </section>
           </TabsContent>
         </Tabs>

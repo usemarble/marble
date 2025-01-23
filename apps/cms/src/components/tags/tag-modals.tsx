@@ -11,7 +11,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@repo/ui/components/alert-dialog";
 import { Button } from "@repo/ui/components/button";
 import {
@@ -42,9 +41,11 @@ import type { Tag } from "./columns";
 export const CreateTagModal = ({
   open,
   setOpen,
+  onTagCreated,
 }: {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  onTagCreated?: (tag: { name: string; id: string; slug: string }) => void;
 }) => {
   const {
     register,
@@ -76,11 +77,9 @@ export const CreateTagModal = ({
     }
 
     try {
-      const res = await createTagAction(data, activeOrganization.id);
-      if (!res) {
-        setOpen(false);
-        toast.success("Tag created successfully");
-      }
+      const res = await createTagAction(data, activeOrganization.id)
+      setOpen(false);
+      toast.success("Tag created successfully");
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to send invite",

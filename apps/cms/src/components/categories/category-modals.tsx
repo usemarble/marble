@@ -44,9 +44,11 @@ import type { Category } from "./columns";
 export const CreateCategoryModal = ({
   open,
   setOpen,
+  onCategoryCreated,
 }: {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  onCategoryCreated?: (category: { name: string; id: string; slug: string }) => void;
 }) => {
   const {
     register,
@@ -81,9 +83,12 @@ export const CreateCategoryModal = ({
 
     try {
       const res = await createCategoryAction(data, activeOrganization.id);
-      if (!res) {
+      if (res) {
         setOpen(false);
         toast.success("Category created successfully");
+        if (onCategoryCreated) {
+          onCategoryCreated(res);
+        }
       }
     } catch (error) {
       toast.error("Failed to create category");

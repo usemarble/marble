@@ -47,7 +47,7 @@ function PageClient({ media }: PageClientProps) {
                     className="object-cover w-full h-48"
                   />
                 </div>
-                <div className="p-4 bg-background">
+                <div className="p-4 bg-background border-t">
                   <p className="text-sm text-muted-foreground">{media.name}</p>
                 </div>
               </li>
