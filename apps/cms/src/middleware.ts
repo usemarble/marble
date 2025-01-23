@@ -38,6 +38,12 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/onboarding", request.url));
   }
 
+  if(!session && isRootPage) {
+    return NextResponse.redirect(
+      new URL("/login", request.url),
+    );
+  }
+
   // If not logged in and trying to access protected routes
   if (!session && !isAuthPage && !isRootPage) {
     const callbackUrl = encodeURIComponent(request.nextUrl.pathname);
