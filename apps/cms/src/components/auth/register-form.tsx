@@ -28,6 +28,7 @@ export function RegisterForm() {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const searchParams = useSearchParams();
   const router = useRouter();
+  const callbackUrl = searchParams?.get("from") || "/";
 
   async function onSubmit(data: CredentialData) {
     setIsCredentialsLoading(true);
@@ -43,7 +44,7 @@ export function RegisterForm() {
         {
           onSuccess: () => {
             toast.success("Sign in successful");
-            router.push("/");
+            router.push(callbackUrl);
           },
         },
       );

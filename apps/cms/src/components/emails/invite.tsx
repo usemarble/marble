@@ -60,18 +60,8 @@ export const InviteUserEmail = ({
               Join <strong>{teamName}</strong> on <strong>Marble</strong>
             </Heading>
             <Text className="text-black text-[14px] leading-[24px]">
-              Hello there,
-            </Text>
-            <Text className="text-black text-[14px] leading-[24px]">
-              <strong>{invitedByUsername}</strong> (
-              <Link
-                href={`mailto:${invitedByEmail}`}
-                className="text-blue-600 no-underline"
-              >
-                {invitedByEmail}
-              </Link>
-              ) has invited you to the <strong>{teamName}</strong> team on{" "}
-              <strong>Marble</strong>.
+              <strong>{invitedByUsername}</strong> has invited you to the <strong>{teamName}</strong> team on{" "}
+              <strong>Marble.</strong>
             </Text>
             <Section>
               <Row>
@@ -116,7 +106,7 @@ export const InviteUserEmail = ({
             <Text className="text-[#666666] text-[12px] leading-[24px]">
               This invitation was intended for{" "}
               <span className="text-black">{inviteeEmail}</span>. If you were
-              not expecting this invitation, you can ignore this email. If you
+              not expecting this invitation, you can ignore the email. If you
               are concerned about your account's safety, please send an email to
               support@marble.blog to get in touch with us.
             </Text>

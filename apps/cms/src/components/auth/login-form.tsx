@@ -29,6 +29,7 @@ export function LoginForm() {
 
   const searchParams = useSearchParams();
   const router = useRouter();
+  const callbackUrl = searchParams?.get("from") || "/";
 
   async function onSubmit(data: CredentialData) {
     setIsCredentialsLoading(true);
@@ -40,7 +41,8 @@ export function LoginForm() {
       },
       {
         onSuccess: (ctx) => {
-          router.push("/");
+          toast.success("Welcome!");
+          router.push(callbackUrl);
         },
       },
     );
