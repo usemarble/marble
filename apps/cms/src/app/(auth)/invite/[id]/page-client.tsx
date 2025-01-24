@@ -115,12 +115,14 @@ function PageClient({ id, user }: PageClientProps) {
     <div className="min-h-[80vh] flex items-center justify-center">
       {invitation ? (
         <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <CardTitle>Workspace Invitation</CardTitle>
-            <CardDescription>
-              You've been invited to join a workspace
-            </CardDescription>
-          </CardHeader>
+          {inviteStatus === "pending" && (
+            <CardHeader className="text-center">
+              <CardTitle>Workspace Invitation</CardTitle>
+              <CardDescription>
+                You've been invited to join a workspace
+              </CardDescription>
+            </CardHeader>
+          )}
           <CardContent>
             {inviteStatus === "pending" && (
               <div className="space-y-6">
@@ -159,7 +161,7 @@ function PageClient({ id, user }: PageClientProps) {
               </div>
             )}
             {inviteStatus === "accepted" && (
-              <div className="space-y-4">
+              <div className="space-y-4 pt-8 pb-4">
                 <div className="flex items-center justify-center w-16 h-16 mx-auto bg-green-100 rounded-full">
                   <CheckIcon className="w-8 h-8 text-green-600" />
                 </div>
@@ -173,17 +175,30 @@ function PageClient({ id, user }: PageClientProps) {
               </div>
             )}
             {inviteStatus === "rejected" && (
-              <div className="space-y-4">
+              <div className="space-y-4 pt-8 pb-4">
                 <div className="flex items-center justify-center w-16 h-16 mx-auto bg-red-100 rounded-full">
                   <XIcon className="w-8 h-8 text-red-600" />
                 </div>
                 <h2 className="text-2xl font-bold text-center">
                   Invitation Declined
                 </h2>
-                <p className="text-center">
+                <p className="text-center text-muted-foreground">
                   You&lsquo;ve declined the invitation to join{" "}
                   {invitation?.organizationName}.
                 </p>
+                <div className="flex items-center justify-center">
+
+                <Link
+                  href="/"
+                  className={buttonVariants({
+                    variant: "outline",
+                    className: "gap-2 items-center flex",
+                  })}
+                >
+                  <Undo className="size-4" />
+                  <span>Back home</span>
+                </Link>
+                    </div>
               </div>
             )}
           </CardContent>
