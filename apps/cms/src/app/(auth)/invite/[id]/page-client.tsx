@@ -18,7 +18,6 @@ import {
 import { CheckIcon, Loader2, LoaderIcon, Undo, XIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { s } from "node_modules/better-auth/dist/index-DwXoFQKD";
 import { useEffect, useState } from "react";
 
 interface PageClientProps {
@@ -127,7 +126,7 @@ function PageClient({ id, user }: PageClientProps) {
               <div className="space-y-6">
                 <div className="flex items-center justify-center gap-4">
                   <Avatar className="size-14">
-                    <AvatarImage src={user.image ?? ""} />
+                    <AvatarImage src={user.image || ""} />
                     <AvatarFallback>XQ</AvatarFallback>
                   </Avatar>
                   <svg
@@ -256,10 +255,10 @@ function InviteError() {
 
 function InviteLoading() {
   return (
-    <div className="bg-white p-6 rounded-lg min-h-96 min-w-80 grid place-content-center">
+    <div className="bg-white p-6 rounded-lg min-h-96 min-w-40 grid place-content-center">
       <div className="flex flex-col items-center gap-4">
-        <LoaderIcon className="size-6 animate-spin transition" />
-        <p className="text-muted-foreground">
+        <LoaderIcon className="size-5 animate-spin transition text-muted-foreground" />
+        <p className="text-muted-foreground max-w-prose text-center">
           We're verifying your invite link. This might take a few seconds...
         </p>
       </div>

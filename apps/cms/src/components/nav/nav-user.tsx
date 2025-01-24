@@ -2,7 +2,6 @@
 
 import {
   BadgeCheck,
-  Bell,
   ChevronsUpDown,
   CreditCard,
   LogOut,
@@ -92,7 +91,8 @@ export function NavUser({ user }: NavUserProps) {
                 <Avatar className="h-8 w-8">
                   <AvatarImage
                     src={
-                      user?.image || "https://avatar.vercel.sh/unknownuser.svg"
+                      user?.image ||
+                      `https://api.dicebear.com/9.x/notionists-neutral/svg?seed=${user.name}`
                     }
                     alt={user?.name || "users profile image"}
                   />

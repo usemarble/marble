@@ -30,7 +30,7 @@
     --chart-5: 27 87% 67%;
     --radius: 0rem;
 
-    --sidebar-background: 210 20% 98%;
+    --sidebar-background: 220 14% 96%;
 
     --scrollbar-thumb: 0 0% 37%;
     --scrollbar-thumb-hover: 0 0% 40%;
@@ -79,6 +79,7 @@
   }
   .lightbackground {
     background-color: hsl(165, 100%, 97%);
+    color: hsl(220, 14%, 96%) 
   }
 }
 

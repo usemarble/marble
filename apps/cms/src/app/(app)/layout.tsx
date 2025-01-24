@@ -1,3 +1,4 @@
+import { Announcements } from "@/components/nav/announcements";
 import AppBreadcrumb from "@/components/nav/app-breadcrumb";
 import { AppSidebar } from "@/components/nav/app-sidebar";
 import getServerSession from "@/lib/auth/session";
@@ -29,6 +30,9 @@ export default async function DashboardLayout({
           </div>
           <div>
             <AppBreadcrumb />
+          </div>
+          <div className="ml-auto flex items-center">
+            <Announcements />
           </div>
         </header>
         <main className="flex min-h-[calc(100vh-56px)] flex-1 flex-col gap-4 px-4 py-2">

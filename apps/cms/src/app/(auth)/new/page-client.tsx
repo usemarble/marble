@@ -4,6 +4,7 @@ import { ErrorMessage } from "@/components/auth/error-message";
 import { checkWorkspaceSlug } from "@/lib/actions/workspace";
 import { organization } from "@/lib/auth/client";
 import { type OnboardingData, onboardingSchema } from "@/lib/validations/auth";
+import { generateSlug } from "@/utils/generate-slug";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@repo/ui/components/button";
 import {
@@ -18,6 +19,7 @@ import { Label } from "@repo/ui/components/label";
 import { toast } from "@repo/ui/components/sonner";
 import { Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
 function PageClient() {
@@ -25,26 +27,35 @@ function PageClient() {
     register,
     handleSubmit,
     setError,
+    watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<OnboardingData>({
     resolver: zodResolver(onboardingSchema),
   });
 
   const router = useRouter();
+    const { name } = watch();
+  
+    useEffect(() => {
+      if (name) {
+        const slug = generateSlug(name);
+        setValue("slug", slug);
+      }
+    }, [name, setValue]);
 
   async function onSubmit(data: OnboardingData) {
-    const isAvailable = await checkWorkspaceSlug(data.slug);
-
-    if (!isAvailable) {
-      setError("slug", { message: "Slug is already taken" });
-      return toast.error("Slug is already taken");
+    const slugExists = await checkWorkspaceSlug(data.slug);
+    if (slugExists) {
+      setError("slug", { message: "This slug is in use" });
+      return;
     }
 
     try {
       const response = await organization.create({
         name: data.name,
         slug: data.slug,
-        logo: `https://avatar.vercel.sh/${data.name}.svg?text=${data.name.split(" ")[0]?.slice(0, 1)}W`,
+        logo: `https://api.dicebear.com/9.x/glass/svg?seed=${data.name}`,
       });
 
       if (response.data) {
