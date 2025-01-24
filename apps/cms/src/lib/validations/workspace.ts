@@ -13,8 +13,13 @@ export const categorySchema = z.object({
 export type CreateCategoryValues = z.infer<typeof categorySchema>;
 
 export const workspaceSchema = z.object({
-  name: z.string().min(1, { message: "Name cannot be empty" }),
-  slug: z.string().min(4, { message: "Slug cannot be empty" }),
-  description: z.string().optional(),
+  name: z
+    .string()
+    .min(1, { message: "Name cannot be empty" })
+    .max(32, { message: "Name cannot be more than 32 characters" }),
+  slug: z
+    .string()
+    .min(4, { message: "Slug cannot be empty" })
+    .max(32, { message: "Slug cannot be more than 32 characters" }),
 });
 export type CreateWorkspaceValues = z.infer<typeof workspaceSchema>;

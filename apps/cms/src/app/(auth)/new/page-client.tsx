@@ -3,7 +3,10 @@
 import { ErrorMessage } from "@/components/auth/error-message";
 import { checkWorkspaceSlug } from "@/lib/actions/workspace";
 import { organization } from "@/lib/auth/client";
-import { type OnboardingData, onboardingSchema } from "@/lib/validations/auth";
+import {
+  type CreateWorkspaceValues,
+  workspaceSchema,
+} from "@/lib/validations/workspace";
 import { generateSlug } from "@/utils/generate-slug";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@repo/ui/components/button";
@@ -30,21 +33,21 @@ function PageClient() {
     watch,
     setValue,
     formState: { errors, isSubmitting },
-  } = useForm<OnboardingData>({
-    resolver: zodResolver(onboardingSchema),
+  } = useForm<CreateWorkspaceValues>({
+    resolver: zodResolver(workspaceSchema),
   });
 
   const router = useRouter();
-    const { name } = watch();
-  
-    useEffect(() => {
-      if (name) {
-        const slug = generateSlug(name);
-        setValue("slug", slug);
-      }
-    }, [name, setValue]);
+  const { name } = watch();
 
-  async function onSubmit(data: OnboardingData) {
+  useEffect(() => {
+    if (name) {
+      const slug = generateSlug(name);
+      setValue("slug", slug);
+    }
+  }, [name, setValue]);
+
+  async function onSubmit(data: CreateWorkspaceValues) {
     const slugExists = await checkWorkspaceSlug(data.slug);
     if (slugExists) {
       setError("slug", { message: "This slug is in use" });

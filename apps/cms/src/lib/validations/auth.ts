@@ -14,18 +14,6 @@ export const credentialSchema = z.object({
 });
 export type CredentialData = z.infer<typeof credentialSchema>;
 
-export const onboardingSchema = z.object({
-  name: z
-    .string()
-    .min(1, "Name is required")
-    .max(11, "Name must be less than 11 characters"),
-  slug: z
-    .string()
-    .min(4, "Slug should be more than 4 characters")
-    .max(32, "Slug should be less than 32 characters"),
-});
-export type OnboardingData = z.infer<typeof onboardingSchema>;
-
 export const inviteSchema = z.object({
   email: z.string().email("Invalid email address"),
   role: z.enum(["admin", "member"], {

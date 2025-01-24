@@ -1,6 +1,6 @@
 "use client";
 
-import { organization, useSession } from "@/lib/auth/client";
+import { organization } from "@/lib/auth/client";
 import {
   Avatar,
   AvatarFallback,
