@@ -97,6 +97,7 @@ app.get("/:workspaceId/posts", async (c) => {
         },
         category: {
           select: {
+            id: true,
             name: true,
             slug: true,
           },
