@@ -1,6 +1,7 @@
 "use server";
 
 import { InviteUserEmail } from "@/components/emails/invite";
+import VerifyEmail from "@/components/emails/verify";
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import getServerSession from "../auth/session";
@@ -54,6 +55,48 @@ export async function sendInviteEmailAction({
         teamImage:
           teamLogo ||
           `https://api.dicebear.com/9.x/glass/svg?seed=${workspaceName}`,
+      }),
+    });
+
+    console.log("Email sent successfully:", response);
+    return NextResponse.json(
+      { message: "Email sent successfully" },
+      { status: 200 },
+    );
+  } catch (error) {
+    console.error("Detailed error sending email:", error);
+    return NextResponse.json(
+      { error: "Failed to send email", details: error },
+      { status: 500 },
+    );
+  }
+}
+
+export async function sendVerificationEmailAction({
+  userEmail,
+  url,
+}: { userEmail: string; url: string }) {
+  if (!process.env.RESEND_API_KEY) {
+    console.error("RESEND_API_KEY is not set");
+    return { error: "Email configuration missing" };
+  }
+  const session = await getServerSession();
+
+  if (!session) {
+    return NextResponse.json(
+      { error: "Failed to send email" },
+      { status: 401 },
+    );
+  }
+
+  try {
+    const response = await resend.emails.send({
+      from: "Marble <invites@hello.taqib.dev>",
+      to: userEmail,
+      subject: "Verify your email address",
+      react: VerifyEmail({
+        userEmail,
+        url,
       }),
     });
 

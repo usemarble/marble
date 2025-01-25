@@ -29,7 +29,6 @@ import {
   InfoIcon,
   Loader2,
   PlusIcon,
-  Save,
   SettingsIcon,
   Trash2,
 } from "@repo/ui/lib/icons";
@@ -118,33 +117,38 @@ export function PublishSettings({
     watch("publishedAt") ? new Date(watch("publishedAt")) : new Date(),
   );
   const [showCategoyModal, setShowCategoryModal] = useState(false);
-  const { status, category } = watch();
+  const { status, category, attribution, tags } = watch();
   const [file, setFile] = useState<File | undefined>();
   const [embedUrl, setEmbedUrl] = useState<string>("");
   const [isValidatingUrl, setIsValidatingUrl] = useState(false);
   const [urlError, setUrlError] = useState<string | null>(null);
-  const [optimisticCategories, setOptimisticCategories] = useState<TagResponse[]>([]);
+  const [optimisticCategories, setOptimisticCategories] = useState<
+    TagResponse[]
+  >([]);
+  const [optimisticTags, setOptimisticTags] = useState<TagResponse[]>([]);
+  const [showAttribution, setShowAttribution] = useState(!!attribution);
 
   // Fetch tags
-  const { data } = useQuery({
+  useQuery({
     queryKey: ["tags"],
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
       const res = await fetch("/api/tags");
-      const data: TagResponse[] = await res.json();
-      return data;
+      const tags: TagResponse[] = await res.json();
+      setOptimisticTags(tags);
+      return tags;
     },
   });
 
   // Fetch categories
-  const { data: categories } = useQuery({
+  useQuery({
     queryKey: ["categories"],
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
       const res = await fetch("/api/categories");
-      const data: TagResponse[] = await res.json();
-      setOptimisticCategories(data);
-      return data;
+      const categories: TagResponse[] = await res.json();
+      setOptimisticCategories(categories);
+      return categories;
     },
   });
 
@@ -235,7 +239,7 @@ export function PublishSettings({
 
   const handleUpdateCategoryList = async (data: TagResponse) => {
     setOptimisticCategories([...optimisticCategories, data]);
-  }
+  };
 
   return (
     <>
@@ -248,7 +252,9 @@ export function PublishSettings({
         <SheetContent className="h-[97%] right-3 top-3 border rounded-md overflow-y-auto min-w-[420px]">
           <SheetHeader>
             <SheetTitle>Publish settings</SheetTitle>
-            <SheetDescription>Setup article metadata.</SheetDescription>
+            <SheetDescription className="sr-only">
+              Setup article metadata.
+            </SheetDescription>
           </SheetHeader>
           <section className="grid gap-6 py-6">
             <div className="flex items-center gap-2 justify-between">
@@ -440,7 +446,8 @@ export function PublishSettings({
                     <TooltipContent>
                       <p className="text-muted-foreground text-xs max-w-64">
                         A url friendly string that can be used to access your
-                        post, recommended to be all lowercase.
+                        post, recommended to be all lowercase and no special
+                        characters.
                       </p>
                     </TooltipContent>
                   </Tooltip>
@@ -460,9 +467,9 @@ export function PublishSettings({
             </div>
 
             <TagSelector
-              options={data || []}
+              options={optimisticTags}
               control={control}
-              defaultTags={watch("tags")}
+              defaultTags={tags || []}
             />
 
             <div className="flex flex-col gap-2">
@@ -563,16 +570,97 @@ export function PublishSettings({
                 </PopoverContent>
               </Popover>
             </div>
+
+            <Separator orientation="horizontal" className="flex mt-4" />
+
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1">
+                  <Label htmlFor="attribution">Add Attribution</Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <InfoIcon className="size-4 text-gray-400" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-muted-foreground text-xs max-w-64">
+                          Use this when republishing content from elsewhere to
+                          give credit to the original author. This helps
+                          maintain ethical content practices and avoid
+                          plagiarism concerns.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <Switch
+                  id="attribution"
+                  checked={showAttribution}
+                  onCheckedChange={(checked) => {
+                    setShowAttribution(checked);
+                    if (!checked) {
+                      setValue("attribution", null);
+                    }
+                  }}
+                />
+              </div>
+
+              {showAttribution && (
+                <div className="space-y-4 mt-2">
+                  <div className="space-y-2">
+                    <Input
+                      placeholder="Original author's name"
+                      onChange={(e) => {
+                        setValue("attribution", {
+                          author: e.target.value,
+                          url: attribution?.url || "",
+                        });
+                      }}
+                      value={attribution?.author || ""}
+                    />
+                    {errors.attribution?.author && (
+                      <p className="text-sm text-destructive px-1">
+                        {errors.attribution.author.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Input
+                      placeholder="Link to original post"
+                      onChange={(e) => {
+                        setValue("attribution", {
+                          author: attribution?.author || "",
+                          url: e.target.value,
+                        });
+                      }}
+                      value={attribution?.url || ""}
+                    />
+                    {errors.attribution?.url && (
+                      <p className="text-sm text-destructive px-1">
+                        {errors.attribution.url.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
           </section>
           <SheetFooter>
             <Button
               type="button"
               disabled={isSubmitting}
               onClick={triggerSubmit}
-              className="mt-4"
+              className="mt-4 min-w-32"
             >
-              {isSubmitting && <Loader2 className="size-4 animate-spin" />}
-              {isSubmitting ? "Saving..." : "Save"}
+              {isSubmitting && status === "published" ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : status === "published" ? (
+                "Save & Publish"
+              ) : (
+                "Save as Draft"
+              )}
             </Button>
           </SheetFooter>
         </SheetContent>

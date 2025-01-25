@@ -34,25 +34,24 @@ export function LoginForm() {
   async function onSubmit(data: CredentialData) {
     setIsCredentialsLoading(true);
 
-    const res = await authClient.signIn.email(
-      {
-        email: data.email.toLowerCase(),
-        password: data.password,
-      },
-      {
-        onSuccess: (ctx) => {
-          toast.success("Welcome!");
-          router.push(callbackUrl);
+    try {
+      await authClient.signIn.email(
+        {
+          email: data.email.toLowerCase(),
+          password: data.password,
         },
-      },
-    );
-
-    setIsCredentialsLoading(false);
-
-    if (res.error) {
-      return toast("Your sign in request failed. Please try again.");
+        {
+          onSuccess: (ctx) => {
+            toast.success("Welcome!");
+            router.push(callbackUrl);
+          },
+        },
+      );
+    } catch (error) {
+      return toast("Request failed. Please try again.");
+    } finally {
+      setIsCredentialsLoading(false);
     }
-    return toast.loading("Redirecting...");
   }
 
   const handleSocialSignIn = async (provider: "google" | "github") => {

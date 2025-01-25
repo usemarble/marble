@@ -60,24 +60,25 @@ export const TagSelector = ({
   } = useController({
     name: "tags",
     control,
-    defaultValue: [],
+    defaultValue: defaultTags,
   });
   const [selected, setSelected] = useState<Option[]>([]);
   const [openTagModal, setOpenTagModal] = useState(false);
 
+  // Update selected options when default tags or options change
   useEffect(() => {
     if (defaultTags.length > 0 && options.length > 0) {
       const initialSelected = options.filter((opt) =>
-        defaultTags.includes(opt.id),
+        defaultTags.includes(opt.id)
       );
       setSelected(initialSelected);
-      onChange(defaultTags);
     }
-  }, [options, defaultTags, onChange]);
+  }, [defaultTags, options]);
 
   const addTag = (tagToAdd: string) => {
     if (value.includes(tagToAdd)) return;
-    onChange([...value, tagToAdd]);
+    const newValue = [...value, tagToAdd];
+    onChange(newValue);
     setSelected([
       ...selected,
       options.find((opt) => opt.id === tagToAdd) as Option,
@@ -100,7 +101,7 @@ export const TagSelector = ({
             </TooltipTrigger>
             <TooltipContent>
               <p className="text-muted-foreground text-xs max-w-64">
-                Your articles can have multiple tags
+                Your articles can have multiple tags, we will use this to determine related articles.
               </p>
             </TooltipContent>
           </Tooltip>

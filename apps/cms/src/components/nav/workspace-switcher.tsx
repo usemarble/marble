@@ -225,7 +225,7 @@ export const CreateWorkspaceModal = ({
       const response = await organization.create({
         name: data.name,
         slug: data.slug,
-        logo: `https://avatar.vercel.sh/${data.name}.svg?text=${data.name.split(" ")[0]?.slice(0, 1)}W`,
+        logo: `https://api.dicebear.com/9.x/glass/svg?seed=${data.name}`,
       });
 
       if (response.data) {

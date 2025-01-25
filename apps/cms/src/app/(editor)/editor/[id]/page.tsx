@@ -1,3 +1,4 @@
+import type { Attribution } from "@/lib/validations/post";
 import db from "@repo/db";
 import { notFound } from "next/navigation";
 import PageClient from "./page-client";
@@ -19,6 +20,7 @@ async function Page(props: { params: Promise<{ id: string }> }) {
       publishedAt: true,
       contentJson: true,
       categoryId: true,
+      attribution: true,
       tags: {
         select: { name: true, id: true, slug: true },
       },
@@ -37,6 +39,7 @@ async function Page(props: { params: Promise<{ id: string }> }) {
     coverImage: post.coverImage,
     description: post.description,
     publishedAt: post.publishedAt,
+    attribution: post.attribution as Attribution,
     contentJson: JSON.stringify(post.contentJson),
     tags: post.tags.map((tag) => tag.id),
     category: post.categoryId,

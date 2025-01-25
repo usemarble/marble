@@ -14,6 +14,14 @@ const requiredEditorString = z
     { message: "You have not written anything yet." },
   );
 
+
+const attributionSchema = z.object({
+  author: z.string().min(1, "Author name is required"),
+  url: z.string().url("Please enter a valid URL"),
+});
+
+export type Attribution = z.infer<typeof attributionSchema>;
+
 export const postSchema = z.object({
   title: z
     .string()
@@ -30,6 +38,7 @@ export const postSchema = z.object({
   category: z.string().min(1, { message: "Category is required" }),
   status: z.enum(["published", "unpublished"]),
   publishedAt: z.coerce.date(),
+  attribution: attributionSchema.nullable().optional(),
 });
 
 export type PostValues = z.infer<typeof postSchema>;

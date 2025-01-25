@@ -89,6 +89,7 @@ model Post {
   updatedAt   DateTime     @updatedAt
   createdAt   DateTime     @default(now())
   publishedAt DateTime     @default(now())
+  attribution Json?        // stores { author: string, url: string }
   author      User         @relation(fields: [authorId], references: [id])
   category    Category     @relation(fields: [categoryId], references: [id])
   workspace   Organization @relation(fields: [workspaceId], references: [id])

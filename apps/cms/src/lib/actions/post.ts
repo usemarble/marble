@@ -17,6 +17,7 @@ export const createPostAction = async (post: PostValues) => {
 
   const authorId = session?.user.id;
   const contentJson = JSON.parse(values.contentJson);
+  const validAttribution = values.attribution ? values.attribution : undefined;
 
   const postCreated = await db.post.create({
     data: {
@@ -30,6 +31,7 @@ export const createPostAction = async (post: PostValues) => {
       coverImage: values.coverImage,
       publishedAt: values.publishedAt,
       description: values.description,
+      attribution: validAttribution,
       workspaceId: session?.session.activeOrganizationId,
       tags: {
         connect: values.tags.map((id) => ({ id })),
@@ -51,6 +53,7 @@ export const updatePostAction = async (post: PostValues, id: string) => {
   const values = postSchema.parse(post);
 
   const contentJson = JSON.parse(values.contentJson);
+  const validAttribution = values.attribution ? values.attribution : undefined;
 
   const postUpdated = await db.post.update({
     where: { id },
@@ -63,6 +66,8 @@ export const updatePostAction = async (post: PostValues, id: string) => {
       categoryId: values.category,
       coverImage: values.coverImage,
       description: values.description,
+      publishedAt: values.publishedAt,
+      attribution: validAttribution,
       workspaceId: session?.session.activeOrganizationId,
       tags: {
         connect: values.tags.map((id) => ({ id })),

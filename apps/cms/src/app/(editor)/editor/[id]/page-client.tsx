@@ -21,7 +21,7 @@ interface PageClientProps {
 }
 
 function PageClient({ data, id }: PageClientProps) {
-  const [saving, setSaving] = useState(false);
+  const [saving] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const [showSettings, setShowSettings] = useState(false);
   const router = useRouter();
@@ -35,7 +35,6 @@ function PageClient({ data, id }: PageClientProps) {
     handleSubmit,
     watch,
     setValue,
-    getValues,
     clearErrors,
     trigger,
     control,

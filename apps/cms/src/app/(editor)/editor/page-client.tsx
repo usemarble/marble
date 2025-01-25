@@ -16,7 +16,7 @@ import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 
 function PageContent() {
-  const [saving, setSaving] = useState(false);
+  const [saving] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const [showSettings, setShowSettings] = useState(false);
   const router = useRouter();
@@ -30,7 +30,6 @@ function PageContent() {
     handleSubmit,
     watch,
     setValue,
-    getValues,
     clearErrors,
     trigger,
     control,
@@ -53,10 +52,11 @@ function PageContent() {
   };
 
   async function onSubmit(values: PostValues) {
-    console.log(values);
+    // return console.log(values);
     try {
-      await createPostAction(values);
+      const res = await createPostAction(values);
       toast.success("Post created successfully", { position: "top-center" });
+      router.push(`/editor/${res}`);
     } catch {
       toast.error("Something went wrong, please try again.", {
         style: {
