@@ -25,7 +25,7 @@ import {
   TooltipTrigger,
 } from "@repo/ui/components/tooltip";
 import { cn } from "@repo/ui/lib/utils";
-import { Check, ChevronsUpDown, InfoIcon, Plus, XIcon } from "lucide-react";
+import { Check, ChevronsUpDown, InfoIcon, PlusIcon, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { type Control, useController } from "react-hook-form";
 import { ErrorMessage } from "../auth/error-message";
@@ -101,7 +101,8 @@ export const TagSelector = ({
             </TooltipTrigger>
             <TooltipContent>
               <p className="text-muted-foreground text-xs max-w-64">
-                Your articles can have multiple tags, we will use this to determine related articles.
+                Your articles can have multiple tags, we will use this to
+                determine related articles.
               </p>
             </TooltipContent>
           </Tooltip>
@@ -147,6 +148,21 @@ export const TagSelector = ({
             <CommandInput placeholder="Search tags..." />
             <CommandList>
               <CommandEmpty>No results found.</CommandEmpty>
+              <div className="font-normal px-2 text-xs flex items-center gap-1 justify-between bg-background pt-2 pb-1">
+                <span className="text-muted-foreground text-xs">
+                  {options.length === 0
+                    ? "No tags"
+                    : "Tags"}
+                </span>
+                <button
+                  type="button"
+                  className="flex items-center gap-1 p-1 hover:bg-accent"
+                  onClick={() => setOpenTagModal(true)}
+                >
+                  <PlusIcon className="size-4 text-muted-foreground" />
+                  <span className="sr-only">Add a new tag</span>
+                </button>
+              </div>
               {options.length > 0 && (
                 <CommandGroup>
                   {options.map((option) => (
@@ -169,20 +185,6 @@ export const TagSelector = ({
                 </CommandGroup>
               )}
               {options.length > 0 && <CommandSeparator />}
-              <CommandItem asChild className="rounded-none">
-                <button
-                  type="button"
-                  onClick={() => setOpenTagModal(true)}
-                  className="flex w-full items-center gap-2 hover:cursor-pointer"
-                >
-                  <div className="bg-background flex size-6 items-center justify-center rounded-md border">
-                    <Plus className="size-4" />
-                  </div>
-                  <div className="text-muted-foreground font-medium">
-                    add tag
-                  </div>
-                </button>
-              </CommandItem>
             </CommandList>
           </Command>
         </PopoverContent>
