@@ -14,7 +14,6 @@ const requiredEditorString = z
     { message: "You have not written anything yet." },
   );
 
-
 const attributionSchema = z.object({
   author: z.string().min(1, "Author name is required"),
   url: z.string().url("Please enter a valid URL"),

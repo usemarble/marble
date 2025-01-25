@@ -69,7 +69,7 @@ export const TagSelector = ({
   useEffect(() => {
     if (defaultTags.length > 0 && options.length > 0) {
       const initialSelected = options.filter((opt) =>
-        defaultTags.includes(opt.id)
+        defaultTags.includes(opt.id),
       );
       setSelected(initialSelected);
     }
@@ -150,9 +150,7 @@ export const TagSelector = ({
               <CommandEmpty>No results found.</CommandEmpty>
               <div className="font-normal px-2 text-xs flex items-center gap-1 justify-between bg-background pt-2 pb-1">
                 <span className="text-muted-foreground text-xs">
-                  {options.length === 0
-                    ? "No tags"
-                    : "Tags"}
+                  {options.length === 0 ? "No tags" : "Tags"}
                 </span>
                 <button
                   type="button"

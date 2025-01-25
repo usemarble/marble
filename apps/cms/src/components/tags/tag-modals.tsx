@@ -77,7 +77,7 @@ export const CreateTagModal = ({
     }
 
     try {
-      const res = await createTagAction(data, activeOrganization.id)
+      const res = await createTagAction(data, activeOrganization.id);
       setOpen(false);
       toast.success("Tag created successfully");
     } catch (error) {

@@ -60,8 +60,8 @@ export const InviteUserEmail = ({
               Join <strong>{teamName}</strong> on <strong>Marble</strong>
             </Heading>
             <Text className="text-black text-[14px] leading-[24px]">
-              <strong>{invitedByUsername}</strong> has invited you to the <strong>{teamName}</strong> team on{" "}
-              <strong>Marble.</strong>
+              <strong>{invitedByUsername}</strong> has invited you to the{" "}
+              <strong>{teamName}</strong> team on <strong>Marble.</strong>
             </Text>
             <Section>
               <Row>

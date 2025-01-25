@@ -40,7 +40,7 @@ export async function createCategoryAction(
 ) {
   const isAllowed = await getServerSession();
   if (!isAllowed) {
-    return 
+    return;
   }
 
   const categoryToCreate = await db.category.create({
@@ -50,7 +50,11 @@ export async function createCategoryAction(
     },
   });
 
-  const resData = { id: categoryToCreate.id, name: categoryToCreate.name, slug: categoryToCreate.slug };
+  const resData = {
+    id: categoryToCreate.id,
+    name: categoryToCreate.name,
+    slug: categoryToCreate.slug,
+  };
   return resData;
 }
 

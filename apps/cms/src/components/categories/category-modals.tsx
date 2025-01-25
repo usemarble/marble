@@ -48,7 +48,11 @@ export const CreateCategoryModal = ({
 }: {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  onCategoryCreated?: (category: { name: string; id: string; slug: string }) => void;
+  onCategoryCreated?: (category: {
+    name: string;
+    id: string;
+    slug: string;
+  }) => void;
 }) => {
   const {
     register,

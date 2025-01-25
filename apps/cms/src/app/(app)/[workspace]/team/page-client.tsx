@@ -187,7 +187,8 @@ function PageClient(props: PageClientProps) {
           <div className="p-4">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold">Invites</h2>
-              {optimisticOrg?.invitations.filter((i) => i.status === "pending").length === 0 && (
+              {optimisticOrg?.invitations.filter((i) => i.status === "pending")
+                .length === 0 && (
                 <p className="text-sm text-muted-foreground">
                   No pending invites
                 </p>

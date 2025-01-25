@@ -187,18 +187,17 @@ function PageClient({ id, user }: PageClientProps) {
                   {invitation?.organizationName}.
                 </p>
                 <div className="flex items-center justify-center">
-
-                <Link
-                  href="/"
-                  className={buttonVariants({
-                    variant: "outline",
-                    className: "gap-2 items-center flex",
-                  })}
-                >
-                  <Undo className="size-4" />
-                  <span>Back home</span>
-                </Link>
-                    </div>
+                  <Link
+                    href="/"
+                    className={buttonVariants({
+                      variant: "outline",
+                      className: "gap-2 items-center flex",
+                    })}
+                  >
+                    <Undo className="size-4" />
+                    <span>Back home</span>
+                  </Link>
+                </div>
               </div>
             )}
           </CardContent>

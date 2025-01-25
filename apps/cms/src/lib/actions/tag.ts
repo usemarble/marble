@@ -47,7 +47,11 @@ export async function createTagAction(
     },
   });
 
-  const resData = { id: tagToCreate.id, name: tagToCreate.name, slug: tagToCreate.slug };
+  const resData = {
+    id: tagToCreate.id,
+    name: tagToCreate.name,
+    slug: tagToCreate.slug,
+  };
   return resData;
 }
 

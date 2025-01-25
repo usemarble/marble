@@ -645,7 +645,6 @@ export function PublishSettings({
                 </div>
               )}
             </div>
-
           </section>
           <SheetFooter>
             <Button
