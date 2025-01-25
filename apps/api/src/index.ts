@@ -64,7 +64,6 @@ app.get("/:workspaceId/posts", async (c) => {
     const url = c.env.DATABASE_URL;
     const workspaceId = c.req.param("workspaceId");
     const db = createClient(url);
-    console.log(workspaceId);
 
     const limit = Number(c.req.query("limit")) || 20;
     const page = Number(c.req.query("page")) || 1;
