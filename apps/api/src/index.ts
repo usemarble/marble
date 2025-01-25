@@ -15,15 +15,15 @@ app.get("/status", (c) => {
   return c.json({ status: "ok" }, 200);
 });
 
-app.get("/tags/:id", async (c) => {
+app.get("/:workspaceId/tags", async (c) => {
   try {
     const url = c.env.DATABASE_URL;
-    const id = c.req.param("id");
+    const workspaceId = c.req.param("workspaceId");
     const db = createClient(url);
 
     const tags = await db.tag.findMany({
       where: {
-        workspaceId: id,
+        workspaceId,
       },
       select: {
         id: true,
@@ -37,15 +37,15 @@ app.get("/tags/:id", async (c) => {
   }
 });
 
-app.get("/categories/:id", async (c) => {
+app.get("/:workspaceId/categories", async (c) => {
   try {
     const url = c.env.DATABASE_URL;
-    const id = c.req.param("id");
+    const workspaceId = c.req.param("workspaceId");
     const db = createClient(url);
 
-    const tags = await db.category.findMany({
+    const categories = await db.category.findMany({
       where: {
-        workspaceId: id,
+        workspaceId,
       },
       select: {
         id: true,
@@ -53,25 +53,82 @@ app.get("/categories/:id", async (c) => {
         slug: true,
       },
     });
-    return c.json(tags);
+    return c.json(categories);
   } catch (error) {
     return c.json({ error: "Failed to fetch categories" }, 500);
   }
 });
 
-app.get("/posts/:id", async (c) => {
+app.get("/:workspaceId/posts", async (c) => {
   try {
     const url = c.env.DATABASE_URL;
-    const id = c.req.param("id");
+    const workspaceId = c.req.param("workspaceId");
     const db = createClient(url);
+    console.log(workspaceId);
+
+    const limit = Number(c.req.query("limit")) || 20;
+    const page = Number(c.req.query("page")) || 1;
+    const category = c.req.query("category");
+    const tag = c.req.query("tag");
 
     const posts = await db.post.findMany({
       where: {
-        workspaceId: id,
+        workspaceId,
         status: "published",
       },
       orderBy: {
         publishedAt: "desc",
+      },
+      take: limit,
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        content: true,
+        coverImage: true,
+        description: true,
+        publishedAt: true,
+        attribution: true,
+        author: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
+        category: {
+          select: {
+            name: true,
+            slug: true,
+          },
+        },
+        tags: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+      },
+    });
+    return c.json(posts);
+  } catch (error) {
+    return c.json({ error: "Failed to fetch posts" }, 500);
+  }
+});
+
+app.get("/:workspaceId/posts/:slug", async (c) => {
+  try {
+    const url = c.env.DATABASE_URL;
+    const workspaceId = c.req.param("workspaceId");
+    const slug = c.req.param("slug");
+    const db = createClient(url);
+
+    const post = await db.post.findFirst({
+      where: {
+        workspaceId,
+        slug,
+        status: "published",
       },
       select: {
         id: true,
@@ -81,9 +138,9 @@ app.get("/posts/:id", async (c) => {
         coverImage: true,
         description: true,
         publishedAt: true,
+        attribution: true,
         author: {
           select: {
-            id: true,
             name: true,
             image: true,
           },
@@ -104,9 +161,14 @@ app.get("/posts/:id", async (c) => {
         },
       },
     });
-    return c.json(posts);
+
+    if (!post) {
+      return c.json({ error: "Post not found" }, 404);
+    }
+
+    return c.json(post);
   } catch (error) {
-    return c.json({ error: "Failed to fetch posts" }, 500);
+    return c.json({ error: "Failed to fetch post" }, 500);
   }
 });
 
