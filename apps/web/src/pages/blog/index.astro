@@ -1,7 +1,7 @@
 ---
-import PostCard from "@/components/PostCard.astro";
 import { getCollection } from "astro:content";
 import Container from "@/components/Container.astro";
+import PostCard from "@/components/PostCard.astro";
 import Layout from "@/layouts/Layout.astro";
 import { SITE } from "@/lib/constants";
 const posts = await getCollection("blog");

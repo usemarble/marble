@@ -27,10 +27,10 @@ import { useForm } from "react-hook-form";
 
 import {
   checkCategorySlugAction,
+  checkCategorySlugForUpdateAction,
   createCategoryAction,
   deleteCategoryAction,
   updateCategoryAction,
-  checkCategorySlugForUpdateAction,
 } from "@/lib/actions/category";
 import { useActiveOrganization } from "@/lib/auth/client";
 import {

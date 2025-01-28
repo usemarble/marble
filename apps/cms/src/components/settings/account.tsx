@@ -10,10 +10,10 @@ function Account() {
           <Label>Name</Label>
           <Input />
         </div>
-      <div className="flex flex-col gap-2">
-        <Label>Email</Label>
-        <Input />
-      </div>
+        <div className="flex flex-col gap-2">
+          <Label>Email</Label>
+          <Input />
+        </div>
       </div>
       <div className="flex flex-col gap-2">
         <Label>Address</Label>

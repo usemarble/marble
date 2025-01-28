@@ -7,8 +7,8 @@ import {
 } from "novel";
 import { useState } from "react";
 import { ImageUploadModal } from "./image-upload-modal";
-import { YoutubeEmbedModal } from "./youtube-embed-modal";
 import { suggestionItems } from "./slash-command-items";
+import { YoutubeEmbedModal } from "./youtube-embed-modal";
 
 function SlashCommandMenu() {
   const [imageModalOpen, setImageModalOpen] = useState(false);
