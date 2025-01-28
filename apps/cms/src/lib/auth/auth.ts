@@ -64,6 +64,7 @@ export const auth = betterAuth({
   databaseHooks: {
     // To set active organization when a session is created
     // This works but only when user isnt a new user i.e they already have an organization
+    // for new users the middleware redirects them to create a workspace (organization)
     session: {
       create: {
         before: async (session) => {

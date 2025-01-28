@@ -7,17 +7,13 @@ function Account() {
     <div className="flex flex-col gap-4">
       <div className="grid gap-6 grid-cols-2">
         <div className="flex flex-col gap-2">
-          <Label>Firstname</Label>
+          <Label>Name</Label>
           <Input />
         </div>
-        <div className="flex flex-col gap-2">
-          <Label>Lastname</Label>
-          <Input />
-        </div>
-      </div>
       <div className="flex flex-col gap-2">
         <Label>Email</Label>
         <Input />
+      </div>
       </div>
       <div className="flex flex-col gap-2">
         <Label>Address</Label>

@@ -21,7 +21,7 @@ function PageClient({ media }: PageClientProps) {
 
   return (
     <>
-      <div className="h-full flex flex-col mx-auto py-16 max-w-4xl gap-8">
+      <div className="h-full flex flex-col mx-auto pt-10 pb-16 max-w-4xl gap-8">
         <section className="flex justify-between items-center">
           <div />
           <Button
@@ -55,9 +55,9 @@ function PageClient({ media }: PageClientProps) {
           </ul>
         ) : (
           <div className="grid h-full w-full place-content-center mt-10">
-            <div className="flex flex-col items-center gap-4">
-              <ImageIcon className="size-24 text-muted-foreground" />
-              <p className="text-balance max-w-2xl mx-auto text-center text-muted-foreground">
+            <div className="flex flex-col items-center gap-4 max-w-80">
+              <ImageIcon className="size-16 stroke-[1px]" />
+              <p className="text-balance text-center text-muted-foreground text-sm">
                 Images you upload in this workspace will appear here.
               </p>
             </div>

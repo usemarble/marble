@@ -267,7 +267,7 @@ export function PublishSettings({
                     </TooltipTrigger>
                     <TooltipContent>
                       <p className="text-muted-foreground text-xs max-w-64">
-                        Whether your post is published or not
+                        Whether your post is published or saved as a draft.
                       </p>
                     </TooltipContent>
                   </Tooltip>

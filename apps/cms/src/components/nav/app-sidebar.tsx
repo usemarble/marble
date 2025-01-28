@@ -33,8 +33,8 @@ export async function AppSidebar({
         />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain />
-        <NavDevs />
+        <NavMain workspaceSlug={organization?.slug} />
+        <NavDevs workspaceSlug={organization?.slug} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={session?.user} />

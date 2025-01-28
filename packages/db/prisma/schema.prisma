@@ -37,6 +37,11 @@ enum SubscriptionStatus {
   EXPIRED
 }
 
+enum WebhookEvent {
+  POST_PUBLISHED
+  POST_DELETED
+}
+
 model Subscription {
   id        String             @id @default(cuid())
   userId    String             @unique
@@ -66,6 +71,7 @@ model Organization {
   members     Member[]
   invitations Invitation[]
   media       Media[]
+  webhooks    Webhook[]
 
   @@unique([slug])
   @@map("workspace")
@@ -142,8 +148,22 @@ model Category {
   @@map("category")
 }
 
-// auth-related models
+model Webhook {
+  id          String       @id @default(cuid())
+  name        String
+  endpoint    String
+  event       WebhookEvent @default(POST_PUBLISHED)
+  secret      String
+  enabled     Boolean      @default(true)
+  workspaceId String
+  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 
+  @@map("webhook")
+}
+
+// auth-related models
 model User {
   id            String        @id @default(cuid())
   name          String

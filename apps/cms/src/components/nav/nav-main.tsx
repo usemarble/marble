@@ -8,13 +8,11 @@ import {
   SidebarMenuButton,
 } from "@repo/ui/components/sidebar";
 
-import { useActiveOrganization } from "@/lib/auth/client";
-import { Group, ImageIcon, Tags } from "@repo/ui/lib/icons";
+import { Group, ImageIcon, Settings, Tags } from "@repo/ui/lib/icons";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayersIcon } from "../icons/animated/layers";
 import { LayoutPanelTopIcon } from "../icons/animated/layout-panel-top";
-import { SettingsIcon } from "../icons/animated/settings";
 import { UsersIcon } from "../icons/animated/users";
 
 const items = [
@@ -46,19 +44,22 @@ const items = [
   {
     name: "Settings",
     url: "settings",
-    icon: SettingsIcon,
+    icon: Settings,
   },
 ];
 
-export function NavMain() {
-  const { data: workspace } = useActiveOrganization();
+interface NavMainProps {
+  workspaceSlug: string | undefined;
+}
+
+export function NavMain({ workspaceSlug }: NavMainProps) {
   const pathname = usePathname();
 
   const isActive = (url: string) => {
-    return pathname === `/${workspace?.slug}/${url}`;
+    return pathname === `/${workspaceSlug}/${url}`;
   };
 
-  const isOverviewActive = pathname === `/${workspace?.slug}`;
+  const isOverviewActive = pathname === `/${workspaceSlug}`;
 
   return (
     <SidebarGroup>
@@ -73,7 +74,7 @@ export function NavMain() {
                 : "hover:bg-background hover:border-border"
             }`}
           >
-            <Link href={`/${workspace?.slug}`}>
+            <Link href={`/${workspaceSlug}`}>
               <LayoutPanelTopIcon />
               <span>Overview</span>
             </Link>
@@ -94,7 +95,7 @@ export function NavMain() {
                   : "hover:bg-background hover:border-border"
               }`}
             >
-              <Link href={`/${workspace?.slug}/${item.url}`}>
+              <Link href={`/${workspaceSlug}/${item.url}`}>
                 <item.icon />
                 <span>{item.name}</span>
               </Link>
