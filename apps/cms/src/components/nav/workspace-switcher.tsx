@@ -1,16 +1,8 @@
 "use client";
 
-import { Check, ChevronsUpDown, Loader, Plus } from "@repo/ui/lib/icons";
+import { Check, ChevronsUpDown, Plus } from "@repo/ui/lib/icons";
 import { useEffect, useState } from "react";
 
-import { Button } from "@repo/ui/components/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@repo/ui/components/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,8 +11,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@repo/ui/components/dropdown-menu";
-import { Input } from "@repo/ui/components/input";
-import { Label } from "@repo/ui/components/label";
 import {
   SidebarMenu,
   SidebarMenuButton,
@@ -28,8 +18,6 @@ import {
   useSidebar,
 } from "@repo/ui/components/sidebar";
 
-import { ErrorMessage } from "@/components/auth/error-message";
-import { checkWorkspaceSlug } from "@/lib/actions/workspace";
 import {
   organization,
   useActiveOrganization,
@@ -42,20 +30,13 @@ import type {
   Session,
 } from "@/lib/auth/types";
 import {
-  type CreateWorkspaceValues,
-  workspaceSchema,
-} from "@/lib/validations/workspace";
-import { generateSlug } from "@/utils/generate-slug";
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
   Avatar,
   AvatarFallback,
   AvatarImage,
 } from "@repo/ui/components/avatar";
 import { Skeleton } from "@repo/ui/components/skeleton";
-import { toast } from "@repo/ui/components/sonner";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { CreateWorkspaceModal } from "./workspace-modal";
 
 interface WorkspaceSwitcherProps {
   session: Session | null;
@@ -70,12 +51,10 @@ export function WorkspaceSwitcher(props: WorkspaceSwitcherProps) {
   const [optimisticOrg, setOptimisticOrg] = useState<ActiveOrganization | null>(
     props.activeOrganization,
   );
-  const { data } = useSession();
-  const session = data || props.session;
+  // const { data } = useSession();
+  // const session = data || props.session;
   const currOrg = useActiveOrganization();
 
-  // console.log("organizations", organizations.data);
-  // console.log("active org", currOrg.data);
   useEffect(() => {
     if (currOrg.data) {
       setOptimisticOrg(currOrg.data);
@@ -184,106 +163,3 @@ export function WorkspaceSwitcher(props: WorkspaceSwitcherProps) {
     </SidebarMenu>
   );
 }
-
-export const CreateWorkspaceModal = ({
-  open,
-  setOpen,
-}: {
-  open: boolean;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-}) => {
-  const {
-    watch,
-    setError,
-    register,
-    setValue,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<CreateWorkspaceValues>({
-    resolver: zodResolver(workspaceSchema),
-    defaultValues: { name: "" },
-  });
-  const router = useRouter();
-  const { name } = watch();
-
-  useEffect(() => {
-    if (name) {
-      const slug = generateSlug(name);
-      setValue("slug", slug);
-    }
-  }, [name, setValue]);
-
-  const onSubmit = async (data: CreateWorkspaceValues) => {
-    try {
-      const slugExists = await checkWorkspaceSlug(data.slug);
-      if (slugExists) {
-        // This check is now correct - if true, the slug is in use
-        setError("slug", { message: "This slug is in use" });
-        return;
-      }
-
-      const response = await organization.create({
-        name: data.name,
-        slug: data.slug,
-        logo: `https://api.dicebear.com/9.x/glass/svg?seed=${data.name}`,
-      });
-
-      if (response.data) {
-        await organization.setActive({
-          organizationId: response.data.id,
-        });
-        setOpen(false);
-        router.push(`/${response.data.slug}`);
-      }
-    } catch (error) {
-      toast.error("Failed to create workspace");
-    }
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Create a new workspace</DialogTitle>
-          <DialogDescription>
-            A Workspace is a way for you to manage multiple sites keeping them
-            organized.
-          </DialogDescription>
-        </DialogHeader>
-        {/*  */}
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
-          <div className="grid flex-1 gap-2">
-            <Label htmlFor="name">Workspace name</Label>
-            <Input id="name" {...register("name")} autoComplete="off" />
-            {errors.name && <ErrorMessage>{errors.name.message}</ErrorMessage>}
-          </div>
-          <div className="grid flex-1 gap-2">
-            <Label htmlFor="slug">Workspace slug</Label>
-            <div className="flex w-full rounded-md border border-input bg-background text-base placeholder:text-muted-foreground focus-within:outline-none focus-within:border-primary focus-within:ring-2 focus-within:ring-emerald-200 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm overflow-hidden">
-              <span className="py-2.5 px-2 bg-gray-100 border-r">
-                app.marblecms.com/
-              </span>
-              <input
-                id="slug"
-                {...register("slug")}
-                defaultValue={generateSlug(name)}
-                className="w-full bg-transparent py-2 outline-none ring-0 pl-2"
-              />
-            </div>
-            {errors.slug && <ErrorMessage>{errors.slug.message}</ErrorMessage>}
-          </div>
-          <div className="mt-2">
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="flex w-full gap-2"
-            >
-              {isSubmitting && <Loader className="size-4 animate-spin" />}
-              Create Workspace
-            </Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
-};

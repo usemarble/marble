@@ -5,7 +5,7 @@ import { ColorSwitch } from "@/components/settings/color";
 import { CookieSettings } from "@/components/settings/cookies";
 import { ThemeSwitch } from "@/components/settings/theme";
 import WorkspaceForm from "@/components/settings/workspace-form";
-import { deleteWorkspaceAction } from "@/lib/actions/workspace";
+import { organization, useListOrganizations } from "@/lib/auth/client";
 import type { ActiveOrganization, Session } from "@/lib/auth/types";
 import { Button } from "@repo/ui/components/button";
 import {
@@ -28,10 +28,19 @@ import {
   TabsList,
   TabsTrigger,
 } from "@repo/ui/components/tabs";
-import { set } from "date-fns";
 import { Check, CopyIcon, Loader } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+
+interface ListOrganizationResponse {
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  metadata?: any;
+  name: string;
+  slug: string;
+  logo?: string | null | undefined | undefined;
+  createdAt: Date;
+  id: string;
+}
 
 interface PageClientProps {
   activeWorkspace: ActiveOrganization;
@@ -44,6 +53,7 @@ function PageClient({ activeWorkspace, session }: PageClientProps) {
   const currentTab = searchParams.get("tab") || "workspace";
   const [copied, setCopied] = useState(false);
   const [isDeletingWorkspace, setIsDeletingWorkspace] = useState(false);
+  const { data: organizations } = useListOrganizations();
 
   // const switchTab = (tab: string) => {
   //   const newParams = new URLSearchParams(searchParams.toString());
@@ -65,14 +75,33 @@ function PageClient({ activeWorkspace, session }: PageClientProps) {
   };
 
   const handleDeleteWorkspace = async () => {
-    const id = activeWorkspace.id;
-    if (!id) return;
     setIsDeletingWorkspace(true);
+
     try {
-      await deleteWorkspaceAction(activeWorkspace.id);
+      await organization.delete({
+        organizationId: activeWorkspace.id,
+      });
+
       toast.success("Workspace deleted.");
-      router.push("/");
+
+      // Find the next available workspace or redirect to new
+      const remainingWorkspaces = organizations.filter(
+        (org: ListOrganizationResponse) => org.id !== activeWorkspace.id,
+      );
+
+      if (remainingWorkspaces.length === 0) {
+        router.push("/new");
+        return;
+      }
+
+      // Set the first remaining workspace as active and redirect
+      const nextWorkspace = remainingWorkspaces[0];
+      await organization.setActive({
+        organizationId: nextWorkspace.id,
+      });
+      router.push(`/${nextWorkspace.slug}`);
     } catch (error) {
+      console.error("Failed to delete workspace:", error);
       toast.error("Failed to delete workspace.");
     } finally {
       setIsDeletingWorkspace(false);
@@ -149,7 +178,7 @@ function PageClient({ activeWorkspace, session }: PageClientProps) {
                 </CardContent>
               </Card>
 
-              <Card className="hover:border-destructive">
+              <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">Delete workspace.</CardTitle>
                   <CardDescription>

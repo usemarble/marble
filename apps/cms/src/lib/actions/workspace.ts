@@ -74,7 +74,15 @@ export async function deleteWorkspaceAction(workspaceId: string) {
     throw new Error("Unauthorized");
   }
 
-  const deleted = await db.organization.delete({ where: { id: workspaceId } });
-
-  return deleted.id;
+  try {
+    const deleted = await db.organization.delete({
+      where: {
+        id: workspaceId,
+      },
+    });
+    return deleted.id;
+  } catch (error) {
+    console.error("Error deleting workspace:", error);
+    throw new Error("Failed to delete workspace");
+  }
 }

@@ -65,42 +65,34 @@ export function NavMain({ workspaceSlug }: NavMainProps) {
     <SidebarGroup>
       <SidebarGroupLabel>Workspace</SidebarGroupLabel>
       <SidebarMenu>
-        <Collapsible asChild defaultOpen={false} className="group/collapsible">
+        <SidebarMenuButton
+          asChild
+          className={`border border-transparent ${
+            isOverviewActive
+              ? "bg-background border-border hover:bg-background"
+              : "hover:bg-background hover:border-border"
+          }`}
+        >
+          <Link href={`/${workspaceSlug}`}>
+            <LayoutPanelTopIcon />
+            <span>Overview</span>
+          </Link>
+        </SidebarMenuButton>
+        {items.map((item) => (
           <SidebarMenuButton
             asChild
+            key={item.name}
             className={`border border-transparent ${
-              isOverviewActive
+              isActive(item.url)
                 ? "bg-background border-border hover:bg-background"
                 : "hover:bg-background hover:border-border"
             }`}
           >
-            <Link href={`/${workspaceSlug}`}>
-              <LayoutPanelTopIcon />
-              <span>Overview</span>
+            <Link href={`/${workspaceSlug}/${item.url}`}>
+              <item.icon />
+              <span>{item.name}</span>
             </Link>
           </SidebarMenuButton>
-        </Collapsible>
-        {items.map((item) => (
-          <Collapsible
-            key={item.name}
-            asChild
-            defaultOpen={false}
-            className="group/collapsible"
-          >
-            <SidebarMenuButton
-              asChild
-              className={`border border-transparent ${
-                isActive(item.url)
-                  ? "bg-background border-border hover:bg-background"
-                  : "hover:bg-background hover:border-border"
-              }`}
-            >
-              <Link href={`/${workspaceSlug}/${item.url}`}>
-                <item.icon />
-                <span>{item.name}</span>
-              </Link>
-            </SidebarMenuButton>
-          </Collapsible>
         ))}
       </SidebarMenu>
     </SidebarGroup>

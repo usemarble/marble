@@ -98,7 +98,7 @@ model Post {
   attribution Json?        // stores { author: string, url: string }
   author      User         @relation(fields: [authorId], references: [id])
   category    Category     @relation(fields: [categoryId], references: [id])
-  workspace   Organization @relation(fields: [workspaceId], references: [id])
+  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@unique([workspaceId, slug])
   @@map("post")

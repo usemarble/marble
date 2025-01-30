@@ -10,6 +10,7 @@ import {
 } from "@repo/ui/components/breadcrumb";
 import { usePathname } from "next/navigation";
 import React from "react";
+
 const formatSegment = (segment: string) => {
   return segment
     .replace(/-/g, " ")

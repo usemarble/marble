@@ -1,15 +1,16 @@
 "use client";
-import { authClient } from "@/lib/auth/client";
-
-import type { Organization } from "@repo/db/client";
+import {
+  authClient,
+  useActiveOrganization,
+  useListOrganizations,
+} from "@/lib/auth/client";
+import type { ActiveOrganization } from "@/lib/auth/types";
 import { useParams, usePathname } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
 
 interface WorkspaceContextType {
-  workspace: Pick<Organization, "id" | "slug" | "name" | "logo"> | null;
-  setWorkspace: (
-    workspace: Pick<Organization, "id" | "slug" | "name" | "logo"> | null,
-  ) => void;
+  workspace: ActiveOrganization | null;
+  setWorkspace: (workspace: ActiveOrganization | null) => void;
 }
 
 const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
@@ -17,15 +18,15 @@ const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
 );
 
 export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
-  const [workspace, setWorkspace] = useState<Pick<
-    Organization,
-    "id" | "slug" | "name" | "logo"
-  > | null>(null);
   const params = useParams();
   const pathname = usePathname();
-  const { data: activeOrganization } = authClient.useActiveOrganization();
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <ignore>
+  const [workspace, setWorkspace] = useState<ActiveOrganization | null>(null);
+
+  const { data: organizations } = useListOrganizations();
+  const { data: activeOrganization } = useActiveOrganization();
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     // Update workspace from URL when path changes
     const workspaceSlug = Array.isArray(params.workspace)
@@ -39,14 +40,10 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 
       fetch(`/api/workspaces/${workspaceSlug}`)
         .then((res) => res.json())
-        .then((data) =>
-          setWorkspace({
-            id: data.id,
-            slug: data.slug,
-            name: data.name,
-            logo: data.logo,
-          }),
-        );
+        .then((data) => setWorkspace(data))
+        .catch((err) => {
+          console.error(err);
+        });
     }
   }, [pathname, params.workspace]);
 

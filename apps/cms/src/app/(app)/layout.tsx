@@ -1,24 +1,18 @@
 import { Announcements } from "@/components/nav/announcements";
 import AppBreadcrumb from "@/components/nav/app-breadcrumb";
 import { AppSidebar } from "@/components/nav/app-sidebar";
-import getServerSession from "@/lib/auth/session";
 import { Separator } from "@repo/ui/components/separator";
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
 } from "@repo/ui/components/sidebar";
-import { redirect } from "next/navigation";
 
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // BAD!!! layouts dont re render move to middleware later
-  // const session = await getServerSession();
-  // if (!session) return redirect("/login");
-
   return (
     <SidebarProvider>
       <AppSidebar />

@@ -1,5 +1,4 @@
-import { setActiveWorkspace } from "@/lib/auth/workspace";
-import prisma from "@repo/db";
+import db from "@repo/db";
 import { NextResponse } from "next/server";
 
 export async function GET(
@@ -8,17 +7,21 @@ export async function GET(
 ) {
   const slug = (await params).slug;
 
-  const workspace = await prisma.organization.findUnique({
+  const workspace = await db.organization.findUnique({
     where: { slug: slug },
-    select: { id: true, slug: true, name: true },
+    include: {
+      members: {
+        select: {
+          user: { select: { id: true, name: true, email: true, image: true } },
+        },
+      },
+      invitations: true,
+    },
   });
 
   if (!workspace) {
     return NextResponse.json({ error: "Workspace not found" }, { status: 404 });
   }
-
-  // Update the active workspace in cookies
-  // setActiveWorkspace(workspace);
 
   return NextResponse.json(workspace);
 }

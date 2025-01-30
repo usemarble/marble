@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import type { Session } from "./lib/auth/types";
-import { getFirstOrganization } from "./utils/organization";
+import { getFirstOrganization } from "./lib/queries/workspace";
 
 export async function middleware(request: NextRequest) {
   const sessionRes = await fetch(
