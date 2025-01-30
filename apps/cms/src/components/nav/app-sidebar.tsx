@@ -6,7 +6,6 @@ import {
   SidebarHeader,
 } from "@repo/ui/components/sidebar";
 import { headers } from "next/headers";
-import GreetingCard from "../walkthrough/greeting-card";
 import { NavDevs } from "./nav-devs";
 import { NavMain } from "./nav-main";
 import { NavUser } from "./nav-user";
