@@ -10,7 +10,8 @@
     "ignore": [
       "packages/ui/src/components/**",
       "packages/ui/src/lib/**",
-      "packages/ui/src/hooks/**"
+      "packages/ui/src/hooks/**",
+      "node_modules"
     ]
   },
   "formatter": {

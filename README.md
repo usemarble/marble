@@ -41,13 +41,3 @@ Packages contain internal shared packages between application i.e
 
 - ui: contains react ui components shared between `docs` and `web`
 - db: contains the database client and schema shared between `api` and `app`
-
-## Resources
-
-Learn more about the power of Turborepo:
-
-- [Turborepo docs](https://turbo.build/docs)
-- [Prisma docs](https://www.prisma.io/docs/)
-- [Biome docs](https://biomejs.dev/)
-- [Next.js docs](https://nextjs.org/docs)
-- [Hono docs](https://hono.dev/docs)
