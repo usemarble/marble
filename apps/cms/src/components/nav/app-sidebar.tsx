@@ -14,26 +14,18 @@ import { WorkspaceSwitcher } from "./workspace-switcher";
 export async function AppSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
-  const [session, organization] = await Promise.all([
-    auth.api.getSession({
-      headers: await headers(),
-    }),
-    auth.api.getFullOrganization({
-      headers: await headers(),
-    }),
-  ]);
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <WorkspaceSwitcher
-          session={session}
-          activeOrganization={organization}
-        />
+        <WorkspaceSwitcher session={session} />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain workspaceSlug={organization?.slug} />
-        <NavDevs workspaceSlug={organization?.slug} />
+        <NavMain />
+        <NavDevs />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={session?.user} />

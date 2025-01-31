@@ -59,7 +59,6 @@ export const CreateWorkspaceModal = ({
     try {
       const slugExists = await checkWorkspaceSlug(data.slug);
       if (slugExists) {
-        // This check is now correct - if true, the slug is in use
         setError("slug", { message: "This slug is in use" });
         return;
       }

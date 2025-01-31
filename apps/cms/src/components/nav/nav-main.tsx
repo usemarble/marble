@@ -1,6 +1,5 @@
 "use client";
 
-import { Collapsible } from "@repo/ui/components/collapsible";
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -10,7 +9,7 @@ import {
 
 import { Group, ImageIcon, Settings, Tags } from "@repo/ui/lib/icons";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { LayersIcon } from "../icons/animated/layers";
 import { LayoutPanelTopIcon } from "../icons/animated/layout-panel-top";
 import { UsersIcon } from "../icons/animated/users";
@@ -48,18 +47,15 @@ const items = [
   },
 ];
 
-interface NavMainProps {
-  workspaceSlug: string | undefined;
-}
-
-export function NavMain({ workspaceSlug }: NavMainProps) {
+export function NavMain() {
   const pathname = usePathname();
-
+    const params = useParams<{ workspace: string }>();
+  
   const isActive = (url: string) => {
-    return pathname === `/${workspaceSlug}/${url}`;
+    return pathname === `/${params.workspace}/${url}`;
   };
 
-  const isOverviewActive = pathname === `/${workspaceSlug}`;
+  const isOverviewActive = pathname === `/${params.workspace}`;
 
   return (
     <SidebarGroup>
@@ -73,7 +69,7 @@ export function NavMain({ workspaceSlug }: NavMainProps) {
               : "hover:bg-background hover:border-border"
           }`}
         >
-          <Link href={`/${workspaceSlug}`}>
+          <Link href={`/${params.workspace}`}>
             <LayoutPanelTopIcon />
             <span>Overview</span>
           </Link>
@@ -88,7 +84,7 @@ export function NavMain({ workspaceSlug }: NavMainProps) {
                 : "hover:bg-background hover:border-border"
             }`}
           >
-            <Link href={`/${workspaceSlug}/${item.url}`}>
+            <Link href={`/${params.workspace}/${item.url}`}>
               <item.icon />
               <span>{item.name}</span>
             </Link>

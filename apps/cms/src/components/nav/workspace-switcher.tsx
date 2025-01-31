@@ -36,48 +36,24 @@ import {
 } from "@repo/ui/components/avatar";
 import { Skeleton } from "@repo/ui/components/skeleton";
 import { useRouter } from "next/navigation";
+import { useWorkspace } from "../context/workspace";
 import { CreateWorkspaceModal } from "./workspace-modal";
 
 interface WorkspaceSwitcherProps {
   session: Session | null;
-  activeOrganization: ActiveOrganization | null;
 }
 
-export function WorkspaceSwitcher(props: WorkspaceSwitcherProps) {
+export function WorkspaceSwitcher({ session }: WorkspaceSwitcherProps) {
   const { isMobile } = useSidebar();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const organizations = useListOrganizations();
-  const [optimisticOrg, setOptimisticOrg] = useState<ActiveOrganization | null>(
-    props.activeOrganization,
-  );
-  // const { data } = useSession();
-  // const session = data || props.session;
-  const currOrg = useActiveOrganization();
-
-  useEffect(() => {
-    if (currOrg.data) {
-      setOptimisticOrg(currOrg.data);
-    }
-  }, [currOrg.data]);
+  const { activeWorkspace, updateActiveWorkspace } = useWorkspace();
 
   async function switchWorkspace(org: Organization) {
-    if (org.slug === optimisticOrg?.slug) {
-      return;
-    }
+    if (org.slug === activeWorkspace?.slug) return;
 
-    setOptimisticOrg({
-      members: [],
-      invitations: [],
-      ...org,
-    });
-
-    const { data } = await organization.setActive({
-      organizationSlug: org.slug,
-    });
-
-    setOptimisticOrg(data);
-
+    await updateActiveWorkspace(org.slug, org);
     router.push(`/${org.slug}`, { scroll: false });
   }
 
@@ -85,8 +61,8 @@ export function WorkspaceSwitcher(props: WorkspaceSwitcherProps) {
     <SidebarMenu>
       <SidebarMenuItem>
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            {optimisticOrg ? (
+          {activeWorkspace ? (
+            <DropdownMenuTrigger asChild>
               <SidebarMenuButton
                 size="lg"
                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:bg-background border border-transparent hover:border-border"
@@ -94,7 +70,7 @@ export function WorkspaceSwitcher(props: WorkspaceSwitcherProps) {
                 <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square">
                   <Avatar className="size-8 rounded-none">
                     <AvatarImage
-                      src={optimisticOrg.logo ?? ""}
+                      src={activeWorkspace.logo ?? ""}
                       className="rounded-[4px]"
                     />
                     <AvatarFallback>HA</AvatarFallback>
@@ -102,18 +78,18 @@ export function WorkspaceSwitcher(props: WorkspaceSwitcherProps) {
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium text-sm">
-                    {optimisticOrg?.name || "Personal"}
+                    {activeWorkspace?.name || "Personal"}
                   </span>
                   <span className="truncate text-xs text-primary">
-                    {optimisticOrg?.members.length || 1} members
+                    {activeWorkspace?.members.length || 1} members
                   </span>
                 </div>
                 <ChevronsUpDown className="ml-auto" />
               </SidebarMenuButton>
-            ) : (
-              <Skeleton className="block border h-12" />
-            )}
-          </DropdownMenuTrigger>
+            </DropdownMenuTrigger>
+          ) : (
+            <Skeleton className="block border h-12" />
+          )}
           <DropdownMenuContent
             className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
             align="start"
@@ -135,7 +111,7 @@ export function WorkspaceSwitcher(props: WorkspaceSwitcherProps) {
                     <AvatarFallback>XX</AvatarFallback>
                   </Avatar>
                   {org.name}
-                  {optimisticOrg?.id === org.id && (
+                  {activeWorkspace?.id === org.id && (
                     <Check className="text-muted-foreground absolute right-0 size-4" />
                   )}
                 </button>

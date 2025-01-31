@@ -9,10 +9,11 @@ import {
 } from "@repo/ui/components/sidebar";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { BookTextIcon } from "../icons/animated/book-text";
 import { ConnectIcon } from "../icons/animated/connect";
 import { WebhookIcon } from "../icons/animated/webhook";
+import { useWorkspace } from "../context/workspace";
 
 const items = [
   {
@@ -27,15 +28,12 @@ const items = [
   },
 ];
 
-interface NavDevsProps {
-  workspaceSlug: string | undefined;
-}
-
-export function NavDevs({ workspaceSlug }: NavDevsProps) {
+export function NavDevs() {
   const pathname = usePathname();
+  const params = useParams<{ workspace: string }>();
 
   const isActive = (url: string) => {
-    return pathname === `/${workspaceSlug}/${url}`;
+    return pathname === `/${params.workspace}/${url}`;
   };
 
   return (
@@ -52,7 +50,7 @@ export function NavDevs({ workspaceSlug }: NavDevsProps) {
                   : "hover:bg-background hover:border-border"
               }`}
             >
-              <Link href={`/${workspaceSlug}/${item.url}`}>
+              <Link href={`/${params.workspace}/${item.url}`}>
                 <item.icon />
                 <span>{item.name}</span>
               </Link>

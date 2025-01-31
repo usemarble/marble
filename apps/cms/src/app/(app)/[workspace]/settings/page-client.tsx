@@ -1,5 +1,6 @@
 "use client";
 
+import { useWorkspace } from "@/components/context/workspace";
 import Account from "@/components/settings/account";
 import { ColorSwitch } from "@/components/settings/color";
 import { CookieSettings } from "@/components/settings/cookies";
@@ -54,6 +55,7 @@ function PageClient({ activeWorkspace, session }: PageClientProps) {
   const [copied, setCopied] = useState(false);
   const [isDeletingWorkspace, setIsDeletingWorkspace] = useState(false);
   const { data: organizations } = useListOrganizations();
+  const { updateActiveWorkspace } = useWorkspace();
 
   // const switchTab = (tab: string) => {
   //   const newParams = new URLSearchParams(searchParams.toString());
@@ -96,9 +98,7 @@ function PageClient({ activeWorkspace, session }: PageClientProps) {
 
       // Set the first remaining workspace as active and redirect
       const nextWorkspace = remainingWorkspaces[0];
-      await organization.setActive({
-        organizationId: nextWorkspace.id,
-      });
+      await updateActiveWorkspace(nextWorkspace.slug, nextWorkspace);
       router.push(`/${nextWorkspace.slug}`);
     } catch (error) {
       console.error("Failed to delete workspace:", error);

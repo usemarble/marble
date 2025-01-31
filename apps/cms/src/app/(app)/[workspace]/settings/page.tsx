@@ -12,8 +12,11 @@ async function Page() {
     }),
   ]);
 
-  if (!organization || !session) {
-    return <div>Something went wrong</div>;
+  if (!organization) {
+    return <div>No org</div>;
+  }
+  if (!session) {
+    return <div>No session</div>;
   }
 
   const ownerId = organization.members.find((m) => m.role === "member")?.id;
