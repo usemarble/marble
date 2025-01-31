@@ -26,6 +26,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "@repo/ui/components/sonner";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { useWorkspace } from "../context/workspace";
 
 export const CreateWorkspaceModal = ({
   open,
@@ -34,6 +35,7 @@ export const CreateWorkspaceModal = ({
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
+  const { updateActiveWorkspace } = useWorkspace();
   const {
     watch,
     setError,
@@ -70,9 +72,14 @@ export const CreateWorkspaceModal = ({
       });
 
       if (response.data) {
-        await organization.setActive({
-          organizationId: response.data.id,
-        });
+        const transformedData = {
+          ...response.data,
+          members: response.data.members.map((member) => ({
+            ...member,
+            id: member.id || member.userId, // Ensure id is always present
+          })),
+        };
+        await updateActiveWorkspace(response.data.slug, transformedData);
         setOpen(false);
         router.push(`/${response.data.slug}`);
       }

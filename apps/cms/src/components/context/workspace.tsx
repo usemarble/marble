@@ -89,7 +89,6 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
-    // Update workspace from URL when path changes
     const workspaceSlug = Array.isArray(params.workspace)
       ? params.workspace[0]
       : params.workspace;
@@ -97,29 +96,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       workspaceSlug &&
       (!activeWorkspace || activeWorkspace.slug !== workspaceSlug)
     ) {
-      const fetchOrganization = async () => {
-        try {
-          const res = await fetch(`/api/workspaces/${workspaceSlug}`);
-          const data: ActiveOrganization | null = await res.json();
-
-          if (!data) {
-            console.error("Workspace not found");
-            return;
-          }
-
-          setActiveWorkspace(data);
-
-          const newActiveOrg = await organization.setActive({
-            organizationSlug: workspaceSlug,
-          });
-
-          console.log(newActiveOrg);
-        } catch (error) {
-          console.error(error);
-        }
-      };
-
-      fetchOrganization();
+      updateActiveWorkspace(workspaceSlug);
     }
   }, [pathname, params.workspace]);
 

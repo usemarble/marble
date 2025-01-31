@@ -49,8 +49,8 @@ const items = [
 
 export function NavMain() {
   const pathname = usePathname();
-    const params = useParams<{ workspace: string }>();
-  
+  const params = useParams<{ workspace: string }>();
+
   const isActive = (url: string) => {
     return pathname === `/${params.workspace}/${url}`;
   };

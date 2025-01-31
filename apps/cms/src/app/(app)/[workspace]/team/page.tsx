@@ -12,8 +12,6 @@ async function Page({ params }: { params: Promise<{ workspace: string }> }) {
       headers: await headers(),
     }),
   ]);
-  console.log(session)
-  console.log(organization)
 
   return <PageClient activeOrganization={organization} session={session} />;
 }

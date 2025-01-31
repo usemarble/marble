@@ -24,8 +24,10 @@ import { Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useWorkspace } from "@/components/context/workspace";
 
 function PageClient() {
+  const { updateActiveWorkspace } = useWorkspace();
   const {
     register,
     handleSubmit,
@@ -62,11 +64,15 @@ function PageClient() {
       });
 
       if (response.data) {
-        await organization.setActive({
-          organizationId: response.data.id,
-        });
-
-        router.push(`/${response.data.slug}`);
+        const workspace = {
+          ...response.data,
+          members: response.data.members.map((member) => ({
+            ...member,
+            id: member.id || member.userId, // ensure id is always present
+          })),
+        };
+        await updateActiveWorkspace(workspace.slug, workspace);
+        router.push(`/${workspace.slug}`);
       }
     } catch (error) {
       console.error(error);
