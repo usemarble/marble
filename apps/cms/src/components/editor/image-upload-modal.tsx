@@ -145,7 +145,7 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
                   </div>
                 ) : (
                   <Label
-                    htmlFor="coverImage"
+                    htmlFor="bodyImage"
                     className="w-full h-full min-h-52 rounded-md border border-dashed flex items-center justify-center cursor-pointer hover:border-primary"
                   >
                     <div className="flex flex-col items-center gap-2 text-muted-foreground">
@@ -154,7 +154,7 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
                     </div>
                     <Input
                       onChange={(e) => setFile(e.target.files?.[0])}
-                      id="image"
+                      id="bodyImage"
                       type="file"
                       className="sr-only"
                     />
@@ -186,15 +186,22 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
           <TabsContent value="media">
             <section className="space-y-8 min-h-72">
               {media && media.length > 0 ? (
-                <ul className="grid grid-cols-2 gap-2 overflow-y-auto">
+                <ul className="grid grid-cols-3 gap-2 overflow-y-auto max-h-[400px]">
                   {media.map((item) => (
-                    <li key={item.id} className="border">
+                    <li key={item.id} className="border max-h-34">
                       <button
                         type="button"
                         onClick={() => handleEmbed(item.url)}
                       >
-                        <img src={item.url} alt={item.name} className="h-44" />
+                        <img
+                          src={item.url}
+                          alt={item.name}
+                          className="h-full object-cover"
+                        />
                       </button>
+                      <p className="text-xs text-muted-foreground line-clamp-1 py-0.5 px-1">
+                        {item.name}
+                      </p>
                     </li>
                   ))}
                 </ul>

@@ -11,8 +11,8 @@ import { suggestionItems } from "./slash-command-items";
 import { YoutubeEmbedModal } from "./youtube-embed-modal";
 
 function SlashCommandMenu() {
-  const [imageModalOpen, setImageModalOpen] = useState(false);
-  const [youtubeModalOpen, setYoutubeModalOpen] = useState(false);
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [showYoutubeModal, setShowYoutubeModal] = useState(false);
   const editor = useEditor();
 
   return (
@@ -27,9 +27,9 @@ function SlashCommandMenu() {
               value={item.title}
               onCommand={(val) => {
                 if (item.title === "Image") {
-                  setImageModalOpen(true);
+                  setShowImageModal(true);
                 } else if (item.title === "YouTube") {
-                  setYoutubeModalOpen(true);
+                  setShowYoutubeModal(true);
                 } else {
                   item.command?.(val);
                 }
@@ -47,10 +47,10 @@ function SlashCommandMenu() {
           ))}
         </EditorCommandList>
       </EditorCommand>
-      <ImageUploadModal isOpen={imageModalOpen} setIsOpen={setImageModalOpen} />
+      <ImageUploadModal isOpen={showImageModal} setIsOpen={setShowImageModal} />
       <YoutubeEmbedModal
-        isOpen={youtubeModalOpen}
-        setIsOpen={setYoutubeModalOpen}
+        isOpen={showYoutubeModal}
+        setIsOpen={setShowYoutubeModal}
       />
     </>
   );
