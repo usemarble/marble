@@ -5,6 +5,7 @@ import { Button } from "@repo/ui/components/button";
 import { Calendar } from "@repo/ui/components/calendar";
 import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
+import { ScrollArea, ScrollBar } from "@repo/ui/components/scroll-area";
 import {
   Sheet,
   SheetContent,
@@ -25,6 +26,7 @@ import {
 import {
   CalendarDays,
   CheckIcon,
+  CloudUpload,
   ImageIcon,
   InfoIcon,
   Loader2,
@@ -73,7 +75,7 @@ import { z } from "zod";
 import { CreateCategoryModal } from "../categories/category-modals";
 import { TagSelector } from "./tag-selector";
 
-// Add URL schema
+// URL schema
 const urlSchema = z.string().url({
   message: "Please enter a valid URL",
 });
@@ -97,6 +99,12 @@ interface TagResponse {
   id: string;
   name: string;
   slug: string;
+}
+
+interface MediaResponse {
+  id: string;
+  name: string;
+  url: string;
 }
 
 export function PublishSettings({
@@ -127,6 +135,7 @@ export function PublishSettings({
   >([]);
   const [optimisticTags, setOptimisticTags] = useState<TagResponse[]>([]);
   const [showAttribution, setShowAttribution] = useState(!!attribution);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Fetch tags
   useQuery({
@@ -152,6 +161,17 @@ export function PublishSettings({
     },
   });
 
+  // Fetch media
+  const { data: media } = useQuery({
+    queryKey: ["media"],
+    staleTime: 1000 * 60 * 60,
+    queryFn: async () => {
+      const res = await fetch("/api/media");
+      const data: MediaResponse[] = await res.json();
+      return data;
+    },
+  });
+
   // Trigger form submit
   const triggerSubmit = async () => {
     if (hasErrors) {
@@ -173,26 +193,62 @@ export function PublishSettings({
       if (imageUrl) {
         setValue("coverImage", imageUrl);
       }
+      setIsUploading(false);
       toast.success("uploaded successfully!", {
         id: "uploading",
         position: "top-center",
       });
-      setIsOpen(false);
+      setFile(undefined);
     },
     onUploadError: () => {
+      setIsUploading(false);
       toast.error("Failed to upload", {
         id: "uploading",
         position: "top-center",
       });
     },
-    onUploadBegin: (filename) => {
-      console.log("upload has begun for", filename);
+    onUploadBegin: () => {
+      setIsUploading(true);
       toast.loading("uploading...", {
         id: "uploading",
         position: "top-center",
       });
     },
   });
+
+  const handleCompressAndUpload = async (file: File) => {
+    try {
+      setIsUploading(true);
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/compress", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Compression failed");
+      }
+
+      const compressedBlob = await response.blob();
+      const compressedFile = new File(
+        [compressedBlob],
+        file.name.replace(/\.[^/.]+$/, ".webp"),
+        {
+          type: "image/webp",
+        },
+      );
+
+      await startUpload([compressedFile]);
+    } catch (error) {
+      toast.error("Failed to compress image", {
+        id: "uploading",
+        position: "top-center",
+      });
+      setIsUploading(false);
+    }
+  };
 
   const handleEmbed = async (url: string) => {
     if (!url) return;
@@ -223,14 +279,7 @@ export function PublishSettings({
     }
   };
 
-  // Start upload when file is selected
-  useEffect(() => {
-    if (file) {
-      startUpload([file]);
-    }
-  }, [file, startUpload]);
-
-  // Add an effect to update the form value when date changes
+  // Update the form value when date changes
   useEffect(() => {
     if (date) {
       setValue("publishedAt", date);
@@ -239,6 +288,158 @@ export function PublishSettings({
 
   const handleUpdateCategoryList = async (data: TagResponse) => {
     setOptimisticCategories([...optimisticCategories, data]);
+  };
+
+  const renderCoverImage = () => {
+    if (coverImage) {
+      return (
+        <div className="relative w-full h-48">
+          <img
+            src={coverImage}
+            alt="cover"
+            className="w-full h-full object-cover rounded-md"
+          />
+          <button
+            type="button"
+            onClick={() => setValue("coverImage", null)}
+            className="absolute top-2 right-2 p-1.5 bg-white rounded-full hover:text-destructive"
+          >
+            <Trash2 className="size-4" />
+            <span className="sr-only">remove image</span>
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <Tabs defaultValue="upload" className="w-full">
+        <TabsList variant="underline" className="flex justify-start mb-4">
+          <TabsTrigger variant="underline" value="upload">
+            Upload
+          </TabsTrigger>
+          <TabsTrigger variant="underline" value="embed">
+            Embed
+          </TabsTrigger>
+          <TabsTrigger variant="underline" value="media">
+            Media
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="upload">
+          {file ? (
+            <div className="flex flex-col gap-4">
+              <div className="relative w-full h-48">
+                <img
+                  src={URL.createObjectURL(file)}
+                  alt="cover preview"
+                  className="w-full h-full object-cover rounded-md"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-5">
+                <Button
+                  variant="destructive"
+                  onClick={() => setFile(undefined)}
+                  disabled={isUploading}
+                >
+                  <Trash2 className="size-4" />
+                  <span>Remove</span>
+                </Button>
+                <Button
+                  disabled={isUploading}
+                  onClick={() => file && handleCompressAndUpload(file)}
+                >
+                  {isUploading ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <CloudUpload className="size-4" />
+                  )}
+                  <span>Upload</span>
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <Label
+              htmlFor="image"
+              className="w-full h-48 rounded-md border border-dashed flex items-center justify-center cursor-pointer hover:border-primary"
+            >
+              <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                <ImageIcon className="size-4" />
+                <div className="flex flex-col items-center">
+                  <p className="text-sm font-medium">Upload Image</p>
+                  <p className="text-xs font-medium">(Max 4mb)</p>
+                </div>
+              </div>
+              <Input
+                onChange={(e) => setFile(e.target.files?.[0])}
+                id="image"
+                type="file"
+                accept="image/*"
+                className="sr-only"
+              />
+            </Label>
+          )}
+        </TabsContent>
+        <TabsContent value="embed">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <Input
+                value={embedUrl}
+                onChange={({ target }) => {
+                  setEmbedUrl(target.value);
+                  setUrlError(null);
+                }}
+                placeholder="Paste your cover image link"
+                className={cn(urlError && "border-destructive")}
+              />
+              <Button
+                className="shrink-0"
+                size="icon"
+                onClick={() => handleEmbed(embedUrl)}
+                disabled={isValidatingUrl || !embedUrl}
+              >
+                {isValidatingUrl ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <CheckIcon className="size-4" />
+                )}
+              </Button>
+            </div>
+            {urlError && <p className="text-sm text-destructive">{urlError}</p>}
+          </div>
+        </TabsContent>
+        <TabsContent value="media">
+          <ScrollArea className="w-[364px] whitespace-nowrap border">
+            <div className="flex p-4 gap-4">
+              {media && media.length > 0 ? (
+                media.map((item) => (
+                  <button
+                    type="button"
+                    key={item.id}
+                    onClick={() => setValue("coverImage", item.url)}
+                    className="flex-none group relative"
+                  >
+                    <div className="w-32 h-26 rounded-md overflow-hidden border">
+                      <img
+                        src={item.url}
+                        alt={item.name}
+                        className="w-full h-full object-cover transition group-hover:scale-105"
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1 truncate max-w-[128px]">
+                      {item.name}
+                    </p>
+                  </button>
+                ))
+              ) : (
+                <div className="text-center py-8 text-muted-foreground w-full">
+                  No media found. Upload some images first.
+                </div>
+              )}
+            </div>
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
+        </TabsContent>
+      </Tabs>
+    );
   };
 
   return (
@@ -305,105 +506,7 @@ export function PublishSettings({
                 </TooltipProvider>
               </div>
 
-              {/* Image Preview */}
-              {coverImage && (
-                <div className="relative w-full h-48 mb-4">
-                  <img
-                    alt="cover"
-                    src={coverImage}
-                    className="w-full h-full object-cover rounded-md"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setValue("coverImage", null)}
-                    className="bg-white hover:text-destructive rounded-full p-1.5 absolute top-2 right-2"
-                  >
-                    <Trash2 className="size-4" />
-                    <span className="sr-only">remove image</span>
-                  </button>
-                </div>
-              )}
-              {!coverImage && (
-                <Tabs defaultValue="upload" className="w-full">
-                  <TabsList
-                    variant="underline"
-                    className="flex justify-start mb-4"
-                  >
-                    <TabsTrigger variant="underline" value="upload">
-                      Upload
-                    </TabsTrigger>
-                    <TabsTrigger variant="underline" value="embed">
-                      Embed
-                    </TabsTrigger>
-                  </TabsList>
-                  {/*  */}
-                  <TabsContent value="upload">
-                    {file ? (
-                      <div className="relative w-full h-44">
-                        <img
-                          alt="cover"
-                          src={URL.createObjectURL(file)}
-                          className="w-full h-full object-cover rounded-md"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setFile(undefined)}
-                          className="bg-white hover:text-destructive rounded-full p-1.5 absolute top-2 right-2"
-                        >
-                          <Trash2 className="size-4" />
-                          <span className="sr-only">remove image</span>
-                        </button>
-                      </div>
-                    ) : (
-                      <Label
-                        htmlFor="coverImage"
-                        className="w-full h-44 rounded-md border border-dashed flex items-center justify-center cursor-pointer hover:border-primary"
-                      >
-                        <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                          <ImageIcon className="size-4" />
-                          <p className="text-sm font-medium">Upload Image</p>
-                        </div>
-                        <Input
-                          type="file"
-                          id="coverImage"
-                          onChange={(e) => setFile(e.target.files?.[0])}
-                          className="sr-only"
-                        />
-                      </Label>
-                    )}
-                  </TabsContent>
-                  <TabsContent value="embed">
-                    <div className="flex flex-col gap-2">
-                      <div className="flex items-center gap-2">
-                        <Input
-                          value={embedUrl}
-                          onChange={({ target }) => {
-                            setEmbedUrl(target.value);
-                            setUrlError(null);
-                          }}
-                          placeholder="Paste your cover image link"
-                          className={cn(urlError && "border-destructive")}
-                        />
-                        <Button
-                          className="shrink-0"
-                          size="icon"
-                          onClick={() => handleEmbed(embedUrl)}
-                          disabled={isValidatingUrl || !embedUrl}
-                        >
-                          {isValidatingUrl ? (
-                            <Loader2 className="size-4 animate-spin" />
-                          ) : (
-                            <CheckIcon className="size-4" />
-                          )}
-                        </Button>
-                      </div>
-                      {urlError && (
-                        <p className="text-sm text-destructive">{urlError}</p>
-                      )}
-                    </div>
-                  </TabsContent>
-                </Tabs>
-              )}
+              {renderCoverImage()}
             </div>
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-1">

@@ -2,7 +2,7 @@
 
 import { MediaUploadModal } from "@/components/media/upload-modal";
 import { Button } from "@repo/ui/components/button";
-import { ImageIcon, Upload, UploadCloud } from "lucide-react";
+import { ImageIcon, UploadCloud } from "lucide-react";
 import { useState } from "react";
 
 type Media = {

@@ -34,6 +34,7 @@
     "react-hook-form": "^7.54.2",
     "resend": "^4.0.1",
     "sanitize-html": "^2.14.0",
+    "sharp": "^0.33.5",
     "tailwindcss-animate": "^1.0.7",
     "uploadthing": "^7.4.4",
     "zod": "^3.24.1"

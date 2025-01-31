@@ -1,5 +1,6 @@
 "use client";
 
+import { compressImage } from "@/utils/compress-image";
 import { CloudUpload, ImageIcon, Trash2 } from "lucide-react";
 
 import { useUploadThing } from "@/utils/uploadthing";
@@ -14,7 +15,6 @@ import {
 import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
 import { toast } from "@repo/ui/components/sonner";
-import { set } from "date-fns";
 import { useState } from "react";
 
 interface MediaUploadModalProps {
@@ -51,6 +51,44 @@ export function MediaUploadModal({ isOpen, setIsOpen }: MediaUploadModalProps) {
     },
   });
 
+  const handleUpload = async () => {
+    if (!file) return;
+
+    try {
+      setIsUploading(true);
+
+      // Compress image using API route
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/compress", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Compression failed");
+      }
+
+      const compressedBlob = await response.blob();
+      const compressedFile = new File(
+        [compressedBlob],
+        file.name.replace(/\.[^/.]+$/, ".webp"),
+        {
+          type: "image/webp",
+        },
+      );
+
+      await startUpload([compressedFile]);
+    } catch (error) {
+      toast.error("Failed to compress image", {
+        id: "uploading",
+        position: "top-center",
+      });
+      setIsUploading(false);
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="sm:max-w-lg">
@@ -80,10 +118,7 @@ export function MediaUploadModal({ isOpen, setIsOpen }: MediaUploadModalProps) {
                   <Trash2 className="size-4" />
                   <span>Remove</span>
                 </Button>
-                <Button
-                  disabled={isUploading}
-                  onClick={() => startUpload([file])}
-                >
+                <Button disabled={isUploading} onClick={handleUpload}>
                   <CloudUpload className="size-4" />
                   <span>Upload</span>
                 </Button>
@@ -96,7 +131,10 @@ export function MediaUploadModal({ isOpen, setIsOpen }: MediaUploadModalProps) {
             >
               <div className="flex flex-col items-center gap-2 text-muted-foreground">
                 <ImageIcon className="size-4" />
-                <p className="text-sm font-medium">Upload Image</p>
+                <div className="flex flex-col items-center">
+                  <p className="text-sm font-medium">Upload Image</p>
+                  <p className="text-xs font-medium">(Max 4mb)</p>
+                </div>
               </div>
               <Input
                 onChange={(e) => setFile(e.target.files?.[0])}
