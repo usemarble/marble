@@ -1,13 +1,13 @@
-import sharp from 'sharp';
-import { NextResponse } from 'next/server';
+import sharp from "sharp";
+import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
-    const file = formData.get('file') as File;
-    
+    const file = formData.get("file") as File;
+
     if (!file) {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+      return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
@@ -15,19 +15,22 @@ export async function POST(request: Request) {
       .webp({ quality: 80 })
       .resize(1920, undefined, {
         withoutEnlargement: true,
-        fit: 'inside',
+        fit: "inside",
       })
       .toBuffer();
 
     return new NextResponse(compressedBuffer, {
       headers: {
-        'Content-Type': 'image/webp',
-        'Content-Disposition': `attachment; filename="${file.name.replace(/\.[^/.]+$/, '.webp')}"`,
+        "Content-Type": "image/webp",
+        "Content-Disposition": `attachment; filename="${file.name.replace(/\.[^/.]+$/, ".webp")}"`,
       },
     });
   } catch (error) {
-    console.error('Compression error:', error);
-    return NextResponse.json({ error: 'Failed to compress image' }, { status: 500 });
+    console.error("Compression error:", error);
+    return NextResponse.json(
+      { error: "Failed to compress image" },
+      { status: 500 },
+    );
   }
 }
 
