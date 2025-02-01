@@ -4,11 +4,12 @@ import Layout from "@/layouts/Layout.astro";
 import { SITE } from "@/lib/constants";
 ---
 
+
 <Layout title={`Pricing | ${SITE.TITLE}`} description="Pricing plans for marble.">
-  <Container class="mb-10 md:mb-20 border-y border-dashed">
-     <section class='flex gap-14 py-14 lg:py-20 min-h-[calc(100vh-64px)] flex-col items-center justify-center border-x border-dashed'>
-       <div class="relative flex flex-col items-center space-y-2 md:space-y-3">
-				<h2 class="relative text-center text-balance text-2xl sm:text-3xl font-medium tracking-tight md:text-4xl lg:text-5xl max-w-4xl">
+  <section class="py-12">
+		<Container class="mb-10 space-y-10 lg:space-y-14">
+			<div class="relative flex flex-col items-center space-y-4">
+				<h2 class="relative text-center text-balance text-2xl sm:text-xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
 					Simple Pricing, No Surprises.
 				</h2>
 				<p class="max-w-prose Md:text-lg text-muted-foreground text-center">
@@ -186,6 +187,6 @@ import { SITE } from "@/lib/constants";
 					</div>
 				</li>
 			</ul>
-     </section>
-  </Container>
+		</Container>
+	</section>
 </Layout>

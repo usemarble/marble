@@ -3,7 +3,7 @@ import { Image } from "astro:assets";
 import editorImage from "@/assets/images/editor.png";
 import Container from "@/components/Container.astro";
 import Layout from "@/layouts/Layout.astro";
-import { SITE } from "@/lib/constants";
+import { APP, SITE } from "@/lib/constants";
 ---
 
 <Layout 
@@ -14,7 +14,7 @@ import { SITE } from "@/lib/constants";
 	<section class="grid place-items-center py-24 md:py-28 lg:py-32">
 		<Container>
 			<div class="relative mx-auto flex flex-col items-center text-center lg:items-start">
-				<h1 class="relative text-4xl font-semibold md:text-5xl lg:text-6xl max-w-[25ch] mx-auto">
+				<h1 class="relative text-4xl font-semibold md:text-5xl max-w-[25ch] mx-auto">
 					The smarter way to manage your blog
 				</h1>
 				<p class="mx-auto mt-4 md:mt-8 max-w-[50ch] md:text-lg text-muted-foreground">
@@ -23,7 +23,8 @@ import { SITE } from "@/lib/constants";
 			</div>
 			<div class="mt-8 flex w-full items-center justify-center">
 				<div>
-					<a href={"/"}
+					<a href={`${APP.URL}`}
+						target="_blank"
 						class="flex gap-2 justify-center group w-48 bg-primary rounded-md text-primary-foreground items-center py-2.5 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary focus-visible:ring-2 transition-all duration-300 ease-out px-4 group"
 					>
 						<span>Get started</span>

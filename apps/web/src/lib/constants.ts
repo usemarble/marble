@@ -23,3 +23,10 @@ export const SOCIAL_LINKS: Link[] = [
   { href: "hello@taqib.dev", label: "Email" },
   { href: "/rss.xml", label: "RSS" },
 ];
+
+export const APP: Site = {
+  TITLE: "Marble",
+  DESCRIPTION: "A smarter way to manage your blog.",
+  URL: "https://marblecms-app.vercel.app",
+  EMAIL: "hello@taqib.dev",
+};
