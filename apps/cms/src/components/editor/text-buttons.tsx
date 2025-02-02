@@ -1,5 +1,9 @@
 import { Button } from "@repo/ui/components/button";
 import {
+  AlignCenter,
+  AlignJustify,
+  AlignLeft,
+  AlignRight,
   BoldIcon,
   ItalicIcon,
   type LucideIcon,
@@ -48,6 +52,30 @@ export const TextButtons = () => {
       isActive: (editor) => editor.isActive("strike"),
       command: (editor) => editor.chain().focus().toggleStrike().run(),
       icon: StrikethroughIcon,
+    },
+    {
+      name: "alignLeft",
+      isActive: (editor) => editor.isActive({ textAlign: "left" }),
+      command: (editor) => editor.chain().focus().setTextAlign("left").run(),
+      icon: AlignLeft,
+    },
+    {
+      name: "alignRight",
+      isActive: (editor) => editor.isActive({ textAlign: "right" }),
+      command: (editor) => editor.chain().focus().setTextAlign("right").run(),
+      icon: AlignRight,
+    },
+    {
+      name: "alignCenter",
+      isActive: (editor) => editor.isActive({ textAlign: "center" }),
+      command: (editor) => editor.chain().focus().setTextAlign("center").run(),
+      icon: AlignCenter,
+    },
+    {
+      name: "justify",
+      isActive: (editor) => editor.isActive({ textAlign: "justify" }),
+      command: (editor) => editor.chain().focus().setTextAlign("justify").run(),
+      icon: AlignJustify,
     },
   ];
 

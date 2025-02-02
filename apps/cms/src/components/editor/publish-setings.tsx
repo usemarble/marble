@@ -430,8 +430,10 @@ export function PublishSettings({
                   </button>
                 ))
               ) : (
-                <div className="text-center py-8 text-muted-foreground w-full">
-                  No media found. Upload some images first.
+                <div className="text-center py-8 w-full">
+                  <p className="text-muted-foreground text-sm">
+                    No media found. Upload some images first.
+                  </p>
                 </div>
               )}
             </div>

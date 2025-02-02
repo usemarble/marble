@@ -38,10 +38,9 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
   const { editor } = useEditor();
   const [openInNewTab, setOpenInNewTab] = useState(true);
 
-  // Autofocus on input by default
   useEffect(() => {
     inputRef.current?.focus();
-  });
+  }, []);
   if (!editor) return null;
 
   return (
@@ -73,9 +72,9 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
                 })
                 .run();
           }}
-          className="flex flex-col p-1"
+          className="flex flex-col p-1 divide-y"
         >
-          <div className="flex">
+          <div className="flex mb-1">
             <input
               ref={inputRef}
               type="text"
@@ -100,6 +99,7 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
                 type="button"
                 variant="outline"
                 size="icon"
+                className="shrink-0 size-8"
                 onClick={() => {
                   const url = getUrlFromString(inputRef.current?.value || "");
                   if (url) {

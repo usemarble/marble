@@ -1,4 +1,5 @@
 import type { Extension } from "@tiptap/core";
+import TextAlign from "@tiptap/extension-text-align";
 import {
   HorizontalRule,
   Placeholder,
@@ -74,6 +75,10 @@ const youtube = Youtube.configure({
   },
 });
 
+const textAlign = TextAlign.configure({
+  types: ["heading", "paragraph"],
+});
+
 const starterKit = StarterKit.configure({
   bulletList: {
     HTMLAttributes: {
@@ -106,6 +111,7 @@ const starterKit = StarterKit.configure({
 export const defaultExtensions: Extension[] = [
   starterKit,
   placeholder,
+  textAlign,
   // UpdatedImage as unknown as Extension,
   youtube as unknown as Extension,
   tiptapLink as unknown as Extension,
