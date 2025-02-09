@@ -27,6 +27,6 @@ export const SOCIAL_LINKS: Link[] = [
 export const APP: Site = {
   TITLE: "Marble",
   DESCRIPTION: "A smarter way to manage your blog.",
-  URL: "https://marblecms.com",
+  URL: "https://app.marblecms.com",
   EMAIL: "hello@taqib.dev",
 };

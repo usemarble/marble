@@ -31,7 +31,7 @@ We do not share your data with any third parties, except as required by law or t
 
 ## 4. Data Retention
 
-We retain analytics data for as long as necessary to fulfill the purposes outlined in this policy. If you would like us to delete any collected data, please contact us at [hello@taqib.dev](mailto:hello@taqib.dev).
+We retain analytics data for as long as necessary to fulfill the purposes outlined in this policy. If you would like us to delete any collected data, please contact us at [support@marblecms.com](mailto:support@marblecms.com).
 
 ## 5. Your Privacy Rights
 
@@ -41,7 +41,7 @@ Depending on your jurisdiction, you may have the following rights:
 - **Deletion:** Request deletion of your data (where applicable).
 - **Opt-out:** Opt-out of data collection, including analytics (if applicable).
 
-To exercise these rights, contact us at [hello@taqib.dev](mailto:hello@taqib.dev).
+To exercise these rights, contact us at [support@marblecms.com](mailto:support@marblecms.com).
 
 ## 6. Cookies and Tracking
 
@@ -59,7 +59,7 @@ We may update this Privacy Policy from time to time. Any changes will be posted 
 
 If you have any questions or concerns about this Privacy Policy, please contact us at:
 
-- **Email:** [hello@taqib.dev](mailto:hello@taqib.dev)
+- **Email:** [support@marblecms.com](mailto:support@marblecms.com)
 
 ---
 *By using the App, you acknowledge that you have read and understood this Privacy Policy.*
