@@ -8,5 +8,5 @@ import mdx from "@astrojs/mdx";
 // https://astro.build/config
 export default defineConfig({
   integrations: [tailwind(), mdx()],
-  site: "https://marblecms-web.vercel.app",
+  site: "https://marblecms.com",
 });
