@@ -43,8 +43,16 @@ export function RegisterForm() {
         },
         {
           onSuccess: () => {
-            toast.success("Sign in successful");
+            toast.success("Sign up successful");
             router.push(callbackUrl);
+          },
+          onError: (ctx) => {
+            // Handle the error
+            if (ctx.error.status === 403) {
+              toast.error("Please verify your email address");
+            }
+            //you can also show the original error message
+            toast.error(ctx.error.message);
           },
         },
       );

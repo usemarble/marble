@@ -1,9 +1,7 @@
 import { LoginForm } from "@/components/auth/login-form";
-import getServerSession from "@/lib/auth/session";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 export const metadata: Metadata = {
@@ -17,8 +15,6 @@ export default async function LoginPage(props: {
   const searchParams = await props.searchParams;
   const from = searchParams.from;
 
-  const session = await getServerSession();
-  if (session) redirect("/");
   return (
     <div className="md:grid h-screen w-full md:grid-cols-[55%,45%] p-4 max-w-screen-xl mx-auto">
       <section className="flex flex-col items-center justify-between h-full">
