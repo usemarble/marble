@@ -21,8 +21,8 @@ function PageClient({ posts }: PageClientProps) {
           <div className="flex flex-col items-center">
             <Folder className="size-40 text-primary" />
             <div className="flex flex-col items-center gap-10">
-              <p className="text-balance max-w-2xl mx-auto text-center text-muted-foreground">
-                No articles yet. Click the button below to start writing.
+              <p className="text-balance max-w-xl mx-auto text-center text-muted-foreground text-sm">
+                No posts yet. Click the button below to start writing.
               </p>
               <Link
                 href="/editor"

@@ -18,6 +18,14 @@ export const auth = betterAuth({
     enabled: true,
     requireEmailVerification: true,
   },
+  emailVerification: {
+    async sendVerificationEmail({ user, url }) {
+      await sendVerificationEmailAction({
+        userEmail: user.email,
+        url: url,
+      });
+    },
+  },
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID || "",
@@ -38,7 +46,7 @@ export const auth = betterAuth({
     organization({
       async sendInvitationEmail(data) {
         const inviteLink = `${process.env.NEXT_PUBLIC_APP_URL}/invite/${data.id}`;
-        sendInviteEmailAction({
+        await sendInviteEmailAction({
           inviteeEmail: data.email,
           inviterName: data.inviter.user.name,
           inviterEmail: data.inviter.user.email,

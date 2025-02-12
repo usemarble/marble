@@ -18,9 +18,9 @@ interface VerifyEmailProps {
   url: string;
 }
 
-const baseUrl = "https://marblecms-app.vercel.app";
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
 
-export const VerifyEmail = ({ userEmail, url }: VerifyEmailProps) => {
+export const VerifyUserEmail = ({ userEmail, url }: VerifyEmailProps) => {
   const previewText = "Verify your email address";
 
   return (
@@ -58,9 +58,9 @@ export const VerifyEmail = ({ userEmail, url }: VerifyEmailProps) => {
             <Text className="text-[#666666] text-[12px] leading-[24px]">
               This email was intended for{" "}
               <span className="text-black">{userEmail}</span>. If you were not
-              expecting this invitation, you can ignore the email. If you are
-              concerned about your account's safety, please send an email to
-              support@marble.blog to get in touch with us.
+              expecting this, you can ignore the email. If you are concerned
+              about your account's safety, please send an email to
+              support@marblecms.com to get in touch with us.
             </Text>
           </Container>
         </Body>
@@ -68,5 +68,3 @@ export const VerifyEmail = ({ userEmail, url }: VerifyEmailProps) => {
     </Html>
   );
 };
-
-export default VerifyEmail;

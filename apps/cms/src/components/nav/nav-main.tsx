@@ -65,7 +65,7 @@ export function NavMain() {
           asChild
           className={`border border-transparent ${
             isOverviewActive
-              ? "bg-background border-border hover:bg-background"
+              ? "bg-background border-border hover:bg-background text-primary hover:text-primary"
               : "hover:bg-background hover:border-border"
           }`}
         >
@@ -80,7 +80,7 @@ export function NavMain() {
             key={item.name}
             className={`border border-transparent ${
               isActive(item.url)
-                ? "bg-background border-border hover:bg-background"
+                ? "bg-background border-border hover:bg-background hover:text-primary text-primary"
                 : "hover:bg-background hover:border-border"
             }`}
           >

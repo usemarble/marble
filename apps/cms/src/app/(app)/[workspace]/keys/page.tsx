@@ -25,8 +25,8 @@ function Page() {
             API keys allow you to programmatically interact with your workspace
             using our api.
           </p>
-          <Button size="sm" variant="outline" disabled className="w-fit">
-            <span>Still in Development</span>
+          <Button size="sm" disabled className="w-fit">
+            <span>New API Key</span>
           </Button>
         </div>
       </div>

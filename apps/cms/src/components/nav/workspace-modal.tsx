@@ -92,23 +92,23 @@ export const CreateWorkspaceModal = ({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Create a new workspace</DialogTitle>
-          <DialogDescription>
-            A Workspace is a way for you to manage multiple sites keeping them
-            organized.
+          <DialogTitle>Create workspace</DialogTitle>
+          <DialogDescription className="sr-only">
+            A Workspace is a way for you to manage multiple blogs and
+            collaborate with teammates.
           </DialogDescription>
         </DialogHeader>
         {/*  */}
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
           <div className="grid flex-1 gap-2">
-            <Label htmlFor="name">Workspace name</Label>
+            <Label htmlFor="name">Name</Label>
             <Input id="name" {...register("name")} autoComplete="off" />
             {errors.name && <ErrorMessage>{errors.name.message}</ErrorMessage>}
           </div>
           <div className="grid flex-1 gap-2">
-            <Label htmlFor="slug">Workspace slug</Label>
-            <div className="flex w-full rounded-md border border-input bg-background text-base placeholder:text-muted-foreground focus-within:outline-none focus-within:border-primary focus-within:ring-2 focus-within:ring-emerald-200 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm overflow-hidden">
-              <span className="py-2.5 px-2 bg-gray-100 border-r">
+            <Label htmlFor="slug">Slug</Label>
+            <div className="flex w-full rounded-md border border-input bg-background text-base placeholder:text-muted-foreground focus-within:outline-none focus-within:border-primary focus-within:ring-2 focus-within:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm overflow-hidden">
+              <span className="py-2.5 px-2 bg-muted border-r">
                 app.marblecms.com/
               </span>
               <input

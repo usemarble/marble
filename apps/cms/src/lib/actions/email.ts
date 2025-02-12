@@ -1,7 +1,7 @@
 "use server";
 
 import { InviteUserEmail } from "@/components/emails/invite";
-import VerifyEmail from "@/components/emails/verify";
+import { VerifyUserEmail } from "@/components/emails/verify";
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import getServerSession from "../auth/session";
@@ -42,7 +42,7 @@ export async function sendInviteEmailAction({
 
   try {
     const response = await resend.emails.send({
-      from: "System <system@marblecms.com>",
+      from: "Marble <system@marblecms.com>",
       to: inviteeEmail,
       subject: `Join ${workspaceName} on Marble`,
       react: InviteUserEmail({
@@ -72,29 +72,35 @@ export async function sendInviteEmailAction({
   }
 }
 
+interface SendVerificationEmailProps {
+  userEmail: string;
+  url: string;
+}
+
 export async function sendVerificationEmailAction({
   userEmail,
   url,
-}: { userEmail: string; url: string }) {
+}: SendVerificationEmailProps) {
   if (!process.env.RESEND_API_KEY) {
     console.error("RESEND_API_KEY is not set");
     return { error: "Email configuration missing" };
   }
-  const session = await getServerSession();
+  // const session = await getServerSession();
 
-  if (!session) {
-    return NextResponse.json(
-      { error: "Failed to send email" },
-      { status: 401 },
-    );
-  }
+  // if (!session) {
+  //   return NextResponse.json(
+  //     { error: "Failed to send email" },
+  //     { status: 401 },
+  //   );
+  // }
 
+  console.log("called verification email");
   try {
     const response = await resend.emails.send({
-      from: "System <system@marblecms.com>",
+      from: "Verification <system@marblecms.com>",
       to: userEmail,
       subject: "Verify your email address",
-      react: VerifyEmail({
+      react: VerifyUserEmail({
         userEmail,
         url,
       }),

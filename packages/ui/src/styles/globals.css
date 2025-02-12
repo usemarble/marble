@@ -10,7 +10,7 @@
     --card-foreground: 0 0% 9%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 9%;
-    --primary: 161.4 93.5% 30.4%;
+    --primary: 244 100% 65%;
     --primary-foreground: 0 0% 98%;
     --secondary: 0 0% 96.1%;
     --secondary-foreground: 0 0% 9%;
@@ -22,13 +22,15 @@
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 89.8%;
     --input: 0 0% 89.8%;
-    --ring: 161.4 93.5% 30.4%;
+    --ring: 244 100% 82%;
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
+    --radius: 0.4rem;
+
+    --sidebar-background: 220 14% 96%;
 
     --scrollbar-thumb: 0 0% 37%;
     --scrollbar-thumb-hover: 0 0% 40%;
@@ -40,7 +42,7 @@
     --card-foreground: 0 0% 98%;
     --popover: 0 0% 9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 160.1 84.1% 39.4%;
+    --primary: 244 98% 69%;
     --primary-foreground: 0 0% 98%;
     --secondary: 0 0% 14.9%;
     --secondary-foreground: 0 0% 98%;
@@ -52,12 +54,14 @@
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 14.9%;
     --input: 0 0% 14.9%;
-    --ring: 160.1 84.1% 39.4%;
+    --ring: 244 100% 82%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+
+    --sidebar-background: 0 0% 9%;
 
     --scrollbar-thumb: 0, 0%, 60%;
     --scrollbar-thumb-hover: 0, 0%, 53%;

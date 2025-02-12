@@ -1,6 +1,7 @@
 "use client";
 
 import { ErrorMessage } from "@/components/auth/error-message";
+import { useWorkspace } from "@/components/context/workspace";
 import { checkWorkspaceSlug } from "@/lib/actions/workspace";
 import { organization } from "@/lib/auth/client";
 import {
@@ -24,7 +25,6 @@ import { Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { useWorkspace } from "@/components/context/workspace";
 
 function PageClient() {
   const { updateActiveWorkspace } = useWorkspace();
@@ -81,11 +81,12 @@ function PageClient() {
   }
   return (
     <div>
-      <Card className="w-96">
+      <Card>
         <CardHeader className="text-center mb-5">
           <CardTitle>Create your workspace</CardTitle>
-          <CardDescription>
-            A workspace is a collection of your articles.
+          <CardDescription className="max-w-sm">
+            Think of a workspace as a project folder where you can have teamates
+            work together.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -106,7 +107,7 @@ function PageClient() {
             </div>
             <div className="grid flex-1 gap-2">
               <Label htmlFor="slug">Slug</Label>
-              <div className="flex w-full rounded-md border border-input bg-background text-base placeholder:text-muted-foreground focus-within:outline-none focus-within:border-primary focus-within:ring-2 focus-within:ring-emerald-200 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm overflow-hidden">
+              <div className="flex w-full rounded-md border border-input bg-background text-base placeholder:text-muted-foreground focus-within:outline-none focus-within:border-primary focus-within:ring-2 focus-within:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm overflow-hidden">
                 <span className="py-2.5 px-2 bg-gray-100 border-r">
                   app.marblecms.com/
                 </span>

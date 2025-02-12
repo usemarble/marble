@@ -46,7 +46,7 @@ export function NavDevs() {
               asChild
               className={`border border-transparent ${
                 isActive(item.url)
-                  ? "bg-background border-border hover:bg-background"
+                  ? "bg-background border-border hover:bg-background hover:text-primary text-primary"
                   : "hover:bg-background hover:border-border"
               }`}
             >
@@ -61,7 +61,7 @@ export function NavDevs() {
           asChild
           className="border border-transparent hover:bg-background hover:border-border"
         >
-          <Link target="_blank" href="https://marblecms-web.vercel.app">
+          <Link target="_blank" href="https://marblecms.com">
             <BookTextIcon />
             <span>Documentation</span>
           </Link>

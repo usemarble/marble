@@ -4,10 +4,17 @@ import { authClient } from "@/lib/auth/client";
 import { type CredentialData, credentialSchema } from "@/lib/validations/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, buttonVariants } from "@repo/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@repo/ui/components/card";
 import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
 import { toast } from "@repo/ui/components/sonner";
-import { EyeClosedIcon, EyeIcon, Loader } from "@repo/ui/lib/icons";
+import { EyeClosedIcon, EyeIcon, Loader, MailCheck } from "@repo/ui/lib/icons";
 import { cn } from "@repo/ui/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -28,30 +35,32 @@ export function RegisterForm() {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const searchParams = useSearchParams();
   const router = useRouter();
-  const callbackUrl = searchParams?.get("from") || "/";
+  const callbackUrl = searchParams.get("from") || "/";
+  const step = searchParams.get("step");
 
-  async function onSubmit(data: CredentialData) {
+  const initiateEmailVerification = async (email: string) => {
+    await authClient.sendVerificationEmail({
+      email: email,
+      callbackURL: callbackUrl,
+    });
+  };
+
+  async function onSubmit(formData: CredentialData) {
     setIsCredentialsLoading(true);
 
     try {
       await authClient.signUp.email(
         {
-          email: data.email.toLowerCase(),
-          password: data.password,
-          name: data.email.toLowerCase().split("@")[0] || "User",
-          image: `https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=${data.email.toLowerCase().split("@")[0]}`,
+          email: formData.email.toLowerCase(),
+          password: formData.password,
+          name: formData.email.toLowerCase().split("@")[0] || "User",
+          image: `https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=${formData.email.toLowerCase().split("@")[0]}`,
         },
         {
           onSuccess: () => {
-            toast.success("Sign up successful");
-            router.push(callbackUrl);
+            initiateEmailVerification(formData.email);
           },
           onError: (ctx) => {
-            // Handle the error
-            if (ctx.error.status === 403) {
-              toast.error("Please verify your email address");
-            }
-            //you can also show the original error message
             toast.error(ctx.error.message);
           },
         },
@@ -69,7 +78,7 @@ export function RegisterForm() {
     try {
       await authClient.signIn.social({
         provider,
-        callbackURL: searchParams?.get("from") || "/",
+        callbackURL: callbackUrl,
       });
     } catch (error) {
       return toast("Your sign in request failed. Please try again.");
@@ -79,6 +88,8 @@ export function RegisterForm() {
         : setIsGithubLoading(false);
     }
   };
+
+  if (step === "verify") return <EmailNotification />;
 
   return (
     <div className="grid gap-6">
@@ -160,7 +171,7 @@ export function RegisterForm() {
               />
               <button
                 type="button"
-                className="absolute right-4 top-3"
+                className="absolute right-4 top-3 text-muted-foreground"
                 onClick={() => setIsPasswordVisible((prev) => !prev)}
               >
                 {isPasswordVisible ? (
@@ -190,5 +201,29 @@ export function RegisterForm() {
         </div>
       </form>
     </div>
+  );
+}
+
+function EmailNotification() {
+  return (
+    <Card className="w-full max-w-md">
+      <CardHeader className="text-center sr-only">
+        <CardTitle>Verify Your Email</CardTitle>
+        <CardDescription>
+          Check your mail for a verification link to proceed.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4 pt-8 pb-4">
+          <div className="flex items-center justify-center w-16 h-16 mx-auto bg-blue-100 rounded-full">
+            <MailCheck className="w-8 h-8 text-blue-600" />
+          </div>
+          <p className="text-center">
+            We've sent a verification link to your mail. Please click the link
+            to proceed.
+          </p>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

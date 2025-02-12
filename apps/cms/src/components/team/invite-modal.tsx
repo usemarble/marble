@@ -81,7 +81,7 @@ export const InviteModal = ({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Invite Member</DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="sr-only">
             Invite a team member to your workspace.
           </DialogDescription>
         </DialogHeader>

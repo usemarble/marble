@@ -27,7 +27,7 @@ interface InviteUserEmailProps {
   inviteLink: string;
 }
 
-const baseUrl = "https://marblecms-app.vercel.app";
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
 
 export const InviteUserEmail = ({
   inviteeEmail,
@@ -59,9 +59,9 @@ export const InviteUserEmail = ({
             <Heading className="text-black text-[24px] font-normal text-center p-0 my-[30px] mx-0">
               Join <strong>{teamName}</strong> on <strong>Marble</strong>
             </Heading>
-            <Text className="text-black text-[14px] leading-[24px]">
+            <Text className="text-black text-[14px] leading-[24px] text-center">
               <strong>{invitedByUsername}</strong> has invited you to the{" "}
-              <strong>{teamName}</strong> team on <strong>Marble.</strong>
+              <strong>{teamName}</strong> workspace on <strong>Marble.</strong>
             </Text>
             <Section>
               <Row>
@@ -108,7 +108,7 @@ export const InviteUserEmail = ({
               <span className="text-black">{inviteeEmail}</span>. If you were
               not expecting this invitation, you can ignore the email. If you
               are concerned about your account's safety, please send an email to
-              support@marble.blog to get in touch with us.
+              support@marblecms.com to get in touch with us.
             </Text>
           </Container>
         </Body>
@@ -116,15 +116,5 @@ export const InviteUserEmail = ({
     </Html>
   );
 };
-
-InviteUserEmail.PreviewProps = {
-  inviteeEmail: "user@example.com",
-  invitedByUsername: "Demo User",
-  invitedByEmail: "demo@example.com",
-  teamName: "Demo Team",
-  teamImage: "https://api.dicebear.com/9.x/glass/svg?seed=demo",
-  userImage: "https://api.dicebear.com/9.x/notionists-neutral/svg?seed=demo",
-  inviteLink: "https://example.com/invite/demo",
-} as InviteUserEmailProps;
 
 export default InviteUserEmail;

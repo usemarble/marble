@@ -45,6 +45,11 @@ export function LoginForm() {
             toast.success("Welcome!");
             router.push(callbackUrl);
           },
+          onError: (ctx) => {
+            if (ctx.error.status === 403) {
+              toast.error("Please verify your email address");
+            }
+          },
         },
       );
     } catch (error) {
@@ -151,7 +156,7 @@ export function LoginForm() {
               />
               <button
                 type="button"
-                className="absolute right-4 top-3"
+                className="absolute right-4 top-3 text-muted-foreground"
                 onClick={() => setIsPasswordVisible((prev) => !prev)}
               >
                 {isPasswordVisible ? (
