@@ -13,7 +13,6 @@ import { useParams, usePathname } from "next/navigation";
 import { BookTextIcon } from "../icons/animated/book-text";
 import { ConnectIcon } from "../icons/animated/connect";
 import { WebhookIcon } from "../icons/animated/webhook";
-import { useWorkspace } from "../context/workspace";
 
 const items = [
   {
