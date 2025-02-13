@@ -1,8 +1,8 @@
 ---
 title: Privacy Policy
-published: 2021-08-29
+published: 2024-12-12
 description: Marble's Privacy Policy.
-lastUpdated: 2021-08-29
+lastUpdated: 2025-02-13
 ---
 
 Marble ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy outlines how we collect, use, and safeguard your information when you use our app ("the App").
@@ -57,9 +57,7 @@ We may update this Privacy Policy from time to time. Any changes will be posted 
 
 ## 9. Contact Us
 
-If you have any questions or concerns about this Privacy Policy, please contact us at:
-
-- **Email:** [support@marblecms.com](mailto:support@marblecms.com)
+If you have any questions or concerns about this Privacy Policy, please contact us at [support@marblecms.com](mailto:support@marblecms.com)
 
 ---
 *By using the App, you acknowledge that you have read and understood this Privacy Policy.*

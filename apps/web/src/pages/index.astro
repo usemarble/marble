@@ -37,8 +37,8 @@ import { APP, SITE } from "@/lib/constants";
 	<section class="py-12">
 		<Container class="mb-10 space-y-10">
 			<div class="border bg-gray-50/80 backdrop-blur-lg p-1.5 rounded-xl">
-				<div class="border rounded-[8px] bg-background h-[200px] md:h-[300px] lg:h-[400px] w-full">
-					<Image src={editorImage} alt="An screenshot of marble's minimal editor" class="object-cover w-full h-full rounded-[8px] pointer-events-none select-none" />
+				<div class="border rounded-[8px] bg-background h-[200px] md:h-[300px] lg:h-[600px] w-full">
+					<Image loading="eager" src={editorImage} alt="An screenshot of marble's minimal editor" class="object-cover w-full h-full rounded-[8px] pointer-events-none select-none" />
 				</div>
 			</div>
 		</Container>
@@ -260,6 +260,12 @@ import { APP, SITE } from "@/lib/constants";
 								</svg>
 								<span>50k API requests per month.</span>
 							</li>
+							<li class="flex items-center gap-2">
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
+									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+								</svg>
+								<span>10 Webhook events per month.</span>
+							</li>
 						</ul>
 					</div>
 				</li>
@@ -320,7 +326,7 @@ import { APP, SITE } from "@/lib/constants";
 								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
 									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
 								</svg>
-								<span>Webhooks.</span>
+								<span>20 Webhook events per month.</span>
 							</li>
 						</ul>
 					</div>
@@ -332,7 +338,7 @@ import { APP, SITE } from "@/lib/constants";
 	<!-- CTA -->
 	<section class="py-12">
 		<Container class="mb-10 space-y-10 lg:space-y-14">
-			<div class="min-h-96 lg:min-h-[600px] grid place-content-center bg-white rounded-md relative bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px] border px-4">
+			<div class="min-h-96 lg:min-h-[600px] grid place-content-center bg-white rounded-md relative border px-4">
 				<div class="relative flex flex-col items-center space-y-4 text-balance">
 					<h2 class="relative text-center text-balance text-2xl sm:text-2xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
 						Publish content without the hassle.

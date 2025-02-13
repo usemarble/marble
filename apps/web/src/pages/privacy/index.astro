@@ -12,6 +12,15 @@ if (!entry) {
 }
 
 const { Content } = await render(entry);
+
+const formattedDate = new Date(entry.data.lastUpdated).toLocaleDateString(
+  "en-US",
+  {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  },
+);
 ---
 
 
@@ -24,8 +33,7 @@ const { Content } = await render(entry);
       <h1 class='font-medium text-2xl sm:text-3xl md:text-4xl text-center'>
         Privacy Policy.
       </h1>
-      <p class='text-muted-foreground text-center'>Marble's privacy policy</p>
-      <p class="text-center font-medium text-muted-foreground">Last updated {entry.data.lastUpdated.toDateString()}</p>
+      <p class="text-center font-medium text-muted-foreground">Last updated: {formattedDate}</p>
     </div>
 
     <Prose class="prose-sm max-w-screen-sm">
