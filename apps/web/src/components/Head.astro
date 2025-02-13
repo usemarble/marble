@@ -8,7 +8,7 @@ interface Props {
   image?: string;
 }
 
-// const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
 const { title, description, image = "/og.png" } = Astro.props;
 ---
@@ -20,7 +20,7 @@ const { title, description, image = "/og.png" } = Astro.props;
 <meta name="generator" content={Astro.generator} />
 
 <!-- Canonical URL -->
-<!-- <link rel="canonical" href={canonicalURL} /> -->
+<link rel="canonical" href={canonicalURL} />
 
 <!-- Page Meta Tags -->
 <title>{title}</title>
@@ -41,4 +41,14 @@ const { title, description, image = "/og.png" } = Astro.props;
 <meta property="twitter:description" content={description} />
 <meta property="twitter:image" content={new URL(image, Astro.url)} />
 
+<!-- Discovery -->
+<link rel='sitemap' href='/sitemap-index.xml' />
+<link
+  rel='alternate'
+  type='application/rss+xml'
+  title={title}
+  href={new URL('rss.xml', Astro.site)}
+/>
+
+<!-- Client Router -->
 <ClientRouter />
