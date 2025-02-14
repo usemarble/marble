@@ -1,4 +1,4 @@
-name = "api"
+name = "marblecms"
 main = "src/index.ts"
 compatibility_date = "2024-10-14"
 compatibility_flags = [ "nodejs_compat" ]
