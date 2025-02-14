@@ -5,18 +5,18 @@ import {
   updateWorkspaceAction,
 } from "@/lib/actions/workspace";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@repo/ui/components/button";
+import { Button } from "@marble/ui/components/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@repo/ui/components/card";
-import { Input } from "@repo/ui/components/input";
-import { Label } from "@repo/ui/components/label";
-import { toast } from "@repo/ui/components/sonner";
-import { cn } from "@repo/ui/lib/utils";
+} from "@marble/ui/components/card";
+import { Input } from "@marble/ui/components/input";
+import { Label } from "@marble/ui/components/label";
+import { toast } from "@marble/ui/components/sonner";
+import { cn } from "@marble/ui/lib/utils";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";

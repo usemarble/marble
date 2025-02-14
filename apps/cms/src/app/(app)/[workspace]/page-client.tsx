@@ -5,7 +5,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-} from "@repo/ui/components/card";
+} from "@marble/ui/components/card";
 
 interface WorkspaceData {
   id: string;

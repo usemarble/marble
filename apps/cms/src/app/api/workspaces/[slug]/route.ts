@@ -1,5 +1,5 @@
 import getServerSession from "@/lib/auth/session";
-import db from "@repo/db";
+import db from "@marble/db";
 import { NextResponse } from "next/server";
 
 export async function GET(

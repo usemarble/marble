@@ -1,6 +1,6 @@
 "use server";
 
-import db from "@repo/db";
+import db from "@marble/db";
 import { NextResponse } from "next/server";
 import getServerSession from "../auth/session";
 import type { CreateTagValues } from "../validations/workspace";

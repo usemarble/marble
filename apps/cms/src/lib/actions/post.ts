@@ -1,7 +1,7 @@
 "use server";
 
 import { type PostValues, postSchema } from "@/lib/validations/post";
-import db from "@repo/db";
+import db from "@marble/db";
 import { NextResponse } from "next/server";
 import getServerSession from "../auth/session";
 

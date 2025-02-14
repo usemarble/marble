@@ -1,6 +1,6 @@
 "use server";
 
-import db from "@repo/db";
+import db from "@marble/db";
 import { authClient } from "../auth/client";
 import getSession from "../auth/session";
 import { getActiveOrganization } from "../queries/workspace";

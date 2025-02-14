@@ -7,17 +7,17 @@ import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-} from "@repo/ui/components/avatar";
-import { Badge } from "@repo/ui/components/badge";
-import { Button } from "@repo/ui/components/button";
+} from "@marble/ui/components/avatar";
+import { Badge } from "@marble/ui/components/badge";
+import { Button } from "@marble/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@repo/ui/components/dropdown-menu";
-import { toast } from "@repo/ui/components/sonner";
-import { cn } from "@repo/ui/lib/utils";
+} from "@marble/ui/components/dropdown-menu";
+import { toast } from "@marble/ui/components/sonner";
+import { cn } from "@marble/ui/lib/utils";
 import { CopyIcon, MailPlus, MoreHorizontal, UserMinus } from "lucide-react";
 import { useState } from "react";
 

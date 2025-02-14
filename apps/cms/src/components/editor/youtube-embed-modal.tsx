@@ -1,14 +1,14 @@
 "use client";
 
-import { Button } from "@repo/ui/components/button";
+import { Button } from "@marble/ui/components/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@repo/ui/components/dialog";
-import { Input } from "@repo/ui/components/input";
-import { YoutubeIcon } from "@repo/ui/lib/icons";
+} from "@marble/ui/components/dialog";
+import { Input } from "@marble/ui/components/input";
+import { YoutubeIcon } from "@marble/ui/lib/icons";
 import { useEditor } from "novel";
 import { useState } from "react";
 

@@ -1,4 +1,4 @@
-import { Button } from "@repo/ui/components/button";
+import { Button } from "@marble/ui/components/button";
 import {
   AlignCenter,
   AlignJustify,
@@ -9,8 +9,8 @@ import {
   type LucideIcon,
   StrikethroughIcon,
   UnderlineIcon,
-} from "@repo/ui/lib/icons";
-import { cn } from "@repo/ui/lib/utils";
+} from "@marble/ui/lib/icons";
+import { cn } from "@marble/ui/lib/utils";
 import { useEditor } from "novel";
 
 export type SelectorItem = {

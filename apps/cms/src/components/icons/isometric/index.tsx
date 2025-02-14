@@ -1,4 +1,4 @@
-import type { LucideProps } from "@repo/ui/lib/icons";
+import type { LucideProps } from "@marble/ui/lib/icons";
 
 export const Dark = ({ ...props }: LucideProps) => (
   <svg

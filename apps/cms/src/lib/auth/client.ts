@@ -1,4 +1,4 @@
-import { toast } from "@repo/ui/components/sonner";
+import { toast } from "@marble/ui/components/sonner";
 import { organizationClient } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 

@@ -1,5 +1,5 @@
 import { auth } from "@/lib/auth/auth";
-import db from "@repo/db";
+import db from "@marble/db";
 import { headers } from "next/headers";
 import React from "react";
 import PageClient from "./page-client";

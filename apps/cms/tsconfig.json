@@ -1,5 +1,5 @@
 {
-  "extends": "@repo/tsconfig/nextjs.json",
+  "extends": "@marble/tsconfig/nextjs.json",
   "compilerOptions": {
     "plugins": [
       {
@@ -9,7 +9,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@repo/ui/*": ["../../packages/ui/src/*"]
+      "@marble/ui/*": ["../../packages/ui/src/*"]
     }
   },
   "include": [

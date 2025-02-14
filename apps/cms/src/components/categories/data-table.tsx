@@ -10,8 +10,8 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
-import { Button } from "@repo/ui/components/button";
-import { Input } from "@repo/ui/components/input";
+import { Button } from "@marble/ui/components/button";
+import { Input } from "@marble/ui/components/input";
 import {
   Table,
   TableBody,
@@ -19,7 +19,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@repo/ui/components/table";
+} from "@marble/ui/components/table";
 import { Plus, SearchIcon, XIcon } from "lucide-react";
 import { useState } from "react";
 import { CreateCategoryModal } from "./category-modals";

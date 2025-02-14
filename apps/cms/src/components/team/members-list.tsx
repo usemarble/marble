@@ -1,16 +1,16 @@
-import type { InviteStatus, RoleType } from "@repo/db/client";
+import type { InviteStatus, RoleType } from "@marble/db/client";
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-} from "@repo/ui/components/avatar";
-import { Button } from "@repo/ui/components/button";
+} from "@marble/ui/components/avatar";
+import { Button } from "@marble/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@repo/ui/components/dropdown-menu";
+} from "@marble/ui/components/dropdown-menu";
 import { Mail, MoreHorizontal, RefreshCw, UserMinus } from "lucide-react";
 
 type Member = {

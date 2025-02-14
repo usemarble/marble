@@ -8,7 +8,7 @@ import { ThemeSwitch } from "@/components/settings/theme";
 import WorkspaceForm from "@/components/settings/workspace-form";
 import { organization, useListOrganizations } from "@/lib/auth/client";
 import type { ActiveOrganization, Session } from "@/lib/auth/types";
-import { Button } from "@repo/ui/components/button";
+import { Button } from "@marble/ui/components/button";
 import {
   Card,
   CardContent,
@@ -16,19 +16,19 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@repo/ui/components/card";
+} from "@marble/ui/components/card";
 
-import { Checkbox } from "@repo/ui/components/checkbox";
-import { Input } from "@repo/ui/components/input";
-import { Label } from "@repo/ui/components/label";
-import { Separator } from "@repo/ui/components/separator";
-import { toast } from "@repo/ui/components/sonner";
+import { Checkbox } from "@marble/ui/components/checkbox";
+import { Input } from "@marble/ui/components/input";
+import { Label } from "@marble/ui/components/label";
+import { Separator } from "@marble/ui/components/separator";
+import { toast } from "@marble/ui/components/sonner";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "@repo/ui/components/tabs";
+} from "@marble/ui/components/tabs";
 import { Check, CopyIcon, Loader } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";

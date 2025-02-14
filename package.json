@@ -11,14 +11,14 @@
     "cms:dev": "turbo dev --filter=cms",
     "api:dev": "turbo dev --filter=api",
     "docs:dev": "turbo dev --filter=docs",
-    "db:generate": "turbo run db:generate --filter=@repo/db",
-    "db:push": "turbo run db:push --filter=@repo/db"
+    "db:generate": "turbo run db:generate --filter=@marble/db",
+    "db:push": "turbo run db:push --filter=@marble/db"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.8",
-    "@repo/tsconfig": "workspace:*",
+    "@marble/tsconfig": "workspace:*",
     "turbo": "^2.3.3",
     "typescript": "^5.4.5"
   },

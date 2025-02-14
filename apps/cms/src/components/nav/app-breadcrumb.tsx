@@ -7,7 +7,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@repo/ui/components/breadcrumb";
+} from "@marble/ui/components/breadcrumb";
 import { usePathname } from "next/navigation";
 import React from "react";
 import { useWorkspace } from "../context/workspace";

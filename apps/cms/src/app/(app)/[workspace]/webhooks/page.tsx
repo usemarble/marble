@@ -1,4 +1,4 @@
-import { Button } from "@repo/ui/components/button";
+import { Button } from "@marble/ui/components/button";
 import { WebhookIcon } from "lucide-react";
 
 function Page() {

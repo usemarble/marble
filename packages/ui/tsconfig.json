@@ -1,10 +1,10 @@
 {
-  "extends": "@repo/tsconfig/react-library.json",
+  "extends": "@marble/tsconfig/react-library.json",
   "compilerOptions": {
     "outDir": "dist",
     "baseUrl": ".",
     "paths": {
-      "@repo/ui/*": ["./src/*"]
+      "@marble/ui/*": ["./src/*"]
     }
   },
   "include": ["."],

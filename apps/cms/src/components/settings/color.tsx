@@ -1,13 +1,13 @@
 "use client";
 
 import { useLocalStorage } from "@/hooks/use-localstorage";
-import { Button } from "@repo/ui/components/button";
+import { Button } from "@marble/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@repo/ui/components/dropdown-menu";
+} from "@marble/ui/components/dropdown-menu";
 import { Check, ChevronDown, Palette } from "lucide-react";
 
 const colors = [

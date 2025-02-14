@@ -5,8 +5,8 @@ import { Command as CommandPrimitive } from "cmdk";
 import { Search } from "lucide-react";
 import * as React from "react";
 
-import { cn } from "@repo/ui/lib/utils";
-import { Dialog, DialogContent } from "@repo/ui/components/dialog";
+import { cn } from "@marble/ui/lib/utils";
+import { Dialog, DialogContent } from "@marble/ui/components/dialog";
 
 const Command = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive>,

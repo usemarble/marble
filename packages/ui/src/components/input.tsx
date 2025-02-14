@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { cn } from "@repo/ui/lib/utils";
+import { cn } from "@marble/ui/lib/utils";
 
 const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
   ({ className, type, ...props }, ref) => {

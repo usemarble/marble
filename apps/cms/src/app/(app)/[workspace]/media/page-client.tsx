@@ -1,7 +1,7 @@
 "use client";
 
 import { MediaUploadModal } from "@/components/media/upload-modal";
-import { Button } from "@repo/ui/components/button";
+import { Button } from "@marble/ui/components/button";
 import { ImageIcon, UploadCloud } from "lucide-react";
 import { useState } from "react";
 

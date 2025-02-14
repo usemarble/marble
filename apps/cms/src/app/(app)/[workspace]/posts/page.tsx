@@ -1,4 +1,4 @@
-import db from "@repo/db";
+import db from "@marble/db";
 import { notFound } from "next/navigation";
 import PageClient from "./page-client";
 

@@ -3,7 +3,7 @@
 import { Folder } from "@/components/icons/isometric";
 import { type Post, columns } from "@/components/posts/columns";
 import { PostDataTable } from "@/components/posts/data-table";
-import { buttonVariants } from "@repo/ui/components/button";
+import { buttonVariants } from "@marble/ui/components/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 

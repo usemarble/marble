@@ -15,7 +15,7 @@ importers:
       '@biomejs/biome':
         specifier: 1.9.4
         version: 1.9.4
-      '@repo/tsconfig':
+      '@marble/tsconfig':
         specifier: workspace:*
         version: link:packages/tsconfig
       prettier:
@@ -33,7 +33,7 @@ importers:
 
   apps/api:
     dependencies:
-      '@repo/db':
+      '@marble/db':
         specifier: workspace:*
         version: link:../../packages/db
       hono:
@@ -58,10 +58,10 @@ importers:
       '@react-email/components':
         specifier: 0.0.31
         version: 0.0.31(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-      '@repo/db':
+      '@marble/db':
         specifier: workspace:*
         version: link:../../packages/db
-      '@repo/ui':
+      '@marble/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       '@tanstack/react-query':
@@ -140,7 +140,7 @@ importers:
         specifier: ^3.24.1
         version: 3.24.1
     devDependencies:
-      '@repo/tsconfig':
+      '@marble/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
       '@tailwindcss/typography':
@@ -217,7 +217,7 @@ importers:
         specifier: ^8.18.0
         version: 8.18.0(bufferutil@4.0.9)
     devDependencies:
-      '@repo/tsconfig':
+      '@marble/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
       '@types/node':
@@ -328,7 +328,7 @@ importers:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.13)
     devDependencies:
-      '@repo/tsconfig':
+      '@marble/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
       '@types/node':

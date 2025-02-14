@@ -2,31 +2,31 @@
 
 import { ErrorMessage } from "@/components/auth/error-message";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@repo/ui/components/button";
+import { Button } from "@marble/ui/components/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@repo/ui/components/dialog";
-import { Input } from "@repo/ui/components/input";
-import { Label } from "@repo/ui/components/label";
-import { toast } from "@repo/ui/components/sonner";
-import { Loader } from "@repo/ui/lib/icons";
+} from "@marble/ui/components/dialog";
+import { Input } from "@marble/ui/components/input";
+import { Label } from "@marble/ui/components/label";
+import { toast } from "@marble/ui/components/sonner";
+import { Loader } from "@marble/ui/lib/icons";
 import { useForm } from "react-hook-form";
 
 import { organization } from "@/lib/auth/client";
 import type { ActiveOrganization } from "@/lib/auth/types";
 import { type InviteData, inviteSchema } from "@/lib/validations/auth";
-// import { RoleType } from "@repo/db/client";
+// import { RoleType } from "@marble/db/client";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@repo/ui/components/select";
+} from "@marble/ui/components/select";
 
 export const InviteModal = ({
   open,

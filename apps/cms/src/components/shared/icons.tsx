@@ -1,4 +1,4 @@
-import type { LucideIcon, LucideProps } from "@repo/ui/lib/icons";
+import type { LucideIcon, LucideProps } from "@marble/ui/lib/icons";
 
 export type Icon = LucideIcon;
 

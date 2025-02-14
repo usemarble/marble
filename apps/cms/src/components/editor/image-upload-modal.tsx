@@ -3,24 +3,24 @@
 import { CloudUpload, ImageIcon, Loader2, Trash2 } from "lucide-react";
 
 import { useUploadThing } from "@/utils/uploadthing";
-import { Button } from "@repo/ui/components/button";
+import { Button } from "@marble/ui/components/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@repo/ui/components/dialog";
-import { Input } from "@repo/ui/components/input";
-import { Label } from "@repo/ui/components/label";
-import { ScrollArea } from "@repo/ui/components/scroll-area";
-import { toast } from "@repo/ui/components/sonner";
+} from "@marble/ui/components/dialog";
+import { Input } from "@marble/ui/components/input";
+import { Label } from "@marble/ui/components/label";
+import { ScrollArea } from "@marble/ui/components/scroll-area";
+import { toast } from "@marble/ui/components/sonner";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "@repo/ui/components/tabs";
+} from "@marble/ui/components/tabs";
 import { useQuery } from "@tanstack/react-query";
 import { useEditor } from "novel";
 import { useState } from "react";

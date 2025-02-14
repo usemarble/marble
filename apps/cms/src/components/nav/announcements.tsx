@@ -1,6 +1,6 @@
 import { Bell } from "lucide-react";
 
-import { Button } from "@repo/ui/components/button";
+import { Button } from "@marble/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +14,7 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "@repo/ui/components/dropdown-menu";
+} from "@marble/ui/components/dropdown-menu";
 
 interface AnnouncementProps {
   title?: string;

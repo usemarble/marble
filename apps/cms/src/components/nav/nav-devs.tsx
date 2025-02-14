@@ -6,7 +6,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@repo/ui/components/sidebar";
+} from "@marble/ui/components/sidebar";
 
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";

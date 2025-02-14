@@ -5,9 +5,9 @@ import {
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
-} from "@repo/ui/components/sidebar";
+} from "@marble/ui/components/sidebar";
 
-import { Group, ImageIcon, Settings, Tags } from "@repo/ui/lib/icons";
+import { Group, ImageIcon, Settings, Tags } from "@marble/ui/lib/icons";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import { LayersIcon } from "../icons/animated/layers";

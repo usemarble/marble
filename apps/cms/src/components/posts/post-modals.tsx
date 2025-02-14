@@ -9,9 +9,9 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@repo/ui/components/alert-dialog";
-import { Button } from "@repo/ui/components/button";
-import { toast } from "@repo/ui/components/sonner";
+} from "@marble/ui/components/alert-dialog";
+import { Button } from "@marble/ui/components/button";
+import { toast } from "@marble/ui/components/sonner";
 
 import { deletePostAction } from "@/lib/actions/post";
 import { useState } from "react";

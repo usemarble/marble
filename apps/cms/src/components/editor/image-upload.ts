@@ -1,4 +1,4 @@
-import { toast } from "@repo/ui/components/sonner";
+import { toast } from "@marble/ui/components/sonner";
 import { createImageUpload } from "novel/plugins";
 
 const onUpload = async (file: File) => {

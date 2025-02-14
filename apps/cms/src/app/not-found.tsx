@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@repo/ui/components/button";
-import { Undo } from "@repo/ui/lib/icons";
+import { Button } from "@marble/ui/components/button";
+import { Undo } from "@marble/ui/lib/icons";
 import Link from "next/link";
 
 export default function NotFound() {

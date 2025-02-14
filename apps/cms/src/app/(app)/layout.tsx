@@ -1,12 +1,12 @@
 import { Announcements } from "@/components/nav/announcements";
 import AppBreadcrumb from "@/components/nav/app-breadcrumb";
 import { AppSidebar } from "@/components/nav/app-sidebar";
-import { Separator } from "@repo/ui/components/separator";
+import { Separator } from "@marble/ui/components/separator";
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
-} from "@repo/ui/components/sidebar";
+} from "@marble/ui/components/sidebar";
 
 export default async function DashboardLayout({
   children,

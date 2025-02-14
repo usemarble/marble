@@ -11,18 +11,18 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@repo/ui/components/alert-dialog";
-import { Button } from "@repo/ui/components/button";
+} from "@marble/ui/components/alert-dialog";
+import { Button } from "@marble/ui/components/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@repo/ui/components/dialog";
-import { Input } from "@repo/ui/components/input";
-import { Label } from "@repo/ui/components/label";
-import { toast } from "@repo/ui/components/sonner";
-import { Loader } from "@repo/ui/lib/icons";
+} from "@marble/ui/components/dialog";
+import { Input } from "@marble/ui/components/input";
+import { Label } from "@marble/ui/components/label";
+import { toast } from "@marble/ui/components/sonner";
+import { Loader } from "@marble/ui/lib/icons";
 import { useForm } from "react-hook-form";
 
 import {

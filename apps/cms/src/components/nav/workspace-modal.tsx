@@ -1,18 +1,18 @@
 "use client";
 
-import { Loader } from "@repo/ui/lib/icons";
+import { Loader } from "@marble/ui/lib/icons";
 import { useEffect } from "react";
 
-import { Button } from "@repo/ui/components/button";
+import { Button } from "@marble/ui/components/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@repo/ui/components/dialog";
-import { Input } from "@repo/ui/components/input";
-import { Label } from "@repo/ui/components/label";
+} from "@marble/ui/components/dialog";
+import { Input } from "@marble/ui/components/input";
+import { Label } from "@marble/ui/components/label";
 
 import { ErrorMessage } from "@/components/auth/error-message";
 import { checkWorkspaceSlug } from "@/lib/actions/workspace";
@@ -23,7 +23,7 @@ import {
 } from "@/lib/validations/workspace";
 import { generateSlug } from "@/utils/generate-slug";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "@repo/ui/components/sonner";
+import { toast } from "@marble/ui/components/sonner";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useWorkspace } from "../context/workspace";

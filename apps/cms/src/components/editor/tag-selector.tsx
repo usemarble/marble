@@ -1,8 +1,8 @@
 "use client";
 
 import type { PostValues } from "@/lib/validations/post";
-import { Badge } from "@repo/ui/components/badge";
-import { Button } from "@repo/ui/components/button";
+import { Badge } from "@marble/ui/components/badge";
+import { Button } from "@marble/ui/components/button";
 import {
   Command,
   CommandEmpty,
@@ -11,20 +11,20 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from "@repo/ui/components/command";
-import { Label } from "@repo/ui/components/label";
+} from "@marble/ui/components/command";
+import { Label } from "@marble/ui/components/label";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@repo/ui/components/popover";
+} from "@marble/ui/components/popover";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@repo/ui/components/tooltip";
-import { cn } from "@repo/ui/lib/utils";
+} from "@marble/ui/components/tooltip";
+import { cn } from "@marble/ui/lib/utils";
 import { Check, ChevronsUpDown, InfoIcon, PlusIcon, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { type Control, useController } from "react-hook-form";

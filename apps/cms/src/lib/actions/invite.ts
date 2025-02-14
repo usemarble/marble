@@ -1,7 +1,7 @@
 "use server";
 
 import getSession from "@/lib/auth/session";
-import db from "@repo/db";
+import db from "@marble/db";
 
 export async function verifyInvite(inviteId: string) {
   const session = await getSession();

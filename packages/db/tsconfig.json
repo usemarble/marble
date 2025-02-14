@@ -1,5 +1,5 @@
 {
-  "extends": "@repo/tsconfig/base.json",
+  "extends": "@marble/tsconfig/base.json",
   "compilerOptions": {
     "baseUrl": "."
   },

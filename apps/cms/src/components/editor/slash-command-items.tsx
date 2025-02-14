@@ -9,7 +9,7 @@ import {
   Quote,
   Text,
   YoutubeIcon,
-} from "@repo/ui/lib/icons";
+} from "@marble/ui/lib/icons";
 import { createSuggestionItems } from "novel/extensions";
 import { Command, renderItems } from "novel/extensions";
 import { uploadFn } from "./image-upload";

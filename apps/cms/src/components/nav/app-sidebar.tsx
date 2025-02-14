@@ -4,7 +4,7 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-} from "@repo/ui/components/sidebar";
+} from "@marble/ui/components/sidebar";
 import { headers } from "next/headers";
 import { NavDevs } from "./nav-devs";
 import { NavMain } from "./nav-main";

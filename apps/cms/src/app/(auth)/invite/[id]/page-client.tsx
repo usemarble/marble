@@ -5,8 +5,8 @@ import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-} from "@repo/ui/components/avatar";
-import { Button, buttonVariants } from "@repo/ui/components/button";
+} from "@marble/ui/components/avatar";
+import { Button, buttonVariants } from "@marble/ui/components/button";
 import {
   Card,
   CardContent,
@@ -14,7 +14,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@repo/ui/components/card";
+} from "@marble/ui/components/card";
 import { CheckIcon, Loader2, LoaderIcon, Undo, XIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

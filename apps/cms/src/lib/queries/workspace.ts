@@ -1,4 +1,4 @@
-import db from "@repo/db";
+import db from "@marble/db";
 
 export async function getActiveOrganization(id: string) {
   const workspace = await db.organization.findFirst({

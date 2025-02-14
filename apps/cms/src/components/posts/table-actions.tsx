@@ -1,14 +1,14 @@
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import type { Post } from "./columns";
 
-import { Button } from "@repo/ui/components/button";
+import { Button } from "@marble/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from "@repo/ui/components/dropdown-menu";
+} from "@marble/ui/components/dropdown-menu";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { DeletePostModal } from "./post-modals";

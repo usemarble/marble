@@ -1,12 +1,12 @@
 "use client";
 
-import { Button } from "@repo/ui/components/button";
+import { Button } from "@marble/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@repo/ui/components/dropdown-menu";
+} from "@marble/ui/components/dropdown-menu";
 import { Check, ChevronDown, SunMoon } from "lucide-react";
 import { useTheme } from "next-themes";
 

@@ -3,19 +3,19 @@
 import { authClient } from "@/lib/auth/client";
 import { type CredentialData, credentialSchema } from "@/lib/validations/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, buttonVariants } from "@repo/ui/components/button";
+import { Button, buttonVariants } from "@marble/ui/components/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@repo/ui/components/card";
-import { Input } from "@repo/ui/components/input";
-import { Label } from "@repo/ui/components/label";
-import { toast } from "@repo/ui/components/sonner";
-import { EyeClosedIcon, EyeIcon, Loader, MailCheck } from "@repo/ui/lib/icons";
-import { cn } from "@repo/ui/lib/utils";
+} from "@marble/ui/components/card";
+import { Input } from "@marble/ui/components/input";
+import { Label } from "@marble/ui/components/label";
+import { toast } from "@marble/ui/components/sonner";
+import { EyeClosedIcon, EyeIcon, Loader, MailCheck } from "@marble/ui/lib/icons";
+import { cn } from "@marble/ui/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";

@@ -6,14 +6,14 @@ import {
   CreditCard,
   LogOut,
   Sparkles,
-} from "@repo/ui/lib/icons";
+} from "@marble/ui/lib/icons";
 
 import { authClient } from "@/lib/auth/client";
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-} from "@repo/ui/components/avatar";
+} from "@marble/ui/components/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,14 +22,14 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@repo/ui/components/dropdown-menu";
+} from "@marble/ui/components/dropdown-menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@repo/ui/components/sidebar";
-import { Skeleton } from "@repo/ui/components/skeleton";
+} from "@marble/ui/components/sidebar";
+import { Skeleton } from "@marble/ui/components/skeleton";
 import { useRouter } from "next/navigation";
 
 interface NavUserProps {

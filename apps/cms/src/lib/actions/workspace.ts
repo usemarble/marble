@@ -1,6 +1,6 @@
 "use server";
 
-import db from "@repo/db";
+import db from "@marble/db";
 import { revalidatePath } from "next/cache";
 import getSession from "../auth/session";
 import { setActiveWorkspace } from "../auth/workspace";

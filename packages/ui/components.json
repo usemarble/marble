@@ -10,10 +10,10 @@
     "cssVariables": true
   },
   "aliases": {
-    "components": "@repo/ui/components",
-    "utils": "@repo/ui/lib/utils",
-    "ui": "@repo/ui/components",
-    "hooks": "@repo/ui/hooks",
-    "lib": "@repo/ui/lib"
+    "components": "@marble/ui/components",
+    "utils": "@marble/ui/lib/utils",
+    "ui": "@marble/ui/components",
+    "hooks": "@marble/ui/hooks",
+    "lib": "@marble/ui/lib"
   }
 }

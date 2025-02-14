@@ -1,10 +1,10 @@
-import { Button } from "@repo/ui/components/button";
-import { Label } from "@repo/ui/components/label";
-import { Popover, PopoverTrigger } from "@repo/ui/components/popover";
-import { PopoverContent } from "@repo/ui/components/popover";
-import { Switch } from "@repo/ui/components/switch";
-import { Check, LinkIcon, Trash } from "@repo/ui/lib/icons";
-import { cn } from "@repo/ui/lib/utils";
+import { Button } from "@marble/ui/components/button";
+import { Label } from "@marble/ui/components/label";
+import { Popover, PopoverTrigger } from "@marble/ui/components/popover";
+import { PopoverContent } from "@marble/ui/components/popover";
+import { Switch } from "@marble/ui/components/switch";
+import { Check, LinkIcon, Trash } from "@marble/ui/lib/icons";
+import { cn } from "@marble/ui/lib/utils";
 import { useEditor } from "novel";
 import { useEffect, useRef, useState } from "react";
 

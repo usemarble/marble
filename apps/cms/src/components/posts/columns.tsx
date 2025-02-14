@@ -1,7 +1,7 @@
 "use client";
 
-import { Badge } from "@repo/ui/components/badge";
-import { cn } from "@repo/ui/lib/utils";
+import { Badge } from "@marble/ui/components/badge";
+import { cn } from "@marble/ui/lib/utils";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import TableActions from "./table-actions";

@@ -1,5 +1,5 @@
-import { Input } from "@repo/ui/components/input";
-import { Label } from "@repo/ui/components/label";
+import { Input } from "@marble/ui/components/input";
+import { Label } from "@marble/ui/components/label";
 import React from "react";
 
 function Account() {

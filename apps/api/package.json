@@ -6,7 +6,7 @@
     "deploy": "wrangler deploy --minify"
   },
   "dependencies": {
-    "@repo/db": "workspace:*",
+    "@marble/db": "workspace:*",
     "hono": "^4.6.13"
   },
   "devDependencies": {
