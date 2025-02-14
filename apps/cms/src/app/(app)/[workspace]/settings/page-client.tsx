@@ -1,12 +1,11 @@
 "use client";
 
-import { useWorkspace } from "@/components/context/workspace";
 import Account from "@/components/settings/account";
 import { ColorSwitch } from "@/components/settings/color";
 import { CookieSettings } from "@/components/settings/cookies";
+import { DeleteWorkspaceModal } from "@/components/settings/delete-workspace-modal";
 import { ThemeSwitch } from "@/components/settings/theme";
 import WorkspaceForm from "@/components/settings/workspace-form";
-import { organization, useListOrganizations } from "@/lib/auth/client";
 import type { ActiveOrganization, Session } from "@/lib/auth/types";
 import { Button } from "@marble/ui/components/button";
 import {
@@ -29,33 +28,19 @@ import {
   TabsList,
   TabsTrigger,
 } from "@marble/ui/components/tabs";
-import { Check, CopyIcon, Loader } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { Check, CopyIcon } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
-
-interface ListOrganizationResponse {
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  metadata?: any;
-  name: string;
-  slug: string;
-  logo?: string | null | undefined | undefined;
-  createdAt: Date;
-  id: string;
-}
 
 interface PageClientProps {
   activeWorkspace: ActiveOrganization;
   session: Session;
 }
 
-function PageClient({ activeWorkspace, session }: PageClientProps) {
-  const router = useRouter();
+function PageClient({ activeWorkspace }: PageClientProps) {
   const searchParams = useSearchParams();
   const currentTab = searchParams.get("tab") || "workspace";
   const [copied, setCopied] = useState(false);
-  const [isDeletingWorkspace, setIsDeletingWorkspace] = useState(false);
-  const { data: organizations } = useListOrganizations();
-  const { updateActiveWorkspace } = useWorkspace();
 
   // const switchTab = (tab: string) => {
   //   const newParams = new URLSearchParams(searchParams.toString());
@@ -74,38 +59,6 @@ function PageClient({ activeWorkspace, session }: PageClientProps) {
     setTimeout(() => {
       setCopied(false);
     }, 1000);
-  };
-
-  const handleDeleteWorkspace = async () => {
-    setIsDeletingWorkspace(true);
-
-    try {
-      await organization.delete({
-        organizationId: activeWorkspace.id,
-      });
-
-      toast.success("Workspace deleted.");
-
-      // Find the next available workspace or redirect to new
-      const remainingWorkspaces = organizations.filter(
-        (org: ListOrganizationResponse) => org.id !== activeWorkspace.id,
-      );
-
-      if (remainingWorkspaces.length === 0) {
-        router.push("/new");
-        return;
-      }
-
-      // Set the first remaining workspace as active and redirect
-      const nextWorkspace = remainingWorkspaces[0];
-      await updateActiveWorkspace(nextWorkspace.slug, nextWorkspace);
-      router.push(`/${nextWorkspace.slug}`);
-    } catch (error) {
-      console.error("Failed to delete workspace:", error);
-      toast.error("Failed to delete workspace.");
-    } finally {
-      setIsDeletingWorkspace(false);
-    }
   };
 
   return (
@@ -187,18 +140,7 @@ function PageClient({ activeWorkspace, session }: PageClientProps) {
                   </CardDescription>
                 </CardHeader>
                 <CardFooter className="justify-end">
-                  <Button
-                    variant="destructive"
-                    disabled={isDeletingWorkspace}
-                    onClick={handleDeleteWorkspace}
-                    className="min-w-[151px]"
-                  >
-                    {isDeletingWorkspace ? (
-                      <Loader className="size-4 animate-spin" />
-                    ) : (
-                      "Delete Workspace"
-                    )}
-                  </Button>
+                  <DeleteWorkspaceModal id={activeWorkspace.id} />
                 </CardFooter>
               </Card>
             </section>

@@ -38,7 +38,7 @@
   .dark {
     --background: 150 4% 9%;
     --foreground: 0 0% 98%;
-    --card: 0 0% 9%;
+    --card: 0 0% 10%;
     --card-foreground: 0 0% 98%;
     --popover: 0 0% 9%;
     --popover-foreground: 0 0% 98%;
@@ -61,7 +61,7 @@
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
 
-    --sidebar-background: 0 0% 9%;
+    --sidebar-background: 0 0% 10%;
 
     --scrollbar-thumb: 0, 0%, 60%;
     --scrollbar-thumb-hover: 0, 0%, 53%;
