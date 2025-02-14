@@ -14,9 +14,14 @@ import {
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
-import { EyeClosedIcon, EyeIcon, Loader, MailCheck } from "@marble/ui/lib/icons";
+import {
+  EyeClosedIcon,
+  EyeIcon,
+  Loader,
+  MailCheck,
+} from "@marble/ui/lib/icons";
 import { cn } from "@marble/ui/lib/utils";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Github, Google } from "../icons/brand";
@@ -34,7 +39,6 @@ export function RegisterForm() {
   const [isCredentialsLoading, setIsCredentialsLoading] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const searchParams = useSearchParams();
-  const router = useRouter();
   const callbackUrl = searchParams.get("from") || "/";
   const step = searchParams.get("step");
 
