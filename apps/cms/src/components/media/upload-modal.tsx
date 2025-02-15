@@ -1,6 +1,5 @@
 "use client";
 
-import { compressImage } from "@/utils/compress-image";
 import { CloudUpload, ImageIcon, Trash2 } from "lucide-react";
 
 import { useUploadThing } from "@/utils/uploadthing";
