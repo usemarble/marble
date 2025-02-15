@@ -1,6 +1,8 @@
 "use client";
 
-import Account from "@/components/settings/account";
+import AccountForm from "@/components/settings/account";
+import BillingForm from "@/components/settings/billing";
+import Billing from "@/components/settings/billing";
 import { ColorSwitch } from "@/components/settings/color";
 import { CookieSettings } from "@/components/settings/cookies";
 import { DeleteWorkspaceModal } from "@/components/settings/delete-workspace-modal";
@@ -17,7 +19,6 @@ import {
   CardTitle,
 } from "@marble/ui/components/card";
 
-import { Checkbox } from "@marble/ui/components/checkbox";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { Separator } from "@marble/ui/components/separator";
@@ -29,24 +30,51 @@ import {
   TabsTrigger,
 } from "@marble/ui/components/tabs";
 import { Check, CopyIcon } from "lucide-react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+
+type TabId = "workspace" | "account" | "billing" | "application";
+
+const tabInfo = {
+  workspace: {
+    title: "Workspace Settings",
+    description: "View and manage your workspace settings",
+  },
+  account: {
+    title: "Account Settings",
+    description: "Update personal information and notification preferences",
+  },
+  billing: {
+    title: "Billing Settings",
+    description: "Update billing and payment information",
+  },
+  application: {
+    title: "Application Settings",
+    description: "Configure the way the website looks and feels",
+  },
+} as const;
 
 interface PageClientProps {
   activeWorkspace: ActiveOrganization;
   session: Session;
 }
 
-function PageClient({ activeWorkspace }: PageClientProps) {
+function PageClient({ activeWorkspace, session }: PageClientProps) {
   const searchParams = useSearchParams();
-  const currentTab = searchParams.get("tab") || "workspace";
+  const [currentTab, setCurrentTab] = useState<TabId>(
+    (searchParams.get("tab") as TabId) || "workspace",
+  );
   const [copied, setCopied] = useState(false);
+  const router = useRouter();
 
-  // const switchTab = (tab: string) => {
-  //   const newParams = new URLSearchParams(searchParams.toString());
-  //   newParams.set("tab", tab);
-  //   router.push(`?${newParams.toString()}`);
-  // };
+  const updateTab = (tab: string) => {
+    // console.log("Old tab was:", currentTab);
+    setCurrentTab(tab as TabId);
+    // console.log("New tab is:", tab)
+    const newParams = new URLSearchParams(searchParams.toString());
+    newParams.set("tab", tab);
+    router.push(`?${newParams.toString()}`, { scroll: false });
+  };
 
   const copyWorkspaceId = () => {
     const id = activeWorkspace.id;
@@ -63,24 +91,23 @@ function PageClient({ activeWorkspace }: PageClientProps) {
 
   return (
     <div className="w-full max-w-screen-sm mx-auto space-y-8 pt-8 pb-14">
-      <div>
-        <h1 className="text-xl font-semibold">Settings</h1>
+      <div className="space-y-1">
+        <h1 className="text-xl font-semibold">{tabInfo[currentTab].title}</h1>
         <p className="text-muted-foreground text-sm">
-          View and Manage your workspace settings.
+          {tabInfo[currentTab].description}
         </p>
       </div>
       <div className="flex flex-col gap-6">
-        <Tabs
-          // onValueChange={switchTab}
-          defaultValue={currentTab}
-          className="w-full"
-        >
+        <Tabs value={currentTab} onValueChange={updateTab} className="w-full">
           <TabsList variant="underline" className="flex justify-start mb-10">
             <TabsTrigger variant="underline" value="workspace">
               Workspace
             </TabsTrigger>
             <TabsTrigger variant="underline" value="account">
               Account
+            </TabsTrigger>
+            <TabsTrigger variant="underline" value="billing">
+              Billing
             </TabsTrigger>
             <TabsTrigger variant="underline" value="application">
               Application
@@ -147,74 +174,21 @@ function PageClient({ activeWorkspace }: PageClientProps) {
           </TabsContent>
           {/*  */}
           <TabsContent value="account" className="space-y-14">
-            <section className="space-y-10">
-              <div>
-                <h1 className="text-lg font-semibold">Account</h1>
-                <p className="text-muted-foreground text-sm">
-                  Update personal information used for account management and
-                  billing.
-                </p>
-              </div>
-              <Account />
-            </section>
-            <Separator />
-            <section className="space-y-8">
-              <div>
-                <h1 className="text-lg font-semibold">Notifications</h1>
-                <p className="text-muted-foreground text-sm">
-                  Manage your personal notification settings for this workspace.
-                  Read the governance documentation to learn more.
-                </p>
-              </div>
-              <ul className="flex flex-col gap-6">
-                <li className="flex gap-4">
-                  <Checkbox id="newsletter" />{" "}
-                  <div className="flex flex-col gap-2">
-                    <Label htmlFor="newsletter">Receive newsletter</Label>
-                    <p className="text-muted-foreground text-sm">
-                      I want to receive updates about relevant products or
-                      services.
-                    </p>
-                  </div>
-                </li>
-                <li className="flex gap-4">
-                  <Checkbox id="member" />{" "}
-                  <div className="flex flex-col gap-2">
-                    <Label htmlFor="member">Member activities</Label>
-                    <p className="text-muted-foreground text-sm">
-                      Stay informed and receive notifications when team members
-                      join or leave this workspace.
-                    </p>
-                  </div>
-                </li>
-                <li className="flex gap-4">
-                  <Checkbox id="publish" />{" "}
-                  <div className="flex flex-col gap-2">
-                    <Label htmlFor="publish">Publishing activities</Label>
-                    <p className="text-muted-foreground text-sm">
-                      Receive notifications when scheduled articles are
-                      published.
-                    </p>
-                  </div>
-                </li>
-              </ul>
-            </section>
-            <Separator />
-            <section className="flex gap-4 justify-end w-full">
-              <Button variant="outline" size="sm">
-                Cancel
-              </Button>
-              <Button size="sm">Save</Button>
-            </section>
+            <AccountForm
+              email={session.user.email}
+              name={session.user.name}
+              id={session.user.id}
+            />
+          </TabsContent>
+          <TabsContent value="billing" className="space-y-14">
+            <BillingForm
+              email={session.user.email}
+              name={session.user.name}
+              id={session.user.id}
+            />
           </TabsContent>
           {/*  */}
           <TabsContent value="application" className="space-y-12">
-            <div>
-              <h1 className="text-lg font-semibold">Application</h1>
-              <p className="text-muted-foreground text-sm">
-                Configure the way the website looks and feels.
-              </p>
-            </div>
             <ul className="flex flex-col divide-y border-y">
               <li className="flex items-center justify-between py-6">
                 <div>

@@ -65,7 +65,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
         organizationSlug: workspaceSlug,
       });
 
-      console.log(newActiveOrg);
+      // console.log(newActiveOrg);
 
       // Fetch full workspace data
       const res = await fetch(`/api/workspaces/${workspaceSlug}`);

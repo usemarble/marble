@@ -121,7 +121,7 @@ export function LoginForm() {
             </Label>
             <Input
               id="email"
-              placeholder="Your email"
+              placeholder="Email"
               type="email"
               autoCapitalize="none"
               autoComplete="email"
@@ -144,7 +144,7 @@ export function LoginForm() {
             <div className="relative">
               <Input
                 id="password"
-                placeholder="Your password"
+                placeholder="Password"
                 type={isPasswordVisible ? "text" : "password"}
                 autoCapitalize="none"
                 autoCorrect="off"

@@ -78,7 +78,7 @@ function WorkspaceForm({ name, slug, id }: WorkspaceFormProps) {
   const onNameSubmit = async (data: NameData) => {
     try {
       if (!id) return;
-      const updatedWorkspace = await updateWorkspaceAction(id, {
+      await updateWorkspaceAction(id, {
         ...data,
         slug,
       });
