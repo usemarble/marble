@@ -46,8 +46,6 @@ const fontSans = Geist({
   variable: "--font-sans",
 });
 
-
-
 export default function RootLayout({
   children,
 }: Readonly<{
