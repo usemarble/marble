@@ -3,15 +3,18 @@ import Container from "./Container.astro";
 import Discord from "./icons/Discord.astro";
 import Github from "./icons/Github.astro";
 import X from "./icons/X.astro";
+import WordMark from "./icons/WordMark.astro";
+import Logo from "./icons/Logo.astro";
 ---
 
-<footer class="pb-28 md:pb-40 xl:pb-48">
-  <Container>
+<footer>
+  <Container class="lg:border-x border-dashed pb-28 pt-12 lg:pt-20 md:pb-40 xl:pb-48">
     <section class="rounded-xl border bg-white p-10 lg:p-12 md:min-h-96 flex flex-col justify-between gap-5">
       <div class="flex flex-col justify-between gap-10 md:flex-row">
         <div class="sm:col-span-3">
           <a href="/" class="mb-2 flex items-center gap-2 tracking-widest font-medium">
-            <p>marble.</p>
+            <Logo />
+            <span class="sr-only">marblecms</span>
           </a>
           <p class="mb-1 text-sm text-muted-foreground tracking-wider">
             Content simplified.
@@ -135,4 +138,7 @@ import X from "./icons/X.astro";
       </div>
     </section>
   </Container>
+  <div aria-hidden={true} class="h-16 border-t border-dashed">
+    <div class="mx-auto w-full max-w-6xl px-8 md:px-12 lg:px-16 lg:border-x border-dashed h-full"></div>
+  </div>
 </footer>

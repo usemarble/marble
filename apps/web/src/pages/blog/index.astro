@@ -7,22 +7,22 @@ import { SITE } from "@/lib/constants";
 const posts = await getCollection("blog");
 ---
 
-<Layout title={`Blog | ${SITE.TITLE}`} description={`bits and pieces about marble, and efficient content publishing.`}>
-  <Container class='border-y border-dashed mb-14'>
-    <section class='py-20 sm:border-x sm:border-dashed sm:bg-background min-h-[calc(100vh-60px)] md:min-h-[calc(100vh-69.33px)]'>
-      <div class='max-w-2xl mx-auto mb-10 space-y-2'>
-        <h1 class='font-medium text-2xl leading-[1.1] sm:text-3xl md:text-4xl font-serif text-center'>
+<Layout title={`Blog | ${SITE.TITLE}`} image="/og-blog.jpg" description="bits and pieces about marble, and efficient content publishing.">
+  <section class='lg:border-y border-dashed'>
+    <Container class='lg:border-x border-dashed pt-20 pb-32'>
+      <div class='max-w-2xl mx-auto mb-20 space-y-2'>
+        <h1 class='text-2xl leading-[1.1] sm:text-3xl md:text-4xl text-center'>
           The marble blog.
         </h1>
-        <p class='text-muted-foreground text-center'>Bits and pieces about technology and efficient content publishing.</p>
+        <p class='text-muted-foreground text-center text-sm md:text-base'>Bits and pieces about SEO and content writing.</p>
       </div>
-      <ul class='flex flex-col gap-6 max-w-4xl mx-auto'>
+      <ul class='grid md:grid-cols-2 gap-6 max-w-3xl mx-auto'>
         {
           posts.map((post) => (
             <PostCard entry={post} />
           ))
         }
       </ul>
-    </section>
-  </Container>
+    </Container>
+  </section>
 </Layout>

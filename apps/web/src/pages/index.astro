@@ -1,6 +1,4 @@
 ---
-import { Image } from "astro:assets";
-import editorImage from "@/assets/images/editor.png";
 import Container from "@/components/Container.astro";
 import Layout from "@/layouts/Layout.astro";
 import { APP, SITE } from "@/lib/constants";
@@ -10,14 +8,15 @@ import { APP, SITE } from "@/lib/constants";
 	title={SITE.TITLE}
 	description={SITE.DESCRIPTION}
 >
+<div class="divide-y divide-dashed">
 	<!-- Hero section -->
-	<section class="grid place-items-center py-24 md:py-28 lg:py-32">
-		<Container>
-			<div class="relative mx-auto flex flex-col items-center text-center lg:items-start">
-				<h1 class="relative text-4xl font-semibold md:text-5xl max-w-[25ch] mx-auto">
+	<section class="grid place-items-center border-t border-dashed">
+		<Container class="lg:border-x border-dashed py-24 md:py-28 lg:py-40">
+			<div class="relative mx-auto text-center space-y-6">
+				<h1 class="relative text-4xl font-medium md:text-5xl max-w-[25ch] mx-auto">
 					The smarter way to manage your blog
 				</h1>
-				<p class="mx-auto mt-4 md:mt-8 max-w-[50ch] md:text-lg text-muted-foreground">
+				<p class="mx-auto max-w-[50ch] md:text-lg text-muted-foreground">
 					Everything you need, nothing you don’t. Just easy, efficient content management.
 				</p>
 			</div>
@@ -25,7 +24,7 @@ import { APP, SITE } from "@/lib/constants";
 				<div>
 					<a href={`${APP.URL}`}
 						target="_blank"
-						class="flex gap-2 justify-center group w-48 bg-primary rounded-md text-primary-foreground items-center py-2.5 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary focus-visible:ring-2 transition-all duration-300 ease-out px-4 group"
+						class="flex gap-2 justify-center group w-48 bg-primary text-primary-foreground items-center py-2.5 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary focus-visible:ring-2 transition-all duration-300 ease-out px-4 group"
 					>
 						<span>Get started</span>
 					</a>
@@ -33,23 +32,46 @@ import { APP, SITE } from "@/lib/constants";
 			</div>
 		</Container>
 	</section>
-	<!-- section 2 value proposition -->
-	<section class="py-12">
-		<Container class="mb-10 space-y-10">
-			<div class="border bg-gray-50/80 backdrop-blur-lg p-1.5 rounded-xl">
-				<div class="border rounded-[8px] bg-background h-[200px] md:h-[300px] lg:h-[600px] w-full">
-					<Image loading="eager" src={editorImage} alt="An screenshot of marble's minimal editor" class="object-cover w-full h-full rounded-[8px] pointer-events-none select-none" />
-				</div>
+	<!-- section 2 social proof -->
+	<!-- <section class="">
+		<Container class="space-y-10 lg:border-x border-dashed pt-12 pb-20">
+			<div class="relative flex flex-col items-center space-y-3 text-balance">
+				<h2 class="relative text-center text-balance text-2xl font-medium tracking-tight max-w-4xl">
+					Trusted by these guys.
+				</h2>
+				<p class="max-w-prose text-muted-foreground text-center">
+					These people love our product enough to use it.
+				</p>
 			</div>
+			<ul class="grid grid-cols-[repeat(auto-fill,_minmax(16rem,_1fr))] divide-dashed divide-x divide-y divide-red-600">
+				<li class="p-8 border-t border-l border-dashed border-red-600">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 386"><path fill="#000000" d="M416.473 0 198.54 385.66H0L170.17 84.522C196.549 37.842 262.377 0 317.203 0Zm486.875 96.415c0-53.249 44.444-96.415 99.27-96.415 54.826 0 99.27 43.166 99.27 96.415 0 53.248-44.444 96.415-99.27 96.415-54.826 0-99.27-43.167-99.27-96.415ZM453.699 0h198.54L434.306 385.66h-198.54Zm234.492 0h198.542L716.56 301.138c-26.378 46.68-92.207 84.522-147.032 84.522h-99.27Z"/></svg>
+				</li>
+				<li class="p-8">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 386"><path fill="#000000" d="M416.473 0 198.54 385.66H0L170.17 84.522C196.549 37.842 262.377 0 317.203 0Zm486.875 96.415c0-53.249 44.444-96.415 99.27-96.415 54.826 0 99.27 43.166 99.27 96.415 0 53.248-44.444 96.415-99.27 96.415-54.826 0-99.27-43.167-99.27-96.415ZM453.699 0h198.54L434.306 385.66h-198.54Zm234.492 0h198.542L716.56 301.138c-26.378 46.68-92.207 84.522-147.032 84.522h-99.27Z"/></svg>
+				</li>
+				<li class="p-8">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 386"><path fill="#000000" d="M416.473 0 198.54 385.66H0L170.17 84.522C196.549 37.842 262.377 0 317.203 0Zm486.875 96.415c0-53.249 44.444-96.415 99.27-96.415 54.826 0 99.27 43.166 99.27 96.415 0 53.248-44.444 96.415-99.27 96.415-54.826 0-99.27-43.167-99.27-96.415ZM453.699 0h198.54L434.306 385.66h-198.54Zm234.492 0h198.542L716.56 301.138c-26.378 46.68-92.207 84.522-147.032 84.522h-99.27Z"/></svg>
+				</li>
+				<li class="p-8">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 386"><path fill="#000000" d="M416.473 0 198.54 385.66H0L170.17 84.522C196.549 37.842 262.377 0 317.203 0Zm486.875 96.415c0-53.249 44.444-96.415 99.27-96.415 54.826 0 99.27 43.166 99.27 96.415 0 53.248-44.444 96.415-99.27 96.415-54.826 0-99.27-43.167-99.27-96.415ZM453.699 0h198.54L434.306 385.66h-198.54Zm234.492 0h198.542L716.56 301.138c-26.378 46.68-92.207 84.522-147.032 84.522h-99.27Z"/></svg>
+				</li>
+				<li class="p-8">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 386"><path fill="#000000" d="M416.473 0 198.54 385.66H0L170.17 84.522C196.549 37.842 262.377 0 317.203 0Zm486.875 96.415c0-53.249 44.444-96.415 99.27-96.415 54.826 0 99.27 43.166 99.27 96.415 0 53.248-44.444 96.415-99.27 96.415-54.826 0-99.27-43.167-99.27-96.415ZM453.699 0h198.54L434.306 385.66h-198.54Zm234.492 0h198.542L716.56 301.138c-26.378 46.68-92.207 84.522-147.032 84.522h-99.27Z"/></svg>
+				</li>
+				<li class="p-8">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 386"><path fill="#000000" d="M416.473 0 198.54 385.66H0L170.17 84.522C196.549 37.842 262.377 0 317.203 0Zm486.875 96.415c0-53.249 44.444-96.415 99.27-96.415 54.826 0 99.27 43.166 99.27 96.415 0 53.248-44.444 96.415-99.27 96.415-54.826 0-99.27-43.167-99.27-96.415ZM453.699 0h198.54L434.306 385.66h-198.54Zm234.492 0h198.542L716.56 301.138c-26.378 46.68-92.207 84.522-147.032 84.522h-99.27Z"/></svg>
+				</li>
+			</ul>
 		</Container>
-	</section>
+	</section> -->
 
 	<!-- Features section -->
-	<section class="py-12">
-		<Container class="mb-10 space-y-10 lg:space-y-14">
+	<section>
+		<Container class="space-y-10 lg:space-y-14 pt-12 pb-20 md:border-x border-dashed">
 			<div class="relative flex flex-col items-center space-y-3 text-balance">
-				<h2 class="relative text-center text-balance text-xl sm:text-2xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
-					Features that make a difference.
+				<h2 class="relative text-center text-balance text-2xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
+					Features.
 				</h2>
 				<p class="max-w-prose md:text-lg text-muted-foreground text-center">
 					We’ve got everything you need to manage your blog, without the bloat.
@@ -60,7 +82,7 @@ import { APP, SITE } from "@/lib/constants";
 					<div class="border flex flex-col gap-5 rounded-[8px] bg-white min-h-96 h-full w-full p-8">
 						<div class="space-y-1">
 							<h3 class="font-medium text-lg">
-								Simple, intuitive editor
+								Simple, editor
 							</h3>
 							<p class="text-muted-foreground text-sm md:text-base">
 								Our editor is designed to be simple and intuitive, so you can focus on writing.
@@ -81,7 +103,7 @@ import { APP, SITE } from "@/lib/constants";
 					<div class="border flex flex-col gap-5 rounded-[8px] bg-white min-h-96 h-full w-full p-8">
 						<div class="space-y-1">
 							<h3 class="font-medium text-lg">
-								Team collaboration
+								Collaboration
 							</h3>
 							<p class="text-muted-foreground text-sm md:text-base">
 								Invite your team members to collaborate on your blog, with granular permissions.
@@ -145,8 +167,8 @@ import { APP, SITE } from "@/lib/constants";
 	</section>
 
 	<!-- Pricing section -->
-	<section class="py-12">
-		<Container class="mb-10 space-y-10 lg:space-y-14">
+	<section class="">
+		<Container class="space-y-10 lg:space-y-14 pt-12 pb-20 lg:border-x border-dashed">
 			<div class="relative flex flex-col items-center space-y-4">
 				<h2 class="relative text-center text-balance text-2xl sm:text-xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
 					Simple Pricing, No Surprises.
@@ -169,7 +191,7 @@ import { APP, SITE } from "@/lib/constants";
 							<a 
 								href={SITE.URL}
 								target="_blank"
-								class="flex bg-primary gap-2 group rounded-md text-primary-foreground items-center justify-center py-2 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 transition-all duration-300 ease-out px-8 group mt-auto"
+								class="flex bg-primary gap-2 group text-primary-foreground items-center justify-center py-2 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 transition-all duration-300 ease-out px-8 group mt-auto"
 								>
 								<span>Start for free</span>
 							</a>
@@ -223,7 +245,7 @@ import { APP, SITE } from "@/lib/constants";
 							<a 
 								href={APP.URL}
 								target="_blank"
-								class="flex bg-primary gap-2 group rounded-md text-primary-foreground items-center justify-center py-2 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 transition-all duration-300 ease-out px-8 group mt-auto"
+								class="flex bg-primary gap-2 group text-primary-foreground items-center justify-center py-2 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 transition-all duration-300 ease-out px-8 group mt-auto"
 							>
 								<span>Get Starter</span>
 							</a>
@@ -284,7 +306,7 @@ import { APP, SITE } from "@/lib/constants";
 								 <a 
 									 href={APP.URL}
 									 target="_blank"
-									 class="flex bg-primary gap-2 group rounded-md text-primary-foreground items-center justify-center py-2 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 transition-all duration-300 ease-out px-8 group mt-auto"
+									 class="flex bg-primary gap-2 group text-primary-foreground items-center justify-center py-2 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 transition-all duration-300 ease-out px-8 group mt-auto"
 									 >
 									 <span>Get Pro</span>
 								 </a>
@@ -336,19 +358,19 @@ import { APP, SITE } from "@/lib/constants";
 	</section>
 
 	<!-- CTA -->
-	<section class="py-12">
-		<Container class="mb-10 space-y-10 lg:space-y-14">
-			<div class="min-h-96 lg:min-h-[600px] grid place-content-center bg-white rounded-md relative border px-4">
+	<section class="lg:border-b border-dashed">
+		<Container class="space-y-10 lg:space-y-14 pt-12 lg:pt-20 pb-20 lg:border-x border-dashed">
+			<div class="min-h-96 lg:min-h-[500px] grid place-content-center bg-white rounded-md relative border px-4">
 				<div class="relative flex flex-col items-center space-y-4 text-balance">
 					<h2 class="relative text-center text-balance text-2xl sm:text-2xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
-						Publish content without the hassle.
+						Publish content without stress.
 					</h2>
-					<p class="max-w-prose lg:text-lg text-muted-foreground text-center">
-						Get started with marble today, and experience hassle free content publishing at zero cost.
+					<p class="lg:text-lg text-muted-foreground text-center max-w-96">
+						Get started today and experience hassle free content management at zero cost.
 					</p>
 					<div>
 					<a href={`${APP.URL}/register`}
-						class="flex gap-2 justify-center group w-48 bg-primary rounded-md text-primary-foreground items-center py-2.5 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary focus-visible:ring-2 transition-all duration-300 ease-out px-4 group mt-5"
+						class="flex gap-2 justify-center group w-48 bg-primary text-primary-foreground items-center py-2.5 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary focus-visible:ring-2 transition-all duration-300 ease-out px-4 group mt-5"
 					>
 						<span>Start for free today</span>
 					</a>
@@ -357,4 +379,6 @@ import { APP, SITE } from "@/lib/constants";
 			</div>
 		</Container>
 	</section>
+	<section></section>
+</div>
 </Layout>

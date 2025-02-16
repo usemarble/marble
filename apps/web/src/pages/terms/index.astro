@@ -28,16 +28,18 @@ const formattedDate = new Date(entry.data.lastUpdated).toLocaleDateString(
   title={`Terms of Service | ${SITE.TITLE}`}
   description="Marble's terms of service."
 >
-  <Container class="py-14 mb-20">
+<div class="border-y border-dashed">
+  <Container class="pt-14 pb-32 lg:border-x border-dashed">
     <div class='max-w-2xl mx-auto mb-10 space-y-2'>
       <h1 class='font-medium text-2xl sm:text-3xl md:text-4xl text-center'>
-        Terms of Service.
+        Privacy Policy.
       </h1>
-      <p class="text-center font-medium text-muted-foreground">Last updated: {formattedDate}</p>
+      <p class="text-center text-muted-foreground font-mono">Last updated: {formattedDate}</p>
     </div>
 
-    <Prose class="prose-sm">
-      <Content />
+    <Prose class="prose-sm max-w-screen-sm">
+      <Content/>
     </Prose>
   </Container>
+</div>
 </Layout>

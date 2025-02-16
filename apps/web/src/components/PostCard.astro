@@ -9,44 +9,42 @@ type Props = {
 const { entry } = Astro.props as Props;
 const { title, description, cover, published, author, tags, slug } = entry.data;
 
-const formattedDate = new Date(published).toLocaleDateString("en-US", {
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-});
+const formattedDate = new Date(published)
+  .toLocaleDateString("en-US", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  })
+  .split("/")
+  .join(".");
 ---
 
 <li>
   <a
     href={`/blog/${slug}`}
-    class='space-y-1 p-4 border border-transparent hover:border-border border-dashed hover:bg-white transition duration-300 flex gap-6 flex-col md:flex-row md:gap-14 items-center'
+    class='space-y-1 p-4 border border-transparent hover:border-border border-dashed bg-white flex gap-4 flex-col items-center'
   >
-    <div class="w-full">
+    <div class="w-full border border-dashed">
       <Image
         src={cover.src}
         alt={cover.alt}
+        loading="eager"
         class='w-full object-cover'
       />
     </div>
-    <div class="flex flex-col gap-4">
-      <time datetime={published.toString()} class="text-muted-foreground text-sm hidden md:block">{formattedDate}</time>
+    <div class="flex flex-col gap-3">
+      <div class="flex items-center gap-2 font-mono">
+        <time datetime={published.toString()} class="text-muted-foreground text-sm">{formattedDate}</time>
+        <span class='mx-2'>-</span>
+        <p class="text-muted-foreground text-sm">
+          {author}
+        </p>
+      </div>
       <div class="space-y-2">
-        <h2 class='text-2xl font-serif'>{title}</h2>
+        <h2 class='text-xl'>{title}</h2>
         <p class='text-muted-foreground font-mono text-sm'>{description}</p>
       </div>
       <div class="flex justify-between w-full">
-        <div class="flex items-center gap-2">
-          <Image
-            src="https://github.com/taqh.png"
-            alt="Taqib's github profile picture"
-            width={32}
-            height={32}
-            class='size-8 rounded-full'
-          />
-          <p class="text-muted-foreground text-sm">
-            {author}
-          </p>
-        </div>
         <!-- <a href={`/blog/${slug}`} class='hover:underline flex items-center gap-2'>
           <span>Read post</span>
             <svg
