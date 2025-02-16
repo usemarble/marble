@@ -2,7 +2,7 @@
 title: Terms of Service
 published: 2024-12-12
 description: Marble's Terms of Service.
-lastUpdated: 2021-08-29
+lastUpdated: 2025-02-13
 ---
 
 
