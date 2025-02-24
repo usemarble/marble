@@ -44,6 +44,7 @@ interface MultiSelectPopoverProps {
   isOpen?: boolean;
   setIsOpen?: (open: boolean) => void;
   defaultTags?: string[];
+  onTagCreated?: (tag: Option) => void;
 }
 
 export const TagSelector = ({
@@ -53,6 +54,7 @@ export const TagSelector = ({
   isOpen,
   setIsOpen,
   defaultTags = [],
+  onTagCreated,
 }: MultiSelectPopoverProps) => {
   const {
     field: { onChange, value },
@@ -65,29 +67,34 @@ export const TagSelector = ({
   const [selected, setSelected] = useState<Option[]>([]);
   const [openTagModal, setOpenTagModal] = useState(false);
 
-  // Update selected options when default tags or options change
+  // Update selected options when value or options change
   useEffect(() => {
-    if (defaultTags.length > 0 && options.length > 0) {
-      const initialSelected = options.filter((opt) =>
-        defaultTags.includes(opt.id),
-      );
-      setSelected(initialSelected);
+    if (options.length > 0 && value?.length > 0) {
+      const selectedTags = options.filter((opt) => value.includes(opt.id));
+      setSelected(selectedTags);
+    } else {
+      setSelected([]);
     }
-  }, [defaultTags, options]);
+  }, [value, options]);
 
   const addTag = (tagToAdd: string) => {
-    if (value.includes(tagToAdd)) return;
-    const newValue = [...value, tagToAdd];
+    if (value?.includes(tagToAdd)) return;
+    const newValue = [...(value || []), tagToAdd];
     onChange(newValue);
-    setSelected([
-      ...selected,
-      options.find((opt) => opt.id === tagToAdd) as Option,
-    ]);
   };
 
   const handleRemoveTag = (tagToDelete: string) => {
-    onChange(value.filter((tag: string) => tag !== tagToDelete));
-    setSelected(selected.filter((item) => item.id !== tagToDelete));
+    const newValue = (value || []).filter((tag: string) => tag !== tagToDelete);
+    onChange(newValue);
+  };
+
+  const handleTagCreated = async (newTag: Option) => {
+    // Update the local options list optimistically
+    onTagCreated?.(newTag);
+
+    // Automatically select the new tag
+    const newValue = [...(value || []), newTag.id];
+    onChange(newValue);
   };
 
   return (
@@ -188,7 +195,11 @@ export const TagSelector = ({
         </PopoverContent>
       </Popover>
 
-      <CreateTagModal open={openTagModal} setOpen={setOpenTagModal} />
+      <CreateTagModal
+        open={openTagModal}
+        setOpen={setOpenTagModal}
+        onTagCreated={handleTagCreated}
+      />
     </div>
   );
 };

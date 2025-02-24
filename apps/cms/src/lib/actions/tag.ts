@@ -35,24 +35,24 @@ export async function createTagAction(
   data: CreateTagValues,
   workspaceId: string,
 ) {
-  const isAllowed = await getServerSession();
-  if (!isAllowed) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const tag = await db.tag.create({
+      data: {
+        name: data.name,
+        slug: data.slug,
+        workspaceId,
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+      },
+    });
+
+    return tag;
+  } catch (error) {
+    throw new Error("Failed to create tag");
   }
-
-  const tagToCreate = await db.tag.create({
-    data: {
-      ...data,
-      workspaceId,
-    },
-  });
-
-  const resData = {
-    id: tagToCreate.id,
-    name: tagToCreate.name,
-    slug: tagToCreate.slug,
-  };
-  return resData;
 }
 
 export async function updateTagAction(payload: CreateTagValues, id: string) {

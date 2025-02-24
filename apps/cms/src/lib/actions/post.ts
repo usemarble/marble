@@ -55,6 +55,17 @@ export const updatePostAction = async (post: PostValues, id: string) => {
   const contentJson = JSON.parse(values.contentJson);
   const validAttribution = values.attribution ? values.attribution : undefined;
 
+  // First disconnect all existing tags
+  await db.post.update({
+    where: { id },
+    data: {
+      tags: {
+        set: [], // Disconnect all existing tags
+      },
+    },
+  });
+
+  // Then update the post with new tags
   const postUpdated = await db.post.update({
     where: { id },
     data: {

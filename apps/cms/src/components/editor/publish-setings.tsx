@@ -60,7 +60,7 @@ import {
 } from "@marble/ui/components/tabs";
 import { cn } from "@marble/ui/lib/utils";
 import { useQuery } from "@tanstack/react-query";
-import { format, set } from "date-fns";
+import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import type {
   Control,
@@ -93,6 +93,7 @@ interface PublishSettingsProps {
   defaultCoverImage?: string | null;
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  mode: "create" | "update";
 }
 
 interface TagResponse {
@@ -118,6 +119,7 @@ export function PublishSettings({
   isOpen,
   setIsOpen,
   clearErrors,
+  mode = "create",
 }: PublishSettingsProps) {
   const hasErrors = Object.keys(errors).length > 0;
   const { coverImage } = watch();
@@ -288,6 +290,10 @@ export function PublishSettings({
 
   const handleUpdateCategoryList = async (data: TagResponse) => {
     setOptimisticCategories([...optimisticCategories, data]);
+  };
+
+  const handleUpdateTagList = (data: TagResponse) => {
+    setOptimisticTags([...optimisticTags, data]);
   };
 
   const renderCoverImage = () => {
@@ -575,6 +581,7 @@ export function PublishSettings({
               options={optimisticTags}
               control={control}
               defaultTags={tags || []}
+              onTagCreated={handleUpdateTagList}
             />
 
             <div className="flex flex-col gap-2">
@@ -761,7 +768,11 @@ export function PublishSettings({
               {isSubmitting && status === "published" ? (
                 <Loader2 className="size-4 animate-spin" />
               ) : status === "published" ? (
-                "Save & Publish"
+                mode === "create" ? (
+                  "Save & Publish"
+                ) : (
+                  "Save & Update"
+                )
               ) : (
                 "Save as Draft"
               )}

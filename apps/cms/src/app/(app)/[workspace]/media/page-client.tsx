@@ -48,7 +48,9 @@ function PageClient({ media }: PageClientProps) {
                   />
                 </div>
                 <div className="p-4 bg-background border-t">
-                  <p className="text-sm text-muted-foreground">{media.name}</p>
+                  <p className="text-sm text-muted-foreground truncate">
+                    {media.name}
+                  </p>
                 </div>
               </li>
             ))}

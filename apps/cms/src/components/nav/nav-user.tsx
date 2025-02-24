@@ -49,8 +49,12 @@ export function NavUser({ user }: NavUserProps) {
 
   if (!user) {
     return (
-      <div>
-        <Skeleton className="h-8 w-8" />
+      <div className="bg-white rounded-md border p-2 flex items-center gap-2">
+        <Skeleton className="border rounded-md size-8 shrink-0" />
+        <div className="flex flex-col gap-1 w-full">
+          <Skeleton className="h-3 border w-3/4" />
+          <Skeleton className="border h-3 w-1/2" />
+        </div>
       </div>
     );
   }

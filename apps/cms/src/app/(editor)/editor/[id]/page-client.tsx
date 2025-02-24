@@ -109,6 +109,7 @@ function PageClient({ data, id }: PageClientProps) {
               isSubmitting={isSubmitting}
               isOpen={showSettings}
               setIsOpen={setShowSettings}
+              mode="update"
             />
           </div>
         </header>

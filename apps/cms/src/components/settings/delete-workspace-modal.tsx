@@ -79,17 +79,17 @@ export function DeleteWorkspaceModal({ id }: { id: string }) {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel className="min-w-20">Cancel</AlertDialogCancel>
           <Button
             variant="destructive"
             disabled={isDeletingWorkspace}
             onClick={handleDeleteWorkspace}
-            className="min-w-[151px]"
+            className="min-w-20"
           >
             {isDeletingWorkspace ? (
               <Loader className="size-4 animate-spin" />
             ) : (
-              "Delete Workspace"
+              "Delete"
             )}
           </Button>
         </AlertDialogFooter>

@@ -38,15 +38,17 @@ import { generateSlug } from "@/utils/generate-slug";
 import { useEffect, useState } from "react";
 import type { Tag } from "./columns";
 
-export const CreateTagModal = ({
+interface CreateTagModalProps {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  onTagCreated?: (tag: { id: string; name: string; slug: string }) => void;
+}
+
+export function CreateTagModal({
   open,
   setOpen,
   onTagCreated,
-}: {
-  open: boolean;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  onTagCreated?: (tag: { name: string; id: string; slug: string }) => void;
-}) => {
+}: CreateTagModalProps) {
   const {
     register,
     handleSubmit,
@@ -67,23 +69,34 @@ export const CreateTagModal = ({
   }, [name, setValue]);
 
   const onSubmit = async (data: CreateTagValues) => {
-    const isTaken = await checkTagSlugAction(
-      data.slug,
-      activeOrganization.id as string,
-    );
+    if (!activeOrganization?.id) {
+      toast.error("No active organization");
+      return;
+    }
+
+    const isTaken = await checkTagSlugAction(data.slug, activeOrganization.id);
 
     if (isTaken) {
       setError("slug", { message: "You already have a tag with that slug" });
+      return;
     }
 
     try {
-      const res = await createTagAction(data, activeOrganization.id);
-      setOpen(false);
-      toast.success("Tag created successfully");
+      const newTag = await createTagAction(data, activeOrganization.id);
+
+      if (newTag) {
+        onTagCreated?.({
+          id: newTag.id,
+          name: newTag.name,
+          slug: newTag.slug,
+        });
+        setOpen(false);
+        toast.success("Tag created successfully");
+      } else {
+        toast.error("Failed to create tag");
+      }
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to send invite",
-      );
+      toast.error("Something went wrong");
     }
   };
 
@@ -121,7 +134,7 @@ export const CreateTagModal = ({
       </DialogContent>
     </Dialog>
   );
-};
+}
 
 export const UpdateTagModal = ({
   open,
