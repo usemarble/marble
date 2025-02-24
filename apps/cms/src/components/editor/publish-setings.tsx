@@ -93,7 +93,7 @@ interface PublishSettingsProps {
   defaultCoverImage?: string | null;
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  mode: "create" | "update";
+  mode?: "create" | "update";
 }
 
 interface TagResponse {
