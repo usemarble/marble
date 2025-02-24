@@ -1,6 +1,5 @@
 import {
   Body,
-  Button,
   Container,
   Head,
   Heading,
@@ -13,15 +12,25 @@ import {
   Text,
 } from "@react-email/components";
 
-interface VerifyEmailProps {
+interface VerifyUserEmailProps {
   userEmail: string;
-  url: string;
+  otp: string;
+  type: "sign-in" | "email-verification" | "forget-password";
 }
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
 
-export const VerifyUserEmail = ({ userEmail, url }: VerifyEmailProps) => {
-  const previewText = "Verify your email address";
+export const VerifyUserEmail = ({
+  userEmail,
+  otp,
+  type,
+}: VerifyUserEmailProps) => {
+  const previewText =
+    type === "sign-in"
+      ? "Your verification code"
+      : type === "email-verification"
+        ? "Verify your email address"
+        : "Reset your password";
 
   return (
     <Html>
@@ -40,25 +49,22 @@ export const VerifyUserEmail = ({ userEmail, url }: VerifyEmailProps) => {
               />
             </Section>
             <Heading className="text-black text-[24px] font-normal text-center p-0 my-[30px] mx-0">
-              Verify your email address.
+              {previewText}
             </Heading>
             <Text className="text-black text-[14px] leading-[24px]">
-              Click the button below to verify your email address. If you did
-              not create an account with this email, you can ignore this email.
+              Use the verification code below to complete your verification
+              process. This code will expire in 5 minutes.
             </Text>
             <Section className="text-center mt-[32px] mb-[32px]">
-              <Button
-                className="bg-[#000000] rounded text-white text-[12px] font-semibold no-underline text-center px-5 py-3"
-                href={url}
-              >
-                Verify your email
-              </Button>
+              <Text className="text-[28px] font-mono font-semibold tracking-wide">
+                {otp}
+              </Text>
             </Section>
             <Hr className="border border-solid border-[#eaeaea] my-[26px] mx-0 w-full" />
             <Text className="text-[#666666] text-[12px] leading-[24px]">
               This email was intended for{" "}
-              <span className="text-black">{userEmail}</span>. If you were not
-              expecting this, you can ignore the email. If you are concerned
+              <span className="text-black">{userEmail}</span>. If you did not
+              request this code, you can ignore this email. If you are concerned
               about your account's safety, please send an email to
               support@marblecms.com to get in touch with us.
             </Text>

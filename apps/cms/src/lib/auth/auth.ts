@@ -7,7 +7,7 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { createAuthMiddleware } from "better-auth/api";
 import { nextCookies } from "better-auth/next-js";
-import { organization } from "better-auth/plugins";
+import { emailOTP, organization } from "better-auth/plugins";
 import { getActiveOrganization } from "../queries/workspace";
 
 export const auth = betterAuth({
@@ -16,15 +16,12 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: true,
-  },
-  emailVerification: {
-    async sendVerificationEmail({ user, url }) {
-      await sendVerificationEmailAction({
-        userEmail: user.email,
-        url: url,
-      });
-    },
+    // requireEmailVerification: true,
+    // autoSignIn: true
+    // ideally that would prevent a session being created on signup
+    // problem is after otp verification user has to login again and
+    // I don't really like the experience so we'll allow session creation
+    // but block unverified users via the middleware
   },
   socialProviders: {
     google: {
@@ -53,6 +50,15 @@ export const auth = betterAuth({
           workspaceName: data.organization.name,
           teamLogo: data.organization.logo,
           inviteLink,
+        });
+      },
+    }),
+    emailOTP({
+      async sendVerificationOTP({ email, otp, type }) {
+        await sendVerificationEmailAction({
+          userEmail: email,
+          otp: otp,
+          type: type,
         });
       },
     }),

@@ -14,11 +14,13 @@ export async function middleware(request: NextRequest) {
   );
 
   const session: Session = sessionRes.ok ? await sessionRes.json() : null;
+  const isVerified = session?.user.emailVerified;
 
   const path = request.nextUrl.pathname;
   const isRootPage = path === "/";
   const isInvitePage = path.startsWith("/invite");
   const isOnboardingPage = path.startsWith("/new");
+  const isVerifyPage = path.startsWith("/verify");
   const isAuthPage = path.startsWith("/login") || path.startsWith("/register");
 
   // Allow invite flows to proceed normally
@@ -26,7 +28,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // If not logged in
+  // If not logged in at all
   if (!session) {
     // Allow auth pages
     if (isAuthPage) {
@@ -40,15 +42,29 @@ export async function middleware(request: NextRequest) {
     );
   }
 
-  // User is logged in
-  if (session) {
+  // User is logged in but not verified
+  if (session && !isVerified) {
+    // Allow only verify page for unverified users
+    if (isVerifyPage) {
+      return NextResponse.next();
+    }
+
+    const callbackUrl = encodeURIComponent(request.nextUrl.pathname);
+    // Redirect unverified users to verify page
+    return NextResponse.redirect(
+      new URL(`/verify?from=${callbackUrl}`, request.url),
+    );
+  }
+
+  // User is logged in and verified
+  if (session && isVerified) {
     // Don't redirect if already on onboarding
     if (isOnboardingPage) {
       return NextResponse.next();
     }
 
     // Redirect auth pages or root to workspace or onboarding
-    if (isAuthPage || isRootPage) {
+    if (isAuthPage || isRootPage || isVerifyPage) {
       const firstWorkspaceSlug = await getFirstOrganization(session.user.id);
       if (firstWorkspaceSlug) {
         return NextResponse.redirect(

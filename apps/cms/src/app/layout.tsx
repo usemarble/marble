@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "@/styles/globals.css";
 import "@/styles/editor.css";
-import { siteConfig } from "@/lib/site-config";
+import { siteConfig } from "@/lib/seo";
 import { Geist } from "next/font/google";
 import Providers from "./providers";
 

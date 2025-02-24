@@ -4,25 +4,13 @@ import { authClient } from "@/lib/auth/client";
 import { type CredentialData, credentialSchema } from "@/lib/validations/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, buttonVariants } from "@marble/ui/components/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@marble/ui/components/card";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
-import {
-  EyeClosedIcon,
-  EyeIcon,
-  Loader,
-  MailCheck,
-} from "@marble/ui/lib/icons";
+import { EyeClosedIcon, EyeIcon, Loader } from "@marble/ui/lib/icons";
 import { cn } from "@marble/ui/lib/utils";
-import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { Github, Google } from "../icons/brand";
 
@@ -40,13 +28,23 @@ export function RegisterForm() {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("from") || "/";
-  const step = searchParams.get("step");
+  const router = useRouter();
+  const [isRedirecting, startTransition] = useTransition();
 
   const initiateEmailVerification = async (email: string) => {
-    await authClient.sendVerificationEmail({
-      email: email,
-      callbackURL: callbackUrl,
-    });
+    // at this point user is already registered
+    // so we can redirect to verify even if sending fails
+    // they can initiate another verification email from the verify page
+    await authClient.emailOtp
+      .sendVerificationOtp({
+        email: email,
+        type: "email-verification",
+      })
+      .then((res) => {
+        startTransition(() => {
+          router.push(`/verify?email=${email}&from=${callbackUrl}`);
+        });
+      });
   };
 
   async function onSubmit(formData: CredentialData) {
@@ -70,7 +68,7 @@ export function RegisterForm() {
         },
       );
     } catch (error) {
-      return toast("Your sign in request failed. Please try again.");
+      toast.error("Sign in failed. Please try again.");
     } finally {
       setIsCredentialsLoading(false);
     }
@@ -92,8 +90,6 @@ export function RegisterForm() {
         : setIsGithubLoading(false);
     }
   };
-
-  if (step === "verify") return <EmailNotification />;
 
   return (
     <div className="grid gap-6">
@@ -193,41 +189,21 @@ export function RegisterForm() {
           </div>
           <Button
             disabled={
-              isCredentialsLoading || isGoogleLoading || isGithubLoading
+              isCredentialsLoading ||
+              isGoogleLoading ||
+              isGithubLoading ||
+              isRedirecting
             }
             className="mt-4"
           >
-            {isCredentialsLoading && (
-              <Loader className="mr-2 h-4 w-4 animate-spin" />
-            )}
+            {isCredentialsLoading ||
+              (isRedirecting && (
+                <Loader className="mr-2 h-4 w-4 animate-spin" />
+              ))}
             Continue
           </Button>
         </div>
       </form>
     </div>
-  );
-}
-
-function EmailNotification() {
-  return (
-    <Card className="w-full max-w-md">
-      <CardHeader className="text-center sr-only">
-        <CardTitle>Verify Your Email</CardTitle>
-        <CardDescription>
-          Check your mail for a verification link to proceed.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4 pt-8 pb-4">
-          <div className="flex items-center justify-center w-16 h-16 mx-auto bg-blue-100 rounded-full">
-            <MailCheck className="w-8 h-8 text-blue-600" />
-          </div>
-          <p className="text-center">
-            We've sent a verification link to your mail. Please click the link
-            to proceed.
-          </p>
-        </div>
-      </CardContent>
-    </Card>
   );
 }

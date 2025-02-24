@@ -20,7 +20,6 @@ interface SendInviteEmailProps {
 
 export async function sendInviteEmailAction({
   inviteeEmail,
-  inviteeUsername,
   inviterName,
   inviterEmail,
   workspaceName,
@@ -72,27 +71,20 @@ export async function sendInviteEmailAction({
   }
 }
 
-interface SendVerificationEmailProps {
-  userEmail: string;
-  url: string;
-}
 
 export async function sendVerificationEmailAction({
   userEmail,
-  url,
-}: SendVerificationEmailProps) {
+  otp,
+  type,
+}: {
+  userEmail: string;
+  otp: string;
+  type: "sign-in" | "email-verification" | "forget-password";
+}) {
   if (!process.env.RESEND_API_KEY) {
     console.error("RESEND_API_KEY is not set");
     return { error: "Email configuration missing" };
   }
-  // const session = await getServerSession();
-
-  // if (!session) {
-  //   return NextResponse.json(
-  //     { error: "Failed to send email" },
-  //     { status: 401 },
-  //   );
-  // }
 
   console.log("called verification email");
   try {
@@ -102,7 +94,8 @@ export async function sendVerificationEmailAction({
       subject: "Verify your email address",
       react: VerifyUserEmail({
         userEmail,
-        url,
+        otp,
+        type,
       }),
     });
 
