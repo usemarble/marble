@@ -7,10 +7,12 @@
   },
   "dependencies": {
     "@marble/db": "workspace:*",
+    "@upstash/ratelimit": "^2.0.5",
+    "@upstash/redis": "^1.34.4",
     "hono": "^4.6.13"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240925.0",
-    "wrangler": "^3.103.2"
+    "wrangler": "^3.109.3"
   }
 }

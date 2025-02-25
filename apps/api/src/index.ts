@@ -1,11 +1,16 @@
 import { createClient } from "@marble/db";
 import { Hono } from "hono";
+import { ratelimit } from "./middleware";
 
 export type Env = {
   DATABASE_URL: string;
+  REDIS_URL: string;
+  REDIS_TOKEN: string;
 };
 
 const app = new Hono<{ Bindings: Env }>();
+
+app.use("*", ratelimit());
 
 app.get("/", (c) => {
   return c.text("Hello from marble");
