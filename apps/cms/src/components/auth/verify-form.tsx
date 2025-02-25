@@ -118,7 +118,7 @@ export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
           disabled={isResendLoading || isResendSuccess || waitingSeconds > 0}
           className={cn(
             "text-muted-foreground min-w-48",
-            isResendLoading || waitingSeconds > 0 && "cursor-not-allowed",
+            isResendLoading || (waitingSeconds > 0 && "cursor-not-allowed"),
           )}
         >
           {isResendLoading ? (

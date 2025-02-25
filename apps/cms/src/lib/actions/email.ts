@@ -71,7 +71,6 @@ export async function sendInviteEmailAction({
   }
 }
 
-
 export async function sendVerificationEmailAction({
   userEmail,
   otp,
