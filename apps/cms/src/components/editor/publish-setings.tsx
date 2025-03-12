@@ -191,7 +191,7 @@ export function PublishSettings({
   const handleCompressAndUpload = async (file: File) => {
     try {
       setIsUploading(true);
-      toast.loading("Compressing image...", {
+      toast.loading("Compressing...", {
         id: "uploading",
         position: "top-center",
       });
@@ -217,7 +217,7 @@ export function PublishSettings({
         },
       );
 
-      toast.loading("Uploading to Cloudflare R2...", {
+      toast.loading("Uploading...", {
         id: "uploading",
         position: "top-center",
       });
