@@ -80,9 +80,7 @@ export function WorkspaceSwitcher({ session }: WorkspaceSwitcherProps) {
                   <span className="truncate font-medium text-sm">
                     {activeWorkspace?.name || "Personal"}
                   </span>
-                  <span className="truncate text-xs text-primary">
-                    Free
-                  </span>
+                  <span className="truncate text-xs text-primary">Free</span>
                 </div>
                 <ChevronsUpDown className="ml-auto" />
               </SidebarMenuButton>

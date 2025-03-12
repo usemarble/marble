@@ -1,5 +1,5 @@
 import { toast } from "@marble/ui/components/sonner";
-import { organizationClient, emailOTPClient } from "better-auth/client/plugins";
+import { emailOTPClient, organizationClient } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 
 export const authClient = createAuthClient({

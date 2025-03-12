@@ -54,9 +54,9 @@ const ALLOWED_MIME_TYPES = [
 export async function uploadImageAction(file: File): Promise<UploadResult> {
   const sessionInfo = await getServerSession();
   if (!sessionInfo) throw new Error("Unauthorized");
-  
+
   // Allow all workspaces to save media for now
-  const workspaceCanSaveMedia = true; 
+  const workspaceCanSaveMedia = true;
 
   // Validate file (although compressed images are usually under 1MB)
   if (file.size > MAX_FILE_SIZE) {
@@ -94,7 +94,8 @@ export async function uploadImageAction(file: File): Promise<UploadResult> {
     // Construct the URL
     const url = `${publicUrl}/${key}`;
 
-    let media: { id: string; name: string; url: string } | undefined = undefined;
+    let media: { id: string; name: string; url: string } | undefined =
+      undefined;
 
     if (workspaceCanSaveMedia) {
       const res = await db.media.create({
@@ -111,7 +112,7 @@ export async function uploadImageAction(file: File): Promise<UploadResult> {
     return {
       url,
       key,
-      media: media
+      media: media,
     };
   } catch (error) {
     console.error("Error uploading image to R2:", error);
