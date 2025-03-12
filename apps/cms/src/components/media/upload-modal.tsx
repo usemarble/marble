@@ -2,7 +2,7 @@
 
 import { CloudUpload, ImageIcon, Trash2 } from "lucide-react";
 
-import { useUploadThing } from "@/utils/uploadthing";
+import { uploadImageAction } from "@/lib/actions/upload";
 import { Button } from "@marble/ui/components/button";
 import {
   Dialog,
@@ -16,45 +16,35 @@ import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { useState } from "react";
 
+interface Media {
+  id: string;
+  name: string;
+  url: string;
+}
+
 interface MediaUploadModalProps {
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  onUploadComplete?: (url: string, media?: Media) => void;
 }
 
-export function MediaUploadModal({ isOpen, setIsOpen }: MediaUploadModalProps) {
+export function MediaUploadModal({
+  isOpen,
+  setIsOpen,
+  onUploadComplete,
+}: MediaUploadModalProps) {
   const [file, setFile] = useState<File | undefined>();
   const [isUploading, setIsUploading] = useState(false);
-
-  const { startUpload } = useUploadThing("posts", {
-    onClientUploadComplete: (res) => {
-      setIsUploading(false);
-      toast.success("uploaded successfully!", {
-        id: "uploading",
-        position: "top-center",
-      });
-      setIsOpen(false);
-      setFile(undefined);
-    },
-    onUploadError: () => {
-      toast.error("Failed to upload", {
-        id: "uploading",
-        position: "top-center",
-      });
-    },
-    onUploadBegin: (filename) => {
-      setIsUploading(true);
-      toast.loading("uploading...", {
-        id: "uploading",
-        position: "top-center",
-      });
-    },
-  });
 
   const handleUpload = async () => {
     if (!file) return;
 
     try {
       setIsUploading(true);
+      toast.loading("Compressing image...", {
+        id: "uploading",
+        position: "top-center",
+      });
 
       // Compress image using API route
       const formData = new FormData();
@@ -78,19 +68,50 @@ export function MediaUploadModal({ isOpen, setIsOpen }: MediaUploadModalProps) {
         },
       );
 
-      await startUpload([compressedFile]);
-    } catch (error) {
-      toast.error("Failed to compress image", {
+      toast.loading("Uploading...", {
         id: "uploading",
         position: "top-center",
       });
+
+      // Upload to Cloudflare R2
+      const result = await uploadImageAction(compressedFile);
+      console.log(result);
+
+      setIsUploading(false);
+      toast.success("Uploaded successfully!", {
+        id: "uploading",
+        position: "top-center",
+      });
+
+      if (onUploadComplete) {
+        const mediaData = result.media
+          ? {
+              id: result.media.id,
+              name: result.media.name,
+              url: result.media.url,
+            }
+          : undefined;
+        onUploadComplete(result.url, mediaData);
+      }
+
+      setIsOpen(false);
+      setFile(undefined);
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to upload image",
+        {
+          id: "uploading",
+          position: "top-center",
+        },
+      );
       setIsUploading(false);
     }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg max-h-96">
         <DialogHeader className="text-center flex items-center justify-center">
           <DialogTitle>Upload Image</DialogTitle>
           <DialogDescription>
@@ -104,7 +125,7 @@ export function MediaUploadModal({ isOpen, setIsOpen }: MediaUploadModalProps) {
                 <img
                   src={URL.createObjectURL(file)}
                   alt="cover"
-                  className="w-full h-full min-h-48 object-cover rounded-md"
+                  className="w-full h-full max-h-52 object-cover rounded-md"
                 />
               </div>
               <div className="grid grid-cols-2 gap-5">

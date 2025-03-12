@@ -1,5 +1,5 @@
-export function generateSlug(title: string) {
-  const slug = title
+export function generateSlug(text: string) {
+  const slug = text
     .trim() // Remove leading and trailing spaces
     .toLowerCase() // convert all alphabets to lowercase
     .replace(/\s+/g, "-") // Replace spaces with hyphens

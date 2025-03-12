@@ -1,5 +1,6 @@
 "use client";
 
+import { uploadImageAction } from "@/lib/actions/upload";
 import type { PostValues } from "@/lib/validations/post";
 import { Button } from "@marble/ui/components/button";
 import { Calendar } from "@marble/ui/components/calendar";
@@ -35,7 +36,6 @@ import {
   Trash2,
 } from "@marble/ui/lib/icons";
 
-import { useUploadThing } from "@/utils/uploadthing";
 import {
   Popover,
   PopoverContent,
@@ -188,39 +188,14 @@ export function PublishSettings({
     }
   };
 
-  // Upload cover image
-  const { startUpload } = useUploadThing("posts", {
-    onClientUploadComplete: (res) => {
-      const imageUrl = res[0]?.url;
-      if (imageUrl) {
-        setValue("coverImage", imageUrl);
-      }
-      setIsUploading(false);
-      toast.success("uploaded successfully!", {
-        id: "uploading",
-        position: "top-center",
-      });
-      setFile(undefined);
-    },
-    onUploadError: () => {
-      setIsUploading(false);
-      toast.error("Failed to upload", {
-        id: "uploading",
-        position: "top-center",
-      });
-    },
-    onUploadBegin: () => {
-      setIsUploading(true);
-      toast.loading("uploading...", {
-        id: "uploading",
-        position: "top-center",
-      });
-    },
-  });
-
   const handleCompressAndUpload = async (file: File) => {
     try {
       setIsUploading(true);
+      toast.loading("Compressing image...", {
+        id: "uploading",
+        position: "top-center",
+      });
+
       const formData = new FormData();
       formData.append("file", file);
 
@@ -242,12 +217,34 @@ export function PublishSettings({
         },
       );
 
-      await startUpload([compressedFile]);
-    } catch (error) {
-      toast.error("Failed to compress image", {
+      toast.loading("Uploading to Cloudflare R2...", {
         id: "uploading",
         position: "top-center",
       });
+
+      // Upload to Cloudflare R2
+      const result = await uploadImageAction(compressedFile);
+
+      // Set the cover image URL
+      setValue("coverImage", result.url);
+
+      // Handle successful upload
+      setIsUploading(false);
+      toast.success("Uploaded successfully!", {
+        id: "uploading",
+        position: "top-center",
+      });
+
+      setFile(undefined);
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to upload image",
+        {
+          id: "uploading",
+          position: "top-center",
+        },
+      );
       setIsUploading(false);
     }
   };
