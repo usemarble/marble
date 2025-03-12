@@ -71,7 +71,7 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
 
     try {
       setIsUploading(true);
-      toast.loading("Compressing image...", {
+      toast.loading("Compressing...", {
         id: "uploading",
         position: "top-center",
       });

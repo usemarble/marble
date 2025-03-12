@@ -41,7 +41,7 @@ export function MediaUploadModal({
 
     try {
       setIsUploading(true);
-      toast.loading("Compressing image...", {
+      toast.loading("Compressing...", {
         id: "uploading",
         position: "top-center",
       });
