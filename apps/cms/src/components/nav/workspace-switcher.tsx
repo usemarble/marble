@@ -80,9 +80,7 @@ export function WorkspaceSwitcher({ session }: WorkspaceSwitcherProps) {
                   <span className="truncate font-medium text-sm">
                     {activeWorkspace?.name || "Personal"}
                   </span>
-                  <span className="truncate text-xs text-primary">
-                    {activeWorkspace?.members.length || 1} members
-                  </span>
+                  <span className="truncate text-xs text-primary">Free</span>
                 </div>
                 <ChevronsUpDown className="ml-auto" />
               </SidebarMenuButton>
@@ -94,6 +92,7 @@ export function WorkspaceSwitcher({ session }: WorkspaceSwitcherProps) {
                 <Skeleton className="h-3 border w-3/4" />
                 <Skeleton className="border h-3 w-1/2" />
               </div>
+              <Skeleton className="border rounded-md size-4 ml-auto" />
             </div>
           )}
           <DropdownMenuContent

@@ -2,7 +2,7 @@
 
 import { CloudUpload, ImageIcon, Loader2, Trash2 } from "lucide-react";
 
-import { useUploadThing } from "@/utils/uploadthing";
+import { uploadImageAction } from "@/lib/actions/upload";
 import { Button } from "@marble/ui/components/button";
 import {
   Dialog,
@@ -43,40 +43,6 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
   const [isValidatingUrl, setIsValidatingUrl] = useState(false);
   const editorInstance = useEditor();
 
-  const { startUpload } = useUploadThing("posts", {
-    onClientUploadComplete: (res) => {
-      setIsUploading(false);
-      const imageUrl = res[0]?.url;
-      if (imageUrl && editorInstance) {
-        editorInstance.editor
-          ?.chain()
-          .focus()
-          .setImage({ src: imageUrl })
-          .run();
-      }
-      toast.success("uploaded successfully!", {
-        id: "uploading",
-        position: "top-center",
-      });
-      setIsOpen(false);
-      setFile(undefined);
-    },
-    onUploadError: () => {
-      setIsUploading(false);
-      toast.error("Failed to upload", {
-        id: "uploading",
-        position: "top-center",
-      });
-    },
-    onUploadBegin: () => {
-      setIsUploading(true);
-      toast.loading("uploading...", {
-        id: "uploading",
-        position: "top-center",
-      });
-    },
-  });
-
   const handleEmbed = async (url: string) => {
     if (!url || !editorInstance) return;
 
@@ -101,8 +67,15 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
   };
 
   const handleCompressAndUpload = async (file: File) => {
+    if (!editorInstance) return;
+
     try {
       setIsUploading(true);
+      toast.loading("Compressing image...", {
+        id: "uploading",
+        position: "top-center",
+      });
+
       const formData = new FormData();
       formData.append("file", file);
 
@@ -124,12 +97,39 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
         },
       );
 
-      await startUpload([compressedFile]);
-    } catch (error) {
-      toast.error("Failed to compress image", {
+      toast.loading("Uploading...", {
         id: "uploading",
         position: "top-center",
       });
+
+      // Upload to Cloudflare R2
+      const result = await uploadImageAction(compressedFile);
+
+      // Insert the image into the editor
+      editorInstance.editor
+        ?.chain()
+        .focus()
+        .setImage({ src: result.url })
+        .run();
+
+      // Handle successful upload
+      setIsUploading(false);
+      toast.success("Uploaded successfully!", {
+        id: "uploading",
+        position: "top-center",
+      });
+
+      setIsOpen(false);
+      setFile(undefined);
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to upload image",
+        {
+          id: "uploading",
+          position: "top-center",
+        },
+      );
       setIsUploading(false);
     }
   };
@@ -153,7 +153,7 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
           Upload an image from your computer or embed an image from the web.
         </DialogDescription>
       </DialogHeader>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg max-h-96">
         <Tabs defaultValue="upload" className="w-full">
           <TabsList variant="underline" className="flex justify-start mb-4">
             <TabsTrigger variant="underline" value="upload">
@@ -176,7 +176,7 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
                       <img
                         src={URL.createObjectURL(file)}
                         alt="cover"
-                        className="w-full h-full min-h-48 object-cover rounded-md"
+                        className="w-full h-full max-h-48 object-cover rounded-md"
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
@@ -218,6 +218,7 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
                       onChange={(e) => setFile(e.target.files?.[0])}
                       id="bodyImage"
                       type="file"
+                      accept="image/*"
                       className="sr-only"
                     />
                   </Label>

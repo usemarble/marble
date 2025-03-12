@@ -16,7 +16,12 @@
         "GITHUB_ID",
         "GITHUB_SECRET",
         "RESEND_API_KEY",
-        "UPLOADTHING_TOKEN"
+        "UPLOADTHING_TOKEN",
+        "CLOUDFLARE_ACCESS_KEY_ID",
+        "CLOUDFLARE_SECRET_ACCESS_KEY",
+        "CLOUDFLARE_BUCKET_NAME",
+        "CLOUDFLARE_S3_ENDPOINT",
+        "CLOUDFLARE_PUBLIC_URL"
       ]
     },
     "lint": {

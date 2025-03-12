@@ -32,7 +32,7 @@ export function Announcements({ title, description, date }: AnnouncementProps) {
           </svg>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56">
+      <DropdownMenuContent align="end" className="w-56">
         <div className="min-h-80 grid place-content-center">
           <div className="text-muted-foreground flex flex-col gap-3 justify-center items-center">
             <svg
