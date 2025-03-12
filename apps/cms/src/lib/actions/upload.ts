@@ -73,9 +73,12 @@ export async function uploadImageAction(file: File): Promise<UploadResult> {
 
   try {
     const id = nanoid(6);
-    const extension = file.name.split(".").pop() || "webp";
-    const filename = generateSlug(`${id}-${file.name}`);
-    const key = `${filename}.${extension}`;
+    const filenameParts = file.name.split(".");
+    const extension = filenameParts.pop();
+    const baseName = filenameParts.join(".");
+
+    const sluggedName = generateSlug(baseName);
+    const key = `${sluggedName}-${id}.${extension}`;
 
     // Upload file to R2
     const parallelUploads = new Upload({

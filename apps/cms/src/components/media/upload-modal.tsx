@@ -46,7 +46,6 @@ export function MediaUploadModal({
         position: "top-center",
       });
 
-      // Compress image using API route
       const formData = new FormData();
       formData.append("file", file);
 
@@ -73,9 +72,7 @@ export function MediaUploadModal({
         position: "top-center",
       });
 
-      // Upload to Cloudflare R2
       const result = await uploadImageAction(compressedFile);
-      console.log(result);
 
       setIsUploading(false);
       toast.success("Uploaded successfully!", {
@@ -160,7 +157,7 @@ export function MediaUploadModal({
                 onChange={(e) => setFile(e.target.files?.[0])}
                 id="image"
                 type="file"
-                accept="image*"
+                accept="image/*"
                 className="sr-only"
               />
             </Label>
