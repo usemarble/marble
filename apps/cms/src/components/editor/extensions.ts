@@ -1,6 +1,7 @@
 import type { Extension } from "@tiptap/core";
 import TextAlign from "@tiptap/extension-text-align";
 import {
+  CodeBlockLowlight,
   HorizontalRule,
   Placeholder,
   StarterKit,
@@ -9,14 +10,12 @@ import {
   TiptapImage,
   TiptapLink,
   TiptapUnderline,
-  UpdatedImage,
   Youtube,
 } from "novel/extensions";
 
 import { cx } from "class-variance-authority";
+import { common, createLowlight } from "lowlight";
 import { UploadImagesPlugin } from "novel/plugins";
-
-// TODO I am using cx here to get tailwind autocomplete working, idk if someone else can write a regex to just capture the class key in objects
 
 // You can overwrite the placeholder with your own configuration
 const placeholder = Placeholder;
@@ -79,6 +78,10 @@ const textAlign = TextAlign.configure({
   types: ["heading", "paragraph"],
 });
 
+const CodeBlockLowlightEx = CodeBlockLowlight.configure({
+  lowlight: createLowlight(common),
+});
+
 const starterKit = StarterKit.configure({
   bulletList: {
     HTMLAttributes: {
@@ -106,12 +109,14 @@ const starterKit = StarterKit.configure({
     width: 4,
   },
   gapcursor: false,
+  codeBlock: false,
 });
 
 export const defaultExtensions: Extension[] = [
   starterKit,
   placeholder,
   textAlign,
+  CodeBlockLowlightEx as unknown as Extension,
   // UpdatedImage as unknown as Extension,
   youtube as unknown as Extension,
   tiptapLink as unknown as Extension,

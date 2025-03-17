@@ -1,7 +1,7 @@
 "use client";
 
 import { EditorContent, EditorRoot, type JSONContent } from "novel";
-import { handleCommandNavigation } from "novel/extensions";
+import { CodeBlockLowlight, handleCommandNavigation } from "novel/extensions";
 import BubbleMenu from "./bubble-menu";
 import { defaultExtensions } from "./extensions";
 import { slashCommand } from "./slash-command-items";

@@ -1,5 +1,6 @@
 import {
   CheckSquare,
+  Code2Icon,
   Heading2,
   Heading3,
   Heading4,
@@ -101,6 +102,19 @@ export const suggestionItems = createSuggestionItems([
         .deleteRange(range)
         .toggleNode("paragraph", "paragraph")
         .toggleBlockquote()
+        .run(),
+  },
+  {
+    title: "Code Block",
+    description: "Capture code snippets.",
+    searchTerms: ["code", "block"],
+    icon: <Code2Icon size={16} />,
+    command: ({ editor, range }) =>
+      editor
+        .chain()
+        .focus()
+        .deleteRange(range)
+        .toggleNode("codeBlock", "codeBlock")
         .run(),
   },
   {

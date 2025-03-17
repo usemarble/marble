@@ -12,6 +12,9 @@ export const sanitizeHtml = (content: string) => {
       "h1",
       "h2",
       "h3",
+      "h4",
+      "h5",
+      "h6",
       "code",
       "pre",
       "p",
@@ -29,6 +32,8 @@ export const sanitizeHtml = (content: string) => {
       "small",
       "div",
       "iframe",
+      "input",
+      "label",
     ],
     allowedAttributes: {
       ...defaults.allowedAttributes,

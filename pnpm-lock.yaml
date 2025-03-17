@@ -115,6 +115,9 @@ importers:
       input-otp:
         specifier: ^1.4.2
         version: 1.4.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      lowlight:
+        specifier: ^3.3.0
+        version: 3.3.0
       lucide-react:
         specifier: ^0.452.0
         version: 0.452.0(react@19.0.0)
@@ -132,7 +135,7 @@ importers:
         version: 0.4.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       novel:
         specifier: ^0.5.0
-        version: 0.5.0(@tiptap/extension-code-block@2.8.0(@tiptap/core@2.10.4(@tiptap/pm@2.8.0))(@tiptap/pm@2.8.0))(@types/react@19.0.2)(highlight.js@11.10.0)(lowlight@3.1.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        version: 0.5.0(@tiptap/extension-code-block@2.8.0(@tiptap/core@2.10.4(@tiptap/pm@2.8.0))(@tiptap/pm@2.8.0))(@types/react@19.0.2)(highlight.js@11.11.1)(lowlight@3.3.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       react:
         specifier: ^19.0.0
         version: 19.0.0
@@ -3851,12 +3854,8 @@ packages:
   hastscript@9.0.0:
     resolution: {integrity: sha512-jzaLBGavEDKHrc5EfFImKN7nZKKBdSLIdGvCwDZ9TfzbF2ffXiov8CKE445L2Z1Ek2t/m4SKQ2j6Ipv7NyUolw==}
 
-  highlight.js@11.10.0:
-    resolution: {integrity: sha512-SYVnVFswQER+zu1laSya563s+F8VDGt7o35d4utbamowvUNLLMovFqwCLSocpZTz3MgaSRA1IbqRWZv97dtErQ==}
-    engines: {node: '>=12.0.0'}
-
-  highlight.js@11.9.0:
-    resolution: {integrity: sha512-fJ7cW7fQGCYAkgv4CPfwFHrfd/cLS4Hau96JuJ+ZTOWhjnhoeN1ub1tFmALm/+lW5z4WCAuAV9bm05AP0mS6Gw==}
+  highlight.js@11.11.1:
+    resolution: {integrity: sha512-Xwwo44whKBVCYoliBQwaPvtd/2tYFkRQtXDWj1nackaV2JPXx3L0+Jvd8/qCJ2p+ML0/XVkJ2q+Mr+UVdpJK5w==}
     engines: {node: '>=12.0.0'}
 
   hono@4.6.13:
@@ -4100,8 +4099,8 @@ packages:
     resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
     hasBin: true
 
-  lowlight@3.1.0:
-    resolution: {integrity: sha512-CEbNVoSikAxwDMDPjXlqlFYiZLkDJHwyGu/MfOsJnF3d7f3tds5J3z8s/l9TMXhzfsJCCJEAsD78842mwmg0PQ==}
+  lowlight@3.3.0:
+    resolution: {integrity: sha512-0JNhgFoPvP6U6lE/UdVsSq99tn6DhjjpAj5MxG49ewd2mOBVtwWYIT8ClyABhq198aXXODMU6Ox8DrGy/CpTZQ==}
 
   lru-cache@10.4.3:
     resolution: {integrity: sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ==}
@@ -8704,13 +8703,13 @@ snapshots:
       '@tiptap/core': 2.10.4(@tiptap/pm@2.8.0)
       '@tiptap/pm': 2.8.0
 
-  '@tiptap/extension-code-block-lowlight@2.8.0(@tiptap/core@2.10.4(@tiptap/pm@2.8.0))(@tiptap/extension-code-block@2.8.0(@tiptap/core@2.10.4(@tiptap/pm@2.8.0))(@tiptap/pm@2.8.0))(@tiptap/pm@2.8.0)(highlight.js@11.10.0)(lowlight@3.1.0)':
+  '@tiptap/extension-code-block-lowlight@2.8.0(@tiptap/core@2.10.4(@tiptap/pm@2.8.0))(@tiptap/extension-code-block@2.8.0(@tiptap/core@2.10.4(@tiptap/pm@2.8.0))(@tiptap/pm@2.8.0))(@tiptap/pm@2.8.0)(highlight.js@11.11.1)(lowlight@3.3.0)':
     dependencies:
       '@tiptap/core': 2.10.4(@tiptap/pm@2.8.0)
       '@tiptap/extension-code-block': 2.8.0(@tiptap/core@2.10.4(@tiptap/pm@2.8.0))(@tiptap/pm@2.8.0)
       '@tiptap/pm': 2.8.0
-      highlight.js: 11.10.0
-      lowlight: 3.1.0
+      highlight.js: 11.11.1
+      lowlight: 3.3.0
 
   '@tiptap/extension-code-block@2.8.0(@tiptap/core@2.10.4(@tiptap/pm@2.8.0))(@tiptap/pm@2.8.0)':
     dependencies:
@@ -9998,9 +9997,7 @@ snapshots:
       property-information: 6.5.0
       space-separated-tokens: 2.0.2
 
-  highlight.js@11.10.0: {}
-
-  highlight.js@11.9.0: {}
+  highlight.js@11.11.1: {}
 
   hono@4.6.13: {}
 
@@ -10206,11 +10203,11 @@ snapshots:
     dependencies:
       js-tokens: 4.0.0
 
-  lowlight@3.1.0:
+  lowlight@3.3.0:
     dependencies:
       '@types/hast': 3.0.4
       devlop: 1.1.0
-      highlight.js: 11.9.0
+      highlight.js: 11.11.1
 
   lru-cache@10.4.3: {}
 
@@ -11007,12 +11004,12 @@ snapshots:
 
   normalize-range@0.1.2: {}
 
-  novel@0.5.0(@tiptap/extension-code-block@2.8.0(@tiptap/core@2.10.4(@tiptap/pm@2.8.0))(@tiptap/pm@2.8.0))(@types/react@19.0.2)(highlight.js@11.10.0)(lowlight@3.1.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
+  novel@0.5.0(@tiptap/extension-code-block@2.8.0(@tiptap/core@2.10.4(@tiptap/pm@2.8.0))(@tiptap/pm@2.8.0))(@types/react@19.0.2)(highlight.js@11.11.1)(lowlight@3.3.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
     dependencies:
       '@radix-ui/react-slot': 1.1.1(@types/react@19.0.2)(react@19.0.0)
       '@tiptap/core': 2.10.4(@tiptap/pm@2.8.0)
       '@tiptap/extension-character-count': 2.8.0(@tiptap/core@2.10.4(@tiptap/pm@2.8.0))(@tiptap/pm@2.8.0)
-      '@tiptap/extension-code-block-lowlight': 2.8.0(@tiptap/core@2.10.4(@tiptap/pm@2.8.0))(@tiptap/extension-code-block@2.8.0(@tiptap/core@2.10.4(@tiptap/pm@2.8.0))(@tiptap/pm@2.8.0))(@tiptap/pm@2.8.0)(highlight.js@11.10.0)(lowlight@3.1.0)
+      '@tiptap/extension-code-block-lowlight': 2.8.0(@tiptap/core@2.10.4(@tiptap/pm@2.8.0))(@tiptap/extension-code-block@2.8.0(@tiptap/core@2.10.4(@tiptap/pm@2.8.0))(@tiptap/pm@2.8.0))(@tiptap/pm@2.8.0)(highlight.js@11.11.1)(lowlight@3.3.0)
       '@tiptap/extension-color': 2.8.0(@tiptap/core@2.10.4(@tiptap/pm@2.8.0))(@tiptap/extension-text-style@2.8.0(@tiptap/core@2.10.4(@tiptap/pm@2.8.0)))
       '@tiptap/extension-highlight': 2.8.0(@tiptap/core@2.10.4(@tiptap/pm@2.8.0))
       '@tiptap/extension-horizontal-rule': 2.8.0(@tiptap/core@2.10.4(@tiptap/pm@2.8.0))(@tiptap/pm@2.8.0)
