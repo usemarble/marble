@@ -37,6 +37,7 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { editor } = useEditor();
   const [openInNewTab, setOpenInNewTab] = useState(true);
+  const [inputValue, setInputValue] = useState("");
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -56,21 +57,21 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
         </Button>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-60 p-0" sideOffset={10}>
-        <form
-          onSubmit={(e) => {
-            const target = e.currentTarget as HTMLFormElement;
-            e.preventDefault();
-            const input = target[0] as HTMLInputElement;
-            const url = getUrlFromString(input.value);
-            url &&
-              editor
-                .chain()
-                .focus()
-                .setLink({
-                  href: url,
-                  target: openInNewTab ? "_blank" : "_self",
-                })
-                .run();
+        <div
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              const url = getUrlFromString(inputValue);
+              url &&
+                editor
+                  .chain()
+                  .focus()
+                  .setLink({
+                    href: url,
+                    target: openInNewTab ? "_blank" : "_self",
+                  })
+                  .run();
+            }
           }}
           className="flex flex-col p-1 divide-y"
         >
@@ -78,6 +79,7 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
             <input
               ref={inputRef}
               type="text"
+              onChange={({ target }) => setInputValue(target.value)}
               placeholder="Paste or type link"
               className="flex-1 bg-background p-1 text-sm outline-none"
               defaultValue={editor.getAttributes("link").href || ""}
@@ -128,7 +130,7 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
               Open in new tab
             </Label>
           </div>
-        </form>
+        </div>
       </PopoverContent>
     </Popover>
   );

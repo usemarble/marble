@@ -169,8 +169,7 @@ function PageClient({ id, user }: PageClientProps) {
                   Welcome to {invitation?.organizationName}!
                 </h2>
                 <p className="text-center">
-                  You've successfully joined the organization. We're excited to
-                  have you on board!
+                  We're excited to have you on board!
                 </p>
               </div>
             )}
