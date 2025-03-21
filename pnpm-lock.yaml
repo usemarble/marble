@@ -97,9 +97,6 @@ importers:
       '@tiptap/react':
         specifier: ^2.8.0
         version: 2.8.0(@tiptap/core@2.10.4(@tiptap/pm@2.8.0))(@tiptap/pm@2.8.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-      '@uploadthing/react':
-        specifier: ^7.1.5
-        version: 7.1.5(next@15.1.2(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)(uploadthing@7.4.4(h3@1.13.1)(next@15.1.2(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))
       better-auth:
         specifier: ^1.1.11
         version: 1.1.11
@@ -160,9 +157,6 @@ importers:
       tailwindcss-animate:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.16)
-      uploadthing:
-        specifier: ^7.4.4
-        version: 7.4.4(h3@1.13.1)(next@15.1.2(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16)
       zod:
         specifier: ^3.24.1
         version: 3.24.1
@@ -3088,16 +3082,6 @@ packages:
   '@uploadthing/mime-types@0.3.4':
     resolution: {integrity: sha512-EB0o0a4y++UJFMLqS8LDVhSQgXUllG6t5fwl5cbmOM0Uay8YY5Nc/JjFwzJ8wccdIKz4oYwQW7EOSfUyaMPbfw==}
 
-  '@uploadthing/react@7.1.5':
-    resolution: {integrity: sha512-D0lP4YnUWw5LFHrLuL+sq26wlul9dGE70G+oOQ+qkM1ZqSeKSGvIdAIOAQUBj2qQi4Re7o0VpF3+3qBF3svN6A==}
-    peerDependencies:
-      next: '*'
-      react: ^17.0.2 || ^18.0.0 || ^19.0.0
-      uploadthing: ^7.2.0
-    peerDependenciesMeta:
-      next:
-        optional: true
-
   '@uploadthing/shared@7.1.5':
     resolution: {integrity: sha512-5ePSiR2CPA5a8gfPqsHpE/uPwGG9iPqhxcFpeLGnEuExPqIi5ZY7upZgpc+6T1gMxwfbP0O5X4043TTNk3q/pA==}
 
@@ -3703,10 +3687,6 @@ packages:
 
   fastq@1.17.1:
     resolution: {integrity: sha512-sRVD3lWVIXWg6By68ZN7vho9a1pQcN/WBFaAAsDDFzlJjvoGx0P8z7V1t72grFJfJhu3YPZBuu25f7Kaw2jN1w==}
-
-  file-selector@0.6.0:
-    resolution: {integrity: sha512-QlZ5yJC0VxHxQQsQhXvBaC7VRJ2uaxTf+Tfpu4Z/OcVQJVpZO+DGU0rkoVW5ce2SccxugvpBJoMvUs59iILYdw==}
-    engines: {node: '>= 12'}
 
   file-uri-to-path@1.0.0:
     resolution: {integrity: sha512-0Zt+s3L7Vf1biwWZ29aARiVYLx7iMGnEUl9x33fbB/j3jR81u/O2LbqK+Bm1CDSNDKVtJ/YjwY7TUd5SkeLQLw==}
@@ -6659,6 +6639,7 @@ snapshots:
       effect: 3.11.5
       find-my-way-ts: 0.1.5
       multipasta: 0.2.5
+    optional: true
 
   '@egjs/agent@2.4.4': {}
 
@@ -8638,7 +8619,8 @@ snapshots:
       '@smithy/types': 4.1.0
       tslib: 2.8.1
 
-  '@standard-schema/spec@1.0.0-beta.3': {}
+  '@standard-schema/spec@1.0.0-beta.3':
+    optional: true
 
   '@swc/counter@0.1.3': {}
 
@@ -9007,22 +8989,15 @@ snapshots:
 
   '@ungap/structured-clone@1.2.1': {}
 
-  '@uploadthing/mime-types@0.3.4': {}
-
-  '@uploadthing/react@7.1.5(next@15.1.2(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)(uploadthing@7.4.4(h3@1.13.1)(next@15.1.2(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))':
-    dependencies:
-      '@uploadthing/shared': 7.1.5
-      file-selector: 0.6.0
-      react: 19.0.0
-      uploadthing: 7.4.4(h3@1.13.1)(next@15.1.2(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16)
-    optionalDependencies:
-      next: 15.1.2(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+  '@uploadthing/mime-types@0.3.4':
+    optional: true
 
   '@uploadthing/shared@7.1.5':
     dependencies:
       '@uploadthing/mime-types': 0.3.4
       effect: 3.11.5
       sqids: 0.3.0
+    optional: true
 
   '@upstash/core-analytics@0.0.10':
     dependencies:
@@ -9580,6 +9555,7 @@ snapshots:
   effect@3.11.5:
     dependencies:
       fast-check: 3.23.2
+    optional: true
 
   electron-to-chromium@1.5.24: {}
 
@@ -9718,6 +9694,7 @@ snapshots:
   fast-check@3.23.2:
     dependencies:
       pure-rand: 6.1.0
+    optional: true
 
   fast-deep-equal@2.0.1: {}
 
@@ -9754,17 +9731,14 @@ snapshots:
     dependencies:
       reusify: 1.0.4
 
-  file-selector@0.6.0:
-    dependencies:
-      tslib: 2.8.1
-
   file-uri-to-path@1.0.0: {}
 
   fill-range@7.1.1:
     dependencies:
       to-regex-range: 5.0.1
 
-  find-my-way-ts@0.1.5: {}
+  find-my-way-ts@0.1.5:
+    optional: true
 
   find-up-simple@1.0.0: {}
 
@@ -10931,7 +10905,8 @@ snapshots:
 
   ms@2.1.3: {}
 
-  multipasta@0.2.5: {}
+  multipasta@0.2.5:
+    optional: true
 
   mustache@4.2.0: {}
 
@@ -11426,7 +11401,8 @@ snapshots:
   punycode@2.3.1:
     optional: true
 
-  pure-rand@6.1.0: {}
+  pure-rand@6.1.0:
+    optional: true
 
   pvtsutils@1.3.6:
     dependencies:
@@ -11961,7 +11937,8 @@ snapshots:
 
   sprintf-js@1.0.3: {}
 
-  sqids@0.3.0: {}
+  sqids@0.3.0:
+    optional: true
 
   stacktracey@2.1.8:
     dependencies:
@@ -12362,6 +12339,7 @@ snapshots:
       h3: 1.13.1
       next: 15.1.2(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       tailwindcss: 3.4.16
+    optional: true
 
   uri-js@4.4.1:
     dependencies:

@@ -23,7 +23,6 @@
     "@tiptap/extension-text-align": "^2.11.5",
     "@tiptap/extension-underline": "^2.11.2",
     "@tiptap/react": "^2.8.0",
-    "@uploadthing/react": "^7.1.5",
     "better-auth": "^1.1.11",
     "class-variance-authority": "^0.7.0",
     "country-data-list": "^1.4.0",
@@ -44,7 +43,6 @@
     "sanitize-html": "^2.14.0",
     "sharp": "^0.33.5",
     "tailwindcss-animate": "^1.0.7",
-    "uploadthing": "^7.4.4",
     "zod": "^3.24.1"
   },
   "devDependencies": {

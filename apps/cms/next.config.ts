@@ -14,11 +14,11 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "uploadthing.com",
+        hostname: "avatar.vercel.sh",
       },
       {
         protocol: "https",
-        hostname: "avatar.vercel.sh",
+        hostname: "images.marblecms.com",
       },
     ],
   },
