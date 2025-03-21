@@ -1,4 +1,4 @@
-# [](/apps/web/public/og.jpg)
+![Marble CMS](https://marblecms.com/og.jpg)
 
 What?
 
