@@ -12,9 +12,13 @@
 <!--- Provide step-by-step instructions on how to verify your changes work as expected. -->
 <!--- Include any setup or test cases if needed. -->
 
-## Screenshots (if applicable)  
+## Screenshots (if applicable)
 
-<!--- Add screenshots or GIFs to illustrate UI changes. -->
+<!--- Add screenshots to illustrate UI changes. -->
+
+## Video Demo (if applicable)
+
+<!--- Show screen recordings of the issue or feature. -->
 
 ## Types of Changes
 
@@ -23,5 +27,6 @@
 - [ ] 🐛 Bug fix (non-breaking change that fixes an issue)
 - [ ] ✨ New feature (non-breaking change that adds functionality)
 - [ ] ⚠️ Breaking change (fix or feature that alters existing functionality)
-- [ ] 💡 Improvement (code refactoring, performance enhancement, or UI/UX tweaks)
+- [ ] 🎨 UI/UX Improvements
+- [ ] ⚡ Performance Enhancement
 - [ ] 📖 Documentation (updates to README, docs, or comments)

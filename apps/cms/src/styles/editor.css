@@ -209,22 +209,22 @@ mark[style] > strong {
 /* codeblocks */
 
 pre {
-  background: #0D0D0D;
-  color: #FFF;
-  font-family: 'JetBrainsMono', monospace;
+  background: #0d0d0d;
+  color: #fff;
+  font-family: "JetBrainsMono", monospace;
   padding: 0.75rem 1rem;
   border-radius: 0.5rem;
 
   code {
-      color: inherit;
-      padding: 0;
-      background: none;
-      font-size: 0.8rem;
+    color: inherit;
+    padding: 0;
+    background: none;
+    font-size: 0.8rem;
   }
 
   .hljs-comment,
   .hljs-quote {
-      color: #616161;
+    color: #616161;
   }
 
   .hljs-variable,
@@ -237,7 +237,7 @@ pre {
   .hljs-name,
   .hljs-selector-id,
   .hljs-selector-class {
-      color: #F98181;
+    color: #f98181;
   }
 
   .hljs-number,
@@ -247,30 +247,30 @@ pre {
   .hljs-literal,
   .hljs-type,
   .hljs-params {
-      color: #FBBC88;
+    color: #fbbc88;
   }
 
   .hljs-string,
   .hljs-symbol,
   .hljs-bullet {
-      color: #B9F18D;
+    color: #b9f18d;
   }
 
   .hljs-title,
   .hljs-section {
-      color: #FAF594;
+    color: #faf594;
   }
 
   .hljs-keyword,
   .hljs-selector-tag {
-      color: #70CFF8;
+    color: #70cff8;
   }
 
   .hljs-emphasis {
-      font-style: italic;
+    font-style: italic;
   }
 
   .hljs-strong {
-      font-weight: 700;
+    font-weight: 700;
   }
-} 
+}
