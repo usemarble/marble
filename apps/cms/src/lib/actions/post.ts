@@ -69,7 +69,6 @@ export const updatePostAction = async (post: PostValues, id: string) => {
   const contentJson = JSON.parse(values.contentJson);
   const validAttribution = values.attribution ? values.attribution : undefined;
 
-
   const postUpdated = await db.post.update({
     where: { id },
     data: {
