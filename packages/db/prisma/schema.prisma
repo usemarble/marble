@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["driverAdapters"]
 }
 
@@ -78,27 +78,28 @@ model Organization {
 }
 
 model Post {
-  id          String       @id @default(cuid())
-  title       String
-  content     String
-  coverImage  String?
-  contentJson Json
-  description String
-  views       Int          @default(0)
-  workspaceId String
-  slug        String
-  authorId    String
-  categoryId  String
-  status      PostStatus   @default(published)
-  featured    Boolean      @default(false)
-  tags        Tag[]
-  updatedAt   DateTime     @updatedAt
-  createdAt   DateTime     @default(now())
-  publishedAt DateTime     @default(now())
-  attribution Json?        // stores { author: string, url: string }
-  author      User         @relation(fields: [authorId], references: [id])
-  category    Category     @relation(fields: [categoryId], references: [id])
-  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  id              String       @id @default(cuid())
+  title           String
+  content         String
+  coverImage      String?
+  contentJson     Json
+  description     String
+  views           Int          @default(0)
+  workspaceId     String
+  slug            String
+  primaryAuthorId String
+  categoryId      String
+  status          PostStatus   @default(published)
+  featured        Boolean      @default(false)
+  tags            Tag[]
+  authors         User[]
+  updatedAt       DateTime     @updatedAt
+  createdAt       DateTime     @default(now())
+  publishedAt     DateTime     @default(now())
+  attribution     Json?
+  primaryAuthor   User         @relation("PrimaryAuthor", fields: [primaryAuthorId], references: [id])
+  category        Category     @relation(fields: [categoryId], references: [id])
+  workspace       Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@unique([workspaceId, slug])
   @@map("post")
@@ -163,21 +164,21 @@ model Webhook {
   @@map("webhook")
 }
 
-// auth-related models
 model User {
-  id            String        @id @default(cuid())
-  name          String
-  email         String
-  emailVerified Boolean
-  image         String?
-  createdAt     DateTime
-  updatedAt     DateTime
-  sessions      Session[]
-  accounts      Account[]
-  members       Member[]
-  posts         Post[]
-  invitations   Invitation[]
-  subscription  Subscription?
+  id              String        @id @default(cuid())
+  name            String
+  email           String
+  emailVerified   Boolean
+  image           String?
+  createdAt       DateTime
+  updatedAt       DateTime
+  sessions        Session[]
+  accounts        Account[]
+  members         Member[]
+  authoredPosts   Post[]        @relation("PrimaryAuthor")
+  coAuthoredPosts Post[]
+  invitations     Invitation[]
+  subscription    Subscription?
 
   @@unique([email])
   @@map("user")

@@ -36,6 +36,7 @@ import {
   Trash2,
 } from "@marble/ui/lib/icons";
 
+import { useSession } from "@/lib/auth/client";
 import {
   Popover,
   PopoverContent,
@@ -73,8 +74,9 @@ import type {
 } from "react-hook-form";
 import { z } from "zod";
 import { CreateCategoryModal } from "../categories/category-modals";
+import { useWorkspace } from "../context/workspace";
+import { AuthorSelector } from "./author-selector";
 import { TagSelector } from "./tag-selector";
-
 // URL schema
 const urlSchema = z.string().url({
   message: "Please enter a valid URL",
@@ -96,7 +98,7 @@ interface PublishSettingsProps {
   mode?: "create" | "update";
 }
 
-interface TagResponse {
+interface TagAndCategoryResponse {
   id: string;
   name: string;
   slug: string;
@@ -106,6 +108,12 @@ interface MediaResponse {
   id: string;
   name: string;
   url: string;
+}
+
+interface AuthorResponse {
+  id: string;
+  name: string;
+  image: string;
 }
 
 export function PublishSettings({
@@ -122,22 +130,31 @@ export function PublishSettings({
   mode = "create",
 }: PublishSettingsProps) {
   const hasErrors = Object.keys(errors).length > 0;
-  const { coverImage } = watch();
+  const {
+    status,
+    category,
+    attribution,
+    tags,
+    coverImage,
+    authors: initialAuthors,
+  } = watch();
   const [date, setDate] = useState<Date | undefined>(
     watch("publishedAt") ? new Date(watch("publishedAt")) : new Date(),
   );
   const [showCategoyModal, setShowCategoryModal] = useState(false);
-  const { status, category, attribution, tags } = watch();
   const [file, setFile] = useState<File | undefined>();
   const [embedUrl, setEmbedUrl] = useState<string>("");
   const [isValidatingUrl, setIsValidatingUrl] = useState(false);
   const [urlError, setUrlError] = useState<string | null>(null);
   const [optimisticCategories, setOptimisticCategories] = useState<
-    TagResponse[]
+    TagAndCategoryResponse[]
   >([]);
-  const [optimisticTags, setOptimisticTags] = useState<TagResponse[]>([]);
+  const [optimisticTags, setOptimisticTags] = useState<
+    TagAndCategoryResponse[]
+  >([]);
   const [showAttribution, setShowAttribution] = useState(!!attribution);
   const [isUploading, setIsUploading] = useState(false);
+  const { data: session } = useSession();
 
   // Fetch tags
   useQuery({
@@ -145,7 +162,7 @@ export function PublishSettings({
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
       const res = await fetch("/api/tags");
-      const tags: TagResponse[] = await res.json();
+      const tags: TagAndCategoryResponse[] = await res.json();
       setOptimisticTags(tags);
       return tags;
     },
@@ -157,7 +174,7 @@ export function PublishSettings({
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
       const res = await fetch("/api/categories");
-      const categories: TagResponse[] = await res.json();
+      const categories: TagAndCategoryResponse[] = await res.json();
       setOptimisticCategories(categories);
       return categories;
     },
@@ -170,6 +187,16 @@ export function PublishSettings({
     queryFn: async () => {
       const res = await fetch("/api/media");
       const data: MediaResponse[] = await res.json();
+      return data;
+    },
+  });
+
+  const { data: authors } = useQuery({
+    queryKey: ["authors"],
+    staleTime: 1000 * 60 * 60,
+    queryFn: async () => {
+      const res = await fetch("/api/authors");
+      const data: AuthorResponse[] = await res.json();
       return data;
     },
   });
@@ -285,11 +312,11 @@ export function PublishSettings({
     }
   }, [date, setValue]);
 
-  const handleUpdateCategoryList = async (data: TagResponse) => {
+  const handleUpdateCategoryList = async (data: TagAndCategoryResponse) => {
     setOptimisticCategories([...optimisticCategories, data]);
   };
 
-  const handleUpdateTagList = (data: TagResponse) => {
+  const handleUpdateTagList = (data: TagAndCategoryResponse) => {
     setOptimisticTags([...optimisticTags, data]);
   };
 
@@ -573,6 +600,17 @@ export function PublishSettings({
                 </p>
               )}
             </div>
+
+            <AuthorSelector
+              options={authors || []}
+              control={control}
+              defaultAuthors={initialAuthors || []}
+              primaryAuthor={{
+                id: session?.user.id as string,
+                name: session?.user.name as string,
+                image: session?.user.image as string,
+              }}
+            />
 
             <TagSelector
               options={optimisticTags}

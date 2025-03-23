@@ -1,19 +1,5 @@
 import { z } from "zod";
 
-const stripHtmlTags = (html: string) => {
-  return html.replace(/<[^>]*>/g, "").trim();
-};
-
-const requiredEditorString = z
-  .string({ required_error: "You forgot to write your awesome story..." })
-  .refine(
-    (val) => {
-      const strippedText = stripHtmlTags(val);
-      return strippedText.length > 0;
-    },
-    { message: "You have not written anything yet." },
-  );
-
 const attributionSchema = z.object({
   author: z.string().min(1, "Author name is required"),
   url: z.string().url("Please enter a valid URL"),
@@ -34,6 +20,9 @@ export const postSchema = z.object({
   tags: z
     .array(z.string().min(1))
     .min(1, { message: "At least one tag is required" }),
+  authors: z
+    .array(z.string().min(1))
+    .min(1, { message: "An author is required" }),
   category: z.string().min(1, { message: "Category is required" }),
   status: z.enum(["published", "unpublished"]),
   publishedAt: z.coerce.date(),
