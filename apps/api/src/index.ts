@@ -93,7 +93,7 @@ app.get("/:workspaceId/posts", async (c) => {
         description: true,
         publishedAt: true,
         attribution: true,
-        author: {
+        authors: {
           select: {
             id: true,
             name: true,
@@ -144,8 +144,9 @@ app.get("/:workspaceId/posts/:slug", async (c) => {
         description: true,
         publishedAt: true,
         attribution: true,
-        author: {
+        authors: {
           select: {
+            id: true,
             name: true,
             image: true,
           },

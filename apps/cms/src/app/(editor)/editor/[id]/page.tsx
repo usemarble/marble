@@ -22,7 +22,10 @@ async function Page(props: { params: Promise<{ id: string }> }) {
       categoryId: true,
       attribution: true,
       tags: {
-        select: { name: true, id: true, slug: true },
+        select: { id: true },
+      },
+      authors: {
+        select: { id: true },
       },
     },
   });
@@ -43,6 +46,7 @@ async function Page(props: { params: Promise<{ id: string }> }) {
     contentJson: JSON.stringify(post.contentJson),
     tags: post.tags.map((tag) => tag.id),
     category: post.categoryId,
+    authors: post.authors.map((author) => author.id),
   };
 
   return (
