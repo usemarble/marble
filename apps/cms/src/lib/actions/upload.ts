@@ -51,6 +51,14 @@ const ALLOWED_MIME_TYPES = [
   "image/webp",
 ];
 
+/**
+ * Upload an image to R2
+ * @param file - The file to upload
+ * @returns A promise that resolves to an object containing:
+ * - url: string - The public URL of the uploaded image
+ * - key: string - The S3 key of the uploaded image
+ * - media?: { id: string; name: string; url: string } - Optional media object if saved to database
+ */
 export async function uploadImageAction(file: File): Promise<UploadResult> {
   const sessionInfo = await getServerSession();
   if (!sessionInfo) throw new Error("Unauthorized");

@@ -3,5 +3,5 @@ export const siteConfig = {
   description: "The smarter way to manage your blog",
   url: "https://app.marblecms.com",
   ogImage: "https://app.marblecms.com/og.jpg",
-  keywords: ["CMS", "Content Management", "Headless CMS", "SEO", "Blogging"],
+  keywords: ["CMS", "Content Management", "Headless CMS", "SEO", "Blog"],
 };

@@ -3,6 +3,11 @@
 import getSession from "@/lib/auth/session";
 import db from "@marble/db";
 
+/**
+ * Verify an invite
+ * @param inviteId - The invite ID
+ * @returns The invite email
+ */
 export async function verifyInvite(inviteId: string) {
   const session = await getSession();
   const invite = await db.invitation.findUnique({

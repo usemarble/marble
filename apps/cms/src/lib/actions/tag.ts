@@ -31,6 +31,12 @@ export async function checkTagSlugForUpdateAction(
   return !!result;
 }
 
+/**
+ * Create a tag
+ * @param data - The data to create the tag with
+ * @param workspaceId - The workspace ID
+ * @returns The created tag
+ */
 export async function createTagAction(
   data: CreateTagValues,
   workspaceId: string,
@@ -55,27 +61,40 @@ export async function createTagAction(
   }
 }
 
+/**
+ * Update a tag
+ * @param payload - The payload to update the tag with
+ * @param id - The tag ID
+ * @returns The updated tag
+ */
 export async function updateTagAction(payload: CreateTagValues, id: string) {
   const isAllowed = await getServerSession();
   if (!isAllowed) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  await db.tag.update({
+  const tag = await db.tag.update({
     where: { id: id },
     data: payload,
   });
+
+  return tag;
 }
 
+/**
+ * Delete a tag
+ * @param id - The tag ID
+ * @returns The deleted tag ID
+ */
 export async function deleteTagAction(id: string) {
   const isAllowed = await getServerSession();
   if (!isAllowed) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  await db.tag.delete({
+  const deletedTag = await db.tag.delete({
     where: { id: id },
   });
 
-  return NextResponse.json({ status: 200 });
+  return deletedTag.id;
 }
