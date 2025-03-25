@@ -163,7 +163,6 @@ export const AuthorSelector = ({
                       id={option.id}
                       onSelect={() => {
                         addOrRemoveAuthor(option.id);
-                        console.log(option.id);
                       }}
                     >
                       <div className="flex items-center gap-2">

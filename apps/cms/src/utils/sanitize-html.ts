@@ -39,6 +39,7 @@ export const sanitizeHtml = (content: string) => {
       ...defaults.allowedAttributes,
       "*": ["style"],
       iframe: ["src", "allowfullscreen", "style"],
+      input: ["type", "checked"],
     },
     allowedIframeHostnames: ["www.youtube.com", "www.youtube-nocookie.com"],
   });
