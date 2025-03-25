@@ -3,7 +3,6 @@
 import {
   type ColumnDef,
   type ColumnFiltersState,
-  type SortingState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
@@ -11,7 +10,26 @@ import {
 } from "@tanstack/react-table";
 
 import { Button } from "@marble/ui/components/button";
+import { Checkbox } from "@marble/ui/components/checkbox";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@marble/ui/components/dropdown-menu";
 import { Input } from "@marble/ui/components/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@marble/ui/components/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@marble/ui/components/select";
 import {
   Table,
   TableBody,
@@ -20,24 +38,19 @@ import {
   TableHeader,
   TableRow,
 } from "@marble/ui/components/table";
-import { Plus, SearchIcon, XIcon } from "lucide-react";
+import { Hourglass, SearchIcon, XIcon } from "lucide-react";
 import { useState } from "react";
-import { CreateTagModal } from "./tag-modals";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
 }
 
-export function DataTable<TData, TValue>({
+export function TeamDataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>([]);
-
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-
-  const [showCreateModal, setShowCreateModal] = useState(false);
 
   const table = useReactTable({
     data,
@@ -46,15 +59,14 @@ export function DataTable<TData, TValue>({
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     state: {
-      sorting,
       columnFilters,
     },
   });
 
   return (
     <div>
-      <div className="flex items-center py-4 justify-between">
-        <div className="relative">
+      <div className="flex items-center py-4 gap-4 justify-between">
+        <div className="relative flex-1">
           <SearchIcon
             size={16}
             className="text-muted-foreground size-4 absolute top-3 left-3"
@@ -64,8 +76,8 @@ export function DataTable<TData, TValue>({
             onChange={(event) =>
               table.getColumn("name")?.setFilterValue(event.target.value)
             }
-            placeholder="Search tags..."
-            className="px-8 w-72"
+            placeholder="Search members..."
+            className="pl-8 max-w-72"
           />
           {(table.getColumn("name")?.getFilterValue() as string) && (
             <button
@@ -78,12 +90,22 @@ export function DataTable<TData, TValue>({
             </button>
           )}
         </div>
-        <div>
-          <Button onClick={() => setShowCreateModal(true)} size="sm">
-            <Plus size={16} />
-            <span>create tag</span>
-          </Button>
-        </div>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline">
+              <Hourglass className="size-4" />
+              <span>Status</span>
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent>
+            <ul className="flex flex-col gap-2">
+              <li>
+                <Checkbox />
+                <span>Active</span>
+              </li>
+            </ul>
+          </PopoverContent>
+        </Popover>
       </div>
 
       <div className="rounded-md border">
@@ -91,18 +113,16 @@ export function DataTable<TData, TValue>({
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
-                    </TableHead>
-                  );
-                })}
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>
@@ -127,17 +147,15 @@ export function DataTable<TData, TValue>({
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-96 text-center"
+                  className="h-24 text-center"
                 >
-                  No tags to show.
+                  No results.
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
-
-      <CreateTagModal open={showCreateModal} setOpen={setShowCreateModal} />
     </div>
   );
 }

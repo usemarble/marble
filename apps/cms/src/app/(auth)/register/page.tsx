@@ -19,9 +19,23 @@ export default async function RegisterPage(props: PageProps) {
   const from = searchParams.from;
 
   return (
-    <div className="md:grid h-screen w-full md:grid-cols-[55%,45%] p-4 max-w-screen-xl mx-auto">
-      <section className="flex flex-col items-center justify-between h-full">
-        <div className="self-start">
+    <div className="md:grid h-screen w-full md:grid-cols-2 max-w-screen-xl mx-auto">
+      <section className="overflow-hidden hidden md:flex flex-col justify-between bg-muted p-10">
+        <div>
+          <Image
+            src={"/icon.svg"}
+            alt=""
+            width={350}
+            height={680}
+            className="size-8"
+          />
+        </div>
+        <p className="text-lg font-medium">
+          The easiest way to manage your blog.
+        </p>
+      </section>
+      <section className="flex flex-col items-center justify-between h-full p-4 md:p-10">
+        <div className="self-end">
           <Button variant="ghost" size="sm" asChild>
             <Link href={from ? `/login?from=${from}` : "/login"}>Login</Link>
           </Button>
@@ -61,19 +75,10 @@ export default async function RegisterPage(props: PageProps) {
           </p>
         </div>
         <div>
-          <p className="text-muted-foreground text-center text-xs">
+          {/* <p className="text-muted-foreground text-center text-xs">
             &copy; {new Date().getFullYear()} Marble. All rights reserved.
-          </p>
+          </p> */}
         </div>
-      </section>
-      <section className="overflow-hidden rounded-md hidden md:block">
-        <Image
-          src={"/login.jpg"}
-          alt=""
-          width={350}
-          height={680}
-          className="w-full h-full"
-        />
       </section>
     </div>
   );

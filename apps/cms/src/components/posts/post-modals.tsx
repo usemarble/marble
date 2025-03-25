@@ -30,14 +30,9 @@ export const DeletePostModal = ({
   async function deletePost() {
     setLoading(true);
     try {
-      toast.promise(deletePostAction(id), {
-        loading: "Deleting post...",
-        success: () => {
-          setOpen(false);
-          return "Post deleted successfully";
-        },
-        error: "Failed to delete post",
-      });
+      await deletePostAction(id);
+      toast.success("Post deleted");
+      setOpen(false);
     } catch (error) {
       console.error("Delete error:", error);
     } finally {

@@ -109,9 +109,9 @@ export async function deletePostAction(id: string) {
     throw new Error("Unauthorized");
   }
 
-  await db.post.delete({
+  const deletedPost = await db.post.delete({
     where: { id },
   });
 
-  return { success: true };
+  return deletedPost.id;
 }

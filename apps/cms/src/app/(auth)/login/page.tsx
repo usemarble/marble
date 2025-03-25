@@ -18,8 +18,22 @@ export default async function LoginPage(props: PageProps) {
   const from = searchParams.from;
 
   return (
-    <div className="md:grid h-screen w-full md:grid-cols-[55%,45%] p-4 max-w-screen-xl mx-auto">
-      <section className="flex flex-col items-center justify-between h-full">
+    <div className="md:grid h-screen w-full md:grid-cols-2 max-w-screen-xl mx-auto">
+      <section className="overflow-hidden hidden md:flex flex-col justify-between bg-muted p-10">
+        <div>
+          <Image
+            src={"/icon.svg"}
+            alt=""
+            width={350}
+            height={680}
+            className="size-8"
+          />
+        </div>
+        <p className="text-lg font-medium">
+          The easiest way to manage your blog.
+        </p>
+      </section>
+      <section className="flex flex-col items-center justify-between h-full p-4">
         <div className="self-start">
           <h1 className="font-semibold uppercase sr-only">Marble</h1>
         </div>
@@ -39,26 +53,17 @@ export default async function LoginPage(props: PageProps) {
             Don&apos;t have an account?{" "}
             <Link
               href={from ? `/register?from=${from}` : "/register"}
-              className="hover:text-primary underline underline-offset-4 block"
+              className="hover:text-primary underline underline-offset-4"
             >
               Register
             </Link>
           </p>
         </div>
         <div>
-          <p className="text-muted-foreground text-center text-xs">
+          {/* <p className="text-muted-foreground text-center text-xs">
             &copy; {new Date().getFullYear()} Marble. All rights reserved.
-          </p>
+          </p> */}
         </div>
-      </section>
-      <section className="overflow-hidden rounded-md hidden md:block">
-        <Image
-          src={"/login.jpg"}
-          alt=""
-          width={350}
-          height={680}
-          className="w-full h-full"
-        />
       </section>
     </div>
   );

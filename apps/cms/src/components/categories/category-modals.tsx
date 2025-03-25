@@ -39,6 +39,7 @@ import {
 } from "@/lib/validations/workspace";
 import { generateSlug } from "@/utils/generate-slug";
 import { useEffect, useState } from "react";
+import { useWorkspace } from "../context/workspace";
 import type { Category } from "./columns";
 
 export const CreateCategoryModal = ({
@@ -67,7 +68,7 @@ export const CreateCategoryModal = ({
   });
 
   const { name } = watch();
-  const { data: activeOrganization } = useActiveOrganization();
+  const { activeWorkspace } = useWorkspace();
 
   useEffect(() => {
     setValue("slug", generateSlug(name));
@@ -76,7 +77,7 @@ export const CreateCategoryModal = ({
   const onSubmit = async (data: CreateCategoryValues) => {
     const isTaken = await checkCategorySlugAction(
       data.slug,
-      activeOrganization.id as string,
+      activeWorkspace?.id as string,
     );
 
     if (isTaken) {
@@ -86,7 +87,10 @@ export const CreateCategoryModal = ({
     }
 
     try {
-      const res = await createCategoryAction(data, activeOrganization.id);
+      const res = await createCategoryAction(
+        data,
+        activeWorkspace?.id as string,
+      );
       if (res) {
         setOpen(false);
         toast.success("Category created successfully");
@@ -239,11 +243,10 @@ export const DeleteCategoryModal = ({
     try {
       await deleteCategoryAction(id);
       toast.success("Category deleted successfully");
+      setOpen(false);
     } catch (error) {
       toast.error("Failed to delete category.");
-    } finally {
       setLoading(false);
-      setOpen(false);
     }
   }
 
@@ -253,14 +256,12 @@ export const DeleteCategoryModal = ({
         <AlertDialogHeader>
           <AlertDialogTitle>Delete {name}?</AlertDialogTitle>
           <AlertDialogDescription>
-            This will permanently delete this tag from your list and you can no
-            longer use this in articles.
+            This will permanently delete this category from your list and you
+            can no longer use this in articles.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={() => setOpen(false)}>
-            Cancel
-          </AlertDialogCancel>
+          <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
           <AlertDialogAction asChild>
             <Button
               onClick={deleteCategory}

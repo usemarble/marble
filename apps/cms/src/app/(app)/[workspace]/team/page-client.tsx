@@ -105,11 +105,7 @@ function PageClient(props: PageClientProps) {
     <div className="max-w-4xl mx-auto py-8">
       <div className="mb-8 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Team Members</h1>
-        <Button
-          onClick={() => setShowInviteModal(true)}
-          size="sm"
-          variant="outline"
-        >
+        <Button onClick={() => setShowInviteModal(true)} size="sm">
           <MailPlus size={16} />
           <span>invite member</span>
         </Button>

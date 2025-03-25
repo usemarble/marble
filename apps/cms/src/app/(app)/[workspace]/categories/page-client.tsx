@@ -1,7 +1,7 @@
 "use client";
 
+import { columns } from "@/components/categories/columns";
 import { DataTable } from "@/components/categories/data-table";
-import { columns } from "@/components/tags/columns";
 
 interface PageClientProps {
   categories: { id: string; name: string; slug: string }[];

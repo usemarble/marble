@@ -78,11 +78,7 @@ export function PostDataTable<TData, TValue>({
           )}
         </div>
         <div>
-          <Button
-            onClick={() => router.push("/editor")}
-            size="sm"
-            variant="outline"
-          >
+          <Button onClick={() => router.push("/editor")} size="sm">
             <Plus size={16} />
             <span>New post</span>
           </Button>

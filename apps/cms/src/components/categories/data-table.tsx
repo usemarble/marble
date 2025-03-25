@@ -79,11 +79,7 @@ export function DataTable<TData, TValue>({
           )}
         </div>
         <div>
-          <Button
-            onClick={() => setShowCreateModal(true)}
-            size="sm"
-            variant="outline"
-          >
+          <Button onClick={() => setShowCreateModal(true)} size="sm">
             <Plus size={16} />
             <span>new category</span>
           </Button>
