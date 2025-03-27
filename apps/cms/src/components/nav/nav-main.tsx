@@ -7,7 +7,12 @@ import {
   SidebarMenuButton,
 } from "@marble/ui/components/sidebar";
 
-import { Group, ImageIcon, Settings, Tags } from "@marble/ui/lib/icons";
+import {
+  Group,
+  ImageIcon,
+  SlidersHorizontal,
+  Tags,
+} from "@marble/ui/lib/icons";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import { LayersIcon } from "../icons/animated/layers";
@@ -43,7 +48,7 @@ const items = [
   {
     name: "Settings",
     url: "settings",
-    icon: Settings,
+    icon: SlidersHorizontal,
   },
 ];
 

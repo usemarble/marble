@@ -73,8 +73,8 @@ import type {
   UseFormWatch,
 } from "react-hook-form";
 import { z } from "zod";
+import { useWorkspace } from "../../context/workspace";
 import { CreateCategoryModal } from "../categories/category-modals";
-import { useWorkspace } from "../context/workspace";
 import { AuthorSelector } from "./author-selector";
 import { TagSelector } from "./tag-selector";
 // URL schema

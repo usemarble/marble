@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import PageClient from "./page-client";
 
 export const metadata: Metadata = {
-  title: "Welcome to Marble",
+  title: "New workspace",
 };
 
 async function Page() {
   return (
-    <div className="h-screen grid place-items-center">
+    <div className="h-screen grid place-items-center bg-muted">
       <PageClient />
     </div>
   );

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import type { Session } from "./lib/auth/types";
-import { getFirstOrganization } from "./lib/queries/workspace";
+import { getUserWorkspace } from "./lib/queries/workspace";
 
 export async function middleware(request: NextRequest) {
   const sessionRes = await fetch(
@@ -65,11 +65,12 @@ export async function middleware(request: NextRequest) {
 
     // Redirect auth pages or root to workspace or onboarding
     if (isAuthPage || isRootPage || isVerifyPage) {
-      const firstWorkspaceSlug = await getFirstOrganization(session.user.id);
-      if (firstWorkspaceSlug) {
-        return NextResponse.redirect(
-          new URL(`/${firstWorkspaceSlug}`, request.url),
-        );
+      const workspaceSlug = await getUserWorkspace(
+        session.user.id,
+        request.cookies,
+      );
+      if (workspaceSlug) {
+        return NextResponse.redirect(new URL(`/${workspaceSlug}`, request.url));
       }
       return NextResponse.redirect(new URL("/new", request.url));
     }

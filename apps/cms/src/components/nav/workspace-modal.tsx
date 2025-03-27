@@ -21,12 +21,12 @@ import {
   type CreateWorkspaceValues,
   workspaceSchema,
 } from "@/lib/validations/workspace";
-import { generateSlug } from "@/utils/generate-slug";
+import { generateSlug } from "@/utils/string";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "@marble/ui/components/sonner";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { useWorkspace } from "../context/workspace";
+import { useWorkspace } from "../../context/workspace";
 
 export const CreateWorkspaceModal = ({
   open,

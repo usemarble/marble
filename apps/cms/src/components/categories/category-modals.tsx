@@ -37,9 +37,9 @@ import {
   type CreateCategoryValues,
   categorySchema,
 } from "@/lib/validations/workspace";
-import { generateSlug } from "@/utils/generate-slug";
+import { generateSlug } from "@/utils/string";
 import { useEffect, useState } from "react";
-import { useWorkspace } from "../context/workspace";
+import { useWorkspace } from "../../context/workspace";
 import type { Category } from "./columns";
 
 export const CreateCategoryModal = ({

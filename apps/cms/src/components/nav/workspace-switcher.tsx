@@ -36,7 +36,7 @@ import {
 } from "@marble/ui/components/avatar";
 import { Skeleton } from "@marble/ui/components/skeleton";
 import { useRouter } from "next/navigation";
-import { useWorkspace } from "../context/workspace";
+import { useWorkspace } from "../../context/workspace";
 import { CreateWorkspaceModal } from "./workspace-modal";
 
 interface WorkspaceSwitcherProps {

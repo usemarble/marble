@@ -1,7 +1,7 @@
 "use server";
 
 import getServerSession from "@/lib/auth/session";
-import { generateSlug } from "@/utils/generate-slug";
+import { generateSlug } from "@/utils/string";
 import { S3Client } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
 import db from "@marble/db";
