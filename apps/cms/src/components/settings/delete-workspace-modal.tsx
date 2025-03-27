@@ -15,7 +15,7 @@ import { toast } from "@marble/ui/components/sonner";
 import { Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useWorkspace } from "../context/workspace";
+import { useWorkspace } from "../../context/workspace";
 
 interface ListOrganizationResponse {
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>

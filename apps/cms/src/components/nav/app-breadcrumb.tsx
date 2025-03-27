@@ -10,7 +10,7 @@ import {
 } from "@marble/ui/components/breadcrumb";
 import { usePathname } from "next/navigation";
 import React from "react";
-import { useWorkspace } from "../context/workspace";
+import { useWorkspace } from "../../context/workspace";
 
 const formatSegment = (segment: string) => {
   return segment

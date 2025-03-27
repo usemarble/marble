@@ -1,14 +1,14 @@
 "use client";
 
 import { ErrorMessage } from "@/components/auth/error-message";
-import { useWorkspace } from "@/components/context/workspace";
+import { useWorkspace } from "@/context/workspace";
 import { checkWorkspaceSlug } from "@/lib/actions/workspace";
 import { organization } from "@/lib/auth/client";
 import {
   type CreateWorkspaceValues,
   workspaceSchema,
 } from "@/lib/validations/workspace";
-import { generateSlug } from "@/utils/generate-slug";
+import { generateSlug } from "@/utils/string";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@marble/ui/components/button";
 import {
@@ -22,6 +22,7 @@ import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { Loader } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -81,56 +82,77 @@ function PageClient() {
   }
   return (
     <div>
-      <Card>
-        <CardHeader className="text-center mb-5">
-          <CardTitle>Create your workspace</CardTitle>
+      <Card className="rounded-[24px] py-7 px-5">
+        <CardHeader className="text-center mb-5 items-center">
+          <Image
+            src="/icon.svg"
+            alt="MarbleCMS"
+            width={40}
+            height={40}
+            className="mb-4"
+          />
+          <CardTitle className="font-medium">Create workspace</CardTitle>
           <CardDescription className="max-w-sm">
-            Think of a workspace as a project folder where you can have teamates
-            work together.
+            To start writing your content, you'll need a workspace.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form
-            className="flex flex-col gap-4"
+            className="flex flex-col gap-10"
             onSubmit={handleSubmit(onSubmit)}
           >
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                placeholder="Name of your workspace"
-                {...register("name")}
-              />
-              {errors.name && (
-                <ErrorMessage>{errors.name.message}</ErrorMessage>
-              )}
-            </div>
-            <div className="grid flex-1 gap-2">
-              <Label htmlFor="slug">Slug</Label>
-              <div className="flex w-full rounded-md border border-input bg-background text-base placeholder:text-muted-foreground focus-within:outline-none focus-within:border-primary focus-within:ring-2 focus-within:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm overflow-hidden">
-                <span className="py-2.5 px-2 bg-gray-100 border-r">
-                  app.marblecms.com/
-                </span>
-                <input
-                  id="slug"
-                  placeholder="john"
-                  {...register("slug")}
-                  autoComplete="off"
-                  className="w-full bg-transparent py-2 px-2 outline-none ring-0"
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="name" className="sr-only">
+                  Name
+                </Label>
+                <Input
+                  id="name"
+                  placeholder="Workspace Name"
+                  {...register("name")}
                 />
+                {errors.name && (
+                  <ErrorMessage>{errors.name.message}</ErrorMessage>
+                )}
               </div>
-              {errors.slug && (
-                <ErrorMessage>{errors.slug.message}</ErrorMessage>
-              )}
+              <div className="grid flex-1 gap-2">
+                <Label htmlFor="slug" className="sr-only">
+                  Slug
+                </Label>
+                <div className="flex w-full rounded-md border border-input bg-background text-base placeholder:text-muted-foreground focus-within:outline-none focus-within:border-primary focus-within:ring-2 focus-within:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm overflow-hidden">
+                  <span className="py-2.5 px-2 bg-gray-100 border-r">
+                    app.marblecms.com/
+                  </span>
+                  <input
+                    id="slug"
+                    placeholder="Workspace slug"
+                    {...register("slug")}
+                    autoComplete="off"
+                    className="w-full bg-transparent py-2 px-2 outline-none ring-0"
+                  />
+                </div>
+                {errors.slug && (
+                  <ErrorMessage>{errors.slug.message}</ErrorMessage>
+                )}
+              </div>
             </div>
-            <div className="mt-5">
+            <div className="flex flex-col gap-4">
               <Button
                 type="submit"
                 disabled={isSubmitting}
                 className="flex w-full gap-2"
               >
                 {isSubmitting && <Loader className="size-4 animate-spin" />}
-                Create Workspace
+                Create
+              </Button>
+              <Button
+                variant="ghost"
+                type="button"
+                disabled={isSubmitting}
+                onClick={() => router.push("/")}
+                className="flex w-full gap-2"
+              >
+                Dashboard
               </Button>
             </div>
           </form>

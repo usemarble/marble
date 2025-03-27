@@ -1,23 +1,10 @@
 "use client";
 
-import {
-  organization,
-  useActiveOrganization,
-  useListOrganizations,
-} from "@/lib/auth/client";
+import { organization, useActiveOrganization } from "@/lib/auth/client";
 import type { ActiveOrganization } from "@/lib/auth/types";
+import { setLastVisitedWorkspace } from "@/utils/workspace";
 import { useParams, usePathname } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
-
-interface ListOrganizationResponse {
-  // biome-ignore lint/suspicious/noExplicitAny: <better auth has it as any>
-  metadata?: any;
-  name: string;
-  slug: string;
-  logo?: string | null | undefined | undefined;
-  createdAt: Date;
-  id: string;
-}
 
 interface WorkspaceContextType {
   activeWorkspace: ActiveOrganization | null;
@@ -61,11 +48,12 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       }
 
       // Update the active organization
-      const newActiveOrg = await organization.setActive({
+      await organization.setActive({
         organizationSlug: workspaceSlug,
       });
 
-      // console.log(newActiveOrg);
+      // Set last visited workspace to cookies
+      setLastVisitedWorkspace(workspaceSlug);
 
       // Fetch full workspace data
       const res = await fetch(`/api/workspaces/${workspaceSlug}`);

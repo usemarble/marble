@@ -34,7 +34,7 @@ import {
 } from "@/lib/actions/tag";
 import { useActiveOrganization } from "@/lib/auth/client";
 import { type CreateTagValues, tagSchema } from "@/lib/validations/workspace";
-import { generateSlug } from "@/utils/generate-slug";
+import { generateSlug } from "@/utils/string";
 import { useEffect, useState } from "react";
 import type { Tag } from "./columns";
 

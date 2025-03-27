@@ -1,6 +1,6 @@
 "use client";
 
-import { WorkspaceProvider } from "@/components/context/workspace";
+import { WorkspaceProvider } from "@/context/workspace";
 import { Toaster } from "@marble/ui/components/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
