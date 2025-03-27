@@ -42,7 +42,7 @@ export const auth = betterAuth({
   plugins: [
     organization({
       async sendInvitationEmail(data) {
-        const inviteLink = `${process.env.NEXT_PUBLIC_APP_URL}/invite/${data.id}`;
+        const inviteLink = `${process.env.NEXT_PUBLIC_APP_URL}/join/${data.id}`;
         await sendInviteEmailAction({
           inviteeEmail: data.email,
           inviterName: data.inviter.user.name,

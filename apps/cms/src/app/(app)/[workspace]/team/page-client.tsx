@@ -78,7 +78,7 @@ function PageClient(props: PageClientProps) {
 
   const copyInviteLink = (inviteId: string) => {
     navigator.clipboard.writeText(
-      `https://${process.env.NEXT_PUBLIC_APP_URL}/invite/${inviteId}`,
+      `https://${process.env.NEXT_PUBLIC_APP_URL}/join/${inviteId}`,
     );
     toast.success("Invite link copied to clipboard", {
       position: "top-center",

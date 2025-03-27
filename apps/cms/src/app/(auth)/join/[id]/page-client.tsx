@@ -15,6 +15,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@marble/ui/components/card";
+import { cn } from "@marble/ui/lib/utils";
 import { CheckIcon, Loader2, LoaderIcon, Undo, XIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -87,9 +88,6 @@ function PageClient({ id, user }: PageClientProps) {
         } else {
           setRejecting(false);
           setInviteStatus("rejected");
-          // here i should check if the user has a workspace already and redirect to it
-          // if they dont i should redirect to the onboarding page or the website landing page
-          // depends havent decided yet
         }
       });
   };
@@ -112,20 +110,23 @@ function PageClient({ id, user }: PageClientProps) {
   }, []);
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center">
+    <div className="flex items-center justify-center">
       {invitation ? (
-        <Card className="w-full max-w-md">
-          {inviteStatus === "pending" && (
-            <CardHeader className="text-center">
-              <CardTitle>Workspace Invitation</CardTitle>
-              <CardDescription>
-                You've been invited to join a workspace
-              </CardDescription>
-            </CardHeader>
-          )}
+        <Card className="max-w-md rounded-[24px] py-7 px-5">
+          <CardHeader
+            className={cn(
+              "items-center",
+              inviteStatus !== "pending" && "sr-only",
+            )}
+          >
+            <CardTitle className="font-medium">Invitation</CardTitle>
+            <CardDescription>
+              You've been invited to join a workspace
+            </CardDescription>
+          </CardHeader>
           <CardContent>
             {inviteStatus === "pending" && (
-              <div className="space-y-6">
+              <div className="flex flex-col gap-8 mt-5">
                 <div className="flex items-center justify-center gap-4">
                   <Avatar className="size-14">
                     <AvatarImage src={user.image || ""} />
@@ -154,10 +155,10 @@ function PageClient({ id, user }: PageClientProps) {
                   <strong>{invitation?.inviterEmail}</strong> has invited you to
                   join <strong>{invitation?.organizationName}</strong>.
                 </p>
-                <p className="text-sm text-center">
+                {/* <p className="text-sm text-center">
                   This invitation was sent to{" "}
                   <strong>{invitation?.email}</strong>.
-                </p>
+                </p> */}
               </div>
             )}
             {inviteStatus === "accepted" && (
@@ -165,7 +166,7 @@ function PageClient({ id, user }: PageClientProps) {
                 <div className="flex items-center justify-center w-16 h-16 mx-auto bg-green-100 rounded-full">
                   <CheckIcon className="w-8 h-8 text-green-600" />
                 </div>
-                <h2 className="text-2xl font-bold text-center">
+                <h2 className="text-2xl font-medium text-center">
                   Welcome to {invitation?.organizationName}!
                 </h2>
                 <p className="text-center">
@@ -178,9 +179,7 @@ function PageClient({ id, user }: PageClientProps) {
                 <div className="flex items-center justify-center w-16 h-16 mx-auto bg-red-100 rounded-full">
                   <XIcon className="w-8 h-8 text-red-600" />
                 </div>
-                <h2 className="text-2xl font-bold text-center">
-                  Invitation Declined
-                </h2>
+                <h2 className="text-2xl font-medium text-center">Declined</h2>
                 <p className="text-center text-muted-foreground">
                   You&lsquo;ve declined the invitation to join{" "}
                   {invitation?.organizationName}.
@@ -236,9 +235,9 @@ export default PageClient;
 
 function InviteError() {
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full max-w-md rounded-[24px] py-7 px-5">
       <CardHeader className="text-center">
-        <CardTitle>Invalid Invite</CardTitle>
+        <CardTitle className="font-medium">Invalid Invite</CardTitle>
         <CardDescription className="sr-only">
           This invite is invalid or you don't have the correct permissions.
         </CardDescription>
@@ -248,7 +247,7 @@ function InviteError() {
           <p className="text-muted-foreground text-center">
             The invitation you're trying to access is either invalid or you
             don't have the correct permissions. Please check your email for a
-            valid invitation or contact the person who sent it.
+            valid invitation or contact the sender.
           </p>
           <Link
             href="/"
@@ -257,7 +256,7 @@ function InviteError() {
               className: "gap-2 items-center flex",
             })}
           >
-            <Undo className="size-4" />
+            <Undo className="size-4 text-muted-foreground" />
             <span>Back home</span>
           </Link>
         </div>
@@ -268,13 +267,21 @@ function InviteError() {
 
 function InviteLoading() {
   return (
-    <div className="bg-white p-6 rounded-lg min-h-96 min-w-40 grid place-content-center">
-      <div className="flex flex-col items-center gap-4">
-        <LoaderIcon className="size-5 animate-spin transition text-muted-foreground" />
-        <p className="text-muted-foreground max-w-prose text-center">
-          We're verifying your invite link. This might take a few seconds...
-        </p>
-      </div>
-    </div>
+    <Card className="h-80 rounded-[24px] p-6 max-w-md grid place-content-center">
+      <CardHeader className="sr-only">
+        <CardTitle>Loading</CardTitle>
+        <CardDescription>
+          We're verifying your invite link, please hold on.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="size-5 animate-spin transition" />
+          <p className="text-muted-foreground max-w-prose text-center">
+            We're verifying your invite link. This might take a few seconds...
+          </p>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
