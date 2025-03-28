@@ -44,17 +44,22 @@ export function DeleteWorkspaceModal({ id }: { id: string }) {
       toast.success("Workspace deleted.");
 
       // Find the next available workspace or redirect to new
-      const remainingWorkspaces = organizations.filter(
+      const remainingWorkspaces = organizations?.filter(
         (org: ListOrganizationResponse) => org.id !== id,
       );
 
-      if (remainingWorkspaces.length === 0) {
+      if (!remainingWorkspaces || remainingWorkspaces.length === 0) {
         router.push("/new");
         return;
       }
 
       // Set the first remaining workspace as active and redirect
       const nextWorkspace = remainingWorkspaces[0];
+      if (!nextWorkspace) {
+        router.push("/new");
+        return;
+      }
+
       await updateActiveWorkspace(nextWorkspace.slug, nextWorkspace);
       router.push(`/${nextWorkspace.slug}`);
     } catch (error) {

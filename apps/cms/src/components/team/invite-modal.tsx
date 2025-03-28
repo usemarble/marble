@@ -64,7 +64,13 @@ export const InviteModal = ({
           prev
             ? {
                 ...prev,
-                invitations: [...prev.invitations, res.data],
+                invitations: [
+                  ...prev.invitations,
+                  {
+                    ...res.data,
+                    role: res.data.role as "member" | "admin" | "owner",
+                  },
+                ],
               }
             : null,
         );

@@ -98,8 +98,8 @@ importers:
         specifier: ^2.8.0
         version: 2.8.0(@tiptap/core@2.10.4(@tiptap/pm@2.8.0))(@tiptap/pm@2.8.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       better-auth:
-        specifier: ^1.1.11
-        version: 1.1.11
+        specifier: ^1.2.5
+        version: 1.2.5(typescript@5.6.2)
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.0
@@ -196,7 +196,7 @@ importers:
     dependencies:
       '@astrojs/mdx':
         specifier: ^4.0.8
-        version: 4.0.8(astro@5.2.6(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@1.21.6)(rollup@4.28.1)(typescript@5.6.3)(uploadthing@7.4.4(h3@1.13.1)(next@15.2.3(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0))
+        version: 4.0.8(astro@5.2.6(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@1.21.6)(rollup@4.28.1)(typescript@5.8.2)(uploadthing@7.4.4(h3@1.13.1)(next@15.2.3(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0))
       '@astrojs/rss':
         specifier: ^4.0.11
         version: 4.0.11
@@ -205,13 +205,13 @@ importers:
         version: 3.2.1
       '@astrojs/tailwind':
         specifier: ^6.0.0
-        version: 6.0.0(astro@5.2.6(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@1.21.6)(rollup@4.28.1)(typescript@5.6.3)(uploadthing@7.4.4(h3@1.13.1)(next@15.2.3(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0))(tailwindcss@3.4.16)
+        version: 6.0.0(astro@5.2.6(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@1.21.6)(rollup@4.28.1)(typescript@5.8.2)(uploadthing@7.4.4(h3@1.13.1)(next@15.2.3(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0))(tailwindcss@3.4.16)
       '@astrojs/vercel':
         specifier: ^8.0.7
-        version: 8.0.7(astro@5.2.6(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@1.21.6)(rollup@4.28.1)(typescript@5.6.3)(uploadthing@7.4.4(h3@1.13.1)(next@15.2.3(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0))(next@15.2.3(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)(rollup@4.28.1)
+        version: 8.0.7(astro@5.2.6(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@1.21.6)(rollup@4.28.1)(typescript@5.8.2)(uploadthing@7.4.4(h3@1.13.1)(next@15.2.3(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0))(next@15.2.3(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)(rollup@4.28.1)
       astro:
         specifier: ^5.2.6
-        version: 5.2.6(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@1.21.6)(rollup@4.28.1)(typescript@5.6.3)(uploadthing@7.4.4(h3@1.13.1)(next@15.2.3(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0)
+        version: 5.2.6(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@1.21.6)(rollup@4.28.1)(typescript@5.8.2)(uploadthing@7.4.4(h3@1.13.1)(next@15.2.3(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0)
       sharp:
         specifier: ^0.33.5
         version: 0.33.5
@@ -628,11 +628,11 @@ packages:
     resolution: {integrity: sha512-/l42B1qxpG6RdfYf343Uw1vmDjeNhneUXtzhojE7pDgfpEypmRhI6j1kr17XCVv4Cgl9HdAiQY2x0GwKm7rWCw==}
     engines: {node: '>=6.9.0'}
 
-  '@better-auth/utils@0.2.3':
-    resolution: {integrity: sha512-Ap1GaSmo6JYhJhxJOpUB0HobkKPTNzfta+bLV89HfpyCAHN7p8ntCrmNFHNAVD0F6v0mywFVEUg1FUhNCc81Rw==}
+  '@better-auth/utils@0.2.4':
+    resolution: {integrity: sha512-ayiX87Xd5sCHEplAdeMgwkA0FgnXsEZBgDn890XHHwSWNqqRZDYOq3uj2Ei2leTv1I2KbG5HHn60Ah1i2JWZjQ==}
 
-  '@better-fetch/fetch@1.1.12':
-    resolution: {integrity: sha512-B3bfloI/2UBQWIATRN6qmlORrvx3Mp0kkNjmXLv0b+DtbtR+pP4/I5kQA/rDUv+OReLywCCldf6co4LdDmh8JA==}
+  '@better-fetch/fetch@1.1.18':
+    resolution: {integrity: sha512-rEFOE1MYIsBmoMJtQbl32PGHHXuG2hDxvEd7rUHE0vCBoFQVSDqaVs9hkZEtHCxRoY+CljXKFCOuJ8uxqw1LcA==}
 
   '@biomejs/biome@1.9.4':
     resolution: {integrity: sha512-1rkd7G70+o9KkTn5KLmDYXihGoTaIGO9PIIN2ZB7UJxFrWw04CZHPYiMRjYsaDvVV7hP1dYNRLxSANLaBFGpog==}
@@ -3256,11 +3256,11 @@ packages:
   base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
 
-  better-auth@1.1.11:
-    resolution: {integrity: sha512-F6a+LquF4UnfG9q501KwtypJQG0YvCPuZ8TfOxeM/RHAFQORlAe+1mvmlINc5hID+mVJst1UZ+xrw2zRhZY0pA==}
+  better-auth@1.2.5:
+    resolution: {integrity: sha512-Tz2aKImkvaT7P9qHQ67Vhw/Slo6zpvE0jG7GoDQM+dd5tWuC3lP0OGjjWkNCZdToVlWB193i5nSHeZT90sFqEw==}
 
-  better-call@0.3.3:
-    resolution: {integrity: sha512-N4lDVm0NGmFfDJ0XMQ4O83Zm/3dPlvIQdxvwvgSLSkjFX5PM4GUYSVAuxNzXN27QZMHDkrJTWUqxBrm4tPC3eA==}
+  better-call@1.0.5:
+    resolution: {integrity: sha512-rAT73GWIJ8LbSP8Y3BdJnY1hwAiQPRRmUJ4R3YVhcVGS927l3eTXG5o5TD6Bv6je6ygjdx6iVq3/BU49eGUCHg==}
 
   binary-extensions@2.3.0:
     resolution: {integrity: sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==}
@@ -4031,8 +4031,8 @@ packages:
     resolution: {integrity: sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==}
     engines: {node: '>=6'}
 
-  kysely@0.27.5:
-    resolution: {integrity: sha512-s7hZHcQeSNKpzCkHRm8yA+0JPLjncSWnjb+2TIElwS2JAqYr+Kv3Ess+9KFfJS0C1xcQ1i9NkNHpWwCYpHMWsA==}
+  kysely@0.27.6:
+    resolution: {integrity: sha512-FIyV/64EkKhJmjgC0g2hygpBv5RNWVPyNCqSAD7eTCv6eFWNIi4PN1UvdSJGicN/o35bnevgis4Y0UDC0qi8jQ==}
     engines: {node: '>=14.0.0'}
 
   leac@0.6.0:
@@ -4452,6 +4452,10 @@ packages:
     resolution: {integrity: sha512-Aooyr6MXU6HpvvWXKoVoXwKMs/KyVakWwg7xQfv5/S/RIgJMy0Ifa45H9qqYy7pTCszrHzP21Uk4PZq2HpEM8Q==}
     engines: {node: ^18 || >=20}
     hasBin: true
+
+  nanostores@0.11.4:
+    resolution: {integrity: sha512-k1oiVNN4hDK8NcNERSZLQiMfRzEGtfnvZvdBvey3SQbgn8Dcrk0h1I6vpxApjb10PFUflZrgJ2WEZyJQ+5v7YQ==}
+    engines: {node: ^18.0.0 || >=20.0.0}
 
   neotraverse@0.6.18:
     resolution: {integrity: sha512-Z4SmBUweYa09+o6pG+eASabEpP6QkQ70yHj351pQoEXIs8uHbaU2DWVmzBANKgflPa47A50PtB2+NgRpQvr7vA==}
@@ -5231,6 +5235,9 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
+  set-cookie-parser@2.7.1:
+    resolution: {integrity: sha512-IOc8uWeOZgnb3ptbCURJWNjWUPcO3ZnTTdzsurqERrP6nPyv+paC55vJM0LpOlT2ne+Ix+9+CRG1MNLlyZ4GjQ==}
+
   sharp@0.33.5:
     resolution: {integrity: sha512-haPVm1EkS9pgvHrQ/F3Xy+hgcuMV0Wm9vfIBSiwZ05k+xgb0PkBQpGsAA/oWdDobNaZTH5ppvHtzCFbnSEwHVw==}
     engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
@@ -5509,6 +5516,11 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
+  typescript@5.8.2:
+    resolution: {integrity: sha512-aJn6wq13/afZp/jT9QZmwEjDqqvSGp1VT5GVg+f/t6/oVyrgXM6BY1h9BRh/O5p3PlUPAe+WuiEZOmb/49RqoQ==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
   uc.micro@2.1.0:
     resolution: {integrity: sha512-ARDJmphmdvUk6Glw7y9DQ2bFkKBHwQHLi2lsaH6PPmz/Ka9sFOBsBluozhDltWmnv9u/cF6Rt87znRTPV+yp/A==}
 
@@ -5726,6 +5738,14 @@ packages:
     resolution: {integrity: sha512-+g8ENReyr8YsOc6fv/NVJs2vFdHBnBNdfE49rshrTzDWOlUx4Gq7KOS2GD8eqhy2j+Ejq29+SbKH8yjkAqXqoA==}
     engines: {node: '>=8'}
     hasBin: true
+
+  valibot@1.0.0-beta.15:
+    resolution: {integrity: sha512-BKy8XosZkDHWmYC+cJG74LBzP++Gfntwi33pP3D3RKztz2XV9jmFWnkOi21GoqARP8wAWARwhV6eTr1JcWzjGw==}
+    peerDependencies:
+      typescript: '>=5'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   vfile-location@5.0.3:
     resolution: {integrity: sha512-5yXvWDEgqeiYiBe1lbxYF7UMAIm/IcopxMHrMQDq3nvKcjPKIhZklUKL+AE7J7uApI4kwe2snsK+eI6UTj9EHg==}
@@ -5960,12 +5980,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@astrojs/mdx@4.0.8(astro@5.2.6(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@1.21.6)(rollup@4.28.1)(typescript@5.6.3)(uploadthing@7.4.4(h3@1.13.1)(next@15.2.3(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0))':
+  '@astrojs/mdx@4.0.8(astro@5.2.6(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@1.21.6)(rollup@4.28.1)(typescript@5.8.2)(uploadthing@7.4.4(h3@1.13.1)(next@15.2.3(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0))':
     dependencies:
       '@astrojs/markdown-remark': 6.1.0
       '@mdx-js/mdx': 3.1.0(acorn@8.14.0)
       acorn: 8.14.0
-      astro: 5.2.6(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@1.21.6)(rollup@4.28.1)(typescript@5.6.3)(uploadthing@7.4.4(h3@1.13.1)(next@15.2.3(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0)
+      astro: 5.2.6(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@1.21.6)(rollup@4.28.1)(typescript@5.8.2)(uploadthing@7.4.4(h3@1.13.1)(next@15.2.3(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0)
       es-module-lexer: 1.6.0
       estree-util-visit: 2.0.0
       hast-util-to-html: 9.0.4
@@ -5994,9 +6014,9 @@ snapshots:
       stream-replace-string: 2.0.0
       zod: 3.24.1
 
-  '@astrojs/tailwind@6.0.0(astro@5.2.6(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@1.21.6)(rollup@4.28.1)(typescript@5.6.3)(uploadthing@7.4.4(h3@1.13.1)(next@15.2.3(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0))(tailwindcss@3.4.16)':
+  '@astrojs/tailwind@6.0.0(astro@5.2.6(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@1.21.6)(rollup@4.28.1)(typescript@5.8.2)(uploadthing@7.4.4(h3@1.13.1)(next@15.2.3(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0))(tailwindcss@3.4.16)':
     dependencies:
-      astro: 5.2.6(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@1.21.6)(rollup@4.28.1)(typescript@5.6.3)(uploadthing@7.4.4(h3@1.13.1)(next@15.2.3(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0)
+      astro: 5.2.6(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@1.21.6)(rollup@4.28.1)(typescript@5.8.2)(uploadthing@7.4.4(h3@1.13.1)(next@15.2.3(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0)
       autoprefixer: 10.4.20(postcss@8.5.1)
       postcss: 8.5.1
       postcss-load-config: 4.0.2(postcss@8.5.1)
@@ -6016,14 +6036,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@astrojs/vercel@8.0.7(astro@5.2.6(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@1.21.6)(rollup@4.28.1)(typescript@5.6.3)(uploadthing@7.4.4(h3@1.13.1)(next@15.2.3(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0))(next@15.2.3(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)(rollup@4.28.1)':
+  '@astrojs/vercel@8.0.7(astro@5.2.6(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@1.21.6)(rollup@4.28.1)(typescript@5.8.2)(uploadthing@7.4.4(h3@1.13.1)(next@15.2.3(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0))(next@15.2.3(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)(rollup@4.28.1)':
     dependencies:
       '@astrojs/internal-helpers': 0.5.1
       '@vercel/analytics': 1.4.1(next@15.2.3(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)
       '@vercel/edge': 1.2.1
       '@vercel/nft': 0.29.1(rollup@4.28.1)
       '@vercel/routing-utils': 5.0.4
-      astro: 5.2.6(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@1.21.6)(rollup@4.28.1)(typescript@5.6.3)(uploadthing@7.4.4(h3@1.13.1)(next@15.2.3(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0)
+      astro: 5.2.6(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@1.21.6)(rollup@4.28.1)(typescript@5.8.2)(uploadthing@7.4.4(h3@1.13.1)(next@15.2.3(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0)
       esbuild: 0.24.2
       fast-glob: 3.3.3
     transitivePeerDependencies:
@@ -6562,11 +6582,12 @@ snapshots:
       '@babel/helper-validator-identifier': 7.24.7
       to-fast-properties: 2.0.0
 
-  '@better-auth/utils@0.2.3':
+  '@better-auth/utils@0.2.4':
     dependencies:
+      typescript: 5.8.2
       uncrypto: 0.1.3
 
-  '@better-fetch/fetch@1.1.12': {}
+  '@better-fetch/fetch@1.1.18': {}
 
   '@biomejs/biome@1.9.4':
     optionalDependencies:
@@ -9120,7 +9141,7 @@ snapshots:
 
   astring@1.9.0: {}
 
-  astro@5.2.6(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@1.21.6)(rollup@4.28.1)(typescript@5.6.3)(uploadthing@7.4.4(h3@1.13.1)(next@15.2.3(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0):
+  astro@5.2.6(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@1.21.6)(rollup@4.28.1)(typescript@5.8.2)(uploadthing@7.4.4(h3@1.13.1)(next@15.2.3(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0):
     dependencies:
       '@astrojs/compiler': 2.10.3
       '@astrojs/internal-helpers': 0.5.1
@@ -9167,7 +9188,7 @@ snapshots:
       semver: 7.7.1
       shiki: 1.29.2
       tinyexec: 0.3.2
-      tsconfck: 3.1.4(typescript@5.6.3)
+      tsconfck: 3.1.4(typescript@5.8.2)
       ultrahtml: 1.5.3
       unist-util-visit: 5.0.0
       unstorage: 1.14.4(@upstash/redis@1.34.4)(uploadthing@7.4.4(h3@1.13.1)(next@15.2.3(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))
@@ -9180,7 +9201,7 @@ snapshots:
       yocto-spinner: 0.2.0
       zod: 3.24.1
       zod-to-json-schema: 3.24.1(zod@3.24.1)
-      zod-to-ts: 1.2.0(typescript@5.6.3)(zod@3.24.1)
+      zod-to-ts: 1.2.0(typescript@5.8.2)(zod@3.24.1)
     optionalDependencies:
       sharp: 0.33.5
     transitivePeerDependencies:
@@ -9259,29 +9280,31 @@ snapshots:
 
   base64-js@1.5.1: {}
 
-  better-auth@1.1.11:
+  better-auth@1.2.5(typescript@5.6.2):
     dependencies:
-      '@better-auth/utils': 0.2.3
-      '@better-fetch/fetch': 1.1.12
+      '@better-auth/utils': 0.2.4
+      '@better-fetch/fetch': 1.1.18
       '@noble/ciphers': 0.6.0
       '@noble/hashes': 1.6.1
       '@simplewebauthn/browser': 13.0.0
       '@simplewebauthn/server': 13.0.0
-      better-call: 0.3.3
+      better-call: 1.0.5
       defu: 6.1.4
       jose: 5.9.6
-      kysely: 0.27.5
-      uncrypto: 0.1.3
+      kysely: 0.27.6
+      nanostores: 0.11.4
+      valibot: 1.0.0-beta.15(typescript@5.6.2)
       zod: 3.24.1
     transitivePeerDependencies:
       - encoding
+      - typescript
 
-  better-call@0.3.3:
+  better-call@1.0.5:
     dependencies:
-      '@better-fetch/fetch': 1.1.12
+      '@better-fetch/fetch': 1.1.18
       rou3: 0.5.1
+      set-cookie-parser: 2.7.1
       uncrypto: 0.1.3
-      zod: 3.24.1
 
   binary-extensions@2.3.0: {}
 
@@ -10138,7 +10161,7 @@ snapshots:
 
   kleur@4.1.5: {}
 
-  kysely@0.27.5: {}
+  kysely@0.27.6: {}
 
   leac@0.6.0: {}
 
@@ -10919,6 +10942,8 @@ snapshots:
   nanoid@3.3.8: {}
 
   nanoid@5.0.9: {}
+
+  nanostores@0.11.4: {}
 
   neotraverse@0.6.18: {}
 
@@ -11849,6 +11874,8 @@ snapshots:
 
   semver@7.7.1: {}
 
+  set-cookie-parser@2.7.1: {}
+
   sharp@0.33.5:
     dependencies:
       color: 4.2.3
@@ -12137,9 +12164,9 @@ snapshots:
 
   ts-interface-checker@0.1.13: {}
 
-  tsconfck@3.1.4(typescript@5.6.3):
+  tsconfck@3.1.4(typescript@5.8.2):
     optionalDependencies:
-      typescript: 5.6.3
+      typescript: 5.8.2
 
   tslib@2.8.1: {}
 
@@ -12183,6 +12210,8 @@ snapshots:
   typescript@5.6.2: {}
 
   typescript@5.6.3: {}
+
+  typescript@5.8.2: {}
 
   uc.micro@2.1.0: {}
 
@@ -12383,6 +12412,10 @@ snapshots:
       kleur: 4.1.5
       sade: 1.8.1
 
+  valibot@1.0.0-beta.15(typescript@5.6.2):
+    optionalDependencies:
+      typescript: 5.6.2
+
   vfile-location@5.0.3:
     dependencies:
       '@types/unist': 3.0.3
@@ -12527,9 +12560,9 @@ snapshots:
     dependencies:
       zod: 3.24.1
 
-  zod-to-ts@1.2.0(typescript@5.6.3)(zod@3.24.1):
+  zod-to-ts@1.2.0(typescript@5.8.2)(zod@3.24.1):
     dependencies:
-      typescript: 5.6.3
+      typescript: 5.8.2
       zod: 3.24.1
 
   zod@3.22.3: {}

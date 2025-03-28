@@ -5,7 +5,6 @@ import {
 import db from "@marble/db";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { createAuthMiddleware } from "better-auth/api";
 import { nextCookies } from "better-auth/next-js";
 import { emailOTP, organization } from "better-auth/plugins";
 import { getActiveOrganization } from "../queries/workspace";
@@ -64,21 +63,6 @@ export const auth = betterAuth({
     }),
     nextCookies(),
   ],
-  hooks: {
-    after: createAuthMiddleware(async (ctx) => {
-      if (ctx.path.startsWith("/sign-up")) {
-        const newSession = ctx.context.newSession;
-        const user = newSession?.user;
-        if (user) {
-          const isNewSignup =
-            new Date().getTime() - user.createdAt.getTime() < 30000;
-          if (isNewSignup) {
-            throw ctx.redirect("/new");
-          }
-        }
-      }
-    }),
-  },
   databaseHooks: {
     // To set active organization when a session is created
     // This works but only when user isnt a new user i.e they already have an organization

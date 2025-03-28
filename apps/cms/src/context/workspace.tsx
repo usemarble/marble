@@ -6,11 +6,25 @@ import { setLastVisitedWorkspace } from "@/utils/workspace";
 import { useParams, usePathname } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
 
+// Type for partial workspace data that doesn't require full member details
+// This is because the response from creating a workpace doesnt return what is fully expexted by the ActiveOrganization type
+// So we set it like is and then fetch the full data after
+type PartialWorkspace = Omit<ActiveOrganization, "members"> & {
+  members: Array<{
+    id: string;
+    createdAt: Date;
+    userId: string;
+    organizationId: string;
+    role: string;
+    teamId?: string;
+  }>;
+};
+
 interface WorkspaceContextType {
   activeWorkspace: ActiveOrganization | null;
   updateActiveWorkspace: (
     workspaceSlug: string,
-    newWorkspace?: Partial<ActiveOrganization>,
+    newWorkspace?: Partial<PartialWorkspace>,
   ) => Promise<void>;
   isLoading: boolean;
 }
@@ -23,15 +37,13 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const params = useParams<{ workspace: string }>();
   const pathname = usePathname();
 
-  const { data: activeOrganization } = useActiveOrganization();
-
   const [activeWorkspace, setActiveWorkspace] =
-    useState<ActiveOrganization | null>(activeOrganization);
+    useState<ActiveOrganization | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   async function updateActiveWorkspace(
     workspaceSlug: string,
-    newWorkspace?: Partial<ActiveOrganization>,
+    newWorkspace?: Partial<PartialWorkspace>,
   ) {
     setIsLoading(true);
     try {

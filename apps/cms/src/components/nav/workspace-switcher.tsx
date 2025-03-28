@@ -1,7 +1,7 @@
 "use client";
 
 import { Check, ChevronsUpDown, Plus } from "@marble/ui/lib/icons";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import {
   DropdownMenu,
@@ -18,17 +18,8 @@ import {
   useSidebar,
 } from "@marble/ui/components/sidebar";
 
-import {
-  organization,
-  useActiveOrganization,
-  useListOrganizations,
-  useSession,
-} from "@/lib/auth/client";
-import type {
-  ActiveOrganization,
-  Organization,
-  Session,
-} from "@/lib/auth/types";
+import { useListOrganizations } from "@/lib/auth/client";
+import type { Organization } from "@/lib/auth/types";
 import {
   Avatar,
   AvatarFallback,
@@ -39,11 +30,7 @@ import { useRouter } from "next/navigation";
 import { useWorkspace } from "../../context/workspace";
 import { CreateWorkspaceModal } from "./workspace-modal";
 
-interface WorkspaceSwitcherProps {
-  session: Session | null;
-}
-
-export function WorkspaceSwitcher({ session }: WorkspaceSwitcherProps) {
+export function WorkspaceSwitcher() {
   const { isMobile } = useSidebar();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -53,8 +40,12 @@ export function WorkspaceSwitcher({ session }: WorkspaceSwitcherProps) {
   async function switchWorkspace(org: Organization) {
     if (org.slug === activeWorkspace?.slug) return;
 
-    await updateActiveWorkspace(org.slug, org);
-    router.push(`/${org.slug}`, { scroll: false });
+    try {
+      await updateActiveWorkspace(org.slug, org);
+      router.push(`/${org.slug}`);
+    } catch (error) {
+      console.error("Failed to switch workspace:", error);
+    }
   }
 
   return (

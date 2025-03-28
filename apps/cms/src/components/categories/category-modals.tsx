@@ -171,7 +171,7 @@ export const UpdateCategoryModal = ({
   const onSubmit = async (data: CreateCategoryValues) => {
     const isTaken = await checkCategorySlugForUpdateAction(
       data.slug,
-      activeWorkspace.id,
+      activeWorkspace?.id,
       categoryData.id,
     );
 
