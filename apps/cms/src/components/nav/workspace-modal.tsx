@@ -90,23 +90,37 @@ export const CreateWorkspaceModal = ({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md p-8">
         <DialogHeader>
-          <DialogTitle>Create workspace</DialogTitle>
+          <DialogTitle className="font-medium text-center">
+            New workspace
+          </DialogTitle>
           <DialogDescription className="sr-only">
             A Workspace is a way for you to manage multiple blogs and
             collaborate with teammates.
           </DialogDescription>
         </DialogHeader>
         {/*  */}
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col gap-5 mt-6"
+        >
           <div className="grid flex-1 gap-2">
-            <Label htmlFor="name">Name</Label>
-            <Input id="name" {...register("name")} autoComplete="off" />
+            <Label htmlFor="name" className="sr-only">
+              Name
+            </Label>
+            <Input
+              id="name"
+              {...register("name")}
+              autoComplete="off"
+              placeholder="Name"
+            />
             {errors.name && <ErrorMessage>{errors.name.message}</ErrorMessage>}
           </div>
           <div className="grid flex-1 gap-2">
-            <Label htmlFor="slug">Slug</Label>
+            <Label htmlFor="slug" className="sr-only">
+              Slug
+            </Label>
             <div className="flex w-full rounded-md border border-input bg-background text-base placeholder:text-muted-foreground focus-within:outline-none focus-within:border-primary focus-within:ring-2 focus-within:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm overflow-hidden">
               <span className="py-2.5 px-2 bg-muted border-r">
                 app.marblecms.com/
@@ -115,19 +129,20 @@ export const CreateWorkspaceModal = ({
                 id="slug"
                 {...register("slug")}
                 defaultValue={generateSlug(name)}
+                placeholder="slug"
                 className="w-full bg-transparent py-2 outline-none ring-0 pl-2"
               />
             </div>
             {errors.slug && <ErrorMessage>{errors.slug.message}</ErrorMessage>}
           </div>
-          <div className="mt-2">
+          <div className="mt-4">
             <Button
               type="submit"
               disabled={isSubmitting}
               className="flex w-full gap-2"
             >
               {isSubmitting && <Loader className="size-4 animate-spin" />}
-              Create Workspace
+              Create
             </Button>
           </div>
         </form>
