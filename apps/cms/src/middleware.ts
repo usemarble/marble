@@ -5,14 +5,13 @@ import { getUserWorkspace } from "./lib/queries/workspace";
 import axios from "axios";
 
 export async function middleware(request: NextRequest) {
-  const { data: session } = await axios.get<Session>(
-    `${request.nextUrl.origin}/api/auth/get-session`,
-    {
+  const { data: session } = await axios
+    .get<Session>(`${request.nextUrl.origin}/api/auth/get-session`, {
       headers: {
         cookie: request.headers.get("cookie") || "",
       },
-    },
-  ).catch(() => ({ data: null }));
+    })
+    .catch(() => ({ data: null }));
 
   const isVerified = session?.user?.emailVerified;
   const path = request.nextUrl.pathname;
