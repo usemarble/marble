@@ -2,20 +2,19 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import type { Session } from "./lib/auth/types";
 import { getUserWorkspace } from "./lib/queries/workspace";
+import axios from "axios";
 
 export async function middleware(request: NextRequest) {
-  const sessionRes = await fetch(
+  const { data: session } = await axios.get<Session>(
     `${request.nextUrl.origin}/api/auth/get-session`,
     {
       headers: {
         cookie: request.headers.get("cookie") || "",
       },
     },
-  );
+  ).catch(() => ({ data: null }));
 
-  const session: Session = sessionRes.ok ? await sessionRes.json() : null;
-  const isVerified = session?.user.emailVerified;
-
+  const isVerified = session?.user?.emailVerified;
   const path = request.nextUrl.pathname;
   const isRootPage = path === "/";
   const isInvitePage = path.startsWith("/invite");

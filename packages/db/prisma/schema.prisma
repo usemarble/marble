@@ -8,6 +8,217 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Subscription {
+  id        String             @id @default(cuid())
+  userId    String             @unique
+  plan      PlanType           @default(FREE)
+  status    SubscriptionStatus @default(ACTIVE)
+  startedAt DateTime           @default(now())
+  expiresAt DateTime?
+  updatedAt DateTime           @updatedAt
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscription")
+}
+
+model Organization {
+  id          String       @id @default(cuid())
+  name        String
+  slug        String       @unique
+  logo        String?
+  metadata    String?
+  description String?
+  subdomain   String?      @unique
+  updatedAt   DateTime     @updatedAt
+  createdAt   DateTime     @default(now())
+  categories  Category[]
+  invitations Invitation[]
+  media       Media[]
+  members     Member[]
+  posts       Post[]
+  tags        Tag[]
+  webhooks    Webhook[]
+
+  @@map("workspace")
+}
+
+model Post {
+  id              String       @id @default(cuid())
+  title           String
+  content         String
+  coverImage      String?
+  contentJson     Json
+  description     String
+  views           Int          @default(0)
+  workspaceId     String
+  slug            String
+  categoryId      String
+  status          PostStatus   @default(published)
+  featured        Boolean      @default(false)
+  updatedAt       DateTime     @updatedAt
+  createdAt       DateTime     @default(now())
+  publishedAt     DateTime     @default(now())
+  attribution     Json?
+  primaryAuthorId String
+  category        Category     @relation(fields: [categoryId], references: [id])
+  primaryAuthor   User         @relation("PrimaryAuthor", fields: [primaryAuthorId], references: [id])
+  workspace       Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  tags            Tag[]        @relation("PostToTag")
+  authors         User[]       @relation("PostToUser")
+
+  @@unique([workspaceId, slug])
+  @@map("post")
+}
+
+model Tag {
+  id          String       @id @default(cuid())
+  name        String
+  description String?
+  slug        String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  workspaceId String
+  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  posts       Post[]       @relation("PostToTag")
+
+  @@unique([workspaceId, slug])
+  @@map("tag")
+}
+
+model Media {
+  id          String       @id @default(cuid())
+  name        String
+  url         String
+  type        String?
+  size        Int?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  workspaceId String
+  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@map("media")
+}
+
+model Category {
+  id          String       @id @default(cuid())
+  name        String
+  description String?
+  slug        String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  workspaceId String
+  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  posts       Post[]
+
+  @@unique([workspaceId, slug])
+  @@map("category")
+}
+
+model Webhook {
+  id          String       @id @default(cuid())
+  name        String
+  endpoint    String
+  event       WebhookEvent @default(POST_PUBLISHED)
+  secret      String
+  enabled     Boolean      @default(true)
+  workspaceId String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@map("webhook")
+}
+
+model User {
+  id              String        @id @default(cuid())
+  name            String
+  email           String        @unique
+  emailVerified   Boolean
+  image           String?
+  createdAt       DateTime
+  updatedAt       DateTime
+  accounts        Account[]
+  invitations     Invitation[]
+  members         Member[]
+  authoredPosts   Post[]        @relation("PrimaryAuthor")
+  sessions        Session[]
+  subscription    Subscription?
+  coAuthoredPosts Post[]        @relation("PostToUser")
+
+  @@map("user")
+}
+
+model Session {
+  id                   String   @id @default(cuid())
+  expiresAt            DateTime
+  token                String   @unique
+  createdAt            DateTime
+  updatedAt            DateTime
+  ipAddress            String?
+  userAgent            String?
+  userId               String
+  activeOrganizationId String?
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("verification")
+}
+
+model Member {
+  id             String       @id @default(cuid())
+  organizationId String
+  userId         String
+  role           String
+  createdAt      DateTime
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("member")
+}
+
+model Invitation {
+  id             String       @id @default(cuid())
+  organizationId String
+  email          String
+  role           String?
+  status         String
+  expiresAt      DateTime
+  inviterId      String
+  user           User         @relation(fields: [inviterId], references: [id], onDelete: Cascade)
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("invitation")
+}
+
 enum RoleType {
   admin
   owner
@@ -40,218 +251,4 @@ enum SubscriptionStatus {
 enum WebhookEvent {
   POST_PUBLISHED
   POST_DELETED
-}
-
-model Subscription {
-  id        String             @id @default(cuid())
-  userId    String             @unique
-  plan      PlanType           @default(FREE)
-  status    SubscriptionStatus @default(ACTIVE)
-  startedAt DateTime           @default(now())
-  expiresAt DateTime?
-  updatedAt DateTime           @updatedAt
-  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("subscription")
-}
-
-model Organization {
-  id          String       @id @default(cuid())
-  name        String
-  slug        String
-  logo        String?
-  metadata    String?
-  description String?
-  subdomain   String?      @unique
-  updatedAt   DateTime     @updatedAt
-  createdAt   DateTime     @default(now())
-  posts       Post[]
-  tags        Tag[]
-  categories  Category[]
-  members     Member[]
-  invitations Invitation[]
-  media       Media[]
-  webhooks    Webhook[]
-
-  @@unique([slug])
-  @@map("workspace")
-}
-
-model Post {
-  id              String       @id @default(cuid())
-  title           String
-  content         String
-  coverImage      String?
-  contentJson     Json
-  description     String
-  views           Int          @default(0)
-  workspaceId     String
-  slug            String
-  primaryAuthorId String
-  categoryId      String
-  status          PostStatus   @default(published)
-  featured        Boolean      @default(false)
-  tags            Tag[]
-  authors         User[]
-  updatedAt       DateTime     @updatedAt
-  createdAt       DateTime     @default(now())
-  publishedAt     DateTime     @default(now())
-  attribution     Json?
-  primaryAuthor   User         @relation("PrimaryAuthor", fields: [primaryAuthorId], references: [id])
-  category        Category     @relation(fields: [categoryId], references: [id])
-  workspace       Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-
-  @@unique([workspaceId, slug])
-  @@map("post")
-}
-
-model Tag {
-  id          String       @id @default(cuid())
-  name        String
-  description String?
-  slug        String
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  posts       Post[]
-  workspaceId String
-  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-
-  @@unique([workspaceId, slug])
-  @@map("tag")
-}
-
-model Media {
-  id          String       @id @default(cuid())
-  name        String
-  url         String
-  type        String?
-  size        Int?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  workspaceId String
-  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-
-  @@map("media")
-}
-
-model Category {
-  id          String       @id @default(cuid())
-  name        String
-  description String?
-  slug        String
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  posts       Post[]
-  workspaceId String
-  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-
-  @@unique([workspaceId, slug])
-  @@map("category")
-}
-
-model Webhook {
-  id          String       @id @default(cuid())
-  name        String
-  endpoint    String
-  event       WebhookEvent @default(POST_PUBLISHED)
-  secret      String
-  enabled     Boolean      @default(true)
-  workspaceId String
-  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-
-  @@map("webhook")
-}
-
-model User {
-  id              String        @id @default(cuid())
-  name            String
-  email           String
-  emailVerified   Boolean
-  image           String?
-  createdAt       DateTime
-  updatedAt       DateTime
-  sessions        Session[]
-  accounts        Account[]
-  members         Member[]
-  authoredPosts   Post[]        @relation("PrimaryAuthor")
-  coAuthoredPosts Post[]
-  invitations     Invitation[]
-  subscription    Subscription?
-
-  @@unique([email])
-  @@map("user")
-}
-
-model Session {
-  id                   String   @id @default(cuid())
-  expiresAt            DateTime
-  token                String
-  createdAt            DateTime
-  updatedAt            DateTime
-  ipAddress            String?
-  userAgent            String?
-  userId               String
-  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  activeOrganizationId String?
-
-  @@unique([token])
-  @@map("session")
-}
-
-model Account {
-  id                    String    @id @default(cuid())
-  accountId             String
-  providerId            String
-  userId                String
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  accessToken           String?
-  refreshToken          String?
-  idToken               String?
-  accessTokenExpiresAt  DateTime?
-  refreshTokenExpiresAt DateTime?
-  scope                 String?
-  password              String?
-  createdAt             DateTime
-  updatedAt             DateTime
-
-  @@map("account")
-}
-
-model Verification {
-  id         String    @id @default(cuid())
-  identifier String
-  value      String
-  expiresAt  DateTime
-  createdAt  DateTime?
-  updatedAt  DateTime?
-
-  @@map("verification")
-}
-
-model Member {
-  id             String       @id @default(cuid())
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  userId         String
-  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role           String
-  createdAt      DateTime
-
-  @@map("member")
-}
-
-model Invitation {
-  id             String       @id @default(cuid())
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  email          String
-  role           String?
-  status         String
-  expiresAt      DateTime
-  inviterId      String
-  user           User         @relation(fields: [inviterId], references: [id], onDelete: Cascade)
-
-  @@map("invitation")
 }
