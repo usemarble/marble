@@ -57,5 +57,8 @@ const { title, description, image = "/og.jpg" } = Astro.props;
   href={new URL('rss.xml', Astro.site)}
 />
 
+<!-- Analytics -->
+<script is:inline defer data-domain="marblecms.com" src="https://stats.rivo.gg/js/script.js"></script>
+
 <!-- Client Router -->
 <ClientRouter />
