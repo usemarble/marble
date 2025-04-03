@@ -6,13 +6,15 @@
     "deploy": "wrangler deploy --minify"
   },
   "dependencies": {
+    "@hono/zod-validator": "^0.4.3",
     "@marble/db": "workspace:*",
     "@upstash/ratelimit": "^2.0.5",
     "@upstash/redis": "^1.34.4",
-    "hono": "^4.6.13"
+    "hono": "^4.7.5",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20240925.0",
-    "wrangler": "^3.109.3"
+    "@cloudflare/workers-types": "^4.20250402.0",
+    "wrangler": "^4.7.0"
   }
 }
