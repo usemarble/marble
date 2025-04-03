@@ -1,7 +1,7 @@
 import { createClient } from "@marble/db";
 import { Hono } from "hono";
 import { ratelimit } from "./middleware";
-import { PostsQuerySchema } from "./validations";
+import { BasicPaginationSchema, PostsQuerySchema } from "./validations";
 
 export type Env = {
   DATABASE_URL: string;
@@ -27,6 +27,49 @@ app.get("/:workspaceId/tags", async (c) => {
     const workspaceId = c.req.param("workspaceId");
     const db = createClient(url);
 
+    // Validate pagination params
+    const queryValidation = BasicPaginationSchema.safeParse({
+      limit: c.req.query("limit"),
+      page: c.req.query("page"),
+    });
+
+    if (!queryValidation.success) {
+      return c.json(
+        {
+          error: "Invalid pagination parameters",
+          details: queryValidation.error.errors.map((err) => ({
+            field: err.path.join("."),
+            message: err.message,
+          })),
+        },
+        400,
+      );
+    }
+
+    const { limit, page } = queryValidation.data;
+
+    // Get total count
+    const totalTags = await db.tag.count({ where: { workspaceId } });
+
+    const totalPages = Math.ceil(totalTags / limit);
+    const prevPage = page > 1 ? page - 1 : null;
+    const nextPage = page < totalPages ? page + 1 : null;
+
+    // Validate page number
+    if (page > totalPages && totalTags > 0) {
+      return c.json(
+        {
+          error: "Invalid page number",
+          details: {
+            message: `Page ${page} does not exist.`,
+            totalPages,
+            requestedPage: page,
+          },
+        },
+        400,
+      );
+    }
+
     const tags = await db.tag.findMany({
       where: {
         workspaceId,
@@ -36,9 +79,23 @@ app.get("/:workspaceId/tags", async (c) => {
         name: true,
         slug: true,
       },
+      take: limit,
+      skip: (page - 1) * limit,
     });
-    return c.json({ tags });
+
+    return c.json({
+      tags,
+      pagination: {
+        limit,
+        currPage: page,
+        nextPage,
+        prevPage,
+        totalPages,
+        totalItems: totalTags,
+      },
+    });
   } catch (error) {
+    console.error("Error fetching tags:", error);
     return c.json({ error: "Failed to fetch tags" }, 500);
   }
 });
@@ -49,6 +106,51 @@ app.get("/:workspaceId/categories", async (c) => {
     const workspaceId = c.req.param("workspaceId");
     const db = createClient(url);
 
+    // Validate pagination params
+    const queryValidation = BasicPaginationSchema.safeParse({
+      limit: c.req.query("limit"),
+      page: c.req.query("page"),
+    });
+
+    if (!queryValidation.success) {
+      return c.json(
+        {
+          error: "Invalid pagination parameters",
+          details: queryValidation.error.errors.map((err) => ({
+            field: err.path.join("."),
+            message: err.message,
+          })),
+        },
+        400,
+      );
+    }
+
+    const { limit, page } = queryValidation.data;
+
+    // Get total count
+    const totalCategories = await db.category.count({
+      where: { workspaceId },
+    });
+
+    const totalPages = Math.ceil(totalCategories / limit);
+    const prevPage = page > 1 ? page - 1 : null;
+    const nextPage = page < totalPages ? page + 1 : null;
+
+    // Validate page number
+    if (page > totalPages && totalCategories > 0) {
+      return c.json(
+        {
+          error: "Invalid page number",
+          details: {
+            message: `Page ${page} does not exist.`,
+            totalPages,
+            requestedPage: page,
+          },
+        },
+        400,
+      );
+    }
+
     const categories = await db.category.findMany({
       where: {
         workspaceId,
@@ -58,9 +160,23 @@ app.get("/:workspaceId/categories", async (c) => {
         name: true,
         slug: true,
       },
+      take: limit,
+      skip: (page - 1) * limit,
     });
-    return c.json({ categories });
+
+    return c.json({
+      categories,
+      pagination: {
+        limit,
+        currPage: page,
+        nextPage,
+        prevPage,
+        totalPages,
+        totalItems: totalCategories,
+      },
+    });
   } catch (error) {
+    console.error("Error fetching categories:", error);
     return c.json({ error: "Failed to fetch categories" }, 500);
   }
 });
@@ -135,7 +251,7 @@ app.get("/:workspaceId/posts", async (c) => {
         {
           error: "Invalid page number",
           details: {
-            message: `Page ${page} does not exist. Total pages: ${totalPages}`,
+            message: `Page ${page} does not exist.`,
             totalPages,
             requestedPage: page,
           },
@@ -197,7 +313,7 @@ app.get("/:workspaceId/posts", async (c) => {
           nextPage: nextPage,
           prevPage: prevPage,
           totalPages: totalPages,
-          totalPosts: totalPosts,
+          totalItems: totalPosts,
         }
       : {
           limit: totalPosts,
@@ -205,7 +321,7 @@ app.get("/:workspaceId/posts", async (c) => {
           nextPage: null,
           prevPage: null,
           totalPages: 1,
-          totalPosts: totalPosts,
+          totalItems: totalPosts,
         };
 
     return c.json({
@@ -253,6 +369,7 @@ app.get("/:workspaceId/posts/:slug", async (c) => {
         coverImage: true,
         description: true,
         publishedAt: true,
+        updatedAt: true,
         attribution: true,
         authors: {
           select: {
@@ -293,6 +410,27 @@ app.get("/:workspaceId/authors", async (c) => {
   const workspaceId = c.req.param("workspaceId");
   const db = createClient(url);
 
+  // Validate pagination params
+  const queryValidation = BasicPaginationSchema.safeParse({
+    limit: c.req.query("limit"),
+    page: c.req.query("page"),
+  });
+
+  if (!queryValidation.success) {
+    return c.json(
+      {
+        error: "Invalid pagination parameters",
+        details: queryValidation.error.errors.map((err) => ({
+          field: err.path.join("."),
+          message: err.message,
+        })),
+      },
+      400,
+    );
+  }
+
+  const { limit, page } = queryValidation.data;
+
   try {
     const authors = await db.user.findMany({
       where: {
@@ -305,9 +443,47 @@ app.get("/:workspaceId/authors", async (c) => {
         name: true,
         image: true,
       },
+      take: limit,
+      skip: (page - 1) * limit,
     });
 
-    return c.json({ authors });
+    const totalAuthors = await db.user.count({
+      where: {
+        members: {
+          some: { organizationId: workspaceId },
+        },
+      },
+    });
+
+    const totalPages = Math.ceil(totalAuthors / limit);
+    const prevPage = page > 1 ? page - 1 : null;
+    const nextPage = page < totalPages ? page + 1 : null;
+
+    if (page > totalPages && totalAuthors > 0) {
+      return c.json(
+        {
+          error: "Invalid page number",
+          details: {
+            message: `Page ${page} does not exist.`,
+            totalPages,
+            requestedPage: page,
+          },
+        },
+        400,
+      );
+    }
+
+    return c.json({
+      authors,
+      pagination: {
+        limit,
+        currPage: page,
+        nextPage: nextPage,
+        prevPage: prevPage,
+        totalPages: totalPages,
+        totalItems: totalAuthors,
+      },
+    });
   } catch (error) {
     return c.json({ error: "Failed to fetch authors" }, 500);
   }
@@ -334,9 +510,13 @@ app.get("/:workspaceId/authors/:id", async (c) => {
       },
     });
 
+    if (!author) {
+      return c.json({ error: "Author not found" }, 404);
+    }
+
     return c.json(author);
   } catch (error) {
-    return c.json({ error: "Failed to fetch authors" }, 500);
+    return c.json({ error: "Failed to fetch author" }, 500);
   }
 });
 
