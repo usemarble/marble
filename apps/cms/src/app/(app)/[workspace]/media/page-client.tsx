@@ -1,8 +1,9 @@
 "use client";
 
+import { DeleteMediaModal } from "@/components/media/delete-modal";
 import { MediaUploadModal } from "@/components/media/upload-modal";
 import { Button } from "@marble/ui/components/button";
-import { ImageIcon, UploadCloud } from "lucide-react";
+import { ImageIcon, Trash2, UploadCloud } from "lucide-react";
 import { useState } from "react";
 
 type Media = {
@@ -18,17 +19,15 @@ interface PageClientProps {
 function PageClient({ media }: PageClientProps) {
   const [optimisticMedia, setOptimisticMedia] = useState<Media[]>(media);
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [mediaToDelete, setMediaToDelete] = useState<Media | null>(null);
 
   return (
     <>
       <div className="h-full flex flex-col mx-auto pt-10 pb-16 max-w-4xl gap-8">
         <section className="flex justify-between items-center">
           <div />
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => setShowUploadModal(true)}
-          >
+          <Button size="sm" onClick={() => setShowUploadModal(true)}>
             <UploadCloud size={16} />
             <span>upload image</span>
           </Button>
@@ -38,8 +37,19 @@ function PageClient({ media }: PageClientProps) {
             {optimisticMedia.map((media) => (
               <li
                 key={media.id}
-                className="relative rounded-md overflow-hidden border"
+                className="relative rounded-md overflow-hidden border group"
               >
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMediaToDelete(media);
+                    setShowDeleteModal(true);
+                  }}
+                  className="absolute top-2 right-2 p-2 bg-white rounded-full text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition duration-500"
+                >
+                  <Trash2 className="size-4" />
+                  <span className="sr-only">delete image</span>
+                </button>
                 <div className="">
                   <img
                     src={media.url}
@@ -49,7 +59,7 @@ function PageClient({ media }: PageClientProps) {
                 </div>
                 <div className="p-4 bg-background border-t">
                   <p className="text-sm text-muted-foreground truncate">
-                    {media.name}
+                    {media.name.split(".")[0]}
                   </p>
                 </div>
               </li>
@@ -58,7 +68,7 @@ function PageClient({ media }: PageClientProps) {
         ) : (
           <div className="grid h-full w-full place-content-center mt-10">
             <div className="flex flex-col items-center gap-4 max-w-80">
-              <ImageIcon className="size-16 stroke-[1px]" />
+              <ImageIcon className="size-16 stroke-[1px] text-muted-foreground" />
               <p className="text-balance text-center text-muted-foreground text-sm">
                 Images you upload in this workspace will appear here.
               </p>
@@ -75,6 +85,16 @@ function PageClient({ media }: PageClientProps) {
           }
         }}
       />
+      {mediaToDelete && (
+        <DeleteMediaModal
+          isDeleteDialogOpen={showDeleteModal}
+          setIsDeleteDialogOpen={setShowDeleteModal}
+          onDelete={(id) => {
+            setOptimisticMedia(optimisticMedia.filter((m) => m.id !== id));
+          }}
+          mediaToDelete={mediaToDelete.id}
+        />
+      )}
     </>
   );
 }
