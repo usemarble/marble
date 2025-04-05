@@ -2,7 +2,7 @@
 
 import { CloudUpload, ImageIcon, Trash2 } from "lucide-react";
 
-import { uploadImageAction } from "@/lib/actions/upload";
+import { uploadImageAction } from "@/lib/actions/media";
 import { Button } from "@marble/ui/components/button";
 import {
   Dialog,

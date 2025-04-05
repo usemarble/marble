@@ -2,7 +2,7 @@
 
 import getServerSession from "@/lib/auth/session";
 import { generateSlug } from "@/utils/string";
-import { S3Client } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
 import db from "@marble/db";
 import { nanoid } from "nanoid";
@@ -129,6 +129,52 @@ export async function uploadImageAction(file: File): Promise<UploadResult> {
     console.error("Error uploading image to R2:", error);
     throw new Error(
       error instanceof Error ? error.message : "Failed to upload image",
+    );
+  }
+}
+
+/**
+ * Delete media from the database and R2 bucket
+ * @param mediaId - The ID of the media to delete
+ * @returns Object containing success status and deleted media ID
+ */
+export async function deleteMediaAction(mediaId: string) {
+  const sessionInfo = await getServerSession();
+  if (!sessionInfo) throw new Error("Unauthorized");
+
+  try {
+    // Get the media from the db
+    const media = await db.media.findUnique({
+      where: {
+        id: mediaId,
+        workspaceId: sessionInfo.session.activeOrganizationId as string,
+      },
+    });
+
+    if (!media) {
+      throw new Error("Media not found");
+    }
+
+    // Delete the object from R2
+    await s3Client.send(
+      new DeleteObjectCommand({
+        Bucket: bucketName,
+        Key: media.name,
+      }),
+    );
+
+    // Delete the media from the database
+    const deletedMedia = await db.media.delete({
+      where: {
+        id: mediaId,
+      },
+    });
+
+    return { success: true, id: deletedMedia.id };
+  } catch (error) {
+    console.error("Error deleting media:", error);
+    throw new Error(
+      error instanceof Error ? error.message : "Failed to delete media",
     );
   }
 }

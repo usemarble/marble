@@ -1,6 +1,6 @@
 "use client";
 
-import { uploadImageAction } from "@/lib/actions/upload";
+import { uploadImageAction } from "@/lib/actions/media";
 import type { PostValues } from "@/lib/validations/post";
 import { Button } from "@marble/ui/components/button";
 import { Calendar } from "@marble/ui/components/calendar";

@@ -17,11 +17,7 @@ async function Page({ params }: { params: Promise<{ workspace: string }> }) {
       url: true,
     },
   });
-  return (
-    <div>
-      <PageClient media={media} />
-    </div>
-  );
+  return <PageClient media={media} />;
 }
 
 export default Page;
