@@ -38,13 +38,11 @@ export function RemoveMemberModal({
         fetchOptions: {
           onRequest: () => {
             toast.loading("Removing member...", {
-              position: "top-center",
               id: "remove-member",
             });
           },
           onSuccess: () => {
             toast.success("Member removed successfully", {
-              position: "top-center",
               id: "remove-member",
             });
             setOpen(false);
@@ -53,7 +51,6 @@ export function RemoveMemberModal({
       });
     } catch (error) {
       toast.error("Failed to remove member", {
-        position: "top-center",
         id: "remove-member",
       });
     } finally {

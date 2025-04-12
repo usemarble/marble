@@ -43,7 +43,6 @@ export function MediaUploadModal({
       setIsUploading(true);
       toast.loading("Compressing...", {
         id: "uploading",
-        position: "top-center",
       });
 
       const formData = new FormData();
@@ -69,7 +68,6 @@ export function MediaUploadModal({
 
       toast.loading("Uploading...", {
         id: "uploading",
-        position: "top-center",
       });
 
       const result = await uploadImageAction(compressedFile);
@@ -77,7 +75,6 @@ export function MediaUploadModal({
       setIsUploading(false);
       toast.success("Uploaded successfully!", {
         id: "uploading",
-        position: "top-center",
       });
 
       if (onUploadComplete) {
@@ -99,7 +96,6 @@ export function MediaUploadModal({
         error instanceof Error ? error.message : "Failed to upload image",
         {
           id: "uploading",
-          position: "top-center",
         },
       );
       setIsUploading(false);

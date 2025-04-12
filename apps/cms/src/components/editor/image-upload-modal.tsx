@@ -71,10 +71,7 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
 
     try {
       setIsUploading(true);
-      toast.loading("Compressing...", {
-        id: "uploading",
-        position: "top-center",
-      });
+      toast.loading("Compressing...", { id: "uploading" });
 
       const formData = new FormData();
       formData.append("file", file);
@@ -99,7 +96,6 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
 
       toast.loading("Uploading...", {
         id: "uploading",
-        position: "top-center",
       });
 
       // Upload to Cloudflare R2
@@ -116,7 +112,6 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
       setIsUploading(false);
       toast.success("Uploaded successfully!", {
         id: "uploading",
-        position: "top-center",
       });
 
       setIsOpen(false);
@@ -127,7 +122,6 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
         error instanceof Error ? error.message : "Failed to upload image",
         {
           id: "uploading",
-          position: "top-center",
         },
       );
       setIsUploading(false);

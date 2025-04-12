@@ -13,7 +13,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       <WorkspaceProvider>
         <ThemeProvider attribute="class" enableSystem disableTransitionOnChange>
           {children}
-          <Toaster />
+          <Toaster position="top-center" />
         </ThemeProvider>
       </WorkspaceProvider>
     </QueryClientProvider>

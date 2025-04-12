@@ -45,13 +45,11 @@ function PageClient(props: PageClientProps) {
         fetchOptions: {
           onRequest: (ctx) => {
             toast.loading("Canceling invitation...", {
-              position: "top-center",
               id: "cancel-invite",
             });
           },
           onSuccess: (ctx) => {
             toast.success("Invitation canceled", {
-              position: "top-center",
               id: "cancel-invite",
             });
             setOptimisticOrg(
@@ -68,7 +66,6 @@ function PageClient(props: PageClientProps) {
       });
     } catch (error) {
       toast.error("Failed to cancel invitation", {
-        position: "top-center",
         id: "cancel-invite",
       });
     } finally {
@@ -80,9 +77,7 @@ function PageClient(props: PageClientProps) {
     navigator.clipboard.writeText(
       `https://${process.env.NEXT_PUBLIC_APP_URL}/join/${inviteId}`,
     );
-    toast.success("Invite link copied to clipboard", {
-      position: "top-center",
-    });
+    toast.success("Invite link copied to clipboard");
   };
 
   const getInviterDisplay = (inviterId: string) => {
