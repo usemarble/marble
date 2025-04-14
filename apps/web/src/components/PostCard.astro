@@ -9,58 +9,36 @@ type Props = {
 const { entry } = Astro.props as Props;
 const { title, description, cover, published, author, tags, slug } = entry.data;
 
-const formattedDate = new Date(published)
-  .toLocaleDateString("en-US", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  })
-  .split("/")
-  .join(".");
+const formattedDate = new Date(published).toLocaleDateString("en-US", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+});
 ---
 
 <li>
   <a
     href={`/blog/${slug}`}
-    class='space-y-1 p-4 border border-transparent hover:border-border border-dashed bg-white flex gap-4 flex-col items-center'
+    class='space-y-1 p-4 border bg-white flex gap-4 flex-col rounded-2xl hover:shadow-sm transition-all duration-300'
   >
-    <div class="w-full border border-dashed">
+    <div class="w-full border border-dashed rounded-md overflow-hidden group">
       <Image
         src={cover.src}
         alt={cover.alt}
         loading="eager"
-        class='w-full object-cover'
+        class='w-full object-cover group-hover:scale-105 transition-all duration-500'
       />
     </div>
-    <div class="flex flex-col gap-3">
-      <div class="flex items-center gap-2 font-mono">
-        <time datetime={published.toString()} class="text-muted-foreground text-sm">{formattedDate}</time>
-        <span class='mx-2'>-</span>
+    <div class="flex flex-col gap-4 md:gap-6">
+      <div class="space-y-2">
+        <h2 class='text-lg md:text-xl font-medium'>{title}</h2>
+        <p class='text-muted-foreground text-sm md:text-base'>{description}</p>
+      </div>
+      <div class="flex items-center gap-2 justify-between">
         <p class="text-muted-foreground text-sm">
           {author}
         </p>
-      </div>
-      <div class="space-y-2">
-        <h2 class='text-xl'>{title}</h2>
-        <p class='text-muted-foreground font-mono text-sm'>{description}</p>
-      </div>
-      <div class="flex justify-between w-full">
-        <!-- <a href={`/blog/${slug}`} class='hover:underline flex items-center gap-2'>
-          <span>Read post</span>
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              fill='none'
-              viewBox='0 0 24 24'
-              stroke-width='1.5'
-              stroke='currentColor'
-              class='size-3'
-            >
-            <path
-              stroke-linecap='round'
-              stroke-linejoin='round'
-              d='m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25'></path>
-          </svg>
-        </a> -->
+        <time datetime={published.toString()} class="text-muted-foreground text-sm">{formattedDate}</time>
       </div>
     </div>
   </a>

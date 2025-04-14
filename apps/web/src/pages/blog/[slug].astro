@@ -30,7 +30,7 @@ const formattedDate = new Date(entry.data.published).toLocaleDateString(
 ---
 
 <BlogLayout
-  title={`${entry.data.title} | ${SITE.TITLE}`}
+  title={`${entry.data.title} - ${SITE.TITLE}`}
   description={entry.data.description}
   image={entry.data.cover.src}
 >
@@ -40,10 +40,10 @@ const formattedDate = new Date(entry.data.published).toLocaleDateString(
     <Container class="md:py-20 py-10 md:pb-24 border-x border-dashed">
       <section class='max-w-3xl mx-auto mb-10 space-y-6'>
         <div class='flex flex-col gap-4 text-center'>
-          <h1 class='text-3xl lg:text-4xl text-balance'>
+          <h1 class='text-3xl lg:text-4xl text-balance font-serif'>
             {entry.data.title}
           </h1>
-          <time datetime={entry.data.published} class="text-muted-foreground font-mono">Published on {formattedDate}</time>
+          <time datetime={entry.data.published} class="text-muted-foreground">Published on {formattedDate}</time>
         </div>
       </section>
       <div>
