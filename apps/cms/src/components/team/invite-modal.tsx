@@ -84,16 +84,20 @@ export const InviteModal = ({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md p-8">
         <DialogHeader>
-          <DialogTitle>Invite Member</DialogTitle>
+          <DialogTitle className="text-center font-medium">
+            Invite Member
+          </DialogTitle>
           <DialogDescription className="sr-only">
             Invite a team member to your workspace.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
           <div className="grid flex-1 gap-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email" className="sr-only">
+              Email
+            </Label>
             <Input
               id="email"
               {...register("email")}
@@ -106,7 +110,9 @@ export const InviteModal = ({
           </div>
 
           <div className="grid flex-1 gap-2">
-            <Label htmlFor="role">Role</Label>
+            <Label htmlFor="role" className="sr-only">
+              Role
+            </Label>
             <Select
               onValueChange={(value: "member" | "admin") =>
                 setValue("role", value)
@@ -127,7 +133,7 @@ export const InviteModal = ({
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="flex w-full gap-2"
+            className="flex w-full gap-2 mt-4"
           >
             {isSubmitting && <Loader className="size-4 animate-spin" />}
             Invite

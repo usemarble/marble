@@ -5,13 +5,115 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
-import { MoreHorizontal, User, UserMinus } from "lucide-react";
+import { toast } from "@marble/ui/components/sonner";
+import {
+  CopyIcon,
+  MoreHorizontal,
+  RefreshCcwIcon,
+  ShieldAlertIcon,
+  TrashIcon,
+  XCircleIcon,
+} from "lucide-react";
 import { useState } from "react";
-import type { TeamMember } from "./columns";
+import type { TeamMemberRow } from "./columns";
 import { RemoveMemberModal } from "./team-modals";
 
-export default function TableActions(props: TeamMember) {
+interface TableActionsProps extends TeamMemberRow {
+  currentUserRole: "owner" | "admin" | "member" | undefined;
+  currentUserId: string | undefined;
+}
+
+type UserRole = "owner" | "admin" | "member";
+
+export default function TableActions(props: TableActionsProps) {
   const [showRemoveModal, setShowRemoveModal] = useState(false);
+
+  const { currentUserRole, currentUserId, type, role, status, id, userId } =
+    props;
+
+  const isCurrentUser = currentUserId === userId;
+
+  if (type === "invite") {
+    const canManageInvites =
+      currentUserRole === "owner" || currentUserRole === "admin";
+    const isPending = status === "pending";
+
+    if (!isPending) {
+      return null;
+    }
+
+    const handleRevokeInvite = () => {
+      console.log("Revoke Invite clicked for:", id);
+    };
+
+    const handleResendInvite = () => {
+      console.log("Resend Invite clicked for:", id);
+    };
+
+    const handleCopyInviteLink = () => {
+      const inviteLink = `https://${process.env.NEXT_PUBLIC_APP_URL}/join/${id}`;
+      navigator.clipboard.writeText(inviteLink);
+      toast.success("Invite link copied!");
+    };
+
+    return (
+      <>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className="h-8 w-8 p-0 data-[state=open]:bg-muted"
+            >
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align="end"
+            className="w-[180px] text-muted-foreground"
+          >
+            <DropdownMenuItem onClick={handleCopyInviteLink}>
+              <CopyIcon className="mr-2 h-4 w-4" />
+              Copy Invite Link
+            </DropdownMenuItem>
+            {canManageInvites && (
+              <DropdownMenuItem onClick={handleResendInvite}>
+                <RefreshCcwIcon className="mr-2 h-4 w-4" />
+                Resend Invite
+              </DropdownMenuItem>
+            )}
+            {canManageInvites && (
+              <DropdownMenuItem onClick={handleRevokeInvite}>
+                <XCircleIcon className="mr-2 h-4 w-4" />
+                Revoke Invite
+              </DropdownMenuItem>
+            )}
+            {!canManageInvites && (
+              <DropdownMenuItem disabled>
+                No management actions available
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </>
+    );
+  }
+
+  if (role === "owner") {
+    return null;
+  }
+
+  if (isCurrentUser) {
+    return null;
+  }
+
+  if (currentUserRole === "member") {
+    return null;
+  }
+
+  const handleManageAccess = () => {
+    console.log("Manage Access clicked for member:", id);
+  };
 
   return (
     <>
@@ -19,31 +121,24 @@ export default function TableActions(props: TeamMember) {
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
-            className="h-8 w-8 p-0"
-            disabled={props.role === "owner"}
+            className="h-8 w-8 p-0 data-[state=open]:bg-muted"
           >
             <span className="sr-only">Open menu</span>
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem>
-            <button
-              type="button"
-              onClick={() => {
-                console.log("view profile");
-              }}
-            >
-              View Profile
-            </button>
+        <DropdownMenuContent
+          align="end"
+          className="w-[180px] text-muted-foreground"
+        >
+          <DropdownMenuItem onClick={handleManageAccess}>
+            <ShieldAlertIcon className="mr-2 h-4 w-4" />
+            Manage Access
           </DropdownMenuItem>
-          {props.role !== "owner" && (
-            <DropdownMenuItem>
-              <button type="button" onClick={() => setShowRemoveModal(true)}>
-                Remove Member
-              </button>
-            </DropdownMenuItem>
-          )}
+          <DropdownMenuItem onClick={() => setShowRemoveModal(true)}>
+            <TrashIcon className="mr-2 h-4 w-4" />
+            Remove Member
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
