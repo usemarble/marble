@@ -18,7 +18,7 @@ export default async function LoginPage(props: PageProps) {
   const from = searchParams.from;
 
   return (
-    <div className="md:grid h-screen w-full md:grid-cols-2 max-w-screen-xl mx-auto">
+    <div className="md:grid h-screen w-full md:grid-cols-2">
       <section className="overflow-hidden hidden md:flex flex-col justify-between bg-muted p-10">
         <div>
           <Image

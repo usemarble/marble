@@ -16,8 +16,8 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import type { TeamMemberRow } from "./columns";
+import { ProfileSheet } from "./profile-sheet";
 import { RemoveMemberModal } from "./team-modals";
-
 interface TableActionsProps extends TeamMemberRow {
   currentUserRole: "owner" | "admin" | "member" | undefined;
   currentUserId: string | undefined;
@@ -27,7 +27,7 @@ type UserRole = "owner" | "admin" | "member";
 
 export default function TableActions(props: TableActionsProps) {
   const [showRemoveModal, setShowRemoveModal] = useState(false);
-
+  const [showProfileSheet, setShowProfileSheet] = useState(false);
   const { currentUserRole, currentUserId, type, role, status, id, userId } =
     props;
 
@@ -112,6 +112,7 @@ export default function TableActions(props: TableActionsProps) {
   }
 
   const handleManageAccess = () => {
+    setShowProfileSheet(true);
     console.log("Manage Access clicked for member:", id);
   };
 
@@ -145,6 +146,11 @@ export default function TableActions(props: TableActionsProps) {
       <RemoveMemberModal
         open={showRemoveModal}
         setOpen={setShowRemoveModal}
+        member={props}
+      />
+      <ProfileSheet
+        open={showProfileSheet}
+        setOpen={setShowProfileSheet}
         member={props}
       />
     </>

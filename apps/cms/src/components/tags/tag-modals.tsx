@@ -37,6 +37,7 @@ import { type CreateTagValues, tagSchema } from "@/lib/validations/workspace";
 import { generateSlug } from "@/utils/string";
 import { useEffect, useState } from "react";
 import type { Tag } from "./columns";
+import { useWorkspace } from "@/context/workspace";
 
 interface CreateTagModalProps {
   open: boolean;
@@ -169,7 +170,7 @@ export const UpdateTagModal = ({
 
   const { name } = watch();
 
-  const { data: activeWorkspace } = useActiveOrganization();
+  const { activeWorkspace } = useWorkspace();
 
   useEffect(() => {
     setValue("slug", generateSlug(name));
@@ -178,7 +179,7 @@ export const UpdateTagModal = ({
   const onSubmit = async (data: CreateTagValues) => {
     const isTaken = await checkTagSlugForUpdateAction(
       data.slug,
-      activeWorkspace?.id,
+      activeWorkspace?.id as string,
       tagData.id,
     );
 
