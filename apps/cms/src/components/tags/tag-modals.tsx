@@ -25,6 +25,7 @@ import { toast } from "@marble/ui/components/sonner";
 import { Loader } from "@marble/ui/lib/icons";
 import { useForm } from "react-hook-form";
 
+import { useWorkspace } from "@/context/workspace";
 import {
   checkTagSlugAction,
   checkTagSlugForUpdateAction,
@@ -37,7 +38,6 @@ import { type CreateTagValues, tagSchema } from "@/lib/validations/workspace";
 import { generateSlug } from "@/utils/string";
 import { useEffect, useState } from "react";
 import type { Tag } from "./columns";
-import { useWorkspace } from "@/context/workspace";
 
 interface CreateTagModalProps {
   open: boolean;
