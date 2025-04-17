@@ -110,8 +110,8 @@ importers:
         specifier: ^1.8.4
         version: 1.8.4
       better-auth:
-        specifier: ^1.2.5
-        version: 1.2.5(typescript@5.6.2)
+        specifier: ^1.2.7
+        version: 1.2.7
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.0
@@ -3147,11 +3147,11 @@ packages:
   base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
 
-  better-auth@1.2.5:
-    resolution: {integrity: sha512-Tz2aKImkvaT7P9qHQ67Vhw/Slo6zpvE0jG7GoDQM+dd5tWuC3lP0OGjjWkNCZdToVlWB193i5nSHeZT90sFqEw==}
+  better-auth@1.2.7:
+    resolution: {integrity: sha512-2hCB263GSrgetsMUZw8vv9O1e4S4AlYJW3P4e8bX9u3Q3idv4u9BzDFCblpTLuL4YjYovghMCN0vurAsctXOAQ==}
 
-  better-call@1.0.5:
-    resolution: {integrity: sha512-rAT73GWIJ8LbSP8Y3BdJnY1hwAiQPRRmUJ4R3YVhcVGS927l3eTXG5o5TD6Bv6je6ygjdx6iVq3/BU49eGUCHg==}
+  better-call@1.0.8:
+    resolution: {integrity: sha512-/PV8JLqDRUN7JyBPbklVsS/8E4SO3pnf8hbpa8B7xrBrr+BBYpeOAxoqtnsyk/pRs35vNB4MZx8cn9dBuNlLDA==}
 
   binary-extensions@2.3.0:
     resolution: {integrity: sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==}
@@ -3919,9 +3919,6 @@ packages:
   jiti@1.21.6:
     resolution: {integrity: sha512-2yTgeWTWzMWkHu6Jp9NKgePDaYHbntiwvYuuJLbbN9vl7DC9DvXKOB2BC3ZZ92D3cvV/aflH0osDfwpHepQ53w==}
     hasBin: true
-
-  jose@5.9.4:
-    resolution: {integrity: sha512-WBBl6au1qg6OHj67yCffCgFR3BADJBXN8MdRvCgJDuMv3driV2nHr7jdGvaKX9IolosAsn+M0XRArqLXUhyJHQ==}
 
   jose@5.9.6:
     resolution: {integrity: sha512-AMlnetc9+CV9asI19zHmrgS/WYsWUwCn2R7RzlbJWD7F9eWYUTGyBmU9o6PxngtLGOiDGPRu+Uc4fhKzbpteZQ==}
@@ -5682,14 +5679,6 @@ packages:
     engines: {node: '>=8'}
     hasBin: true
 
-  valibot@1.0.0-beta.15:
-    resolution: {integrity: sha512-BKy8XosZkDHWmYC+cJG74LBzP++Gfntwi33pP3D3RKztz2XV9jmFWnkOi21GoqARP8wAWARwhV6eTr1JcWzjGw==}
-    peerDependencies:
-      typescript: '>=5'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-
   vfile-location@5.0.3:
     resolution: {integrity: sha512-5yXvWDEgqeiYiBe1lbxYF7UMAIm/IcopxMHrMQDq3nvKcjPKIhZklUKL+AE7J7uApI4kwe2snsK+eI6UTj9EHg==}
 
@@ -6006,7 +5995,7 @@ snapshots:
       '@panva/hkdf': 1.2.1
       '@types/cookie': 0.6.0
       cookie: 0.7.1
-      jose: 5.9.4
+      jose: 5.9.6
       oauth4webapi: 3.1.1
       preact: 10.11.3
       preact-render-to-string: 5.2.3(preact@10.11.3)
@@ -9168,7 +9157,7 @@ snapshots:
 
   base64-js@1.5.1: {}
 
-  better-auth@1.2.5(typescript@5.6.2):
+  better-auth@1.2.7:
     dependencies:
       '@better-auth/utils': 0.2.4
       '@better-fetch/fetch': 1.1.18
@@ -9176,18 +9165,16 @@ snapshots:
       '@noble/hashes': 1.6.1
       '@simplewebauthn/browser': 13.0.0
       '@simplewebauthn/server': 13.0.0
-      better-call: 1.0.5
+      better-call: 1.0.8
       defu: 6.1.4
       jose: 5.9.6
       kysely: 0.27.6
       nanostores: 0.11.4
-      valibot: 1.0.0-beta.15(typescript@5.6.2)
       zod: 3.24.1
     transitivePeerDependencies:
       - encoding
-      - typescript
 
-  better-call@1.0.5:
+  better-call@1.0.8:
     dependencies:
       '@better-fetch/fetch': 1.1.18
       rou3: 0.5.1
@@ -10038,8 +10025,6 @@ snapshots:
       '@pkgjs/parseargs': 0.11.0
 
   jiti@1.21.6: {}
-
-  jose@5.9.4: {}
 
   jose@5.9.6: {}
 
@@ -12318,10 +12303,6 @@ snapshots:
       diff: 5.2.0
       kleur: 4.1.5
       sade: 1.8.1
-
-  valibot@1.0.0-beta.15(typescript@5.6.2):
-    optionalDependencies:
-      typescript: 5.6.2
 
   vfile-location@5.0.3:
     dependencies:

@@ -60,7 +60,7 @@ export function NavDevs() {
           asChild
           className="border border-transparent hover:bg-background hover:border-border"
         >
-          <Link target="_blank" href="https://marblecms.com">
+          <Link target="_blank" href="https://docs.marblecms.com">
             <BookTextIcon />
             <span>Documentation</span>
           </Link>

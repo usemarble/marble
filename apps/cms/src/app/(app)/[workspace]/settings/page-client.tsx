@@ -81,9 +81,7 @@ function PageClient({ activeWorkspace, session }: PageClientProps) {
     if (!id) return;
     setCopied(true);
     navigator.clipboard.writeText(id);
-    toast.success("ID copied to clipboard.", {
-      position: "bottom-center",
-    });
+    toast.success("ID copied to clipboard.");
     setTimeout(() => {
       setCopied(false);
     }, 1000);

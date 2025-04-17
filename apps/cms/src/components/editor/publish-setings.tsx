@@ -220,7 +220,6 @@ export function PublishSettings({
       setIsUploading(true);
       toast.loading("Compressing...", {
         id: "uploading",
-        position: "top-center",
       });
 
       const formData = new FormData();
@@ -246,7 +245,6 @@ export function PublishSettings({
 
       toast.loading("Uploading...", {
         id: "uploading",
-        position: "top-center",
       });
 
       // Upload to Cloudflare R2
@@ -259,7 +257,6 @@ export function PublishSettings({
       setIsUploading(false);
       toast.success("Uploaded successfully!", {
         id: "uploading",
-        position: "top-center",
       });
 
       setFile(undefined);
@@ -269,7 +266,6 @@ export function PublishSettings({
         error instanceof Error ? error.message : "Failed to upload image",
         {
           id: "uploading",
-          position: "top-center",
         },
       );
       setIsUploading(false);

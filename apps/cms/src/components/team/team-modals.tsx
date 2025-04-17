@@ -15,12 +15,12 @@ import { Button } from "@marble/ui/components/button";
 import { toast } from "@marble/ui/components/sonner";
 import { Loader } from "@marble/ui/lib/icons";
 import { useState } from "react";
-import type { TeamMember } from "./columns";
+import type { TeamMemberRow } from "./columns";
 
 interface RemoveMemberModalProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  member: TeamMember;
+  member: TeamMemberRow;
 }
 
 export function RemoveMemberModal({
@@ -38,13 +38,11 @@ export function RemoveMemberModal({
         fetchOptions: {
           onRequest: () => {
             toast.loading("Removing member...", {
-              position: "top-center",
               id: "remove-member",
             });
           },
           onSuccess: () => {
             toast.success("Member removed successfully", {
-              position: "top-center",
               id: "remove-member",
             });
             setOpen(false);
@@ -53,7 +51,6 @@ export function RemoveMemberModal({
       });
     } catch (error) {
       toast.error("Failed to remove member", {
-        position: "top-center",
         id: "remove-member",
       });
     } finally {
@@ -75,15 +72,13 @@ export function RemoveMemberModal({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
-          <AlertDialogAction asChild>
-            <Button
-              onClick={removeMember}
-              disabled={loading}
-              variant="destructive"
-            >
-              {loading ? <Loader className="size-4 animate-spin" /> : "Remove"}
-            </Button>
-          </AlertDialogAction>
+          <Button
+            onClick={removeMember}
+            disabled={loading}
+            variant="destructive"
+          >
+            {loading ? <Loader className="size-4 animate-spin" /> : "Remove"}
+          </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

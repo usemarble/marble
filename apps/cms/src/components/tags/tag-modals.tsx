@@ -25,6 +25,7 @@ import { toast } from "@marble/ui/components/sonner";
 import { Loader } from "@marble/ui/lib/icons";
 import { useForm } from "react-hook-form";
 
+import { useWorkspace } from "@/context/workspace";
 import {
   checkTagSlugAction,
   checkTagSlugForUpdateAction,
@@ -169,7 +170,7 @@ export const UpdateTagModal = ({
 
   const { name } = watch();
 
-  const { data: activeWorkspace } = useActiveOrganization();
+  const { activeWorkspace } = useWorkspace();
 
   useEffect(() => {
     setValue("slug", generateSlug(name));
@@ -178,7 +179,7 @@ export const UpdateTagModal = ({
   const onSubmit = async (data: CreateTagValues) => {
     const isTaken = await checkTagSlugForUpdateAction(
       data.slug,
-      activeWorkspace?.id,
+      activeWorkspace?.id as string,
       tagData.id,
     );
 

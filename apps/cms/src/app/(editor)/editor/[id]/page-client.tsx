@@ -60,11 +60,9 @@ function PageClient({ data, id }: PageClientProps) {
     // console.log(values);
     try {
       await updatePostAction(values, id);
-      toast.success("Post updated", { position: "top-center" });
+      toast.success("Post updated");
     } catch {
-      toast.error("Something went wrong.", {
-        position: "top-center",
-      });
+      toast.error("Something went wrong.");
     } finally {
       setShowSettings(false);
     }

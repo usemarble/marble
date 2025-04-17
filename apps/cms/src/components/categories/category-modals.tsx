@@ -162,7 +162,7 @@ export const UpdateCategoryModal = ({
 
   const { name } = watch();
 
-  const { data: activeWorkspace } = useActiveOrganization();
+  const { activeWorkspace } = useWorkspace();
 
   useEffect(() => {
     setValue("slug", generateSlug(name));
@@ -171,7 +171,7 @@ export const UpdateCategoryModal = ({
   const onSubmit = async (data: CreateCategoryValues) => {
     const isTaken = await checkCategorySlugForUpdateAction(
       data.slug,
-      activeWorkspace?.id,
+      activeWorkspace?.id as string,
       categoryData.id,
     );
 

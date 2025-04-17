@@ -10,26 +10,7 @@ import {
 } from "@tanstack/react-table";
 
 import { Button } from "@marble/ui/components/button";
-import { Checkbox } from "@marble/ui/components/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@marble/ui/components/dropdown-menu";
 import { Input } from "@marble/ui/components/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@marble/ui/components/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@marble/ui/components/select";
 import {
   Table,
   TableBody,
@@ -38,17 +19,31 @@ import {
   TableHeader,
   TableRow,
 } from "@marble/ui/components/table";
-import { Hourglass, SearchIcon, XIcon } from "lucide-react";
+import { TooltipContent } from "@marble/ui/components/tooltip";
+import { Tooltip, TooltipTrigger } from "@marble/ui/components/tooltip";
+import { TooltipProvider } from "@marble/ui/components/tooltip";
+import { MailPlus, PlusIcon, SearchIcon, XIcon } from "lucide-react";
 import { useState } from "react";
+
+// Define the roles explicitly if not already imported
+type UserRole = "owner" | "admin" | "member" | undefined;
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  currentUserRole: UserRole;
+  currentUserId: string | undefined;
+  setShowInviteModal: (open: boolean) => void;
+  setShowLeaveWorkspaceModal: (open: boolean) => void;
 }
 
 export function TeamDataTable<TData, TValue>({
   columns,
   data,
+  currentUserRole,
+  currentUserId,
+  setShowInviteModal,
+  setShowLeaveWorkspaceModal,
 }: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
@@ -61,101 +56,128 @@ export function TeamDataTable<TData, TValue>({
     state: {
       columnFilters,
     },
+    meta: {
+      currentUserRole,
+      currentUserId,
+    },
   });
 
   return (
-    <div>
-      <div className="flex items-center py-4 gap-4 justify-between">
-        <div className="relative flex-1">
-          <SearchIcon
-            size={16}
-            className="text-muted-foreground size-4 absolute top-3 left-3"
-          />
-          <Input
-            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-            onChange={(event) =>
-              table.getColumn("name")?.setFilterValue(event.target.value)
-            }
-            placeholder="Search members..."
-            className="pl-8 max-w-72"
-          />
-          {(table.getColumn("name")?.getFilterValue() as string) && (
-            <button
-              type="button"
-              onClick={() => table.getColumn("name")?.setFilterValue("")}
-              className="absolute right-3 top-3"
-            >
-              <XIcon className="size-4" />
-              <span className="sr-only">Clear search</span>
-            </button>
-          )}
-        </div>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline">
-              <Hourglass className="size-4" />
-              <span>Status</span>
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent>
-            <ul className="flex flex-col gap-2">
-              <li>
-                <Checkbox />
-                <span>Active</span>
-              </li>
-            </ul>
-          </PopoverContent>
-        </Popover>
-      </div>
+    <>
+      <div>
+        <div className="flex items-center py-4 gap-4 justify-between">
+          <div className="relative">
+            <SearchIcon
+              size={16}
+              className="text-muted-foreground size-4 absolute top-3 left-3"
+            />
+            <Input
+              value={
+                (table.getColumn("name")?.getFilterValue() as string) ?? ""
+              }
+              onChange={(event) =>
+                table.getColumn("name")?.setFilterValue(event.target.value)
+              }
+              placeholder="Search members..."
+              className="px-8 w-72"
+            />
+            {(table.getColumn("name")?.getFilterValue() as string) && (
+              <button
+                type="button"
+                onClick={() => table.getColumn("name")?.setFilterValue("")}
+                className="absolute right-3 top-3"
+              >
+                <XIcon className="size-4" />
+                <span className="sr-only">Clear search</span>
+              </button>
+            )}
+          </div>
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
-                    </TableCell>
+          <div className="flex gap-4 items-center">
+            <Button size="sm" onClick={() => setShowInviteModal(true)}>
+              <PlusIcon className="size-4" />
+              <span>Invite</span>
+            </Button>
+            {currentUserRole === "owner" ? (
+              <TooltipProvider>
+                <Tooltip delayDuration={0}>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="opacity-50 cursor-not-allowed"
+                    >
+                      <span>Leave team</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-xs text-muted-foreground">
+                      You cannot leave your own workspace.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ) : (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setShowLeaveWorkspaceModal(true)}
+              >
+                <span>Leave team</span>
+              </Button>
+            )}
+          </div>
+        </div>
+
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
+                    </TableHead>
                   ))}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
