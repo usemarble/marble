@@ -105,9 +105,11 @@ export const CreateCategoryModal = ({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-w-sm">
+      <DialogContent className="max-w-sm p-8">
         <DialogHeader>
-          <DialogTitle>Create category</DialogTitle>
+          <DialogTitle className="font-medium text-center">
+            Create category
+          </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2">
           <div className="grid flex-1 gap-2">
@@ -195,9 +197,11 @@ export const UpdateCategoryModal = ({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-w-sm">
+      <DialogContent className="max-w-sm p-8">
         <DialogHeader>
-          <DialogTitle>Update category</DialogTitle>
+          <DialogTitle className="font-medium text-center">
+            Update category
+          </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2">
           <div className="grid flex-1 gap-2">

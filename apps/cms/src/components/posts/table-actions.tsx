@@ -26,8 +26,7 @@ export default function PostTableActions(props: Post) {
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+        <DropdownMenuContent align="end" className="text-muted-foreground">
           <DropdownMenuItem>
             <button
               type="button"

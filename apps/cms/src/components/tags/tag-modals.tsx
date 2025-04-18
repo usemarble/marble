@@ -201,9 +201,11 @@ export const UpdateTagModal = ({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-w-sm">
+      <DialogContent className="max-w-sm p-8">
         <DialogHeader>
-          <DialogTitle>Update tag</DialogTitle>
+          <DialogTitle className="font-medium text-center">
+            Update tag
+          </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2">
           <div className="grid flex-1 gap-2">
@@ -271,15 +273,9 @@ export const DeleteTagModal = ({
           <AlertDialogCancel onClick={() => setOpen(false)}>
             Cancel
           </AlertDialogCancel>
-          <AlertDialogAction asChild>
-            <Button
-              onClick={deleteTag}
-              disabled={loading}
-              variant="destructive"
-            >
-              {loading ? <Loader className="size-4 animate-spin" /> : "Delete"}
-            </Button>
-          </AlertDialogAction>
+          <Button onClick={deleteTag} disabled={loading} variant="destructive">
+            {loading ? <Loader className="size-4 animate-spin" /> : "Delete"}
+          </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
