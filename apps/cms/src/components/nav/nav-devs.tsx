@@ -62,7 +62,7 @@ export function NavDevs() {
         >
           <Link target="_blank" href="https://docs.marblecms.com">
             <BookTextIcon />
-            <span>Documentation</span>
+            <span>Docs</span>
           </Link>
         </SidebarMenuButton>
       </SidebarMenu>
