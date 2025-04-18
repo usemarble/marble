@@ -1,4 +1,4 @@
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash } from "lucide-react";
 import type { Post } from "./columns";
 
 import { Button } from "@marble/ui/components/button";
@@ -6,7 +6,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
 import { useRouter } from "next/navigation";
@@ -40,9 +39,9 @@ export default function PostTableActions(props: Post) {
             <button
               type="button"
               onClick={() => setShowDeleteModal(true)}
-              className="flex w-full items-center gap-2 text-destructive"
+              className="flex w-full items-center gap-2"
             >
-              <Trash2 size={16} /> <span>Delete</span>
+              <Trash size={16} /> <span>Delete</span>
             </button>
           </DropdownMenuItem>
         </DropdownMenuContent>

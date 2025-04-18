@@ -1,3 +1,4 @@
+import { authClient, organization } from "@/lib/auth/client";
 import { Button } from "@marble/ui/components/button";
 import {
   DropdownMenu,
@@ -8,6 +9,7 @@ import {
 import { toast } from "@marble/ui/components/sonner";
 import {
   CopyIcon,
+  Loader2,
   MoreHorizontal,
   RefreshCcwIcon,
   ShieldAlertIcon,
@@ -23,13 +25,21 @@ interface TableActionsProps extends TeamMemberRow {
   currentUserId: string | undefined;
 }
 
-type UserRole = "owner" | "admin" | "member";
-
 export default function TableActions(props: TableActionsProps) {
   const [showRemoveModal, setShowRemoveModal] = useState(false);
   const [showProfileSheet, setShowProfileSheet] = useState(false);
-  const { currentUserRole, currentUserId, type, role, status, id, userId } =
-    props;
+  const [isCancelingInvite, setIsCancelingInvite] = useState(false);
+  const [isResendingInvite, setIsResendingInvite] = useState(false);
+  const {
+    currentUserRole,
+    currentUserId,
+    type,
+    role,
+    status,
+    id,
+    userId,
+    email,
+  } = props;
 
   const isCurrentUser = currentUserId === userId;
 
@@ -37,23 +47,60 @@ export default function TableActions(props: TableActionsProps) {
     const canManageInvites =
       currentUserRole === "owner" || currentUserRole === "admin";
     const isPending = status === "pending";
-
     if (!isPending) {
       return null;
     }
 
-    const handleRevokeInvite = () => {
-      console.log("Revoke Invite clicked for:", id);
-    };
-
-    const handleResendInvite = () => {
-      console.log("Resend Invite clicked for:", id);
+    const handleResendInvite = async () => {
+      setIsResendingInvite(true);
+      await authClient.organization.inviteMember({
+        email: email,
+        role: role,
+        resend: true,
+        fetchOptions: {
+          onSuccess: () => {
+            toast.success("Invite resent", {
+              id: "resend-invite",
+            });
+            setIsResendingInvite(false);
+          },
+          onError: (ctx) => {
+            toast.error("Failed to resend invite", {
+              id: "resend-invite",
+            });
+            setIsResendingInvite(false);
+          },
+        },
+      });
     };
 
     const handleCopyInviteLink = () => {
-      const inviteLink = `https://${process.env.NEXT_PUBLIC_APP_URL}/join/${id}`;
+      const protocol =
+        process.env.NODE_ENV === "development" ? "http" : "https";
+      const inviteLink = `${protocol}://${process.env.NEXT_PUBLIC_APP_URL}/join/${id}`;
       navigator.clipboard.writeText(inviteLink);
       toast.success("Invite link copied!");
+    };
+
+    const cancelInvite = async (inviteId: string) => {
+      setIsCancelingInvite(true);
+      await organization.cancelInvitation({
+        invitationId: inviteId,
+        fetchOptions: {
+          onSuccess: (ctx) => {
+            toast.success("Invitation canceled", {
+              id: "cancel-invite",
+            });
+            setIsCancelingInvite(false);
+          },
+          onError: (ctx) => {
+            toast.error("Failed to cancel invitation", {
+              id: "cancel-invite",
+            });
+            setIsCancelingInvite(false);
+          },
+        },
+      });
     };
 
     return (
@@ -63,9 +110,14 @@ export default function TableActions(props: TableActionsProps) {
             <Button
               variant="ghost"
               className="h-8 w-8 p-0 data-[state=open]:bg-muted"
+              disabled={isResendingInvite || isCancelingInvite}
             >
               <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
+              {isResendingInvite || isCancelingInvite ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <MoreHorizontal className="h-4 w-4" />
+              )}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -83,9 +135,9 @@ export default function TableActions(props: TableActionsProps) {
               </DropdownMenuItem>
             )}
             {canManageInvites && (
-              <DropdownMenuItem onClick={handleRevokeInvite}>
+              <DropdownMenuItem onClick={() => cancelInvite(id)}>
                 <XCircleIcon className="mr-2 h-4 w-4" />
-                Revoke Invite
+                Cancel Invite
               </DropdownMenuItem>
             )}
             {!canManageInvites && (
@@ -111,11 +163,6 @@ export default function TableActions(props: TableActionsProps) {
     return null;
   }
 
-  const handleManageAccess = () => {
-    setShowProfileSheet(true);
-    console.log("Manage Access clicked for member:", id);
-  };
-
   return (
     <>
       <DropdownMenu>
@@ -132,7 +179,7 @@ export default function TableActions(props: TableActionsProps) {
           align="end"
           className="w-[180px] text-muted-foreground"
         >
-          <DropdownMenuItem onClick={handleManageAccess}>
+          <DropdownMenuItem onClick={() => setShowProfileSheet(true)}>
             <ShieldAlertIcon className="mr-2 h-4 w-4" />
             Manage Access
           </DropdownMenuItem>

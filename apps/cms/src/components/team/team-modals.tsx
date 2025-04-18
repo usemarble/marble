@@ -66,8 +66,7 @@ export function RemoveMemberModal({
             Remove {member.name || member.email}?
           </AlertDialogTitle>
           <AlertDialogDescription>
-            This will remove them from the team. They will no longer have access
-            to the workspace.
+            This action will revoke their access to the workspace permanently.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

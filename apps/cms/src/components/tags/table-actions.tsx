@@ -1,4 +1,4 @@
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash, Trash2 } from "lucide-react";
 import type { Tag } from "./columns";
 
 import { Button } from "@marble/ui/components/button";
@@ -40,9 +40,9 @@ export default function TableActions(props: Tag) {
             <button
               type="button"
               onClick={() => setShowDeleteModal(true)}
-              className="flex w-full items-center gap-2 text-destructive"
+              className="flex w-full items-center gap-2"
             >
-              <Trash2 size={16} /> <span>Delete</span>
+              <Trash size={16} /> <span>Delete</span>
             </button>
           </DropdownMenuItem>
         </DropdownMenuContent>

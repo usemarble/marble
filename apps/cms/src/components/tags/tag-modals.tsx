@@ -111,7 +111,7 @@ export function CreateTagModal({
         </DialogHeader>
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col gap-4 mt-6"
+          className="flex flex-col gap-5 mt-2"
         >
           <div className="grid flex-1 gap-2">
             <Label htmlFor="name" className="sr-only">
@@ -207,21 +207,28 @@ export const UpdateTagModal = ({
             Update tag
           </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col gap-5 mt-2"
+        >
           <div className="grid flex-1 gap-2">
-            <Label htmlFor="name">Name</Label>
-            <Input id="name" {...register("name")} />
+            <Label htmlFor="name" className="sr-only">
+              Name
+            </Label>
+            <Input id="name" {...register("name")} placeholder="Name" />
             {errors.name && <ErrorMessage>{errors.name.message}</ErrorMessage>}
           </div>
           <div className="grid flex-1 gap-2">
-            <Label htmlFor="slug">Slug</Label>
-            <Input id="slug" {...register("slug")} />
+            <Label htmlFor="slug" className="sr-only">
+              Slug
+            </Label>
+            <Input id="slug" {...register("slug")} placeholder="slug" />
             {errors.slug && <ErrorMessage>{errors.slug.message}</ErrorMessage>}
           </div>
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="flex w-full gap-2 mt-2"
+            className="flex w-full gap-2 mt-4"
             size={"sm"}
           >
             {isSubmitting && <Loader className="size-4 animate-spin" />}
@@ -263,7 +270,7 @@ export const DeleteTagModal = ({
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete {name}?</AlertDialogTitle>
+          <AlertDialogTitle>Delete "{name}"?</AlertDialogTitle>
           <AlertDialogDescription>
             This will permanently delete this tag from your list and you can no
             longer use this in articles.

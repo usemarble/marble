@@ -1,41 +1,22 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@marble/ui/components/card";
-
-interface WorkspaceData {
-  id: string;
-  name: string;
-  _count: {
-    members: number;
-  };
-}
+import type { Session } from "@/lib/auth/types";
 
 interface PageClientProps {
-  workspace: WorkspaceData;
+  session: Session;
 }
 
-function PageClient({ workspace }: PageClientProps) {
+function PageClient({ session }: PageClientProps) {
+  // TODO: Get and display workspace metrics
   return (
     <>
-      <div className="p-4">
-        <h1 className="text-2xl font-semibold mb-6">
-          {workspace.name} Dashboard
+      <div className="p-4 flex flex-col flex-1 h-full items-center justify-center">
+        <h1 className="text-2xl font-semibold mb-4">
+          Hello, {session.user.name}
         </h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Team Members</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-medium">{workspace._count.members}</p>
-            </CardContent>
-          </Card>
-        </div>
+        <p className="text-muted-foreground">
+          Workspace metrics are coming soon!
+        </p>
       </div>
     </>
   );
