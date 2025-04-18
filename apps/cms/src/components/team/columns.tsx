@@ -29,6 +29,7 @@ export type TeamMemberRow = {
   expiresAt?: Date | null; // Expiry date (for invites)
   // Add userId if available for members, might be useful for actions
   userId?: string | null;
+  joinedAt?: Date | null;
 };
 
 export const columns: ColumnDef<TeamMemberRow>[] = [

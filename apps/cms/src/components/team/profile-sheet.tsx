@@ -1,3 +1,4 @@
+import { organization } from "@/lib/auth/client";
 import {
   Avatar,
   AvatarFallback,
@@ -21,8 +22,9 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@marble/ui/components/sheet";
-import { CalendarDays } from "lucide-react";
-import { useState } from "react";
+import { toast } from "@marble/ui/components/sonner";
+import { CalendarDays, Loader2 } from "lucide-react";
+import { useMemo, useState } from "react";
 import type { TeamMemberRow } from "./columns";
 
 interface ProfileSheetProps {
@@ -33,6 +35,28 @@ interface ProfileSheetProps {
 
 export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
   const [role, setRole] = useState(member.role);
+  const [loading, setLoading] = useState(false);
+
+  const settingsChanges = useMemo(() => {
+    return role !== member.role;
+  }, [role, member.role]);
+
+  async function handleSave() {
+    setLoading(true);
+    await organization.updateMemberRole({
+      memberId: member.id,
+      role: role,
+      fetchOptions: {
+        onSuccess: () => {
+          toast.success("Role updated");
+          setOpen(false);
+        },
+        onError: () => {
+          toast.error("Failed to update role");
+        },
+      },
+    });
+  }
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -57,7 +81,8 @@ export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
               <div className="flex items-center gap-1 text-muted-foreground">
                 <CalendarDays className="size-4" />
                 <p className="text-sm">
-                  Joined {new Date().toLocaleDateString()}
+                  Joined{" "}
+                  {new Date(member.joinedAt ?? new Date()).toLocaleDateString()}
                 </p>
               </div>
             </div>
@@ -83,12 +108,17 @@ export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
         <section className="border-t mt-auto p-4 sticky bottom-0 bg-background">
           <SheetFooter className="flex gap-2 justify-end">
             <SheetClose asChild>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" className="min-w-[100px]">
                 Close
               </Button>
             </SheetClose>
-            <Button size="sm" disabled>
-              Save
+            <Button
+              size="sm"
+              onClick={handleSave}
+              disabled={!settingsChanges}
+              className="min-w-[100px]"
+            >
+              {loading ? <Loader2 className="size-4 animate-spin" /> : "Save"}
             </Button>
           </SheetFooter>
         </section>

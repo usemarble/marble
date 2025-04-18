@@ -19,56 +19,12 @@ function PageClient(props: PageClientProps) {
   const [optimisticOrg, setOptimisticOrg] = useState<ActiveOrganization | null>(
     props.activeOrganization,
   );
-  const [isCancelingInvite, setIsCancelingInvite] = useState(false);
   const [showLeaveWorkspaceModal, setShowLeaveWorkspaceModal] = useState(false);
 
   const currentUserMemberInfo = optimisticOrg?.members.find(
     (member) => member.userId === props.session?.user.id,
   );
   const currentUserRole = currentUserMemberInfo?.role;
-
-  const cancelInvite = async (inviteId: string) => {
-    setIsCancelingInvite(true);
-    try {
-      await organization.cancelInvitation({
-        invitationId: inviteId,
-        fetchOptions: {
-          onRequest: (ctx) => {
-            toast.loading("Canceling invitation...", {
-              id: "cancel-invite",
-            });
-          },
-          onSuccess: (ctx) => {
-            toast.success("Invitation canceled", {
-              id: "cancel-invite",
-            });
-            setOptimisticOrg(
-              (prev) =>
-                prev && {
-                  ...prev,
-                  invitations: prev.invitations.filter(
-                    (invite) => invite.id !== inviteId,
-                  ),
-                },
-            );
-          },
-        },
-      });
-    } catch (error) {
-      toast.error("Failed to cancel invitation", {
-        id: "cancel-invite",
-      });
-    } finally {
-      setIsCancelingInvite(false);
-    }
-  };
-
-  const copyInviteLink = (inviteId: string) => {
-    navigator.clipboard.writeText(
-      `https://${process.env.NEXT_PUBLIC_APP_URL}/join/${inviteId}`,
-    );
-    toast.success("Invite link copied to clipboard");
-  };
 
   const data = [
     ...(optimisticOrg?.members.map((member) => ({
@@ -81,6 +37,7 @@ function PageClient(props: PageClientProps) {
       status: "accepted" as const,
       inviterId: null,
       expiresAt: null,
+      joinedAt: member.createdAt,
     })) || []),
     ...(optimisticOrg?.invitations
       .filter((invitation) => invitation.status === "pending")
