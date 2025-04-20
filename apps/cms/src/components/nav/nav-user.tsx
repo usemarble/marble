@@ -1,6 +1,6 @@
 "use client";
 
-import { CreditCard, User, SignOut } from "@phosphor-icons/react";
+import { CreditCard, SignOut, User } from "@phosphor-icons/react";
 
 import { authClient } from "@/lib/auth/client";
 import {
