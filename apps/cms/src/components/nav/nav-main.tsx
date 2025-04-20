@@ -6,13 +6,18 @@ import {
   SidebarMenu,
   SidebarMenuButton,
 } from "@marble/ui/components/sidebar";
-
 import {
-  Group,
-  ImageIcon,
-  SlidersHorizontal,
-  Tags,
-} from "@marble/ui/lib/icons";
+  Faders,
+  Image as ImageIcon,
+  Layout,
+  Note,
+  Package,
+  Tag,
+  Users,
+  UsersThree,
+} from "@phosphor-icons/react";
+
+import { Group, SlidersHorizontal, Tags } from "@marble/ui/lib/icons";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import { LayersIcon } from "../icons/animated/layers";
@@ -23,17 +28,17 @@ const items = [
   {
     name: "Posts",
     url: "posts",
-    icon: LayersIcon,
+    icon: Note,
   },
   {
     name: "Categories",
     url: "categories",
-    icon: Group,
+    icon: Package,
   },
   {
     name: "Tags",
     url: "tags",
-    icon: Tags,
+    icon: Tag,
   },
   {
     name: "Media",
@@ -43,12 +48,12 @@ const items = [
   {
     name: "Team",
     url: "team",
-    icon: UsersIcon,
+    icon: UsersThree,
   },
   {
     name: "Settings",
     url: "settings",
-    icon: SlidersHorizontal,
+    icon: Faders,
   },
 ];
 
@@ -68,14 +73,14 @@ export function NavMain() {
       <SidebarMenu>
         <SidebarMenuButton
           asChild
-          className={`border border-transparent ${
+          className={`border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
             isOverviewActive
-              ? "bg-background border-border hover:bg-background text-primary hover:text-primary"
-              : "hover:bg-background hover:border-border"
+              ? "bg-sidebar-accent border-border text-foreground shadow-sm"
+              : "hover:text-accent-foreground"
           }`}
         >
           <Link href={`/${params.workspace}`}>
-            <LayoutPanelTopIcon />
+            <Layout />
             <span>Overview</span>
           </Link>
         </SidebarMenuButton>
@@ -83,10 +88,10 @@ export function NavMain() {
           <SidebarMenuButton
             asChild
             key={item.name}
-            className={`border border-transparent ${
+            className={`border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
               isActive(item.url)
-                ? "bg-background border-border hover:bg-background hover:text-primary text-primary"
-                : "hover:bg-background hover:border-border"
+                ? "bg-sidebar-accent border-border text-foreground shadow-sm hover"
+                : "hover:text-accent-foreground"
             }`}
           >
             <Link href={`/${params.workspace}/${item.url}`}>

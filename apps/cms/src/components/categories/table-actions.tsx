@@ -24,7 +24,7 @@ export default function TableActions(props: Category) {
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
+        <DropdownMenuContent align="end" className="text-muted-foreground">
           <DropdownMenuItem>
             <button
               type="button"
@@ -38,7 +38,7 @@ export default function TableActions(props: Category) {
             <button
               type="button"
               onClick={() => setShowDeleteModal(true)}
-              className="flex w-full items-center gap-2 text-destructive"
+              className="flex w-full items-center gap-2"
             >
               <Trash2 size={16} /> <span>Delete</span>
             </button>

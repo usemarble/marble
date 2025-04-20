@@ -34,11 +34,11 @@ const formattedDate = new Date(entry.data.lastUpdated).toLocaleDateString(
       <h1 class='font-medium text-2xl sm:text-3xl md:text-4xl text-center'>
         Privacy Policy.
       </h1>
-      <p class="text-center text-muted-foreground font-mono">Last updated: {formattedDate}</p>
+      <p class="text-center text-muted-foreground">Last updated: {formattedDate}</p>
     </div>
 
-    <Prose class="prose-sm max-w-screen-sm">
-      <Content/>
+    <Prose class="prose-sm max-w-screen-sm prose-p:font-sans prose-li:font-sans">
+      <Content />
     </Prose>
   </Container>
 </div>

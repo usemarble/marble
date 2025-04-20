@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  BadgeCheck,
-  ChevronsUpDown,
-  CreditCard,
-  LogOut,
-  Sparkles,
-} from "@marble/ui/lib/icons";
+import { CreditCard, User, SignOut } from "@phosphor-icons/react";
 
 import { authClient } from "@/lib/auth/client";
 import {
@@ -23,12 +17,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from "@marble/ui/components/sidebar";
+import { useSidebar } from "@marble/ui/components/sidebar";
 import { Skeleton } from "@marble/ui/components/skeleton";
 import { useRouter } from "next/navigation";
 
@@ -48,116 +37,75 @@ export function NavUser({ user }: NavUserProps) {
   const router = useRouter();
 
   if (!user) {
-    return (
-      <div className="bg-white rounded-md border p-2 flex items-center gap-2">
-        <Skeleton className="border rounded-md size-8 shrink-0" />
-        <div className="flex flex-col gap-1 w-full">
-          <Skeleton className="h-3 border w-3/4" />
-          <Skeleton className="border h-3 w-1/2" />
-        </div>
-      </div>
-    );
+    return <Skeleton className="border rounded-md size-8 shrink-0" />;
   }
 
   return (
-    <SidebarMenu>
-      <SidebarMenuItem>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:bg-background border-transparent hover:border-border border"
-            >
-              <Avatar className="h-8 w-8 rounded-[0.3rem]">
-                <AvatarImage
-                  src={
-                    user?.image || "https://avatar.vercel.sh/unknownuser.svg"
-                  }
-                  alt={user?.name || "users profile image"}
-                />
-                <AvatarFallback className="rounded-lg">X</AvatarFallback>
-              </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user?.name}</span>
-                <span className="truncate text-xs">{user?.email}</span>
-              </div>
-              <ChevronsUpDown className="ml-auto size-4" />
-            </SidebarMenuButton>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-            side={isMobile ? "bottom" : "right"}
-            align="end"
-            sideOffset={4}
+    <DropdownMenu>
+      <DropdownMenuTrigger className="p-1 hover:bg-sidebar-accent rounded-full transition-colors">
+        <Avatar className="size-7 rounded-full cursor-pointer">
+          <AvatarImage
+            src={user?.image || undefined}
+            alt={user?.name || "users profile image"}
+          />
+          <AvatarFallback className="rounded-lg">
+            {user?.name?.charAt(0)}
+          </AvatarFallback>
+        </Avatar>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        side={isMobile ? "bottom" : "top"}
+        align="start"
+        sideOffset={5}
+        className="w-[--radix-dropdown-menu-trigger-width] rounded-lg min-w-52 text-sidebar-foreground"
+      >
+        <DropdownMenuLabel className="p-0 font-normal">
+          <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+            <Avatar className="size-7">
+              <AvatarImage
+                src={user?.image || undefined}
+                alt={user?.name || "users profile image"}
+              />
+              <AvatarFallback className="rounded-lg">
+                {user?.name?.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+            <div className="grid flex-1 text-left text-sm leading-tight">
+              <span className="truncate text-sm font-medium">{user?.name}</span>
+              <span className="truncate text-xs">{user?.email}</span>
+            </div>
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <DropdownMenuItem>
+            <button type="button" className="flex w-full items-center gap-4">
+              <User className="size-4" />
+              Account
+            </button>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <button type="button" className="flex w-full items-center gap-4">
+              <CreditCard className="size-4" />
+              Upgrade Plan
+            </button>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem>
+          <button
+            type="button"
+            onClick={async () => {
+              await authClient.signOut();
+              router.push("/login");
+            }}
+            className="flex w-full items-center gap-4"
           >
-            <DropdownMenuLabel className="p-0 font-normal">
-              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage
-                    src={
-                      user?.image ||
-                      `https://api.dicebear.com/9.x/notionists-neutral/svg?seed=${user.name}`
-                    }
-                    alt={user?.name || "users profile image"}
-                  />
-                  <AvatarFallback className="rounded-lg">X</AvatarFallback>
-                </Avatar>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">{user?.name}</span>
-                  <span className="truncate text-xs">{user?.email}</span>
-                </div>
-              </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <button
-                  type="button"
-                  className="flex w-full items-center gap-4"
-                >
-                  <Sparkles className="text-muted-foreground size-4" />
-                  Upgrade Plan
-                </button>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <button
-                  type="button"
-                  className="flex w-full items-center gap-4"
-                >
-                  <BadgeCheck className="text-muted-foreground size-4" />
-                  Account
-                </button>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <button
-                  type="button"
-                  className="flex w-full items-center gap-4"
-                >
-                  <CreditCard className="text-muted-foreground size-4" />
-                  Billing
-                </button>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <button
-                type="button"
-                onClick={async () => {
-                  await authClient.signOut();
-                  router.push("/login");
-                }}
-                className="flex w-full items-center gap-4"
-              >
-                <LogOut className="text-muted-foreground size-4" />
-                Log out
-              </button>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </SidebarMenuItem>
-    </SidebarMenu>
+            <SignOut className="size-4" />
+            Log out
+          </button>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

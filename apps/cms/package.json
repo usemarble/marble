@@ -17,6 +17,7 @@
     "@hookform/resolvers": "^3.10.0",
     "@marble/db": "workspace:*",
     "@marble/ui": "workspace:*",
+    "@phosphor-icons/react": "^2.1.7",
     "@react-email/components": "0.0.31",
     "@tanstack/react-query": "^5.64.0",
     "@tanstack/react-table": "^8.20.5",

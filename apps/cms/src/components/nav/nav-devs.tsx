@@ -8,6 +8,7 @@ import {
   SidebarMenuItem,
 } from "@marble/ui/components/sidebar";
 
+import { Plugs, WebhooksLogo } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import { BookTextIcon } from "../icons/animated/book-text";
@@ -18,12 +19,12 @@ const items = [
   {
     name: "API Keys",
     url: "keys",
-    icon: ConnectIcon,
+    icon: Plugs,
   },
   {
     name: "Webhooks",
     url: "webhooks",
-    icon: WebhookIcon,
+    icon: WebhooksLogo,
   },
 ];
 
@@ -43,10 +44,10 @@ export function NavDevs() {
           <SidebarMenuItem key={item.name}>
             <SidebarMenuButton
               asChild
-              className={`border border-transparent ${
+              className={`border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
                 isActive(item.url)
-                  ? "bg-background border-border hover:bg-background hover:text-primary text-primary"
-                  : "hover:bg-background hover:border-border"
+                  ? "bg-background border-border text-foreground shadow-sm"
+                  : "hover:text-accent-foreground"
               }`}
             >
               <Link href={`/${params.workspace}/${item.url}`}>
@@ -56,15 +57,6 @@ export function NavDevs() {
             </SidebarMenuButton>
           </SidebarMenuItem>
         ))}
-        <SidebarMenuButton
-          asChild
-          className="border border-transparent hover:bg-background hover:border-border"
-        >
-          <Link target="_blank" href="https://docs.marblecms.com">
-            <BookTextIcon />
-            <span>Docs</span>
-          </Link>
-        </SidebarMenuButton>
       </SidebarMenu>
     </SidebarGroup>
   );
