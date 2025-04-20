@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ChevronsUpDown, Plus } from "@marble/ui/lib/icons";
+import { Check, ChevronDown, ChevronsUpDown, Plus } from "@marble/ui/lib/icons";
 import { useState } from "react";
 
 import {
@@ -56,24 +56,24 @@ export function WorkspaceSwitcher() {
             <DropdownMenuTrigger asChild>
               <SidebarMenuButton
                 size="lg"
-                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:bg-background border border-transparent hover:border-border"
+                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:bg-sidebar-accent border border-transparent hover:border-border hover:shadow-sm transition "
               >
-                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square">
-                  <Avatar className="size-8 rounded-none">
-                    <AvatarImage
-                      src={activeWorkspace.logo ?? ""}
-                      className="rounded-[4px]"
-                    />
-                    <AvatarFallback>HA</AvatarFallback>
-                  </Avatar>
-                </div>
+                <Avatar className="size-8 rounded-">
+                  <AvatarImage
+                    src={activeWorkspace.logo || undefined}
+                    className="rounded-[4px]"
+                  />
+                  <AvatarFallback className="border bg-sidebar-accent">
+                    {activeWorkspace.name.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium text-sm">
                     {activeWorkspace?.name || "Personal"}
                   </span>
-                  <span className="truncate text-xs text-primary">Free</span>
+                  {/* <span className="truncate text-xs text-primary">Free</span> */}
                 </div>
-                <ChevronsUpDown className="ml-auto" />
+                <ChevronDown className="ml-auto" />
               </SidebarMenuButton>
             </DropdownMenuTrigger>
           ) : (
@@ -103,8 +103,8 @@ export function WorkspaceSwitcher() {
                   className="relative flex w-full items-center gap-4"
                 >
                   <Avatar className="size-6 rounded-[0.2rem]">
-                    <AvatarImage src={org.logo ?? ""} />
-                    <AvatarFallback>XX</AvatarFallback>
+                    <AvatarImage src={org.logo || undefined} />
+                    <AvatarFallback>{org.name.slice(0, 2)}</AvatarFallback>
                   </Avatar>
                   {org.name}
                   {activeWorkspace?.id === org.id && (

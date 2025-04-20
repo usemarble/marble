@@ -13,8 +13,7 @@ We only collect minimal information to provide and improve our service. Specific
 
 ### a. Analytics Data
 
-- **What we collect:** Non-identifiable information about page visits, such as page views, timestamps, and browser type.
-- **How we collect it:** We use [Vercel Analytics](https://vercel.com), which collects aggregated data. No personally identifiable information (PII) is collected.
+- **What we collect:** Non-identifiable information about page visits, such as page views, timestamps, and browser type. No personally identifiable information (PII) is collected.
 
 ## 2. How We Use Your Information
 

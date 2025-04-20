@@ -23,24 +23,36 @@
     --border: 0 0% 89.8%;
     --input: 0 0% 89.8%;
     --ring: 244 100% 65%;
+
+    /* chart */
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
+
+    /* radius */
     --radius: 0.65rem;
 
-    --sidebar-background: 210 40% 98%;
+    /* sidebar */
+    --sidebar-background: 233 10% 96.5%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 0 0% 100%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
 
     --scrollbar-thumb: 0 0% 37%;
     --scrollbar-thumb-hover: 0 0% 40%;
   }
   .dark {
-    --background: 150 4% 9%;
+    --background: 233 7% 8%;
     --foreground: 0 0% 98%;
-    --card: 0 0% 10%;
+    --card: 240 6% 10%;
     --card-foreground: 0 0% 98%;
-    --popover: 0 0% 9%;
+    --popover: 233 7% 8%;
     --popover-foreground: 0 0% 98%;
     --primary: 244 98% 69%;
     --primary-foreground: 0 0% 98%;
@@ -61,7 +73,14 @@
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
 
-    --sidebar-background: 0 0% 10%;
+    --sidebar-background: 240 6% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 4% 16%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
 
     --scrollbar-thumb: 0, 0%, 60%;
     --scrollbar-thumb-hover: 0, 0%, 53%;
