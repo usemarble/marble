@@ -1,13 +1,13 @@
 "use client";
 
 import { ErrorMessage } from "@/components/auth/error-message";
-import { useWorkspace } from "@/context/workspace";
 import { checkWorkspaceSlug } from "@/lib/actions/workspace";
 import { organization } from "@/lib/auth/client";
 import {
   type CreateWorkspaceValues,
   workspaceSchema,
 } from "@/lib/validations/workspace";
+import { useWorkspace } from "@/providers/workspace";
 import { generateSlug } from "@/utils/string";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@marble/ui/components/button";

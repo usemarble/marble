@@ -1,9 +1,11 @@
 "use client";
 
+import WorkspaceWrapper from "@/components/layout/workspace-wrapper";
 import { DeleteMediaModal } from "@/components/media/delete-modal";
 import { MediaUploadModal } from "@/components/media/upload-modal";
 import { Button } from "@marble/ui/components/button";
-import { ImageIcon, Trash2, UploadCloud } from "lucide-react";
+import { Image } from "@phosphor-icons/react";
+import { Trash2, UploadCloud } from "lucide-react";
 import { useState } from "react";
 
 type Media = {
@@ -24,7 +26,7 @@ function PageClient({ media }: PageClientProps) {
 
   return (
     <>
-      <div className="h-full flex flex-col mx-auto pt-10 pb-16 max-w-4xl gap-8">
+      <WorkspaceWrapper className="flex flex-col pt-10 pb-16 gap-8">
         <section className="flex justify-between items-center">
           <div />
           <Button size="sm" onClick={() => setShowUploadModal(true)}>
@@ -68,14 +70,14 @@ function PageClient({ media }: PageClientProps) {
         ) : (
           <div className="grid h-full w-full place-content-center mt-10">
             <div className="flex flex-col items-center gap-4 max-w-80">
-              <ImageIcon className="size-16 stroke-[1px] text-muted-foreground" />
+              <Image className="size-16 stroke-[1px] text-muted-foreground" />
               <p className="text-balance text-center text-muted-foreground text-sm">
                 Images you upload in this workspace will appear here.
               </p>
             </div>
           </div>
         )}
-      </div>
+      </WorkspaceWrapper>
       <MediaUploadModal
         isOpen={showUploadModal}
         setIsOpen={setShowUploadModal}

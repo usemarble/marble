@@ -13,8 +13,8 @@ import {
 } from "@marble/ui/components/alert-dialog";
 import { Button } from "@marble/ui/components/button";
 import { toast } from "@marble/ui/components/sonner";
-import { Loader } from "@marble/ui/lib/icons";
 import { useState } from "react";
+import { ButtonLoader } from "../ui/loader";
 import type { TeamMemberRow } from "./columns";
 
 interface RemoveMemberModalProps {
@@ -76,7 +76,7 @@ export function RemoveMemberModal({
             disabled={loading}
             variant="destructive"
           >
-            {loading ? <Loader className="size-4 animate-spin" /> : "Remove"}
+            {loading ? <ButtonLoader /> : "Remove"}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>

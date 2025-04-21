@@ -8,18 +8,15 @@ import {
   SidebarMenuItem,
 } from "@marble/ui/components/sidebar";
 
-import { Plugs, WebhooksLogo } from "@phosphor-icons/react";
+import { Key, WebhooksLogo } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
-import { BookTextIcon } from "../icons/animated/book-text";
-import { ConnectIcon } from "../icons/animated/connect";
-import { WebhookIcon } from "../icons/animated/webhook";
 
 const items = [
   {
     name: "API Keys",
     url: "keys",
-    icon: Plugs,
+    icon: Key,
   },
   {
     name: "Webhooks",
@@ -46,7 +43,7 @@ export function NavDevs() {
               asChild
               className={`border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
                 isActive(item.url)
-                  ? "bg-background border-border text-foreground shadow-sm"
+                  ? "bg-sidebar-accent border-border text-foreground shadow-sm"
                   : "hover:text-accent-foreground"
               }`}
             >

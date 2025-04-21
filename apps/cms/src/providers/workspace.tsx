@@ -1,6 +1,6 @@
 "use client";
 
-import { organization, useActiveOrganization } from "@/lib/auth/client";
+import { organization } from "@/lib/auth/client";
 import type { ActiveOrganization } from "@/lib/auth/types";
 import { setLastVisitedWorkspace } from "@/utils/workspace";
 import { useParams, usePathname } from "next/navigation";

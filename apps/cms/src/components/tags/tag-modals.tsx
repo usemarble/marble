@@ -25,7 +25,6 @@ import { toast } from "@marble/ui/components/sonner";
 import { Loader } from "@marble/ui/lib/icons";
 import { useForm } from "react-hook-form";
 
-import { useWorkspace } from "@/context/workspace";
 import {
   checkTagSlugAction,
   checkTagSlugForUpdateAction,
@@ -35,8 +34,10 @@ import {
 } from "@/lib/actions/tag";
 import { useActiveOrganization } from "@/lib/auth/client";
 import { type CreateTagValues, tagSchema } from "@/lib/validations/workspace";
+import { useWorkspace } from "@/providers/workspace";
 import { generateSlug } from "@/utils/string";
 import { useEffect, useState } from "react";
+import { ButtonLoader } from "../ui/loader";
 import type { Tag } from "./columns";
 
 interface CreateTagModalProps {
@@ -138,8 +139,7 @@ export function CreateTagModal({
             className="flex w-full gap-2 mt-4"
             size={"sm"}
           >
-            {isSubmitting && <Loader className="size-4 animate-spin" />}
-            Create
+            {isSubmitting ? <ButtonLoader /> : "Create"}
           </Button>
         </form>
       </DialogContent>
@@ -231,8 +231,7 @@ export const UpdateTagModal = ({
             className="flex w-full gap-2 mt-4"
             size={"sm"}
           >
-            {isSubmitting && <Loader className="size-4 animate-spin" />}
-            Update tag
+            {isSubmitting ? <ButtonLoader /> : "Update tag"}
           </Button>
         </form>
       </DialogContent>
@@ -281,7 +280,7 @@ export const DeleteTagModal = ({
             Cancel
           </AlertDialogCancel>
           <Button onClick={deleteTag} disabled={loading} variant="destructive">
-            {loading ? <Loader className="size-4 animate-spin" /> : "Delete"}
+            {loading ? <ButtonLoader variant="destructive" /> : "Delete"}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>

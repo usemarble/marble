@@ -16,10 +16,10 @@
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
+    "@marble/tsconfig": "workspace:*",
     "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.8",
-    "@marble/tsconfig": "workspace:*",
-    "turbo": "^2.3.3",
+    "turbo": "^2.5.0",
     "typescript": "^5.4.5"
   },
   "engines": {

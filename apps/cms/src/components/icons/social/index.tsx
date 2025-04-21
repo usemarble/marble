@@ -1,9 +1,9 @@
 import * as React from "react";
 import type { SVGProps } from "react";
 
-interface BrandIconProps extends SVGProps<SVGSVGElement> {}
+interface SocialIconProps extends SVGProps<SVGSVGElement> {}
 
-export const Google = (props: BrandIconProps) => (
+export const Google = (props: SocialIconProps) => (
   <svg
     width="1em"
     height="1em"
@@ -31,7 +31,7 @@ export const Google = (props: BrandIconProps) => (
   </svg>
 );
 
-export const Github = (props: BrandIconProps) => (
+export const Github = (props: SocialIconProps) => (
   <svg
     viewBox="0 0 256 250"
     width="1em"

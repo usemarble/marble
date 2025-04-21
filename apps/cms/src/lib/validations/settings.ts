@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const profileSchema = z.object({
   name: z.string().min(1, { message: "Name cannot be blank" }),
-  email: z.string().email(),
+  email: z.string().email().optional(), // because i dont want to allow changing this yet
 });
 export type ProfileData = z.infer<typeof profileSchema>;
 

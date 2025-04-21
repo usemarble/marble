@@ -8,13 +8,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useState } from "react";
 import { DeletePostModal } from "./post-modals";
 
 export default function PostTableActions(props: Post) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const router = useRouter();
 
   return (
     <>
@@ -27,13 +26,12 @@ export default function PostTableActions(props: Post) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="text-muted-foreground">
           <DropdownMenuItem>
-            <button
-              type="button"
-              onClick={() => router.push(`/editor/${props.id}`)}
+            <Link
+              href={`/editor/${props.id}`}
               className="flex w-full items-center gap-2"
             >
               <Pencil size={16} /> <span>Edit</span>
-            </button>
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuItem>
             <button

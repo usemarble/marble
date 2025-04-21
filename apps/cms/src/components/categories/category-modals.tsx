@@ -38,7 +38,7 @@ import {
 } from "@/lib/validations/workspace";
 import { generateSlug } from "@/utils/string";
 import { useEffect, useState } from "react";
-import { useWorkspace } from "../../context/workspace";
+import { useWorkspace } from "../../providers/workspace";
 import type { Category } from "./columns";
 
 export const CreateCategoryModal = ({

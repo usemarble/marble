@@ -1,6 +1,6 @@
 "use client";
 
-import { uploadImageAction } from "@/lib/actions/media";
+import { uploadMediaAction } from "@/lib/actions/media";
 import type { PostValues } from "@/lib/validations/post";
 import { Button } from "@marble/ui/components/button";
 import { Calendar } from "@marble/ui/components/calendar";
@@ -73,7 +73,7 @@ import type {
   UseFormWatch,
 } from "react-hook-form";
 import { z } from "zod";
-import { useWorkspace } from "../../context/workspace";
+import { useWorkspace } from "../../providers/workspace";
 import { CreateCategoryModal } from "../categories/category-modals";
 import { AuthorSelector } from "./author-selector";
 import { TagSelector } from "./tag-selector";
@@ -248,7 +248,7 @@ export function PublishSettings({
       });
 
       // Upload to Cloudflare R2
-      const result = await uploadImageAction(compressedFile);
+      const result = await uploadMediaAction(compressedFile);
 
       // Set the cover image URL
       setValue("coverImage", result.url);
