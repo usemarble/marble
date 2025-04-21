@@ -2,7 +2,7 @@
 
 import { CloudUpload, ImageIcon, Loader2, Trash2 } from "lucide-react";
 
-import { uploadImageAction } from "@/lib/actions/media";
+import { uploadMediaAction } from "@/lib/actions/media";
 import { Button } from "@marble/ui/components/button";
 import {
   Dialog,
@@ -99,7 +99,7 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
       });
 
       // Upload to Cloudflare R2
-      const result = await uploadImageAction(compressedFile);
+      const result = await uploadMediaAction(compressedFile);
 
       // Insert the image into the editor
       editorInstance.editor

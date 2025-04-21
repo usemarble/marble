@@ -1,15 +1,23 @@
 "use client";
 
+import { uploadWorkspaceLogoAction } from "@/lib/actions/media";
 import {
   checkWorkspaceSlug,
   updateWorkspaceAction,
 } from "@/lib/actions/workspace";
+import { useWorkspace } from "@/providers/workspace";
 import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@marble/ui/components/avatar";
 import { Button } from "@marble/ui/components/button";
 import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@marble/ui/components/card";
@@ -17,11 +25,13 @@ import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
-import { Loader2 } from "lucide-react";
+import { Image, UploadSimple, Copy } from "@phosphor-icons/react";
+import { Check, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { DeleteWorkspaceModal } from "./delete-workspace-modal";
 
 const nameSchema = z.object({
   name: z
@@ -44,12 +54,19 @@ interface WorkspaceFormProps {
   id: string;
   name: string;
   slug: string;
+  logo: string | null | undefined;
 }
 
-function WorkspaceForm({ name, slug, id }: WorkspaceFormProps) {
+function WorkspaceForm({ name, slug, id, logo }: WorkspaceFormProps) {
   const router = useRouter();
   const [isNameChanged, setIsNameChanged] = useState(false);
   const [isSlugChanged, setIsSlugChanged] = useState(false);
+  const [idCopied, setIdCopied] = useState(false);
+  const [logoCopied, setLogoCopied] = useState(false);
+  const [logoUrl, setLogoUrl] = useState(logo);
+  const [file, setFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const { updateActiveWorkspace } = useWorkspace();
 
   const nameForm = useForm<NameData>({
     resolver: zodResolver(nameSchema),
@@ -113,11 +130,88 @@ function WorkspaceForm({ name, slug, id }: WorkspaceFormProps) {
     }
   };
 
+  const copyWorkspaceId = () => {
+    if (!id) return;
+    setIdCopied(true);
+    navigator.clipboard.writeText(id);
+    toast.success("ID copied to clipboard.");
+    setTimeout(() => {
+      setIdCopied(false);
+    }, 1000);
+  };
+
+  const copyWorkspaceLogo = () => {
+    if (!logoUrl) return;
+    setLogoCopied(true);
+    navigator.clipboard.writeText(logoUrl);
+    toast.success("Logo URL copied to clipboard.");
+    setTimeout(() => {
+      setLogoCopied(false);
+    }, 1000);
+  };
+
+  const handleLogoUpload = async () => {
+    if (!file) return;
+
+    try {
+      setIsUploading(true);
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/compress", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Compression failed");
+      }
+
+      const compressedBlob = await response.blob();
+      const compressedFile = new File(
+        [compressedBlob],
+        file.name.replace(/\.[^/.]+$/, ".webp"),
+        {
+          type: "image/webp",
+        },
+      );
+
+      const result = await uploadWorkspaceLogoAction(compressedFile);
+
+      setLogoUrl(result.logoUrl);
+      updateActiveWorkspace(slug, { logo: result.logoUrl });
+
+      setIsUploading(false);
+      toast.success("Uploaded complete", {
+        id: "uploading",
+      });
+
+      setFile(null);
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to upload image",
+        {
+          id: "uploading",
+        },
+      );
+      setIsUploading(false);
+    }
+  };
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  useEffect(() => {
+    if (file) {
+      handleLogoUpload();
+    }
+  }, [file]);
+
   return (
     <div className="flex flex-col gap-6">
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Workspace Name</CardTitle>
+          <CardTitle className="text-lg font-medium">Workspace Name</CardTitle>
           <CardDescription>The name of your workspace.</CardDescription>
         </CardHeader>
         <CardContent>
@@ -158,7 +252,7 @@ function WorkspaceForm({ name, slug, id }: WorkspaceFormProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Workspace Slug</CardTitle>
+          <CardTitle className="text-lg font-medium">Workspace Slug</CardTitle>
           <CardDescription>Your unique workspace slug.</CardDescription>
         </CardHeader>
         <CardContent>
@@ -195,6 +289,129 @@ function WorkspaceForm({ name, slug, id }: WorkspaceFormProps) {
             )}
           </form>
         </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg font-medium">Workspace Logo.</CardTitle>
+          <CardDescription>
+            Upload a logo for your workspace. (Square image recommended.
+            Accepted file types: .png, .jpg)
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-5">
+              <Label
+                htmlFor="logo"
+                className={cn(
+                  "cursor-pointer relative overflow-hidden rounded-full size-16 group",
+                  isUploading && "pointer-events-none",
+                )}
+              >
+                <Avatar className="size-16">
+                  <AvatarImage src={logoUrl || undefined} />
+                  <AvatarFallback>
+                    <Image className="size-4" />
+                  </AvatarFallback>
+                </Avatar>
+                <input
+                  title="Upload logo"
+                  type="file"
+                  id="logo"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file && !isUploading) {
+                      setFile(file);
+                      handleLogoUpload();
+                    }
+                  }}
+                  className="sr-only"
+                />
+                <div
+                  className={cn(
+                    "absolute inset-0 flex items-center justify-center transition-opacity duration-300 bg-background/50 backdrop-blur-sm size-full",
+                    isUploading
+                      ? "opacity-100"
+                      : "opacity-0 group-hover:opacity-100",
+                  )}
+                >
+                  {isUploading ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <UploadSimple className="size-4" />
+                  )}
+                </div>
+              </Label>
+            </div>
+            <div className="flex items-center gap-2 w-full">
+              <Input defaultValue={logoUrl || undefined} readOnly />
+              <Button
+                variant="outline"
+                type="submit"
+                size="icon"
+                onClick={copyWorkspaceLogo}
+                className="px-3"
+              >
+                <span className="sr-only">Copy</span>
+                {logoCopied ? (
+                  <Check className="size-4" />
+                ) : (
+                  <Copy className="size-4" />
+                )}
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg font-medium">Workspace ID.</CardTitle>
+          <CardDescription>
+            Unique identifier of your workspace on marble.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center space-x-2">
+            <div className="grid flex-1 gap-2">
+              <Label htmlFor="link" className="sr-only">
+                Link
+              </Label>
+              <Input id="link" defaultValue={id} readOnly />
+            </div>
+            <Button
+              variant="outline"
+              type="submit"
+              size="icon"
+              onClick={copyWorkspaceId}
+              className="px-3"
+            >
+              <span className="sr-only">Copy</span>
+              {idCopied ? (
+                <Check className="size-4" />
+              ) : (
+                <Copy className="size-4" />
+              )}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg font-medium">
+            Delete workspace.
+          </CardTitle>
+          <CardDescription>
+            Permanently delete your workspace and all associated data within.
+            This action cannot be undone.
+          </CardDescription>
+        </CardHeader>
+        <CardFooter className="justify-end">
+          <DeleteWorkspaceModal id={id} />
+        </CardFooter>
       </Card>
     </div>
   );

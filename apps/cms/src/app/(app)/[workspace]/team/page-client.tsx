@@ -1,12 +1,11 @@
 "use client";
 
+import WorkspaceWrapper from "@/components/layout/workspace-wrapper";
 import { columns } from "@/components/team/columns";
 import { TeamDataTable } from "@/components/team/data-table";
 import { InviteModal } from "@/components/team/invite-modal";
 import { LeaveWorkspaceModal } from "@/components/team/leave-workspace";
-import { organization } from "@/lib/auth/client";
 import type { ActiveOrganization, Session } from "@/lib/auth/types";
-import { toast } from "@marble/ui/components/sonner";
 import { useState } from "react";
 
 interface PageClientProps {
@@ -55,7 +54,7 @@ function PageClient(props: PageClientProps) {
   ];
 
   return (
-    <div className="max-w-4xl mx-auto py-8">
+    <WorkspaceWrapper>
       <TeamDataTable
         columns={columns}
         data={data}
@@ -75,7 +74,7 @@ function PageClient(props: PageClientProps) {
         open={showLeaveWorkspaceModal}
         setOpen={setShowLeaveWorkspaceModal}
       />
-    </div>
+    </WorkspaceWrapper>
   );
 }
 

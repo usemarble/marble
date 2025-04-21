@@ -15,7 +15,8 @@ import { toast } from "@marble/ui/components/sonner";
 import { Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useWorkspace } from "../../context/workspace";
+import { useWorkspace } from "../../providers/workspace";
+import { ButtonLoader } from "../ui/loader";
 
 interface ListOrganizationResponse {
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
@@ -101,7 +102,7 @@ export function LeaveWorkspaceModal({
             className="min-w-20"
           >
             {isLeavingWorkspace ? (
-              <Loader className="size-4 animate-spin" />
+              <ButtonLoader variant="destructive" />
             ) : (
               "Leave"
             )}

@@ -1,4 +1,4 @@
-import { MoreHorizontal, Pencil, Trash, Trash2 } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash } from "lucide-react";
 import type { Tag } from "./columns";
 
 import { Button } from "@marble/ui/components/button";
@@ -6,8 +6,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
 import { useState } from "react";

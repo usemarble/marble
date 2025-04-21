@@ -15,6 +15,7 @@ import { toast } from "@marble/ui/components/sonner";
 
 import { deletePostAction } from "@/lib/actions/post";
 import { useState } from "react";
+import { ButtonLoader } from "../ui/loader";
 
 export const DeletePostModal = ({
   open,
@@ -57,7 +58,7 @@ export const DeletePostModal = ({
               disabled={loading}
               variant="destructive"
             >
-              Delete
+              {loading ? <ButtonLoader variant="destructive" /> : "Delete"}
             </Button>
           </AlertDialogAction>
         </AlertDialogFooter>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ChevronDown, ChevronsUpDown, Plus } from "@marble/ui/lib/icons";
+import { Check, ChevronDown, Plus } from "@marble/ui/lib/icons";
 import { useState } from "react";
 
 import {
@@ -27,7 +27,7 @@ import {
 } from "@marble/ui/components/avatar";
 import { Skeleton } from "@marble/ui/components/skeleton";
 import { useRouter } from "next/navigation";
-import { useWorkspace } from "../../context/workspace";
+import { useWorkspace } from "../../providers/workspace";
 import { CreateWorkspaceModal } from "./workspace-modal";
 
 export function WorkspaceSwitcher() {
@@ -77,7 +77,7 @@ export function WorkspaceSwitcher() {
               </SidebarMenuButton>
             </DropdownMenuTrigger>
           ) : (
-            <div className="bg-white rounded-md border p-2 flex items-center gap-2">
+            <div className="bg-sidebar-accent rounded-md border p-2 flex items-center gap-2">
               <Skeleton className="border rounded-md size-8 shrink-0" />
               <div className="flex flex-col gap-1 w-full">
                 <Skeleton className="h-3 border w-3/4" />

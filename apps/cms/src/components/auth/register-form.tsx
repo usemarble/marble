@@ -12,7 +12,7 @@ import { cn } from "@marble/ui/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
-import { Github, Google } from "../icons/brand";
+import { Github, Google } from "../icons/social";
 
 export function RegisterForm() {
   const {

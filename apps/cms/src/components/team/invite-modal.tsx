@@ -13,7 +13,7 @@ import {
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
-import { Loader } from "@marble/ui/lib/icons";
+import { Loader, Plus } from "@marble/ui/lib/icons";
 import { useForm } from "react-hook-form";
 
 import { organization } from "@/lib/auth/client";
@@ -27,7 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@marble/ui/components/select";
-
+import { ButtonLoader } from "../ui/loader";
 export const InviteModal = ({
   open,
   setOpen,
@@ -135,8 +135,7 @@ export const InviteModal = ({
             disabled={isSubmitting}
             className="flex w-full gap-2 mt-4"
           >
-            {isSubmitting && <Loader className="size-4 animate-spin" />}
-            Invite
+            {isSubmitting ? <ButtonLoader /> : "Invite"}
           </Button>
         </form>
       </DialogContent>

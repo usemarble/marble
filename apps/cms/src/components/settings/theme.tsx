@@ -32,8 +32,7 @@ export function ThemeSwitch() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm">
-          <SunMoon className="mr-2 size-4 text-muted-foreground" />
-          <span>Theme</span>
+          <span>{theme}</span>
           <ChevronDown className="ml-2 size-4 text-muted-foreground" />
         </Button>
       </DropdownMenuTrigger>
@@ -45,9 +44,6 @@ export function ThemeSwitch() {
             className="cursor-pointer"
           >
             {item.label}
-            <Check
-              className={`${item.name === theme ? "opacity-100" : "opacity-0"}`}
-            />
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

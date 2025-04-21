@@ -1,7 +1,6 @@
 import { organization, useListOrganizations } from "@/lib/auth/client";
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -12,10 +11,10 @@ import {
 } from "@marble/ui/components/alert-dialog";
 import { Button } from "@marble/ui/components/button";
 import { toast } from "@marble/ui/components/sonner";
-import { Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useWorkspace } from "../../context/workspace";
+import { useWorkspace } from "../../providers/workspace";
+import { ButtonLoader } from "../ui/loader";
 
 interface ListOrganizationResponse {
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
@@ -92,7 +91,7 @@ export function DeleteWorkspaceModal({ id }: { id: string }) {
             className="min-w-20"
           >
             {isDeletingWorkspace ? (
-              <Loader className="size-4 animate-spin" />
+              <ButtonLoader variant="destructive" />
             ) : (
               "Delete"
             )}

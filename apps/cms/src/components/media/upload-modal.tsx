@@ -2,7 +2,7 @@
 
 import { CloudUpload, ImageIcon, Trash2 } from "lucide-react";
 
-import { uploadImageAction } from "@/lib/actions/media";
+import { uploadMediaAction } from "@/lib/actions/media";
 import { Button } from "@marble/ui/components/button";
 import {
   Dialog,
@@ -70,7 +70,7 @@ export function MediaUploadModal({
         id: "uploading",
       });
 
-      const result = await uploadImageAction(compressedFile);
+      const result = await uploadMediaAction(compressedFile);
 
       setIsUploading(false);
       toast.success("Uploaded successfully!", {

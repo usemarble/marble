@@ -19,6 +19,7 @@ import {
 } from "@marble/ui/components/dropdown-menu";
 import { useSidebar } from "@marble/ui/components/sidebar";
 import { Skeleton } from "@marble/ui/components/skeleton";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 interface NavUserProps {
@@ -79,16 +80,22 @@ export function NavUser({ user }: NavUserProps) {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem>
-            <button type="button" className="flex w-full items-center gap-4">
+            <Link
+              href="/settings/account"
+              className="flex w-full items-center gap-4"
+            >
               <User className="size-4" />
               Account
-            </button>
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuItem>
-            <button type="button" className="flex w-full items-center gap-4">
+            <Link
+              href="/settings/billing"
+              className="flex w-full items-center gap-4"
+            >
               <CreditCard className="size-4" />
-              Upgrade Plan
-            </button>
+              Billing
+            </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
