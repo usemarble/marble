@@ -25,7 +25,7 @@ import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
-import { Image, UploadSimple, Copy } from "@phosphor-icons/react";
+import { Copy, Image, UploadSimple } from "@phosphor-icons/react";
 import { Check, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
