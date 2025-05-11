@@ -31,6 +31,7 @@ model Organization {
   subdomain   String?      @unique
   updatedAt   DateTime     @updatedAt
   createdAt   DateTime     @default(now())
+  timezone    String       @default("Europe/London")
   categories  Category[]
   invitations Invitation[]
   media       Media[]
