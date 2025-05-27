@@ -33,12 +33,20 @@ const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
   undefined,
 );
 
-export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
+interface WorkspaceProviderProps {
+  children: React.ReactNode;
+  initialWorkspace: ActiveOrganization | null;
+}
+
+export function WorkspaceProvider({
+  children,
+  initialWorkspace,
+}: WorkspaceProviderProps) {
   const params = useParams<{ workspace: string }>();
   const pathname = usePathname();
 
   const [activeWorkspace, setActiveWorkspace] =
-    useState<ActiveOrganization | null>(null);
+    useState<ActiveOrganization | null>(initialWorkspace);
   const [isLoading, setIsLoading] = useState(false);
 
   async function updateActiveWorkspace(

@@ -10,12 +10,10 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <WorkspaceProvider>
-        <ThemeProvider attribute="class" enableSystem disableTransitionOnChange>
-          {children}
-          <Toaster position="top-center" />
-        </ThemeProvider>
-      </WorkspaceProvider>
+      <ThemeProvider attribute="class" enableSystem disableTransitionOnChange>
+        {children}
+        <Toaster position="top-center" />
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
