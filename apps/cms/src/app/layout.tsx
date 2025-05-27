@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import "@/styles/globals.css";
 import "@/styles/editor.css";
+import { auth } from "@/lib/auth/auth";
 import { siteConfig } from "@/lib/seo";
+import { WorkspaceProvider } from "@/providers/workspace";
 import { Geist } from "next/font/google";
+import { headers } from "next/headers";
 import Providers from "./providers";
-
 export const metadata: Metadata = {
   title: siteConfig.title,
   metadataBase: new URL(siteConfig.url),
@@ -46,15 +48,23 @@ const fontSans = Geist({
   variable: "--font-sans",
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const fullOrg = await auth.api.getFullOrganization({
+    headers: await headers(),
+  });
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${fontSans.className} font-sans antialiased`}>
-        <Providers>{children}</Providers>
+        <Providers>
+          <WorkspaceProvider initialWorkspace={fullOrg}>
+            {children}
+          </WorkspaceProvider>
+        </Providers>
       </body>
     </html>
   );
