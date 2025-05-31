@@ -179,7 +179,7 @@ export default function PageClient({
       <Container className="py-4">
         <div className="flex items-center gap-2 justify-between">
           <h1 className="text-lg font-medium">Account Settings</h1>
-          <Link href="/" className={cn(buttonVariants({ variant: "default" }))}>
+          <Link href="/" className={cn(buttonVariants({ variant: "outline" }))}>
             Dashboard
           </Link>
         </div>

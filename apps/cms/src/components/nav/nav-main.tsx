@@ -8,21 +8,16 @@ import {
 } from "@marble/ui/components/sidebar";
 import {
   Faders,
-  Image as ImageIcon,
+  Images as ImagesIcon,
   Layout,
   Note,
   Package,
   Tag,
-  Users,
   UsersThree,
 } from "@phosphor-icons/react";
 
-import { Group, SlidersHorizontal, Tags } from "@marble/ui/lib/icons";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
-import { LayersIcon } from "../icons/animated/layers";
-import { LayoutPanelTopIcon } from "../icons/animated/layout-panel-top";
-import { UsersIcon } from "../icons/animated/users";
 
 const items = [
   {
@@ -43,7 +38,7 @@ const items = [
   {
     name: "Media",
     url: "media",
-    icon: ImageIcon,
+    icon: ImagesIcon,
   },
   {
     name: "Team",

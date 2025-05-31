@@ -26,7 +26,7 @@ function PageClient({ posts }: PageClientProps) {
                 No posts yet. Click the button below to start writing.
               </p>
               <Link
-                href="/editor"
+                href="/editor/p/new"
                 className={buttonVariants({ variant: "default", size: "sm" })}
               >
                 <Plus size={16} />

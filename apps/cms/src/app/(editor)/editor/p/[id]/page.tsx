@@ -1,7 +1,12 @@
+import type { Metadata } from "next";
 import type { Attribution } from "@/lib/validations/post";
 import db from "@marble/db";
 import { notFound } from "next/navigation";
 import PageClient from "./page-client";
+
+export const metadata: Metadata = {
+  title: "Update post - Marble",
+};
 
 async function Page(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;

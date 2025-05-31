@@ -10,7 +10,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
-import { Button } from "@marble/ui/components/button";
+import { Button, buttonVariants } from "@marble/ui/components/button";
 import { Input } from "@marble/ui/components/input";
 import {
   Table,
@@ -21,6 +21,7 @@ import {
   TableRow,
 } from "@marble/ui/components/table";
 import { Plus, SearchIcon, XIcon } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -78,10 +79,13 @@ export function PostDataTable<TData, TValue>({
           )}
         </div>
         <div>
-          <Button onClick={() => router.push("/editor")} size="sm">
+          <Link
+            href="/editor/p/new"
+            className={buttonVariants({ variant: "default", size: "sm" })}
+          >
             <Plus size={16} />
             <span>New post</span>
-          </Button>
+          </Link>
         </div>
       </div>
 

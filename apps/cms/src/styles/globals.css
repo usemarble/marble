@@ -64,7 +64,7 @@
     --accent-foreground: 0 0% 98%;
     --destructive: 0 79% 59%;
     --destructive-foreground: 0 0% 99%;
-    --border: 0 0% 14.9%;
+    --border: 0, 1%, 17%;
     --input: 0 0% 14.9%;
     --ring: 244 100% 65%;
     --chart-1: 220 70% 50%;
@@ -103,7 +103,7 @@
   }
 }
 
-::-webkit-scrollbar {
+/* ::-webkit-scrollbar {
   width: 0.4rem;
 }
 ::-webkit-scrollbar-thumb {
@@ -114,4 +114,14 @@
 }
 ::-webkit-scrollbar-track {
   background: hsl(var(--background) / 0.8);
+} */
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }

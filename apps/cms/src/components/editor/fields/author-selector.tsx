@@ -1,5 +1,6 @@
 "use client";
 
+import { useSession } from "@/lib/auth/client";
 import type { PostValues } from "@/lib/validations/post";
 import {
   Avatar,
@@ -28,10 +29,11 @@ import {
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { cn } from "@marble/ui/lib/utils";
+import { useQuery } from "@tanstack/react-query";
 import { Check, ChevronsUpDown, InfoIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { type Control, useController } from "react-hook-form";
-import { ErrorMessage } from "../auth/error-message";
+import { ErrorMessage } from "../../auth/error-message";
 
 interface AuthorOptions {
   id: string;
@@ -39,25 +41,23 @@ interface AuthorOptions {
   image: string;
 }
 
+interface AuthorResponse extends AuthorOptions {}
+
 interface AuthorSelectorProps {
-  options: AuthorOptions[];
   control: Control<PostValues>;
   placeholder?: string;
   isOpen?: boolean;
   setIsOpen?: (open: boolean) => void;
   defaultAuthors?: string[];
-  primaryAuthor?: AuthorOptions;
 }
 
-export const AuthorSelector = ({
-  options,
+export function AuthorSelector({
   control,
   placeholder,
   isOpen,
   setIsOpen,
   defaultAuthors = [],
-  primaryAuthor,
-}: AuthorSelectorProps) => {
+}: AuthorSelectorProps) {
   const {
     field: { onChange, value },
     fieldState: { error },
@@ -67,27 +67,66 @@ export const AuthorSelector = ({
     defaultValue: defaultAuthors,
   });
   const [selected, setSelected] = useState<AuthorOptions[]>([]);
+  const [authors, setAuthors] = useState<AuthorResponse[]>([]);
+  const { data: session } = useSession();
 
-  // Update selected options when value or options change
+  const { isLoading: isLoadingAuthors } = useQuery({
+    queryKey: ["authors"],
+    staleTime: Number.POSITIVE_INFINITY,
+    queryFn: async () => {
+      try {
+        const res = await fetch("/api/authors");
+        const authors: AuthorResponse[] = await res.json();
+        setAuthors(authors);
+        return authors;
+      } catch (error) {
+        setAuthors([]);
+        console.error(error);
+      }
+    },
+  });
+
+  const derivedPrimaryAuthor: AuthorOptions | undefined = session?.user
+    ? {
+        id: session.user.id as string,
+        name: session.user.name as string,
+        image: session.user.image as string,
+      }
+    : undefined;
+
   useEffect(() => {
-    if (options.length > 0 && value?.length > 0) {
-      const selectedAuthors = options.filter((opt) => value.includes(opt.id));
+    if (authors && authors.length > 0 && value?.length > 0) {
+      const selectedAuthors = authors.filter((opt) => value.includes(opt.id));
       setSelected(selectedAuthors);
     } else {
       setSelected([]);
     }
-  }, [value, options]);
+  }, [value, authors]);
 
   const addOrRemoveAuthor = (authorToAdd: string) => {
     const currentValues = value || [];
-    const newValue = currentValues.includes(authorToAdd)
+    let newValue = currentValues.includes(authorToAdd)
       ? currentValues.filter((id) => id !== authorToAdd)
       : [...currentValues, authorToAdd];
+
+    if (
+      derivedPrimaryAuthor &&
+      newValue.length === 0 &&
+      currentValues.includes(derivedPrimaryAuthor.id) &&
+      authorToAdd === derivedPrimaryAuthor.id
+    ) {
+      newValue = [derivedPrimaryAuthor.id];
+    }
+
+    if (newValue.length === 0 && derivedPrimaryAuthor) {
+      newValue = [derivedPrimaryAuthor.id];
+    }
+
     onChange(newValue);
   };
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-3">
       <div className="flex items-center gap-1">
         <Label htmlFor="authors">Authors</Label>
         <TooltipProvider>
@@ -104,8 +143,8 @@ export const AuthorSelector = ({
         </TooltipProvider>
       </div>
       <Popover open={isOpen} onOpenChange={setIsOpen}>
-        <PopoverTrigger asChild>
-          <div className="flex items-center justify-between gap-2 relative w-full cursor-pointer rounded-md border border-input bg-transparent px-3 py-1.5 text-sm h-auto min-h-11">
+        <PopoverTrigger>
+          <div className="flex items-center bg-background justify-between gap-2 relative w-full cursor-pointer rounded-md border border-input px-3 py-1.5 text-sm h-auto min-h-11">
             <ul className="flex flex-wrap -space-x-2">
               {selected.length === 0 && (
                 <li className="text-muted-foreground">
@@ -150,14 +189,16 @@ export const AuthorSelector = ({
           </div>
         </PopoverTrigger>
         {error && <ErrorMessage>{error.message}</ErrorMessage>}
-        <PopoverContent className="min-w-[364.67px] p-0" align="start">
+        <PopoverContent className="min-w-[350.67px] p-0" align="start">
           <Command className="w-full">
             <CommandInput placeholder="Search team members..." />
             <CommandList>
-              <CommandEmpty>No results found.</CommandEmpty>
-              {options.length > 0 && (
+              <CommandEmpty>
+                {isLoadingAuthors ? "Loading authors..." : "No results found."}
+              </CommandEmpty>
+              {authors && authors.length > 0 && (
                 <CommandGroup>
-                  {options.map((option) => (
+                  {authors.map((option) => (
                     <CommandItem
                       key={option.id}
                       id={option.id}
@@ -186,11 +227,11 @@ export const AuthorSelector = ({
                   ))}
                 </CommandGroup>
               )}
-              {options.length > 0 && <CommandSeparator />}
+              {authors && authors.length > 0 && <CommandSeparator />}
             </CommandList>
           </Command>
         </PopoverContent>
       </Popover>
     </div>
   );
-};
+}

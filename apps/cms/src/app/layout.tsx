@@ -7,6 +7,7 @@ import { WorkspaceProvider } from "@/providers/workspace";
 import { Geist } from "next/font/google";
 import { headers } from "next/headers";
 import Providers from "./providers";
+
 export const metadata: Metadata = {
   title: siteConfig.title,
   metadataBase: new URL(siteConfig.url),
@@ -59,6 +60,12 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
+      {/* <head>
+        <script
+          crossOrigin="anonymous"
+          src="//unpkg.com/react-scan/dist/auto.global.js"
+        />
+      </head> */}
       <body className={`${fontSans.className} font-sans antialiased`}>
         <Providers>
           <WorkspaceProvider initialWorkspace={fullOrg}>

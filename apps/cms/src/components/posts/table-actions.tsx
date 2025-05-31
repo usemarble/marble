@@ -27,7 +27,7 @@ export default function PostTableActions(props: Post) {
         <DropdownMenuContent align="end" className="text-muted-foreground">
           <DropdownMenuItem>
             <Link
-              href={`/editor/${props.id}`}
+              href={`/editor/p/${props.id}`}
               className="flex w-full items-center gap-2"
             >
               <Pencil size={16} /> <span>Edit</span>
