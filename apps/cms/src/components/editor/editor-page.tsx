@@ -156,7 +156,10 @@ function EditorPage({ initialData = emptyPost, id }: EditorPageProps) {
           </div>
 
           <div>
-            <SidebarTrigger size="icon" className="size-10 text-muted-foreground" />
+            <SidebarTrigger
+              size="icon"
+              className="size-10 text-muted-foreground"
+            />
           </div>
         </header>
         <section className="mx-auto w-full max-w-3xl flex-1">

@@ -49,4 +49,3 @@ export function DescriptionField({ register, errors }: DescriptionFieldProps) {
     </div>
   );
 }
-

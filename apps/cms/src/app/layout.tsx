@@ -54,9 +54,9 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const fullOrg = await auth.api.getFullOrganization({
-    headers: await headers(),
-  });
+  // const fullOrg = await auth.api.getFullOrganization({
+  //   headers: await headers(),
+  // });
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -68,7 +68,7 @@ export default async function RootLayout({
       </head> */}
       <body className={`${fontSans.className} font-sans antialiased`}>
         <Providers>
-          <WorkspaceProvider initialWorkspace={fullOrg}>
+          <WorkspaceProvider initialWorkspace={null}>
             {children}
           </WorkspaceProvider>
         </Providers>

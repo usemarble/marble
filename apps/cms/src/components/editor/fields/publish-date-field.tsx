@@ -12,7 +12,7 @@ import {
 import {
   Tooltip,
   TooltipContent,
-  TooltipTrigger
+  TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { CalendarDays, InfoIcon } from "@marble/ui/lib/icons";
 import { cn } from "@marble/ui/lib/utils";

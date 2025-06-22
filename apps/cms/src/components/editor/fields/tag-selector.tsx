@@ -87,12 +87,9 @@ export const TagSelector = ({
     },
   });
 
-
   useEffect(() => {
     if (tags.length > 0 && value?.length > 0) {
-      const selectedTags = tags.filter((opt) =>
-        value.includes(opt.id),
-      );
+      const selectedTags = tags.filter((opt) => value.includes(opt.id));
       setSelected(selectedTags);
     } else {
       setSelected([]);
