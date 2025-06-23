@@ -1,10 +1,10 @@
 "use client";
 
+import { useParams, usePathname } from "next/navigation";
+import { createContext, useContext, useEffect, useState } from "react";
 import { organization } from "@/lib/auth/client";
 import type { ActiveOrganization } from "@/lib/auth/types";
 import { setLastVisitedWorkspace } from "@/utils/workspace";
-import { useParams, usePathname } from "next/navigation";
-import { createContext, useContext, useEffect, useState } from "react";
 
 // Type for partial workspace data that doesn't require full member details
 // This is because the response from creating a workpace doesnt return what is fully expexted by the ActiveOrganization type
@@ -33,12 +33,20 @@ const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
   undefined,
 );
 
-export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
+interface WorkspaceProviderProps {
+  children: React.ReactNode;
+  initialWorkspace: ActiveOrganization | null;
+}
+
+export function WorkspaceProvider({
+  children,
+  initialWorkspace,
+}: WorkspaceProviderProps) {
   const params = useParams<{ workspace: string }>();
   const pathname = usePathname();
 
   const [activeWorkspace, setActiveWorkspace] =
-    useState<ActiveOrganization | null>(null);
+    useState<ActiveOrganization | null>(initialWorkspace);
   const [isLoading, setIsLoading] = useState(false);
 
   async function updateActiveWorkspace(

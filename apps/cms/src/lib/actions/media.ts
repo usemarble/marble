@@ -1,11 +1,11 @@
 "use server";
 
-import getServerSession from "@/lib/auth/session";
-import { generateSlug } from "@/utils/string";
 import { DeleteObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
 import db from "@marble/db";
 import { nanoid } from "nanoid";
+import getServerSession from "@/lib/auth/session";
+import { generateSlug } from "@/utils/string";
 
 const ACCESS_KEY_ID = process.env.CLOUDFLARE_ACCESS_KEY_ID;
 const SECRET_ACCESS_KEY = process.env.CLOUDFLARE_SECRET_ACCESS_KEY;
@@ -107,8 +107,7 @@ export async function uploadMediaAction(file: File): Promise<UploadResult> {
     const url = `${publicUrl}/${key}`;
     const mediaName = `${sluggedName}-${sluggedId}.${extension}`;
 
-    let media: { id: string; name: string; url: string } | undefined =
-      undefined;
+    let media: { id: string; name: string; url: string } | undefined;
 
     if (workspaceCanSaveMedia) {
       const res = await db.media.create({

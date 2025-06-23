@@ -1,4 +1,3 @@
-import { deleteAccountAction } from "@/lib/actions/account";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -13,6 +12,7 @@ import { Button } from "@marble/ui/components/button";
 import { toast } from "@marble/ui/components/sonner";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { deleteAccountAction } from "@/lib/actions/account";
 import { ButtonLoader } from "../ui/loader";
 
 export function DeleteAccountModal({ id }: { id: string }) {

@@ -1,4 +1,3 @@
-import { auth } from "@/lib/auth/auth";
 import {
   Sidebar,
   SidebarContent,
@@ -6,6 +5,7 @@ import {
   SidebarHeader,
 } from "@marble/ui/components/sidebar";
 import { headers } from "next/headers";
+import { auth } from "@/lib/auth/auth";
 import { NavDevs } from "./nav-devs";
 import { NavExtra } from "./nav-extra";
 import { NavMain } from "./nav-main";

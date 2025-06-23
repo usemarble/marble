@@ -1,6 +1,5 @@
 "use client";
 
-import { ErrorMessage } from "@/components/auth/error-message";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@marble/ui/components/button";
 import {
@@ -12,13 +11,6 @@ import {
 } from "@marble/ui/components/dialog";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
-import { toast } from "@marble/ui/components/sonner";
-import { Loader, Plus } from "@marble/ui/lib/icons";
-import { useForm } from "react-hook-form";
-
-import { organization } from "@/lib/auth/client";
-import type { ActiveOrganization } from "@/lib/auth/types";
-import { type InviteData, inviteSchema } from "@/lib/validations/auth";
 // import { RoleType } from "@marble/db/client";
 import {
   Select,
@@ -27,6 +19,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@marble/ui/components/select";
+import { toast } from "@marble/ui/components/sonner";
+import { Loader, Plus } from "@marble/ui/lib/icons";
+import { useForm } from "react-hook-form";
+import { ErrorMessage } from "@/components/auth/error-message";
+import { organization } from "@/lib/auth/client";
+import type { ActiveOrganization } from "@/lib/auth/types";
+import { type InviteData, inviteSchema } from "@/lib/validations/auth";
 import { ButtonLoader } from "../ui/loader";
 export const InviteModal = ({
   open,

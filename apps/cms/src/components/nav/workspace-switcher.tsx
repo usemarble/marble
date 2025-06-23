@@ -1,8 +1,10 @@
 "use client";
 
-import { Check, ChevronDown, Plus } from "@marble/ui/lib/icons";
-import { useState } from "react";
-
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@marble/ui/components/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,16 +19,12 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@marble/ui/components/sidebar";
-
+import { Skeleton } from "@marble/ui/components/skeleton";
+import { Check, ChevronDown, Plus } from "@marble/ui/lib/icons";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useListOrganizations } from "@/lib/auth/client";
 import type { Organization } from "@/lib/auth/types";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@marble/ui/components/avatar";
-import { Skeleton } from "@marble/ui/components/skeleton";
-import { useRouter } from "next/navigation";
 import { useWorkspace } from "../../providers/workspace";
 import { CreateWorkspaceModal } from "./workspace-modal";
 

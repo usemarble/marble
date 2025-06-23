@@ -1,0 +1,28 @@
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth/auth";
+import PageClient from "./page-client";
+
+async function Page() {
+  const [session, organization] = await Promise.all([
+    auth.api.getSession({
+      headers: await headers(),
+    }),
+    auth.api.getFullOrganization({
+      headers: await headers(),
+    }),
+  ]);
+
+  if (!organization) {
+    return <div>No org</div>;
+  }
+  if (!session) {
+    return <div>No session</div>;
+  }
+
+  const ownerId = organization.members.find((m) => m.role === "member")?.id;
+  const isOwner = session.user.id === ownerId;
+
+  return <PageClient activeWorkspace={organization} session={session} />;
+}
+
+export default Page;

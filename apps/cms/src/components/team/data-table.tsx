@@ -1,14 +1,5 @@
 "use client";
 
-import {
-  type ColumnDef,
-  type ColumnFiltersState,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-
 import { Button } from "@marble/ui/components/button";
 import { Input } from "@marble/ui/components/input";
 import {
@@ -19,9 +10,20 @@ import {
   TableHeader,
   TableRow,
 } from "@marble/ui/components/table";
-import { TooltipContent } from "@marble/ui/components/tooltip";
-import { Tooltip, TooltipTrigger } from "@marble/ui/components/tooltip";
-import { TooltipProvider } from "@marble/ui/components/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@marble/ui/components/tooltip";
+import {
+  type ColumnDef,
+  type ColumnFiltersState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
 import { MailPlus, PlusIcon, SearchIcon, XIcon } from "lucide-react";
 import { useState } from "react";
 

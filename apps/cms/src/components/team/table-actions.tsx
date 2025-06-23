@@ -1,4 +1,3 @@
-import { authClient, organization } from "@/lib/auth/client";
 import { Button } from "@marble/ui/components/button";
 import {
   DropdownMenu,
@@ -17,9 +16,11 @@ import {
   XCircleIcon,
 } from "lucide-react";
 import { useState } from "react";
+import { authClient, organization } from "@/lib/auth/client";
 import type { TeamMemberRow } from "./columns";
 import { ProfileSheet } from "./profile-sheet";
 import { RemoveMemberModal } from "./team-modals";
+
 interface TableActionsProps extends TeamMemberRow {
   currentUserRole: "owner" | "admin" | "member" | undefined;
   currentUserId: string | undefined;

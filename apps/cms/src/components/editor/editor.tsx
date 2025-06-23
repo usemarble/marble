@@ -1,12 +1,11 @@
 "use client";
 
+import type { Extension } from "@tiptap/core";
 import { EditorContent, EditorRoot, type JSONContent } from "novel";
 import { CodeBlockLowlight, handleCommandNavigation } from "novel/extensions";
 import BubbleMenu from "./bubble-menu";
 import { defaultExtensions } from "./extensions";
 import { slashCommand } from "./slash-command-items";
-
-import type { Extension } from "@tiptap/core";
 import SlashCommandMenu from "./slash-command-menu";
 
 export const extensions = [...defaultExtensions, slashCommand] as Extension[];

@@ -1,7 +1,7 @@
-import PageLoader from "@/components/shared/page-loader";
-import getServerSession from "@/lib/auth/session";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
+import PageLoader from "@/components/shared/page-loader";
+import getServerSession from "@/lib/auth/session";
 import PageClient from "./page-client";
 
 export default async function InvitePage(props: {

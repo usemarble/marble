@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import "@/styles/globals.css";
 import "@/styles/editor.css";
-import { siteConfig } from "@/lib/seo";
 import { Geist } from "next/font/google";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth/auth";
+import { siteConfig } from "@/lib/seo";
+import { WorkspaceProvider } from "@/providers/workspace";
 import Providers from "./providers";
 
 export const metadata: Metadata = {
@@ -46,15 +49,29 @@ const fontSans = Geist({
   variable: "--font-sans",
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // const fullOrg = await auth.api.getFullOrganization({
+  //   headers: await headers(),
+  // });
+
   return (
     <html lang="en" suppressHydrationWarning>
+      {/* <head>
+        <script
+          crossOrigin="anonymous"
+          src="//unpkg.com/react-scan/dist/auto.global.js"
+        />
+      </head> */}
       <body className={`${fontSans.className} font-sans antialiased`}>
-        <Providers>{children}</Providers>
+        <Providers>
+          <WorkspaceProvider initialWorkspace={null}>
+            {children}
+          </WorkspaceProvider>
+        </Providers>
       </body>
     </html>
   );

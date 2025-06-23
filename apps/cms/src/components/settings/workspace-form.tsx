@@ -1,11 +1,5 @@
 "use client";
 
-import { uploadWorkspaceLogoAction } from "@/lib/actions/media";
-import {
-  checkWorkspaceSlug,
-  updateWorkspaceAction,
-} from "@/lib/actions/workspace";
-import { useWorkspace } from "@/providers/workspace";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Avatar,
@@ -31,6 +25,12 @@ import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { uploadWorkspaceLogoAction } from "@/lib/actions/media";
+import {
+  checkWorkspaceSlug,
+  updateWorkspaceAction,
+} from "@/lib/actions/workspace";
+import { useWorkspace } from "@/providers/workspace";
 import { DeleteWorkspaceModal } from "./delete-workspace-modal";
 
 const nameSchema = z.object({

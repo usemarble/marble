@@ -1,8 +1,5 @@
 "use client";
 
-import { CloudUpload, ImageIcon, Loader2, Trash2 } from "lucide-react";
-
-import { uploadMediaAction } from "@/lib/actions/media";
 import { Button } from "@marble/ui/components/button";
 import {
   Dialog,
@@ -22,8 +19,10 @@ import {
   TabsTrigger,
 } from "@marble/ui/components/tabs";
 import { useQuery } from "@tanstack/react-query";
+import { CloudUpload, ImageIcon, Loader2, Trash2 } from "lucide-react";
 import { useEditor } from "novel";
 import { useState } from "react";
+import { uploadMediaAction } from "@/lib/actions/media";
 
 interface MediaResponse {
   id: string;

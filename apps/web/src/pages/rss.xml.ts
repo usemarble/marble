@@ -1,7 +1,7 @@
 import { getCollection } from "astro:content";
-import { SITE } from "@/lib/constants";
 import rss from "@astrojs/rss";
 import type { APIContext } from "astro";
+import { SITE } from "@/lib/constants";
 
 export async function GET(context: APIContext) {
   const blog = await getCollection("blog");

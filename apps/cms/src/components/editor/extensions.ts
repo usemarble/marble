@@ -1,5 +1,7 @@
 import type { Extension } from "@tiptap/core";
 import TextAlign from "@tiptap/extension-text-align";
+import { cx } from "class-variance-authority";
+import { common, createLowlight } from "lowlight";
 import {
   CodeBlockLowlight,
   HorizontalRule,
@@ -12,9 +14,6 @@ import {
   TiptapUnderline,
   Youtube,
 } from "novel/extensions";
-
-import { cx } from "class-variance-authority";
-import { common, createLowlight } from "lowlight";
 import { UploadImagesPlugin } from "novel/plugins";
 
 // You can overwrite the placeholder with your own configuration

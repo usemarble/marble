@@ -42,7 +42,7 @@
     "@tiptap/extension-underline": "^2.11.2",
     "@tiptap/react": "^2.8.0",
     "axios": "^1.8.4",
-    "better-auth": "^1.2.7",
+    "better-auth": "^1.2.10",
     "class-variance-authority": "^0.7.0",
     "country-data-list": "^1.4.0",
     "date-fns": "^4.1.0",

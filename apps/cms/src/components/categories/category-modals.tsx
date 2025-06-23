@@ -1,6 +1,5 @@
 "use client";
 
-import { ErrorMessage } from "@/components/auth/error-message";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   AlertDialog,
@@ -23,8 +22,9 @@ import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { Loader } from "@marble/ui/lib/icons";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-
+import { ErrorMessage } from "@/components/auth/error-message";
 import {
   checkCategorySlugAction,
   checkCategorySlugForUpdateAction,
@@ -37,7 +37,6 @@ import {
   categorySchema,
 } from "@/lib/validations/workspace";
 import { generateSlug } from "@/utils/string";
-import { useEffect, useState } from "react";
 import { useWorkspace } from "../../providers/workspace";
 import type { Category } from "./columns";
 

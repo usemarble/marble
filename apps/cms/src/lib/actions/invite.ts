@@ -1,7 +1,7 @@
 "use server";
 
-import getSession from "@/lib/auth/session";
 import db from "@marble/db";
+import getSession from "@/lib/auth/session";
 
 /**
  * Verify an invite

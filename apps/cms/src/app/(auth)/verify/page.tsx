@@ -1,7 +1,7 @@
-import { VerifyForm } from "@/components/auth/verify-form";
-import PageLoader from "@/components/shared/page-loader";
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { VerifyForm } from "@/components/auth/verify-form";
+import PageLoader from "@/components/shared/page-loader";
 
 export const metadata: Metadata = {
   title: "Verify Email",

@@ -1,6 +1,5 @@
 "use client";
 
-import { authClient } from "@/lib/auth/client";
 import { Button } from "@marble/ui/components/button";
 import {
   InputOTP,
@@ -13,6 +12,7 @@ import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { authClient } from "@/lib/auth/client";
 import Container from "../shared/container";
 
 interface VerifyFormProps {

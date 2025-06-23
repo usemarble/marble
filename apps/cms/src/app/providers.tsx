@@ -1,7 +1,7 @@
 "use client";
 
-import { WorkspaceProvider } from "@/providers/workspace";
 import { Toaster } from "@marble/ui/components/sonner";
+import { TooltipProvider } from "@marble/ui/components/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
 
@@ -10,12 +10,12 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <WorkspaceProvider>
-        <ThemeProvider attribute="class" enableSystem disableTransitionOnChange>
+      <ThemeProvider attribute="class" enableSystem disableTransitionOnChange>
+        <TooltipProvider>
           {children}
           <Toaster position="top-center" />
-        </ThemeProvider>
-      </WorkspaceProvider>
+        </TooltipProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

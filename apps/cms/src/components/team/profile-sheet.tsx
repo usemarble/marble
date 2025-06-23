@@ -1,4 +1,3 @@
-import { organization } from "@/lib/auth/client";
 import {
   Avatar,
   AvatarFallback,
@@ -25,6 +24,7 @@ import {
 import { toast } from "@marble/ui/components/sonner";
 import { CalendarDays, Loader2 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { organization } from "@/lib/auth/client";
 import type { TeamMemberRow } from "./columns";
 
 interface ProfileSheetProps {

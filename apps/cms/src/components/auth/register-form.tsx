@@ -1,7 +1,5 @@
 "use client";
 
-import { authClient } from "@/lib/auth/client";
-import { type CredentialData, credentialSchema } from "@/lib/validations/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, buttonVariants } from "@marble/ui/components/button";
 import { Input } from "@marble/ui/components/input";
@@ -12,6 +10,8 @@ import { cn } from "@marble/ui/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
+import { authClient } from "@/lib/auth/client";
+import { type CredentialData, credentialSchema } from "@/lib/validations/auth";
 import { Github, Google } from "../icons/social";
 
 export function RegisterForm() {
