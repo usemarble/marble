@@ -1,4 +1,3 @@
-import { organization, useListOrganizations } from "@/lib/auth/client";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -13,6 +12,7 @@ import { Button } from "@marble/ui/components/button";
 import { toast } from "@marble/ui/components/sonner";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { organization, useListOrganizations } from "@/lib/auth/client";
 import { useWorkspace } from "../../providers/workspace";
 import { ButtonLoader } from "../ui/loader";
 

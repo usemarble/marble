@@ -1,8 +1,6 @@
 "use client";
 
-import { Loader } from "@marble/ui/lib/icons";
-import { useEffect } from "react";
-
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@marble/ui/components/button";
 import {
   Dialog,
@@ -13,7 +11,11 @@ import {
 } from "@marble/ui/components/dialog";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
-
+import { toast } from "@marble/ui/components/sonner";
+import { Loader } from "@marble/ui/lib/icons";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
 import { checkWorkspaceSlug } from "@/lib/actions/workspace";
 import { organization } from "@/lib/auth/client";
@@ -22,10 +24,6 @@ import {
   workspaceSchema,
 } from "@/lib/validations/workspace";
 import { generateSlug } from "@/utils/string";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "@marble/ui/components/sonner";
-import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
 import { useWorkspace } from "../../providers/workspace";
 
 export const CreateWorkspaceModal = ({

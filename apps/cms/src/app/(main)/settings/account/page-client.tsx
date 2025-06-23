@@ -1,15 +1,5 @@
 "use client";
 
-import { ErrorMessage } from "@/components/auth/error-message";
-import { Github, Google } from "@/components/icons/social";
-import { DeleteAccountModal } from "@/components/settings/delete-account-modal";
-import { ThemeSwitch } from "@/components/settings/theme";
-import Container from "@/components/shared/container";
-import { ButtonLoader } from "@/components/ui/loader";
-import { updateUserAction } from "@/lib/actions/account";
-import { uploadUserAvatarAction } from "@/lib/actions/media";
-import type { ProfileData } from "@/lib/validations/settings";
-import { profileSchema } from "@/lib/validations/settings";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Avatar,
@@ -34,6 +24,16 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { ErrorMessage } from "@/components/auth/error-message";
+import { Github, Google } from "@/components/icons/social";
+import { DeleteAccountModal } from "@/components/settings/delete-account-modal";
+import { ThemeSwitch } from "@/components/settings/theme";
+import Container from "@/components/shared/container";
+import { ButtonLoader } from "@/components/ui/loader";
+import { updateUserAction } from "@/lib/actions/account";
+import { uploadUserAvatarAction } from "@/lib/actions/media";
+import type { ProfileData } from "@/lib/validations/settings";
+import { profileSchema } from "@/lib/validations/settings";
 
 interface AccountSettingsPageClientProps {
   accountDetails: {

@@ -1,7 +1,10 @@
 import { Button } from "@marble/ui/components/button";
 import { Label } from "@marble/ui/components/label";
-import { Popover, PopoverTrigger } from "@marble/ui/components/popover";
-import { PopoverContent } from "@marble/ui/components/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@marble/ui/components/popover";
 import { Switch } from "@marble/ui/components/switch";
 import { Check, LinkIcon, Trash } from "@marble/ui/lib/icons";
 import { cn } from "@marble/ui/lib/utils";

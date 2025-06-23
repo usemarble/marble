@@ -1,7 +1,5 @@
 "use client";
 
-import { useSession } from "@/lib/auth/client";
-import type { PostValues } from "@/lib/validations/post";
 import {
   Avatar,
   AvatarFallback,
@@ -33,6 +31,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Check, ChevronsUpDown, InfoIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { type Control, useController } from "react-hook-form";
+import { useSession } from "@/lib/auth/client";
+import type { PostValues } from "@/lib/validations/post";
 import { ErrorMessage } from "../../auth/error-message";
 
 interface AuthorOptions {

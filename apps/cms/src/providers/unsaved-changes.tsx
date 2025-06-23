@@ -13,7 +13,9 @@ const UnsavedChangesContext = createContext<
 
 export function UnsavedChangesProvider({
   children,
-}: { children: React.ReactNode }) {
+}: {
+  children: React.ReactNode;
+}) {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   useEffect(() => {

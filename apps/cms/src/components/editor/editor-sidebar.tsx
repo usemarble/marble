@@ -1,10 +1,6 @@
 "use client";
 
-import type { PostValues } from "@/lib/validations/post";
 import { Button } from "@marble/ui/components/button";
-import { toast } from "@marble/ui/components/sonner";
-import { Loader2 } from "@marble/ui/lib/icons";
-
 import { Separator } from "@marble/ui/components/separator";
 import {
   Sidebar,
@@ -12,6 +8,8 @@ import {
   SidebarFooter,
   useSidebar,
 } from "@marble/ui/components/sidebar";
+import { toast } from "@marble/ui/components/sonner";
+import { Loader2 } from "@marble/ui/lib/icons";
 import { cn } from "@marble/ui/lib/utils";
 import type {
   Control,
@@ -22,6 +20,8 @@ import type {
   UseFormTrigger,
   UseFormWatch,
 } from "react-hook-form";
+import type { PostValues } from "@/lib/validations/post";
+import { useUnsavedChanges } from "@/providers/unsaved-changes";
 import { ButtonLoader } from "../ui/loader";
 import { AttributionField } from "./fields/attribution-field";
 import { AuthorSelector } from "./fields/author-selector";
@@ -33,7 +33,6 @@ import { SlugField } from "./fields/slug-field";
 import StatusField from "./fields/status-field";
 import { TagSelector } from "./fields/tag-selector";
 import HiddenScrollbar from "./hidden-scrollbar";
-import { useUnsavedChanges } from "@/providers/unsaved-changes";
 
 interface EditorSidebarProps extends React.ComponentProps<typeof Sidebar> {
   control: Control<PostValues>;

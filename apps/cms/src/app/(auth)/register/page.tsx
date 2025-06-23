@@ -1,9 +1,9 @@
-import { RegisterForm } from "@/components/auth/register-form";
 import { Button } from "@marble/ui/components/button";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
+import { RegisterForm } from "@/components/auth/register-form";
 
 export const metadata: Metadata = {
   title: "Create Account",

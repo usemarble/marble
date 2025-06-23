@@ -1,6 +1,6 @@
-import WorkspaceWrapper from "@/components/layout/workspace-wrapper";
 import { Button } from "@marble/ui/components/button";
 import { WebhookIcon } from "lucide-react";
+import WorkspaceWrapper from "@/components/layout/workspace-wrapper";
 
 function Page() {
   return (

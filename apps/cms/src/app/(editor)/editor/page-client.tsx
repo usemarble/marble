@@ -1,11 +1,5 @@
 "use client";
 
-import Editor from "@/components/editor/editor";
-import { PublishSettings } from "@/components/editor/publish-setings";
-import { createPostAction } from "@/lib/actions/post";
-import { type PostValues, postSchema } from "@/lib/validations/post";
-import { sanitizeHtml } from "@/utils/editor";
-import { generateSlug } from "@/utils/string";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@marble/ui/components/button";
 import { toast } from "@marble/ui/components/sonner";
@@ -14,6 +8,12 @@ import { useRouter } from "next/navigation";
 import type { JSONContent } from "novel";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import Editor from "@/components/editor/editor";
+import { PublishSettings } from "@/components/editor/publish-setings";
+import { createPostAction } from "@/lib/actions/post";
+import { type PostValues, postSchema } from "@/lib/validations/post";
+import { sanitizeHtml } from "@/utils/editor";
+import { generateSlug } from "@/utils/string";
 
 function PageContent() {
   const [saving] = useState(false);

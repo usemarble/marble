@@ -1,6 +1,3 @@
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
-import type { Category } from "./columns";
-
 import { Button } from "@marble/ui/components/button";
 import {
   DropdownMenu,
@@ -8,8 +5,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
+import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { DeleteCategoryModal, UpdateCategoryModal } from "./category-modals";
+import type { Category } from "./columns";
 
 export default function TableActions(props: Category) {
   const [showUpdateModal, setShowUpdateModal] = useState(false);

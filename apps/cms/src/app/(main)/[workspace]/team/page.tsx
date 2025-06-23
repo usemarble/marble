@@ -1,7 +1,7 @@
-import { auth } from "@/lib/auth/auth";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import React from "react";
+import { auth } from "@/lib/auth/auth";
 import PageClient from "./page-client";
 
 export const metadata: Metadata = {

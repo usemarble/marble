@@ -1,6 +1,5 @@
 "use client";
 
-import type { PostValues } from "@/lib/validations/post";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { Switch } from "@marble/ui/components/switch";
@@ -17,6 +16,7 @@ import type {
   UseFormSetValue,
   UseFormWatch,
 } from "react-hook-form";
+import type { PostValues } from "@/lib/validations/post";
 
 interface AttributionFieldProps {
   watch: UseFormWatch<PostValues>;

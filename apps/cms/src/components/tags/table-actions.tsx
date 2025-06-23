@@ -1,6 +1,3 @@
-import { MoreHorizontal, Pencil, Trash } from "lucide-react";
-import type { Tag } from "./columns";
-
 import { Button } from "@marble/ui/components/button";
 import {
   DropdownMenu,
@@ -8,7 +5,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
+import { MoreHorizontal, Pencil, Trash } from "lucide-react";
 import { useState } from "react";
+import type { Tag } from "./columns";
 import { DeleteTagModal, UpdateTagModal } from "./tag-modals";
 
 export default function TableActions(props: Tag) {

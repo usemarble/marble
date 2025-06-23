@@ -1,10 +1,5 @@
 "use client";
 
-import WorkspaceWrapper from "@/components/layout/workspace-wrapper";
-import BillingForm from "@/components/settings/billing";
-import WorkspaceForm from "@/components/settings/workspace-form";
-import type { ActiveOrganization, Session } from "@/lib/auth/types";
-
 import {
   Tabs,
   TabsContent,
@@ -14,6 +9,10 @@ import {
 import { FileCsv } from "@phosphor-icons/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import WorkspaceWrapper from "@/components/layout/workspace-wrapper";
+import BillingForm from "@/components/settings/billing";
+import WorkspaceForm from "@/components/settings/workspace-form";
+import type { ActiveOrganization, Session } from "@/lib/auth/types";
 
 type TabId = "workspace" | "data" | "billing";
 

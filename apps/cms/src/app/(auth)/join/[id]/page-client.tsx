@@ -1,6 +1,5 @@
 "use client";
 
-import { organization } from "@/lib/auth/client";
 import {
   Avatar,
   AvatarFallback,
@@ -20,6 +19,7 @@ import { CheckIcon, Loader2, LoaderIcon, Undo, XIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { organization } from "@/lib/auth/client";
 
 interface PageClientProps {
   id: string;

@@ -1,6 +1,5 @@
 "use client";
 
-import type { PostValues } from "@/lib/validations/post";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import {
@@ -11,6 +10,7 @@ import {
 } from "@marble/ui/components/tooltip";
 import { InfoIcon } from "@marble/ui/lib/icons";
 import type { FieldErrors, UseFormRegister } from "react-hook-form";
+import type { PostValues } from "@/lib/validations/post";
 
 interface SlugFieldProps {
   register: UseFormRegister<PostValues>;

@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import "@/styles/globals.css";
 import "@/styles/editor.css";
+import { Geist } from "next/font/google";
+import { headers } from "next/headers";
 import { auth } from "@/lib/auth/auth";
 import { siteConfig } from "@/lib/seo";
 import { WorkspaceProvider } from "@/providers/workspace";
-import { Geist } from "next/font/google";
-import { headers } from "next/headers";
 import Providers from "./providers";
 
 export const metadata: Metadata = {

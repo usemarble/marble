@@ -15,7 +15,7 @@
     "db:push": "turbo run db:push --filter=@marble/db"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.9.4",
+    "@biomejs/biome": "2.0.4",
     "@marble/tsconfig": "workspace:*",
     "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.8",

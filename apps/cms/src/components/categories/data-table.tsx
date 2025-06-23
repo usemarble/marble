@@ -1,15 +1,5 @@
 "use client";
 
-import {
-  type ColumnDef,
-  type ColumnFiltersState,
-  type SortingState,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-
 import { Button } from "@marble/ui/components/button";
 import { Input } from "@marble/ui/components/input";
 import {
@@ -20,6 +10,15 @@ import {
   TableHeader,
   TableRow,
 } from "@marble/ui/components/table";
+import {
+  type ColumnDef,
+  type ColumnFiltersState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  type SortingState,
+  useReactTable,
+} from "@tanstack/react-table";
 import { Plus, SearchIcon, XIcon } from "lucide-react";
 import { useState } from "react";
 import { CreateCategoryModal } from "./category-modals";

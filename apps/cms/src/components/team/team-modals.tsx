@@ -1,6 +1,5 @@
 "use client";
 
-import { organization } from "@/lib/auth/client";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,6 +13,7 @@ import {
 import { Button } from "@marble/ui/components/button";
 import { toast } from "@marble/ui/components/sonner";
 import { useState } from "react";
+import { organization } from "@/lib/auth/client";
 import { ButtonLoader } from "../ui/loader";
 import type { TeamMemberRow } from "./columns";
 

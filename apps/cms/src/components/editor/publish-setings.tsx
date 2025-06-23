@@ -1,7 +1,7 @@
 "use client";
 
-import type { PostValues } from "@/lib/validations/post";
 import { Button } from "@marble/ui/components/button";
+import { Separator } from "@marble/ui/components/separator";
 import {
   Sheet,
   SheetContent,
@@ -13,8 +13,6 @@ import {
 } from "@marble/ui/components/sheet";
 import { toast } from "@marble/ui/components/sonner";
 import { Loader2, SettingsIcon } from "@marble/ui/lib/icons";
-
-import { Separator } from "@marble/ui/components/separator";
 import { useState } from "react";
 import type {
   Control,
@@ -25,6 +23,7 @@ import type {
   UseFormTrigger,
   UseFormWatch,
 } from "react-hook-form";
+import type { PostValues } from "@/lib/validations/post";
 import { AttributionField } from "./fields/attribution-field";
 import { AuthorSelector } from "./fields/author-selector";
 import { CategorySelector } from "./fields/category-selector";

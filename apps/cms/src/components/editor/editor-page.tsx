@@ -1,14 +1,5 @@
 "use client";
 
-import Editor from "@/components/editor/editor";
-import { EditorSidebar } from "@/components/editor/editor-sidebar";
-import HiddenScrollbar from "@/components/editor/hidden-scrollbar";
-import { createPostAction, updatePostAction } from "@/lib/actions/post";
-import { emptyPost } from "@/lib/data/post";
-import { type PostValues, postSchema } from "@/lib/validations/post";
-import { useUnsavedChanges } from "@/providers/unsaved-changes";
-import { sanitizeHtml } from "@/utils/editor";
-import { generateSlug } from "@/utils/string";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@marble/ui/components/button";
 import { Separator } from "@marble/ui/components/separator";
@@ -24,6 +15,15 @@ import { useRouter } from "next/navigation";
 import type { JSONContent } from "novel";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import Editor from "@/components/editor/editor";
+import { EditorSidebar } from "@/components/editor/editor-sidebar";
+import HiddenScrollbar from "@/components/editor/hidden-scrollbar";
+import { createPostAction, updatePostAction } from "@/lib/actions/post";
+import { emptyPost } from "@/lib/data/post";
+import { type PostValues, postSchema } from "@/lib/validations/post";
+import { useUnsavedChanges } from "@/providers/unsaved-changes";
+import { sanitizeHtml } from "@/utils/editor";
+import { generateSlug } from "@/utils/string";
 
 interface EditorPageProps {
   initialData: PostValues;

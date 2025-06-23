@@ -1,12 +1,12 @@
 "use client";
 
-import WorkspaceWrapper from "@/components/layout/workspace-wrapper";
-import { DeleteMediaModal } from "@/components/media/delete-modal";
-import { MediaUploadModal } from "@/components/media/upload-modal";
 import { Button } from "@marble/ui/components/button";
 import { Image } from "@phosphor-icons/react";
 import { Trash2, UploadCloud } from "lucide-react";
 import { useState } from "react";
+import WorkspaceWrapper from "@/components/layout/workspace-wrapper";
+import { DeleteMediaModal } from "@/components/media/delete-modal";
+import { MediaUploadModal } from "@/components/media/upload-modal";
 
 type Media = {
   id: string;

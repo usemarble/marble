@@ -1,12 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import WorkspaceWrapper from "@/components/layout/workspace-wrapper";
 import { columns } from "@/components/team/columns";
 import { TeamDataTable } from "@/components/team/data-table";
 import { InviteModal } from "@/components/team/invite-modal";
 import { LeaveWorkspaceModal } from "@/components/team/leave-workspace";
 import type { ActiveOrganization, Session } from "@/lib/auth/types";
-import { useState } from "react";
 
 interface PageClientProps {
   activeOrganization: ActiveOrganization | null;

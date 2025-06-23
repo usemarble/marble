@@ -1,4 +1,3 @@
-import { type BillingData, billingSchema } from "@/lib/validations/settings";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@marble/ui/components/button";
 import {
@@ -17,6 +16,7 @@ import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { type BillingData, billingSchema } from "@/lib/validations/settings";
 import { CountryDropdown } from "../ui/country-dropdown";
 import { DeleteWorkspaceModal } from "./delete-workspace-modal";
 

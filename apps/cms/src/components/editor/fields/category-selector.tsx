@@ -1,5 +1,3 @@
-import { CreateCategoryModal } from "@/components/categories/category-modals";
-import type { PostValues } from "@/lib/validations/post";
 import { Label } from "@marble/ui/components/label";
 import {
   Select,
@@ -24,6 +22,8 @@ import type {
   UseFormClearErrors,
   UseFormSetValue,
 } from "react-hook-form";
+import { CreateCategoryModal } from "@/components/categories/category-modals";
+import type { PostValues } from "@/lib/validations/post";
 
 interface CategoryResponse {
   id: string;

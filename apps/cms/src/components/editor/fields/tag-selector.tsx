@@ -1,6 +1,5 @@
 "use client";
 
-import type { PostValues } from "@/lib/validations/post";
 import { Badge } from "@marble/ui/components/badge";
 import { Button } from "@marble/ui/components/button";
 import {
@@ -28,6 +27,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, ChevronsUpDown, InfoIcon, PlusIcon, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { type Control, useController } from "react-hook-form";
+import type { PostValues } from "@/lib/validations/post";
 import { ErrorMessage } from "../../auth/error-message";
 import { CreateTagModal } from "../../tags/tag-modals";
 

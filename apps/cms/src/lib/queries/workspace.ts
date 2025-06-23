@@ -1,6 +1,6 @@
-import { getLastVisitedWorkspace } from "@/utils/workspace";
 import db from "@marble/db";
 import type { RequestCookies } from "next/dist/compiled/@edge-runtime/cookies";
+import { getLastVisitedWorkspace } from "@/utils/workspace";
 
 export async function getActiveOrganization(id: string) {
   const workspace = await db.organization.findFirst({

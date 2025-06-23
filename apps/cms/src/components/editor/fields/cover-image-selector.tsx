@@ -1,7 +1,5 @@
 "use client";
 
-import { uploadMediaAction } from "@/lib/actions/media";
-import type { PostValues } from "@/lib/validations/post";
 import { Button } from "@marble/ui/components/button";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label"; // Added Label
@@ -32,6 +30,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import type { UseFormSetValue, UseFormWatch } from "react-hook-form";
 import { z } from "zod";
+import { uploadMediaAction } from "@/lib/actions/media";
+import type { PostValues } from "@/lib/validations/post";
 
 // URL schema
 // ... (rest of the existing code for urlSchema, MediaResponse, CoverImageSelectorProps)

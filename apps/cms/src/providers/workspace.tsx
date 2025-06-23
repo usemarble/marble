@@ -1,10 +1,10 @@
 "use client";
 
+import { useParams, usePathname } from "next/navigation";
+import { createContext, useContext, useEffect, useState } from "react";
 import { organization } from "@/lib/auth/client";
 import type { ActiveOrganization } from "@/lib/auth/types";
 import { setLastVisitedWorkspace } from "@/utils/workspace";
-import { useParams, usePathname } from "next/navigation";
-import { createContext, useContext, useEffect, useState } from "react";
 
 // Type for partial workspace data that doesn't require full member details
 // This is because the response from creating a workpace doesnt return what is fully expexted by the ActiveOrganization type

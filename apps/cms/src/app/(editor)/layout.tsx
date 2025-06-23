@@ -1,5 +1,5 @@
-import { UnsavedChangesProvider } from "@/providers/unsaved-changes";
 import { SidebarProvider } from "@marble/ui/components/sidebar";
+import { UnsavedChangesProvider } from "@/providers/unsaved-changes";
 
 function EditorLayout({ children }: { children: React.ReactNode }) {
   return (

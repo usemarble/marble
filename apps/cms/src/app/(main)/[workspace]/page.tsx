@@ -1,6 +1,6 @@
-import getServerSession from "@/lib/auth/session";
 import db from "@marble/db";
 import { notFound, redirect } from "next/navigation";
+import getServerSession from "@/lib/auth/session";
 import PageClient from "./page-client";
 
 async function Page(params: { params: Promise<{ workspace: string }> }) {

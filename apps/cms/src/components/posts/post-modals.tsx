@@ -12,9 +12,8 @@ import {
 } from "@marble/ui/components/alert-dialog";
 import { Button } from "@marble/ui/components/button";
 import { toast } from "@marble/ui/components/sonner";
-
-import { deletePostAction } from "@/lib/actions/post";
 import { useState } from "react";
+import { deletePostAction } from "@/lib/actions/post";
 import { ButtonLoader } from "../ui/loader";
 
 export const DeletePostModal = ({

@@ -1,5 +1,4 @@
 "use client";
-import Container from "@/components/shared/container";
 import { Button, buttonVariants } from "@marble/ui/components/button";
 import {
   Card,
@@ -10,6 +9,7 @@ import {
 } from "@marble/ui/components/card";
 import { cn } from "@marble/ui/lib/utils";
 import Link from "next/link";
+import Container from "@/components/shared/container";
 
 function PageClient() {
   return (

@@ -1,12 +1,12 @@
 "use client";
 
-import WorkspaceWrapper from "@/components/layout/workspace-wrapper";
-import { type Post, columns } from "@/components/posts/columns";
-import { PostDataTable } from "@/components/posts/data-table";
 import { buttonVariants } from "@marble/ui/components/button";
 import { Folder } from "@phosphor-icons/react";
 import { Plus } from "lucide-react";
 import Link from "next/link";
+import WorkspaceWrapper from "@/components/layout/workspace-wrapper";
+import { columns, type Post } from "@/components/posts/columns";
+import { PostDataTable } from "@/components/posts/data-table";
 
 interface PageClientProps {
   posts: Post[];

@@ -1,5 +1,6 @@
-import WorkspaceWrapper from "@/components/layout/workspace-wrapper";
 import { Button } from "@marble/ui/components/button";
+import WorkspaceWrapper from "@/components/layout/workspace-wrapper";
+
 function Page() {
   return (
     <WorkspaceWrapper className="h-full grid place-content-center">

@@ -1,8 +1,5 @@
 "use client";
 
-import type React from "react";
-import { forwardRef, useCallback, useEffect, useState } from "react";
-
 // shadcn
 import {
   Command,
@@ -17,16 +14,15 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@marble/ui/components/popover";
-
 // utils
 import { cn } from "@marble/ui/lib/utils";
-
-// assets
-import { CheckIcon, ChevronDown, Globe } from "lucide-react";
-import { CircleFlag } from "react-circle-flags";
-
 // data
 import { countries } from "country-data-list";
+// assets
+import { CheckIcon, ChevronDown, Globe } from "lucide-react";
+import type React from "react";
+import { forwardRef, useCallback, useEffect, useState } from "react";
+import { CircleFlag } from "react-circle-flags";
 
 // Country interface
 export interface Country {

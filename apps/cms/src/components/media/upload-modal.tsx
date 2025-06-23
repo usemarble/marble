@@ -1,8 +1,5 @@
 "use client";
 
-import { CloudUpload, ImageIcon, Trash2 } from "lucide-react";
-
-import { uploadMediaAction } from "@/lib/actions/media";
 import { Button } from "@marble/ui/components/button";
 import {
   Dialog,
@@ -14,7 +11,9 @@ import {
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
+import { CloudUpload, ImageIcon, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { uploadMediaAction } from "@/lib/actions/media";
 
 interface Media {
   id: string;

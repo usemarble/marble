@@ -1,6 +1,3 @@
-import { MoreHorizontal, Pencil, Trash } from "lucide-react";
-import type { Post } from "./columns";
-
 import { Button } from "@marble/ui/components/button";
 import {
   DropdownMenu,
@@ -8,8 +5,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
+import { MoreHorizontal, Pencil, Trash } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import type { Post } from "./columns";
 import { DeletePostModal } from "./post-modals";
 
 export default function PostTableActions(props: Post) {

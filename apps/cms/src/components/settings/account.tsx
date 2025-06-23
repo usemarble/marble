@@ -1,5 +1,3 @@
-import { updateUserAction } from "@/lib/actions/account";
-import { type ProfileData, profileSchema } from "@/lib/validations/settings";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@marble/ui/components/button";
 import { Checkbox } from "@marble/ui/components/checkbox";
@@ -11,6 +9,8 @@ import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { updateUserAction } from "@/lib/actions/account";
+import { type ProfileData, profileSchema } from "@/lib/validations/settings";
 import { ErrorMessage } from "../auth/error-message";
 
 interface AccountFormProps {

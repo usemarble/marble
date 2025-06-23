@@ -1,12 +1,12 @@
-import {
-  sendInviteEmailAction,
-  sendVerificationEmailAction,
-} from "@/lib/actions/email";
 import db from "@marble/db";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
 import { emailOTP, organization } from "better-auth/plugins";
+import {
+  sendInviteEmailAction,
+  sendVerificationEmailAction,
+} from "@/lib/actions/email";
 import { getActiveOrganization } from "../queries/workspace";
 
 export const auth = betterAuth({

@@ -1,4 +1,3 @@
-import { organization, useListOrganizations } from "@/lib/auth/client";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,6 +14,7 @@ import { toast } from "@marble/ui/components/sonner";
 import { Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { organization, useListOrganizations } from "@/lib/auth/client";
 import { useWorkspace } from "../../providers/workspace";
 import { ButtonLoader } from "../ui/loader";
 

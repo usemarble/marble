@@ -1,6 +1,6 @@
-import type { Attribution } from "@/lib/validations/post";
 import db from "@marble/db";
 import { notFound } from "next/navigation";
+import type { Attribution } from "@/lib/validations/post";
 import PageClient from "./page-client";
 
 async function Page(props: { params: Promise<{ id: string }> }) {

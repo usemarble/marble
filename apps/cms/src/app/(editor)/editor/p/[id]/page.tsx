@@ -1,7 +1,7 @@
-import type { Metadata } from "next";
-import type { Attribution } from "@/lib/validations/post";
 import db from "@marble/db";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import type { Attribution } from "@/lib/validations/post";
 import PageClient from "./page-client";
 
 export const metadata: Metadata = {

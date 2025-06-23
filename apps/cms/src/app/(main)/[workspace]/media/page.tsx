@@ -1,7 +1,7 @@
-import { auth } from "@/lib/auth/auth";
 import db from "@marble/db";
 import { headers } from "next/headers";
 import React from "react";
+import { auth } from "@/lib/auth/auth";
 import PageClient from "./page-client";
 
 async function Page({ params }: { params: Promise<{ workspace: string }> }) {
