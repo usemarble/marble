@@ -6,10 +6,7 @@ interface ButtonLoaderProps {
   variant?: "primary" | "secondary" | "destructive" | "ghost" | "outline";
 }
 
-export function ButtonLoader({
-  className,
-  variant = "primary",
-}: ButtonLoaderProps) {
+export function ButtonLoader({ variant = "primary" }: ButtonLoaderProps) {
   return (
     <svg
       aria-hidden="true"

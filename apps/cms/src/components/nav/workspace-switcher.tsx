@@ -26,12 +26,15 @@ import { useState } from "react";
 import { useListOrganizations } from "@/lib/auth/client";
 import type { Organization } from "@/lib/auth/types";
 import { useWorkspace } from "../../providers/workspace";
+import { UpgradeModal } from "../auth/upgrade-modal";
 import { CreateWorkspaceModal } from "./workspace-modal";
 
 export function WorkspaceSwitcher() {
   const { isMobile } = useSidebar();
   const router = useRouter();
-  const [open, setOpen] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] =
+    useState(false);
   const organizations = useListOrganizations();
   const { activeWorkspace, updateActiveWorkspace } = useWorkspace();
 
@@ -45,6 +48,15 @@ export function WorkspaceSwitcher() {
       console.error("Failed to switch workspace:", error);
     }
   }
+
+  const handleAddWorkspace = () => {
+    const isFreePlan = true;
+    if (isFreePlan) {
+      setShowUpgradeModal(true);
+    } else {
+      setShowCreateWorkspaceModal(true);
+    }
+  };
 
   return (
     <SidebarMenu>
@@ -115,7 +127,7 @@ export function WorkspaceSwitcher() {
             <DropdownMenuItem>
               <button
                 type="button"
-                onClick={() => setOpen(true)}
+                onClick={handleAddWorkspace}
                 className="flex w-full items-center gap-2"
               >
                 <div className="bg-background flex size-6 items-center justify-center rounded-md border">
@@ -129,7 +141,14 @@ export function WorkspaceSwitcher() {
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
-      <CreateWorkspaceModal open={open} setOpen={setOpen} />
+      <CreateWorkspaceModal
+        open={showCreateWorkspaceModal}
+        setOpen={setShowCreateWorkspaceModal}
+      />
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+      />
     </SidebarMenu>
   );
 }
