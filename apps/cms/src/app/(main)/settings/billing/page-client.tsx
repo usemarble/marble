@@ -45,7 +45,7 @@ function PageClient() {
       </section>
       <section className="py-10 max-w-3xl mx-auto">
         <Card className="border-none">
-          <CardHeader className="px-0 pb-0">
+          <CardHeader className="pb-0 border-x border-t rounded-t-xl">
             <CardTitle>Invoices</CardTitle>
             <CardDescription>All your invoices.</CardDescription>
           </CardHeader>

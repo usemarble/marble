@@ -48,7 +48,7 @@ export function InvoiceDataTable<TData, TValue>({
 
   return (
     <div>
-      <div className="flex items-center py-4 justify-between">
+      <div className="flex items-center py-4 justify-between border-x">
         {/* <div className="relative">
           <SearchIcon
             size={16}
@@ -77,7 +77,7 @@ export function InvoiceDataTable<TData, TValue>({
         {/* TODO: Add filter by date */}
       </div>
 
-      <div className="rounded-md border">
+      <div className="border-x border-y">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

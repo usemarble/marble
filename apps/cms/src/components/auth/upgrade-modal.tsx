@@ -47,7 +47,7 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
         </DialogHeader>
         <section>
           <ul className="grid sm:grid-cols-2 border border-dashed divide-x divide-dashed rounded-xl overflow-hidden">
-            <li className=" flex flex-col gap-5 bg-white min-h-96 h-full w-full px-4 py-6">
+            <li className=" flex flex-col gap-5 min-h-96 h-full w-full px-4 py-6">
               <div className="flex flex-col gap-4">
                 <h4 className="text-medium text-2xl">Pro</h4>
                 <div className="">
@@ -96,7 +96,7 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
                 </li>
               </ul>
             </li>
-            <li className=" flex flex-col gap-5 bg-white min-h-96 h-full w-full px-4 py-6">
+            <li className=" flex flex-col gap-5 min-h-96 h-full w-full px-4 py-6">
               <div className="flex flex-col gap-4">
                 <h4 className="text-medium text-2xl">Team</h4>
                 <div className="">

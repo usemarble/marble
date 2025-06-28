@@ -18,7 +18,7 @@ function PageClient() {
       </header>
       <section className="mt-10">
         <ul className="grid sm:grid-cols-2 lg:grid-cols-3 border divide-x divide-dashed rounded-xl overflow-hidden">
-          <li className=" flex flex-col gap-5 bg-white min-h-96 h-full w-full px-4 py-6">
+          <li className=" flex flex-col gap-5 min-h-96 h-full w-full px-4 py-6">
             <div className="flex flex-col gap-4">
               <h4 className="text-medium text-2xl">Hobby</h4>
               <div className="">
@@ -59,7 +59,7 @@ function PageClient() {
               </li>
             </ul>
           </li>
-          <li className=" flex flex-col gap-5 bg-white min-h-96 h-full w-full px-4 py-6">
+          <li className=" flex flex-col gap-5 min-h-96 h-full w-full px-4 py-6">
             <div className="flex flex-col gap-4">
               <h4 className="text-medium text-2xl">Pro</h4>
               <div className="">
@@ -102,7 +102,7 @@ function PageClient() {
               </li>
             </ul>
           </li>
-          <li className=" flex flex-col sm:col-span-2 sm:border-t sm:border-dashed lg:border-t-0 lg:col-span-1 sm:flex-row sm:px-14 sm:py-10 lg:py-6 sm:justify-center sm:gap-20 lg:gap-4 lg:px-4 lg:flex-col gap-5 bg-white min-h-96 sm:min-h-fit lg:min-h-96 w-full px-4 py-6">
+          <li className=" flex flex-col sm:col-span-2 sm:border-t sm:border-dashed lg:border-t-0 lg:col-span-1 sm:flex-row sm:px-14 sm:py-10 lg:py-6 sm:justify-center sm:gap-20 lg:gap-4 lg:px-4 lg:flex-col gap-5 min-h-96 sm:min-h-fit lg:min-h-96 w-full px-4 py-6">
             <div className="flex flex-col gap-5 sm:min-w-60 lg:min-w-0">
               <div className="flex flex-col gap-4">
                 <h4 className="text-medium text-xl text-medium">Team</h4>

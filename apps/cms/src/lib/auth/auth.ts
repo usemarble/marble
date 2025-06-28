@@ -19,9 +19,6 @@ import { getActiveOrganization } from "../queries/workspace";
 
 const polarClient = new Polar({
   accessToken: process.env.POLAR_ACCESS_TOKEN,
-  // Use 'sandbox' if you're using the Polar Sandbox environment
-  // Remember that access tokens, products, etc. are completely separated between environments.
-  // Access tokens obtained in Production are for instance not usable in the Sandbox environment.
   server: process.env.NODE_ENV === "production" ? "production" : "sandbox",
 });
 
@@ -61,7 +58,12 @@ export const auth = betterAuth({
       client: polarClient,
       createCustomerOnSignUp: true,
       authenticatedUsersOnly: true,
-      successUrl: "/success?checkout_id={CHECKOUT_ID}",
+      // getCustomerCreateParams: async ({ user }, request) => {
+      //   console.log(user);
+      //   metadata: {
+      //     myCustomProperty: 123,
+      //   }
+      // },
       use: [
         portal(),
         usage(),
@@ -80,14 +82,27 @@ export const auth = betterAuth({
               slug: "team",
             },
           ],
+          successUrl: process.env.POLAR_SUCCESS_URL || "",
         }),
         webhooks({
           secret: process.env.POLAR_WEBHOOK_SECRET || "",
-          onOrderPaid: async (payload) => {
-            console.log(payload);
+          onCheckoutCreated: async (payload) => {
+            console.log("Checkout Created", payload);
+          },
+          onCheckoutUpdated: async (payload) => {
+            console.log("Checkout Updated", payload);
+          },
+          onCustomerCreated: async (payload) => {
+            console.log("Customer Created", payload);
+          },
+          onSubscriptionCreated: async (payload) => {
+            console.log("Subscription Created", payload);
+          },
+          onSubscriptionUpdated: async (payload) => {
+            console.log("Subscription Updated", payload);
           },
           onSubscriptionCanceled: async (payload) => {
-            console.log(payload);
+            console.log("Subscription Canceled", payload);
           },
         }),
       ],
