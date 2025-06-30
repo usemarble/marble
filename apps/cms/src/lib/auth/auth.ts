@@ -15,6 +15,9 @@ import {
   sendInviteEmailAction,
   sendVerificationEmailAction,
 } from "@/lib/actions/email";
+import { handleSubscriptionCanceled } from "@/lib/polar/subscription.canceled";
+import { handleSubscriptionCreated } from "@/lib/polar/subscription.created";
+import { handleSubscriptionUpdated } from "@/lib/polar/subscription.updated";
 import { getActiveOrganization } from "../queries/workspace";
 
 const polarClient = new Polar({
@@ -86,23 +89,21 @@ export const auth = betterAuth({
         }),
         webhooks({
           secret: process.env.POLAR_WEBHOOK_SECRET || "",
-          onCheckoutCreated: async (payload) => {
-            console.log("Checkout Created", payload);
-          },
-          onCheckoutUpdated: async (payload) => {
-            console.log("Checkout Updated", payload);
-          },
           onCustomerCreated: async (payload) => {
             console.log("Customer Created", payload);
+            // TODO: handle customer created
           },
           onSubscriptionCreated: async (payload) => {
-            console.log("Subscription Created", payload);
+            // console.log("Subscription Created", payload);
+            await handleSubscriptionCreated(payload);
           },
           onSubscriptionUpdated: async (payload) => {
-            console.log("Subscription Updated", payload);
+            // console.log("Subscription Updated", payload);
+            await handleSubscriptionUpdated(payload);
           },
           onSubscriptionCanceled: async (payload) => {
-            console.log("Subscription Canceled", payload);
+            // console.log("Subscription Canceled", payload);
+            await handleSubscriptionCanceled(payload);
           },
         }),
       ],

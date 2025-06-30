@@ -5,6 +5,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@marble/ui/components/avatar";
+import { Badge } from "@marble/ui/components/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,9 +22,9 @@ import {
 } from "@marble/ui/components/sidebar";
 import { Skeleton } from "@marble/ui/components/skeleton";
 import { Check, ChevronDown, Plus } from "@marble/ui/lib/icons";
+import { cn } from "@marble/ui/lib/utils";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useListOrganizations } from "@/lib/auth/client";
 import type { Organization } from "@/lib/auth/types";
 import { useWorkspace } from "../../providers/workspace";
 import { UpgradeModal } from "../auth/upgrade-modal";
@@ -35,8 +36,11 @@ export function WorkspaceSwitcher() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] =
     useState(false);
-  const organizations = useListOrganizations();
-  const { activeWorkspace, updateActiveWorkspace } = useWorkspace();
+  const { activeWorkspace, updateActiveWorkspace, workspaceList } =
+    useWorkspace();
+
+  console.log("workspaceList", workspaceList);
+  console.log("activeWorkspace", activeWorkspace);
 
   async function switchWorkspace(org: Organization) {
     if (org.slug === activeWorkspace?.slug) return;
@@ -77,11 +81,25 @@ export function WorkspaceSwitcher() {
                     {activeWorkspace.name.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
-                <div className="grid flex-1 text-left text-sm leading-tight">
+                <div className="flex flex-1 gap-2 text-left text-sm leading-tight">
                   <span className="truncate font-medium text-sm">
                     {activeWorkspace?.name || "Personal"}
                   </span>
-                  {/* <span className="truncate text-xs text-primary">Free</span> */}
+                  <Badge
+                    variant="outline"
+                    className={cn(
+                      "text-center justify-center text-xs bg-amber-50 text-orange-500 border-amber-300",
+                      {
+                        "bg-emerald-50 text-emerald-500 border-emerald-300":
+                          activeWorkspace.subscription?.plan === "pro",
+
+                        "bg-blue-50 text-blue-500 border-blue-300":
+                          activeWorkspace.subscription?.plan === "team",
+                      },
+                    )}
+                  >
+                    {activeWorkspace.subscription?.plan || "free"}
+                  </Badge>
                 </div>
                 <ChevronDown className="ml-auto" />
               </SidebarMenuButton>
@@ -105,7 +123,7 @@ export function WorkspaceSwitcher() {
             <DropdownMenuLabel className="text-muted-foreground text-xs">
               Workspaces
             </DropdownMenuLabel>
-            {organizations.data?.map((org: Organization) => (
+            {workspaceList?.map((org) => (
               <DropdownMenuItem key={org.id}>
                 <button
                   type="button"

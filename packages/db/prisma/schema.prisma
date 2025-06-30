@@ -10,11 +10,12 @@ datasource db {
 
 model Subscription {
   id                     String             @id @default(cuid())
-  userId                 String             @unique
+  userId                 String
+  workspaceId            String             @unique
   plan                   PlanType
-  status                 SubscriptionStatus @default(ACTIVE)
+  status                 SubscriptionStatus @default(active)
+  polarId                String             @unique
   createdAt              DateTime           @default(now())
-  initialStartedAt       DateTime           // When they *first* subscribed
   currentPeriodStart     DateTime           // Start of current billing cycle
   currentPeriodEnd       DateTime           // End of current billing cycle
   cancelAtPeriodEnd      Boolean            @default(false)
@@ -24,6 +25,7 @@ model Subscription {
   updatedAt              DateTime           @updatedAt
 
   user                   User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace              Organization       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@map("subscription")
 }
@@ -46,6 +48,7 @@ model Organization {
   posts       Post[]
   tags        Tag[]
   webhooks    Webhook[]
+  subscription Subscription?
 
   @@map("workspace")
 }
@@ -150,7 +153,7 @@ model User {
   members         Member[]
   authoredPosts   Post[]        @relation("PrimaryAuthor")
   sessions        Session[]
-  subscription    Subscription?
+  subscriptions    Subscription[]
   coAuthoredPosts Post[]        @relation("PostToUser")
 
   @@map("user")
@@ -239,8 +242,8 @@ enum PostStatus {
 }
 
 enum PlanType {
-  TEAM
-  PRO
+  team
+  pro
 }
 
 enum InviteStatus {
@@ -250,9 +253,11 @@ enum InviteStatus {
 }
 
 enum SubscriptionStatus {
-  ACTIVE
-  CANCELLED
-  EXPIRED
+  active
+  trialing
+  past_due
+  cancelled
+  expired
 }
 
 enum WebhookEvent {

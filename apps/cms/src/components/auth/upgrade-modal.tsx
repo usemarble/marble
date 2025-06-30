@@ -10,8 +10,9 @@ import {
 } from "@marble/ui/components/dialog";
 import { Check } from "@phosphor-icons/react";
 import { useState } from "react";
-import { checkout } from "@/lib/auth/client";
+import { checkout, organization } from "@/lib/auth/client";
 import { ButtonLoader } from "../ui/loader";
+import { useWorkspace } from "@/providers/workspace";
 
 interface UpgradeModalProps {
   isOpen: boolean;
@@ -22,12 +23,16 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
   const [checkoutLoading, setCheckoutLoading] = useState<"pro" | "team" | null>(
     null,
   );
+  const { activeWorkspace } = useWorkspace();
 
   const handleCheckout = async (plan: "pro" | "team") => {
     setCheckoutLoading(plan);
+    console.log(activeWorkspace);
+
     try {
       await checkout({
         slug: plan,
+        referenceId: activeWorkspace?.id,
       });
     } catch (error) {
       console.error(error);
