@@ -17,6 +17,7 @@ import {
 } from "@/lib/actions/email";
 import { handleSubscriptionCanceled } from "@/lib/polar/subscription.canceled";
 import { handleSubscriptionCreated } from "@/lib/polar/subscription.created";
+import { handleSubscriptionRevoked } from "@/lib/polar/subscription.revoked";
 import { handleSubscriptionUpdated } from "@/lib/polar/subscription.updated";
 import { getActiveOrganization } from "../queries/workspace";
 
@@ -94,16 +95,16 @@ export const auth = betterAuth({
             // TODO: handle customer created
           },
           onSubscriptionCreated: async (payload) => {
-            // console.log("Subscription Created", payload);
             await handleSubscriptionCreated(payload);
           },
           onSubscriptionUpdated: async (payload) => {
-            // console.log("Subscription Updated", payload);
             await handleSubscriptionUpdated(payload);
           },
           onSubscriptionCanceled: async (payload) => {
-            // console.log("Subscription Canceled", payload);
             await handleSubscriptionCanceled(payload);
+          },
+          onSubscriptionRevoked: async (payload) => {
+            await handleSubscriptionRevoked(payload);
           },
         }),
       ],

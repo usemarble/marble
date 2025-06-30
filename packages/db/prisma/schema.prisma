@@ -129,7 +129,7 @@ model Webhook {
   id          String       @id @default(cuid())
   name        String
   endpoint    String
-  event       WebhookEvent @default(POST_PUBLISHED)
+  event       WebhookEvent
   secret      String
   enabled     Boolean      @default(true)
   workspaceId String
@@ -230,12 +230,6 @@ model Invitation {
   @@map("invitation")
 }
 
-enum RoleType {
-  admin
-  owner
-  member
-}
-
 enum PostStatus {
   published
   unpublished
@@ -244,12 +238,6 @@ enum PostStatus {
 enum PlanType {
   team
   pro
-}
-
-enum InviteStatus {
-  PENDING
-  ACCEPTED
-  DECLINED
 }
 
 enum SubscriptionStatus {
@@ -261,6 +249,6 @@ enum SubscriptionStatus {
 }
 
 enum WebhookEvent {
-  POST_PUBLISHED
-  POST_DELETED
+  post_published
+  post_deleted
 }

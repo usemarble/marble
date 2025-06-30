@@ -10,9 +10,9 @@ import {
 } from "@marble/ui/components/dialog";
 import { Check } from "@phosphor-icons/react";
 import { useState } from "react";
-import { checkout, organization } from "@/lib/auth/client";
-import { ButtonLoader } from "../ui/loader";
+import { checkout } from "@/lib/auth/client";
 import { useWorkspace } from "@/providers/workspace";
+import { ButtonLoader } from "../ui/loader";
 
 interface UpgradeModalProps {
   isOpen: boolean;
@@ -57,11 +57,11 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
                 <h4 className="text-medium text-2xl">Pro</h4>
                 <div className="">
                   <p>
-                    <span className="font-bold text-2xl">$10</span>{" "}
+                    <span className="font-bold text-2xl">$5</span>{" "}
                     <span>per month.</span>
                   </p>
                   <p className="text-muted-foreground text-sm">
-                    For individuals managing multiple projects
+                    For small teams
                   </p>
                 </div>
               </div>
@@ -77,10 +77,6 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
               <ul className="flex flex-col gap-2 text-sm">
                 <li className="flex items-center gap-2">
                   <Check className="size-4 text-primary" />
-                  <span>Up to 5 workspaces.</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="size-4 text-primary" />
                   <span>Unlimited posts.</span>
                 </li>
                 <li className="flex items-center gap-2">
@@ -89,7 +85,7 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="size-4 text-primary" />
-                  <span>10 Members per workspace</span>
+                  <span>Up to 10 team members.</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="size-4 text-primary" />
@@ -106,11 +102,11 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
                 <h4 className="text-medium text-2xl">Team</h4>
                 <div className="">
                   <p>
-                    <span className="font-bold text-2xl">$15</span>{" "}
+                    <span className="font-bold text-2xl">$10</span>{" "}
                     <span>per month.</span>
                   </p>
                   <p className="text-muted-foreground text-sm">
-                    For growing teams and small organizations
+                    For growing teams
                   </p>
                 </div>
               </div>
@@ -126,19 +122,15 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
               <ul className="flex flex-col gap-2 text-sm">
                 <li className="flex items-center gap-2">
                   <Check className="size-4 text-primary" />
-                  <span>Up to 10 workspaces.</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="size-4 text-primary" />
                   <span>Unlimited posts.</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="size-4 text-primary" />
-                  <span>10 GB media storage.</span>
+                  <span>5 GB media storage.</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="size-4 text-primary" />
-                  <span>15 members per workspace</span>
+                  <span>Up to 10 team members.</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="size-4 text-primary" />
