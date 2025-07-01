@@ -2,7 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@marble/ui/components/button";
-import { Separator } from "@marble/ui/components/separator";
 import {
   SidebarInset,
   SidebarTrigger,

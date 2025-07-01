@@ -19,7 +19,6 @@ import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { cn } from "@marble/ui/lib/utils";
 import {
-  At,
   ArrowLeft,
   Check,
   Copy,
@@ -58,24 +57,6 @@ interface AccountSettingsPageClientProps {
   };
 }
 
-const availableConnections = [
-  {
-    id: "google",
-    name: "Google",
-    icon: <Google />,
-  },
-  {
-    id: "github",
-    name: "GitHub",
-    icon: <Github />,
-  },
-  {
-    id: "email",
-    name: "Email",
-    icon: <At />,
-  },
-];
-
 export default function PageClient({
   accountDetails,
   userDetails,
@@ -100,7 +81,7 @@ export default function PageClient({
     },
   });
 
-  const { name, email } = watch();
+  const { name } = watch();
 
   const handleLogoUpload = async () => {
     if (!file) return;
