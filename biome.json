@@ -36,6 +36,9 @@
       "a11y": {
         "noSvgWithoutTitle": "off"
       },
+      "nursery": {
+        "useUniqueElementIds": "off"
+      },
       "style": {
         "noParameterAssign": "error",
         "useAsConstAssertion": "error",

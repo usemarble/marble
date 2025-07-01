@@ -12,7 +12,6 @@ function NewPostPageClient() {
     ...emptyPost,
     authors: session?.user?.id ? [session.user.id] : emptyPost.authors || [],
   };
-  console.log(initialPostData);
 
   return <EditorPage initialData={initialPostData} />;
 }

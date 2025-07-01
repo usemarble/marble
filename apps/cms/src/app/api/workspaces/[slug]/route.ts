@@ -1,4 +1,4 @@
-import db from "@marble/db";
+import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import getServerSession from "@/lib/auth/session";
 
@@ -24,10 +24,22 @@ export async function GET(
       createdAt: true,
       members: {
         select: {
+          id: true,
+          role: true,
+          organizationId: true,
+          createdAt: true,
+          userId: true,
           user: { select: { id: true, name: true, email: true, image: true } },
         },
       },
       invitations: true,
+      subscription: {
+        select: {
+          id: true,
+          status: true,
+          plan: true,
+        },
+      },
     },
   });
 

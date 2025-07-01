@@ -2,8 +2,9 @@
 
 import { useParams, usePathname } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
-import { organization } from "@/lib/auth/client";
+import { organization, useListOrganizations } from "@/lib/auth/client";
 import type { ActiveOrganization } from "@/lib/auth/types";
+import { request } from "@/utils/fetch/client";
 import { setLastVisitedWorkspace } from "@/utils/workspace";
 
 // Type for partial workspace data that doesn't require full member details
@@ -18,14 +19,28 @@ type PartialWorkspace = Omit<ActiveOrganization, "members"> & {
     role: string;
     teamId?: string;
   }>;
+  subscription?: {
+    id: string;
+    status: string;
+    plan: string;
+  } | null;
 };
 
 interface WorkspaceContextType {
-  activeWorkspace: ActiveOrganization | null;
+  activeWorkspace:
+    | (ActiveOrganization & {
+        subscription?: {
+          id: string;
+          status: string;
+          plan: string;
+        } | null;
+      })
+    | null;
   updateActiveWorkspace: (
     workspaceSlug: string,
     newWorkspace?: Partial<PartialWorkspace>,
   ) => Promise<void>;
+  workspaceList: ReturnType<typeof useListOrganizations>["data"];
   isLoading: boolean;
 }
 
@@ -46,8 +61,9 @@ export function WorkspaceProvider({
   const pathname = usePathname();
 
   const [activeWorkspace, setActiveWorkspace] =
-    useState<ActiveOrganization | null>(initialWorkspace);
+    useState<WorkspaceContextType["activeWorkspace"]>(initialWorkspace);
   const [isLoading, setIsLoading] = useState(false);
+  const organizations = useListOrganizations();
 
   async function updateActiveWorkspace(
     workspaceSlug: string,
@@ -76,14 +92,15 @@ export function WorkspaceProvider({
       setLastVisitedWorkspace(workspaceSlug);
 
       // Fetch full workspace data
-      const res = await fetch(`/api/workspaces/${workspaceSlug}`);
-      const data: ActiveOrganization | null = await res.json();
+      const res = await request<ActiveOrganization | null>(
+        `workspaces/${workspaceSlug}`,
+      );
 
-      if (!data) {
+      if (!res.data) {
         throw new Error("Workspace not found");
       }
 
-      setActiveWorkspace(data);
+      setActiveWorkspace(res.data);
     } catch (error) {
       console.error(error);
       // Revert optimistic update if needed
@@ -95,7 +112,7 @@ export function WorkspaceProvider({
     }
   }
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <>
   useEffect(() => {
     const workspaceSlug = Array.isArray(params.workspace)
       ? params.workspace[0]
@@ -110,7 +127,12 @@ export function WorkspaceProvider({
 
   return (
     <WorkspaceContext.Provider
-      value={{ activeWorkspace, updateActiveWorkspace, isLoading }}
+      value={{
+        activeWorkspace,
+        updateActiveWorkspace,
+        isLoading,
+        workspaceList: organizations.data,
+      }}
     >
       {children}
     </WorkspaceContext.Provider>

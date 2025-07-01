@@ -9,14 +9,23 @@ datasource db {
 }
 
 model Subscription {
-  id        String             @id @default(cuid())
-  userId    String             @unique
-  plan      PlanType           @default(FREE)
-  status    SubscriptionStatus @default(ACTIVE)
-  startedAt DateTime           @default(now())
-  expiresAt DateTime?
-  updatedAt DateTime           @updatedAt
-  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                     String             @id @default(cuid())
+  userId                 String
+  workspaceId            String             @unique
+  plan                   PlanType
+  status                 SubscriptionStatus @default(active)
+  polarId                String             @unique
+  createdAt              DateTime           @default(now())
+  currentPeriodStart     DateTime           // Start of current billing cycle
+  currentPeriodEnd       DateTime           // End of current billing cycle
+  cancelAtPeriodEnd      Boolean            @default(false)
+  canceledAt             DateTime?
+  endsAt                 DateTime?          // When it *will* end
+  endedAt                DateTime?          // When it *actually* ended (may be same as endsAt)
+  updatedAt              DateTime           @updatedAt
+
+  user                   User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace              Organization       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@map("subscription")
 }
@@ -39,6 +48,7 @@ model Organization {
   posts       Post[]
   tags        Tag[]
   webhooks    Webhook[]
+  subscription Subscription?
 
   @@map("workspace")
 }
@@ -119,7 +129,7 @@ model Webhook {
   id          String       @id @default(cuid())
   name        String
   endpoint    String
-  event       WebhookEvent @default(POST_PUBLISHED)
+  event       WebhookEvent
   secret      String
   enabled     Boolean      @default(true)
   workspaceId String
@@ -143,7 +153,7 @@ model User {
   members         Member[]
   authoredPosts   Post[]        @relation("PrimaryAuthor")
   sessions        Session[]
-  subscription    Subscription?
+  subscriptions    Subscription[]
   coAuthoredPosts Post[]        @relation("PostToUser")
 
   @@map("user")
@@ -220,36 +230,25 @@ model Invitation {
   @@map("invitation")
 }
 
-enum RoleType {
-  admin
-  owner
-  member
-}
-
 enum PostStatus {
   published
   unpublished
 }
 
 enum PlanType {
-  FREE
-  STARTER
-  PRO
-}
-
-enum InviteStatus {
-  PENDING
-  ACCEPTED
-  DECLINED
+  team
+  pro
 }
 
 enum SubscriptionStatus {
-  ACTIVE
-  CANCELLED
-  EXPIRED
+  active
+  trialing
+  past_due
+  cancelled
+  expired
 }
 
 enum WebhookEvent {
-  POST_PUBLISHED
-  POST_DELETED
+  post_published
+  post_deleted
 }

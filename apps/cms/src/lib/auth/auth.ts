@@ -1,4 +1,12 @@
-import db from "@marble/db";
+import { db } from "@marble/db";
+import {
+  checkout,
+  polar,
+  portal,
+  usage,
+  webhooks,
+} from "@polar-sh/better-auth";
+import { Polar } from "@polar-sh/sdk";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
@@ -7,7 +15,16 @@ import {
   sendInviteEmailAction,
   sendVerificationEmailAction,
 } from "@/lib/actions/email";
+import { handleSubscriptionCanceled } from "@/lib/polar/subscription.canceled";
+import { handleSubscriptionCreated } from "@/lib/polar/subscription.created";
+import { handleSubscriptionRevoked } from "@/lib/polar/subscription.revoked";
+import { handleSubscriptionUpdated } from "@/lib/polar/subscription.updated";
 import { getActiveOrganization } from "../queries/workspace";
+
+const polarClient = new Polar({
+  accessToken: process.env.POLAR_ACCESS_TOKEN,
+  server: process.env.NODE_ENV === "production" ? "production" : "sandbox",
+});
 
 export const auth = betterAuth({
   database: prismaAdapter(db, {
@@ -41,6 +58,57 @@ export const auth = betterAuth({
     modelName: "workspace",
   },
   plugins: [
+    polar({
+      client: polarClient,
+      createCustomerOnSignUp: true,
+      authenticatedUsersOnly: true,
+      // getCustomerCreateParams: async ({ user }, request) => {
+      //   console.log(user);
+      //   metadata: {
+      //     myCustomProperty: 123,
+      //   }
+      // },
+      use: [
+        portal(),
+        usage(),
+        checkout({
+          products: [
+            {
+              productId: process.env.POLAR_HOBBY_PRODUCT_ID || "",
+              slug: "hobby",
+            },
+            {
+              productId: process.env.POLAR_PRO_PRODUCT_ID || "",
+              slug: "pro",
+            },
+            {
+              productId: process.env.POLAR_TEAM_PRODUCT_ID || "",
+              slug: "team",
+            },
+          ],
+          successUrl: process.env.POLAR_SUCCESS_URL || "",
+        }),
+        webhooks({
+          secret: process.env.POLAR_WEBHOOK_SECRET || "",
+          onCustomerCreated: async (payload) => {
+            console.log("Customer Created", payload);
+            // TODO: handle customer created
+          },
+          onSubscriptionCreated: async (payload) => {
+            await handleSubscriptionCreated(payload);
+          },
+          onSubscriptionUpdated: async (payload) => {
+            await handleSubscriptionUpdated(payload);
+          },
+          onSubscriptionCanceled: async (payload) => {
+            await handleSubscriptionCanceled(payload);
+          },
+          onSubscriptionRevoked: async (payload) => {
+            await handleSubscriptionRevoked(payload);
+          },
+        }),
+      ],
+    }),
     organization({
       async sendInvitationEmail(data) {
         const inviteLink = `${process.env.NEXT_PUBLIC_APP_URL}/join/${data.id}`;

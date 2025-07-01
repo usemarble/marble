@@ -5,6 +5,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@marble/ui/components/avatar";
+import { Badge } from "@marble/ui/components/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,19 +22,25 @@ import {
 } from "@marble/ui/components/sidebar";
 import { Skeleton } from "@marble/ui/components/skeleton";
 import { Check, ChevronDown, Plus } from "@marble/ui/lib/icons";
+import { cn } from "@marble/ui/lib/utils";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useListOrganizations } from "@/lib/auth/client";
 import type { Organization } from "@/lib/auth/types";
 import { useWorkspace } from "../../providers/workspace";
+import { UpgradeModal } from "../auth/upgrade-modal";
 import { CreateWorkspaceModal } from "./workspace-modal";
 
 export function WorkspaceSwitcher() {
   const { isMobile } = useSidebar();
   const router = useRouter();
-  const [open, setOpen] = useState(false);
-  const organizations = useListOrganizations();
-  const { activeWorkspace, updateActiveWorkspace } = useWorkspace();
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] =
+    useState(false);
+  const { activeWorkspace, updateActiveWorkspace, workspaceList } =
+    useWorkspace();
+
+  console.log("workspaceList", workspaceList);
+  console.log("activeWorkspace", activeWorkspace);
 
   async function switchWorkspace(org: Organization) {
     if (org.slug === activeWorkspace?.slug) return;
@@ -45,6 +52,10 @@ export function WorkspaceSwitcher() {
       console.error("Failed to switch workspace:", error);
     }
   }
+
+  const handleAddWorkspace = () => {
+    setShowCreateWorkspaceModal(true);
+  };
 
   return (
     <SidebarMenu>
@@ -65,11 +76,25 @@ export function WorkspaceSwitcher() {
                     {activeWorkspace.name.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
-                <div className="grid flex-1 text-left text-sm leading-tight">
+                <div className="flex flex-1 gap-2 text-left text-sm leading-tight">
                   <span className="truncate font-medium text-sm">
                     {activeWorkspace?.name || "Personal"}
                   </span>
-                  {/* <span className="truncate text-xs text-primary">Free</span> */}
+                  <Badge
+                    variant="outline"
+                    className={cn(
+                      "text-center py-0 px-1.5 text-[11px] justify-center bg-gray-50 text-gray-500 border-gray-300",
+                      {
+                        "bg-emerald-50 text-emerald-500 border-emerald-300":
+                          activeWorkspace.subscription?.plan === "pro",
+
+                        "bg-blue-50 text-blue-500 border-blue-300":
+                          activeWorkspace.subscription?.plan === "team",
+                      },
+                    )}
+                  >
+                    {activeWorkspace.subscription?.plan || "free"}
+                  </Badge>
                 </div>
                 <ChevronDown className="ml-auto" />
               </SidebarMenuButton>
@@ -91,9 +116,9 @@ export function WorkspaceSwitcher() {
             sideOffset={4}
           >
             <DropdownMenuLabel className="text-muted-foreground text-xs">
-              Workspaces
+              Your workspaces
             </DropdownMenuLabel>
-            {organizations.data?.map((org: Organization) => (
+            {workspaceList?.map((org) => (
               <DropdownMenuItem key={org.id}>
                 <button
                   type="button"
@@ -115,7 +140,7 @@ export function WorkspaceSwitcher() {
             <DropdownMenuItem>
               <button
                 type="button"
-                onClick={() => setOpen(true)}
+                onClick={handleAddWorkspace}
                 className="flex w-full items-center gap-2"
               >
                 <div className="bg-background flex size-6 items-center justify-center rounded-md border">
@@ -129,7 +154,14 @@ export function WorkspaceSwitcher() {
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
-      <CreateWorkspaceModal open={open} setOpen={setOpen} />
+      <CreateWorkspaceModal
+        open={showCreateWorkspaceModal}
+        setOpen={setShowCreateWorkspaceModal}
+      />
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+      />
     </SidebarMenu>
   );
 }

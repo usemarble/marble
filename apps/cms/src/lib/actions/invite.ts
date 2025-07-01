@@ -1,6 +1,6 @@
 "use server";
 
-import db from "@marble/db";
+import { db } from "@marble/db";
 import getSession from "@/lib/auth/session";
 
 /**

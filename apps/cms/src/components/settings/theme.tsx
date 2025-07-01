@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
-import { Check, ChevronDown, SunMoon } from "lucide-react";
+import { CaretDown } from "@phosphor-icons/react";
 import { useTheme } from "next-themes";
 
 const themes = [
@@ -33,7 +33,7 @@ export function ThemeSwitch() {
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm">
           <span>{theme}</span>
-          <ChevronDown className="ml-2 size-4 text-muted-foreground" />
+          <CaretDown className="ml-2 size-4 text-muted-foreground" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

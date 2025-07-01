@@ -10,7 +10,6 @@ import { FileCsv } from "@phosphor-icons/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import WorkspaceWrapper from "@/components/layout/workspace-wrapper";
-import BillingForm from "@/components/settings/billing";
 import WorkspaceForm from "@/components/settings/workspace-form";
 import type { ActiveOrganization, Session } from "@/lib/auth/types";
 
@@ -64,9 +63,6 @@ function PageClient({ activeWorkspace, session }: PageClientProps) {
             <TabsTrigger variant="underline" value="workspace">
               Workspace
             </TabsTrigger>
-            {/* <TabsTrigger variant="underline" value="billing">
-              Billing
-            </TabsTrigger> */}
             <TabsTrigger variant="underline" value="data">
               Data
             </TabsTrigger>
@@ -79,13 +75,6 @@ function PageClient({ activeWorkspace, session }: PageClientProps) {
               logo={activeWorkspace.logo}
             />
           </TabsContent>
-          {/* <TabsContent value="billing" className="space-y-14">
-            <BillingForm
-              email={session.user.email}
-              name={session.user.name}
-              id={session.user.id}
-            />
-          </TabsContent> */}
           <TabsContent value="data" className="space-y-14">
             <div className="min-h-96 grid place-content-center">
               <div className="flex flex-col gap-2 items-center">

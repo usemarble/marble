@@ -1,4 +1,4 @@
-import db from "@marble/db";
+import { db } from "@marble/db";
 import { headers } from "next/headers";
 import React from "react";
 import { auth } from "@/lib/auth/auth";

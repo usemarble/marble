@@ -22,9 +22,10 @@ import { cn } from "@marble/ui/lib/utils";
 import { Copy, Image, UploadSimple } from "@phosphor-icons/react";
 import { Check, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+
 import { uploadWorkspaceLogoAction } from "@/lib/actions/media";
 import {
   checkWorkspaceSlug,
@@ -200,7 +201,7 @@ function WorkspaceForm({ name, slug, id, logo }: WorkspaceFormProps) {
     }
   };
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <>
   useEffect(() => {
     if (file) {
       handleLogoUpload();

@@ -18,7 +18,13 @@ import {
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { cn } from "@marble/ui/lib/utils";
-import { At, Check, Copy, Image, UploadSimple } from "@phosphor-icons/react";
+import {
+  ArrowLeft,
+  Check,
+  Copy,
+  Image,
+  UploadSimple,
+} from "@phosphor-icons/react";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -51,24 +57,6 @@ interface AccountSettingsPageClientProps {
   };
 }
 
-const availableConnections = [
-  {
-    id: "google",
-    name: "Google",
-    icon: <Google />,
-  },
-  {
-    id: "github",
-    name: "GitHub",
-    icon: <Github />,
-  },
-  {
-    id: "email",
-    name: "Email",
-    icon: <At />,
-  },
-];
-
 export default function PageClient({
   accountDetails,
   userDetails,
@@ -93,7 +81,7 @@ export default function PageClient({
     },
   });
 
-  const { name, email } = watch();
+  const { name } = watch();
 
   const handleLogoUpload = async () => {
     if (!file) return;
@@ -144,7 +132,7 @@ export default function PageClient({
     }
   };
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <>
   useEffect(() => {
     if (file) {
       handleLogoUpload();
@@ -178,10 +166,11 @@ export default function PageClient({
     <div>
       <Container className="py-4">
         <div className="flex items-center gap-2 justify-between">
-          <h1 className="text-lg font-medium">Account Settings</h1>
           <Link href="/" className={cn(buttonVariants({ variant: "outline" }))}>
-            Dashboard
+            <ArrowLeft className="size-4" />
+            <span>Dashboard</span>
           </Link>
+          <h1 className="text-lg font-medium">Account Settings</h1>
         </div>
       </Container>
       <div className="w-full max-w-screen-md mx-auto space-y-8 pt-8 pb-14">
