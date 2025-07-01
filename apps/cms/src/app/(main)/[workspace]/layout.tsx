@@ -4,14 +4,9 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@marble/ui/components/sidebar";
-import type { Metadata } from "next";
-import { headers } from "next/headers";
 import { Announcements } from "@/components/nav/announcements";
 import AppBreadcrumb from "@/components/nav/app-breadcrumb";
 import { AppSidebar } from "@/components/nav/app-sidebar";
-import { auth } from "@/lib/auth/auth";
-import type { ActiveOrganization } from "@/lib/auth/types";
-import { WorkspaceProvider } from "@/providers/workspace";
 
 // export async function generateMetadata({
 //   params,

@@ -54,12 +54,7 @@ export function WorkspaceSwitcher() {
   }
 
   const handleAddWorkspace = () => {
-    const isFreePlan = true;
-    if (isFreePlan) {
-      setShowUpgradeModal(true);
-    } else {
-      setShowCreateWorkspaceModal(true);
-    }
+    setShowCreateWorkspaceModal(true);
   };
 
   return (
@@ -88,7 +83,7 @@ export function WorkspaceSwitcher() {
                   <Badge
                     variant="outline"
                     className={cn(
-                      "text-center justify-center text-xs bg-amber-50 text-orange-500 border-amber-300",
+                      "text-center py-0 px-1.5 text-[11px] justify-center bg-gray-50 text-gray-500 border-gray-300",
                       {
                         "bg-emerald-50 text-emerald-500 border-emerald-300":
                           activeWorkspace.subscription?.plan === "pro",

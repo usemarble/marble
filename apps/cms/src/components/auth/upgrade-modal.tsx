@@ -57,7 +57,7 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
                 <h4 className="text-medium text-2xl">Pro</h4>
                 <div className="">
                   <p>
-                    <span className="font-bold text-2xl">$5</span>{" "}
+                    <span className="font-bold text-2xl">$10</span>{" "}
                     <span>per month.</span>
                   </p>
                   <p className="text-muted-foreground text-sm">
@@ -102,7 +102,7 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
                 <h4 className="text-medium text-2xl">Team</h4>
                 <div className="">
                   <p>
-                    <span className="font-bold text-2xl">$10</span>{" "}
+                    <span className="font-bold text-2xl">$15</span>{" "}
                     <span>per month.</span>
                   </p>
                   <p className="text-muted-foreground text-sm">

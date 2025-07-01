@@ -1,7 +1,6 @@
 "use client";
 import { Button } from "@marble/ui/components/button";
-import { ArrowLeft } from "@phosphor-icons/react";
-import { CheckIcon } from "lucide-react";
+import { ArrowLeft, Check } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import Container from "@/components/shared/container";
 
@@ -23,8 +22,8 @@ function PageClient() {
               <h4 className="text-medium text-2xl">Hobby</h4>
               <div className="">
                 <p>
-                  <span className="font-bold text-2xl">$0</span>{" "}
-                  <span>per month.</span>
+                  <span className="font-bold text-2xl">Free</span>{" "}
+                  {/* <span>per month.</span> */}
                 </p>
                 <p className="text-muted-foreground text-sm">
                   For solo individuals
@@ -38,23 +37,23 @@ function PageClient() {
             </div>
             <ul className="flex flex-col gap-2 text-sm">
               <li className="flex items-center gap-2">
-                <CheckIcon className="size-4 text-primary" />
+                <Check className="size-4 text-primary" />
                 <span>Single workspace.</span>
               </li>
               <li className="flex items-center gap-2">
-                <CheckIcon className="size-4 text-primary" />
+                <Check className="size-4 text-primary" />
                 <span>Unlimited posts.</span>
               </li>
               <li className="flex items-center gap-2">
-                <CheckIcon className="size-4 text-primary" />
+                <Check className="size-4 text-primary" />
                 <span>500 MB media storage.</span>
               </li>
               <li className="flex items-center gap-2">
-                <CheckIcon className="size-4 text-primary" />
+                <Check className="size-4 text-primary" />
                 <span>Up to 3 team members.</span>
               </li>
               <li className="flex items-center gap-2">
-                <CheckIcon className="size-4 text-primary" />
+                <Check className="size-4 text-primary" />
                 <span>10k API requests per month.</span>
               </li>
             </ul>
@@ -77,27 +76,23 @@ function PageClient() {
             </div>
             <ul className="flex flex-col gap-2 text-sm">
               <li className="flex items-center gap-2">
-                <CheckIcon className="size-4 text-primary" />
-                <span>Up to 5 workspaces.</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckIcon className="size-4 text-primary" />
+                <Check className="size-4 text-primary" />
                 <span>Unlimited posts.</span>
               </li>
               <li className="flex items-center gap-2">
-                <CheckIcon className="size-4 text-primary" />
+                <Check className="size-4 text-primary" />
                 <span>2 GB media storage.</span>
               </li>
               <li className="flex items-center gap-2">
-                <CheckIcon className="size-4 text-primary" />
-                <span>10 Members per workspace</span>
+                <Check className="size-4 text-primary" />
+                <span>Up to 10 team members.</span>
               </li>
               <li className="flex items-center gap-2">
-                <CheckIcon className="size-4 text-primary" />
+                <Check className="size-4 text-primary" />
                 <span>50k API requests per month.</span>
               </li>
               <li className="flex items-center gap-2">
-                <CheckIcon className="size-4 text-primary" />
+                <Check className="size-4 text-primary" />
                 <span>50 Webhook events per month.</span>
               </li>
             </ul>
@@ -122,27 +117,23 @@ function PageClient() {
             </div>
             <ul className="flex flex-col gap-2 text-sm">
               <li className="flex items-center gap-2">
-                <CheckIcon className="size-4 text-primary" />
-                <span>Up to 10 workspaces.</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckIcon className="size-4 text-primary" />
+                <Check className="size-4 text-primary" />
                 <span>Unlimited posts.</span>
               </li>
               <li className="flex items-center gap-2">
-                <CheckIcon className="size-4 text-primary" />
-                <span>10 GB media storage.</span>
+                <Check className="size-4 text-primary" />
+                <span>5 GB media storage.</span>
               </li>
               <li className="flex items-center gap-2">
-                <CheckIcon className="size-4 text-primary" />
-                <span>15 members per workspace</span>
+                <Check className="size-4 text-primary" />
+                <span>Up to 10 team members.</span>
               </li>
               <li className="flex items-center gap-2">
-                <CheckIcon className="size-4 text-primary" />
+                <Check className="size-4 text-primary" />
                 <span>Unlimited API requests.</span>
               </li>
               <li className="flex items-center gap-2">
-                <CheckIcon className="size-4 text-primary" />
+                <Check className="size-4 text-primary" />
                 <span>100 Webhook events per month.</span>
               </li>
             </ul>
