@@ -58,7 +58,15 @@ const { title, description, image = "/og.jpg" } = Astro.props;
 />
 
 <!-- Analytics -->
-<script is:inline defer data-domain="marblecms.com" src="https://stats.rivo.gg/js/script.js"></script>
+<script is:inline
+  src="https://app.databuddy.cc/databuddy.js"
+  data-client-id="CSmy3wkLIG3nbbumSjmeY"
+  data-track-web-vitals="true"
+  data-track-errors="true"
+  data-enable-batching="true"
+  crossorigin="anonymous"
+  async
+/>
 
 <!-- Client Router -->
 <ClientRouter />
