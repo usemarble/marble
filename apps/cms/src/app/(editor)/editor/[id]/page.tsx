@@ -1,4 +1,4 @@
-import db from "@marble/db";
+import { db } from "@marble/db";
 import { notFound } from "next/navigation";
 import type { Attribution } from "@/lib/validations/post";
 import PageClient from "./page-client";

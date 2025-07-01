@@ -1,4 +1,4 @@
-import db from "@marble/db";
+import { db } from "@marble/db";
 import {
   checkout,
   polar,

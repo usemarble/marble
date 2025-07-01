@@ -1,4 +1,4 @@
-import db from "@marble/db";
+import { db } from "@marble/db";
 import type { RequestCookies } from "next/dist/compiled/@edge-runtime/cookies";
 import { getLastVisitedWorkspace } from "@/utils/workspace";
 

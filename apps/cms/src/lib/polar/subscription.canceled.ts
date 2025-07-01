@@ -1,6 +1,6 @@
 "use server";
 
-import db from "@marble/db";
+import { db } from "@marble/db";
 import type { WebhookSubscriptionCanceledPayload } from "@polar-sh/sdk/models/components/webhooksubscriptioncanceledpayload.js";
 import { SubscriptionStatus } from "@prisma/client";
 
