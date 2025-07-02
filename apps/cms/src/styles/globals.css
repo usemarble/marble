@@ -98,23 +98,8 @@
   }
   .lightbackground {
     background-color: hsl(165, 100%, 97%);
-    color: hsl(220, 14%, 96%);
-    color: hsl(244, 100%, 85%);
   }
 }
-
-/* ::-webkit-scrollbar {
-  width: 0.4rem;
-}
-::-webkit-scrollbar-thumb {
-  background-color: hsl(var(--scrollbar-thumb));
-}
-::-webkit-scrollbar-thumb:hover {
-  background-color: hsl(var(--scrollbar-thumb-hover));
-}
-::-webkit-scrollbar-track {
-  background: hsl(var(--background) / 0.8);
-} */
 
 @layer utilities {
   .scrollbar-hide {
