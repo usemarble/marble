@@ -27,14 +27,16 @@ import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { createWebhookAction } from "@/lib/actions/webhook";
+import {
+  createWebhookAction,
+  generateWebhookSecretAction,
+} from "@/lib/actions/webhook";
 import {
   type WebhookEvent,
   type WebhookFormValues,
   webhookEvents,
   webhookSchema,
 } from "@/lib/validations/webhook";
-import { generateWebhookSecret } from "@/utils/string";
 import { ButtonLoader } from "../ui/loader";
 
 interface CreateWebhookSheetProps {
@@ -64,16 +66,19 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
   });
 
   const watchedEvents = watch("events");
-  // const watchedSecret = watch("secret");
 
   const router = useRouter();
 
   const handleGenerateSecret = async () => {
     setIsGeneratingSecret(true);
     try {
-      const secret = generateWebhookSecret();
-      setValue("secret", secret);
-      toast.success("Secret generated successfully");
+      const result = await generateWebhookSecretAction();
+      if (result.success && result.secret) {
+        setValue("secret", result.secret);
+        toast.success("Secret generated successfully");
+      } else {
+        toast.error("Failed to generate secret");
+      }
     } catch (_error) {
       toast.error("Failed to generate secret");
     } finally {
@@ -81,10 +86,10 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
     }
   };
 
-  const handleEventToggle = (eventId: string, checked: boolean) => {
+  const handleEventToggle = (eventId: WebhookEvent, checked: boolean) => {
     const currentEvents = watchedEvents || [];
     if (checked) {
-      setValue("events", [...currentEvents, eventId as WebhookEvent]);
+      setValue("events", [...currentEvents, eventId]);
     } else {
       setValue(
         "events",

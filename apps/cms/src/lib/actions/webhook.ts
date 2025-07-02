@@ -1,10 +1,30 @@
 "use server";
 
 import { db } from "@marble/db";
+import { randomBytes } from "crypto";
 import { revalidatePath } from "next/cache";
-import { generateWebhookSecret } from "@/utils/string";
 import getServerSession from "../auth/session";
 import { type WebhookFormValues, webhookSchema } from "../validations/webhook";
+
+/**
+ * Generate a secure webhook secret (server-only)
+ */
+const generateWebhookSecret = (): string => {
+  return randomBytes(32).toString("hex");
+};
+
+/**
+ * Generate a secure webhook secret (server action)
+ */
+export const generateWebhookSecretAction = async () => {
+  try {
+    const secret = randomBytes(32).toString("hex");
+    return { success: true, secret };
+  } catch (error) {
+    console.error("Failed to generate webhook secret:", error);
+    return { success: false, secret: null };
+  }
+};
 
 /**
  * Create a new webhook

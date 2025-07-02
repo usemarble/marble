@@ -1,4 +1,4 @@
-import { randomBytes } from "node:crypto";
+// import { randomBytes } from "node:crypto";
 
 export function generateSlug(text: string) {
   const slug = text
@@ -11,9 +11,9 @@ export function generateSlug(text: string) {
   return slug;
 }
 
-/**
- * Generate a secure webhook secret
- */
-export const generateWebhookSecret = (): string => {
-  return randomBytes(32).toString("hex");
-};
+// /**
+//  * Generate a secure webhook secret
+//  */
+// export const generateWebhookSecret = (): string => {
+//   return randomBytes(32).toString("hex");
+// };
