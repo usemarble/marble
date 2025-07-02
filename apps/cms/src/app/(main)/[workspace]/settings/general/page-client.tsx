@@ -44,7 +44,7 @@ const slugSchema = z.object({
 
 function PageClient() {
   const router = useRouter();
-  const { activeWorkspace } = useWorkspace();
+  const { activeWorkspace, isOwner, updateActiveWorkspace } = useWorkspace();
   const [isNameChanged, setIsNameChanged] = useState(false);
   const [isSlugChanged, setIsSlugChanged] = useState(false);
   const [idCopied, setIdCopied] = useState(false);
@@ -52,7 +52,6 @@ function PageClient() {
   const [logoUrl, setLogoUrl] = useState(activeWorkspace?.logo);
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const { updateActiveWorkspace } = useWorkspace();
 
   const nameForm = useForm<z.infer<typeof nameSchema>>({
     resolver: zodResolver(nameSchema),
@@ -84,6 +83,8 @@ function PageClient() {
   ]);
 
   const onNameSubmit = async (data: z.infer<typeof nameSchema>) => {
+    if (!isOwner) return;
+
     try {
       if (!activeWorkspace?.id) return;
       await updateWorkspaceAction(activeWorkspace?.id, {
@@ -99,7 +100,7 @@ function PageClient() {
   };
 
   const onSlugSubmit = async (data: z.infer<typeof slugSchema>) => {
-    if (!activeWorkspace?.id) return;
+    if (!isOwner || !activeWorkspace?.id) return;
 
     try {
       const slugExists = await checkWorkspaceSlug(
@@ -148,7 +149,7 @@ function PageClient() {
   };
 
   const handleLogoUpload = async () => {
-    if (!file) return;
+    if (!file || !isOwner) return;
 
     try {
       setIsUploading(true);
@@ -225,10 +226,13 @@ function PageClient() {
                   id="name"
                   {...nameForm.register("name")}
                   placeholder="Technology"
+                  disabled={!isOwner}
                 />
               </div>
               <Button
-                disabled={!isNameChanged || nameForm.formState.isSubmitting}
+                disabled={
+                  !isOwner || !isNameChanged || nameForm.formState.isSubmitting
+                }
                 className={cn("w-20 self-end flex gap-2 items-center")}
               >
                 {nameForm.formState.isSubmitting ? (
@@ -266,10 +270,13 @@ function PageClient() {
                   id="slug"
                   {...slugForm.register("slug")}
                   placeholder="workspace"
+                  disabled={!isOwner}
                 />
               </div>
               <Button
-                disabled={!isSlugChanged || slugForm.formState.isSubmitting}
+                disabled={
+                  !isOwner || !isSlugChanged || slugForm.formState.isSubmitting
+                }
                 className={cn("w-20 self-end flex gap-2 items-center")}
               >
                 {slugForm.formState.isSubmitting ? (
@@ -303,7 +310,8 @@ function PageClient() {
                 htmlFor="logo"
                 className={cn(
                   "cursor-pointer relative overflow-hidden rounded-full size-16 group",
-                  isUploading && "pointer-events-none",
+                  (isUploading || !isOwner) && "pointer-events-none",
+                  !isOwner && "opacity-50",
                 )}
               >
                 <Avatar className="size-16">
@@ -317,9 +325,10 @@ function PageClient() {
                   type="file"
                   id="logo"
                   accept="image/*"
+                  disabled={!isOwner}
                   onChange={(e) => {
                     const file = e.target.files?.[0];
-                    if (file && !isUploading) {
+                    if (file && !isUploading && isOwner) {
                       setFile(file);
                       handleLogoUpload();
                     }
@@ -407,7 +416,7 @@ function PageClient() {
           </CardDescription>
         </CardHeader>
         <CardFooter className="justify-end">
-          <DeleteWorkspaceModal id={activeWorkspace?.id!} />
+          {isOwner && <DeleteWorkspaceModal id={activeWorkspace?.id!} />}
         </CardFooter>
       </Card>
     </WorkspacePageWrapper>
