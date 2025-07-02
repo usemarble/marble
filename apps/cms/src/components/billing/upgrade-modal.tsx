@@ -25,6 +25,8 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
   );
   const { activeWorkspace } = useWorkspace();
 
+  const currentPlan = activeWorkspace?.subscription?.plan;
+
   const handleCheckout = async (plan: "pro" | "team") => {
     setCheckoutLoading(plan);
     console.log(activeWorkspace);
@@ -41,6 +43,29 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
       onClose();
     }
   };
+
+  const renderPlanButton = (plan: "pro" | "team") => {
+    const isCurrentPlan = currentPlan === plan;
+
+    if (isCurrentPlan) {
+      return (
+        <Button disabled variant="default" className="w-full">
+          Current plan
+        </Button>
+      );
+    }
+
+    return (
+      <Button
+        disabled={!!checkoutLoading}
+        className="w-full"
+        onClick={() => handleCheckout(plan)}
+      >
+        {checkoutLoading === plan ? <ButtonLoader /> : "Upgrade"}
+      </Button>
+    );
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-full max-w-screen-md">
@@ -66,13 +91,7 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
                 </div>
               </div>
               <div className="border-y border-dashed py-4">
-                <Button
-                  disabled={!!checkoutLoading}
-                  className="w-full"
-                  onClick={() => handleCheckout("pro")}
-                >
-                  {checkoutLoading === "pro" ? <ButtonLoader /> : "Upgrade"}
-                </Button>
+                {renderPlanButton("pro")}
               </div>
               <ul className="flex flex-col gap-2 text-sm">
                 <li className="flex items-center gap-2">
@@ -111,13 +130,7 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
                 </div>
               </div>
               <div className="border-y border-dashed py-4">
-                <Button
-                  disabled={!!checkoutLoading}
-                  className="w-full"
-                  onClick={() => handleCheckout("team")}
-                >
-                  {checkoutLoading === "team" ? <ButtonLoader /> : "Upgrade"}
-                </Button>
+                {renderPlanButton("team")}
               </div>
               <ul className="flex flex-col gap-2 text-sm">
                 <li className="flex items-center gap-2">

@@ -2,7 +2,7 @@
 
 import { columns } from "@/components/categories/columns";
 import { DataTable } from "@/components/categories/data-table";
-import WorkspaceWrapper from "@/components/layout/workspace-wrapper";
+import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
 
 interface PageClientProps {
   categories: { id: string; name: string; slug: string }[];
@@ -10,9 +10,9 @@ interface PageClientProps {
 
 function PageClient({ categories }: PageClientProps) {
   return (
-    <WorkspaceWrapper className="flex flex-col pt-10 pb-16 gap-8">
+    <WorkspacePageWrapper className="flex flex-col pt-10 pb-16 gap-8">
       <DataTable data={categories} columns={columns} />
-    </WorkspaceWrapper>
+    </WorkspacePageWrapper>
   );
 }
 

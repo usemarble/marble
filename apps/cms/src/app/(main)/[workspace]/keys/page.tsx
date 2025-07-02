@@ -1,9 +1,9 @@
 import { Button } from "@marble/ui/components/button";
-import WorkspaceWrapper from "@/components/layout/workspace-wrapper";
+import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
 
 function Page() {
   return (
-    <WorkspaceWrapper className="h-full grid place-content-center">
+    <WorkspacePageWrapper className="h-full grid place-content-center">
       <div className="flex flex-col gap-4 items-center max-w-80">
         <div className="p-4 border">
           <svg
@@ -31,7 +31,7 @@ function Page() {
           </Button>
         </div>
       </div>
-    </WorkspaceWrapper>
+    </WorkspacePageWrapper>
   );
 }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import WorkspaceWrapper from "@/components/layout/workspace-wrapper";
+import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
 import { columns } from "@/components/tags/columns";
 import { DataTable } from "@/components/tags/data-table";
 
@@ -10,9 +10,9 @@ interface PageClientProps {
 
 function PageClient({ tags }: PageClientProps) {
   return (
-    <WorkspaceWrapper className="flex flex-col pt-10 pb-16 gap-8">
+    <WorkspacePageWrapper className="flex flex-col pt-10 pb-16 gap-8">
       <DataTable data={tags} columns={columns} />
-    </WorkspaceWrapper>
+    </WorkspacePageWrapper>
   );
 }
 

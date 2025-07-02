@@ -38,6 +38,10 @@ export async function GET(
           id: true,
           status: true,
           plan: true,
+          currentPeriodStart: true,
+          currentPeriodEnd: true,
+          cancelAtPeriodEnd: true,
+          canceledAt: true,
         },
       },
     },
@@ -47,5 +51,18 @@ export async function GET(
     return NextResponse.json({ error: "Workspace not found" }, { status: 404 });
   }
 
-  return NextResponse.json(workspace);
+  // Find current user's role in this workspace
+  const currentUserMember = workspace.members.find(
+    (member) => member.userId === sessionData.user.id,
+  );
+
+  const currentUserRole = currentUserMember?.role || null;
+
+  // Add current user role to the response
+  const workspaceWithUserRole = {
+    ...workspace,
+    currentUserRole,
+  };
+
+  return NextResponse.json(workspaceWithUserRole);
 }

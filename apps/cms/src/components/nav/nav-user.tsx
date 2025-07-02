@@ -87,7 +87,7 @@ export function NavUser({ user }: NavUserProps) {
               Account
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          {/* <DropdownMenuItem>
             <Link
               href="/settings/billing"
               className="flex w-full items-center gap-4"
@@ -95,7 +95,7 @@ export function NavUser({ user }: NavUserProps) {
               <CreditCard className="size-4" />
               Billing
             </Link>
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem>

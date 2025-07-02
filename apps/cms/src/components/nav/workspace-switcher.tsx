@@ -9,6 +9,7 @@ import { Badge } from "@marble/ui/components/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -25,9 +26,9 @@ import { Check, ChevronDown, Plus } from "@marble/ui/lib/icons";
 import { cn } from "@marble/ui/lib/utils";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import type { Organization } from "@/lib/auth/types";
+
 import { useWorkspace } from "../../providers/workspace";
-import { UpgradeModal } from "../auth/upgrade-modal";
+import { UpgradeModal } from "../billing/upgrade-modal";
 import { CreateWorkspaceModal } from "./workspace-modal";
 
 export function WorkspaceSwitcher() {
@@ -42,7 +43,19 @@ export function WorkspaceSwitcher() {
   console.log("workspaceList", workspaceList);
   console.log("activeWorkspace", activeWorkspace);
 
-  async function switchWorkspace(org: Organization) {
+  // Group workspaces by ownership
+  const ownedWorkspaces =
+    workspaceList?.filter((workspace) => workspace.userRole === "owner") || [];
+
+  const sharedWorkspaces =
+    workspaceList?.filter((workspace) => workspace.userRole !== "owner") || [];
+
+  async function switchWorkspace(org: {
+    id: string;
+    name: string;
+    slug: string;
+    logo?: string | null;
+  }) {
     if (org.slug === activeWorkspace?.slug) return;
 
     try {
@@ -77,8 +90,8 @@ export function WorkspaceSwitcher() {
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-1 gap-2 text-left text-sm leading-tight">
-                  <span className="truncate font-medium text-sm">
-                    {activeWorkspace?.name || "Personal"}
+                  <span className="truncate font-medium text-sm text-ellipsis">
+                    {activeWorkspace?.name}
                   </span>
                   <Badge
                     variant="outline"
@@ -115,27 +128,59 @@ export function WorkspaceSwitcher() {
             side={isMobile ? "bottom" : "right"}
             sideOffset={4}
           >
-            <DropdownMenuLabel className="text-muted-foreground text-xs">
-              Your workspaces
-            </DropdownMenuLabel>
-            {workspaceList?.map((org) => (
-              <DropdownMenuItem key={org.id}>
-                <button
-                  type="button"
-                  onClick={() => switchWorkspace(org)}
-                  className="relative flex w-full items-center gap-4"
-                >
-                  <Avatar className="size-6 rounded-[0.2rem]">
-                    <AvatarImage src={org.logo || undefined} />
-                    <AvatarFallback>{org.name.slice(0, 2)}</AvatarFallback>
-                  </Avatar>
-                  {org.name}
-                  {activeWorkspace?.id === org.id && (
-                    <Check className="text-muted-foreground absolute right-0 size-4" />
-                  )}
-                </button>
-              </DropdownMenuItem>
-            ))}
+            {ownedWorkspaces.length > 0 && (
+              <DropdownMenuGroup>
+                <DropdownMenuLabel className="text-muted-foreground text-xs">
+                  Your workspaces
+                </DropdownMenuLabel>
+                {ownedWorkspaces.map((org) => (
+                  <DropdownMenuItem key={org.id}>
+                    <button
+                      type="button"
+                      onClick={() => switchWorkspace(org)}
+                      className="relative flex w-full items-center gap-4"
+                    >
+                      <Avatar className="size-6 rounded-[0.2rem]">
+                        <AvatarImage src={org.logo || undefined} />
+                        <AvatarFallback>{org.name.slice(0, 2)}</AvatarFallback>
+                      </Avatar>
+                      {org.name}
+                      {activeWorkspace?.id === org.id && (
+                        <Check className="text-muted-foreground absolute right-0 size-4" />
+                      )}
+                    </button>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuGroup>
+            )}
+
+            {sharedWorkspaces.length > 0 && (
+              <DropdownMenuGroup>
+                {ownedWorkspaces.length > 0 && <DropdownMenuSeparator />}
+                <DropdownMenuLabel className="text-muted-foreground text-xs">
+                  Shared workspaces
+                </DropdownMenuLabel>
+                {sharedWorkspaces.map((org) => (
+                  <DropdownMenuItem key={org.id}>
+                    <button
+                      type="button"
+                      onClick={() => switchWorkspace(org)}
+                      className="relative flex w-full items-center gap-4"
+                    >
+                      <Avatar className="size-6 rounded-[0.2rem]">
+                        <AvatarImage src={org.logo || undefined} />
+                        <AvatarFallback>{org.name.slice(0, 2)}</AvatarFallback>
+                      </Avatar>
+                      {org.name}
+                      {activeWorkspace?.id === org.id && (
+                        <Check className="text-muted-foreground absolute right-0 size-4" />
+                      )}
+                    </button>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuGroup>
+            )}
+
             <DropdownMenuSeparator />
             <DropdownMenuItem>
               <button

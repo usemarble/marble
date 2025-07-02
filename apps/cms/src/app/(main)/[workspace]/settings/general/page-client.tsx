@@ -25,80 +25,70 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
+import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
+import { DeleteWorkspaceModal } from "@/components/settings/delete-workspace-modal";
 import { uploadWorkspaceLogoAction } from "@/lib/actions/media";
 import {
   checkWorkspaceSlug,
   updateWorkspaceAction,
 } from "@/lib/actions/workspace";
 import { useWorkspace } from "@/providers/workspace";
-import { DeleteWorkspaceModal } from "./delete-workspace-modal";
 
 const nameSchema = z.object({
-  name: z
-    .string()
-    .min(4, { message: "Name must be at least 4 letters" })
-    .max(32),
+  name: z.string().min(1),
 });
 
 const slugSchema = z.object({
-  slug: z
-    .string()
-    .min(4, { message: "Slug must be at least 4 letters" })
-    .max(32),
+  slug: z.string().min(1),
 });
 
-type NameData = z.infer<typeof nameSchema>;
-type SlugData = z.infer<typeof slugSchema>;
-
-interface WorkspaceFormProps {
-  id: string;
-  name: string;
-  slug: string;
-  logo: string | null | undefined;
-}
-
-function WorkspaceForm({ name, slug, id, logo }: WorkspaceFormProps) {
+function PageClient() {
   const router = useRouter();
+  const { activeWorkspace } = useWorkspace();
   const [isNameChanged, setIsNameChanged] = useState(false);
   const [isSlugChanged, setIsSlugChanged] = useState(false);
   const [idCopied, setIdCopied] = useState(false);
   const [logoCopied, setLogoCopied] = useState(false);
-  const [logoUrl, setLogoUrl] = useState(logo);
+  const [logoUrl, setLogoUrl] = useState(activeWorkspace?.logo);
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const { updateActiveWorkspace } = useWorkspace();
 
-  const nameForm = useForm<NameData>({
+  const nameForm = useForm<z.infer<typeof nameSchema>>({
     resolver: zodResolver(nameSchema),
-    defaultValues: { name: name || "" },
+    defaultValues: { name: activeWorkspace?.name || "" },
   });
 
-  const slugForm = useForm<SlugData>({
+  const slugForm = useForm<z.infer<typeof slugSchema>>({
     resolver: zodResolver(slugSchema),
-    defaultValues: { slug: slug || "" },
+    defaultValues: { slug: activeWorkspace?.slug || "" },
   });
 
   useEffect(() => {
     const nameSubscription = nameForm.watch((value) => {
-      setIsNameChanged(value.name !== name);
+      setIsNameChanged(value.name !== activeWorkspace?.name);
     });
     const slugSubscription = slugForm.watch((value) => {
-      setIsSlugChanged(value.slug !== slug);
+      setIsSlugChanged(value.slug !== activeWorkspace?.slug);
     });
 
     return () => {
       nameSubscription.unsubscribe();
       slugSubscription.unsubscribe();
     };
-  }, [nameForm.watch, slugForm.watch, name, slug]);
+  }, [
+    nameForm.watch,
+    slugForm.watch,
+    activeWorkspace?.name,
+    activeWorkspace?.slug,
+  ]);
 
-  const onNameSubmit = async (data: NameData) => {
+  const onNameSubmit = async (data: z.infer<typeof nameSchema>) => {
     try {
-      if (!id) return;
-      await updateWorkspaceAction(id, {
+      if (!activeWorkspace?.id) return;
+      await updateWorkspaceAction(activeWorkspace?.id, {
         ...data,
-        slug,
+        slug: activeWorkspace?.slug,
       });
       toast.success("Workspace name updated.", { position: "bottom-center" });
       router.refresh();
@@ -108,19 +98,22 @@ function WorkspaceForm({ name, slug, id, logo }: WorkspaceFormProps) {
     }
   };
 
-  const onSlugSubmit = async (data: SlugData) => {
-    if (!id) return;
+  const onSlugSubmit = async (data: z.infer<typeof slugSchema>) => {
+    if (!activeWorkspace?.id) return;
 
     try {
-      const slugExists = await checkWorkspaceSlug(data.slug, id);
+      const slugExists = await checkWorkspaceSlug(
+        data.slug,
+        activeWorkspace?.id,
+      );
       if (slugExists) {
         slugForm.setError("slug", { message: "Slug is already taken" });
         return;
       }
 
-      const updatedWorkspace = await updateWorkspaceAction(id, {
+      const updatedWorkspace = await updateWorkspaceAction(activeWorkspace?.id, {
         ...data,
-        name,
+        name: activeWorkspace?.name,
       });
       toast.success("Workspace slug updated.", { position: "bottom-center" });
       router.replace(`/${updatedWorkspace.slug}/settings`);
@@ -132,9 +125,9 @@ function WorkspaceForm({ name, slug, id, logo }: WorkspaceFormProps) {
   };
 
   const copyWorkspaceId = () => {
-    if (!id) return;
+    if (!activeWorkspace?.id) return;
     setIdCopied(true);
-    navigator.clipboard.writeText(id);
+    navigator.clipboard.writeText(activeWorkspace?.id);
     toast.success("ID copied to clipboard.");
     setTimeout(() => {
       setIdCopied(false);
@@ -181,7 +174,7 @@ function WorkspaceForm({ name, slug, id, logo }: WorkspaceFormProps) {
       const result = await uploadWorkspaceLogoAction(compressedFile);
 
       setLogoUrl(result.logoUrl);
-      updateActiveWorkspace(slug, { logo: result.logoUrl });
+      updateActiveWorkspace(activeWorkspace?.slug!, { logo: result.logoUrl });
 
       setIsUploading(false);
       toast.success("Uploaded complete", {
@@ -209,7 +202,7 @@ function WorkspaceForm({ name, slug, id, logo }: WorkspaceFormProps) {
   }, [file]);
 
   return (
-    <div className="flex flex-col gap-6">
+    <WorkspacePageWrapper className="flex flex-col gap-8 py-12">
       <Card>
         <CardHeader>
           <CardTitle className="text-lg font-medium">Workspace Name</CardTitle>
@@ -380,7 +373,7 @@ function WorkspaceForm({ name, slug, id, logo }: WorkspaceFormProps) {
               <Label htmlFor="link" className="sr-only">
                 Link
               </Label>
-              <Input id="link" defaultValue={id} readOnly />
+              <Input id="link" defaultValue={activeWorkspace?.id} readOnly />
             </div>
             <Button
               variant="outline"
@@ -411,11 +404,11 @@ function WorkspaceForm({ name, slug, id, logo }: WorkspaceFormProps) {
           </CardDescription>
         </CardHeader>
         <CardFooter className="justify-end">
-          <DeleteWorkspaceModal id={id} />
+          <DeleteWorkspaceModal id={activeWorkspace?.id! } />
         </CardFooter>
       </Card>
-    </div>
+    </WorkspacePageWrapper>
   );
 }
 
-export default WorkspaceForm;
+export default PageClient;

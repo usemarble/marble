@@ -2,7 +2,11 @@
 
 import { useParams, usePathname } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
-import { organization, useListOrganizations } from "@/lib/auth/client";
+import {
+  useUserWorkspaces,
+  type WorkspaceWithRole,
+} from "@/hooks/use-user-workspace";
+import { organization } from "@/lib/auth/client";
 import type { ActiveOrganization } from "@/lib/auth/types";
 import { request } from "@/utils/fetch/client";
 import { setLastVisitedWorkspace } from "@/utils/workspace";
@@ -33,15 +37,24 @@ interface WorkspaceContextType {
           id: string;
           status: string;
           plan: string;
+          currentPeriodStart: string | Date;
+          currentPeriodEnd: string | Date;
+          cancelAtPeriodEnd: boolean;
+          canceledAt?: string | Date | null;
         } | null;
+        currentUserRole?: string | null;
       })
     | null;
   updateActiveWorkspace: (
     workspaceSlug: string,
     newWorkspace?: Partial<PartialWorkspace>,
   ) => Promise<void>;
-  workspaceList: ReturnType<typeof useListOrganizations>["data"];
+  workspaceList: WorkspaceWithRole[] | null;
   isLoading: boolean;
+  isOwner: boolean;
+  isAdmin: boolean;
+  isMember: boolean;
+  currentUserRole: string | null;
 }
 
 const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
@@ -63,7 +76,7 @@ export function WorkspaceProvider({
   const [activeWorkspace, setActiveWorkspace] =
     useState<WorkspaceContextType["activeWorkspace"]>(initialWorkspace);
   const [isLoading, setIsLoading] = useState(false);
-  const organizations = useListOrganizations();
+  const workspaces = useUserWorkspaces();
 
   async function updateActiveWorkspace(
     workspaceSlug: string,
@@ -125,13 +138,22 @@ export function WorkspaceProvider({
     }
   }, [pathname, params.workspace]);
 
+  const isOwner = activeWorkspace?.currentUserRole === "owner";
+  const isAdmin = activeWorkspace?.currentUserRole === "admin";
+  const isMember = activeWorkspace?.currentUserRole === "member";
+  const currentUserRole = activeWorkspace?.currentUserRole || null;
+
   return (
     <WorkspaceContext.Provider
       value={{
         activeWorkspace,
         updateActiveWorkspace,
         isLoading,
-        workspaceList: organizations.data,
+        workspaceList: workspaces.data,
+        isOwner,
+        isAdmin,
+        isMember,
+        currentUserRole,
       }}
     >
       {children}

@@ -4,7 +4,7 @@ import { Button } from "@marble/ui/components/button";
 import { Image } from "@phosphor-icons/react";
 import { Trash2, UploadCloud } from "lucide-react";
 import { useState } from "react";
-import WorkspaceWrapper from "@/components/layout/workspace-wrapper";
+import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
 import { DeleteMediaModal } from "@/components/media/delete-modal";
 import { MediaUploadModal } from "@/components/media/upload-modal";
 
@@ -26,7 +26,7 @@ function PageClient({ media }: PageClientProps) {
 
   return (
     <>
-      <WorkspaceWrapper className="flex flex-col pt-10 pb-16 gap-8">
+      <WorkspacePageWrapper className="flex flex-col pt-10 pb-16 gap-8">
         <section className="flex justify-between items-center">
           <div />
           <Button size="sm" onClick={() => setShowUploadModal(true)}>
@@ -77,7 +77,7 @@ function PageClient({ media }: PageClientProps) {
             </div>
           </div>
         )}
-      </WorkspaceWrapper>
+      </WorkspacePageWrapper>
       <MediaUploadModal
         isOpen={showUploadModal}
         setIsOpen={setShowUploadModal}

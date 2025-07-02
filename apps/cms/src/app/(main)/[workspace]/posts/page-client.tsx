@@ -4,7 +4,7 @@ import { buttonVariants } from "@marble/ui/components/button";
 import { Folder } from "@phosphor-icons/react";
 import { Plus } from "lucide-react";
 import Link from "next/link";
-import WorkspaceWrapper from "@/components/layout/workspace-wrapper";
+import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
 import { columns, type Post } from "@/components/posts/columns";
 import { PostDataTable } from "@/components/posts/data-table";
 
@@ -14,7 +14,7 @@ interface PageClientProps {
 
 function PageClient({ posts }: PageClientProps) {
   return (
-    <WorkspaceWrapper className="h-full flex flex-col max-w-4xl mx-auto py-16">
+    <WorkspacePageWrapper className="h-full flex flex-col max-w-4xl mx-auto py-16">
       {posts.length > 0 ? (
         <PostDataTable columns={columns} data={posts} />
       ) : (
@@ -36,7 +36,7 @@ function PageClient({ posts }: PageClientProps) {
           </div>
         </div>
       )}
-    </WorkspaceWrapper>
+    </WorkspacePageWrapper>
   );
 }
 

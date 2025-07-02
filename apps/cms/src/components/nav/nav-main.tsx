@@ -1,10 +1,19 @@
 "use client";
 
 import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@marble/ui/components/collapsible";
+import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
 } from "@marble/ui/components/sidebar";
 import {
   Faders,
@@ -45,11 +54,21 @@ const items = [
     url: "team",
     icon: UsersThree,
   },
+];
+
+const settingsItems = [
   {
-    name: "Settings",
-    url: "settings",
-    icon: Faders,
+    title: "General",
+    url: "settings/general",
   },
+  {
+    title: "Billing",
+    url: "settings/billing",
+  },
+  // {
+  //   title: "Data",
+  //   url: "settings/data",
+  // },
 ];
 
 export function NavMain() {
@@ -61,6 +80,7 @@ export function NavMain() {
   };
 
   const isOverviewActive = pathname === `/${params.workspace}`;
+  const isSettingsActive = pathname.startsWith(`/${params.workspace}/settings`);
 
   return (
     <SidebarGroup>
@@ -95,6 +115,49 @@ export function NavMain() {
             </Link>
           </SidebarMenuButton>
         ))}
+        <Collapsible
+          asChild
+          open={isSettingsActive}
+          className="group/collapsible"
+        >
+          <SidebarMenuItem>
+            <Link href={`/${params.workspace}/settings/general`}>
+              <CollapsibleTrigger asChild>
+                <SidebarMenuButton
+                  tooltip="Settings"
+                  className={`border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
+                    isSettingsActive
+                      ? "bg-sidebar-accent border-border text-foreground shadow-sm"
+                      : "hover:text-accent-foreground"
+                  }`}
+                >
+                  <Faders />
+                  <span>Settings</span>
+                </SidebarMenuButton>
+              </CollapsibleTrigger>
+            </Link>
+            <CollapsibleContent>
+              <SidebarMenuSub>
+                {settingsItems.map((subItem) => (
+                  <SidebarMenuSubItem key={subItem.title}>
+                    <SidebarMenuSubButton
+                      asChild
+                      className={
+                        isActive(subItem.url)
+                          ? "text-foreground"
+                          : "text-muted-foreground"
+                      }
+                    >
+                      <Link href={`/${params.workspace}/${subItem.url}`}>
+                        <span>{subItem.title}</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                ))}
+              </SidebarMenuSub>
+            </CollapsibleContent>
+          </SidebarMenuItem>
+        </Collapsible>
       </SidebarMenu>
     </SidebarGroup>
   );

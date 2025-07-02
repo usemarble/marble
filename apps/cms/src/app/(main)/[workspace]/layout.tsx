@@ -4,9 +4,19 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@marble/ui/components/sidebar";
+import type { Metadata } from "next";
 import { Announcements } from "@/components/nav/announcements";
 import AppBreadcrumb from "@/components/nav/app-breadcrumb";
 import { AppSidebar } from "@/components/nav/app-sidebar";
+import type { ActiveOrganization } from "@/lib/auth/types";
+import { request } from "@/utils/fetch/client";
+
+const getWorkspaceData = async (workspace: string) => {
+  const res = await request<ActiveOrganization | null>(
+    `workspaces/${workspace}`,
+  );
+  return res.data;
+};
 
 // export async function generateMetadata({
 //   params,
@@ -14,12 +24,11 @@ import { AppSidebar } from "@/components/nav/app-sidebar";
 //   params: Promise<{ workspace: string }>;
 // }): Promise<Metadata> {
 //   const { workspace } = await params;
-//   const res = await fetch(`/api/workspaces/${workspace}`);
-//   const data: ActiveOrganization | null = await res.json();
+//   const data = await getWorkspaceData(workspace);
 //   return {
 //     title: {
 //       template: `%s | ${data?.name} | Marble`,
-//       default: data?.name || "",
+//       default: data?.name ?? "",
 //     },
 //   };
 // }
