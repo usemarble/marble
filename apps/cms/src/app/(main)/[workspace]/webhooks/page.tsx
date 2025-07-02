@@ -1,26 +1,44 @@
-import { Button } from "@marble/ui/components/button";
-import { WebhookIcon } from "lucide-react";
-import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
+import { db } from "@marble/db";
+import { notFound } from "next/navigation";
+import { PageClient } from "./page-client";
 
-function Page() {
-  return (
-    <WorkspacePageWrapper className="h-full grid place-content-center">
-      <div className="flex flex-col gap-4 items-center max-w-80">
-        <div className="p-2 border">
-          <WebhookIcon className="size-16 stroke-[1px]" />
-        </div>
-        <div className="text-center flex flex-col gap-4 items-center">
-          <p className="text-muted-foreground text-sm">
-            Webhooks allow you perform actions on your server when certain
-            events occur in your workspace.
-          </p>
-          <Button size="sm" disabled className="w-fit">
-            <span>Create a Webhook</span>
-          </Button>
-        </div>
-      </div>
-    </WorkspacePageWrapper>
-  );
+export const metadata = {
+  title: "Webhooks",
+  description: "Create webhooks to receive events from your workspace.",
+};
+
+interface PageProps {
+  params: Promise<{ workspace: string }>;
+}
+
+async function Page({ params }: PageProps) {
+  const { workspace } = await params;
+
+  const workspaceToShow = await db.organization.findUnique({
+    where: { slug: workspace },
+    select: { id: true },
+  });
+
+  if (!workspaceToShow) {
+    return notFound();
+  }
+
+  const webhooks = await db.webhook.findMany({
+    where: { workspaceId: workspaceToShow.id },
+    select: {
+      id: true,
+      name: true,
+      endpoint: true,
+      events: true,
+      enabled: true,
+      format: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return <PageClient webhooks={webhooks} />;
 }
 
 export default Page;

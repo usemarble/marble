@@ -1,6 +1,11 @@
 import { Button } from "@marble/ui/components/button";
 import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
 
+export const metadata = {
+  title: "API Keys",
+  description: "Manage your API keys",
+};
+
 function Page() {
   return (
     <WorkspacePageWrapper className="h-full grid place-content-center">

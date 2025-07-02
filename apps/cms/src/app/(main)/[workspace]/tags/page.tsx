@@ -3,6 +3,11 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth/auth";
 import PageClient from "./page-client";
 
+export const metadata = {
+  title: "Tags",
+  description: "Manage your tags",
+};
+
 async function Page() {
   const workspace = await auth.api.getFullOrganization({
     headers: await headers(),

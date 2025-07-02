@@ -126,16 +126,17 @@ model Category {
 }
 
 model Webhook {
-  id          String       @id @default(cuid())
+  id          String         @id @default(cuid())
   name        String
   endpoint    String
-  event       WebhookEvent
+  events      WebhookEvent[]
   secret      String
-  enabled     Boolean      @default(true)
+  format      PayloadFormat  @default(JSON)
+  enabled     Boolean        @default(true)
   workspaceId String
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  workspace   Organization   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@map("webhook")
 }
@@ -250,5 +251,19 @@ enum SubscriptionStatus {
 
 enum WebhookEvent {
   post_published
+  post_updated
   post_deleted
+  category_created
+  category_updated
+  category_deleted
+  tag_created
+  tag_updated
+  tag_deleted
+  media_uploaded
+  media_deleted
+}
+
+enum PayloadFormat {
+  JSON
+  FORM_ENCODED
 }

@@ -1,3 +1,5 @@
+import { randomBytes } from "node:crypto";
+
 export function generateSlug(text: string) {
   const slug = text
     .trim() // Remove leading and trailing spaces
@@ -8,3 +10,10 @@ export function generateSlug(text: string) {
 
   return slug;
 }
+
+/**
+ * Generate a secure webhook secret
+ */
+export const generateWebhookSecret = (): string => {
+  return randomBytes(32).toString("hex");
+};
