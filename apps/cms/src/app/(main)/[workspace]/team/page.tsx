@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description: "Manage your team members",
 };
 
-async function Page({ params }: { params: Promise<{ workspace: string }> }) {
+async function Page() {
   const [session, organization] = await Promise.all([
     auth.api.getSession({
       headers: await headers(),

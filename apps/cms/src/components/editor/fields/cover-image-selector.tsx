@@ -165,6 +165,7 @@ export function CoverImageSelector({
     if (coverImage) {
       return (
         <div className="relative w-full h-48">
+          {/* biome-ignore lint/performance/noImgElement: <> */}
           <img
             src={coverImage}
             alt="cover"
@@ -199,6 +200,7 @@ export function CoverImageSelector({
           {file ? (
             <div className="flex flex-col gap-4">
               <div className="relative w-full h-48">
+                {/* biome-ignore lint/performance/noImgElement: <> */}
                 <img
                   src={URL.createObjectURL(file)}
                   alt="cover preview"
@@ -311,6 +313,7 @@ export function CoverImageSelector({
                     className="flex-none group relative"
                   >
                     <div className="w-32 h-26 aspect-video rounded-md overflow-hidden border">
+                      {/* biome-ignore lint/performance/noImgElement: <> */}
                       <img
                         src={item.url}
                         alt={item.name}

@@ -107,9 +107,7 @@ export const columns: ColumnDef<TeamMemberRow>[] = [
   },
   {
     id: "actions",
-    header: ({ column }) => (
-      <div className="flex justify-end pr-10">Actions</div>
-    ),
+    header: () => <div className="flex justify-end pr-10">Actions</div>,
     // Pass the context including the row data and the additional props
     cell: ({ row, table }) => {
       // Access props passed to DataTable via table options meta

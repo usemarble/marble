@@ -59,9 +59,7 @@ export const columns: ColumnDef<Post>[] = [
   },
   {
     id: "actions",
-    header: ({ column }) => (
-      <div className="flex justify-end pr-10">Actions</div>
-    ),
+    header: () => <div className="flex justify-end pr-10">Actions</div>,
     cell: ({ row }) => {
       const post = row.original;
 

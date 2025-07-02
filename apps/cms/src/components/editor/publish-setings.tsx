@@ -49,24 +49,6 @@ interface PublishSettingsProps {
   mode?: "create" | "update";
 }
 
-interface TagAndCategoryResponse {
-  id: string;
-  name: string;
-  slug: string;
-}
-
-interface MediaResponse {
-  id: string;
-  name: string;
-  url: string;
-}
-
-interface AuthorResponse {
-  id: string;
-  name: string;
-  image: string;
-}
-
 export function PublishSettings({
   control,
   register,

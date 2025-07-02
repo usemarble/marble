@@ -114,6 +114,7 @@ export function MediaUploadModal({
           {file ? (
             <div className="flex flex-col gap-4">
               <div className="relative w-full h-full">
+                {/* biome-ignore lint/performance/noImgElement: <> */}
                 <img
                   src={URL.createObjectURL(file)}
                   alt="cover"

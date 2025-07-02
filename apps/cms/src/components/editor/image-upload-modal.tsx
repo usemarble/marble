@@ -166,6 +166,7 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
                 {file ? (
                   <div className="flex flex-col gap-4">
                     <div className="relative w-full h-full">
+                      {/* biome-ignore lint/performance/noImgElement: <> */}
                       <img
                         src={URL.createObjectURL(file)}
                         alt="cover"
@@ -256,6 +257,7 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
                           type="button"
                           onClick={() => handleEmbed(item.url)}
                         >
+                          {/* biome-ignore lint/performance/noImgElement: <> */}
                           <img
                             src={item.url}
                             alt={item.name}

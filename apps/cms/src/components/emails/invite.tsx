@@ -32,7 +32,6 @@ export const InviteUserEmail = ({
   inviteeEmail,
   userImage,
   invitedByUsername,
-  invitedByEmail,
   teamName,
   teamImage,
   inviteLink,

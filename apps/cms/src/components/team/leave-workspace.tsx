@@ -16,7 +16,7 @@ import { useWorkspace } from "../../providers/workspace";
 import { ButtonLoader } from "../ui/loader";
 
 interface ListOrganizationResponse {
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  // biome-ignore lint/suspicious/noExplicitAny: <>
   metadata?: any;
   name: string;
   slug: string;

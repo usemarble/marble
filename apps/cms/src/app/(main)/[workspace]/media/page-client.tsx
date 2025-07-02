@@ -53,6 +53,7 @@ function PageClient({ media }: PageClientProps) {
                   <span className="sr-only">delete image</span>
                 </button>
                 <div className="">
+                  {/* biome-ignore lint/performance/noImgElement: <> */}
                   <img
                     src={media.url}
                     alt={media.name}

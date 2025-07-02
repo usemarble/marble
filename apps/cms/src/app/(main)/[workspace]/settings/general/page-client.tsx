@@ -178,7 +178,9 @@ function PageClient() {
       const result = await uploadWorkspaceLogoAction(compressedFile);
 
       setLogoUrl(result.logoUrl);
-      updateActiveWorkspace(activeWorkspace?.slug!, { logo: result.logoUrl });
+      updateActiveWorkspace(activeWorkspace?.slug as string, {
+        logo: result.logoUrl,
+      });
 
       setIsUploading(false);
       toast.success("Uploaded complete", {
@@ -416,7 +418,9 @@ function PageClient() {
           </CardDescription>
         </CardHeader>
         <CardFooter className="justify-end">
-          {isOwner && <DeleteWorkspaceModal id={activeWorkspace?.id!} />}
+          {isOwner && (
+            <DeleteWorkspaceModal id={activeWorkspace?.id as string} />
+          )}
         </CardFooter>
       </Card>
     </WorkspacePageWrapper>

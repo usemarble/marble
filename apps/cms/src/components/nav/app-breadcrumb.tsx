@@ -10,7 +10,6 @@ import {
 } from "@marble/ui/components/breadcrumb";
 import { usePathname } from "next/navigation";
 import React from "react";
-import { useWorkspace } from "../../providers/workspace";
 
 const formatSegment = (segment: string) => {
   return segment
@@ -23,8 +22,6 @@ const formatSegment = (segment: string) => {
 export default function AppBreadcrumb() {
   const pathname = usePathname();
   const segments = pathname.split("/").filter(Boolean);
-
-  const { activeWorkspace } = useWorkspace();
 
   if (segments.length === 0) {
     return (

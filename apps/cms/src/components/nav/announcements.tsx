@@ -8,13 +8,7 @@ import {
 } from "@marble/ui/components/dropdown-menu";
 import { BellRinging } from "@phosphor-icons/react";
 
-interface AnnouncementProps {
-  title?: string;
-  description?: string;
-  date?: string;
-}
-
-export function Announcements({ title, description, date }: AnnouncementProps) {
+export function Announcements() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

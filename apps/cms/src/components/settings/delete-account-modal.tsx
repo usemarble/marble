@@ -13,7 +13,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ButtonLoader } from "../ui/loader";
 
-export function DeleteAccountModal({ id }: { id: string }) {
+export function DeleteAccountModal() {
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const _router = useRouter();
 

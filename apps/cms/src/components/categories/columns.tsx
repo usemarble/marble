@@ -20,9 +20,7 @@ export const columns: ColumnDef<Category>[] = [
   },
   {
     id: "actions",
-    header: ({ column }) => (
-      <div className="flex justify-end pr-10">Actions</div>
-    ),
+    header: () => <div className="flex justify-end pr-10">Actions</div>,
     cell: ({ row }) => {
       const tag = row.original;
 

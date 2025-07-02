@@ -443,7 +443,7 @@ export default function PageClient({
             </CardDescription>
           </CardHeader>
           <CardFooter className="justify-end py-4 border-t">
-            <DeleteAccountModal id={userDetails.id} />
+            <DeleteAccountModal />
           </CardFooter>
         </Card>
       </div>

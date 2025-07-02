@@ -60,6 +60,7 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
         </Button>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-60 p-0" sideOffset={10}>
+        {/* biome-ignore lint/a11y/noStaticElementInteractions: <> */}
         <div
           onKeyDown={(e) => {
             if (e.key === "Enter") {

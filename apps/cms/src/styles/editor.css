@@ -138,11 +138,13 @@ ul[data-type="taskList"] li[data-checked="true"] > div > p {
   z-index: 50;
   cursor: grab;
 
+  /* biome-ignore lint/style/noDescendingSpecificity: <> */
   &:hover {
     background-color: var(--novel-stone-100);
     transition: background-color 0.2s;
   }
 
+  /* biome-ignore lint/style/noDescendingSpecificity: <> */
   &:active {
     background-color: var(--novel-stone-200);
     transition: background-color 0.2s;

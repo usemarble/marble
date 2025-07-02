@@ -66,7 +66,7 @@ export function EditorSidebar({
 }: EditorSidebarProps) {
   const { open } = useSidebar();
   const hasErrors = Object.keys(errors).length > 0;
-  const { status, tags, authors: initialAuthors } = watch();
+  const { tags, authors: initialAuthors } = watch();
   const { hasUnsavedChanges } = useUnsavedChanges();
 
   // Trigger form submit
