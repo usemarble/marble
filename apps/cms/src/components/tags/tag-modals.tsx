@@ -3,7 +3,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -21,7 +20,6 @@ import {
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
-import { Loader } from "@marble/ui/lib/icons";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
@@ -96,7 +94,7 @@ export function CreateTagModal({
       } else {
         toast.error("Failed to create tag");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Something went wrong");
     }
   };
@@ -193,7 +191,7 @@ export const UpdateTagModal = ({
         setOpen(false);
         toast.success("Tag updated successfully");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to update tag");
     }
   };
@@ -256,7 +254,7 @@ export const DeleteTagModal = ({
     try {
       await deleteTagAction(id);
       toast.success("Tag deleted successfully");
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to delete tag.");
     } finally {
       setLoading(false);

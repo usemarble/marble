@@ -9,7 +9,6 @@ import {
   useSidebar,
 } from "@marble/ui/components/sidebar";
 import { toast } from "@marble/ui/components/sonner";
-import { Loader2 } from "@marble/ui/lib/icons";
 import { cn } from "@marble/ui/lib/utils";
 import type {
   Control,

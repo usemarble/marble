@@ -4,14 +4,13 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@marble/ui/components/sidebar";
-import type { Metadata } from "next";
 import { Announcements } from "@/components/nav/announcements";
 import AppBreadcrumb from "@/components/nav/app-breadcrumb";
 import { AppSidebar } from "@/components/nav/app-sidebar";
 import type { ActiveOrganization } from "@/lib/auth/types";
 import { request } from "@/utils/fetch/client";
 
-const getWorkspaceData = async (workspace: string) => {
+const _getWorkspaceData = async (workspace: string) => {
   const res = await request<ActiveOrganization | null>(
     `workspaces/${workspace}`,
   );

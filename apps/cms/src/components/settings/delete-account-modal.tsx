@@ -9,15 +9,13 @@ import {
   AlertDialogTrigger,
 } from "@marble/ui/components/alert-dialog";
 import { Button } from "@marble/ui/components/button";
-import { toast } from "@marble/ui/components/sonner";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { deleteAccountAction } from "@/lib/actions/account";
 import { ButtonLoader } from "../ui/loader";
 
 export function DeleteAccountModal({ id }: { id: string }) {
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
-  const router = useRouter();
+  const _router = useRouter();
 
   const handleDeleteAccount = async () => {
     setIsDeletingAccount(true);

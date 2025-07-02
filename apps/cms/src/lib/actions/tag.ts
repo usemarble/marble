@@ -56,7 +56,7 @@ export async function createTagAction(
     });
 
     return tag;
-  } catch (error) {
+  } catch (_error) {
     throw new Error("Failed to create tag");
   }
 }

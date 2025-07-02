@@ -1,5 +1,4 @@
 import { cn } from "@marble/ui/lib/utils";
-import { forwardRef } from "react";
 
 interface ErrorMessageProps
   extends React.HTMLAttributes<HTMLParagraphElement> {}

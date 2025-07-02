@@ -400,7 +400,7 @@ app.get("/:workspaceId/posts/:slug", async (c) => {
     }
 
     return c.json({ post });
-  } catch (error) {
+  } catch (_error) {
     return c.json({ error: "Failed to fetch post" }, 500);
   }
 });
@@ -484,7 +484,7 @@ app.get("/:workspaceId/authors", async (c) => {
         totalItems: totalAuthors,
       },
     });
-  } catch (error) {
+  } catch (_error) {
     return c.json({ error: "Failed to fetch authors" }, 500);
   }
 });
@@ -515,7 +515,7 @@ app.get("/:workspaceId/authors/:id", async (c) => {
     }
 
     return c.json(author);
-  } catch (error) {
+  } catch (_error) {
     return c.json({ error: "Failed to fetch author" }, 500);
   }
 });

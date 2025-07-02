@@ -146,7 +146,7 @@ const CountryDropdownComponent = (
             <CommandGroup>
               {options
                 .filter((x) => x.name)
-                .map((option, key: number) => (
+                .map((option, _key: number) => (
                   <CommandItem
                     className="flex items-center w-full gap-2"
                     key={crypto.randomUUID()}

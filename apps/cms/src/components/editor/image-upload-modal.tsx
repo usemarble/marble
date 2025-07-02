@@ -59,7 +59,7 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
         setIsValidatingUrl(false);
       };
       img.src = url;
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to embed image");
       setIsValidatingUrl(false);
     }

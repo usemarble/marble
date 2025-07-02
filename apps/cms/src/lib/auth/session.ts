@@ -7,7 +7,7 @@ async function getServerSession() {
       headers: await headers(),
     });
     return session;
-  } catch (error) {
+  } catch (_error) {
     return null;
   }
 }

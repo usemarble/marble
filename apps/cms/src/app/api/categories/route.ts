@@ -1,9 +1,6 @@
 import { db } from "@marble/db";
-import { headers } from "next/headers";
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth/auth";
 import getServerSession from "@/lib/auth/session";
-import { getActiveOrganization } from "@/lib/queries/workspace";
 
 export async function GET() {
   const session = await getServerSession();

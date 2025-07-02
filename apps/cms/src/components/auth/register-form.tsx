@@ -40,7 +40,7 @@ export function RegisterForm() {
         email: email,
         type: "email-verification",
       })
-      .then((res) => {
+      .then((_res) => {
         startTransition(() => {
           router.push(`/verify?email=${email}&from=${callbackUrl}`);
         });
@@ -67,7 +67,7 @@ export function RegisterForm() {
           },
         },
       );
-    } catch (error) {
+    } catch (_error) {
       toast.error("Sign in failed. Please try again.");
     } finally {
       setIsCredentialsLoading(false);
@@ -82,7 +82,7 @@ export function RegisterForm() {
         provider,
         callbackURL: callbackUrl,
       });
-    } catch (error) {
+    } catch (_error) {
       return toast("Your sign in request failed. Please try again.");
     } finally {
       provider === "google"

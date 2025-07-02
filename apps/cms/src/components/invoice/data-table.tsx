@@ -1,6 +1,5 @@
 "use client";
 
-import { Input } from "@marble/ui/components/input";
 import {
   Table,
   TableBody,
@@ -18,7 +17,6 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { SearchIcon, XIcon } from "lucide-react";
 import { useState } from "react";
 
 interface DataTableProps<TData, TValue> {
@@ -30,7 +28,7 @@ export function InvoiceDataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [sorting, _setSorting] = useState<SortingState>([]);
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 

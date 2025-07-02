@@ -81,7 +81,7 @@ export const CreateWorkspaceModal = ({
         setOpen(false);
         router.push(`/${response.data.slug}`);
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to create workspace");
     }
   };

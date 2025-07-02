@@ -1,4 +1,3 @@
-import { LucideProps } from "lucide-react";
 import { motion, useAnimation } from "motion/react";
 
 const LayoutPanelTopIcon = () => {

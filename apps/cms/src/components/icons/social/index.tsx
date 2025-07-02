@@ -1,5 +1,4 @@
 import type { SVGProps } from "react";
-import * as React from "react";
 
 interface SocialIconProps extends SVGProps<SVGSVGElement> {}
 

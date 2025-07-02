@@ -45,7 +45,7 @@ export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
         email: email,
         type: "email-verification",
       });
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to resend code");
     } finally {
       setWaitingSeconds(30);

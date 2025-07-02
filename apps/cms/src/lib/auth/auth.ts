@@ -148,7 +148,7 @@ export const auth = betterAuth({
                 activeOrganizationId: organization?.id || null,
               },
             };
-          } catch (error) {
+          } catch (_error) {
             // If there's an error, create the session without an active org
             return { data: session };
           }

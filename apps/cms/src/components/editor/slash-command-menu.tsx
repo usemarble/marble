@@ -13,7 +13,7 @@ import { YoutubeEmbedModal } from "./youtube-embed-modal";
 function SlashCommandMenu() {
   const [showImageModal, setShowImageModal] = useState(false);
   const [showYoutubeModal, setShowYoutubeModal] = useState(false);
-  const editor = useEditor();
+  const _editor = useEditor();
 
   return (
     <>

@@ -6,7 +6,6 @@ import { Switch } from "@marble/ui/components/switch";
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { InfoIcon } from "@marble/ui/lib/icons";

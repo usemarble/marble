@@ -65,7 +65,7 @@ export default function TableActions(props: TableActionsProps) {
             });
             setIsResendingInvite(false);
           },
-          onError: (ctx) => {
+          onError: (_ctx) => {
             toast.error("Failed to resend invite", {
               id: "resend-invite",
             });
@@ -88,13 +88,13 @@ export default function TableActions(props: TableActionsProps) {
       await organization.cancelInvitation({
         invitationId: inviteId,
         fetchOptions: {
-          onSuccess: (ctx) => {
+          onSuccess: (_ctx) => {
             toast.success("Invitation canceled", {
               id: "cancel-invite",
             });
             setIsCancelingInvite(false);
           },
-          onError: (ctx) => {
+          onError: (_ctx) => {
             toast.error("Failed to cancel invitation", {
               id: "cancel-invite",
             });

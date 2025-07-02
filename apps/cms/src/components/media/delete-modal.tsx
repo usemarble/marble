@@ -10,7 +10,7 @@ import {
 import { Button } from "@marble/ui/components/button";
 import { toast } from "@marble/ui/components/sonner";
 import { Loader2 } from "lucide-react";
-import React, { useState } from "react";
+import { useState } from "react";
 import { deleteMediaAction } from "@/lib/actions/media";
 
 interface DeleteMediaModalProps {

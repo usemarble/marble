@@ -2,7 +2,6 @@
 
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -49,7 +48,7 @@ export function RemoveMemberModal({
           },
         },
       });
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to remove member", {
         id: "remove-member",
       });

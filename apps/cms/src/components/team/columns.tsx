@@ -66,14 +66,14 @@ export const columns: ColumnDef<TeamMemberRow>[] = [
       type DisplayStatus = InvitationStatus | "expired";
 
       let displayStatus: DisplayStatus = item.status;
-      let isExpired = false;
+      let _isExpired = false;
       if (
         item.status === "pending" &&
         item.expiresAt &&
         isBefore(new Date(item.expiresAt), new Date())
       ) {
         displayStatus = "expired";
-        isExpired = true;
+        _isExpired = true;
       }
 
       if (displayStatus === "accepted") return null;

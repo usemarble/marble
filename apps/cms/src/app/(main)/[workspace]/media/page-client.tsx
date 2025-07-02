@@ -81,7 +81,7 @@ function PageClient({ media }: PageClientProps) {
       <MediaUploadModal
         isOpen={showUploadModal}
         setIsOpen={setShowUploadModal}
-        onUploadComplete={(url: string, media?: Media) => {
+        onUploadComplete={(_url: string, media?: Media) => {
           if (media) {
             setOptimisticMedia([...optimisticMedia, media]);
           }

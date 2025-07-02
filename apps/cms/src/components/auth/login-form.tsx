@@ -41,7 +41,7 @@ export function LoginForm() {
           password: data.password,
         },
         {
-          onSuccess: (ctx) => {
+          onSuccess: (_ctx) => {
             toast.success("Welcome!");
             router.push(callbackUrl);
           },
@@ -52,7 +52,7 @@ export function LoginForm() {
           },
         },
       );
-    } catch (error) {
+    } catch (_error) {
       return toast("Request failed. Please try again.");
     } finally {
       setIsCredentialsLoading(false);
@@ -67,7 +67,7 @@ export function LoginForm() {
         provider,
         callbackURL: searchParams?.get("from") || "/",
       });
-    } catch (error) {
+    } catch (_error) {
       return toast("Sign in failed. Please try again.");
     } finally {
       provider === "google"

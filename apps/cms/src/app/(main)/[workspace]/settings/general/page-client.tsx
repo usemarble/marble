@@ -94,7 +94,7 @@ function PageClient() {
       toast.success("Workspace name updated.", { position: "bottom-center" });
       router.refresh();
       setIsNameChanged(false);
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to update.", { position: "bottom-center" });
     }
   };
@@ -123,7 +123,7 @@ function PageClient() {
       router.replace(`/${updatedWorkspace.slug}/settings`);
       router.refresh();
       setIsSlugChanged(false);
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to update.", { position: "bottom-center" });
     }
   };

@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, buttonVariants } from "@marble/ui/components/button";
+import { buttonVariants } from "@marble/ui/components/button";
 import { Input } from "@marble/ui/components/input";
 import {
   Table,
@@ -33,8 +33,8 @@ export function PostDataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const router = useRouter();
+  const [sorting, _setSorting] = useState<SortingState>([]);
+  const _router = useRouter();
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 

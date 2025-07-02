@@ -1,5 +1,4 @@
 import { EditorBubble } from "novel";
-import React from "react";
 import { LinkSelector } from "./link-selector";
 import { TextButtons } from "./text-buttons";
 

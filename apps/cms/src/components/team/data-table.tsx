@@ -24,7 +24,7 @@ import {
   getFilteredRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { MailPlus, PlusIcon, SearchIcon, XIcon } from "lucide-react";
+import { PlusIcon, SearchIcon, XIcon } from "lucide-react";
 import { useState } from "react";
 
 // Define the roles explicitly if not already imported

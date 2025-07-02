@@ -1,5 +1,4 @@
-import { db } from "@marble/db";
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import getServerSession from "@/lib/auth/session";
 import PageClient from "./page-client";
 

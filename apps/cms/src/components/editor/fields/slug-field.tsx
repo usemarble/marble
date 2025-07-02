@@ -5,7 +5,6 @@ import { Label } from "@marble/ui/components/label";
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { InfoIcon } from "@marble/ui/lib/icons";

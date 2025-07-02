@@ -16,7 +16,7 @@ import {
 } from "@marble/ui/components/dropdown-menu";
 import { useSidebar } from "@marble/ui/components/sidebar";
 import { Skeleton } from "@marble/ui/components/skeleton";
-import { CreditCard, SignOut, User } from "@phosphor-icons/react";
+import { SignOut, User } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth/client";

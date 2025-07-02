@@ -96,7 +96,7 @@ export const CreateCategoryModal = ({
           onCategoryCreated(res);
         }
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to create category");
     }
   };
@@ -196,7 +196,7 @@ export const UpdateCategoryModal = ({
         setOpen(false);
         toast.success("Category updated successfully");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to update category");
     }
   };
@@ -261,7 +261,7 @@ export const DeleteCategoryModal = ({
       await deleteCategoryAction(id);
       toast.success("Category deleted successfully");
       setOpen(false);
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to delete category.");
       setLoading(false);
     }
