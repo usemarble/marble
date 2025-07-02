@@ -111,10 +111,13 @@ function PageClient() {
         return;
       }
 
-      const updatedWorkspace = await updateWorkspaceAction(activeWorkspace?.id, {
-        ...data,
-        name: activeWorkspace?.name,
-      });
+      const updatedWorkspace = await updateWorkspaceAction(
+        activeWorkspace?.id,
+        {
+          ...data,
+          name: activeWorkspace?.name,
+        },
+      );
       toast.success("Workspace slug updated.", { position: "bottom-center" });
       router.replace(`/${updatedWorkspace.slug}/settings`);
       router.refresh();
@@ -404,7 +407,7 @@ function PageClient() {
           </CardDescription>
         </CardHeader>
         <CardFooter className="justify-end">
-          <DeleteWorkspaceModal id={activeWorkspace?.id! } />
+          <DeleteWorkspaceModal id={activeWorkspace?.id!} />
         </CardFooter>
       </Card>
     </WorkspacePageWrapper>

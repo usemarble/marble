@@ -40,8 +40,7 @@ export const invoiceTableColumns: ColumnDef<Invoice>[] = [
           className={cn("rounded-[6px] w-full text-center justify-center", {
             "bg-emerald-50 text-emerald-500 border-emerald-300":
               status === "Success",
-            "bg-red-50 text-red-500 border-red-300":
-              status === "Failed",
+            "bg-red-50 text-red-500 border-red-300": status === "Failed",
           })}
         >
           {status === "Success" ? "Success" : "Failed"}

@@ -7,7 +7,6 @@ export async function request<T>(
   method: RequestMethod = "GET",
   body?: unknown,
 ) {
-
   const response = await axios<T>({
     method,
     url: `/api/${endpoint}`,
