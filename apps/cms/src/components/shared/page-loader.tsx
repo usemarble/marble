@@ -1,3 +1,5 @@
+"use client";
+
 import { Spinner } from "@phosphor-icons/react";
 
 function PageLoader() {
