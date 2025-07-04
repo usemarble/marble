@@ -5,8 +5,8 @@ import { Button, buttonVariants } from "@marble/ui/components/button";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
-import { EyeClosedIcon, EyeIcon, Loader } from "@marble/ui/lib/icons";
 import { cn } from "@marble/ui/lib/utils";
+import { Eye, EyeClosed, Spinner } from "@phosphor-icons/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
@@ -101,7 +101,7 @@ export function RegisterForm() {
           disabled={isCredentialsLoading || isGoogleLoading || isGithubLoading}
         >
           {isGoogleLoading ? (
-            <Loader className="mr-2 h-4 w-4 animate-spin" />
+            <Spinner className="mr-2 h-4 w-4 animate-spin" />
           ) : (
             <Google className="mr-2 h-4 w-4" />
           )}{" "}
@@ -114,7 +114,7 @@ export function RegisterForm() {
           disabled={isCredentialsLoading || isGoogleLoading || isGithubLoading}
         >
           {isGithubLoading ? (
-            <Loader className="mr-2 h-4 w-4 animate-spin" />
+            <Spinner className="mr-2 h-4 w-4 animate-spin" />
           ) : (
             <Github className="mr-2 h-4 w-4" />
           )}{" "}
@@ -175,9 +175,9 @@ export function RegisterForm() {
                 onClick={() => setIsPasswordVisible((prev) => !prev)}
               >
                 {isPasswordVisible ? (
-                  <EyeIcon className="size-4" />
+                  <Eye className="size-4" />
                 ) : (
-                  <EyeClosedIcon className="size-4" />
+                  <EyeClosed className="size-4" />
                 )}
               </button>
             </div>
@@ -198,7 +198,7 @@ export function RegisterForm() {
           >
             {isCredentialsLoading ||
               (isRedirecting && (
-                <Loader className="mr-2 h-4 w-4 animate-spin" />
+                <Spinner className="mr-2 h-4 w-4 animate-spin" />
               ))}
             Continue
           </Button>

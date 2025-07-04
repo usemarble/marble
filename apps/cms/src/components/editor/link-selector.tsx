@@ -6,8 +6,8 @@ import {
   PopoverTrigger,
 } from "@marble/ui/components/popover";
 import { Switch } from "@marble/ui/components/switch";
-import { Check, LinkIcon, Trash } from "@marble/ui/lib/icons";
 import { cn } from "@marble/ui/lib/utils";
+import { Check, LinkSimple, Trash } from "@phosphor-icons/react";
 import { useEditor } from "novel";
 import { useEffect, useRef, useState } from "react";
 
@@ -56,7 +56,7 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
             "text-emerald-500": editor.isActive("link"),
           })}
         >
-          <LinkIcon className="size-4" />
+          <LinkSimple className="size-4" />
         </Button>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-60 p-0" sideOffset={10}>

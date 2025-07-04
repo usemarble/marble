@@ -13,8 +13,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
-import { CalendarDays, InfoIcon } from "@marble/ui/lib/icons";
 import { cn } from "@marble/ui/lib/utils";
+import { CalendarDots, Info } from "@phosphor-icons/react";
 import { format } from "date-fns";
 import { useState } from "react";
 import type { UseFormSetValue, UseFormWatch } from "react-hook-form";
@@ -36,7 +36,7 @@ export function PublishDateField({ watch, setValue }: PublishDateFieldProps) {
         <Label htmlFor="publishedAt">Published On</Label>
         <Tooltip>
           <TooltipTrigger asChild>
-            <InfoIcon className="size-4 text-gray-400" />
+            <Info className="size-4 text-gray-400" />
           </TooltipTrigger>
           <TooltipContent>
             <p className="text-muted-foreground text-xs max-w-64">
@@ -56,7 +56,7 @@ export function PublishDateField({ watch, setValue }: PublishDateFieldProps) {
             )}
           >
             {date ? format(date, "PPP") : <span>Pick a date</span>}
-            <CalendarDays className="text-muted-foreground" />
+            <CalendarDots className="text-muted-foreground" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0">

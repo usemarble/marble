@@ -8,7 +8,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
-import { InfoIcon } from "@marble/ui/lib/icons";
+import { Info } from "@phosphor-icons/react";
 import { useState } from "react";
 import type {
   FieldErrors,
@@ -38,7 +38,7 @@ export function AttributionField({
           <Label htmlFor="attribution">Add Attribution</Label>
           <Tooltip>
             <TooltipTrigger asChild>
-              <InfoIcon className="size-4 text-gray-400" />
+              <Info className="size-4 text-gray-400" />
             </TooltipTrigger>
             <TooltipContent>
               <p className="text-muted-foreground text-xs max-w-64">

@@ -3,17 +3,15 @@ import {
   EditorCommandEmpty,
   EditorCommandItem,
   EditorCommandList,
-  useEditor,
 } from "novel";
 import { useState } from "react";
 import { ImageUploadModal } from "./image-upload-modal";
 import { suggestionItems } from "./slash-command-items";
 import { YoutubeEmbedModal } from "./youtube-embed-modal";
 
-function SlashCommandMenu() {
+export function SlashCommandMenu() {
   const [showImageModal, setShowImageModal] = useState(false);
   const [showYoutubeModal, setShowYoutubeModal] = useState(false);
-  const _editor = useEditor();
 
   return (
     <>
@@ -55,5 +53,3 @@ function SlashCommandMenu() {
     </>
   );
 }
-
-export default SlashCommandMenu;

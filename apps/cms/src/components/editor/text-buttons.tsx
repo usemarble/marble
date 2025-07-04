@@ -1,21 +1,21 @@
 import { Button } from "@marble/ui/components/button";
+import { cn } from "@marble/ui/lib/utils";
 import {
-  AlignCenter,
-  AlignJustify,
   AlignLeft,
   AlignRight,
-  BoldIcon,
-  ItalicIcon,
-  type LucideIcon,
-  StrikethroughIcon,
-  UnderlineIcon,
-} from "@marble/ui/lib/icons";
-import { cn } from "@marble/ui/lib/utils";
+  TextB as Bold,
+  type Icon,
+  TextItalic as Italic,
+  TextStrikethrough as Strikethrough,
+  TextAlignCenter,
+  TextAlignJustify,
+  TextUnderline as Underline,
+} from "@phosphor-icons/react";
 import { useEditor } from "novel";
 
 export type SelectorItem = {
   name: string;
-  icon: LucideIcon;
+  icon: Icon;
   command: (
     editor: NonNullable<ReturnType<typeof useEditor>["editor"]>,
   ) => void;
@@ -33,25 +33,25 @@ export const TextButtons = () => {
       name: "bold",
       isActive: (editor) => editor.isActive("bold"),
       command: (editor) => editor.chain().focus().toggleBold().run(),
-      icon: BoldIcon,
+      icon: Bold,
     },
     {
       name: "italic",
       isActive: (editor) => editor.isActive("italic"),
       command: (editor) => editor.chain().focus().toggleItalic().run(),
-      icon: ItalicIcon,
+      icon: Italic,
     },
     {
       name: "underline",
       isActive: (editor) => editor.isActive("underline"),
       command: (editor) => editor.chain().focus().toggleUnderline().run(),
-      icon: UnderlineIcon,
+      icon: Underline,
     },
     {
       name: "strike",
       isActive: (editor) => editor.isActive("strike"),
       command: (editor) => editor.chain().focus().toggleStrike().run(),
-      icon: StrikethroughIcon,
+      icon: Strikethrough,
     },
     {
       name: "alignLeft",
@@ -69,13 +69,13 @@ export const TextButtons = () => {
       name: "alignCenter",
       isActive: (editor) => editor.isActive({ textAlign: "center" }),
       command: (editor) => editor.chain().focus().setTextAlign("center").run(),
-      icon: AlignCenter,
+      icon: TextAlignCenter,
     },
     {
       name: "justify",
       isActive: (editor) => editor.isActive({ textAlign: "justify" }),
       command: (editor) => editor.chain().focus().setTextAlign("justify").run(),
-      icon: AlignJustify,
+      icon: TextAlignJustify,
     },
   ];
 

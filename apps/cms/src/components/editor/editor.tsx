@@ -3,10 +3,10 @@
 import type { Extension } from "@tiptap/core";
 import { EditorContent, EditorRoot, type JSONContent } from "novel";
 import { handleCommandNavigation } from "novel/extensions";
-import BubbleMenu from "./bubble-menu";
+import { BubbleMenu } from "./bubble-menu";
 import { defaultExtensions } from "./extensions";
 import { slashCommand } from "./slash-command-items";
-import SlashCommandMenu from "./slash-command-menu";
+import { SlashCommandMenu } from "./slash-command-menu";
 
 export const extensions = [...defaultExtensions, slashCommand] as Extension[];
 
@@ -16,7 +16,7 @@ interface EditorProps {
   ref?: React.RefObject<HTMLDivElement | null>;
 }
 
-const Editor = ({ value, onChange }: EditorProps) => {
+export function Editor({ value, onChange }: EditorProps) {
   return (
     <EditorRoot>
       <EditorContent
@@ -43,5 +43,4 @@ const Editor = ({ value, onChange }: EditorProps) => {
       </EditorContent>
     </EditorRoot>
   );
-};
-export default Editor;
+}
