@@ -17,27 +17,16 @@ import {
 import { useSidebar } from "@marble/ui/components/sidebar";
 import { Skeleton } from "@marble/ui/components/skeleton";
 import { SignOut, User } from "@phosphor-icons/react";
+import { Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { authClient } from "@/lib/auth/client";
+import { useUser } from "@/providers/user";
 
-interface NavUserProps {
-  user:
-    | {
-        name: string;
-        id: string;
-        image?: string | null | undefined;
-        email: string;
-      }
-    | undefined;
-}
-
-export function NavUser({ user }: NavUserProps) {
+export function NavUser() {
   const { isMobile } = useSidebar();
-  const router = useRouter();
+  const { user, isSigningOut, signOut, isFetchingUser } = useUser();
 
-  if (!user) {
-    return <Skeleton className="border rounded-md size-8 shrink-0" />;
+  if (!user || isFetchingUser) {
+    return <Skeleton className="border rounded-full size-8 shrink-0" />;
   }
 
   return (
@@ -87,28 +76,26 @@ export function NavUser({ user }: NavUserProps) {
               Account
             </Link>
           </DropdownMenuItem>
-          {/* <DropdownMenuItem>
-            <Link
-              href="/settings/billing"
-              className="flex w-full items-center gap-4"
-            >
-              <CreditCard className="size-4" />
-              Billing
-            </Link>
-          </DropdownMenuItem> */}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           <button
             type="button"
-            onClick={async () => {
-              await authClient.signOut();
-              router.push("/login");
-            }}
+            onClick={signOut}
+            disabled={isSigningOut}
             className="flex w-full items-center gap-4"
           >
-            <SignOut className="size-4" />
-            Log out
+            {isSigningOut ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                Signing out...
+              </>
+            ) : (
+              <>
+                <SignOut className="size-4" />
+                Log out
+              </>
+            )}
           </button>
         </DropdownMenuItem>
       </DropdownMenuContent>

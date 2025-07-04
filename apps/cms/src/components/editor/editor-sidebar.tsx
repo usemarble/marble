@@ -6,9 +6,16 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
+  SidebarHeader,
   useSidebar,
 } from "@marble/ui/components/sidebar";
 import { toast } from "@marble/ui/components/sonner";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@marble/ui/components/tabs";
 import { cn } from "@marble/ui/lib/utils";
 import type {
   Control,
@@ -86,83 +93,138 @@ export function EditorSidebar({
   return (
     <div className="">
       <Sidebar
-        // variant="inset"
         side="right"
         className={cn(
-          "bg-sidebar m-2 py-6 rounded-xl shadow-sm border h-[calc(100vh-1rem)] min-h-[calc(100vh-1rem)] overflow-y-hidden",
+          "bg-sidebar m-2 rounded-xl shadow-sm border h-[calc(100vh-1rem)] min-h-[calc(100vh-1rem)] overflow-hidden",
           !open ? "mr-0" : "",
         )}
         {...props}
       >
-        {/* <SidebarHeader className="bg-background px-8"></SidebarHeader> */}
-        <SidebarContent className="bg-sidebar">
-          <HiddenScrollbar className="px-6">
-            <section className="grid gap-6 pb-5">
-              <StatusField watch={watch} setValue={setValue} />
+        <Tabs defaultValue="metadata" className="flex flex-col h-full">
+          <SidebarHeader className="bg-sidebar px-4 flex-shrink-0">
+            <TabsList variant="underline" className="flex justify-start">
+              <TabsTrigger variant="underline" value="metadata">
+                Metadata
+              </TabsTrigger>
+              <TabsTrigger variant="underline" value="analysis">
+                Analysis
+              </TabsTrigger>
+            </TabsList>
+          </SidebarHeader>
 
-              <Separator orientation="horizontal" className=" flex" />
+          <TabsContent
+            value="metadata"
+            className="flex-1 flex flex-col data-[state=inactive]:hidden"
+          >
+            <SidebarContent className="bg-sidebar flex-1 min-h-0 overflow-hidden">
+              <HiddenScrollbar className="px-6 h-full">
+                <section className="grid gap-6 pb-5">
+                  <StatusField watch={watch} setValue={setValue} />
 
-              <CoverImageSelector setValue={setValue} watch={watch} />
+                  <Separator orientation="horizontal" className="flex" />
 
-              <DescriptionField register={register} errors={errors} />
+                  <CoverImageSelector setValue={setValue} watch={watch} />
 
-              <SlugField register={register} errors={errors} />
+                  <DescriptionField register={register} errors={errors} />
 
-              <AuthorSelector
-                control={control}
-                defaultAuthors={initialAuthors || []}
-              />
+                  <SlugField register={register} errors={errors} />
 
-              <TagSelector control={control} defaultTags={tags || []} />
+                  <AuthorSelector
+                    control={control}
+                    defaultAuthors={initialAuthors || []}
+                  />
 
-              <CategorySelector
-                control={control}
-                errors={errors}
-                setValue={setValue}
-                clearErrors={clearErrors}
-              />
+                  <TagSelector control={control} defaultTags={tags || []} />
 
-              <PublishDateField watch={watch} setValue={setValue} />
+                  <CategorySelector
+                    control={control}
+                    errors={errors}
+                    setValue={setValue}
+                    clearErrors={clearErrors}
+                  />
 
-              <Separator orientation="horizontal" className="flex mt-4" />
+                  <PublishDateField watch={watch} setValue={setValue} />
 
-              <AttributionField
-                watch={watch}
-                setValue={setValue}
-                errors={errors}
-              />
-            </section>
-          </HiddenScrollbar>
-        </SidebarContent>
-        <SidebarFooter className="bg-sidebar px-6 py-0">
-          {mode === "create" ? (
-            <Button
-              type="button"
-              disabled={isSubmitting || !hasUnsavedChanges}
-              onClick={triggerSubmit}
-              className="mt-4 min-w-32"
-            >
-              {isSubmitting ? (
-                <ButtonLoader className="size-4 animate-spin" />
+                  <Separator orientation="horizontal" className="flex mt-4" />
+
+                  <AttributionField
+                    watch={watch}
+                    setValue={setValue}
+                    errors={errors}
+                  />
+                </section>
+              </HiddenScrollbar>
+            </SidebarContent>
+            <SidebarFooter className="bg-sidebar px-6 py-6 pt-0 flex-shrink-0">
+              {mode === "create" ? (
+                <Button
+                  type="button"
+                  disabled={isSubmitting || !hasUnsavedChanges}
+                  onClick={triggerSubmit}
+                  className="mt-4 min-w-32"
+                >
+                  {isSubmitting ? (
+                    <ButtonLoader className="size-4 animate-spin" />
+                  ) : (
+                    "Save"
+                  )}
+                </Button>
               ) : (
-                "Save"
+                <Button
+                  type="button"
+                  disabled={isSubmitting || !hasUnsavedChanges}
+                  onClick={triggerSubmit}
+                  className="mt-4 min-w-32"
+                >
+                  {isSubmitting ? (
+                    <ButtonLoader className="size-4 animate-spin" />
+                  ) : (
+                    "Update"
+                  )}
+                </Button>
               )}
-            </Button>
-          ) : (
-            <Button
-              type="button"
-              disabled={isSubmitting || !hasUnsavedChanges}
-              onClick={triggerSubmit}
-              className="mt-4 min-w-32"
-            >
-              {isSubmitting ? (
-                <ButtonLoader className="size-4 animate-spin" />
-              ) : (
-                "Update"
-              )}
-            </Button>
-          )}
-        </SidebarFooter>
+            </SidebarFooter>
+          </TabsContent>
+
+          <TabsContent
+            value="analysis"
+            className="flex-1 flex flex-col mt-0 data-[state=inactive]:hidden"
+          >
+            <SidebarContent className="bg-sidebar flex-1 min-h-0 overflow-hidden">
+              <HiddenScrollbar className="px-6 h-full">
+                <section className="grid gap-6 pb-5">
+                  <div className="flex flex-col gap-4">
+                    <div className="space-y-2">
+                      <h3 className="text-sm font-medium">Readability Score</h3>
+                      <div className="text-2xl font-bold text-green-600">
+                        85
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Good readability for general audience
+                      </p>
+                    </div>
+
+                    <Separator />
+
+                    <div className="space-y-3">
+                      <h4 className="text-sm font-medium">Suggestions</h4>
+                      <div className="space-y-2 text-sm text-muted-foreground">
+                        <p>• Consider shorter sentences</p>
+                        <p>• Use more common words</p>
+                        <p>• Add subheadings to break up content</p>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </HiddenScrollbar>
+            </SidebarContent>
+            <SidebarFooter className="bg-sidebar px-6 py-6 pt-0 flex-shrink-0">
+              <Button variant="outline" className="mt-4 min-w-32">
+                Analyze Content
+              </Button>
+            </SidebarFooter>
+          </TabsContent>
+        </Tabs>
       </Sidebar>
     </div>
   );

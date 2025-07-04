@@ -4,6 +4,7 @@ import { buttonVariants } from "@marble/ui/components/button";
 import { Folder } from "@phosphor-icons/react";
 import { Plus } from "lucide-react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
 import { columns, type Post } from "@/components/posts/columns";
 import { PostDataTable } from "@/components/posts/data-table";
@@ -13,6 +14,8 @@ interface PageClientProps {
 }
 
 function PageClient({ posts }: PageClientProps) {
+  const params = useParams<{ workspace: string }>();
+
   return (
     <WorkspacePageWrapper className="h-full flex flex-col max-w-4xl mx-auto py-16">
       {posts.length > 0 ? (
@@ -26,7 +29,7 @@ function PageClient({ posts }: PageClientProps) {
                 No posts yet. Click the button below to start writing.
               </p>
               <Link
-                href="/editor/p/new"
+                href={`/${params.workspace}/editor/p/new`}
                 className={buttonVariants({ variant: "default", size: "sm" })}
               >
                 <Plus size={16} />

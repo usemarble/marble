@@ -302,8 +302,8 @@ export function CoverImageSelector({
           </div>
         </TabsContent>
         <TabsContent value="media" className="h-48">
-          <ScrollArea className="w-[364px] whitespace-nowrap border">
-            <div className="flex p-4 gap-4 h-full flex-1">
+          <ScrollArea className="w-full h-48 whitespace-nowrap">
+            <div className="flex p-4 gap-3 h-full flex-1">
               {media && media.length > 0 ? (
                 media.map((item) => (
                   <button
@@ -312,24 +312,24 @@ export function CoverImageSelector({
                     onClick={() => setValue("coverImage", item.url)}
                     className="flex-none group relative"
                   >
-                    <div className="w-32 h-26 aspect-video rounded-md overflow-hidden border">
+                    <div className="w-40 h-28 rounded-md overflow-hidden border">
                       {/* biome-ignore lint/performance/noImgElement: <> */}
                       <img
                         src={item.url}
                         alt={item.name}
-                        className="w-full h-full object-cover aspect-video rounded-md transition group-hover:scale-105"
+                        className="w-full h-full object-cover rounded-md transition group-hover:scale-105"
                       />
                     </div>
-                    {/* <p className="text-xs text-muted-foreground mt-1 truncate max-w-[128px]">
-                      {item.name}
-                    </p> */}
                   </button>
                 ))
               ) : (
-                <div className="text-center py-8 w-full">
-                  <p className="text-muted-foreground text-sm">
-                    No media found. Upload some images first.
-                  </p>
+                <div className="w-full flex-1 h-48 rounded-md border border-dashed bg-background flex items-center justify-center -m-4">
+                  <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                    <ImageIcon className="size-4" />
+                    <p className="text-sm font-medium">
+                      No media found. Upload some images first.
+                    </p>
+                  </div>
                 </div>
               )}
             </div>

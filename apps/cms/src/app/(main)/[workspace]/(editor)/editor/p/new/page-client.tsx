@@ -1,16 +1,16 @@
 "use client";
 
 import EditorPage from "@/components/editor/editor-page";
-import { useSession } from "@/lib/auth/client";
 import { emptyPost } from "@/lib/data/post";
 import type { PostValues } from "@/lib/validations/post";
+import { useUser } from "@/providers/user";
 
 function NewPostPageClient() {
-  const { data: session } = useSession();
+  const { user } = useUser();
 
   const initialPostData: PostValues = {
     ...emptyPost,
-    authors: session?.user?.id ? [session.user.id] : emptyPost.authors || [],
+    authors: user?.id ? [user.id] : emptyPost.authors || [],
   };
 
   return <EditorPage initialData={initialPostData} />;

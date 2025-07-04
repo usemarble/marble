@@ -27,7 +27,6 @@ import {
 import { PlusIcon, SearchIcon, XIcon } from "lucide-react";
 import { useState } from "react";
 
-// Define the roles explicitly if not already imported
 type UserRole = "owner" | "admin" | "member" | undefined;
 
 interface DataTableProps<TData, TValue> {

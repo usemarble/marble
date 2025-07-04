@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth/auth";
 import PageClient from "./page-client";
 
 export const metadata: Metadata = {
@@ -9,16 +7,7 @@ export const metadata: Metadata = {
 };
 
 async function Page() {
-  const [session, organization] = await Promise.all([
-    auth.api.getSession({
-      headers: await headers(),
-    }),
-    auth.api.getFullOrganization({
-      headers: await headers(),
-    }),
-  ]);
-
-  return <PageClient activeOrganization={organization} session={session} />;
+  return <PageClient />;
 }
 
 export default Page;

@@ -1,89 +1,110 @@
 "use client";
 
-import { useParams, usePathname } from "next/navigation";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
-import {
-  useUserWorkspaces,
-  type WorkspaceWithRole,
-} from "@/hooks/use-user-workspace";
+import { useUserWorkspaces } from "@/hooks/use-user-workspace";
 import { organization } from "@/lib/auth/client";
 import type { ActiveOrganization } from "@/lib/auth/types";
+import type {
+  ActiveWorkspace,
+  PartialWorkspace,
+  WorkspaceContextType,
+  WorkspaceProviderProps,
+} from "@/types/workspace";
 import { request } from "@/utils/fetch/client";
 import { setLastVisitedWorkspace } from "@/utils/workspace";
-
-// Type for partial workspace data that doesn't require full member details
-// This is because the response from creating a workpace doesnt return what is fully expexted by the ActiveOrganization type
-// So we set it like is and then fetch the full data after
-type PartialWorkspace = Omit<ActiveOrganization, "members"> & {
-  members: Array<{
-    id: string;
-    createdAt: Date;
-    userId: string;
-    organizationId: string;
-    role: string;
-    teamId?: string;
-  }>;
-  subscription?: {
-    id: string;
-    status: string;
-    plan: string;
-  } | null;
-};
-
-interface WorkspaceContextType {
-  activeWorkspace:
-    | (ActiveOrganization & {
-        subscription?: {
-          id: string;
-          status: string;
-          plan: string;
-          currentPeriodStart: string | Date;
-          currentPeriodEnd: string | Date;
-          cancelAtPeriodEnd: boolean;
-          canceledAt?: string | Date | null;
-        } | null;
-        currentUserRole?: string | null;
-      })
-    | null;
-  updateActiveWorkspace: (
-    workspaceSlug: string,
-    newWorkspace?: Partial<PartialWorkspace>,
-  ) => Promise<void>;
-  workspaceList: WorkspaceWithRole[] | null;
-  isLoading: boolean;
-  isOwner: boolean;
-  isAdmin: boolean;
-  isMember: boolean;
-  currentUserRole: string | null;
-}
 
 const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
   undefined,
 );
-
-interface WorkspaceProviderProps {
-  children: React.ReactNode;
-  initialWorkspace: ActiveOrganization | null;
-}
 
 export function WorkspaceProvider({
   children,
   initialWorkspace,
 }: WorkspaceProviderProps) {
   const params = useParams<{ workspace: string }>();
-  const pathname = usePathname();
+  const queryClient = useQueryClient();
 
   const [activeWorkspace, setActiveWorkspace] =
-    useState<WorkspaceContextType["activeWorkspace"]>(initialWorkspace);
-  const [isLoading, setIsLoading] = useState(false);
+    useState<ActiveWorkspace>(initialWorkspace);
+
   const workspaces = useUserWorkspaces();
 
-  async function updateActiveWorkspace(
-    workspaceSlug: string,
-    newWorkspace?: Partial<PartialWorkspace>,
-  ) {
-    setIsLoading(true);
-    try {
+  // Get current workspace slug from params
+  const workspaceSlug = Array.isArray(params.workspace)
+    ? params.workspace[0]
+    : params.workspace;
+
+  const fetchWorkspaceData = async (
+    slug: string,
+  ): Promise<ActiveOrganization> => {
+    const response = await request<ActiveOrganization>(`workspaces/${slug}`);
+    if (!response.data) {
+      throw new Error("Workspace not found");
+    }
+    return response.data;
+  };
+
+  // Determine if we should fetch workspace data
+  const shouldFetchWorkspace =
+    !!workspaceSlug &&
+    (!activeWorkspace || activeWorkspace.slug !== workspaceSlug);
+
+  const { data: fetchedWorkspace, isLoading } = useQuery({
+    queryKey: ["workspace", workspaceSlug],
+    queryFn: () => fetchWorkspaceData(workspaceSlug),
+    enabled: shouldFetchWorkspace,
+    initialData:
+      initialWorkspace && initialWorkspace.slug === workspaceSlug
+        ? initialWorkspace
+        : undefined,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+  });
+
+  // Update activeWorkspace when fetchedWorkspace changes
+  useEffect(() => {
+    if (fetchedWorkspace) {
+      setActiveWorkspace(fetchedWorkspace);
+    }
+  }, [fetchedWorkspace]);
+
+  // Auto-switch active workspace when URL changes to different workspace
+  useEffect(() => {
+    if (
+      workspaceSlug &&
+      activeWorkspace &&
+      activeWorkspace.slug !== workspaceSlug &&
+      !isLoading
+    ) {
+      // Only auto-switch if the workspace in URL is different from active workspace
+      // This happens when user navigates to different workspace URL
+      organization
+        .setActive({
+          organizationSlug: workspaceSlug,
+        })
+        .then(() => {
+          setLastVisitedWorkspace(workspaceSlug);
+        })
+        .catch((error) => {
+          console.error("Failed to auto-switch workspace:", error);
+        });
+    }
+  }, [workspaceSlug, activeWorkspace, isLoading]);
+
+  // Update active workspace mutation
+  const {
+    mutateAsync: updateActiveWorkspaceMutation,
+    isPending: isSwitchingWorkspace,
+  } = useMutation({
+    mutationFn: async ({
+      workspaceSlug,
+      newWorkspace,
+    }: {
+      workspaceSlug: string;
+      newWorkspace?: Partial<PartialWorkspace>;
+    }) => {
       // Optimistically update if we have new workspace data
       if (newWorkspace) {
         setActiveWorkspace(
@@ -96,7 +117,7 @@ export function WorkspaceProvider({
         );
       }
 
-      // Update the active organization
+      // Update the active organization in Better Auth
       await organization.setActive({
         organizationSlug: workspaceSlug,
       });
@@ -105,39 +126,37 @@ export function WorkspaceProvider({
       setLastVisitedWorkspace(workspaceSlug);
 
       // Fetch full workspace data
-      const res = await request<ActiveOrganization | null>(
+      const response = await request<ActiveOrganization>(
         `workspaces/${workspaceSlug}`,
       );
-
-      if (!res.data) {
+      if (!response.data) {
         throw new Error("Workspace not found");
       }
 
-      setActiveWorkspace(res.data);
-    } catch (error) {
-      console.error(error);
-      // Revert optimistic update if needed
-      if (newWorkspace) {
-        setActiveWorkspace(activeWorkspace);
+      return response.data;
+    },
+    onSuccess: (data) => {
+      setActiveWorkspace(data);
+      // Update the React Query cache
+      queryClient.setQueryData(["workspace", data.slug], data);
+    },
+    onError: (error) => {
+      console.error("Failed to switch workspace:", error);
+      // Revert optimistic update
+      if (initialWorkspace) {
+        setActiveWorkspace(initialWorkspace);
       }
-    } finally {
-      setIsLoading(false);
-    }
+    },
+  });
+
+  async function updateActiveWorkspace(
+    workspaceSlug: string,
+    newWorkspace?: Partial<PartialWorkspace>,
+  ) {
+    await updateActiveWorkspaceMutation({ workspaceSlug, newWorkspace });
   }
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <>
-  useEffect(() => {
-    const workspaceSlug = Array.isArray(params.workspace)
-      ? params.workspace[0]
-      : params.workspace;
-    if (
-      workspaceSlug &&
-      (!activeWorkspace || activeWorkspace.slug !== workspaceSlug)
-    ) {
-      updateActiveWorkspace(workspaceSlug);
-    }
-  }, [pathname, params.workspace]);
-
+  const isFetchingWorkspace = isLoading || isSwitchingWorkspace;
   const isOwner = activeWorkspace?.currentUserRole === "owner";
   const isAdmin = activeWorkspace?.currentUserRole === "admin";
   const isMember = activeWorkspace?.currentUserRole === "member";
@@ -148,7 +167,7 @@ export function WorkspaceProvider({
       value={{
         activeWorkspace,
         updateActiveWorkspace,
-        isLoading,
+        isFetchingWorkspace,
         workspaceList: workspaces.data,
         isOwner,
         isAdmin,

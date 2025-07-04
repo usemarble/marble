@@ -21,7 +21,7 @@ import {
 } from "@tanstack/react-table";
 import { Plus, SearchIcon, XIcon } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 
 interface DataTableProps<TData, TValue> {
@@ -35,6 +35,7 @@ export function PostDataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   const [sorting, _setSorting] = useState<SortingState>([]);
   const _router = useRouter();
+  const params = useParams<{ workspace: string }>();
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
@@ -79,7 +80,7 @@ export function PostDataTable<TData, TValue>({
         </div>
         <div>
           <Link
-            href="/editor/p/new"
+            href={`/${params.workspace}/editor/p/new`}
             className={buttonVariants({ variant: "default", size: "sm" })}
           >
             <Plus size={16} />

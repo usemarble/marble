@@ -10,7 +10,7 @@ import {
 import { toast } from "@marble/ui/components/sonner";
 import { CornerUpLeft } from "@marble/ui/lib/icons";
 import { cn } from "@marble/ui/lib/utils";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import type { JSONContent } from "novel";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -31,6 +31,7 @@ interface EditorPageProps {
 
 function EditorPage({ initialData = emptyPost, id }: EditorPageProps) {
   const router = useRouter();
+  const params = useParams<{ workspace: string }>();
   const { open, isMobile } = useSidebar();
   const formRef = useRef<HTMLFormElement>(null);
   const [showSettings, setShowSettings] = useState(false);
@@ -107,7 +108,7 @@ function EditorPage({ initialData = emptyPost, id }: EditorPageProps) {
       } else {
         const res = await createPostAction(values);
         toast.success("Post created");
-        router.push(`/editor/p/${res}`);
+        router.push(`/${params.workspace}/editor/p/${res}`);
       }
       // Reset initial values to new saved state
       form.reset({ ...values });

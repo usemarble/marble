@@ -42,7 +42,7 @@ export default async function DashboardLayout({
   return (
     <SidebarProvider className="overflow-y-hidden">
       <AppSidebar />
-      <SidebarInset className="border md:peer-data-[variant=inset]:shadow-none overflow-y-auto">
+      <SidebarInset className="peer-data-[variant=inset]:border-l md:peer-data-[variant=inset]:shadow-none overflow-y-auto">
         <PageHeader />
         <section className="flex min-h-[calc(100vh-56px)] flex-1 flex-col gap-4 px-4 py-2 w-full">
           {children}

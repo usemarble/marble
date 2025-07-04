@@ -24,11 +24,10 @@ import {
   type CreateWorkspaceValues,
   workspaceSchema,
 } from "@/lib/validations/workspace";
-import { useWorkspace } from "@/providers/workspace";
 import { generateSlug } from "@/utils/string";
 
 function PageClient() {
-  const { updateActiveWorkspace } = useWorkspace();
+  // const { updateActiveWorkspace } = useWorkspace();
   const {
     register,
     handleSubmit,
@@ -72,7 +71,7 @@ function PageClient() {
             id: member.id || member.userId, // ensure id is always present
           })),
         };
-        await updateActiveWorkspace(workspace.slug, workspace);
+        // await updateActiveWorkspace(workspace.slug, workspace);
         router.push(`/${workspace.slug}`);
       }
     } catch (error) {

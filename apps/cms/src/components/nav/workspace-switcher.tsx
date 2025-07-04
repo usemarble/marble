@@ -22,11 +22,11 @@ import {
   useSidebar,
 } from "@marble/ui/components/sidebar";
 import { Skeleton } from "@marble/ui/components/skeleton";
-import { Check, ChevronDown, Plus } from "@marble/ui/lib/icons";
+import { Check, Plus } from "@marble/ui/lib/icons";
 import { cn } from "@marble/ui/lib/utils";
+import { CaretDown } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-
 import { useWorkspace } from "../../providers/workspace";
 import { UpgradeModal } from "../billing/upgrade-modal";
 import { CreateWorkspaceModal } from "./workspace-modal";
@@ -37,13 +37,13 @@ export function WorkspaceSwitcher() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] =
     useState(false);
-  const { activeWorkspace, updateActiveWorkspace, workspaceList } =
-    useWorkspace();
+  const {
+    activeWorkspace,
+    updateActiveWorkspace,
+    workspaceList,
+    isFetchingWorkspace,
+  } = useWorkspace();
 
-  console.log("workspaceList", workspaceList);
-  console.log("activeWorkspace", activeWorkspace);
-
-  // Group workspaces by ownership
   const ownedWorkspaces =
     workspaceList?.filter((workspace) => workspace.userRole === "owner") || [];
 
@@ -70,15 +70,19 @@ export function WorkspaceSwitcher() {
     setShowCreateWorkspaceModal(true);
   };
 
+  // Show skeleton only if we're loading and don't have activeWorkspace data
+  const showSkeleton = !activeWorkspace && isFetchingWorkspace;
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
         <DropdownMenu>
-          {activeWorkspace ? (
+          {activeWorkspace && !showSkeleton ? (
             <DropdownMenuTrigger asChild>
               <SidebarMenuButton
                 size="lg"
-                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:bg-sidebar-accent border border-transparent hover:border-border hover:shadow-sm transition "
+                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:bg-sidebar-accent border border-transparent hover:border-border hover:shadow-sm transition"
+                disabled={isFetchingWorkspace}
               >
                 <Avatar className="size-8 rounded-">
                   <AvatarImage
@@ -98,10 +102,10 @@ export function WorkspaceSwitcher() {
                     className={cn(
                       "text-center py-0 px-1.5 text-[11px] justify-center bg-gray-50 text-gray-500 border-gray-300",
                       {
-                        "bg-emerald-50 text-emerald-500 border-emerald-300":
+                        "bg-emerald-50 dark:bg-transparent text-emerald-500 border-emerald-300":
                           activeWorkspace.subscription?.plan === "pro",
 
-                        "bg-blue-50 text-blue-500 border-blue-300":
+                        "bg-blue-50 dark:bg-transparent text-blue-500 border-blue-300":
                           activeWorkspace.subscription?.plan === "team",
                       },
                     )}
@@ -109,7 +113,7 @@ export function WorkspaceSwitcher() {
                     {activeWorkspace.subscription?.plan || "free"}
                   </Badge>
                 </div>
-                <ChevronDown className="ml-auto" />
+                <CaretDown className="ml-auto" />
               </SidebarMenuButton>
             </DropdownMenuTrigger>
           ) : (
@@ -138,7 +142,8 @@ export function WorkspaceSwitcher() {
                     <button
                       type="button"
                       onClick={() => switchWorkspace(org)}
-                      className="relative flex w-full items-center gap-4"
+                      disabled={isFetchingWorkspace}
+                      className="relative flex w-full items-center gap-4 disabled:opacity-50"
                     >
                       <Avatar className="size-6 rounded-[0.2rem]">
                         <AvatarImage src={org.logo || undefined} />
@@ -165,7 +170,8 @@ export function WorkspaceSwitcher() {
                     <button
                       type="button"
                       onClick={() => switchWorkspace(org)}
-                      className="relative flex w-full items-center gap-4"
+                      disabled={isFetchingWorkspace}
+                      className="relative flex w-full items-center gap-4 disabled:opacity-50"
                     >
                       <Avatar className="size-6 rounded-[0.2rem]">
                         <AvatarImage src={org.logo || undefined} />

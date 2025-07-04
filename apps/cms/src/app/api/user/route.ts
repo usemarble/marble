@@ -1,0 +1,121 @@
+import { db } from "@marble/db";
+import { NextResponse } from "next/server";
+import getServerSession from "@/lib/auth/session";
+
+export async function GET() {
+  const session = await getServerSession();
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Get user with their role in the current active workspace
+  const user = await db.user.findUnique({
+    where: { id: session.user.id },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      image: true,
+      emailVerified: true,
+      createdAt: true,
+      updatedAt: true,
+      members: {
+        where: {
+          organizationId: session.session.activeOrganizationId as string,
+        },
+        select: {
+          role: true,
+          organization: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+            },
+          },
+        },
+        take: 1,
+      },
+    },
+  });
+
+  if (!user) {
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
+  }
+
+  // Transform the data to include workspace role
+  const userWithRole = {
+    ...user,
+    workspaceRole: user.members[0]?.role || null,
+    activeWorkspace: user.members[0]?.organization || null,
+    members: undefined, // Remove members array from response
+  };
+
+  return NextResponse.json(userWithRole, { status: 200 });
+}
+
+export async function PATCH(request: Request) {
+  const session = await getServerSession();
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const body = await request.json();
+    const { name, image } = body;
+
+    // Validate input
+    if (!name || typeof name !== "string") {
+      return NextResponse.json({ error: "Name is required" }, { status: 400 });
+    }
+
+    // Update user
+    const updatedUser = await db.user.update({
+      where: { id: session.user.id },
+      data: {
+        name: name.trim(),
+        ...(image && { image }),
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+        emailVerified: true,
+        createdAt: true,
+        updatedAt: true,
+        members: {
+          where: {
+            organizationId: session.session.activeOrganizationId as string,
+          },
+          select: {
+            role: true,
+            organization: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+              },
+            },
+          },
+          take: 1,
+        },
+      },
+    });
+
+    // Transform the data to include workspace role
+    const userWithRole = {
+      ...updatedUser,
+      workspaceRole: updatedUser.members[0]?.role || null,
+      activeWorkspace: updatedUser.members[0]?.organization || null,
+      members: undefined, // Remove members array from response
+    };
+
+    return NextResponse.json(userWithRole, { status: 200 });
+  } catch (error) {
+    console.error("Error updating user:", error);
+    return NextResponse.json(
+      { error: "Failed to update user" },
+      { status: 500 },
+    );
+  }
+}

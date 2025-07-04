@@ -4,8 +4,6 @@ import {
   SidebarFooter,
   SidebarHeader,
 } from "@marble/ui/components/sidebar";
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth/auth";
 import { NavDevs } from "./nav-devs";
 import { NavExtra } from "./nav-extra";
 import { NavMain } from "./nav-main";
@@ -15,12 +13,8 @@ import { WorkspaceSwitcher } from "./workspace-switcher";
 export async function AppSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
   return (
-    <Sidebar collapsible="icon" variant="inset" {...props}>
+    <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <WorkspaceSwitcher />
       </SidebarHeader>
@@ -30,7 +24,7 @@ export async function AppSidebar({
       </SidebarContent>
       <SidebarFooter className="p-2">
         <section className="flex items-center gap-2 justify-between p-2">
-          <NavUser user={session?.user} />
+          <NavUser />
           <NavExtra />
         </section>
       </SidebarFooter>

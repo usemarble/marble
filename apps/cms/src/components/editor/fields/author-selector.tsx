@@ -27,12 +27,12 @@ import {
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { cn } from "@marble/ui/lib/utils";
-import { useQuery } from "@tanstack/react-query";
 import { Check, ChevronsUpDown, InfoIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { type Control, useController } from "react-hook-form";
-import { useSession } from "@/lib/auth/client";
 import type { PostValues } from "@/lib/validations/post";
+import { useUser } from "@/providers/user";
+import { useWorkspace } from "@/providers/workspace";
 import { ErrorMessage } from "../../auth/error-message";
 
 interface AuthorOptions {
@@ -40,8 +40,6 @@ interface AuthorOptions {
   name: string;
   image: string;
 }
-
-interface AuthorResponse extends AuthorOptions {}
 
 interface AuthorSelectorProps {
   control: Control<PostValues>;
@@ -66,31 +64,27 @@ export function AuthorSelector({
     control,
     defaultValue: defaultAuthors,
   });
+
   const [selected, setSelected] = useState<AuthorOptions[]>([]);
-  const [authors, setAuthors] = useState<AuthorResponse[]>([]);
-  const { data: session } = useSession();
+  const { user } = useUser();
+  const { activeWorkspace } = useWorkspace();
 
-  const { isLoading: isLoadingAuthors } = useQuery({
-    queryKey: ["authors"],
-    staleTime: Number.POSITIVE_INFINITY,
-    queryFn: async () => {
-      try {
-        const res = await fetch("/api/authors");
-        const authors: AuthorResponse[] = await res.json();
-        setAuthors(authors);
-        return authors;
-      } catch (error) {
-        setAuthors([]);
-        console.error(error);
-      }
-    },
-  });
+  // Transform workspace members into author options
+  const authors = useMemo(() => {
+    if (!activeWorkspace?.members) return [];
 
-  const derivedPrimaryAuthor: AuthorOptions | undefined = session?.user
+    return activeWorkspace.members.map((member) => ({
+      id: member.userId,
+      name: member.user.name || member.user.email,
+      image: member.user.image || "",
+    }));
+  }, [activeWorkspace?.members]);
+
+  const derivedPrimaryAuthor: AuthorOptions | undefined = user
     ? {
-        id: session.user.id as string,
-        name: session.user.name as string,
-        image: session.user.image as string,
+        id: user.id,
+        name: user.name,
+        image: user.image || "",
       }
     : undefined;
 
@@ -124,6 +118,8 @@ export function AuthorSelector({
 
     onChange(newValue);
   };
+
+  const isLoading = !activeWorkspace || !authors.length;
 
   return (
     <div className="flex flex-col gap-3">
@@ -194,7 +190,7 @@ export function AuthorSelector({
             <CommandInput placeholder="Search team members..." />
             <CommandList>
               <CommandEmpty>
-                {isLoadingAuthors ? "Loading authors..." : "No results found."}
+                {isLoading ? "Loading authors..." : "No results found."}
               </CommandEmpty>
               {authors && authors.length > 0 && (
                 <CommandGroup>
