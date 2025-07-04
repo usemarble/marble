@@ -1,8 +1,8 @@
 import { Button } from "@marble/ui/components/button";
 import { cn } from "@marble/ui/lib/utils";
 import {
-  AlignLeft,
-  AlignRight,
+  TextAlignLeft,
+  TextAlignRight,
   TextB as Bold,
   type Icon,
   TextItalic as Italic,
@@ -57,13 +57,13 @@ export const TextButtons = () => {
       name: "alignLeft",
       isActive: (editor) => editor.isActive({ textAlign: "left" }),
       command: (editor) => editor.chain().focus().setTextAlign("left").run(),
-      icon: AlignLeft,
+      icon: TextAlignLeft,
     },
     {
       name: "alignRight",
       isActive: (editor) => editor.isActive({ textAlign: "right" }),
       command: (editor) => editor.chain().focus().setTextAlign("right").run(),
-      icon: AlignRight,
+      icon: TextAlignRight,
     },
     {
       name: "alignCenter",
