@@ -2,7 +2,7 @@
 
 import { Button } from "@marble/ui/components/button";
 import { Input } from "@marble/ui/components/input";
-import { Label } from "@marble/ui/components/label"; // Added Label
+import { Label } from "@marble/ui/components/label";
 import { ScrollArea, ScrollBar } from "@marble/ui/components/scroll-area";
 import { toast } from "@marble/ui/components/sonner";
 import {
@@ -14,14 +14,13 @@ import {
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider, // Added TooltipProvider
   TooltipTrigger,
-} from "@marble/ui/components/tooltip"; // Added Tooltip components
+} from "@marble/ui/components/tooltip";
 import {
   CheckIcon,
   CloudUpload,
   ImageIcon,
-  InfoIcon, // Added InfoIcon
+  InfoIcon,
   Loader2,
   Trash2,
 } from "@marble/ui/lib/icons";
@@ -35,7 +34,6 @@ import { uploadMediaAction } from "@/lib/actions/media";
 import type { PostValues } from "@/lib/validations/post";
 
 // URL schema
-// ... (rest of the existing code for urlSchema, MediaResponse, CoverImageSelectorProps)
 const urlSchema = z.string().url({
   message: "Please enter a valid URL",
 });
@@ -74,7 +72,6 @@ export function CoverImageSelector({
   });
 
   const handleCompressAndUpload = async (fileToUpload: File) => {
-    // ... existing handleCompressAndUpload logic ...
     try {
       setIsUploading(true);
       toast.loading("Compressing...", {
@@ -132,7 +129,6 @@ export function CoverImageSelector({
   };
 
   const handleEmbed = async (url: string) => {
-    // ... existing handleEmbed logic ...
     if (!url) return;
 
     setIsValidatingUrl(true);
@@ -253,7 +249,7 @@ export function CoverImageSelector({
             </div>
           ) : (
             <Label
-              htmlFor="cover-image-file-input" // Changed htmlFor to be more specific
+              htmlFor="cover-image-file-input"
               className="w-full h-48 rounded-md border border-dashed bg-background flex items-center justify-center cursor-pointer"
             >
               <div className="flex flex-col items-center gap-2 text-muted-foreground">
@@ -265,7 +261,7 @@ export function CoverImageSelector({
               </div>
               <Input
                 onChange={(e) => setFile(e.target.files?.[0])}
-                id="cover-image-file-input" // Ensure ID matches htmlFor
+                id="cover-image-file-input"
                 type="file"
                 accept="image/*"
                 className="sr-only"
@@ -302,7 +298,7 @@ export function CoverImageSelector({
           </div>
         </TabsContent>
         <TabsContent value="media" className="h-48">
-          <ScrollArea className="w-full h-48 whitespace-nowrap">
+          <ScrollArea className="w-[calc(var(--sidebar-width)-3rem)] h-48 whitespace-nowrap">
             <div className="flex p-4 gap-3 h-full flex-1">
               {media && media.length > 0 ? (
                 media.map((item) => (
@@ -312,7 +308,7 @@ export function CoverImageSelector({
                     onClick={() => setValue("coverImage", item.url)}
                     className="flex-none group relative"
                   >
-                    <div className="w-40 h-28 rounded-md overflow-hidden border">
+                    <div className="w-32 h-24 rounded-md overflow-hidden border">
                       {/* biome-ignore lint/performance/noImgElement: <> */}
                       <img
                         src={item.url}
@@ -344,19 +340,17 @@ export function CoverImageSelector({
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-1">
         <p className="text-sm font-medium leading-none">Cover Image</p>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <InfoIcon className="size-4 text-gray-400" />
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="text-muted-foreground text-xs max-w-64">
-                A featured image usually used for the post thumbnail and social
-                media previews (optional)
-              </p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <InfoIcon className="size-4 text-gray-400" />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className="text-muted-foreground text-xs max-w-64">
+              A featured image usually used for the post thumbnail and social
+              media previews (optional)
+            </p>
+          </TooltipContent>
+        </Tooltip>
       </div>
       {renderContent()}
     </div>

@@ -17,6 +17,7 @@ import {
   TabsTrigger,
 } from "@marble/ui/components/tabs";
 import { cn } from "@marble/ui/lib/utils";
+import { useState } from "react";
 import type {
   Control,
   FieldErrors,
@@ -75,8 +76,8 @@ export function EditorSidebar({
   const hasErrors = Object.keys(errors).length > 0;
   const { tags, authors: initialAuthors } = watch();
   const { hasUnsavedChanges } = useUnsavedChanges();
+  const [activeTab, setActiveTab] = useState("metadata");
 
-  // Trigger form submit
   const triggerSubmit = async () => {
     if (hasErrors) {
       return toast.error("Please fill in all required fields", {
@@ -90,6 +91,10 @@ export function EditorSidebar({
     }
   };
 
+  const handleAnalyzeContent = () => {
+    toast.info("Content analysis coming soon!");
+  };
+
   return (
     <div className="">
       <Sidebar
@@ -100,25 +105,46 @@ export function EditorSidebar({
         )}
         {...props}
       >
-        <Tabs defaultValue="metadata" className="flex flex-col h-full">
-          <SidebarHeader className="bg-sidebar px-4 flex-shrink-0">
-            <TabsList variant="underline" className="flex justify-start">
-              <TabsTrigger variant="underline" value="metadata">
+        {/* Sticky Header with Tab Triggers */}
+        <SidebarHeader className="bg-sidebar px-6 py-2 flex-shrink-0 sticky top-0 z-10">
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="w-full"
+          >
+            <TabsList variant="underline" className="flex justify-start gap-4">
+              <TabsTrigger
+                variant="underline"
+                value="metadata"
+                className="px-0"
+              >
                 Metadata
               </TabsTrigger>
-              <TabsTrigger variant="underline" value="analysis">
+              <TabsTrigger
+                variant="underline"
+                value="analysis"
+                className="px-0"
+              >
                 Analysis
               </TabsTrigger>
             </TabsList>
-          </SidebarHeader>
+          </Tabs>
+        </SidebarHeader>
 
-          <TabsContent
-            value="metadata"
-            className="flex-1 flex flex-col data-[state=inactive]:hidden"
+        {/* Scrollable Content with Tab Contents */}
+        <SidebarContent className="bg-sidebar flex-1 min-h-0 overflow-hidden">
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="h-full flex flex-col"
           >
-            <SidebarContent className="bg-sidebar flex-1 min-h-0 overflow-hidden">
+            {/* Metadata Tab Content */}
+            <TabsContent
+              value="metadata"
+              className="flex-1 min-h-0 data-[state=inactive]:hidden"
+            >
               <HiddenScrollbar className="px-6 h-full">
-                <section className="grid gap-6 pb-5">
+                <section className="grid gap-6 pb-5 pt-4">
                   <StatusField watch={watch} setValue={setValue} />
 
                   <Separator orientation="horizontal" className="flex" />
@@ -154,45 +180,15 @@ export function EditorSidebar({
                   />
                 </section>
               </HiddenScrollbar>
-            </SidebarContent>
-            <SidebarFooter className="bg-sidebar px-6 py-6 pt-0 flex-shrink-0">
-              {mode === "create" ? (
-                <Button
-                  type="button"
-                  disabled={isSubmitting || !hasUnsavedChanges}
-                  onClick={triggerSubmit}
-                  className="mt-4 min-w-32"
-                >
-                  {isSubmitting ? (
-                    <ButtonLoader className="size-4 animate-spin" />
-                  ) : (
-                    "Save"
-                  )}
-                </Button>
-              ) : (
-                <Button
-                  type="button"
-                  disabled={isSubmitting || !hasUnsavedChanges}
-                  onClick={triggerSubmit}
-                  className="mt-4 min-w-32"
-                >
-                  {isSubmitting ? (
-                    <ButtonLoader className="size-4 animate-spin" />
-                  ) : (
-                    "Update"
-                  )}
-                </Button>
-              )}
-            </SidebarFooter>
-          </TabsContent>
+            </TabsContent>
 
-          <TabsContent
-            value="analysis"
-            className="flex-1 flex flex-col mt-0 data-[state=inactive]:hidden"
-          >
-            <SidebarContent className="bg-sidebar flex-1 min-h-0 overflow-hidden">
+            {/* Analysis Tab Content */}
+            <TabsContent
+              value="analysis"
+              className="flex-1 min-h-0 data-[state=inactive]:hidden"
+            >
               <HiddenScrollbar className="px-6 h-full">
-                <section className="grid gap-6 pb-5">
+                <section className="grid gap-6 pb-5 pt-4">
                   <div className="flex flex-col gap-4">
                     <div className="space-y-2">
                       <h3 className="text-sm font-medium">Readability Score</h3>
@@ -217,14 +213,45 @@ export function EditorSidebar({
                   </div>
                 </section>
               </HiddenScrollbar>
-            </SidebarContent>
-            <SidebarFooter className="bg-sidebar px-6 py-6 pt-0 flex-shrink-0">
-              <Button variant="outline" className="mt-4 min-w-32">
-                Analyze Content
+            </TabsContent>
+          </Tabs>
+        </SidebarContent>
+
+        <SidebarFooter className="bg-sidebar px-6 py-6  flex-shrink-0">
+          {activeTab === "metadata" ? (
+            mode === "create" ? (
+              <Button
+                type="button"
+                disabled={isSubmitting || !hasUnsavedChanges}
+                onClick={triggerSubmit}
+                className="w-full"
+              >
+                {isSubmitting ? (
+                  <ButtonLoader className="size-4 animate-spin" />
+                ) : (
+                  "Save"
+                )}
               </Button>
-            </SidebarFooter>
-          </TabsContent>
-        </Tabs>
+            ) : (
+              <Button
+                type="button"
+                disabled={isSubmitting || !hasUnsavedChanges}
+                onClick={triggerSubmit}
+                className="w-full"
+              >
+                {isSubmitting ? (
+                  <ButtonLoader className="size-4 animate-spin" />
+                ) : (
+                  "Update"
+                )}
+              </Button>
+            )
+          ) : (
+            <Button className="w-full" onClick={handleAnalyzeContent}>
+              Analyze Content
+            </Button>
+          )}
+        </SidebarFooter>
       </Sidebar>
     </div>
   );

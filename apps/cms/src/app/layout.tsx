@@ -55,7 +55,6 @@ async function getInitialUserData(): Promise<{
   isAuthenticated: boolean;
 }> {
   try {
-    // First check if there's a session
     const session = await auth.api.getSession({
       headers: await headers(),
     });
@@ -65,7 +64,6 @@ async function getInitialUserData(): Promise<{
     }
 
     // If there's a session, fetch complete user data from our API
-    // We need to make an internal server request since we're in a server component
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
     const cookieHeader = (await headers()).get("cookie") || "";
 
@@ -73,7 +71,7 @@ async function getInitialUserData(): Promise<{
       headers: {
         Cookie: cookieHeader,
       },
-      cache: "no-store", // Don't cache this request
+      cache: "no-store",
     });
 
     if (response.ok) {
