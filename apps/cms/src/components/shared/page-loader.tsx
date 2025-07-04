@@ -1,10 +1,10 @@
-import { Loader } from "lucide-react";
+import { Spinner } from "@phosphor-icons/react";
 
 function PageLoader() {
   return (
     <div aria-busy="true" className="w-full h-full grid place-content-center">
       <div className="p-2">
-        <Loader className="size-4 animate-spin transition" />
+        <Spinner className="size-6 animate-spin transition" />
       </div>
     </div>
   );
