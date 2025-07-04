@@ -1,4 +1,4 @@
-export const siteConfig = {
+export const SITE_CONFIG = {
   title: "Marble",
   description: "The smarter way to manage your blog",
   url: "https://app.marblecms.com",

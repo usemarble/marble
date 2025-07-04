@@ -27,7 +27,7 @@ import {
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { cn } from "@marble/ui/lib/utils";
-import { Check, ChevronsUpDown, InfoIcon } from "lucide-react";
+import { CaretUpDown, Check, Info } from "@phosphor-icons/react";
 import { useEffect, useMemo, useState } from "react";
 import { type Control, useController } from "react-hook-form";
 import type { PostValues } from "@/lib/validations/post";
@@ -128,7 +128,7 @@ export function AuthorSelector({
         <TooltipProvider>
           <Tooltip delayDuration={0}>
             <TooltipTrigger asChild>
-              <InfoIcon className="size-4 text-gray-400" />
+              <Info className="size-4 text-gray-400" />
             </TooltipTrigger>
             <TooltipContent>
               <p className="text-muted-foreground text-xs max-w-64">
@@ -181,7 +181,7 @@ export function AuthorSelector({
                   </li>
                 ))}
             </ul>
-            <ChevronsUpDown className="size-4 shrink-0 opacity-50" />
+            <CaretUpDown className="size-4 shrink-0 opacity-50" />
           </div>
         </PopoverTrigger>
         {error && <ErrorMessage>{error.message}</ErrorMessage>}

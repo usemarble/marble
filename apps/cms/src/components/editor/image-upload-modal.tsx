@@ -18,8 +18,13 @@ import {
   TabsList,
   TabsTrigger,
 } from "@marble/ui/components/tabs";
+import {
+  CloudArrowUp,
+  Image as ImageIcon,
+  Spinner,
+  Trash,
+} from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { CloudUpload, ImageIcon, Loader2, Trash2 } from "lucide-react";
 import { useEditor } from "novel";
 import { useState } from "react";
 import { uploadMediaAction } from "@/lib/actions/media";
@@ -180,7 +185,7 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
                         disabled={isUploading}
                         className="text-destructive hover:text-destructive"
                       >
-                        <Trash2 className="size-4" />
+                        <Trash className="size-4" />
                         <span>Remove</span>
                       </Button>
                       <Button
@@ -188,9 +193,9 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
                         disabled={isUploading}
                       >
                         {isUploading ? (
-                          <Loader2 className="size-4 animate-spin" />
+                          <Spinner className="size-4 animate-spin" />
                         ) : (
-                          <CloudUpload className="size-4" />
+                          <CloudArrowUp className="size-4" />
                         )}
                         <span>{isUploading ? "Uploading..." : "Upload"}</span>
                       </Button>
@@ -236,7 +241,7 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
                 >
                   {isValidatingUrl ? (
                     <>
-                      <Loader2 className="size-4 animate-spin" />
+                      <Spinner className="size-4 animate-spin" />
                       <span>Validating...</span>
                     </>
                   ) : (

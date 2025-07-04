@@ -7,7 +7,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
-import { InfoIcon } from "@marble/ui/lib/icons";
+import { Info } from "@phosphor-icons/react";
 import type { FieldErrors, UseFormRegister } from "react-hook-form";
 import type { PostValues } from "@/lib/validations/post";
 
@@ -23,7 +23,7 @@ export function DescriptionField({ register, errors }: DescriptionFieldProps) {
         <Label htmlFor="description">Description</Label>
         <Tooltip>
           <TooltipTrigger asChild>
-            <InfoIcon className="size-4 text-gray-400" />
+            <Info className="size-4 text-gray-400" />
           </TooltipTrigger>
           <TooltipContent>
             <p className="text-muted-foreground text-xs max-w-64">

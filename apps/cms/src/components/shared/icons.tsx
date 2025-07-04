@@ -1,4 +1,4 @@
-import type { LucideIcon, LucideProps } from "@marble/ui/lib/icons";
+import type { LucideIcon, LucideProps } from "lucide-react";
 
 export type Icon = LucideIcon;
 

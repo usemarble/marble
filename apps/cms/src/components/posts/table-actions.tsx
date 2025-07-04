@@ -5,7 +5,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
-import { MoreHorizontal, Pencil, Trash } from "lucide-react";
+import {
+  DotsThreeVertical,
+  PencilSimpleLine,
+  Trash,
+} from "@phosphor-icons/react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
@@ -22,7 +26,7 @@ export default function PostTableActions(props: Post) {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="h-8 w-8 p-0">
             <span className="sr-only">Open menu</span>
-            <MoreHorizontal className="h-4 w-4" />
+            <DotsThreeVertical className="" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="text-muted-foreground">
@@ -31,7 +35,7 @@ export default function PostTableActions(props: Post) {
               href={`/${params.workspace}/editor/p/${props.id}`}
               className="flex w-full items-center gap-2"
             >
-              <Pencil size={16} /> <span>Edit</span>
+              <PencilSimpleLine size={16} /> <span>Edit</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem>

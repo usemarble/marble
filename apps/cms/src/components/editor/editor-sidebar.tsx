@@ -17,18 +17,28 @@ import {
   TabsTrigger,
 } from "@marble/ui/components/tabs";
 import { cn } from "@marble/ui/lib/utils";
-import { useState } from "react";
-import type {
-  Control,
-  FieldErrors,
-  UseFormClearErrors,
-  UseFormRegister,
-  UseFormSetValue,
-  UseFormTrigger,
-  UseFormWatch,
+import { useMemo, useState } from "react";
+import {
+  type Control,
+  type FieldErrors,
+  type UseFormClearErrors,
+  type UseFormRegister,
+  type UseFormSetValue,
+  type UseFormTrigger,
+  type UseFormWatch,
+  useController,
 } from "react-hook-form";
+import striptags from "striptags";
+import wordCount from "word-count";
+import { useDebounce } from "@/hooks/use-debounce";
 import type { PostValues } from "@/lib/validations/post";
 import { useUnsavedChanges } from "@/providers/unsaved-changes";
+import {
+  calculateReadabilityScore,
+  generateSuggestions,
+  getReadabilityLevel,
+} from "@/utils/readability";
+import { Gauge } from "../ui/gauge";
 import { ButtonLoader } from "../ui/loader";
 import { AttributionField } from "./fields/attribution-field";
 import { AuthorSelector } from "./fields/author-selector";
@@ -37,9 +47,9 @@ import { CoverImageSelector } from "./fields/cover-image-selector";
 import { DescriptionField } from "./fields/description-field";
 import { PublishDateField } from "./fields/publish-date-field";
 import { SlugField } from "./fields/slug-field";
-import StatusField from "./fields/status-field";
+import { StatusField } from "./fields/status-field";
 import { TagSelector } from "./fields/tag-selector";
-import HiddenScrollbar from "./hidden-scrollbar";
+import { HiddenScrollbar } from "./hidden-scrollbar";
 
 interface EditorSidebarProps extends React.ComponentProps<typeof Sidebar> {
   control: Control<PostValues>;
@@ -78,6 +88,49 @@ export function EditorSidebar({
   const { hasUnsavedChanges } = useUnsavedChanges();
   const [activeTab, setActiveTab] = useState("metadata");
 
+  const {
+    field: { value: contentValue },
+  } = useController({
+    name: "content",
+    control,
+  });
+
+  // const wordCount = editorIntsance.editor?.storage.
+
+  const debouncedContent = useDebounce(contentValue || "", 500);
+
+  const textMetrics = useMemo(() => {
+    const inputHtml = debouncedContent || "";
+    const inputText = striptags(inputHtml);
+
+    const wordCountResult = wordCount(inputText);
+
+    const sentences = inputText
+      .split(/[.!?]+/)
+      .filter((sentence) => sentence.trim().length > 0);
+    const sentenceCount = sentences.length;
+
+    const avgWordsPerSentence =
+      sentenceCount > 0 ? Math.round(wordCountResult / sentenceCount) : 0;
+    const readabilityScore = calculateReadabilityScore(inputHtml);
+    const readabilityLevel = getReadabilityLevel(readabilityScore);
+
+    const metrics = {
+      wordCount: wordCountResult,
+      sentenceCount,
+      avgWordsPerSentence,
+      readabilityScore,
+    };
+
+    const suggestions = generateSuggestions(metrics);
+
+    return {
+      ...metrics,
+      readabilityLevel,
+      suggestions,
+    };
+  }, [debouncedContent]);
+
   const triggerSubmit = async () => {
     if (hasErrors) {
       return toast.error("Please fill in all required fields", {
@@ -91,22 +144,17 @@ export function EditorSidebar({
     }
   };
 
-  const handleAnalyzeContent = () => {
-    toast.info("Content analysis coming soon!");
-  };
-
   return (
     <div className="">
       <Sidebar
         side="right"
         className={cn(
-          "bg-sidebar m-2 rounded-xl shadow-sm border h-[calc(100vh-1rem)] min-h-[calc(100vh-1rem)] overflow-hidden",
+          "bg-sidebar m-2 h-[calc(100vh-1rem)] min-h-[calc(100vh-1rem)] overflow-hidden rounded-xl border shadow-sm",
           !open ? "mr-0" : "",
         )}
         {...props}
       >
-        {/* Sticky Header with Tab Triggers */}
-        <SidebarHeader className="bg-sidebar px-6 py-2 flex-shrink-0 sticky top-0 z-10">
+        <SidebarHeader className="bg-sidebar sticky top-0 z-10 flex-shrink-0 px-6 py-2">
           <Tabs
             value={activeTab}
             onValueChange={setActiveTab}
@@ -131,19 +179,17 @@ export function EditorSidebar({
           </Tabs>
         </SidebarHeader>
 
-        {/* Scrollable Content with Tab Contents */}
-        <SidebarContent className="bg-sidebar flex-1 min-h-0 overflow-hidden">
+        <SidebarContent className="bg-sidebar min-h-0 flex-1 overflow-hidden">
           <Tabs
             value={activeTab}
             onValueChange={setActiveTab}
-            className="h-full flex flex-col"
+            className="flex h-full flex-col"
           >
-            {/* Metadata Tab Content */}
             <TabsContent
               value="metadata"
-              className="flex-1 min-h-0 data-[state=inactive]:hidden"
+              className="min-h-0 flex-1 data-[state=inactive]:hidden"
             >
-              <HiddenScrollbar className="px-6 h-full">
+              <HiddenScrollbar className="h-full px-6">
                 <section className="grid gap-6 pb-5 pt-4">
                   <StatusField watch={watch} setValue={setValue} />
 
@@ -171,7 +217,7 @@ export function EditorSidebar({
 
                   <PublishDateField watch={watch} setValue={setValue} />
 
-                  <Separator orientation="horizontal" className="flex mt-4" />
+                  <Separator orientation="horizontal" className="mt-4 flex" />
 
                   <AttributionField
                     watch={watch}
@@ -182,32 +228,74 @@ export function EditorSidebar({
               </HiddenScrollbar>
             </TabsContent>
 
-            {/* Analysis Tab Content */}
             <TabsContent
               value="analysis"
-              className="flex-1 min-h-0 data-[state=inactive]:hidden"
+              className="min-h-0 flex-1 data-[state=inactive]:hidden"
             >
-              <HiddenScrollbar className="px-6 h-full">
+              <HiddenScrollbar className="h-full px-6">
                 <section className="grid gap-6 pb-5 pt-4">
                   <div className="flex flex-col gap-4">
                     <div className="space-y-2">
-                      <h3 className="text-sm font-medium">Readability Score</h3>
-                      <div className="text-2xl font-bold text-green-600">
-                        85
+                      <h4 className="text-sm font-medium">Readability</h4>
+                      <div className="flex items-center justify-center">
+                        <Gauge
+                          value={textMetrics.readabilityScore}
+                          label="Score"
+                          size={200}
+                          animate={true}
+                        />
                       </div>
-                      <p className="text-xs text-muted-foreground">
-                        Good readability for general audience
-                      </p>
+                      {textMetrics.wordCount > 0 && (
+                        <div className="space-y-1">
+                          <h5 className="text-sm font-medium">Feedback</h5>
+                          <p className="text-muted-foreground text-xs">
+                            <span className="font-medium">
+                              {textMetrics.readabilityLevel.level}:
+                            </span>{" "}
+                            {textMetrics.readabilityLevel.description}
+                          </p>
+                        </div>
+                      )}
                     </div>
 
                     <Separator />
 
                     <div className="space-y-3">
-                      <h4 className="text-sm font-medium">Suggestions</h4>
-                      <div className="space-y-2 text-sm text-muted-foreground">
-                        <p>• Consider shorter sentences</p>
-                        <p>• Use more common words</p>
-                        <p>• Add subheadings to break up content</p>
+                      <h4 className="text-sm font-medium">Text Statistics</h4>
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div className="space-y-1">
+                          <p className="text-muted-foreground">Words</p>
+                          <p className="font-medium">{textMetrics.wordCount}</p>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-muted-foreground">Sentences</p>
+                          <p className="font-medium">
+                            {textMetrics.sentenceCount}
+                          </p>
+                        </div>
+                        <div className="col-span-2 space-y-1">
+                          <p className="text-muted-foreground">
+                            Avg. words per sentence
+                          </p>
+                          <p className="font-medium">
+                            {textMetrics.avgWordsPerSentence}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    <div className="space-y-3">
+                      <h4 className="text-sm font-medium">
+                        {textMetrics.wordCount === 0
+                          ? "Getting Started"
+                          : "Suggestions"}
+                      </h4>
+                      <div className="text-muted-foreground space-y-2 text-sm">
+                        {textMetrics.suggestions.map((suggestion) => (
+                          <p key={suggestion}>• {suggestion}</p>
+                        ))}
                       </div>
                     </div>
                   </div>
@@ -217,9 +305,9 @@ export function EditorSidebar({
           </Tabs>
         </SidebarContent>
 
-        <SidebarFooter className="bg-sidebar px-6 py-6  flex-shrink-0">
-          {activeTab === "metadata" ? (
-            mode === "create" ? (
+        <SidebarFooter className="bg-sidebar flex-shrink-0 px-6 py-6">
+          {activeTab === "metadata" &&
+            (mode === "create" ? (
               <Button
                 type="button"
                 disabled={isSubmitting || !hasUnsavedChanges}
@@ -245,12 +333,7 @@ export function EditorSidebar({
                   "Update"
                 )}
               </Button>
-            )
-          ) : (
-            <Button className="w-full" onClick={handleAnalyzeContent}>
-              Analyze Content
-            </Button>
-          )}
+            ))}
         </SidebarFooter>
       </Sidebar>
     </div>

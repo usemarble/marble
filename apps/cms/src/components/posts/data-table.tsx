@@ -10,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@marble/ui/components/table";
+import { MagnifyingGlass, Plus, X } from "@phosphor-icons/react";
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -19,7 +20,6 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { Plus, SearchIcon, XIcon } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -55,7 +55,7 @@ export function PostDataTable<TData, TValue>({
     <div>
       <div className="flex items-center py-4 justify-between">
         <div className="relative">
-          <SearchIcon
+          <MagnifyingGlass
             size={16}
             className="text-muted-foreground size-4 absolute top-3 left-3"
           />
@@ -73,7 +73,7 @@ export function PostDataTable<TData, TValue>({
               onClick={() => table.getColumn("title")?.setFilterValue("")}
               className="absolute right-3 top-3"
             >
-              <XIcon className="size-4" />
+              <X className="size-4" />
               <span className="sr-only">Clear search</span>
             </button>
           )}
