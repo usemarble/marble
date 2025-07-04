@@ -1,9 +1,16 @@
 "use client";
 
 import { Button } from "@marble/ui/components/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@marble/ui/components/dialog";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
-import { ScrollArea, ScrollBar } from "@marble/ui/components/scroll-area";
+import { ScrollArea } from "@marble/ui/components/scroll-area";
 import { toast } from "@marble/ui/components/sonner";
 import {
   Tabs,
@@ -20,6 +27,7 @@ import { cn } from "@marble/ui/lib/utils";
 import {
   Check,
   Image as ImageIcon,
+  Images,
   Info,
   Spinner,
   Trash,
@@ -59,6 +67,7 @@ export function CoverImageSelector({
   const [isValidatingUrl, setIsValidatingUrl] = useState(false);
   const [urlError, setUrlError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
 
   // Fetch media
   const { data: media } = useQuery({
@@ -157,6 +166,11 @@ export function CoverImageSelector({
     }
   };
 
+  const handleImageSelect = (url: string) => {
+    setValue("coverImage", url);
+    setIsGalleryOpen(false);
+  };
+
   const renderContent = () => {
     if (coverImage) {
       return (
@@ -225,25 +239,6 @@ export function CoverImageSelector({
                       )}
                     </Button>
                   </div>
-                  {/* <Button
-                  variant="destructive"
-                  onClick={() => setFile(undefined)}
-                  disabled={isUploading}
-                >
-                  <Trash2 className="size-4" />
-                  <span>Remove</span>
-                </Button>
-                <Button
-                  disabled={isUploading}
-                  onClick={() => file && handleCompressAndUpload(file)}
-                >
-                  {isUploading ? (
-                    <Loader2 className="size-4 animate-spin" />
-                  ) : (
-                    <CloudUpload className="size-4" />
-                  )}
-                  <span>Upload</span>
-                </Button> */}
                 </div>
               </div>
             </div>
@@ -270,67 +265,56 @@ export function CoverImageSelector({
           )}
         </TabsContent>
         <TabsContent value="embed" className="h-48">
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <Input
-                value={embedUrl}
-                onChange={({ target }) => {
-                  setEmbedUrl(target.value);
-                  setUrlError(null);
-                }}
-                placeholder="Paste your cover image link"
-                className={cn(urlError && "border-destructive")}
-              />
-              <Button
-                className="shrink-0"
-                size="icon"
-                onClick={() => handleEmbed(embedUrl)}
-                disabled={isValidatingUrl || !embedUrl}
-              >
-                {isValidatingUrl ? (
-                  <Spinner className="size-4 animate-spin" />
-                ) : (
-                  <Check className="size-4" />
-                )}
-              </Button>
+          <div className="w-full h-48 rounded-md border border-dashed bg-background flex items-center justify-start">
+            <div className="flex flex-col gap-2 w-full max-w-sm px-4">
+              <div className="flex items-center gap-2">
+                <Input
+                  value={embedUrl}
+                  onChange={({ target }) => {
+                    setEmbedUrl(target.value);
+                    setUrlError(null);
+                  }}
+                  placeholder="Paste your cover image link"
+                  className={cn(urlError && "border-destructive")}
+                />
+                <Button
+                  className="shrink-0"
+                  size="icon"
+                  onClick={() => handleEmbed(embedUrl)}
+                  disabled={isValidatingUrl || !embedUrl}
+                >
+                  {isValidatingUrl ? (
+                    <Spinner className="size-4 animate-spin" />
+                  ) : (
+                    <Check className="size-4" />
+                  )}
+                </Button>
+              </div>
+              {urlError && (
+                <p className="text-sm text-destructive">{urlError}</p>
+              )}
             </div>
-            {urlError && <p className="text-sm text-destructive">{urlError}</p>}
           </div>
         </TabsContent>
         <TabsContent value="media" className="h-48">
-          <ScrollArea className="w-[calc(var(--sidebar-width)-3rem)] h-48 whitespace-nowrap">
-            <div className="flex p-4 gap-3 h-full flex-1">
+          <button
+            type="button"
+            onClick={() => setIsGalleryOpen(true)}
+            className="w-full h-48 rounded-md border border-dashed bg-background flex items-center justify-center cursor-pointer transition-colors"
+          >
+            <div className="flex flex-col items-center gap-2 text-muted-foreground">
               {media && media.length > 0 ? (
-                media.map((item) => (
-                  <button
-                    type="button"
-                    key={item.id}
-                    onClick={() => setValue("coverImage", item.url)}
-                    className="flex-none group relative"
-                  >
-                    <div className="w-32 h-24 rounded-md overflow-hidden border">
-                      {/* biome-ignore lint/performance/noImgElement: <> */}
-                      <img
-                        src={item.url}
-                        alt={item.name}
-                        className="w-full h-full object-cover rounded-md transition group-hover:scale-105"
-                      />
-                    </div>
-                  </button>
-                ))
+                <Images className="size-4" />
               ) : (
-                <div className="w-full flex-1 h-48 rounded-md border border-dashed bg-background flex items-center justify-center -m-4">
-                  <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                    <ImageIcon className="size-4" />
-                    <p className="text-sm font-medium">
-                      No media found. Upload some images first.
-                    </p>
-                  </div>
-                </div>
+                <ImageIcon className="size-4" />
               )}
+              <p className="text-sm font-medium">
+                {media && media.length > 0
+                  ? "Click to view your gallery"
+                  : "No media found. Upload some images first."}
+              </p>
             </div>
-            <ScrollBar orientation="horizontal" />
-          </ScrollArea>
+          </button>
         </TabsContent>
       </Tabs>
     );
@@ -353,6 +337,55 @@ export function CoverImageSelector({
         </Tooltip>
       </div>
       {renderContent()}
+
+      {/* Media Gallery Modal */}
+      <Dialog open={isGalleryOpen} onOpenChange={setIsGalleryOpen}>
+        <DialogContent className="max-w-5xl w-full max-h-[80vh]">
+          <DialogHeader>
+            <DialogTitle>Gallery</DialogTitle>
+            <DialogDescription className="sr-only">
+              Select an image from your media library to use as your cover
+              image.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex-1 overflow-hidden">
+            {media && media.length > 0 ? (
+              <ScrollArea className="h-full">
+                <ul className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-4 p-6">
+                  {media.map((item) => (
+                    <li
+                      key={item.id}
+                      className="relative rounded-md h-48 overflow-hidden group"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => handleImageSelect(item.url)}
+                        className="w-full h-full"
+                      >
+                        {/* biome-ignore lint/performance/noImgElement: <> */}
+                        <img
+                          src={item.url}
+                          alt={item.name}
+                          className="object-cover w-full h-full"
+                        />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </ScrollArea>
+            ) : (
+              <div className="flex items-center justify-center h-full p-6">
+                <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                  <ImageIcon className="size-8" />
+                  <p className="text-sm font-medium">
+                    No media found. Upload some images first.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

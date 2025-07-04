@@ -149,29 +149,29 @@ export function EditorSidebar({
       <Sidebar
         side="right"
         className={cn(
-          "bg-sidebar m-2 h-[calc(100vh-1rem)] min-h-[calc(100vh-1rem)] overflow-hidden rounded-xl border shadow-sm",
+          "bg-sidebar/70 m-2 h-[calc(100vh-1rem)] min-h-[calc(100vh-1rem)] overflow-hidden rounded-xl border",
           !open ? "mr-0" : "",
         )}
         {...props}
       >
-        <SidebarHeader className="bg-sidebar sticky top-0 z-10 flex-shrink-0 px-6 py-2">
+        <SidebarHeader className="bg-transparent sticky top-0 z-10 flex-shrink-0 px-6 py-4">
           <Tabs
             value={activeTab}
             onValueChange={setActiveTab}
             className="w-full"
           >
-            <TabsList variant="underline" className="flex justify-start gap-4">
+            <TabsList variant="underline" className="flex justify-start gap-2">
               <TabsTrigger
                 variant="underline"
                 value="metadata"
-                className="px-0"
+                className="px-2"
               >
                 Metadata
               </TabsTrigger>
               <TabsTrigger
                 variant="underline"
                 value="analysis"
-                className="px-0"
+                className="px-2"
               >
                 Analysis
               </TabsTrigger>
@@ -179,7 +179,7 @@ export function EditorSidebar({
           </Tabs>
         </SidebarHeader>
 
-        <SidebarContent className="bg-sidebar min-h-0 flex-1 overflow-hidden">
+        <SidebarContent className="bg-transparent min-h-0 flex-1 overflow-hidden">
           <Tabs
             value={activeTab}
             onValueChange={setActiveTab}
@@ -305,7 +305,7 @@ export function EditorSidebar({
           </Tabs>
         </SidebarContent>
 
-        <SidebarFooter className="bg-sidebar flex-shrink-0 px-6 py-6">
+        <SidebarFooter className="bg-transparent flex-shrink-0 px-6 py-6">
           {activeTab === "metadata" &&
             (mode === "create" ? (
               <Button

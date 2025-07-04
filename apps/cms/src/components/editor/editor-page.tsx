@@ -141,7 +141,7 @@ function EditorPage({ initialData = emptyPost, id }: EditorPageProps) {
 
   return (
     <>
-      <SidebarInset className="bg-sidebar rounded-xl shadow-sm border min-h-[calc(100vh-1rem)] h-[calc(100vh-1rem)]">
+      <SidebarInset className="bg-sidebar/70 rounded-xl shadow-sm border min-h-[calc(100vh-1rem)] h-[calc(100vh-1rem)]">
         <header className="sticky top-0 p-3 z-50 flex justify-between">
           <div className="flex gap-4 items-center">
             <Button
@@ -170,7 +170,7 @@ function EditorPage({ initialData = emptyPost, id }: EditorPageProps) {
             <form
               ref={formRef}
               onSubmit={handleSubmit(onSubmit)}
-              className="space-y-5 rounded-md px-4 pt-7 pb-8"
+              className="space-y-5 rounded-md p-4"
             >
               <div className="flex flex-col">
                 <label htmlFor="title" className="sr-only">
