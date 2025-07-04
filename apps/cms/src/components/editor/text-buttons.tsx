@@ -1,14 +1,14 @@
 import { Button } from "@marble/ui/components/button";
 import { cn } from "@marble/ui/lib/utils";
 import {
-  TextAlignLeft,
-  TextAlignRight,
   TextB as Bold,
   type Icon,
   TextItalic as Italic,
   TextStrikethrough as Strikethrough,
   TextAlignCenter,
   TextAlignJustify,
+  TextAlignLeft,
+  TextAlignRight,
   TextUnderline as Underline,
 } from "@phosphor-icons/react";
 import { useEditor } from "novel";
