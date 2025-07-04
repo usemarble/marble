@@ -16,15 +16,15 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
-import {
-  CheckIcon,
-  CloudUpload,
-  ImageIcon,
-  InfoIcon,
-  Loader2,
-  Trash2,
-} from "@marble/ui/lib/icons";
 import { cn } from "@marble/ui/lib/utils";
+import {
+  Check,
+  Image as ImageIcon,
+  Info,
+  Spinner,
+  Trash,
+  Upload,
+} from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import type { UseFormSetValue, UseFormWatch } from "react-hook-form";
@@ -172,7 +172,7 @@ export function CoverImageSelector({
             onClick={() => setValue("coverImage", null)}
             className="absolute top-2 right-2 p-1.5 transition bg-white rounded-full text-black hover:text-destructive"
           >
-            <Trash2 className="size-4" />
+            <Trash className="size-4" />
             <span className="sr-only">remove image</span>
           </button>
         </div>
@@ -210,7 +210,7 @@ export function CoverImageSelector({
                       disabled={isUploading}
                       className="bg-white rounded-full text-black hover:bg-white hover:text-destructive"
                     >
-                      <Trash2 className="size-4" />
+                      <Trash className="size-4" />
                     </Button>
                     <Button
                       disabled={isUploading}
@@ -219,9 +219,9 @@ export function CoverImageSelector({
                       className="bg-white rounded-full text-black hover:bg-white hover:text-primary"
                     >
                       {isUploading ? (
-                        <Loader2 className="size-4 animate-spin" />
+                        <Spinner className="size-4 animate-spin" />
                       ) : (
-                        <CloudUpload className="size-4" />
+                        <Upload className="size-4" />
                       )}
                     </Button>
                   </div>
@@ -288,9 +288,9 @@ export function CoverImageSelector({
                 disabled={isValidatingUrl || !embedUrl}
               >
                 {isValidatingUrl ? (
-                  <Loader2 className="size-4 animate-spin" />
+                  <Spinner className="size-4 animate-spin" />
                 ) : (
-                  <CheckIcon className="size-4" />
+                  <Check className="size-4" />
                 )}
               </Button>
             </div>
@@ -342,7 +342,7 @@ export function CoverImageSelector({
         <p className="text-sm font-medium leading-none">Cover Image</p>
         <Tooltip>
           <TooltipTrigger asChild>
-            <InfoIcon className="size-4 text-gray-400" />
+            <Info className="size-4 text-gray-400" />
           </TooltipTrigger>
           <TooltipContent>
             <p className="text-muted-foreground text-xs max-w-64">

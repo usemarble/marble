@@ -1,5 +1,6 @@
 "use client";
 import { cn } from "@marble/ui/lib/utils";
+import { nanoid } from "nanoid";
 
 interface SegmentedProgressProps {
   value: number;
@@ -34,7 +35,7 @@ export function SegmentedProgress({
       <div className="flex items-end gap-1" style={{ width: `${width}px` }}>
         {Array.from({ length: segments }, (_, index) => (
           <div
-            key={index}
+            key={nanoid()}
             className={cn(
               "h-8 rounded-sm transition-colors duration-200",
               index < filledSegments ? filledColor : unfilledColor,

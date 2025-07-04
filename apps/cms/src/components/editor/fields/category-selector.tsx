@@ -13,8 +13,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
+import { Info, Plus } from "@phosphor-icons/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { InfoIcon, PlusIcon } from "lucide-react";
 import { useState } from "react";
 import type {
   Control,
@@ -82,7 +82,7 @@ export function CategorySelector({
           <Label htmlFor="category">Category</Label>
           <Tooltip>
             <TooltipTrigger asChild>
-              <InfoIcon className="size-4 text-gray-400" />
+              <Info className="size-4 text-gray-400" />
             </TooltipTrigger>
             <TooltipContent>
               <p className="text-muted-foreground text-xs max-w-64">
@@ -117,7 +117,7 @@ export function CategorySelector({
                   className="flex items-center gap-1 p-1 hover:bg-accent"
                   onClick={() => setShowCategoryModal(true)}
                 >
-                  <PlusIcon className="size-4 text-muted-foreground" />
+                  <Plus className="size-4 text-muted-foreground" />
                   <span className="sr-only">Add New Category</span>
                 </button>
               </SelectLabel>

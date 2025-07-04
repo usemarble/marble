@@ -8,15 +8,15 @@ import {
   useSidebar,
 } from "@marble/ui/components/sidebar";
 import { toast } from "@marble/ui/components/sonner";
-import { CornerUpLeft } from "@marble/ui/lib/icons";
 import { cn } from "@marble/ui/lib/utils";
+import { ArrowElbowUpLeft } from "@phosphor-icons/react";
 import { useParams, useRouter } from "next/navigation";
 import type { JSONContent } from "novel";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import Editor from "@/components/editor/editor";
+import { Editor } from "@/components/editor/editor";
 import { EditorSidebar } from "@/components/editor/editor-sidebar";
-import HiddenScrollbar from "@/components/editor/hidden-scrollbar";
+import { HiddenScrollbar } from "@/components/editor/hidden-scrollbar";
 import { createPostAction, updatePostAction } from "@/lib/actions/post";
 import { emptyPost } from "@/lib/data/post";
 import { type PostValues, postSchema } from "@/lib/validations/post";
@@ -151,7 +151,10 @@ function EditorPage({ initialData = emptyPost, id }: EditorPageProps) {
               onClick={() => router.back()}
               className="group"
             >
-              <CornerUpLeft className="size-4 text-muted-foreground group-hover:text-foreground" />
+              <ArrowElbowUpLeft
+                weight="regular"
+                className="size-6 text-muted-foreground group-hover:text-foreground"
+              />
             </Button>
           </div>
 

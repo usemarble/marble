@@ -22,9 +22,8 @@ import {
   useSidebar,
 } from "@marble/ui/components/sidebar";
 import { Skeleton } from "@marble/ui/components/skeleton";
-import { Check, Plus } from "@marble/ui/lib/icons";
 import { cn } from "@marble/ui/lib/utils";
-import { CaretDown } from "@phosphor-icons/react";
+import { CaretDown, Check, Plus } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useWorkspace } from "../../providers/workspace";

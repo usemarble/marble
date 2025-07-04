@@ -1,16 +1,16 @@
 import {
   CheckSquare,
-  Code2Icon,
-  Heading2,
-  Heading3,
-  Heading4,
-  ImageIcon,
+  Code,
+  Image as ImageIcon,
   List,
-  ListOrdered,
-  Quote,
-  Text,
-  YoutubeIcon,
-} from "@marble/ui/lib/icons";
+  ListNumbers,
+  Quotes,
+  TextAlignLeft,
+  TextHFour,
+  TextHThree,
+  TextHTwo,
+  YoutubeLogo,
+} from "@phosphor-icons/react";
 import { Command, createSuggestionItems, renderItems } from "novel/extensions";
 import { uploadFn } from "./image-upload";
 
@@ -19,7 +19,7 @@ export const suggestionItems = createSuggestionItems([
     title: "Text",
     description: "Just start typing with plain text.",
     searchTerms: ["p", "paragraph"],
-    icon: <Text size={16} />,
+    icon: <TextAlignLeft size={16} />,
     command: ({ editor, range }) => {
       editor
         .chain()
@@ -33,7 +33,7 @@ export const suggestionItems = createSuggestionItems([
     title: "Heading 2",
     description: "Medium section heading.",
     searchTerms: ["subtitle", "medium"],
-    icon: <Heading2 size={16} />,
+    icon: <TextHTwo size={16} />,
     command: ({ editor, range }) => {
       editor
         .chain()
@@ -47,7 +47,7 @@ export const suggestionItems = createSuggestionItems([
     title: "Heading 3",
     description: "Small section heading.",
     searchTerms: ["subtitle", "small"],
-    icon: <Heading3 size={16} />,
+    icon: <TextHThree size={16} />,
     command: ({ editor, range }) => {
       editor
         .chain()
@@ -61,7 +61,7 @@ export const suggestionItems = createSuggestionItems([
     title: "Heading 4",
     description: "Small section heading.",
     searchTerms: ["subtitle", "small"],
-    icon: <Heading4 size={16} />,
+    icon: <TextHFour size={16} />,
     command: ({ editor, range }) => {
       editor
         .chain()
@@ -84,7 +84,7 @@ export const suggestionItems = createSuggestionItems([
     title: "Numbered List",
     description: "Create a list with numbering.",
     searchTerms: ["ordered"],
-    icon: <ListOrdered size={16} />,
+    icon: <ListNumbers size={16} />,
     command: ({ editor, range }) => {
       editor.chain().focus().deleteRange(range).toggleOrderedList().run();
     },
@@ -93,7 +93,7 @@ export const suggestionItems = createSuggestionItems([
     title: "Quote",
     description: "Capture a quote.",
     searchTerms: ["blockquote"],
-    icon: <Quote size={16} />,
+    icon: <Quotes size={16} />,
     command: ({ editor, range }) =>
       editor
         .chain()
@@ -107,7 +107,7 @@ export const suggestionItems = createSuggestionItems([
     title: "Code Block",
     description: "Capture code snippets.",
     searchTerms: ["code", "block"],
-    icon: <Code2Icon size={16} />,
+    icon: <Code size={16} />,
     command: ({ editor, range }) =>
       editor
         .chain()
@@ -149,7 +149,7 @@ export const suggestionItems = createSuggestionItems([
   {
     title: "YouTube",
     description: "Embed a YouTube video",
-    icon: <YoutubeIcon className="size-4" />,
+    icon: <YoutubeLogo className="size-4" />,
   },
 ]);
 

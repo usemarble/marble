@@ -17,7 +17,7 @@ function PageClient({ posts }: PageClientProps) {
   const params = useParams<{ workspace: string }>();
 
   return (
-    <WorkspacePageWrapper className="h-full flex flex-col max-w-4xl mx-auto py-16">
+    <WorkspacePageWrapper className="flex flex-col pt-10 pb-16 gap-8">
       {posts.length > 0 ? (
         <PostDataTable columns={columns} data={posts} />
       ) : (

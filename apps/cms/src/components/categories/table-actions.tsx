@@ -5,7 +5,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import {
+  DotsThreeVertical,
+  PencilSimpleLine,
+  Trash,
+} from "@phosphor-icons/react";
 import { useState } from "react";
 import { DeleteCategoryModal, UpdateCategoryModal } from "./category-modals";
 import type { Category } from "./columns";
@@ -20,7 +24,7 @@ export default function TableActions(props: Category) {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="h-8 w-8 p-0">
             <span className="sr-only">Open menu</span>
-            <MoreHorizontal className="h-4 w-4" />
+            <DotsThreeVertical className="" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="text-muted-foreground">
@@ -30,7 +34,7 @@ export default function TableActions(props: Category) {
               onClick={() => setShowUpdateModal(true)}
               className="flex w-full items-center gap-2"
             >
-              <Pencil size={16} /> <span>Edit</span>
+              <PencilSimpleLine size={16} /> <span>Edit</span>
             </button>
           </DropdownMenuItem>
           <DropdownMenuItem>
@@ -39,7 +43,7 @@ export default function TableActions(props: Category) {
               onClick={() => setShowDeleteModal(true)}
               className="flex w-full items-center gap-2"
             >
-              <Trash2 size={16} /> <span>Delete</span>
+              <Trash size={16} /> <span>Delete</span>
             </button>
           </DropdownMenuItem>
         </DropdownMenuContent>

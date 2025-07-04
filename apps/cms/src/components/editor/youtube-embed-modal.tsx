@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from "@marble/ui/components/dialog";
 import { Input } from "@marble/ui/components/input";
-import { YoutubeIcon } from "@marble/ui/lib/icons";
+import { YoutubeLogo } from "@phosphor-icons/react";
 import { useEditor } from "novel";
 import { useState } from "react";
 
@@ -49,7 +49,7 @@ export function YoutubeEmbedModal({
             placeholder="Paste YouTube URL"
           />
           <Button onClick={() => handleEmbed(url)}>
-            <YoutubeIcon className="mr-2 size-4" />
+            <YoutubeLogo className="mr-2 size-4" />
             Embed Video
           </Button>
         </div>

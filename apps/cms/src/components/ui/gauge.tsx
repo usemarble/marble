@@ -1,8 +1,9 @@
 "use client";
 
-import * as React from "react";
-import { motion } from "motion/react";
 import { cn } from "@marble/ui/lib/utils";
+import { motion } from "motion/react";
+import { nanoid } from "nanoid";
+import * as React from "react";
 
 interface GaugeProps {
   value: number;
@@ -79,7 +80,7 @@ export function Gauge({
           <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
             {colors.map((color, index) => (
               <stop
-                key={index}
+                key={nanoid()}
                 offset={`${(index / (colors.length - 1)) * 100}%`}
                 stopColor={color}
               />

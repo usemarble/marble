@@ -21,7 +21,7 @@ import {
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
-import { Loader } from "@marble/ui/lib/icons";
+import { Spinner } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
@@ -138,7 +138,7 @@ export const CreateCategoryModal = ({
             className="flex w-full gap-2 mt-4"
             size={"sm"}
           >
-            {isSubmitting && <Loader className="size-4 animate-spin" />}
+            {isSubmitting && <Spinner className="size-4 animate-spin" />}
             Create category
           </Button>
         </form>
@@ -233,7 +233,7 @@ export const UpdateCategoryModal = ({
             className="flex w-full gap-2 mt-4"
             size={"sm"}
           >
-            {isSubmitting && <Loader className="size-4 animate-spin" />}
+            {isSubmitting && <Spinner className="size-4 animate-spin" />}
             Update category
           </Button>
         </form>
@@ -285,7 +285,7 @@ export const DeleteCategoryModal = ({
               disabled={loading}
               variant="destructive"
             >
-              {loading ? <Loader className="size-4 animate-spin" /> : "Delete"}
+              {loading ? <Spinner className="size-4 animate-spin" /> : "Delete"}
             </Button>
           </AlertDialogAction>
         </AlertDialogFooter>

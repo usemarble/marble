@@ -5,7 +5,7 @@ interface HiddenScrollbarProps extends React.HTMLAttributes<HTMLDivElement> {
   orientation?: "vertical" | "horizontal";
 }
 
-function HiddenScrollbar({
+export function HiddenScrollbar({
   className,
   children,
   orientation = "vertical",
@@ -29,5 +29,3 @@ function HiddenScrollbar({
     </div>
   );
 }
-
-export default HiddenScrollbar;

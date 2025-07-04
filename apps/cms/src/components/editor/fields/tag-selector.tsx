@@ -23,8 +23,8 @@ import {
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { cn } from "@marble/ui/lib/utils";
+import { CaretUpDown, Check, Info, Plus, X } from "@phosphor-icons/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, ChevronsUpDown, InfoIcon, PlusIcon, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { type Control, useController } from "react-hook-form";
 import type { PostValues } from "@/lib/validations/post";
@@ -121,7 +121,7 @@ export const TagSelector = ({
         <Label htmlFor="tags">Tags</Label>
         <Tooltip>
           <TooltipTrigger asChild>
-            <InfoIcon className="size-4 text-gray-400" />
+            <Info className="size-4 text-gray-400" />
           </TooltipTrigger>
           <TooltipContent>
             <p className="text-muted-foreground text-xs max-w-64">
@@ -155,13 +155,13 @@ export const TagSelector = ({
                           handleRemoveTag(item.id);
                         }}
                       >
-                        <XIcon className="size-2.5" />
+                        <X className="size-2.5" />
                       </Button>
                     </Badge>
                   </li>
                 ))}
               </ul>
-              <ChevronsUpDown className="size-4 shrink-0 opacity-50" />
+              <CaretUpDown className="size-4 shrink-0 opacity-50" />
             </div>
           </div>
         </PopoverTrigger>
@@ -184,7 +184,7 @@ export const TagSelector = ({
                   className="flex items-center gap-1 p-1 hover:bg-accent"
                   onClick={() => setOpenTagModal(true)}
                 >
-                  <PlusIcon className="size-4 text-muted-foreground" />
+                  <Plus className="size-4 text-muted-foreground" />
                   <span className="sr-only">Add a new tag</span>
                 </button>
               </div>
