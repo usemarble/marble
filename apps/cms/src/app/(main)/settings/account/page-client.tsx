@@ -17,6 +17,7 @@ import {
 } from "@marble/ui/components/card";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
+import { Skeleton } from "@marble/ui/components/skeleton";
 import { cn } from "@marble/ui/lib/utils";
 import {
   ArrowLeft,
@@ -25,6 +26,7 @@ import {
   Image,
   UploadSimple,
 } from "@phosphor-icons/react";
+import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -40,31 +42,36 @@ import { updateUserAction } from "@/lib/actions/account";
 import { uploadUserAvatarAction } from "@/lib/actions/media";
 import type { ProfileData } from "@/lib/validations/settings";
 import { profileSchema } from "@/lib/validations/settings";
+import { useUser } from "@/providers/user";
+import { request } from "@/utils/fetch/client";
 
-interface AccountSettingsPageClientProps {
-  accountDetails: {
-    id: string;
-    createdAt: Date;
-    providerId: string;
-    accountId: string;
-    email: string;
-  }[];
-  userDetails: {
-    name: string;
-    email: string;
-    id: string;
-    image: string | null | undefined;
-  };
+interface AccountDetail {
+  id: string;
+  createdAt: Date;
+  providerId: string;
+  accountId: string;
+  email: string;
 }
 
-export default function PageClient({
-  accountDetails,
-  userDetails,
-}: AccountSettingsPageClientProps) {
+export default function PageClient() {
+  const { user } = useUser();
+
+  // Fetch account details using React Query
+  const { data: accountDetails, isLoading: isLoadingAccounts } = useQuery({
+    queryKey: ["accounts"],
+    queryFn: async (): Promise<AccountDetail[]> => {
+      const response = await request<AccountDetail[]>("/accounts", "GET");
+      return response.data.map((account) => ({
+        ...account,
+        createdAt: new Date(account.createdAt),
+      }));
+    },
+    enabled: !!user,
+  });
   const [isUploading, setIsUploading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null | undefined>(
-    userDetails.image,
+    user?.image,
   );
   const [avatarCopied, setAvatarCopied] = useState(false);
   const [isNameChanged, setIsNameChanged] = useState(false);
@@ -73,13 +80,26 @@ export default function PageClient({
     register,
     handleSubmit,
     watch,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<ProfileData>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      name: userDetails.name || "",
+      name: user?.name || "",
     },
   });
+
+  useEffect(() => {
+    if (user?.name) {
+      reset({ name: user.name });
+    }
+  }, [user?.name, reset]);
+
+  useEffect(() => {
+    if (user?.image) {
+      setAvatarUrl(user.image);
+    }
+  }, [user?.image]);
 
   const { name } = watch();
 
@@ -140,12 +160,14 @@ export default function PageClient({
   }, [file]);
 
   useEffect(() => {
-    setIsNameChanged(name !== userDetails.name);
-  }, [name, userDetails.name]);
+    setIsNameChanged(name !== user?.name);
+  }, [name, user?.name]);
 
   const onSubmit = async (formData: ProfileData) => {
+    if (!user?.id) return;
+
     try {
-      await updateUserAction(formData, userDetails.id);
+      await updateUserAction(formData, user.id);
       setIsNameChanged(false);
       toast.success("Account details updated");
     } catch (error) {
@@ -301,7 +323,7 @@ export default function PageClient({
               <Label htmlFor="email" className="sr-only">
                 Email
               </Label>
-              <Input defaultValue={userDetails.email} disabled />
+              <Input defaultValue={user?.email} disabled />
             </div>
           </CardContent>
         </Card>
@@ -364,73 +386,91 @@ export default function PageClient({
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <ul className="space-y-8">
-              {accountDetails.map((account) => (
-                <li
-                  key={account.id}
-                  className="flex items-center justify-between"
-                >
-                  <div className="flex items-center gap-4">
-                    {account.providerId === "github" ? (
-                      <Github className="size-7" />
-                    ) : (
-                      <Google className="size-7" />
-                    )}
-                    <div>
-                      <p className="font-medium">{account.email}</p>
-                      <p className="text-sm text-muted-foreground">
-                        You can sign in with your {account.providerId} account.
-                      </p>
+            {isLoadingAccounts ? (
+              <ul className="space-y-8">
+                {[1, 2].map((i) => (
+                  <li key={i} className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <Skeleton className="size-8 rounded-full" />
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-32" />
+                        <Skeleton className="h-3 w-48" />
+                      </div>
                     </div>
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Connected{" "}
-                    {account.createdAt.toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </div>
-                </li>
-              ))}
+                    <Skeleton className="h-3 w-24" />
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <ul className="space-y-8">
+                {accountDetails?.map((account) => (
+                  <li
+                    key={account.id}
+                    className="flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-4">
+                      {account.providerId === "github" ? (
+                        <Github className="size-7" />
+                      ) : (
+                        <Google className="size-7" />
+                      )}
+                      <div>
+                        <p className="font-medium">{account.email}</p>
+                        <p className="text-sm text-muted-foreground">
+                          You can sign in with your {account.providerId}{" "}
+                          account.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Connected{" "}
+                      {account.createdAt.toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </div>
+                  </li>
+                ))}
 
-              {!accountDetails.some(
-                (account) => account.providerId === "google",
-              ) && (
-                <li className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <Google className="size-8" />
-                    <div>
-                      <p className="font-medium">Connect Google</p>
-                      <p className="text-sm text-muted-foreground">
-                        Link your Google account for faster login.
-                      </p>
+                {!accountDetails?.some(
+                  (account) => account.providerId === "google",
+                ) && (
+                  <li className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <Google className="size-8" />
+                      <div>
+                        <p className="font-medium">Connect Google</p>
+                        <p className="text-sm text-muted-foreground">
+                          Link your Google account for faster login.
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <Button disabled={!isNameChanged} className="min-w-28">
-                    Connect
-                  </Button>
-                </li>
-              )}
-              {!accountDetails.some(
-                (account) => account.providerId === "github",
-              ) && (
-                <li className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <Github className="size-8" />
-                    <div>
-                      <p className="font-medium">Connect GitHub</p>
-                      <p className="text-sm text-muted-foreground">
-                        Link your GitHub account for faster login.
-                      </p>
+                    <Button disabled={!isNameChanged} className="min-w-28">
+                      Connect
+                    </Button>
+                  </li>
+                )}
+                {!accountDetails?.some(
+                  (account) => account.providerId === "github",
+                ) && (
+                  <li className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <Github className="size-8" />
+                      <div>
+                        <p className="font-medium">Connect GitHub</p>
+                        <p className="text-sm text-muted-foreground">
+                          Link your GitHub account for faster login.
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <Button disabled={!isNameChanged} className="min-w-28">
-                    Connect
-                  </Button>
-                </li>
-              )}
-            </ul>
+                    <Button disabled={!isNameChanged} className="min-w-28">
+                      Connect
+                    </Button>
+                  </li>
+                )}
+              </ul>
+            )}
           </CardContent>
         </Card>
 

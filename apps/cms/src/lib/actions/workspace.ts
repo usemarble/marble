@@ -2,7 +2,7 @@
 
 import { db } from "@marble/db";
 import { revalidatePath } from "next/cache";
-import getSession from "../auth/session";
+import { getServerSession } from "../auth/session";
 import { setActiveWorkspace } from "../auth/workspace";
 import {
   type CreateWorkspaceValues,
@@ -10,7 +10,7 @@ import {
 } from "../validations/workspace";
 
 export async function createWorkspaceAction(payload: CreateWorkspaceValues) {
-  const session = await getSession();
+  const session = await getServerSession();
   if (!session?.user || !session?.user.id) {
     throw new Error("Unauthorized");
   }
@@ -34,7 +34,7 @@ export async function checkWorkspaceSlug(
   slug: string,
   currentWorkspaceId?: string,
 ) {
-  const session = await getSession();
+  const session = await getServerSession();
   if (!session?.user) {
     throw new Error("Unauthorized");
   }
@@ -53,7 +53,7 @@ export async function updateWorkspaceAction(
   workspaceId: string,
   payload: CreateWorkspaceValues,
 ) {
-  const session = await getSession();
+  const session = await getServerSession();
   if (!session?.user || !session?.user.id) {
     throw new Error("Unauthorized");
   }
@@ -69,7 +69,7 @@ export async function updateWorkspaceAction(
 }
 
 export async function deleteWorkspaceAction(workspaceId: string) {
-  const session = await getSession();
+  const session = await getServerSession();
   if (!session?.user || !session?.user.id) {
     throw new Error("Unauthorized");
   }

@@ -3,7 +3,7 @@
 import { randomBytes } from "node:crypto";
 import { db } from "@marble/db";
 import { revalidatePath } from "next/cache";
-import getServerSession from "../auth/session";
+import { getServerSession } from "../auth/session";
 import { type WebhookFormValues, webhookSchema } from "../validations/webhook";
 
 /**

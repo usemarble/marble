@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@marble/db";
-import getSession from "@/lib/auth/session";
+import { getServerSession } from "@/lib/auth/session";
 
 /**
  * Verify an invite
@@ -9,7 +9,7 @@ import getSession from "@/lib/auth/session";
  * @returns The invite email
  */
 export async function verifyInvite(inviteId: string) {
-  const session = await getSession();
+  const session = await getServerSession();
   const invite = await db.invitation.findUnique({
     where: { id: inviteId, email: session?.user.email },
     select: { email: true, status: true, expiresAt: true },
