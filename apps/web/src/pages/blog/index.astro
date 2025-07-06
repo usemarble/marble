@@ -9,21 +9,23 @@ const posts = await getCollection("blog");
 ---
 
 <Layout title={`Blog - ${SITE.TITLE}`} image="/og-blog.jpg" description="Bits and pieces about SEO and content writing.">
-  <section class='lg:border-y border-dashed'>
-    <Container class='lg:border-x border-dashed pt-20 pb-32'>
-      <div class='max-w-2xl mx-auto mb-16 space-y-2'>
-        <h1 class='text-2xl leading-[1.1] sm:text-3xl md:text-4xl text-center'>
-          The Marble blog.
-        </h1>
-        <p class='text-muted-foreground text-center text-sm md:text-base'>We write about stuff here.</p>
-      </div>
-      <ul class='grid md:grid-cols-2 lg:grid-cols-3 gap-6 mx-auto'>
-        {
-          posts.map((post) => (
-            <PostCard entry={post} />
-          ))
-        }
-      </ul>
-    </Container>
+  <section class='lg:border-y border-dashed h-[calc(100vh-140px)]'>
+    <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto h-full">
+      <Container class='pt-20 pb-32 h-full'>
+        <div class='max-w-2xl mx-auto mb-16 space-y-2'>
+          <h1 class='text-2xl leading-[1.1] sm:text-3xl md:text-4xl text-center font-serif'>
+            The blog.
+          </h1>
+          <p class='text-muted-foreground text-center text-sm md:text-base'>We write about stuff here.</p>
+        </div>
+        <ul class='grid md:grid-cols-2 lg:grid-cols-3 gap-6 mx-auto'>
+          {
+            posts.map((post) => (
+              <PostCard entry={post} />
+            ))
+          }
+        </ul>
+      </Container>
+    </div>
   </section>
 </Layout>

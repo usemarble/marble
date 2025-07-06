@@ -11,166 +11,224 @@ import { APP, PRICING, SITE } from "@/lib/constants";
 >
 <div class="divide-y divide-dashed">
 	<!-- Hero section -->
-	<section class="grid place-items-center border-t border-dashed">
-		<Container class="lg:border-x border-dashed py-24 md:py-28 lg:py-40">
-			<div class="relative mx-auto text-center space-y-6">
-				<h1 class="relative text-4xl font-medium md:text-5xl max-w-[25ch] mx-auto lg:text-[50px]">
-					The smarter way to manage your blog
-				</h1>
-				<p class="mx-auto max-w-[50ch] md:text-lg text-muted-foreground">
-					Everything you need, nothing you don’t. Just easy, efficient content management.
-				</p>
-			</div>
-			<div class="mt-8 flex w-full items-center justify-center">
-				<div>
-					<a href={`${APP.URL}`}
-						target="_blank"
-						class="flex gap-2 justify-center group w-48 bg-primary text-primary-foreground items-center py-2.5 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary focus-visible:ring-2 transition-all duration-300 ease-out px-4 group"
-					>
-						<span>Get started</span>
-					</a>
-				</div>
-			</div>
-		</Container>
-	</section>
+  <section class="border-t border-dashed h-[calc(100vh-140px)]">
+    <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] grid place-content-center h-full mx-auto">
+        <Container class="py-24 md:py-28 lg:py-40">
+          <div class="relative mx-auto text-center space-y-6">
+            <h1 class="relative text-4xl font-medium md:text-5xl max-w-[25ch] mx-auto lg:text-[50px]">
+              The smarter way to manage your blog
+            </h1>
+            <p class="mx-auto max-w-[50ch] md:text-lg text-muted-foreground">
+              Super simple headless CMS to manage your content.
+          </div>
+          <div class="mt-8 flex w-full items-center justify-center">
+            <div>
+              <a href={`${APP.URL}`}
+              target="_blank"
+              class="flex gap-2 justify-center group w-48 bg-primary text-primary-foreground items-center py-2.5 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary focus-visible:ring-2 transition-all duration-300 ease-out px-4 group rounded"
+              >
+              <span>Get started</span>
+            </a>
+          </div>
+        </div>
+      </Container>
+    </div>
+  </section>
 
 	<!--  Social Proof -->
 	<!-- <section class="">
-		<Container class="space-y-10 lg:border-x border-dashed pt-12 pb-20">
-			<div class="relative flex flex-col items-center space-y-3 text-balance">
-				<h2 class="relative text-center text-balance text-2xl font-medium tracking-tight max-w-4xl">
-					Used by a few guys.
-				</h2>
-				<p class="max-w-prose text-muted-foreground text-center">
-					These people love our product enough to use it.
-				</p>
-			</div>
-			<ul class="grid grid-cols-[repeat(auto-fill,_minmax(16rem,_1fr))] divide-dashed divide-y divide-x divide-red-600 border border-dashed border-red-600">
-				<li class="p-8">
-					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 386"><path fill="#000000" d="M416.473 0 198.54 385.66H0L170.17 84.522C196.549 37.842 262.377 0 317.203 0Zm486.875 96.415c0-53.249 44.444-96.415 99.27-96.415 54.826 0 99.27 43.166 99.27 96.415 0 53.248-44.444 96.415-99.27 96.415-54.826 0-99.27-43.167-99.27-96.415ZM453.699 0h198.54L434.306 385.66h-198.54Zm234.492 0h198.542L716.56 301.138c-26.378 46.68-92.207 84.522-147.032 84.522h-99.27Z"/></svg>
-				</li>
-				<li class="p-8">
-					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 386"><path fill="#000000" d="M416.473 0 198.54 385.66H0L170.17 84.522C196.549 37.842 262.377 0 317.203 0Zm486.875 96.415c0-53.249 44.444-96.415 99.27-96.415 54.826 0 99.27 43.166 99.27 96.415 0 53.248-44.444 96.415-99.27 96.415-54.826 0-99.27-43.167-99.27-96.415ZM453.699 0h198.54L434.306 385.66h-198.54Zm234.492 0h198.542L716.56 301.138c-26.378 46.68-92.207 84.522-147.032 84.522h-99.27Z"/></svg>
-				</li>
-				<li class="p-8">
-					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 386"><path fill="#000000" d="M416.473 0 198.54 385.66H0L170.17 84.522C196.549 37.842 262.377 0 317.203 0Zm486.875 96.415c0-53.249 44.444-96.415 99.27-96.415 54.826 0 99.27 43.166 99.27 96.415 0 53.248-44.444 96.415-99.27 96.415-54.826 0-99.27-43.167-99.27-96.415ZM453.699 0h198.54L434.306 385.66h-198.54Zm234.492 0h198.542L716.56 301.138c-26.378 46.68-92.207 84.522-147.032 84.522h-99.27Z"/></svg>
-				</li>
-				<li class="p-8">
-					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 386"><path fill="#000000" d="M416.473 0 198.54 385.66H0L170.17 84.522C196.549 37.842 262.377 0 317.203 0Zm486.875 96.415c0-53.249 44.444-96.415 99.27-96.415 54.826 0 99.27 43.166 99.27 96.415 0 53.248-44.444 96.415-99.27 96.415-54.826 0-99.27-43.167-99.27-96.415ZM453.699 0h198.54L434.306 385.66h-198.54Zm234.492 0h198.542L716.56 301.138c-26.378 46.68-92.207 84.522-147.032 84.522h-99.27Z"/></svg>
-				</li>
-				<li class="p-8">
-					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 386"><path fill="#000000" d="M416.473 0 198.54 385.66H0L170.17 84.522C196.549 37.842 262.377 0 317.203 0Zm486.875 96.415c0-53.249 44.444-96.415 99.27-96.415 54.826 0 99.27 43.166 99.27 96.415 0 53.248-44.444 96.415-99.27 96.415-54.826 0-99.27-43.167-99.27-96.415ZM453.699 0h198.54L434.306 385.66h-198.54Zm234.492 0h198.542L716.56 301.138c-26.378 46.68-92.207 84.522-147.032 84.522h-99.27Z"/></svg>
-				</li>
-				<li class="p-8">
-					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 386"><path fill="#000000" d="M416.473 0 198.54 385.66H0L170.17 84.522C196.549 37.842 262.377 0 317.203 0Zm486.875 96.415c0-53.249 44.444-96.415 99.27-96.415 54.826 0 99.27 43.166 99.27 96.415 0 53.248-44.444 96.415-99.27 96.415-54.826 0-99.27-43.167-99.27-96.415ZM453.699 0h198.54L434.306 385.66h-198.54Zm234.492 0h198.542L716.56 301.138c-26.378 46.68-92.207 84.522-147.032 84.522h-99.27Z"/></svg>
-				</li>
-			</ul>
-		</Container>
+    <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
+      <Container class="space-y-10 pt-12 pb-20">
+        <div class="relative flex flex-col items-center space-y-3 text-balance">
+          <h2 class="relative text-center text-balance text-2xl font-medium tracking-tight max-w-4xl">
+            Used by these guys.
+          </h2>
+          <p class="max-w-prose text-muted-foreground text-center">
+            These guys love our product enough to use it.
+          </p>
+        </div>
+        <ul class="grid grid-cols-[repeat(auto-fill,_minmax(16rem,_1fr))] divide-dashed divide-y divide-x divide-red-600 border border-dashed border-red-600">
+          <li class="p-8">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 386"><path fill="#000000" d="M416.473 0 198.54 385.66H0L170.17 84.522C196.549 37.842 262.377 0 317.203 0Zm486.875 96.415c0-53.249 44.444-96.415 99.27-96.415 54.826 0 99.27 43.166 99.27 96.415 0 53.248-44.444 96.415-99.27 96.415-54.826 0-99.27-43.167-99.27-96.415ZM453.699 0h198.54L434.306 385.66h-198.54Zm234.492 0h198.542L716.56 301.138c-26.378 46.68-92.207 84.522-147.032 84.522h-99.27Z"/></svg>
+          </li>
+          <li class="p-8">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 386"><path fill="#000000" d="M416.473 0 198.54 385.66H0L170.17 84.522C196.549 37.842 262.377 0 317.203 0Zm486.875 96.415c0-53.249 44.444-96.415 99.27-96.415 54.826 0 99.27 43.166 99.27 96.415 0 53.248-44.444 96.415-99.27 96.415-54.826 0-99.27-43.167-99.27-96.415ZM453.699 0h198.54L434.306 385.66h-198.54Zm234.492 0h198.542L716.56 301.138c-26.378 46.68-92.207 84.522-147.032 84.522h-99.27Z"/></svg>
+          </li>
+          <li class="p-8">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 386"><path fill="#000000" d="M416.473 0 198.54 385.66H0L170.17 84.522C196.549 37.842 262.377 0 317.203 0Zm486.875 96.415c0-53.249 44.444-96.415 99.27-96.415 54.826 0 99.27 43.166 99.27 96.415 0 53.248-44.444 96.415-99.27 96.415-54.826 0-99.27-43.167-99.27-96.415ZM453.699 0h198.54L434.306 385.66h-198.54Zm234.492 0h198.542L716.56 301.138c-26.378 46.68-92.207 84.522-147.032 84.522h-99.27Z"/></svg>
+          </li>
+          <li class="p-8">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 386"><path fill="#000000" d="M416.473 0 198.54 385.66H0L170.17 84.522C196.549 37.842 262.377 0 317.203 0Zm486.875 96.415c0-53.249 44.444-96.415 99.27-96.415 54.826 0 99.27 43.166 99.27 96.415 0 53.248-44.444 96.415-99.27 96.415-54.826 0-99.27-43.167-99.27-96.415ZM453.699 0h198.54L434.306 385.66h-198.54Zm234.492 0h198.542L716.56 301.138c-26.378 46.68-92.207 84.522-147.032 84.522h-99.27Z"/></svg>
+          </li>
+          <li class="p-8">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 386"><path fill="#000000" d="M416.473 0 198.54 385.66H0L170.17 84.522C196.549 37.842 262.377 0 317.203 0Zm486.875 96.415c0-53.249 44.444-96.415 99.27-96.415 54.826 0 99.27 43.166 99.27 96.415 0 53.248-44.444 96.415-99.27 96.415-54.826 0-99.27-43.167-99.27-96.415ZM453.699 0h198.54L434.306 385.66h-198.54Zm234.492 0h198.542L716.56 301.138c-26.378 46.68-92.207 84.522-147.032 84.522h-99.27Z"/></svg>
+          </li>
+          <li class="p-8">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 386"><path fill="#000000" d="M416.473 0 198.54 385.66H0L170.17 84.522C196.549 37.842 262.377 0 317.203 0Zm486.875 96.415c0-53.249 44.444-96.415 99.27-96.415 54.826 0 99.27 43.166 99.27 96.415 0 53.248-44.444 96.415-99.27 96.415-54.826 0-99.27-43.167-99.27-96.415ZM453.699 0h198.54L434.306 385.66h-198.54Zm234.492 0h198.542L716.56 301.138c-26.378 46.68-92.207 84.522-147.032 84.522h-99.27Z"/></svg>
+          </li>
+        </ul>
+      </Container>
+    </div>
 	</section> -->
 
 	<!-- Features section -->
 	<section>
-		<Container class="space-y-10 lg:space-y-14 pt-12 pb-20 md:border-x border-dashed">
-			<div class="relative flex flex-col items-center space-y-3 text-balance">
-				<h2 class="relative text-center text-balance text-2xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
-					Features.
-				</h2>
-				<p class="max-w-prose md:text-lg text-muted-foreground text-center">
-					We’ve got everything you need to manage your blog, without the bloat.
-				</p>
-			</div>
-			<ul class="grid gap-5 lg:gap-10 sm:grid-cols-2">
-				<li class="border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl">
-					<div class="border flex flex-col gap-5 rounded-[8px] bg-white min-h-96 h-full w-full p-8">
-						<div class="space-y-1">
-							<h3 class="font-medium text-lg">
-								Simple, editor
-							</h3>
-							<p class="text-muted-foreground text-sm md:text-base">
-								Our editor is designed to be simple and intuitive, so you can focus on writing.
-							</p>
-						</div>
-						<div class="lg:px-8">
-							<div class="border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl">
-								<div class="bg-white min-h-52 border rounded-[8px] p-4">
-									<div class="flex flex-col gap-5">
-										XXX
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</li>
-				<li class="border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl">
-					<div class="border flex flex-col gap-5 rounded-[8px] bg-white min-h-96 h-full w-full p-8">
-						<div class="space-y-1">
-							<h3 class="font-medium text-lg">
-								Collaboration
-							</h3>
-							<p class="text-muted-foreground text-sm md:text-base">
-								Invite your team members to collaborate on your blog, with granular permissions.
-							</p>
-						</div>
-						<div class="lg:px-8">
-							<div class="border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl">
-								<div class="bg-white min-h-52 border rounded-[8px] p-4">
-									<div class="flex flex-col gap-5">
-										XXX
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</li>
-				<li class="border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl">
-					<div class="border flex flex-col gap-5 rounded-[8px] bg-white min-h-96 h-full w-full p-8">
-						<div class="space-y-1">
-							<h3 class="font-medium text-lg">
-								Easy Integeration
-							</h3>
-							<p class="text-muted-foreground text-sm md:text-base">
-								Pull in content from our api into your website using your favourite frameworks.
-							</p>
-						</div>
-						<div class="lg:px-8">
-							<div class="border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl">
-								<div class="bg-white min-h-52 border rounded-[8px] p-4">
-									<div class="flex flex-col gap-5">
-										XXX
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</li>
-				<li class="border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl">
-					<div class="border flex flex-col gap-5 rounded-[8px] bg-white min-h-96 h-full w-full p-8">
-						<div class="space-y-1">
-							<h3 class="font-medium text-lg">
-								Webhooks
-							</h3>
-							<p class="text-muted-foreground text-sm md:text-base">
-								Perform actions on your server when certain events occur in your workspace.
-							</p>
-						</div>
-						<div class="lg:px-8">
-							<div class="border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl">
-								<div class="bg-white min-h-52 border rounded-[8px] p-4">
-									<div class="flex flex-col gap-5">
-										XXX
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</li>
-			</ul>
-		</Container>
+    <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
+      <Container class="space-y-10 lg:space-y-14 pt-12 pb-20">
+        <div class="relative flex flex-col items-center space-y-3 text-balance">
+          <h2 class="relative text-center text-balance text-2xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
+            Features.
+          </h2>
+          <p class="max-w-prose md:text-lg text-muted-foreground text-center">
+            We’ve got everything you need to manage your blog.
+          </p>
+        </div>
+        <div class="grid gap-5 lg:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 auto-rows-fr">
+          <!-- Media Management -->
+          <div class="sm:col-span-2 lg:col-span-3 border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl">
+            <div class="border flex flex-col gap-5 rounded-[8px] bg-white h-full w-full p-6">
+              <div class="space-y-2">
+                <h3 class="font-medium text-lg lg:text-xl">
+                  Media Management
+                </h3>
+                <p class="text-muted-foreground text-sm">
+                  Upload once, access anywhere. Organize your media in one powerful library.
+                </p>
+              </div>
+              <div class="flex-1">
+                <div class="border bg-gray-50/80 backdrop-blur-md p-1 rounded-lg h-full min-h-32">
+                  <div class="bg-white h-full border rounded-[6px] p-4 flex items-center justify-center">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6 text-blue-600">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                        </svg>
+                      </div>
+                      <div class="text-left">
+                        <p class="font-medium text-sm">Global Library</p>
+                        <p class="text-xs text-muted-foreground">Drag & drop files</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Content Intelligence -->
+          <div class="sm:col-span-2 lg:col-span-3 border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl">
+            <div class="border flex flex-col gap-5 rounded-[8px] bg-white h-full w-full p-6">
+              <div class="space-y-2">
+                <h3 class="font-medium text-lg lg:text-xl">
+                  Content Intelligence
+                </h3>
+                <p class="text-muted-foreground text-sm">
+                  Real-time SEO insights, readability scores, and optimization tips.
+                </p>
+              </div>
+              <div class="flex-1">
+                <div class="border bg-gray-50/80 backdrop-blur-md p-1 rounded-lg h-full min-h-32">
+                  <div class="bg-white h-full border rounded-[6px] p-4 flex items-center justify-center">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6 text-emerald-600">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
+                        </svg>
+                      </div>
+                      <div class="text-left">
+                        <p class="font-medium text-sm">SEO Score: 94/100</p>
+                        <p class="text-xs text-muted-foreground">Ready to publish</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Simple Editor -->
+          <div class="lg:col-span-2 border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl">
+            <div class="border flex flex-col gap-4 rounded-[8px] bg-white h-full w-full p-6">
+              <div class="space-y-1">
+                <h3 class="font-medium text-lg">
+                  Simple Editor
+                </h3>
+                <p class="text-muted-foreground text-sm">
+                  Intuitive writing experience that just works.
+                </p>
+              </div>
+              <div class="flex-1">
+                <div class="border bg-gray-50/80 backdrop-blur-md p-1 rounded-lg h-full min-h-24">
+                  <div class="bg-white h-full border rounded-[6px] p-3 flex items-center justify-center">
+                    <div class="w-8 h-8 bg-green-100 rounded-md flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5 text-green-600">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Team Collaboration -->
+          <div class="lg:col-span-2 border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl">
+            <div class="border flex flex-col gap-4 rounded-[8px] bg-white h-full w-full p-6">
+              <div class="space-y-1">
+                <h3 class="font-medium text-lg">
+                  Team Collaboration
+                </h3>
+                <p class="text-muted-foreground text-sm">
+                  Invite teammates to write with you.
+                </p>
+              </div>
+              <div class="flex-1">
+                <div class="border bg-gray-50/80 backdrop-blur-md p-1 rounded-lg h-full min-h-24">
+                  <div class="bg-white h-full border rounded-[6px] p-3 flex items-center justify-center">
+                    <div class="w-8 h-8 bg-purple-100 rounded-md flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5 text-purple-600">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Easy Integration -->
+          <div class="lg:col-span-2 border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl">
+            <div class="border flex flex-col gap-4 rounded-[8px] bg-white h-full w-full p-6">
+              <div class="space-y-1">
+                <h3 class="font-medium text-lg">
+                  Easy Integration
+                </h3>
+                <p class="text-muted-foreground text-sm">
+                  Pull content via API into any framework.
+                </p>
+              </div>
+              <div class="flex-1">
+                <div class="border bg-gray-50/80 backdrop-blur-md p-1 rounded-lg h-full min-h-24">
+                  <div class="bg-white h-full border rounded-[6px] p-3 flex items-center justify-center">
+                    <div class="w-8 h-8 bg-orange-100 rounded-md flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5 text-orange-600">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Container>
+    </div>
 	</section>
 
 	<!-- Pricing section -->
 	<section class="">
-		<Container class="space-y-10 lg:space-y-14 pt-12 pb-20 lg:border-x border-dashed">
+    <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
+		<Container class="space-y-10 lg:space-y-14 pt-12 pb-20">
 			<div class="relative flex flex-col items-center space-y-4">
 				<h2 class="relative text-center text-balance text-2xl sm:text-xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
 					Simple Pricing.
@@ -249,11 +307,13 @@ import { APP, PRICING, SITE } from "@/lib/constants";
 				))}
 			</ul>
 		</Container>
+    </div>
 	</section>
 
 	<!-- FAQ -->
-	<section class="">
-		<Container class="space-y-10 lg:space-y-14 pt-12 pb-20 lg:border-x border-dashed">
+	<section class="border-b border-dashed">
+    <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
+      <Container class="space-y-10 lg:space-y-14 pt-12 pb-20">
 			<div class="relative flex flex-col items-center space-y-4">
 				<h2 class="relative text-center text-balance text-2xl sm:text-xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
 					FAQ's.
@@ -295,30 +355,37 @@ import { APP, PRICING, SITE } from "@/lib/constants";
 						</p>
 					</AccordionItem>
 			</div>
-		</Container>
+		  </Container>
+    </div>
 	</section>
 
 	<!-- CTA -->
 	<section class="lg:border-b border-dashed">
-		<Container class="space-y-10 lg:space-y-14 pt-12 lg:pt-20 pb-20 lg:border-x border-dashed">
-			<div class="min-h-96 lg:min-h-[500px] grid place-content-center bg-white rounded-md relative border px-4">
-				<div class="relative flex flex-col items-center space-y-4 text-balance">
-					<h2 class="relative text-center text-balance text-2xl sm:text-2xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
-						The easiest way to manage your blog.
-					</h2>
-					<p class="lg:text-lg text-muted-foreground text-center max-w-96">
-						Get started today and experience hassle free content management.
-					</p>
-					<div>
-					<a href={`${APP.URL}/register`}
-						class="flex gap-2 justify-center group w-48 bg-primary text-primary-foreground items-center py-2.5 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary focus-visible:ring-2 transition-all duration-300 ease-out px-4 group mt-5"
-					>
-						<span>Get started free</span>
-					</a>
-					</div>
-					</div>
-			</div>
-		</Container>
+    <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
+      <Container class="space-y-10 lg:space-y-14 pt-12 lg:pt-20 pb-20">
+        <div class="min-h-96 lg:min-h-[500px] grid place-content-center bg-white rounded-md relative border px-4">
+          <div class="space-y-2">
+            <h2 class="relative text-center text-balance text-2xl sm:text-2xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
+              Ready to start writing?
+            </h2>
+            <p class="lg:text-lg text-muted-foreground text-center max-w-lg">
+              Create your account and start publishing in minutes.
+            </p>
+          </div>
+          <div class="flex flex-col gap-3 items-center mt-10">
+            <a href={`${APP.URL}/register`}
+              class="flex gap-2 justify-center group w-48 bg-primary text-primary-foreground items-center py-3 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary focus-visible:ring-2 transition-all duration-300 ease-out px-6 group rounded font-medium"
+            >
+              <span>Start for free</span>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 group-hover:translate-x-0.5 transition-transform">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+              </svg>
+            </a>
+            <p class="text-xs text-muted-foreground">No credit card required</p>
+          </div>
+          </div>
+      </Container>
+    </div>
 	</section>
 </div>
 </Layout>

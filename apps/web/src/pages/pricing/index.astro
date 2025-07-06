@@ -7,84 +7,86 @@ import { APP, PRICING, SITE } from "@/lib/constants";
 
 <Layout title={`Pricing - ${SITE.TITLE}`} description="Pricing plans for marble.">
   <section class="border-y border-dashed">
-		<Container class="space-y-10 lg:space-y-16 lg:border-x border-dashed pt-12 pb-20 lg:py-24 ">
-			<div class="relative flex flex-col items-center space-y-4">
-				<h1 class="relative text-center text-balance text-2xl font-medium tracking-tight md:text-3xl lg:text-4xl xl:text-5xl max-w-4xl">
-					Simple Pricing.
-				</h1>
-				<p class="max-w-prose Md:text-lg text-muted-foreground text-center">
-					Get all the tools you need without breaking the bank.
-				</p>
-			</div>
-      <ul class="grid gap-5 lg:gap-10 sm:grid-cols-2 lg:grid-cols-3">
-				{PRICING.map((plan, index) => (
-					<li class={`border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl ${index === 2 ? 'sm:col-span-2 lg:col-span-1 sm:h-fit' : ''}`}>
-						<div class={`border flex flex-col gap-5 rounded-[8px] bg-white w-full px-4 py-6 ${index === 2 ? 'sm:flex-row sm:px-14 sm:py-10 lg:py-6 sm:justify-center sm:gap-20 lg:gap-4 lg:px-4 lg:flex-col min-h-96 sm:min-h-fit lg:min-h-96' : 'min-h-96 h-full'}`}>
-							{index === 2 ? (
-								<>
-									<div class="flex flex-col gap-5 sm:min-w-60 lg:min-w-0">
-										<div class="flex flex-col gap-4">
-											<h4 class="text-medium text-xl">{plan.title}</h4>
-											<div class="">
-												<p><span class="font-bold text-2xl">{plan.price.monthly}</span>{' '}<span>per month.</span></p>
-												<p class="text-muted-foreground text-sm">{plan.description}</p>
-											</div>
-										</div>
-										<div class="border-y border-dashed py-4">
-											<a 
-												href={plan.button.href}
-												target="_blank"
-												class="flex bg-primary gap-2 group text-primary-foreground items-center justify-center py-2 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 transition-all duration-300 ease-out px-8 group mt-auto rounded"
-											>
-												<span>{plan.button.label}</span>
-											</a>
-										</div>
-									</div>
-									<ul class="flex flex-col gap-2 text-sm">
-										{plan.features.map((feature) => (
-											<li class="flex items-center gap-2">
-												<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
-													<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-												</svg>
-												<span>{feature}</span>
-											</li>
-										))}
-									</ul>
-								</>
-							) : (
-								<>
-									<div class="flex flex-col gap-4">
-										<h4 class="text-medium text-2xl">{plan.title}</h4>
-										<div class="">
-											<p><span class="font-bold text-2xl">{plan.price.monthly}</span>{' '}<span>per month.</span></p>
-											<p class="text-muted-foreground text-sm">{plan.description}</p>
-										</div>
-									</div>
-									<div class="border-y border-dashed py-4">
-										<a 
-											href={plan.button.href}
-											target="_blank"
-											class="flex bg-primary gap-2 group text-primary-foreground items-center justify-center py-2 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 transition-all duration-300 ease-out px-8 group mt-auto rounded"
-										>
-											<span>{plan.button.label}</span>
-										</a>
-									</div>
-									<ul class="flex flex-col gap-2 text-sm">
-										{plan.features.map((feature) => (
-											<li class="flex items-center gap-2">
-												<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
-													<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-												</svg>
-												<span>{feature}</span>
-											</li>
-										))}
-									</ul>
-								</>
-							)}
-						</div>
-					</li>
-				))}
-			</ul>
-		</Container>
+    <div class="md:w-[calc(100%-140px)] mx-auto lg:border-x border-dashed">
+      <Container class="space-y-10 lg:space-y-16 pt-12 pb-20 lg:py-24 ">
+        <div class="relative flex flex-col items-center space-y-4">
+          <h1 class="relative text-center text-balance text-2xl font-medium tracking-tight md:text-3xl lg:text-4xl xl:text-5xl max-w-4xl">
+            Simple Pricing.
+          </h1>
+          <p class="max-w-prose Md:text-lg text-muted-foreground text-center">
+            Get all the tools you need without breaking the bank.
+          </p>
+        </div>
+        <ul class="grid gap-5 lg:gap-10 sm:grid-cols-2 lg:grid-cols-3">
+          {PRICING.map((plan, index) => (
+            <li class={`border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl ${index === 2 ? 'sm:col-span-2 lg:col-span-1 sm:h-fit' : ''}`}>
+              <div class={`border flex flex-col gap-5 rounded-[8px] bg-white w-full px-4 py-6 ${index === 2 ? 'sm:flex-row sm:px-14 sm:py-10 lg:py-6 sm:justify-center sm:gap-20 lg:gap-4 lg:px-4 lg:flex-col min-h-96 sm:min-h-fit lg:min-h-96' : 'min-h-96 h-full'}`}>
+                {index === 2 ? (
+                  <>
+                    <div class="flex flex-col gap-5 sm:min-w-60 lg:min-w-0">
+                      <div class="flex flex-col gap-4">
+                        <h4 class="text-medium text-xl">{plan.title}</h4>
+                        <div class="">
+                          <p><span class="font-bold text-2xl">{plan.price.monthly}</span>{' '}<span>per month.</span></p>
+                          <p class="text-muted-foreground text-sm">{plan.description}</p>
+                        </div>
+                      </div>
+                      <div class="border-y border-dashed py-4">
+                        <a 
+                          href={plan.button.href}
+                          target="_blank"
+                          class="flex bg-primary gap-2 group text-primary-foreground items-center justify-center py-2 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 transition-all duration-300 ease-out px-8 group mt-auto rounded"
+                        >
+                          <span>{plan.button.label}</span>
+                        </a>
+                      </div>
+                    </div>
+                    <ul class="flex flex-col gap-2 text-sm">
+                      {plan.features.map((feature) => (
+                        <li class="flex items-center gap-2">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                          </svg>
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                ) : (
+                  <>
+                    <div class="flex flex-col gap-4">
+                      <h4 class="text-medium text-2xl">{plan.title}</h4>
+                      <div class="">
+                        <p><span class="font-bold text-2xl">{plan.price.monthly}</span>{' '}<span>per month.</span></p>
+                        <p class="text-muted-foreground text-sm">{plan.description}</p>
+                      </div>
+                    </div>
+                    <div class="border-y border-dashed py-4">
+                      <a 
+                        href={plan.button.href}
+                        target="_blank"
+                        class="flex bg-primary gap-2 group text-primary-foreground items-center justify-center py-2 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 transition-all duration-300 ease-out px-8 group mt-auto rounded"
+                      >
+                        <span>{plan.button.label}</span>
+                      </a>
+                    </div>
+                    <ul class="flex flex-col gap-2 text-sm">
+                      {plan.features.map((feature) => (
+                        <li class="flex items-center gap-2">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                          </svg>
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </Container>
+    </div>
 	</section>
 </Layout>
