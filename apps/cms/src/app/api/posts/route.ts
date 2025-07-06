@@ -9,14 +9,16 @@ export async function GET() {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const categories = await db.category.findMany({
+  const posts = await db.post.findMany({
     where: { workspaceId: sessionData.session?.activeOrganizationId as string },
     select: {
       id: true,
-      name: true,
-      slug: true,
+      title: true,
+      status: true,
+      publishedAt: true,
+      updatedAt: true,
     },
   });
 
-  return NextResponse.json(categories, { status: 200 });
+  return NextResponse.json(posts, { status: 200 });
 }

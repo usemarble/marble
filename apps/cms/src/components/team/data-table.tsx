@@ -24,8 +24,9 @@ import {
   getFilteredRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { PlusIcon, SearchIcon, XIcon } from "lucide-react";
+import { SearchIcon, XIcon } from "lucide-react";
 import { useState } from "react";
+import { InviteButton } from "./invite-button";
 
 type UserRole = "owner" | "admin" | "member" | undefined;
 
@@ -95,10 +96,7 @@ export function TeamDataTable<TData, TValue>({
           </div>
 
           <div className="flex gap-4 items-center">
-            <Button size="sm" onClick={() => setShowInviteModal(true)}>
-              <PlusIcon className="size-4" />
-              <span>Invite</span>
-            </Button>
+            <InviteButton onInvite={() => setShowInviteModal(true)} />
             {currentUserRole === "owner" ? (
               <TooltipProvider>
                 <Tooltip delayDuration={0}>

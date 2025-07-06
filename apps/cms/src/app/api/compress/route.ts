@@ -1,7 +1,14 @@
 import { NextResponse } from "next/server";
 import sharp from "sharp";
+import { getServerSession } from "@/lib/auth/session";
 
 export async function POST(request: Request) {
+  const sessionData = await getServerSession();
+
+  if (!sessionData) {
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  }
+
   try {
     const formData = await request.formData();
     const file = formData.get("file") as File;

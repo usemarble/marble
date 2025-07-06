@@ -3,14 +3,15 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 
 export async function GET() {
-  const session = await getServerSession();
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const sessionData = await getServerSession();
+
+  if (!sessionData) {
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
   // Get user with their role in the current active workspace
   const user = await db.user.findUnique({
-    where: { id: session.user.id },
+    where: { id: sessionData.user.id },
     select: {
       id: true,
       name: true,
@@ -21,7 +22,7 @@ export async function GET() {
       updatedAt: true,
       members: {
         where: {
-          organizationId: session.session.activeOrganizationId as string,
+          organizationId: sessionData.session.activeOrganizationId as string,
         },
         select: {
           role: true,
@@ -53,9 +54,10 @@ export async function GET() {
 }
 
 export async function PATCH(request: Request) {
-  const session = await getServerSession();
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const sessionData = await getServerSession();
+
+  if (!sessionData) {
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
   try {
@@ -69,7 +71,7 @@ export async function PATCH(request: Request) {
 
     // Update user
     const updatedUser = await db.user.update({
-      where: { id: session.user.id },
+      where: { id: sessionData.user.id },
       data: {
         name: name.trim(),
         ...(image && { image }),
@@ -84,7 +86,7 @@ export async function PATCH(request: Request) {
         updatedAt: true,
         members: {
           where: {
-            organizationId: session.session.activeOrganizationId as string,
+            organizationId: sessionData.session.activeOrganizationId as string,
           },
           select: {
             role: true,

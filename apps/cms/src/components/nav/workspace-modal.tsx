@@ -12,7 +12,6 @@ import {
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
-import { Spinner } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -25,6 +24,7 @@ import {
 } from "@/lib/validations/workspace";
 import { generateSlug } from "@/utils/string";
 import { useWorkspace } from "../../providers/workspace";
+import { ButtonLoader } from "../ui/loader";
 
 export const CreateWorkspaceModal = ({
   open,
@@ -139,8 +139,7 @@ export const CreateWorkspaceModal = ({
               disabled={isSubmitting}
               className="flex w-full gap-2"
             >
-              {isSubmitting && <Spinner className="size-4 animate-spin" />}
-              Create
+              {isSubmitting ? <ButtonLoader /> : "Create"}
             </Button>
           </div>
         </form>

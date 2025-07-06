@@ -11,7 +11,6 @@ async function getInitialWorkspaceData(): Promise<ActiveOrganization | null> {
       return null;
     }
 
-    // Fetch the active workspace using the activeOrganizationId from session
     const workspace = await db.organization.findUnique({
       where: { id: session.session.activeOrganizationId as string },
       select: {

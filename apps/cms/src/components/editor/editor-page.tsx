@@ -85,7 +85,7 @@ function EditorPage({ initialData = emptyPost, id }: EditorPageProps) {
     return () => subscription.unsubscribe();
   }, [watch, setHasUnsavedChanges]);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
       // TODO: focus the editor when user hits enter
@@ -110,13 +110,10 @@ function EditorPage({ initialData = emptyPost, id }: EditorPageProps) {
         toast.success("Post created");
         router.push(`/${params.workspace}/editor/p/${res}`);
       }
-      // Reset initial values to new saved state
       form.reset({ ...values });
       setHasUnsavedChanges(false);
     } catch {
       toast.error("Something went wrong.");
-    } finally {
-      setShowSettings(false);
     }
   }
 
@@ -176,12 +173,12 @@ function EditorPage({ initialData = emptyPost, id }: EditorPageProps) {
                 <label htmlFor="title" className="sr-only">
                   Enter post your title
                 </label>
-                <input
+                <textarea
                   id="title"
                   placeholder="Title"
                   {...register("title")}
                   onKeyDown={handleKeyDown}
-                  className="h-20 w-full bg-transparent sm:px-4 text-4xl font-semibold focus:outline-none focus:ring-0"
+                  className="min-h-20 resize-none scrollbar-hide w-full bg-transparent sm:px-4 text-4xl font-semibold focus:outline-none focus:ring-0"
                 />
                 {errors.title && (
                   <p className="text-sm px-1 font-medium text-destructive">

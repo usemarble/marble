@@ -92,10 +92,9 @@ export const PRICING: Pricing[] = [
     features: [
       "Unlimited posts",
       "500 MB media storage",
-      "Up to 3 team members",
+      "Up to 2 team members",
       "10k API requests per month",
-      "10 Webhook events per month",
-      "Basic SEO insights",
+      "Basic readability insights",
     ],
     button: {
       href: "https://app.marblecms.com",
@@ -115,8 +114,7 @@ export const PRICING: Pricing[] = [
       "Up to 5 team members",
       "50k API requests per month",
       "50 Webhook events per month",
-      "Advanced SEO insights",
-      "Content readability scores",
+      "Advanced readability insights",
     ],
     button: {
       href: "https://app.marblecms.com",
@@ -136,8 +134,7 @@ export const PRICING: Pricing[] = [
       "Up to 10 team members",
       "Unlimited API requests per month",
       "100 Webhook events per month",
-      "Advanced SEO insights",
-      "Content readability scores",
+      "Advanced readability insights",
       "Keyword optimization suggestions",
     ],
     button: {

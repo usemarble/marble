@@ -3,15 +3,16 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 
 export async function GET() {
-  const session = await getServerSession();
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const sessionData = await getServerSession();
+
+  if (!sessionData) {
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
   try {
     const userAccountDetails = await db.account.findMany({
       where: {
-        userId: session.user.id,
+        userId: sessionData.user.id,
       },
       select: {
         id: true,

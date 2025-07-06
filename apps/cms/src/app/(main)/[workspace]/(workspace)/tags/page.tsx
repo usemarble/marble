@@ -1,6 +1,3 @@
-import { db } from "@marble/db";
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth/auth";
 import PageClient from "./page-client";
 
 export const metadata = {
@@ -8,24 +5,8 @@ export const metadata = {
   description: "Manage your tags",
 };
 
-async function Page() {
-  const workspace = await auth.api.getFullOrganization({
-    headers: await headers(),
-  });
-
-  const tagsToShow = await db.tag.findMany({
-    where: { workspaceId: workspace?.id },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-    },
-  });
-  return (
-    <div>
-      <PageClient tags={tagsToShow} />
-    </div>
-  );
+function Page() {
+  return <PageClient />;
 }
 
 export default Page;

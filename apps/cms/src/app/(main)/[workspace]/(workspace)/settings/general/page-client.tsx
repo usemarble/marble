@@ -407,22 +407,22 @@ function PageClient() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg font-medium">
-            Delete workspace.
-          </CardTitle>
-          <CardDescription>
-            Permanently delete your workspace and all associated data within.
-            This action cannot be undone.
-          </CardDescription>
-        </CardHeader>
-        <CardFooter className="justify-end">
-          {isOwner && (
+      {isOwner && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg font-medium">
+              Delete workspace.
+            </CardTitle>
+            <CardDescription>
+              Permanently delete your workspace and all associated data within.
+              This action cannot be undone.
+            </CardDescription>
+          </CardHeader>
+          <CardFooter className="justify-end">
             <DeleteWorkspaceModal id={activeWorkspace?.id as string} />
-          )}
-        </CardFooter>
-      </Card>
+          </CardFooter>
+        </Card>
+      )}
     </WorkspacePageWrapper>
   );
 }

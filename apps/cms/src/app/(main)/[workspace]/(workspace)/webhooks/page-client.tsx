@@ -21,7 +21,7 @@ import { Switch } from "@marble/ui/components/switch";
 import { Copy, MoreHorizontal, Trash2, WebhookIcon } from "lucide-react";
 import { useState } from "react";
 import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
-import CreateWebhookSheet from "@/components/webhooks/create-webhook";
+import { WebhookButton } from "@/components/webhooks/create-webhook";
 import { DeleteWebhookModal } from "@/components/webhooks/delete-webhook";
 import { toggleWebhookAction } from "@/lib/actions/webhook";
 
@@ -50,15 +50,15 @@ export function PageClient({ webhooks: initialWebhooks }: PageClientProps) {
     return (
       <WorkspacePageWrapper className="h-full grid place-content-center">
         <div className="flex flex-col gap-4 items-center max-w-80">
-          <div className="p-2 border">
-            <WebhookIcon className="size-16 stroke-[1px]" />
+          <div className="p-2">
+            <WebhookIcon className="size-16" />
           </div>
           <div className="text-center flex flex-col gap-4 items-center">
             <p className="text-muted-foreground text-sm">
               Webhooks allow you perform actions on your server when certain
               events occur in your workspace.
             </p>
-            <CreateWebhookSheet />
+            <WebhookButton />
           </div>
         </div>
       </WorkspacePageWrapper>
@@ -100,9 +100,7 @@ export function PageClient({ webhooks: initialWebhooks }: PageClientProps) {
               Manage webhook endpoints for your workspace.
             </p>
           </div>
-          <CreateWebhookSheet>
-            <Button>Add Endpoint</Button>
-          </CreateWebhookSheet>
+          <WebhookButton>Add Endpoint</WebhookButton>
         </div>
 
         <div className="grid gap-4">

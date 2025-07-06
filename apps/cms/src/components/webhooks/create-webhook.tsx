@@ -22,11 +22,19 @@ import {
   SheetTrigger,
 } from "@marble/ui/components/sheet";
 import { toast } from "@marble/ui/components/sonner";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@marble/ui/components/tooltip";
 // import { ArrowUpRight } from "@phosphor-icons/react";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { UpgradeModal } from "@/components/billing/upgrade-modal";
+import { usePlan } from "@/hooks/use-plan";
 import {
   createWebhookAction,
   generateWebhookSecretAction,
@@ -276,3 +284,71 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
 }
 
 export default CreateWebhookSheet;
+
+// Gated webhook button component
+interface WebhookButtonProps {
+  children?: React.ReactNode;
+  variant?: "default" | "outline" | "ghost";
+  size?: "sm" | "default" | "lg";
+}
+
+export function WebhookButton({
+  children,
+  variant = "default",
+  size = "default",
+}: WebhookButtonProps) {
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const { isFreePlan } = usePlan();
+
+  // console.log("WebhookButton Debug:", {
+  //   isFreePlan,
+  //   currentPlan,
+  // });
+
+  const handleWebhookClick = () => {
+    // console.log("Webhook button clicked, isFreePlan:", isFreePlan);
+    if (isFreePlan) {
+      setShowUpgradeModal(true);
+    }
+  };
+
+  if (isFreePlan) {
+    return (
+      <TooltipProvider>
+        <Tooltip delayDuration={0}>
+          <TooltipTrigger asChild>
+            <Button variant={variant} size={size} onClick={handleWebhookClick}>
+              {children || (
+                <>
+                  <Plus className="size-4 mr-2" />
+                  New webhook
+                </>
+              )}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className="text-xs">Upgrade your plan to use webhooks</p>
+          </TooltipContent>
+        </Tooltip>
+
+        <UpgradeModal
+          isOpen={showUpgradeModal}
+          onClose={() => setShowUpgradeModal(false)}
+        />
+      </TooltipProvider>
+    );
+  }
+
+  return (
+    <CreateWebhookSheet>
+      <Button variant={variant} size={size}>
+        {children || (
+          <>
+            <Plus className="size-4 mr-2" />
+            New webhook
+          </>
+        )}
+      </Button>
+    </CreateWebhookSheet>
+  );
+}

@@ -8,11 +8,13 @@ import { format, isValid, parseISO } from "date-fns";
 import { useState } from "react";
 import { UpgradeModal } from "@/components/billing/upgrade-modal";
 import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
+import { usePlan } from "@/hooks/use-plan";
 import { useWorkspace } from "@/providers/workspace";
 
 function PageClient() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const { activeWorkspace, isOwner } = useWorkspace();
+  const { planLimits, currentMemberCount, currentPlan } = usePlan();
 
   const subscription = activeWorkspace?.subscription;
 
@@ -33,9 +35,7 @@ function PageClient() {
   };
 
   const getPlanDisplayName = () => {
-    if (!subscription?.plan) return "Free Plan";
-
-    switch (subscription.plan) {
+    switch (currentPlan) {
       case "pro":
         return "Pro Plan";
       case "team":
@@ -43,6 +43,18 @@ function PageClient() {
       default:
         return "Free Plan";
     }
+  };
+
+  const formatApiRequestLimit = (limit: number) => {
+    if (limit === -1) return "Unlimited";
+    return limit.toLocaleString();
+  };
+
+  const formatStorageLimit = (limitMB: number) => {
+    if (limitMB >= 1024) {
+      return `${(limitMB / 1024).toFixed(0)} GB`;
+    }
+    return `${limitMB} MB`;
   };
 
   const getBillingCycleText = () => {
@@ -101,15 +113,27 @@ function PageClient() {
               </div>
               <div className="space-y-3">
                 <div className="text-3xl font-bold">0</div>
-                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                  <Progress
-                    className="h-full bg-gray-300 rounded-full"
-                    value={0}
-                    max={1000}
-                  />
-                </div>
+                {planLimits.maxApiRequests === -1 ? (
+                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <Progress
+                      className="h-full bg-green-500 rounded-full"
+                      value={100}
+                      max={100}
+                    />
+                  </div>
+                ) : (
+                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <Progress
+                      className="h-full bg-gray-300 rounded-full"
+                      value={0}
+                      max={planLimits.maxApiRequests}
+                    />
+                  </div>
+                )}
                 <p className="text-sm text-muted-foreground">
-                  1,000 remaining of 1,000
+                  {planLimits.maxApiRequests === -1
+                    ? "Unlimited requests"
+                    : `${formatApiRequestLimit(planLimits.maxApiRequests)} remaining of ${formatApiRequestLimit(planLimits.maxApiRequests)}`}
                 </p>
               </div>
             </CardContent>
@@ -129,11 +153,12 @@ function PageClient() {
                   <Progress
                     className="h-full bg-gray-300 rounded-full"
                     value={0}
-                    max={10}
+                    max={planLimits.maxWebhookEvents}
                   />
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  10 remaining of 10
+                  {planLimits.maxWebhookEvents.toLocaleString()} remaining of{" "}
+                  {planLimits.maxWebhookEvents.toLocaleString()}
                 </p>
               </div>
             </CardContent>
@@ -153,11 +178,12 @@ function PageClient() {
                   <Progress
                     className="h-full bg-gray-300 rounded-full"
                     value={10}
-                    max={500}
+                    max={planLimits.maxMediaStorage}
                   />
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  490 MB remaining of 500 MB
+                  {formatStorageLimit(planLimits.maxMediaStorage - 10)}{" "}
+                  remaining of {formatStorageLimit(planLimits.maxMediaStorage)}
                 </p>
               </div>
             </CardContent>
@@ -172,16 +198,23 @@ function PageClient() {
                 <h3 className="font-medium">Members</h3>
               </div>
               <div className="space-y-3">
-                <div className="text-3xl font-bold">1</div>
+                <div className="text-3xl font-bold">{currentMemberCount}</div>
                 <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                   <Progress
-                    className="h-full bg-gray-300 rounded-full"
-                    value={50}
-                    max={2}
+                    className={`h-full rounded-full ${
+                      currentMemberCount >= planLimits.maxMembers
+                        ? "bg-red-500"
+                        : currentMemberCount / planLimits.maxMembers > 0.8
+                          ? "bg-yellow-500"
+                          : "bg-green-500"
+                    }`}
+                    value={currentMemberCount}
+                    max={planLimits.maxMembers}
                   />
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  1 remaining of 2
+                  {Math.max(0, planLimits.maxMembers - currentMemberCount)}{" "}
+                  remaining of {planLimits.maxMembers}
                 </p>
               </div>
             </CardContent>

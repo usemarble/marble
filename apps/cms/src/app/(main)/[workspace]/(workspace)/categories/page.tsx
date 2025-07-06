@@ -1,6 +1,3 @@
-import { db } from "@marble/db";
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth/auth";
 import PageClient from "./page-client";
 
 export const metadata = {
@@ -8,24 +5,8 @@ export const metadata = {
   description: "Manage your categories",
 };
 
-async function Page() {
-  const workspace = await auth.api.getFullOrganization({
-    headers: await headers(),
-  });
-
-  const availableCategories = await db.category.findMany({
-    where: { workspaceId: workspace?.id },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-    },
-  });
-  return (
-    <div>
-      <PageClient categories={availableCategories} />
-    </div>
-  );
+function Page() {
+  return <PageClient />;
 }
 
 export default Page;
