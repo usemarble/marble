@@ -29,7 +29,7 @@ export function LoginForm() {
 
   const searchParams = useSearchParams();
   const router = useRouter();
-  const callbackUrl = searchParams?.get("from") || "/";
+  const callbackURL = searchParams?.get("from") || "/";
 
   async function onSubmit(data: CredentialData) {
     setIsCredentialsLoading(true);
@@ -43,7 +43,7 @@ export function LoginForm() {
         {
           onSuccess: (_ctx) => {
             toast.success("Welcome!");
-            router.push(callbackUrl);
+            router.push(callbackURL);
           },
           onError: (ctx) => {
             if (ctx.error.status === 403) {
@@ -65,7 +65,7 @@ export function LoginForm() {
     try {
       await authClient.signIn.social({
         provider,
-        callbackURL: searchParams?.get("from") || "/",
+        callbackURL,
       });
     } catch (_error) {
       return toast("Sign in failed. Please try again.");

@@ -26,7 +26,7 @@ export const SOCIAL_LINKS: Link[] = [
 
 export const APP: Site = {
   TITLE: "Marble",
-  DESCRIPTION: "A smarter way to manage your blog.",
+  DESCRIPTION: "The smarter way to manage your blog.",
   URL: "https://app.marblecms.com",
   EMAIL: "hello@taqib.dev",
 };
@@ -64,5 +64,79 @@ export const FAQs: {
     question: "Can I export my content?",
     answer:
       "Yes, you can export all your content at any time in common formats like JSON. Your content always belongs to you and you're never locked in.",
+  },
+];
+
+export type Pricing = {
+  title: string;
+  description: string;
+  price: {
+    monthly: string;
+    yearly: string;
+  };
+  features: string[];
+  button: {
+    href: string;
+    label: string;
+  };
+};
+
+export const PRICING: Pricing[] = [
+  {
+    title: "Hobby",
+    description: "For Hobbyists",
+    price: {
+      monthly: "$0",
+      yearly: "$0",
+    },
+    features: [
+      "Unlimited posts",
+      "500 MB media storage",
+      "Up to 3 team members",
+      "10k API requests per month",
+      "10 Webhook events per month",
+    ],
+    button: {
+      href: "https://app.marblecms.com",
+      label: "Start for free",
+    },
+  },
+  {
+    title: "Pro",
+    description: "For Small Teams",
+    price: {
+      monthly: "$10",
+      yearly: "$100",
+    },
+    features: [
+      "Unlimited posts",
+      "2 GB media storage",
+      "Up to 5 team members",
+      "50k API requests per month",
+      "50 Webhook events per month",
+    ],
+    button: {
+      href: "https://app.marblecms.com",
+      label: "Get Started",
+    },
+  },
+  {
+    title: "Team",
+    description: "For Growing Startups",
+    price: {
+      monthly: "$15",
+      yearly: "$150",
+    },
+    features: [
+      "Unlimited posts",
+      "5 GB media storage",
+      "Up to 10 team members",
+      "Unlimited API requests per month",
+      "100 Webhook events per month",
+    ],
+    button: {
+      href: "https://app.marblecms.com",
+      label: "Get Started",
+    },
   },
 ];

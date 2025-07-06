@@ -11,6 +11,7 @@ import {
 import { Check } from "@phosphor-icons/react";
 import { useState } from "react";
 import { checkout } from "@/lib/auth/client";
+import { PRICING_PLANS } from "@/lib/constants";
 import { useWorkspace } from "@/providers/workspace";
 import { ButtonLoader } from "../ui/loader";
 
@@ -77,84 +78,38 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
         </DialogHeader>
         <section>
           <ul className="grid sm:grid-cols-2 border border-dashed divide-x divide-dashed rounded-xl overflow-hidden">
-            <li className=" flex flex-col gap-5 min-h-96 h-full w-full px-4 py-6">
-              <div className="flex flex-col gap-4">
-                <h4 className="text-medium text-2xl">Pro</h4>
-                <div className="">
-                  <p>
-                    <span className="font-bold text-2xl">$10</span>{" "}
-                    <span>per month.</span>
-                  </p>
-                  <p className="text-muted-foreground text-sm">
-                    For small teams
-                  </p>
+            {PRICING_PLANS.map((plan) => (
+              <li
+                key={plan.title}
+                className=" flex flex-col gap-5 min-h-96 h-full w-full px-4 py-6"
+              >
+                <div className="flex flex-col gap-4">
+                  <h4 className="text-medium text-2xl">{plan.title}</h4>
+                  <div className="">
+                    <p>
+                      <span className="font-bold text-2xl">
+                        {plan.price.monthly}
+                      </span>{" "}
+                      <span>per month.</span>
+                    </p>
+                    <p className="text-muted-foreground text-sm">
+                      {plan.description}
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <div className="border-y border-dashed py-4">
-                {renderPlanButton("pro")}
-              </div>
-              <ul className="flex flex-col gap-2 text-sm">
-                <li className="flex items-center gap-2">
-                  <Check className="size-4 text-primary" />
-                  <span>Unlimited posts.</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="size-4 text-primary" />
-                  <span>2 GB media storage.</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="size-4 text-primary" />
-                  <span>Up to 10 team members.</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="size-4 text-primary" />
-                  <span>50k API requests per month.</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="size-4 text-primary" />
-                  <span>50 Webhook events per month.</span>
-                </li>
-              </ul>
-            </li>
-            <li className=" flex flex-col gap-5 min-h-96 h-full w-full px-4 py-6">
-              <div className="flex flex-col gap-4">
-                <h4 className="text-medium text-2xl">Team</h4>
-                <div className="">
-                  <p>
-                    <span className="font-bold text-2xl">$15</span>{" "}
-                    <span>per month.</span>
-                  </p>
-                  <p className="text-muted-foreground text-sm">
-                    For growing teams
-                  </p>
+                <div className="border-y border-dashed py-4">
+                  {renderPlanButton(plan.title.toLowerCase() as "pro" | "team")}
                 </div>
-              </div>
-              <div className="border-y border-dashed py-4">
-                {renderPlanButton("team")}
-              </div>
-              <ul className="flex flex-col gap-2 text-sm">
-                <li className="flex items-center gap-2">
-                  <Check className="size-4 text-primary" />
-                  <span>Unlimited posts.</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="size-4 text-primary" />
-                  <span>5 GB media storage.</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="size-4 text-primary" />
-                  <span>Up to 10 team members.</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="size-4 text-primary" />
-                  <span>Unlimited API requests.</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="size-4 text-primary" />
-                  <span>100 Webhook events per month.</span>
-                </li>
-              </ul>
-            </li>
+                <ul className="flex flex-col gap-2 text-sm">
+                  {plan.features.map((feature) => (
+                    <li key={feature} className="flex items-center gap-2">
+                      <Check className="size-4 text-primary" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ))}
           </ul>
         </section>
       </DialogContent>
