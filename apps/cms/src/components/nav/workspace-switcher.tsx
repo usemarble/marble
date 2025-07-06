@@ -27,13 +27,11 @@ import { CaretDown, Check, Plus } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useWorkspace } from "../../providers/workspace";
-import { UpgradeModal } from "../billing/upgrade-modal";
 import { CreateWorkspaceModal } from "./workspace-modal";
 
 export function WorkspaceSwitcher() {
   const { isMobile } = useSidebar();
   const router = useRouter();
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] =
     useState(false);
   const {
@@ -209,10 +207,6 @@ export function WorkspaceSwitcher() {
       <CreateWorkspaceModal
         open={showCreateWorkspaceModal}
         setOpen={setShowCreateWorkspaceModal}
-      />
-      <UpgradeModal
-        isOpen={showUpgradeModal}
-        onClose={() => setShowUpgradeModal(false)}
       />
     </SidebarMenu>
   );
