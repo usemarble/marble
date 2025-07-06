@@ -181,13 +181,13 @@ import { APP, PRICING, SITE } from "@/lib/constants";
 			</div>
 			   <ul class="grid gap-5 lg:gap-10 sm:grid-cols-2 lg:grid-cols-3">
 				{PRICING.map((plan, index) => (
-					<li key={plan.id || index} class={`border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl ${index === 2 ? 'sm:col-span-2 lg:col-span-1 sm:h-fit' : ''}`}>
+					<li class={`border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl ${index === 2 ? 'sm:col-span-2 lg:col-span-1 sm:h-fit' : ''}`}>
 						<div class={`border flex flex-col gap-5 rounded-[8px] bg-white w-full px-4 py-6 ${index === 2 ? 'sm:flex-row sm:px-14 sm:py-10 lg:py-6 sm:justify-center sm:gap-20 lg:gap-4 lg:px-4 lg:flex-col min-h-96 sm:min-h-fit lg:min-h-96' : 'min-h-96 h-full'}`}>
 							{index === 2 ? (
 								<>
 									<div class="flex flex-col gap-5 sm:min-w-60 lg:min-w-0">
 										<div class="flex flex-col gap-4">
-											<h4 class="text-medium text-xl text-medium">{plan.title}</h4>
+											<h4 class="text-medium text-xl">{plan.title}</h4>
 											<div class="">
 												<p><span class="font-bold text-2xl">{plan.price.monthly}</span>{' '}<span>per month.</span></p>
 												<p class="text-muted-foreground text-sm">{plan.description}</p>
