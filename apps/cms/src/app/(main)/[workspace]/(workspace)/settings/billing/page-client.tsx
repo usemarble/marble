@@ -18,7 +18,6 @@ function PageClient() {
 
   const subscription = activeWorkspace?.subscription;
 
-  // Helper function to safely format dates
   const formatDate = (dateValue: string | Date | null | undefined) => {
     if (!dateValue) return null;
 
@@ -113,23 +112,14 @@ function PageClient() {
               </div>
               <div className="space-y-3">
                 <div className="text-3xl font-bold">0</div>
-                {planLimits.maxApiRequests === -1 ? (
-                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                    <Progress
-                      className="h-full bg-green-500 rounded-full"
-                      value={100}
-                      max={100}
-                    />
-                  </div>
-                ) : (
-                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                    <Progress
-                      className="h-full bg-gray-300 rounded-full"
-                      value={0}
-                      max={planLimits.maxApiRequests}
-                    />
-                  </div>
-                )}
+                <Progress
+                  value={planLimits.maxApiRequests === -1 ? 100 : 0}
+                  max={
+                    planLimits.maxApiRequests === -1
+                      ? 100
+                      : planLimits.maxApiRequests
+                  }
+                />
                 <p className="text-sm text-muted-foreground">
                   {planLimits.maxApiRequests === -1
                     ? "Unlimited requests"
@@ -149,16 +139,11 @@ function PageClient() {
               </div>
               <div className="space-y-3">
                 <div className="text-3xl font-bold">0</div>
-                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                  <Progress
-                    className="h-full bg-gray-300 rounded-full"
-                    value={0}
-                    max={planLimits.maxWebhookEvents}
-                  />
-                </div>
+                <Progress value={0} max={planLimits.maxWebhookEvents || 1} />
                 <p className="text-sm text-muted-foreground">
-                  {planLimits.maxWebhookEvents.toLocaleString()} remaining of{" "}
-                  {planLimits.maxWebhookEvents.toLocaleString()}
+                  {planLimits.maxWebhookEvents === 0
+                    ? "No webhook access"
+                    : `${planLimits.maxWebhookEvents.toLocaleString()} remaining of ${planLimits.maxWebhookEvents.toLocaleString()}`}
                 </p>
               </div>
             </CardContent>
@@ -174,13 +159,7 @@ function PageClient() {
               </div>
               <div className="space-y-3">
                 <div className="text-3xl font-bold">10 MB</div>
-                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                  <Progress
-                    className="h-full bg-gray-300 rounded-full"
-                    value={10}
-                    max={planLimits.maxMediaStorage}
-                  />
-                </div>
+                <Progress value={10} max={planLimits.maxMediaStorage} />
                 <p className="text-sm text-muted-foreground">
                   {formatStorageLimit(planLimits.maxMediaStorage - 10)}{" "}
                   remaining of {formatStorageLimit(planLimits.maxMediaStorage)}
@@ -199,19 +178,10 @@ function PageClient() {
               </div>
               <div className="space-y-3">
                 <div className="text-3xl font-bold">{currentMemberCount}</div>
-                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                  <Progress
-                    className={`h-full rounded-full ${
-                      currentMemberCount >= planLimits.maxMembers
-                        ? "bg-red-500"
-                        : currentMemberCount / planLimits.maxMembers > 0.8
-                          ? "bg-yellow-500"
-                          : "bg-green-500"
-                    }`}
-                    value={currentMemberCount}
-                    max={planLimits.maxMembers}
-                  />
-                </div>
+                <Progress
+                  value={currentMemberCount}
+                  max={planLimits.maxMembers}
+                />
                 <p className="text-sm text-muted-foreground">
                   {Math.max(0, planLimits.maxMembers - currentMemberCount)}{" "}
                   remaining of {planLimits.maxMembers}

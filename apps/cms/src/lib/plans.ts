@@ -2,7 +2,7 @@ export type PlanType = "free" | "pro" | "team";
 
 export interface PlanLimits {
   maxMembers: number;
-  maxMediaStorage: number; // in MB
+  maxMediaStorage: number;
   maxApiRequests: number;
   maxWebhookEvents: number;
   features: {
@@ -16,11 +16,11 @@ export interface PlanLimits {
 export const PLAN_LIMITS: Record<PlanType, PlanLimits> = {
   free: {
     maxMembers: 2,
-    maxMediaStorage: 500, // MB
+    maxMediaStorage: 500,
     maxApiRequests: 10000,
-    maxWebhookEvents: 10,
+    maxWebhookEvents: 0,
     features: {
-      inviteMembers: false, // Free plan can't invite
+      inviteMembers: true,
       advancedReadability: false,
       keywordOptimization: false,
       unlimitedPosts: true,
@@ -28,7 +28,7 @@ export const PLAN_LIMITS: Record<PlanType, PlanLimits> = {
   },
   pro: {
     maxMembers: 5,
-    maxMediaStorage: 2048, // 2GB
+    maxMediaStorage: 2048,
     maxApiRequests: 50000,
     maxWebhookEvents: 50,
     features: {

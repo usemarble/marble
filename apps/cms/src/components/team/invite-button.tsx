@@ -24,15 +24,11 @@ export function InviteButton({ onInvite }: InviteButtonProps) {
     if (canInvite) {
       onInvite();
     } else {
-      // Show upgrade modal if they can't invite
       setShowUpgradeModal(true);
     }
   };
 
   const getTooltipContent = () => {
-    if (isFreePlan) {
-      return "Upgrade your plan to invite members";
-    }
     if (remainingSlots === 0) {
       return `You've reached your member limit (${planLimits.maxMembers}). Upgrade to invite more members.`;
     }
