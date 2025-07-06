@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import { auth } from "./auth";
 
-async function getServerSession() {
+export async function getServerSession() {
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
@@ -11,5 +11,3 @@ async function getServerSession() {
     return null;
   }
 }
-
-export default getServerSession;

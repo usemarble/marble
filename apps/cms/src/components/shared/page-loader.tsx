@@ -6,7 +6,7 @@ function PageLoader() {
   return (
     <div aria-busy="true" className="w-full h-full grid place-content-center">
       <div className="p-2">
-        <Spinner className="size-6 animate-spin transition" />
+        <Spinner className="size-5 animate-spin transition" />
       </div>
     </div>
   );

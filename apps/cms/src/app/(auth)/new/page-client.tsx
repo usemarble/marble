@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@marble/ui/components/button";
+import { Button, buttonVariants } from "@marble/ui/components/button";
 import {
   Card,
   CardContent,
@@ -12,21 +12,23 @@ import {
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
-import { Loader } from "lucide-react";
+import { cn } from "@marble/ui/lib/utils";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
+import { ButtonLoader } from "@/components/ui/loader";
 import { checkWorkspaceSlug } from "@/lib/actions/workspace";
-import { organization } from "@/lib/auth/client";
+import { authClient, organization } from "@/lib/auth/client";
 import {
   type CreateWorkspaceValues,
   workspaceSchema,
 } from "@/lib/validations/workspace";
 import { generateSlug } from "@/utils/string";
 
-function PageClient() {
+function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
   // const { updateActiveWorkspace } = useWorkspace();
   const {
     register,
@@ -66,12 +68,11 @@ function PageClient() {
       if (response.data) {
         const workspace = {
           ...response.data,
-          members: response.data.members.map((member) => ({
-            ...member,
-            id: member.id || member.userId, // ensure id is always present
-          })),
         };
         // await updateActiveWorkspace(workspace.slug, workspace);
+        authClient.organization.setActive({
+          organizationId: workspace.id,
+        });
         router.push(`/${workspace.slug}`);
       }
     } catch (error) {
@@ -80,8 +81,8 @@ function PageClient() {
     }
   }
   return (
-    <div>
-      <Card className="rounded-[24px] py-7 px-5">
+    <div className="h-screen grid place-items-center bg-sidebar dark:bg-background">
+      <Card className="rounded-[24px] sm:min-w-[500px] py-7 px-5 dark:bg-sidebar">
         <CardHeader className="text-center mb-5 items-center">
           <Image
             src="/icon.svg"
@@ -90,9 +91,9 @@ function PageClient() {
             height={40}
             className="mb-4"
           />
-          <CardTitle className="font-medium">Create workspace</CardTitle>
+          <CardTitle className="font-medium">New workspace</CardTitle>
           <CardDescription className="max-w-sm">
-            To start writing your content, you'll need a workspace.
+            You'll need a workspace to proceed.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -105,11 +106,7 @@ function PageClient() {
                 <Label htmlFor="name" className="sr-only">
                   Name
                 </Label>
-                <Input
-                  id="name"
-                  placeholder="Workspace Name"
-                  {...register("name")}
-                />
+                <Input id="name" placeholder="Name" {...register("name")} />
                 {errors.name && (
                   <ErrorMessage>{errors.name.message}</ErrorMessage>
                 )}
@@ -119,12 +116,12 @@ function PageClient() {
                   Slug
                 </Label>
                 <div className="flex w-full rounded-md border border-input bg-background text-base placeholder:text-muted-foreground focus-within:outline-none focus-within:border-primary focus-within:ring-2 focus-within:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm overflow-hidden">
-                  <span className="py-2.5 px-2 bg-gray-100 border-r">
-                    app.marblecms.com/
+                  <span className="py-2.5 px-2 bg-sidebar border-r">
+                    {process.env.NEXT_PUBLIC_APP_URL?.split("//")[1]}/
                   </span>
                   <input
                     id="slug"
-                    placeholder="Workspace slug"
+                    placeholder="Slug"
                     {...register("slug")}
                     autoComplete="off"
                     className="w-full bg-transparent py-2 px-2 outline-none ring-0"
@@ -141,18 +138,16 @@ function PageClient() {
                 disabled={isSubmitting}
                 className="flex w-full gap-2"
               >
-                {isSubmitting && <Loader className="size-4 animate-spin" />}
-                Create
+                {isSubmitting ? <ButtonLoader /> : "Create"}
               </Button>
-              <Button
-                variant="ghost"
-                type="button"
-                disabled={isSubmitting}
-                onClick={() => router.push("/")}
-                className="flex w-full gap-2"
-              >
-                Dashboard
-              </Button>
+              {hasWorkspaces && (
+                <Link
+                  href="/"
+                  className={cn(buttonVariants({ variant: "ghost" }), "w-full")}
+                >
+                  Back to dashboard
+                </Link>
+              )}
             </div>
           </form>
         </CardContent>

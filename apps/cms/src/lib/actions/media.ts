@@ -4,7 +4,7 @@ import { DeleteObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
 import { db } from "@marble/db";
 import { nanoid } from "nanoid";
-import getServerSession from "@/lib/auth/session";
+import { getServerSession } from "@/lib/auth/session";
 import { generateSlug } from "@/utils/string";
 
 const ACCESS_KEY_ID = process.env.CLOUDFLARE_ACCESS_KEY_ID;

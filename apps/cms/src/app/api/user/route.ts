@@ -1,6 +1,6 @@
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
-import getServerSession from "@/lib/auth/session";
+import { getServerSession } from "@/lib/auth/session";
 
 export async function GET() {
   const session = await getServerSession();
@@ -42,12 +42,11 @@ export async function GET() {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
-  // Transform the data to include workspace role
   const userWithRole = {
     ...user,
     workspaceRole: user.members[0]?.role || null,
     activeWorkspace: user.members[0]?.organization || null,
-    members: undefined, // Remove members array from response
+    members: undefined,
   };
 
   return NextResponse.json(userWithRole, { status: 200 });
@@ -102,12 +101,11 @@ export async function PATCH(request: Request) {
       },
     });
 
-    // Transform the data to include workspace role
     const userWithRole = {
       ...updatedUser,
       workspaceRole: updatedUser.members[0]?.role || null,
       activeWorkspace: updatedUser.members[0]?.organization || null,
-      members: undefined, // Remove members array from response
+      members: undefined,
     };
 
     return NextResponse.json(userWithRole, { status: 200 });

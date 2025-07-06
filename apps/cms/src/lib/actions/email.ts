@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { InviteUserEmail } from "@/components/emails/invite";
 import { VerifyUserEmail } from "@/components/emails/verify";
-import getServerSession from "../auth/session";
+import { getServerSession } from "../auth/session";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 

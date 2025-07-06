@@ -2,7 +2,7 @@
 
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
-import getServerSession from "../auth/session";
+import { getServerSession } from "../auth/session";
 
 /**
  * Update a user

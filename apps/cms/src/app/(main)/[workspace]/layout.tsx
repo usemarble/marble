@@ -1,14 +1,11 @@
 import { db } from "@marble/db";
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth/auth";
+import { getServerSession } from "@/lib/auth/session";
 import type { ActiveOrganization } from "@/lib/auth/types";
 import { WorkspaceProvider } from "@/providers/workspace";
 
 async function getInitialWorkspaceData(): Promise<ActiveOrganization | null> {
   try {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
+    const session = await getServerSession();
 
     if (!session?.user || !session.session?.activeOrganizationId) {
       return null;
