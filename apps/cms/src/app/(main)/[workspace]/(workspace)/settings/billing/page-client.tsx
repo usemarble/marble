@@ -176,7 +176,7 @@ function PageClient() {
                 <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                   <Progress
                     className="h-full bg-gray-300 rounded-full"
-                    value={1}
+                    value={50}
                     max={2}
                   />
                 </div>

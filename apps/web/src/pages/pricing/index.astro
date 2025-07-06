@@ -1,7 +1,7 @@
 ---
 import Container from "@/components/Container.astro";
 import Layout from "@/layouts/Layout.astro";
-import { APP, SITE } from "@/lib/constants";
+import { APP, PRICING, SITE } from "@/lib/constants";
 ---
 
 
@@ -17,163 +17,73 @@ import { APP, SITE } from "@/lib/constants";
 				</p>
 			</div>
       <ul class="grid gap-5 lg:gap-10 sm:grid-cols-2 lg:grid-cols-3">
-				<li class="border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl">
-					<div class="border flex flex-col gap-5 rounded-[8px] bg-white min-h-96 h-full w-full px-4 py-6">
-						<div class="flex flex-col gap-4">
-							<h4 class="text-medium text-2xl">Hobby</h4>
-							<div class="">
-								<p><span class="font-bold text-2xl">$0</span>{' '}<span>per month.</span></p>
-								<p class="text-muted-foreground text-sm">For hobbyists</p>
-							</div>
+				{PRICING.map((plan, index) => (
+					<li class={`border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl ${index === 2 ? 'sm:col-span-2 lg:col-span-1 sm:h-fit' : ''}`}>
+						<div class={`border flex flex-col gap-5 rounded-[8px] bg-white w-full px-4 py-6 ${index === 2 ? 'sm:flex-row sm:px-14 sm:py-10 lg:py-6 sm:justify-center sm:gap-20 lg:gap-4 lg:px-4 lg:flex-col min-h-96 sm:min-h-fit lg:min-h-96' : 'min-h-96 h-full'}`}>
+							{index === 2 ? (
+								<>
+									<div class="flex flex-col gap-5 sm:min-w-60 lg:min-w-0">
+										<div class="flex flex-col gap-4">
+											<h4 class="text-medium text-xl text-medium">{plan.title}</h4>
+											<div class="">
+												<p><span class="font-bold text-2xl">{plan.price.monthly}</span>{' '}<span>per month.</span></p>
+												<p class="text-muted-foreground text-sm">{plan.description}</p>
+											</div>
+										</div>
+										<div class="border-y border-dashed py-4">
+											<a 
+												href={plan.button.href}
+												target="_blank"
+												class="flex bg-primary gap-2 group text-primary-foreground items-center justify-center py-2 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 transition-all duration-300 ease-out px-8 group mt-auto rounded"
+											>
+												<span>{plan.button.label}</span>
+											</a>
+										</div>
+									</div>
+									<ul class="flex flex-col gap-2 text-sm">
+										{plan.features.map((feature) => (
+											<li class="flex items-center gap-2">
+												<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
+													<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+												</svg>
+												<span>{feature}</span>
+											</li>
+										))}
+									</ul>
+								</>
+							) : (
+								<>
+									<div class="flex flex-col gap-4">
+										<h4 class="text-medium text-2xl">{plan.title}</h4>
+										<div class="">
+											<p><span class="font-bold text-2xl">{plan.price.monthly}</span>{' '}<span>per month.</span></p>
+											<p class="text-muted-foreground text-sm">{plan.description}</p>
+										</div>
+									</div>
+									<div class="border-y border-dashed py-4">
+										<a 
+											href={plan.button.href}
+											target="_blank"
+											class="flex bg-primary gap-2 group text-primary-foreground items-center justify-center py-2 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 transition-all duration-300 ease-out px-8 group mt-auto rounded"
+										>
+											<span>{plan.button.label}</span>
+										</a>
+									</div>
+									<ul class="flex flex-col gap-2 text-sm">
+										{plan.features.map((feature) => (
+											<li class="flex items-center gap-2">
+												<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
+													<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+												</svg>
+												<span>{feature}</span>
+											</li>
+										))}
+									</ul>
+								</>
+							)}
 						</div>
-						<div class="border-y border-dashed py-4">
-							<a 
-								href={`${APP.URL}`}
-								target="_blank"
-								class="flex bg-primary gap-2 group text-primary-foreground items-center justify-center py-2 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 transition-all duration-300 ease-out px-8 group mt-auto rounded"
-								>
-								<span>Start for free</span>
-							</a>
-						</div>
-						<!-- Plan perks -->
-						<ul class="flex flex-col gap-2 text-sm">
-							<li class="flex items-center gap-2">
-								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
-									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-								</svg>
-								<span>Unlimited posts.</span>
-							</li>
-							<li class="flex items-center gap-2">
-								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
-									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-								</svg>
-								<span>500 MB media storage.</span>
-							</li>
-							<li class="flex items-center gap-2">
-								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
-									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-								</svg>
-								<span>Up to 3 team members.</span>
-							</li>
-							<li class="flex items-center gap-2">
-								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
-									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-								</svg>
-								<span>10k API requests per month.</span>
-							</li>
-						</ul>
-					</div>
-				</li>
-				<li class="border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl">
-					<div class="border flex flex-col gap-5 rounded-[8px] bg-white min-h-96 h-full w-full px-4 py-6">
-						<!-- plan name and price -->
-						<div class="flex flex-col gap-4">
-							<h4 class="text-medium text-2xl">Pro</h4>
-							<div class="">
-								<p><span class="font-bold text-2xl">$10</span>{' '}<span>per month.</span></p>
-								<p class="text-muted-foreground text-sm">For small teams</p>
-							</div>
-						</div>
-						<div class="border-y border-dashed py-4">
-							<a 
-								href={`${APP.URL}`}
-								target="_blank"
-								class="flex bg-primary gap-2 group text-primary-foreground items-center justify-center py-2 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 transition-all duration-300 ease-out px-8 group mt-auto rounded"
-							>
-								<span>Get Started</span>
-							</a>
-						</div>
-						<!-- Plan perks -->
-						<ul class="flex flex-col gap-2 text-sm">
-							<li class="flex items-center gap-2">
-								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
-									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-								</svg>
-								<span>Unlimited posts.</span>
-							</li>
-							<li class="flex items-center gap-2">
-								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
-									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-								</svg>
-								<span>2 GB media storage.</span>
-							</li>
-							<li class="flex items-center gap-2">
-								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
-									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-								</svg>
-								<span>up to 10 team members</span>
-							</li>
-							<li class="flex items-center gap-2">
-								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
-									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-								</svg>
-								<span>50k API requests per month.</span>
-							</li>
-							<li class="flex items-center gap-2">
-								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
-									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-								</svg>
-								<span>50 Webhook events per month.</span>
-							</li>
-						</ul>
-					</div>
-				</li>
-				<li class="border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl sm:col-span-2 lg:col-span-1 sm:h-fit">
-					<div class="border flex flex-col sm:flex-row sm:px-14 sm:py-10 lg:py-6 sm:justify-center sm:gap-20 lg:gap-4 lg:px-4 lg:flex-col gap-5 rounded-[8px] bg-white min-h-96 sm:min-h-fit lg:min-h-96 w-full px-4 py-6">
-						<!-- plan name and price -->
-						 <div class="flex flex-col gap-5 sm:min-w-60 lg:min-w-0">
-							 <div class="flex flex-col gap-4">
-								 <h4 class="text-medium text-xl text-medium">Team</h4>
-								 <div class="">
-									 <p><span class="font-bold text-2xl">$15</span>{' '}<span>per month.</span></p>
-									 <p class="text-muted-foreground text-sm">For growing teams</p>
-								 </div>
-							 </div>
-							 <div class="border-y border-dashed py-4">
-								 <a 
-									 href={`${APP.URL}`}
-									 target="_blank"
-									 class="flex bg-primary gap-2 group text-primary-foreground items-center justify-center py-2 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 transition-all duration-300 ease-out px-8 group mt-auto rounded"
-									 >
-									 <span>Get Started</span>
-								 </a>
-							 </div>
-							</div>	
-						<!-- perks -->
-						<ul class="flex flex-col gap-2 text-sm">
-							<li class="flex items-center gap-2">
-								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
-									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-								</svg>
-								<span>Up to 10 team members.</span>
-							</li>
-							<li class="flex items-center gap-2">
-								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
-									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-								</svg>
-								<span>Unlimited posts.</span>
-							</li>
-							<li class="flex items-center gap-2">
-								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
-									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-								</svg>
-								<span>5 GB media storage.</span>
-							</li>
-							<li class="flex items-center gap-2">
-								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
-									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-								</svg>
-								<span>Unlimited API requests.</span>
-							</li>
-							<li class="flex items-center gap-2">
-								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
-									<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-								</svg>
-								<span>100 Webhook events per month.</span>
-							</li>
-						</ul>
-					</div>
-				</li>
+					</li>
+				))}
 			</ul>
 		</Container>
 	</section>

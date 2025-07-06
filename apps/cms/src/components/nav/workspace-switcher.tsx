@@ -109,7 +109,7 @@ export function WorkspaceSwitcher() {
                       },
                     )}
                   >
-                    {activeWorkspace.subscription?.plan || "free"}
+                    {activeWorkspace.subscription?.plan.toUpperCase() || "FREE"}
                   </Badge>
                 </div>
                 <CaretDown className="ml-auto" />

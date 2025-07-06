@@ -27,7 +27,7 @@ export function RegisterForm() {
   const [isCredentialsLoading, setIsCredentialsLoading] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("from") || "/";
+  const callbackURL = searchParams.get("from") || "/";
   const router = useRouter();
   const [isRedirecting, startTransition] = useTransition();
 
@@ -42,7 +42,7 @@ export function RegisterForm() {
       })
       .then((_res) => {
         startTransition(() => {
-          router.push(`/verify?email=${email}&from=${callbackUrl}`);
+          router.push(`/verify?email=${email}&from=${callbackURL}`);
         });
       });
   };
@@ -80,7 +80,7 @@ export function RegisterForm() {
     try {
       await authClient.signIn.social({
         provider,
-        callbackURL: callbackUrl,
+        callbackURL,
       });
     } catch (_error) {
       return toast("Your sign in request failed. Please try again.");
