@@ -32,6 +32,7 @@ export type ExtendedWorkspace = ActiveOrganization & {
     canceledAt?: string | Date | null;
   } | null;
   currentUserRole?: string | null;
+  timezone?: string | null;
 };
 
 // Context type for workspace provider

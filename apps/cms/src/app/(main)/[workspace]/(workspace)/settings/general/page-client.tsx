@@ -27,6 +27,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
 import { DeleteWorkspaceModal } from "@/components/settings/delete-workspace-modal";
+import { TimezoneSelector } from "@/components/ui/timezone-selector";
 import { uploadWorkspaceLogoAction } from "@/lib/actions/media";
 import {
   checkWorkspaceSlug,
@@ -42,11 +43,16 @@ const slugSchema = z.object({
   slug: z.string().min(1),
 });
 
+const timezoneSchema = z.object({
+  timezone: z.string().min(1),
+});
+
 function PageClient() {
   const router = useRouter();
   const { activeWorkspace, isOwner, updateActiveWorkspace } = useWorkspace();
   const [isNameChanged, setIsNameChanged] = useState(false);
   const [isSlugChanged, setIsSlugChanged] = useState(false);
+  const [isTimezoneChanged, setIsTimezoneChanged] = useState(false);
   const [idCopied, setIdCopied] = useState(false);
   const [logoCopied, setLogoCopied] = useState(false);
   const [logoUrl, setLogoUrl] = useState(activeWorkspace?.logo);
@@ -63,6 +69,18 @@ function PageClient() {
     defaultValues: { slug: activeWorkspace?.slug || "" },
   });
 
+  const timezoneForm = useForm<z.infer<typeof timezoneSchema>>({
+    resolver: zodResolver(timezoneSchema),
+    defaultValues: { timezone: activeWorkspace?.timezone || "UTC" },
+  });
+
+  // Reset form when activeWorkspace changes
+  useEffect(() => {
+    if (activeWorkspace?.timezone) {
+      timezoneForm.reset({ timezone: activeWorkspace.timezone });
+    }
+  }, [activeWorkspace?.timezone, timezoneForm]);
+
   useEffect(() => {
     const nameSubscription = nameForm.watch((value) => {
       setIsNameChanged(value.name !== activeWorkspace?.name);
@@ -70,16 +88,22 @@ function PageClient() {
     const slugSubscription = slugForm.watch((value) => {
       setIsSlugChanged(value.slug !== activeWorkspace?.slug);
     });
+    const timezoneSubscription = timezoneForm.watch((value) => {
+      setIsTimezoneChanged(value.timezone !== activeWorkspace?.timezone);
+    });
 
     return () => {
       nameSubscription.unsubscribe();
       slugSubscription.unsubscribe();
+      timezoneSubscription.unsubscribe();
     };
   }, [
     nameForm.watch,
     slugForm.watch,
+    timezoneForm.watch,
     activeWorkspace?.name,
     activeWorkspace?.slug,
+    activeWorkspace?.timezone,
   ]);
 
   const onNameSubmit = async (data: z.infer<typeof nameSchema>) => {
@@ -92,8 +116,8 @@ function PageClient() {
         slug: activeWorkspace?.slug,
       });
       toast.success("Workspace name updated.", { position: "bottom-center" });
-      router.refresh();
       setIsNameChanged(false);
+      router.refresh();
     } catch (_error) {
       toast.error("Failed to update.", { position: "bottom-center" });
     }
@@ -120,9 +144,9 @@ function PageClient() {
         },
       );
       toast.success("Workspace slug updated.", { position: "bottom-center" });
+      setIsSlugChanged(false);
       router.replace(`/${updatedWorkspace.slug}/settings`);
       router.refresh();
-      setIsSlugChanged(false);
     } catch (_error) {
       toast.error("Failed to update.", { position: "bottom-center" });
     }
@@ -206,6 +230,25 @@ function PageClient() {
       handleLogoUpload();
     }
   }, [file]);
+
+  const onTimezoneSubmit = async (data: z.infer<typeof timezoneSchema>) => {
+    if (!isOwner || !activeWorkspace?.id) return;
+
+    try {
+      await updateWorkspaceAction(activeWorkspace?.id, {
+        name: activeWorkspace?.name,
+        slug: activeWorkspace?.slug,
+        timezone: data.timezone,
+      });
+      toast.success("Workspace timezone updated.", {
+        position: "bottom-center",
+      });
+      setIsTimezoneChanged(false);
+      router.refresh();
+    } catch (_error) {
+      toast.error("Failed to update timezone.", { position: "bottom-center" });
+    }
+  };
 
   return (
     <WorkspacePageWrapper className="flex flex-col gap-8 py-12">
@@ -371,6 +414,61 @@ function PageClient() {
               </Button>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg font-medium">
+            Workspace Timezone
+          </CardTitle>
+          <CardDescription>
+            The timezone of your workspace. (Used for scheduled posts and the
+            display of dates)
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form
+            onSubmit={timezoneForm.handleSubmit(onTimezoneSubmit)}
+            className="flex flex-col gap-2 w-full"
+          >
+            <div className="flex gap-2 items-center">
+              <div className="flex flex-col gap-2 flex-1">
+                <Label htmlFor="timezone" className="sr-only">
+                  Timezone
+                </Label>
+                <TimezoneSelector
+                  value={timezoneForm.watch("timezone")}
+                  onValueChange={(value) => {
+                    timezoneForm.setValue("timezone", value);
+                    timezoneForm.trigger("timezone");
+                  }}
+                  disabled={!isOwner}
+                  placeholder="Select timezone..."
+                  className="w-full"
+                />
+              </div>
+              <Button
+                disabled={
+                  !isOwner ||
+                  !isTimezoneChanged ||
+                  timezoneForm.formState.isSubmitting
+                }
+                className={cn("w-20 self-end flex gap-2 items-center")}
+              >
+                {timezoneForm.formState.isSubmitting ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  "Save"
+                )}
+              </Button>
+            </div>
+            {timezoneForm.formState.errors.timezone && (
+              <p className="text-xs text-destructive">
+                {timezoneForm.formState.errors.timezone.message}
+              </p>
+            )}
+          </form>
         </CardContent>
       </Card>
 

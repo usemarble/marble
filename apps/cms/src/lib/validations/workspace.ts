@@ -21,5 +21,6 @@ export const workspaceSchema = z.object({
     .string()
     .min(4, { message: "Slug cannot be empty" })
     .max(32, { message: "Slug cannot be more than 32 characters" }),
+  timezone: z.string().optional(),
 });
 export type CreateWorkspaceValues = z.infer<typeof workspaceSchema>;
