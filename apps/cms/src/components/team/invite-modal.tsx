@@ -22,8 +22,8 @@ import { toast } from "@marble/ui/components/sonner";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
 import { organization } from "@/lib/auth/client";
-import type { ActiveOrganization } from "@/lib/auth/types";
 import { type InviteData, inviteSchema } from "@/lib/validations/auth";
+import type { Workspace } from "@/types/workspace";
 import { ButtonLoader } from "../ui/loader";
 
 export const InviteModal = ({
@@ -33,9 +33,7 @@ export const InviteModal = ({
 }: {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setOptimisticOrg: React.Dispatch<
-    React.SetStateAction<ActiveOrganization | null>
-  >;
+  setOptimisticOrg: React.Dispatch<React.SetStateAction<Workspace | null>>;
 }) => {
   const {
     register,
@@ -63,10 +61,15 @@ export const InviteModal = ({
             ? {
                 ...prev,
                 invitations: [
-                  ...prev.invitations,
+                  ...(prev.invitations || []),
                   {
-                    ...res.data,
-                    role: res.data.role as "member" | "admin" | "owner",
+                    id: res.data.id,
+                    email: res.data.email,
+                    role: res.data.role,
+                    status: res.data.status,
+                    organizationId: res.data.organizationId,
+                    inviterId: res.data.inviterId,
+                    expiresAt: res.data.expiresAt,
                   },
                 ],
               }

@@ -22,6 +22,7 @@ export async function GET(
       slug: true,
       logo: true,
       createdAt: true,
+      timezone: true,
       members: {
         select: {
           id: true,
@@ -32,7 +33,17 @@ export async function GET(
           user: { select: { id: true, name: true, email: true, image: true } },
         },
       },
-      invitations: true,
+      invitations: {
+        select: {
+          id: true,
+          email: true,
+          role: true,
+          status: true,
+          organizationId: true,
+          inviterId: true,
+          expiresAt: true,
+        },
+      },
       subscription: {
         select: {
           id: true,

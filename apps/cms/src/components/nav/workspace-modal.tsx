@@ -70,14 +70,7 @@ export const CreateWorkspaceModal = ({
       });
 
       if (response.data) {
-        const transformedData = {
-          ...response.data,
-          members: response.data.members.map((member) => ({
-            ...member,
-            id: member.id || member.userId, // Ensure id is always present
-          })),
-        };
-        await updateActiveWorkspace(response.data.slug, transformedData);
+        await updateActiveWorkspace(response.data.slug);
         setOpen(false);
         router.push(`/${response.data.slug}`);
       }

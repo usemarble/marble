@@ -1,48 +1,63 @@
-import type { WorkspaceWithRole } from "@/hooks/use-user-workspace";
-import type { ActiveOrganization } from "@/lib/auth/types";
-
-// Type for partial workspace data that doesn't require full member details
-// This is because the response from creating a workspace doesn't return what is fully expected by the ActiveOrganization type
-// So we set it like this and then fetch the full data after
-export type PartialWorkspace = Omit<ActiveOrganization, "members"> & {
+export interface Workspace {
+  id: string;
+  name: string;
+  slug: string;
+  logo: string | null;
+  timezone: string | null;
+  createdAt: Date | string;
+  currentUserRole: string | null;
   members: Array<{
     id: string;
-    createdAt: Date;
-    userId: string;
-    organizationId: string;
     role: string;
-    teamId?: string;
+    organizationId: string;
+    createdAt: Date | string;
+    userId: string;
+    user: {
+      id: string;
+      name: string | null;
+      email: string;
+      image: string | null;
+    };
+  }>;
+  invitations?: Array<{
+    id: string;
+    email: string;
+    role: string | null;
+    status: string;
+    organizationId: string;
+    inviterId: string;
+    expiresAt: Date | string;
   }>;
   subscription?: {
     id: string;
     status: string;
     plan: string;
+    currentPeriodStart?: string | Date;
+    currentPeriodEnd?: string | Date;
+    cancelAtPeriodEnd?: boolean;
+    canceledAt?: string | Date | null;
   } | null;
-};
+}
 
-// Extended workspace type with subscription and role info
-export type ExtendedWorkspace = ActiveOrganization & {
+export type WorkspaceWithRole = {
+  id: string;
+  name: string;
+  slug: string;
+  logo?: string | null;
+  createdAt: Date;
+  userRole: string | null;
   subscription?: {
     id: string;
     status: string;
     plan: string;
-    currentPeriodStart: string | Date;
-    currentPeriodEnd: string | Date;
-    cancelAtPeriodEnd: boolean;
-    canceledAt?: string | Date | null;
   } | null;
-  currentUserRole?: string | null;
-  timezone?: string | null;
 };
 
-// Context type for workspace provider
-export type ActiveWorkspace = ExtendedWorkspace | null;
-
 export interface WorkspaceContextType {
-  activeWorkspace: ActiveWorkspace;
+  activeWorkspace: Workspace | null;
   updateActiveWorkspace: (
     workspaceSlug: string,
-    newWorkspace?: Partial<PartialWorkspace>,
+    newWorkspace?: Partial<Workspace>,
   ) => Promise<void>;
   workspaceList: WorkspaceWithRole[] | null;
   isFetchingWorkspace: boolean;
@@ -52,8 +67,7 @@ export interface WorkspaceContextType {
   currentUserRole: string | null;
 }
 
-// Props for workspace provider
 export interface WorkspaceProviderProps {
   children: React.ReactNode;
-  initialWorkspace: ActiveOrganization | null;
+  initialWorkspace: Workspace | null;
 }

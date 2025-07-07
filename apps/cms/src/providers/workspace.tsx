@@ -3,14 +3,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
-import { useUserWorkspaces } from "@/hooks/use-user-workspace";
 import { organization } from "@/lib/auth/client";
-import type { ActiveOrganization } from "@/lib/auth/types";
 import type {
-  ActiveWorkspace,
-  PartialWorkspace,
+  Workspace,
   WorkspaceContextType,
   WorkspaceProviderProps,
+  WorkspaceWithRole,
 } from "@/types/workspace";
 import { request } from "@/utils/fetch/client";
 import { setLastVisitedWorkspace } from "@/utils/workspace";
@@ -25,21 +23,27 @@ export function WorkspaceProvider({
 }: WorkspaceProviderProps) {
   const params = useParams<{ workspace: string }>();
   const queryClient = useQueryClient();
-
-  const [activeWorkspace, setActiveWorkspace] =
-    useState<ActiveWorkspace>(initialWorkspace);
-
-  const workspaces = useUserWorkspaces();
+  const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(
+    initialWorkspace,
+  );
 
   // Get current workspace slug from params
   const workspaceSlug = Array.isArray(params.workspace)
     ? params.workspace[0]
     : params.workspace;
 
-  const fetchWorkspaceData = async (
-    slug: string,
-  ): Promise<ActiveOrganization> => {
-    const response = await request<ActiveOrganization>(`workspaces/${slug}`);
+  // Get user workspaces
+  const { data: userWorkspaces } = useQuery({
+    queryKey: ["workspaces"],
+    queryFn: async () => {
+      const response = await request<WorkspaceWithRole[]>("workspaces");
+      return response.data;
+    },
+  });
+
+  // Fetch current workspace data
+  const fetchWorkspaceData = async (slug: string): Promise<Workspace> => {
+    const response = await request<Workspace>(`workspaces/${slug}`);
     if (!response.data) {
       throw new Error("Workspace not found");
     }
@@ -103,7 +107,7 @@ export function WorkspaceProvider({
       newWorkspace,
     }: {
       workspaceSlug: string;
-      newWorkspace?: Partial<PartialWorkspace>;
+      newWorkspace?: Partial<Workspace>;
     }) => {
       // Optimistically update if we have new workspace data
       if (newWorkspace) {
@@ -113,7 +117,7 @@ export function WorkspaceProvider({
               ...prev,
               ...newWorkspace,
               slug: workspaceSlug,
-            }) as ActiveOrganization,
+            }) as Workspace,
         );
       }
 
@@ -126,9 +130,7 @@ export function WorkspaceProvider({
       setLastVisitedWorkspace(workspaceSlug);
 
       // Fetch full workspace data
-      const response = await request<ActiveOrganization>(
-        `workspaces/${workspaceSlug}`,
-      );
+      const response = await request<Workspace>(`workspaces/${workspaceSlug}`);
       if (!response.data) {
         throw new Error("Workspace not found");
       }
@@ -151,7 +153,7 @@ export function WorkspaceProvider({
 
   async function updateActiveWorkspace(
     workspaceSlug: string,
-    newWorkspace?: Partial<PartialWorkspace>,
+    newWorkspace?: Partial<Workspace>,
   ) {
     await updateActiveWorkspaceMutation({ workspaceSlug, newWorkspace });
   }
@@ -168,7 +170,7 @@ export function WorkspaceProvider({
         activeWorkspace,
         updateActiveWorkspace,
         isFetchingWorkspace,
-        workspaceList: workspaces.data,
+        workspaceList: userWorkspaces ?? null,
         isOwner,
         isAdmin,
         isMember,

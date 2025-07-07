@@ -1,9 +1,9 @@
 import { db } from "@marble/db";
 import { getServerSession } from "@/lib/auth/session";
-import type { ActiveOrganization } from "@/lib/auth/types";
 import { WorkspaceProvider } from "@/providers/workspace";
+import type { Workspace } from "@/types/workspace";
 
-async function getInitialWorkspaceData(): Promise<ActiveOrganization | null> {
+async function getInitialWorkspaceData(): Promise<Workspace | null> {
   try {
     const session = await getServerSession();
 
@@ -18,6 +18,7 @@ async function getInitialWorkspaceData(): Promise<ActiveOrganization | null> {
         name: true,
         slug: true,
         logo: true,
+        timezone: true,
         createdAt: true,
         members: {
           select: {
@@ -31,7 +32,17 @@ async function getInitialWorkspaceData(): Promise<ActiveOrganization | null> {
             },
           },
         },
-        invitations: true,
+        invitations: {
+          select: {
+            id: true,
+            email: true,
+            role: true,
+            status: true,
+            organizationId: true,
+            inviterId: true,
+            expiresAt: true,
+          },
+        },
         subscription: {
           select: {
             id: true,
@@ -58,7 +69,7 @@ async function getInitialWorkspaceData(): Promise<ActiveOrganization | null> {
     return {
       ...workspace,
       currentUserRole: currentUserMember?.role || null,
-    } as ActiveOrganization;
+    } as Workspace;
   } catch (error) {
     console.error("Error fetching initial workspace data:", error);
     return null;

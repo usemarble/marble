@@ -224,6 +224,8 @@ function PageClient() {
     }
   };
 
+  console.log("activeWorkspace", activeWorkspace);
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: <>
   useEffect(() => {
     if (file) {
@@ -252,7 +254,7 @@ function PageClient() {
 
   return (
     <WorkspacePageWrapper className="flex flex-col gap-8 py-12">
-      <Card>
+      <Card className="p-6">
         <CardHeader>
           <CardTitle className="text-lg font-medium">Workspace Name</CardTitle>
           <CardDescription>The name of your workspace.</CardDescription>
@@ -296,7 +298,7 @@ function PageClient() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="p-6">
         <CardHeader>
           <CardTitle className="text-lg font-medium">Workspace Slug</CardTitle>
           <CardDescription>Your unique workspace slug.</CardDescription>
@@ -340,7 +342,7 @@ function PageClient() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="p-6">
         <CardHeader>
           <CardTitle className="text-lg font-medium">Workspace Logo.</CardTitle>
           <CardDescription>
@@ -417,7 +419,7 @@ function PageClient() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="p-6">
         <CardHeader>
           <CardTitle className="text-lg font-medium">
             Workspace Timezone
@@ -445,7 +447,6 @@ function PageClient() {
                   }}
                   disabled={!isOwner}
                   placeholder="Select timezone..."
-                  className="w-full"
                 />
               </div>
               <Button
@@ -472,7 +473,7 @@ function PageClient() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="p-6">
         <CardHeader>
           <CardTitle className="text-lg font-medium">Workspace ID.</CardTitle>
           <CardDescription>
@@ -506,7 +507,7 @@ function PageClient() {
       </Card>
 
       {isOwner && (
-        <Card>
+        <Card className="p-6">
           <CardHeader>
             <CardTitle className="text-lg font-medium">
               Delete workspace.

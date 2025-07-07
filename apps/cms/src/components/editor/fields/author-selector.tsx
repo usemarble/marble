@@ -23,7 +23,6 @@ import {
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { cn } from "@marble/ui/lib/utils";
@@ -125,18 +124,16 @@ export function AuthorSelector({
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-1">
         <Label htmlFor="authors">Authors</Label>
-        <TooltipProvider>
-          <Tooltip delayDuration={0}>
-            <TooltipTrigger asChild>
-              <Info className="size-4 text-gray-400" />
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="text-muted-foreground text-xs max-w-64">
-                List of authors who contributed to the article.
-              </p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <Tooltip delayDuration={0}>
+          <TooltipTrigger asChild>
+            <Info className="size-4 text-gray-400" />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className="text-muted-foreground text-xs max-w-64">
+              List of authors who contributed to the article.
+            </p>
+          </TooltipContent>
+        </Tooltip>
       </div>
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger>
@@ -161,23 +158,21 @@ export function AuthorSelector({
               {selected.length > 1 &&
                 selected.map((author) => (
                   <li key={author.id} className="flex items-center">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Avatar className="size-7">
-                            <AvatarImage src={author.image} />
-                            <AvatarFallback>
-                              {author.name.charAt(0)}
-                            </AvatarFallback>
-                          </Avatar>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="text-muted-foreground text-xs max-w-64">
-                            {author.name}
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Avatar className="size-7">
+                          <AvatarImage src={author.image} />
+                          <AvatarFallback>
+                            {author.name.charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-muted-foreground text-xs max-w-64">
+                          {author.name}
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
                   </li>
                 ))}
             </ul>
