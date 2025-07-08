@@ -9,7 +9,7 @@ import {
 } from "@marble/ui/components/sidebar";
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
-import { ArrowElbowUpLeft } from "@phosphor-icons/react";
+import { ArrowElbowUpLeft, SidebarSimple } from "@phosphor-icons/react";
 import { useParams, useRouter } from "next/navigation";
 import type { JSONContent } from "novel";
 import { useEffect, useRef, useState } from "react";
@@ -159,7 +159,9 @@ function EditorPage({ initialData = emptyPost, id }: EditorPageProps) {
             <SidebarTrigger
               size="icon"
               className="size-10 text-muted-foreground"
-            />
+            >
+              <SidebarSimple />
+            </SidebarTrigger>
           </div>
         </header>
         <section className="mx-auto w-full max-w-3xl flex-1">

@@ -28,7 +28,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
-// import { ArrowUpRight } from "@phosphor-icons/react";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -285,7 +284,6 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
 
 export default CreateWebhookSheet;
 
-// Gated webhook button component
 interface WebhookButtonProps {
   children?: React.ReactNode;
   variant?: "default" | "outline" | "ghost";
@@ -300,13 +298,7 @@ export function WebhookButton({
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const { isFreePlan } = usePlan();
 
-  // console.log("WebhookButton Debug:", {
-  //   isFreePlan,
-  //   currentPlan,
-  // });
-
   const handleWebhookClick = () => {
-    // console.log("Webhook button clicked, isFreePlan:", isFreePlan);
     if (isFreePlan) {
       setShowUpgradeModal(true);
     }
@@ -344,7 +336,7 @@ export function WebhookButton({
       <Button variant={variant} size={size}>
         {children || (
           <>
-            <Plus className="size-4 mr-2" />
+            <Plus className="size-4" />
             New webhook
           </>
         )}

@@ -1,5 +1,6 @@
 "use client";
 
+import { Badge } from "@marble/ui/components/badge";
 import { Button } from "@marble/ui/components/button";
 import {
   Command,
@@ -122,12 +123,12 @@ export function TimezoneSelector({
             )}
           >
             {selectedTimezone ? (
-              <>
+              <div className="flex gap-2">
                 <span>{selectedTimezone.label}</span>
-                <span className="text-xs text-muted-foreground">
-                  {selectedTimezone.countryName}
-                </span>
-              </>
+                <Badge variant="outline" className="font-light bg-muted">
+                  {selectedTimezone.currentTime}
+                </Badge>
+              </div>
             ) : (
               <span>{placeholder}</span>
             )}
