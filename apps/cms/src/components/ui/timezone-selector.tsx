@@ -16,12 +16,16 @@ import {
 } from "@marble/ui/components/popover";
 import { cn } from "@marble/ui/lib/utils";
 import { CaretUpDown, Check } from "@phosphor-icons/react";
+import { getTimeZones } from "@vvo/tzdb";
+import { Cron } from "croner";
 import { useEffect, useMemo, useState } from "react";
 
 interface TimezoneOption {
   value: string;
   label: string;
   currentTime: string;
+  countryName: string;
+  countryCode: string;
 }
 
 interface TimezoneSelectorProps {
@@ -29,6 +33,7 @@ interface TimezoneSelectorProps {
   onValueChange?: (value: string) => void;
   disabled?: boolean;
   placeholder?: string;
+  timezones: string[];
 }
 
 export function TimezoneSelector({
@@ -36,27 +41,26 @@ export function TimezoneSelector({
   onValueChange,
   disabled,
   placeholder = "Select timezone...",
+  timezones,
 }: TimezoneSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [timeUpdate, setTimeUpdate] = useState(0);
 
-  // Update times every minute
   useEffect(() => {
-    const interval = setInterval(() => {
+    const cronJob = new Cron("* * * * *", () => {
       setTimeUpdate((prev) => prev + 1);
-    }, 60000); // Update every minute
+    });
 
-    return () => clearInterval(interval);
+    return () => cronJob.stop();
   }, []);
 
-  // Generate all timezone options with current time
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: We use the state to retrigger the effect
   const timezoneOptions = useMemo<TimezoneOption[]>(() => {
     try {
-      const supportedTimezones = Intl.supportedValuesOf("timeZone");
       const now = new Date();
+      const tzdbData = getTimeZones();
 
-      return supportedTimezones
+      return timezones
         .map((timezone) => {
           try {
             const formatter = new Intl.DateTimeFormat("en-US", {
@@ -68,16 +72,25 @@ export function TimezoneSelector({
 
             const currentTime = formatter.format(now);
 
+            // Find country information from tzdb
+            const tzInfo = tzdbData.find(
+              (tz) => tz.name === timezone || tz.group.includes(timezone),
+            );
+
             return {
               value: timezone,
               label: timezone.replace(/_/g, " "),
               currentTime,
+              countryName: tzInfo?.countryName || "Unknown",
+              countryCode: tzInfo?.countryCode || "XX",
             };
           } catch (_error) {
             return {
               value: timezone,
               label: timezone.replace(/_/g, " "),
               currentTime: "N/A",
+              countryName: "Unknown",
+              countryCode: "XX",
             };
           }
         })
@@ -86,7 +99,7 @@ export function TimezoneSelector({
       console.error("Error generating timezone options:", error);
       return [];
     }
-  }, [timeUpdate]);
+  }, [timezones, timeUpdate]);
 
   const selectedTimezone = timezoneOptions.find(
     (option) => option.value === value,
@@ -102,13 +115,27 @@ export function TimezoneSelector({
           disabled={disabled}
           onClick={() => !disabled && setIsOpen(!isOpen)}
         >
-          <span className={cn(!selectedTimezone && "text-muted-foreground")}>
-            {selectedTimezone ? selectedTimezone.label : placeholder}
-          </span>
+          <div
+            className={cn(
+              "flex flex-col items-start",
+              !selectedTimezone && "text-muted-foreground",
+            )}
+          >
+            {selectedTimezone ? (
+              <>
+                <span>{selectedTimezone.label}</span>
+                <span className="text-xs text-muted-foreground">
+                  {selectedTimezone.countryName}
+                </span>
+              </>
+            ) : (
+              <span>{placeholder}</span>
+            )}
+          </div>
           <CaretUpDown className="size-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="min-w-[500px] p-0" align="center">
+      <PopoverContent className="min-w-[600px] p-0" align="center">
         <Command>
           <CommandInput placeholder="Search timezones..." />
           <CommandList>
@@ -117,14 +144,19 @@ export function TimezoneSelector({
               {timezoneOptions.map((option) => (
                 <CommandItem
                   key={option.value}
-                  value={`${option.label} ${option.value}`}
+                  value={`${option.label} ${option.value} ${option.countryName}`}
                   onSelect={() => {
                     onValueChange?.(option.value);
                     setIsOpen(false);
                   }}
                 >
                   <div className="flex items-center justify-between w-full">
-                    <span>{option.label}</span>
+                    <div className="flex flex-col">
+                      <span>{option.label}</span>
+                      <span className="text-muted-foreground text-xs">
+                        {option.countryName}
+                      </span>
+                    </div>
                     <div className="flex items-center gap-2">
                       <span className="text-muted-foreground text-sm">
                         {option.currentTime}

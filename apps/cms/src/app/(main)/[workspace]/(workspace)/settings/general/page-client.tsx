@@ -43,8 +43,10 @@ const slugSchema = z.object({
   slug: z.string().min(1),
 });
 
+const timezones = Intl.supportedValuesOf("timeZone");
+
 const timezoneSchema = z.object({
-  timezone: z.string().min(1),
+  timezone: z.enum(timezones as [string, ...string[]]),
 });
 
 function PageClient() {
@@ -74,7 +76,6 @@ function PageClient() {
     defaultValues: { timezone: activeWorkspace?.timezone || "UTC" },
   });
 
-  // Reset form when activeWorkspace changes
   useEffect(() => {
     if (activeWorkspace?.timezone) {
       timezoneForm.reset({ timezone: activeWorkspace.timezone });
@@ -118,8 +119,10 @@ function PageClient() {
       toast.success("Workspace name updated.", { position: "bottom-center" });
       setIsNameChanged(false);
       router.refresh();
-    } catch (_error) {
-      toast.error("Failed to update.", { position: "bottom-center" });
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to update.";
+      toast.error(errorMessage, { position: "bottom-center" });
     }
   };
 
@@ -147,8 +150,10 @@ function PageClient() {
       setIsSlugChanged(false);
       router.replace(`/${updatedWorkspace.slug}/settings`);
       router.refresh();
-    } catch (_error) {
-      toast.error("Failed to update.", { position: "bottom-center" });
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to update.";
+      toast.error(errorMessage, { position: "bottom-center" });
     }
   };
 
@@ -224,9 +229,7 @@ function PageClient() {
     }
   };
 
-  console.log("activeWorkspace", activeWorkspace);
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Retrigger the effect when the file changes
   useEffect(() => {
     if (file) {
       handleLogoUpload();
@@ -247,8 +250,11 @@ function PageClient() {
       });
       setIsTimezoneChanged(false);
       router.refresh();
-    } catch (_error) {
-      toast.error("Failed to update timezone.", { position: "bottom-center" });
+    } catch (error) {
+      // Show specific validation error or generic message
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to update timezone.";
+      toast.error(errorMessage, { position: "bottom-center" });
     }
   };
 
@@ -447,6 +453,7 @@ function PageClient() {
                   }}
                   disabled={!isOwner}
                   placeholder="Select timezone..."
+                  timezones={timezones}
                 />
               </div>
               <Button
