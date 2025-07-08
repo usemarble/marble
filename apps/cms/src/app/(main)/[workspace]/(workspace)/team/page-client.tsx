@@ -4,18 +4,17 @@ import { Card, CardContent, CardHeader } from "@marble/ui/components/card";
 import { Skeleton } from "@marble/ui/components/skeleton";
 import { useEffect, useState } from "react";
 import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
-import { columns } from "@/components/team/columns";
+import { columns, type TeamMemberRow } from "@/components/team/columns";
 import { TeamDataTable } from "@/components/team/data-table";
 import { InviteModal } from "@/components/team/invite-modal";
 import { LeaveWorkspaceModal } from "@/components/team/leave-workspace";
 import { useUser } from "@/providers/user";
 import { useWorkspace } from "@/providers/workspace";
 
-type UserRole = "owner" | "admin" | "member" | undefined;
-
 function PageClient() {
   const { user, isAuthenticated, isFetchingUser } = useUser();
-  const { activeWorkspace, isFetchingWorkspace } = useWorkspace();
+  const { activeWorkspace, isFetchingWorkspace, currentUserRole } =
+    useWorkspace();
 
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [optimisticOrg, setOptimisticOrg] = useState(activeWorkspace);
@@ -62,36 +61,34 @@ function PageClient() {
     );
   }
 
-  // Convert workspace role to expected UserRole type
-  const currentUserRole: UserRole = user.workspaceRole as UserRole;
-
-  const data = [
+  const data: TeamMemberRow[] = [
     ...(optimisticOrg?.members.map((member) => ({
       id: member.id,
       type: "member" as const,
       name: member.user.name || member.user.email,
       email: member.user.email,
       image: member.user.image || null,
-      role: member.role,
+      role: member.role as "owner" | "admin" | "member",
       status: "accepted" as const,
       inviterId: null,
       expiresAt: null,
-      joinedAt: member.createdAt,
+      joinedAt: new Date(member.createdAt),
       userId: member.userId,
     })) || []),
     ...(optimisticOrg?.invitations
-      .filter((invitation) => invitation.status === "pending")
+      ?.filter((invitation) => invitation.status === "pending")
       .map((invitation) => ({
         id: invitation.id,
         type: "invite" as const,
         name: null,
         email: invitation.email,
         image: null,
-        role: invitation.role,
-        status: invitation.status,
+        role: (invitation.role as "owner" | "admin" | "member") || "member",
+        status: invitation.status as "pending",
         inviterId: invitation.inviterId,
-        expiresAt: invitation.expiresAt,
+        expiresAt: new Date(invitation.expiresAt),
         userId: null,
+        joinedAt: null,
       })) || []),
   ];
 
@@ -100,7 +97,9 @@ function PageClient() {
       <TeamDataTable
         columns={columns}
         data={data}
-        currentUserRole={currentUserRole}
+        currentUserRole={
+          currentUserRole as "owner" | "admin" | "member" | undefined
+        }
         currentUserId={user.id}
         setShowInviteModal={setShowInviteModal}
         setShowLeaveWorkspaceModal={setShowLeaveWorkspaceModal}

@@ -55,8 +55,8 @@ export function PageClient({ webhooks: initialWebhooks }: PageClientProps) {
           </div>
           <div className="text-center flex flex-col gap-4 items-center">
             <p className="text-muted-foreground text-sm">
-              Webhooks allow you perform actions on your server when certain
-              events occur in your workspace.
+              Webhooks let you run actions on your server when events happen in
+              your workspace.
             </p>
             <WebhookButton />
           </div>

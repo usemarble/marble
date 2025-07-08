@@ -13,8 +13,7 @@ function PageClient() {
         </div>
         <div className="text-center flex flex-col gap-4 items-center">
           <p className="text-muted-foreground text-sm">
-            API keys allow you to programmatically interact with your workspace
-            using our api.
+            API keys let you interact with your workspace using our API.
           </p>
           <Button size="sm" disabled className="w-fit">
             <span>New API Key</span>

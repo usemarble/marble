@@ -1,13 +1,11 @@
 import { SidebarInset, SidebarProvider } from "@marble/ui/components/sidebar";
 import { AppSidebar } from "@/components/nav/app-sidebar";
 import { PageHeader } from "@/components/nav/page-header";
-import type { ActiveOrganization } from "@/lib/auth/types";
+import type { Workspace } from "@/types/workspace";
 import { request } from "@/utils/fetch/client";
 
 const _getWorkspaceData = async (workspace: string) => {
-  const res = await request<ActiveOrganization | null>(
-    `workspaces/${workspace}`,
-  );
+  const res = await request<Workspace | null>(`workspaces/${workspace}`);
   return res.data;
 };
 
