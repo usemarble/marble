@@ -123,7 +123,7 @@ export const PRICING: Pricing[] = [
   },
   {
     title: "Team",
-    description: "For Growing Startups",
+    description: "For Growing Teams",
     price: {
       monthly: "$15",
       yearly: "$150",

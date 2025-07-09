@@ -9,372 +9,339 @@ import { APP, PRICING, SITE } from "@/lib/constants";
 	title={SITE.TITLE}
 	description={SITE.DESCRIPTION}
 >
-<div class="divide-y divide-dashed">
-	<!-- Hero section -->
-  <section class="border-t border-dashed h-[calc(100vh-140px)]">
-    <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] grid place-content-center h-full mx-auto">
-        <Container class="py-24 md:py-28 lg:py-40">
-          <div class="relative mx-auto text-center space-y-6">
-            <h1 class="relative text-4xl font-medium md:text-5xl max-w-[25ch] mx-auto lg:text-[50px]">
-              Simple content management for modern sites
-            </h1>
-            <p class="mx-auto max-w-[50ch] md:text-lg text-muted-foreground">
-              A clean, collaborative way to publish articles, changelogs, and product updates to your site
-          </div>
-          <div class="mt-8 flex w-full items-center justify-center">
-            <div>
-              <a href={`${APP.URL}`}
-              target="_blank"
-              class="flex gap-2 justify-center group w-48 bg-primary text-primary-foreground items-center py-2.5 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary focus-visible:ring-2 transition-all duration-300 ease-out px-4 group rounded"
-              >
-              <span>Get started</span>
-            </a>
-          </div>
-        </div>
-      </Container>
-    </div>
-  </section>
-
-	<!--  Social Proof -->
-	<!-- <section class="">
-    <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
-      <Container class="space-y-10 pt-12 pb-20">
-        <div class="relative flex flex-col items-center space-y-3 text-balance">
-          <h2 class="relative text-center text-balance text-2xl font-medium tracking-tight max-w-4xl">
-            Used by these guys.
-          </h2>
-          <p class="max-w-prose text-muted-foreground text-center">
-            These guys love our product enough to use it.
-          </p>
-        </div>
-        <ul class="grid grid-cols-[repeat(auto-fill,_minmax(16rem,_1fr))] divide-dashed divide-y divide-x divide-red-600 border border-dashed border-red-600">
-          <li class="p-8">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 386"><path fill="#000000" d="M416.473 0 198.54 385.66H0L170.17 84.522C196.549 37.842 262.377 0 317.203 0Zm486.875 96.415c0-53.249 44.444-96.415 99.27-96.415 54.826 0 99.27 43.166 99.27 96.415 0 53.248-44.444 96.415-99.27 96.415-54.826 0-99.27-43.167-99.27-96.415ZM453.699 0h198.54L434.306 385.66h-198.54Zm234.492 0h198.542L716.56 301.138c-26.378 46.68-92.207 84.522-147.032 84.522h-99.27Z"/></svg>
-          </li>
-          <li class="p-8">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 386"><path fill="#000000" d="M416.473 0 198.54 385.66H0L170.17 84.522C196.549 37.842 262.377 0 317.203 0Zm486.875 96.415c0-53.249 44.444-96.415 99.27-96.415 54.826 0 99.27 43.166 99.27 96.415 0 53.248-44.444 96.415-99.27 96.415-54.826 0-99.27-43.167-99.27-96.415ZM453.699 0h198.54L434.306 385.66h-198.54Zm234.492 0h198.542L716.56 301.138c-26.378 46.68-92.207 84.522-147.032 84.522h-99.27Z"/></svg>
-          </li>
-          <li class="p-8">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 386"><path fill="#000000" d="M416.473 0 198.54 385.66H0L170.17 84.522C196.549 37.842 262.377 0 317.203 0Zm486.875 96.415c0-53.249 44.444-96.415 99.27-96.415 54.826 0 99.27 43.166 99.27 96.415 0 53.248-44.444 96.415-99.27 96.415-54.826 0-99.27-43.167-99.27-96.415ZM453.699 0h198.54L434.306 385.66h-198.54Zm234.492 0h198.542L716.56 301.138c-26.378 46.68-92.207 84.522-147.032 84.522h-99.27Z"/></svg>
-          </li>
-          <li class="p-8">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 386"><path fill="#000000" d="M416.473 0 198.54 385.66H0L170.17 84.522C196.549 37.842 262.377 0 317.203 0Zm486.875 96.415c0-53.249 44.444-96.415 99.27-96.415 54.826 0 99.27 43.166 99.27 96.415 0 53.248-44.444 96.415-99.27 96.415-54.826 0-99.27-43.167-99.27-96.415ZM453.699 0h198.54L434.306 385.66h-198.54Zm234.492 0h198.542L716.56 301.138c-26.378 46.68-92.207 84.522-147.032 84.522h-99.27Z"/></svg>
-          </li>
-          <li class="p-8">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 386"><path fill="#000000" d="M416.473 0 198.54 385.66H0L170.17 84.522C196.549 37.842 262.377 0 317.203 0Zm486.875 96.415c0-53.249 44.444-96.415 99.27-96.415 54.826 0 99.27 43.166 99.27 96.415 0 53.248-44.444 96.415-99.27 96.415-54.826 0-99.27-43.167-99.27-96.415ZM453.699 0h198.54L434.306 385.66h-198.54Zm234.492 0h198.542L716.56 301.138c-26.378 46.68-92.207 84.522-147.032 84.522h-99.27Z"/></svg>
-          </li>
-          <li class="p-8">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 386"><path fill="#000000" d="M416.473 0 198.54 385.66H0L170.17 84.522C196.549 37.842 262.377 0 317.203 0Zm486.875 96.415c0-53.249 44.444-96.415 99.27-96.415 54.826 0 99.27 43.166 99.27 96.415 0 53.248-44.444 96.415-99.27 96.415-54.826 0-99.27-43.167-99.27-96.415ZM453.699 0h198.54L434.306 385.66h-198.54Zm234.492 0h198.542L716.56 301.138c-26.378 46.68-92.207 84.522-147.032 84.522h-99.27Z"/></svg>
-          </li>
-        </ul>
-      </Container>
-    </div>
-	</section> -->
-
-	<!-- Features section -->
-	<section>
-    <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
-      <Container class="space-y-10 lg:space-y-14 pt-12 pb-20">
-        <div class="relative flex flex-col items-center space-y-3 text-balance">
-          <h2 class="relative text-center text-balance text-2xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
-            Features.
-          </h2>
-          <p class="max-w-prose md:text-lg text-muted-foreground text-center">
-            We’ve got everything you need to manage your blog.
-          </p>
-        </div>
-        <div class="grid gap-5 lg:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 auto-rows-fr">
-          <!-- Media Management -->
-          <div class="sm:col-span-2 lg:col-span-3 border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl">
-            <div class="border flex flex-col gap-5 rounded-[8px] bg-white h-full w-full p-6">
-              <div class="space-y-2">
-                <h3 class="font-medium text-lg lg:text-xl">
-                  Media Management
-                </h3>
-                <p class="text-muted-foreground text-sm">
-                  Upload and organize all your images in one centralized library.
-                </p>
-              </div>
-              <div class="flex-1">
-                <div class="border bg-gray-50/80 backdrop-blur-md p-1 rounded-lg h-full min-h-32">
-                  <div class="bg-white h-full border rounded-[6px] p-4 flex items-center justify-center">
-                    <div class="flex items-center gap-3">
-                      <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6 text-blue-600">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+  <div class="divide-y divide-dashed">
+    <!-- Hero section -->
+    <section class="border-t border-dashed h-[calc(100vh-140px)]">
+      <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] grid place-content-center h-full mx-auto">
+          <Container class="py-24 md:py-28 lg:py-40">
+            <div class="relative mx-auto text-center space-y-6">
+              <h1 class="relative text-4xl font-medium md:text-5xl max-w-[25ch] mx-auto lg:text-[50px]">
+                Simple content management for modern sites
+              </h1>
+              <p class="mx-auto max-w-[50ch] md:text-lg text-muted-foreground">
+                A clean, collaborative way to publish articles, changelogs, and product updates to your site
+            </div>
+            <div class="mt-8 flex w-full items-center justify-center">
+              <div>
+                <a href={`${APP.URL}`}
+                target="_blank"
+                class="flex gap-2 justify-center group w-48 bg-primary text-primary-foreground items-center py-2.5 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary focus-visible:ring-2 transition-all duration-300 ease-out px-4 group rounded"
+                >
+                <span>Get started</span>
+              </a>
             </div>
           </div>
+        </Container>
+      </div>
+    </section>
 
-          <!-- Content Intelligence -->
-          <div class="sm:col-span-2 lg:col-span-3 border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl">
-            <div class="border flex flex-col gap-5 rounded-[8px] bg-white h-full w-full p-6">
-              <div class="space-y-2">
-                <h3 class="font-medium text-lg lg:text-xl">
-                  Content Intelligence
-                </h3>
-                <p class="text-muted-foreground text-sm">
-                  Real-time readability scores, and optimization tips.
-                </p>
-              </div>
-              <div class="flex-1">
-                <div class="border bg-gray-50/80 backdrop-blur-md p-1 rounded-lg h-full min-h-32">
-                  <div class="bg-white h-full border rounded-[6px] p-4 flex items-center justify-center">
-                    <div class="flex items-center gap-3">
-                      <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6 text-emerald-600">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Simple Editor -->
-          <div class="lg:col-span-2 border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl">
-            <div class="border flex flex-col gap-4 rounded-[8px] bg-white h-full w-full p-6">
-              <div class="space-y-1">
-                <h3 class="font-medium text-lg">
-                  Simple Editor
-                </h3>
-                <p class="text-muted-foreground text-sm">
-                  Smooth, intuitive writing experience.
-                </p>
-              </div>
-              <div class="flex-1">
-                <div class="border bg-gray-50/80 backdrop-blur-md p-1 rounded-lg h-full min-h-24">
-                  <div class="bg-white h-full border rounded-[6px] p-3 flex items-center justify-center">
-                    <div class="w-8 h-8 bg-green-100 rounded-md flex items-center justify-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5 text-green-600">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Team Collaboration -->
-          <div class="lg:col-span-2 border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl">
-            <div class="border flex flex-col gap-4 rounded-[8px] bg-white h-full w-full p-6">
-              <div class="space-y-1">
-                <h3 class="font-medium text-lg">
-                  Team Collaboration
-                </h3>
-                <p class="text-muted-foreground text-sm">
-                  Invite teammates to write with you.
-                </p>
-              </div>
-              <div class="flex-1">
-                <div class="border bg-gray-50/80 backdrop-blur-md p-1 rounded-lg h-full min-h-24">
-                  <div class="bg-white h-full border rounded-[6px] p-3 flex items-center justify-center">
-                    <div class="w-8 h-8 bg-purple-100 rounded-md flex items-center justify-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5 text-purple-600">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Easy Integration -->
-          <div class="lg:col-span-2 border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl">
-            <div class="border flex flex-col gap-4 rounded-[8px] bg-white h-full w-full p-6">
-              <div class="space-y-1">
-                <h3 class="font-medium text-lg">
-                  Easy Integration
-                </h3>
-                <p class="text-muted-foreground text-sm">
-                  Pull content via API into any framework.
-                </p>
-              </div>
-              <div class="flex-1">
-                <div class="border bg-gray-50/80 backdrop-blur-md p-1 rounded-lg h-full min-h-24">
-                  <div class="bg-white h-full border rounded-[6px] p-3 flex items-center justify-center">
-                    <div class="w-8 h-8 bg-orange-100 rounded-md flex items-center justify-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5 text-orange-600">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </Container>
-    </div>
-	</section>
-
-	<!-- Pricing section -->
-	<section class="">
-    <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
-		<Container class="space-y-10 lg:space-y-14 pt-12 pb-20">
-			<div class="relative flex flex-col items-center space-y-4">
-				<h2 class="relative text-center text-balance text-2xl sm:text-xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
-					Simple Pricing.
-				</h2>
-				<p class="max-w-prose md:text-lg text-muted-foreground text-center">
-				  Choose a plan that fits your needs.
-				</p>
-			</div>
-			   <ul class="grid gap-5 lg:gap-10 sm:grid-cols-2 lg:grid-cols-3">
-				{PRICING.map((plan, index) => (
-					<li class={`border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl ${index === 2 ? 'sm:col-span-2 lg:col-span-1 sm:h-fit' : ''}`}>
-						<div class={`border flex flex-col gap-5 rounded-[8px] bg-white w-full px-4 py-6 ${index === 2 ? 'sm:flex-row sm:px-14 sm:py-10 lg:py-6 sm:justify-center sm:gap-20 lg:gap-4 lg:px-4 lg:flex-col min-h-96 sm:min-h-fit lg:min-h-96' : 'min-h-96 h-full'}`}>
-							{index === 2 ? (
-								<>
-									<div class="flex flex-col gap-5 sm:min-w-60 lg:min-w-0">
-										<div class="flex flex-col gap-4">
-											<h4 class="text-medium text-xl">{plan.title}</h4>
-											<div class="">
-												<p><span class="font-bold text-2xl">{plan.price.monthly}</span>{' '}<span>per month.</span></p>
-												<p class="text-muted-foreground text-sm">{plan.description}</p>
-											</div>
-										</div>
-										<div class="border-y border-dashed py-4">
-											<a 
-												href={plan.button.href}
-												target="_blank"
-												class="flex bg-primary gap-2 group text-primary-foreground items-center justify-center py-2 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 transition-all duration-300 ease-out px-8 group mt-auto rounded"
-											>
-												<span>{plan.button.label}</span>
-											</a>
-										</div>
-									</div>
-									<ul class="flex flex-col gap-2 text-sm">
-										{plan.features.map((feature) => (
-											<li class="flex items-center gap-2">
-												<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
-													<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-												</svg>
-												<span>{feature}</span>
-											</li>
-										))}
-									</ul>
-								</>
-							) : (
-								<>
-									<div class="flex flex-col gap-4">
-										<h4 class="text-medium text-2xl">{plan.title}</h4>
-										<div class="">
-											<p><span class="font-bold text-2xl">{plan.price.monthly}</span>{' '}<span>per month.</span></p>
-											<p class="text-muted-foreground text-sm">{plan.description}</p>
-										</div>
-									</div>
-									<div class="border-y border-dashed py-4">
-										<a 
-											href={plan.button.href}
-											target="_blank"
-											class="flex bg-primary gap-2 group text-primary-foreground items-center justify-center py-2 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 transition-all duration-300 ease-out px-8 group mt-auto rounded"
-										>
-											<span>{plan.button.label}</span>
-										</a>
-									</div>
-									<ul class="flex flex-col gap-2 text-sm">
-										{plan.features.map((feature) => (
-											<li class="flex items-center gap-2">
-												<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
-													<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-												</svg>
-												<span>{feature}</span>
-											</li>
-										))}
-									</ul>
-								</>
-							)}
-						</div>
-					</li>
-				))}
-			</ul>
-		</Container>
-    </div>
-	</section>
-
-	<!-- FAQ -->
-	<section class="border-b border-dashed">
-    <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
-      <Container class="space-y-10 lg:space-y-14 pt-12 pb-20">
-			<div class="relative flex flex-col items-center space-y-4">
-				<h2 class="relative text-center text-balance text-2xl sm:text-xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
-					FAQ's.
-				</h2>
-				<p class="max-w-prose md:text-lg text-muted-foreground text-center">
-				  Answers to common questions about marblecms.
-				</p>
-			</div>
-			
-			<div class="mx-auto max-w-2xl bg-white rounded-md relative border py-2 px-6 divide-y">
-				<AccordionItem name="details" title="Is marblecms free?">
-					<p class="text-sm">
-						Yes, marblecms is free to use with generous limits on all core features. We also offer paid plans for teams needing higher limits and advanced features.
-					</p>
-				</AccordionItem>
-					<AccordionItem name="details" title="How does marblecms work?">
-						<p class="text-sm">
-							Marblecms is a headless CMS that provides content management through a simple API. You can create, edit and manage content through our dashboard, then fetch it via our API to display on your website or app.
-						</p>
-					</AccordionItem>
-					<AccordionItem name="details" title="Do I need technical knowledge to use marblecms?">
-						<p class="text-sm">
-							No technical knowledge is required to use our content management dashboard. However, to integrate the API with your website, basic development experience is helpful. We provide detailed <a href='https://docs.marblecms.com' target="_blank" class="font-medium underline">documentation</a>  and templates to make integration easy.
-						</p>
-					</AccordionItem>
-					<AccordionItem name="details" title="What kind of content can I manage?">
-						<p class="text-sm">
-							Marblecms is primarily focused on managing blog posts, articles, and static pages. We support rich text, images, and videos to help you create engaging content for your blog or documentation site.
-						</p>
-					</AccordionItem>
-					<AccordionItem name="details" title="Is there a limit on API requests?">
-						<p class="text-sm">
-							Free accounts include generous API request limits that cover typical usage patterns. For optimal performance, we recommend using SSR frameworks or static site generators like Next.js that can cache pages at build time to minimize API requests. Check our <a href="https://docs.marblecms.com" target="_blank" class="font-medium underline">optimization guide</a> for more details.
-						</p>
-					</AccordionItem>
-					<AccordionItem name="details" title="Can I export my content?">
-						<p class="text-sm">
-							Yes, you can export all your content at any time in common formats like JSON.
-						</p>
-					</AccordionItem>
-			</div>
-		  </Container>
-    </div>
-	</section>
-
-	<!-- CTA -->
-	<section class="lg:border-b border-dashed">
-    <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
-      <Container class="space-y-10 lg:space-y-14 pt-12 lg:pt-20 pb-20">
-        <div class="min-h-96 lg:min-h-[500px] grid place-content-center bg-white rounded-md relative border px-4">
-          <div class="space-y-2">
-            <h2 class="relative text-center text-balance text-2xl sm:text-2xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
-              Ready to start writing?
+    <!--  Social Proof -->
+    <!-- <section class="">
+      <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
+        <Container class="space-y-10 pt-12 pb-20">
+          <div class="relative flex flex-col items-center space-y-3 text-balance">
+            <h2 class="relative text-center text-balance text-2xl font-medium tracking-tight max-w-4xl">
+              Used by these guys.
             </h2>
-            <p class="lg:text-lg text-muted-foreground text-center max-w-lg">
-              Create your account and start publishing in minutes.
+            <p class="max-w-prose text-muted-foreground text-center">
+              These guys love our product enough to use it.
             </p>
           </div>
-          <div class="flex flex-col gap-3 items-center mt-10">
-            <a href={`${APP.URL}/register`}
-              class="flex gap-2 justify-center group w-48 bg-primary text-primary-foreground items-center py-3 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary focus-visible:ring-2 transition-all duration-300 ease-out px-6 group rounded font-medium"
-            >
-              <span>Start for free</span>
-            </a>
-            <p class="text-xs text-muted-foreground">No credit card required</p>
+          <ul class="grid grid-cols-[repeat(auto-fill,_minmax(16rem,_1fr))] divide-dashed divide-y divide-x divide-red-600 border border-dashed border-red-600">
+            <li class="p-8">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 386"><path fill="#000000" d="M416.473 0 198.54 385.66H0L170.17 84.522C196.549 37.842 262.377 0 317.203 0Zm486.875 96.415c0-53.249 44.444-96.415 99.27-96.415 54.826 0 99.27 43.166 99.27 96.415 0 53.248-44.444 96.415-99.27 96.415-54.826 0-99.27-43.167-99.27-96.415ZM453.699 0h198.54L434.306 385.66h-198.54Zm234.492 0h198.542L716.56 301.138c-26.378 46.68-92.207 84.522-147.032 84.522h-99.27Z"/></svg>
+            </li>
+            <li class="p-8">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 386"><path fill="#000000" d="M416.473 0 198.54 385.66H0L170.17 84.522C196.549 37.842 262.377 0 317.203 0Zm486.875 96.415c0-53.249 44.444-96.415 99.27-96.415 54.826 0 99.27 43.166 99.27 96.415 0 53.248-44.444 96.415-99.27 96.415-54.826 0-99.27-43.167-99.27-96.415ZM453.699 0h198.54L434.306 385.66h-198.54Zm234.492 0h198.542L716.56 301.138c-26.378 46.68-92.207 84.522-147.032 84.522h-99.27Z"/></svg>
+            </li>
+            <li class="p-8">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 386"><path fill="#000000" d="M416.473 0 198.54 385.66H0L170.17 84.522C196.549 37.842 262.377 0 317.203 0Zm486.875 96.415c0-53.249 44.444-96.415 99.27-96.415 54.826 0 99.27 43.166 99.27 96.415 0 53.248-44.444 96.415-99.27 96.415-54.826 0-99.27-43.167-99.27-96.415ZM453.699 0h198.54L434.306 385.66h-198.54Zm234.492 0h198.542L716.56 301.138c-26.378 46.68-92.207 84.522-147.032 84.522h-99.27Z"/></svg>
+            </li>
+            <li class="p-8">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 386"><path fill="#000000" d="M416.473 0 198.54 385.66H0L170.17 84.522C196.549 37.842 262.377 0 317.203 0Zm486.875 96.415c0-53.249 44.444-96.415 99.27-96.415 54.826 0 99.27 43.166 99.27 96.415 0 53.248-44.444 96.415-99.27 96.415-54.826 0-99.27-43.167-99.27-96.415ZM453.699 0h198.54L434.306 385.66h-198.54Zm234.492 0h198.542L716.56 301.138c-26.378 46.68-92.207 84.522-147.032 84.522h-99.27Z"/></svg>
+            </li>
+            <li class="p-8">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 386"><path fill="#000000" d="M416.473 0 198.54 385.66H0L170.17 84.522C196.549 37.842 262.377 0 317.203 0Zm486.875 96.415c0-53.249 44.444-96.415 99.27-96.415 54.826 0 99.27 43.166 99.27 96.415 0 53.248-44.444 96.415-99.27 96.415-54.826 0-99.27-43.167-99.27-96.415ZM453.699 0h198.54L434.306 385.66h-198.54Zm234.492 0h198.542L716.56 301.138c-26.378 46.68-92.207 84.522-147.032 84.522h-99.27Z"/></svg>
+            </li>
+            <li class="p-8">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 386"><path fill="#000000" d="M416.473 0 198.54 385.66H0L170.17 84.522C196.549 37.842 262.377 0 317.203 0Zm486.875 96.415c0-53.249 44.444-96.415 99.27-96.415 54.826 0 99.27 43.166 99.27 96.415 0 53.248-44.444 96.415-99.27 96.415-54.826 0-99.27-43.167-99.27-96.415ZM453.699 0h198.54L434.306 385.66h-198.54Zm234.492 0h198.542L716.56 301.138c-26.378 46.68-92.207 84.522-147.032 84.522h-99.27Z"/></svg>
+            </li>
+          </ul>
+        </Container>
+      </div>
+    </section> -->
+
+    <!-- Features section -->
+    <section>
+      <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
+        <Container class="space-y-10 lg:space-y-14 pt-12 pb-20">
+          <div class="relative flex flex-col items-center space-y-3 text-balance">
+            <h2 class="relative text-center text-balance text-2xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
+              Features.
+            </h2>
+            <p class="max-w-prose md:text-lg text-muted-foreground text-center">
+              Everything you need to manage your content. 
+            </p>
           </div>
+          <div class="grid gap-5 lg:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 auto-rows-fr">
+            <!-- Media Management - 7 columns -->
+            <div class="sm:col-span-2 lg:col-span-7 border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl min-h-64">
+              <div class="border flex flex-col justify-between rounded-[8px] bg-white h-full w-full p-6">
+                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6 text-blue-600">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                  </svg>
+                </div>
+                <div class="space-y-2">
+                  <h3 class="font-medium text-lg lg:text-xl">
+                    Media Management
+                  </h3>
+                  <p class="text-muted-foreground text-sm lg:text-base">
+                    Upload and organize all your images in one centralized library.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Simple Editor - 5 columns -->
+            <div class="lg:col-span-5 border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl min-h-64">
+              <div class="border flex flex-col justify-between rounded-[8px] bg-white h-full w-full p-6">
+                <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6 text-green-600">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
+                  </svg>
+                </div>
+                <div class="space-y-2">
+                  <h3 class="font-medium text-lg">
+                    Simple Editor
+                  </h3>
+                  <p class="text-muted-foreground text-sm">
+                    Smooth, intuitive writing experience.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Team Collaboration - 5 columns -->
+            <div class="lg:col-span-5 border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl min-h-64">
+              <div class="border flex flex-col justify-between rounded-[8px] bg-white h-full w-full p-6">
+                <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6 text-purple-600">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+                  </svg>
+                </div>
+                <div class="space-y-2">
+                  <h3 class="font-medium text-lg">
+                    Team Collaboration
+                  </h3>
+                  <p class="text-muted-foreground text-sm">
+                    Invite teammates to write with you.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Content Intelligence - 7 columns -->
+            <div class="sm:col-span-2 lg:col-span-7 border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl min-h-64">
+              <div class="border flex flex-col justify-between rounded-[8px] bg-white h-full w-full p-6">
+                <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6 text-emerald-600">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
+                  </svg>
+                </div>
+                <div class="space-y-2">
+                  <h3 class="font-medium text-lg lg:text-xl">
+                    Content Intelligence
+                  </h3>
+                  <p class="text-muted-foreground text-sm">
+                    Real-time readability scores, and optimization tips.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- API Integration - Full width -->
+            <div class="sm:col-span-2 lg:col-span-12 border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl min-h-64">
+              <div class="border flex flex-col justify-between rounded-[8px] bg-white h-full w-full p-6">
+                <div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6 text-orange-600">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5" />
+                  </svg>
+                </div>
+                <div class="space-y-2">
+                  <h3 class="font-medium text-lg lg:text-xl">
+                    API Integration
+                  </h3>
+                  <p class="text-muted-foreground text-sm">
+                    Pull content via API into any framework. Works seamlessly with Next.js, Astro, Nuxt, and more.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
-      </Container>
-    </div>
-	</section>
-</div>
+        </Container>
+      </div>
+    </section>
+
+    <!-- Pricing section -->
+    <section>
+      <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
+        <Container class="space-y-10 lg:space-y-14 pt-12 pb-20">
+          <div class="relative flex flex-col items-center space-y-4">
+            <h2 class="relative text-center text-balance text-2xl sm:text-xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
+              Simple Pricing.
+            </h2>
+            <p class="max-w-prose md:text-lg text-muted-foreground text-center">
+              Choose a plan that fits your needs.
+            </p>
+          </div>
+            <ul class="grid gap-5 lg:gap-10 sm:grid-cols-2 lg:grid-cols-3">
+              {PRICING.map((plan, index) => (
+                <li class={`border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl ${index === 2 ? 'sm:col-span-2 lg:col-span-1 sm:h-fit' : ''}`}>
+                  <div class={`border flex flex-col gap-5 rounded-[8px] bg-white w-full px-4 py-6 ${index === 2 ? 'sm:flex-row sm:px-14 sm:py-10 lg:py-6 sm:justify-center sm:gap-20 lg:gap-4 lg:px-4 lg:flex-col min-h-96 sm:min-h-fit lg:min-h-96' : 'min-h-96 h-full'}`}>
+                    {index === 2 ? (
+                      <>
+                        <div class="flex flex-col gap-5 sm:min-w-60 lg:min-w-0">
+                          <div class="flex flex-col gap-4">
+                            <h4 class="text-medium text-xl">{plan.title}</h4>
+                            <div class="">
+                              <p><span class="font-bold text-2xl">{plan.price.monthly}</span>{' '}<span>per month.</span></p>
+                              <p class="text-muted-foreground text-sm">{plan.description}</p>
+                            </div>
+                          </div>
+                          <div class="border-y border-dashed py-4">
+                            <a 
+                              href={plan.button.href}
+                              target="_blank"
+                              class="flex bg-primary gap-2 group text-primary-foreground items-center justify-center py-2 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 transition-all duration-300 ease-out px-8 group mt-auto rounded"
+                            >
+                              <span>{plan.button.label}</span>
+                            </a>
+                          </div>
+                        </div>
+                        <ul class="flex flex-col gap-2 text-sm">
+                          {plan.features.map((feature) => (
+                            <li class="flex items-center gap-2">
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                              </svg>
+                              <span>{feature}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </>
+                    ) : (
+                      <>
+                        <div class="flex flex-col gap-4">
+                          <h4 class="text-medium text-2xl">{plan.title}</h4>
+                          <div class="">
+                            <p><span class="font-bold text-2xl">{plan.price.monthly}</span>{' '}<span>per month.</span></p>
+                            <p class="text-muted-foreground text-sm">{plan.description}</p>
+                          </div>
+                        </div>
+                        <div class="border-y border-dashed py-4">
+                          <a 
+                            href={plan.button.href}
+                            target="_blank"
+                            class="flex bg-primary gap-2 group text-primary-foreground items-center justify-center py-2 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 transition-all duration-300 ease-out px-8 group mt-auto rounded"
+                          >
+                            <span>{plan.button.label}</span>
+                          </a>
+                        </div>
+                        <ul class="flex flex-col gap-2 text-sm">
+                          {plan.features.map((feature) => (
+                            <li class="flex items-center gap-2">
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                              </svg>
+                              <span>{feature}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </>
+                    )}
+                  </div>
+                </li>
+              ))}
+          </ul>
+        </Container>
+      </div>
+    </section>
+
+
+    <!-- FAQ -->
+    <section>
+      <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
+        <Container class="space-y-10 lg:space-y-14 pt-12 pb-20">
+        <div class="relative flex flex-col items-center space-y-4">
+          <h2 class="relative text-center text-balance text-2xl sm:text-xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
+            FAQ's.
+          </h2>
+          <p class="max-w-prose md:text-lg text-muted-foreground text-center">
+            Answers to common questions about marblecms.
+          </p>
+        </div>
+        
+        <div class="mx-auto max-w-3xl bg-white rounded-md relative border py-2 px-6 divide-y">
+          <AccordionItem name="details" title="Is marblecms free?">
+            <p class="text-sm">
+              Yes, marblecms is free to use with generous limits on all core features. We also offer paid plans for teams needing higher limits and advanced features.
+            </p>
+            </AccordionItem>
+            <AccordionItem name="details" title="How does marblecms work?">
+              <p class="text-sm">
+                Marblecms is a headless CMS that provides content management through a simple API. You can create, edit and manage content through our dashboard, then fetch it via our API to display on your website or app.
+              </p>
+            </AccordionItem>
+            <AccordionItem name="details" title="Do I need technical knowledge to use marblecms?">
+              <p class="text-sm">
+                No technical knowledge is required to use our content management dashboard. However, to integrate the API with your website, basic development experience is helpful. We provide detailed <a href='https://docs.marblecms.com' target="_blank" class="font-medium underline">documentation</a>  and templates to make integration easy.
+              </p>
+            </AccordionItem>
+            <AccordionItem name="details" title="What kind of content can I manage?">
+              <p class="text-sm">
+                Marblecms is primarily focused on managing blog posts, articles, and static pages. We support rich text, images, and videos to help you create engaging content for your blog or documentation site.
+              </p>
+            </AccordionItem>
+            <AccordionItem name="details" title="Is there a limit on API requests?">
+              <p class="text-sm">
+                Free accounts include generous API request limits that cover typical usage patterns. For optimal performance, we recommend using SSR frameworks or static site generators like Next.js that can cache pages at build time to minimize API requests. Check our <a href="https://docs.marblecms.com" target="_blank" class="font-medium underline">optimization guide</a> for more details.
+              </p>
+            </AccordionItem>
+            <AccordionItem name="details" title="Can I export my content?">
+              <p class="text-sm">
+                Yes, you can export all your content at any time in common formats like JSON.
+              </p>
+            </AccordionItem>
+        </div>
+        </Container>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="border-b border-dashed">
+      <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
+        <Container class="space-y-10 lg:space-y-14 pt-12 lg:pt-20 pb-20">
+          <div class="min-h-96 lg:min-h-[500px] grid place-content-center bg-white rounded-md relative border px-4">
+            <div class="space-y-2">
+              <h2 class="relative text-center text-balance text-2xl sm:text-2xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
+                Ready to start writing?
+              </h2>
+              <p class="lg:text-lg text-muted-foreground text-center max-w-lg">
+                Create your account and start publishing in minutes.
+              </p>
+            </div>
+            <div class="flex flex-col gap-3 items-center mt-10">
+              <a href={`${APP.URL}/register`}
+                class="flex gap-2 justify-center group w-48 bg-primary text-primary-foreground items-center py-3 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary focus-visible:ring-2 transition-all duration-300 ease-out px-6 group rounded font-medium"
+              >
+                <span>Start for free</span>
+              </a>
+              <p class="text-xs text-muted-foreground">No credit card required</p>
+            </div>
+            </div>
+        </Container>
+      </div>
+    </section>
+  </div>
 </Layout>
