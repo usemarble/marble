@@ -100,14 +100,17 @@ export function WorkspaceSwitcher() {
                       "text-center py-0 px-1.5 text-[11px] justify-center bg-gray-50 text-gray-500 border-gray-300",
                       {
                         "bg-emerald-50 dark:bg-transparent text-emerald-500 border-emerald-300":
-                          activeWorkspace.subscription?.plan?.toUpperCase() === "PRO",
+                          activeWorkspace.subscription?.plan?.toUpperCase() ===
+                          "PRO",
 
                         "bg-blue-50 dark:bg-transparent text-blue-500 border-blue-300":
-                          activeWorkspace.subscription?.plan?.toUpperCase() === "TEAM",
+                          activeWorkspace.subscription?.plan?.toUpperCase() ===
+                          "TEAM",
                       },
                     )}
                   >
-                    {activeWorkspace.subscription?.plan?.toUpperCase() || "FREE"}
+                    {activeWorkspace.subscription?.plan?.toUpperCase() ||
+                      "FREE"}
                   </Badge>
                 </div>
                 <CaretDown className="ml-auto" />
