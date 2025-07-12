@@ -8,15 +8,22 @@ import {
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { Info } from "@phosphor-icons/react";
-import type { FieldErrors, UseFormRegister } from "react-hook-form";
+import { type Control, useController } from "react-hook-form";
 import type { PostValues } from "@/lib/validations/post";
 
 interface DescriptionFieldProps {
-  register: UseFormRegister<PostValues>;
-  errors: FieldErrors<PostValues>;
+  control: Control<PostValues>;
 }
 
-export function DescriptionField({ register, errors }: DescriptionFieldProps) {
+export function DescriptionField({ control }: DescriptionFieldProps) {
+  const {
+    field,
+    fieldState: { error },
+  } = useController({
+    name: "description",
+    control,
+  });
+
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-1">
@@ -36,13 +43,13 @@ export function DescriptionField({ register, errors }: DescriptionFieldProps) {
 
       <Textarea
         id="description"
-        {...register("description")}
+        {...field}
         placeholder="A short description of your post"
         className="col-span-3"
       />
-      {errors.description && (
+      {error && (
         <p className="text-sm px-1 font-medium text-destructive">
-          {errors.description.message}
+          {error.message}
         </p>
       )}
     </div>

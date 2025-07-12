@@ -35,7 +35,7 @@ import {
 } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import type { UseFormSetValue, UseFormWatch } from "react-hook-form";
+import { type Control, useController } from "react-hook-form";
 import { z } from "zod";
 
 import { uploadMediaAction } from "@/lib/actions/media";
@@ -53,15 +53,17 @@ interface MediaResponse {
 }
 
 interface CoverImageSelectorProps {
-  setValue: UseFormSetValue<PostValues>;
-  watch: UseFormWatch<PostValues>;
+  control: Control<PostValues>;
 }
 
-export function CoverImageSelector({
-  setValue,
-  watch,
-}: CoverImageSelectorProps) {
-  const coverImage = watch("coverImage");
+export function CoverImageSelector({ control }: CoverImageSelectorProps) {
+  const {
+    field: { onChange, value: coverImage },
+  } = useController({
+    name: "coverImage",
+    control,
+  });
+
   const [file, setFile] = useState<File | undefined>();
   const [embedUrl, setEmbedUrl] = useState<string>("");
   const [isValidatingUrl, setIsValidatingUrl] = useState(false);
@@ -116,7 +118,7 @@ export function CoverImageSelector({
       const result = await uploadMediaAction(compressedFile);
 
       // Set the cover image URL
-      setValue("coverImage", result.url);
+      onChange(result.url);
 
       // Handle successful upload
       setIsUploading(false);
@@ -147,7 +149,7 @@ export function CoverImageSelector({
       await urlSchema.parseAsync(url);
       const img = new Image();
       img.onload = () => {
-        setValue("coverImage", url);
+        onChange(url);
         setEmbedUrl("");
         setIsValidatingUrl(false);
       };
@@ -167,7 +169,7 @@ export function CoverImageSelector({
   };
 
   const handleImageSelect = (url: string) => {
-    setValue("coverImage", url);
+    onChange(url);
     setIsGalleryOpen(false);
   };
 
@@ -183,7 +185,7 @@ export function CoverImageSelector({
           />
           <button
             type="button"
-            onClick={() => setValue("coverImage", null)}
+            onClick={() => onChange(null)}
             className="absolute top-2 right-2 p-1.5 transition bg-white rounded-full text-black hover:text-destructive"
           >
             <Trash className="size-4" />

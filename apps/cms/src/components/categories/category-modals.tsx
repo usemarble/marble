@@ -21,7 +21,6 @@ import {
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
-import { Spinner } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
@@ -38,6 +37,7 @@ import {
 } from "@/lib/validations/workspace";
 import { generateSlug } from "@/utils/string";
 import { useWorkspace } from "../../providers/workspace";
+import { ButtonLoader } from "../ui/loader";
 import type { Category } from "./columns";
 
 export const CreateCategoryModal = ({
@@ -138,8 +138,7 @@ export const CreateCategoryModal = ({
             className="flex w-full gap-2 mt-4"
             size={"sm"}
           >
-            {isSubmitting && <Spinner className="size-4 animate-spin" />}
-            Create category
+            {isSubmitting ? <ButtonLoader /> : "Create category"}
           </Button>
         </form>
       </DialogContent>
@@ -233,8 +232,7 @@ export const UpdateCategoryModal = ({
             className="flex w-full gap-2 mt-4"
             size={"sm"}
           >
-            {isSubmitting && <Spinner className="size-4 animate-spin" />}
-            Update category
+            {isSubmitting ? <ButtonLoader /> : "Update category"}
           </Button>
         </form>
       </DialogContent>
@@ -285,7 +283,7 @@ export const DeleteCategoryModal = ({
               disabled={loading}
               variant="destructive"
             >
-              {loading ? <Spinner className="size-4 animate-spin" /> : "Delete"}
+              {loading ? <ButtonLoader variant="destructive" /> : "Delete"}
             </Button>
           </AlertDialogAction>
         </AlertDialogFooter>

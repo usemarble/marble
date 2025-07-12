@@ -8,15 +8,22 @@ import {
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { Info } from "@phosphor-icons/react";
-import type { FieldErrors, UseFormRegister } from "react-hook-form";
+import { type Control, useController } from "react-hook-form";
 import type { PostValues } from "@/lib/validations/post";
 
 interface SlugFieldProps {
-  register: UseFormRegister<PostValues>;
-  errors: FieldErrors<PostValues>;
+  control: Control<PostValues>;
 }
 
-export function SlugField({ register, errors }: SlugFieldProps) {
+export function SlugField({ control }: SlugFieldProps) {
+  const {
+    field,
+    fieldState: { error },
+  } = useController({
+    name: "slug",
+    control,
+  });
+
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-1">
@@ -35,13 +42,13 @@ export function SlugField({ register, errors }: SlugFieldProps) {
       </div>
       <Input
         id="slug"
-        {...register("slug")}
+        {...field}
         placeholder="my-awesome-post"
         className="col-span-3"
       />
-      {errors.slug && (
+      {error && (
         <p className="text-sm px-1 font-medium text-destructive">
-          {errors.slug.message}
+          {error.message}
         </p>
       )}
     </div>
