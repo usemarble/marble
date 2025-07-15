@@ -10,26 +10,23 @@ import {
 } from "@marble/ui/components/tooltip";
 import { Info } from "@phosphor-icons/react";
 import { useState } from "react";
-import type {
-  FieldErrors,
-  UseFormSetValue,
-  UseFormWatch,
-} from "react-hook-form";
+import { type Control, type FieldErrors, useController } from "react-hook-form";
 import type { PostValues } from "@/lib/validations/post";
 
 interface AttributionFieldProps {
-  watch: UseFormWatch<PostValues>;
-  setValue: UseFormSetValue<PostValues>;
+  control: Control<PostValues>;
   errors: FieldErrors<PostValues>;
 }
 
-export function AttributionField({
-  watch,
-  setValue,
-  errors,
-}: AttributionFieldProps) {
-  const attribution = watch("attribution");
-  const [showAttribution, setShowAttribution] = useState(!!attribution);
+export function AttributionField({ control, errors }: AttributionFieldProps) {
+  const {
+    field: { onChange, value },
+  } = useController({
+    name: "attribution",
+    control,
+  });
+
+  const [showAttribution, setShowAttribution] = useState(!!value);
 
   return (
     <div className="flex flex-col gap-3">
@@ -54,7 +51,7 @@ export function AttributionField({
           onCheckedChange={(checked) => {
             setShowAttribution(checked);
             if (!checked) {
-              setValue("attribution", null);
+              onChange(null);
             }
           }}
         />
@@ -66,12 +63,12 @@ export function AttributionField({
             <Input
               placeholder="Original author's name"
               onChange={(e) => {
-                setValue("attribution", {
+                onChange({
                   author: e.target.value,
-                  url: attribution?.url || "",
+                  url: value?.url || "",
                 });
               }}
-              value={attribution?.author || ""}
+              value={value?.author || ""}
             />
             {errors.attribution?.author && (
               <p className="text-sm text-destructive px-1">
@@ -84,12 +81,12 @@ export function AttributionField({
             <Input
               placeholder="Link to original post"
               onChange={(e) => {
-                setValue("attribution", {
-                  author: attribution?.author || "",
+                onChange({
+                  author: value?.author || "",
                   url: e.target.value,
                 });
               }}
-              value={attribution?.url || ""}
+              value={value?.url || ""}
             />
             {errors.attribution?.url && (
               <p className="text-sm text-destructive px-1">

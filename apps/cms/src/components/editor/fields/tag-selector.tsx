@@ -25,7 +25,7 @@ import {
 import { cn } from "@marble/ui/lib/utils";
 import { CaretUpDown, Check, Info, Plus, X } from "@phosphor-icons/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { type Control, useController } from "react-hook-form";
 import type { PostValues } from "@/lib/validations/post";
 import { ErrorMessage } from "../../auth/error-message";
@@ -66,35 +66,29 @@ export const TagSelector = ({
     control,
     defaultValue: defaultTags,
   });
-  const [selected, setSelected] = useState<Option[]>([]);
   const [openTagModal, setOpenTagModal] = useState(false);
-  const [tags, setTags] = useState<Option[]>([]);
   const queryClient = useQueryClient();
 
-  const { isLoading: isLoadingTags } = useQuery({
+  const { data: tags = [], isLoading: isLoadingTags } = useQuery({
     queryKey: ["tags"],
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
-      try {
-        const res = await fetch("/api/tags");
-        const tags: TagResponse[] = await res.json();
-        setTags(tags);
-        return tags;
-      } catch (error) {
-        setTags([]);
-        console.error(error);
+      const res = await fetch("/api/tags");
+      if (!res.ok) {
+        throw new Error("Failed to fetch tags");
       }
+      const data: TagResponse[] = await res.json();
+      return data;
     },
   });
 
-  useEffect(() => {
+  // Compute selected tags directly without useEffect
+  const selected = useMemo(() => {
     if (tags.length > 0 && value?.length > 0) {
-      const selectedTags = tags.filter((opt) => value.includes(opt.id));
-      setSelected(selectedTags);
-    } else {
-      setSelected([]);
+      return tags.filter((opt) => value.includes(opt.id));
     }
-  }, [value, tags]);
+    return [];
+  }, [tags, value]);
 
   const addTag = (tagToAdd: string) => {
     if (value?.includes(tagToAdd)) return;
@@ -108,7 +102,12 @@ export const TagSelector = ({
   };
 
   const handleTagCreated = async (newTag: Option) => {
-    setTags((prevTags) => [...prevTags, newTag]);
+    // Optimistically update React Query cache
+    queryClient.setQueryData(["tags"], (oldData: TagResponse[] | undefined) => {
+      return oldData ? [...oldData, newTag] : [newTag];
+    });
+
+    // Also invalidate to refetch from server
     queryClient.invalidateQueries({ queryKey: ["tags"] });
 
     const newValue = [...(value || []), newTag.id];

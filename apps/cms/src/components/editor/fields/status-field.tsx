@@ -8,16 +8,20 @@ import {
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { Info } from "@phosphor-icons/react";
-import type { UseFormSetValue, UseFormWatch } from "react-hook-form";
+import { type Control, useController } from "react-hook-form";
 import type { PostValues } from "@/lib/validations/post";
 
 interface StatusFieldProps {
-  watch: UseFormWatch<PostValues>;
-  setValue: UseFormSetValue<PostValues>;
+  control: Control<PostValues>;
 }
 
-export function StatusField({ watch, setValue }: StatusFieldProps) {
-  const status = watch("status");
+export function StatusField({ control }: StatusFieldProps) {
+  const {
+    field: { onChange, value },
+  } = useController({
+    name: "status",
+    control,
+  });
 
   return (
     <div className="flex items-center gap-2 justify-between">
@@ -36,12 +40,9 @@ export function StatusField({ watch, setValue }: StatusFieldProps) {
       </div>
       <Switch
         id="status"
-        checked={status === "published"}
+        checked={value === "published"}
         onCheckedChange={() =>
-          setValue(
-            "status",
-            status === "published" ? "unpublished" : "published",
-          )
+          onChange(value === "published" ? "unpublished" : "published")
         }
       />
     </div>

@@ -16,12 +16,7 @@ import {
 import { Info, Plus } from "@phosphor-icons/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import type {
-  Control,
-  FieldErrors,
-  UseFormClearErrors,
-  UseFormSetValue,
-} from "react-hook-form";
+import { type Control, useController } from "react-hook-form";
 import { CreateCategoryModal } from "@/components/categories/category-modals";
 import type { PostValues } from "@/lib/validations/post";
 
@@ -33,45 +28,41 @@ interface CategoryResponse {
 
 interface CategorySelectorProps {
   control: Control<PostValues>;
-  errors: FieldErrors<PostValues>;
-  setValue: UseFormSetValue<PostValues>;
-  clearErrors: UseFormClearErrors<PostValues>;
 }
 
-export function CategorySelector({
-  control,
-  errors,
-  setValue,
-  clearErrors,
-}: CategorySelectorProps) {
+export function CategorySelector({ control }: CategorySelectorProps) {
+  const {
+    field: { onChange, value },
+    fieldState: { error },
+  } = useController({
+    name: "category",
+    control,
+  });
+
   const [showCategoyModal, setShowCategoryModal] = useState(false);
-  const categoryValue = control ? control._getWatch("category") : "";
-  const [optimisticCategories, setOptimisticCategories] = useState<
-    CategoryResponse[]
-  >([]);
   const queryClient = useQueryClient();
 
-  const { isLoading: isLoadingCategories } = useQuery({
+  const { data: categories = [], isLoading: isLoadingCategories } = useQuery({
     queryKey: ["categories"],
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
-      try {
-        const res = await fetch("/api/categories");
-        const categories: CategoryResponse[] = await res.json();
-        setOptimisticCategories(categories);
-        return categories;
-      } catch (error) {
-        setOptimisticCategories([]);
-        console.error(error);
+      const res = await fetch("/api/categories");
+      if (!res.ok) {
+        throw new Error("Failed to fetch categories");
       }
+      const data: CategoryResponse[] = await res.json();
+      return data;
     },
   });
 
   const handleCategoryCreated = (newCategory: CategoryResponse) => {
-    setOptimisticCategories((prevCategories) => [
-      ...prevCategories,
-      newCategory,
-    ]);
+    queryClient.setQueryData(
+      ["categories"],
+      (oldData: CategoryResponse[] | undefined) => {
+        return oldData ? [...oldData, newCategory] : [newCategory];
+      },
+    );
+
     queryClient.invalidateQueries({ queryKey: ["categories"] });
   };
 
@@ -92,13 +83,7 @@ export function CategorySelector({
             </TooltipContent>
           </Tooltip>
         </div>
-        <Select
-          value={categoryValue}
-          onValueChange={(value) => {
-            setValue("category", value);
-            clearErrors("category");
-          }}
-        >
+        <Select value={value} onValueChange={onChange}>
           <SelectTrigger>
             <SelectValue placeholder="Choose a category" />
           </SelectTrigger>
@@ -108,7 +93,7 @@ export function CategorySelector({
                 <span className="text-muted-foreground text-xs">
                   {isLoadingCategories
                     ? "Loading categories..."
-                    : optimisticCategories.length === 0
+                    : categories.length === 0
                       ? "No categories"
                       : "Categories"}
                 </span>
@@ -121,7 +106,7 @@ export function CategorySelector({
                   <span className="sr-only">Add New Category</span>
                 </button>
               </SelectLabel>
-              {optimisticCategories.map((cat) => (
+              {categories.map((cat) => (
                 <SelectItem key={cat.id} value={cat.id}>
                   {cat.name}
                 </SelectItem>
@@ -129,9 +114,9 @@ export function CategorySelector({
             </SelectGroup>
           </SelectContent>
         </Select>
-        {errors.category && (
+        {error && (
           <p className="text-sm px-1 font-medium text-destructive">
-            {errors.category.message}
+            {error.message}
           </p>
         )}
       </div>

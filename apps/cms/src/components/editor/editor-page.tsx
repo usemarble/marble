@@ -18,7 +18,7 @@ import { Editor } from "@/components/editor/editor";
 import { EditorSidebar } from "@/components/editor/editor-sidebar";
 import { HiddenScrollbar } from "@/components/editor/hidden-scrollbar";
 import { createPostAction, updatePostAction } from "@/lib/actions/post";
-import { emptyPost } from "@/lib/data/post";
+// import { emptyPost } from "@/lib/data/post";
 import { type PostValues, postSchema } from "@/lib/validations/post";
 import { useUnsavedChanges } from "@/providers/unsaved-changes";
 import { sanitizeHtml } from "@/utils/editor";
@@ -29,7 +29,7 @@ interface EditorPageProps {
   id?: string;
 }
 
-function EditorPage({ initialData = emptyPost, id }: EditorPageProps) {
+function EditorPage({ initialData, id }: EditorPageProps) {
   const router = useRouter();
   const params = useParams<{ workspace: string }>();
   const { open, isMobile } = useSidebar();
@@ -51,7 +51,6 @@ function EditorPage({ initialData = emptyPost, id }: EditorPageProps) {
     watch,
     setValue,
     clearErrors,
-    trigger,
     control,
     formState: { isSubmitting, errors },
   } = form;
@@ -214,11 +213,7 @@ function EditorPage({ initialData = emptyPost, id }: EditorPageProps) {
       <EditorSidebar
         errors={errors}
         control={control}
-        trigger={trigger}
         formRef={formRef}
-        register={register}
-        setValue={setValue}
-        clearErrors={clearErrors}
         watch={watch}
         isSubmitting={isSubmitting}
         isOpen={showSettings}

@@ -1,3 +1,4 @@
+import { cn } from "@marble/ui/lib/utils";
 import { Loader } from "lucide-react";
 
 interface ButtonLoaderProps {
@@ -5,23 +6,22 @@ interface ButtonLoaderProps {
   variant?: "primary" | "secondary" | "destructive" | "ghost" | "outline";
 }
 
-export function ButtonLoader({ variant = "primary" }: ButtonLoaderProps) {
+export function ButtonLoader({
+  className,
+  variant = "primary",
+}: ButtonLoaderProps) {
   return (
     <svg
       aria-hidden="true"
-      className={`h-4 w-4 animate-spin ${
-        variant === "primary"
-          ? "fill-white text-blue-300"
-          : variant === "secondary"
-            ? "fill-white text-gray-300"
-            : variant === "destructive"
-              ? "fill-white text-red-300"
-              : variant === "ghost"
-                ? "fill-gray-600 text-gray-300"
-                : variant === "outline"
-                  ? "fill-gray-600 text-gray-300"
-                  : "fill-white text-blue-300"
-      }`}
+      className={cn(
+        "h-4 w-4 animate-spin",
+        variant === "primary" && "fill-white text-purple-300",
+        variant === "secondary" && "fill-white text-gray-300",
+        variant === "destructive" && "fill-white text-red-300",
+        variant === "ghost" && "fill-gray-600 text-gray-300",
+        variant === "outline" && "fill-gray-600 text-gray-300",
+        className,
+      )}
       viewBox="0 0 100 101"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"

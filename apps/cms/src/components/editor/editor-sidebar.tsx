@@ -21,10 +21,6 @@ import { useMemo, useState } from "react";
 import {
   type Control,
   type FieldErrors,
-  type UseFormClearErrors,
-  type UseFormRegister,
-  type UseFormSetValue,
-  type UseFormTrigger,
   type UseFormWatch,
   useController,
 } from "react-hook-form";
@@ -53,11 +49,7 @@ import { HiddenScrollbar } from "./hidden-scrollbar";
 
 interface EditorSidebarProps extends React.ComponentProps<typeof Sidebar> {
   control: Control<PostValues>;
-  register: UseFormRegister<PostValues>;
-  setValue: UseFormSetValue<PostValues>;
-  clearErrors: UseFormClearErrors<PostValues>;
   errors: FieldErrors<PostValues>;
-  trigger: UseFormTrigger<PostValues>;
   watch: UseFormWatch<PostValues>;
   formRef: React.RefObject<HTMLFormElement | null>;
   isSubmitting: boolean;
@@ -69,16 +61,12 @@ interface EditorSidebarProps extends React.ComponentProps<typeof Sidebar> {
 
 export function EditorSidebar({
   control,
-  register,
-  setValue,
   errors,
   formRef,
   isSubmitting,
   watch,
   isOpen,
   setIsOpen,
-  clearErrors,
-  trigger,
   mode = "create",
   ...props
 }: EditorSidebarProps) {
@@ -133,6 +121,7 @@ export function EditorSidebar({
 
   const triggerSubmit = async () => {
     if (hasErrors) {
+      console.log("hasErrors", errors);
       return toast.error("Please fill in all required fields", {
         position: "top-right",
       });
@@ -191,15 +180,15 @@ export function EditorSidebar({
             >
               <HiddenScrollbar className="h-full px-6">
                 <section className="grid gap-6 pb-5 pt-4">
-                  <StatusField watch={watch} setValue={setValue} />
+                  <StatusField control={control} />
 
                   <Separator orientation="horizontal" className="flex" />
 
-                  <CoverImageSelector setValue={setValue} watch={watch} />
+                  <CoverImageSelector control={control} />
 
-                  <DescriptionField register={register} errors={errors} />
+                  <DescriptionField control={control} />
 
-                  <SlugField register={register} errors={errors} />
+                  <SlugField control={control} />
 
                   <AuthorSelector
                     control={control}
@@ -208,22 +197,13 @@ export function EditorSidebar({
 
                   <TagSelector control={control} defaultTags={tags || []} />
 
-                  <CategorySelector
-                    control={control}
-                    errors={errors}
-                    setValue={setValue}
-                    clearErrors={clearErrors}
-                  />
+                  <CategorySelector control={control} />
 
-                  <PublishDateField watch={watch} setValue={setValue} />
+                  <PublishDateField control={control} />
 
                   <Separator orientation="horizontal" className="mt-4 flex" />
 
-                  <AttributionField
-                    watch={watch}
-                    setValue={setValue}
-                    errors={errors}
-                  />
+                  <AttributionField control={control} errors={errors} />
                 </section>
               </HiddenScrollbar>
             </TabsContent>

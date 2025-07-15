@@ -16,19 +16,21 @@ import {
 import { cn } from "@marble/ui/lib/utils";
 import { CalendarDots, Info } from "@phosphor-icons/react";
 import { format } from "date-fns";
-import { useState } from "react";
-import type { UseFormSetValue, UseFormWatch } from "react-hook-form";
+import { type Control, useController } from "react-hook-form";
 import type { PostValues } from "@/lib/validations/post";
 
 interface PublishDateFieldProps {
-  watch: UseFormWatch<PostValues>;
-  setValue: UseFormSetValue<PostValues>;
+  control: Control<PostValues>;
 }
 
-export function PublishDateField({ watch, setValue }: PublishDateFieldProps) {
-  const [date, setDate] = useState<Date | undefined>(
-    watch("publishedAt") ? new Date(watch("publishedAt")) : new Date(),
-  );
+export function PublishDateField({ control }: PublishDateFieldProps) {
+  const {
+    field: { onChange, value },
+    fieldState: { error },
+  } = useController({
+    name: "publishedAt",
+    control,
+  });
 
   return (
     <div className="flex flex-col gap-3">
@@ -52,27 +54,31 @@ export function PublishDateField({ watch, setValue }: PublishDateFieldProps) {
             variant={"outline"}
             className={cn(
               "justify-between text-left font-normal",
-              !date && "text-muted-foreground",
+              !value && "text-muted-foreground",
             )}
           >
-            {date ? format(date, "PPP") : <span>Pick a date</span>}
+            {value ? format(value, "PPP") : <span>Pick a date</span>}
             <CalendarDots className="text-muted-foreground" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0">
           <Calendar
             mode="single"
-            selected={date}
+            selected={value}
             onSelect={(date) => {
               if (date) {
-                setDate(date);
-                setValue("publishedAt", date);
+                onChange(date);
               }
             }}
             initialFocus
           />
         </PopoverContent>
       </Popover>
+      {error && (
+        <p className="text-sm px-1 font-medium text-destructive">
+          {error.message}
+        </p>
+      )}
     </div>
   );
 }

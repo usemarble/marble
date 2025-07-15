@@ -30,7 +30,12 @@ function PageClient() {
     return notFound();
   }
 
-  return <EditorPage initialData={postData} id={params.id} />;
+  const postDataWithDate = {
+    ...postData,
+    publishedAt: new Date(postData.publishedAt),
+  };
+
+  return <EditorPage initialData={postDataWithDate} id={params.id} />;
 }
 
 export default PageClient;
