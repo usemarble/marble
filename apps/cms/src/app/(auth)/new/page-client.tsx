@@ -20,13 +20,19 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
 import { ButtonLoader } from "@/components/ui/loader";
-import { checkWorkspaceSlug } from "@/lib/actions/workspace";
-import { authClient, organization } from "@/lib/auth/client";
+import { TimezoneSelector } from "@/components/ui/timezone-selector";
+import {
+  checkWorkspaceSlug,
+  createWorkspaceAction,
+} from "@/lib/actions/workspace";
+import { authClient } from "@/lib/auth/client";
 import {
   type CreateWorkspaceValues,
   workspaceSchema,
 } from "@/lib/validations/workspace";
 import { generateSlug } from "@/utils/string";
+
+const timezones = Intl.supportedValuesOf("timeZone");
 
 function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
   // const { updateActiveWorkspace } = useWorkspace();
@@ -39,6 +45,10 @@ function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
     formState: { errors, isSubmitting },
   } = useForm<CreateWorkspaceValues>({
     resolver: zodResolver(workspaceSchema),
+    defaultValues: {
+      name: "",
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    },
   });
 
   const router = useRouter();
@@ -59,16 +69,13 @@ function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
     }
 
     try {
-      const response = await organization.create({
+      const workspace = await createWorkspaceAction({
         name: data.name,
         slug: data.slug,
-        logo: `https://api.dicebear.com/9.x/glass/svg?seed=${data.name}`,
+        timezone: data.timezone,
       });
 
-      if (response.data) {
-        const workspace = {
-          ...response.data,
-        };
+      if (workspace) {
         // await updateActiveWorkspace(workspace.slug, workspace);
         authClient.organization.setActive({
           organizationId: workspace.id,
@@ -129,6 +136,22 @@ function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
                 </div>
                 {errors.slug && (
                   <ErrorMessage>{errors.slug.message}</ErrorMessage>
+                )}
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="timezone" className="sr-only">
+                  Timezone
+                </Label>
+                <TimezoneSelector
+                  value={watch("timezone")}
+                  onValueChange={(value) => {
+                    setValue("timezone", value);
+                  }}
+                  placeholder="Select timezone..."
+                  timezones={timezones}
+                />
+                {errors.timezone && (
+                  <ErrorMessage>{errors.timezone.message}</ErrorMessage>
                 )}
               </div>
             </div>

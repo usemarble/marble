@@ -16,8 +16,10 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
-import { checkWorkspaceSlug } from "@/lib/actions/workspace";
-import { organization } from "@/lib/auth/client";
+import {
+  checkWorkspaceSlug,
+  createWorkspaceAction,
+} from "@/lib/actions/workspace";
 import {
   type CreateWorkspaceValues,
   workspaceSchema,
@@ -25,6 +27,9 @@ import {
 import { generateSlug } from "@/utils/string";
 import { useWorkspace } from "../../providers/workspace";
 import { ButtonLoader } from "../ui/loader";
+import { TimezoneSelector } from "../ui/timezone-selector";
+
+const timezones = Intl.supportedValuesOf("timeZone");
 
 export const CreateWorkspaceModal = ({
   open,
@@ -43,7 +48,10 @@ export const CreateWorkspaceModal = ({
     formState: { errors, isSubmitting },
   } = useForm<CreateWorkspaceValues>({
     resolver: zodResolver(workspaceSchema),
-    defaultValues: { name: "" },
+    defaultValues: {
+      name: "",
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    },
   });
   const router = useRouter();
   const { name } = watch();
@@ -63,16 +71,16 @@ export const CreateWorkspaceModal = ({
         return;
       }
 
-      const response = await organization.create({
+      const workspace = await createWorkspaceAction({
         name: data.name,
         slug: data.slug,
-        logo: `https://api.dicebear.com/9.x/glass/svg?seed=${data.name}`,
+        timezone: data.timezone,
       });
 
-      if (response.data) {
-        await updateActiveWorkspace(response.data.slug);
+      if (workspace) {
+        await updateActiveWorkspace(workspace.slug);
         setOpen(false);
-        router.push(`/${response.data.slug}`);
+        router.push(`/${workspace.slug}`);
       }
     } catch (_error) {
       toast.error("Failed to create workspace");
@@ -91,7 +99,6 @@ export const CreateWorkspaceModal = ({
             collaborate with teammates.
           </DialogDescription>
         </DialogHeader>
-        {/*  */}
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col gap-5 mt-6"
@@ -125,6 +132,22 @@ export const CreateWorkspaceModal = ({
               />
             </div>
             {errors.slug && <ErrorMessage>{errors.slug.message}</ErrorMessage>}
+          </div>
+          <div className="grid flex-1 gap-2">
+            <Label htmlFor="timezone" className="sr-only">
+              Timezone
+            </Label>
+            <TimezoneSelector
+              value={watch("timezone")}
+              onValueChange={(value) => {
+                setValue("timezone", value);
+              }}
+              placeholder="Select timezone..."
+              timezones={timezones}
+            />
+            {errors.timezone && (
+              <ErrorMessage>{errors.timezone.message}</ErrorMessage>
+            )}
           </div>
           <div className="mt-4">
             <Button
