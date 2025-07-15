@@ -17,7 +17,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
 import { ButtonLoader } from "@/components/ui/loader";
 import { TimezoneSelector } from "@/components/ui/timezone-selector";
@@ -25,23 +25,21 @@ import {
   checkWorkspaceSlug,
   createWorkspaceAction,
 } from "@/lib/actions/workspace";
-import { authClient } from "@/lib/auth/client";
+import { timezones } from "@/lib/constants";
 import {
   type CreateWorkspaceValues,
   workspaceSchema,
 } from "@/lib/validations/workspace";
 import { generateSlug } from "@/utils/string";
 
-const timezones = Intl.supportedValuesOf("timeZone");
-
 function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
-  // const { updateActiveWorkspace } = useWorkspace();
   const {
     register,
     handleSubmit,
     setError,
     watch,
     setValue,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<CreateWorkspaceValues>({
     resolver: zodResolver(workspaceSchema),
@@ -76,10 +74,6 @@ function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
       });
 
       if (workspace) {
-        // await updateActiveWorkspace(workspace.slug, workspace);
-        authClient.organization.setActive({
-          organizationId: workspace.id,
-        });
         router.push(`/${workspace.slug}`);
       }
     } catch (error) {
@@ -142,13 +136,17 @@ function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
                 <Label htmlFor="timezone" className="sr-only">
                   Timezone
                 </Label>
-                <TimezoneSelector
-                  value={watch("timezone")}
-                  onValueChange={(value) => {
-                    setValue("timezone", value);
-                  }}
-                  placeholder="Select timezone..."
-                  timezones={timezones}
+                <Controller
+                  name="timezone"
+                  control={control}
+                  render={({ field }) => (
+                    <TimezoneSelector
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      placeholder="Select timezone..."
+                      timezones={timezones}
+                    />
+                  )}
                 />
                 {errors.timezone && (
                   <ErrorMessage>{errors.timezone.message}</ErrorMessage>

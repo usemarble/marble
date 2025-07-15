@@ -1,7 +1,5 @@
 import { z } from "zod";
-
-// Get all valid timezone strings from Intl
-const timezones = Intl.supportedValuesOf("timeZone");
+import { timezones } from "@/lib/constants";
 
 export const tagSchema = z.object({
   name: z.string().min(1, { message: "Name cannot be empty" }),

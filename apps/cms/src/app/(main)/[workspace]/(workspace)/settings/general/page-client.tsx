@@ -33,6 +33,7 @@ import {
   checkWorkspaceSlug,
   updateWorkspaceAction,
 } from "@/lib/actions/workspace";
+import { timezones } from "@/lib/constants";
 import { useWorkspace } from "@/providers/workspace";
 
 const nameSchema = z.object({
@@ -42,8 +43,6 @@ const nameSchema = z.object({
 const slugSchema = z.object({
   slug: z.string().min(1),
 });
-
-const timezones = Intl.supportedValuesOf("timeZone");
 
 const timezoneSchema = z.object({
   timezone: z.enum(timezones as [string, ...string[]]),

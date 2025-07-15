@@ -55,3 +55,5 @@ export const PRICING_PLANS: PricingPlan[] = [
     },
   },
 ];
+
+export const timezones = Intl.supportedValuesOf("timeZone");
