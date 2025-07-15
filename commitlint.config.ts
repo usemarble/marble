@@ -15,8 +15,7 @@ export default {
 				"refactor",
 				"revert",
 				"style",
-				"test",
-				"deps"
+				"test"
 			]
 		]
 	}
