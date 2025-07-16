@@ -14,10 +14,13 @@ import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
-import { checkWorkspaceSlug } from "@/lib/actions/workspace";
-import { organization } from "@/lib/auth/client";
+import {
+  checkWorkspaceSlug,
+  createWorkspaceAction,
+} from "@/lib/actions/workspace";
+import { timezones } from "@/lib/constants";
 import {
   type CreateWorkspaceValues,
   workspaceSchema,
@@ -25,6 +28,7 @@ import {
 import { generateSlug } from "@/utils/string";
 import { useWorkspace } from "../../providers/workspace";
 import { ButtonLoader } from "../ui/loader";
+import { TimezoneSelector } from "../ui/timezone-selector";
 
 export const CreateWorkspaceModal = ({
   open,
@@ -40,10 +44,14 @@ export const CreateWorkspaceModal = ({
     register,
     setValue,
     handleSubmit,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<CreateWorkspaceValues>({
     resolver: zodResolver(workspaceSchema),
-    defaultValues: { name: "" },
+    defaultValues: {
+      name: "",
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    },
   });
   const router = useRouter();
   const { name } = watch();
@@ -63,16 +71,16 @@ export const CreateWorkspaceModal = ({
         return;
       }
 
-      const response = await organization.create({
+      const workspace = await createWorkspaceAction({
         name: data.name,
         slug: data.slug,
-        logo: `https://api.dicebear.com/9.x/glass/svg?seed=${data.name}`,
+        timezone: data.timezone,
       });
 
-      if (response.data) {
-        await updateActiveWorkspace(response.data.slug);
+      if (workspace) {
+        await updateActiveWorkspace(workspace.slug);
         setOpen(false);
-        router.push(`/${response.data.slug}`);
+        router.push(`/${workspace.slug}`);
       }
     } catch (_error) {
       toast.error("Failed to create workspace");
@@ -91,7 +99,6 @@ export const CreateWorkspaceModal = ({
             collaborate with teammates.
           </DialogDescription>
         </DialogHeader>
-        {/*  */}
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col gap-5 mt-6"
@@ -114,7 +121,7 @@ export const CreateWorkspaceModal = ({
             </Label>
             <div className="flex w-full rounded-md border border-input bg-background text-base placeholder:text-muted-foreground focus-within:outline-none focus-within:border-primary focus-within:ring-2 focus-within:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm overflow-hidden">
               <span className="py-2.5 px-2 bg-muted border-r">
-                app.marblecms.com/
+                {process.env.NEXT_PUBLIC_APP_URL?.split("//")[1]}/
               </span>
               <input
                 id="slug"
@@ -125,6 +132,26 @@ export const CreateWorkspaceModal = ({
               />
             </div>
             {errors.slug && <ErrorMessage>{errors.slug.message}</ErrorMessage>}
+          </div>
+          <div className="grid flex-1 gap-2">
+            <Label htmlFor="timezone" className="sr-only">
+              Timezone
+            </Label>
+            <Controller
+              name="timezone"
+              control={control}
+              render={({ field }) => (
+                <TimezoneSelector
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  placeholder="Select timezone..."
+                  timezones={timezones}
+                />
+              )}
+            />
+            {errors.timezone && (
+              <ErrorMessage>{errors.timezone.message}</ErrorMessage>
+            )}
           </div>
           <div className="mt-4">
             <Button

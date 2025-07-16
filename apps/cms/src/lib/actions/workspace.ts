@@ -23,6 +23,16 @@ export async function createWorkspaceAction(payload: CreateWorkspaceValues) {
       slug: parsedPayload.slug.toLocaleLowerCase(),
     },
   });
+
+  await db.member.create({
+    data: {
+      organizationId: workspace.id,
+      userId: session.user.id,
+      role: "owner",
+      createdAt: new Date(),
+    },
+  });
+
   setActiveWorkspace(workspace.slug);
 
   // not too sure this works

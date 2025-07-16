@@ -17,11 +17,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
 import { ButtonLoader } from "@/components/ui/loader";
-import { checkWorkspaceSlug } from "@/lib/actions/workspace";
-import { authClient, organization } from "@/lib/auth/client";
+import { TimezoneSelector } from "@/components/ui/timezone-selector";
+import {
+  checkWorkspaceSlug,
+  createWorkspaceAction,
+} from "@/lib/actions/workspace";
+import { timezones } from "@/lib/constants";
 import {
   type CreateWorkspaceValues,
   workspaceSchema,
@@ -29,16 +33,20 @@ import {
 import { generateSlug } from "@/utils/string";
 
 function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
-  // const { updateActiveWorkspace } = useWorkspace();
   const {
     register,
     handleSubmit,
     setError,
     watch,
     setValue,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<CreateWorkspaceValues>({
     resolver: zodResolver(workspaceSchema),
+    defaultValues: {
+      name: "",
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    },
   });
 
   const router = useRouter();
@@ -59,20 +67,13 @@ function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
     }
 
     try {
-      const response = await organization.create({
+      const workspace = await createWorkspaceAction({
         name: data.name,
         slug: data.slug,
-        logo: `https://api.dicebear.com/9.x/glass/svg?seed=${data.name}`,
+        timezone: data.timezone,
       });
 
-      if (response.data) {
-        const workspace = {
-          ...response.data,
-        };
-        // await updateActiveWorkspace(workspace.slug, workspace);
-        authClient.organization.setActive({
-          organizationId: workspace.id,
-        });
+      if (workspace) {
         router.push(`/${workspace.slug}`);
       }
     } catch (error) {
@@ -129,6 +130,26 @@ function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
                 </div>
                 {errors.slug && (
                   <ErrorMessage>{errors.slug.message}</ErrorMessage>
+                )}
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="timezone" className="sr-only">
+                  Timezone
+                </Label>
+                <Controller
+                  name="timezone"
+                  control={control}
+                  render={({ field }) => (
+                    <TimezoneSelector
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      placeholder="Select timezone..."
+                      timezones={timezones}
+                    />
+                  )}
+                />
+                {errors.timezone && (
+                  <ErrorMessage>{errors.timezone.message}</ErrorMessage>
                 )}
               </div>
             </div>
