@@ -5,11 +5,12 @@ import Layout from "@/layouts/Layout.astro";
 
 <Layout title="Page not found">
   <div class='border-y border-dashed'>
-    <Container class="lg:border-x border-dashed flex min-h-[calc(100vh-128px)] flex-col items-center justify-center">
+  <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto"> 
+    <Container class="flex min-h-[calc(100vh-128px)] flex-col items-center justify-center">
        <h1 class='text-5xl font-bold'>404</h1>
        <p class='mt-2 text-2xl mb-6'>Page not found</p>
      
-       <a href='/' class="bg-primary text-white flex items-center gap-2 py-2 px-4 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary focus-visible:ring-2 transition-all duration-300 ease-out">
+       <a href='/' class="bg-primary text-white rounded flex items-center gap-2 py-2 px-4 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary focus-visible:ring-2 transition-all duration-300 ease-out">
          <svg
            xmlns='http://www.w3.org/2000/svg'
            width='16'
@@ -28,4 +29,5 @@ import Layout from "@/layouts/Layout.astro";
        </a>
       </Container>
     </div>
+  </div>
 </Layout>

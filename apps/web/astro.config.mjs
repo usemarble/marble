@@ -11,6 +11,9 @@ import { defineConfig } from "astro/config";
 export default defineConfig({
   integrations: [tailwind(), mdx(), sitemap()],
   site: "https://marblecms.com",
+  image: {
+    domains: ["images.marblecms.com"],
+  },
   adapter: vercel({
     webAnalytics: {
       enabled: true,
