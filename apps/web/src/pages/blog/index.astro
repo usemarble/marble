@@ -5,7 +5,7 @@ import PostCard from "@/components/PostCard.astro";
 import Layout from "@/layouts/Layout.astro";
 import { SITE } from "@/lib/constants";
 
-const posts = await getCollection("blog");
+const posts = await getCollection("posts");
 ---
 
 <Layout title={`Blog - ${SITE.TITLE}`} image="/og-blog.jpg" description="Bits and pieces about SEO and content writing.">

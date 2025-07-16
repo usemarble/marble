@@ -6,23 +6,13 @@
   :root {
     --background: 60, 11%, 98%;
     --foreground: 240 15% 14%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 9%;
     --primary: 240 10% 14%;
     --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
     --muted: 0, 0%, 92%;
     --muted-foreground: 0 0% 45.1%;
     --accent: 244 100% 65%;
     --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
     --border: 0 0% 86%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 9%;
     --radius: 0.7rem;
   }
 }
@@ -63,7 +53,10 @@
   body {
     @apply bg-background text-foreground antialiased;
   }
-  .bgfgdf {
-    color: hsl(240, 15%, 14%);
+}
+
+@layer utilities {
+  .prose li p {
+    margin: 0;
   }
 }

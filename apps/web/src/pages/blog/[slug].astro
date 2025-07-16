@@ -4,22 +4,21 @@ import { getCollection, render } from "astro:content";
 import Container from "@/components/Container.astro";
 import Prose from "@/components/Prose.astro";
 import BlogLayout from "@/layouts/BlogLayout.astro";
-import Layout from "@/layouts/Layout.astro";
 import { SITE } from "@/lib/constants";
+
 export const prerender = true;
 
 export async function getStaticPaths() {
-  const projectEntries = await getCollection("blog");
-  return projectEntries.map((entry) => ({
-    params: { slug: entry.id },
+  const blogEntries = await getCollection("posts");
+  return blogEntries.map((entry) => ({
+    params: { slug: entry.data.slug },
     props: { entry },
   }));
 }
 
 const { entry } = Astro.props;
-const { Content } = await render(entry);
 
-const formattedDate = new Date(entry.data.published).toLocaleDateString(
+const formattedDate = new Date(entry.data.publishedAt).toLocaleDateString(
   "en-US",
   {
     year: "numeric",
@@ -32,7 +31,7 @@ const formattedDate = new Date(entry.data.published).toLocaleDateString(
 <BlogLayout
   title={`${entry.data.title} - ${SITE.TITLE}`}
   description={entry.data.description}
-  image={entry.data.cover.src}
+  image={entry.data.coverImage}
 >
   <section
     class='min-h-[calc(100vh-88px)] sm:min-h-[calc(100vh-103px)] lg:min-h-[calc(100vh-120px)] border-y border-dashed'
@@ -44,14 +43,14 @@ const formattedDate = new Date(entry.data.published).toLocaleDateString(
             <h1 class='text-3xl lg:text-4xl text-balance font-serif'>
               {entry.data.title}
             </h1>
-            <time datetime={entry.data.published} class="text-muted-foreground text-sm sm:text-base">Published on {formattedDate}</time>
+            <time datetime={entry.data.publishedAt.toISOString()} class="text-muted-foreground text-sm sm:text-base">Published on {formattedDate}</time>
           </div>
         </section>
         <div>
-          <Image src={entry.data.cover.src} alt={entry.data.cover.alt} class="w-full max-w-3xl mx-auto mb-8" />
+          <Image src={entry.data.coverImage} alt={entry.data.title} class="w-full max-w-3xl mx-auto mb-8" inferSize />
         </div>
         <Prose>
-          <Content />
+          <div set:html={entry.data.content} />
         </Prose>
       </Container>
     </div>

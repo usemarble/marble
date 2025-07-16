@@ -3,13 +3,14 @@ import { Image } from "astro:assets";
 import type { CollectionEntry } from "astro:content";
 
 type Props = {
-  entry: CollectionEntry<"blog">;
+  entry: CollectionEntry<"posts">;
 };
 
 const { entry } = Astro.props as Props;
-const { title, description, cover, published, author, tags, slug } = entry.data;
+const { title, description, coverImage, publishedAt, authors, slug } =
+  entry.data;
 
-const formattedDate = new Date(published).toLocaleDateString("en-US", {
+const formattedDate = new Date(publishedAt).toLocaleDateString("en-US", {
   day: "2-digit",
   month: "2-digit",
   year: "numeric",
@@ -23,9 +24,10 @@ const formattedDate = new Date(published).toLocaleDateString("en-US", {
   >
     <div class="w-full border border-dashed rounded-md overflow-hidden group">
       <Image
-        src={cover.src}
-        alt={cover.alt}
+        src={coverImage}
+        alt={title}
         loading="eager"
+        inferSize
         class='w-full object-cover group-hover:scale-105 transition-all duration-500'
       />
     </div>
@@ -36,9 +38,9 @@ const formattedDate = new Date(published).toLocaleDateString("en-US", {
       </div>
       <div class="flex items-center gap-2 justify-between">
         <p class="text-muted-foreground text-sm">
-          {author}
+          {authors[0].name}
         </p>
-        <time datetime={published.toString()} class="text-muted-foreground text-sm">{formattedDate}</time>
+        <time datetime={publishedAt.toString()} class="text-muted-foreground text-sm">{formattedDate}</time>
       </div>
     </div>
   </a>
