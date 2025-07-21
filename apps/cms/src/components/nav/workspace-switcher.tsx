@@ -24,16 +24,13 @@ import {
 import { Skeleton } from "@marble/ui/components/skeleton";
 import { cn } from "@marble/ui/lib/utils";
 import { CaretDown, Check, Plus } from "@phosphor-icons/react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { useWorkspace } from "../../providers/workspace";
-import { CreateWorkspaceModal } from "./workspace-modal";
 
 export function WorkspaceSwitcher() {
   const { isMobile } = useSidebar();
   const router = useRouter();
-  const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] =
-    useState(false);
   const {
     activeWorkspace,
     updateActiveWorkspace,
@@ -63,11 +60,6 @@ export function WorkspaceSwitcher() {
     }
   }
 
-  const handleAddWorkspace = () => {
-    setShowCreateWorkspaceModal(true);
-  };
-
-  // Show skeleton only if we're loading and don't have activeWorkspace data
   const showSkeleton = !activeWorkspace && isFetchingWorkspace;
 
   return (
@@ -97,20 +89,14 @@ export function WorkspaceSwitcher() {
                   <Badge
                     variant="outline"
                     className={cn(
-                      "text-center py-0 px-1.5 text-[11px] justify-center bg-gray-50 text-gray-500 border-gray-300",
+                      "text-center py-0 px-1.5 text-[11px] capitalize justify-center bg-gray-50 text-gray-500 border-gray-300",
                       {
-                        "bg-emerald-50 dark:bg-transparent text-emerald-500 border-emerald-300":
-                          activeWorkspace.subscription?.plan?.toUpperCase() ===
-                          "PRO",
-
-                        "bg-blue-50 dark:bg-transparent text-blue-500 border-blue-300":
-                          activeWorkspace.subscription?.plan?.toUpperCase() ===
-                          "TEAM",
+                        "bg-emerald-50 dark:bg-transparent text-blue-500 border-blue-300":
+                          activeWorkspace.subscription?.plan === "pro",
                       },
                     )}
                   >
-                    {activeWorkspace.subscription?.plan?.toUpperCase() ||
-                      "FREE"}
+                    {activeWorkspace.subscription?.plan || "free"}
                   </Badge>
                 </div>
                 <CaretDown className="ml-auto" />
@@ -189,26 +175,18 @@ export function WorkspaceSwitcher() {
 
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <button
-                type="button"
-                onClick={handleAddWorkspace}
-                className="flex w-full items-center gap-2"
-              >
+              <Link href="/new" className="flex w-full items-center gap-2">
                 <div className="bg-background flex size-6 items-center justify-center rounded-md border">
                   <Plus className="size-4" />
                 </div>
                 <div className="text-muted-foreground font-medium">
                   Add workspace
                 </div>
-              </button>
+              </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
-      <CreateWorkspaceModal
-        open={showCreateWorkspaceModal}
-        setOpen={setShowCreateWorkspaceModal}
-      />
     </SidebarMenu>
   );
 }

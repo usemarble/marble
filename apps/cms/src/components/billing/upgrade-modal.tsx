@@ -69,19 +69,19 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-screen-md">
-        <DialogHeader>
+      <DialogContent className="w-full max-w-md">
+        <DialogHeader className="sr-only">
           <DialogTitle>Upgrade Plan</DialogTitle>
           <DialogDescription>
-            Choose a plan that fits your needs.
+            Upgrade your workspace to the pro plan.
           </DialogDescription>
         </DialogHeader>
         <section>
-          <ul className="grid sm:grid-cols-2 border border-dashed divide-x divide-dashed rounded-xl overflow-hidden">
+          <ul>
             {PRICING_PLANS.map((plan) => (
               <li
                 key={plan.title}
-                className=" flex flex-col gap-5 min-h-96 h-full w-full px-4 py-6"
+                className=" flex flex-col gap-5 min-h-96 h-full w-full px-4 py-6 border border-dashed rounded-xl mt-4"
               >
                 <div className="flex flex-col gap-4">
                   <h4 className="text-medium text-2xl">{plan.title}</h4>

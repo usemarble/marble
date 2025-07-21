@@ -94,7 +94,9 @@ function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
           />
           <CardTitle className="font-medium">New workspace</CardTitle>
           <CardDescription className="max-w-sm">
-            You'll need a workspace to proceed.
+            {hasWorkspaces
+              ? "Set up your new workspace"
+              : "You'll need a workspace to proceed."}
           </CardDescription>
         </CardHeader>
         <CardContent>

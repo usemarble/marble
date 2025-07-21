@@ -23,30 +23,9 @@ export const PRICING_PLANS: PricingPlan[] = [
     features: [
       "Unlimited posts",
       "2 GB media storage",
-      "Up to 5 team members",
-      "50k API requests per month",
-      "50 Webhook events per month",
-      "Advanced readability insights",
-    ],
-    button: {
-      href: "https://app.marblecms.com",
-      label: "Get Started",
-    },
-  },
-  {
-    title: "Team",
-    description: "For Growing Startups",
-    price: {
-      monthly: "$15",
-      yearly: "$150",
-    },
-    features: [
-      "Unlimited posts",
-      "5 GB media storage",
       "Up to 10 team members",
       "Unlimited API requests per month",
-      "100 Webhook events per month",
-      "Advanced readability insights",
+      "Readability insights",
       "Keyword optimization suggestions",
     ],
     button: {
