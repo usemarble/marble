@@ -41,7 +41,7 @@ export interface UploadResult {
 }
 
 // Maximum file size (4MB)
-const MAX_FILE_SIZE = 4 * 1024 * 1024;
+// const MAX_FILE_SIZE = 4 * 1024 * 1024;
 
 // Allowed MIME types (Just to be safe, even though I only compress to webp for now)
 const ALLOWED_MIME_TYPES = [
@@ -67,11 +67,11 @@ export async function uploadMediaAction(file: File): Promise<UploadResult> {
   const workspaceCanSaveMedia = true;
 
   // Validate file (although compressed images are usually under 1MB)
-  if (file.size > MAX_FILE_SIZE) {
+  /* if (file.size > MAX_FILE_SIZE) {
     throw new Error(
       `File size exceeds maximum allowed size of ${MAX_FILE_SIZE / (1024 * 1024)}MB`,
     );
-  }
+  } */
 
   if (!ALLOWED_MIME_TYPES.includes(file.type)) {
     throw new Error(
@@ -193,11 +193,11 @@ export async function uploadUserAvatarAction(
   const userId = sessionInfo.session.userId;
 
   // Validate file (although compressed images are usually under 1MB)
-  if (file.size > MAX_FILE_SIZE) {
+  /* if (file.size > MAX_FILE_SIZE) {
     throw new Error(
       `File size exceeds maximum allowed size of ${MAX_FILE_SIZE / (1024 * 1024)}MB`,
     );
-  }
+  } */
 
   if (!ALLOWED_MIME_TYPES.includes(file.type)) {
     throw new Error(
@@ -263,11 +263,11 @@ export async function uploadWorkspaceLogoAction(
   if (!workspaceId) throw new Error("Workspace ID not found in session");
 
   // Validate file (although compressed images are usually under 1MB)
-  if (file.size > MAX_FILE_SIZE) {
+  /* if (file.size > MAX_FILE_SIZE) {
     throw new Error(
       `File size exceeds maximum allowed size of ${MAX_FILE_SIZE / (1024 * 1024)}MB`,
     );
-  }
+  } */
 
   if (!ALLOWED_MIME_TYPES.includes(file.type)) {
     throw new Error(

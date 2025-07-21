@@ -85,7 +85,7 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
   const handleCompressAndUpload = async (fileToUpload: File) => {
     try {
       setIsUploading(true);
-      toast.loading("Compressing...", {
+      /* toast.loading("Compressing...", {
         id: "uploading",
       });
 
@@ -108,14 +108,14 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
         {
           type: "image/webp",
         },
-      );
+      ); */
 
       toast.loading("Uploading...", {
         id: "uploading",
       });
 
       // Upload to Cloudflare R2
-      const result = await uploadMediaAction(compressedFile);
+      const result = await uploadMediaAction(fileToUpload);
 
       // Set the cover image URL
       onChange(result.url);

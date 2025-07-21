@@ -182,7 +182,7 @@ function PageClient() {
     try {
       setIsUploading(true);
 
-      const formData = new FormData();
+      /* const formData = new FormData();
       formData.append("file", file);
 
       const response = await fetch("/api/compress", {
@@ -201,9 +201,9 @@ function PageClient() {
         {
           type: "image/webp",
         },
-      );
+      ); */
 
-      const result = await uploadWorkspaceLogoAction(compressedFile);
+      const result = await uploadWorkspaceLogoAction(file);
 
       setLogoUrl(result.logoUrl);
       updateActiveWorkspace(activeWorkspace?.slug as string, {

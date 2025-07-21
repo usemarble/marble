@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
 import { organization } from "@/lib/auth/client";
+import { QUERY_KEYS } from "@/lib/queries/keys";
 import type {
   Workspace,
   WorkspaceContextType,
@@ -34,7 +35,7 @@ export function WorkspaceProvider({
 
   // Get user workspaces
   const { data: userWorkspaces } = useQuery({
-    queryKey: ["workspaces"],
+    queryKey: [QUERY_KEYS.WORKSPACES],
     queryFn: async () => {
       const response = await request<WorkspaceWithRole[]>("workspaces");
       return response.data;
@@ -56,7 +57,7 @@ export function WorkspaceProvider({
     (!activeWorkspace || activeWorkspace.slug !== workspaceSlug);
 
   const { data: fetchedWorkspace, isLoading } = useQuery({
-    queryKey: ["workspace", workspaceSlug],
+    queryKey: QUERY_KEYS.WORKSPACE(workspaceSlug),
     queryFn: () => fetchWorkspaceData(workspaceSlug),
     enabled: shouldFetchWorkspace,
     initialData:
@@ -138,9 +139,9 @@ export function WorkspaceProvider({
       return response.data;
     },
     onSuccess: (data) => {
+      queryClient.clear();
+      queryClient.setQueryData(QUERY_KEYS.WORKSPACE(data.slug), data);
       setActiveWorkspace(data);
-      // Update the React Query cache
-      queryClient.setQueryData(["workspace", data.slug], data);
     },
     onError: (error) => {
       console.error("Failed to switch workspace:", error);

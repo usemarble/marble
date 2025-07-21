@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@marble/ui/components/button";
+import { buttonVariants } from "@marble/ui/components/button";
 import {
   SidebarInset,
   SidebarTrigger,
@@ -10,6 +10,7 @@ import {
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
 import { ArrowElbowUpLeft, SidebarSimple } from "@phosphor-icons/react";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import type { JSONContent } from "novel";
 import { useEffect, useRef, useState } from "react";
@@ -140,18 +141,15 @@ function EditorPage({ initialData, id }: EditorPageProps) {
       <SidebarInset className="bg-sidebar/70 rounded-xl shadow-sm border min-h-[calc(100vh-1rem)] h-[calc(100vh-1rem)]">
         <header className="sticky top-0 p-3 z-50 flex justify-between">
           <div className="flex gap-4 items-center">
-            <Button
-              disabled={isSubmitting}
-              variant="ghost"
-              size="icon"
-              onClick={() => router.back()}
-              className="group"
+            <Link
+              href={`/${params.workspace}/posts`}
+              className={cn(buttonVariants({ variant: "ghost" }), "group")}
             >
               <ArrowElbowUpLeft
                 weight="regular"
                 className="size-6 text-muted-foreground group-hover:text-foreground"
               />
-            </Button>
+            </Link>
           </div>
 
           <div>

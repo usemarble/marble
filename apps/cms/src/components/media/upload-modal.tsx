@@ -105,8 +105,8 @@ export function MediaUploadModal({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="sm:max-w-lg max-h-96">
         <DialogHeader className="text-center flex items-center justify-center">
-          <DialogTitle>Upload Image</DialogTitle>
-          <DialogDescription>
+          <DialogTitle>Upload Media</DialogTitle>
+          <DialogDescription className="sr-only">
             Upload an image from your computer.
           </DialogDescription>
         </DialogHeader>
@@ -146,7 +146,6 @@ export function MediaUploadModal({
                 <ImageIcon className="size-4" />
                 <div className="flex flex-col items-center">
                   <p className="text-sm font-medium">Upload Image</p>
-                  <p className="text-xs font-medium">(Max 4mb)</p>
                 </div>
               </div>
               <Input
