@@ -91,10 +91,10 @@ export const PRICING: Pricing[] = [
     },
     features: [
       "Unlimited posts",
-      "500 MB media storage",
-      "Up to 2 team members",
+      "100 MB media storage",
+      "Single member",
       "10k API requests per month",
-      "Basic readability insights",
+      "Webhooks",
     ],
     button: {
       href: "https://app.marblecms.com",
@@ -111,33 +111,65 @@ export const PRICING: Pricing[] = [
     features: [
       "Unlimited posts",
       "2 GB media storage",
-      "Up to 5 team members",
-      "50k API requests per month",
-      "Advanced readability insights",
-    ],
-    button: {
-      href: "https://app.marblecms.com",
-      label: "Get Started",
-    },
-  },
-  {
-    title: "Team",
-    description: "For Growing Teams",
-    price: {
-      monthly: "$15",
-      yearly: "$150",
-    },
-    features: [
-      "Unlimited posts",
-      "5 GB media storage",
       "Up to 10 team members",
       "Unlimited API requests per month",
-      "Advanced readability insights",
+      "Readability insights",
       "Keyword optimization suggestions",
     ],
     button: {
       href: "https://app.marblecms.com",
       label: "Get Started",
     },
+  },
+  // {
+  //   title: "Team",
+  //   description: "For Growing Teams",
+  //   price: {
+  //     monthly: "$15",
+  //     yearly: "$150",
+  //   },
+  //   features: [
+  //     "Unlimited posts",
+  //     "5 GB media storage",
+  //     "Up to 10 team members",
+  //     "Unlimited API requests per month",
+  //     "Advanced readability insights",
+  //     "Keyword optimization suggestions",
+  //   ],
+  //   button: {
+  //     href: "https://app.marblecms.com",
+  //     label: "Get Started",
+  //   },
+  // },
+];
+
+export const PRICING_FAQS: {
+  question: string;
+  answer: string;
+}[] = [
+  {
+    question: "How are plans billed?",
+    answer:
+      "Our plans are billed per workspace, not per user. This means you can invite as many team members as your plan allows to a workspace without any extra charges per member. Each workspace requires its own subscription if you wish to upgrade it.",
+  },
+  {
+    question: "How do I get a refund?",
+    answer:
+      "To request a refund, please contact us at <a href='mailto:hello@marblecms.com'>hello@marblecms.com</a> within 7 days of your purchase. We're also available on X at <a href='https://x.com/usemarblecms'>usemarblecms</a> and on our <a href='https://discord.gg/gU44Pmwqkx'>Discord</a> channel.",
+  },
+  {
+    question: "Can I change my plan later?",
+    answer:
+      "Yes, you can upgrade or downgrade your plan at any time from your workspace billing settings. Prorated charges or credits will be applied automatically.",
+  },
+  {
+    question: "What payment methods do you accept?",
+    answer:
+      "We accept all major credit cards, including Visa, Mastercard, and American Express. All payments are processed securely via <a href='https://polar.sh'>Polar</a>.",
+  },
+  {
+    question: "What happens when I downgrade my plan?",
+    answer:
+      "When you downgrade, you'll retain access to paid features until the end of your current billing cycle. Afterward, your workspace will be moved to the Free plan, and some features may become unavailable.",
   },
 ];
