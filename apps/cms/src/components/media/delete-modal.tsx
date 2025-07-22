@@ -1,3 +1,5 @@
+"use client";
+
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -9,48 +11,64 @@ import {
 } from "@marble/ui/components/alert-dialog";
 import { Button } from "@marble/ui/components/button";
 import { toast } from "@marble/ui/components/sonner";
-import { Loader2 } from "lucide-react";
-import { useState } from "react";
-import { deleteMediaAction } from "@/lib/actions/media";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { QUERY_KEYS } from "@/lib/queries/keys";
+import { ButtonLoader } from "../ui/loader";
 
-interface DeleteMediaModalProps {
-  isDeleteDialogOpen: boolean;
-  setIsDeleteDialogOpen: (isOpen: boolean) => void;
+interface DeleteMediaProps {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
   mediaToDelete: string;
-  onDelete: (id: string) => void;
+  onDeleteComplete?: (deletedMediaId: string) => void;
 }
 
 export function DeleteMediaModal({
-  isDeleteDialogOpen,
-  setIsDeleteDialogOpen,
-  onDelete,
+  isOpen,
+  setIsOpen,
   mediaToDelete,
-}: DeleteMediaModalProps) {
-  const [isLoading, setIsLoading] = useState(false);
+  onDeleteComplete,
+}: DeleteMediaProps) {
+  const queryClient = useQueryClient();
 
-  const handleDelete = async () => {
-    try {
-      setIsLoading(true);
-      const result = await deleteMediaAction(mediaToDelete);
-      onDelete(result.id);
-      if (result.success) {
-        toast.success("Image deleted.");
-        setIsDeleteDialogOpen(false);
+  const { mutate: deleteMedia, isPending } = useMutation({
+    mutationFn: async (mediaId: string) => {
+      const response = await fetch("/api/media", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ mediaId }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to delete media");
       }
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to delete");
-    } finally {
-      setIsLoading(false);
-    }
+
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast.success("Media deleted successfully");
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.MEDIA],
+      });
+      if (onDeleteComplete) {
+        onDeleteComplete(data.id);
+      }
+      setIsOpen(false);
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const handleDelete = () => {
+    deleteMedia(mediaToDelete);
   };
 
   return (
     <div>
-      <AlertDialog
-        open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
-      >
+      <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete this image?</AlertDialogTitle>
@@ -65,13 +83,9 @@ export function DeleteMediaModal({
             <Button
               onClick={handleDelete}
               variant="destructive"
-              disabled={isLoading}
+              disabled={isPending}
             >
-              {isLoading ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                "Delete"
-              )}
+              {isPending ? <ButtonLoader variant="destructive" /> : "Delete"}
             </Button>
             {/* </AlertDialogAction> */}
           </AlertDialogFooter>

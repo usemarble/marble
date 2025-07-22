@@ -25,6 +25,7 @@ export const PRICING_PLANS: PricingPlan[] = [
       "2 GB media storage",
       "Up to 10 team members",
       "Unlimited API requests per month",
+      "Image optimization",
       "Readability insights",
       "Keyword optimization suggestions",
     ],

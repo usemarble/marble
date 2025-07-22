@@ -6,6 +6,7 @@ import { Trash2, UploadCloud } from "lucide-react";
 import { useState } from "react";
 import { DeleteMediaModal } from "@/components/media/delete-modal";
 import { MediaUploadModal } from "@/components/media/upload-modal";
+import { QUERY_KEYS } from "@/lib/queries/keys";
 
 type Media = {
   id: string;
@@ -23,7 +24,7 @@ export function MediaGallery({ media }: MediaGalleryProps) {
   const [mediaToDelete, setMediaToDelete] = useState<Media | null>(null);
   const queryClient = useQueryClient();
 
-  const handleUploadComplete = (_url: string, newMedia?: Media) => {
+  const handleUploadComplete = (newMedia?: Media) => {
     if (newMedia) {
       queryClient.setQueryData(["media"], (oldData: Media[] | undefined) => {
         return oldData ? [...oldData, newMedia] : [newMedia];
@@ -32,9 +33,12 @@ export function MediaGallery({ media }: MediaGalleryProps) {
   };
 
   const handleDelete = (id: string) => {
-    queryClient.setQueryData(["media"], (oldData: Media[] | undefined) => {
-      return oldData ? oldData.filter((m) => m.id !== id) : [];
-    });
+    queryClient.setQueryData(
+      [QUERY_KEYS.MEDIA],
+      (oldData: Media[] | undefined) => {
+        return oldData ? oldData.filter((m) => m.id !== id) : [];
+      },
+    );
   };
 
   return (
@@ -87,9 +91,9 @@ export function MediaGallery({ media }: MediaGalleryProps) {
       />
       {mediaToDelete && (
         <DeleteMediaModal
-          isDeleteDialogOpen={showDeleteModal}
-          setIsDeleteDialogOpen={setShowDeleteModal}
-          onDelete={handleDelete}
+          isOpen={showDeleteModal}
+          setIsOpen={setShowDeleteModal}
+          onDeleteComplete={handleDelete}
           mediaToDelete={mediaToDelete.id}
         />
       )}

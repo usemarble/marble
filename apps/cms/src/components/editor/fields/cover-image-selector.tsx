@@ -33,12 +33,11 @@ import {
   Trash,
   Upload,
 } from "@phosphor-icons/react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { type Control, useController } from "react-hook-form";
 import { z } from "zod";
 
-import { uploadMediaAction } from "@/lib/actions/media";
 import type { PostValues } from "@/lib/validations/post";
 
 // URL schema
@@ -68,8 +67,34 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
   const [embedUrl, setEmbedUrl] = useState<string>("");
   const [isValidatingUrl, setIsValidatingUrl] = useState(false);
   const [urlError, setUrlError] = useState<string | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+
+  const { mutate: uploadMedia, isPending: isUploading } = useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/uploads/media", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to upload media");
+      }
+
+      return response.json();
+    },
+    onSuccess: (data) => {
+      onChange(data.url);
+      toast.success("Uploaded successfully!");
+      setFile(undefined);
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
 
   // Fetch media
   const { data: media } = useQuery({
@@ -83,60 +108,7 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
   });
 
   const handleCompressAndUpload = async (fileToUpload: File) => {
-    try {
-      setIsUploading(true);
-      /* toast.loading("Compressing...", {
-        id: "uploading",
-      });
-
-      const formData = new FormData();
-      formData.append("file", fileToUpload);
-
-      const response = await fetch("/api/compress", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("Compression failed");
-      }
-
-      const compressedBlob = await response.blob();
-      const compressedFile = new File(
-        [compressedBlob],
-        fileToUpload.name.replace(/\.[^/.]+$/, ".webp"),
-        {
-          type: "image/webp",
-        },
-      ); */
-
-      toast.loading("Uploading...", {
-        id: "uploading",
-      });
-
-      // Upload to Cloudflare R2
-      const result = await uploadMediaAction(fileToUpload);
-
-      // Set the cover image URL
-      onChange(result.url);
-
-      // Handle successful upload
-      setIsUploading(false);
-      toast.success("Uploaded successfully!", {
-        id: "uploading",
-      });
-
-      setFile(undefined);
-    } catch (error) {
-      console.error("Upload error:", error);
-      toast.error(
-        error instanceof Error ? error.message : "Failed to upload image",
-        {
-          id: "uploading",
-        },
-      );
-      setIsUploading(false);
-    }
+    uploadMedia(fileToUpload);
   };
 
   const handleEmbed = async (url: string) => {

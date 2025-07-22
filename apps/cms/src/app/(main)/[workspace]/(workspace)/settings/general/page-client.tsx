@@ -20,6 +20,7 @@ import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
 import { Copy, Image, UploadSimple } from "@phosphor-icons/react";
+import { useMutation } from "@tanstack/react-query";
 import { Check, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -28,7 +29,6 @@ import { z } from "zod";
 import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
 import { DeleteWorkspaceModal } from "@/components/settings/delete-workspace-modal";
 import { TimezoneSelector } from "@/components/ui/timezone-selector";
-import { uploadWorkspaceLogoAction } from "@/lib/actions/media";
 import {
   checkWorkspaceSlug,
   updateWorkspaceAction,
@@ -58,7 +58,37 @@ function PageClient() {
   const [logoCopied, setLogoCopied] = useState(false);
   const [logoUrl, setLogoUrl] = useState(activeWorkspace?.logo);
   const [file, setFile] = useState<File | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
+
+  const { mutate: uploadLogo, isPending: isUploading } = useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/uploads/logo", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to upload logo");
+      }
+
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setLogoUrl(data.logoUrl);
+      updateActiveWorkspace(activeWorkspace?.slug as string, {
+        logo: data.logoUrl,
+      });
+      toast.success("Uploaded complete");
+      setFile(null);
+    },
+    onError: (error) => {
+      console.error("Upload error:", error);
+      toast.error(error.message);
+    },
+  });
 
   const nameForm = useForm<z.infer<typeof nameSchema>>({
     resolver: zodResolver(nameSchema),
@@ -179,53 +209,7 @@ function PageClient() {
   const handleLogoUpload = async () => {
     if (!file || !isOwner) return;
 
-    try {
-      setIsUploading(true);
-
-      /* const formData = new FormData();
-      formData.append("file", file);
-
-      const response = await fetch("/api/compress", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("Compression failed");
-      }
-
-      const compressedBlob = await response.blob();
-      const compressedFile = new File(
-        [compressedBlob],
-        file.name.replace(/\.[^/.]+$/, ".webp"),
-        {
-          type: "image/webp",
-        },
-      ); */
-
-      const result = await uploadWorkspaceLogoAction(file);
-
-      setLogoUrl(result.logoUrl);
-      updateActiveWorkspace(activeWorkspace?.slug as string, {
-        logo: result.logoUrl,
-      });
-
-      setIsUploading(false);
-      toast.success("Uploaded complete", {
-        id: "uploading",
-      });
-
-      setFile(null);
-    } catch (error) {
-      console.error("Upload error:", error);
-      toast.error(
-        error instanceof Error ? error.message : "Failed to upload image",
-        {
-          id: "uploading",
-        },
-      );
-      setIsUploading(false);
-    }
+    uploadLogo(file);
   };
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: Retrigger the effect when the file changes
@@ -382,7 +366,6 @@ function PageClient() {
                     const file = e.target.files?.[0];
                     if (file && !isUploading && isOwner) {
                       setFile(file);
-                      handleLogoUpload();
                     }
                   }}
                   className="sr-only"

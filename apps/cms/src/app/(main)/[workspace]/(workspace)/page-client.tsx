@@ -1,8 +1,6 @@
 "use client";
 
 import { Button } from "@marble/ui/components/button";
-import { Card, CardContent, CardHeader } from "@marble/ui/components/card";
-import { Skeleton } from "@marble/ui/components/skeleton";
 import Link from "next/link";
 import { useUser } from "@/providers/user";
 
@@ -37,7 +35,7 @@ export default function PageClient() {
       <div className="p-4 flex flex-col flex-1 h-full items-center justify-center">
         <h1 className="text-2xl font-semibold mb-4">
           {isFetchingUser ? (
-            <>{getTimeOfDay()}</>
+            getTimeOfDay()
           ) : (
             <>
               {getTimeOfDay()}, {user?.name}

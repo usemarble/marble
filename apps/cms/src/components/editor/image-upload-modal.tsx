@@ -24,10 +24,10 @@ import {
   Spinner,
   Trash,
 } from "@phosphor-icons/react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEditor } from "novel";
 import { useState } from "react";
-import { uploadMediaAction } from "@/lib/actions/media";
+import { QUERY_KEYS } from "@/lib/queries/keys";
 
 interface MediaResponse {
   id: string;
@@ -43,18 +43,44 @@ interface ImageUploadModalProps {
 export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
   const [embedUrl, setEmbedUrl] = useState("");
   const [file, setFile] = useState<File | undefined>();
-  const [isUploading, setIsUploading] = useState(false);
   const [isValidatingUrl, setIsValidatingUrl] = useState(false);
   const editorInstance = useEditor();
 
+  const { mutate: uploadImage, isPending: isUploading } = useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      const response = await fetch("/api/uploads/media", {
+        method: "POST",
+        body: formData,
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to upload image.");
+      }
+      return response.json();
+    },
+    onSuccess: (data) => {
+      editorInstance.editor?.chain().focus().setImage({ src: data.url }).run();
+      toast.success("Image uploaded successfully.");
+      setIsOpen(false);
+      setFile(undefined);
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
   const handleEmbed = async (url: string) => {
-    if (!url || !editorInstance) return;
+    if (!url || !editorInstance.editor) return;
 
     try {
       setIsValidatingUrl(true);
       const img = new Image();
       img.onload = () => {
-        editorInstance.editor?.chain().focus().setImage({ src: url }).run();
+        if (editorInstance.editor) {
+          editorInstance.editor.chain().focus().setImage({ src: url }).run();
+        }
         setIsOpen(false);
         setEmbedUrl("");
         setIsValidatingUrl(false);
@@ -70,71 +96,14 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
     }
   };
 
-  const handleCompressAndUpload = async (file: File) => {
-    if (!editorInstance) return;
-
-    try {
-      setIsUploading(true);
-      toast.loading("Compressing...", { id: "uploading" });
-
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const response = await fetch("/api/compress", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("Compression failed");
-      }
-
-      const compressedBlob = await response.blob();
-      const compressedFile = new File(
-        [compressedBlob],
-        file.name.replace(/\.[^/.]+$/, ".webp"),
-        {
-          type: "image/webp",
-        },
-      );
-
-      toast.loading("Uploading...", {
-        id: "uploading",
-      });
-
-      // Upload to Cloudflare R2
-      const result = await uploadMediaAction(compressedFile);
-
-      // Insert the image into the editor
-      editorInstance.editor
-        ?.chain()
-        .focus()
-        .setImage({ src: result.url })
-        .run();
-
-      // Handle successful upload
-      setIsUploading(false);
-      toast.success("Uploaded successfully!", {
-        id: "uploading",
-      });
-
-      setIsOpen(false);
-      setFile(undefined);
-    } catch (error) {
-      console.error("Upload error:", error);
-      toast.error(
-        error instanceof Error ? error.message : "Failed to upload image",
-        {
-          id: "uploading",
-        },
-      );
-      setIsUploading(false);
-    }
+  const handleUpload = async (file: File) => {
+    if (!editorInstance.editor) return;
+    uploadImage(file);
   };
 
   // fetch media
   const { data: media } = useQuery({
-    queryKey: ["media"],
+    queryKey: [QUERY_KEYS.MEDIA],
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
       const res = await fetch("/api/media");
@@ -189,7 +158,7 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
                         <span>Remove</span>
                       </Button>
                       <Button
-                        onClick={() => file && handleCompressAndUpload(file)}
+                        onClick={() => file && handleUpload(file)}
                         disabled={isUploading}
                       >
                         {isUploading ? (
