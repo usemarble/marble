@@ -25,7 +25,7 @@ export const postSchema = z.object({
     .min(1, { message: "An author is required" }),
   category: z.string().min(1, { message: "Category is required" }),
   status: z.enum(["published", "unpublished"]),
-  publishedAt: z.date(),
+  publishedAt: z.coerce.date(),
   attribution: attributionSchema.nullable().optional(),
 });
 

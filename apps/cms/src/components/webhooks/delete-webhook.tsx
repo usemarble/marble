@@ -2,6 +2,7 @@
 
 import {
   AlertDialog,
+  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -12,8 +13,9 @@ import {
 } from "@marble/ui/components/alert-dialog";
 import { Button } from "@marble/ui/components/button";
 import { toast } from "@marble/ui/components/sonner";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { deleteWebhookAction } from "@/lib/actions/webhook";
+import { QUERY_KEYS } from "@/lib/queries/keys";
 import { ButtonLoader } from "../ui/loader";
 
 interface DeleteWebhookModalProps {
@@ -29,24 +31,24 @@ export function DeleteWebhookModal({
   onDelete,
   children,
 }: DeleteWebhookModalProps) {
-  const [isDeleting, setIsDeleting] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const queryClient = useQueryClient();
 
-  const handleDelete = async () => {
-    setIsDeleting(true);
-
-    try {
-      await deleteWebhookAction(webhookId);
+  const { mutate: deleteWebhook, isPending } = useMutation({
+    mutationFn: () =>
+      fetch(`/api/webhooks/${webhookId}`, {
+        method: "DELETE",
+      }),
+    onSuccess: () => {
       toast.success("Webhook deleted successfully");
-      onDelete(); // Call the parent callback to update the UI
+      onDelete();
       setIsOpen(false);
-    } catch (error) {
-      console.error("Failed to delete webhook:", error);
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.WEBHOOKS] });
+    },
+    onError: () => {
       toast.error("Failed to delete webhook");
-    } finally {
-      setIsDeleting(false);
-    }
-  };
+    },
+  });
 
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
@@ -64,23 +66,27 @@ export function DeleteWebhookModal({
               associated delivery logs and event history.
             </span>
             <span className="text-blue-600 font-medium">
-              💡 Consider disabling the webhook instead if you might need it
-              later.
+              Consider disabling the webhook instead if you might need it later.
             </span>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting} className="min-w-20">
+          <AlertDialogCancel disabled={isPending} className="min-w-20">
             Cancel
           </AlertDialogCancel>
-          <Button
-            variant="destructive"
-            disabled={isDeleting}
-            onClick={handleDelete}
-            className="min-w-20"
-          >
-            {isDeleting ? <ButtonLoader /> : "Delete webhook"}
-          </Button>
+          <AlertDialogAction asChild>
+            <Button
+              variant="destructive"
+              disabled={isPending}
+              onClick={(e) => {
+                e.preventDefault();
+                deleteWebhook();
+              }}
+              className="min-w-20"
+            >
+              {isPending ? <ButtonLoader /> : "Delete webhook"}
+            </Button>
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

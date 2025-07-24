@@ -12,8 +12,8 @@ import {
 } from "@marble/ui/components/alert-dialog";
 import { Button } from "@marble/ui/components/button";
 import { toast } from "@marble/ui/components/sonner";
-import { useState } from "react";
-import { deletePostAction } from "@/lib/actions/post";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
 import { ButtonLoader } from "../ui/loader";
 
 export const DeletePostModal = ({
@@ -25,20 +25,25 @@ export const DeletePostModal = ({
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   id: string;
 }) => {
-  const [loading, setLoading] = useState(false);
+  const queryClient = useQueryClient();
+  const params = useParams<{ workspace: string }>();
 
-  async function deletePost() {
-    setLoading(true);
-    try {
-      await deletePostAction(id);
+  const { mutate: deletePost, isPending } = useMutation({
+    mutationFn: (postId: string) =>
+      fetch(`/api/posts/${postId}`, {
+        method: "DELETE",
+      }),
+    onSuccess: () => {
       toast.success("Post deleted");
+      queryClient.invalidateQueries({
+        queryKey: ["posts", params.workspace],
+      });
       setOpen(false);
-    } catch (error) {
-      console.error("Delete error:", error);
-    } finally {
-      setLoading(false);
-    }
-  }
+    },
+    onError: () => {
+      toast.error("Failed to delete post.");
+    },
+  });
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
@@ -50,14 +55,17 @@ export const DeletePostModal = ({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
           <AlertDialogAction asChild>
             <Button
-              onClick={deletePost}
-              disabled={loading}
+              onClick={(e) => {
+                e.preventDefault();
+                deletePost(id);
+              }}
+              disabled={isPending}
               variant="destructive"
             >
-              {loading ? <ButtonLoader variant="destructive" /> : "Delete"}
+              {isPending ? <ButtonLoader variant="destructive" /> : "Delete"}
             </Button>
           </AlertDialogAction>
         </AlertDialogFooter>

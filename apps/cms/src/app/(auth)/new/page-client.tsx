@@ -21,10 +21,8 @@ import { Controller, useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
 import { ButtonLoader } from "@/components/ui/loader";
 import { TimezoneSelector } from "@/components/ui/timezone-selector";
-import {
-  checkWorkspaceSlug,
-  createWorkspaceAction,
-} from "@/lib/actions/workspace";
+import { createWorkspaceAction } from "@/lib/actions/workspace";
+import { organization } from "@/lib/auth/client";
 import { timezones } from "@/lib/constants";
 import {
   type CreateWorkspaceValues,
@@ -59,18 +57,24 @@ function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
     }
   }, [name, setValue]);
 
-  async function onSubmit(data: CreateWorkspaceValues) {
-    const slugExists = await checkWorkspaceSlug(data.slug);
-    if (slugExists) {
+  async function onSubmit(payload: CreateWorkspaceValues) {
+    const { data, error } = await organization.checkSlug({
+      slug: payload.slug,
+    });
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    if (!data.status) {
       setError("slug", { message: "This slug is in use" });
       return;
     }
 
     try {
       const workspace = await createWorkspaceAction({
-        name: data.name,
-        slug: data.slug,
-        timezone: data.timezone,
+        name: payload.name,
+        slug: payload.slug,
+        timezone: payload.timezone,
       });
 
       if (workspace) {

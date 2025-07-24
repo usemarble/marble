@@ -29,3 +29,18 @@ export const workspaceSchema = z.object({
     .optional(),
 });
 export type CreateWorkspaceValues = z.infer<typeof workspaceSchema>;
+
+export const nameSchema = z.object({
+  name: z.string().min(1),
+});
+export type NameValues = z.infer<typeof nameSchema>;
+
+export const slugSchema = z.object({
+  slug: z.string().min(1),
+});
+export type SlugValues = z.infer<typeof slugSchema>;
+
+export const timezoneSchema = z.object({
+  timezone: z.enum(timezones as [string, ...string[]]),
+});
+export type TimezoneValues = z.infer<typeof timezoneSchema>;

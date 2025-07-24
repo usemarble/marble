@@ -9,17 +9,16 @@ import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { updateUserAction } from "@/lib/actions/account";
 import { type ProfileData, profileSchema } from "@/lib/validations/settings";
+import { useUser } from "@/providers/user";
 import { ErrorMessage } from "../auth/error-message";
 
 interface AccountFormProps {
   email: string;
   name: string;
-  id: string;
 }
 
-function AccountForm({ name, email, id }: AccountFormProps) {
+function AccountForm({ name, email }: AccountFormProps) {
   const {
     register,
     handleSubmit,
@@ -32,10 +31,11 @@ function AccountForm({ name, email, id }: AccountFormProps) {
 
   const [dataChanged, setDataChanged] = useState(false);
   const router = useRouter();
+  const { updateUser } = useUser();
 
   const onSubmit = async (formData: ProfileData) => {
     try {
-      await updateUserAction(formData, id);
+      await updateUser(formData);
       toast.success("Account details updated");
       router.refresh();
     } catch (error) {

@@ -4,6 +4,7 @@ import { Button } from "@marble/ui/components/button";
 import { Images } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { UploadCloud } from "lucide-react";
+import { useParams } from "next/navigation";
 import { useState } from "react";
 import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
 import { MediaGallery } from "@/components/media/media-gallery";
@@ -17,10 +18,11 @@ type Media = {
 };
 
 function PageClient() {
+  const params = useParams<{ workspace: string }>();
   const [showUploadModal, setShowUploadModal] = useState(false);
 
   const { data: media, isLoading } = useQuery({
-    queryKey: ["media"],
+    queryKey: ["media", params.workspace],
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
       const res = await fetch("/api/media");

@@ -40,25 +40,6 @@ export async function createWorkspaceAction(payload: CreateWorkspaceValues) {
   return workspace;
 }
 
-export async function checkWorkspaceSlug(
-  slug: string,
-  currentWorkspaceId?: string,
-) {
-  const session = await getServerSession();
-  if (!session?.user) {
-    throw new Error("Unauthorized");
-  }
-
-  const workspace = await db.organization.findFirst({
-    where: {
-      slug,
-      NOT: currentWorkspaceId ? { id: currentWorkspaceId } : undefined,
-    },
-  });
-
-  return !!workspace; // Return true if slug is in use (workspace found)
-}
-
 export async function updateWorkspaceAction(
   workspaceId: string,
   payload: CreateWorkspaceValues,

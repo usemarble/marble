@@ -6,6 +6,7 @@ import type React from "react";
 import { createContext, useContext, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { authClient, useSession } from "@/lib/auth/client";
+import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { UserContextType, UserProfile } from "@/types/user";
 import { request } from "@/utils/fetch/client";
 
@@ -36,7 +37,8 @@ export function UserProvider({
     // Only clear user data if session is explicitly null and we're not still loading
     if (!session && !isSessionPending && !isSigningOut) {
       setUser(null);
-      queryClient.removeQueries({ queryKey: ["currentUser"] });
+      queryClient.removeQueries({ queryKey: [QUERY_KEYS.USER] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USER] });
     }
   }, [session, isSessionPending, isSigningOut, queryClient]);
 
@@ -48,7 +50,7 @@ export function UserProvider({
   };
 
   const { isLoading: isFetchingUser } = useQuery({
-    queryKey: ["currentUser"],
+    queryKey: [QUERY_KEYS.USER],
     queryFn: fetchCurrentUser,
     enabled:
       // Only fetch if:
@@ -72,11 +74,11 @@ export function UserProvider({
       },
       onSuccess: (data) => {
         setUser(data);
-        toast.success("Profile updated successfully");
-        queryClient.setQueryData(["currentUser"], data);
+        toast.success("Profile updated");
+        queryClient.setQueryData([QUERY_KEYS.USER], data);
+        queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USER] });
       },
       onError: (_error) => {
-        // console.error(error);
         toast.error("Failed to update profile");
       },
     },
@@ -94,7 +96,7 @@ export function UserProvider({
     try {
       await authClient.signOut();
       setUser(null);
-      queryClient.removeQueries({ queryKey: ["currentUser"] });
+      queryClient.removeQueries({ queryKey: [QUERY_KEYS.USER] });
       router.push("/login");
     } catch (error) {
       console.error("Failed to sign out:", error);

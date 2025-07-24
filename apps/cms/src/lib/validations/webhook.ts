@@ -40,6 +40,12 @@ export const webhookSchema = z.object({
 
 export type WebhookFormValues = z.infer<typeof webhookSchema>;
 
+export const webhookToggleSchema = z.object({
+  enabled: z.boolean(),
+});
+
+export type WebhookToggleValues = z.infer<typeof webhookToggleSchema>;
+
 export type WebhookEvent = z.infer<typeof webhookEventEnum>;
 export type PayloadFormat = z.infer<typeof payloadFormatEnum>;
 

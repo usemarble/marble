@@ -15,7 +15,7 @@ function PageClient() {
   const params = useParams<{ workspace: string }>();
 
   const { data: posts, isLoading } = useQuery({
-    queryKey: ["posts"],
+    queryKey: ["posts", params.workspace],
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
       const res = await fetch("/api/posts");

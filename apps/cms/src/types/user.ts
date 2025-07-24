@@ -9,6 +9,7 @@ export interface UserProfile extends Omit<User, "emailVerified"> {
   createdAt: Date;
   updatedAt: Date;
   workspaceRole: string | null;
+  // accountId: string | null;
   activeWorkspace: {
     id: string;
     name: string;

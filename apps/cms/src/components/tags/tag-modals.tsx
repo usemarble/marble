@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   AlertDialog,
+  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -20,16 +21,14 @@ import {
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
-import { useEffect, useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
 import {
   checkTagSlugAction,
   checkTagSlugForUpdateAction,
-  createTagAction,
-  deleteTagAction,
-  updateTagAction,
-} from "@/lib/actions/tag";
+} from "@/lib/actions/checks";
 import { useActiveOrganization } from "@/lib/auth/client";
 import { type CreateTagValues, tagSchema } from "@/lib/validations/workspace";
 import { useWorkspace } from "@/providers/workspace";
@@ -48,6 +47,7 @@ export function CreateTagModal({
   setOpen,
   onTagCreated,
 }: CreateTagModalProps) {
+  const queryClient = useQueryClient();
   const {
     register,
     handleSubmit,
@@ -62,6 +62,30 @@ export function CreateTagModal({
 
   const { name } = watch();
   const { data: activeOrganization } = useActiveOrganization();
+
+  const { mutate: createTag } = useMutation({
+    mutationFn: (data: CreateTagValues) =>
+      fetch("/api/tags", {
+        method: "POST",
+        body: JSON.stringify(data),
+      }).then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to create tag");
+        }
+        return res.json();
+      }),
+    onSuccess: (data) => {
+      onTagCreated?.(data);
+      setOpen(false);
+      toast.success("Tag created successfully");
+      queryClient.invalidateQueries({
+        queryKey: ["tags", activeOrganization?.id],
+      });
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
 
   useEffect(() => {
     setValue("slug", generateSlug(name));
@@ -80,23 +104,7 @@ export function CreateTagModal({
       return;
     }
 
-    try {
-      const newTag = await createTagAction(data, activeOrganization.id);
-
-      if (newTag) {
-        onTagCreated?.({
-          id: newTag.id,
-          name: newTag.name,
-          slug: newTag.slug,
-        });
-        setOpen(false);
-        toast.success("Tag created successfully");
-      } else {
-        toast.error("Failed to create tag");
-      }
-    } catch (_error) {
-      toast.error("Something went wrong");
-    }
+    createTag(data);
   };
 
   return (
@@ -153,6 +161,7 @@ export const UpdateTagModal = ({
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   tagData: Tag;
 }) => {
+  const queryClient = useQueryClient();
   const {
     register,
     handleSubmit,
@@ -168,6 +177,29 @@ export const UpdateTagModal = ({
   const { name } = watch();
 
   const { activeWorkspace } = useWorkspace();
+
+  const { mutate: updateTag } = useMutation({
+    mutationFn: (data: CreateTagValues) =>
+      fetch(`/api/tags/${tagData.id}`, {
+        method: "PATCH",
+        body: JSON.stringify(data),
+      }).then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to update tag");
+        }
+        return res.json();
+      }),
+    onSuccess: () => {
+      setOpen(false);
+      toast.success("Tag updated successfully");
+      queryClient.invalidateQueries({
+        queryKey: ["tags", activeWorkspace?.slug],
+      });
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
 
   useEffect(() => {
     setValue("slug", generateSlug(name));
@@ -185,15 +217,7 @@ export const UpdateTagModal = ({
       return;
     }
 
-    try {
-      const res = await updateTagAction(data, tagData.id);
-      if (!res) {
-        setOpen(false);
-        toast.success("Tag updated successfully");
-      }
-    } catch (_error) {
-      toast.error("Failed to update tag");
-    }
+    updateTag(data);
   };
 
   return (
@@ -247,20 +271,25 @@ export const DeleteTagModal = ({
   id: string;
   name: string;
 }) => {
-  const [loading, setLoading] = useState(false);
+  const queryClient = useQueryClient();
+  const { activeWorkspace } = useWorkspace();
 
-  async function deleteTag() {
-    setLoading(true);
-    try {
-      await deleteTagAction(id);
+  const { mutate: deleteTag, isPending } = useMutation({
+    mutationFn: () =>
+      fetch(`/api/tags/${id}`, {
+        method: "DELETE",
+      }),
+    onSuccess: () => {
       toast.success("Tag deleted successfully");
-    } catch (_error) {
-      toast.error("Failed to delete tag.");
-    } finally {
-      setLoading(false);
+      queryClient.invalidateQueries({
+        queryKey: ["tags", activeWorkspace?.id],
+      });
       setOpen(false);
-    }
-  }
+    },
+    onError: () => {
+      toast.error("Failed to delete tag.");
+    },
+  });
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
@@ -273,12 +302,24 @@ export const DeleteTagModal = ({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={() => setOpen(false)}>
+          <AlertDialogCancel
+            onClick={() => setOpen(false)}
+            disabled={isPending}
+          >
             Cancel
           </AlertDialogCancel>
-          <Button onClick={deleteTag} disabled={loading} variant="destructive">
-            {loading ? <ButtonLoader variant="destructive" /> : "Delete"}
-          </Button>
+          <AlertDialogAction asChild>
+            <Button
+              onClick={(e) => {
+                e.preventDefault();
+                deleteTag();
+              }}
+              disabled={isPending}
+              variant="destructive"
+            >
+              {isPending ? <ButtonLoader variant="destructive" /> : "Delete"}
+            </Button>
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

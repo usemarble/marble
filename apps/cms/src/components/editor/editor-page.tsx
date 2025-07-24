@@ -10,6 +10,7 @@ import {
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
 import { ArrowElbowUpLeft, SidebarSimple } from "@phosphor-icons/react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import type { JSONContent } from "novel";
@@ -18,8 +19,6 @@ import { useForm } from "react-hook-form";
 import { Editor } from "@/components/editor/editor";
 import { EditorSidebar } from "@/components/editor/editor-sidebar";
 import { HiddenScrollbar } from "@/components/editor/hidden-scrollbar";
-import { createPostAction, updatePostAction } from "@/lib/actions/post";
-// import { emptyPost } from "@/lib/data/post";
 import { type PostValues, postSchema } from "@/lib/validations/post";
 import { useUnsavedChanges } from "@/providers/unsaved-changes";
 import { sanitizeHtml } from "@/utils/editor";
@@ -38,6 +37,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
   const [showSettings, setShowSettings] = useState(false);
   const { setHasUnsavedChanges } = useUnsavedChanges();
   const initialDataRef = useRef<PostValues>(initialData);
+  const queryClient = useQueryClient();
 
   const isUpdateMode = !!id;
 
@@ -53,8 +53,54 @@ function EditorPage({ initialData, id }: EditorPageProps) {
     setValue,
     clearErrors,
     control,
-    formState: { isSubmitting, errors },
+    formState: { errors },
   } = form;
+
+  const { mutate: createPost, isPending: isCreating } = useMutation({
+    mutationFn: (values: PostValues) =>
+      fetch("/api/posts", {
+        method: "POST",
+        body: JSON.stringify(values),
+      }).then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to create post");
+        }
+        return res.json();
+      }),
+    onSuccess: (data) => {
+      toast.success("Post created");
+      router.push(`/${params.workspace}/editor/p/${data.id}`);
+      queryClient.invalidateQueries({
+        queryKey: ["posts", params.workspace],
+      });
+      setHasUnsavedChanges(false);
+    },
+    onError: () => {
+      toast.error("Something went wrong.");
+    },
+  });
+
+  const { mutate: updatePost, isPending: isUpdating } = useMutation({
+    mutationFn: (values: PostValues) =>
+      fetch(`/api/posts/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(values),
+      }),
+    onSuccess: async (_data, variables) => {
+      toast.success("Post updated");
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["posts", params.workspace],
+        }),
+        queryClient.invalidateQueries({ queryKey: ["post", id] }),
+      ]);
+      form.reset({ ...variables });
+      setHasUnsavedChanges(false);
+    },
+    onError: () => {
+      toast.error("Something went wrong.");
+    },
+  });
 
   useEffect(() => {
     // Reset form if initialData changes (e.g., navigating between posts or from new to edit)
@@ -100,20 +146,11 @@ function EditorPage({ initialData, id }: EditorPageProps) {
     setValue("contentJson", JSON.stringify(json));
   };
 
-  async function onSubmit(values: PostValues) {
-    try {
-      if (isUpdateMode && id) {
-        await updatePostAction(values, id);
-        toast.success("Post updated");
-      } else {
-        const res = await createPostAction(values);
-        toast.success("Post created");
-        router.push(`/${params.workspace}/editor/p/${res}`);
-      }
-      form.reset({ ...values });
-      setHasUnsavedChanges(false);
-    } catch {
-      toast.error("Something went wrong.");
+  function onSubmit(values: PostValues) {
+    if (isUpdateMode && id) {
+      updatePost(values);
+    } else {
+      createPost(values);
     }
   }
 
@@ -213,7 +250,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
         control={control}
         formRef={formRef}
         watch={watch}
-        isSubmitting={isSubmitting}
+        isSubmitting={isCreating || isUpdating}
         isOpen={showSettings}
         setIsOpen={setShowSettings}
         mode={isUpdateMode ? "update" : "create"}
@@ -221,5 +258,4 @@ function EditorPage({ initialData, id }: EditorPageProps) {
     </>
   );
 }
-
 export default EditorPage;

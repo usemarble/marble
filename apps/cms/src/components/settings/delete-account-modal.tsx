@@ -1,5 +1,6 @@
 import {
   AlertDialog,
+  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -9,29 +10,36 @@ import {
   AlertDialogTrigger,
 } from "@marble/ui/components/alert-dialog";
 import { Button } from "@marble/ui/components/button";
-import { useState } from "react";
+import { toast } from "@marble/ui/components/sonner";
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useUser } from "@/providers/user";
 import { ButtonLoader } from "../ui/loader";
 
 export function DeleteAccountModal() {
-  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const router = useRouter();
+  const { signOut } = useUser();
 
-  const handleDeleteAccount = async () => {
-    setIsDeletingAccount(true);
+  const accountId = null;
 
-    // try {
-    //   await deleteAccountAction(id);
-
-    //   // ideally on delete of a user sessions and related table should cascade
-    //   // im not sure however i will have to test later for now lets assume it is
-    //   // await authClient.signOut();
-    //   router.push("/");
-    // } catch (error) {
-    //   console.error("Failed to delete account:", error);
-    //   toast.error("Failed to delete account.");
-    // } finally {
-    //   setIsDeletingAccount(false);
-    // }
-  };
+  const { mutate: deleteAccount, isPending } = useMutation({
+    mutationFn: () => {
+      if (!accountId) {
+        throw new Error("Account ID is missing");
+      }
+      return fetch(`/api/accounts/${accountId}`, {
+        method: "DELETE",
+      });
+    },
+    onSuccess: async () => {
+      toast.success("Account deleted successfully.");
+      signOut();
+      router.push("/");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to delete account.");
+    },
+  });
 
   return (
     <AlertDialog>
@@ -50,22 +58,29 @@ export function DeleteAccountModal() {
           todo: show confirmation inputs
        </form> */}
         <AlertDialogFooter>
-          <AlertDialogCancel className="min-w-20">Cancel</AlertDialogCancel>
-          <Button
-            variant="destructive"
-            disabled={isDeletingAccount}
-            onClick={handleDeleteAccount}
-            className="min-w-20"
-          >
-            {isDeletingAccount ? (
-              <ButtonLoader
-                variant="destructive"
-                className="size-4 animate-spin"
-              />
-            ) : (
-              "Delete"
-            )}
-          </Button>
+          <AlertDialogCancel className="min-w-20" disabled={isPending}>
+            Cancel
+          </AlertDialogCancel>
+          <AlertDialogAction asChild>
+            <Button
+              variant="destructive"
+              disabled={isPending}
+              onClick={(e) => {
+                e.preventDefault();
+                deleteAccount();
+              }}
+              className="min-w-20"
+            >
+              {isPending ? (
+                <ButtonLoader
+                  variant="destructive"
+                  className="size-4 animate-spin"
+                />
+              ) : (
+                "Delete"
+              )}
+            </Button>
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

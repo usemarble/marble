@@ -41,7 +41,7 @@ export async function sendInviteEmailAction({
 
   try {
     const response = await resend.emails.send({
-      from: "Marble <system@marblecms.com>",
+      from: "Marble <emails@marblecms.com>",
       to: inviteeEmail,
       subject: `Join ${workspaceName} on Marble`,
       react: InviteUserEmail({
@@ -88,7 +88,7 @@ export async function sendVerificationEmailAction({
   console.log("called verification email");
   try {
     const response = await resend.emails.send({
-      from: "Verification <system@marblecms.com>",
+      from: "Verification <emails@marblecms.com>",
       to: userEmail,
       subject: "Verify your email address",
       react: VerifyUserEmail({

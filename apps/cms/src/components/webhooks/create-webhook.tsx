@@ -28,16 +28,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { UpgradeModal } from "@/components/billing/upgrade-modal";
 import { usePlan } from "@/hooks/use-plan";
-import {
-  createWebhookAction,
-  generateWebhookSecretAction,
-} from "@/lib/actions/webhook";
+import { QUERY_KEYS } from "@/lib/queries/keys";
 import {
   type WebhookEvent,
   type WebhookFormValues,
@@ -52,7 +50,7 @@ interface CreateWebhookSheetProps {
 
 function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isGeneratingSecret, setIsGeneratingSecret] = useState(false);
+  const queryClient = useQueryClient();
 
   const {
     register,
@@ -60,7 +58,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
     setValue,
     watch,
     reset,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<WebhookFormValues>({
     resolver: zodResolver(webhookSchema),
     defaultValues: {
@@ -76,22 +74,43 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
 
   const router = useRouter();
 
-  const handleGenerateSecret = async () => {
-    setIsGeneratingSecret(true);
-    try {
-      const result = await generateWebhookSecretAction();
-      if (result.success && result.secret) {
-        setValue("secret", result.secret);
-        toast.success("Secret generated successfully");
-      } else {
+  const { mutate: generateSecret, isPending: isGeneratingSecret } = useMutation(
+    {
+      mutationFn: () =>
+        fetch("/api/webhooks/secret", {
+          method: "POST",
+        }).then((res) => res.json()),
+      onSuccess: (data) => {
+        if (data.success && data.secret) {
+          setValue("secret", data.secret);
+          toast.success("Secret generated successfully");
+        } else {
+          toast.error("Failed to generate secret");
+        }
+      },
+      onError: () => {
         toast.error("Failed to generate secret");
-      }
-    } catch (_error) {
-      toast.error("Failed to generate secret");
-    } finally {
-      setIsGeneratingSecret(false);
-    }
-  };
+      },
+    },
+  );
+
+  const { mutate: createWebhook, isPending: isCreating } = useMutation({
+    mutationFn: (data: WebhookFormValues) =>
+      fetch("/api/webhooks", {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
+    onSuccess: () => {
+      toast.success("Webhook created successfully");
+      reset();
+      setIsOpen(false);
+      void queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.WEBHOOKS] });
+      router.refresh();
+    },
+    onError: () => {
+      toast.error("Failed to create webhook");
+    },
+  });
 
   const handleEventToggle = (eventId: WebhookEvent, checked: boolean) => {
     const currentEvents = watchedEvents || [];
@@ -105,17 +124,8 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
     }
   };
 
-  const onSubmit = async (data: WebhookFormValues) => {
-    try {
-      await createWebhookAction(data);
-      toast.success("Webhook created successfully");
-      reset();
-      setIsOpen(false);
-      router.refresh();
-    } catch (error) {
-      console.error("Failed to create webhook:", error);
-      toast.error("Failed to create webhook");
-    }
+  const onSubmit = (data: WebhookFormValues) => {
+    createWebhook(data);
   };
 
   return (
@@ -208,7 +218,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={handleGenerateSecret}
+                    onClick={() => generateSecret()}
                     disabled={isGeneratingSecret}
                   >
                     {isGeneratingSecret ? <ButtonLoader /> : "Generate"}
@@ -272,8 +282,8 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
           </div>
 
           <SheetFooter className="flex-col sm:flex-row gap-2 pt-3 pb-0 mt-auto">
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? <ButtonLoader /> : "Create webhook"}
+            <Button type="submit" disabled={isCreating}>
+              {isCreating ? <ButtonLoader /> : "Create webhook"}
             </Button>
           </SheetFooter>
         </form>

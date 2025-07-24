@@ -1,7 +1,7 @@
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
-import type { Attribution } from "@/lib/validations/post";
+import { type Attribution, postSchema } from "@/lib/validations/post";
 
 export async function GET(
   _request: Request,
@@ -58,4 +58,85 @@ export async function GET(
   };
 
   return NextResponse.json(structuredData, { status: 200 });
+}
+
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const session = await getServerSession();
+  const user = session?.user;
+
+  if (!user)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session?.session.activeOrganizationId)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { id } = await params;
+  const body = await request.json();
+
+  const values = postSchema.parse(body);
+
+  const contentJson = JSON.parse(values.contentJson);
+  const validAttribution = values.attribution ? values.attribution : undefined;
+
+  try {
+    const postUpdated = await db.post.update({
+      where: { id },
+      data: {
+        contentJson,
+        slug: values.slug,
+        title: values.title,
+        status: values.status,
+        content: values.content,
+        categoryId: values.category,
+        coverImage: values.coverImage,
+        description: values.description,
+        publishedAt: values.publishedAt,
+        attribution: validAttribution,
+        workspaceId: session?.session.activeOrganizationId,
+        tags: {
+          set: [],
+          connect: values.tags.map((id: string) => ({ id })),
+        },
+        authors: {
+          set: [],
+          connect: values.authors.map((id: string) => ({ id })),
+        },
+      },
+    });
+
+    return NextResponse.json({ id: postUpdated.id }, { status: 200 });
+  } catch (_e) {
+    return NextResponse.json(
+      { error: "Failed to update post" },
+      { status: 500 },
+    );
+  }
+}
+
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const session = await getServerSession();
+
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { id } = await params;
+
+  try {
+    const deletedPost = await db.post.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({ id: deletedPost.id }, { status: 200 });
+  } catch (_e) {
+    return NextResponse.json(
+      { error: "Failed to delete post" },
+      { status: 500 },
+    );
+  }
 }

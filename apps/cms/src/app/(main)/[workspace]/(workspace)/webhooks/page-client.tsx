@@ -18,17 +18,20 @@ import {
 import { Separator } from "@marble/ui/components/separator";
 import { toast } from "@marble/ui/components/sonner";
 import { Switch } from "@marble/ui/components/switch";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Copy, MoreHorizontal, Trash2, WebhookIcon } from "lucide-react";
-import { useState } from "react";
+import { useParams } from "next/navigation";
 import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
+import PageLoader from "@/components/shared/page-loader";
 import { WebhookButton } from "@/components/webhooks/create-webhook";
 import { DeleteWebhookModal } from "@/components/webhooks/delete-webhook";
-import { toggleWebhookAction } from "@/lib/actions/webhook";
+import { QUERY_KEYS } from "@/lib/queries/keys";
 
 type Webhook = {
   id: string;
   name: string;
   endpoint: string;
+  secret: string;
   events: string[];
   enabled: boolean;
   format: string;
@@ -36,17 +39,67 @@ type Webhook = {
   updatedAt: Date;
 };
 
-interface PageClientProps {
-  webhooks: Webhook[];
-}
+export function PageClient() {
+  const params = useParams<{ workspace: string }>();
+  const queryClient = useQueryClient();
 
-export function PageClient({ webhooks: initialWebhooks }: PageClientProps) {
-  const [webhooks, setWebhooks] = useState(initialWebhooks);
-  const [loadingStates, setLoadingStates] = useState<{
-    [key: string]: boolean;
-  }>({});
+  const { data: webhooks, isLoading } = useQuery<Webhook[]>({
+    queryKey: [QUERY_KEYS.WEBHOOKS, params.workspace],
+    queryFn: () => fetch("/api/webhooks").then((res) => res.json()),
+  });
 
-  if (webhooks.length === 0) {
+  const {
+    mutate: toggleWebhook,
+    variables: toggleVariables,
+    isPending: isToggling,
+  } = useMutation({
+    mutationFn: async ({ id, enabled }: { id: string; enabled: boolean }) =>
+      fetch(`/api/webhooks/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ enabled }),
+      }),
+    onMutate: async (newWebhookData) => {
+      await queryClient.cancelQueries({
+        queryKey: [QUERY_KEYS.WEBHOOKS, params.workspace],
+      });
+      const previousWebhooks = queryClient.getQueryData<Webhook[]>([
+        QUERY_KEYS.WEBHOOKS,
+        params.workspace,
+      ]);
+
+      queryClient.setQueryData<Webhook[]>(
+        [QUERY_KEYS.WEBHOOKS, params.workspace],
+        (old) =>
+          old?.map((webhook) =>
+            webhook.id === newWebhookData.id
+              ? { ...webhook, enabled: newWebhookData.enabled }
+              : webhook,
+          ) ?? [],
+      );
+
+      return { previousWebhooks };
+    },
+    onError: (_err, _newWebhook, context) => {
+      if (context?.previousWebhooks) {
+        queryClient.setQueryData(
+          [QUERY_KEYS.WEBHOOKS, params.workspace],
+          context.previousWebhooks,
+        );
+      }
+      toast.error("Failed to update");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.WEBHOOKS, params.workspace],
+      });
+    },
+  });
+
+  if (isLoading) {
+    return <PageLoader />;
+  }
+
+  if (webhooks?.length === 0) {
     return (
       <WorkspacePageWrapper className="h-full grid place-content-center">
         <div className="flex flex-col gap-4 items-center max-w-80">
@@ -65,30 +118,9 @@ export function PageClient({ webhooks: initialWebhooks }: PageClientProps) {
     );
   }
 
-  const handleCopyEndpoint = (endpoint: string) => {
-    navigator.clipboard.writeText(endpoint);
-    toast.success("Endpoint copied to clipboard");
-  };
-
-  const handleToggleWebhook = async (id: string, enabled: boolean) => {
-    setLoadingStates((prev) => ({ ...prev, [id]: true }));
-    try {
-      await toggleWebhookAction(id, enabled);
-      setWebhooks((prev) =>
-        prev.map((webhook) =>
-          webhook.id === id ? { ...webhook, enabled } : webhook,
-        ),
-      );
-      toast.success(`Webhook ${enabled ? "enabled" : "disabled"}`);
-    } catch (_error) {
-      toast.error("Failed to update webhook");
-    } finally {
-      setLoadingStates((prev) => ({ ...prev, [id]: false }));
-    }
-  };
-
-  const handleWebhookDeleted = (deletedId: string) => {
-    setWebhooks((prev) => prev.filter((webhook) => webhook.id !== deletedId));
+  const handleCopySecret = (secret: string) => {
+    navigator.clipboard.writeText(secret);
+    toast.success("Secret copied to clipboard");
   };
 
   return (
@@ -104,7 +136,7 @@ export function PageClient({ webhooks: initialWebhooks }: PageClientProps) {
         </div>
 
         <div className="grid gap-4">
-          {webhooks.map((webhook) => (
+          {webhooks?.map((webhook) => (
             <Card key={webhook.id}>
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
@@ -113,9 +145,11 @@ export function PageClient({ webhooks: initialWebhooks }: PageClientProps) {
                     <Switch
                       checked={webhook.enabled}
                       onCheckedChange={(checked) =>
-                        handleToggleWebhook(webhook.id, checked)
+                        toggleWebhook({ id: webhook.id, enabled: checked })
                       }
-                      disabled={loadingStates[webhook.id]}
+                      disabled={
+                        isToggling && toggleVariables?.id === webhook.id
+                      }
                     />
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -125,16 +159,20 @@ export function PageClient({ webhooks: initialWebhooks }: PageClientProps) {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
-                          onClick={() => handleCopyEndpoint(webhook.endpoint)}
+                          onClick={() => handleCopySecret(webhook.secret)}
                         >
                           <Copy className="size-4 mr-2" />
-                          Copy endpoint
+                          Copy secret
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DeleteWebhookModal
                           webhookId={webhook.id}
                           webhookName={webhook.name}
-                          onDelete={() => handleWebhookDeleted(webhook.id)}
+                          onDelete={() =>
+                            queryClient.invalidateQueries({
+                              queryKey: [QUERY_KEYS.WEBHOOKS, params.workspace],
+                            })
+                          }
                         >
                           <DropdownMenuItem
                             className="text-destructive"
@@ -178,7 +216,9 @@ export function PageClient({ webhooks: initialWebhooks }: PageClientProps) {
 
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
                   <span>Format: {webhook.format}</span>
-                  <span>Created {webhook.createdAt.toLocaleDateString()}</span>
+                  <span>
+                    Created {new Date(webhook.createdAt).toLocaleDateString()}
+                  </span>
                 </div>
               </CardContent>
             </Card>

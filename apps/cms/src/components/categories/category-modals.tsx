@@ -21,16 +21,14 @@ import {
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
-import { useEffect, useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
 import {
   checkCategorySlugAction,
   checkCategorySlugForUpdateAction,
-  createCategoryAction,
-  deleteCategoryAction,
-  updateCategoryAction,
-} from "@/lib/actions/category";
+} from "@/lib/actions/checks";
 import {
   type CreateCategoryValues,
   categorySchema,
@@ -53,6 +51,7 @@ export const CreateCategoryModal = ({
     slug: string;
   }) => void;
 }) => {
+  const queryClient = useQueryClient();
   const {
     register,
     handleSubmit,
@@ -68,6 +67,32 @@ export const CreateCategoryModal = ({
   const { name } = watch();
   const { activeWorkspace } = useWorkspace();
 
+  const { mutate: createCategory } = useMutation({
+    mutationFn: (data: CreateCategoryValues) =>
+      fetch("/api/categories", {
+        method: "POST",
+        body: JSON.stringify(data),
+      }).then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to create category");
+        }
+        return res.json();
+      }),
+    onSuccess: (data) => {
+      setOpen(false);
+      toast.success("Category created successfully");
+      void queryClient.invalidateQueries({
+        queryKey: ["categories", activeWorkspace?.slug],
+      });
+      if (onCategoryCreated) {
+        onCategoryCreated(data);
+      }
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
   useEffect(() => {
     setValue("slug", generateSlug(name));
   }, [name, setValue]);
@@ -82,23 +107,10 @@ export const CreateCategoryModal = ({
       setError("slug", {
         message: "You already have a category with that slug",
       });
+      return;
     }
 
-    try {
-      const res = await createCategoryAction(
-        data,
-        activeWorkspace?.id as string,
-      );
-      if (res) {
-        setOpen(false);
-        toast.success("Category created successfully");
-        if (onCategoryCreated) {
-          onCategoryCreated(res);
-        }
-      }
-    } catch (_error) {
-      toast.error("Failed to create category");
-    }
+    createCategory(data);
   };
 
   return (
@@ -155,6 +167,7 @@ export const UpdateCategoryModal = ({
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   categoryData: Category;
 }) => {
+  const queryClient = useQueryClient();
   const {
     register,
     handleSubmit,
@@ -170,6 +183,29 @@ export const UpdateCategoryModal = ({
   const { name } = watch();
 
   const { activeWorkspace } = useWorkspace();
+
+  const { mutate: updateCategory } = useMutation({
+    mutationFn: (data: CreateCategoryValues) =>
+      fetch(`/api/categories/${categoryData.id}`, {
+        method: "PATCH",
+        body: JSON.stringify(data),
+      }).then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to update category");
+        }
+        return res.json();
+      }),
+    onSuccess: () => {
+      setOpen(false);
+      toast.success("Category updated successfully");
+      void queryClient.invalidateQueries({
+        queryKey: ["categories", activeWorkspace?.slug],
+      });
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
 
   useEffect(() => {
     setValue("slug", generateSlug(name));
@@ -189,15 +225,7 @@ export const UpdateCategoryModal = ({
       return;
     }
 
-    try {
-      const res = await updateCategoryAction(data, categoryData.id);
-      if (!res) {
-        setOpen(false);
-        toast.success("Category updated successfully");
-      }
-    } catch (_error) {
-      toast.error("Failed to update category");
-    }
+    updateCategory(data);
   };
 
   return (
@@ -251,19 +279,25 @@ export const DeleteCategoryModal = ({
   id: string;
   name: string;
 }) => {
-  const [loading, setLoading] = useState(false);
+  const queryClient = useQueryClient();
+  const { activeWorkspace } = useWorkspace();
 
-  async function deleteCategory() {
-    setLoading(true);
-    try {
-      await deleteCategoryAction(id);
+  const { mutate: deleteCategory, isPending } = useMutation({
+    mutationFn: () =>
+      fetch(`/api/categories/${id}`, {
+        method: "DELETE",
+      }),
+    onSuccess: () => {
       toast.success("Category deleted successfully");
+      void queryClient.invalidateQueries({
+        queryKey: ["categories", activeWorkspace?.id],
+      });
       setOpen(false);
-    } catch (_error) {
+    },
+    onError: () => {
       toast.error("Failed to delete category.");
-      setLoading(false);
-    }
-  }
+    },
+  });
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
@@ -276,14 +310,17 @@ export const DeleteCategoryModal = ({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
           <AlertDialogAction asChild>
             <Button
-              onClick={deleteCategory}
-              disabled={loading}
+              onClick={(e) => {
+                e.preventDefault();
+                deleteCategory();
+              }}
+              disabled={isPending}
               variant="destructive"
             >
-              {loading ? <ButtonLoader variant="destructive" /> : "Delete"}
+              {isPending ? <ButtonLoader variant="destructive" /> : "Delete"}
             </Button>
           </AlertDialogAction>
         </AlertDialogFooter>

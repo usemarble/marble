@@ -21,7 +21,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useState } from "react";
 
 interface DataTableProps<TData, TValue> {
@@ -34,7 +34,6 @@ export function PostDataTable<TData, TValue>({
   data,
 }: DataTableProps<TData, TValue>) {
   const [sorting, _setSorting] = useState<SortingState>([]);
-  const _router = useRouter();
   const params = useParams<{ workspace: string }>();
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);

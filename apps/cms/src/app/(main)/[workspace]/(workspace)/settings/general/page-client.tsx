@@ -25,28 +25,22 @@ import { Check, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import type { z } from "zod";
 import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
 import { DeleteWorkspaceModal } from "@/components/settings/delete-workspace-modal";
 import { TimezoneSelector } from "@/components/ui/timezone-selector";
-import {
-  checkWorkspaceSlug,
-  updateWorkspaceAction,
-} from "@/lib/actions/workspace";
+import { updateWorkspaceAction } from "@/lib/actions/workspace";
+import { organization } from "@/lib/auth/client";
 import { timezones } from "@/lib/constants";
+import {
+  type NameValues,
+  nameSchema,
+  type SlugValues,
+  slugSchema,
+  type TimezoneValues,
+  timezoneSchema,
+} from "@/lib/validations/workspace";
 import { useWorkspace } from "@/providers/workspace";
-
-const nameSchema = z.object({
-  name: z.string().min(1),
-});
-
-const slugSchema = z.object({
-  slug: z.string().min(1),
-});
-
-const timezoneSchema = z.object({
-  timezone: z.enum(timezones as [string, ...string[]]),
-});
 
 function PageClient() {
   const router = useRouter();
@@ -90,17 +84,17 @@ function PageClient() {
     },
   });
 
-  const nameForm = useForm<z.infer<typeof nameSchema>>({
+  const nameForm = useForm<NameValues>({
     resolver: zodResolver(nameSchema),
     defaultValues: { name: activeWorkspace?.name || "" },
   });
 
-  const slugForm = useForm<z.infer<typeof slugSchema>>({
+  const slugForm = useForm<SlugValues>({
     resolver: zodResolver(slugSchema),
     defaultValues: { slug: activeWorkspace?.slug || "" },
   });
 
-  const timezoneForm = useForm<z.infer<typeof timezoneSchema>>({
+  const timezoneForm = useForm<TimezoneValues>({
     resolver: zodResolver(timezoneSchema),
     defaultValues: { timezone: activeWorkspace?.timezone || "UTC" },
   });
@@ -136,7 +130,7 @@ function PageClient() {
     activeWorkspace?.timezone,
   ]);
 
-  const onNameSubmit = async (data: z.infer<typeof nameSchema>) => {
+  const onNameSubmit = async (data: NameValues) => {
     if (!isOwner) return;
 
     try {
@@ -145,25 +139,28 @@ function PageClient() {
         ...data,
         slug: activeWorkspace?.slug,
       });
-      toast.success("Workspace name updated.", { position: "bottom-center" });
+      toast.success("Workspace name updated");
       setIsNameChanged(false);
       router.refresh();
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : "Failed to update.";
-      toast.error(errorMessage, { position: "bottom-center" });
+        error instanceof Error ? error.message : "Failed to update";
+      toast.error(errorMessage);
     }
   };
 
-  const onSlugSubmit = async (data: z.infer<typeof slugSchema>) => {
+  const onSlugSubmit = async (payload: SlugValues) => {
     if (!isOwner || !activeWorkspace?.id) return;
 
     try {
-      const slugExists = await checkWorkspaceSlug(
-        data.slug,
-        activeWorkspace?.id,
-      );
-      if (slugExists) {
+      const { data, error } = await organization.checkSlug({
+        slug: payload.slug,
+      });
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+      if (!data.status) {
         slugForm.setError("slug", { message: "Slug is already taken" });
         return;
       }
@@ -171,18 +168,18 @@ function PageClient() {
       const updatedWorkspace = await updateWorkspaceAction(
         activeWorkspace?.id,
         {
-          ...data,
+          ...payload,
           name: activeWorkspace?.name,
         },
       );
-      toast.success("Workspace slug updated.", { position: "bottom-center" });
+      toast.success("Workspace slug updated");
       setIsSlugChanged(false);
       router.replace(`/${updatedWorkspace.slug}/settings`);
       router.refresh();
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : "Failed to update.";
-      toast.error(errorMessage, { position: "bottom-center" });
+        error instanceof Error ? error.message : "Failed to update";
+      toast.error(errorMessage);
     }
   };
 
@@ -228,16 +225,13 @@ function PageClient() {
         slug: activeWorkspace?.slug,
         timezone: data.timezone,
       });
-      toast.success("Workspace timezone updated.", {
-        position: "bottom-center",
-      });
+      toast.success("Workspace timezone updated");
       setIsTimezoneChanged(false);
       router.refresh();
     } catch (error) {
-      // Show specific validation error or generic message
       const errorMessage =
-        error instanceof Error ? error.message : "Failed to update timezone.";
-      toast.error(errorMessage, { position: "bottom-center" });
+        error instanceof Error ? error.message : "Failed to update timezone";
+      toast.error(errorMessage);
     }
   };
 
