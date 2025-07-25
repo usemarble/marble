@@ -1,7 +1,5 @@
 "use client";
 
-import { Card, CardContent, CardHeader } from "@marble/ui/components/card";
-import { Skeleton } from "@marble/ui/components/skeleton";
 import { useEffect, useState } from "react";
 import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
 import { columns, type TeamMemberRow } from "@/components/team/columns";
