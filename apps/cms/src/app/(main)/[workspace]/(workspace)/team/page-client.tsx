@@ -1,13 +1,12 @@
 "use client";
 
-import { Card, CardContent, CardHeader } from "@marble/ui/components/card";
-import { Skeleton } from "@marble/ui/components/skeleton";
 import { useEffect, useState } from "react";
 import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
 import { columns, type TeamMemberRow } from "@/components/team/columns";
 import { TeamDataTable } from "@/components/team/data-table";
 import { InviteModal } from "@/components/team/invite-modal";
 import { LeaveWorkspaceModal } from "@/components/team/leave-workspace";
+import { PageLoader } from "@/components/ui/loader";
 import { useUser } from "@/providers/user";
 import { useWorkspace } from "@/providers/workspace";
 
@@ -26,39 +25,11 @@ function PageClient() {
   }, [activeWorkspace]);
 
   if (!isAuthenticated || isFetchingUser) {
-    return (
-      <WorkspacePageWrapper>
-        <Card>
-          <CardHeader>
-            <Skeleton className="h-6 w-48" />
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex items-center space-x-4">
-              <Skeleton className="h-12 w-12 rounded-full" />
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-32" />
-                <Skeleton className="h-4 w-48" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </WorkspacePageWrapper>
-    );
+    return <PageLoader />;
   }
 
   if (isFetchingWorkspace || !activeWorkspace || !user) {
-    return (
-      <WorkspacePageWrapper>
-        <Card>
-          <CardHeader>
-            <Skeleton className="h-6 w-48" />
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Skeleton className="h-32 w-full" />
-          </CardContent>
-        </Card>
-      </WorkspacePageWrapper>
-    );
+    return <PageLoader />;
   }
 
   const data: TeamMemberRow[] = [
