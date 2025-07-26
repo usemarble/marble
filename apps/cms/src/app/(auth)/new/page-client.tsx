@@ -34,7 +34,6 @@ function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
   const {
     register,
     handleSubmit,
-    setError,
     watch,
     setValue,
     control,
@@ -58,30 +57,26 @@ function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
   }, [name, setValue]);
 
   async function onSubmit(payload: CreateWorkspaceValues) {
-    const { data, error } = await organization.checkSlug({
+    const { error } = await organization.checkSlug({
       slug: payload.slug,
     });
     if (error) {
       toast.error(error.message);
       return;
     }
-    if (!data.status) {
-      setError("slug", { message: "This slug is in use" });
-      return;
-    }
 
     try {
-      const workspace = await createWorkspaceAction({
+      const newWorkspace = await createWorkspaceAction({
         name: payload.name,
         slug: payload.slug,
         timezone: payload.timezone,
       });
-
-      if (workspace) {
-        router.push(`/${workspace.slug}`);
+      if (newWorkspace) {
+        router.push(`/${newWorkspace.slug}`);
+        toast.success("Workspace created");
       }
     } catch (error) {
-      console.error(error);
+      console.error("Failed to create workspace", error);
       toast.error("Failed to create workspace");
     }
   }
