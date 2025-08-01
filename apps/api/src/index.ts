@@ -23,11 +23,13 @@ app.use("/:workspaceId/*", async (c, next) => {
   }
 
   const workspaceRoutes = ["/tags", "/categories", "/posts", "/authors"];
-  const isWorkspaceRoute = workspaceRoutes.some(
-    (route) =>
-      path.includes(`/${workspaceId}${route}`) ||
-      path.match(new RegExp(`/${workspaceId}${route}/`)),
-  );
+  const workspacePathPattern = `/${workspaceId}`;
+
+  const isWorkspaceRoute = workspaceRoutes.some((route) => {
+    const exactMatch = path === `${workspacePathPattern}${route}`;
+    const subPathMatch = path.startsWith(`${workspacePathPattern}${route}/`);
+    return exactMatch || subPathMatch;
+  });
 
   if (isWorkspaceRoute) {
     const newPath = `/v1${path}`;
