@@ -4,6 +4,14 @@ import type { Workspace } from "@/types/workspace";
 import { getLastVisitedWorkspace } from "@/utils/workspace";
 import { getServerSession } from "../auth/session";
 
+/**
+ * Determines the most relevant workspace for a user to set as active.
+ *
+ * Attempts to return the last visited workspace (from cookies) if the user still has access. If not, returns an owned workspace, or if none, any workspace where the user is a member. Returns `undefined` if no accessible workspace is found.
+ *
+ * @param userId - The user's unique identifier
+ * @returns An object containing the workspace's `slug` and `id`, or `undefined` if no accessible workspace exists
+ */
 export async function getLastActiveWorkspaceOrNewOneToSetAsActive(
   userId: string,
   cookies?: RequestCookies,
@@ -73,6 +81,11 @@ export async function getLastActiveWorkspaceOrNewOneToSetAsActive(
   }
 }
 
+/**
+ * Retrieves detailed data for the currently active workspace of the logged-in user.
+ *
+ * Returns a `Workspace` object containing workspace metadata, members with user details, invitations, subscription information, and the current user's role, or `null` if no valid session or workspace is found.
+ */
 export async function getInitialWorkspaceData() {
   try {
     const session = await getServerSession();

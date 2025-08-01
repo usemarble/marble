@@ -14,7 +14,11 @@ import PageClient from "./page-client";
 //     console.error("Failed to fetch workspace data:", error);
 //     return null;
 //   }
-// };
+/**
+ * Renders the main page by returning the PageClient component.
+ *
+ * @returns The rendered PageClient component
+ */
 
 async function Page() {
   return <PageClient />;

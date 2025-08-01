@@ -9,6 +9,15 @@ import {
   workspaceSchema,
 } from "../validations/workspace";
 
+/**
+ * Creates a new workspace and assigns the current user as its owner.
+ *
+ * Validates the input payload, creates a workspace and membership record in the database, and sets the new workspace as the active organization for the authenticated user.
+ *
+ * @param payload - The data required to create the workspace
+ * @returns The newly created workspace object
+ * @throws If the user is not authenticated or if workspace creation fails
+ */
 export async function createWorkspaceAction(payload: CreateWorkspaceValues) {
   try {
     const sessionData = await getServerSession();
@@ -51,6 +60,13 @@ export async function createWorkspaceAction(payload: CreateWorkspaceValues) {
   }
 }
 
+/**
+ * Updates an existing workspace with new data after validating user authentication and input.
+ *
+ * @param workspaceId - The unique identifier of the workspace to update
+ * @param payload - The new workspace data to apply
+ * @returns The updated workspace object
+ */
 export async function updateWorkspaceAction(
   workspaceId: string,
   payload: CreateWorkspaceValues,

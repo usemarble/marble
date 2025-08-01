@@ -2,6 +2,13 @@ import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 
+/**
+ * Retrieves the authenticated user's profile, including their role and active workspace details if available.
+ *
+ * Returns a 401 response if the user is not authenticated, or a 404 response if the user does not exist.
+ * If the user has an active organization, includes their role and organization information in the response.
+ * Responds with a JSON object containing user data, workspace role, and active workspace details.
+ */
 export async function GET() {
   const sessionData = await getServerSession();
 
@@ -48,6 +55,11 @@ export async function GET() {
   return NextResponse.json(userWithRole, { status: 200 });
 }
 
+/**
+ * Updates the authenticated user's profile information.
+ *
+ * Parses the request body for a new name (required) and optional image, updates the user's record, and returns the updated user data along with the user's role and active workspace details if available. Returns appropriate error responses for authentication failure, validation errors, or update failures.
+ */
 export async function PATCH(request: Request) {
   const sessionData = await getServerSession();
 

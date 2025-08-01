@@ -42,6 +42,11 @@ import {
 } from "@/lib/validations/workspace";
 import { useWorkspace } from "@/providers/workspace";
 
+/**
+ * Renders the workspace settings page, allowing users to view and update workspace details such as name, slug, logo, timezone, and ID.
+ *
+ * Provides forms and controls for editing workspace properties, uploading a logo, copying workspace identifiers, and deleting the workspace (if the user is the owner). Enforces ownership checks for sensitive actions and displays validation errors and status notifications.
+ */
 function PageClient() {
   const router = useRouter();
   const { activeWorkspace, isOwner, updateActiveWorkspace } = useWorkspace();

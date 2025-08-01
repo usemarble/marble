@@ -48,6 +48,13 @@ const fontSans = Geist({
   variable: "--font-sans",
 });
 
+/**
+ * Root layout component that sets up global metadata, fonts, and user context for the application.
+ *
+ * Wraps the application with providers for global state and user authentication, and applies global styles and font settings.
+ *
+ * @param children - The content to render within the layout
+ */
 export default async function RootLayout({
   children,
 }: Readonly<{

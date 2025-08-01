@@ -18,6 +18,15 @@ interface UserProviderProps {
 
 const UserContext = createContext<UserContextType | null>(null);
 
+/**
+ * Provides user authentication and profile state to descendant components via React context.
+ *
+ * Wraps children with a context provider that manages the current user profile, authentication status, loading and updating states, and exposes functions to update the user profile or sign out. Synchronizes user data with the server and handles authentication transitions.
+ *
+ * @param children - React nodes to render within the provider
+ * @param initialUser - Optional initial user profile to seed state
+ * @param initialIsAuthenticated - Optional initial authentication status
+ */
 export function UserProvider({
   children,
   initialUser,

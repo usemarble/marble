@@ -4,6 +4,15 @@ import { NextResponse } from "next/server";
 import type { Session } from "./lib/auth/types";
 import { getLastActiveWorkspaceOrNewOneToSetAsActive } from "./lib/queries/workspace";
 
+/**
+ * Middleware for handling user authentication, email verification, and workspace routing in a Next.js application.
+ *
+ * Determines the user's session and verification status, then allows, redirects, or blocks access to routes accordingly:
+ * - Allows invite and onboarding flows to proceed without interruption.
+ * - Redirects unauthenticated users to the login page, preserving the original destination.
+ * - Redirects authenticated but unverified users to the email verification page.
+ * - Redirects authenticated and verified users away from authentication, root, or verification pages to their last active workspace or onboarding.
+ */
 export async function middleware(request: NextRequest) {
   const { data: session } = await betterFetch<Session>(
     "/api/auth/get-session",

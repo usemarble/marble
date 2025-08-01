@@ -2,6 +2,11 @@ import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 
+/**
+ * Handles GET requests to retrieve all workspaces associated with the authenticated user.
+ *
+ * Returns a JSON array of organizations where the user is a member, including organization details, members, invitations, subscription information, and the user's role within each workspace. Responds with a 401 status code if the user is not authenticated.
+ */
 export async function GET() {
   const sessionData = await getServerSession();
 

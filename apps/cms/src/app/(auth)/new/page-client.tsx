@@ -29,6 +29,13 @@ import {
 } from "@/lib/validations/workspace";
 import { generateSlug } from "@/utils/string";
 
+/**
+ * Renders the client-side form and UI for creating a new workspace.
+ *
+ * Displays a form to input workspace name, slug, and timezone, with validation and error handling. Automatically generates a slug from the workspace name. On submission, checks slug availability, creates the workspace, sets it as active, and navigates to the new workspace page. Shows relevant success or error notifications. If the user already has workspaces, provides a link to return to the dashboard.
+ *
+ * @param hasWorkspaces - Indicates whether the user already has existing workspaces, affecting UI messaging and navigation options.
+ */
 function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
   const {
     register,

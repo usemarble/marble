@@ -37,6 +37,19 @@ interface TimezoneSelectorProps {
   timezones: string[];
 }
 
+/**
+ * Renders a timezone selection dropdown with live current time display for each timezone.
+ *
+ * Displays a searchable list of provided timezones, showing the current local time and country for each option. Selecting a timezone triggers the `onValueChange` callback. The dropdown updates displayed times every minute.
+ *
+ * @param value - The currently selected timezone value, if any
+ * @param onValueChange - Callback invoked when a timezone is selected
+ * @param disabled - If true, disables the selector
+ * @param placeholder - Placeholder text shown when no timezone is selected
+ * @param timezones - List of timezone strings to display as options
+ *
+ * @returns A React element rendering the timezone selector dropdown
+ */
 export function TimezoneSelector({
   value,
   onValueChange,

@@ -32,6 +32,16 @@ interface LeaveWorkspaceModalProps {
   setOpen: (open: boolean) => void;
 }
 
+/**
+ * Displays a modal dialog allowing the user to leave a workspace.
+ *
+ * When confirmed, removes the user from the specified workspace, updates the active workspace if others remain, and navigates accordingly. If no other workspaces are available, redirects the user to create a new workspace.
+ *
+ * @param id - The ID of the workspace to leave
+ * @param name - The name of the workspace to display in the modal
+ * @param open - Whether the modal is visible
+ * @param setOpen - Function to control the modal's visibility
+ */
 export function LeaveWorkspaceModal({
   id,
   name,

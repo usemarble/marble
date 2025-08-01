@@ -26,6 +26,13 @@ interface ListOrganizationResponse {
   id: string;
 }
 
+/**
+ * Displays a modal dialog for deleting a workspace and handles the deletion process.
+ *
+ * Prompts the user for confirmation before permanently deleting the specified workspace. Upon successful deletion, updates the active workspace or redirects to workspace creation if none remain.
+ *
+ * @param id - The unique identifier of the workspace to delete
+ */
 export function DeleteWorkspaceModal({ id }: { id: string }) {
   const [isDeletingWorkspace, setIsDeletingWorkspace] = useState(false);
   const { updateActiveWorkspace } = useWorkspace();

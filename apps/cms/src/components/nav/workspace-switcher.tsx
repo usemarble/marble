@@ -28,6 +28,11 @@ import Link from "next/link";
 import type { Workspace } from "@/types/workspace";
 import { useWorkspace } from "../../providers/workspace";
 
+/**
+ * Renders a sidebar menu component that allows users to view and switch between their owned and shared workspaces.
+ *
+ * Displays the current active workspace with its avatar, name, and subscription plan, and provides a dropdown menu to select a different workspace or add a new one. Shows a loading skeleton while workspace data is being fetched.
+ */
 export function WorkspaceSwitcher() {
   const { isMobile } = useSidebar();
   const {

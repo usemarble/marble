@@ -1,6 +1,13 @@
 import { db } from "@marble/db";
 import { getServerSession } from "@/lib/auth/session";
 
+/**
+ * Retrieves the current user's data and authentication status based on the server session.
+ *
+ * If a valid session and user are found, returns the user object augmented with their workspace role and active workspace organization details, along with `isAuthenticated: true`. If no valid session or user is found, returns `user: null` and `isAuthenticated: false`.
+ *
+ * @returns An object containing the user data (or `null`) and an `isAuthenticated` boolean.
+ */
 export async function getInitialUserData() {
   const sessionData = await getServerSession();
 

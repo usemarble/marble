@@ -2,6 +2,11 @@
 
 import { useUser } from "@/providers/user";
 
+/**
+ * Renders a personalized greeting and a placeholder message for workspace metrics based on the user's information and the current time of day.
+ *
+ * Displays a time-appropriate greeting, optionally including the user's name if available, and a static message indicating that workspace metrics are forthcoming.
+ */
 export default function PageClient() {
   const { user, isFetchingUser } = useUser();
 

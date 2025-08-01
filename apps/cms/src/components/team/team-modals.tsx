@@ -22,6 +22,11 @@ interface RemoveMemberModalProps {
   member: TeamMemberRow;
 }
 
+/**
+ * Renders a modal dialog for confirming and executing the removal of a team member from the active organization.
+ *
+ * Displays the member's name or email and warns that removal will permanently revoke their workspace access. Handles the removal process, including loading state and user notifications.
+ */
 export function RemoveMemberModal({
   open,
   setOpen,

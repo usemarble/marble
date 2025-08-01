@@ -2,6 +2,11 @@
 
 import type { WebhookCustomerCreatedPayload } from "@polar-sh/sdk/models/components/webhookcustomercreatedpayload.js";
 
+/**
+ * Handles a customer creation webhook event by logging the customer data.
+ *
+ * @param payload - The webhook payload containing customer information
+ */
 export async function handleCustomerCreated(
   payload: WebhookCustomerCreatedPayload,
 ) {

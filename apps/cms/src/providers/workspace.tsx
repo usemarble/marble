@@ -25,6 +25,14 @@ const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
   undefined,
 );
 
+/**
+ * Provides workspace-related state and operations to its child components via React context.
+ *
+ * Manages the active workspace, handles workspace switching, fetches workspace data, and exposes user role information and workspace lists to consumers within the provider tree.
+ *
+ * @param children - The React nodes to render within the provider
+ * @param initialWorkspace - The initial workspace to set as active
+ */
 export function WorkspaceProvider({
   children,
   initialWorkspace,
