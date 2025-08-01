@@ -10,8 +10,36 @@ export type Env = {
 };
 
 const app = new Hono<{ Bindings: Env }>();
+const v1 = new Hono<{ Bindings: Env }>();
 
 app.use("*", ratelimit());
+
+app.use("/:workspaceId/*", async (c, next) => {
+  const path = c.req.path;
+  const workspaceId = c.req.param("workspaceId");
+
+  if (path.startsWith("/v1/") || path === "/" || path === "/status") {
+    return next();
+  }
+
+  const workspaceRoutes = ["/tags", "/categories", "/posts", "/authors"];
+  const workspacePathPattern = `/${workspaceId}`;
+
+  const isWorkspaceRoute = workspaceRoutes.some((route) => {
+    const exactMatch = path === `${workspacePathPattern}${route}`;
+    const subPathMatch = path.startsWith(`${workspacePathPattern}${route}/`);
+    return exactMatch || subPathMatch;
+  });
+
+  if (isWorkspaceRoute) {
+    const newPath = `/v1${path}`;
+    const url = new URL(c.req.url);
+    url.pathname = newPath;
+    return Response.redirect(url.toString(), 301);
+  }
+
+  return next();
+});
 
 app.get("/", (c) => {
   return c.text("Hello from marble");
@@ -21,7 +49,7 @@ app.get("/status", (c) => {
   return c.json({ status: "ok" }, 200);
 });
 
-app.get("/:workspaceId/tags", async (c) => {
+v1.get("/:workspaceId/tags", async (c) => {
   try {
     const url = c.env.DATABASE_URL;
     const workspaceId = c.req.param("workspaceId");
@@ -100,7 +128,7 @@ app.get("/:workspaceId/tags", async (c) => {
   }
 });
 
-app.get("/:workspaceId/categories", async (c) => {
+v1.get("/:workspaceId/categories", async (c) => {
   try {
     const url = c.env.DATABASE_URL;
     const workspaceId = c.req.param("workspaceId");
@@ -181,7 +209,7 @@ app.get("/:workspaceId/categories", async (c) => {
   }
 });
 
-app.get("/:workspaceId/posts", async (c) => {
+v1.get("/:workspaceId/posts", async (c) => {
   try {
     const url = c.env.DATABASE_URL;
     const workspaceId = c.req.param("workspaceId");
@@ -348,17 +376,17 @@ app.get("/:workspaceId/posts", async (c) => {
   }
 });
 
-app.get("/:workspaceId/posts/:slug", async (c) => {
+v1.get("/:workspaceId/posts/:identifier", async (c) => {
   try {
     const url = c.env.DATABASE_URL;
     const workspaceId = c.req.param("workspaceId");
-    const slug = c.req.param("slug");
+    const identifier = c.req.param("identifier");
     const db = createClient(url);
 
     const post = await db.post.findFirst({
       where: {
         workspaceId,
-        slug,
+        OR: [{ slug: identifier }, { id: identifier }],
         status: "published",
       },
       select: {
@@ -405,7 +433,7 @@ app.get("/:workspaceId/posts/:slug", async (c) => {
   }
 });
 
-app.get("/:workspaceId/authors", async (c) => {
+v1.get("/:workspaceId/authors", async (c) => {
   const url = c.env.DATABASE_URL;
   const workspaceId = c.req.param("workspaceId");
   const db = createClient(url);
@@ -489,7 +517,7 @@ app.get("/:workspaceId/authors", async (c) => {
   }
 });
 
-app.get("/:workspaceId/authors/:id", async (c) => {
+v1.get("/:workspaceId/authors/:id", async (c) => {
   const url = c.env.DATABASE_URL;
   const workspaceId = c.req.param("workspaceId");
   const authorId = c.req.param("id");
@@ -519,5 +547,7 @@ app.get("/:workspaceId/authors/:id", async (c) => {
     return c.json({ error: "Failed to fetch author" }, 500);
   }
 });
+
+app.route("/v1", v1);
 
 export default app;
