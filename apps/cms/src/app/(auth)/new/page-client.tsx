@@ -21,8 +21,7 @@ import { Controller, useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
 import { ButtonLoader } from "@/components/ui/loader";
 import { TimezoneSelector } from "@/components/ui/timezone-selector";
-import { createWorkspaceAction } from "@/lib/actions/workspace";
-import { organization } from "@/lib/auth/client";
+import { organization, useSession } from "@/lib/auth/client";
 import { timezones } from "@/lib/constants";
 import {
   type CreateWorkspaceValues,
@@ -48,6 +47,8 @@ function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
 
   const router = useRouter();
   const { name } = watch();
+  const { data: session } = useSession();
+  console.log("session at create workspace page", session);
 
   useEffect(() => {
     if (name) {
@@ -60,19 +61,31 @@ function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
     const { error } = await organization.checkSlug({
       slug: payload.slug,
     });
+
     if (error) {
       toast.error(error.message);
+      console.log("check slug error", error);
       return;
     }
 
     try {
-      const newWorkspace = await createWorkspaceAction({
+      const { data, error } = await organization.create({
         name: payload.name,
         slug: payload.slug,
         timezone: payload.timezone,
+        logo: `https://api.dicebear.com/9.x/glass/svg?seed=${payload.name}`,
       });
-      if (newWorkspace) {
-        router.push(`/${newWorkspace.slug}`);
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+      if (data) {
+        console.log("setting active organization", data.id);
+        await organization.setActive({
+          organizationId: data.id,
+        });
+        console.log("active organization set", data.id);
+        router.push(`/${data.slug}`);
         toast.success("Workspace created");
       }
     } catch (error) {

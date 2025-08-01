@@ -12,7 +12,7 @@ import {
 import { Button } from "@marble/ui/components/button";
 import { toast } from "@marble/ui/components/sonner";
 import { useState } from "react";
-import { organization } from "@/lib/auth/client";
+import { organization, useActiveOrganization } from "@/lib/auth/client";
 import { ButtonLoader } from "../ui/loader";
 import type { TeamMemberRow } from "./columns";
 
@@ -28,12 +28,13 @@ export function RemoveMemberModal({
   member,
 }: RemoveMemberModalProps) {
   const [loading, setLoading] = useState(false);
-
+  const { data: activeOrganization } = useActiveOrganization();
   async function removeMember() {
     setLoading(true);
     try {
       await organization.removeMember({
         memberIdOrEmail: member.id,
+        organizationId: activeOrganization?.id || "",
         fetchOptions: {
           onRequest: () => {
             toast.loading("Removing member...", {

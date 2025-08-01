@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import type React from "react";
 import { createContext, useContext, useState } from "react";
 import { toast } from "sonner";
-import { authClient } from "@/lib/auth/client";
+import { authClient, useSession } from "@/lib/auth/client";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { UserContextType, UserProfile } from "@/types/user";
 import { request } from "@/utils/fetch/client";
@@ -27,15 +27,34 @@ export function UserProvider({
   const router = useRouter();
   const [user, setUser] = useState<UserProfile | null>(initialUser);
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const { data: session, isPending: isSessionPending } = useSession();
+
   const [isAuthenticated, setIsAuthenticated] = useState(
-    initialIsAuthenticated,
+    initialIsAuthenticated || !!session,
   );
+
+  // console.log("isAuthenticated", isAuthenticated);
+  // console.log("isSessionPending", isSessionPending);
+  // console.log("isSigningOut", isSigningOut);
+  // console.log("user", user);
+  // console.log("session", session);
+  // console.log("initialIsAuthenticated", initialIsAuthenticated);
+  // console.log("initialUser", initialUser);
+
+  // useEffect(() => {
+  //   if (!session && !isSessionPending && !isSigningOut) {
+  //     setUser(null);
+  //     queryClient.removeQueries({ queryKey: [QUERY_KEYS.USER] });
+  //     queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USER] });
+  //   }
+  // }, [session, isSessionPending, isSigningOut, queryClient]);
 
   const fetchCurrentUser = async (): Promise<UserProfile> => {
     try {
-      const response = await request<UserProfile>("/user", "GET");
+      const response = await request<UserProfile>("user");
       setUser(response.data);
       setIsAuthenticated(true);
+      console.log("fresh user data", response.data);
       return response.data;
     } catch (error) {
       console.error("Failed to fetch user:", error);
@@ -46,7 +65,8 @@ export function UserProvider({
   const { isLoading: isFetchingUser } = useQuery({
     queryKey: [QUERY_KEYS.USER],
     queryFn: fetchCurrentUser,
-    enabled: !user && isAuthenticated,
+    enabled:
+      (!user || !user.workspaceRole) && isAuthenticated && !isSessionPending,
     initialData: initialUser,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
@@ -57,7 +77,7 @@ export function UserProvider({
       mutationFn: async (
         updates: Partial<Pick<UserProfile, "name" | "image">>,
       ) => {
-        const response = await request<UserProfile>("/user", "PATCH", updates);
+        const response = await request<UserProfile>("user", "PATCH", updates);
         return response.data;
       },
       onSuccess: (data) => {

@@ -1,8 +1,9 @@
 "use server";
 
 import { db } from "@marble/db";
+import { headers } from "next/headers";
+import { auth } from "../auth/auth";
 import { getServerSession } from "../auth/session";
-import { setActiveWorkspace } from "../auth/workspace";
 import {
   type CreateWorkspaceValues,
   workspaceSchema,
@@ -10,8 +11,8 @@ import {
 
 export async function createWorkspaceAction(payload: CreateWorkspaceValues) {
   try {
-    const session = await getServerSession();
-    if (!session?.user || !session?.user.id) {
+    const sessionData = await getServerSession();
+    if (!sessionData || !sessionData?.user) {
       throw new Error("Unauthorized");
     }
 
@@ -27,13 +28,21 @@ export async function createWorkspaceAction(payload: CreateWorkspaceValues) {
     await db.member.create({
       data: {
         organizationId: workspace.id,
-        userId: session.user.id,
+        userId: sessionData.user.id,
         role: "owner",
         createdAt: new Date(),
       },
     });
 
-    await setActiveWorkspace(workspace.slug);
+    console.log("setting active workspace");
+    const data = await auth.api.setActiveOrganization({
+      headers: await headers(),
+      body: {
+        organizationId: workspace.id,
+        organizationSlug: workspace.slug,
+      },
+    });
+    console.log("active organization set", data);
 
     return workspace;
   } catch (error) {

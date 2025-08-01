@@ -15,11 +15,12 @@ import {
   sendInviteEmailAction,
   sendVerificationEmailAction,
 } from "@/lib/actions/email";
+import { handleCustomerCreated } from "@/lib/polar/customer.created";
 import { handleSubscriptionCanceled } from "@/lib/polar/subscription.canceled";
 import { handleSubscriptionCreated } from "@/lib/polar/subscription.created";
 import { handleSubscriptionRevoked } from "@/lib/polar/subscription.revoked";
 import { handleSubscriptionUpdated } from "@/lib/polar/subscription.updated";
-import { getActiveOrganization } from "../queries/workspace";
+import { getLastActiveWorkspaceOrNewOneToSetAsActive } from "../queries/workspace";
 
 const polarClient = new Polar({
   accessToken: process.env.POLAR_ACCESS_TOKEN,
@@ -62,12 +63,6 @@ export const auth = betterAuth({
       client: polarClient,
       createCustomerOnSignUp: true,
       authenticatedUsersOnly: true,
-      // getCustomerCreateParams: async ({ user }, request) => {
-      //   console.log(user);
-      //   metadata: {
-      //     myCustomProperty: 123,
-      //   }
-      // },
       use: [
         portal(),
         usage(),
@@ -91,8 +86,7 @@ export const auth = betterAuth({
         webhooks({
           secret: process.env.POLAR_WEBHOOK_SECRET || "",
           onCustomerCreated: async (payload) => {
-            console.log("Customer Created", payload);
-            // TODO: handle customer created
+            await handleCustomerCreated(payload);
           },
           onSubscriptionCreated: async (payload) => {
             await handleSubscriptionCreated(payload);
@@ -110,6 +104,18 @@ export const auth = betterAuth({
       ],
     }),
     organization({
+      // membershipLimit: 10,
+      schema: {
+        organization: {
+          additionalFields: {
+            timezone: {
+              type: "string",
+              input: true,
+              required: false,
+            },
+          },
+        },
+      },
       async sendInvitationEmail(data) {
         const inviteLink = `${process.env.NEXT_PUBLIC_APP_URL}/join/${data.id}`;
         await sendInviteEmailAction({
@@ -139,9 +145,13 @@ export const auth = betterAuth({
     // for new users the middleware redirects them to create a workspace (organization)
     session: {
       create: {
-        before: async (session) => {
+        before: async (session, ctx) => {
+          const allCookies = ctx?.request?.headers.getSetCookie();
+          console.log("allCookies before session create", allCookies);
+          // this returns an empty array when i tested it
           try {
-            const organization = await getActiveOrganization(session.userId);
+            const organization =
+              await getLastActiveWorkspaceOrNewOneToSetAsActive(session.userId);
             return {
               data: {
                 ...session,
@@ -152,6 +162,12 @@ export const auth = betterAuth({
             // If there's an error, create the session without an active org
             return { data: session };
           }
+        },
+        after: async (_session, ctx) => {
+          const allCookies = ctx?.request?.headers.getSetCookie();
+          console.log("allCookies after session create", allCookies);
+          // also returns an empty array when i tested it
+          // so i guess its pointless to pass it to the get active organization
         },
       },
     },

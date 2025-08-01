@@ -25,12 +25,11 @@ import { Skeleton } from "@marble/ui/components/skeleton";
 import { cn } from "@marble/ui/lib/utils";
 import { CaretDown, Check, Plus } from "@phosphor-icons/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import type { Workspace } from "@/types/workspace";
 import { useWorkspace } from "../../providers/workspace";
 
 export function WorkspaceSwitcher() {
   const { isMobile } = useSidebar();
-  const router = useRouter();
   const {
     activeWorkspace,
     updateActiveWorkspace,
@@ -39,22 +38,20 @@ export function WorkspaceSwitcher() {
   } = useWorkspace();
 
   const ownedWorkspaces =
-    workspaceList?.filter((workspace) => workspace.userRole === "owner") || [];
+    workspaceList?.filter(
+      (workspace) => workspace.currentUserRole === "owner",
+    ) || [];
 
   const sharedWorkspaces =
-    workspaceList?.filter((workspace) => workspace.userRole !== "owner") || [];
+    workspaceList?.filter(
+      (workspace) => workspace.currentUserRole !== "owner",
+    ) || [];
 
-  async function switchWorkspace(org: {
-    id: string;
-    name: string;
-    slug: string;
-    logo?: string | null;
-  }) {
+  async function switchWorkspace(org: Workspace) {
     if (org.slug === activeWorkspace?.slug) return;
 
     try {
-      await updateActiveWorkspace(org.slug, org);
-      router.push(`/${org.slug}`);
+      await updateActiveWorkspace(org);
     } catch (error) {
       console.error("Failed to switch workspace:", error);
     }

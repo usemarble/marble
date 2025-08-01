@@ -1,31 +1,76 @@
+import { db } from "@marble/db";
 import { getServerSession } from "@/lib/auth/session";
-import type { UserProfile } from "@/types/user";
 
 export async function getInitialUserData() {
-  try {
-    const session = await getServerSession();
+  const sessionData = await getServerSession();
 
-    if (!session?.user) {
-      return { user: null, isAuthenticated: false };
-    }
-
-    // If there's a session, fetch complete user data from our API
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
-
-    const response = await fetch(`${baseUrl}/api/user`);
-
-    if (response.ok) {
-      const userData = (await response.json()) as UserProfile;
-      console.log("userData", userData);
-      return { user: userData, isAuthenticated: true };
-    }
-    // If API call fails, fall back to basic session data
-    console.warn(
-      "Failed to fetch user data from API, falling back to session data",
-    );
-    return { user: null, isAuthenticated: true };
-  } catch (error) {
-    console.error("Error fetching initial user data:", error);
+  if (!sessionData || !sessionData.user) {
     return { user: null, isAuthenticated: false };
   }
+
+  const user = await db.user.findUnique({
+    where: { id: sessionData.user.id },
+  });
+
+  if (!user) {
+    return { user: null, isAuthenticated: false };
+  }
+
+  const activeOrganizationId = sessionData.session
+    ?.activeOrganizationId as string;
+
+  let member = null;
+  if (activeOrganizationId) {
+    member = await db.member.findFirst({
+      where: {
+        organizationId: activeOrganizationId,
+        userId: user.id,
+      },
+      include: {
+        organization: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+      },
+    });
+  }
+
+  const userWithRole = {
+    ...user,
+    workspaceRole: member?.role || null,
+    activeWorkspace: member?.organization || null,
+  };
+
+  return { user: userWithRole, isAuthenticated: true };
 }
+
+// export async function getInitialUserData() {
+//   try {
+//     const sessionData = await getServerSession();
+
+//     if (!sessionData || !sessionData.user) {
+//       return { user: null, isAuthenticated: false };
+//     }
+
+//     console.log("sessionData at point of getting user data", sessionData);
+
+//     const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/user`);
+
+//     if (response.status === 200) {
+//       const userData = (await response.json()) as UserProfile;
+//       console.log("userData", userData);
+//       return { user: userData, isAuthenticated: true };
+//     }
+//     // If API call fails, fall back to basic session data
+//     console.warn(
+//       "Failed to fetch user data from API, falling back to session data",
+//     );
+//     return { user: null, isAuthenticated: true };
+//   } catch (error) {
+//     console.error("Error fetching initial user data:", error);
+//     return { user: null, isAuthenticated: false };
+//   }
+// }
