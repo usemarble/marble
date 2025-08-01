@@ -376,17 +376,17 @@ v1.get("/:workspaceId/posts", async (c) => {
   }
 });
 
-v1.get("/:workspaceId/posts/:slug", async (c) => {
+v1.get("/:workspaceId/posts/:identifier", async (c) => {
   try {
     const url = c.env.DATABASE_URL;
     const workspaceId = c.req.param("workspaceId");
-    const slug = c.req.param("slug");
+    const identifier = c.req.param("identifier");
     const db = createClient(url);
 
     const post = await db.post.findFirst({
       where: {
         workspaceId,
-        slug,
+        OR: [{ slug: identifier }, { id: identifier }],
         status: "published",
       },
       select: {
