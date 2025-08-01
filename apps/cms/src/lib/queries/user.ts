@@ -16,10 +16,18 @@ export async function getInitialUserData() {
     return { user: null, isAuthenticated: false };
   }
 
-  const activeOrganizationId = sessionData.session
-    ?.activeOrganizationId as string;
+  const activeOrganizationId = sessionData.session?.activeOrganizationId;
+
+  if (activeOrganizationId && typeof activeOrganizationId !== "string") {
+    console.warn(
+      "Invalid activeOrganizationId type:",
+      typeof activeOrganizationId,
+    );
+    return { user: null, isAuthenticated: true };
+  }
 
   let member = null;
+
   if (activeOrganizationId) {
     member = await db.member.findFirst({
       where: {

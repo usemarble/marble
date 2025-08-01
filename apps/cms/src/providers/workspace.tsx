@@ -58,11 +58,14 @@ export function WorkspaceProvider({
       const response = await request<Workspace>(`workspaces/${slug}`);
       if (response.status === 200) {
         setActiveWorkspace(response.data);
+        return response.data;
       }
       if (response.status === 404) {
-        throw new Error("Workspace not found");
+        console.error("Workspace not found");
+        return null;
       }
-      return response.data;
+      console.error(`Unexpected status code: ${response.status}`);
+      return null;
     } catch (error) {
       console.error("Failed to fetch workspace data:", error);
       return null;
@@ -97,6 +100,10 @@ export function WorkspaceProvider({
         setLastVisitedWorkspace(workspace.slug);
       }
 
+      if (!workspace.id) {
+        throw new Error("Workspace ID is required for switching");
+      }
+
       const { data, error } = await organization.setActive({
         organizationId: workspace.id,
       });
@@ -110,7 +117,7 @@ export function WorkspaceProvider({
     },
     onSuccess: (data) => {
       if (data) {
-        queryClient.clear();
+        queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.WORKSPACES] });
         queryClient.setQueryData(QUERY_KEYS.WORKSPACE(data.slug), data);
         router.push(`/${data.slug}`);
       }

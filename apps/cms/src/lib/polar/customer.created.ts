@@ -9,6 +9,6 @@ export async function handleCustomerCreated(
   try {
     console.log("Customer Created", customer);
   } catch (error) {
-    console.error("Error updating subscription to canceled in DB:", error);
+    console.error("Error processing customer creation:", error);
   }
 }
