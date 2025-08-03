@@ -115,9 +115,9 @@ v1.get("/:workspaceId/tags", async (c) => {
       tags,
       pagination: {
         limit,
-        currPage: page,
+        currentPage: page,
         nextPage,
-        prevPage,
+        previousPage: prevPage,
         totalPages,
         totalItems: totalTags,
       },
@@ -196,9 +196,9 @@ v1.get("/:workspaceId/categories", async (c) => {
       categories,
       pagination: {
         limit,
-        currPage: page,
+        currentPage: page,
         nextPage,
-        prevPage,
+        previousPage: prevPage,
         totalPages,
         totalItems: totalCategories,
       },
@@ -337,17 +337,17 @@ v1.get("/:workspaceId/posts", async (c) => {
     const paginationInfo = limit
       ? {
           limit,
-          currPage: page,
+          currentPage: page,
           nextPage: nextPage,
-          prevPage: prevPage,
+          previousPage: prevPage,
           totalPages: totalPages,
           totalItems: totalPosts,
         }
       : {
           limit: totalPosts,
-          currPage: 1,
+          currentPage: 1,
           nextPage: null,
-          prevPage: null,
+          previousPage: null,
           totalPages: 1,
           totalItems: totalPosts,
         };
@@ -505,9 +505,9 @@ v1.get("/:workspaceId/authors", async (c) => {
       authors,
       pagination: {
         limit,
-        currPage: page,
+        currentPage: page,
         nextPage: nextPage,
-        prevPage: prevPage,
+        previousPage: prevPage,
         totalPages: totalPages,
         totalItems: totalAuthors,
       },
