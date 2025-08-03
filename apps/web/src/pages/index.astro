@@ -1,5 +1,9 @@
 ---
 import Container from "@/components/Container.astro";
+import Bounty from "@/components/icons/brand/Bounty.astro";
+import Ia from "@/components/icons/brand/Ia.astro";
+import Opencut from "@/components/icons/brand/Opencut.astro";
+import Rivo from "@/components/icons/brand/Rivo.astro";
 import AccordionItem from "@/components/ui/AccordionItem.astro";
 import Layout from "@/layouts/Layout.astro";
 import { APP, FAQs, PRICING, SITE } from "@/lib/constants";
@@ -36,37 +40,43 @@ import { APP, FAQs, PRICING, SITE } from "@/lib/constants";
     </section>
 
     <!--  Social Proof -->
-    <!-- <section class="">
+    <section class="">
       <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
-        <Container class="space-y-10 pt-12 pb-20">
+        <Container class="space-y-10 py-12">
           <div class="relative flex flex-col items-center space-y-3 text-balance">
-            <h2 class="relative text-center text-balance text-2xl font-medium tracking-tight max-w-4xl">
-              Used by these guys.
+            <h2 class="relative text-center text-balance text-sm font-medium tracking-tight max-w-4xl">
+              Powering the blogs at.
             </h2>
-            <p class="max-w-prose text-muted-foreground text-center">
-              These guys love our product enough to use it.
-            </p>
           </div>
-          <ul class="grid grid-cols-[repeat(auto-fill,_minmax(16rem,_1fr))] divide-dashed divide-y divide-x divide-red-600 border border-dashed border-red-600">
-            <li class="p-8">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 386"><path fill="#000000" d="M416.473 0 198.54 385.66H0L170.17 84.522C196.549 37.842 262.377 0 317.203 0Zm486.875 96.415c0-53.249 44.444-96.415 99.27-96.415 54.826 0 99.27 43.166 99.27 96.415 0 53.248-44.444 96.415-99.27 96.415-54.826 0-99.27-43.167-99.27-96.415ZM453.699 0h198.54L434.306 385.66h-198.54Zm234.492 0h198.542L716.56 301.138c-26.378 46.68-92.207 84.522-147.032 84.522h-99.27Z"/></svg>
+          <ul class="grid grid-cols-[repeat(auto-fill,_minmax(14rem,_1fr))]">
+            <li class="p-8 flex items-center justify-center">
+              <a href="https://independent-arts.org" target="_blank" class="flex items-center gap-2">
+                <Ia />
+                <span class="text-xl font-medium">I.A</span>
+              </a>
             </li>
-            <li class="p-8">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 386"><path fill="#000000" d="M416.473 0 198.54 385.66H0L170.17 84.522C196.549 37.842 262.377 0 317.203 0Zm486.875 96.415c0-53.249 44.444-96.415 99.27-96.415 54.826 0 99.27 43.166 99.27 96.415 0 53.248-44.444 96.415-99.27 96.415-54.826 0-99.27-43.167-99.27-96.415ZM453.699 0h198.54L434.306 385.66h-198.54Zm234.492 0h198.542L716.56 301.138c-26.378 46.68-92.207 84.522-147.032 84.522h-99.27Z"/></svg>
+            <li class="p-8 flex items-center justify-center">
+              <a href="https://opencut.app" target="_blank" class="flex items-center gap-2">
+                <Opencut />
+                <span class="text-xl font-medium">OpenCut</span>
+              </a>
             </li>
-            <li class="p-8">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 386"><path fill="#000000" d="M416.473 0 198.54 385.66H0L170.17 84.522C196.549 37.842 262.377 0 317.203 0Zm486.875 96.415c0-53.249 44.444-96.415 99.27-96.415 54.826 0 99.27 43.166 99.27 96.415 0 53.248-44.444 96.415-99.27 96.415-54.826 0-99.27-43.167-99.27-96.415ZM453.699 0h198.54L434.306 385.66h-198.54Zm234.492 0h198.542L716.56 301.138c-26.378 46.68-92.207 84.522-147.032 84.522h-99.27Z"/></svg>
+            <li class="p-8 flex items-center justify-center">
+              <a href="https://rivo.gg" target="_blank" class="flex items-center gap-2">
+                <Rivo />
+                <span class="text-xl font-medium">Rivo</span>
+              </a>
             </li>
-            <li class="p-8">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 386"><path fill="#000000" d="M416.473 0 198.54 385.66H0L170.17 84.522C196.549 37.842 262.377 0 317.203 0Zm486.875 96.415c0-53.249 44.444-96.415 99.27-96.415 54.826 0 99.27 43.166 99.27 96.415 0 53.248-44.444 96.415-99.27 96.415-54.826 0-99.27-43.167-99.27-96.415ZM453.699 0h198.54L434.306 385.66h-198.54Zm234.492 0h198.542L716.56 301.138c-26.378 46.68-92.207 84.522-147.032 84.522h-99.27Z"/></svg>
-            </li>
-            <li class="p-8">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 386"><path fill="#000000" d="M416.473 0 198.54 385.66H0L170.17 84.522C196.549 37.842 262.377 0 317.203 0Zm486.875 96.415c0-53.249 44.444-96.415 99.27-96.415 54.826 0 99.27 43.166 99.27 96.415 0 53.248-44.444 96.415-99.27 96.415-54.826 0-99.27-43.167-99.27-96.415ZM453.699 0h198.54L434.306 385.66h-198.54Zm234.492 0h198.542L716.56 301.138c-26.378 46.68-92.207 84.522-147.032 84.522h-99.27Z"/></svg>
+            <li class="p-8 flex items-center justify-center">
+              <a href="https://bounty.new" target="_blank">
+                <Bounty  />
+                <span class="text-xl font-medium sr-only">Bounty</span>
+              </a>
             </li>
           </ul>
         </Container>
       </div>
-    </section> -->
+    </section>
 
     <!-- Features section -->
     <section>
