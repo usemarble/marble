@@ -67,6 +67,7 @@ Packages contain internal shared modules used across different applications:
    git clone https://github.com/YOUR-USERNAME/marble.git
    cd marble
    ```
+
    - add the original repo as upstream
 
    ```bash
@@ -128,37 +129,37 @@ Packages contain internal shared modules used across different applications:
 
    To use media uploads in Marble, you’ll need to set up a Cloudflare R2 bucket. Here's a step-by-step guide to help you configure everything properly:
 
-   - Go to your Cloudflare dashboard
+- Go to your Cloudflare dashboard
 
-   - Select your account and navigate to R2 from the sidebar
+- Select your account and navigate to R2 from the sidebar
 
-   - Click "Create Bucket"
+- Click "Create Bucket"
 
-   - Name your bucket (e.g. marble-media)
+- Name your bucket (e.g. marble-media)
 
-   - Hit 'Create"
+- Hit 'Create"
 
-   - switch to the settings tab and enable "public development url"
+- switch to the settings tab and enable "public development url"
 
-   - copy the value to `CLOUDFLARE_PUBLIC_URL`
+- copy the value to `CLOUDFLARE_PUBLIC_URL`
 
-   - Set your bucket name to `CLOUDFLARE_BUCKET_NAME`
+- Set your bucket name to `CLOUDFLARE_BUCKET_NAME`
 
-   - Go back to your R2 buckets overview and click "API"
+- Go back to your R2 buckets overview and click "API"
 
-   - from the dropdown select "Use r2 with apis"
+- from the dropdown select "Use r2 with apis"
 
-   - then copy the api url and set to `CLOUDFLARE_S3_ENDPOINT`
+- then copy the api url and set to `CLOUDFLARE_S3_ENDPOINT`
 
-   - Below the url click "Create api Tokens"
+- Below the url click "Create api Tokens"
 
-   - Select "Create user API Token"
+- Select "Create user API Token"
 
-   - For permissions select "admin read and write"
+- For permissions select "admin read and write"
 
-   - Leave everything else as default and click "Create user API Token"
+- Leave everything else as default and click "Create user API Token"
 
-   - Copy the values to `CLOUDFLARE_SECRET_ACCESS_KEY` and `CLOUDFLARE_ACCESS_KEY_ID` respectively  
+- Copy the values to `CLOUDFLARE_SECRET_ACCESS_KEY` and `CLOUDFLARE_ACCESS_KEY_ID` respectively  
 
 ## Running the Apps
 
