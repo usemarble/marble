@@ -55,7 +55,7 @@ Packages contain internal shared modules used across different applications:
 
 ## Getting Started
 
-1. [Fork](https://github.com/taqh/marble/fork/) this repository to your own account
+1. [Fork](https://github.com/usemarble/marble/fork/) this repository to your own account
 
    - Visit Marble repository
 

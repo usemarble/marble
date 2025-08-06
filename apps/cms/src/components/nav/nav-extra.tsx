@@ -42,7 +42,7 @@ const resourceLinks = [
   },
   {
     label: "Report an issue",
-    href: "https://github.com/taqh/marble/issues",
+    href: "https://github.com/usemarble/marble/issues",
     icon: <Bug size={16} />,
   },
 ];
