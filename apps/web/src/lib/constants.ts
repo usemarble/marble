@@ -18,7 +18,7 @@ export const SITE: Site = {
 };
 
 export const SOCIAL_LINKS: Link[] = [
-  { href: "https://github.com/taqh", label: "GitHub" },
+  { href: "https://github.com/usemarble", label: "GitHub" },
   { href: "https://x.com/usemarblecms", label: "Twitter" },
   { href: "hello@taqib.dev", label: "Email" },
   { href: "/rss.xml", label: "RSS" },
