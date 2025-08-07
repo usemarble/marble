@@ -1,3 +1,3 @@
 # WEB
 
-Website for the project.
+Marketing site for marble.
