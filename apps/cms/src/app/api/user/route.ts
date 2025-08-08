@@ -64,18 +64,19 @@ export async function PATCH(request: Request) {
     const body = await request.json();
     const { name, image } = body;
 
-    // Validate input
-    if (!name || typeof name !== "string") {
-      return NextResponse.json({ error: "Name is required" }, { status: 400 });
+    const updateData: { name?: string; image?: string } = {};
+    
+    if (name !== undefined && typeof name === "string" && name.trim().length > 0) {
+      updateData.name = name.trim();
+    }
+    
+    if (image !== undefined && typeof image === "string") {
+      updateData.image = image;
     }
 
-    // Update user
     const updatedUser = await db.user.update({
       where: { id: sessionData.user.id },
-      data: {
-        name: name.trim(),
-        ...(image && { image }),
-      },
+      data: updateData,
       select: {
         id: true,
         name: true,

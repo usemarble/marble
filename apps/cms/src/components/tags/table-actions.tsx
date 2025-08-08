@@ -24,7 +24,7 @@ export default function TableActions(props: Tag) {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="h-8 w-8 p-0">
             <span className="sr-only">Open menu</span>
-            <DotsThreeVertical className="" />
+            <DotsThreeVertical />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="text-muted-foreground">
