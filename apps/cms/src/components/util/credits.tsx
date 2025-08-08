@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { useTheme } from "next-themes";
 
-const credits = {
+type ThemeName = "light" | "dark";
+
+const creditsByTheme: Record<ThemeName, { image: string; text: string }> = {
   light: {
     image: "https://unsplash.com/@hngstrm",
     text: "H&CO",
@@ -16,13 +18,17 @@ const credits = {
 
 export default function Credits() {
   const { theme } = useTheme();
+
+  const themeKey: ThemeName = theme === "light" ? "light" : "dark";
+  const { image, text } = creditsByTheme[themeKey];
+
   return (
     <Link
-      href={credits[theme as keyof typeof credits ?? "dark"].image}
+      href={image}
       target="_blank"
       className="text-sm font-medium text-muted-foreground hover:text-primary underline underline-offset-4"
     >
-      Image by {credits[theme as keyof typeof credits ?? "dark"]?.text}
+      Image by {text}
     </Link>
   );
 }
