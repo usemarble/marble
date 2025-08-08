@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { RegisterForm } from "@/components/auth/register-form";
 import MarbleIcon from "@/components/icons/marble";
 import Credits from "@/components/util/credits";
+import { Separator } from "@marble/ui/components/separator";
 
 export const metadata: Metadata = {
   title: "Sign Up - Marble",
@@ -24,9 +25,12 @@ export default async function RegisterPage(props: PageProps) {
         <div>
           <MarbleIcon />
         </div>
-        <p className="text-lg font-medium">
-          The easiest way to manage your blog.
-        </p>
+        <div className="flex items-center gap-4 justify-between">
+          <p className="text-lg font-medium">
+            The easiest way to manage your blog.
+          </p>
+          <Credits />
+        </div>
       </section>
       <section className="flex flex-col items-center justify-between h-full p-4 md:p-10">
         <div className="flex w-full max-w-96 flex-col gap-8 rounded-md p-6 lg:px-8 lg:py-10">
@@ -34,12 +38,9 @@ export default async function RegisterPage(props: PageProps) {
             <h1 className="text-xl font-semibold lg:text-2xl">
               Create Account
             </h1>
-            <div className="flex items-center gap-4 justify-between">
-              <p className="text-lg font-medium">
-                The easiest way to manage your blog.
-              </p>
-              <Credits />
-            </div>
+            <p className="text-muted-foreground text-sm">
+              Sign up to get started.
+            </p>
           </div>
 
           <Suspense>
@@ -55,6 +56,8 @@ export default async function RegisterPage(props: PageProps) {
               Login
             </Link>
           </p>
+
+          <Separator />
 
           <p className="text-muted-foreground px-8 text-center text-xs">
             By signing up, you agree to our{" "}
