@@ -67,7 +67,7 @@ export function MediaGallery({ media }: MediaGalleryProps) {
               <Trash2 className="size-4" />
               <span className="sr-only">delete image</span>
             </button>
-            <div className="">
+            <div>
               {/* biome-ignore lint/performance/noImgElement: <> */}
               <img
                 src={media.url}

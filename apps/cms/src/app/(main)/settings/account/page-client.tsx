@@ -23,7 +23,6 @@ import { Copy, Image as ImageIcon, UploadSimple } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Check, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
@@ -35,7 +34,6 @@ import { type ProfileData, profileSchema } from "@/lib/validations/settings";
 import { useUser } from "@/providers/user";
 
 function PageClient() {
-  const _router = useRouter();
   const queryClient = useQueryClient();
   const { user, updateUser, isUpdatingUser } = useUser();
   const [isChanged, setIsChanged] = useState(false);
@@ -66,7 +64,6 @@ function PageClient() {
       setAvatarUrl(data.avatarUrl);
       updateUser({ image: data.avatarUrl });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USER] });
-      toast.success("Avatar updated");
       setFile(null);
     },
     onError: (error) => {
@@ -147,7 +144,7 @@ function PageClient() {
         <Card className="flex justify-between p-4">
           <CardHeader>
             <CardTitle className="text-lg font-medium">Theme.</CardTitle>
-            <CardDescription className="">
+            <CardDescription>
               Override the default theme of the application.
             </CardDescription>
           </CardHeader>
@@ -158,7 +155,7 @@ function PageClient() {
         <Card className="p-4">
           <CardHeader>
             <CardTitle className="text-lg font-medium">Avatar.</CardTitle>
-            <CardDescription>Change your profile image.</CardDescription>
+            <CardDescription>Change your profile picture.</CardDescription>
           </CardHeader>
           <CardContent className="justify-end">
             <div className="flex items-center gap-6">
@@ -228,7 +225,7 @@ function PageClient() {
         </Card>
 
         <Card className="p-4">
-          <form onSubmit={handleSubmit(onSubmit)} className="">
+          <form onSubmit={handleSubmit(onSubmit)}>
             <CardHeader>
               <CardTitle className="text-lg font-medium">Full Name</CardTitle>
               <CardDescription>
