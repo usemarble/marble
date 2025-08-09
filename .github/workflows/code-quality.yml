@@ -7,11 +7,24 @@ jobs:
   quality:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: latest
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "18.x"
+          cache: "pnpm"
+
+      - run: pnpm i --no-frozen-lockfile
+
       - name: Setup Biome
         uses: biomejs/setup-biome@v2
         with:
           version: latest
       - name: Run Biome
-        run: npx ultracite format
+        run: pnpm ultracite format
