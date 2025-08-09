@@ -185,7 +185,7 @@ pnpm web:dev
    git checkout -b feature/your-feature
    ```
 
-2. Before committing your changes make sure to run the lint command to catch any formatting errors before you commit
+2. Before committing your changes make sure to run the lint command to catch any formatting errors
 
    ```bash
    pnpm format-and-lint:fix
