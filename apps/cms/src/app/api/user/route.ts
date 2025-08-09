@@ -65,11 +65,15 @@ export async function PATCH(request: Request) {
     const { name, image } = body;
 
     const updateData: { name?: string; image?: string } = {};
-    
-    if (name !== undefined && typeof name === "string" && name.trim().length > 0) {
+
+    if (
+      name !== undefined &&
+      typeof name === "string" &&
+      name.trim().length > 0
+    ) {
       updateData.name = name.trim();
     }
-    
+
     if (image !== undefined && typeof image === "string") {
       updateData.image = image;
     }
