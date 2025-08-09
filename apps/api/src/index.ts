@@ -14,6 +14,7 @@ const v1 = new Hono<{ Bindings: Env }>();
 
 app.use("*", ratelimit());
 
+// biome-ignore lint/suspicious/useAwait: otherwise it breaks
 app.use("/:workspaceId/*", async (c, next) => {
   const path = c.req.path;
   const workspaceId = c.req.param("workspaceId");
@@ -70,7 +71,7 @@ v1.get("/:workspaceId/tags", async (c) => {
             message: err.message,
           })),
         },
-        400,
+        400
       );
     }
 
@@ -94,7 +95,7 @@ v1.get("/:workspaceId/tags", async (c) => {
             requestedPage: page,
           },
         },
-        400,
+        400
       );
     }
 
@@ -149,7 +150,7 @@ v1.get("/:workspaceId/categories", async (c) => {
             message: err.message,
           })),
         },
-        400,
+        400
       );
     }
 
@@ -175,7 +176,7 @@ v1.get("/:workspaceId/categories", async (c) => {
             requestedPage: page,
           },
         },
-        400,
+        400
       );
     }
 
@@ -234,7 +235,7 @@ v1.get("/:workspaceId/posts", async (c) => {
             message: err.message,
           })),
         },
-        400,
+        400
       );
     }
 
@@ -284,7 +285,7 @@ v1.get("/:workspaceId/posts", async (c) => {
             requestedPage: page,
           },
         },
-        400,
+        400
       );
     }
 
@@ -338,9 +339,9 @@ v1.get("/:workspaceId/posts", async (c) => {
       ? {
           limit,
           currentPage: page,
-          nextPage: nextPage,
+          nextPage,
           previousPage: prevPage,
-          totalPages: totalPages,
+          totalPages,
           totalItems: totalPosts,
         }
       : {
@@ -353,7 +354,7 @@ v1.get("/:workspaceId/posts", async (c) => {
         };
 
     return c.json({
-      posts: posts,
+      posts,
       pagination: paginationInfo,
       // meta: {
       //   filters: {
@@ -371,7 +372,7 @@ v1.get("/:workspaceId/posts", async (c) => {
         error: "Failed to fetch posts",
         message: error instanceof Error ? error.message : "Unknown error",
       },
-      500,
+      500
     );
   }
 });
@@ -453,7 +454,7 @@ v1.get("/:workspaceId/authors", async (c) => {
           message: err.message,
         })),
       },
-      400,
+      400
     );
   }
 
@@ -497,7 +498,7 @@ v1.get("/:workspaceId/authors", async (c) => {
             requestedPage: page,
           },
         },
-        400,
+        400
       );
     }
 
@@ -506,9 +507,9 @@ v1.get("/:workspaceId/authors", async (c) => {
       pagination: {
         limit,
         currentPage: page,
-        nextPage: nextPage,
+        nextPage,
         previousPage: prevPage,
-        totalPages: totalPages,
+        totalPages,
         totalItems: totalAuthors,
       },
     });

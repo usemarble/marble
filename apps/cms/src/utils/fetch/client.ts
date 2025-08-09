@@ -5,7 +5,7 @@ type RequestMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 export async function request<T>(
   endpoint: string,
   method: RequestMethod = "GET",
-  body?: unknown,
+  body?: unknown
 ) {
   const response = await axios<T>({
     method,

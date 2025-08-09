@@ -7,7 +7,7 @@ async function getInitialWorkspaceData(): Promise<Workspace | null> {
   try {
     const session = await getServerSession();
 
-    if (!session?.user || !session.session?.activeOrganizationId) {
+    if (!(session?.user && session.session?.activeOrganizationId)) {
       return null;
     }
 
@@ -63,7 +63,7 @@ async function getInitialWorkspaceData(): Promise<Workspace | null> {
 
     // Find current user's role in this workspace
     const currentUserMember = workspace.members.find(
-      (member) => member.userId === session.user.id,
+      (member) => member.userId === session.user.id
     );
 
     return {

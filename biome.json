@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.0.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.1.2/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -25,23 +25,15 @@
     "enabled": true,
     "rules": {
       "recommended": true,
-      "a11y": {
-        "noSvgWithoutTitle": "off"
+      "complexity": {
+        "noExcessiveCognitiveComplexity": "off"
       },
       "nursery": {
-        "useUniqueElementIds": "off"
+        "useUniqueElementIds": "off",
+        "noUnknownAtRule": "off"
       },
-      "style": {
-        "noParameterAssign": "error",
-        "useAsConstAssertion": "error",
-        "useDefaultParameterLast": "error",
-        "useEnumInitializers": "error",
-        "useSelfClosingElements": "error",
-        "useSingleVarDeclarator": "error",
-        "noUnusedTemplateLiteral": "error",
-        "useNumberNamespace": "error",
-        "noInferrableTypes": "error",
-        "noUselessElse": "error"
+      "suspicious": {
+        "noConsole": "off"
       }
     }
   },
@@ -64,12 +56,22 @@
       "includes": ["**/*.astro"],
       "linter": {
         "rules": {
+          "complexity": {
+            "noExcessiveCognitiveComplexity": "off"
+          },
           "correctness": {
             "noUnusedImports": "off",
             "noUnusedVariables": "off"
+          },
+          "suspicious": {
+            "noConsole": "off"
+          },
+          "style": {
+            "useFilenamingConvention": "off"
           }
         }
       }
     }
-  ]
+  ],
+  "extends": ["ultracite"]
 }

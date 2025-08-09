@@ -46,7 +46,7 @@ export function InvoiceDataTable<TData, TValue>({
 
   return (
     <div>
-      <div className="flex items-center py-4 justify-between border-x">
+      <div className="flex items-center justify-between border-x py-4">
         {/* <div className="relative">
           <SearchIcon
             size={16}
@@ -87,7 +87,7 @@ export function InvoiceDataTable<TData, TValue>({
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext(),
+                            header.getContext()
                           )}
                     </TableHead>
                   );
@@ -99,14 +99,14 @@ export function InvoiceDataTable<TData, TValue>({
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
-                  key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  key={row.id}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext(),
+                        cell.getContext()
                       )}
                     </TableCell>
                   ))}
@@ -115,8 +115,8 @@ export function InvoiceDataTable<TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
                   className="h-96 text-center"
+                  colSpan={columns.length}
                 >
                   No invoices found.
                 </TableCell>

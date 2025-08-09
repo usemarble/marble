@@ -15,7 +15,7 @@ import { request } from "@/utils/fetch/client";
 import { setLastVisitedWorkspace } from "@/utils/workspace";
 
 const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
-  undefined,
+  undefined
 );
 
 export function WorkspaceProvider({
@@ -25,7 +25,7 @@ export function WorkspaceProvider({
   const params = useParams<{ workspace: string }>();
   const queryClient = useQueryClient();
   const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(
-    initialWorkspace,
+    initialWorkspace
   );
 
   // Get current workspace slug from params
@@ -104,10 +104,10 @@ export function WorkspaceProvider({
     isPending: isSwitchingWorkspace,
   } = useMutation({
     mutationFn: async ({
-      workspaceSlug,
+      activeWorkspaceSlug,
       newWorkspace,
     }: {
-      workspaceSlug: string;
+      activeWorkspaceSlug: string;
       newWorkspace?: Partial<Workspace>;
     }) => {
       // Optimistically update if we have new workspace data
@@ -117,8 +117,8 @@ export function WorkspaceProvider({
             ({
               ...prev,
               ...newWorkspace,
-              slug: workspaceSlug,
-            }) as Workspace,
+              slug: activeWorkspaceSlug,
+            }) as Workspace
         );
       }
 
@@ -153,10 +153,13 @@ export function WorkspaceProvider({
   });
 
   async function updateActiveWorkspace(
-    workspaceSlug: string,
-    newWorkspace?: Partial<Workspace>,
+    updateWorkspaceSlug: string,
+    newWorkspace?: Partial<Workspace>
   ) {
-    await updateActiveWorkspaceMutation({ workspaceSlug, newWorkspace });
+    await updateActiveWorkspaceMutation({
+      activeWorkspaceSlug: updateWorkspaceSlug,
+      newWorkspace,
+    });
   }
 
   const isFetchingWorkspace = isLoading || isSwitchingWorkspace;

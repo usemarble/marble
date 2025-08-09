@@ -9,17 +9,21 @@ export default function PageClient() {
 
   const getTimeOfDay = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return "Good morning";
-    if (hour < 17) return "Good afternoon";
+    if (hour < 12) {
+      return "Good morning";
+    }
+    if (hour < 17) {
+      return "Good afternoon";
+    }
     return "Good evening";
   };
 
   if (!isAuthenticated) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex min-h-[400px] items-center justify-center">
         <div className="text-center">
-          <h2 className="text-xl font-semibold mb-2">Not authenticated</h2>
-          <p className="text-muted-foreground mb-4">
+          <h2 className="mb-2 font-semibold text-xl">Not authenticated</h2>
+          <p className="mb-4 text-muted-foreground">
             Please log in to continue
           </p>
           <Button asChild>
@@ -31,21 +35,19 @@ export default function PageClient() {
   }
 
   return (
-    <>
-      <div className="p-4 flex flex-col flex-1 h-full items-center justify-center">
-        <h1 className="text-2xl font-semibold mb-4">
-          {isFetchingUser ? (
-            getTimeOfDay()
-          ) : (
-            <>
-              {getTimeOfDay()}, {user?.name}
-            </>
-          )}
-        </h1>
-        <p className="text-muted-foreground">
-          Workspace metrics are coming soon!
-        </p>
-      </div>
-    </>
+    <div className="flex h-full flex-1 flex-col items-center justify-center p-4">
+      <h1 className="mb-4 font-semibold text-2xl">
+        {isFetchingUser ? (
+          getTimeOfDay()
+        ) : (
+          <>
+            {getTimeOfDay()}, {user?.name}
+          </>
+        )}
+      </h1>
+      <p className="text-muted-foreground">
+        Workspace metrics are coming soon!
+      </p>
+    </div>
   );
 }

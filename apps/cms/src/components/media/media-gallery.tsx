@@ -37,32 +37,32 @@ export function MediaGallery({ media }: MediaGalleryProps) {
       [QUERY_KEYS.MEDIA],
       (oldData: Media[] | undefined) => {
         return oldData ? oldData.filter((m) => m.id !== id) : [];
-      },
+      }
     );
   };
 
   return (
     <>
-      <section className="flex justify-between items-center">
+      <section className="flex items-center justify-between">
         <div />
-        <Button size="sm" onClick={() => setShowUploadModal(true)}>
+        <Button onClick={() => setShowUploadModal(true)} size="sm">
           <UploadCloud size={16} />
           <span>upload image</span>
         </Button>
       </section>
       <ul className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-4">
-        {media.map((media) => (
+        {media.map((m) => (
           <li
-            key={media.id}
-            className="relative rounded-md overflow-hidden border group"
+            className="group relative overflow-hidden rounded-md border"
+            key={m.id}
           >
             <button
-              type="button"
+              className="absolute top-2 right-2 rounded-full bg-white p-2 text-muted-foreground opacity-0 transition duration-500 hover:text-destructive focus-visible:opacity-100 group-hover:opacity-100"
               onClick={() => {
-                setMediaToDelete(media);
+                setMediaToDelete(m);
                 setShowDeleteModal(true);
               }}
-              className="absolute top-2 right-2 p-2 bg-white rounded-full text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition duration-500"
+              type="button"
             >
               <Trash2 className="size-4" />
               <span className="sr-only">delete image</span>
@@ -70,14 +70,14 @@ export function MediaGallery({ media }: MediaGalleryProps) {
             <div>
               {/* biome-ignore lint/performance/noImgElement: <> */}
               <img
-                src={media.url}
-                alt={media.name}
-                className="object-cover w-full h-48"
+                alt={m.name}
+                className="h-48 w-full object-cover"
+                src={m.url}
               />
             </div>
-            <div className="p-4 bg-background border-t">
-              <p className="text-sm text-muted-foreground truncate">
-                {media.name.split(".")[0]}
+            <div className="border-t bg-background p-4">
+              <p className="truncate text-muted-foreground text-sm">
+                {m.name.split(".")[0]}
               </p>
             </div>
           </li>
@@ -86,15 +86,15 @@ export function MediaGallery({ media }: MediaGalleryProps) {
 
       <MediaUploadModal
         isOpen={showUploadModal}
-        setIsOpen={setShowUploadModal}
         onUploadComplete={handleUploadComplete}
+        setIsOpen={setShowUploadModal}
       />
       {mediaToDelete && (
         <DeleteMediaModal
           isOpen={showDeleteModal}
-          setIsOpen={setShowDeleteModal}
-          onDeleteComplete={handleDelete}
           mediaToDelete={mediaToDelete.id}
+          onDeleteComplete={handleDelete}
+          setIsOpen={setShowDeleteModal}
         />
       )}
     </>

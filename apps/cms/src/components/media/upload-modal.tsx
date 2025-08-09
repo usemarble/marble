@@ -37,9 +37,9 @@ export function MediaUploadModal({
   const queryClient = useQueryClient();
 
   const { mutate: uploadMedia, isPending: isUploading } = useMutation({
-    mutationFn: async (file: File) => {
+    mutationFn: async (formFile: File) => {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", formFile);
 
       const response = await fetch("/api/uploads/media", {
         method: "POST",
@@ -74,7 +74,7 @@ export function MediaUploadModal({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog onOpenChange={setIsOpen} open={isOpen}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Upload Media</DialogTitle>
@@ -82,45 +82,45 @@ export function MediaUploadModal({
         <div className="flex flex-col gap-4 py-4">
           {file ? (
             <div className="flex flex-col gap-4">
-              <div className="relative w-full h-64">
+              <div className="relative h-64 w-full">
                 {/* biome-ignore lint/performance/noImgElement: <> */}
                 <img
-                  src={URL.createObjectURL(file)}
                   alt="cover preview"
-                  className="w-full h-full object-cover rounded-md"
+                  className="h-full w-full rounded-md object-cover"
+                  src={URL.createObjectURL(file)}
                 />
               </div>
               <div className="flex items-center justify-end gap-2">
                 <Button
-                  variant="outline"
-                  onClick={() => setFile(undefined)}
                   disabled={isUploading}
+                  onClick={() => setFile(undefined)}
+                  variant="outline"
                 >
                   Cancel
                 </Button>
-                <Button onClick={handleUpload} disabled={isUploading}>
+                <Button disabled={isUploading} onClick={handleUpload}>
                   {isUploading ? <ButtonLoader /> : "Upload"}
                 </Button>
               </div>
             </div>
           ) : (
             <Label
+              className="flex h-64 w-full cursor-pointer items-center justify-center rounded-md border border-dashed bg-background"
               htmlFor="media-file-input"
-              className="w-full h-64 rounded-md border border-dashed bg-background flex items-center justify-center cursor-pointer"
             >
               <div className="flex flex-col items-center gap-2 text-muted-foreground">
                 <Upload className="size-8" />
                 <div className="flex flex-col items-center">
-                  <p className="text-sm font-medium">Click to browse</p>
-                  <p className="text-xs font-medium">or drag and drop</p>
+                  <p className="font-medium text-sm">Click to browse</p>
+                  <p className="font-medium text-xs">or drag and drop</p>
                 </div>
               </div>
               <Input
-                onChange={(e) => setFile(e.target.files?.[0])}
-                id="media-file-input"
-                type="file"
                 accept="image/*"
                 className="sr-only"
+                id="media-file-input"
+                onChange={(e) => setFile(e.target.files?.[0])}
+                type="file"
               />
             </Label>
           )}

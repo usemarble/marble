@@ -57,7 +57,7 @@ export interface WorkspaceContextType {
   activeWorkspace: Workspace | null;
   updateActiveWorkspace: (
     workspaceSlug: string,
-    newWorkspace?: Partial<Workspace>,
+    newWorkspace?: Partial<Workspace>
   ) => Promise<void>;
   workspaceList: WorkspaceWithRole[] | null;
   isFetchingWorkspace: boolean;

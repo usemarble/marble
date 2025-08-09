@@ -34,13 +34,13 @@ export const columns: ColumnDef<Post>[] = [
       const status = row.original.status;
       return (
         <Badge
-          variant="outline"
-          className={cn("rounded-[6px] w-full text-center justify-center", {
-            "bg-emerald-50 dark:bg-transparent text-emerald-500 border-emerald-300":
+          className={cn("w-full justify-center rounded-[6px] text-center", {
+            "border-emerald-300 bg-emerald-50 text-emerald-500 dark:bg-transparent":
               status === "published",
-            "bg-amber-50 dark:bg-transparent text-orange-500 border-amber-300":
+            "border-amber-300 bg-amber-50 text-orange-500 dark:bg-transparent":
               status === "unpublished",
           })}
+          variant="outline"
         >
           {status === "published" ? "Published" : "Draft"}
         </Badge>

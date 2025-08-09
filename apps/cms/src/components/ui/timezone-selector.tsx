@@ -75,7 +75,7 @@ export function TimezoneSelector({
 
             // Find country information from tzdb
             const tzInfo = tzdbData.find(
-              (tz) => tz.name === timezone || tz.group.includes(timezone),
+              (tz) => tz.name === timezone || tz.group.includes(timezone)
             );
 
             return {
@@ -103,29 +103,29 @@ export function TimezoneSelector({
   }, [timezones, timeUpdate]);
 
   const selectedTimezone = timezoneOptions.find(
-    (option) => option.value === value,
+    (option) => option.value === value
   );
 
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
+    <Popover onOpenChange={setIsOpen} open={isOpen}>
       <PopoverTrigger asChild>
         <Button
-          type="button"
-          variant="outline"
           className="w-full items-center justify-between gap-2"
           disabled={disabled}
           onClick={() => !disabled && setIsOpen(!isOpen)}
+          type="button"
+          variant="outline"
         >
           <div
             className={cn(
               "flex flex-col items-start",
-              !selectedTimezone && "text-muted-foreground",
+              !selectedTimezone && "text-muted-foreground"
             )}
           >
             {selectedTimezone ? (
               <div className="flex gap-2">
                 <span>{selectedTimezone.label}</span>
-                <Badge variant="outline" className="font-light bg-muted">
+                <Badge className="bg-muted font-light" variant="outline">
                   {selectedTimezone.currentTime}
                 </Badge>
               </div>
@@ -136,7 +136,7 @@ export function TimezoneSelector({
           <CaretUpDown className="size-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="min-w-[600px] p-0" align="center">
+      <PopoverContent align="center" className="min-w-[600px] p-0">
         <Command>
           <CommandInput placeholder="Search timezones..." />
           <CommandList>
@@ -145,13 +145,13 @@ export function TimezoneSelector({
               {timezoneOptions.map((option) => (
                 <CommandItem
                   key={option.value}
-                  value={`${option.label} ${option.value} ${option.countryName}`}
                   onSelect={() => {
                     onValueChange?.(option.value);
                     setIsOpen(false);
                   }}
+                  value={`${option.label} ${option.value} ${option.countryName}`}
                 >
-                  <div className="flex items-center justify-between w-full">
+                  <div className="flex w-full items-center justify-between">
                     <div className="flex flex-col">
                       <span>{option.label}</span>
                       <span className="text-muted-foreground text-xs">
@@ -165,7 +165,7 @@ export function TimezoneSelector({
                       <Check
                         className={cn(
                           "h-4 w-4",
-                          value === option.value ? "opacity-100" : "opacity-0",
+                          value === option.value ? "opacity-100" : "opacity-0"
                         )}
                       />
                     </div>

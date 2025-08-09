@@ -4,11 +4,11 @@ import { getServerSession } from "@/lib/auth/session";
 
 export async function DELETE(
   _req: Request,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession();
 
-  if (!session || !session.user) {
+  if (!session?.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -16,7 +16,7 @@ export async function DELETE(
 
   const deletedAccount = await db.account.delete({
     where: {
-      id: id,
+      id,
       userId: session.user.id,
     },
   });

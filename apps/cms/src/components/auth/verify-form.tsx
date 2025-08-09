@@ -32,7 +32,7 @@ export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
     if (waitingSeconds > 0) {
       const interval = setInterval(
         () => setWaitingSeconds(waitingSeconds - 1),
-        1000,
+        1000
       );
       return () => clearInterval(interval);
     }
@@ -42,7 +42,7 @@ export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
     setIsResendLoading(true);
     try {
       await authClient.emailOtp.sendVerificationOtp({
-        email: email,
+        email,
         type: "email-verification",
       });
     } catch (_error) {
@@ -58,8 +58,8 @@ export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
     setIsLoading(true);
     try {
       await authClient.emailOtp.verifyEmail({
-        email: email,
-        otp: otp,
+        email,
+        otp,
       });
       router.push(`${callbackUrl}`);
     } catch (error) {
@@ -74,7 +74,7 @@ export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
     <Container className="flex flex-col items-center justify-between py-24">
       <section className="flex w-full flex-col items-center gap-8">
         <div className="flex flex-col items-center gap-4 text-center">
-          <h1 className="text-lg font-semibold leading-7">Verify your email</h1>
+          <h1 className="font-semibold text-lg leading-7">Verify your email</h1>
           <p className="leading-6">
             We sent a verification code to
             <span className="block font-medium">{email}</span>
@@ -82,23 +82,23 @@ export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
         </div>
         <InputOTP
           maxLength={6}
-          value={otp}
-          pattern={REGEXP_ONLY_DIGITS}
           onChange={(value: string) => setOtp(value)}
+          pattern={REGEXP_ONLY_DIGITS}
+          value={otp}
         >
           <InputOTPGroup className="flex items-center gap-3">
             {Array.from({ length: 6 }).map((_, index) => (
-              <InputOTPSlot key={crypto.randomUUID()} index={index} />
+              <InputOTPSlot index={index} key={crypto.randomUUID()} />
             ))}
           </InputOTPGroup>
         </InputOTP>
         <Button
-          onClick={handleVerifyOtp}
-          disabled={otp.length !== 6}
           className={cn(
-            "flex items-center justify-center min-w-48",
-            otp.length !== 6 && "cursor-not-allowed",
+            "flex min-w-48 items-center justify-center",
+            otp.length !== 6 && "cursor-not-allowed"
           )}
+          disabled={otp.length !== 6}
+          onClick={handleVerifyOtp}
         >
           {isLoading ? (
             <Loader2 className="size-4 animate-spin" />
@@ -113,13 +113,13 @@ export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
           Didn&apos;t receive the code?
         </p>
         <Button
-          variant="outline"
-          onClick={handleResendCode}
-          disabled={isResendLoading || isResendSuccess || waitingSeconds > 0}
           className={cn(
-            "text-muted-foreground min-w-48",
-            isResendLoading || (waitingSeconds > 0 && "cursor-not-allowed"),
+            "min-w-48 text-muted-foreground",
+            isResendLoading || (waitingSeconds > 0 && "cursor-not-allowed")
           )}
+          disabled={isResendLoading || isResendSuccess || waitingSeconds > 0}
+          onClick={handleResendCode}
+          variant="outline"
         >
           {isResendLoading ? (
             <Loader2 className="size-4 animate-spin" />

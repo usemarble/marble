@@ -17,7 +17,7 @@ const postSchema = z.object({
       id: z.string(),
       name: z.string(),
       image: z.string().url(),
-    }),
+    })
   ),
   category: z.object({
     id: z.string(),
@@ -29,7 +29,7 @@ const postSchema = z.object({
       id: z.string(),
       name: z.string(),
       slug: z.string(),
-    }),
+    })
   ),
   attribution: z
     .object({

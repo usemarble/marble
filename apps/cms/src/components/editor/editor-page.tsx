@@ -175,24 +175,24 @@ function EditorPage({ initialData, id }: EditorPageProps) {
 
   return (
     <>
-      <SidebarInset className="bg-sidebar/70 rounded-xl shadow-sm border min-h-[calc(100vh-1rem)] h-[calc(100vh-1rem)]">
-        <header className="sticky top-0 p-3 z-50 flex justify-between">
-          <div className="flex gap-4 items-center">
+      <SidebarInset className="h-[calc(100vh-1rem)] min-h-[calc(100vh-1rem)] rounded-xl border bg-sidebar/70 shadow-sm">
+        <header className="sticky top-0 z-50 flex justify-between p-3">
+          <div className="flex items-center gap-4">
             <Link
-              href={`/${params.workspace}/posts`}
               className={cn(buttonVariants({ variant: "ghost" }), "group")}
+              href={`/${params.workspace}/posts`}
             >
               <ArrowElbowUpLeft
-                weight="regular"
                 className="size-6 text-muted-foreground group-hover:text-foreground"
+                weight="regular"
               />
             </Link>
           </div>
 
           <div>
             <SidebarTrigger
-              size="icon"
               className="size-10 text-muted-foreground"
+              size="icon"
             >
               <SidebarSimple />
             </SidebarTrigger>
@@ -201,34 +201,34 @@ function EditorPage({ initialData, id }: EditorPageProps) {
         <section className="mx-auto w-full max-w-3xl flex-1">
           <HiddenScrollbar className="h-[calc(100vh-8rem)]">
             <form
-              ref={formRef}
-              onSubmit={handleSubmit(onSubmit)}
               className="space-y-5 rounded-md p-4"
+              onSubmit={handleSubmit(onSubmit)}
+              ref={formRef}
             >
               <div className="flex flex-col">
-                <label htmlFor="title" className="sr-only">
+                <label className="sr-only" htmlFor="title">
                   Enter post your title
                 </label>
                 <textarea
                   id="title"
                   placeholder="Title"
                   {...register("title")}
+                  className="scrollbar-hide min-h-20 w-full resize-none bg-transparent font-semibold text-4xl focus:outline-none focus:ring-0 sm:px-4"
                   onKeyDown={handleKeyDown}
-                  className="min-h-20 resize-none scrollbar-hide w-full bg-transparent sm:px-4 text-4xl font-semibold focus:outline-none focus:ring-0"
                 />
                 {errors.title && (
-                  <p className="text-sm px-1 font-medium text-destructive">
+                  <p className="px-1 font-medium text-destructive text-sm">
                     {errors.title.message}
                   </p>
                 )}
               </div>
               <div className="flex flex-col">
                 <Editor
-                  value={JSON.parse(watch("contentJson") || "{}")}
                   onChange={handleEditorChange}
+                  value={JSON.parse(watch("contentJson") || "{}")}
                 />
                 {errors.content && (
-                  <p className="text-sm px-1 font-medium text-destructive">
+                  <p className="px-1 font-medium text-destructive text-sm">
                     {errors.content.message}
                   </p>
                 )}
@@ -241,19 +241,19 @@ function EditorPage({ initialData, id }: EditorPageProps) {
         <div
           className={cn(
             "h-svh transition-[width] ease-linear",
-            open ? "w-2" : "w-0",
+            open ? "w-2" : "w-0"
           )}
         />
       )}
       <EditorSidebar
-        errors={errors}
         control={control}
+        errors={errors}
         formRef={formRef}
-        watch={watch}
-        isSubmitting={isCreating || isUpdating}
         isOpen={showSettings}
-        setIsOpen={setShowSettings}
+        isSubmitting={isCreating || isUpdating}
         mode={isUpdateMode ? "update" : "create"}
+        setIsOpen={setShowSettings}
+        watch={watch}
       />
     </>
   );

@@ -5,7 +5,7 @@ import type { WebhookSubscriptionCanceledPayload } from "@polar-sh/sdk/models/co
 import { SubscriptionStatus } from "@prisma/client";
 
 export async function handleSubscriptionCanceled(
-  payload: WebhookSubscriptionCanceledPayload,
+  payload: WebhookSubscriptionCanceledPayload
 ) {
   const { data: subscription } = payload;
 
@@ -15,7 +15,7 @@ export async function handleSubscriptionCanceled(
 
   if (!existingSubscription) {
     console.error(
-      `subscription.canceled webhook received for a subscription that does not exist: ${subscription.id}`,
+      `subscription.canceled webhook received for a subscription that does not exist: ${subscription.id}`
     );
     return;
   }
@@ -34,7 +34,7 @@ export async function handleSubscriptionCanceled(
     });
 
     console.log(
-      `Successfully marked subscription ${subscription.id} as canceled for workspace ${existingSubscription.workspaceId}`,
+      `Successfully marked subscription ${subscription.id} as canceled for workspace ${existingSubscription.workspaceId}`
     );
   } catch (error) {
     console.error("Error updating subscription to canceled in DB:", error);

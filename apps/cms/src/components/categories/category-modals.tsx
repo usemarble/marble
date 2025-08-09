@@ -81,7 +81,7 @@ export const CreateCategoryModal = ({
     onSuccess: (data) => {
       setOpen(false);
       toast.success("Category created successfully");
-      void queryClient.invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: ["categories", activeWorkspace?.slug],
       });
       if (onCategoryCreated) {
@@ -100,7 +100,7 @@ export const CreateCategoryModal = ({
   const onSubmit = async (data: CreateCategoryValues) => {
     const isTaken = await checkCategorySlugAction(
       data.slug,
-      activeWorkspace?.id as string,
+      activeWorkspace?.id as string
     );
 
     if (isTaken) {
@@ -114,26 +114,26 @@ export const CreateCategoryModal = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog onOpenChange={setOpen} open={open}>
       <DialogContent className="max-w-sm p-8">
         <DialogHeader>
-          <DialogTitle className="font-medium text-center">
+          <DialogTitle className="text-center font-medium">
             Create category
           </DialogTitle>
         </DialogHeader>
         <form
+          className="mt-2 flex flex-col gap-5"
           onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col gap-5 mt-2"
         >
           <div className="grid flex-1 gap-2">
-            <Label htmlFor="name" className="sr-only">
+            <Label className="sr-only" htmlFor="name">
               Name
             </Label>
             <Input id="name" {...register("name")} placeholder="Name" />
             {errors.name && <ErrorMessage>{errors.name.message}</ErrorMessage>}
           </div>
           <div className="grid flex-1 gap-2">
-            <Label htmlFor="slug" className="sr-only">
+            <Label className="sr-only" htmlFor="slug">
               Slug
             </Label>
             <Input
@@ -145,10 +145,10 @@ export const CreateCategoryModal = ({
             {errors.slug && <ErrorMessage>{errors.slug.message}</ErrorMessage>}
           </div>
           <Button
-            type="submit"
+            className="mt-4 flex w-full gap-2"
             disabled={isSubmitting}
-            className="flex w-full gap-2 mt-4"
             size={"sm"}
+            type="submit"
           >
             {isSubmitting ? <ButtonLoader /> : "Create category"}
           </Button>
@@ -198,7 +198,7 @@ export const UpdateCategoryModal = ({
     onSuccess: () => {
       setOpen(false);
       toast.success("Category updated successfully");
-      void queryClient.invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: ["categories", activeWorkspace?.slug],
       });
     },
@@ -215,7 +215,7 @@ export const UpdateCategoryModal = ({
     const isTaken = await checkCategorySlugForUpdateAction(
       data.slug,
       activeWorkspace?.id as string,
-      categoryData.id,
+      categoryData.id
     );
 
     if (isTaken) {
@@ -229,36 +229,36 @@ export const UpdateCategoryModal = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog onOpenChange={setOpen} open={open}>
       <DialogContent className="max-w-sm p-8">
         <DialogHeader>
-          <DialogTitle className="font-medium text-center">
+          <DialogTitle className="text-center font-medium">
             Update category
           </DialogTitle>
         </DialogHeader>
         <form
+          className="mt-2 flex flex-col gap-5"
           onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col gap-5 mt-2"
         >
           <div className="grid flex-1 gap-2">
-            <Label htmlFor="name" className="sr-only">
+            <Label className="sr-only" htmlFor="name">
               Name
             </Label>
             <Input id="name" {...register("name")} placeholder="Name" />
             {errors.name && <ErrorMessage>{errors.name.message}</ErrorMessage>}
           </div>
           <div className="grid flex-1 gap-2">
-            <Label htmlFor="slug" className="sr-only">
+            <Label className="sr-only" htmlFor="slug">
               Slug
             </Label>
             <Input id="slug" {...register("slug")} placeholder="slug" />
             {errors.slug && <ErrorMessage>{errors.slug.message}</ErrorMessage>}
           </div>
           <Button
-            type="submit"
+            className="mt-4 flex w-full gap-2"
             disabled={isSubmitting}
-            className="flex w-full gap-2 mt-4"
             size={"sm"}
+            type="submit"
           >
             {isSubmitting ? <ButtonLoader /> : "Update category"}
           </Button>
@@ -289,7 +289,7 @@ export const DeleteCategoryModal = ({
       }),
     onSuccess: () => {
       toast.success("Category deleted successfully");
-      void queryClient.invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: ["categories", activeWorkspace?.id],
       });
       setOpen(false);
@@ -300,7 +300,7 @@ export const DeleteCategoryModal = ({
   });
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
+    <AlertDialog onOpenChange={setOpen} open={open}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete {name}?</AlertDialogTitle>
@@ -313,11 +313,11 @@ export const DeleteCategoryModal = ({
           <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
           <AlertDialogAction asChild>
             <Button
+              disabled={isPending}
               onClick={(e) => {
                 e.preventDefault();
                 deleteCategory();
               }}
-              disabled={isPending}
               variant="destructive"
             >
               {isPending ? <ButtonLoader variant="destructive" /> : "Delete"}

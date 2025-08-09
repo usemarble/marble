@@ -80,7 +80,7 @@ async function getInitialUserData(): Promise<{
     }
     // If API call fails, fall back to basic session data
     console.warn(
-      "Failed to fetch user data from API, falling back to session data",
+      "Failed to fetch user data from API, falling back to session data"
     );
     return { user: null, isAuthenticated: true };
   } catch (error) {
@@ -107,8 +107,8 @@ export default async function RootLayout({
       <body className={`${fontSans.className} font-sans antialiased`}>
         <Providers>
           <UserProvider
-            initialUser={initialUser}
             initialIsAuthenticated={isAuthenticated}
+            initialUser={initialUser}
           >
             {children}
           </UserProvider>

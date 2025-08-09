@@ -90,7 +90,7 @@ export const auth = betterAuth({
         }),
         webhooks({
           secret: process.env.POLAR_WEBHOOK_SECRET || "",
-          onCustomerCreated: async (payload) => {
+          onCustomerCreated: (payload) => {
             console.log("Customer Created", payload);
             // TODO: handle customer created
           },
@@ -126,8 +126,8 @@ export const auth = betterAuth({
       async sendVerificationOTP({ email, otp, type }) {
         await sendVerificationEmailAction({
           userEmail: email,
-          otp: otp,
-          type: type,
+          otp,
+          type,
         });
       },
     }),
@@ -141,11 +141,13 @@ export const auth = betterAuth({
       create: {
         before: async (session) => {
           try {
-            const organization = await getActiveOrganization(session.userId);
+            const activeOrganization = await getActiveOrganization(
+              session.userId
+            );
             return {
               data: {
                 ...session,
-                activeOrganizationId: organization?.id || null,
+                activeOrganizationId: activeOrganization?.id || null,
               },
             };
           } catch (_error) {

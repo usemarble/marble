@@ -41,10 +41,10 @@ export function InviteButton({ onInvite }: InviteButtonProps) {
         <Tooltip delayDuration={0}>
           <TooltipTrigger asChild>
             <Button
-              size="sm"
-              onClick={handleInviteClick}
-              variant={isFreePlan ? "default" : "outline"}
               className={isFreePlan ? "" : "opacity-50"}
+              onClick={handleInviteClick}
+              size="sm"
+              variant={isFreePlan ? "default" : "outline"}
             >
               <PlusIcon className="size-4" />
               Invite
@@ -67,7 +67,7 @@ export function InviteButton({ onInvite }: InviteButtonProps) {
     <TooltipProvider>
       <Tooltip delayDuration={0}>
         <TooltipTrigger asChild>
-          <Button size="sm" onClick={onInvite}>
+          <Button onClick={onInvite} size="sm">
             <PlusIcon className="size-4" />
             <span>Invite</span>
           </Button>

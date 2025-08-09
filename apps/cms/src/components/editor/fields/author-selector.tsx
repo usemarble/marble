@@ -70,7 +70,9 @@ export function AuthorSelector({
 
   // Transform workspace members into author options
   const authors = useMemo(() => {
-    if (!activeWorkspace?.members) return [];
+    if (!activeWorkspace?.members) {
+      return [];
+    }
 
     return activeWorkspace.members.map((member) => ({
       id: member.userId,
@@ -118,7 +120,7 @@ export function AuthorSelector({
     onChange(newValue);
   };
 
-  const isLoading = !activeWorkspace || !authors.length;
+  const isLoading = !(activeWorkspace && authors.length);
 
   return (
     <div className="flex flex-col gap-3">
@@ -129,16 +131,16 @@ export function AuthorSelector({
             <Info className="size-4 text-gray-400" />
           </TooltipTrigger>
           <TooltipContent>
-            <p className="text-muted-foreground text-xs max-w-64">
+            <p className="max-w-64 text-muted-foreground text-xs">
               List of authors who contributed to the article.
             </p>
           </TooltipContent>
         </Tooltip>
       </div>
-      <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <Popover onOpenChange={setIsOpen} open={isOpen}>
         <PopoverTrigger>
-          <div className="flex items-center bg-background justify-between gap-2 relative w-full cursor-pointer rounded-md border border-input px-3 py-1.5 text-sm h-auto min-h-11">
-            <ul className="flex flex-wrap -space-x-2">
+          <div className="relative flex h-auto min-h-11 w-full cursor-pointer items-center justify-between gap-2 rounded-md border border-input bg-background px-3 py-1.5 text-sm">
+            <ul className="-space-x-2 flex flex-wrap">
               {selected.length === 0 && (
                 <li className="text-muted-foreground">
                   {placeholder || "Select authors"}
@@ -152,12 +154,12 @@ export function AuthorSelector({
                       {selected[0]?.name.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
-                  <p className="text-sm max-w-64">{selected[0]?.name}</p>
+                  <p className="max-w-64 text-sm">{selected[0]?.name}</p>
                 </li>
               )}
               {selected.length > 1 &&
                 selected.map((author) => (
-                  <li key={author.id} className="flex items-center">
+                  <li className="flex items-center" key={author.id}>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Avatar className="size-7">
@@ -168,7 +170,7 @@ export function AuthorSelector({
                         </Avatar>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p className="text-muted-foreground text-xs max-w-64">
+                        <p className="max-w-64 text-muted-foreground text-xs">
                           {author.name}
                         </p>
                       </TooltipContent>
@@ -180,7 +182,7 @@ export function AuthorSelector({
           </div>
         </PopoverTrigger>
         {error && <ErrorMessage>{error.message}</ErrorMessage>}
-        <PopoverContent className="min-w-[350.67px] p-0" align="start">
+        <PopoverContent align="start" className="min-w-[350.67px] p-0">
           <Command className="w-full">
             <CommandInput placeholder="Search team members..." />
             <CommandList>
@@ -191,8 +193,8 @@ export function AuthorSelector({
                 <CommandGroup>
                   {authors.map((option) => (
                     <CommandItem
-                      key={option.id}
                       id={option.id}
+                      key={option.id}
                       onSelect={() => {
                         addOrRemoveAuthor(option.id);
                       }}
@@ -211,7 +213,7 @@ export function AuthorSelector({
                           "ml-auto h-4 w-4",
                           selected.some((item) => item.id === option.id)
                             ? "opacity-100"
-                            : "opacity-0",
+                            : "opacity-0"
                         )}
                       />
                     </CommandItem>

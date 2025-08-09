@@ -35,7 +35,7 @@ export function UserProvider({
   // Update user state when session changes, but be careful not to clear initial data
   useEffect(() => {
     // Only clear user data if session is explicitly null and we're not still loading
-    if (!session && !isSessionPending && !isSigningOut) {
+    if (!(session || isSessionPending || isSigningOut)) {
       setUser(null);
       queryClient.removeQueries({ queryKey: [QUERY_KEYS.USER] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USER] });
@@ -57,7 +57,7 @@ export function UserProvider({
       // 1. We don't have complete user data (no workspaceRole means incomplete)
       // 2. User is authenticated
       // 3. Session is not pending
-      (!user || !user.workspaceRole) && isAuthenticated && !isSessionPending,
+      !user?.workspaceRole && isAuthenticated && !isSessionPending,
     initialData: initialUser,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
@@ -67,7 +67,7 @@ export function UserProvider({
   const { mutate: updateUserMutation, isPending: isUpdatingUser } = useMutation(
     {
       mutationFn: async (
-        updates: Partial<Pick<UserProfile, "name" | "image">>,
+        updates: Partial<Pick<UserProfile, "name" | "image">>
       ) => {
         const response = await request<UserProfile>("/user", "PATCH", updates);
         return response.data;
@@ -81,11 +81,11 @@ export function UserProvider({
       onError: (_error) => {
         toast.error("Failed to update profile");
       },
-    },
+    }
   );
 
-  const updateUser = async (
-    updates: Partial<Pick<UserProfile, "name" | "image">>,
+  const updateUser = (
+    updates: Partial<Pick<UserProfile, "name" | "image">>
   ) => {
     updateUserMutation(updates);
   };

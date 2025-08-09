@@ -42,6 +42,7 @@ import {
 } from "@/lib/validations/workspace";
 import { useWorkspace } from "@/providers/workspace";
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Not true
 function PageClient() {
   const router = useRouter();
   const { activeWorkspace, isOwner, updateActiveWorkspace } = useWorkspace();
@@ -54,9 +55,9 @@ function PageClient() {
   const [file, setFile] = useState<File | null>(null);
 
   const { mutate: uploadLogo, isPending: isUploading } = useMutation({
-    mutationFn: async (file: File) => {
+    mutationFn: async (formFile: File) => {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", formFile);
 
       const response = await fetch("/api/uploads/logo", {
         method: "POST",
@@ -131,10 +132,14 @@ function PageClient() {
   ]);
 
   const onNameSubmit = async (data: NameValues) => {
-    if (!isOwner) return;
+    if (!isOwner) {
+      return;
+    }
 
     try {
-      if (!activeWorkspace?.id) return;
+      if (!activeWorkspace?.id) {
+        return;
+      }
       await updateWorkspaceAction(activeWorkspace?.id, {
         ...data,
         slug: activeWorkspace?.slug,
@@ -150,7 +155,9 @@ function PageClient() {
   };
 
   const onSlugSubmit = async (payload: SlugValues) => {
-    if (!isOwner || !activeWorkspace?.id) return;
+    if (!(isOwner && activeWorkspace?.id)) {
+      return;
+    }
 
     try {
       const { data, error } = await organization.checkSlug({
@@ -170,7 +177,7 @@ function PageClient() {
         {
           ...payload,
           name: activeWorkspace?.name,
-        },
+        }
       );
       toast.success("Workspace slug updated");
       setIsSlugChanged(false);
@@ -184,7 +191,9 @@ function PageClient() {
   };
 
   const copyWorkspaceId = () => {
-    if (!activeWorkspace?.id) return;
+    if (!activeWorkspace?.id) {
+      return;
+    }
     setIdCopied(true);
     navigator.clipboard.writeText(activeWorkspace?.id);
     toast.success("ID copied to clipboard.");
@@ -194,7 +203,9 @@ function PageClient() {
   };
 
   const copyWorkspaceLogo = () => {
-    if (!logoUrl) return;
+    if (!logoUrl) {
+      return;
+    }
     setLogoCopied(true);
     navigator.clipboard.writeText(logoUrl);
     toast.success("Logo URL copied to clipboard.");
@@ -203,8 +214,10 @@ function PageClient() {
     }, 1000);
   };
 
-  const handleLogoUpload = async () => {
-    if (!file || !isOwner) return;
+  const handleLogoUpload = () => {
+    if (!(file && isOwner)) {
+      return;
+    }
 
     uploadLogo(file);
   };
@@ -217,7 +230,9 @@ function PageClient() {
   }, [file]);
 
   const onTimezoneSubmit = async (data: z.infer<typeof timezoneSchema>) => {
-    if (!isOwner || !activeWorkspace?.id) return;
+    if (!(isOwner && activeWorkspace?.id)) {
+      return;
+    }
 
     try {
       await updateWorkspaceAction(activeWorkspace?.id, {
@@ -239,31 +254,31 @@ function PageClient() {
     <WorkspacePageWrapper className="flex flex-col gap-8 py-12">
       <Card className="p-6">
         <CardHeader>
-          <CardTitle className="text-lg font-medium">Workspace Name</CardTitle>
+          <CardTitle className="font-medium text-lg">Workspace Name</CardTitle>
           <CardDescription>The name of your workspace.</CardDescription>
         </CardHeader>
         <CardContent>
           <form
+            className="flex w-full flex-col gap-2"
             onSubmit={nameForm.handleSubmit(onNameSubmit)}
-            className="flex flex-col gap-2 w-full"
           >
-            <div className="flex gap-2 items-center">
-              <div className="flex flex-col gap-2 flex-1">
-                <Label htmlFor="name" className="sr-only">
+            <div className="flex items-center gap-2">
+              <div className="flex flex-1 flex-col gap-2">
+                <Label className="sr-only" htmlFor="name">
                   Name
                 </Label>
                 <Input
                   id="name"
                   {...nameForm.register("name")}
-                  placeholder="Technology"
                   disabled={!isOwner}
+                  placeholder="Technology"
                 />
               </div>
               <Button
+                className={cn("flex w-20 items-center gap-2 self-end")}
                 disabled={
-                  !isOwner || !isNameChanged || nameForm.formState.isSubmitting
+                  !(isOwner && isNameChanged) || nameForm.formState.isSubmitting
                 }
-                className={cn("w-20 self-end flex gap-2 items-center")}
               >
                 {nameForm.formState.isSubmitting ? (
                   <Loader2 className="animate-spin" />
@@ -273,7 +288,7 @@ function PageClient() {
               </Button>
             </div>
             {nameForm.formState.errors.name && (
-              <p className="text-xs text-destructive">
+              <p className="text-destructive text-xs">
                 {nameForm.formState.errors.name.message}
               </p>
             )}
@@ -283,31 +298,31 @@ function PageClient() {
 
       <Card className="p-6">
         <CardHeader>
-          <CardTitle className="text-lg font-medium">Workspace Slug</CardTitle>
+          <CardTitle className="font-medium text-lg">Workspace Slug</CardTitle>
           <CardDescription>Your unique workspace slug.</CardDescription>
         </CardHeader>
         <CardContent>
           <form
+            className="flex w-full flex-col gap-2"
             onSubmit={slugForm.handleSubmit(onSlugSubmit)}
-            className="flex flex-col gap-2 w-full"
           >
-            <div className="flex gap-2 items-center">
-              <div className="flex flex-col gap-2 flex-1">
-                <Label htmlFor="slug" className="sr-only">
+            <div className="flex items-center gap-2">
+              <div className="flex flex-1 flex-col gap-2">
+                <Label className="sr-only" htmlFor="slug">
                   Slug
                 </Label>
                 <Input
                   id="slug"
                   {...slugForm.register("slug")}
-                  placeholder="workspace"
                   disabled={!isOwner}
+                  placeholder="workspace"
                 />
               </div>
               <Button
+                className={cn("flex w-20 items-center gap-2 self-end")}
                 disabled={
-                  !isOwner || !isSlugChanged || slugForm.formState.isSubmitting
+                  !(isOwner && isSlugChanged) || slugForm.formState.isSubmitting
                 }
-                className={cn("w-20 self-end flex gap-2 items-center")}
               >
                 {slugForm.formState.isSubmitting ? (
                   <Loader2 className="animate-spin" />
@@ -317,7 +332,7 @@ function PageClient() {
               </Button>
             </div>
             {slugForm.formState.errors.slug && (
-              <p className="text-xs text-destructive">
+              <p className="text-destructive text-xs">
                 {slugForm.formState.errors.slug.message}
               </p>
             )}
@@ -327,7 +342,7 @@ function PageClient() {
 
       <Card className="p-6">
         <CardHeader>
-          <CardTitle className="text-lg font-medium">Workspace Logo.</CardTitle>
+          <CardTitle className="font-medium text-lg">Workspace Logo.</CardTitle>
           <CardDescription>
             Upload a logo for your workspace. (Square image recommended.
             Accepted file types: .png, .jpg)
@@ -337,12 +352,12 @@ function PageClient() {
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-5">
               <Label
-                htmlFor="logo"
                 className={cn(
-                  "cursor-pointer relative overflow-hidden rounded-full size-16 group",
+                  "group relative size-16 cursor-pointer overflow-hidden rounded-full",
                   (isUploading || !isOwner) && "pointer-events-none",
-                  !isOwner && "opacity-50",
+                  !isOwner && "opacity-50"
                 )}
+                htmlFor="logo"
               >
                 <Avatar className="size-16">
                   <AvatarImage src={logoUrl || undefined} />
@@ -351,25 +366,25 @@ function PageClient() {
                   </AvatarFallback>
                 </Avatar>
                 <input
-                  title="Upload logo"
-                  type="file"
-                  id="logo"
                   accept="image/*"
+                  className="sr-only"
                   disabled={!isOwner}
+                  id="logo"
                   onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file && !isUploading && isOwner) {
-                      setFile(file);
+                    const eventFile = e.target.files?.[0];
+                    if (eventFile && !isUploading && isOwner) {
+                      setFile(eventFile);
                     }
                   }}
-                  className="sr-only"
+                  title="Upload logo"
+                  type="file"
                 />
                 <div
                   className={cn(
-                    "absolute inset-0 flex items-center justify-center transition-opacity duration-300 bg-background/50 backdrop-blur-sm size-full",
+                    "absolute inset-0 flex size-full items-center justify-center bg-background/50 backdrop-blur-sm transition-opacity duration-300",
                     isUploading
                       ? "opacity-100"
-                      : "opacity-0 group-hover:opacity-100",
+                      : "opacity-0 group-hover:opacity-100"
                   )}
                 >
                   {isUploading ? (
@@ -380,14 +395,14 @@ function PageClient() {
                 </div>
               </Label>
             </div>
-            <div className="flex items-center gap-2 w-full">
+            <div className="flex w-full items-center gap-2">
               <Input defaultValue={logoUrl || undefined} readOnly />
               <Button
-                variant="outline"
-                type="submit"
-                size="icon"
-                onClick={copyWorkspaceLogo}
                 className="px-3"
+                onClick={copyWorkspaceLogo}
+                size="icon"
+                type="submit"
+                variant="outline"
               >
                 <span className="sr-only">Copy</span>
                 {logoCopied ? (
@@ -403,7 +418,7 @@ function PageClient() {
 
       <Card className="p-6">
         <CardHeader>
-          <CardTitle className="text-lg font-medium">
+          <CardTitle className="font-medium text-lg">
             Workspace Timezone
           </CardTitle>
           <CardDescription>
@@ -413,32 +428,31 @@ function PageClient() {
         </CardHeader>
         <CardContent>
           <form
+            className="flex w-full flex-col gap-2"
             onSubmit={timezoneForm.handleSubmit(onTimezoneSubmit)}
-            className="flex flex-col gap-2 w-full"
           >
-            <div className="flex gap-2 items-center">
-              <div className="flex flex-col gap-2 flex-1">
-                <Label htmlFor="timezone" className="sr-only">
+            <div className="flex items-center gap-2">
+              <div className="flex flex-1 flex-col gap-2">
+                <Label className="sr-only" htmlFor="timezone">
                   Timezone
                 </Label>
                 <TimezoneSelector
-                  value={timezoneForm.watch("timezone")}
+                  disabled={!isOwner}
                   onValueChange={(value) => {
                     timezoneForm.setValue("timezone", value);
                     timezoneForm.trigger("timezone");
                   }}
-                  disabled={!isOwner}
                   placeholder="Select timezone..."
                   timezones={timezones}
+                  value={timezoneForm.watch("timezone")}
                 />
               </div>
               <Button
+                className={cn("flex w-20 items-center gap-2 self-end")}
                 disabled={
-                  !isOwner ||
-                  !isTimezoneChanged ||
+                  !(isOwner && isTimezoneChanged) ||
                   timezoneForm.formState.isSubmitting
                 }
-                className={cn("w-20 self-end flex gap-2 items-center")}
               >
                 {timezoneForm.formState.isSubmitting ? (
                   <Loader2 className="animate-spin" />
@@ -448,7 +462,7 @@ function PageClient() {
               </Button>
             </div>
             {timezoneForm.formState.errors.timezone && (
-              <p className="text-xs text-destructive">
+              <p className="text-destructive text-xs">
                 {timezoneForm.formState.errors.timezone.message}
               </p>
             )}
@@ -458,7 +472,7 @@ function PageClient() {
 
       <Card className="p-6">
         <CardHeader>
-          <CardTitle className="text-lg font-medium">Workspace ID.</CardTitle>
+          <CardTitle className="font-medium text-lg">Workspace ID.</CardTitle>
           <CardDescription>
             Unique identifier of your workspace on marble.
           </CardDescription>
@@ -466,17 +480,17 @@ function PageClient() {
         <CardContent>
           <div className="flex items-center space-x-2">
             <div className="grid flex-1 gap-2">
-              <Label htmlFor="link" className="sr-only">
+              <Label className="sr-only" htmlFor="link">
                 Link
               </Label>
-              <Input id="link" defaultValue={activeWorkspace?.id} readOnly />
+              <Input defaultValue={activeWorkspace?.id} id="link" readOnly />
             </div>
             <Button
-              variant="outline"
-              type="submit"
-              size="icon"
-              onClick={copyWorkspaceId}
               className="px-3"
+              onClick={copyWorkspaceId}
+              size="icon"
+              type="submit"
+              variant="outline"
             >
               <span className="sr-only">Copy</span>
               {idCopied ? (
@@ -492,7 +506,7 @@ function PageClient() {
       {isOwner && (
         <Card className="p-6">
           <CardHeader>
-            <CardTitle className="text-lg font-medium">
+            <CardTitle className="font-medium text-lg">
               Delete workspace.
             </CardTitle>
             <CardDescription>

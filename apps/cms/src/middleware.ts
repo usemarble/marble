@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import type { Session } from "./lib/auth/types";
 import { getUserWorkspace } from "./lib/queries/workspace";
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: This is mega dumb
 export async function middleware(request: NextRequest) {
   const { data: session } = await axios
     .get<Session>(`${request.nextUrl.origin}/api/auth/get-session`, {
@@ -36,7 +37,7 @@ export async function middleware(request: NextRequest) {
     // Redirect to login for protected routes
     const callbackUrl = encodeURIComponent(request.nextUrl.pathname);
     return NextResponse.redirect(
-      new URL(`/login?from=${callbackUrl}`, request.url),
+      new URL(`/login?from=${callbackUrl}`, request.url)
     );
   }
 
@@ -50,7 +51,7 @@ export async function middleware(request: NextRequest) {
     const callbackUrl = encodeURIComponent(request.nextUrl.pathname);
     // Redirect unverified users to verify page
     return NextResponse.redirect(
-      new URL(`/verify?from=${callbackUrl}`, request.url),
+      new URL(`/verify?from=${callbackUrl}`, request.url)
     );
   }
 
@@ -65,7 +66,7 @@ export async function middleware(request: NextRequest) {
     if (isAuthPage || isRootPage || isVerifyPage) {
       const workspaceSlug = await getUserWorkspace(
         session.user.id,
-        request.cookies,
+        request.cookies
       );
       if (workspaceSlug) {
         return NextResponse.redirect(new URL(`/${workspaceSlug}`, request.url));

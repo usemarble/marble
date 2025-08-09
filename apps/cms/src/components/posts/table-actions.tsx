@@ -24,7 +24,7 @@ export default function PostTableActions(props: Post) {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
+          <Button className="h-8 w-8 p-0" variant="ghost">
             <span className="sr-only">Open menu</span>
             <DotsThreeVertical />
           </Button>
@@ -32,17 +32,17 @@ export default function PostTableActions(props: Post) {
         <DropdownMenuContent align="end" className="text-muted-foreground">
           <DropdownMenuItem>
             <Link
-              href={`/${params.workspace}/editor/p/${props.id}`}
               className="flex w-full items-center gap-2"
+              href={`/${params.workspace}/editor/p/${props.id}`}
             >
               <PencilSimpleLine size={16} /> <span>Edit</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem>
             <button
-              type="button"
-              onClick={() => setShowDeleteModal(true)}
               className="flex w-full items-center gap-2"
+              onClick={() => setShowDeleteModal(true)}
+              type="button"
             >
               <Trash size={16} /> <span>Delete</span>
             </button>
@@ -51,9 +51,9 @@ export default function PostTableActions(props: Post) {
       </DropdownMenu>
 
       <DeletePostModal
+        id={props.id}
         open={showDeleteModal}
         setOpen={setShowDeleteModal}
-        id={props.id}
       />
     </>
   );

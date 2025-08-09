@@ -73,8 +73,8 @@ export function PageClient() {
           old?.map((webhook) =>
             webhook.id === newWebhookData.id
               ? { ...webhook, enabled: newWebhookData.enabled }
-              : webhook,
-          ) ?? [],
+              : webhook
+          ) ?? []
       );
 
       return { previousWebhooks };
@@ -83,7 +83,7 @@ export function PageClient() {
       if (context?.previousWebhooks) {
         queryClient.setQueryData(
           [QUERY_KEYS.WEBHOOKS, params.workspace],
-          context.previousWebhooks,
+          context.previousWebhooks
         );
       }
       toast.error("Failed to update");
@@ -101,12 +101,12 @@ export function PageClient() {
 
   if (webhooks?.length === 0) {
     return (
-      <WorkspacePageWrapper className="h-full grid place-content-center">
-        <div className="flex flex-col gap-4 items-center max-w-80">
+      <WorkspacePageWrapper className="grid h-full place-content-center">
+        <div className="flex max-w-80 flex-col items-center gap-4">
           <div className="p-2">
             <WebhookIcon className="size-16" />
           </div>
-          <div className="text-center flex flex-col gap-4 items-center">
+          <div className="flex flex-col items-center gap-4 text-center">
             <p className="text-muted-foreground text-sm">
               Webhooks let you run actions on your server when events happen in
               your workspace.
@@ -144,16 +144,16 @@ export function PageClient() {
                   <div className="flex items-center gap-2">
                     <Switch
                       checked={webhook.enabled}
-                      onCheckedChange={(checked) =>
-                        toggleWebhook({ id: webhook.id, enabled: checked })
-                      }
                       disabled={
                         isToggling && toggleVariables?.id === webhook.id
+                      }
+                      onCheckedChange={(checked) =>
+                        toggleWebhook({ id: webhook.id, enabled: checked })
                       }
                     />
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
+                        <Button size="icon" variant="ghost">
                           <MoreHorizontal className="size-4" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -161,24 +161,24 @@ export function PageClient() {
                         <DropdownMenuItem
                           onClick={() => handleCopySecret(webhook.secret)}
                         >
-                          <Copy className="size-4 mr-2" />
+                          <Copy className="mr-2 size-4" />
                           Copy secret
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DeleteWebhookModal
-                          webhookId={webhook.id}
-                          webhookName={webhook.name}
                           onDelete={() =>
                             queryClient.invalidateQueries({
                               queryKey: [QUERY_KEYS.WEBHOOKS, params.workspace],
                             })
                           }
+                          webhookId={webhook.id}
+                          webhookName={webhook.name}
                         >
                           <DropdownMenuItem
                             className="text-destructive"
                             onSelect={(e) => e.preventDefault()}
                           >
-                            <Trash2 className="size-4 mr-2" />
+                            <Trash2 className="mr-2 size-4" />
                             Delete
                           </DropdownMenuItem>
                         </DeleteWebhookModal>
@@ -189,10 +189,10 @@ export function PageClient() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-1">
+                  <p className="mb-1 font-medium text-muted-foreground text-sm">
                     Endpoint
                   </p>
-                  <p className="text-sm font-mono break-all">
+                  <p className="break-all font-mono text-sm">
                     {webhook.endpoint}
                   </p>
                 </div>
@@ -200,13 +200,13 @@ export function PageClient() {
                 <Separator />
 
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-2">
+                  <p className="mb-2 font-medium text-muted-foreground text-sm">
                     Events
                   </p>
                   <ul className="flex flex-wrap gap-2">
                     {webhook.events.map((event) => (
                       <li key={event}>
-                        <Badge variant="secondary" className="text-xs">
+                        <Badge className="text-xs" variant="secondary">
                           {event}
                         </Badge>
                       </li>
@@ -214,7 +214,7 @@ export function PageClient() {
                   </ul>
                 </div>
 
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <div className="flex items-center justify-between text-muted-foreground text-xs">
                   <span>Format: {webhook.format}</span>
                   <span>
                     Created {new Date(webhook.createdAt).toLocaleDateString()}

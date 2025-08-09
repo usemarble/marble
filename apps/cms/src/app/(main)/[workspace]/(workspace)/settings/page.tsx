@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-async function Page() {
+function Page() {
   return redirect("/settings/general");
 }
 

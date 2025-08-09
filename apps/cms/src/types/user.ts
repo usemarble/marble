@@ -22,7 +22,7 @@ export interface UserContextType {
   isAuthenticated: boolean;
   isFetchingUser: boolean;
   updateUser: (
-    updates: Partial<Pick<UserProfile, "name" | "image">>,
+    updates: Partial<Pick<UserProfile, "name" | "image">>
   ) => Promise<void>;
   isUpdatingUser: boolean;
   signOut: () => Promise<void>;

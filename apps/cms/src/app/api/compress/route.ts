@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import sharp from "sharp";
 import { getServerSession } from "@/lib/auth/session";
 
+const fileNameRegex = /\.[^/.]+$/;
+
 export async function POST(request: Request) {
   const sessionData = await getServerSession();
 
@@ -29,14 +31,14 @@ export async function POST(request: Request) {
     return new NextResponse(compressedBuffer, {
       headers: {
         "Content-Type": "image/webp",
-        "Content-Disposition": `attachment; filename="${file.name.replace(/\.[^/.]+$/, ".webp")}"`,
+        "Content-Disposition": `attachment; filename="${file.name.replace(fileNameRegex, ".webp")}"`,
       },
     });
   } catch (error) {
     console.error("Compression error:", error);
     return NextResponse.json(
       { error: "Failed to compress image" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

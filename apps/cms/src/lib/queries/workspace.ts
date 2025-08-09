@@ -12,7 +12,7 @@ export async function getActiveOrganization(id: string) {
 
 export async function getUserWorkspace(
   userId: string,
-  cookies?: RequestCookies,
+  cookies?: RequestCookies
 ) {
   // First try to get last visited workspace if cookies are provided
   if (cookies) {
@@ -24,7 +24,7 @@ export async function getUserWorkspace(
           slug: lastVisitedWorkspace,
           members: {
             some: {
-              userId: userId,
+              userId,
             },
           },
         },
@@ -42,7 +42,7 @@ export async function getUserWorkspace(
     where: {
       members: {
         some: {
-          userId: userId,
+          userId,
           role: "owner",
         },
       },
@@ -59,7 +59,7 @@ export async function getUserWorkspace(
     where: {
       members: {
         some: {
-          userId: userId,
+          userId,
         },
       },
     },

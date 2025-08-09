@@ -50,7 +50,9 @@ export function WorkspaceSwitcher() {
     slug: string;
     logo?: string | null;
   }) {
-    if (org.slug === activeWorkspace?.slug) return;
+    if (org.slug === activeWorkspace?.slug) {
+      return;
+    }
 
     try {
       await updateActiveWorkspace(org.slug, org);
@@ -69,32 +71,32 @@ export function WorkspaceSwitcher() {
           {activeWorkspace && !showSkeleton ? (
             <DropdownMenuTrigger asChild>
               <SidebarMenuButton
-                size="lg"
-                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:bg-sidebar-accent border border-transparent hover:border-border hover:shadow-sm transition"
+                className="border border-transparent transition hover:border-border hover:bg-sidebar-accent hover:shadow-sm data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                 disabled={isFetchingWorkspace}
+                size="lg"
               >
-                <Avatar className="size-8 rounded-">
+                <Avatar className="rounded- size-8">
                   <AvatarImage
-                    src={activeWorkspace.logo || undefined}
                     className="rounded-[4px]"
+                    src={activeWorkspace.logo || undefined}
                   />
                   <AvatarFallback className="border bg-sidebar-accent">
                     {activeWorkspace.name.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-1 gap-2 text-left text-sm leading-tight">
-                  <span className="truncate font-medium text-sm text-ellipsis">
+                  <span className="truncate text-ellipsis font-medium text-sm">
                     {activeWorkspace?.name}
                   </span>
                   <Badge
-                    variant="outline"
                     className={cn(
-                      "text-center py-0 px-1.5 text-[11px] capitalize justify-center bg-gray-50 text-gray-500 border-gray-300",
+                      "justify-center border-gray-300 bg-gray-50 px-1.5 py-0 text-center text-[11px] text-gray-500 capitalize",
                       {
-                        "bg-emerald-50 dark:bg-transparent text-blue-500 border-blue-300":
+                        "border-blue-300 bg-emerald-50 text-blue-500 dark:bg-transparent":
                           activeWorkspace.subscription?.plan === "pro",
-                      },
+                      }
                     )}
+                    variant="outline"
                   >
                     {activeWorkspace.subscription?.plan || "free"}
                   </Badge>
@@ -103,18 +105,18 @@ export function WorkspaceSwitcher() {
               </SidebarMenuButton>
             </DropdownMenuTrigger>
           ) : (
-            <div className="bg-sidebar-accent rounded-md border p-2 flex items-center gap-2">
-              <Skeleton className="border rounded-md size-8 shrink-0" />
-              <div className="flex flex-col gap-1 w-full">
-                <Skeleton className="h-3 border w-3/4" />
-                <Skeleton className="border h-3 w-1/2" />
+            <div className="flex items-center gap-2 rounded-md border bg-sidebar-accent p-2">
+              <Skeleton className="size-8 shrink-0 rounded-md border" />
+              <div className="flex w-full flex-col gap-1">
+                <Skeleton className="h-3 w-3/4 border" />
+                <Skeleton className="h-3 w-1/2 border" />
               </div>
-              <Skeleton className="border rounded-md size-4 ml-auto" />
+              <Skeleton className="ml-auto size-4 rounded-md border" />
             </div>
           )}
           <DropdownMenuContent
-            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
             align="start"
+            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
             side={isMobile ? "bottom" : "right"}
             sideOffset={4}
           >
@@ -126,10 +128,10 @@ export function WorkspaceSwitcher() {
                 {ownedWorkspaces.map((org) => (
                   <DropdownMenuItem key={org.id}>
                     <button
-                      type="button"
-                      onClick={() => switchWorkspace(org)}
-                      disabled={isFetchingWorkspace}
                       className="relative flex w-full items-center gap-4 disabled:opacity-50"
+                      disabled={isFetchingWorkspace}
+                      onClick={() => switchWorkspace(org)}
+                      type="button"
                     >
                       <Avatar className="size-6 rounded-[0.2rem]">
                         <AvatarImage src={org.logo || undefined} />
@@ -137,7 +139,7 @@ export function WorkspaceSwitcher() {
                       </Avatar>
                       {org.name}
                       {activeWorkspace?.id === org.id && (
-                        <Check className="text-muted-foreground absolute right-0 size-4" />
+                        <Check className="absolute right-0 size-4 text-muted-foreground" />
                       )}
                     </button>
                   </DropdownMenuItem>
@@ -154,10 +156,10 @@ export function WorkspaceSwitcher() {
                 {sharedWorkspaces.map((org) => (
                   <DropdownMenuItem key={org.id}>
                     <button
-                      type="button"
-                      onClick={() => switchWorkspace(org)}
-                      disabled={isFetchingWorkspace}
                       className="relative flex w-full items-center gap-4 disabled:opacity-50"
+                      disabled={isFetchingWorkspace}
+                      onClick={() => switchWorkspace(org)}
+                      type="button"
                     >
                       <Avatar className="size-6 rounded-[0.2rem]">
                         <AvatarImage src={org.logo || undefined} />
@@ -165,7 +167,7 @@ export function WorkspaceSwitcher() {
                       </Avatar>
                       {org.name}
                       {activeWorkspace?.id === org.id && (
-                        <Check className="text-muted-foreground absolute right-0 size-4" />
+                        <Check className="absolute right-0 size-4 text-muted-foreground" />
                       )}
                     </button>
                   </DropdownMenuItem>
@@ -175,11 +177,11 @@ export function WorkspaceSwitcher() {
 
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <Link href="/new" className="flex w-full items-center gap-2">
-                <div className="bg-background flex size-6 items-center justify-center rounded-md border">
+              <Link className="flex w-full items-center gap-2" href="/new">
+                <div className="flex size-6 items-center justify-center rounded-md border bg-background">
                   <Plus className="size-4" />
                 </div>
-                <div className="text-muted-foreground font-medium">
+                <div className="font-medium text-muted-foreground">
                   Add workspace
                 </div>
               </Link>

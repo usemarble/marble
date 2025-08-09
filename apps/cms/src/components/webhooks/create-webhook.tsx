@@ -91,7 +91,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
       onError: () => {
         toast.error("Failed to generate secret");
       },
-    },
+    }
   );
 
   const { mutate: createWebhook, isPending: isCreating } = useMutation({
@@ -104,7 +104,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
       toast.success("Webhook created successfully");
       reset();
       setIsOpen(false);
-      void queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.WEBHOOKS] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.WEBHOOKS] });
       router.refresh();
     },
     onError: () => {
@@ -119,7 +119,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
     } else {
       setValue(
         "events",
-        currentEvents.filter((id) => id !== eventId),
+        currentEvents.filter((id) => id !== eventId)
       );
     }
   };
@@ -129,16 +129,16 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+    <Sheet onOpenChange={setIsOpen} open={isOpen}>
       <SheetTrigger asChild>
         {children || (
           <Button>
-            <Plus className="size-4 mr-2" />
+            <Plus className="mr-2 size-4" />
             New webhook
           </Button>
         )}
       </SheetTrigger>
-      <SheetContent className="sm:max-w-[500px] h-[calc(100vh-20px)] top-1/2 -translate-y-1/2 right-[10px] rounded-xl">
+      <SheetContent className="-translate-y-1/2 top-1/2 right-[10px] h-[calc(100vh-20px)] rounded-xl sm:max-w-[500px]">
         <form onSubmit={handleSubmit(onSubmit)}>
           <SheetHeader className="pb-3">
             <SheetTitle>New webhook</SheetTitle>
@@ -148,7 +148,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
             </SheetDescription>
           </SheetHeader>
 
-          <div className="h-[calc(100vh-180px)] pr-4 scrollbar-hide overflow-y-auto">
+          <div className="scrollbar-hide h-[calc(100vh-180px)] overflow-y-auto pr-4">
             <div className="grid gap-6 py-6">
               {/* Name Field */}
               <div className="grid gap-2">
@@ -159,7 +159,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                   {...register("name")}
                 />
                 {errors.name && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-destructive text-sm">
                     {errors.name.message}
                   </p>
                 )}
@@ -174,7 +174,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                   {...register("endpoint")}
                 />
                 {errors.endpoint && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-destructive text-sm">
                     {errors.endpoint.message}
                   </p>
                 )}
@@ -184,11 +184,11 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
               <div className="grid gap-2">
                 <Label htmlFor="format">Format</Label>
                 <Select
+                  defaultValue="JSON"
+                  disabled
                   onValueChange={(value) =>
                     setValue("format", value as "JSON" | "FORM_ENCODED")
                   }
-                  disabled
-                  defaultValue="JSON"
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select a payload format" />
@@ -199,7 +199,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                   </SelectContent>
                 </Select>
                 {errors.format && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-destructive text-sm">
                     {errors.format.message}
                   </p>
                 )}
@@ -216,19 +216,19 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                     className="flex-1"
                   />
                   <Button
+                    disabled={isGeneratingSecret}
+                    onClick={() => generateSecret()}
                     type="button"
                     variant="outline"
-                    onClick={() => generateSecret()}
-                    disabled={isGeneratingSecret}
                   >
                     {isGeneratingSecret ? <ButtonLoader /> : "Generate"}
                   </Button>
                 </div>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   All webhook payloads will be signed with this secret.
                 </p>
                 {errors.secret && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-destructive text-sm">
                     {errors.secret.message}
                   </p>
                 )}
@@ -239,10 +239,10 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                 <div className="flex items-end">
                   <Label>Events</Label>
                   <a
+                    className="ml-2 flex cursor-pointer items-center text-primary text-xs hover:underline"
                     href="https://docs.marblecms.com/webhooks/events"
-                    target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs text-primary cursor-pointer hover:underline ml-2 flex items-center"
+                    target="_blank"
                   >
                     <span>View schemas</span>
                     {/* <ArrowUpRight className="size-4" /> */}
@@ -250,18 +250,18 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                 </div>
                 <div className="grid gap-3">
                   {webhookEvents.map((event) => (
-                    <div key={event.id} className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-3" key={event.id}>
                       <Checkbox
+                        checked={watchedEvents?.includes(event.id)}
                         id={event.id}
-                        checked={watchedEvents?.includes(event.id) || false}
                         onCheckedChange={(checked) =>
                           handleEventToggle(event.id, checked as boolean)
                         }
                       />
                       <div className="flex-1">
                         <Label
+                          className="cursor-pointer font-medium text-sm"
                           htmlFor={event.id}
-                          className="text-sm font-medium cursor-pointer"
                         >
                           {event.label}
                         </Label>
@@ -273,7 +273,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                   ))}
                 </div>
                 {errors.events && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-destructive text-sm">
                     {errors.events.message}
                   </p>
                 )}
@@ -281,8 +281,8 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
             </div>
           </div>
 
-          <SheetFooter className="flex-col sm:flex-row gap-2 pt-3 pb-0 mt-auto">
-            <Button type="submit" disabled={isCreating}>
+          <SheetFooter className="mt-auto flex-col gap-2 pt-3 pb-0 sm:flex-row">
+            <Button disabled={isCreating} type="submit">
               {isCreating ? <ButtonLoader /> : "Create webhook"}
             </Button>
           </SheetFooter>
@@ -319,10 +319,10 @@ export function WebhookButton({
       <TooltipProvider>
         <Tooltip delayDuration={0}>
           <TooltipTrigger asChild>
-            <Button variant={variant} size={size} onClick={handleWebhookClick}>
+            <Button onClick={handleWebhookClick} size={size} variant={variant}>
               {children || (
                 <>
-                  <Plus className="size-4 mr-2" />
+                  <Plus className="mr-2 size-4" />
                   New webhook
                 </>
               )}
@@ -343,7 +343,7 @@ export function WebhookButton({
 
   return (
     <CreateWebhookSheet>
-      <Button variant={variant} size={size}>
+      <Button size={size} variant={variant}>
         {children || (
           <>
             <Plus className="size-4" />

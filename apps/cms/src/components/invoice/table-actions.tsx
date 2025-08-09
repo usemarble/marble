@@ -17,35 +17,33 @@ export default function TableActions(props: Invoice) {
   };
 
   return (
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Open menu</span>
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="text-muted-foreground">
-          <DropdownMenuItem>
-            <button
-              type="button"
-              onClick={() => console.log("download invoice")}
-              className="flex w-full items-center gap-2"
-            >
-              <DownloadSimple size={16} /> <span>Download Invoice</span>
-            </button>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <button
-              type="button"
-              onClick={() => handleCopyInvoiceId()}
-              className="flex w-full items-center gap-2"
-            >
-              <Copy size={16} /> <span>Copy Invoice ID</span>
-            </button>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button className="h-8 w-8 p-0" variant="ghost">
+          <span className="sr-only">Open menu</span>
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="text-muted-foreground">
+        <DropdownMenuItem>
+          <button
+            className="flex w-full items-center gap-2"
+            onClick={() => console.log("download invoice")}
+            type="button"
+          >
+            <DownloadSimple size={16} /> <span>Download Invoice</span>
+          </button>
+        </DropdownMenuItem>
+        <DropdownMenuItem>
+          <button
+            className="flex w-full items-center gap-2"
+            onClick={() => handleCopyInvoiceId()}
+            type="button"
+          >
+            <Copy size={16} /> <span>Copy Invoice ID</span>
+          </button>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

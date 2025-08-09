@@ -21,7 +21,9 @@ export function isValidUrl(url: string) {
 }
 
 export function getUrlFromString(str: string) {
-  if (isValidUrl(str)) return str;
+  if (isValidUrl(str)) {
+    return str;
+  }
   try {
     if (str.includes(".") && !str.includes(" ")) {
       return new URL(`https://${str}`).toString();
@@ -45,23 +47,27 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
-  if (!editor) return null;
+  if (!editor) {
+    return null;
+  }
 
   return (
-    <Popover modal={true} open={open} onOpenChange={onOpenChange}>
+    <Popover modal={true} onOpenChange={onOpenChange} open={open}>
       <PopoverTrigger asChild>
         <Button
-          variant="ghost"
           className={cn("gap-2 rounded-none border-none", {
             "text-emerald-500": editor.isActive("link"),
           })}
+          variant="ghost"
         >
           <LinkSimple className="size-4" />
         </Button>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-60 p-0" sideOffset={10}>
         {/* biome-ignore lint/a11y/noStaticElementInteractions: <> */}
+        {/** biome-ignore lint/nursery/noNoninteractiveElementInteractions: <> */}
         <div
+          className="flex flex-col divide-y p-1"
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
@@ -77,35 +83,31 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
                   .run();
             }
           }}
-          className="flex flex-col p-1 divide-y"
         >
-          <div className="flex mb-1">
+          <div className="mb-1 flex">
             <input
-              ref={inputRef}
-              type="text"
-              onChange={({ target }) => setInputValue(target.value)}
-              placeholder="Paste or type link"
               className="flex-1 bg-background p-1 text-sm outline-none"
               defaultValue={editor.getAttributes("link").href || ""}
+              onChange={({ target }) => setInputValue(target.value)}
+              placeholder="Paste or type link"
+              ref={inputRef}
+              type="text"
             />
             {editor.getAttributes("link").href ? (
               <Button
-                size="icon"
-                variant="outline"
-                type="button"
                 className="flex size-8 items-center rounded-sm text-destructive transition-all hover:bg-destructive hover:text-white"
                 onClick={() => {
                   editor.chain().focus().unsetLink().run();
                 }}
+                size="icon"
+                type="button"
+                variant="outline"
               >
                 <Trash className="h-4 w-4" />
               </Button>
             ) : (
               <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                className="shrink-0 size-8"
+                className="size-8 shrink-0"
                 onClick={() => {
                   const url = getUrlFromString(inputRef.current?.value || "");
                   if (url) {
@@ -119,6 +121,9 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
                       .run();
                   }
                 }}
+                size="icon"
+                type="button"
+                variant="outline"
               >
                 <Check className="size-4" />
               </Button>
@@ -126,11 +131,11 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
           </div>
           <div className="flex items-center space-x-2 p-2">
             <Switch
-              id="new-tab"
               checked={openInNewTab}
+              id="new-tab"
               onCheckedChange={setOpenInNewTab}
             />
-            <Label htmlFor="new-tab" className="text-muted-foreground text-xs">
+            <Label className="text-muted-foreground text-xs" htmlFor="new-tab">
               Open in new tab
             </Label>
           </div>

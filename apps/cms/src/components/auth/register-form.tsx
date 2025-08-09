@@ -37,7 +37,7 @@ export function RegisterForm() {
     // they can initiate another verification email from the verify page
     await authClient.emailOtp
       .sendVerificationOtp({
-        email: email,
+        email,
         type: "email-verification",
       })
       .then((_res) => {
@@ -65,7 +65,7 @@ export function RegisterForm() {
           onError: (ctx) => {
             toast.error(ctx.error.message);
           },
-        },
+        }
       );
     } catch (_error) {
       toast.error("Sign in failed. Please try again.");
@@ -95,10 +95,10 @@ export function RegisterForm() {
     <div className="grid gap-6">
       <div className="grid grid-cols-2 gap-4">
         <button
-          type="button"
           className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
-          onClick={async () => handleSocialSignIn("google")}
           disabled={isCredentialsLoading || isGoogleLoading || isGithubLoading}
+          onClick={async () => handleSocialSignIn("google")}
+          type="button"
         >
           {isGoogleLoading ? (
             <Spinner className="mr-2 h-4 w-4 animate-spin" />
@@ -108,10 +108,10 @@ export function RegisterForm() {
           Google
         </button>
         <button
-          type="button"
           className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
-          onClick={async () => handleSocialSignIn("github")}
           disabled={isCredentialsLoading || isGoogleLoading || isGithubLoading}
+          onClick={async () => handleSocialSignIn("github")}
+          type="button"
         >
           {isGithubLoading ? (
             <Spinner className="mr-2 h-4 w-4 animate-spin" />
@@ -122,11 +122,11 @@ export function RegisterForm() {
         </button>
       </div>
       <div className="relative flex items-center">
-        <span className="bg-border inline-block h-px w-full border-t" />
-        <span className="text-muted-foreground shrink-0 px-2 text-xs uppercase">
+        <span className="inline-block h-px w-full border-t bg-border" />
+        <span className="shrink-0 px-2 text-muted-foreground text-xs uppercase">
           Or
         </span>
-        <span className="bg-border inline-block h-px w-full border-t" />
+        <span className="inline-block h-px w-full border-t bg-border" />
       </div>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="grid gap-3">
@@ -135,19 +135,19 @@ export function RegisterForm() {
               Email
             </Label>
             <Input
-              id="email"
-              placeholder="name@example.com"
-              type="email"
               autoCapitalize="none"
               autoComplete="email"
               autoCorrect="off"
               disabled={
                 isCredentialsLoading || isGoogleLoading || isGithubLoading
               }
+              id="email"
+              placeholder="name@example.com"
+              type="email"
               {...register("email")}
             />
             {errors?.email && (
-              <p className="text-sm px-1 font-medium text-destructive">
+              <p className="px-1 font-medium text-destructive text-sm">
                 {errors.email.message}
               </p>
             )}
@@ -158,21 +158,21 @@ export function RegisterForm() {
             </Label>
             <div className="relative">
               <Input
-                id="password"
-                placeholder="Your password"
-                type={isPasswordVisible ? "text" : "password"}
                 autoCapitalize="none"
                 autoCorrect="off"
+                className="pr-9"
                 disabled={
                   isCredentialsLoading || isGoogleLoading || isGithubLoading
                 }
-                className="pr-9"
+                id="password"
+                placeholder="Your password"
+                type={isPasswordVisible ? "text" : "password"}
                 {...register("password")}
               />
               <button
-                type="button"
-                className="absolute right-4 top-3 text-muted-foreground"
+                className="absolute top-3 right-4 text-muted-foreground"
                 onClick={() => setIsPasswordVisible((prev) => !prev)}
+                type="button"
               >
                 {isPasswordVisible ? (
                   <Eye className="size-4" />
@@ -182,19 +182,19 @@ export function RegisterForm() {
               </button>
             </div>
             {errors?.password && (
-              <p className="text-sm px-1 font-medium text-destructive">
+              <p className="px-1 font-medium text-destructive text-sm">
                 {errors.password.message}
               </p>
             )}
           </div>
           <Button
+            className="mt-4"
             disabled={
               isCredentialsLoading ||
               isGoogleLoading ||
               isGithubLoading ||
               isRedirecting
             }
-            className="mt-4"
           >
             {isCredentialsLoading ||
               (isRedirecting && (

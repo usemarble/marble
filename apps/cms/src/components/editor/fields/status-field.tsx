@@ -24,7 +24,7 @@ export function StatusField({ control }: StatusFieldProps) {
   });
 
   return (
-    <div className="flex items-center gap-2 justify-between">
+    <div className="flex items-center justify-between gap-2">
       <div className="flex items-center gap-1">
         <Label htmlFor="status">Published</Label>
         <Tooltip>
@@ -32,15 +32,15 @@ export function StatusField({ control }: StatusFieldProps) {
             <Info className="size-4 text-gray-400" />
           </TooltipTrigger>
           <TooltipContent>
-            <p className="text-muted-foreground text-xs max-w-64">
+            <p className="max-w-64 text-muted-foreground text-xs">
               Whether your post is published or saved as a draft.
             </p>
           </TooltipContent>
         </Tooltip>
       </div>
       <Switch
-        id="status"
         checked={value === "published"}
+        id="status"
         onCheckedChange={() =>
           onChange(value === "published" ? "unpublished" : "published")
         }

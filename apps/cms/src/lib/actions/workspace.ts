@@ -11,7 +11,7 @@ import {
 
 export async function createWorkspaceAction(payload: CreateWorkspaceValues) {
   const session = await getServerSession();
-  if (!session?.user || !session?.user.id) {
+  if (!session?.user?.id) {
     throw new Error("Unauthorized");
   }
 
@@ -42,10 +42,10 @@ export async function createWorkspaceAction(payload: CreateWorkspaceValues) {
 
 export async function updateWorkspaceAction(
   workspaceId: string,
-  payload: CreateWorkspaceValues,
+  payload: CreateWorkspaceValues
 ) {
   const session = await getServerSession();
-  if (!session?.user || !session?.user.id) {
+  if (!session?.user?.id) {
     throw new Error("Unauthorized");
   }
 
@@ -61,7 +61,7 @@ export async function updateWorkspaceAction(
 
 export async function deleteWorkspaceAction(workspaceId: string) {
   const session = await getServerSession();
-  if (!session?.user || !session?.user.id) {
+  if (!session?.user?.id) {
     throw new Error("Unauthorized");
   }
 

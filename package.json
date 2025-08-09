@@ -17,15 +17,15 @@
     "prepare": "husky"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.0.4",
+    "@biomejs/biome": "2.1.2",
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "@marble/tsconfig": "workspace:*",
     "husky": "^9.1.7",
-    "prettier": "^3.3.3",
-    "prettier-plugin-tailwindcss": "^0.6.8",
+    "lint-staged": "^16.1.5",
     "turbo": "^2.5.4",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "ultracite": "5.1.2"
   },
   "engines": {
     "node": ">=20"
@@ -36,5 +36,10 @@
       "@types/react-dom": "19.0.2"
     }
   },
-  "packageManager": "pnpm@10.13.1"
+  "packageManager": "pnpm@10.13.1",
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,json,jsonc,css,scss,md,mdx}": [
+      "npx ultracite format"
+    ]
+  }
 }

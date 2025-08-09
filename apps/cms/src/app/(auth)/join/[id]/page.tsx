@@ -11,7 +11,7 @@ export default async function InvitePage(props: {
   const { id } = params;
 
   return (
-    <div className="h-screen w-full grid place-content-center bg-muted">
+    <div className="grid h-screen w-full place-content-center bg-muted">
       <Suspense fallback={<PageLoader />}>
         <InvitePageComponent code={id} />
       </Suspense>
@@ -22,7 +22,7 @@ export default async function InvitePage(props: {
 async function InvitePageComponent({ code }: { code: string }) {
   const session = await getServerSession();
 
-  if (!session || !session.user) {
+  if (!session?.user) {
     return redirect(`/login/?from=/join/${code}`);
   }
 

@@ -80,21 +80,21 @@ function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
       if (workspace) {
         router.push(`/${workspace.slug}`);
       }
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
       toast.error("Failed to create workspace");
     }
   }
   return (
-    <div className="h-screen grid place-items-center bg-sidebar dark:bg-background">
-      <Card className="rounded-[24px] sm:min-w-[500px] py-7 px-5 dark:bg-sidebar">
-        <CardHeader className="text-center mb-5 items-center">
+    <div className="grid h-screen place-items-center bg-sidebar dark:bg-background">
+      <Card className="rounded-[24px] px-5 py-7 sm:min-w-[500px] dark:bg-sidebar">
+        <CardHeader className="mb-5 items-center text-center">
           <Image
-            src="/icon.svg"
             alt="MarbleCMS"
-            width={40}
-            height={40}
             className="mb-4"
+            height={40}
+            src="/icon.svg"
+            width={40}
           />
           <CardTitle className="font-medium">New workspace</CardTitle>
           <CardDescription className="max-w-sm">
@@ -110,7 +110,7 @@ function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
           >
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-2">
-                <Label htmlFor="name" className="sr-only">
+                <Label className="sr-only" htmlFor="name">
                   Name
                 </Label>
                 <Input id="name" placeholder="Name" {...register("name")} />
@@ -119,11 +119,11 @@ function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
                 )}
               </div>
               <div className="grid flex-1 gap-2">
-                <Label htmlFor="slug" className="sr-only">
+                <Label className="sr-only" htmlFor="slug">
                   Slug
                 </Label>
-                <div className="flex w-full rounded-md border border-input bg-background text-base placeholder:text-muted-foreground focus-within:outline-none focus-within:border-primary focus-within:ring-2 focus-within:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm overflow-hidden">
-                  <span className="py-2.5 px-2 bg-sidebar border-r">
+                <div className="flex w-full overflow-hidden rounded-md border border-input bg-background text-base placeholder:text-muted-foreground focus-within:border-primary focus-within:outline-none focus-within:ring-2 focus-within:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm">
+                  <span className="border-r bg-sidebar px-2 py-2.5">
                     {process.env.NEXT_PUBLIC_APP_URL?.split("//")[1]}/
                   </span>
                   <input
@@ -131,7 +131,7 @@ function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
                     placeholder="Slug"
                     {...register("slug")}
                     autoComplete="off"
-                    className="w-full bg-transparent py-2 px-2 outline-none ring-0"
+                    className="w-full bg-transparent px-2 py-2 outline-none ring-0"
                   />
                 </div>
                 {errors.slug && (
@@ -139,18 +139,18 @@ function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
                 )}
               </div>
               <div className="flex flex-col gap-2">
-                <Label htmlFor="timezone" className="sr-only">
+                <Label className="sr-only" htmlFor="timezone">
                   Timezone
                 </Label>
                 <Controller
-                  name="timezone"
                   control={control}
+                  name="timezone"
                   render={({ field }) => (
                     <TimezoneSelector
-                      value={field.value}
                       onValueChange={field.onChange}
                       placeholder="Select timezone..."
                       timezones={timezones}
+                      value={field.value}
                     />
                   )}
                 />
@@ -161,16 +161,16 @@ function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
             </div>
             <div className="flex flex-col gap-4">
               <Button
-                type="submit"
-                disabled={isSubmitting}
                 className="flex w-full gap-2"
+                disabled={isSubmitting}
+                type="submit"
               >
                 {isSubmitting ? <ButtonLoader /> : "Create"}
               </Button>
               {hasWorkspaces && (
                 <Link
-                  href="/"
                   className={cn(buttonVariants({ variant: "ghost" }), "w-full")}
+                  href="/"
                 >
                   Back to dashboard
                 </Link>

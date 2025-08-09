@@ -8,7 +8,7 @@ const SECRET_ACCESS_KEY = process.env.CLOUDFLARE_SECRET_ACCESS_KEY;
 const BUCKET_NAME = process.env.CLOUDFLARE_BUCKET_NAME;
 const ENDPOINT = process.env.CLOUDFLARE_S3_ENDPOINT;
 
-if (!ACCESS_KEY_ID || !SECRET_ACCESS_KEY || !BUCKET_NAME || !ENDPOINT) {
+if (!(ACCESS_KEY_ID && SECRET_ACCESS_KEY && BUCKET_NAME && ENDPOINT)) {
   throw new Error("Missing Cloudflare R2 environment variables");
 }
 
@@ -71,7 +71,7 @@ export async function DELETE(request: Request) {
       new DeleteObjectCommand({
         Bucket: bucketName,
         Key: media.name,
-      }),
+      })
     );
 
     const deletedMedia = await db.media.delete({

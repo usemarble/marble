@@ -1,24 +1,36 @@
 import { useEffect, useState } from "react";
 
-function getDevice(): "mobile" | "tablet" | "desktop" | null {
-  if (typeof window === "undefined") return null;
+export type DeviceType = "mobile" | "tablet" | "desktop" | null;
 
-  return window.matchMedia("(min-width: 1024px)").matches
-    ? "desktop"
-    : window.matchMedia("(min-width: 640px)").matches
-      ? "tablet"
-      : "mobile";
+function getDevice(): DeviceType {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  let device: DeviceType = "mobile";
+
+  if (window.matchMedia("(min-width: 1024px)").matches) {
+    device = "desktop";
+  }
+
+  if (window.matchMedia("(min-width: 640px)").matches) {
+    device = "tablet";
+  }
+
+  return device;
 }
 
 function getDimensions() {
-  if (typeof window === "undefined") return null;
+  if (typeof window === "undefined") {
+    return null;
+  }
 
   return { width: window.innerWidth, height: window.innerHeight };
 }
 
 export function useMediaQuery() {
   const [device, setDevice] = useState<"mobile" | "tablet" | "desktop" | null>(
-    getDevice(),
+    getDevice()
   );
   const [dimensions, setDimensions] = useState<{
     width: number;
