@@ -4,9 +4,9 @@ import { UnsavedChangesProvider } from "@/providers/unsaved-changes";
 function EditorLayout({ children }: { children: React.ReactNode }) {
   return (
     <UnsavedChangesProvider>
-      <div className="p-2 bg-background">
+      <div className="bg-background p-2">
         <SidebarProvider
-          className="overflow-y-hidden min-h-[calc(100vh-1rem)] h-[calc(100vh-1rem)]"
+          className="h-[calc(100vh-1rem)] min-h-[calc(100vh-1rem)] overflow-y-hidden"
           style={
             {
               "--sidebar-width": "400px",

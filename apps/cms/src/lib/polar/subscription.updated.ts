@@ -16,7 +16,7 @@ function getPlanType(productName: string): PlanType | null {
 }
 
 function getSubscriptionStatus(
-  polarStatus: WebhookSubscriptionUpdatedPayload["data"]["status"],
+  polarStatus: WebhookSubscriptionUpdatedPayload["data"]["status"]
 ): SubscriptionStatus | null {
   switch (polarStatus) {
     case "active":
@@ -37,7 +37,7 @@ function getSubscriptionStatus(
 }
 
 export async function handleSubscriptionUpdated(
-  payload: WebhookSubscriptionUpdatedPayload,
+  payload: WebhookSubscriptionUpdatedPayload
 ) {
   const { data: subscription } = payload;
 
@@ -47,7 +47,7 @@ export async function handleSubscriptionUpdated(
 
   if (!existingSubscription) {
     console.error(
-      `subscription.updated webhook received for a subscription that does not exist: ${subscription.id}`,
+      `subscription.updated webhook received for a subscription that does not exist: ${subscription.id}`
     );
     return;
   }
@@ -61,14 +61,14 @@ export async function handleSubscriptionUpdated(
   const status = getSubscriptionStatus(subscription.status);
   if (!status) {
     console.error(
-      `Unknown subscription status from Polar: ${subscription.status}`,
+      `Unknown subscription status from Polar: ${subscription.status}`
     );
     return;
   }
 
-  if (!subscription.currentPeriodStart || !subscription.currentPeriodEnd) {
+  if (!(subscription.currentPeriodStart && subscription.currentPeriodEnd)) {
     console.error(
-      "subscription.updated webhook received without currentPeriodStart or currentPeriodEnd",
+      "subscription.updated webhook received without currentPeriodStart or currentPeriodEnd"
     );
     return;
   }
@@ -90,7 +90,7 @@ export async function handleSubscriptionUpdated(
     });
 
     console.log(
-      `Successfully updated subscription ${subscription.id} for workspace ${existingSubscription.workspaceId}`,
+      `Successfully updated subscription ${subscription.id} for workspace ${existingSubscription.workspaceId}`
     );
   } catch (error) {
     console.error("Error updating subscription in DB:", error);

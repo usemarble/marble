@@ -4,7 +4,7 @@ import { getServerSession } from "@/lib/auth/session";
 
 export async function GET(
   _request: Request,
-  { params }: { params: Promise<{ slug: string }> },
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   const slug = (await params).slug;
 
@@ -15,7 +15,7 @@ export async function GET(
   }
 
   const workspace = await db.organization.findUnique({
-    where: { slug: slug },
+    where: { slug },
     select: {
       id: true,
       name: true,
@@ -64,7 +64,7 @@ export async function GET(
 
   // Find current user's role in this workspace
   const currentUserMember = workspace.members.find(
-    (member) => member.userId === sessionData.user.id,
+    (member) => member.userId === sessionData.user.id
   );
 
   const currentUserRole = currentUserMember?.role || null;

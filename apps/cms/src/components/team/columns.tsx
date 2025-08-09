@@ -76,20 +76,22 @@ export const columns: ColumnDef<TeamMemberRow>[] = [
         _isExpired = true;
       }
 
-      if (displayStatus === "accepted") return null;
+      if (displayStatus === "accepted") {
+        return null;
+      }
 
       return (
         <Badge
-          variant="outline"
           className={cn(
             "text-xs capitalize",
             displayStatus === "pending" &&
-              "bg-amber-100 border-amber-400 text-amber-600",
+              "border-amber-400 bg-amber-100 text-amber-600",
             displayStatus === "rejected" &&
-              "bg-red-100 border-red-400 text-red-600",
+              "border-red-400 bg-red-100 text-red-600",
             (displayStatus === "canceled" || displayStatus === "expired") &&
-              "bg-gray-100 border-gray-400 text-gray-600",
+              "border-gray-400 bg-gray-100 text-gray-600"
           )}
+          variant="outline"
         >
           {displayStatus === "pending" ? "Invited" : displayStatus}
         </Badge>
@@ -119,8 +121,8 @@ export const columns: ColumnDef<TeamMemberRow>[] = [
         <div className="flex justify-end pr-10">
           <TableActions
             {...row.original}
-            currentUserRole={meta?.currentUserRole}
             currentUserId={meta?.currentUserId}
+            currentUserRole={meta?.currentUserRole}
           />
         </div>
       );

@@ -1,26 +1,32 @@
 import { useEffect, useState } from "react";
 
 function getItemFromLocalStorage(key: string) {
-  if (typeof window === "undefined") return null;
+  if (typeof window === "undefined") {
+    return null;
+  }
 
   const item = window.localStorage.getItem(key);
-  if (item) return JSON.parse(item);
+  if (item) {
+    return JSON.parse(item);
+  }
 
   return null;
 }
 
 export function useLocalStorage<T>(
   key: string,
-  initialValue: T,
+  initialValue: T
 ): [T, (value: T) => void] {
   const [storedValue, setStoredValue] = useState(
-    getItemFromLocalStorage(key) ?? initialValue,
+    getItemFromLocalStorage(key) ?? initialValue
   );
 
   useEffect(() => {
     // Retrieve from localStorage
     const item = getItemFromLocalStorage(key);
-    if (item) setStoredValue(item);
+    if (item) {
+      setStoredValue(item);
+    }
   }, [key]);
 
   const setValue = (value: T) => {

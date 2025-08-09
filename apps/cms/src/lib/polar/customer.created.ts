@@ -2,8 +2,9 @@
 
 import type { WebhookCustomerCreatedPayload } from "@polar-sh/sdk/models/components/webhookcustomercreatedpayload.js";
 
+// biome-ignore lint/suspicious/useAwait: Server Action
 export async function handleCustomerCreated(
-  payload: WebhookCustomerCreatedPayload,
+  payload: WebhookCustomerCreatedPayload
 ) {
   const { data: customer } = payload;
   try {

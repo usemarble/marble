@@ -7,7 +7,7 @@ const ErrorMessage = ({ children, className, ...props }: ErrorMessageProps) => {
   return (
     <p
       aria-live="polite"
-      className={cn("text-xs px-1 font-medium text-destructive", className)}
+      className={cn("px-1 font-medium text-destructive text-xs", className)}
       {...props}
     >
       {children}

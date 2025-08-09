@@ -30,24 +30,8 @@ export function UserProvider({
   const { data: session, isPending: isSessionPending } = useSession();
 
   const [isAuthenticated, setIsAuthenticated] = useState(
-    initialIsAuthenticated || !!session,
+    initialIsAuthenticated || !!session
   );
-
-  // console.log("isAuthenticated", isAuthenticated);
-  // console.log("isSessionPending", isSessionPending);
-  // console.log("isSigningOut", isSigningOut);
-  // console.log("user", user);
-  // console.log("session", session);
-  // console.log("initialIsAuthenticated", initialIsAuthenticated);
-  // console.log("initialUser", initialUser);
-
-  // useEffect(() => {
-  //   if (!session && !isSessionPending && !isSigningOut) {
-  //     setUser(null);
-  //     queryClient.removeQueries({ queryKey: [QUERY_KEYS.USER] });
-  //     queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USER] });
-  //   }
-  // }, [session, isSessionPending, isSigningOut, queryClient]);
 
   const fetchCurrentUser = async (): Promise<UserProfile> => {
     try {
@@ -65,8 +49,7 @@ export function UserProvider({
   const { isLoading: isFetchingUser } = useQuery({
     queryKey: [QUERY_KEYS.USER],
     queryFn: fetchCurrentUser,
-    enabled:
-      (!user || !user.workspaceRole) && isAuthenticated && !isSessionPending,
+    enabled: !user?.workspaceRole && isAuthenticated && !isSessionPending,
     initialData: initialUser,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
@@ -75,7 +58,7 @@ export function UserProvider({
   const { mutate: updateUserMutation, isPending: isUpdatingUser } = useMutation(
     {
       mutationFn: async (
-        updates: Partial<Pick<UserProfile, "name" | "image">>,
+        updates: Partial<Pick<UserProfile, "name" | "image">>
       ) => {
         const response = await request<UserProfile>("user", "PATCH", updates);
         return response.data;
@@ -89,11 +72,11 @@ export function UserProvider({
       onError: (_error) => {
         toast.error("Failed to update profile");
       },
-    },
+    }
   );
 
-  const updateUser = async (
-    updates: Partial<Pick<UserProfile, "name" | "image">>,
+  const updateUser = (
+    updates: Partial<Pick<UserProfile, "name" | "image">>
   ) => {
     updateUserMutation(updates);
   };

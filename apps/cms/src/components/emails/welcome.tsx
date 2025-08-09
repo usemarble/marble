@@ -22,10 +22,10 @@ export const StripeWelcomeEmail = () => (
       <Container style={container}>
         <Section style={box}>
           <Img
+            alt="Stripe"
+            height="21"
             src={`${baseUrl}/stripe-logo.png`}
             width="49"
-            height="21"
-            alt="Stripe"
           />
           <Hr style={hr} />
           <Text style={paragraph}>
@@ -36,13 +36,13 @@ export const StripeWelcomeEmail = () => (
             You can view your payments and a variety of other information about
             your account right from your dashboard.
           </Text>
-          <Button style={button} href="https://dashboard.stripe.com/login">
+          <Button href="https://dashboard.stripe.com/login" style={button}>
             View your Stripe Dashboard
           </Button>
           <Hr style={hr} />
           <Text style={paragraph}>
             If you haven't finished your integration, you might find our{" "}
-            <Link style={anchor} href="https://stripe.com/docs">
+            <Link href="https://stripe.com/docs" style={anchor}>
               docs
             </Link>{" "}
             handy.
@@ -51,15 +51,15 @@ export const StripeWelcomeEmail = () => (
             Once you're ready to start accepting payments, you'll just need to
             use your live{" "}
             <Link
-              style={anchor}
               href="https://dashboard.stripe.com/login?redirect=%2Fapikeys"
+              style={anchor}
             >
               API keys
             </Link>{" "}
             instead of your test API keys. Your account can simultaneously be
             used for both test and live requests, so you can continue testing
             while accepting live payments. Check out our{" "}
-            <Link style={anchor} href="https://stripe.com/docs/dashboard">
+            <Link href="https://stripe.com/docs/dashboard" style={anchor}>
               tutorial about account basics
             </Link>
             .
@@ -67,8 +67,8 @@ export const StripeWelcomeEmail = () => (
           <Text style={paragraph}>
             Finally, we've put together a{" "}
             <Link
-              style={anchor}
               href="https://stripe.com/docs/checklist/website"
+              style={anchor}
             >
               quick checklist
             </Link>{" "}
@@ -77,7 +77,7 @@ export const StripeWelcomeEmail = () => (
           <Text style={paragraph}>
             We'll be here to help you with any step along the way. You can find
             answers to most questions and get in touch with us on our{" "}
-            <Link style={anchor} href="https://support.stripe.com/">
+            <Link href="https://support.stripe.com/" style={anchor}>
               support site
             </Link>
             .

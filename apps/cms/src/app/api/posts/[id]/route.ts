@@ -5,7 +5,7 @@ import { type Attribution, postSchema } from "@/lib/validations/post";
 
 export async function GET(
   _request: Request,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const sessionData = await getServerSession();
 
@@ -16,7 +16,7 @@ export async function GET(
   const { id } = await params;
 
   const post = await db.post.findUnique({
-    where: { id: id },
+    where: { id },
     select: {
       id: true,
       slug: true,
@@ -62,15 +62,17 @@ export async function GET(
 
 export async function PATCH(
   request: Request,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession();
   const user = session?.user;
 
-  if (!user)
+  if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (!session?.session.activeOrganizationId)
+  }
+  if (!session?.session.activeOrganizationId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const { id } = await params;
   const body = await request.json();
@@ -97,11 +99,11 @@ export async function PATCH(
         workspaceId: session?.session.activeOrganizationId,
         tags: {
           set: [],
-          connect: values.tags.map((id: string) => ({ id })),
+          connect: values.tags.map((tagId: string) => ({ id: tagId })),
         },
         authors: {
           set: [],
-          connect: values.authors.map((id: string) => ({ id })),
+          connect: values.authors.map((authorId: string) => ({ id: authorId })),
         },
       },
     });
@@ -110,14 +112,14 @@ export async function PATCH(
   } catch (_e) {
     return NextResponse.json(
       { error: "Failed to update post" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
 
 export async function DELETE(
   _request: Request,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession();
 
@@ -136,7 +138,7 @@ export async function DELETE(
   } catch (_e) {
     return NextResponse.json(
       { error: "Failed to delete post" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

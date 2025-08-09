@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description: "Manage your team members",
 };
 
-async function Page() {
+function Page() {
   return <PageClient />;
 }
 

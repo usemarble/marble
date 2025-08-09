@@ -90,7 +90,7 @@ export function NavMain() {
           asChild
           className={`border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
             isOverviewActive
-              ? "bg-sidebar-accent border-border text-foreground shadow-sm"
+              ? "border-border bg-sidebar-accent text-foreground shadow-sm"
               : "hover:text-accent-foreground"
           }`}
         >
@@ -102,12 +102,12 @@ export function NavMain() {
         {items.map((item) => (
           <SidebarMenuButton
             asChild
-            key={item.name}
             className={`border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
               isActive(item.url)
-                ? "bg-sidebar-accent border-border text-foreground shadow-sm hover"
+                ? "hover border-border bg-sidebar-accent text-foreground shadow-sm"
                 : "hover:text-accent-foreground"
             }`}
+            key={item.name}
           >
             <Link href={`/${params.workspace}/${item.url}`}>
               <item.icon />
@@ -117,19 +117,19 @@ export function NavMain() {
         ))}
         <Collapsible
           asChild
-          open={isSettingsActive}
           className="group/collapsible"
+          open={isSettingsActive}
         >
           <SidebarMenuItem>
             <Link href={`/${params.workspace}/settings/general`}>
               <CollapsibleTrigger asChild>
                 <SidebarMenuButton
-                  tooltip="Settings"
                   className={`border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
                     isSettingsActive
-                      ? "bg-sidebar-accent border-border text-foreground shadow-sm"
+                      ? "border-border bg-sidebar-accent text-foreground shadow-sm"
                       : "hover:text-accent-foreground"
                   }`}
+                  tooltip="Settings"
                 >
                   <Faders />
                   <span>Settings</span>

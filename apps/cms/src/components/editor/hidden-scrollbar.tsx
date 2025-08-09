@@ -21,7 +21,7 @@ export function HiddenScrollbar({
         "[scrollbar-width:none]",
         orientation === "vertical" && "overflow-y-auto",
         orientation === "horizontal" && "overflow-x-auto",
-        className,
+        className
       )}
       {...props}
     >

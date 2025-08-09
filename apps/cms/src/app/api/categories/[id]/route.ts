@@ -5,11 +5,11 @@ import { categorySchema } from "@/lib/validations/workspace";
 
 export async function PATCH(
   req: Request,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const sessionData = await getServerSession();
 
-  if (!sessionData || !sessionData.session.activeOrganizationId) {
+  if (!sessionData?.session.activeOrganizationId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -20,7 +20,7 @@ export async function PATCH(
 
   const category = await db.category.update({
     where: {
-      id: id,
+      id,
       workspaceId: sessionData.session.activeOrganizationId,
     },
     data: {
@@ -34,18 +34,18 @@ export async function PATCH(
 
 export async function DELETE(
   _req: Request,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const sessionData = await getServerSession();
 
-  if (!sessionData || !sessionData.session.activeOrganizationId) {
+  if (!sessionData?.session.activeOrganizationId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const { id } = await params;
 
   const deletedCategory = await db.category.delete({
     where: {
-      id: id,
+      id,
       workspaceId: sessionData.session.activeOrganizationId,
     },
   });

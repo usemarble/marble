@@ -46,7 +46,7 @@ export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
     setLoading(true);
     await organization.updateMemberRole({
       memberId: member.id,
-      role: role,
+      role,
       fetchOptions: {
         onSuccess: () => {
           toast.success("Role updated");
@@ -60,15 +60,15 @@ export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
   }
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetContent className="sm:max-w-[500px] h-[calc(100vh-20px)] top-1/2 -translate-y-1/2 right-[10px] rounded-xl">
+    <Sheet onOpenChange={setOpen} open={open}>
+      <SheetContent className="-translate-y-1/2 top-1/2 right-[10px] h-[calc(100vh-20px)] rounded-xl sm:max-w-[500px]">
         <SheetHeader className="py-6">
           <SheetTitle>Profile</SheetTitle>
           <SheetDescription>
             Manage {member.name}&apos;s access to the workspace.
           </SheetDescription>
         </SheetHeader>
-        <section className="py-6 border-t">
+        <section className="border-t py-6">
           <div className="flex gap-3">
             <Avatar className="size-24 rounded-lg">
               <AvatarImage src={member.image ?? undefined} />
@@ -78,7 +78,7 @@ export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
             </Avatar>
             <div className="flex flex-col gap-1 pt-1">
               <p className="font-medium">{member.name}</p>
-              <p className="text-sm text-muted-foreground">{member.email}</p>
+              <p className="text-muted-foreground text-sm">{member.email}</p>
               <div className="flex items-center gap-1 text-muted-foreground">
                 <Calendar className="size-4" />
                 <p className="text-sm">
@@ -90,11 +90,13 @@ export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
           </div>
         </section>
         <section className="border-t py-6">
-          <div className="flex items-center gap-6 justify-between">
+          <div className="flex items-center justify-between gap-6">
             <Label>Role</Label>
             <Select
+              onValueChange={(userRole) =>
+                setRole(userRole as "admin" | "member")
+              }
               value={role}
-              onValueChange={(role) => setRole(role as "admin" | "member")}
             >
               <SelectTrigger className="w-[220px]">
                 <SelectValue placeholder="Role" />
@@ -106,18 +108,18 @@ export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
             </Select>
           </div>
         </section>
-        <section className="border-t mt-auto py-4 sticky bottom-0 bg-background">
-          <SheetFooter className="flex gap-2 justify-end">
+        <section className="sticky bottom-0 mt-auto border-t bg-background py-4">
+          <SheetFooter className="flex justify-end gap-2">
             <SheetClose asChild>
-              <Button variant="outline" size="sm" className="min-w-[100px]">
+              <Button className="min-w-[100px]" size="sm" variant="outline">
                 Close
               </Button>
             </SheetClose>
             <Button
-              size="sm"
-              onClick={handleSave}
-              disabled={!settingsChanges}
               className="min-w-[100px]"
+              disabled={!settingsChanges}
+              onClick={handleSave}
+              size="sm"
             >
               {loading ? <Loader2 className="size-4 animate-spin" /> : "Save"}
             </Button>

@@ -41,7 +41,7 @@ export function PublishDateField({ control }: PublishDateFieldProps) {
             <Info className="size-4 text-gray-400" />
           </TooltipTrigger>
           <TooltipContent>
-            <p className="text-muted-foreground text-xs max-w-64">
+            <p className="max-w-64 text-muted-foreground text-xs">
               The date your post was published. This is set by default but you
               can change it to any date.
             </p>
@@ -51,11 +51,11 @@ export function PublishDateField({ control }: PublishDateFieldProps) {
       <Popover>
         <PopoverTrigger asChild>
           <Button
-            variant={"outline"}
             className={cn(
               "justify-between text-left font-normal",
-              !value && "text-muted-foreground",
+              !value && "text-muted-foreground"
             )}
+            variant={"outline"}
           >
             {value ? format(value, "PPP") : <span>Pick a date</span>}
             <CalendarDots className="text-muted-foreground" />
@@ -63,19 +63,19 @@ export function PublishDateField({ control }: PublishDateFieldProps) {
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0">
           <Calendar
+            initialFocus
             mode="single"
-            selected={value}
             onSelect={(date) => {
               if (date) {
                 onChange(date);
               }
             }}
-            initialFocus
+            selected={value}
           />
         </PopoverContent>
       </Popover>
       {error && (
-        <p className="text-sm px-1 font-medium text-destructive">
+        <p className="px-1 font-medium text-destructive text-sm">
           {error.message}
         </p>
       )}

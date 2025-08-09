@@ -33,7 +33,7 @@ export function DescriptionField({ control }: DescriptionFieldProps) {
             <Info className="size-4 text-gray-400" />
           </TooltipTrigger>
           <TooltipContent>
-            <p className="text-muted-foreground text-xs max-w-64">
+            <p className="max-w-64 text-muted-foreground text-xs">
               A short description of your post recommended to be 155 characters
               or less
             </p>
@@ -44,11 +44,11 @@ export function DescriptionField({ control }: DescriptionFieldProps) {
       <Textarea
         id="description"
         {...field}
-        placeholder="A short description of your post"
         className="col-span-3"
+        placeholder="A short description of your post"
       />
       {error && (
-        <p className="text-sm px-1 font-medium text-destructive">
+        <p className="px-1 font-medium text-destructive text-sm">
           {error.message}
         </p>
       )}

@@ -66,25 +66,25 @@ export function TeamDataTable<TData, TValue>({
 
   return (
     <div>
-      <div className="flex items-center py-4 gap-4 justify-between">
+      <div className="flex items-center justify-between gap-4 py-4">
         <div className="relative">
           <SearchIcon
+            className="absolute top-3 left-3 size-4 text-muted-foreground"
             size={16}
-            className="text-muted-foreground size-4 absolute top-3 left-3"
           />
           <Input
-            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+            className="w-72 px-8"
             onChange={(event) =>
               table.getColumn("name")?.setFilterValue(event.target.value)
             }
             placeholder="Search members..."
-            className="px-8 w-72"
+            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
           />
           {(table.getColumn("name")?.getFilterValue() as string) && (
             <button
-              type="button"
+              className="absolute top-3 right-3"
               onClick={() => table.getColumn("name")?.setFilterValue("")}
-              className="absolute right-3 top-3"
+              type="button"
             >
               <XIcon className="size-4" />
               <span className="sr-only">Clear search</span>
@@ -92,22 +92,22 @@ export function TeamDataTable<TData, TValue>({
           )}
         </div>
 
-        <div className="flex gap-4 items-center">
+        <div className="flex items-center gap-4">
           <InviteButton onInvite={() => setShowInviteModal(true)} />
           {currentUserRole === "owner" ? (
             <TooltipProvider>
               <Tooltip delayDuration={0}>
                 <TooltipTrigger asChild>
                   <Button
+                    className="cursor-not-allowed opacity-50"
                     size="sm"
                     variant="outline"
-                    className="opacity-50 cursor-not-allowed"
                   >
                     <span>Leave team</span>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-muted-foreground text-xs">
                     You cannot leave your own workspace.
                   </p>
                 </TooltipContent>
@@ -115,9 +115,9 @@ export function TeamDataTable<TData, TValue>({
             </TooltipProvider>
           ) : (
             <Button
+              onClick={() => setShowLeaveWorkspaceModal(true)}
               size="sm"
               variant="outline"
-              onClick={() => setShowLeaveWorkspaceModal(true)}
             >
               <span>Leave team</span>
             </Button>
@@ -136,7 +136,7 @@ export function TeamDataTable<TData, TValue>({
                       ? null
                       : flexRender(
                           header.column.columnDef.header,
-                          header.getContext(),
+                          header.getContext()
                         )}
                   </TableHead>
                 ))}
@@ -147,14 +147,14 @@ export function TeamDataTable<TData, TValue>({
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
-                  key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  key={row.id}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext(),
+                        cell.getContext()
                       )}
                     </TableCell>
                   ))}
@@ -163,8 +163,8 @@ export function TeamDataTable<TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
                   className="h-24 text-center"
+                  colSpan={columns.length}
                 >
                   No results.
                 </TableCell>

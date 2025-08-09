@@ -1,7 +1,7 @@
 import { toast } from "@marble/ui/components/sonner";
 import { createImageUpload } from "novel/plugins";
 
-const onUpload = async (file: File) => {
+const onUpload = (file: File) => {
   const promise = fetch("/api/upload", {
     method: "POST",
     headers: {

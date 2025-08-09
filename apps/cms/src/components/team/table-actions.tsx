@@ -55,8 +55,8 @@ export default function TableActions(props: TableActionsProps) {
     const handleResendInvite = async () => {
       setIsResendingInvite(true);
       await authClient.organization.inviteMember({
-        email: email,
-        role: role,
+        email,
+        role,
         resend: true,
         fetchOptions: {
           onSuccess: () => {
@@ -108,9 +108,9 @@ export default function TableActions(props: TableActionsProps) {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
-            variant="ghost"
             className="h-8 w-8 p-0 data-[state=open]:bg-muted"
             disabled={isResendingInvite || isCancelingInvite}
+            variant="ghost"
           >
             <span className="sr-only">Open menu</span>
             {isResendingInvite || isCancelingInvite ? (
@@ -167,8 +167,8 @@ export default function TableActions(props: TableActionsProps) {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
-            variant="ghost"
             className="h-8 w-8 p-0 data-[state=open]:bg-muted"
+            variant="ghost"
           >
             <span className="sr-only">Open menu</span>
             <MoreHorizontal className="h-4 w-4" />
@@ -190,14 +190,14 @@ export default function TableActions(props: TableActionsProps) {
       </DropdownMenu>
 
       <RemoveMemberModal
+        member={props}
         open={showRemoveModal}
         setOpen={setShowRemoveModal}
-        member={props}
       />
       <ProfileSheet
+        member={props}
         open={showProfileSheet}
         setOpen={setShowProfileSheet}
-        member={props}
       />
     </>
   );

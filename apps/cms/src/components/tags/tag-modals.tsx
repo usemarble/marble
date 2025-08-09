@@ -108,26 +108,26 @@ export function CreateTagModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog onOpenChange={setOpen} open={open}>
       <DialogContent className="max-w-sm p-8">
         <DialogHeader>
-          <DialogTitle className="font-medium text-center">
+          <DialogTitle className="text-center font-medium">
             Create tag
           </DialogTitle>
         </DialogHeader>
         <form
+          className="mt-2 flex flex-col gap-5"
           onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col gap-5 mt-2"
         >
           <div className="grid flex-1 gap-2">
-            <Label htmlFor="name" className="sr-only">
+            <Label className="sr-only" htmlFor="name">
               Name
             </Label>
             <Input id="name" {...register("name")} placeholder="Name" />
             {errors.name && <ErrorMessage>{errors.name.message}</ErrorMessage>}
           </div>
           <div className="grid flex-1 gap-2">
-            <Label htmlFor="slug" className="sr-only">
+            <Label className="sr-only" htmlFor="slug">
               Slug
             </Label>
             <Input
@@ -139,10 +139,10 @@ export function CreateTagModal({
             {errors.slug && <ErrorMessage>{errors.slug.message}</ErrorMessage>}
           </div>
           <Button
-            type="submit"
+            className="mt-4 flex w-full gap-2"
             disabled={isSubmitting}
-            className="flex w-full gap-2 mt-4"
             size={"sm"}
+            type="submit"
           >
             {isSubmitting ? <ButtonLoader /> : "Create"}
           </Button>
@@ -209,7 +209,7 @@ export const UpdateTagModal = ({
     const isTaken = await checkTagSlugForUpdateAction(
       data.slug,
       activeWorkspace?.id as string,
-      tagData.id,
+      tagData.id
     );
 
     if (isTaken) {
@@ -221,36 +221,36 @@ export const UpdateTagModal = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog onOpenChange={setOpen} open={open}>
       <DialogContent className="max-w-sm p-8">
         <DialogHeader>
-          <DialogTitle className="font-medium text-center">
+          <DialogTitle className="text-center font-medium">
             Update tag
           </DialogTitle>
         </DialogHeader>
         <form
+          className="mt-2 flex flex-col gap-5"
           onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col gap-5 mt-2"
         >
           <div className="grid flex-1 gap-2">
-            <Label htmlFor="name" className="sr-only">
+            <Label className="sr-only" htmlFor="name">
               Name
             </Label>
             <Input id="name" {...register("name")} placeholder="Name" />
             {errors.name && <ErrorMessage>{errors.name.message}</ErrorMessage>}
           </div>
           <div className="grid flex-1 gap-2">
-            <Label htmlFor="slug" className="sr-only">
+            <Label className="sr-only" htmlFor="slug">
               Slug
             </Label>
             <Input id="slug" {...register("slug")} placeholder="slug" />
             {errors.slug && <ErrorMessage>{errors.slug.message}</ErrorMessage>}
           </div>
           <Button
-            type="submit"
+            className="mt-4 flex w-full gap-2"
             disabled={isSubmitting}
-            className="flex w-full gap-2 mt-4"
             size={"sm"}
+            type="submit"
           >
             {isSubmitting ? <ButtonLoader /> : "Update tag"}
           </Button>
@@ -292,7 +292,7 @@ export const DeleteTagModal = ({
   });
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
+    <AlertDialog onOpenChange={setOpen} open={open}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete "{name}"?</AlertDialogTitle>
@@ -303,18 +303,18 @@ export const DeleteTagModal = ({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel
-            onClick={() => setOpen(false)}
             disabled={isPending}
+            onClick={() => setOpen(false)}
           >
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction asChild>
             <Button
+              disabled={isPending}
               onClick={(e) => {
                 e.preventDefault();
                 deleteTag();
               }}
-              disabled={isPending}
               variant="destructive"
             >
               {isPending ? <ButtonLoader variant="destructive" /> : "Delete"}

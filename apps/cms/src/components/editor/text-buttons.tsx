@@ -17,64 +17,71 @@ export type SelectorItem = {
   name: string;
   icon: Icon;
   command: (
-    editor: NonNullable<ReturnType<typeof useEditor>["editor"]>,
+    textEditor: NonNullable<ReturnType<typeof useEditor>["editor"]>
   ) => void;
   isActive: (
-    editor: NonNullable<ReturnType<typeof useEditor>["editor"]>,
+    textEditor: NonNullable<ReturnType<typeof useEditor>["editor"]>
   ) => boolean;
 };
 
 export const TextButtons = () => {
   const { editor } = useEditor();
-  if (!editor) return null;
+  if (!editor) {
+    return null;
+  }
 
   const items: SelectorItem[] = [
     {
       name: "bold",
-      isActive: (editor) => editor.isActive("bold"),
-      command: (editor) => editor.chain().focus().toggleBold().run(),
+      isActive: (textEditor) => textEditor.isActive("bold"),
+      command: (textEditor) => textEditor.chain().focus().toggleBold().run(),
       icon: Bold,
     },
     {
       name: "italic",
-      isActive: (editor) => editor.isActive("italic"),
-      command: (editor) => editor.chain().focus().toggleItalic().run(),
+      isActive: (textEditor) => textEditor.isActive("italic"),
+      command: (textEditor) => textEditor.chain().focus().toggleItalic().run(),
       icon: Italic,
     },
     {
       name: "underline",
-      isActive: (editor) => editor.isActive("underline"),
-      command: (editor) => editor.chain().focus().toggleUnderline().run(),
+      isActive: (textEditor) => textEditor.isActive("underline"),
+      command: (textEditor) =>
+        textEditor.chain().focus().toggleUnderline().run(),
       icon: Underline,
     },
     {
       name: "strike",
-      isActive: (editor) => editor.isActive("strike"),
-      command: (editor) => editor.chain().focus().toggleStrike().run(),
+      isActive: (textEditor) => textEditor.isActive("strike"),
+      command: (textEditor) => textEditor.chain().focus().toggleStrike().run(),
       icon: Strikethrough,
     },
     {
       name: "alignLeft",
-      isActive: (editor) => editor.isActive({ textAlign: "left" }),
-      command: (editor) => editor.chain().focus().setTextAlign("left").run(),
+      isActive: (textEditor) => textEditor.isActive({ textAlign: "left" }),
+      command: (textEditor) =>
+        textEditor.chain().focus().setTextAlign("left").run(),
       icon: TextAlignLeft,
     },
     {
       name: "alignRight",
-      isActive: (editor) => editor.isActive({ textAlign: "right" }),
-      command: (editor) => editor.chain().focus().setTextAlign("right").run(),
+      isActive: (textEditor) => textEditor.isActive({ textAlign: "right" }),
+      command: (textEditor) =>
+        textEditor.chain().focus().setTextAlign("right").run(),
       icon: TextAlignRight,
     },
     {
       name: "alignCenter",
-      isActive: (editor) => editor.isActive({ textAlign: "center" }),
-      command: (editor) => editor.chain().focus().setTextAlign("center").run(),
+      isActive: (textEditor) => textEditor.isActive({ textAlign: "center" }),
+      command: (textEditor) =>
+        textEditor.chain().focus().setTextAlign("center").run(),
       icon: TextAlignCenter,
     },
     {
       name: "justify",
-      isActive: (editor) => editor.isActive({ textAlign: "justify" }),
-      command: (editor) => editor.chain().focus().setTextAlign("justify").run(),
+      isActive: (textEditor) => textEditor.isActive({ textAlign: "justify" }),
+      command: (textEditor) =>
+        textEditor.chain().focus().setTextAlign("justify").run(),
       icon: TextAlignJustify,
     },
   ];
@@ -83,12 +90,12 @@ export const TextButtons = () => {
     <div className="flex flex-col md:flex-row">
       {items.map((item) => (
         <Button
-          key={item.name}
-          type="button"
-          size="icon"
           className="rounded-none"
-          variant="ghost"
+          key={item.name}
           onClick={() => item.command(editor)}
+          size="icon"
+          type="button"
+          variant="ghost"
         >
           <item.icon
             className={cn("size-4", {

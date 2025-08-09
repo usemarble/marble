@@ -12,7 +12,7 @@ const BUCKET_NAME = process.env.CLOUDFLARE_BUCKET_NAME;
 const ENDPOINT = process.env.CLOUDFLARE_S3_ENDPOINT;
 const PUBLIC_URL = process.env.CLOUDFLARE_PUBLIC_URL;
 
-if (!ACCESS_KEY_ID || !SECRET_ACCESS_KEY || !BUCKET_NAME || !ENDPOINT) {
+if (!(ACCESS_KEY_ID && SECRET_ACCESS_KEY && BUCKET_NAME && ENDPOINT)) {
   throw new Error("Missing Cloudflare R2 environment variables");
 }
 
@@ -58,7 +58,7 @@ export async function POST(request: Request) {
           file.type
         } is not allowed. Allowed types: ${ALLOWED_MIME_TYPES.join(", ")}`,
       },
-      { status: 400 },
+      { status: 400 }
     );
   }
 

@@ -6,16 +6,16 @@ import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
 
 function Page() {
   return (
-    <WorkspacePageWrapper className="h-full grid place-content-center">
-      <div className="flex flex-col gap-4 items-center max-w-80">
-        <div className="p-2 border">
+    <WorkspacePageWrapper className="grid h-full place-content-center">
+      <div className="flex max-w-80 flex-col items-center gap-4">
+        <div className="border p-2">
           <Database className="size-16 stroke-[1px]" />
         </div>
-        <div className="text-center flex flex-col gap-4 items-center">
+        <div className="flex flex-col items-center gap-4 text-center">
           <p className="text-muted-foreground text-sm">
             Extend the default post schema with custom fields.
           </p>
-          <Button size="sm" disabled className="w-fit">
+          <Button className="w-fit" disabled size="sm">
             <span>Create a Schema</span>
           </Button>
         </div>

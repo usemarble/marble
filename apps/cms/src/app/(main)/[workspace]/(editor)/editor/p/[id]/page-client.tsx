@@ -35,7 +35,7 @@ function PageClient() {
     publishedAt: new Date(postData.publishedAt),
   };
 
-  return <EditorPage initialData={postDataWithDate} id={params.id} />;
+  return <EditorPage id={params.id} initialData={postDataWithDate} />;
 }
 
 export default PageClient;

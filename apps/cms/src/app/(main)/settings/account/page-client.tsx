@@ -38,15 +38,15 @@ function PageClient() {
   const { user, updateUser, isUpdatingUser } = useUser();
   const [isChanged, setIsChanged] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | undefined>(
-    user?.image ?? undefined,
+    user?.image ?? undefined
   );
   const [file, setFile] = useState<File | null>(null);
   const [avatarCopied, setAvatarCopied] = useState(false);
 
   const { mutate: uploadAvatar, isPending: isUploading } = useMutation({
-    mutationFn: async (file: File) => {
+    mutationFn: async (formFile: File) => {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", formFile);
 
       const response = await fetch("/api/uploads/avatar", {
         method: "POST",
@@ -107,12 +107,16 @@ function PageClient() {
   }, [watch, user?.name]);
 
   const onSubmit = (data: ProfileData) => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      return;
+    }
     handleUpdateUser({ name: data.name });
   };
 
   const handleAvatarUpload = useCallback(() => {
-    if (!file) return;
+    if (!file) {
+      return;
+    }
     uploadAvatar(file);
   }, [file, uploadAvatar]);
 
@@ -131,11 +135,11 @@ function PageClient() {
   };
 
   return (
-    <div className="flex flex-col gap-8 py-12 max-w-screen-md mx-auto w-full">
+    <div className="mx-auto flex w-full max-w-screen-md flex-col gap-8 py-12">
       <div className="py-4">
-        <div className="flex items-center gap-2 justify-between">
-          <h1 className="text-lg font-medium">Account Settings</h1>
-          <Link href="/" className={cn(buttonVariants({ variant: "outline" }))}>
+        <div className="flex items-center justify-between gap-2">
+          <h1 className="font-medium text-lg">Account Settings</h1>
+          <Link className={cn(buttonVariants({ variant: "outline" }))} href="/">
             Dashboard
           </Link>
         </div>
@@ -143,29 +147,29 @@ function PageClient() {
       <div className="flex flex-col gap-8 py-12">
         <Card className="flex justify-between p-4">
           <CardHeader>
-            <CardTitle className="text-lg font-medium">Theme.</CardTitle>
+            <CardTitle className="font-medium text-lg">Theme.</CardTitle>
             <CardDescription>
               Override the default theme of the application.
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex items-center center pb-0">
+          <CardContent className="center flex items-center pb-0">
             <ThemeSwitch />
           </CardContent>
         </Card>
         <Card className="p-4">
           <CardHeader>
-            <CardTitle className="text-lg font-medium">Avatar.</CardTitle>
+            <CardTitle className="font-medium text-lg">Avatar.</CardTitle>
             <CardDescription>Change your profile picture.</CardDescription>
           </CardHeader>
           <CardContent className="justify-end">
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-5">
                 <Label
-                  htmlFor="logo"
                   className={cn(
-                    "cursor-pointer relative overflow-hidden rounded-full size-16 group",
-                    isUploading && "pointer-events-none",
+                    "group relative size-16 cursor-pointer overflow-hidden rounded-full",
+                    isUploading && "pointer-events-none"
                   )}
+                  htmlFor="logo"
                 >
                   <Avatar className="size-16">
                     <AvatarImage src={avatarUrl || undefined} />
@@ -174,25 +178,25 @@ function PageClient() {
                     </AvatarFallback>
                   </Avatar>
                   <input
-                    title="Upload logo"
-                    type="file"
-                    id="logo"
                     accept="image/*"
+                    className="sr-only"
+                    id="logo"
                     onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file && !isUploading) {
-                        setFile(file);
+                      const eventFile = e.target.files?.[0];
+                      if (eventFile && !isUploading) {
+                        setFile(eventFile);
                         handleAvatarUpload();
                       }
                     }}
-                    className="sr-only"
+                    title="Upload logo"
+                    type="file"
                   />
                   <div
                     className={cn(
-                      "absolute inset-0 flex items-center justify-center transition-opacity duration-300 bg-background/50 backdrop-blur-sm size-full",
+                      "absolute inset-0 flex size-full items-center justify-center bg-background/50 backdrop-blur-sm transition-opacity duration-300",
                       isUploading
                         ? "opacity-100"
-                        : "opacity-0 group-hover:opacity-100",
+                        : "opacity-0 group-hover:opacity-100"
                     )}
                   >
                     {isUploading ? (
@@ -203,14 +207,14 @@ function PageClient() {
                   </div>
                 </Label>
               </div>
-              <div className="flex items-center gap-2 w-full">
+              <div className="flex w-full items-center gap-2">
                 <Input defaultValue={avatarUrl || undefined} readOnly />
                 <Button
-                  variant="outline"
-                  type="submit"
-                  size="icon"
-                  onClick={copyAvatar}
                   className="px-3"
+                  onClick={copyAvatar}
+                  size="icon"
+                  type="submit"
+                  variant="outline"
                 >
                   <span className="sr-only">Copy</span>
                   {avatarCopied ? (
@@ -227,14 +231,14 @@ function PageClient() {
         <Card className="p-4">
           <form onSubmit={handleSubmit(onSubmit)}>
             <CardHeader>
-              <CardTitle className="text-lg font-medium">Full Name</CardTitle>
+              <CardTitle className="font-medium text-lg">Full Name</CardTitle>
               <CardDescription>
                 Your name will be displayed on your profile and in emails.
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div>
-                <Label htmlFor="name" className="sr-only">
+                <Label className="sr-only" htmlFor="name">
                   Name
                 </Label>
                 <Input {...register("name")} />
@@ -245,8 +249,8 @@ function PageClient() {
             </CardContent>
             <CardFooter className="justify-end">
               <Button
-                disabled={!isChanged || isSubmitting || isUpdatingUser}
                 className="w-20 self-end"
+                disabled={!isChanged || isSubmitting || isUpdatingUser}
                 type="submit"
               >
                 {isSubmitting || isUpdatingUser ? <ButtonLoader /> : "Save"}
@@ -257,14 +261,14 @@ function PageClient() {
 
         <Card className="p-4">
           <CardHeader>
-            <CardTitle className="text-lg font-medium">Email.</CardTitle>
+            <CardTitle className="font-medium text-lg">Email.</CardTitle>
             <CardDescription>
               Email associated with your account.
             </CardDescription>
           </CardHeader>
           <CardContent className="justify-end">
             <div>
-              <Label htmlFor="email" className="sr-only">
+              <Label className="sr-only" htmlFor="email">
                 Email
               </Label>
               <Input defaultValue={user?.email} disabled />
@@ -274,7 +278,7 @@ function PageClient() {
 
         <Card className="p-4">
           <CardHeader>
-            <CardTitle className="text-lg font-medium">
+            <CardTitle className="font-medium text-lg">
               Delete Account
             </CardTitle>
             <CardDescription>

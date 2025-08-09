@@ -6,6 +6,6 @@ export const metadata: Metadata = {
   description: "Manage your account settings",
 };
 
-export default async function AccountSettingsPage() {
+export default function AccountSettingsPage() {
   return <PageClient />;
 }

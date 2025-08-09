@@ -22,7 +22,7 @@ export default function TableActions(props: Category) {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
+          <Button className="h-8 w-8 p-0" variant="ghost">
             <span className="sr-only">Open menu</span>
             <DotsThreeVertical />
           </Button>
@@ -30,18 +30,18 @@ export default function TableActions(props: Category) {
         <DropdownMenuContent align="end" className="text-muted-foreground">
           <DropdownMenuItem>
             <button
-              type="button"
-              onClick={() => setShowUpdateModal(true)}
               className="flex w-full items-center gap-2"
+              onClick={() => setShowUpdateModal(true)}
+              type="button"
             >
               <PencilSimpleLine size={16} /> <span>Edit</span>
             </button>
           </DropdownMenuItem>
           <DropdownMenuItem>
             <button
-              type="button"
-              onClick={() => setShowDeleteModal(true)}
               className="flex w-full items-center gap-2"
+              onClick={() => setShowDeleteModal(true)}
+              type="button"
             >
               <Trash size={16} /> <span>Delete</span>
             </button>
@@ -50,16 +50,16 @@ export default function TableActions(props: Category) {
       </DropdownMenu>
 
       <UpdateCategoryModal
+        categoryData={{ ...props }}
         open={showUpdateModal}
         setOpen={setShowUpdateModal}
-        categoryData={{ ...props }}
       />
 
       <DeleteCategoryModal
+        id={props.id}
+        name={props.name}
         open={showDeleteModal}
         setOpen={setShowDeleteModal}
-        name={props.name}
-        id={props.id}
       />
     </>
   );

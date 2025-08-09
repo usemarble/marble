@@ -10,9 +10,7 @@ import { NavMain } from "./nav-main";
 import { NavUser } from "./nav-user";
 import { WorkspaceSwitcher } from "./workspace-switcher";
 
-export async function AppSidebar({
-  ...props
-}: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -23,7 +21,7 @@ export async function AppSidebar({
         <NavDevs />
       </SidebarContent>
       <SidebarFooter className="p-2">
-        <section className="flex items-center gap-2 justify-between p-2">
+        <section className="flex items-center justify-between gap-2 p-2">
           <NavUser />
           <NavExtra />
         </section>

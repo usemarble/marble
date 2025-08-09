@@ -20,7 +20,7 @@ export default async function VerifyPage({ searchParams }: PageProps) {
   return (
     <div>
       <Suspense fallback={<PageLoader />}>
-        <VerifyForm email={email} callbackUrl={from} />
+        <VerifyForm callbackUrl={from} email={email} />
       </Suspense>
     </div>
   );
