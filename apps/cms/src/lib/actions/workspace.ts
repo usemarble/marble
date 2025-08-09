@@ -51,7 +51,7 @@ export async function createWorkspaceAction(payload: CreateWorkspaceValues) {
   }
 }
 
-export async function _updateWorkspaceAction(
+export async function updateWorkspaceAction(
   workspaceId: string,
   payload: CreateWorkspaceValues
 ) {
@@ -70,7 +70,7 @@ export async function _updateWorkspaceAction(
   return workspace;
 }
 
-export async function _deleteWorkspaceAction(workspaceId: string) {
+export async function deleteWorkspaceAction(workspaceId: string) {
   const session = await getServerSession();
   if (!session?.user?.id) {
     throw new Error("Unauthorized");
