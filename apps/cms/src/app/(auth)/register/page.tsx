@@ -1,10 +1,10 @@
+import { Separator } from "@marble/ui/components/separator";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { RegisterForm } from "@/components/auth/register-form";
 import MarbleIcon from "@/components/icons/marble";
 import Credits from "@/components/util/credits";
-import { Separator } from "@marble/ui/components/separator";
 
 export const metadata: Metadata = {
   title: "Sign Up - Marble",
