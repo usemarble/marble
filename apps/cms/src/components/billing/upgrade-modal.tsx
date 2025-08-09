@@ -85,7 +85,7 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
               >
                 <div className="flex flex-col gap-4">
                   <h4 className="text-medium text-2xl">{plan.title}</h4>
-                  <div className="">
+                  <div>
                     <p>
                       <span className="font-bold text-2xl">
                         {plan.price.monthly}

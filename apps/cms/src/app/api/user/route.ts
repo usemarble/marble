@@ -9,40 +9,45 @@ export async function GET() {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
+  // Get user with their role in the current active workspace
   const user = await db.user.findUnique({
     where: { id: sessionData.user.id },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      image: true,
+      emailVerified: true,
+      createdAt: true,
+      updatedAt: true,
+      members: {
+        where: {
+          organizationId: sessionData.session.activeOrganizationId as string,
+        },
+        select: {
+          role: true,
+          organization: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+            },
+          },
+        },
+        take: 1,
+      },
+    },
   });
 
   if (!user) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
-  const activeOrganizationId = sessionData.session
-    ?.activeOrganizationId as string;
-
-  let member = null;
-  if (activeOrganizationId) {
-    member = await db.member.findFirst({
-      where: {
-        organizationId: activeOrganizationId,
-        userId: user.id,
-      },
-      include: {
-        organization: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-          },
-        },
-      },
-    });
-  }
-
   const userWithRole = {
     ...user,
-    workspaceRole: member?.role || null,
-    activeWorkspace: member?.organization || null,
+    workspaceRole: user.members[0]?.role || null,
+    activeWorkspace: user.members[0]?.organization || null,
+    members: undefined,
   };
 
   return NextResponse.json(userWithRole, { status: 200 });
@@ -59,44 +64,55 @@ export async function PATCH(request: Request) {
     const body = await request.json();
     const { name, image } = body;
 
-    if (!name || typeof name !== "string") {
-      return NextResponse.json({ error: "Name is required" }, { status: 400 });
+    const updateData: { name?: string; image?: string } = {};
+
+    if (
+      name !== undefined &&
+      typeof name === "string" &&
+      name.trim().length > 0
+    ) {
+      updateData.name = name.trim();
+    }
+
+    if (image !== undefined && typeof image === "string") {
+      updateData.image = image;
     }
 
     const updatedUser = await db.user.update({
       where: { id: sessionData.user.id },
-      data: {
-        name: name.trim(),
-        ...(image && { image }),
+      data: updateData,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+        emailVerified: true,
+        createdAt: true,
+        updatedAt: true,
+        members: {
+          where: {
+            organizationId: sessionData.session.activeOrganizationId as string,
+          },
+          select: {
+            role: true,
+            organization: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+              },
+            },
+          },
+          take: 1,
+        },
       },
     });
 
-    const activeOrganizationId = sessionData.session
-      ?.activeOrganizationId as string;
-
-    let member = null;
-    if (activeOrganizationId) {
-      member = await db.member.findFirst({
-        where: {
-          organizationId: activeOrganizationId,
-          userId: updatedUser.id,
-        },
-        include: {
-          organization: {
-            select: {
-              id: true,
-              name: true,
-              slug: true,
-            },
-          },
-        },
-      });
-    }
-
     const userWithRole = {
       ...updatedUser,
-      workspaceRole: member?.role || null,
-      activeWorkspace: member?.organization || null,
+      workspaceRole: updatedUser.members[0]?.role || null,
+      activeWorkspace: updatedUser.members[0]?.organization || null,
+      members: undefined,
     };
 
     return NextResponse.json(userWithRole, { status: 200 });

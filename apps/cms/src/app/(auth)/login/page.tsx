@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
 import { LoginForm } from "@/components/auth/login-form";
+import MarbleIcon from "@/components/icons/marble";
+import Credits from "@/components/util/credits";
 
 export const metadata: Metadata = {
-  title: "Sign in",
+  title: "Log In - Marble",
 };
 
 interface PageProps {
@@ -19,19 +20,16 @@ export default async function LoginPage(props: PageProps) {
 
   return (
     <div className="md:grid h-screen w-full md:grid-cols-2">
-      <section className="overflow-hidden hidden md:flex flex-col justify-between bg-muted p-10">
+      <section className="hidden md:flex flex-col justify-between p-10 overflow-hidden bg-cover bg-center bg-no-repeat bg-[url('/textures/marble-light.avif')] dark:bg-[url('/textures/marble-dark.avif')]">
         <div>
-          <Image
-            src={"/icon.svg"}
-            alt=""
-            width={350}
-            height={680}
-            className="size-8"
-          />
+          <MarbleIcon />
         </div>
-        <p className="text-lg font-medium">
-          The easiest way to manage your blog.
-        </p>
+        <div className="flex items-center gap-4 justify-between">
+          <p className="text-lg font-medium">
+            The easiest way to manage your blog.
+          </p>
+          <Credits />
+        </div>
       </section>
       <section className="flex flex-col items-center justify-between h-full p-4">
         <div className="self-start">
@@ -52,7 +50,9 @@ export default async function LoginPage(props: PageProps) {
           <p className="text-muted-foreground px-8 text-center text-xs">
             Don&apos;t have an account?{" "}
             <Link
-              href={from ? `/register?from=${from}` : "/register"}
+              href={
+                from && from !== "/" ? `/register?from=${from}` : "/register"
+              }
               className="hover:text-primary underline underline-offset-4"
             >
               Register
@@ -60,9 +60,9 @@ export default async function LoginPage(props: PageProps) {
           </p>
         </div>
         <div>
-          {/* <p className="text-muted-foreground text-center text-xs">
+          <p className="text-muted-foreground text-center text-xs">
             &copy; {new Date().getFullYear()} Marble. All rights reserved.
-          </p> */}
+          </p>
         </div>
       </section>
     </div>

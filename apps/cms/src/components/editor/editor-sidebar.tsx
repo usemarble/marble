@@ -134,7 +134,7 @@ export function EditorSidebar({
   };
 
   return (
-    <div className="">
+    <div>
       <Sidebar
         side="right"
         className={cn(
