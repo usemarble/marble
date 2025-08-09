@@ -1,11 +1,9 @@
 "use client";
 
-import { Button } from "@marble/ui/components/button";
-import Link from "next/link";
 import { useUser } from "@/providers/user";
 
 export default function PageClient() {
-  const { user, isAuthenticated, isFetchingUser } = useUser();
+  const { user, isFetchingUser } = useUser();
 
   const getTimeOfDay = () => {
     const hour = new Date().getHours();
@@ -13,22 +11,6 @@ export default function PageClient() {
     if (hour < 17) return "Good afternoon";
     return "Good evening";
   };
-
-  if (!isAuthenticated) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <h2 className="text-xl font-semibold mb-2">Not authenticated</h2>
-          <p className="text-muted-foreground mb-4">
-            Please log in to continue
-          </p>
-          <Button asChild>
-            <Link href="/login">Login</Link>
-          </Button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <>

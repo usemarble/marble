@@ -25,13 +25,24 @@ export async function GET() {
       timezone: true,
       createdAt: true,
       members: {
-        where: {
-          userId: sessionData.user.id,
-        },
         select: {
           id: true,
           role: true,
+          organizationId: true,
           createdAt: true,
+          userId: true,
+          user: { select: { id: true, name: true, email: true, image: true } },
+        },
+      },
+      invitations: {
+        select: {
+          id: true,
+          email: true,
+          role: true,
+          status: true,
+          organizationId: true,
+          inviterId: true,
+          expiresAt: true,
         },
       },
       subscription: {
@@ -39,6 +50,10 @@ export async function GET() {
           id: true,
           status: true,
           plan: true,
+          currentPeriodStart: true,
+          currentPeriodEnd: true,
+          cancelAtPeriodEnd: true,
+          canceledAt: true,
         },
       },
     },
@@ -47,12 +62,15 @@ export async function GET() {
     },
   });
 
-  // Transform the data to include the user's role directly
-  const workspacesWithRole = workspaces.map((workspace) => ({
-    ...workspace,
-    userRole: workspace.members[0]?.role || null,
-    members: undefined, // Remove the members array since we only needed it for the role
-  }));
+  const workspacesWithRole = workspaces.map((workspace) => {
+    const currentUserMember = workspace.members.find(
+      (member) => member.userId === sessionData.user.id,
+    );
+    return {
+      ...workspace,
+      currentUserRole: currentUserMember?.role || null,
+    };
+  });
 
   return NextResponse.json(workspacesWithRole);
 }

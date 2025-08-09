@@ -13,6 +13,7 @@ import { Button } from "@marble/ui/components/button";
 import { toast } from "@marble/ui/components/sonner";
 import { useState } from "react";
 import { organization } from "@/lib/auth/client";
+import { useWorkspace } from "@/providers/workspace";
 import { ButtonLoader } from "../ui/loader";
 import type { TeamMemberRow } from "./columns";
 
@@ -28,12 +29,16 @@ export function RemoveMemberModal({
   member,
 }: RemoveMemberModalProps) {
   const [loading, setLoading] = useState(false);
-
+  const { activeWorkspace } = useWorkspace();
   async function removeMember() {
     setLoading(true);
+    if (!activeWorkspace?.id) {
+      return;
+    }
     try {
       await organization.removeMember({
         memberIdOrEmail: member.id,
+        organizationId: activeWorkspace.id,
         fetchOptions: {
           onRequest: () => {
             toast.loading("Removing member...", {

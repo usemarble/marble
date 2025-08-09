@@ -9,7 +9,7 @@ export async function request<T>(
 ) {
   const response = await axios<T>({
     method,
-    url: `/api/${endpoint}`,
+    url: `${process.env.NEXT_PUBLIC_APP_URL}/api/${endpoint}`,
     data: body,
   });
   return response;
