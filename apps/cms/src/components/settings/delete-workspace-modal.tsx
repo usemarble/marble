@@ -44,7 +44,7 @@ export function DeleteWorkspaceModal({ id }: { id: string }) {
 
       // Find the next available workspace or redirect to new
       const remainingWorkspaces = organizations?.filter(
-        (org: ListOrganizationResponse) => org.id !== id,
+        (org: ListOrganizationResponse) => org.id !== id
       );
 
       if (!remainingWorkspaces || remainingWorkspaces.length === 0) {
@@ -85,10 +85,10 @@ export function DeleteWorkspaceModal({ id }: { id: string }) {
         <AlertDialogFooter>
           <AlertDialogCancel className="min-w-20">Cancel</AlertDialogCancel>
           <Button
-            variant="destructive"
+            className="min-w-20"
             disabled={isDeletingWorkspace}
             onClick={handleDeleteWorkspace}
-            className="min-w-20"
+            variant="destructive"
           >
             {isDeletingWorkspace ? (
               <ButtonLoader variant="destructive" />

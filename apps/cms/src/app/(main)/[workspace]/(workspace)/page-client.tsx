@@ -7,14 +7,18 @@ export default function PageClient() {
 
   const getTimeOfDay = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return "Good morning";
-    if (hour < 17) return "Good afternoon";
+    if (hour < 12) {
+      return "Good morning";
+    }
+    if (hour < 17) {
+      return "Good afternoon";
+    }
     return "Good evening";
   };
 
   return (
-    <div className="p-4 flex flex-col flex-1 h-full items-center justify-center">
-      <h1 className="text-2xl font-semibold mb-4">
+    <div className="flex h-full flex-1 flex-col items-center justify-center p-4">
+      <h1 className="mb-4 font-semibold text-2xl">
         {isFetchingUser ? (
           getTimeOfDay()
         ) : (

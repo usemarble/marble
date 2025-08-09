@@ -20,10 +20,10 @@ export function ButtonLoader({
         variant === "destructive" && "fill-white text-red-300",
         variant === "ghost" && "fill-gray-600 text-gray-300",
         variant === "outline" && "fill-gray-600 text-gray-300",
-        className,
+        className
       )}
-      viewBox="0 0 100 101"
       fill="none"
+      viewBox="0 0 100 101"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
@@ -40,7 +40,7 @@ export function ButtonLoader({
 
 export function PageLoader() {
   return (
-    <div aria-busy="true" className="w-full h-full grid place-content-center">
+    <div aria-busy="true" className="grid h-full w-full place-content-center">
       <div className="p-2">
         <Loader className="size-4 animate-spin transition" />
       </div>

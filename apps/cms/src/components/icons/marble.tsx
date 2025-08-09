@@ -8,11 +8,11 @@ export default function MarbleIcon() {
 
   return (
     <Image
-      src={theme === "dark" ? "/icon-light.svg" : "/icon.svg"}
       alt="Marble Icon"
-      width={32}
-      height={32}
       className="size-8"
+      height={32}
+      src={theme === "dark" ? "/icon-light.svg" : "/icon.svg"}
+      width={32}
     />
   );
 }

@@ -5,7 +5,7 @@ import type { WebhookSubscriptionRevokedPayload } from "@polar-sh/sdk/models/com
 import { SubscriptionStatus } from "@prisma/client";
 
 export async function handleSubscriptionRevoked(
-  payload: WebhookSubscriptionRevokedPayload,
+  payload: WebhookSubscriptionRevokedPayload
 ) {
   const { data: subscription } = payload;
 
@@ -15,7 +15,7 @@ export async function handleSubscriptionRevoked(
 
   if (!existingSubscription) {
     console.error(
-      `subscription.revoked webhook received for a subscription that does not exist: ${subscription.id}`,
+      `subscription.revoked webhook received for a subscription that does not exist: ${subscription.id}`
     );
     return;
   }
@@ -32,7 +32,7 @@ export async function handleSubscriptionRevoked(
     });
 
     console.log(
-      `Successfully marked subscription ${subscription.id} as revoked/expired for workspace ${existingSubscription.workspaceId}`,
+      `Successfully marked subscription ${subscription.id} as revoked/expired for workspace ${existingSubscription.workspaceId}`
     );
   } catch (error) {
     console.error("Error updating subscription to revoked in DB:", error);

@@ -20,14 +20,6 @@ export function Editor({ value, onChange }: EditorProps) {
   return (
     <EditorRoot>
       <EditorContent
-        initialContent={value}
-        immediatelyRender={false}
-        extensions={extensions}
-        onUpdate={({ editor }) => {
-          const html = editor.getHTML();
-          const json = editor.getJSON();
-          onChange(html, json);
-        }}
         editorProps={{
           handleDOMEvents: {
             keydown: (_view, event) => handleCommandNavigation(event),
@@ -36,6 +28,14 @@ export function Editor({ value, onChange }: EditorProps) {
             class:
               "prose lg:prose-lg dark:prose-invert min-h-96 sm:px-4 focus:outline-none max-w-full prose-blockquote:border-border",
           },
+        }}
+        extensions={extensions}
+        immediatelyRender={false}
+        initialContent={value}
+        onUpdate={({ editor }) => {
+          const html = editor.getHTML();
+          const json = editor.getJSON();
+          onChange(html, json);
         }}
       >
         <BubbleMenu />

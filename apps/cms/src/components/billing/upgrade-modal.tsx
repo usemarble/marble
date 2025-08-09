@@ -22,7 +22,7 @@ interface UpgradeModalProps {
 
 export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
   const [checkoutLoading, setCheckoutLoading] = useState<"pro" | "team" | null>(
-    null,
+    null
   );
   const { activeWorkspace } = useWorkspace();
 
@@ -50,7 +50,7 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
 
     if (isCurrentPlan) {
       return (
-        <Button disabled variant="default" className="w-full">
+        <Button className="w-full" disabled variant="default">
           Current plan
         </Button>
       );
@@ -58,8 +58,8 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
 
     return (
       <Button
-        disabled={!!checkoutLoading}
         className="w-full"
+        disabled={!!checkoutLoading}
         onClick={() => handleCheckout(plan)}
       >
         {checkoutLoading === plan ? <ButtonLoader /> : "Upgrade"}
@@ -68,7 +68,7 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog onOpenChange={onClose} open={isOpen}>
       <DialogContent className="w-full max-w-md">
         <DialogHeader className="sr-only">
           <DialogTitle>Upgrade Plan</DialogTitle>
@@ -80,11 +80,11 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
           <ul>
             {PRICING_PLANS.map((plan) => (
               <li
+                className=" mt-4 flex h-full min-h-96 w-full flex-col gap-5 rounded-xl border border-dashed px-4 py-6"
                 key={plan.title}
-                className=" flex flex-col gap-5 min-h-96 h-full w-full px-4 py-6 border border-dashed rounded-xl mt-4"
               >
                 <div className="flex flex-col gap-4">
-                  <h4 className="text-medium text-2xl">{plan.title}</h4>
+                  <h4 className="text-2xl text-medium">{plan.title}</h4>
                   <div>
                     <p>
                       <span className="font-bold text-2xl">
@@ -102,7 +102,7 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
                 </div>
                 <ul className="flex flex-col gap-2 text-sm">
                   {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-center gap-2">
+                    <li className="flex items-center gap-2" key={feature}>
                       <Check className="size-4 text-primary" />
                       <span>{feature}</span>
                     </li>

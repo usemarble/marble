@@ -1,8 +1,8 @@
 export const setAccordionHeight = (
-  accordions: NodeListOf<HTMLDetailsElement>,
+  accordions: NodeListOf<HTMLDetailsElement>
 ) => {
   const originalStates = Array.from(accordions).map(
-    (accordion) => accordion.open,
+    (accordion) => accordion.open
   );
 
   for (const accordion of accordions) {
@@ -31,17 +31,17 @@ const assignHeight = (accordion: HTMLDetailsElement) => {
 
   accordion.style.setProperty(
     "--accordion-item-expanded",
-    `${expandedHeight}px`,
+    `${expandedHeight}px`
   );
   accordion.style.setProperty(
     "--accordion-item-collapsed",
-    `${collapsedHeight}px`,
+    `${collapsedHeight}px`
   );
 };
 
 export const debounce = (
   callback: (...args: unknown[]) => void,
-  delay: number,
+  delay: number
 ) => {
   let timeout: number;
 

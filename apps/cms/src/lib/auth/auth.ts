@@ -85,21 +85,16 @@ export const auth = betterAuth({
         }),
         webhooks({
           secret: process.env.POLAR_WEBHOOK_SECRET || "",
-          onCustomerCreated: async (payload) => {
-            await handleCustomerCreated(payload);
-          },
-          onSubscriptionCreated: async (payload) => {
-            await handleSubscriptionCreated(payload);
-          },
-          onSubscriptionUpdated: async (payload) => {
-            await handleSubscriptionUpdated(payload);
-          },
-          onSubscriptionCanceled: async (payload) => {
-            await handleSubscriptionCanceled(payload);
-          },
-          onSubscriptionRevoked: async (payload) => {
-            await handleSubscriptionRevoked(payload);
-          },
+          onCustomerCreated: async (payload) =>
+            await handleCustomerCreated(payload),
+          onSubscriptionCreated: async (payload) =>
+            await handleSubscriptionCreated(payload),
+          onSubscriptionUpdated: async (payload) =>
+            await handleSubscriptionUpdated(payload),
+          onSubscriptionCanceled: async (payload) =>
+            await handleSubscriptionCanceled(payload),
+          onSubscriptionRevoked: async (payload) =>
+            await handleSubscriptionRevoked(payload),
         }),
       ],
     }),
@@ -132,8 +127,8 @@ export const auth = betterAuth({
       async sendVerificationOTP({ email, otp, type }) {
         await sendVerificationEmailAction({
           userEmail: email,
-          otp: otp,
-          type: type,
+          otp,
+          type,
         });
       },
     }),
@@ -150,12 +145,12 @@ export const auth = betterAuth({
           console.log("allCookies before session create", allCookies);
           // this returns an empty array when i tested it
           try {
-            const organization =
+            const activeOrganization =
               await getLastActiveWorkspaceOrNewOneToSetAsActive(session.userId);
             return {
               data: {
                 ...session,
-                activeOrganizationId: organization?.id || null,
+                activeOrganizationId: activeOrganization?.id || null,
               },
             };
           } catch (_error) {
@@ -163,7 +158,7 @@ export const auth = betterAuth({
             return { data: session };
           }
         },
-        after: async (_session, ctx) => {
+        after: (_session, ctx) => {
           const allCookies = ctx?.request?.headers.getSetCookie();
           console.log("allCookies after session create", allCookies);
           // also returns an empty array when i tested it

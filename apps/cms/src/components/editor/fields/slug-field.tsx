@@ -33,7 +33,7 @@ export function SlugField({ control }: SlugFieldProps) {
             <Info className="size-4 text-gray-400" />
           </TooltipTrigger>
           <TooltipContent>
-            <p className="text-muted-foreground text-xs max-w-64">
+            <p className="max-w-64 text-muted-foreground text-xs">
               A url friendly string that can be used to access your post,
               recommended to be all lowercase and no special characters.
             </p>
@@ -43,11 +43,11 @@ export function SlugField({ control }: SlugFieldProps) {
       <Input
         id="slug"
         {...field}
-        placeholder="my-awesome-post"
         className="col-span-3"
+        placeholder="my-awesome-post"
       />
       {error && (
-        <p className="text-sm px-1 font-medium text-destructive">
+        <p className="px-1 font-medium text-destructive text-sm">
           {error.message}
         </p>
       )}

@@ -24,12 +24,12 @@ export function YoutubeEmbedModal({
   const [url, setUrl] = useState("");
   const editorInstance = useEditor();
 
-  const handleEmbed = (url: string) => {
+  const handleEmbed = (embedUrl: string) => {
     if (editorInstance) {
       editorInstance.editor
         ?.chain()
         .focus()
-        .setYoutubeVideo({ src: url })
+        .setYoutubeVideo({ src: embedUrl })
         .run();
       setIsOpen(false);
       setUrl("");
@@ -37,16 +37,16 @@ export function YoutubeEmbedModal({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog onOpenChange={setIsOpen} open={isOpen}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Embed YouTube Video</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col gap-6">
           <Input
-            value={url}
             onChange={({ target }) => setUrl(target.value)}
             placeholder="Paste YouTube URL"
+            value={url}
           />
           <Button onClick={() => handleEmbed(url)}>
             <YoutubeLogo className="mr-2 size-4" />

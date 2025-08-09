@@ -9,7 +9,7 @@ export async function GET(context: APIContext) {
   const posts = [...blog].sort(
     (a, b) =>
       new Date(b.data.publishedAt).valueOf() -
-      new Date(a.data.publishedAt).valueOf(),
+      new Date(a.data.publishedAt).valueOf()
   );
 
   return rss({

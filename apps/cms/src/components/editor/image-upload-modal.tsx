@@ -47,9 +47,9 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
   const editorInstance = useEditor();
 
   const { mutate: uploadImage, isPending: isUploading } = useMutation({
-    mutationFn: async (file: File) => {
+    mutationFn: async (formFile: File) => {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", formFile);
       const response = await fetch("/api/uploads/media", {
         method: "POST",
         body: formData,
@@ -71,8 +71,10 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
     },
   });
 
-  const handleEmbed = async (url: string) => {
-    if (!url || !editorInstance.editor) return;
+  const handleEmbed = (url: string) => {
+    if (!(url && editorInstance.editor)) {
+      return;
+    }
 
     try {
       setIsValidatingUrl(true);
@@ -96,9 +98,11 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
     }
   };
 
-  const handleUpload = async (file: File) => {
-    if (!editorInstance.editor) return;
-    uploadImage(file);
+  const handleUpload = (uploadFile: File) => {
+    if (!editorInstance.editor) {
+      return;
+    }
+    uploadImage(uploadFile);
   };
 
   // fetch media
@@ -113,23 +117,23 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
   });
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog onOpenChange={setIsOpen} open={isOpen}>
       <DialogHeader className="sr-only">
         <DialogTitle>Upload Image</DialogTitle>
         <DialogDescription>
           Upload an image from your computer or embed an image from the web.
         </DialogDescription>
       </DialogHeader>
-      <DialogContent className="sm:max-w-lg max-h-96">
-        <Tabs defaultValue="upload" className="w-full">
-          <TabsList variant="underline" className="flex justify-start mb-4">
-            <TabsTrigger variant="underline" value="upload">
+      <DialogContent className="max-h-96 sm:max-w-lg">
+        <Tabs className="w-full" defaultValue="upload">
+          <TabsList className="mb-4 flex justify-start" variant="underline">
+            <TabsTrigger value="upload" variant="underline">
               Upload
             </TabsTrigger>
-            <TabsTrigger variant="underline" value="embed">
+            <TabsTrigger value="embed" variant="underline">
               Embed
             </TabsTrigger>
-            <TabsTrigger variant="underline" value="media">
+            <TabsTrigger value="media" variant="underline">
               Media
             </TabsTrigger>
           </TabsList>
@@ -139,27 +143,27 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
               <div className="min-h-52">
                 {file ? (
                   <div className="flex flex-col gap-4">
-                    <div className="relative w-full h-full">
+                    <div className="relative h-full w-full">
                       {/* biome-ignore lint/performance/noImgElement: <> */}
                       <img
-                        src={URL.createObjectURL(file)}
                         alt="cover"
-                        className="w-full h-full max-h-48 object-cover rounded-md"
+                        className="h-full max-h-48 w-full rounded-md object-cover"
+                        src={URL.createObjectURL(file)}
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <Button
-                        variant="outline"
-                        onClick={() => setFile(undefined)}
-                        disabled={isUploading}
                         className="text-destructive hover:text-destructive"
+                        disabled={isUploading}
+                        onClick={() => setFile(undefined)}
+                        variant="outline"
                       >
                         <Trash className="size-4" />
                         <span>Remove</span>
                       </Button>
                       <Button
-                        onClick={() => file && handleUpload(file)}
                         disabled={isUploading}
+                        onClick={() => file && handleUpload(file)}
                       >
                         {isUploading ? (
                           <Spinner className="size-4 animate-spin" />
@@ -172,22 +176,22 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
                   </div>
                 ) : (
                   <Label
+                    className="flex h-full min-h-56 w-full cursor-pointer items-center justify-center rounded-md border border-dashed hover:border-primary"
                     htmlFor="bodyImage"
-                    className="w-full h-full min-h-56 rounded-md border border-dashed flex items-center justify-center cursor-pointer hover:border-primary"
                   >
                     <div className="flex flex-col items-center gap-2 text-muted-foreground">
                       <ImageIcon className="size-4" />
                       <div className="flex flex-col items-center">
-                        <p className="text-sm font-medium">Upload Image</p>
-                        <p className="text-xs font-medium">(Max 4mb)</p>
+                        <p className="font-medium text-sm">Upload Image</p>
+                        <p className="font-medium text-xs">(Max 4mb)</p>
                       </div>
                     </div>
                     <Input
-                      onChange={(e) => setFile(e.target.files?.[0])}
-                      id="bodyImage"
-                      type="file"
                       accept="image/*"
                       className="sr-only"
+                      id="bodyImage"
+                      onChange={(e) => setFile(e.target.files?.[0])}
+                      type="file"
                     />
                   </Label>
                 )}
@@ -198,15 +202,15 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
             <section className="space-y-8">
               <div className="flex flex-col gap-6">
                 <Input
-                  value={embedUrl}
+                  disabled={isValidatingUrl}
                   onChange={({ target }) => setEmbedUrl(target.value)}
                   placeholder="Paste your image link"
-                  disabled={isValidatingUrl}
+                  value={embedUrl}
                 />
                 <Button
-                  className="w-52 mx-auto"
-                  onClick={() => handleEmbed(embedUrl)}
+                  className="mx-auto w-52"
                   disabled={isValidatingUrl || !embedUrl}
+                  onClick={() => handleEmbed(embedUrl)}
                 >
                   {isValidatingUrl ? (
                     <>
@@ -224,28 +228,28 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
             <ScrollArea className="h-72">
               <section className="flex flex-col gap-4 p-4">
                 {media && media.length > 0 ? (
-                  <ul className="grid grid-cols-3 gap-2 overflow-y-auto max-h-[400px]">
+                  <ul className="grid max-h-[400px] grid-cols-3 gap-2 overflow-y-auto">
                     {media.map((item) => (
-                      <li key={item.id} className="border">
+                      <li className="border" key={item.id}>
                         <button
-                          type="button"
                           onClick={() => handleEmbed(item.url)}
+                          type="button"
                         >
                           {/* biome-ignore lint/performance/noImgElement: <> */}
                           <img
-                            src={item.url}
                             alt={item.name}
                             className="h-24 object-cover"
+                            src={item.url}
                           />
                         </button>
-                        <p className="text-xs text-muted-foreground line-clamp-1 py-0.5 px-1">
+                        <p className="line-clamp-1 px-1 py-0.5 text-muted-foreground text-xs">
                           {item.name}
                         </p>
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <div className="h-full grid place-content-center">
+                  <div className="grid h-full place-content-center">
                     <div className="flex flex-col items-center gap-4">
                       <p>Your previously uploaded media will show up here </p>
                     </div>

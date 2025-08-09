@@ -1,6 +1,6 @@
 import PageClient from "./page-client";
 
-async function Page() {
+function Page() {
   return <PageClient />;
 }
 

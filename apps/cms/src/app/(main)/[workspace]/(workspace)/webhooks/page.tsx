@@ -5,7 +5,7 @@ export const metadata = {
   description: "Create webhooks to receive events from your workspace.",
 };
 
-async function Page() {
+function Page() {
   return <PageClient />;
 }
 

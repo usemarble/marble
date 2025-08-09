@@ -46,7 +46,7 @@ export const DeletePostModal = ({
   });
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
+    <AlertDialog onOpenChange={setOpen} open={open}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete?</AlertDialogTitle>
@@ -58,11 +58,11 @@ export const DeletePostModal = ({
           <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
           <AlertDialogAction asChild>
             <Button
+              disabled={isPending}
               onClick={(e) => {
                 e.preventDefault();
                 deletePost(id);
               }}
-              disabled={isPending}
               variant="destructive"
             >
               {isPending ? <ButtonLoader variant="destructive" /> : "Delete"}

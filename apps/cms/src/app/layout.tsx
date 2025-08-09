@@ -57,17 +57,11 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      {/* <head>
-        <script
-          crossOrigin="anonymous"
-          src="//unpkg.com/react-scan/dist/auto.global.js"
-        />
-      </head> */}
       <body className={`${fontSans.className} font-sans antialiased`}>
         <Providers>
           <UserProvider
-            initialUser={initialUser}
             initialIsAuthenticated={isAuthenticated}
+            initialUser={initialUser}
           >
             {children}
           </UserProvider>

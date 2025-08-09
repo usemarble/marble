@@ -51,7 +51,7 @@ export function DeleteWebhookModal({
   });
 
   return (
-    <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
+    <AlertDialog onOpenChange={setIsOpen} open={isOpen}>
       <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
@@ -65,24 +65,24 @@ export function DeleteWebhookModal({
               This will permanently delete the webhook endpoint and all
               associated delivery logs and event history.
             </span>
-            <span className="text-blue-600 font-medium">
+            <span className="font-medium text-blue-600">
               Consider disabling the webhook instead if you might need it later.
             </span>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isPending} className="min-w-20">
+          <AlertDialogCancel className="min-w-20" disabled={isPending}>
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction asChild>
             <Button
-              variant="destructive"
+              className="min-w-20"
               disabled={isPending}
               onClick={(e) => {
                 e.preventDefault();
                 deleteWebhook();
               }}
-              className="min-w-20"
+              variant="destructive"
             >
               {isPending ? <ButtonLoader /> : "Delete webhook"}
             </Button>

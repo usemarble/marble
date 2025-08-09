@@ -20,6 +20,7 @@ export function DeleteAccountModal() {
   const router = useRouter();
   const { signOut } = useUser();
 
+  // biome-ignore lint/suspicious/noEvolvingTypes: Unfinished
   const accountId = null;
 
   const { mutate: deleteAccount, isPending } = useMutation({
@@ -31,7 +32,7 @@ export function DeleteAccountModal() {
         method: "DELETE",
       });
     },
-    onSuccess: async () => {
+    onSuccess: () => {
       toast.success("Account deleted successfully.");
       signOut();
       router.push("/");
@@ -63,18 +64,18 @@ export function DeleteAccountModal() {
           </AlertDialogCancel>
           <AlertDialogAction asChild>
             <Button
-              variant="destructive"
+              className="min-w-20"
               disabled={isPending}
               onClick={(e) => {
                 e.preventDefault();
                 deleteAccount();
               }}
-              className="min-w-20"
+              variant="destructive"
             >
               {isPending ? (
                 <ButtonLoader
-                  variant="destructive"
                   className="size-4 animate-spin"
+                  variant="destructive"
                 />
               ) : (
                 "Delete"

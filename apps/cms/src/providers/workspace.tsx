@@ -22,7 +22,7 @@ import { request } from "@/utils/fetch/client";
 import { setLastVisitedWorkspace } from "@/utils/workspace";
 
 const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
-  undefined,
+  undefined
 );
 
 export function WorkspaceProvider({
@@ -33,7 +33,7 @@ export function WorkspaceProvider({
   const router = useRouter();
   const queryClient = useQueryClient();
   const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(
-    initialWorkspace,
+    initialWorkspace
   );
   const [isSwitchingWorkspace, setIsSwitchingWorkspace] = useState(false);
 
@@ -93,7 +93,7 @@ export function WorkspaceProvider({
           ({
             ...prev,
             ...workspace,
-          }) as Workspace,
+          }) as Workspace
       );
 
       if (workspace.slug) {
@@ -137,7 +137,7 @@ export function WorkspaceProvider({
     async (workspace: Partial<Workspace>) => {
       await updateActiveWorkspaceMutation(workspace);
     },
-    [updateActiveWorkspaceMutation],
+    [updateActiveWorkspaceMutation]
   );
 
   useEffect(() => {
