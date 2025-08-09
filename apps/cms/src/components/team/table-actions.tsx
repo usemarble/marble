@@ -105,50 +105,48 @@ export default function TableActions(props: TableActionsProps) {
     };
 
     return (
-      <>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className="h-8 w-8 p-0 data-[state=open]:bg-muted"
-              disabled={isResendingInvite || isCancelingInvite}
-            >
-              <span className="sr-only">Open menu</span>
-              {isResendingInvite || isCancelingInvite ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <MoreHorizontal className="h-4 w-4" />
-              )}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            align="end"
-            className="w-[180px] text-muted-foreground"
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            className="h-8 w-8 p-0 data-[state=open]:bg-muted"
+            disabled={isResendingInvite || isCancelingInvite}
           >
-            <DropdownMenuItem onClick={handleCopyInviteLink}>
-              <CopyIcon className="mr-2 h-4 w-4" />
-              Copy Invite Link
+            <span className="sr-only">Open menu</span>
+            {isResendingInvite || isCancelingInvite ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <MoreHorizontal className="h-4 w-4" />
+            )}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          align="end"
+          className="w-[180px] text-muted-foreground"
+        >
+          <DropdownMenuItem onClick={handleCopyInviteLink}>
+            <CopyIcon className="mr-2 h-4 w-4" />
+            Copy Invite Link
+          </DropdownMenuItem>
+          {canManageInvites && (
+            <DropdownMenuItem onClick={handleResendInvite}>
+              <RefreshCcwIcon className="mr-2 h-4 w-4" />
+              Resend Invite
             </DropdownMenuItem>
-            {canManageInvites && (
-              <DropdownMenuItem onClick={handleResendInvite}>
-                <RefreshCcwIcon className="mr-2 h-4 w-4" />
-                Resend Invite
-              </DropdownMenuItem>
-            )}
-            {canManageInvites && (
-              <DropdownMenuItem onClick={() => cancelInvite(id)}>
-                <XCircleIcon className="mr-2 h-4 w-4" />
-                Cancel Invite
-              </DropdownMenuItem>
-            )}
-            {!canManageInvites && (
-              <DropdownMenuItem disabled>
-                No management actions available
-              </DropdownMenuItem>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </>
+          )}
+          {canManageInvites && (
+            <DropdownMenuItem onClick={() => cancelInvite(id)}>
+              <XCircleIcon className="mr-2 h-4 w-4" />
+              Cancel Invite
+            </DropdownMenuItem>
+          )}
+          {!canManageInvites && (
+            <DropdownMenuItem disabled>
+              No management actions available
+            </DropdownMenuItem>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
     );
   }
 

@@ -13,21 +13,19 @@ export default function PageClient() {
   };
 
   return (
-    <>
-      <div className="p-4 flex flex-col flex-1 h-full items-center justify-center">
-        <h1 className="text-2xl font-semibold mb-4">
-          {isFetchingUser ? (
-            getTimeOfDay()
-          ) : (
-            <>
-              {getTimeOfDay()}, {user?.name}
-            </>
-          )}
-        </h1>
-        <p className="text-muted-foreground">
-          Workspace metrics are coming soon!
-        </p>
-      </div>
-    </>
+    <div className="p-4 flex flex-col flex-1 h-full items-center justify-center">
+      <h1 className="text-2xl font-semibold mb-4">
+        {isFetchingUser ? (
+          getTimeOfDay()
+        ) : (
+          <>
+            {getTimeOfDay()}, {user?.name}
+          </>
+        )}
+      </h1>
+      <p className="text-muted-foreground">
+        Workspace metrics are coming soon!
+      </p>
+    </div>
   );
 }
