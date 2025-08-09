@@ -6,11 +6,8 @@ import ws from "ws";
 neonConfig.webSocketConstructor = ws;
 neonConfig.poolQueryViaFetch = true;
 
-const createClient = (databaseUrl?: string) => {
-  const connectionString = databaseUrl || process.env.DATABASE_URL;
-  if (!connectionString) {
-    console.log("No DATABASE_URL provided");
-  }
+const createClient = (url?: string) => {
+  const connectionString = url || process.env.DATABASE_URL;
   const pool = new Pool({ connectionString });
   const adapter = new PrismaNeon(pool);
   return new PrismaClient({ adapter });
