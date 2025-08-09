@@ -1,7 +1,6 @@
 name: Code quality
 
 on:
-  push:
   pull_request:
 
 jobs:
@@ -15,4 +14,4 @@ jobs:
         with:
           version: latest
       - name: Run Biome
-        run: biome ci .
+        run: npx ultracite format
