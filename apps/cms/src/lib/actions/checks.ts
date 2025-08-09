@@ -105,7 +105,7 @@ export async function verifyInvite(inviteId: string) {
  */
 
 // biome-ignore lint/suspicious/useAwait: Server Action
-export  const generateWebhookSecretAction = async () => {
+export const generateWebhookSecretAction = async () => {
   try {
     const secret = randomBytes(32).toString("hex");
     return { success: true, secret };
