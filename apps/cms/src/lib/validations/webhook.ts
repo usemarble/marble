@@ -35,7 +35,7 @@ export const webhookSchema = z.object({
     .min(8, { message: "Secret must be at least 8 characters" })
     .optional()
     .or(z.literal("")),
-  format: payloadFormatEnum.default("JSON"),
+  format: payloadFormatEnum,
 });
 
 export type WebhookFormValues = z.infer<typeof webhookSchema>;

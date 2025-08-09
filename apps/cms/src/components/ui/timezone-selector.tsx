@@ -136,7 +136,7 @@ export function TimezoneSelector({
           <CaretUpDown className="size-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="center" className="min-w-[600px] p-0">
+      <PopoverContent align="center" className="w-full p-0">
         <Command>
           <CommandInput placeholder="Search timezones..." />
           <CommandList>

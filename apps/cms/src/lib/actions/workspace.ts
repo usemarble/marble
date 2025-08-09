@@ -1,46 +1,57 @@
 "use server";
 
 import { db } from "@marble/db";
-import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
+import { auth } from "../auth/auth";
 import { getServerSession } from "../auth/session";
-import { setActiveWorkspace } from "../auth/workspace";
 import {
   type CreateWorkspaceValues,
   workspaceSchema,
 } from "../validations/workspace";
 
 export async function createWorkspaceAction(payload: CreateWorkspaceValues) {
-  const session = await getServerSession();
-  if (!session?.user?.id) {
-    throw new Error("Unauthorized");
+  try {
+    const sessionData = await getServerSession();
+    if (!sessionData?.user) {
+      throw new Error("Unauthorized");
+    }
+
+    const parsedPayload = workspaceSchema.parse(payload);
+
+    const workspace = await db.organization.create({
+      data: {
+        ...parsedPayload,
+        slug: parsedPayload.slug.toLocaleLowerCase(),
+      },
+    });
+
+    await db.member.create({
+      data: {
+        organizationId: workspace.id,
+        userId: sessionData.user.id,
+        role: "owner",
+        createdAt: new Date(),
+      },
+    });
+
+    console.log("setting active workspace");
+    const data = await auth.api.setActiveOrganization({
+      headers: await headers(),
+      body: {
+        organizationId: workspace.id,
+        organizationSlug: workspace.slug,
+      },
+    });
+    console.log("active organization set", data);
+
+    return workspace;
+  } catch (error) {
+    console.error("Error creating workspace:", error);
+    throw new Error("Failed to create workspace");
   }
-
-  const parsedPayload = workspaceSchema.parse(payload);
-
-  const workspace = await db.organization.create({
-    data: {
-      ...parsedPayload,
-      slug: parsedPayload.slug.toLocaleLowerCase(),
-    },
-  });
-
-  await db.member.create({
-    data: {
-      organizationId: workspace.id,
-      userId: session.user.id,
-      role: "owner",
-      createdAt: new Date(),
-    },
-  });
-
-  setActiveWorkspace(workspace.slug);
-
-  // not too sure this works
-  revalidatePath(`/${workspace.slug}`);
-  return workspace;
 }
 
-export async function updateWorkspaceAction(
+export async function _updateWorkspaceAction(
   workspaceId: string,
   payload: CreateWorkspaceValues
 ) {
@@ -59,7 +70,7 @@ export async function updateWorkspaceAction(
   return workspace;
 }
 
-export async function deleteWorkspaceAction(workspaceId: string) {
+export async function _deleteWorkspaceAction(workspaceId: string) {
   const session = await getServerSession();
   if (!session?.user?.id) {
     throw new Error("Unauthorized");

@@ -1,18 +1,20 @@
-import axios from "axios";
+import { betterFetch } from "@better-fetch/fetch";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import type { Session } from "./lib/auth/types";
-import { getUserWorkspace } from "./lib/queries/workspace";
+import { getLastActiveWorkspaceOrNewOneToSetAsActive } from "./lib/queries/workspace";
 
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: This is mega dumb
 export async function middleware(request: NextRequest) {
-  const { data: session } = await axios
-    .get<Session>(`${request.nextUrl.origin}/api/auth/get-session`, {
+  const { data: session } = await betterFetch<Session>(
+    "/api/auth/get-session",
+    {
+      baseURL: request.nextUrl.origin,
       headers: {
         cookie: request.headers.get("cookie") || "",
       },
-    })
-    .catch(() => ({ data: null }));
+    }
+  );
 
   const isVerified = session?.user?.emailVerified;
   const path = request.nextUrl.pathname;
@@ -64,12 +66,14 @@ export async function middleware(request: NextRequest) {
 
     // Redirect auth pages or root to workspace or onboarding
     if (isAuthPage || isRootPage || isVerifyPage) {
-      const workspaceSlug = await getUserWorkspace(
+      const workspace = await getLastActiveWorkspaceOrNewOneToSetAsActive(
         session.user.id,
         request.cookies
       );
-      if (workspaceSlug) {
-        return NextResponse.redirect(new URL(`/${workspaceSlug}`, request.url));
+      if (workspace) {
+        return NextResponse.redirect(
+          new URL(`/${workspace.slug}`, request.url)
+        );
       }
       return NextResponse.redirect(new URL("/new", request.url));
     }

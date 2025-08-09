@@ -59,7 +59,7 @@ export function DeleteWorkspaceModal({ id }: { id: string }) {
         return;
       }
 
-      await updateActiveWorkspace(nextWorkspace.slug, nextWorkspace);
+      await updateActiveWorkspace(nextWorkspace);
       router.push(`/${nextWorkspace.slug}`);
     } catch (error) {
       console.error("Failed to delete workspace:", error);

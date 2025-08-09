@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import type React from "react";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import { toast } from "sonner";
 import { authClient, useSession } from "@/lib/auth/client";
 import { QUERY_KEYS } from "@/lib/queries/keys";
@@ -27,49 +27,40 @@ export function UserProvider({
   const router = useRouter();
   const [user, setUser] = useState<UserProfile | null>(initialUser);
   const [isSigningOut, setIsSigningOut] = useState(false);
-
-  // Use Better Auth's useSession hook to get current session
   const { data: session, isPending: isSessionPending } = useSession();
-  const isAuthenticated = !!session || initialIsAuthenticated;
 
-  // Update user state when session changes, but be careful not to clear initial data
-  useEffect(() => {
-    // Only clear user data if session is explicitly null and we're not still loading
-    if (!(session || isSessionPending || isSigningOut)) {
-      setUser(null);
-      queryClient.removeQueries({ queryKey: [QUERY_KEYS.USER] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USER] });
-    }
-  }, [session, isSessionPending, isSigningOut, queryClient]);
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    initialIsAuthenticated || !!session
+  );
 
-  // Fetch current user from our custom API endpoint
   const fetchCurrentUser = async (): Promise<UserProfile> => {
-    const response = await request<UserProfile>("/user", "GET");
-    setUser(response.data);
-    return response.data;
+    try {
+      const response = await request<UserProfile>("user");
+      setUser(response.data);
+      setIsAuthenticated(true);
+      console.log("fresh user data", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Failed to fetch user:", error);
+      throw error;
+    }
   };
 
   const { isLoading: isFetchingUser } = useQuery({
     queryKey: [QUERY_KEYS.USER],
     queryFn: fetchCurrentUser,
-    enabled:
-      // Only fetch if:
-      // 1. We don't have complete user data (no workspaceRole means incomplete)
-      // 2. User is authenticated
-      // 3. Session is not pending
-      !user?.workspaceRole && isAuthenticated && !isSessionPending,
+    enabled: !user?.workspaceRole && isAuthenticated && !isSessionPending,
     initialData: initialUser,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 
-  // Update user mutation
   const { mutate: updateUserMutation, isPending: isUpdatingUser } = useMutation(
     {
       mutationFn: async (
         updates: Partial<Pick<UserProfile, "name" | "image">>
       ) => {
-        const response = await request<UserProfile>("/user", "PATCH", updates);
+        const response = await request<UserProfile>("user", "PATCH", updates);
         return response.data;
       },
       onSuccess: (data) => {
@@ -90,14 +81,13 @@ export function UserProvider({
     updateUserMutation(updates);
   };
 
-  // Sign out function
   const signOut = async () => {
     setIsSigningOut(true);
     try {
       await authClient.signOut();
       setUser(null);
-      queryClient.removeQueries({ queryKey: [QUERY_KEYS.USER] });
       router.push("/login");
+      queryClient.removeQueries({ queryKey: [QUERY_KEYS.USER] });
     } catch (error) {
       console.error("Failed to sign out:", error);
       toast.error("Failed to sign out");

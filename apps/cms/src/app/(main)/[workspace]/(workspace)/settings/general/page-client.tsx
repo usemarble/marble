@@ -73,7 +73,7 @@ function PageClient() {
     },
     onSuccess: (data) => {
       setLogoUrl(data.logoUrl);
-      updateActiveWorkspace(activeWorkspace?.slug as string, {
+      updateActiveWorkspace({
         logo: data.logoUrl,
       });
       toast.success("Uploaded complete");

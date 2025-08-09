@@ -21,8 +21,7 @@ import { Controller, useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
 import { ButtonLoader } from "@/components/ui/loader";
 import { TimezoneSelector } from "@/components/ui/timezone-selector";
-import { createWorkspaceAction } from "@/lib/actions/workspace";
-import { organization } from "@/lib/auth/client";
+import { organization, useSession } from "@/lib/auth/client";
 import { timezones } from "@/lib/constants";
 import {
   type CreateWorkspaceValues,
@@ -34,7 +33,6 @@ function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
   const {
     register,
     handleSubmit,
-    setError,
     watch,
     setValue,
     control,
@@ -49,6 +47,8 @@ function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
 
   const router = useRouter();
   const { name } = watch();
+  const { data: session } = useSession();
+  console.log("session at create workspace page", session);
 
   useEffect(() => {
     if (name) {
@@ -58,30 +58,38 @@ function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
   }, [name, setValue]);
 
   async function onSubmit(payload: CreateWorkspaceValues) {
-    const { data, error } = await organization.checkSlug({
+    const { error } = await organization.checkSlug({
       slug: payload.slug,
     });
+
     if (error) {
       toast.error(error.message);
-      return;
-    }
-    if (!data.status) {
-      setError("slug", { message: "This slug is in use" });
+      console.log("check slug error", error);
       return;
     }
 
     try {
-      const workspace = await createWorkspaceAction({
+      const { data, error: err } = await organization.create({
         name: payload.name,
         slug: payload.slug,
         timezone: payload.timezone,
+        logo: `https://api.dicebear.com/9.x/glass/svg?seed=${payload.name}`,
       });
-
-      if (workspace) {
-        router.push(`/${workspace.slug}`);
+      if (err) {
+        toast.error(err.message);
+        return;
+      }
+      if (data) {
+        console.log("setting active organization", data.id);
+        await organization.setActive({
+          organizationId: data.id,
+        });
+        console.log("active organization set", data.id);
+        router.push(`/${data.slug}`);
+        toast.success("Workspace created");
       }
     } catch (err) {
-      console.error(err);
+      console.error("Failed to create workspace", err);
       toast.error("Failed to create workspace");
     }
   }

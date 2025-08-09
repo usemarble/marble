@@ -28,7 +28,7 @@ export interface Workspace {
     inviterId: string;
     expiresAt: Date | string;
   }>;
-  subscription?: {
+  subscription: {
     id: string;
     status: string;
     plan: string;
@@ -39,27 +39,10 @@ export interface Workspace {
   } | null;
 }
 
-export type WorkspaceWithRole = {
-  id: string;
-  name: string;
-  slug: string;
-  logo?: string | null;
-  createdAt: Date;
-  userRole: string | null;
-  subscription?: {
-    id: string;
-    status: string;
-    plan: string;
-  } | null;
-};
-
 export interface WorkspaceContextType {
   activeWorkspace: Workspace | null;
-  updateActiveWorkspace: (
-    workspaceSlug: string,
-    newWorkspace?: Partial<Workspace>
-  ) => Promise<void>;
-  workspaceList: WorkspaceWithRole[] | null;
+  updateActiveWorkspace: (workspace: Partial<Workspace>) => Promise<void>;
+  workspaceList: Workspace[] | null;
   isFetchingWorkspace: boolean;
   isOwner: boolean;
   isAdmin: boolean;
