@@ -118,7 +118,7 @@ export const CreateCategoryModal = ({
       <DialogContent className="max-w-sm p-8">
         <DialogHeader>
           <DialogTitle className="font-medium text-center">
-            Create category
+            Create Category
           </DialogTitle>
         </DialogHeader>
         <form
@@ -150,7 +150,7 @@ export const CreateCategoryModal = ({
             className="flex w-full gap-2 mt-4"
             size={"sm"}
           >
-            {isSubmitting ? <ButtonLoader /> : "Create category"}
+            {isSubmitting ? <ButtonLoader /> : "Create Category"}
           </Button>
         </form>
       </DialogContent>

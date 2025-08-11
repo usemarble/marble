@@ -2,7 +2,6 @@
 
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -56,18 +55,16 @@ export const DeletePostModal = ({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
-          <AlertDialogAction asChild>
-            <Button
-              onClick={(e) => {
-                e.preventDefault();
-                deletePost(id);
-              }}
-              disabled={isPending}
-              variant="destructive"
-            >
-              {isPending ? <ButtonLoader variant="destructive" /> : "Delete"}
-            </Button>
-          </AlertDialogAction>
+          <Button
+            onClick={(e) => {
+              e.preventDefault();
+              deletePost(id);
+            }}
+            disabled={isPending}
+            variant="destructive"
+          >
+            {isPending ? <ButtonLoader /> : "Delete"}
+          </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

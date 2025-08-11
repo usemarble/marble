@@ -112,7 +112,7 @@ export function CreateTagModal({
       <DialogContent className="max-w-sm p-8">
         <DialogHeader>
           <DialogTitle className="font-medium text-center">
-            Create tag
+            Create Tag
           </DialogTitle>
         </DialogHeader>
         <form

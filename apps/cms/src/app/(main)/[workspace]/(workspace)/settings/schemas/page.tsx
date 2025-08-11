@@ -8,7 +8,7 @@ function Page() {
   return (
     <WorkspacePageWrapper className="h-full grid place-content-center">
       <div className="flex flex-col gap-4 items-center max-w-80">
-        <div className="p-2 border">
+        <div className="p-2">
           <Database className="size-16 stroke-[1px]" />
         </div>
         <div className="text-center flex flex-col gap-4 items-center">

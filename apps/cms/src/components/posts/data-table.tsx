@@ -21,8 +21,9 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
+import type { Post } from "./columns";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -35,6 +36,7 @@ export function PostDataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   const [sorting, _setSorting] = useState<SortingState>([]);
   const params = useParams<{ workspace: string }>();
+  const router = useRouter();
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
@@ -49,6 +51,13 @@ export function PostDataTable<TData, TValue>({
       columnFilters,
     },
   });
+
+  const handleRowClick = (post: Post, event: React.MouseEvent) => {
+    if ((event.target as HTMLElement).closest('[data-actions-cell="true"]')) {
+      return;
+    }
+    router.push(`/${params.workspace}/editor/p/${post.id}`);
+  };
 
   return (
     <div>
@@ -83,7 +92,7 @@ export function PostDataTable<TData, TValue>({
             className={buttonVariants({ variant: "default", size: "sm" })}
           >
             <Plus size={16} />
-            <span>New post</span>
+            <span>New Post</span>
           </Link>
         </div>
       </div>
@@ -114,9 +123,18 @@ export function PostDataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={(event) =>
+                    handleRowClick(row.original as Post, event)
+                  }
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell
+                      key={cell.id}
+                      {...(cell.column.id === "actions" && {
+                        "data-actions-cell": "true",
+                      })}
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext(),

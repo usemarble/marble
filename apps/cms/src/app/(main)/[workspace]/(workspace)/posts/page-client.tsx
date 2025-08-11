@@ -47,7 +47,7 @@ function PageClient() {
                 className={buttonVariants({ variant: "default", size: "sm" })}
               >
                 <Plus size={16} />
-                <span>New post</span>
+                <span>New Post</span>
               </Link>
             </div>
           </div>

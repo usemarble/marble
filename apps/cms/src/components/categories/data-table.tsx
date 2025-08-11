@@ -80,7 +80,7 @@ export function DataTable<TData, TValue>({
         <div>
           <Button onClick={() => setShowCreateModal(true)} size="sm">
             <Plus size={16} />
-            <span>new category</span>
+            <span>New Category</span>
           </Button>
         </div>
       </div>
