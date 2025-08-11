@@ -52,7 +52,7 @@ function PageClient() {
               </p>
               <Button onClick={() => setShowCreateModal(true)} size="sm">
                 <Plus size={16} />
-                <span>Create tag</span>
+                <span>Create Tag</span>
               </Button>
             </div>
           </div>

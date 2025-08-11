@@ -42,7 +42,7 @@ export default function PostTableActions(props: Post) {
             <button
               type="button"
               onClick={() => setShowDeleteModal(true)}
-              className="flex w-full items-center gap-2"
+              className="flex w-full items-center gap-2 text-destructive"
             >
               <Trash size={16} /> <span>Delete</span>
             </button>

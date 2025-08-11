@@ -103,7 +103,7 @@ export function TeamDataTable<TData, TValue>({
                     variant="outline"
                     className="opacity-50 cursor-not-allowed"
                   >
-                    <span>Leave team</span>
+                    <span>Leave Team</span>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -119,7 +119,7 @@ export function TeamDataTable<TData, TValue>({
               variant="outline"
               onClick={() => setShowLeaveWorkspaceModal(true)}
             >
-              <span>Leave team</span>
+              <span>Leave Team</span>
             </Button>
           )}
         </div>

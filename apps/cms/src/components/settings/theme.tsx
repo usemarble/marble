@@ -12,15 +12,15 @@ import { useTheme } from "next-themes";
 
 const themes = [
   {
-    name: "light",
+    name: "Light",
     label: "Light",
   },
   {
-    name: "dark",
+    name: "Dark",
     label: "Dark",
   },
   {
-    name: "system",
+    name: "System",
     label: "System",
   },
 ];
@@ -32,15 +32,15 @@ export function ThemeSwitch() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm">
-          <span>{theme}</span>
+          <span className="capitalize">{theme}</span>
           <CaretDown className="ml-2 size-4 text-muted-foreground" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         {themes.map((item) => (
           <DropdownMenuItem
-            key={item.name}
-            onClick={() => setTheme(item.name)}
+            key={item.name.toLowerCase()}
+            onClick={() => setTheme(item.name.toLowerCase())}
             className="cursor-pointer"
           >
             {item.label}
