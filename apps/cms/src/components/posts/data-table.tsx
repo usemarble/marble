@@ -53,7 +53,12 @@ export function PostDataTable<TData, TValue>({
   });
 
   const handleRowClick = (post: Post, event: React.MouseEvent) => {
-    if ((event.target as HTMLElement).closest('[data-actions-cell="true"]')) {
+    if (
+      (event.target as HTMLElement).closest('[data-actions-cell="true"]') ||
+      (event.target as HTMLElement).closest("button") ||
+      (event.target as HTMLElement).closest("a") ||
+      (event.target as HTMLElement).closest('[role="menuitem"]')
+    ) {
       return;
     }
     router.push(`/${params.workspace}/editor/p/${post.id}`);
@@ -133,6 +138,7 @@ export function PostDataTable<TData, TValue>({
                       key={cell.id}
                       {...(cell.column.id === "actions" && {
                         "data-actions-cell": "true",
+                        onClick: (e: React.MouseEvent) => e.stopPropagation(),
                       })}
                     >
                       {flexRender(
