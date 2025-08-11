@@ -25,8 +25,14 @@ export function SlashCommandMenu() {
               value={item.title}
               onCommand={(val) => {
                 if (item.title === "Image") {
+                  if (val.editor && val.range) {
+                    val.editor.chain().focus().deleteRange(val.range).run();
+                  }
                   setShowImageModal(true);
                 } else if (item.title === "YouTube") {
+                  if (val.editor && val.range) {
+                    val.editor.chain().focus().deleteRange(val.range).run();
+                  }
                   setShowYoutubeModal(true);
                 } else {
                   item.command?.(val);
