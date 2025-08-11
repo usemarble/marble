@@ -53,7 +53,6 @@ export function PostDataTable<TData, TValue>({
   });
 
   const handleRowClick = (post: Post, event: React.MouseEvent) => {
-    // Don't navigate if clicking on the actions column
     if ((event.target as HTMLElement).closest('[data-actions-cell="true"]')) {
       return;
     }
