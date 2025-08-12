@@ -1,19 +1,19 @@
-import { betterFetch } from "@better-fetch/fetch";
-import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
-import type { Session } from "./lib/auth/types";
+import { headers } from "next/headers";
+import { type NextRequest, NextResponse } from "next/server";
+import { auth } from "./lib/auth/auth";
+
 import { getLastActiveWorkspaceOrNewOneToSetAsActive } from "./lib/queries/workspace";
 
 export async function middleware(request: NextRequest) {
-  const { data: session } = await betterFetch<Session>(
-    "/api/auth/get-session",
-    {
-      baseURL: request.nextUrl.origin,
-      headers: {
-        cookie: request.headers.get("cookie") || "",
-      },
-    },
-  );
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  console.log({
+    session,
+    "request.nextUrl.origin": request.nextUrl.origin,
+    [`request.headers.get("cookie")`]: request.headers.get("cookie"),
+  });
 
   const isVerified = session?.user?.emailVerified;
   const path = request.nextUrl.pathname;
@@ -83,4 +83,5 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: ["/((?!api|static|.*\\..*|_next/static|_next/image|favicon.ico).*)"],
+  runtime: "nodejs",
 };
