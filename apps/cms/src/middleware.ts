@@ -9,12 +9,6 @@ export async function middleware(request: NextRequest) {
     headers: await headers(),
   });
 
-  console.log({
-    session,
-    "request.nextUrl.origin": request.nextUrl.origin,
-    [`request.headers.get("cookie")`]: request.headers.get("cookie"),
-  });
-
   const isVerified = session?.user?.emailVerified;
   const path = request.nextUrl.pathname;
   const isRootPage = path === "/";
