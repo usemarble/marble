@@ -283,7 +283,7 @@ importers:
     dependencies:
       '@astrojs/mdx':
         specifier: ^4.3.0
-        version: 4.3.0(astro@5.11.2(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@2.4.2)(rollup@4.45.1)(typescript@5.8.2)(uploadthing@7.4.4(h3@1.15.3)(next@15.4.4(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0))
+        version: 4.3.0(astro@5.11.2(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@2.4.2)(rollup@4.45.1)(typescript@5.8.2)(uploadthing@7.4.4(h3@1.15.3)(next@15.4.6(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0))
       '@astrojs/rss':
         specifier: ^4.0.12
         version: 4.0.12
@@ -292,16 +292,16 @@ importers:
         version: 3.4.1
       '@astrojs/tailwind':
         specifier: ^6.0.0
-        version: 6.0.0(astro@5.11.2(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@2.4.2)(rollup@4.45.1)(typescript@5.8.2)(uploadthing@7.4.4(h3@1.15.3)(next@15.4.4(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0))(tailwindcss@3.4.16)
+        version: 6.0.0(astro@5.11.2(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@2.4.2)(rollup@4.45.1)(typescript@5.8.2)(uploadthing@7.4.4(h3@1.15.3)(next@15.4.6(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0))(tailwindcss@3.4.16)
       '@astrojs/vercel':
         specifier: ^8.2.2
-        version: 8.2.2(astro@5.11.2(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@2.4.2)(rollup@4.45.1)(typescript@5.8.2)(uploadthing@7.4.4(h3@1.15.3)(next@15.4.4(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0))(next@15.4.4(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)(rollup@4.45.1)
+        version: 8.2.2(astro@5.11.2(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@2.4.2)(rollup@4.45.1)(typescript@5.8.2)(uploadthing@7.4.4(h3@1.15.3)(next@15.4.6(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0))(next@15.4.6(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)(rollup@4.45.1)
       astro:
         specifier: ^5.11.2
-        version: 5.11.2(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@2.4.2)(rollup@4.45.1)(typescript@5.8.2)(uploadthing@7.4.4(h3@1.15.3)(next@15.4.4(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0)
+        version: 5.11.2(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@2.4.2)(rollup@4.45.1)(typescript@5.8.2)(uploadthing@7.4.4(h3@1.15.3)(next@15.4.6(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0)
       free-astro-components:
         specifier: ^1.2.0
-        version: 1.2.0(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@2.4.2)(prettier@3.3.3)(rollup@4.45.1)(uploadthing@7.4.4(h3@1.15.3)(next@15.4.4(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0)
+        version: 1.2.0(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@2.4.2)(prettier@3.3.3)(rollup@4.45.1)(uploadthing@7.4.4(h3@1.15.3)(next@15.4.6(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0)
       sharp:
         specifier: ^0.34.3
         version: 0.34.3
@@ -1583,8 +1583,8 @@ packages:
   '@next/env@15.4.2-canary.41':
     resolution: {integrity: sha512-T61yOopTJkhCIb9RiGyl1VmTJj7QigyEwQlBR3QektJCNH16jrzsnbXUKUNHoLm6RVf0ulwYXntW678A9NhXdA==}
 
-  '@next/env@15.4.4':
-    resolution: {integrity: sha512-SJKOOkULKENyHSYXE5+KiFU6itcIb6wSBjgM92meK0HVKpo94dNOLZVdLLuS7/BxImROkGoPsjR4EnuDucqiiA==}
+  '@next/env@15.4.6':
+    resolution: {integrity: sha512-yHDKVTcHrZy/8TWhj0B23ylKv5ypocuCwey9ZqPyv4rPdUdRzpGCkSi03t04KBPyU96kxVtUqx6O3nE1kpxASQ==}
 
   '@next/swc-darwin-arm64@15.4.2-canary.41':
     resolution: {integrity: sha512-p8nha7pPedyTtfo4tF+mOxpt3GC1MpWA2nJzXyRIU/93wxQynl5BdZOR9ByWJnqsIOW535x7yIEHNW/9/UiS5A==}
@@ -1592,8 +1592,8 @@ packages:
     cpu: [arm64]
     os: [darwin]
 
-  '@next/swc-darwin-arm64@15.4.4':
-    resolution: {integrity: sha512-eVG55dnGwfUuG+TtnUCt+mEJ+8TGgul6nHEvdb8HEH7dmJIFYOCApAaFrIrxwtEq2Cdf+0m5sG1Np8cNpw9EAw==}
+  '@next/swc-darwin-arm64@15.4.6':
+    resolution: {integrity: sha512-667R0RTP4DwxzmrqTs4Lr5dcEda9OxuZsVFsjVtxVMVhzSpo6nLclXejJVfQo2/g7/Z9qF3ETDmN3h65mTjpTQ==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [darwin]
@@ -1604,8 +1604,8 @@ packages:
     cpu: [x64]
     os: [darwin]
 
-  '@next/swc-darwin-x64@15.4.4':
-    resolution: {integrity: sha512-zqG+/8apsu49CltEj4NAmCGZvHcZbOOOsNoTVeIXphYWIbE4l6A/vuQHyqll0flU2o3dmYCXsBW5FmbrGDgljQ==}
+  '@next/swc-darwin-x64@15.4.6':
+    resolution: {integrity: sha512-KMSFoistFkaiQYVQQnaU9MPWtp/3m0kn2Xed1Ces5ll+ag1+rlac20sxG+MqhH2qYWX1O2GFOATQXEyxKiIscg==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [darwin]
@@ -1616,8 +1616,8 @@ packages:
     cpu: [arm64]
     os: [linux]
 
-  '@next/swc-linux-arm64-gnu@15.4.4':
-    resolution: {integrity: sha512-LRD4l2lq4R+2QCHBQVC0wjxxkLlALGJCwigaJ5FSRSqnje+MRKHljQNZgDCaKUZQzO/TXxlmUdkZP/X3KNGZaw==}
+  '@next/swc-linux-arm64-gnu@15.4.6':
+    resolution: {integrity: sha512-PnOx1YdO0W7m/HWFeYd2A6JtBO8O8Eb9h6nfJia2Dw1sRHoHpNf6lN1U4GKFRzRDBi9Nq2GrHk9PF3Vmwf7XVw==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
@@ -1628,8 +1628,8 @@ packages:
     cpu: [arm64]
     os: [linux]
 
-  '@next/swc-linux-arm64-musl@15.4.4':
-    resolution: {integrity: sha512-LsGUCTvuZ0690fFWerA4lnQvjkYg9gHo12A3wiPUR4kCxbx/d+SlwmonuTH2SWZI+RVGA9VL3N0S03WTYv6bYg==}
+  '@next/swc-linux-arm64-musl@15.4.6':
+    resolution: {integrity: sha512-XBbuQddtY1p5FGPc2naMO0kqs4YYtLYK/8aPausI5lyOjr4J77KTG9mtlU4P3NwkLI1+OjsPzKVvSJdMs3cFaw==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
@@ -1640,8 +1640,8 @@ packages:
     cpu: [x64]
     os: [linux]
 
-  '@next/swc-linux-x64-gnu@15.4.4':
-    resolution: {integrity: sha512-aOy5yNRpLL3wNiJVkFYl6w22hdREERNjvegE6vvtix8LHRdsTHhWTpgvcYdCK7AIDCQW5ATmzr9XkPHvSoAnvg==}
+  '@next/swc-linux-x64-gnu@15.4.6':
+    resolution: {integrity: sha512-+WTeK7Qdw82ez3U9JgD+igBAP75gqZ1vbK6R8PlEEuY0OIe5FuYXA4aTjL811kWPf7hNeslD4hHK2WoM9W0IgA==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
@@ -1652,8 +1652,8 @@ packages:
     cpu: [x64]
     os: [linux]
 
-  '@next/swc-linux-x64-musl@15.4.4':
-    resolution: {integrity: sha512-FL7OAn4UkR8hKQRGBmlHiHinzOb07tsfARdGh7v0Z0jEJ3sz8/7L5bR23ble9E6DZMabSStqlATHlSxv1fuzAg==}
+  '@next/swc-linux-x64-musl@15.4.6':
+    resolution: {integrity: sha512-XP824mCbgQsK20jlXKrUpZoh/iO3vUWhMpxCz8oYeagoiZ4V0TQiKy0ASji1KK6IAe3DYGfj5RfKP6+L2020OQ==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
@@ -1664,8 +1664,8 @@ packages:
     cpu: [arm64]
     os: [win32]
 
-  '@next/swc-win32-arm64-msvc@15.4.4':
-    resolution: {integrity: sha512-eEdNW/TXwjYhOulQh0pffTMMItWVwKCQpbziSBmgBNFZIIRn2GTXrhrewevs8wP8KXWYMx8Z+mNU0X+AfvtrRg==}
+  '@next/swc-win32-arm64-msvc@15.4.6':
+    resolution: {integrity: sha512-FxrsenhUz0LbgRkNWx6FRRJIPe/MI1JRA4W4EPd5leXO00AZ6YU8v5vfx4MDXTvN77lM/EqsE3+6d2CIeF5NYg==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [win32]
@@ -1676,8 +1676,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@next/swc-win32-x64-msvc@15.4.4':
-    resolution: {integrity: sha512-SE5pYNbn/xZKMy1RE3pAs+4xD32OI4rY6mzJa4XUkp/ItZY+OMjIgilskmErt8ls/fVJ+Ihopi2QIeW6O3TrMw==}
+  '@next/swc-win32-x64-msvc@15.4.6':
+    resolution: {integrity: sha512-T4ufqnZ4u88ZheczkBTtOF+eKaM14V8kbjud/XrAakoM5DKQWjW09vD6B9fsdsWS2T7D5EY31hRHdta7QKWOng==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [win32]
@@ -5487,8 +5487,8 @@ packages:
       sass:
         optional: true
 
-  next@15.4.4:
-    resolution: {integrity: sha512-kNcubvJjOL9yUOfwtZF3HfDhuhp+kVD+FM2A6Tyua1eI/xfmY4r/8ZS913MMz+oWKDlbps/dQOWdDricuIkXLw==}
+  next@15.4.6:
+    resolution: {integrity: sha512-us++E/Q80/8+UekzB3SAGs71AlLDsadpFMXVNM/uQ0BMwsh9m3mr0UNQIfjKed8vpWXsASe+Qifrnu1oLIcKEQ==}
     engines: {node: ^18.18.0 || ^19.8.0 || >= 20.0.0}
     hasBin: true
     peerDependencies:
@@ -7231,12 +7231,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@astrojs/mdx@4.3.0(astro@5.11.2(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@2.4.2)(rollup@4.45.1)(typescript@5.8.2)(uploadthing@7.4.4(h3@1.15.3)(next@15.4.4(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0))':
+  '@astrojs/mdx@4.3.0(astro@5.11.2(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@2.4.2)(rollup@4.45.1)(typescript@5.8.2)(uploadthing@7.4.4(h3@1.15.3)(next@15.4.6(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0))':
     dependencies:
       '@astrojs/markdown-remark': 6.3.2
       '@mdx-js/mdx': 3.1.0(acorn@8.15.0)
       acorn: 8.15.0
-      astro: 5.11.2(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@2.4.2)(rollup@4.45.1)(typescript@5.8.2)(uploadthing@7.4.4(h3@1.15.3)(next@15.4.4(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0)
+      astro: 5.11.2(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@2.4.2)(rollup@4.45.1)(typescript@5.8.2)(uploadthing@7.4.4(h3@1.15.3)(next@15.4.6(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0)
       es-module-lexer: 1.6.0
       estree-util-visit: 2.0.0
       hast-util-to-html: 9.0.5
@@ -7265,9 +7265,9 @@ snapshots:
       stream-replace-string: 2.0.0
       zod: 3.25.67
 
-  '@astrojs/tailwind@6.0.0(astro@5.11.2(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@2.4.2)(rollup@4.45.1)(typescript@5.8.2)(uploadthing@7.4.4(h3@1.15.3)(next@15.4.4(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0))(tailwindcss@3.4.16)':
+  '@astrojs/tailwind@6.0.0(astro@5.11.2(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@2.4.2)(rollup@4.45.1)(typescript@5.8.2)(uploadthing@7.4.4(h3@1.15.3)(next@15.4.6(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0))(tailwindcss@3.4.16)':
     dependencies:
-      astro: 5.11.2(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@2.4.2)(rollup@4.45.1)(typescript@5.8.2)(uploadthing@7.4.4(h3@1.15.3)(next@15.4.4(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0)
+      astro: 5.11.2(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@2.4.2)(rollup@4.45.1)(typescript@5.8.2)(uploadthing@7.4.4(h3@1.15.3)(next@15.4.6(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0)
       autoprefixer: 10.4.20(postcss@8.5.1)
       postcss: 8.5.1
       postcss-load-config: 4.0.2(postcss@8.5.1)
@@ -7287,14 +7287,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@astrojs/vercel@8.2.2(astro@5.11.2(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@2.4.2)(rollup@4.45.1)(typescript@5.8.2)(uploadthing@7.4.4(h3@1.15.3)(next@15.4.4(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0))(next@15.4.4(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)(rollup@4.45.1)':
+  '@astrojs/vercel@8.2.2(astro@5.11.2(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@2.4.2)(rollup@4.45.1)(typescript@5.8.2)(uploadthing@7.4.4(h3@1.15.3)(next@15.4.6(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0))(next@15.4.6(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)(rollup@4.45.1)':
     dependencies:
       '@astrojs/internal-helpers': 0.6.1
-      '@vercel/analytics': 1.5.0(next@15.4.4(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)
+      '@vercel/analytics': 1.5.0(next@15.4.6(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)
       '@vercel/edge': 1.2.1
       '@vercel/nft': 0.29.4(rollup@4.45.1)
       '@vercel/routing-utils': 5.0.4
-      astro: 5.11.2(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@2.4.2)(rollup@4.45.1)(typescript@5.8.2)(uploadthing@7.4.4(h3@1.15.3)(next@15.4.4(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0)
+      astro: 5.11.2(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@2.4.2)(rollup@4.45.1)(typescript@5.8.2)(uploadthing@7.4.4(h3@1.15.3)(next@15.4.6(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0)
       esbuild: 0.25.6
       tinyglobby: 0.2.14
     transitivePeerDependencies:
@@ -8503,55 +8503,55 @@ snapshots:
 
   '@next/env@15.4.2-canary.41': {}
 
-  '@next/env@15.4.4':
+  '@next/env@15.4.6':
     optional: true
 
   '@next/swc-darwin-arm64@15.4.2-canary.41':
     optional: true
 
-  '@next/swc-darwin-arm64@15.4.4':
+  '@next/swc-darwin-arm64@15.4.6':
     optional: true
 
   '@next/swc-darwin-x64@15.4.2-canary.41':
     optional: true
 
-  '@next/swc-darwin-x64@15.4.4':
+  '@next/swc-darwin-x64@15.4.6':
     optional: true
 
   '@next/swc-linux-arm64-gnu@15.4.2-canary.41':
     optional: true
 
-  '@next/swc-linux-arm64-gnu@15.4.4':
+  '@next/swc-linux-arm64-gnu@15.4.6':
     optional: true
 
   '@next/swc-linux-arm64-musl@15.4.2-canary.41':
     optional: true
 
-  '@next/swc-linux-arm64-musl@15.4.4':
+  '@next/swc-linux-arm64-musl@15.4.6':
     optional: true
 
   '@next/swc-linux-x64-gnu@15.4.2-canary.41':
     optional: true
 
-  '@next/swc-linux-x64-gnu@15.4.4':
+  '@next/swc-linux-x64-gnu@15.4.6':
     optional: true
 
   '@next/swc-linux-x64-musl@15.4.2-canary.41':
     optional: true
 
-  '@next/swc-linux-x64-musl@15.4.4':
+  '@next/swc-linux-x64-musl@15.4.6':
     optional: true
 
   '@next/swc-win32-arm64-msvc@15.4.2-canary.41':
     optional: true
 
-  '@next/swc-win32-arm64-msvc@15.4.4':
+  '@next/swc-win32-arm64-msvc@15.4.6':
     optional: true
 
   '@next/swc-win32-x64-msvc@15.4.2-canary.41':
     optional: true
 
-  '@next/swc-win32-x64-msvc@15.4.4':
+  '@next/swc-win32-x64-msvc@15.4.6':
     optional: true
 
   '@noble/ciphers@0.6.0': {}
@@ -10736,9 +10736,9 @@ snapshots:
     dependencies:
       crypto-js: 4.2.0
 
-  '@vercel/analytics@1.5.0(next@15.4.4(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)':
+  '@vercel/analytics@1.5.0(next@15.4.6(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)':
     optionalDependencies:
-      next: 15.4.4(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      next: 15.4.6(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       react: 19.0.0
 
   '@vercel/edge@1.2.1': {}
@@ -10904,7 +10904,7 @@ snapshots:
 
   astring@1.9.0: {}
 
-  astro@5.11.2(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@2.4.2)(rollup@4.45.1)(typescript@5.8.2)(uploadthing@7.4.4(h3@1.15.3)(next@15.4.4(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0):
+  astro@5.11.2(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@2.4.2)(rollup@4.45.1)(typescript@5.8.2)(uploadthing@7.4.4(h3@1.15.3)(next@15.4.6(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0):
     dependencies:
       '@astrojs/compiler': 2.12.2
       '@astrojs/internal-helpers': 0.6.1
@@ -10957,7 +10957,7 @@ snapshots:
       ultrahtml: 1.6.0
       unifont: 0.5.2
       unist-util-visit: 5.0.0
-      unstorage: 1.16.1(@upstash/redis@1.34.4)(uploadthing@7.4.4(h3@1.15.3)(next@15.4.4(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))
+      unstorage: 1.16.1(@upstash/redis@1.34.4)(uploadthing@7.4.4(h3@1.15.3)(next@15.4.6(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))
       vfile: 6.0.3
       vite: 6.3.5(@types/node@22.10.2)(jiti@2.4.2)(yaml@2.6.0)
       vitefu: 1.1.1(vite@6.3.5(@types/node@22.10.2)(jiti@2.4.2)(yaml@2.6.0))
@@ -11746,10 +11746,10 @@ snapshots:
 
   framework-utils@1.1.0: {}
 
-  free-astro-components@1.2.0(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@2.4.2)(prettier@3.3.3)(rollup@4.45.1)(uploadthing@7.4.4(h3@1.15.3)(next@15.4.4(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0):
+  free-astro-components@1.2.0(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@2.4.2)(prettier@3.3.3)(rollup@4.45.1)(uploadthing@7.4.4(h3@1.15.3)(next@15.4.6(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0):
     dependencies:
       '@astrojs/check': 0.9.4(prettier@3.3.3)(typescript@5.8.2)
-      astro: 5.11.2(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@2.4.2)(rollup@4.45.1)(typescript@5.8.2)(uploadthing@7.4.4(h3@1.15.3)(next@15.4.4(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0)
+      astro: 5.11.2(@types/node@22.10.2)(@upstash/redis@1.34.4)(jiti@2.4.2)(rollup@4.45.1)(typescript@5.8.2)(uploadthing@7.4.4(h3@1.15.3)(next@15.4.6(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16))(yaml@2.6.0)
       typescript: 5.8.2
     transitivePeerDependencies:
       - '@azure/app-configuration'
@@ -13034,9 +13034,9 @@ snapshots:
       - '@babel/core'
       - babel-plugin-macros
 
-  next@15.4.4(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
+  next@15.4.6(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
     dependencies:
-      '@next/env': 15.4.4
+      '@next/env': 15.4.6
       '@swc/helpers': 0.5.15
       caniuse-lite: 1.0.30001660
       postcss: 8.4.31
@@ -13044,14 +13044,14 @@ snapshots:
       react-dom: 19.0.0(react@19.0.0)
       styled-jsx: 5.1.6(react@19.0.0)
     optionalDependencies:
-      '@next/swc-darwin-arm64': 15.4.4
-      '@next/swc-darwin-x64': 15.4.4
-      '@next/swc-linux-arm64-gnu': 15.4.4
-      '@next/swc-linux-arm64-musl': 15.4.4
-      '@next/swc-linux-x64-gnu': 15.4.4
-      '@next/swc-linux-x64-musl': 15.4.4
-      '@next/swc-win32-arm64-msvc': 15.4.4
-      '@next/swc-win32-x64-msvc': 15.4.4
+      '@next/swc-darwin-arm64': 15.4.6
+      '@next/swc-darwin-x64': 15.4.6
+      '@next/swc-linux-arm64-gnu': 15.4.6
+      '@next/swc-linux-arm64-musl': 15.4.6
+      '@next/swc-linux-x64-gnu': 15.4.6
+      '@next/swc-linux-x64-musl': 15.4.6
+      '@next/swc-win32-arm64-msvc': 15.4.6
+      '@next/swc-win32-x64-msvc': 15.4.6
       '@opentelemetry/api': 1.9.0
       sharp: 0.34.3
     transitivePeerDependencies:
@@ -14499,7 +14499,7 @@ snapshots:
       unist-util-is: 6.0.0
       unist-util-visit-parents: 6.0.1
 
-  unstorage@1.16.1(@upstash/redis@1.34.4)(uploadthing@7.4.4(h3@1.15.3)(next@15.4.4(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16)):
+  unstorage@1.16.1(@upstash/redis@1.34.4)(uploadthing@7.4.4(h3@1.15.3)(next@15.4.6(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16)):
     dependencies:
       anymatch: 3.1.3
       chokidar: 4.0.3
@@ -14511,7 +14511,7 @@ snapshots:
       ufo: 1.6.1
     optionalDependencies:
       '@upstash/redis': 1.34.4
-      uploadthing: 7.4.4(h3@1.15.3)(next@15.4.4(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16)
+      uploadthing: 7.4.4(h3@1.15.3)(next@15.4.6(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16)
 
   update-browserslist-db@1.1.0(browserslist@4.23.3):
     dependencies:
@@ -14519,7 +14519,7 @@ snapshots:
       escalade: 3.2.0
       picocolors: 1.1.1
 
-  uploadthing@7.4.4(h3@1.15.3)(next@15.4.4(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16):
+  uploadthing@7.4.4(h3@1.15.3)(next@15.4.6(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(tailwindcss@3.4.16):
     dependencies:
       '@effect/platform': 0.70.7(effect@3.11.5)
       '@standard-schema/spec': 1.0.0-beta.3
@@ -14528,7 +14528,7 @@ snapshots:
       effect: 3.11.5
     optionalDependencies:
       h3: 1.15.3
-      next: 15.4.4(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      next: 15.4.6(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       tailwindcss: 3.4.16
     optional: true
 

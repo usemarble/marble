@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   transpilePackages: ["@marble/db", "@marble/ui"],
+  experimental: {
+    nodeMiddleware: true, // Enable Node.js middleware
+  },
   images: {
     remotePatterns: [
       {
