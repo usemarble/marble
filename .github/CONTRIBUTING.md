@@ -71,7 +71,7 @@ Packages contain internal shared modules used across different applications:
    - add the original repo as upstream
 
    ```bash
-   git remote add upstream https://github.com/taqh/marble.git
+   git remote add upstream https://github.com/usemarble/marble.git
    ```
 
 2. Install Dependencies
