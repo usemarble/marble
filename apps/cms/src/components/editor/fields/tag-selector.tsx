@@ -132,7 +132,7 @@ export const TagSelector = ({
       </div>
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
-          <div className="relative w-full cursor-pointer rounded-md border border-input bg-background px-3 py-2 text-sm h-10">
+          <div className="relative w-full cursor-pointer rounded-md border border-input bg-background px-3 py-2 text-sm min-h-10 h-auto">
             <div className="flex items-center justify-between gap-2">
               <ul className="flex flex-wrap gap-1">
                 {selected.length === 0 && (
