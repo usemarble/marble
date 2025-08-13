@@ -10,6 +10,15 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  redirects: async () => {
+    return [
+      {
+        source: "/:workspace/settings",
+        destination: "/:workspace/settings/general",
+        permanent: true,
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       {

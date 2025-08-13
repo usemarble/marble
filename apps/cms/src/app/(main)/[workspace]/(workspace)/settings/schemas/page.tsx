@@ -4,24 +4,27 @@ import { Button } from "@marble/ui/components/button";
 import { Database } from "@phosphor-icons/react";
 import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
 
-function Page() {
+function SchemasSettingsPage() {
   return (
-    <WorkspacePageWrapper className="h-full grid place-content-center">
-      <div className="flex flex-col gap-4 items-center max-w-80">
-        <div className="p-2">
-          <Database className="size-16 stroke-[1px]" />
+    <>
+      <title>Schemas - Marble</title>
+      <WorkspacePageWrapper className="h-full grid place-content-center">
+        <div className="flex flex-col gap-4 items-center max-w-80">
+          <div className="p-2">
+            <Database className="size-16 stroke-[1px]" />
+          </div>
+          <div className="text-center flex flex-col gap-4 items-center">
+            <p className="text-muted-foreground text-sm">
+              Extend the default post schema with custom fields.
+            </p>
+            <Button size="sm" disabled className="w-fit">
+              <span>Create a Schema</span>
+            </Button>
+          </div>
         </div>
-        <div className="text-center flex flex-col gap-4 items-center">
-          <p className="text-muted-foreground text-sm">
-            Extend the default post schema with custom fields.
-          </p>
-          <Button size="sm" disabled className="w-fit">
-            <span>Create a Schema</span>
-          </Button>
-        </div>
-      </div>
-    </WorkspacePageWrapper>
+      </WorkspacePageWrapper>
+    </>
   );
 }
 
-export default Page;
+export default SchemasSettingsPage;
