@@ -6,8 +6,9 @@ import { getInitialUserData } from "@/lib/queries/user";
 import { UserProvider } from "@/providers/user";
 import { SITE_CONFIG } from "@/utils/site";
 import Providers from "./providers";
+import { Databuddy } from "@databuddy/sdk";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = { 
   title: SITE_CONFIG.title,
   metadataBase: new URL(SITE_CONFIG.url),
   description: SITE_CONFIG.description,
@@ -57,12 +58,14 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      {/* <head>
+    {process.env.NODE_ENV === "development" && (
+      <head>
         <script
           crossOrigin="anonymous"
           src="//unpkg.com/react-scan/dist/auto.global.js"
         />
-      </head> */}
+      </head>
+    )}
       <body className={`${fontSans.className} font-sans antialiased`}>
         <Providers>
           <UserProvider
@@ -70,6 +73,7 @@ export default async function RootLayout({
             initialIsAuthenticated={isAuthenticated}
           >
             {children}
+            <Databuddy clientId="Dq_1D8IsZscrCY2rNneFZ" enableBatching={true} />
           </UserProvider>
         </Providers>
       </body>
