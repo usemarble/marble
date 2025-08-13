@@ -22,10 +22,10 @@ let db: PrismaClient;
 if (process.env.NODE_ENV === "production") {
   db = createClient();
 } else {
-  if (!global.prisma) {
-    global.prisma = createClient();
+  if (!globalThis.prisma) {
+    globalThis.prisma = createClient();
   }
-  db = global.prisma;
+  db = globalThis.prisma;
 }
 
 export { createClient, db };
