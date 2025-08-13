@@ -65,30 +65,30 @@ function TeamPage() {
 
   return (
     <>
-    <title>Team - Marble</title>
-    <WorkspacePageWrapper>
-      <TeamDataTable
-        columns={columns}
-        data={data}
-        currentUserRole={
-          currentUserRole as "owner" | "admin" | "member" | undefined
-        }
-        currentUserId={user.id}
-        setShowInviteModal={setShowInviteModal}
-        setShowLeaveWorkspaceModal={setShowLeaveWorkspaceModal}
-      />
-      <InviteModal
-        open={showInviteModal}
-        setOpen={setShowInviteModal}
-        setOptimisticOrg={setOptimisticOrg}
-      />
-      <LeaveWorkspaceModal
-        id={optimisticOrg?.id || ""}
-        name={optimisticOrg?.name || ""}
-        open={showLeaveWorkspaceModal}
-        setOpen={setShowLeaveWorkspaceModal}
-      />
-    </WorkspacePageWrapper>
+      <title>Team - Marble</title>
+      <WorkspacePageWrapper>
+        <TeamDataTable
+          columns={columns}
+          data={data}
+          currentUserRole={
+            currentUserRole as "owner" | "admin" | "member" | undefined
+          }
+          currentUserId={user.id}
+          setShowInviteModal={setShowInviteModal}
+          setShowLeaveWorkspaceModal={setShowLeaveWorkspaceModal}
+        />
+        <InviteModal
+          open={showInviteModal}
+          setOpen={setShowInviteModal}
+          setOptimisticOrg={setOptimisticOrg}
+        />
+        <LeaveWorkspaceModal
+          id={optimisticOrg?.id || ""}
+          name={optimisticOrg?.name || ""}
+          open={showLeaveWorkspaceModal}
+          setOpen={setShowLeaveWorkspaceModal}
+        />
+      </WorkspacePageWrapper>
     </>
   );
 }

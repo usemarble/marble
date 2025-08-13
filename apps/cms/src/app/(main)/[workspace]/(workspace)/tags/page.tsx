@@ -35,7 +35,7 @@ function TagsPage() {
 
   return (
     <>
-    <title>Tags - Marble</title>
+      <title>Tags - Marble</title>
       {tags && tags.length > 0 ? (
         <WorkspacePageWrapper className="flex flex-col pt-10 pb-16 gap-8">
           <DataTable data={tags} columns={columns} />
