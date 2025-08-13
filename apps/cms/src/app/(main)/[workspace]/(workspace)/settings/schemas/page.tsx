@@ -4,8 +4,10 @@ import { Button } from "@marble/ui/components/button";
 import { Database } from "@phosphor-icons/react";
 import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
 
-function Page() {
+function SchemasSettingsPage() {
   return (
+    <>
+    <title>Schemas - Marble</title>
     <WorkspacePageWrapper className="h-full grid place-content-center">
       <div className="flex flex-col gap-4 items-center max-w-80">
         <div className="p-2">
@@ -21,7 +23,8 @@ function Page() {
         </div>
       </div>
     </WorkspacePageWrapper>
+    </>
   );
 }
 
-export default Page;
+export default SchemasSettingsPage;
