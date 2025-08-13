@@ -13,6 +13,7 @@
     "@aws-sdk/lib-storage": "^3.758.0",
     "@aws-sdk/s3-request-presigner": "^3.758.0",
     "@better-fetch/fetch": "^1.1.18",
+    "@databuddy/sdk": "^1.4.1",
     "@hookform/resolvers": "^5.2.0",
     "@marble/db": "workspace:*",
     "@marble/ui": "workspace:*",
