@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import "@/styles/globals.css";
 import "@/styles/editor.css";
+import { Databuddy } from "@databuddy/sdk";
 import { Geist } from "next/font/google";
 import { getInitialUserData } from "@/lib/queries/user";
 import { UserProvider } from "@/providers/user";
 import { SITE_CONFIG } from "@/utils/site";
 import Providers from "./providers";
-import { Databuddy } from "@databuddy/sdk";
 
 export const metadata: Metadata = {
   title: SITE_CONFIG.title,
