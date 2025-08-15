@@ -37,3 +37,12 @@ export const PRICING_PLANS: PricingPlan[] = [
 ];
 
 export const timezones = Intl.supportedValuesOf("timeZone");
+
+export const ALLOWED_MIME_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+  "image/avif",
+  "image/svg+xml",
+];

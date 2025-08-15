@@ -5,6 +5,7 @@ import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { generateSlug } from "@/utils/string";
+import { ALLOWED_MIME_TYPES } from "@/lib/constants";
 
 const ACCESS_KEY_ID = process.env.CLOUDFLARE_ACCESS_KEY_ID;
 const SECRET_ACCESS_KEY = process.env.CLOUDFLARE_SECRET_ACCESS_KEY;
@@ -28,14 +29,6 @@ const s3Client = new S3Client({
     secretAccessKey: SECRET_ACCESS_KEY,
   },
 });
-
-const ALLOWED_MIME_TYPES = [
-  "image/jpeg",
-  "image/png",
-  "image/gif",
-  "image/webp",
-  "image/avif",
-];
 
 export async function POST(request: Request) {
   const sessionInfo = await getServerSession();
