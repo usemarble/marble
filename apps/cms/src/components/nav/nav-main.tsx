@@ -86,7 +86,7 @@ export function NavMain() {
     <SidebarGroup>
       <SidebarGroupLabel>Workspace</SidebarGroupLabel>
       <SidebarMenu>
-        <SidebarMenuButton
+        {/* <SidebarMenuButton
           asChild
           className={`border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
             isOverviewActive
@@ -98,7 +98,7 @@ export function NavMain() {
             <Layout />
             <span>Overview</span>
           </Link>
-        </SidebarMenuButton>
+        </SidebarMenuButton> */}
         {items.map((item) => (
           <SidebarMenuButton
             asChild

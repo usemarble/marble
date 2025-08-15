@@ -2,6 +2,14 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   transpilePackages: ["@marble/db", "@marble/ui"],
+  rewrites: async () => {
+    return [
+      {
+        source: "/:workspace",
+        destination: "/:workspace/posts",
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       {
