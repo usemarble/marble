@@ -225,7 +225,6 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
                 <ImageIcon className="size-4" />
                 <div className="flex flex-col items-center">
                   <p className="text-sm font-medium">Upload Image</p>
-                  {/* <p className="text-xs font-medium">(Max 4mb)</p> */}
                 </div>
               </div>
               <Input
@@ -322,7 +321,7 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
               image.
             </DialogDescription>
           </DialogHeader>
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1 overflow-hidden min-h-96">
             {media && media.length > 0 ? (
               <ScrollArea className="h-full">
                 <ul className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-4 p-6">
@@ -352,7 +351,7 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
                 <div className="flex flex-col items-center gap-2 text-muted-foreground">
                   <ImageIcon className="size-8" />
                   <p className="text-sm font-medium">
-                    No media found. Upload some images first.
+                    No media found. Upload some to see them here.
                   </p>
                 </div>
               </div>

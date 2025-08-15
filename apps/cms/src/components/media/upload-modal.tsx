@@ -112,7 +112,6 @@ export function MediaUploadModal({
                 <Upload className="size-8" />
                 <div className="flex flex-col items-center">
                   <p className="text-sm font-medium">Click to browse</p>
-                  <p className="text-xs font-medium">or drag and drop</p>
                 </div>
               </div>
               <Input

@@ -21,8 +21,8 @@ import { EditorSidebar } from "@/components/editor/editor-sidebar";
 import { HiddenScrollbar } from "@/components/editor/hidden-scrollbar";
 import { type PostValues, postSchema } from "@/lib/validations/post";
 import { useUnsavedChanges } from "@/providers/unsaved-changes";
-import { sanitizeHtml } from "@/utils/editor";
 import { generateSlug } from "@/utils/string";
+import { TextareaAutosize } from "./textarea-autosize";
 
 interface EditorPageProps {
   initialData: PostValues;
@@ -142,7 +142,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
     if (html.length > 0) {
       clearErrors("content");
     }
-    setValue("content", sanitizeHtml(html));
+    setValue("content", html);
     setValue("contentJson", JSON.stringify(json));
   };
 
@@ -209,12 +209,12 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                 <label htmlFor="title" className="sr-only">
                   Enter post your title
                 </label>
-                <textarea
+                <TextareaAutosize
                   id="title"
                   placeholder="Title"
                   {...register("title")}
                   onKeyDown={handleKeyDown}
-                  className="min-h-20 resize-none scrollbar-hide w-full bg-transparent sm:px-4 text-4xl font-semibold focus:outline-none focus:ring-0"
+                  className="mb-2 resize-none scrollbar-hide w-full bg-transparent sm:px-4 text-4xl font-semibold focus:outline-none focus:ring-0"
                 />
                 {errors.title && (
                   <p className="text-sm px-1 font-medium text-destructive">

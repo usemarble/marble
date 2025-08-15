@@ -37,3 +37,19 @@ export const PRICING_PLANS: PricingPlan[] = [
 ];
 
 export const timezones = Intl.supportedValuesOf("timeZone");
+
+export const ALLOWED_RASTER_MIME_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+  "image/avif",
+] as const;
+
+export const ALLOWED_MIME_TYPES = [
+  ...ALLOWED_RASTER_MIME_TYPES,
+  "image/svg+xml",
+] as const;
+
+export type AllowedRasterMimeType = (typeof ALLOWED_RASTER_MIME_TYPES)[number];
+export type AllowedMimeType = (typeof ALLOWED_MIME_TYPES)[number];
