@@ -2,6 +2,7 @@ import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { type Attribution, postSchema } from "@/lib/validations/post";
+import { sanitizeHtml } from "@/utils/editor";
 
 export async function GET(
   _request: Request,
@@ -79,6 +80,7 @@ export async function PATCH(
 
   const contentJson = JSON.parse(values.contentJson);
   const validAttribution = values.attribution ? values.attribution : undefined;
+  const cleanContent = sanitizeHtml(values.content);
 
   try {
     const postUpdated = await db.post.update({
@@ -88,7 +90,7 @@ export async function PATCH(
         slug: values.slug,
         title: values.title,
         status: values.status,
-        content: values.content,
+        content: cleanContent,
         categoryId: values.category,
         coverImage: values.coverImage,
         description: values.description,
