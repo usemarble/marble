@@ -4,7 +4,7 @@ import { db } from "@marble/db";
 import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
-import { ALLOWED_MIME_TYPES } from "@/lib/constants";
+import { ALLOWED_MIME_TYPES, type AllowedMimeType } from "@/lib/constants";
 import { generateSlug } from "@/utils/string";
 
 const ACCESS_KEY_ID = process.env.CLOUDFLARE_ACCESS_KEY_ID;
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
 
   const workspaceCanSaveMedia = true;
 
-  if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+  if (!ALLOWED_MIME_TYPES.includes(file.type as AllowedMimeType)) {
     return NextResponse.json(
       {
         error: `File type ${
