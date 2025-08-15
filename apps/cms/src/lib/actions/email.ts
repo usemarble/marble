@@ -3,6 +3,7 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { InviteUserEmail } from "@/components/emails/invite";
+import { ResetPasswordEmail } from "@/components/emails/reset-password";
 import { VerifyUserEmail } from "@/components/emails/verify";
 import { getServerSession } from "../auth/session";
 
@@ -109,5 +110,36 @@ export async function sendVerificationEmailAction({
       { error: "Failed to send email", details: error },
       { status: 500 },
     );
+  }
+}
+
+export async function sendResetPasswordEmailAction({
+  userEmail,
+  resetUrl,
+}: {
+  userEmail: string;
+  resetUrl: string;
+}) {
+  if (!process.env.RESEND_API_KEY) {
+    console.error("RESEND_API_KEY is not set");
+    return { error: "Email configuration missing" };
+  }
+
+  try {
+    const response = await resend.emails.send({
+      from: "Marble <emails@marblecms.com>",
+      to: userEmail,
+      subject: "Reset your password - Marble",
+      react: ResetPasswordEmail({
+        userEmail,
+        resetUrl,
+      }),
+    });
+
+    console.log("Reset password email sent successfully:", response);
+    return { success: true };
+  } catch (error) {
+    console.error("Detailed error sending reset password email:", error);
+    return { error: "Failed to send email" };
   }
 }
