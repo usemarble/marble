@@ -21,7 +21,6 @@ import { EditorSidebar } from "@/components/editor/editor-sidebar";
 import { HiddenScrollbar } from "@/components/editor/hidden-scrollbar";
 import { type PostValues, postSchema } from "@/lib/validations/post";
 import { useUnsavedChanges } from "@/providers/unsaved-changes";
-import { sanitizeHtml } from "@/utils/editor";
 import { generateSlug } from "@/utils/string";
 import { TextareaAutosize } from "./textarea-autosize";
 
@@ -143,7 +142,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
     if (html.length > 0) {
       clearErrors("content");
     }
-    setValue("content", sanitizeHtml(html));
+    setValue("content", html);
     setValue("contentJson", JSON.stringify(json));
   };
 
