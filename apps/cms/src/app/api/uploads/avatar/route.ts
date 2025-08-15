@@ -4,7 +4,10 @@ import { db } from "@marble/db";
 import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
-import { ALLOWED_MIME_TYPES } from "@/lib/constants";
+import {
+  ALLOWED_RASTER_MIME_TYPES,
+  type AllowedRasterMimeType,
+} from "@/lib/constants";
 import { generateSlug } from "@/utils/string";
 
 const ACCESS_KEY_ID = process.env.CLOUDFLARE_ACCESS_KEY_ID;
@@ -44,12 +47,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "File is required." }, { status: 400 });
   }
 
-  if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+  if (!ALLOWED_RASTER_MIME_TYPES.includes(file.type as AllowedRasterMimeType)) {
     return NextResponse.json(
       {
         error: `File type ${
           file.type
-        } is not allowed. Allowed types: ${ALLOWED_MIME_TYPES.join(", ")}`,
+        } is not allowed. Allowed types: ${ALLOWED_RASTER_MIME_TYPES.join(", ")}`,
       },
       { status: 400 },
     );
