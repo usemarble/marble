@@ -62,9 +62,6 @@ function PageClient() {
       <MediaUploadModal
         isOpen={showUploadModal}
         setIsOpen={setShowUploadModal}
-        onUploadComplete={() => {
-          // Media will be updated via React Query in the MediaGallery component
-        }}
       />
     </>
   );
