@@ -31,7 +31,6 @@ export function LoginForm() {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [lastUsedAuthMethod, setLastUsedAuthMethod] =
     useLocalStorage<AuthMethod | null>("lastUsedAuthMethod", null);
-  console.log(lastUsedAuthMethod);
   const searchParams = useSearchParams();
   const router = useRouter();
   const callbackURL = searchParams?.get("from") || "/";
@@ -59,7 +58,7 @@ export function LoginForm() {
         },
       );
     } catch (_error) {
-      return toast("Request failed. Please try again.");
+      return toast("Login failed. Please try again.");
     } finally {
       setIsCredentialsLoading(false);
     }
