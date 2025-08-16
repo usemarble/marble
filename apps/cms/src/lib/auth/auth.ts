@@ -13,6 +13,7 @@ import { nextCookies } from "better-auth/next-js";
 import { emailOTP, organization } from "better-auth/plugins";
 import {
   sendInviteEmailAction,
+  sendResetPasswordEmailAction,
   sendVerificationEmailAction,
 } from "@/lib/actions/email";
 import { handleCustomerCreated } from "@/lib/polar/customer.created";
@@ -39,6 +40,12 @@ export const auth = betterAuth({
     // problem is after otp verification user has to login again and
     // I don't really like the experience so we'll allow session creation
     // but block unverified users via the middleware
+    async sendResetPassword({ user, url }) {
+      await sendResetPasswordEmailAction({
+        userEmail: user.email,
+        resetUrl: url,
+      });
+    },
   },
   socialProviders: {
     google: {
