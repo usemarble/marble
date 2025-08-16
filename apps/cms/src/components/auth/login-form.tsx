@@ -10,9 +10,12 @@ import { Eye, EyeClosed, Spinner } from "@phosphor-icons/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useLocalStorage } from "@/hooks/use-localstorage";
 import { authClient } from "@/lib/auth/client";
 import { type CredentialData, credentialSchema } from "@/lib/validations/auth";
+import type { AuthMethod } from "@/types/misc";
 import { Github, Google } from "../icons/social";
+import { LastUsedBadge } from "../ui/last-used-badge";
 
 export function LoginForm() {
   const {
@@ -26,7 +29,8 @@ export function LoginForm() {
   const [isGithubLoading, setIsGithubLoading] = useState(false);
   const [isCredentialsLoading, setIsCredentialsLoading] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-
+  const [lastUsedAuthMethod, setLastUsedAuthMethod] =
+    useLocalStorage<AuthMethod | null>("lastUsedAuthMethod", null);
   const searchParams = useSearchParams();
   const router = useRouter();
   const callbackURL = searchParams?.get("from") || "/";
@@ -42,6 +46,7 @@ export function LoginForm() {
         },
         {
           onSuccess: (_ctx) => {
+            setLastUsedAuthMethod("email");
             toast.success("Welcome!");
             router.push(callbackURL);
           },
@@ -53,7 +58,7 @@ export function LoginForm() {
         },
       );
     } catch (_error) {
-      return toast("Request failed. Please try again.");
+      return toast("Login failed. Please try again.");
     } finally {
       setIsCredentialsLoading(false);
     }
@@ -70,6 +75,7 @@ export function LoginForm() {
     } catch (_error) {
       return toast("Sign in failed. Please try again.");
     } finally {
+      setLastUsedAuthMethod(provider);
       provider === "google"
         ? setIsGoogleLoading(false)
         : setIsGithubLoading(false);
@@ -81,10 +87,17 @@ export function LoginForm() {
       <div className="grid grid-cols-2 gap-4">
         <button
           type="button"
-          className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
+          className={cn(
+            buttonVariants({ variant: "outline", size: "lg" }),
+            "relative",
+          )}
           onClick={async () => handleSocialSignIn("google")}
           disabled={isCredentialsLoading || isGoogleLoading || isGithubLoading}
         >
+          <LastUsedBadge
+            show={lastUsedAuthMethod === "google"}
+            variant="primary"
+          />
           {isGoogleLoading ? (
             <Spinner className="mr-2 h-4 w-4 animate-spin" />
           ) : (
@@ -94,10 +107,17 @@ export function LoginForm() {
         </button>
         <button
           type="button"
-          className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
+          className={cn(
+            buttonVariants({ variant: "outline", size: "lg" }),
+            "relative",
+          )}
           onClick={async () => handleSocialSignIn("github")}
           disabled={isCredentialsLoading || isGoogleLoading || isGithubLoading}
         >
+          <LastUsedBadge
+            show={lastUsedAuthMethod === "github"}
+            variant="primary"
+          />
           {isGithubLoading ? (
             <Spinner className="mr-2 h-4 w-4 animate-spin" />
           ) : (
@@ -176,8 +196,12 @@ export function LoginForm() {
             disabled={
               isCredentialsLoading || isGoogleLoading || isGithubLoading
             }
-            className="mt-4"
+            className={cn("mt-4", "relative")}
           >
+            <LastUsedBadge
+              show={lastUsedAuthMethod === "email"}
+              variant="secondary"
+            />
             {isCredentialsLoading && (
               <Spinner className="mr-2 h-4 w-4 animate-spin" />
             )}

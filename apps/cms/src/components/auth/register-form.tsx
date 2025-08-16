@@ -10,9 +10,12 @@ import { Eye, EyeClosed, Spinner } from "@phosphor-icons/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
+import { useLocalStorage } from "@/hooks/use-localstorage";
 import { authClient } from "@/lib/auth/client";
 import { type CredentialData, credentialSchema } from "@/lib/validations/auth";
+import type { AuthMethod } from "@/types/misc";
 import { Github, Google } from "../icons/social";
+import { LastUsedBadge } from "../ui/last-used-badge";
 
 export function RegisterForm() {
   const {
@@ -26,6 +29,8 @@ export function RegisterForm() {
   const [isGithubLoading, setIsGithubLoading] = useState(false);
   const [isCredentialsLoading, setIsCredentialsLoading] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [lastUsedAuthMethod, setLastUsedAuthMethod] =
+    useLocalStorage<AuthMethod | null>("lastUsedAuthMethod", null);
   const searchParams = useSearchParams();
   const callbackURL = searchParams.get("from") || "/";
   const router = useRouter();
@@ -60,6 +65,7 @@ export function RegisterForm() {
         },
         {
           onSuccess: () => {
+            setLastUsedAuthMethod("email");
             initiateEmailVerification(formData.email);
           },
           onError: (ctx) => {
@@ -85,6 +91,7 @@ export function RegisterForm() {
     } catch (_error) {
       return toast("Your sign in request failed. Please try again.");
     } finally {
+      setLastUsedAuthMethod(provider);
       provider === "google"
         ? setIsGoogleLoading(false)
         : setIsGithubLoading(false);
@@ -96,10 +103,17 @@ export function RegisterForm() {
       <div className="grid grid-cols-2 gap-4">
         <button
           type="button"
-          className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
+          className={cn(
+            buttonVariants({ variant: "outline", size: "lg" }),
+            "relative",
+          )}
           onClick={async () => handleSocialSignIn("google")}
           disabled={isCredentialsLoading || isGoogleLoading || isGithubLoading}
         >
+          <LastUsedBadge
+            show={lastUsedAuthMethod === "google"}
+            variant="primary"
+          />
           {isGoogleLoading ? (
             <Spinner className="mr-2 h-4 w-4 animate-spin" />
           ) : (
@@ -109,10 +123,17 @@ export function RegisterForm() {
         </button>
         <button
           type="button"
-          className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
+          className={cn(
+            buttonVariants({ variant: "outline", size: "lg" }),
+            "relative",
+          )}
           onClick={async () => handleSocialSignIn("github")}
           disabled={isCredentialsLoading || isGoogleLoading || isGithubLoading}
         >
+          <LastUsedBadge
+            show={lastUsedAuthMethod === "github"}
+            variant="primary"
+          />
           {isGithubLoading ? (
             <Spinner className="mr-2 h-4 w-4 animate-spin" />
           ) : (
@@ -194,8 +215,12 @@ export function RegisterForm() {
               isGithubLoading ||
               isRedirecting
             }
-            className="mt-4"
+            className={cn("mt-4", "relative")}
           >
+            <LastUsedBadge
+              show={lastUsedAuthMethod === "email"}
+              variant="secondary"
+            />
             {isCredentialsLoading ||
               (isRedirecting && (
                 <Spinner className="mr-2 h-4 w-4 animate-spin" />
