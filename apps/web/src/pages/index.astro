@@ -15,7 +15,7 @@ import { APP, FAQs, PRICING, SITE } from "@/lib/constants";
 >
   <div class="divide-y divide-dashed">
     <!-- Hero section -->
-    <section class="border-t border-dashed h-[calc(100vh-140px)]">
+    <section class="border-t border-dashed h-[calc(100vh-120px)]">
       <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] grid place-content-center h-full mx-auto">
           <Container class="py-24 md:py-28 lg:py-40">
             <div class="relative mx-auto text-center space-y-6">
@@ -44,8 +44,8 @@ import { APP, FAQs, PRICING, SITE } from "@/lib/constants";
       <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
         <Container class="space-y-10 py-12">
           <div class="relative flex flex-col items-center space-y-3 text-balance">
-            <h2 class="relative text-center text-balance text-sm font-medium tracking-tight max-w-4xl">
-              Powering the blogs at.
+            <h2 class="relative text-center text-balance text-2xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
+              Used by the best.
             </h2>
           </div>
           <ul class="grid grid-cols-[repeat(auto-fill,_minmax(14rem,_1fr))]">
@@ -211,7 +211,7 @@ import { APP, FAQs, PRICING, SITE } from "@/lib/constants";
                       <>
                         <div class="flex flex-col gap-5 sm:min-w-60 lg:min-w-0">
                           <div class="flex flex-col gap-4">
-                            <h4 class="text-medium text-xl">{plan.title}</h4>
+                            <h3 class="text-medium text-xl">{plan.title}</h3>
                             <div class="">
                               <p><span class="font-bold text-2xl">{plan.price.monthly}</span>{' '}<span>per month.</span></p>
                               <p class="text-muted-foreground text-sm">{plan.description}</p>
@@ -241,7 +241,7 @@ import { APP, FAQs, PRICING, SITE } from "@/lib/constants";
                     ) : (
                       <>
                         <div class="flex flex-col gap-4">
-                          <h4 class="text-medium text-2xl">{plan.title}</h4>
+                          <h3 class="text-medium text-2xl">{plan.title}</h3>
                           <div class="">
                             <p><span class="font-bold text-2xl">{plan.price.monthly}</span>{' '}<span>per month.</span></p>
                             <p class="text-muted-foreground text-sm">{plan.description}</p>
