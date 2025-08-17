@@ -3,9 +3,9 @@
 import { Badge } from "@marble/ui/components/badge";
 import { Button } from "@marble/ui/components/button";
 import { cn } from "@marble/ui/lib/utils";
+import { CaretUpDown } from "@phosphor-icons/react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { CaretUpDown } from "@phosphor-icons/react";
 import TableActions from "./table-actions";
 
 export type Post = {
