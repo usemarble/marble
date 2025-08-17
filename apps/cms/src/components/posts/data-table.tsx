@@ -136,7 +136,7 @@ export function PostDataTable<TData, TValue>({
               </Tooltip>
             </div>
           </TooltipProvider>
-          
+
           <Link
             href={`/${params.workspace}/editor/p/new`}
             className={buttonVariants({ variant: "default", size: "sm" })}
