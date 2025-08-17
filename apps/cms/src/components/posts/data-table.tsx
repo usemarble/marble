@@ -24,6 +24,7 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
+  getSortedRowModel,
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
@@ -41,7 +42,7 @@ export function PostDataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, _setSorting] = useState<SortingState>([]);
+  const [sorting, setSorting] = useState<SortingState>([]);
   const params = useParams<{ workspace: string }>();
   const router = useRouter();
 
@@ -50,9 +51,11 @@ export function PostDataTable<TData, TValue>({
   const table = useReactTable({
     data,
     columns,
+    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
     state: {
       sorting,
       columnFilters,

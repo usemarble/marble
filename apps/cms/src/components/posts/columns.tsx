@@ -1,9 +1,11 @@
 "use client";
 
 import { Badge } from "@marble/ui/components/badge";
+import { Button } from "@marble/ui/components/button";
 import { cn } from "@marble/ui/lib/utils";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
+import { CaretUpDown } from "@phosphor-icons/react";
 import TableActions from "./table-actions";
 
 export type Post = {
@@ -49,12 +51,34 @@ export const columns: ColumnDef<Post>[] = [
   },
   {
     accessorKey: "publishedAt",
-    header: "Published",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="h-auto p-0 font-medium hover:bg-transparent"
+        >
+          Published
+          <CaretUpDown className="h-4 w-4" />
+        </Button>
+      );
+    },
     cell: ({ row }) => format(row.original.publishedAt, "MMM dd, yyyy"),
   },
   {
     accessorKey: "updatedAt",
-    header: "Last Updated",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="h-auto p-0 font-medium hover:bg-transparent"
+        >
+          Last Updated
+          <CaretUpDown className="h-4 w-4" />
+        </Button>
+      );
+    },
     cell: ({ row }) => format(row.original.updatedAt, "MMM dd, yyyy"),
   },
   {
