@@ -25,7 +25,7 @@ export const PageHeader = () => {
       {/* <div>
           <AppBreadcrumb />
         </div> */}
-      <h1 className="text-2xl font-medium capitalize">{heading}</h1>
+      <h1 className="text-lg font-medium capitalize">{heading}</h1>
       {/* <div className="ml-auto flex items-center">
           <Announcements />
         </div> */}

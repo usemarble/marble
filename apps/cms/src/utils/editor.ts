@@ -41,7 +41,28 @@ export const sanitizeHtml = (content: string) => {
       iframe: ["src", "allowfullscreen", "style"],
       input: ["type", "checked"],
     },
+    allowedSchemes: ["http", "https", "ftp", "mailto"],
+    allowedSchemesByTag: {
+      img: ["http", "https", "data"],
+      a: ["http", "https", "ftp", "mailto"],
+      iframe: ["https"],
+    },
     allowedIframeHostnames: ["www.youtube.com", "www.youtube-nocookie.com"],
+    exclusiveFilter: (frame) => {
+      // Remove script tags entirely
+      if (frame.tag === "script") {
+        return true;
+      }
+      // Remove any element with event handler attributes
+      if (frame.attribs) {
+        for (const attr in frame.attribs) {
+          if (/^on/i.test(attr)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    },
   });
 
   return sanitizedContent;

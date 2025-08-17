@@ -2,6 +2,7 @@ import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { postSchema } from "@/lib/validations/post";
+import { sanitizeHtml } from "@/utils/editor";
 
 export async function GET() {
   const sessionData = await getServerSession();
@@ -46,6 +47,7 @@ export async function POST(request: Request) {
   const authorId = session.user.id;
   const contentJson = JSON.parse(values.contentJson);
   const validAttribution = values.attribution ? values.attribution : undefined;
+  const cleanContent = sanitizeHtml(values.content);
 
   const postCreated = await db.post.create({
     data: {
@@ -54,7 +56,7 @@ export async function POST(request: Request) {
       slug: values.slug,
       title: values.title,
       status: values.status,
-      content: values.content,
+      content: cleanContent,
       categoryId: values.category,
       coverImage: values.coverImage,
       publishedAt: values.publishedAt,

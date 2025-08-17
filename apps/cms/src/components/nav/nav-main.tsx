@@ -18,7 +18,6 @@ import {
 import {
   Faders,
   Images as ImagesIcon,
-  Layout,
   Note,
   Package,
   Tag,
@@ -79,7 +78,7 @@ export function NavMain() {
     return pathname === `/${params.workspace}/${url}`;
   };
 
-  const isOverviewActive = pathname === `/${params.workspace}`;
+  const _isOverviewActive = pathname === `/${params.workspace}`;
   const isSettingsActive = pathname.startsWith(`/${params.workspace}/settings`);
 
   return (

@@ -18,12 +18,15 @@ import {
 import { Separator } from "@marble/ui/components/separator";
 import { toast } from "@marble/ui/components/sonner";
 import { Switch } from "@marble/ui/components/switch";
+import { Copy, Plus, Trash, WebhooksLogo } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Copy, MoreHorizontal, Trash2, WebhookIcon } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import { useParams } from "next/navigation";
 import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
 import PageLoader from "@/components/shared/page-loader";
-import { WebhookButton } from "@/components/webhooks/create-webhook";
+import CreateWebhookSheet, {
+  WebhookButton,
+} from "@/components/webhooks/create-webhook";
 import { DeleteWebhookModal } from "@/components/webhooks/delete-webhook";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 
@@ -104,14 +107,20 @@ export function PageClient() {
       <WorkspacePageWrapper className="h-full grid place-content-center">
         <div className="flex flex-col gap-4 items-center max-w-80">
           <div className="p-2">
-            <WebhookIcon className="size-16" />
+            <WebhooksLogo className="size-16" />
           </div>
           <div className="text-center flex flex-col gap-4 items-center">
             <p className="text-muted-foreground text-sm">
               Webhooks let you run actions on your server when events happen in
               your workspace.
             </p>
-            <WebhookButton />
+            {/* <WebhookButton /> */}
+            <CreateWebhookSheet>
+              <Button>
+                <Plus className="size-4" />
+                New webhook
+              </Button>
+            </CreateWebhookSheet>
           </div>
         </div>
       </WorkspacePageWrapper>
@@ -178,7 +187,7 @@ export function PageClient() {
                             className="text-destructive"
                             onSelect={(e) => e.preventDefault()}
                           >
-                            <Trash2 className="size-4 mr-2" />
+                            <Trash className="size-4 mr-2" />
                             Delete
                           </DropdownMenuItem>
                         </DeleteWebhookModal>
