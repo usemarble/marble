@@ -65,7 +65,8 @@ export function PublishDateField({ control }: PublishDateFieldProps) {
           <Calendar
             mode="single"
             selected={value}
-            onSelect={(date) => {
+            captionLayout="dropdown"
+            onSelect={(date: Date | undefined) => {
               if (date) {
                 onChange(date);
               }
