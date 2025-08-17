@@ -1,5 +1,6 @@
 import { createClient } from "@marble/db";
 import { Hono } from "hono";
+import { NodeHtmlMarkdown } from "node-html-markdown";
 import { ratelimit } from "./middleware";
 import { BasicPaginationSchema, PostsQuerySchema } from "./validations";
 
@@ -213,6 +214,7 @@ v1.get("/:workspaceId/posts", async (c) => {
   try {
     const url = c.env.DATABASE_URL;
     const workspaceId = c.req.param("workspaceId");
+    const format = c.req.query("format");
     const db = createClient(url);
 
     // Validate query parameters
@@ -334,6 +336,16 @@ v1.get("/:workspaceId/posts", async (c) => {
       },
     });
 
+    // Check if a format query was provided
+    // Convert html -> markdown
+    const formattedPosts =
+      format === "markdown"
+        ? posts.map((post) => ({
+            ...post,
+            content: NodeHtmlMarkdown.translate(post.content || ""),
+          }))
+        : posts;
+
     const paginationInfo = limit
       ? {
           limit,
@@ -353,7 +365,7 @@ v1.get("/:workspaceId/posts", async (c) => {
         };
 
     return c.json({
-      posts: posts,
+      posts: formattedPosts,
       pagination: paginationInfo,
       // meta: {
       //   filters: {
@@ -381,6 +393,7 @@ v1.get("/:workspaceId/posts/:identifier", async (c) => {
     const url = c.env.DATABASE_URL;
     const workspaceId = c.req.param("workspaceId");
     const identifier = c.req.param("identifier");
+    const format = c.req.query("format");
     const db = createClient(url);
 
     const post = await db.post.findFirst({
@@ -427,7 +440,15 @@ v1.get("/:workspaceId/posts/:identifier", async (c) => {
       return c.json({ error: "Post not found" }, 404);
     }
 
-    return c.json({ post });
+    // Check if format needs to be markdown
+    // Convert to html -> markdown
+    // If not provided go with the html
+    const formattedPost =
+      format === "markdown"
+        ? { ...post, content: NodeHtmlMarkdown.translate(post.content || "") }
+        : post;
+
+    return c.json({ post: formattedPost });
   } catch (_error) {
     return c.json({ error: "Failed to fetch post" }, 500);
   }
