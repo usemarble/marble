@@ -17,7 +17,6 @@ import {
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { MagnifyingGlass, Plus, X } from "@phosphor-icons/react";
-import { Grid3x3, List } from "lucide-react";
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -28,6 +27,7 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
+import { Grid3x3, List } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
