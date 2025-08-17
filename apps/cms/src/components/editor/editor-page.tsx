@@ -8,13 +8,18 @@ import {
   useSidebar,
 } from "@marble/ui/components/sidebar";
 import { toast } from "@marble/ui/components/sonner";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@marble/ui/components/tooltip";
 import { cn } from "@marble/ui/lib/utils";
 import { ArrowElbowUpLeft, SidebarSimple } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import type { JSONContent } from "novel";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Editor } from "@/components/editor/editor";
 import { EditorSidebar } from "@/components/editor/editor-sidebar";
@@ -23,6 +28,16 @@ import { type PostValues, postSchema } from "@/lib/validations/post";
 import { useUnsavedChanges } from "@/providers/unsaved-changes";
 import { generateSlug } from "@/utils/string";
 import { TextareaAutosize } from "./textarea-autosize";
+
+const getToggleSidebarShortcut = () => {
+  const isMac = useMemo(
+    () =>
+      typeof navigator !== "undefined" &&
+      navigator.platform.toUpperCase().indexOf("MAC") >= 0,
+    [],
+  );
+  return isMac ? "⌘K" : "Ctrl+K";
+};
 
 interface EditorPageProps {
   initialData: PostValues;
@@ -190,12 +205,19 @@ function EditorPage({ initialData, id }: EditorPageProps) {
           </div>
 
           <div>
-            <SidebarTrigger
-              size="icon"
-              className="size-10 text-muted-foreground"
-            >
-              <SidebarSimple />
-            </SidebarTrigger>
+            <Tooltip delayDuration={400}>
+              <TooltipTrigger asChild>
+                <SidebarTrigger
+                  size="icon"
+                  className="size-10 text-muted-foreground"
+                >
+                  <SidebarSimple />
+                </SidebarTrigger>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Toggle sidebar ({getToggleSidebarShortcut()})</p>
+              </TooltipContent>
+            </Tooltip>
           </div>
         </header>
         <section className="mx-auto w-full max-w-3xl flex-1">
