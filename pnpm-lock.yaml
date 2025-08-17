@@ -211,9 +211,6 @@ importers:
       react:
         specifier: ^19.0.0
         version: 19.0.0
-      react-activity-calendar:
-        specifier: ^2.7.13
-        version: 2.7.13(react@19.0.0)
       react-dom:
         specifier: ^19.0.0
         version: 19.0.0(react@19.0.0)
@@ -6007,11 +6004,6 @@ packages:
 
   radix3@1.1.2:
     resolution: {integrity: sha512-b484I/7b8rDEdSDKckSSBA8knMpcdsXudlE/LNL639wFoHKwLbEkQFZHWEYwDC0wa0FKUcCY+GAF73Z7wxNVFA==}
-
-  react-activity-calendar@2.7.13:
-    resolution: {integrity: sha512-1ZHVgK8QJxtwG52EmcQrxhUQyN1Bv+819IPTTDAGp7Hme3h9IX2thDZJG+KnVbNQ3cjh8DQdfX4wWsTHIw75ug==}
-    peerDependencies:
-      react: ^18.0.0 || ^19.0.0
 
   react-css-styled@1.1.9:
     resolution: {integrity: sha512-M7fJZ3IWFaIHcZEkoFOnkjdiUFmwd8d+gTh2bpqMOcnxy/0Gsykw4dsL4QBiKsxcGow6tETUa4NAUcmJF+/nfw==}
@@ -13631,11 +13623,6 @@ snapshots:
   queue-microtask@1.2.3: {}
 
   radix3@1.1.2: {}
-
-  react-activity-calendar@2.7.13(react@19.0.0):
-    dependencies:
-      date-fns: 4.1.0
-      react: 19.0.0
 
   react-css-styled@1.1.9:
     dependencies:
