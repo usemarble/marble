@@ -1,8 +1,8 @@
 ---
 import Container from "@/components/Container.astro";
+import Neon from "@/components/icons/sponsors/Neon.astro";
 import Layout from "@/layouts/Layout.astro";
 import Upstash from "@/components/icons/sponsors/Upstash.astro";
-import Neon from "@/components/icons/sponsors/Neon.astro";
 import { SITE } from "@/lib/constants";
 
 const sponsorsData = [
@@ -10,14 +10,12 @@ const sponsorsData = [
     name: "Upstash",
     url: "https://upstash.com?utm_source=marble",
     icon: "Upstash",
-    hoverColor: "emerald",
     useCase: "Powers our caching, webhooks and rate limiting infrastructure",
   },
   {
     name: "Neon",
     url: "https://neon.com?utm_source=marble",
     icon: "Neon",
-    hoverColor: "blue",
     useCase: "Powers our entire database, literally",
   },
 ];
@@ -60,7 +58,7 @@ const iconComponents: Record<string, any> = {
                           class="flex items-center gap-3 group hover:scale-105 transition-transform duration-200"
                         >
                           <IconComponent class="h-8 w-8" />
-                          <span class={`text-2xl font-medium text-gray-900 group-hover:text-${sponsor.hoverColor}-600 transition-colors`}>{sponsor.name}</span>
+                          <span class="text-2xl font-medium text-gray-900 group-hover:text-primary-background/70 transition-colors">{sponsor.name}</span>
                         </a>
                       </div>
                       <p class="text-muted-foreground text-sm lg:text-base leading-relaxed">
@@ -72,7 +70,7 @@ const iconComponents: Record<string, any> = {
                         href={sponsor.url}
                         target="_blank" 
                         rel="noopener noreferrer"
-                        class={`inline-flex items-center text-sm text-${sponsor.hoverColor}-600 hover:text-${sponsor.hoverColor}-700 font-medium hover:underline transition-all duration-300 ease-in-out`}
+                        class={`inline-flex items-center text-sm text-primary-background/70 font-medium hover:underline transition-all duration-300 ease-in-out`}
                       >
                         Learn more about {sponsor.name}
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 ml-1">

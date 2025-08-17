@@ -65,7 +65,7 @@ import WordMark from "./icons/WordMark.astro";
         </div>
         <!-- mobile nav toggle -->
         <div class="flex items-center justify-end md:hidden z-[100]">
-          <button id="toggle" class="flex flex-col justify-center gap-1.5 size-6 focus-visible:outline-dashed focus-visible:outline-offset-1">
+          <button id="toggle" aria-label="Toggle mobile navigation" class="flex flex-col justify-center gap-1.5 size-6 focus-visible:outline-dashed focus-visible:outline-offset-1">
             <span id="bar" class="h-0.5 self-start bg-foreground w-1/2 data-[expanded]:w-[calc(50%-3px)] data-[expanded]:rotate-45 data-[expanded]:translate-y-[2px] data-[expanded]:translate-x-[2px] transition duration-300"></span>
             <span id="bar" class="h-0.5 w-full bg-foreground data-[expanded]:-rotate-45 transition duration-300"></span>
             <span id="bar" class="h-0.5 self-end bg-foreground w-1/2 data-[expanded]:w-[calc(50%-3px)] data-[expanded]:rotate-45 data-[expanded]:-translate-y-[3px] data-[expanded]:-translate-x-0.5 transition duration-300"></span>
@@ -75,38 +75,6 @@ import WordMark from "./icons/WordMark.astro";
     </Container>
   </div>
 </header>
-
-<!-- <script>
-  document.addEventListener('astro:page-load', () => {
-    const header = document.getElementById('header');
-    const nav = document.getElementById('nav');
-
-    if (nav && header) {
-      window.addEventListener('scroll', () => {
-        const isScrolled = window.scrollY >= 64;
-        const headerRect = header.getBoundingClientRect();
-        const isHeaderVisible = headerRect.bottom >= window.innerHeight;
-
-        const scrollClasses = [
-          'sticky',
-          'top-0',
-          'bg-white/90',
-          'border',
-          'rounded-lg',
-          'backdrop-blur-md',
-          'py-2',
-          'px-4',
-        ];
-
-        if (window.scrollY >= 100 || !isHeaderVisible) {
-          scrollClasses.forEach(className => nav.classList.add(className));
-        } else {
-          scrollClasses.forEach(className => nav.classList.remove(className));
-        }
-      });
-    }
-  });
-</script> -->
 
 <script>
   function initMobileNav() {
