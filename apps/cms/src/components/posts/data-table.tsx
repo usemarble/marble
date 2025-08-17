@@ -1,6 +1,6 @@
 "use client";
 
-import { buttonVariants } from "@marble/ui/components/button";
+import { Button, buttonVariants } from "@marble/ui/components/button";
 import { Input } from "@marble/ui/components/input";
 import {
   Table,
@@ -10,7 +10,14 @@ import {
   TableHeader,
   TableRow,
 } from "@marble/ui/components/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@marble/ui/components/tooltip";
 import { MagnifyingGlass, Plus, X } from "@phosphor-icons/react";
+import { Grid3x3, List } from "lucide-react";
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -91,7 +98,45 @@ export function PostDataTable<TData, TValue>({
             </button>
           )}
         </div>
-        <div>
+        <div className="flex items-center gap-2">
+          <TooltipProvider>
+            <div className="flex border rounded-md overflow-hidden">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="inline-block">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="rounded-none px-3 opacity-50 cursor-not-allowed hover:bg-transparent"
+                      disabled
+                    >
+                      <Grid3x3 size={16} />
+                      <span className="sr-only">Card View (coming soon)</span>
+                    </Button>
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Card View (coming soon)</p>
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="rounded-none px-3 bg-accent text-accent-foreground"
+                  >
+                    <List size={16} />
+                    <span className="sr-only">Table View</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Table View</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+          </TooltipProvider>
+          
           <Link
             href={`/${params.workspace}/editor/p/new`}
             className={buttonVariants({ variant: "default", size: "sm" })}
