@@ -5,12 +5,14 @@ import authorsRoutes from "./routes/authors";
 import categoriesRoutes from "./routes/categories";
 import postsRoutes from "./routes/posts";
 import tagsRoutes from "./routes/tags";
+import { trimTrailingSlash } from "hono/trailing-slash";
 
 const app = new Hono<{ Bindings: Env }>();
 const v1 = new Hono<{ Bindings: Env }>();
 
 // Global Middleware
 app.use("*", ratelimit());
+app.use(trimTrailingSlash())
 
 // Workspace redirect logic
 app.use("/:workspaceId/*", async (c, next) => {
