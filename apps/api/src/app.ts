@@ -1,0 +1,49 @@
+import { Hono } from "hono";
+import type { Env } from "./env";
+import { ratelimit } from "./middleware/ratelimit";
+import authorsRoutes from "./routes/authors";
+import categoriesRoutes from "./routes/categories";
+import postsRoutes from "./routes/posts";
+import tagsRoutes from "./routes/tags";
+
+const app = new Hono<{ Bindings: Env }>();
+const v1 = new Hono<{ Bindings: Env }>();
+
+// Global Middleware
+app.use("*", ratelimit());
+
+// Workspace redirect logic
+app.use("/:workspaceId/*", async (c, next) => {
+  const path = c.req.path;
+  const workspaceId = c.req.param("workspaceId");
+  if (path.startsWith("/v1/") || path === "/" || path === "/status")
+    return next();
+
+  const workspaceRoutes = ["/tags", "/categories", "/posts", "/authors"];
+  const isWorkspaceRoute = workspaceRoutes.some(
+    (route) =>
+      path === `/${workspaceId}${route}` ||
+      path.startsWith(`/${workspaceId}${route}/`),
+  );
+
+  if (isWorkspaceRoute) {
+    const url = new URL(c.req.url);
+    url.pathname = `/v1${path}`;
+    return Response.redirect(url.toString(), 301);
+  }
+  return next();
+});
+
+// Health
+app.get("/", (c) => c.text("Hello from marble"));
+app.get("/status", (c) => c.json({ status: "ok" }));
+
+// Mount routes
+v1.route("/:workspaceId/tags", tagsRoutes);
+v1.route("/:workspaceId/categories", categoriesRoutes);
+v1.route("/:workspaceId/posts", postsRoutes);
+v1.route("/:workspaceId/authors", authorsRoutes);
+
+app.route("/v1", v1);
+
+export default app;
