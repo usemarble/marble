@@ -31,7 +31,7 @@ app.use("/:workspaceId/*", async (c, next) => {
   if (isWorkspaceRoute) {
     const url = new URL(c.req.url);
     url.pathname = `/v1${path}`;
-    return Response.redirect(url.toString(), 301);
+    return Response.redirect(url.toString(), 308);
   }
   return next();
 });
