@@ -2,13 +2,13 @@
 
 import { cn } from "@marble/ui/lib/utils";
 import { Image as ImageIcon } from "@phosphor-icons/react";
-import { useDropzone, type DropzoneOptions } from "react-dropzone";
+import { type DropzoneOptions, useDropzone } from "react-dropzone";
 
 interface DropzoneProps {
   onFilesAccepted: (files: File[]) => void;
   className?: string;
   multiple?: boolean;
-  accept?: DropzoneOptions['accept'];
+  accept?: DropzoneOptions["accept"];
   maxSize?: number;
   children?: React.ReactNode;
   disabled?: boolean;
@@ -24,7 +24,7 @@ export function Dropzone({
   className,
   multiple = false,
   accept = {
-    'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.webp', '.avif']
+    "image/*": [".jpeg", ".jpg", ".png", ".gif", ".webp", ".avif"],
   },
   maxSize,
   children,
@@ -32,20 +32,21 @@ export function Dropzone({
   placeholder = {
     idle: "Drag & drop files here, or click to select",
     active: "Drop the files here...",
-    subtitle: "Supports JPEG, PNG, GIF, WebP, AVIF"
-  }
+    subtitle: "Supports JPEG, PNG, GIF, WebP, AVIF",
+  },
 }: DropzoneProps) {
-  const { getRootProps, getInputProps, isDragActive, fileRejections } = useDropzone({
-    accept,
-    multiple,
-    maxSize,
-    disabled,
-    onDrop: (acceptedFiles) => {
-      if (acceptedFiles.length > 0) {
-        onFilesAccepted(acceptedFiles);
-      }
-    },
-  });
+  const { getRootProps, getInputProps, isDragActive, fileRejections } =
+    useDropzone({
+      accept,
+      multiple,
+      maxSize,
+      disabled,
+      onDrop: (acceptedFiles) => {
+        if (acceptedFiles.length > 0) {
+          onFilesAccepted(acceptedFiles);
+        }
+      },
+    });
 
   const hasErrors = fileRejections.length > 0;
 
@@ -58,7 +59,7 @@ export function Dropzone({
           isDragActive && "border-primary bg-primary/5",
           hasErrors && "border-destructive bg-destructive/5",
           disabled && "cursor-not-allowed opacity-50",
-          className
+          className,
         )}
       >
         <input {...getInputProps()} />
@@ -98,7 +99,8 @@ export function Dropzone({
   );
 }
 
-interface ImageDropzoneProps extends Omit<DropzoneProps, 'accept' | 'placeholder'> {
+interface ImageDropzoneProps
+  extends Omit<DropzoneProps, "accept" | "placeholder"> {
   placeholder?: {
     idle?: string;
     active?: string;
@@ -113,12 +115,14 @@ export function ImageDropzone({
   return (
     <Dropzone
       accept={{
-        'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.webp', '.avif', '.svg']
+        "image/*": [".jpeg", ".jpg", ".png", ".gif", ".webp", ".avif", ".svg"],
       }}
       placeholder={{
-        idle: placeholder.idle || "Drag & drop an image here, or click to select",
+        idle:
+          placeholder.idle || "Drag & drop an image here, or click to select",
         active: placeholder.active || "Drop the image here...",
-        subtitle: placeholder.subtitle || "Supports JPEG, PNG, GIF, WebP, AVIF, SVG"
+        subtitle:
+          placeholder.subtitle || "Supports JPEG, PNG, GIF, WebP, AVIF, SVG",
       }}
       {...props}
     />

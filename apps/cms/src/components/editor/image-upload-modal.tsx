@@ -17,16 +17,12 @@ import {
   TabsList,
   TabsTrigger,
 } from "@marble/ui/components/tabs";
-import {
-  CloudArrowUp,
-  Spinner,
-  Trash,
-} from "@phosphor-icons/react";
+import { CloudArrowUp, Spinner, Trash } from "@phosphor-icons/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEditor } from "novel";
 import { useState } from "react";
-import { QUERY_KEYS } from "@/lib/queries/keys";
 import { ImageDropzone } from "@/components/shared/dropzone";
+import { QUERY_KEYS } from "@/lib/queries/keys";
 
 interface MediaResponse {
   id: string;

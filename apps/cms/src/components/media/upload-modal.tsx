@@ -10,9 +10,9 @@ import {
 import { toast } from "@marble/ui/components/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { ImageDropzone } from "@/components/shared/dropzone";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { ButtonLoader } from "../ui/loader";
-import { ImageDropzone } from "@/components/shared/dropzone";
 
 interface Media {
   id: string;
