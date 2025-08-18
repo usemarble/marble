@@ -5,6 +5,7 @@ import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { ALLOWED_MIME_TYPES, type AllowedMimeType } from "@/lib/constants";
+import { getMediaType } from "@/utils/media";
 import { generateSlug } from "@/utils/string";
 
 const ACCESS_KEY_ID = process.env.CLOUDFLARE_ACCESS_KEY_ID;
@@ -89,6 +90,7 @@ export async function POST(request: Request) {
           name: mediaName,
           url,
           size: file.size,
+          type: getMediaType(file.type),
           workspaceId: sessionInfo.session.activeOrganizationId as string,
         },
       });

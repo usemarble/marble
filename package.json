@@ -12,8 +12,11 @@
     "cms:dev": "turbo dev --filter=cms",
     "api:dev": "turbo dev --filter=api",
     "docs:dev": "turbo dev --filter=docs",
-    "db:generate": "turbo run db:generate --filter=@marble/db",
-    "db:push": "turbo run db:push --filter=@marble/db",
+    "db:generate": "pnpm --filter db run db:generate",
+    "db:push": "pnpm --filter db run db:push",
+    "db:studio": "pnpm --filter db run db:studio",
+    "db:migrate": "pnpm --filter db run db:migrate",
+    "db:deploy": "pnpm --filter db run db:deploy",
     "prepare": "husky"
   },
   "devDependencies": {
