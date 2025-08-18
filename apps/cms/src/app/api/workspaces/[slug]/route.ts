@@ -67,7 +67,10 @@ export async function GET(
     (member) => member.userId === sessionData.user.id,
   );
   if (!isUserMember) {
-    return NextResponse.json({ error: "User is not a member of the workspace" }, { status: 403 });
+    return NextResponse.json(
+      { error: "User is not a member of the workspace" },
+      { status: 403 },
+    );
   }
 
   // Find current user's role in this workspace
