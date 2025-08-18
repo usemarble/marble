@@ -16,9 +16,6 @@ import { type CredentialData, credentialSchema } from "@/lib/validations/auth";
 import type { AuthMethod } from "@/types/misc";
 import { Github, Google } from "../icons/social";
 import { LastUsedBadge } from "../ui/last-used-badge";
-import {
-  sendWelcomeEmailAction,
-} from "@/lib/actions/email";
 
 export function RegisterForm() {
   const {
@@ -69,9 +66,6 @@ export function RegisterForm() {
         {
           onSuccess: async () => {
             setLastUsedAuthMethod("email");
-            await sendWelcomeEmailAction({
-              userEmail: formData.email,
-            });
             initiateEmailVerification(formData.email);
           },
           onError: (ctx) => {
