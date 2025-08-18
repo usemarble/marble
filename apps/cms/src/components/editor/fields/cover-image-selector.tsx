@@ -9,7 +9,6 @@ import {
   DialogTitle,
 } from "@marble/ui/components/dialog";
 import { Input } from "@marble/ui/components/input";
-import { Label } from "@marble/ui/components/label";
 import { ScrollArea } from "@marble/ui/components/scroll-area";
 import { toast } from "@marble/ui/components/sonner";
 import {
@@ -37,6 +36,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { type Control, useController } from "react-hook-form";
 import { z } from "zod";
+import { ImageDropzone } from "@/components/shared/dropzone";
 
 import type { PostValues } from "@/lib/validations/post";
 
@@ -145,6 +145,13 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
     setIsGalleryOpen(false);
   };
 
+  const handleFilesAccepted = (files: File[]) => {
+    const file = files[0];
+    if (file) {
+      setFile(file);
+    }
+  };
+
   const renderContent = () => {
     if (coverImage) {
       return (
@@ -217,24 +224,11 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
               </div>
             </div>
           ) : (
-            <Label
-              htmlFor="cover-image-file-input"
+            <ImageDropzone
+              onFilesAccepted={handleFilesAccepted}
               className="w-full h-48 rounded-md border border-dashed bg-background flex items-center justify-center cursor-pointer"
-            >
-              <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                <ImageIcon className="size-4" />
-                <div className="flex flex-col items-center">
-                  <p className="text-sm font-medium">Upload Image</p>
-                </div>
-              </div>
-              <Input
-                onChange={(e) => setFile(e.target.files?.[0])}
-                id="cover-image-file-input"
-                type="file"
-                accept="image/*"
-                className="sr-only"
-              />
-            </Label>
+              multiple={false}
+            />
           )}
         </TabsContent>
         <TabsContent value="embed" className="h-48">

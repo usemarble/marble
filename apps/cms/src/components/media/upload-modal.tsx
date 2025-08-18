@@ -7,14 +7,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@marble/ui/components/dialog";
-import { Input } from "@marble/ui/components/input";
-import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
-import { Upload } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { ButtonLoader } from "../ui/loader";
+import { ImageDropzone } from "@/components/shared/dropzone";
 
 interface Media {
   id: string;
@@ -73,6 +71,13 @@ export function MediaUploadModal({
     }
   };
 
+  const handleFilesAccepted = (files: File[]) => {
+    const file = files[0];
+    if (file) {
+      setFile(file);
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent>
@@ -104,24 +109,11 @@ export function MediaUploadModal({
               </div>
             </div>
           ) : (
-            <Label
-              htmlFor="media-file-input"
+            <ImageDropzone
+              onFilesAccepted={handleFilesAccepted}
               className="w-full h-64 rounded-md border border-dashed bg-background flex items-center justify-center cursor-pointer"
-            >
-              <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                <Upload className="size-8" />
-                <div className="flex flex-col items-center">
-                  <p className="text-sm font-medium">Click to browse</p>
-                </div>
-              </div>
-              <Input
-                onChange={(e) => setFile(e.target.files?.[0])}
-                id="media-file-input"
-                type="file"
-                accept="image/*"
-                className="sr-only"
-              />
-            </Label>
+              multiple={false}
+            />
           )}
         </div>
       </DialogContent>

@@ -9,7 +9,6 @@ import {
   DialogTitle,
 } from "@marble/ui/components/dialog";
 import { Input } from "@marble/ui/components/input";
-import { Label } from "@marble/ui/components/label";
 import { ScrollArea } from "@marble/ui/components/scroll-area";
 import { toast } from "@marble/ui/components/sonner";
 import {
@@ -20,7 +19,6 @@ import {
 } from "@marble/ui/components/tabs";
 import {
   CloudArrowUp,
-  Image as ImageIcon,
   Spinner,
   Trash,
 } from "@phosphor-icons/react";
@@ -28,6 +26,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEditor } from "novel";
 import { useState } from "react";
 import { QUERY_KEYS } from "@/lib/queries/keys";
+import { ImageDropzone } from "@/components/shared/dropzone";
 
 interface MediaResponse {
   id: string;
@@ -101,6 +100,13 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
     uploadImage(file);
   };
 
+  const handleFilesAccepted = (files: File[]) => {
+    const file = files[0];
+    if (file) {
+      setFile(file);
+    }
+  };
+
   // fetch media
   const { data: media } = useQuery({
     queryKey: [QUERY_KEYS.MEDIA],
@@ -171,25 +177,11 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
                     </div>
                   </div>
                 ) : (
-                  <Label
-                    htmlFor="bodyImage"
+                  <ImageDropzone
+                    onFilesAccepted={handleFilesAccepted}
                     className="w-full h-full min-h-56 rounded-md border border-dashed flex items-center justify-center cursor-pointer hover:border-primary"
-                  >
-                    <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                      <ImageIcon className="size-4" />
-                      <div className="flex flex-col items-center">
-                        <p className="text-sm font-medium">Upload Image</p>
-                        <p className="text-xs font-medium">(Max 4mb)</p>
-                      </div>
-                    </div>
-                    <Input
-                      onChange={(e) => setFile(e.target.files?.[0])}
-                      id="bodyImage"
-                      type="file"
-                      accept="image/*"
-                      className="sr-only"
-                    />
-                  </Label>
+                    multiple={false}
+                  />
                 )}
               </div>
             </section>
