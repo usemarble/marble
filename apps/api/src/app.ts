@@ -12,7 +12,7 @@ const v1 = new Hono<{ Bindings: Env }>();
 
 // Global Middleware
 app.use("*", ratelimit());
-app.use(trimTrailingSlash())
+app.use(trimTrailingSlash());
 
 // Workspace redirect logic
 app.use("/:workspaceId/*", async (c, next) => {
