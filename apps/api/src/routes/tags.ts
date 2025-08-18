@@ -1,6 +1,6 @@
 import { createClient } from "@marble/db";
 import { Hono } from "hono";
-import type { Env } from "../env";
+import type { Env } from "../types/env";
 import { BasicPaginationSchema } from "../validations";
 
 const tags = new Hono<{ Bindings: Env }>();

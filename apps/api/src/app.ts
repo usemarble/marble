@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import type { Env } from "./env";
+import type { Env } from "./types/env";
 import { ratelimit } from "./middleware/ratelimit";
 import authorsRoutes from "./routes/authors";
 import categoriesRoutes from "./routes/categories";

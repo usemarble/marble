@@ -1,6 +1,6 @@
 import { createClient } from "@marble/db";
 import { Hono } from "hono";
-import type { Env } from "../env";
+import type { Env } from "../types/env";
 import { BasicPaginationSchema } from "../validations";
 
 const authors = new Hono<{ Bindings: Env }>();
@@ -96,7 +96,7 @@ authors.get("/:workspaceId/authors/:id", async (c) => {
   const db = createClient(url);
 
   try {
-    const author = await db.user.findUnique({
+    const author = await db.user.findFirst({
       where: {
         id: authorId,
         members: {
