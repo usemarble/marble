@@ -1,12 +1,11 @@
-// import { randomBytes } from "node:crypto";
-
 export function generateSlug(text: string) {
   const slug = text
-    .trim() // Remove leading and trailing spaces
-    .toLowerCase() // convert all alphabets to lowercase
-    .replace(/\s+/g, "-") // Replace spaces with hyphens
-    .replace(/[^a-z0-9-_]/g, "") // Remove all non-alphanumeric characters except hyphens and underscores
-    .replace(/-+/g, "-"); // Replace multiple hyphens with a single hyphen
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9_-]/g, "")
+    .replace(/-+/g, "-")
+    .replace(/^[-_]+|[-_]+$/g, ""); // Remove leading/trailing hyphens/underscores
 
   return slug;
 }
