@@ -14,6 +14,7 @@ import { emailOTP, organization } from "better-auth/plugins";
 import {
   sendInviteEmailAction,
   sendVerificationEmailAction,
+  sendWelcomeEmailAction
 } from "@/lib/actions/email";
 import { handleCustomerCreated } from "@/lib/polar/customer.created";
 import { handleSubscriptionCanceled } from "@/lib/polar/subscription.canceled";
@@ -21,6 +22,7 @@ import { handleSubscriptionCreated } from "@/lib/polar/subscription.created";
 import { handleSubscriptionRevoked } from "@/lib/polar/subscription.revoked";
 import { handleSubscriptionUpdated } from "@/lib/polar/subscription.updated";
 import { getLastActiveWorkspaceOrNewOneToSetAsActive } from "../queries/workspace";
+import { createAuthMiddleware } from "better-auth/api";
 
 const polarClient = new Polar({
   accessToken: process.env.POLAR_ACCESS_TOKEN,
@@ -139,6 +141,23 @@ export const auth = betterAuth({
     }),
     nextCookies(),
   ],
+  hooks: {
+    after: createAuthMiddleware(async (ctx) => {
+      // Prüfen, ob es sich um eine Sign-Up handelt
+      if (ctx.path === "/api/auth/sign-up/email") {
+        const newSession = ctx.context.newSession;
+        if (newSession?.user?.email) {
+          try {
+            await sendWelcomeEmailAction({
+              userEmail: newSession.user.email,
+            });
+          } catch (err) {
+            console.error("Failed to send welcome email:", err);
+          }
+        }
+      }
+    }),
+  },
   databaseHooks: {
     // To set active organization when a session is created
     // This works but only when user isnt a new user i.e they already have an organization

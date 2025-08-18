@@ -126,7 +126,7 @@ export async function sendWelcomeEmailAction({
   console.log("called welcome email");
   try {
     const response = await resend.emails.send({
-      from: "MarbleCMS <emails@verify.devjannis.com>",
+      from: "MarbleCMS <emails@marblecms.com>",
       to: userEmail,
       subject: "Welcome to Marble!",
       react: WelcomeEmail({
