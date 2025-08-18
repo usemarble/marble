@@ -32,10 +32,3 @@ export function formatBytes(
     sizeType === "accurate" ? accurateSizes[i] : sizes[i]
   }`;
 }
-
-// /**
-//  * Generate a secure webhook secret
-//  */
-// export const generateWebhookSecret = (): string => {
-//   return randomBytes(32).toString("hex");
-// };
