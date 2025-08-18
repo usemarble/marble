@@ -188,13 +188,13 @@ pnpm web:dev
 2. Before committing your changes make sure to run the lint command to catch any formatting errors
 
    ```bash
-   pnpm format-and-lint:fix
+   pnpm format-lint:fix
    ```
 
    or if you would rather fix them yourself you can run the following to list the problems
 
    ```bash
-   pnpm lint
+   pnpm format-lint:check
    ```
 
 3. Test your changes and make sure they work and run a build
