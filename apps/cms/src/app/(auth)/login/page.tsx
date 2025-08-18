@@ -47,17 +47,30 @@ export default async function LoginPage(props: PageProps) {
             <LoginForm />
           </Suspense>
 
-          <p className="text-muted-foreground px-8 text-center text-xs">
-            Don&apos;t have an account?{" "}
-            <Link
-              href={
-                from && from !== "/" ? `/register?from=${from}` : "/register"
-              }
-              className="hover:text-primary underline underline-offset-4"
-            >
-              Register
-            </Link>
-          </p>
+          <div className="px-8 text-center text-xs text-muted-foreground space-y-2">
+            <p>
+              Forgot your password?{" "}
+              <Link
+                href={
+                  from && from !== "/reset" ? `/reset?from=${from}` : "/reset"
+                }
+                className="hover:text-primary underline underline-offset-4"
+              >
+                Reset Your Password
+              </Link>
+            </p>
+            <p>
+              Don&apos;t have an account?{" "}
+              <Link
+                href={
+                  from && from !== "/" ? `/register?from=${from}` : "/register"
+                }
+                className="hover:text-primary underline underline-offset-4"
+              >
+                Register
+              </Link>
+            </p>
+          </div>
         </div>
         <div>
           <p className="text-muted-foreground text-center text-xs">

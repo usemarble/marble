@@ -13,6 +13,7 @@ import { nextCookies } from "better-auth/next-js";
 import { emailOTP, organization } from "better-auth/plugins";
 import {
   sendInviteEmailAction,
+  sendResetPasswordAction,
   sendVerificationEmailAction,
 } from "@/lib/actions/email";
 import { handleCustomerCreated } from "@/lib/polar/customer.created";
@@ -33,6 +34,12 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    sendResetPassword: async ({ user, url, token }, _request) => {
+      await sendResetPasswordAction({
+        userEmail: user.email,
+        resetLink: url,
+      });
+    },
     // requireEmailVerification: true,
     // autoSignIn: true
     // ideally that would prevent a session being created on signup
