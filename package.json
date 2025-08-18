@@ -6,7 +6,7 @@
     "dev": "turbo dev",
     "lint": "turbo lint",
     "format": "biome format --write apps packages",
-    "format-lint:fix": "biome check apps packages --write --unsafe",
+    "format-lint:fix": "biome check apps packages --write",
     "format-lint:check": "biome ci apps packages",
     "web:dev": "turbo dev --filter=web",
     "cms:dev": "turbo dev --filter=cms",
