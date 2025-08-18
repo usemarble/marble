@@ -3,7 +3,7 @@ export function generateSlug(text: string) {
     .trim()
     .toLowerCase()
     .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9-_]/g, "")
+    .replace(/[^a-z0-9_-]/g, "")
     .replace(/-+/g, "-")
     .replace(/^[-_]+|[-_]+$/g, ""); // Remove leading/trailing hyphens/underscores
 
