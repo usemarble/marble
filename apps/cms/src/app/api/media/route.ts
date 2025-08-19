@@ -37,6 +37,9 @@ export async function GET() {
       id: true,
       name: true,
       url: true,
+      createdAt: true,
+      type: true,
+      size: true,
     },
   });
 

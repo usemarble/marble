@@ -14,13 +14,8 @@ import { Upload } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { QUERY_KEYS } from "@/lib/queries/keys";
+import type { Media } from "@/types/misc";
 import { ButtonLoader } from "../ui/loader";
-
-interface Media {
-  id: string;
-  url: string;
-  name: string;
-}
 
 interface MediaUploadModalProps {
   isOpen: boolean;
@@ -83,12 +78,21 @@ export function MediaUploadModal({
           {file ? (
             <div className="flex flex-col gap-4">
               <div className="relative w-full h-64">
-                {/* biome-ignore lint/performance/noImgElement: <> */}
-                <img
-                  src={URL.createObjectURL(file)}
-                  alt="cover preview"
-                  className="w-full h-full object-cover rounded-md"
-                />
+                {file.type.startsWith("image/") ? (
+                  // biome-ignore lint/performance/noImgElement: <>
+                  <img
+                    src={URL.createObjectURL(file)}
+                    alt="cover preview"
+                    className="w-full h-full object-cover rounded-md"
+                  />
+                ) : (
+                  // biome-ignore lint/a11y/useMediaCaption: <>
+                  <video
+                    src={URL.createObjectURL(file)}
+                    className="w-full h-full object-cover rounded-md"
+                    controls
+                  />
+                )}
               </div>
               <div className="flex items-center justify-end gap-2">
                 <Button
@@ -114,11 +118,12 @@ export function MediaUploadModal({
                   <p className="text-sm font-medium">Click to browse</p>
                 </div>
               </div>
+              {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
               <Input
                 onChange={(e) => setFile(e.target.files?.[0])}
                 id="media-file-input"
                 type="file"
-                accept="image/*"
+                accept="image/*,video/*"
                 className="sr-only"
               />
             </Label>

@@ -10,12 +10,7 @@ import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
 import { MediaGallery } from "@/components/media/media-gallery";
 import { MediaUploadModal } from "@/components/media/upload-modal";
 import PageLoader from "@/components/shared/page-loader";
-
-type Media = {
-  id: string;
-  name: string;
-  url: string;
-};
+import type { Media } from "@/types/misc";
 
 function PageClient() {
   const params = useParams<{ workspace: string }>();
