@@ -38,6 +38,7 @@ export function StatusField({ control }: StatusFieldProps) {
           </TooltipContent>
         </Tooltip>
       </div>
+      {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
       <Switch
         id="status"
         checked={value === "published"}

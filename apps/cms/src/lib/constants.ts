@@ -45,8 +45,12 @@ export const IMAGE_DROPZONE_ACCEPT = [
   ".gif",
   ".webp",
   ".avif",
-  ".svg",
 ];
+
+export const MEDIA_DROPZONE_ACCEPT = {
+  "image/*": [".jpeg", ".jpg", ".png", ".gif", ".webp", ".avif", ".svg"],
+  "video/*": [".mp4", ".mov", ".qt", ".avi", ".wmv", ".flv", ".mpeg", ".mpg"],
+};
 
 export const ALLOWED_RASTER_MIME_TYPES = [
   "image/jpeg",

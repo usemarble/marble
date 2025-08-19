@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
+import { toast } from "@marble/ui/components/sonner";
 import {
   DotsThreeVertical,
   DownloadSimple,
@@ -18,7 +19,6 @@ import {
   Trash,
 } from "@phosphor-icons/react";
 import { format } from "date-fns";
-import { toast } from "sonner";
 import type { MediaType } from "@/types/media";
 import type { Media } from "@/types/misc";
 import { formatBytes } from "@/utils/string";
@@ -44,30 +44,25 @@ export function MediaCard({ media, onDelete }: MediaCardProps) {
     mediaTypeIcons[media.type] || mediaTypeIcons.document;
 
   const handleDownload = async () => {
-    toast("soon");
-    // try {
-    //   toast.promise(
-    //     async () => {
-    //       const response = await fetch(media.url);
-    //       const blob = await response.blob();
-    //       const url = window.URL.createObjectURL(blob);
-    //       const a = document.createElement("a");
-    //       a.href = url;
-    //       a.download = media.name;
-    //       document.body.appendChild(a);
-    //       a.click();
-    //       a.remove();
-    //       window.URL.revokeObjectURL(url);
-    //     },
-    //     {
-    //       loading: "Downloading...",
-    //       success: "Downloaded",
-    //       error: "Failed to download",
-    //     },
-    //   );
-    // } catch (error) {
-    //   console.error("Failed to download media:", error);
-    // }
+    try {
+      const response = await fetch(media.url);
+      if (!response.ok) {
+        throw new Error("Network response was not ok.");
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = media.name;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      toast.success("Download complete!");
+    } catch (error) {
+      console.error("Download failed:", error);
+      toast.error("Download failed. Please try again.");
+    }
   };
 
   return (

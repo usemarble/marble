@@ -10,7 +10,7 @@ import {
 import { toast } from "@marble/ui/components/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { ImageDropzone } from "@/components/shared/dropzone";
+import { MediaDropzone } from "@/components/shared/dropzone";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { Media } from "@/types/misc";
 import { ButtonLoader } from "../ui/loader";
@@ -68,7 +68,7 @@ export function MediaUploadModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent>
+      <DialogContent className="w-[calc(100vw-10rem)] max-w-none">
         <DialogHeader>
           <DialogTitle>Upload Media</DialogTitle>
         </DialogHeader>
@@ -106,7 +106,7 @@ export function MediaUploadModal({
               </div>
             </div>
           ) : (
-            <ImageDropzone
+            <MediaDropzone
               onFilesAccepted={(files: File[]) => setFile(files[0])}
               className="w-full h-64 rounded-md border border-dashed bg-background flex items-center justify-center cursor-pointer"
               multiple={false}
