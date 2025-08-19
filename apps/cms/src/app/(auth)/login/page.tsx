@@ -1,3 +1,4 @@
+import { Separator } from "@marble/ui/components/separator";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -47,7 +48,7 @@ export default async function LoginPage(props: PageProps) {
             <LoginForm />
           </Suspense>
 
-          <div className="px-8 text-center text-xs text-muted-foreground space-y-2">
+          <div className="px-8 text-center text-xs text-muted-foreground flex flex-col gap-4">
             <p>
               Forgot your password?{" "}
               <Link
@@ -59,6 +60,9 @@ export default async function LoginPage(props: PageProps) {
                 Reset Your Password
               </Link>
             </p>
+
+            <Separator />
+
             <p>
               Don&apos;t have an account?{" "}
               <Link
@@ -73,8 +77,24 @@ export default async function LoginPage(props: PageProps) {
           </div>
         </div>
         <div>
-          <p className="text-muted-foreground text-center text-xs">
-            &copy; {new Date().getFullYear()} Marble. All rights reserved.
+          <p className="text-muted-foreground px-8 text-center text-xs">
+            By continuing, you agree to our{" "}
+            <Link
+              href="https://marblecms.com/terms"
+              target="_blank"
+              className="hover:text-primary underline underline-offset-4"
+            >
+              Terms of Service
+            </Link>{" "}
+            and{" "}
+            <Link
+              href="https://marblecms.com/privacy"
+              target="_blank"
+              className="hover:text-primary underline underline-offset-4"
+            >
+              Privacy Policy
+            </Link>
+            .
           </p>
         </div>
       </section>

@@ -1,4 +1,3 @@
-import { Separator } from "@marble/ui/components/separator";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -32,8 +31,11 @@ export default async function RegisterPage(props: PageProps) {
           <Credits />
         </div>
       </section>
-      <section className="flex flex-col items-center justify-between h-full p-4 md:p-10">
-        <div className="flex w-full max-w-96 flex-col gap-8 rounded-md p-6 lg:px-8 lg:py-10">
+      <section className="flex flex-col items-center justify-between h-full p-4">
+        <div className="self-start">
+          <h1 className="font-semibold uppercase sr-only">Marble</h1>
+        </div>
+        <div className="flex min-w-[300px] flex-col gap-8 rounded-md p-6 lg:w-[384px] lg:px-8 lg:py-10">
           <div className="text-center">
             <h1 className="text-xl font-semibold lg:text-2xl">
               Create Account
@@ -56,11 +58,10 @@ export default async function RegisterPage(props: PageProps) {
               Login
             </Link>
           </p>
-
-          <Separator />
-
+        </div>
+        <div>
           <p className="text-muted-foreground px-8 text-center text-xs">
-            By signing up, you agree to our{" "}
+            By continuing, you agree to our{" "}
             <Link
               href="https://marblecms.com/terms"
               target="_blank"
@@ -77,11 +78,6 @@ export default async function RegisterPage(props: PageProps) {
               Privacy Policy
             </Link>
             .
-          </p>
-        </div>
-        <div>
-          <p className="text-muted-foreground text-center text-xs">
-            &copy; {new Date().getFullYear()} Marble. All rights reserved.
           </p>
         </div>
       </section>

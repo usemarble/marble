@@ -3,13 +3,26 @@
 import { Button } from "@marble/ui/components/button";
 import { Input } from "@marble/ui/components/input";
 import { toast } from "@marble/ui/components/sonner";
+import { cn } from "@marble/ui/lib/utils";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { authClient } from "@/lib/auth/client";
 
 export default function ResetRequestForm() {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isRequestSuccess, setIsRequestSuccess] = useState(false);
+  const [waitingSeconds, setWaitingSeconds] = useState(0);
+
+  useEffect(() => {
+    if (waitingSeconds > 0) {
+      const interval = setInterval(
+        () => setWaitingSeconds(waitingSeconds - 1),
+        1000,
+      );
+      return () => clearInterval(interval);
+    }
+  }, [waitingSeconds]);
 
   const handleRequest = async () => {
     if (!email) {
@@ -28,7 +41,9 @@ export default function ResetRequestForm() {
       console.error(err);
       toast.error("Failed to request reset");
     } finally {
+      setWaitingSeconds(60);
       setIsLoading(false);
+      setIsRequestSuccess(true);
     }
   };
 
@@ -37,7 +52,7 @@ export default function ResetRequestForm() {
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-lg font-semibold">Forgot your password?</h1>
         <p className="text-muted-foreground text-sm">
-          Enter your email address and we’ll send you a reset link.
+          Enter your email address and we&apos;ll send you a reset link.
         </p>
       </div>
 
@@ -50,13 +65,19 @@ export default function ResetRequestForm() {
 
       <Button
         onClick={handleRequest}
-        disabled={!email}
-        className="flex items-center justify-center min-w-48"
+        disabled={!email || isLoading || isRequestSuccess || waitingSeconds > 0}
+        className={cn(
+          "flex items-center justify-center min-w-48",
+          isLoading || (waitingSeconds > 0 && "cursor-not-allowed"),
+        )}
       >
         {isLoading ? (
           <Loader2 className="size-4 animate-spin" />
         ) : (
-          "Send reset link"
+          <div>
+            Send reset link{" "}
+            {waitingSeconds > 0 && <span>({waitingSeconds}s)</span>}
+          </div>
         )}
       </Button>
     </section>

@@ -128,7 +128,7 @@ export async function sendResetPasswordAction({
   console.log("called verification email");
   try {
     const response = await resend.emails.send({
-      from: "MarbleCMS <emails@verify.devjannis.com>",
+      from: "MarbleCMS <emails@marblecms.com>",
       to: userEmail,
       subject: "Reset Your Password",
       react: ResetPasswordEmail({
