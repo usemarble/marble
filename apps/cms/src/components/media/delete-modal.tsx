@@ -13,12 +13,13 @@ import { Button } from "@marble/ui/components/button";
 import { toast } from "@marble/ui/components/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/lib/queries/keys";
+import type { Media } from "@/types/media";
 import { ButtonLoader } from "../ui/loader";
 
 interface DeleteMediaProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  mediaToDelete: string;
+  mediaToDelete: Media | null;
   onDeleteComplete?: (deletedMediaId: string) => void;
 }
 
@@ -63,7 +64,9 @@ export function DeleteMediaModal({
   });
 
   const handleDelete = () => {
-    deleteMedia(mediaToDelete);
+    if (mediaToDelete) {
+      deleteMedia(mediaToDelete.id);
+    }
   };
 
   return (
@@ -71,10 +74,13 @@ export function DeleteMediaModal({
       <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete this image?</AlertDialogTitle>
+            <AlertDialogTitle>
+              Delete this {mediaToDelete?.type || "media"}?
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              Deleting this image will break posts where it is being used.
-              Please make sure to update all posts using this image.
+              Deleting this {mediaToDelete?.type} will break posts where it is
+              being used. Please make sure to update all posts using this{" "}
+              {mediaToDelete?.type}.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

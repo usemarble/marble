@@ -1,17 +1,22 @@
 "use client";
 
 import { Button } from "@marble/ui/components/button";
+import { Upload } from "@phosphor-icons/react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Trash2, UploadCloud } from "lucide-react";
 import { useState } from "react";
 import { DeleteMediaModal } from "@/components/media/delete-modal";
+import { MediaCard } from "@/components/media/media-card";
 import { MediaUploadModal } from "@/components/media/upload-modal";
 import { QUERY_KEYS } from "@/lib/queries/keys";
+import type { MediaType } from "@/types/media";
 
 type Media = {
   id: string;
   name: string;
   url: string;
+  type: MediaType;
+  size: number;
+  createdAt: string;
 };
 
 interface MediaGalleryProps {
@@ -46,41 +51,20 @@ export function MediaGallery({ media }: MediaGalleryProps) {
       <section className="flex justify-between items-center">
         <div />
         <Button size="sm" onClick={() => setShowUploadModal(true)}>
-          <UploadCloud size={16} />
-          <span>upload image</span>
+          <Upload size={16} className="" />
+          <span>upload media</span>
         </Button>
       </section>
       <ul className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-4">
-        {media.map((media) => (
-          <li
-            key={media.id}
-            className="relative rounded-md overflow-hidden border group"
-          >
-            <button
-              type="button"
-              onClick={() => {
-                setMediaToDelete(media);
-                setShowDeleteModal(true);
-              }}
-              className="absolute top-2 right-2 p-2 bg-white rounded-full text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition duration-500"
-            >
-              <Trash2 className="size-4" />
-              <span className="sr-only">delete image</span>
-            </button>
-            <div>
-              {/* biome-ignore lint/performance/noImgElement: <> */}
-              <img
-                src={media.url}
-                alt={media.name}
-                className="object-cover w-full h-48"
-              />
-            </div>
-            <div className="p-4 bg-background border-t">
-              <p className="text-sm text-muted-foreground truncate">
-                {media.name.split(".")[0]}
-              </p>
-            </div>
-          </li>
+        {media.map((item) => (
+          <MediaCard
+            key={item.id}
+            media={item}
+            onDelete={() => {
+              setMediaToDelete(item);
+              setShowDeleteModal(true);
+            }}
+          />
         ))}
       </ul>
 
@@ -94,7 +78,7 @@ export function MediaGallery({ media }: MediaGalleryProps) {
           isOpen={showDeleteModal}
           setIsOpen={setShowDeleteModal}
           onDeleteComplete={handleDelete}
-          mediaToDelete={mediaToDelete.id}
+          mediaToDelete={mediaToDelete}
         />
       )}
     </>

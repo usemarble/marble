@@ -10,19 +10,15 @@ import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
 import { MediaGallery } from "@/components/media/media-gallery";
 import { MediaUploadModal } from "@/components/media/upload-modal";
 import PageLoader from "@/components/shared/page-loader";
-
-type Media = {
-  id: string;
-  name: string;
-  url: string;
-};
+import { QUERY_KEYS } from "@/lib/queries/keys";
+import type { Media } from "@/types/media";
 
 function PageClient() {
   const params = useParams<{ workspace: string }>();
   const [showUploadModal, setShowUploadModal] = useState(false);
 
   const { data: media, isLoading } = useQuery({
-    queryKey: ["media", params.workspace],
+    queryKey: [QUERY_KEYS.MEDIA, params.workspace],
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
       const res = await fetch("/api/media");

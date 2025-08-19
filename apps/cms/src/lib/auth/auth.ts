@@ -112,6 +112,7 @@ export const auth = betterAuth({
     }),
     organization({
       // membershipLimit: 10,
+      // check plan limits and set membershipLimit
       schema: {
         organization: {
           additionalFields: {
@@ -152,10 +153,7 @@ export const auth = betterAuth({
     // for new users the middleware redirects them to create a workspace (organization)
     session: {
       create: {
-        before: async (session, ctx) => {
-          const allCookies = ctx?.request?.headers.getSetCookie();
-          console.log("allCookies before session create", allCookies);
-          // this returns an empty array when i tested it
+        before: async (session) => {
           try {
             const organization =
               await getLastActiveWorkspaceOrNewOneToSetAsActive(session.userId);
@@ -169,12 +167,6 @@ export const auth = betterAuth({
             // If there's an error, create the session without an active org
             return { data: session };
           }
-        },
-        after: async (_session, ctx) => {
-          const allCookies = ctx?.request?.headers.getSetCookie();
-          console.log("allCookies after session create", allCookies);
-          // also returns an empty array when i tested it
-          // so i guess its pointless to pass it to the get active organization
         },
       },
     },

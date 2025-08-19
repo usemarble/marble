@@ -66,7 +66,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
       endpoint: "",
       events: [],
       secret: "",
-      format: "JSON",
+      format: "json",
     },
   });
 
@@ -153,6 +153,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
               {/* Name Field */}
               <div className="grid gap-2">
                 <Label htmlFor="name">Name</Label>
+                {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
                 <Input
                   id="name"
                   placeholder="My webhook"
@@ -168,9 +169,10 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
               {/* URL Field */}
               <div className="grid gap-2">
                 <Label htmlFor="endpoint">URL</Label>
+                {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
                 <Input
                   id="endpoint"
-                  placeholder="https://..."
+                  placeholder="https://marblecms.com/webhooks/"
                   {...register("endpoint")}
                 />
                 {errors.endpoint && (
@@ -185,17 +187,16 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                 <Label htmlFor="format">Format</Label>
                 <Select
                   onValueChange={(value) =>
-                    setValue("format", value as "JSON" | "FORM_ENCODED")
+                    setValue("format", value as "json" | "discord")
                   }
-                  disabled
-                  defaultValue="JSON"
+                  defaultValue="json"
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select a payload format" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="JSON">JSON</SelectItem>
-                    <SelectItem value="FORM_ENCODED">Form Encoded</SelectItem>
+                    <SelectItem value="json">JSON</SelectItem>
+                    <SelectItem value="discord">Discord</SelectItem>
                   </SelectContent>
                 </Select>
                 {errors.format && (
@@ -209,6 +210,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
               <div className="grid gap-2">
                 <Label htmlFor="secret">Secret</Label>
                 <div className="flex gap-2">
+                  {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
                   <Input
                     id="secret"
                     placeholder="Your webhook secret (optional)"

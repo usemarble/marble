@@ -14,7 +14,7 @@ export const webhookEventEnum = z.enum([
   "media_deleted",
 ]);
 
-export const payloadFormatEnum = z.enum(["JSON", "FORM_ENCODED"]);
+export const payloadFormatEnum = z.enum(["json", "discord"]);
 
 export const webhookSchema = z.object({
   name: z

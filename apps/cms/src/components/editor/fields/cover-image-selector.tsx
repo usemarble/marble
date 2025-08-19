@@ -2,14 +2,13 @@
 
 import { Button } from "@marble/ui/components/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@marble/ui/components/dialog";
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from "@marble/ui/components/drawer";
 import { Input } from "@marble/ui/components/input";
-import { Label } from "@marble/ui/components/label";
 import { ScrollArea } from "@marble/ui/components/scroll-area";
 import { toast } from "@marble/ui/components/sonner";
 import {
@@ -24,32 +23,22 @@ import {
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { cn } from "@marble/ui/lib/utils";
-import {
-  Check,
-  Image as ImageIcon,
-  Images,
-  Info,
-  Spinner,
-  Trash,
-  Upload,
-} from "@phosphor-icons/react";
+import { Check, Images, Info, Spinner, Trash } from "@phosphor-icons/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
 import { useState } from "react";
 import { type Control, useController } from "react-hook-form";
 import { z } from "zod";
+import { ImageDropzone } from "@/components/shared/dropzone";
 
+import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { PostValues } from "@/lib/validations/post";
+import type { Media } from "@/types/media";
 
 // URL schema
 const urlSchema = z.string().url({
   message: "Please enter a valid URL",
 });
-
-interface MediaResponse {
-  id: string;
-  name: string;
-  url: string;
-}
 
 interface CoverImageSelectorProps {
   control: Control<PostValues>;
@@ -68,6 +57,7 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
   const [isValidatingUrl, setIsValidatingUrl] = useState(false);
   const [urlError, setUrlError] = useState<string | null>(null);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const params = useParams<{ workspace: string }>();
 
   const { mutate: uploadMedia, isPending: isUploading } = useMutation({
     mutationFn: async (file: File) => {
@@ -86,10 +76,14 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
 
       return response.json();
     },
-    onSuccess: (data) => {
-      onChange(data.url);
-      toast.success("Uploaded successfully!");
-      setFile(undefined);
+    onSuccess: (data: Media) => {
+      if (data?.url) {
+        onChange(data.url);
+        toast.success("Uploaded successfully!");
+        setFile(undefined);
+      } else {
+        toast.error("Upload failed: Invalid response from server.");
+      }
     },
     onError: (error) => {
       toast.error(error.message);
@@ -98,18 +92,14 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
 
   // Fetch media
   const { data: media } = useQuery({
-    queryKey: ["media"],
+    queryKey: [QUERY_KEYS.MEDIA, params.workspace],
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
       const res = await fetch("/api/media");
-      const data: MediaResponse[] = await res.json();
+      const data: Media[] = await res.json();
       return data;
     },
   });
-
-  const handleCompressAndUpload = async (fileToUpload: File) => {
-    uploadMedia(fileToUpload);
-  };
 
   const handleEmbed = async (url: string) => {
     if (!url) return;
@@ -148,19 +138,20 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
   const renderContent = () => {
     if (coverImage) {
       return (
-        <div className="relative w-full h-48">
+        <div className="relative w-full h-48 group">
           {/* biome-ignore lint/performance/noImgElement: <> */}
           <img
             src={coverImage}
             alt="cover"
             className="w-full h-full object-cover rounded-md"
           />
+          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-md" />
           <button
             type="button"
             onClick={() => onChange(null)}
-            className="absolute top-2 right-2 p-1.5 transition bg-white rounded-full text-black hover:text-destructive"
+            className="absolute top-2 right-2 p-2 transition bg-white rounded-full text-black hover:text-destructive opacity-0 group-hover:opacity-100"
           >
-            <Trash className="size-4" />
+            <Trash className="size-5" />
             <span className="sr-only">remove image</span>
           </button>
         </div>
@@ -191,50 +182,36 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
                   className="w-full h-full object-cover rounded-md"
                 />
                 <div className="absolute grid size-full inset-0 place-content-center bg-black/50 rounded-md p-2 backdrop-blur-sm">
-                  <div className="flex items-center gap-2">
-                    <Button
-                      size="icon"
-                      onClick={() => setFile(undefined)}
-                      disabled={isUploading}
-                      className="bg-white rounded-full text-black hover:bg-white hover:text-destructive"
-                    >
-                      <Trash className="size-4" />
-                    </Button>
-                    <Button
-                      disabled={isUploading}
-                      size="icon"
-                      onClick={() => file && handleCompressAndUpload(file)}
-                      className="bg-white rounded-full text-black hover:bg-white hover:text-primary"
-                    >
-                      {isUploading ? (
-                        <Spinner className="size-4 animate-spin" />
-                      ) : (
-                        <Upload className="size-4" />
-                      )}
-                    </Button>
-                  </div>
+                  {isUploading ? (
+                    <div className="flex flex-col items-center gap-2">
+                      <Spinner className="size-5 animate-spin text-white" />
+                      <p className="text-sm text-white">Uploading...</p>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="icon"
+                        onClick={() => setFile(undefined)}
+                        className="bg-white rounded-full text-black hover:bg-white hover:text-destructive"
+                      >
+                        <Trash className="size-4" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
           ) : (
-            <Label
-              htmlFor="cover-image-file-input"
+            <ImageDropzone
+              onFilesAccepted={(files: File[]) => {
+                if (files[0]) {
+                  setFile(files[0]);
+                  uploadMedia(files[0]);
+                }
+              }}
               className="w-full h-48 rounded-md border border-dashed bg-background flex items-center justify-center cursor-pointer"
-            >
-              <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                <ImageIcon className="size-4" />
-                <div className="flex flex-col items-center">
-                  <p className="text-sm font-medium">Upload Image</p>
-                </div>
-              </div>
-              <Input
-                onChange={(e) => setFile(e.target.files?.[0])}
-                id="cover-image-file-input"
-                type="file"
-                accept="image/*"
-                className="sr-only"
-              />
-            </Label>
+              multiple={false}
+            />
           )}
         </TabsContent>
         <TabsContent value="embed" className="h-48">
@@ -276,16 +253,8 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
             className="w-full h-48 rounded-md border border-dashed bg-background flex items-center justify-center cursor-pointer transition-colors"
           >
             <div className="flex flex-col items-center gap-2 text-muted-foreground">
-              {media && media.length > 0 ? (
-                <Images className="size-4" />
-              ) : (
-                <ImageIcon className="size-4" />
-              )}
-              <p className="text-sm font-medium">
-                {media && media.length > 0
-                  ? "Click to view your gallery"
-                  : "No media found. Upload some images first."}
-              </p>
+              <Images className="size-6" />
+              <p className="text-sm font-medium">Click to view your gallery</p>
             </div>
           </button>
         </TabsContent>
@@ -311,24 +280,24 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
       </div>
       {renderContent()}
 
-      {/* Media Gallery Modal */}
-      <Dialog open={isGalleryOpen} onOpenChange={setIsGalleryOpen}>
-        <DialogContent className="max-w-5xl w-full max-h-[80vh]">
-          <DialogHeader>
-            <DialogTitle>Gallery</DialogTitle>
-            <DialogDescription className="sr-only">
+      {/* Media Gallery Drawer */}
+      <Drawer open={isGalleryOpen} onOpenChange={setIsGalleryOpen}>
+        <DrawerContent className="h-[95vh] mt-4">
+          <DrawerHeader className="sr-only">
+            <DrawerTitle>Gallery</DrawerTitle>
+            <DrawerDescription>
               Select an image from your media library to use as your cover
               image.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex-1 overflow-hidden min-h-96">
+            </DrawerDescription>
+          </DrawerHeader>
+          <div className="flex-1 overflow-y-auto">
             {media && media.length > 0 ? (
               <ScrollArea className="h-full">
-                <ul className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-4 p-6">
+                <ul className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-4 p-4">
                   {media.map((item) => (
                     <li
                       key={item.id}
-                      className="relative rounded-md h-48 overflow-hidden group"
+                      className="relative rounded-[4px] h-48 overflow-hidden group"
                     >
                       <button
                         type="button"
@@ -347,18 +316,18 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
                 </ul>
               </ScrollArea>
             ) : (
-              <div className="flex items-center justify-center h-full p-6">
+              <div className="flex items-center justify-center h-full">
                 <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                  <ImageIcon className="size-8" />
+                  <Images className="size-8" />
                   <p className="text-sm font-medium">
-                    No media found. Upload some to see them here.
+                    Your gallery is empty. Upload some media to get started.
                   </p>
                 </div>
               </div>
             )}
           </div>
-        </DialogContent>
-      </Dialog>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 }

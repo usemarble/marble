@@ -5,6 +5,8 @@ import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { ALLOWED_MIME_TYPES, type AllowedMimeType } from "@/lib/constants";
+import type { Media } from "@/types/media";
+import { getMediaType } from "@/utils/media";
 import { generateSlug } from "@/utils/string";
 
 const ACCESS_KEY_ID = process.env.CLOUDFLARE_ACCESS_KEY_ID;
@@ -81,7 +83,7 @@ export async function POST(request: Request) {
     const url = `${publicUrl}/${key}`;
     const mediaName = `${sluggedName}-${sluggedId}.${extension}`;
 
-    let media: { id: string; name: string; url: string } | undefined;
+    let media: Media | undefined;
 
     if (workspaceCanSaveMedia) {
       const res = await db.media.create({
@@ -89,13 +91,28 @@ export async function POST(request: Request) {
           name: mediaName,
           url,
           size: file.size,
+          type: getMediaType(file.type),
           workspaceId: sessionInfo.session.activeOrganizationId as string,
         },
       });
-      media = { id: res.id, name: res.name, url: res.url };
+      media = {
+        id: res.id,
+        name: res.name,
+        url: res.url,
+        size: res.size,
+        type: res.type,
+        createdAt: res.createdAt.toISOString(),
+      };
     }
 
-    return NextResponse.json({ url, key, media });
+    if (!media) {
+      return NextResponse.json(
+        { error: "Failed to save media to database." },
+        { status: 500 },
+      );
+    }
+
+    return NextResponse.json(media);
   } catch (error) {
     console.error("Error uploading image to R2:", error);
     const errorMessage =
