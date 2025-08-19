@@ -3,6 +3,7 @@
 import { cn } from "@marble/ui/lib/utils";
 import { Image as ImageIcon } from "@phosphor-icons/react";
 import { type DropzoneOptions, useDropzone } from "react-dropzone";
+import { IMAGE_DROPZONE_ACCEPT } from "@/lib/constants";
 
 interface DropzoneProps {
   onFilesAccepted: (files: File[]) => void;
@@ -115,7 +116,7 @@ export function ImageDropzone({
   return (
     <Dropzone
       accept={{
-        "image/*": [".jpeg", ".jpg", ".png", ".gif", ".webp", ".avif", ".svg"],
+        "image/*": IMAGE_DROPZONE_ACCEPT,
       }}
       placeholder={{
         idle:
