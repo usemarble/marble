@@ -1,6 +1,5 @@
 "use client";
 
-import { MediaType } from "@marble/db/client";
 import { Button } from "@marble/ui/components/button";
 import { Card, CardContent, CardFooter } from "@marble/ui/components/card";
 import {
@@ -20,6 +19,7 @@ import {
 } from "@phosphor-icons/react";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import type { MediaType } from "@/types/media";
 import type { Media } from "@/types/misc";
 import { formatBytes } from "@/utils/string";
 import { VideoPlayer } from "./video-player";
@@ -33,15 +33,15 @@ const mediaTypeIcons: Record<
   MediaType,
   { icon: React.ElementType; color: string }
 > = {
-  [MediaType.image]: { icon: FileImage, color: "text-blue-500" },
-  [MediaType.video]: { icon: FileVideo, color: "text-red-500" },
-  [MediaType.audio]: { icon: FileAudio, color: "text-green-500" },
-  [MediaType.document]: { icon: File, color: "text-gray-500" },
+  image: { icon: FileImage, color: "text-blue-500" },
+  video: { icon: FileVideo, color: "text-red-500" },
+  audio: { icon: FileAudio, color: "text-green-500" },
+  document: { icon: File, color: "text-gray-500" },
 };
 
 export function MediaCard({ media, onDelete }: MediaCardProps) {
   const { icon: Icon, color } =
-    mediaTypeIcons[media.type] || mediaTypeIcons[MediaType.document];
+    mediaTypeIcons[media.type] || mediaTypeIcons.document;
 
   const handleDownload = async () => {
     toast("soon");
@@ -74,7 +74,7 @@ export function MediaCard({ media, onDelete }: MediaCardProps) {
     <Card className="overflow-hidden">
       <CardContent className="p-0">
         <div className="aspect-video relative overflow-hidden">
-          {media.type === MediaType.image && (
+          {media.type === "image" && (
             // biome-ignore lint/performance/noImgElement: <>
             <img
               src={media.url}
@@ -82,11 +82,10 @@ export function MediaCard({ media, onDelete }: MediaCardProps) {
               className="object-cover w-full h-full"
             />
           )}
-          {media.type === MediaType.video && (
+          {media.type === "video" && (
             <VideoPlayer src={media.url} className="" />
           )}
-          {(media.type === MediaType.audio ||
-            media.type === MediaType.document) && (
+          {(media.type === "audio" || media.type === "document") && (
             <div className="w-full h-full flex items-center justify-center bg-muted">
               <Icon
                 className="size-16 text-muted-foreground"

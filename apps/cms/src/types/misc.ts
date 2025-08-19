@@ -1,4 +1,4 @@
-import type { MediaType } from "@marble/db/client";
+import type { MediaType } from "./media";
 
 export type AuthMethod = "google" | "github" | "email";
 

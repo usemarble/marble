@@ -1,6 +1,5 @@
 "use client";
 
-import type { MediaType } from "@marble/db/client";
 import { Button } from "@marble/ui/components/button";
 import { Upload } from "@phosphor-icons/react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -9,6 +8,7 @@ import { DeleteMediaModal } from "@/components/media/delete-modal";
 import { MediaCard } from "@/components/media/media-card";
 import { MediaUploadModal } from "@/components/media/upload-modal";
 import { QUERY_KEYS } from "@/lib/queries/keys";
+import type { MediaType } from "@/types/media";
 
 type Media = {
   id: string;

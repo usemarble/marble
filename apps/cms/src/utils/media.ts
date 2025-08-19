@@ -1,14 +1,14 @@
-import { MediaType } from "@marble/db/client";
+import type { MediaType } from "@/types/media";
 
 export function getMediaType(mimeType: string): MediaType {
   if (mimeType.startsWith("image/")) {
-    return MediaType.image;
+    return "image";
   }
   if (mimeType.startsWith("video/")) {
-    return MediaType.video;
+    return "video";
   }
   if (mimeType.startsWith("audio/")) {
-    return MediaType.audio;
+    return "audio";
   }
-  return MediaType.document;
+  return "document";
 }
