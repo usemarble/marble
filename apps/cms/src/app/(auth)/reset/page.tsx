@@ -5,7 +5,7 @@ import ResetRequestForm from "@/components/auth/reset/reset-request-form";
 import PageLoader from "@/components/shared/page-loader";
 
 export const metadata: Metadata = {
-  title: "Reset Password / Forgot Password",
+  title: "Reset Password",
 };
 
 interface PageProps {
