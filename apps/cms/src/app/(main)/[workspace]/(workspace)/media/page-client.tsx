@@ -58,7 +58,6 @@ function PageClient() {
       <MediaUploadModal
         isOpen={showUploadModal}
         setIsOpen={setShowUploadModal}
-        workspace={params.workspace}
       />
     </>
   );

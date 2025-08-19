@@ -9,6 +9,7 @@ import {
 } from "@marble/ui/components/dialog";
 import { toast } from "@marble/ui/components/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
 import { useState } from "react";
 import { MediaDropzone } from "@/components/shared/dropzone";
 import { QUERY_KEYS } from "@/lib/queries/keys";
@@ -19,17 +20,16 @@ interface MediaUploadModalProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   onUploadComplete?: (media: Media) => void;
-  workspace: string;
 }
 
 export function MediaUploadModal({
   isOpen,
   setIsOpen,
   onUploadComplete,
-  workspace,
 }: MediaUploadModalProps) {
   const [file, setFile] = useState<File | undefined>();
   const queryClient = useQueryClient();
+  const params = useParams<{ workspace: string }>();
 
   const { mutate: uploadMedia, isPending: isUploading } = useMutation({
     mutationFn: async (file: File) => {
@@ -50,7 +50,7 @@ export function MediaUploadModal({
     },
     onSuccess: (data: Media) => {
       queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.MEDIA, workspace],
+        queryKey: [QUERY_KEYS.MEDIA, params.workspace],
       });
       toast.success("Uploaded successfully!");
       if (onUploadComplete && data) {

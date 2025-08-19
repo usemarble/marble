@@ -49,7 +49,18 @@ export const IMAGE_DROPZONE_ACCEPT = [
 
 export const MEDIA_DROPZONE_ACCEPT = {
   "image/*": [".jpeg", ".jpg", ".png", ".gif", ".webp", ".avif", ".svg"],
-  "video/*": [".mp4", ".mov", ".qt", ".avi", ".wmv", ".flv", ".mpeg", ".mpg", ".webm", ""],
+  "video/*": [
+    ".mp4",
+    ".mov",
+    ".qt",
+    ".avi",
+    ".wmv",
+    ".flv",
+    ".mpeg",
+    ".mpg",
+    ".webm",
+    "",
+  ],
 };
 
 export const ALLOWED_RASTER_MIME_TYPES = [
