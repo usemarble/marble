@@ -96,13 +96,6 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
     uploadImage(file);
   };
 
-  const handleFilesAccepted = (files: File[]) => {
-    const file = files[0];
-    if (file) {
-      setFile(file);
-    }
-  };
-
   // fetch media
   const { data: media } = useQuery({
     queryKey: [QUERY_KEYS.MEDIA],
@@ -174,7 +167,7 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
                   </div>
                 ) : (
                   <ImageDropzone
-                    onFilesAccepted={handleFilesAccepted}
+                    onFilesAccepted={(files: File[]) => setFile(files[0])}
                     className="w-full h-full min-h-56 rounded-md border border-dashed flex items-center justify-center cursor-pointer hover:border-primary"
                     multiple={false}
                   />

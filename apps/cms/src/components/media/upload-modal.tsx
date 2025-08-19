@@ -71,13 +71,6 @@ export function MediaUploadModal({
     }
   };
 
-  const handleFilesAccepted = (files: File[]) => {
-    const file = files[0];
-    if (file) {
-      setFile(file);
-    }
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent>
@@ -110,7 +103,7 @@ export function MediaUploadModal({
             </div>
           ) : (
             <ImageDropzone
-              onFilesAccepted={handleFilesAccepted}
+              onFilesAccepted={(files: File[]) => setFile(files[0])}
               className="w-full h-64 rounded-md border border-dashed bg-background flex items-center justify-center cursor-pointer"
               multiple={false}
             />

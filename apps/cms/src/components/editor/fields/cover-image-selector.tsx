@@ -145,13 +145,6 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
     setIsGalleryOpen(false);
   };
 
-  const handleFilesAccepted = (files: File[]) => {
-    const file = files[0];
-    if (file) {
-      setFile(file);
-    }
-  };
-
   const renderContent = () => {
     if (coverImage) {
       return (
@@ -225,7 +218,7 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
             </div>
           ) : (
             <ImageDropzone
-              onFilesAccepted={handleFilesAccepted}
+              onFilesAccepted={(files: File[]) => setFile(files[0])}
               className="w-full h-48 rounded-md border border-dashed bg-background flex items-center justify-center cursor-pointer"
               multiple={false}
             />
