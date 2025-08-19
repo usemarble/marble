@@ -57,6 +57,7 @@
     "novel": "^0.5.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-dropzone": "^14.3.8",
     "react-hook-form": "^7.61.1",
     "react-textarea-autosize": "^8.5.9",
     "recharts": "^2.15.3",
