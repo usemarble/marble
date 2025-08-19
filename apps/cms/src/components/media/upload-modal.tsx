@@ -12,19 +12,21 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { MediaDropzone } from "@/components/shared/dropzone";
 import { QUERY_KEYS } from "@/lib/queries/keys";
-import type { Media } from "@/types/misc";
+import type { Media } from "@/types/media";
 import { ButtonLoader } from "../ui/loader";
 
 interface MediaUploadModalProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   onUploadComplete?: (media: Media) => void;
+  workspace: string;
 }
 
 export function MediaUploadModal({
   isOpen,
   setIsOpen,
   onUploadComplete,
+  workspace,
 }: MediaUploadModalProps) {
   const [file, setFile] = useState<File | undefined>();
   const queryClient = useQueryClient();
@@ -46,11 +48,13 @@ export function MediaUploadModal({
 
       return response.json();
     },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MEDIA] });
+    onSuccess: (data: Media) => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.MEDIA, workspace],
+      });
       toast.success("Uploaded successfully!");
-      if (onUploadComplete && data.media) {
-        onUploadComplete(data.media);
+      if (onUploadComplete && data) {
+        onUploadComplete(data);
       }
       setFile(undefined);
       setIsOpen(false);

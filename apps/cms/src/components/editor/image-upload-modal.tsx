@@ -23,12 +23,7 @@ import { useEditor } from "novel";
 import { useState } from "react";
 import { ImageDropzone } from "@/components/shared/dropzone";
 import { QUERY_KEYS } from "@/lib/queries/keys";
-
-interface MediaResponse {
-  id: string;
-  name: string;
-  url: string;
-}
+import type { Media } from "@/types/media";
 
 interface ImageUploadModalProps {
   isOpen: boolean;
@@ -55,11 +50,19 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
       }
       return response.json();
     },
-    onSuccess: (data) => {
-      editorInstance.editor?.chain().focus().setImage({ src: data.url }).run();
-      toast.success("Image uploaded successfully.");
-      setIsOpen(false);
-      setFile(undefined);
+    onSuccess: (data: Media) => {
+      if (data?.url) {
+        editorInstance.editor
+          ?.chain()
+          .focus()
+          .setImage({ src: data.url })
+          .run();
+        toast.success("Image uploaded successfully.");
+        setIsOpen(false);
+        setFile(undefined);
+      } else {
+        toast.error("Upload failed: Invalid response from server.");
+      }
     },
     onError: (error) => {
       toast.error(error.message);
@@ -102,7 +105,7 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
       const res = await fetch("/api/media");
-      const data: MediaResponse[] = await res.json();
+      const data: Media[] = await res.json();
       return data;
     },
   });

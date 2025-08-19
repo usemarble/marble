@@ -23,22 +23,17 @@ import {
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { cn } from "@marble/ui/lib/utils";
-import {
-  Check,
-  Image as ImageIcon,
-  Images,
-  Info,
-  Spinner,
-  Trash,
-} from "@phosphor-icons/react";
+import { Check, Images, Info, Spinner, Trash } from "@phosphor-icons/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
 import { useState } from "react";
 import { type Control, useController } from "react-hook-form";
 import { z } from "zod";
 import { ImageDropzone } from "@/components/shared/dropzone";
 
+import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { PostValues } from "@/lib/validations/post";
-import type { Media as MediaResponse } from "@/types/misc";
+import type { Media } from "@/types/media";
 
 // URL schema
 const urlSchema = z.string().url({
@@ -62,6 +57,7 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
   const [isValidatingUrl, setIsValidatingUrl] = useState(false);
   const [urlError, setUrlError] = useState<string | null>(null);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const params = useParams<{ workspace: string }>();
 
   const { mutate: uploadMedia, isPending: isUploading } = useMutation({
     mutationFn: async (file: File) => {
@@ -80,10 +76,14 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
 
       return response.json();
     },
-    onSuccess: (data) => {
-      onChange(data.url);
-      toast.success("Uploaded successfully!");
-      setFile(undefined);
+    onSuccess: (data: Media) => {
+      if (data?.url) {
+        onChange(data.url);
+        toast.success("Uploaded successfully!");
+        setFile(undefined);
+      } else {
+        toast.error("Upload failed: Invalid response from server.");
+      }
     },
     onError: (error) => {
       toast.error(error.message);
@@ -92,11 +92,11 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
 
   // Fetch media
   const { data: media } = useQuery({
-    queryKey: ["media"],
+    queryKey: [QUERY_KEYS.MEDIA, params.workspace],
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
       const res = await fetch("/api/media");
-      const data: MediaResponse[] = await res.json();
+      const data: Media[] = await res.json();
       return data;
     },
   });

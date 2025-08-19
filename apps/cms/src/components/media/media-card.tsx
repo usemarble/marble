@@ -19,8 +19,7 @@ import {
   Trash,
 } from "@phosphor-icons/react";
 import { format } from "date-fns";
-import type { MediaType } from "@/types/media";
-import type { Media } from "@/types/misc";
+import type { Media, MediaType } from "@/types/media";
 import { formatBytes } from "@/utils/string";
 import { VideoPlayer } from "./video-player";
 
