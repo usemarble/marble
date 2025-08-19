@@ -42,7 +42,7 @@ export function StatusField({ control }: StatusFieldProps) {
         id="status"
         checked={value === "published"}
         onCheckedChange={() =>
-          onChange(value === "published" ? "unpublished" : "published")
+          onChange(value === "published" ? "draft" : "published")
         }
       />
     </div>

@@ -66,7 +66,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
       endpoint: "",
       events: [],
       secret: "",
-      format: "JSON",
+      format: "json",
     },
   });
 
@@ -185,17 +185,16 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                 <Label htmlFor="format">Format</Label>
                 <Select
                   onValueChange={(value) =>
-                    setValue("format", value as "JSON" | "FORM_ENCODED")
+                    setValue("format", value as "json" | "discord")
                   }
-                  disabled
-                  defaultValue="JSON"
+                  defaultValue="json"
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select a payload format" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="JSON">JSON</SelectItem>
-                    <SelectItem value="FORM_ENCODED">Form Encoded</SelectItem>
+                    <SelectItem value="json">JSON</SelectItem>
+                    <SelectItem value="discord">Discord</SelectItem>
                   </SelectContent>
                 </Select>
                 {errors.format && (
