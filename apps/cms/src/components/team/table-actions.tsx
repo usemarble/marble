@@ -21,6 +21,16 @@ import type { TeamMemberRow } from "./columns";
 import { ProfileSheet } from "./profile-sheet";
 import { RemoveMemberModal } from "./team-modals";
 
+// Helper function to map custom roles to standard roles
+function mapToStandardRole(customRole: string): "admin" | "member" {
+  const adminRoles = ["admin", "administrator", "owner", "manager"];
+  const lowerRole = customRole.toLowerCase();
+
+  return adminRoles.some((role) => lowerRole.includes(role))
+    ? "admin"
+    : "member";
+}
+
 interface TableActionsProps extends TeamMemberRow {
   currentUserRole: "owner" | "admin" | "member" | undefined;
   currentUserId: string | undefined;
@@ -54,9 +64,13 @@ export default function TableActions(props: TableActionsProps) {
 
     const handleResendInvite = async () => {
       setIsResendingInvite(true);
+
+      // Map custom role to standard role for better-auth
+      const mappedRole = mapToStandardRole(role || "member");
+
       await authClient.organization.inviteMember({
         email: email,
-        role: role,
+        role: mappedRole,
         resend: true,
         fetchOptions: {
           onSuccess: () => {

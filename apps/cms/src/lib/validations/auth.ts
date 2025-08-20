@@ -16,6 +16,6 @@ export type CredentialData = z.infer<typeof credentialSchema>;
 
 export const inviteSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
-  role: z.enum(["admin", "member"], { message: "Please select a role" }),
+  role: z.string().min(1, { message: "Please enter a role" }).optional(),
 });
 export type InviteData = z.infer<typeof inviteSchema>;

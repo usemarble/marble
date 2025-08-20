@@ -11,13 +11,6 @@ import {
 } from "@marble/ui/components/dialog";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@marble/ui/components/select";
 import { toast } from "@marble/ui/components/sonner";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
@@ -38,7 +31,6 @@ export const InviteModal = ({
   const {
     register,
     handleSubmit,
-    setValue,
     formState: { errors, isSubmitting },
   } = useForm<InviteData>({
     resolver: zodResolver(inviteSchema),
@@ -49,9 +41,12 @@ export const InviteModal = ({
 
   const onSubmit = async (data: InviteData) => {
     try {
+      // Map custom role to standard role for better-auth
+      const mappedRole = mapToStandardRole(data.role || "member");
+
       const res = await organization.inviteMember({
         email: data.email,
-        role: data.role,
+        role: mappedRole,
       });
       if (res.data) {
         setOpen(false);
@@ -65,7 +60,7 @@ export const InviteModal = ({
                   {
                     id: res.data.id,
                     email: res.data.email,
-                    role: res.data.role,
+                    role: data.role || "member", // Store the custom role here
                     status: res.data.status,
                     organizationId: res.data.organizationId,
                     inviterId: res.data.inviterId,
@@ -82,6 +77,16 @@ export const InviteModal = ({
       );
     }
   };
+
+  // Helper function to map custom roles to standard roles
+  function mapToStandardRole(customRole: string): "admin" | "member" {
+    const adminRoles = ["admin", "administrator", "owner", "manager"];
+    const lowerRole = customRole.toLowerCase();
+
+    return adminRoles.some((role) => lowerRole.includes(role))
+      ? "admin"
+      : "member";
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -114,20 +119,11 @@ export const InviteModal = ({
             <Label htmlFor="role" className="sr-only">
               Role
             </Label>
-            <Select
-              onValueChange={(value: "member" | "admin") =>
-                setValue("role", value)
-              }
-              defaultValue="member"
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select a role" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="member">Member</SelectItem>
-                <SelectItem value="admin">Admin</SelectItem>
-              </SelectContent>
-            </Select>
+            <Input
+              id="role"
+              {...register("role")}
+              placeholder="e.g. Technical Writer, Admin, Member"
+            />
             {errors.role && <ErrorMessage>{errors.role.message}</ErrorMessage>}
           </div>
 

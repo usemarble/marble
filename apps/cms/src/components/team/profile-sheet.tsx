@@ -4,14 +4,8 @@ import {
   AvatarImage,
 } from "@marble/ui/components/avatar";
 import { Button } from "@marble/ui/components/button";
+import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@marble/ui/components/select";
 import {
   Sheet,
   SheetClose,
@@ -35,18 +29,22 @@ interface ProfileSheetProps {
 }
 
 export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
-  const [role, setRole] = useState(member.role);
+  const [role, setRole] = useState(member.role || "");
   const [loading, setLoading] = useState(false);
 
   const settingsChanges = useMemo(() => {
-    return role !== member.role;
+    return role !== (member.role || "");
   }, [role, member.role]);
 
   async function handleSave() {
     setLoading(true);
+
+    // Map custom roles to standard roles for better-auth
+    const mappedRole = mapToStandardRole(role);
+
     await organization.updateMemberRole({
       memberId: member.id,
-      role: role,
+      role: mappedRole,
       fetchOptions: {
         onSuccess: () => {
           toast.success("Role updated");
@@ -57,6 +55,16 @@ export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
         },
       },
     });
+  }
+
+  // Helper function to map custom roles to standard roles
+  function mapToStandardRole(customRole: string): "admin" | "member" {
+    const adminRoles = ["admin", "administrator", "owner", "manager"];
+    const lowerRole = customRole.toLowerCase();
+
+    return adminRoles.some((role) => lowerRole.includes(role))
+      ? "admin"
+      : "member";
   }
 
   return (
@@ -92,18 +100,12 @@ export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
         <section className="border-t py-6">
           <div className="flex items-center gap-6 justify-between">
             <Label>Role</Label>
-            <Select
+            <Input
               value={role}
-              onValueChange={(role) => setRole(role as "admin" | "member")}
-            >
-              <SelectTrigger className="w-[220px]">
-                <SelectValue placeholder="Role" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="admin">Admin</SelectItem>
-                <SelectItem value="member">Member</SelectItem>
-              </SelectContent>
-            </Select>
+              onChange={(e) => setRole(e.target.value)}
+              placeholder="e.g. Technical Writer, Admin, Member"
+              className="w-[220px]"
+            />
           </div>
         </section>
         <section className="border-t mt-auto py-4 sticky bottom-0 bg-background">

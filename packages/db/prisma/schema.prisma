@@ -210,7 +210,7 @@ model Member {
   id             String       @id @default(cuid())
   organizationId String
   userId         String
-  role           String
+  role           String?
   createdAt      DateTime
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)

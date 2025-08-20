@@ -23,7 +23,7 @@ export type TeamMemberRow = {
   name: string | null; // User name (null for invites)
   email: string;
   image: string | null; // User image (null for invites)
-  role: UserRole; // User role in the org (roles are also defined for invites)
+  role: UserRole | string | null; // User role in the org (can be predefined roles or custom strings, nullable)
   status: InvitationStatus; // Invitation status or 'accepted' for members
   inviterId?: string | null; // ID of the user who invited (for invites)
   expiresAt?: Date | null; // Expiry date (for invites)
@@ -102,7 +102,11 @@ export const columns: ColumnDef<TeamMemberRow>[] = [
     cell: ({ row }) => {
       const item = row.original;
 
-      return <p className="text-muted-foreground capitalize">{item.role}</p>;
+      return (
+        <p className="text-muted-foreground capitalize">
+          {item.role || "No role"}
+        </p>
+      );
     },
   },
   {
