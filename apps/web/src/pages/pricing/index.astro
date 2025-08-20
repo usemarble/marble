@@ -109,7 +109,7 @@ import { PRICING, PRICING_FAQS, SITE } from "@/lib/constants";
           <div class="mx-auto max-w-3xl bg-white rounded-md relative border py-2 px-6 divide-y">
             {PRICING_FAQS.map((faq) => (
               <AccordionItem name="details" title={faq.question}>
-                <p class="text-sm [&>a]:text-foreground [&>a]:hover:text-primary [&>a]:underline [&>a]:font-medium" set:html={faq.answer} />
+                <p class="text-sm [&>a]:text-foreground hover:[&>a]:text-primary [&>a]:underline [&>a]:font-medium" set:html={faq.answer} />
               </AccordionItem>
             ))}
           </div>

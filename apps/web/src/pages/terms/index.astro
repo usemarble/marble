@@ -38,7 +38,7 @@ const formattedDate = new Date(entry.data.lastUpdated).toLocaleDateString(
       <p class="text-center text-muted-foreground">Last updated: {formattedDate}</p>
     </div>
 
-    <Prose class="prose-sm max-w-screen-sm prose-p:font-sans prose-li:font-sans">
+    <Prose class="prose-sm max-w-(--breakpoint-sm) prose-p:font-sans prose-li:font-sans">
       <Content/>
     </Prose>
     </Container>

@@ -143,7 +143,7 @@ export function EditorSidebar({
         )}
         {...props}
       >
-        <SidebarHeader className="bg-transparent sticky top-0 z-10 flex-shrink-0 px-6 py-4">
+        <SidebarHeader className="bg-transparent sticky top-0 z-10 shrink-0 px-6 py-4">
           <Tabs
             value={activeTab}
             onValueChange={setActiveTab}
@@ -285,7 +285,7 @@ export function EditorSidebar({
           </Tabs>
         </SidebarContent>
 
-        <SidebarFooter className="bg-transparent flex-shrink-0 px-6 py-6">
+        <SidebarFooter className="bg-transparent shrink-0 px-6 py-6">
           {activeTab === "metadata" &&
             (mode === "create" ? (
               <Button

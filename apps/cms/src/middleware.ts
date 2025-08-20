@@ -21,7 +21,10 @@ export async function middleware(request: NextRequest) {
   const isInvitePage = path.startsWith("/invite");
   const isOnboardingPage = path.startsWith("/new");
   const isVerifyPage = path.startsWith("/verify");
-  const isAuthPage = path.startsWith("/login") || path.startsWith("/register");
+  const isAuthPage =
+    path.startsWith("/login") ||
+    path.startsWith("/register") ||
+    path.startsWith("/reset");
 
   // Allow invite flows to proceed normally
   if (isInvitePage) {

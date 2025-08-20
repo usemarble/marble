@@ -51,7 +51,7 @@ export function PublishDateField({ control }: PublishDateFieldProps) {
       <Popover>
         <PopoverTrigger asChild>
           <Button
-            variant={"outline"}
+            variant="outline"
             className={cn(
               "justify-between text-left font-normal",
               !value && "text-muted-foreground",
