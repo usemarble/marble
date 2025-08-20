@@ -2,14 +2,17 @@
 
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
-import tailwind from "@astrojs/tailwind";
+import tailwind from "@tailwindcss/vite";
 
 import vercel from "@astrojs/vercel";
 import { defineConfig } from "astro/config";
 
 // https://astro.build/config
 export default defineConfig({
-  integrations: [tailwind(), mdx(), sitemap()],
+  integrations: [mdx(), sitemap()],
+  vite: {
+    plugins: [tailwind()],
+  },
   site: "https://marblecms.com",
   image: {
     domains: ["images.marblecms.com"],
