@@ -85,7 +85,7 @@ function PageClient({ id, user }: PageClientProps) {
         accepteeEmail: String(user?.email || ""),
         accepteeUserName: String(user?.name || ""),
         inviterEmail: String(invitation?.inviterEmail || ""),
-        workSpaceName: String(invitation?.organizationName || ""),
+        workspaceName: String(invitation?.organizationName || ""),
       };
 
       setInviteStatus("accepted");

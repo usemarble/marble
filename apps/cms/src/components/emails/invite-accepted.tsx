@@ -18,9 +18,7 @@ interface InviteAcceptedEmailProps {
   inviterEmail: string;
   accepteeEmail: string;
   accepteeUserName: string;
-  workSpaceName: string;
-  teamImage?: string;
-  accepteeImage?: string;
+  workspaceName: string;
 }
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
@@ -29,11 +27,9 @@ export const InviteAcceptedEmail = ({
   inviterEmail,
   accepteeEmail,
   accepteeUserName,
-  workSpaceName,
-  teamImage,
-  accepteeImage,
+  workspaceName,
 }: InviteAcceptedEmailProps) => {
-  const previewText = `${accepteeUserName} has joined ${workSpaceName} on Marble`;
+  const previewText = `${accepteeUserName} has joined ${workspaceName} on Marble`;
 
   return (
     <Html>
@@ -53,24 +49,23 @@ export const InviteAcceptedEmail = ({
             </Section>
             <Heading className="text-black text-[24px] font-normal text-center p-0 my-[30px] mx-0">
               <strong>{accepteeUserName}</strong> has joined{" "}
-              <strong>{workSpaceName}</strong>
+              <strong>{workspaceName}</strong>
             </Heading>
             <Text className="text-black text-[14px] leading-[24px] text-center">
               <strong>{accepteeEmail}</strong> has successfully accepted your
-              invitation and joined the <strong>{workSpaceName}</strong>{" "}
+              invitation and joined the <strong>{workspaceName}</strong>{" "}
               workspace on <strong>Marble.</strong>
             </Text>
-            <Section>
-            </Section>
             <Hr className="border border-solid border-[#eaeaea] my-[26px] mx-0 w-full" />
             <Text className="text-[#666666] text-[12px] leading-[24px]">
               This notification was sent to{" "}
               <span className="text-black">{inviterEmail}</span> because{" "}
               <strong className="text-black">{accepteeUserName}</strong>{" "}
               accepted an invitation you sent for the{" "}
-              <strong className="text-black">{workSpaceName}</strong> workspace.
-              If you believe this is an error or have any questions, please send
-              an email to support@marblecms.com to get in touch with us.
+              <strong className="text-black">{workspaceName}</strong> workspace.
+              If you believe this is an error or have any questions, please email
++             <a href="mailto:support@marblecms.com" className="text-black"> support@marblecms.com</a>
++             to get in touch with us.
             </Text>
           </Container>
         </Body>

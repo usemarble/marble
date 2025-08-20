@@ -23,9 +23,7 @@ interface SendInviatationAcceptedEmailProps {
   inviterEmail: string;
   accepteeEmail: string;
   accepteeUserName: string;
-  workSpaceName: string;
-  teamImage?: string;
-  accepteeImage?: string;
+  workspaceName: string;
 }
 
 export async function sendInviteEmailAction({
@@ -126,7 +124,7 @@ export async function sendInvitationAcceptedEmailAction({
   inviterEmail,
   accepteeEmail,
   accepteeUserName,
-  workSpaceName,
+  workspaceName,
 }: SendInviatationAcceptedEmailProps) {
   if (!process.env.RESEND_API_KEY) {
     console.error("RESEND_API_KEY is not set");
@@ -145,12 +143,12 @@ export async function sendInvitationAcceptedEmailAction({
     const response = await resend.emails.send({
       from: "Marble <emails@marblecms.com>",
       to: inviterEmail,
-      subject: `${accepteeUserName || accepteeEmail} accepted the invite for ${workSpaceName} on Marble`,
+      subject: `${accepteeUserName || accepteeEmail} accepted the invite for ${workspaceName} on Marble`,
       react: InviteAcceptedEmail({
         accepteeUserName: accepteeUserName,
         accepteeEmail: accepteeEmail,
         inviterEmail: inviterEmail,
-        workSpaceName: workSpaceName,
+        workspaceName: workspaceName,
       }),
     });
 
