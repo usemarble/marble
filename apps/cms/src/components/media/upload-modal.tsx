@@ -72,14 +72,14 @@ export function MediaUploadModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="w-[calc(100vw-10rem)] max-w-none">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Upload Media</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col gap-4 py-4">
           {file ? (
             <div className="flex flex-col gap-4">
-              <div className="relative w-full h-64">
+              <div className="relative w-full min-h-[500px]">
                 {file.type.startsWith("image/") ? (
                   // biome-ignore lint/performance/noImgElement: <>
                   <img
