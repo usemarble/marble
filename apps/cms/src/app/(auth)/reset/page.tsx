@@ -9,11 +9,15 @@ export const metadata: Metadata = {
 };
 
 interface PageProps {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-export default function ResetPage({ searchParams }: PageProps) {
-  const token = searchParams.token as string | undefined;
+export default async function ResetPage({ searchParams }: PageProps) {
+  let token = (await searchParams).token;
+
+  if (Array.isArray(token)) {
+    token = token[0];
+  }
 
   // If token exists, show ResetForm
   if (token) {
