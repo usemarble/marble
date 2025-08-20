@@ -20,6 +20,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { organization } from "@/lib/auth/client";
+import { sendInvitationAcceptedEmailAction } from "@/lib/actions/email";
 
 interface PageClientProps {
   id: string;
@@ -59,21 +60,54 @@ function PageClient({ id, user }: PageClientProps) {
   const [rejecting, setRejecting] = useState(false);
   const router = useRouter();
 
-  const handleAccept = async () => {
+   const handleAccept = async () => {
     setAccepting(true);
-    await organization
-      .acceptInvitation({
+    setError(null);
+
+    if (!invitation?.organizationSlug) {
+      setError("Invalid invitation data");
+      setAccepting(false);
+      return;
+    }
+
+    try {
+      const { error } = await organization.acceptInvitation({
         invitationId: id,
-      })
-      .then((res) => {
-        if (res.error) {
-          setError(res.error.message || "An error occurred");
-        } else {
-          setInviteStatus("accepted");
-          setAccepting(false);
-          router.push(`/${invitation?.organizationSlug}`);
-        }
       });
+
+      if (error) {
+        setError(error.message || "An error occurred");
+        setAccepting(false);
+        return;
+      }
+
+      const emailData = {
+        accepteeEmail: String(user?.email || ""),
+        accepteeUserName: String(user?.name || ""),
+        inviterEmail: String(invitation?.inviterEmail || ""),
+        workSpaceName: String(invitation?.organizationName || ""),
+      };
+
+      setInviteStatus("accepted");
+
+      try {
+        await sendInvitationAcceptedEmailAction(emailData);
+      } catch (emailError) {
+        console.error("Failed to send notification email:", emailError);
+      }
+
+      setAccepting(false);
+      router.push(`/${invitation.organizationSlug}`);
+    } catch (error) {
+      setAccepting(false);
+      if (error instanceof Error) {
+        setError(error.message);
+      } else if (typeof error === "string") {
+        setError(error);
+      } else {
+        setError("An unexpected error occurred while accepting the invitation");
+      }
+    }
   };
 
   const handleReject = async () => {

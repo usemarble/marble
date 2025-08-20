@@ -5,6 +5,7 @@ import { Resend } from "resend";
 import { InviteUserEmail } from "@/components/emails/invite";
 import { VerifyUserEmail } from "@/components/emails/verify";
 import { getServerSession } from "../auth/session";
+import { InviteAcceptedEmail } from "@/components/emails/invite-accepted";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -16,6 +17,15 @@ interface SendInviteEmailProps {
   workspaceName: string;
   inviteLink: string;
   teamLogo?: string | null;
+}
+
+interface SendInviatationAcceptedEmailProps {
+  inviterEmail: string;
+  accepteeEmail: string;
+  accepteeUserName: string;
+  workSpaceName: string;
+  teamImage?: string;
+  accepteeImage?: string;
 }
 
 export async function sendInviteEmailAction({
@@ -95,6 +105,52 @@ export async function sendVerificationEmailAction({
         userEmail,
         otp,
         type,
+      }),
+    });
+
+    console.log("Email sent successfully:", response);
+    return NextResponse.json(
+      { message: "Email sent successfully" },
+      { status: 200 },
+    );
+  } catch (error) {
+    console.error("Detailed error sending email:", error);
+    return NextResponse.json(
+      { error: "Failed to send email", details: error },
+      { status: 500 },
+    );
+  }
+}
+
+export async function sendInvitationAcceptedEmailAction({
+  inviterEmail,
+  accepteeEmail,
+  accepteeUserName,
+  workSpaceName,
+}: SendInviatationAcceptedEmailProps) {
+  if (!process.env.RESEND_API_KEY) {
+    console.error("RESEND_API_KEY is not set");
+    return { error: "Email configuration missing" };
+  }
+  const session = await getServerSession();
+
+  if (!session) {
+    return NextResponse.json(
+      { error: "Failed to send email" },
+      { status: 401 },
+    );
+  }
+
+  try {
+    const response = await resend.emails.send({
+      from: "Marble <emails@marblecms.com>",
+      to: inviterEmail,
+      subject: `${accepteeUserName || accepteeEmail} accepted the invite for ${workSpaceName} on Marble`,
+      react: InviteAcceptedEmail({
+        accepteeUserName: accepteeUserName,
+        accepteeEmail: accepteeEmail,
+        inviterEmail: inviterEmail,
+        workSpaceName: workSpaceName,
       }),
     });
 

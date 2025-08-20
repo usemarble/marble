@@ -1,0 +1,119 @@
+import {
+  Body,
+  Column,
+  Container,
+  Head,
+  Heading,
+  Hr,
+  Html,
+  Img,
+  Preview,
+  Row,
+  Section,
+  Tailwind,
+  Text,
+} from "@react-email/components";
+
+interface InviteAcceptedEmailProps {
+  inviterEmail: string;
+  accepteeEmail: string;
+  accepteeUserName: string;
+  workSpaceName: string;
+  teamImage?: string;
+  accepteeImage?: string;
+}
+
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
+
+export const InviteAcceptedEmail = ({
+  inviterEmail,
+  accepteeEmail,
+  accepteeUserName,
+  workSpaceName,
+  teamImage,
+  accepteeImage,
+}: InviteAcceptedEmailProps) => {
+  const previewText = `${accepteeUserName} has joined ${workSpaceName} on Marble`;
+
+  return (
+    <Html>
+      <Head />
+      <Preview>{previewText}</Preview>
+      <Tailwind>
+        <Body className="bg-white my-auto mx-auto font-sans px-2">
+          <Container className="border border-solid border-[#eaeaea] rounded my-[40px] mx-auto p-[20px] max-w-[465px]">
+            <Section className="mt-[32px]">
+              <Img
+                src={`${baseUrl}/logo.png`}
+                width="40"
+                height="37"
+                alt="logo"
+                className="my-0 mx-auto"
+              />
+            </Section>
+            <Heading className="text-black text-[24px] font-normal text-center p-0 my-[30px] mx-0">
+              <strong>{accepteeUserName}</strong> has joined{" "}
+              <strong>{workSpaceName}</strong>
+            </Heading>
+            <Text className="text-black text-[14px] leading-[24px] text-center">
+              <strong>{accepteeEmail}</strong> has successfully accepted your
+              invitation and joined the <strong>{workSpaceName}</strong>{" "}
+              workspace on <strong>Marble.</strong>
+            </Text>
+            <Section>
+              <Row>
+                <Column align="right">
+                  {accepteeImage ? (
+                    <Img
+                      className="rounded-full"
+                      src={accepteeImage}
+                      width="64"
+                      height="64"
+                      alt={accepteeUserName}
+                    />
+                  ) : (
+                    <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 text-2xl font-bold">
+                      {accepteeUserName.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                </Column>
+                <Column align="center">
+                  <Text className="text-black text-[14px] leading-[24px]">
+                    &rarr;
+                  </Text>
+                </Column>
+                <Column align="left">
+                  {teamImage ? (
+                    <Img
+                      className="rounded-full"
+                      src={teamImage}
+                      width="64"
+                      height="64"
+                      alt={workSpaceName}
+                    />
+                  ) : (
+                    <div className="w-16 h-16 bg-blue-200 rounded-full flex items-center justify-center text-blue-700 text-2xl font-bold">
+                      {workSpaceName.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                </Column>
+              </Row>
+            </Section>
+            <Hr className="border border-solid border-[#eaeaea] my-[26px] mx-0 w-full" />
+            <Text className="text-[#666666] text-[12px] leading-[24px]">
+              This notification was sent to{" "}
+              <span className="text-black">{inviterEmail}</span> because{" "}
+              <strong className="text-black">{accepteeUserName}</strong>{" "}
+              accepted an invitation you sent for the{" "}
+              <strong className="text-black">{workSpaceName}</strong> workspace.
+              If you believe this is an error or have any questions, please send
+              an email to support@marblecms.com to get in touch with us.
+            </Text>
+          </Container>
+        </Body>
+      </Tailwind>
+    </Html>
+  );
+};
+
+export default InviteAcceptedEmail;
