@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 /* Plugins (and related config) */
 @plugin "@tailwindcss/typography";
@@ -21,13 +21,13 @@
 
 @theme inline {
   --font-sans:
-    Funnel-Sans, ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
-    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    Funnel-Sans, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-mono:
     NovaMono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    'Liberation Mono', 'Courier New', monospace;
+    "Liberation Mono", "Courier New", monospace;
   --font-serif:
-    Literata, ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+    Literata, ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
 
   /* border radius */
   --radius-lg: var(--radius);
