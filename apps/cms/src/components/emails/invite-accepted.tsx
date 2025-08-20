@@ -61,43 +61,6 @@ export const InviteAcceptedEmail = ({
               workspace on <strong>Marble.</strong>
             </Text>
             <Section>
-              <Row>
-                <Column align="right">
-                  {accepteeImage ? (
-                    <Img
-                      className="rounded-full"
-                      src={accepteeImage}
-                      width="64"
-                      height="64"
-                      alt={accepteeUserName}
-                    />
-                  ) : (
-                    <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 text-2xl font-bold">
-                      {accepteeUserName.charAt(0).toUpperCase()}
-                    </div>
-                  )}
-                </Column>
-                <Column align="center">
-                  <Text className="text-black text-[14px] leading-[24px]">
-                    &rarr;
-                  </Text>
-                </Column>
-                <Column align="left">
-                  {teamImage ? (
-                    <Img
-                      className="rounded-full"
-                      src={teamImage}
-                      width="64"
-                      height="64"
-                      alt={workSpaceName}
-                    />
-                  ) : (
-                    <div className="w-16 h-16 bg-blue-200 rounded-full flex items-center justify-center text-blue-700 text-2xl font-bold">
-                      {workSpaceName.charAt(0).toUpperCase()}
-                    </div>
-                  )}
-                </Column>
-              </Row>
             </Section>
             <Hr className="border border-solid border-[#eaeaea] my-[26px] mx-0 w-full" />
             <Text className="text-[#666666] text-[12px] leading-[24px]">
