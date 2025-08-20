@@ -131,7 +131,7 @@ function PageClient() {
   };
 
   return (
-    <div className="flex flex-col gap-8 py-12 max-w-screen-md mx-auto w-full">
+    <div className="flex flex-col gap-8 py-12 max-w-(--breakpoint-md) mx-auto w-full">
       <div className="py-4">
         <div className="flex items-center gap-2 justify-between">
           <h1 className="text-lg font-medium">Account Settings</h1>
@@ -189,7 +189,7 @@ function PageClient() {
                   />
                   <div
                     className={cn(
-                      "absolute inset-0 flex items-center justify-center transition-opacity duration-300 bg-background/50 backdrop-blur-sm size-full",
+                      "absolute inset-0 flex items-center justify-center transition-opacity duration-300 bg-background/50 backdrop-blur-xs size-full",
                       isUploading
                         ? "opacity-100"
                         : "opacity-0 group-hover:opacity-100",

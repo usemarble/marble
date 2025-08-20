@@ -181,7 +181,7 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
                   alt="cover preview"
                   className="w-full h-full object-cover rounded-md"
                 />
-                <div className="absolute grid size-full inset-0 place-content-center bg-black/50 rounded-md p-2 backdrop-blur-sm">
+                <div className="absolute grid size-full inset-0 place-content-center bg-black/50 rounded-md p-2 backdrop-blur-xs">
                   {isUploading ? (
                     <div className="flex flex-col items-center gap-2">
                       <Spinner className="size-5 animate-spin text-white" />

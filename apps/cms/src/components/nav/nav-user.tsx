@@ -46,7 +46,7 @@ export function NavUser() {
         side={isMobile ? "bottom" : "top"}
         align="start"
         sideOffset={5}
-        className="w-[--radix-dropdown-menu-trigger-width] rounded-lg min-w-52 text-sidebar-foreground"
+        className="w-(--radix-dropdown-menu-trigger-width) rounded-lg min-w-52 text-sidebar-foreground"
       >
         <DropdownMenuLabel className="p-0 font-normal">
           <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">

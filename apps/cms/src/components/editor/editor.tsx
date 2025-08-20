@@ -34,7 +34,7 @@ export function Editor({ value, onChange }: EditorProps) {
           },
           attributes: {
             class:
-              "prose lg:prose-lg dark:prose-invert min-h-96 sm:px-4 focus:outline-none max-w-full prose-blockquote:border-border",
+              "prose lg:prose-lg dark:prose-invert min-h-96 sm:px-4 focus:outline-hidden max-w-full prose-blockquote:border-border",
           },
         }}
       >
