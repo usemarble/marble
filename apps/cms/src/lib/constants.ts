@@ -38,6 +38,31 @@ export const PRICING_PLANS: PricingPlan[] = [
 
 export const timezones = Intl.supportedValuesOf("timeZone");
 
+export const IMAGE_DROPZONE_ACCEPT = [
+  ".jpeg",
+  ".jpg",
+  ".png",
+  ".gif",
+  ".webp",
+  ".avif",
+];
+
+export const MEDIA_DROPZONE_ACCEPT = {
+  "image/*": [".jpeg", ".jpg", ".png", ".gif", ".webp", ".avif", ".svg"],
+  "video/*": [
+    ".mp4",
+    ".mov",
+    ".qt",
+    ".avi",
+    ".wmv",
+    ".flv",
+    ".mpeg",
+    ".mpg",
+    ".webm",
+    "",
+  ],
+};
+
 export const ALLOWED_RASTER_MIME_TYPES = [
   "image/jpeg",
   "image/png",

@@ -3,6 +3,7 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { InviteUserEmail } from "@/components/emails/invite";
+import { ResetPasswordEmail } from "@/components/emails/reset";
 import { VerifyUserEmail } from "@/components/emails/verify";
 import { getServerSession } from "../auth/session";
 import { InviteAcceptedEmail } from "@/components/emails/invite-accepted";
@@ -120,11 +121,12 @@ export async function sendVerificationEmailAction({
   }
 }
 
+
 export async function sendInvitationAcceptedEmailAction({
   inviterEmail,
   accepteeEmail,
   accepteeUserName,
-  workspaceName,
+  workdpaceName,
 }: SendInviatationAcceptedEmailProps) {
   if (!process.env.RESEND_API_KEY) {
     console.error("RESEND_API_KEY is not set");
@@ -143,7 +145,7 @@ export async function sendInvitationAcceptedEmailAction({
     const response = await resend.emails.send({
       from: "Marble <emails@marblecms.com>",
       to: inviterEmail,
-      subject: `${accepteeUserName || accepteeEmail} accepted the invite for ${workspaceName} on Marble`,
+      subject: `${accepteeUserName || accepteeEmail} accepted the invite for ${workSpaceName} on Marble`,
       react: InviteAcceptedEmail({
         accepteeUserName: accepteeUserName,
         accepteeEmail: accepteeEmail,
@@ -165,3 +167,42 @@ export async function sendInvitationAcceptedEmailAction({
     );
   }
 }
+
+  
+  
+  
+export async function sendResetPasswordAction({
+  userEmail,
+  resetLink,
+}: {
+  userEmail: string;
+  resetLink: string;
+}) {
+  console.log("called verification email");
+  try {
+    const response = await resend.emails.send({
+      from: "MarbleCMS <emails@marblecms.com>",
+      to: userEmail,
+      subject: "Reset Your Password",
+      react: ResetPasswordEmail({
+        userEmail,
+        resetLink,
+      }),
+    });
+
+    console.log("Email sent successfully:", response);
+    return NextResponse.json(
+      { message: "Email sent successfully" },
+      { status: 200 },
+    );
+  } catch (error) {
+    console.error("Detailed error sending email:", error);
+    return NextResponse.json(
+      { error: "Failed to send email", details: error },
+      { status: 500 },
+    );
+  }
+ 
+
+
+

@@ -13,7 +13,7 @@ import { Button } from "@marble/ui/components/button";
 import { toast } from "@marble/ui/components/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/lib/queries/keys";
-import type { Media } from "@/types/misc";
+import type { Media } from "@/types/media";
 import { ButtonLoader } from "../ui/loader";
 
 interface DeleteMediaProps {
