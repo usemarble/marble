@@ -3,6 +3,7 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { InviteUserEmail } from "@/components/emails/invite";
+import { ResetPasswordEmail } from "@/components/emails/reset";
 import { VerifyUserEmail } from "@/components/emails/verify";
 import { getServerSession } from "../auth/session";
 
@@ -95,6 +96,44 @@ export async function sendVerificationEmailAction({
         userEmail,
         otp,
         type,
+      }),
+    });
+
+    console.log("Email sent successfully:", response);
+    return NextResponse.json(
+      { message: "Email sent successfully" },
+      { status: 200 },
+    );
+  } catch (error) {
+    console.error("Detailed error sending email:", error);
+    return NextResponse.json(
+      { error: "Failed to send email", details: error },
+      { status: 500 },
+    );
+  }
+}
+
+export async function sendResetPasswordAction({
+  userEmail,
+  resetLink,
+}: {
+  userEmail: string;
+  resetLink: string;
+}) {
+  if (!process.env.RESEND_API_KEY) {
+    console.error("RESEND_API_KEY is not set");
+    return { error: "Email configuration missing" };
+  }
+
+  console.log("called verification email");
+  try {
+    const response = await resend.emails.send({
+      from: "MarbleCMS <emails@marblecms.com>",
+      to: userEmail,
+      subject: "Reset Your Password",
+      react: ResetPasswordEmail({
+        userEmail,
+        resetLink,
       }),
     });
 
