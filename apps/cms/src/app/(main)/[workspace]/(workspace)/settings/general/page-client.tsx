@@ -366,7 +366,7 @@ function PageClient() {
                 />
                 <div
                   className={cn(
-                    "absolute inset-0 flex items-center justify-center transition-opacity duration-300 bg-background/50 backdrop-blur-sm size-full",
+                    "absolute inset-0 flex items-center justify-center transition-opacity duration-300 bg-background/50 backdrop-blur-xs size-full",
                     isUploading
                       ? "opacity-100"
                       : "opacity-0 group-hover:opacity-100",

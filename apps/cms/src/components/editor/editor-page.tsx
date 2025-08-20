@@ -190,7 +190,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
 
   return (
     <>
-      <SidebarInset className="bg-sidebar/70 rounded-xl shadow-sm border min-h-[calc(100vh-1rem)] h-[calc(100vh-1rem)]">
+      <SidebarInset className="bg-sidebar/70 rounded-xl shadow-xs border min-h-[calc(100vh-1rem)] h-[calc(100vh-1rem)]">
         <header className="sticky top-0 p-3 z-50 flex justify-between">
           <div className="flex gap-4 items-center">
             <Link
@@ -236,7 +236,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                   placeholder="Title"
                   {...register("title")}
                   onKeyDown={handleKeyDown}
-                  className="mb-2 resize-none scrollbar-hide w-full bg-transparent sm:px-4 text-4xl font-semibold focus:outline-none focus:ring-0"
+                  className="mb-2 resize-none scrollbar-hide w-full bg-transparent sm:px-4 text-4xl font-semibold focus:outline-hidden focus:ring-0"
                 />
                 {errors.title && (
                   <p className="text-sm px-1 font-medium text-destructive">
