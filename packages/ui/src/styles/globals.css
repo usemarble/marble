@@ -193,7 +193,7 @@
     background-color: var(--scrollbar-thumb-hover);
   }
   ::-webkit-scrollbar-track {
-    background: var(--background) / 0.8;
+    background: --alpha(var(--background) / 80%);
   }
 }
 
