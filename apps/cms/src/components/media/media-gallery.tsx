@@ -8,6 +8,7 @@ import { DeleteMediaModal } from "@/components/media/delete-modal";
 import { MediaCard } from "@/components/media/media-card";
 import { MediaUploadModal } from "@/components/media/upload-modal";
 import { QUERY_KEYS } from "@/lib/queries/keys";
+import { useWorkspace } from "@/providers/workspace";
 import type { MediaType } from "@/types/media";
 
 type Media = {
@@ -28,6 +29,7 @@ export function MediaGallery({ media }: MediaGalleryProps) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [mediaToDelete, setMediaToDelete] = useState<Media | null>(null);
   const queryClient = useQueryClient();
+  const { activeWorkspace } = useWorkspace();
 
   const handleUploadComplete = (newMedia?: Media) => {
     if (newMedia) {
@@ -37,9 +39,9 @@ export function MediaGallery({ media }: MediaGalleryProps) {
     }
   };
 
-  const handleDelete = (id: string) => {
+  const handleDeleteComplete = (id: string) => {
     queryClient.setQueryData(
-      [QUERY_KEYS.MEDIA],
+      [QUERY_KEYS.MEDIA, activeWorkspace?.slug],
       (oldData: Media[] | undefined) => {
         return oldData ? oldData.filter((m) => m.id !== id) : [];
       },
@@ -77,7 +79,7 @@ export function MediaGallery({ media }: MediaGalleryProps) {
         <DeleteMediaModal
           isOpen={showDeleteModal}
           setIsOpen={setShowDeleteModal}
-          onDeleteComplete={handleDelete}
+          onDeleteComplete={handleDeleteComplete}
           mediaToDelete={mediaToDelete}
         />
       )}

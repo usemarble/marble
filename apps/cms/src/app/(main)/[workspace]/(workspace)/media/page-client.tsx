@@ -1,9 +1,8 @@
 "use client";
 
 import { Button } from "@marble/ui/components/button";
-import { Images } from "@phosphor-icons/react";
+import { Images, Upload } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { UploadCloud } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
@@ -48,7 +47,7 @@ function PageClient() {
                 Images you upload in this workspace will appear here.
               </p>
               <Button onClick={() => setShowUploadModal(true)} size="sm">
-                <UploadCloud size={16} />
+                <Upload size={16} />
                 <span>Upload image</span>
               </Button>
             </div>

@@ -12,6 +12,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { MediaDropzone } from "@/components/shared/dropzone";
+import { uploadFile } from "@/lib/media/upload";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { Media } from "@/types/media";
 import { ButtonLoader } from "../ui/loader";
@@ -33,20 +34,11 @@ export function MediaUploadModal({
 
   const { mutate: uploadMedia, isPending: isUploading } = useMutation({
     mutationFn: async (file: File) => {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const response = await fetch("/api/uploads/media", {
-        method: "POST",
-        body: formData,
+      const media = await uploadFile({
+        file,
+        type: "media",
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to upload media");
-      }
-
-      return response.json();
+      return media;
     },
     onSuccess: (data: Media) => {
       queryClient.invalidateQueries({
@@ -72,14 +64,14 @@ export function MediaUploadModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="w-[calc(100vw-10rem)] max-w-none">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Upload Media</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col gap-4 py-4">
           {file ? (
             <div className="flex flex-col gap-4">
-              <div className="relative w-full h-64">
+              <div className="relative w-full min-h-[500px]">
                 {file.type.startsWith("image/") ? (
                   // biome-ignore lint/performance/noImgElement: <>
                   <img

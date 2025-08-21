@@ -12,7 +12,6 @@ import {
   YoutubeLogo,
 } from "@phosphor-icons/react";
 import { Command, createSuggestionItems, renderItems } from "novel/extensions";
-import { uploadFn } from "./image-upload";
 
 export const suggestionItems = createSuggestionItems([
   {
@@ -140,7 +139,7 @@ export const suggestionItems = createSuggestionItems([
         if (input.files?.length) {
           const file = input.files[0];
           const pos = editor.view.state.selection.from;
-          if (file) uploadFn(file, editor.view, pos);
+          // if (file) uploadFile(file, editor.view, pos);
         }
       };
       input.click();

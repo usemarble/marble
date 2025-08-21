@@ -19,19 +19,21 @@ import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
-import { Copy, Image, UploadSimple } from "@phosphor-icons/react";
+import { Image, UploadSimple } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
-import { Check, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
 import { DeleteWorkspaceModal } from "@/components/settings/delete-workspace-modal";
+import { CopyButton } from "@/components/ui/copy-button";
 import { TimezoneSelector } from "@/components/ui/timezone-selector";
 import { updateWorkspaceAction } from "@/lib/actions/workspace";
 import { organization } from "@/lib/auth/client";
 import { timezones } from "@/lib/constants";
+import { uploadFile } from "@/lib/media/upload";
 import {
   type NameValues,
   nameSchema,
@@ -48,27 +50,12 @@ function PageClient() {
   const [isNameChanged, setIsNameChanged] = useState(false);
   const [isSlugChanged, setIsSlugChanged] = useState(false);
   const [isTimezoneChanged, setIsTimezoneChanged] = useState(false);
-  const [idCopied, setIdCopied] = useState(false);
-  const [logoCopied, setLogoCopied] = useState(false);
   const [logoUrl, setLogoUrl] = useState(activeWorkspace?.logo);
   const [file, setFile] = useState<File | null>(null);
 
   const { mutate: uploadLogo, isPending: isUploading } = useMutation({
-    mutationFn: async (file: File) => {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const response = await fetch("/api/uploads/logo", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to upload logo");
-      }
-
-      return response.json();
+    mutationFn: (file: File) => {
+      return uploadFile({ file, type: "logo" });
     },
     onSuccess: (data) => {
       setLogoUrl(data.logoUrl);
@@ -181,26 +168,6 @@ function PageClient() {
         error instanceof Error ? error.message : "Failed to update";
       toast.error(errorMessage);
     }
-  };
-
-  const copyWorkspaceId = () => {
-    if (!activeWorkspace?.id) return;
-    setIdCopied(true);
-    navigator.clipboard.writeText(activeWorkspace?.id);
-    toast.success("ID copied to clipboard.");
-    setTimeout(() => {
-      setIdCopied(false);
-    }, 1000);
-  };
-
-  const copyWorkspaceLogo = () => {
-    if (!logoUrl) return;
-    setLogoCopied(true);
-    navigator.clipboard.writeText(logoUrl);
-    toast.success("Logo URL copied to clipboard.");
-    setTimeout(() => {
-      setLogoCopied(false);
-    }, 1000);
   };
 
   const handleLogoUpload = async () => {
@@ -381,21 +348,11 @@ function PageClient() {
               </Label>
             </div>
             <div className="flex items-center gap-2 w-full">
-              <Input defaultValue={logoUrl || undefined} readOnly />
-              <Button
-                variant="outline"
-                type="submit"
-                size="icon"
-                onClick={copyWorkspaceLogo}
-                className="px-3"
-              >
-                <span className="sr-only">Copy</span>
-                {logoCopied ? (
-                  <Check className="size-4" />
-                ) : (
-                  <Copy className="size-4" />
-                )}
-              </Button>
+              <Input value={logoUrl || ""} readOnly />
+              <CopyButton
+                textToCopy={logoUrl || ""}
+                toastMessage="Logo URL copied to clipboard."
+              />
             </div>
           </div>
         </CardContent>
@@ -469,22 +426,12 @@ function PageClient() {
               <Label htmlFor="link" className="sr-only">
                 Link
               </Label>
-              <Input id="link" defaultValue={activeWorkspace?.id} readOnly />
+              <Input id="link" value={activeWorkspace?.id || ""} readOnly />
             </div>
-            <Button
-              variant="outline"
-              type="submit"
-              size="icon"
-              onClick={copyWorkspaceId}
-              className="px-3"
-            >
-              <span className="sr-only">Copy</span>
-              {idCopied ? (
-                <Check className="size-4" />
-              ) : (
-                <Copy className="size-4" />
-              )}
-            </Button>
+            <CopyButton
+              textToCopy={activeWorkspace?.id || ""}
+              toastMessage="ID copied to clipboard."
+            />
           </div>
         </CardContent>
       </Card>
