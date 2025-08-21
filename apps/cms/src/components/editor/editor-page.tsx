@@ -16,17 +16,28 @@ import {
 import { cn } from "@marble/ui/lib/utils";
 import { ArrowElbowUpLeft, SidebarSimple } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Editor } from "@tiptap/core";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import type { JSONContent } from "novel";
+import {
+  EditorContent,
+  type EditorInstance,
+  EditorRoot,
+  type JSONContent,
+  useEditor,
+} from "novel";
+import { handleCommandNavigation } from "novel/extensions";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Editor } from "@/components/editor/editor";
 import { EditorSidebar } from "@/components/editor/editor-sidebar";
 import { HiddenScrollbar } from "@/components/editor/hidden-scrollbar";
 import { type PostValues, postSchema } from "@/lib/validations/post";
 import { useUnsavedChanges } from "@/providers/unsaved-changes";
 import { generateSlug } from "@/utils/string";
+import { BubbleMenu } from "./bubble-menu";
+import { defaultExtensions } from "./extensions";
+import { slashCommand } from "./slash-command-items";
+import { SlashCommandMenu } from "./slash-command-menu";
 import { TextareaAutosize } from "./textarea-autosize";
 
 const getToggleSidebarShortcut = () => {
@@ -49,11 +60,11 @@ function EditorPage({ initialData, id }: EditorPageProps) {
   const params = useParams<{ workspace: string }>();
   const { open, isMobile } = useSidebar();
   const formRef = useRef<HTMLFormElement>(null);
+  const editorRef = useRef<EditorInstance | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const { setHasUnsavedChanges } = useUnsavedChanges();
   const initialDataRef = useRef<PostValues>(initialData);
   const queryClient = useQueryClient();
-
   const isUpdateMode = !!id;
 
   const form = useForm<PostValues>({
@@ -149,7 +160,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      // TODO: focus the editor when user hits enter
+      editorRef.current?.commands.focus();
     }
   };
 
@@ -231,6 +242,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                 <label htmlFor="title" className="sr-only">
                   Enter post your title
                 </label>
+                {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
                 <TextareaAutosize
                   id="title"
                   placeholder="Title"
@@ -245,10 +257,35 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                 )}
               </div>
               <div className="flex flex-col">
-                <Editor
-                  value={JSON.parse(watch("contentJson") || "{}")}
-                  onChange={handleEditorChange}
-                />
+                <EditorRoot>
+                  <EditorContent
+                    initialContent={JSON.parse(watch("contentJson") || "{}")}
+                    immediatelyRender={false}
+                    extensions={[...defaultExtensions, slashCommand]}
+                    onCreate={({ editor }) => {
+                      editorRef.current = editor;
+                    }}
+                    onUpdate={({ editor }) => {
+                      editorRef.current = editor;
+                      const html = editor.getHTML();
+                      const json = editor.getJSON();
+                      handleEditorChange(html, json);
+                    }}
+                    editorProps={{
+                      handleDOMEvents: {
+                        keydown: (_view, event) =>
+                          handleCommandNavigation(event),
+                      },
+                      attributes: {
+                        class:
+                          "prose lg:prose-lg dark:prose-invert min-h-96 sm:px-4 focus:outline-hidden max-w-full prose-blockquote:border-border",
+                      },
+                    }}
+                  >
+                    <BubbleMenu />
+                    <SlashCommandMenu />
+                  </EditorContent>
+                </EditorRoot>
                 {errors.content && (
                   <p className="text-sm px-1 font-medium text-destructive">
                     {errors.content.message}

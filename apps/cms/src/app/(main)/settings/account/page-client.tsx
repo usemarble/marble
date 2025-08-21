@@ -29,6 +29,7 @@ import { ErrorMessage } from "@/components/auth/error-message";
 import { DeleteAccountModal } from "@/components/settings/delete-account-modal";
 import { ThemeSwitch } from "@/components/settings/theme";
 import { ButtonLoader } from "@/components/ui/loader";
+import { uploadFile } from "@/lib/media/upload";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { type ProfileData, profileSchema } from "@/lib/validations/settings";
 import { useUser } from "@/providers/user";
@@ -44,21 +45,8 @@ function PageClient() {
   const [avatarCopied, setAvatarCopied] = useState(false);
 
   const { mutate: uploadAvatar, isPending: isUploading } = useMutation({
-    mutationFn: async (file: File) => {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const response = await fetch("/api/uploads/avatar", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to upload avatar");
-      }
-
-      return response.json();
+    mutationFn: (file: File) => {
+      return uploadFile({ file, type: "avatar" });
     },
     onSuccess: (data) => {
       setAvatarUrl(data.avatarUrl);
@@ -173,6 +161,7 @@ function PageClient() {
                       <ImageIcon className="size-4" />
                     </AvatarFallback>
                   </Avatar>
+                  {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
                   <input
                     title="Upload logo"
                     type="file"

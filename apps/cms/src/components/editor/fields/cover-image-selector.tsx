@@ -24,13 +24,13 @@ import {
 } from "@marble/ui/components/tooltip";
 import { cn } from "@marble/ui/lib/utils";
 import { Check, Images, Info, Spinner, Trash } from "@phosphor-icons/react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { type Control, useController } from "react-hook-form";
 import { z } from "zod";
 import { ImageDropzone } from "@/components/shared/dropzone";
-
+import { uploadFile } from "@/lib/media/upload";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { PostValues } from "@/lib/validations/post";
 import type { Media } from "@/types/media";
@@ -58,29 +58,18 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
   const [urlError, setUrlError] = useState<string | null>(null);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const params = useParams<{ workspace: string }>();
+  const queryClient = useQueryClient();
 
-  const { mutate: uploadMedia, isPending: isUploading } = useMutation({
-    mutationFn: async (file: File) => {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const response = await fetch("/api/uploads/media", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to upload media");
-      }
-
-      return response.json();
-    },
+  const { mutate: uploadCover, isPending: isUploading } = useMutation({
+    mutationFn: (file: File) => uploadFile({ file, type: "media" }),
     onSuccess: (data: Media) => {
       if (data?.url) {
         onChange(data.url);
         toast.success("Uploaded successfully!");
         setFile(undefined);
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_KEYS.MEDIA, params.workspace],
+        });
       } else {
         toast.error("Upload failed: Invalid response from server.");
       }
@@ -206,7 +195,7 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
               onFilesAccepted={(files: File[]) => {
                 if (files[0]) {
                   setFile(files[0]);
-                  uploadMedia(files[0]);
+                  uploadCover(files[0]);
                 }
               }}
               className="w-full h-48 rounded-md border border-dashed bg-background flex items-center justify-center cursor-pointer"

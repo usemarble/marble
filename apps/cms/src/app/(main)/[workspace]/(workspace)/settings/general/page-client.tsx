@@ -32,6 +32,7 @@ import { TimezoneSelector } from "@/components/ui/timezone-selector";
 import { updateWorkspaceAction } from "@/lib/actions/workspace";
 import { organization } from "@/lib/auth/client";
 import { timezones } from "@/lib/constants";
+import { uploadFile } from "@/lib/media/upload";
 import {
   type NameValues,
   nameSchema,
@@ -54,21 +55,8 @@ function PageClient() {
   const [file, setFile] = useState<File | null>(null);
 
   const { mutate: uploadLogo, isPending: isUploading } = useMutation({
-    mutationFn: async (file: File) => {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const response = await fetch("/api/uploads/logo", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to upload logo");
-      }
-
-      return response.json();
+    mutationFn: (file: File) => {
+      return uploadFile({ file, type: "logo" });
     },
     onSuccess: (data) => {
       setLogoUrl(data.logoUrl);

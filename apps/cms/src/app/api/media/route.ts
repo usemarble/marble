@@ -1,28 +1,8 @@
-import { DeleteObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
-
-const ACCESS_KEY_ID = process.env.CLOUDFLARE_ACCESS_KEY_ID;
-const SECRET_ACCESS_KEY = process.env.CLOUDFLARE_SECRET_ACCESS_KEY;
-const BUCKET_NAME = process.env.CLOUDFLARE_BUCKET_NAME;
-const ENDPOINT = process.env.CLOUDFLARE_S3_ENDPOINT;
-
-if (!ACCESS_KEY_ID || !SECRET_ACCESS_KEY || !BUCKET_NAME || !ENDPOINT) {
-  throw new Error("Missing Cloudflare R2 environment variables");
-}
-
-const bucketName = BUCKET_NAME;
-const endpoint = ENDPOINT;
-
-const s3Client = new S3Client({
-  region: "auto",
-  endpoint,
-  credentials: {
-    accessKeyId: ACCESS_KEY_ID,
-    secretAccessKey: SECRET_ACCESS_KEY,
-  },
-});
+import { R2_BUCKET_NAME, r2 } from "@/lib/r2";
 
 export async function GET() {
   const sessionData = await getServerSession();
@@ -33,6 +13,7 @@ export async function GET() {
 
   const media = await db.media.findMany({
     where: { workspaceId: sessionData.session?.activeOrganizationId as string },
+    orderBy: { createdAt: "desc" },
     select: {
       id: true,
       name: true,
@@ -70,9 +51,9 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "Media not found" }, { status: 404 });
     }
 
-    await s3Client.send(
+    await r2.send(
       new DeleteObjectCommand({
-        Bucket: bucketName,
+        Bucket: R2_BUCKET_NAME,
         Key: media.name,
       }),
     );
