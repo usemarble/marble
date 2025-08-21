@@ -95,14 +95,9 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
     }
   };
 
-  const handleUpload = async (file: File) => {
-    if (!editorInstance.editor) return;
-    uploadImage(file);
-  };
-
   // fetch media
   const { data: media } = useQuery({
-    queryKey: [QUERY_KEYS.MEDIA],
+    queryKey: [QUERY_KEYS.MEDIA, activeWorkspace?.slug],
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
       const res = await fetch("/api/media");
@@ -145,14 +140,14 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
                         alt="cover"
                         className="w-full h-full max-h-52 object-cover rounded-md"
                       />
-                      <div className="absolute grid size-full inset-0 place-content-center bg-black/50 rounded-md p-2 backdrop-blur-xs">
-                        {isUploading && (
+                      {isUploading && (
+                        <div className="absolute grid size-full inset-0 place-content-center bg-black/50 rounded-md p-2 backdrop-blur-xs">
                           <div className="flex flex-col items-center gap-2">
                             <Spinner className="size-5 animate-spin text-white" />
                             <p className="text-sm text-white">Uploading...</p>
                           </div>
-                        )}
-                      </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ) : (

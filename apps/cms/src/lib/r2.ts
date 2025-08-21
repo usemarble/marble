@@ -1,3 +1,4 @@
+import "server-only";
 import { S3Client } from "@aws-sdk/client-s3";
 
 const ACCESS_KEY_ID = process.env.CLOUDFLARE_ACCESS_KEY_ID;

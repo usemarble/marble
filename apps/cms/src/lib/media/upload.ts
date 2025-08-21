@@ -68,6 +68,9 @@ export async function uploadFile({
     return result;
   } catch (error) {
     console.error("Upload failed:", error);
-    throw error;
+    if (axios.isAxiosError(error) && error.response?.data?.error) {
+      throw new Error(error.response.data.error);
+    }
+    throw new Error("An unexpected error occurred during upload.");
   }
 }

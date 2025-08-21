@@ -25,7 +25,7 @@ export async function POST(request: Request) {
   const { type, fileType, fileSize } = parsedBody.data;
 
   try {
-    validateUpload({ type, fileType });
+    validateUpload({ type, fileType, fileSize });
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Invalid file type";

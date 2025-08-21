@@ -4,25 +4,46 @@ import {
   ALLOWED_RASTER_MIME_TYPES,
   type AllowedMimeType,
   type AllowedRasterMimeType,
+  MAX_AVATAR_FILE_SIZE,
+  MAX_LOGO_FILE_SIZE,
+  MAX_MEDIA_FILE_SIZE,
 } from "@/lib/constants";
 import type { UploadType } from "@/types/media";
 
 export const uploadAvatarSchema = z.object({
   type: z.literal("avatar"),
-  fileType: z.string(),
-  fileSize: z.number(),
+  fileType: z.coerce.string().nonempty(),
+  fileSize: z.coerce
+    .number()
+    .int()
+    .positive()
+    .max(MAX_AVATAR_FILE_SIZE, {
+      message: `Avatar image must be less than ${MAX_AVATAR_FILE_SIZE / 1024 / 1024}MB`,
+    }),
 });
 
 export const uploadLogoSchema = z.object({
   type: z.literal("logo"),
-  fileType: z.string(),
-  fileSize: z.number(),
+  fileType: z.coerce.string().nonempty(),
+  fileSize: z.coerce
+    .number()
+    .int()
+    .positive()
+    .max(MAX_LOGO_FILE_SIZE, {
+      message: `Logo image must be less than ${MAX_LOGO_FILE_SIZE / 1024 / 1024}MB`,
+    }),
 });
 
 export const uploadMediaSchema = z.object({
   type: z.literal("media"),
-  fileType: z.string(),
-  fileSize: z.number(),
+  fileType: z.coerce.string().nonempty(),
+  fileSize: z.coerce
+    .number()
+    .int()
+    .positive()
+    .max(MAX_MEDIA_FILE_SIZE, {
+      message: `Media file must be less than ${MAX_MEDIA_FILE_SIZE / 1024 / 1024}MB`,
+    }),
 });
 
 export const uploadSchema = z.union([
@@ -31,25 +52,53 @@ export const uploadSchema = z.union([
   uploadMediaSchema,
 ]);
 
+const MAX_SIZES = {
+  avatar: 5 * 1024 * 1024, // 5MB
+  logo: 5 * 1024 * 1024, // 5MB
+  media: 250 * 1024 * 1024, // 250MB
+};
+
 export const completeAvatarSchema = z.object({
   type: z.literal("avatar"),
-  key: z.string(),
-  fileType: z.string(),
-  fileSize: z.number(),
+  key: z
+    .string()
+    .min(3)
+    .max(1024)
+    .refine(
+      (k) =>
+        k.startsWith("avatars/") && !k.includes("..") && !k.startsWith("/"),
+      "Invalid key: must start with avatars/ and not contain path traversal",
+    ),
+  fileType: z.string().min(1),
+  fileSize: z.coerce.number().int().positive(),
 });
 
 export const completeLogoSchema = z.object({
   type: z.literal("logo"),
-  key: z.string(),
-  fileType: z.string(),
-  fileSize: z.number(),
+  key: z
+    .string()
+    .min(3)
+    .max(1024)
+    .refine(
+      (k) => k.startsWith("logos/") && !k.includes("..") && !k.startsWith("/"),
+      "Invalid key: must start with logos/ and not contain path traversal",
+    ),
+  fileType: z.string().min(1),
+  fileSize: z.coerce.number().int().positive(),
 });
 
 export const completeMediaSchema = z.object({
   type: z.literal("media"),
-  key: z.string(),
-  fileType: z.string(),
-  fileSize: z.number(),
+  key: z
+    .string()
+    .min(3)
+    .max(1024)
+    .refine(
+      (k) => k.startsWith("media/") && !k.includes("..") && !k.startsWith("/"),
+      "Invalid key: must start with media/ and not contain path traversal",
+    ),
+  fileType: z.string().min(1),
+  fileSize: z.coerce.number().int().positive(),
   name: z.string(),
 });
 
@@ -62,10 +111,19 @@ export const completeSchema = z.union([
 export function validateUpload({
   type,
   fileType,
+  fileSize,
 }: {
   type: UploadType;
   fileType: string;
+  fileSize: number;
 }) {
+  const maxSize = MAX_SIZES[type];
+  if (fileSize > maxSize) {
+    throw new Error(
+      `File size exceeds the maximum limit of ${maxSize / 1024 / 1024}MB for ${type}.`,
+    );
+  }
+
   switch (type) {
     case "avatar":
     case "logo":
