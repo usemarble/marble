@@ -283,25 +283,28 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
             {media && media.length > 0 ? (
               <ScrollArea className="h-full">
                 <ul className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-4 p-4">
-                  {media.map((item) => (
-                    <li
-                      key={item.id}
-                      className="relative rounded-[4px] h-48 overflow-hidden group"
-                    >
-                      <button
-                        type="button"
-                        onClick={() => handleImageSelect(item.url)}
-                        className="w-full h-full"
+                  {/* We will filter via query params once endpoint is updated */}
+                  {media
+                    .filter((item) => item.type === "image")
+                    .map((item) => (
+                      <li
+                        key={item.id}
+                        className="relative rounded-[4px] h-48 overflow-hidden group"
                       >
-                        {/* biome-ignore lint/performance/noImgElement: <> */}
-                        <img
-                          src={item.url}
-                          alt={item.name}
-                          className="object-cover w-full h-full"
-                        />
-                      </button>
-                    </li>
-                  ))}
+                        <button
+                          type="button"
+                          onClick={() => handleImageSelect(item.url)}
+                          className="w-full h-full"
+                        >
+                          {/* biome-ignore lint/performance/noImgElement: <> */}
+                          <img
+                            src={item.url}
+                            alt={item.name}
+                            className="object-cover w-full h-full"
+                          />
+                        </button>
+                      </li>
+                    ))}
                 </ul>
               </ScrollArea>
             ) : (

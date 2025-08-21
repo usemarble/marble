@@ -34,9 +34,20 @@ async function uploadToR2(presignedUrl: string, file: File) {
 
 async function completeUpload(key: string, file: File, type: UploadType) {
   const filenameParts = file.name.split(".");
-  const extension = filenameParts.pop();
+  const extension = filenameParts.pop() || "";
   const baseName = filenameParts.join(".");
-  const sluggedName = generateSlug(baseName);
+
+  // UX check to potentially avoid wasted uploads from overly long filenames.
+  // The server will still validate this, but truncating here is a bit better.
+  // It avoids us having orphaned files in the storage without a corresponding database record.
+  // Max length is 255 leaving space for extension and dot.
+  const maxBaseNameLength = 240;
+  const truncatedBaseName =
+    baseName.length > maxBaseNameLength
+      ? baseName.substring(0, maxBaseNameLength)
+      : baseName;
+
+  const sluggedName = generateSlug(truncatedBaseName);
   const mediaName = `${sluggedName}.${extension}`;
 
   const response = await axios.post("/api/upload/complete", {

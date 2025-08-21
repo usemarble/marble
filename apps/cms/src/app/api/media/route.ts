@@ -11,8 +11,17 @@ export async function GET() {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
+  const orgId = sessionData.session?.activeOrganizationId;
+
+  if (!orgId) {
+    return NextResponse.json(
+      { error: "Active workspace not found in session" },
+      { status: 400 },
+    );
+  }
+
   const media = await db.media.findMany({
-    where: { workspaceId: sessionData.session?.activeOrganizationId as string },
+    where: { workspaceId: orgId },
     orderBy: { createdAt: "desc" },
     select: {
       id: true,
@@ -57,11 +66,22 @@ export async function DELETE(request: Request) {
       );
     } else {
       try {
-        const url = new URL(media.url);
-        const key = url.pathname.substring(1); // Remove leading '/'
+        const pathname = media.url.startsWith("http")
+          ? new URL(media.url).pathname
+          : media.url;
 
-        if (!key) {
-          throw new Error("Could not extract key from media URL.");
+        let key = pathname.replace(/^\/+/, ""); // Remove leading slash(es)
+
+        // Strip optional bucket prefix if present
+        if (key.startsWith(`${R2_BUCKET_NAME}/`)) {
+          key = key.slice(R2_BUCKET_NAME.length + 1);
+        }
+
+        // Sanitize for traversal or empty segments
+        if (!key || key.includes("..") || key.includes("//")) {
+          throw new Error(
+            "Invalid storage key: contains empty or traversal path segments.",
+          );
         }
 
         await r2.send(

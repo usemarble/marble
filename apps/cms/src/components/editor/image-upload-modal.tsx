@@ -196,24 +196,27 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
               <section className="flex flex-col gap-4 p-4">
                 {media && media.length > 0 ? (
                   <ul className="grid grid-cols-3 gap-2 overflow-y-auto max-h-[400px]">
-                    {media.map((item) => (
-                      <li key={item.id} className="border">
-                        <button
-                          type="button"
-                          onClick={() => handleEmbed(item.url)}
-                        >
-                          {/* biome-ignore lint/performance/noImgElement: <> */}
-                          <img
-                            src={item.url}
-                            alt={item.name}
-                            className="h-24 object-cover"
-                          />
-                        </button>
-                        <p className="text-xs text-muted-foreground line-clamp-1 py-0.5 px-1">
-                          {item.name}
-                        </p>
-                      </li>
-                    ))}
+                    {/* ONCE video extension is added, we need to filter out videos */}
+                    {media
+                      .filter((item) => item.type === "image")
+                      .map((item) => (
+                        <li key={item.id} className="border">
+                          <button
+                            type="button"
+                            onClick={() => handleEmbed(item.url)}
+                          >
+                            {/* biome-ignore lint/performance/noImgElement: <> */}
+                            <img
+                              src={item.url}
+                              alt={item.name}
+                              className="h-24 object-cover"
+                            />
+                          </button>
+                          <p className="text-xs text-muted-foreground line-clamp-1 py-0.5 px-1">
+                            {item.name}
+                          </p>
+                        </li>
+                      ))}
                   </ul>
                 ) : (
                   <div className="h-full grid place-content-center">

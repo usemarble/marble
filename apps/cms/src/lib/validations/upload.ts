@@ -52,10 +52,10 @@ export const uploadSchema = z.union([
   uploadMediaSchema,
 ]);
 
-const MAX_SIZES = {
-  avatar: 5 * 1024 * 1024, // 5MB
-  logo: 5 * 1024 * 1024, // 5MB
-  media: 250 * 1024 * 1024, // 250MB
+const maxSizeByType = {
+  avatar: MAX_AVATAR_FILE_SIZE,
+  logo: MAX_LOGO_FILE_SIZE,
+  media: MAX_MEDIA_FILE_SIZE,
 };
 
 export const completeAvatarSchema = z.object({
@@ -70,7 +70,7 @@ export const completeAvatarSchema = z.object({
       "Invalid key: must start with avatars/ and not contain path traversal",
     ),
   fileType: z.string().min(1),
-  fileSize: z.coerce.number().int().positive(),
+  fileSize: z.coerce.number().int().positive().max(MAX_AVATAR_FILE_SIZE),
 });
 
 export const completeLogoSchema = z.object({
@@ -84,7 +84,7 @@ export const completeLogoSchema = z.object({
       "Invalid key: must start with logos/ and not contain path traversal",
     ),
   fileType: z.string().min(1),
-  fileSize: z.coerce.number().int().positive(),
+  fileSize: z.coerce.number().int().positive().max(MAX_LOGO_FILE_SIZE),
 });
 
 export const completeMediaSchema = z.object({
@@ -98,8 +98,8 @@ export const completeMediaSchema = z.object({
       "Invalid key: must start with media/ and not contain path traversal",
     ),
   fileType: z.string().min(1),
-  fileSize: z.coerce.number().int().positive(),
-  name: z.string(),
+  fileSize: z.coerce.number().int().positive().max(MAX_MEDIA_FILE_SIZE),
+  name: z.string().min(1).max(255),
 });
 
 export const completeSchema = z.union([
@@ -117,7 +117,7 @@ export function validateUpload({
   fileType: string;
   fileSize: number;
 }) {
-  const maxSize = MAX_SIZES[type];
+  const maxSize = maxSizeByType[type];
   if (fileSize > maxSize) {
     throw new Error(
       `File size exceeds the maximum limit of ${maxSize / 1024 / 1024}MB for ${type}.`,

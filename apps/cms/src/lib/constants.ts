@@ -89,4 +89,4 @@ export type AllowedMimeType = (typeof ALLOWED_MIME_TYPES)[number];
 
 export const MAX_AVATAR_FILE_SIZE = 5 * 1024 * 1024;
 export const MAX_LOGO_FILE_SIZE = 5 * 1024 * 1024;
-export const MAX_MEDIA_FILE_SIZE = 25 * 1024 * 1024;
+export const MAX_MEDIA_FILE_SIZE = 250 * 1024 * 1024;
