@@ -10,12 +10,13 @@ import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import { columns, type Post } from "@/components/posts/columns";
 import { PostDataTable } from "@/components/posts/data-table";
 import PageLoader from "@/components/shared/page-loader";
+import { QUERY_KEYS } from "@/lib/queries/keys";
 
 function PageClient() {
   const params = useParams<{ workspace: string }>();
 
   const { data: posts, isLoading } = useQuery({
-    queryKey: ["posts", params.workspace],
+    queryKey: [QUERY_KEYS.POSTS, params.workspace],
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
       const res = await fetch("/api/posts");

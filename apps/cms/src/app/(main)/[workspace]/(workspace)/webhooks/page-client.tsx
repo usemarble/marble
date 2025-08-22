@@ -21,14 +21,27 @@ import { Switch } from "@marble/ui/components/switch";
 import { Copy, Plus, Trash, WebhooksLogo } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MoreHorizontal } from "lucide-react";
+import dynamic from "next/dynamic";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
-import CreateWebhookSheet, {
-  WebhookButton,
-} from "@/components/webhooks/create-webhook";
-import { DeleteWebhookModal } from "@/components/webhooks/delete-webhook";
-import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
+
+const CreateWebhookSheet = dynamic(
+  () => import("@/components/webhooks/create-webhook"),
+);
+
+const WebhookButton = dynamic(() =>
+  import("@/components/webhooks/create-webhook").then(
+    (mod) => mod.WebhookButton,
+  ),
+);
+
+const DeleteWebhookModal = dynamic(() =>
+  import("@/components/webhooks/delete-webhook").then(
+    (mod) => mod.DeleteWebhookModal,
+  ),
+);
 
 type Webhook = {
   id: string;

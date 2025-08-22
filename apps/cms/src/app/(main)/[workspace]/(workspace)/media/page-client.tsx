@@ -3,14 +3,18 @@
 import { Button } from "@marble/ui/components/button";
 import { Images, Upload } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
+import dynamic from "next/dynamic";
 import { useState } from "react";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import { MediaGallery } from "@/components/media/media-gallery";
-import { MediaUploadModal } from "@/components/media/upload-modal";
 import PageLoader from "@/components/shared/page-loader";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { Media } from "@/types/media";
+
+const MediaUploadModal = dynamic(() =>
+  import("@/components/media/upload-modal").then((mod) => mod.MediaUploadModal),
+);
 
 function PageClient() {
   const workspaceId = useWorkspaceId();

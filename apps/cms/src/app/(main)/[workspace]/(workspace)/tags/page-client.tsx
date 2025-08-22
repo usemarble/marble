@@ -3,12 +3,18 @@
 import { Button } from "@marble/ui/components/button";
 import { Plus, Tag } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
+import dynamic from "next/dynamic";
 import { useState } from "react";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
 import { columns } from "@/components/tags/columns";
 import { DataTable } from "@/components/tags/data-table";
-import { CreateTagModal } from "@/components/tags/tag-modals";
+import { QUERY_KEYS } from "@/lib/queries/keys";
+import { useParams } from "next/navigation";
+
+const CreateTagModal = dynamic(() =>
+  import("@/components/tags/tag-modals").then((mod) => mod.CreateTagModal),
+);
 
 interface TagType {
   id: string;
@@ -17,10 +23,11 @@ interface TagType {
 }
 
 function PageClient() {
+  const params = useParams<{ workspace: string }>();
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const { data: tags, isLoading } = useQuery({
-    queryKey: ["tags"],
+    queryKey: [QUERY_KEYS.TAGS, params.workspace],
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
       const res = await fetch("/api/tags");
