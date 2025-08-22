@@ -11040,12 +11040,11 @@ snapshots:
 
   '@tanstack/query-devtools@5.84.0': {}
 
-  '@tanstack/react-query-devtools@5.85.5(@tanstack/react-query@5.85.5(react@19.0.0))(react@19.0.0)':
+  '@tanstack/react-query-devtools@5.85.5(@tanstack/react-query@5.85.5(react@19.1.1))(react@19.1.1)':
     dependencies:
       '@tanstack/query-devtools': 5.84.0
-      '@tanstack/react-query': 5.85.5(react@19.0.0)
-      react: 19.0.0
-
+      '@tanstack/react-query': 5.85.5(react@19.1.1)
+      react: 19.1.1
 
   '@tanstack/react-query@5.85.5(react@19.1.1)':
     dependencies:
