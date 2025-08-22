@@ -4,13 +4,13 @@ import { Button } from "@marble/ui/components/button";
 import { Plus, Tag } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
+import { useParams } from "next/navigation";
 import { useState } from "react";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
 import { columns } from "@/components/tags/columns";
 import { DataTable } from "@/components/tags/data-table";
 import { QUERY_KEYS } from "@/lib/queries/keys";
-import { useParams } from "next/navigation";
 
 const CreateTagModal = dynamic(() =>
   import("@/components/tags/tag-modals").then((mod) => mod.CreateTagModal),
