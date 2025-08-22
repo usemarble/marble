@@ -16,7 +16,6 @@ import {
 import { cn } from "@marble/ui/lib/utils";
 import { ArrowElbowUpLeft, SidebarSimple } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Editor } from "@tiptap/core";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import {
@@ -24,13 +23,13 @@ import {
   type EditorInstance,
   EditorRoot,
   type JSONContent,
-  useEditor,
 } from "novel";
 import { handleCommandNavigation } from "novel/extensions";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { EditorSidebar } from "@/components/editor/editor-sidebar";
 import { HiddenScrollbar } from "@/components/editor/hidden-scrollbar";
+import { useDebounce } from "@/hooks/use-debounce";
 import { type PostValues, postSchema } from "@/lib/validations/post";
 import { useUnsavedChanges } from "@/providers/unsaved-changes";
 import { generateSlug } from "@/utils/string";
@@ -181,23 +180,15 @@ function EditorPage({ initialData, id }: EditorPageProps) {
   }
 
   const title = watch("title");
+  const debouncedTitle = useDebounce(title || "", 300);
 
   useEffect(() => {
-    if (title && !isUpdateMode) {
-      const slug = generateSlug(title);
-      setValue("slug", slug);
-      clearErrors("slug");
-    } else if (
-      title &&
-      isUpdateMode &&
-      initialDataRef.current &&
-      initialDataRef.current.title !== title
-    ) {
-      const slug = generateSlug(title);
+    if (debouncedTitle && !isUpdateMode) {
+      const slug = generateSlug(debouncedTitle);
       setValue("slug", slug);
       clearErrors("slug");
     }
-  }, [title, setValue, clearErrors, isUpdateMode]);
+  }, [debouncedTitle, setValue, clearErrors, isUpdateMode]);
 
   return (
     <>
