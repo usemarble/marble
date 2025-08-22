@@ -4,6 +4,7 @@ import { Button } from "@marble/ui/components/button";
 import { Plus, Tag } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
+import { useParams } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";

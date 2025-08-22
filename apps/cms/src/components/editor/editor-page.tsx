@@ -29,6 +29,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { EditorSidebar } from "@/components/editor/editor-sidebar";
 import { HiddenScrollbar } from "@/components/editor/hidden-scrollbar";
+import { useDebounce } from "@/hooks/use-debounce";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { type PostValues, postSchema } from "@/lib/validations/post";
@@ -188,23 +189,15 @@ function EditorPage({ initialData, id }: EditorPageProps) {
   }
 
   const title = watch("title");
+  const debouncedTitle = useDebounce(title || "", 300);
 
   useEffect(() => {
-    if (title && !isUpdateMode) {
-      const slug = generateSlug(title);
-      setValue("slug", slug);
-      clearErrors("slug");
-    } else if (
-      title &&
-      isUpdateMode &&
-      initialDataRef.current &&
-      initialDataRef.current.title !== title
-    ) {
-      const slug = generateSlug(title);
+    if (debouncedTitle && !isUpdateMode) {
+      const slug = generateSlug(debouncedTitle);
       setValue("slug", slug);
       clearErrors("slug");
     }
-  }, [title, setValue, clearErrors, isUpdateMode]);
+  }, [debouncedTitle, setValue, clearErrors, isUpdateMode]);
 
   return (
     <>
