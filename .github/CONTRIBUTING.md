@@ -93,7 +93,7 @@ Packages contain internal shared modules used across different applications:
 
    You’ll need:
 
-   - A Postgres connection string (from Neon)
+   - A Postgres connection string (either neon or use docker to self host)
 
    - Google and GitHub OAuth credentials (how to get these)
 
