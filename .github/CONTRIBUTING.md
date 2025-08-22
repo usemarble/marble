@@ -107,15 +107,18 @@ Packages contain internal shared modules used across different applications:
 
    ### Option 1: Use Neon (Hosted)
 
-   We use neon for the database so you need to create a Neon project and copy your connection string for prisma
+   We use Neon for the database. Create a Neon project and copy your connection string for Prisma
+   (ensure it includes `sslmode=require`).
 
-   - Paste it in all env files `DATABASE_URL=<YOUR_STRING_HERE>`
+   - Paste it into the relevant env files:
+   - `apps/api/.dev.vars` → `DATABASE_URL=<YOUR_STRING_HERE>`
+   - `apps/cms/.env` → `DATABASE_URL=<YOUR_STRING_HERE>`
+   - `packages/db/.env` → `DATABASE_URL=<YOUR_STRING_HERE>`
 
    - Run migrations:
 
       ```bash
-      cd packages/db
-      pnpm prisma migrate dev --name init
+      pnpm db:migrate
       ```
 
    ### Option 2: Use Docker (Local)
@@ -127,6 +130,9 @@ Packages contain internal shared modules used across different applications:
    ```bash
    # from repo root
    pnpm docker:up
+   # wait for the DB to be healthy (one of):
+   #   pnpm docker:logs    # watch for "database system is ready to accept connections"
+   #   docker compose ps   # ensure STATUS is "healthy"
    pnpm db:migrate
    ```
 
@@ -139,17 +145,16 @@ Packages contain internal shared modules used across different applications:
 
    This will:
   
-   -Build (if needed) and start the Postgres container defined in `docker-compose.yml`.
-   - Expose Postgres on port `5432` using the credentials from the compose file.
-   - Persist data in the `marble_pgdata` Docker volume.
-   - Note: If you already have a local Postgres on port 5432, stop it or adjust the port mapping in `docker-compose.yml`.
+    -Build (if needed) and start the Postgres container defined in `docker-compose.yml`.
+    - Expose Postgres on port `5432` using the credentials from the compose file.
+    - Persist data in the `marble_pgdata` Docker volume.
+    - Note: If you already have a local Postgres on port 5432, stop it or adjust the port mapping in `docker-compose.yml`.
    
    Useful commands:
    
    ```bash
    pnpm docker:logs    # follow DB logs
    pnpm docker:down    # stop containers
-   pnpm docker:clean   # clean 
    pnpm docker:clean   # stop and remove volumes (DESTROYS local data)
    ```
 
