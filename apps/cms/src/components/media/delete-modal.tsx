@@ -12,6 +12,7 @@ import {
 import { Button } from "@marble/ui/components/button";
 import { toast } from "@marble/ui/components/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { Media } from "@/types/media";
 import { ButtonLoader } from "../ui/loader";
@@ -30,6 +31,7 @@ export function DeleteMediaModal({
   onDeleteComplete,
 }: DeleteMediaProps) {
   const queryClient = useQueryClient();
+  const workspaceId = useWorkspaceId();
 
   const { mutate: deleteMedia, isPending } = useMutation({
     mutationFn: async (mediaId: string) => {
@@ -50,9 +52,11 @@ export function DeleteMediaModal({
     },
     onSuccess: (data) => {
       toast.success("Media deleted successfully");
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.MEDIA],
-      });
+      if (workspaceId) {
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.MEDIA(workspaceId),
+        });
+      }
       if (onDeleteComplete) {
         onDeleteComplete(data.id);
       }

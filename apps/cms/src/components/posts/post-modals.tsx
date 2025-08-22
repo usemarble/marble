@@ -12,7 +12,8 @@ import {
 import { Button } from "@marble/ui/components/button";
 import { toast } from "@marble/ui/components/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { QUERY_KEYS } from "@/lib/queries/keys";
 import { ButtonLoader } from "../ui/loader";
 
 export const DeletePostModal = ({
@@ -25,7 +26,7 @@ export const DeletePostModal = ({
   id: string;
 }) => {
   const queryClient = useQueryClient();
-  const params = useParams<{ workspace: string }>();
+  const workspaceId = useWorkspaceId();
 
   const { mutate: deletePost, isPending } = useMutation({
     mutationFn: (postId: string) =>
@@ -34,9 +35,11 @@ export const DeletePostModal = ({
       }),
     onSuccess: () => {
       toast.success("Post deleted");
-      queryClient.invalidateQueries({
-        queryKey: ["posts", params.workspace],
-      });
+      if (workspaceId) {
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.POSTS(workspaceId),
+        });
+      }
       setOpen(false);
     },
     onError: () => {

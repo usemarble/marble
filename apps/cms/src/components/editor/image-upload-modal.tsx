@@ -22,9 +22,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEditor } from "novel";
 import { useState } from "react";
 import { ImageDropzone } from "@/components/shared/dropzone";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { uploadFile } from "@/lib/media/upload";
 import { QUERY_KEYS } from "@/lib/queries/keys";
-import { useWorkspace } from "@/providers/workspace";
 import type { Media } from "@/types/media";
 
 interface ImageUploadModalProps {
@@ -36,7 +36,7 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
   const [embedUrl, setEmbedUrl] = useState("");
   const [file, setFile] = useState<File | undefined>();
   const [isValidatingUrl, setIsValidatingUrl] = useState(false);
-  const { activeWorkspace } = useWorkspace();
+  const workspaceId = useWorkspaceId();
   const editorInstance = useEditor();
   const queryClient = useQueryClient();
 
@@ -53,9 +53,11 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
         toast.success("Image uploaded successfully.");
         setIsOpen(false);
         setFile(undefined);
-        queryClient.invalidateQueries({
-          queryKey: [QUERY_KEYS.MEDIA, activeWorkspace?.slug],
-        });
+        if (workspaceId) {
+          queryClient.invalidateQueries({
+            queryKey: QUERY_KEYS.MEDIA(workspaceId),
+          });
+        }
       } else {
         toast.error("Upload failed: Invalid response from server.");
       }
@@ -97,13 +99,15 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
 
   // fetch media
   const { data: media } = useQuery({
-    queryKey: [QUERY_KEYS.MEDIA, activeWorkspace?.slug],
+    // biome-ignore lint/style/noNonNullAssertion: <>
+    queryKey: QUERY_KEYS.MEDIA(workspaceId!),
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
       const res = await fetch("/api/media");
       const data: Media[] = await res.json();
       return data;
     },
+    enabled: !!workspaceId,
   });
 
   return (

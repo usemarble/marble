@@ -6,7 +6,7 @@ import { Progress } from "@marble/ui/components/progress";
 import { Images, Plugs, Users, WebhooksLogo } from "@phosphor-icons/react";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState } from "react";
-import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
+import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 
 const UpgradeModal = dynamic(() =>
   import("@/components/billing/upgrade-modal").then((mod) => mod.UpgradeModal),

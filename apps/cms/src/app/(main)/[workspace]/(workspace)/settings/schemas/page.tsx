@@ -2,7 +2,7 @@
 
 import { Button } from "@marble/ui/components/button";
 import { Database } from "@phosphor-icons/react";
-import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
+import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 
 function Page() {
   return (
