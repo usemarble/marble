@@ -1,0 +1,20 @@
+services:
+  db:
+    image: bitnami/postgresql:15
+    environment:
+      POSTGRES_USER: usemarble
+      POSTGRES_PASSWORD: justusemarble
+      POSTGRES_DB: marble
+    ports:
+      - "5432:5432"
+    volumes:
+      - marble_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  marble_pgdata:

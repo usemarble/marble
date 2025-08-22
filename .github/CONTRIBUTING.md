@@ -105,6 +105,8 @@ Packages contain internal shared modules used across different applications:
 
 4. Database Setup
 
+   Option 1: Use Neon (Hosted)**
+
    We use neon for the database so you need to create a Neon project and copy your connection string for prisma
 
    - Paste it in all env files `DATABASE_URL=<YOUR_STRING_HERE>`
@@ -115,6 +117,24 @@ Packages contain internal shared modules used across different applications:
       cd packages/db
       pnpm prisma migrate dev --name init
       ```
+
+   Option 2: Use Docker (Local)
+
+   This repository already provides a docker-compose.yml and scripts to run Postgres locally.
+
+   Start the database container:
+
+   ```bash
+   pnpm docker:up
+   pnpm db:migrate
+   ```
+
+
+   This will:
+   
+   Build (if needed) and start the Postgres container defined in docker-compose.yml.
+   
+   Expose it on port 5432 with the credentials from the compose file.
 
 ### Google OAuth
 

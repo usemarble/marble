@@ -1,0 +1,10 @@
+.git
+node_modules
+pnpm-store
+**/.next
+**/.turbo
+**/dist
+**/.output
+**/.vercel
+.env
+.env.*
