@@ -22,13 +22,20 @@ import { cn } from "@marble/ui/lib/utils";
 import { Image, UploadSimple } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
-import { DeleteWorkspaceModal } from "@/components/settings/delete-workspace-modal";
 import { CopyButton } from "@/components/ui/copy-button";
+
+const DeleteWorkspaceModal = dynamic(() =>
+  import("@/components/settings/delete-workspace-modal").then(
+    (mod) => mod.DeleteWorkspaceModal,
+  ),
+);
+
 import { TimezoneSelector } from "@/components/ui/timezone-selector";
 import { updateWorkspaceAction } from "@/lib/actions/workspace";
 import { organization } from "@/lib/auth/client";
