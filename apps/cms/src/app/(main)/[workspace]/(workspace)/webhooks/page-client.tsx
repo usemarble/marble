@@ -24,8 +24,8 @@ import { MoreHorizontal } from "lucide-react";
 import dynamic from "next/dynamic";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
-import { QUERY_KEYS } from "@/lib/queries/keys";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { QUERY_KEYS } from "@/lib/queries/keys";
 
 const CreateWebhookSheet = dynamic(
   () => import("@/components/webhooks/create-webhook"),
