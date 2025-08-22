@@ -4,7 +4,7 @@ import { Button } from "@marble/ui/components/button";
 import { Plus, Tag } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
+import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
 import { columns } from "@/components/tags/columns";
 import { DataTable } from "@/components/tags/data-table";

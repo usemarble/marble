@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
+import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import { columns, type Post } from "@/components/posts/columns";
 import { PostDataTable } from "@/components/posts/data-table";
 import PageLoader from "@/components/shared/page-loader";

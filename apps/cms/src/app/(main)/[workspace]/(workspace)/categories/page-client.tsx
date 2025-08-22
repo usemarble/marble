@@ -8,7 +8,7 @@ import { useState } from "react";
 import { CreateCategoryModal } from "@/components/categories/category-modals";
 import { columns } from "@/components/categories/columns";
 import { DataTable } from "@/components/categories/data-table";
-import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
+import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
 
 interface Category {

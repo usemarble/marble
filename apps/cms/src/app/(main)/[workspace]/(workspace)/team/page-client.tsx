@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
+import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import { columns, type TeamMemberRow } from "@/components/team/columns";
 import { TeamDataTable } from "@/components/team/data-table";
 import { InviteModal } from "@/components/team/invite-modal";

@@ -1,6 +1,6 @@
 export const QUERY_KEYS = {
-  WORKSPACES: "workspaces",
-  WORKSPACE: (slug: string) => ["workspace", slug],
+  WORKSPACE_LIST: "workspaces",
+  WORKSPACE: (id: string) => ["workspace", id],
 
   USER: "user",
 

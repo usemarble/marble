@@ -22,7 +22,7 @@ import { Copy, Plus, Trash, WebhooksLogo } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MoreHorizontal } from "lucide-react";
 import { useParams } from "next/navigation";
-import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
+import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
 import CreateWebhookSheet, {
   WebhookButton,

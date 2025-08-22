@@ -7,7 +7,7 @@ import { Images, Plugs, Users, WebhooksLogo } from "@phosphor-icons/react";
 import { format, isValid, parseISO } from "date-fns";
 import { useState } from "react";
 import { UpgradeModal } from "@/components/billing/upgrade-modal";
-import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
+import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import { usePlan } from "@/hooks/use-plan";
 import { useWorkspace } from "@/providers/workspace";
 

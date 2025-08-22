@@ -46,7 +46,7 @@ export function WorkspaceProvider({
     (!activeWorkspace || activeWorkspace.slug !== workspaceSlug);
 
   const { data: usersWorkspaces } = useQuery({
-    queryKey: [QUERY_KEYS.WORKSPACES],
+    queryKey: [QUERY_KEYS.WORKSPACE_LIST],
     queryFn: async () => {
       const response = await request<Workspace[]>("workspaces");
       return response.data;
@@ -117,7 +117,9 @@ export function WorkspaceProvider({
     },
     onSuccess: (data) => {
       if (data) {
-        queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.WORKSPACES] });
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_KEYS.WORKSPACE_LIST],
+        });
         queryClient.setQueryData(QUERY_KEYS.WORKSPACE(data.slug), data);
         router.push(`/${data.slug}`);
       }
