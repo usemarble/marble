@@ -5,6 +5,7 @@ import { Images, Upload } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import { useState } from "react";
+import { toast } from "sonner";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import { MediaGallery } from "@/components/media/media-gallery";
 import PageLoader from "@/components/shared/page-loader";
@@ -25,9 +26,20 @@ function PageClient() {
     queryKey: QUERY_KEYS.MEDIA(workspaceId!),
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
-      const res = await fetch("/api/media");
-      const data: Media[] = await res.json();
-      return data;
+      try {
+        const res = await fetch("/api/media");
+        if (!res.ok) {
+          throw new Error(
+            `Failed to fetch media: ${res.status} ${res.statusText}`,
+          );
+        }
+        const data: Media[] = await res.json();
+        return data;
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : "Failed to fetch media",
+        );
+      }
     },
     enabled: !!workspaceId,
   });

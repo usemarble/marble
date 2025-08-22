@@ -5,6 +5,7 @@ import { Note } from "@phosphor-icons/react/dist/ssr";
 import { useQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import { columns, type Post } from "@/components/posts/columns";
 import { PostDataTable } from "@/components/posts/data-table";
@@ -20,9 +21,18 @@ function PageClient() {
     queryKey: QUERY_KEYS.POSTS(activeWorkspace?.id!),
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
-      const res = await fetch("/api/posts");
-      const data: Post[] = await res.json();
-      return data;
+      try {
+        const res = await fetch("/api/posts");
+        if (!res.ok) {
+          throw new Error("Failed to fetch posts");
+        }
+        const data: Post[] = await res.json();
+        return data;
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : "Failed to fetch posts",
+        );
+      }
     },
     enabled: !!activeWorkspace?.id,
   });

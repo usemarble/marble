@@ -5,6 +5,7 @@ import { Plus, Tag } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import { useState } from "react";
+import { toast } from "sonner";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
 import { columns } from "@/components/tags/columns";
@@ -31,9 +32,18 @@ function PageClient() {
     queryKey: QUERY_KEYS.TAGS(workspaceId!),
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
-      const res = await fetch("/api/tags");
-      const data: TagType[] = await res.json();
-      return data;
+      try {
+        const res = await fetch("/api/tags");
+        if (!res.ok) {
+          throw new Error("Failed to fetch tags");
+        }
+        const data: TagType[] = await res.json();
+        return data;
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : "Failed to fetch tags",
+        );
+      }
     },
     enabled: !!workspaceId,
   });

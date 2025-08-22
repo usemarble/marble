@@ -12,6 +12,10 @@ import {
 } from "react";
 import { toast } from "sonner";
 import { organization } from "@/lib/auth/client";
+import {
+  WORKSPACE_SCOPED_PREFIXES,
+  type WorkspaceScopedPrefix,
+} from "@/lib/constants";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import type {
   Workspace,
@@ -117,10 +121,21 @@ export function WorkspaceProvider({
     },
     onSuccess: (data) => {
       if (data) {
-        //  TODO:
-        // I should clear workspace-scoped data when switching workspaces
-        // We have tags,categories,posts,media,webhooks
-        // Will neeed to test this properly
+        queryClient.removeQueries({
+          predicate: (query) => {
+            const key = query.queryKey;
+            // Remove workspace-scoped queries
+            return (
+              Array.isArray(key) &&
+              key.length >= 2 &&
+              typeof key[1] === "string" &&
+              WORKSPACE_SCOPED_PREFIXES.includes(
+                key[0] as WorkspaceScopedPrefix,
+              )
+            );
+          },
+        });
+        // Set new workspace data
         queryClient.setQueryData(["workspace_by_slug", data.slug], data);
         queryClient.setQueryData(QUERY_KEYS.WORKSPACE(data.id), data);
         router.push(`/${data.slug}`);

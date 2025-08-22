@@ -59,10 +59,26 @@ export function PageClient() {
   const workspaceId = useWorkspaceId();
   const queryClient = useQueryClient();
 
-  const { data: webhooks, isLoading } = useQuery<Webhook[]>({
+  const { data: webhooks, isLoading } = useQuery({
     // biome-ignore lint/style/noNonNullAssertion: <>
     queryKey: QUERY_KEYS.WEBHOOKS(workspaceId!),
-    queryFn: () => fetch("/api/webhooks").then((res) => res.json()),
+    staleTime: 1000 * 60 * 60,
+    queryFn: async () => {
+      try {
+        const res = await fetch("/api/webhooks");
+        if (!res.ok) {
+          throw new Error(
+            `Failed to fetch webhooks: ${res.status} ${res.statusText}`,
+          );
+        }
+        const data: Webhook[] = await res.json();
+        return data;
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : "Failed to fetch webhooks",
+        );
+      }
+    },
     enabled: !!workspaceId,
   });
 
