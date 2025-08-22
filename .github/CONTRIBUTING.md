@@ -149,6 +149,7 @@ Packages contain internal shared modules used across different applications:
    ```bash
    pnpm docker:logs    # follow DB logs
    pnpm docker:down    # stop containers
+   pnpm docker:clean   # clean 
    pnpm docker:clean   # stop and remove volumes (DESTROYS local data)
    ```
 
