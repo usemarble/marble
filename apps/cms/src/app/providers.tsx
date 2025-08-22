@@ -4,7 +4,7 @@ import { Toaster } from "@marble/ui/components/sonner";
 import { TooltipProvider } from "@marble/ui/components/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
-import { useState, type ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 
 export default function Providers({ children }: { children: ReactNode }) {
   const [queryClient] = useState(
