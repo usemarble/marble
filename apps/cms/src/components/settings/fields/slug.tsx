@@ -6,6 +6,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@marble/ui/components/card";
@@ -22,6 +23,7 @@ import { organization } from "@/lib/auth/client";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { type SlugValues, slugSchema } from "@/lib/validations/workspace";
 import { useWorkspace } from "@/providers/workspace";
+import { generateSlug } from "@/utils/string";
 
 export function Slug() {
   const router = useRouter();
@@ -79,46 +81,52 @@ export function Slug() {
 
   const onSlugSubmit = (payload: SlugValues) => {
     if (!isOwner || !activeWorkspace?.id) return;
-    updateSlug(payload);
+    const cleanSlug = generateSlug(payload.slug);
+    updateSlug({ slug: cleanSlug });
   };
 
   return (
-    <Card className="p-6">
-      <CardHeader>
+    <Card className="pt-2">
+      <CardHeader className="px-6">
         <CardTitle className="text-lg font-medium">Workspace Slug</CardTitle>
         <CardDescription>Your unique workspace slug.</CardDescription>
       </CardHeader>
-      <CardContent>
-        <form
-          onSubmit={slugForm.handleSubmit(onSlugSubmit)}
-          className="flex flex-col gap-2 w-full"
-        >
-          <div className="flex gap-2 items-center">
-            <div className="flex flex-col gap-2 flex-1">
-              <Label htmlFor={slugId} className="sr-only">
-                Slug
-              </Label>
-              <Input
-                id={slugId}
-                {...slugForm.register("slug")}
-                placeholder="workspace"
-                disabled={!isOwner}
-              />
+      <form onSubmit={slugForm.handleSubmit(onSlugSubmit)}>
+        <CardContent className="px-6">
+          <div className="flex flex-col gap-2 w-full">
+            <div className="flex gap-2 items-center">
+              <div className="flex flex-col gap-2 flex-1">
+                <Label htmlFor={slugId} className="sr-only">
+                  Slug
+                </Label>
+                <Input
+                  id={slugId}
+                  {...slugForm.register("slug")}
+                  placeholder="workspace"
+                  disabled={!isOwner}
+                />
+              </div>
             </div>
-            <Button
-              disabled={!isOwner || !slugForm.formState.isDirty || isPending}
-              className={cn("w-20 self-end flex gap-2 items-center")}
-            >
-              {isPending ? <Loader2 className="animate-spin" /> : "Save"}
-            </Button>
+            {slugForm.formState.errors.slug && (
+              <p className="text-xs text-destructive">
+                {slugForm.formState.errors.slug.message}
+              </p>
+            )}
           </div>
-          {slugForm.formState.errors.slug && (
-            <p className="text-xs text-destructive">
-              {slugForm.formState.errors.slug.message}
-            </p>
-          )}
-        </form>
-      </CardContent>
+        </CardContent>
+        <CardFooter className="border-t px-6 py-4 flex justify-between">
+          <p className="text-sm text-muted-foreground">
+            Used in your workspace URL
+          </p>
+          <Button
+            disabled={!isOwner || !slugForm.formState.isDirty || isPending}
+            className={cn("w-20 self-end flex gap-2 items-center")}
+            size="sm"
+          >
+            {isPending ? <Loader2 className="animate-spin" /> : "Save"}
+          </Button>
+        </CardFooter>
+      </form>
     </Card>
   );
 }

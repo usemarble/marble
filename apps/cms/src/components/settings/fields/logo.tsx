@@ -9,6 +9,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@marble/ui/components/card";
@@ -51,27 +52,34 @@ export function Logo() {
     mutationFn: (file: File) => {
       return uploadFile({ file, type: "logo" });
     },
-    onSuccess: (data) => {
-      setLogoUrl(data.logoUrl);
+    onSuccess: async (data) => {
+      const { logoUrl } = data;
+      if (!logoUrl) return;
+
+      setLogoUrl(logoUrl);
       toast.success("Upload complete");
-      updateLogo(data.logoUrl);
+      await updateLogo(logoUrl);
     },
-    onError: (error) => {
+    onError: (error: unknown) => {
       console.error("Upload error:", error);
-      toast.error(error.message);
+      if (error instanceof Error) {
+        toast.error(error.message);
+        return;
+      }
+      toast.error("An unknown error occurred while uploading the logo.");
     },
   });
 
   return (
-    <Card className="p-6">
-      <CardHeader>
+    <Card className="pt-2">
+      <CardHeader className="px-6">
         <CardTitle className="text-lg font-medium">Workspace Logo.</CardTitle>
         <CardDescription>
-          Upload a logo for your workspace. (Square image recommended. Accepted
-          file types: .png, .jpg)
+          Upload a logo for your workspace. (Accepted file types are .png, .jpg,
+          .jpeg, .webp)
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-6">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-5">
             <Label
@@ -127,6 +135,11 @@ export function Logo() {
           </div>
         </div>
       </CardContent>
+      <CardFooter className="border-t px-6 py-6">
+        <p className="text-sm text-muted-foreground">
+          Square images work best for logos
+        </p>
+      </CardFooter>
     </Card>
   );
 }

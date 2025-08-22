@@ -21,13 +21,13 @@ import { Switch } from "@marble/ui/components/switch";
 import { Copy, Plus, Trash, WebhooksLogo } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MoreHorizontal } from "lucide-react";
-import { useParams } from "next/navigation";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
 import CreateWebhookSheet, {
   WebhookButton,
 } from "@/components/webhooks/create-webhook";
 import { DeleteWebhookModal } from "@/components/webhooks/delete-webhook";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 
 type Webhook = {
@@ -43,12 +43,14 @@ type Webhook = {
 };
 
 export function PageClient() {
-  const params = useParams<{ workspace: string }>();
+  const workspaceId = useWorkspaceId();
   const queryClient = useQueryClient();
 
   const { data: webhooks, isLoading } = useQuery<Webhook[]>({
-    queryKey: [QUERY_KEYS.WEBHOOKS, params.workspace],
+    // biome-ignore lint/style/noNonNullAssertion: <>
+    queryKey: QUERY_KEYS.WEBHOOKS(workspaceId!),
     queryFn: () => fetch("/api/webhooks").then((res) => res.json()),
+    enabled: !!workspaceId,
   });
 
   const {
@@ -62,16 +64,17 @@ export function PageClient() {
         body: JSON.stringify({ enabled }),
       }),
     onMutate: async (newWebhookData) => {
+      if (!workspaceId) return;
+
       await queryClient.cancelQueries({
-        queryKey: [QUERY_KEYS.WEBHOOKS, params.workspace],
+        queryKey: QUERY_KEYS.WEBHOOKS(workspaceId),
       });
-      const previousWebhooks = queryClient.getQueryData<Webhook[]>([
-        QUERY_KEYS.WEBHOOKS,
-        params.workspace,
-      ]);
+      const previousWebhooks = queryClient.getQueryData<Webhook[]>(
+        QUERY_KEYS.WEBHOOKS(workspaceId),
+      );
 
       queryClient.setQueryData<Webhook[]>(
-        [QUERY_KEYS.WEBHOOKS, params.workspace],
+        QUERY_KEYS.WEBHOOKS(workspaceId),
         (old) =>
           old?.map((webhook) =>
             webhook.id === newWebhookData.id
@@ -83,18 +86,20 @@ export function PageClient() {
       return { previousWebhooks };
     },
     onError: (_err, _newWebhook, context) => {
-      if (context?.previousWebhooks) {
+      if (context?.previousWebhooks && workspaceId) {
         queryClient.setQueryData(
-          [QUERY_KEYS.WEBHOOKS, params.workspace],
+          QUERY_KEYS.WEBHOOKS(workspaceId),
           context.previousWebhooks,
         );
       }
       toast.error("Failed to update");
     },
     onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.WEBHOOKS, params.workspace],
-      });
+      if (workspaceId) {
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.WEBHOOKS(workspaceId),
+        });
+      }
     },
   });
 
@@ -177,11 +182,13 @@ export function PageClient() {
                         <DeleteWebhookModal
                           webhookId={webhook.id}
                           webhookName={webhook.name}
-                          onDelete={() =>
-                            queryClient.invalidateQueries({
-                              queryKey: [QUERY_KEYS.WEBHOOKS, params.workspace],
-                            })
-                          }
+                          onDelete={() => {
+                            if (workspaceId) {
+                              queryClient.invalidateQueries({
+                                queryKey: QUERY_KEYS.WEBHOOKS(workspaceId),
+                              });
+                            }
+                          }}
                         >
                           <DropdownMenuItem
                             className="text-destructive"

@@ -3,27 +3,29 @@
 import { Button } from "@marble/ui/components/button";
 import { Images, Upload } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
 import { useState } from "react";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import { MediaGallery } from "@/components/media/media-gallery";
 import { MediaUploadModal } from "@/components/media/upload-modal";
 import PageLoader from "@/components/shared/page-loader";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { Media } from "@/types/media";
 
 function PageClient() {
-  const params = useParams<{ workspace: string }>();
+  const workspaceId = useWorkspaceId();
   const [showUploadModal, setShowUploadModal] = useState(false);
 
   const { data: media, isLoading } = useQuery({
-    queryKey: [QUERY_KEYS.MEDIA, params.workspace],
+    // biome-ignore lint/style/noNonNullAssertion: <>
+    queryKey: QUERY_KEYS.MEDIA(workspaceId!),
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
       const res = await fetch("/api/media");
       const data: Media[] = await res.json();
       return data;
     },
+    enabled: !!workspaceId,
   });
 
   if (isLoading) {

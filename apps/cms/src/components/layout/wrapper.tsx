@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "@marble/ui/lib/utils";
 import type { ReactNode } from "react";
 

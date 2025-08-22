@@ -33,10 +33,9 @@ export function Delete() {
   const queryClient = useQueryClient();
 
   const { mutate: deleteWorkspace, isPending } = useMutation({
-    mutationFn: async () => {
+    mutationFn: async ({ organizationId }: { organizationId: string }) => {
       await organization.delete({
-        // biome-ignore lint/style/noNonNullAssertion: <>
-        organizationId: activeWorkspace?.id!,
+        organizationId,
       });
     },
     onSuccess: async () => {
@@ -51,7 +50,7 @@ export function Delete() {
 
       // Invalidate the workspace list query since we lost one
       queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.WORKSPACE_LIST],
+        queryKey: QUERY_KEYS.WORKSPACE_LIST,
       });
 
       // Get the first remaining workspace
@@ -77,18 +76,20 @@ export function Delete() {
   }
 
   return (
-    <Card className="p-6">
-      <CardHeader>
+    <Card className="pt-2">
+      <CardHeader className="px-6">
         <CardTitle className="text-lg font-medium">Delete workspace.</CardTitle>
         <CardDescription>
           Permanently delete your workspace and all associated data within. This
           action cannot be undone.
         </CardDescription>
       </CardHeader>
-      <CardFooter className="justify-end">
+      <CardFooter className="border-t px-6 py-4 justify-end">
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="destructive">Delete Workspace</Button>
+            <Button variant="destructive" size="sm">
+              Delete Workspace
+            </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
@@ -102,9 +103,12 @@ export function Delete() {
               <AlertDialogCancel className="min-w-20">Cancel</AlertDialogCancel>
               <Button
                 variant="destructive"
-                disabled={isPending}
-                onClick={() => deleteWorkspace()}
-                className="min-w-20"
+                disabled={isPending || !activeWorkspace?.id}
+                onClick={() =>
+                  activeWorkspace?.id &&
+                  deleteWorkspace({ organizationId: activeWorkspace.id })
+                }
+                size="sm"
               >
                 {isPending ? <ButtonLoader variant="destructive" /> : "Delete"}
               </Button>

@@ -6,6 +6,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@marble/ui/components/card";
@@ -69,55 +70,55 @@ export function Timezone() {
   };
 
   return (
-    <Card className="p-6">
-      <CardHeader>
+    <Card className="pt-2">
+      <CardHeader className="px-6">
         <CardTitle className="text-lg font-medium">
           Workspace Timezone
         </CardTitle>
-        <CardDescription>
-          The timezone of your workspace. (Used for scheduled posts and the
-          display of dates)
-        </CardDescription>
+        <CardDescription>The timezone of your workspace.</CardDescription>
       </CardHeader>
-      <CardContent>
-        <form
-          onSubmit={timezoneForm.handleSubmit(onTimezoneSubmit)}
-          className="flex flex-col gap-2 w-full"
-        >
-          <div className="flex gap-2 items-center">
-            <div className="flex flex-col gap-2 flex-1">
-              <Label htmlFor="timezone" className="sr-only">
-                Timezone
-              </Label>
-              <TimezoneSelector
-                value={timezoneForm.watch("timezone")}
-                onValueChange={(value) => {
-                  timezoneForm.setValue("timezone", value, {
-                    shouldDirty: true,
-                  });
-                  timezoneForm.trigger("timezone");
-                }}
-                disabled={!isOwner}
-                placeholder="Select timezone..."
-                timezones={timezones}
-              />
+      <form onSubmit={timezoneForm.handleSubmit(onTimezoneSubmit)}>
+        <CardContent className="px-6">
+          <div className="flex flex-col gap-2 w-full">
+            <div className="flex gap-2 items-center">
+              <div className="flex flex-col gap-2 flex-1">
+                <Label htmlFor="timezone" className="sr-only">
+                  Timezone
+                </Label>
+                <TimezoneSelector
+                  value={timezoneForm.watch("timezone")}
+                  onValueChange={(value) => {
+                    timezoneForm.setValue("timezone", value, {
+                      shouldDirty: true,
+                    });
+                    timezoneForm.trigger("timezone");
+                  }}
+                  disabled={!isOwner}
+                  placeholder="Select timezone..."
+                  timezones={timezones}
+                />
+              </div>
             </div>
-            <Button
-              disabled={
-                !isOwner || !timezoneForm.formState.isDirty || isPending
-              }
-              className={cn("w-20 self-end flex gap-2 items-center")}
-            >
-              {isPending ? <Loader2 className="animate-spin" /> : "Save"}
-            </Button>
+            {timezoneForm.formState.errors.timezone && (
+              <p className="text-xs text-destructive">
+                {timezoneForm.formState.errors.timezone.message}
+              </p>
+            )}
           </div>
-          {timezoneForm.formState.errors.timezone && (
-            <p className="text-xs text-destructive">
-              {timezoneForm.formState.errors.timezone.message}
-            </p>
-          )}
-        </form>
-      </CardContent>
+        </CardContent>
+        <CardFooter className="border-t px-6 py-4 flex justify-between">
+          <p className="text-sm text-muted-foreground">
+            Changes affect scheduled posts
+          </p>
+          <Button
+            disabled={!isOwner || !timezoneForm.formState.isDirty || isPending}
+            className={cn("w-20 self-end flex gap-2 items-center")}
+            size="sm"
+          >
+            {isPending ? <Loader2 className="animate-spin" /> : "Save"}
+          </Button>
+        </CardFooter>
+      </form>
     </Card>
   );
 }

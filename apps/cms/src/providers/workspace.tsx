@@ -46,7 +46,7 @@ export function WorkspaceProvider({
     (!activeWorkspace || activeWorkspace.slug !== workspaceSlug);
 
   const { data: usersWorkspaces } = useQuery({
-    queryKey: [QUERY_KEYS.WORKSPACE_LIST],
+    queryKey: QUERY_KEYS.WORKSPACE_LIST,
     queryFn: async () => {
       const response = await request<Workspace[]>("workspaces");
       return response.data;
@@ -74,7 +74,7 @@ export function WorkspaceProvider({
 
   const { data: fetchedActiveWorkspace, isLoading: isFetchingActiveWorkspace } =
     useQuery({
-      queryKey: QUERY_KEYS.WORKSPACE(workspaceSlug),
+      queryKey: ["workspace_by_slug", workspaceSlug],
       queryFn: () => fetchWorkspaceData(workspaceSlug),
       enabled: shouldFetchWorkspace,
       initialData:
@@ -118,9 +118,10 @@ export function WorkspaceProvider({
     onSuccess: (data) => {
       if (data) {
         queryClient.invalidateQueries({
-          queryKey: [QUERY_KEYS.WORKSPACE_LIST],
+          queryKey: QUERY_KEYS.WORKSPACE_LIST,
         });
-        queryClient.setQueryData(QUERY_KEYS.WORKSPACE(data.slug), data);
+        queryClient.setQueryData(["workspace_by_slug", data.slug], data);
+        queryClient.setQueryData(QUERY_KEYS.WORKSPACE(data.id), data);
         router.push(`/${data.slug}`);
       }
       setIsSwitchingWorkspace(false);

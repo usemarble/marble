@@ -35,6 +35,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { UpgradeModal } from "@/components/billing/upgrade-modal";
 import { usePlan } from "@/hooks/use-plan";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import {
   type WebhookEvent,
@@ -50,6 +51,7 @@ interface CreateWebhookSheetProps {
 
 function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const workspaceId = useWorkspaceId();
   const queryClient = useQueryClient();
 
   const {
@@ -104,7 +106,11 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
       toast.success("Webhook created successfully");
       reset();
       setIsOpen(false);
-      void queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.WEBHOOKS] });
+      if (workspaceId) {
+        void queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.WEBHOOKS(workspaceId),
+        });
+      }
       router.refresh();
     },
     onError: () => {

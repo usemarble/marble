@@ -36,7 +36,13 @@ export const nameSchema = z.object({
 export type NameValues = z.infer<typeof nameSchema>;
 
 export const slugSchema = z.object({
-  slug: z.string().min(1),
+  slug: z
+    .string()
+    .min(1)
+    .regex(/^[a-z]+([a-z-]*[a-z])?$/, {
+      message:
+        "Slug must start and end with letters, and only contain lowercase letters and hyphens",
+    }),
 });
 export type SlugValues = z.infer<typeof slugSchema>;
 
