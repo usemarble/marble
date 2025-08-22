@@ -117,9 +117,10 @@ export function WorkspaceProvider({
     },
     onSuccess: (data) => {
       if (data) {
-        queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.WORKSPACE_LIST,
-        });
+        //  TODO:
+        // I should clear workspace-scoped data when switching workspaces
+        // We have tags,categories,posts,media,webhooks
+        // Will neeed to test this properly
         queryClient.setQueryData(["workspace_by_slug", data.slug], data);
         queryClient.setQueryData(QUERY_KEYS.WORKSPACE(data.id), data);
         router.push(`/${data.slug}`);

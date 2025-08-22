@@ -4,12 +4,12 @@ import { Button } from "@marble/ui/components/button";
 import { Package, Plus } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
-import { useParams } from "next/navigation";
 import { useState } from "react";
 import { columns } from "@/components/categories/columns";
 import { DataTable } from "@/components/categories/data-table";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 
 const CreateCategoryModal = dynamic(() =>
@@ -25,17 +25,19 @@ interface Category {
 }
 
 function PageClient() {
-  const params = useParams<{ workspace: string }>();
+  const workspaceId = useWorkspaceId();
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const { data: categories, isLoading } = useQuery({
-    queryKey: [QUERY_KEYS.CATEGORIES, params.workspace],
+    // biome-ignore lint/style/noNonNullAssertion: <>
+    queryKey: QUERY_KEYS.CATEGORIES(workspaceId!),
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
       const res = await fetch("/api/categories");
       const data: Category[] = await res.json();
       return data;
     },
+    enabled: !!workspaceId,
   });
 
   if (isLoading) {

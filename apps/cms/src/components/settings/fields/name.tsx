@@ -36,35 +36,45 @@ export function Name() {
   });
 
   const { mutate: updateName, isPending } = useMutation({
-    mutationFn: async (data: NameValues) => {
+    mutationFn: async ({
+      organizationId,
+      data,
+    }: {
+      organizationId: string;
+      data: NameValues;
+    }) => {
       return await organization.update({
-        // biome-ignore lint/style/noNonNullAssertion: <>
-        organizationId: activeWorkspace?.id!,
+        organizationId,
         data: {
           name: data.name,
         },
       });
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       toast.success("Workspace name updated");
       nameForm.reset({ name: nameForm.getValues("name") });
       queryClient.invalidateQueries({
-        // biome-ignore lint/style/noNonNullAssertion: <>
-        queryKey: QUERY_KEYS.WORKSPACE(activeWorkspace?.id!),
+        queryKey: QUERY_KEYS.WORKSPACE(variables.organizationId),
       });
       router.refresh();
     },
     onError: (error) => {
       const errorMessage =
-        error instanceof Error ? error.message : "Failed to update";
+        error instanceof Error
+          ? error.message
+          : "Failed to update workspace name";
       toast.error(errorMessage);
+      console.error("Failed to update workspace name:", error);
     },
   });
 
   const onNameSubmit = (data: NameValues) => {
     // need to work on proper permissons later
-    if (!isOwner) return;
-    updateName({ name: data.name.trim() });
+    if (!isOwner || !activeWorkspace?.id) return;
+    updateName({
+      organizationId: activeWorkspace.id,
+      data: { name: data.name.trim() },
+    });
   };
 
   return (

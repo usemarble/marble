@@ -3,10 +3,7 @@ export const QUERY_KEYS = {
   WORKSPACE_LIST: ["workspaces"],
   WORKSPACE: (id: string) => ["workspace", id],
 
-  // Non-workspace scoped
-  USER: ["user"],
-
-  // Workspace-scoped resources (always use workspace ID)
+  // Workspace-scoped resources
   POSTS: (workspaceId: string) => ["posts", workspaceId],
   POST: (workspaceId: string, postId: string) => ["posts", workspaceId, postId],
 
@@ -25,4 +22,7 @@ export const QUERY_KEYS = {
   TEAM: (workspaceId: string) => ["team", workspaceId],
 
   WEBHOOKS: (workspaceId: string) => ["webhooks", workspaceId],
+
+  // Globally scoped
+  USER: ["user"],
 };

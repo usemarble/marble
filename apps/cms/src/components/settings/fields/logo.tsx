@@ -33,32 +33,51 @@ export function Logo() {
   const queryClient = useQueryClient();
   const [logoUrl, setLogoUrl] = useState(activeWorkspace?.logo);
 
-  const updateLogo = async (url: string) => {
-    await organization.update({
-      // biome-ignore lint/style/noNonNullAssertion: <>
-      organizationId: activeWorkspace?.id!,
-      data: {
-        logo: url,
-      },
-    });
-    queryClient.invalidateQueries({
-      // biome-ignore lint/style/noNonNullAssertion: <>
-      queryKey: QUERY_KEYS.WORKSPACE(activeWorkspace?.id!),
-    });
-    toast.success("Logo updated");
-  };
+  const { mutate: updateLogo } = useMutation({
+    mutationFn: async ({
+      organizationId,
+      logoUrl,
+    }: {
+      organizationId: string;
+      logoUrl: string;
+    }) => {
+      return await organization.update({
+        organizationId,
+        data: {
+          logo: logoUrl,
+        },
+      });
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.WORKSPACE(variables.organizationId),
+      });
+      toast.success("Logo updated");
+    },
+    onError: (error) => {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to update workspace logo";
+      toast.error(errorMessage);
+      console.error("Failed to update workspace logo:", error);
+    },
+  });
 
   const { mutate: uploadLogo, isPending: isUpdatingLogo } = useMutation({
     mutationFn: (file: File) => {
       return uploadFile({ file, type: "logo" });
     },
-    onSuccess: async (data) => {
+    onSuccess: (data) => {
       const { logoUrl } = data;
-      if (!logoUrl) return;
+      if (!logoUrl || !activeWorkspace?.id) return;
 
       setLogoUrl(logoUrl);
       toast.success("Upload complete");
-      await updateLogo(logoUrl);
+      updateLogo({
+        organizationId: activeWorkspace.id,
+        logoUrl,
+      });
     },
     onError: (error: unknown) => {
       console.error("Upload error:", error);

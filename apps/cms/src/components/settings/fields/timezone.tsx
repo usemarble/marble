@@ -39,34 +39,46 @@ export function Timezone() {
   });
 
   const { mutate: updateTimezone, isPending } = useMutation({
-    mutationFn: async (data: z.infer<typeof timezoneSchema>) => {
-      await organization.update({
-        // biome-ignore lint/style/noNonNullAssertion: <>
-        organizationId: activeWorkspace?.id!,
+    mutationFn: async ({
+      organizationId,
+      data,
+    }: {
+      organizationId: string;
+      data: z.infer<typeof timezoneSchema>;
+    }) => {
+      return await organization.update({
+        organizationId,
         data: {
           timezone: data.timezone,
         },
       });
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       toast.success("Updated timezone");
       timezoneForm.reset({
         timezone: timezoneForm.getValues("timezone"),
       });
       queryClient.invalidateQueries({
-        // biome-ignore lint/style/noNonNullAssertion: <>
-        queryKey: QUERY_KEYS.WORKSPACE(activeWorkspace?.id!),
+        queryKey: QUERY_KEYS.WORKSPACE(variables.organizationId),
       });
       router.refresh();
     },
     onError: (error) => {
-      toast.error(error.message);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to update workspace timezone";
+      toast.error(errorMessage);
+      console.error("Failed to update workspace timezone:", error);
     },
   });
 
   const onTimezoneSubmit = async (data: TimezoneValues) => {
     if (!isOwner || !activeWorkspace?.id) return;
-    updateTimezone(data);
+    updateTimezone({
+      organizationId: activeWorkspace.id,
+      data,
+    });
   };
 
   return (

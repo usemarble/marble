@@ -27,6 +27,8 @@ import { CaretUpDown, Check, Info, Plus, X } from "@phosphor-icons/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { type Control, useController } from "react-hook-form";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { PostValues } from "@/lib/validations/post";
 import { ErrorMessage } from "../../auth/error-message";
 import { CreateTagModal } from "../../tags/tag-modals";
@@ -67,10 +69,12 @@ export const TagSelector = ({
     defaultValue: defaultTags,
   });
   const [openTagModal, setOpenTagModal] = useState(false);
+  const workspaceId = useWorkspaceId();
   const queryClient = useQueryClient();
 
   const { data: tags = [], isLoading: isLoadingTags } = useQuery({
-    queryKey: ["tags"],
+    // biome-ignore lint/style/noNonNullAssertion: <>
+    queryKey: QUERY_KEYS.TAGS(workspaceId!),
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
       const res = await fetch("/api/tags");
@@ -80,6 +84,7 @@ export const TagSelector = ({
       const data: TagResponse[] = await res.json();
       return data;
     },
+    enabled: !!workspaceId,
   });
 
   // Compute selected tags directly without useEffect
@@ -102,13 +107,18 @@ export const TagSelector = ({
   };
 
   const handleTagCreated = async (newTag: Option) => {
+    if (!workspaceId) return;
+
     // Optimistically update React Query cache
-    queryClient.setQueryData(["tags"], (oldData: TagResponse[] | undefined) => {
-      return oldData ? [...oldData, newTag] : [newTag];
-    });
+    queryClient.setQueryData(
+      QUERY_KEYS.TAGS(workspaceId),
+      (oldData: TagResponse[] | undefined) => {
+        return oldData ? [...oldData, newTag] : [newTag];
+      },
+    );
 
     // Also invalidate to refetch from server
-    queryClient.invalidateQueries({ queryKey: ["tags"] });
+    queryClient.invalidateQueries({ queryKey: QUERY_KEYS.TAGS(workspaceId) });
 
     const newValue = [...(value || []), newTag.id];
     onChange(newValue);

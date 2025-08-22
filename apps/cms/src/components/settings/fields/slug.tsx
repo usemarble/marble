@@ -36,7 +36,13 @@ export function Slug() {
   });
 
   const { mutate: updateSlug, isPending } = useMutation({
-    mutationFn: async (payload: SlugValues) => {
+    mutationFn: async ({
+      organizationId,
+      payload,
+    }: {
+      organizationId: string;
+      payload: SlugValues;
+    }) => {
       const { data, error } = await organization.checkSlug({
         slug: payload.slug,
       });
@@ -51,30 +57,31 @@ export function Slug() {
       }
 
       return await organization.update({
-        // biome-ignore lint/style/noNonNullAssertion: <>
-        organizationId: activeWorkspace?.id!,
+        organizationId,
         data: {
           slug: payload.slug,
         },
       });
     },
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
       if (!data) return;
 
       toast.success("Workspace slug updated");
       slugForm.reset({ slug: data.data?.slug });
       queryClient.invalidateQueries({
-        // biome-ignore lint/style/noNonNullAssertion: <>
-        queryKey: QUERY_KEYS.WORKSPACE(activeWorkspace?.id!),
+        queryKey: QUERY_KEYS.WORKSPACE(variables.organizationId),
       });
       router.replace(`/${data.data?.slug}/settings/general`);
       router.refresh();
     },
     onError: (error) => {
       const errorMessage =
-        error instanceof Error ? error.message : "Failed to update";
+        error instanceof Error
+          ? error.message
+          : "Failed to update workspace slug";
       if (errorMessage !== "Slug is already taken") {
         toast.error(errorMessage);
+        console.error("Failed to update workspace slug:", error);
       }
     },
   });
@@ -82,7 +89,10 @@ export function Slug() {
   const onSlugSubmit = (payload: SlugValues) => {
     if (!isOwner || !activeWorkspace?.id) return;
     const cleanSlug = generateSlug(payload.slug);
-    updateSlug({ slug: cleanSlug });
+    updateSlug({
+      organizationId: activeWorkspace.id,
+      payload: { slug: cleanSlug },
+    });
   };
 
   return (
