@@ -1,14 +1,23 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
 import { columns, type TeamMemberRow } from "@/components/team/columns";
 import { TeamDataTable } from "@/components/team/data-table";
-import { InviteModal } from "@/components/team/invite-modal";
-import { LeaveWorkspaceModal } from "@/components/team/leave-workspace";
 import { PageLoader } from "@/components/ui/loader";
 import { useUser } from "@/providers/user";
 import { useWorkspace } from "@/providers/workspace";
+
+const InviteModal = dynamic(() =>
+  import("@/components/team/invite-modal").then((mod) => mod.InviteModal),
+);
+
+const LeaveWorkspaceModal = dynamic(() =>
+  import("@/components/team/leave-workspace").then(
+    (mod) => mod.LeaveWorkspaceModal,
+  ),
+);
 
 function PageClient() {
   const { user, isAuthenticated, isFetchingUser } = useUser();
