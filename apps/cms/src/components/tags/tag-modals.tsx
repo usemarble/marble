@@ -25,13 +25,13 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import {
   checkTagSlugAction,
   checkTagSlugForUpdateAction,
 } from "@/lib/actions/checks";
-import { useActiveOrganization } from "@/lib/auth/client";
+import { QUERY_KEYS } from "@/lib/queries/keys";
 import { type CreateTagValues, tagSchema } from "@/lib/validations/workspace";
-import { useWorkspace } from "@/providers/workspace";
 import { generateSlug } from "@/utils/string";
 import { ButtonLoader } from "../ui/loader";
 import type { Tag } from "./columns";
@@ -61,7 +61,7 @@ export function CreateTagModal({
   });
 
   const { name } = watch();
-  const { data: activeOrganization } = useActiveOrganization();
+  const workspaceId = useWorkspaceId();
 
   const { mutate: createTag } = useMutation({
     mutationFn: (data: CreateTagValues) =>
@@ -78,9 +78,11 @@ export function CreateTagModal({
       onTagCreated?.(data);
       setOpen(false);
       toast.success("Tag created successfully");
-      queryClient.invalidateQueries({
-        queryKey: ["tags", activeOrganization?.id],
-      });
+      if (workspaceId) {
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.TAGS(workspaceId),
+        });
+      }
     },
     onError: (error) => {
       toast.error(error.message);
@@ -92,12 +94,12 @@ export function CreateTagModal({
   }, [name, setValue]);
 
   const onSubmit = async (data: CreateTagValues) => {
-    if (!activeOrganization?.id) {
-      toast.error("No active organization");
+    if (!workspaceId) {
+      toast.error("No active workspace");
       return;
     }
 
-    const isTaken = await checkTagSlugAction(data.slug, activeOrganization.id);
+    const isTaken = await checkTagSlugAction(data.slug, workspaceId);
 
     if (isTaken) {
       setError("slug", { message: "You already have a tag with that slug" });
@@ -175,8 +177,7 @@ export const UpdateTagModal = ({
   });
 
   const { name } = watch();
-
-  const { activeWorkspace } = useWorkspace();
+  const workspaceId = useWorkspaceId();
 
   const { mutate: updateTag } = useMutation({
     mutationFn: (data: CreateTagValues) =>
@@ -192,9 +193,11 @@ export const UpdateTagModal = ({
     onSuccess: () => {
       setOpen(false);
       toast.success("Tag updated successfully");
-      queryClient.invalidateQueries({
-        queryKey: ["tags", activeWorkspace?.slug],
-      });
+      if (workspaceId) {
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.TAGS(workspaceId),
+        });
+      }
     },
     onError: (error) => {
       toast.error(error.message);
@@ -206,9 +209,14 @@ export const UpdateTagModal = ({
   }, [name, setValue]);
 
   const onSubmit = async (data: CreateTagValues) => {
+    if (!workspaceId) {
+      toast.error("No active workspace");
+      return;
+    }
+
     const isTaken = await checkTagSlugForUpdateAction(
       data.slug,
-      activeWorkspace?.id as string,
+      workspaceId,
       tagData.id,
     );
 
@@ -272,7 +280,7 @@ export const DeleteTagModal = ({
   name: string;
 }) => {
   const queryClient = useQueryClient();
-  const { activeWorkspace } = useWorkspace();
+  const workspaceId = useWorkspaceId();
 
   const { mutate: deleteTag, isPending } = useMutation({
     mutationFn: () =>
@@ -281,9 +289,11 @@ export const DeleteTagModal = ({
       }),
     onSuccess: () => {
       toast.success("Tag deleted successfully");
-      queryClient.invalidateQueries({
-        queryKey: ["tags", activeWorkspace?.id],
-      });
+      if (workspaceId) {
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.TAGS(workspaceId),
+        });
+      }
       setOpen(false);
     },
     onError: () => {

@@ -3,8 +3,8 @@ export function generateSlug(text: string) {
     .trim()
     .toLowerCase()
     .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9_-]/g, "")
-    .replace(/-+/g, "-")
+    .replace(/[^a-z-]/g, "") // Only allow lowercase letters and hyphens
+    .replace(/-+/g, "-") // Replace multiple hyphens with single hyphen
     .replace(/^-+|-+$/g, ""); // Remove leading/trailing hyphens
 
   return slug;

@@ -15,6 +15,7 @@ import { Button } from "@marble/ui/components/button";
 import { toast } from "@marble/ui/components/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { ButtonLoader } from "../ui/loader";
 
@@ -32,6 +33,7 @@ export function DeleteWebhookModal({
   children,
 }: DeleteWebhookModalProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const workspaceId = useWorkspaceId();
   const queryClient = useQueryClient();
 
   const { mutate: deleteWebhook, isPending } = useMutation({
@@ -43,7 +45,11 @@ export function DeleteWebhookModal({
       toast.success("Webhook deleted successfully");
       onDelete();
       setIsOpen(false);
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.WEBHOOKS] });
+      if (workspaceId) {
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.WEBHOOKS(workspaceId),
+        });
+      }
     },
     onError: () => {
       toast.error("Failed to delete webhook");

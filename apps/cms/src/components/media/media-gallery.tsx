@@ -7,8 +7,8 @@ import { useState } from "react";
 import { DeleteMediaModal } from "@/components/media/delete-modal";
 import { MediaCard } from "@/components/media/media-card";
 import { MediaUploadModal } from "@/components/media/upload-modal";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
-import { useWorkspace } from "@/providers/workspace";
 import type { MediaType } from "@/types/media";
 
 type Media = {
@@ -29,23 +29,28 @@ export function MediaGallery({ media }: MediaGalleryProps) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [mediaToDelete, setMediaToDelete] = useState<Media | null>(null);
   const queryClient = useQueryClient();
-  const { activeWorkspace } = useWorkspace();
+  const workspaceId = useWorkspaceId();
 
   const handleUploadComplete = (newMedia?: Media) => {
-    if (newMedia) {
-      queryClient.setQueryData(["media"], (oldData: Media[] | undefined) => {
-        return oldData ? [...oldData, newMedia] : [newMedia];
-      });
+    if (newMedia && workspaceId) {
+      queryClient.setQueryData(
+        QUERY_KEYS.MEDIA(workspaceId),
+        (oldData: Media[] | undefined) => {
+          return oldData ? [...oldData, newMedia] : [newMedia];
+        },
+      );
     }
   };
 
   const handleDeleteComplete = (id: string) => {
-    queryClient.setQueryData(
-      [QUERY_KEYS.MEDIA, activeWorkspace?.slug],
-      (oldData: Media[] | undefined) => {
-        return oldData ? oldData.filter((m) => m.id !== id) : [];
-      },
-    );
+    if (workspaceId) {
+      queryClient.setQueryData(
+        QUERY_KEYS.MEDIA(workspaceId),
+        (oldData: Media[] | undefined) => {
+          return oldData ? oldData.filter((m) => m.id !== id) : [];
+        },
+      );
+    }
   };
 
   return (

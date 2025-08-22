@@ -12,6 +12,10 @@ import {
 } from "react";
 import { toast } from "sonner";
 import { organization } from "@/lib/auth/client";
+import {
+  WORKSPACE_SCOPED_PREFIXES,
+  type WorkspaceScopedPrefix,
+} from "@/lib/constants";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import type {
   Workspace,
@@ -46,7 +50,7 @@ export function WorkspaceProvider({
     (!activeWorkspace || activeWorkspace.slug !== workspaceSlug);
 
   const { data: usersWorkspaces } = useQuery({
-    queryKey: [QUERY_KEYS.WORKSPACES],
+    queryKey: QUERY_KEYS.WORKSPACE_LIST,
     queryFn: async () => {
       const response = await request<Workspace[]>("workspaces");
       return response.data;
@@ -74,7 +78,7 @@ export function WorkspaceProvider({
 
   const { data: fetchedActiveWorkspace, isLoading: isFetchingActiveWorkspace } =
     useQuery({
-      queryKey: QUERY_KEYS.WORKSPACE(workspaceSlug),
+      queryKey: ["workspace_by_slug", workspaceSlug],
       queryFn: () => fetchWorkspaceData(workspaceSlug),
       enabled: shouldFetchWorkspace,
       initialData:
@@ -117,8 +121,23 @@ export function WorkspaceProvider({
     },
     onSuccess: (data) => {
       if (data) {
-        queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.WORKSPACES] });
-        queryClient.setQueryData(QUERY_KEYS.WORKSPACE(data.slug), data);
+        queryClient.removeQueries({
+          predicate: (query) => {
+            const key = query.queryKey;
+            // Remove workspace-scoped queries
+            return (
+              Array.isArray(key) &&
+              key.length >= 2 &&
+              typeof key[1] === "string" &&
+              WORKSPACE_SCOPED_PREFIXES.includes(
+                key[0] as WorkspaceScopedPrefix,
+              )
+            );
+          },
+        });
+        // Set new workspace data
+        queryClient.setQueryData(["workspace_by_slug", data.slug], data);
+        queryClient.setQueryData(QUERY_KEYS.WORKSPACE(data.id), data);
         router.push(`/${data.slug}`);
       }
       setIsSwitchingWorkspace(false);

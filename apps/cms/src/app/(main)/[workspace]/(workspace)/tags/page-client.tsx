@@ -6,10 +6,12 @@ import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
 import { useState } from "react";
-import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
+import { toast } from "sonner";
+import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
 import { columns } from "@/components/tags/columns";
 import { DataTable } from "@/components/tags/data-table";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 
 const CreateTagModal = dynamic(() =>
@@ -23,17 +25,28 @@ interface TagType {
 }
 
 function PageClient() {
-  const params = useParams<{ workspace: string }>();
+  const workspaceId = useWorkspaceId();
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const { data: tags, isLoading } = useQuery({
-    queryKey: [QUERY_KEYS.TAGS, params.workspace],
+    // biome-ignore lint/style/noNonNullAssertion: <>
+    queryKey: QUERY_KEYS.TAGS(workspaceId!),
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
-      const res = await fetch("/api/tags");
-      const data: TagType[] = await res.json();
-      return data;
+      try {
+        const res = await fetch("/api/tags");
+        if (!res.ok) {
+          throw new Error("Failed to fetch tags");
+        }
+        const data: TagType[] = await res.json();
+        return data;
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : "Failed to fetch tags",
+        );
+      }
     },
+    enabled: !!workspaceId,
   });
 
   if (isLoading) {
