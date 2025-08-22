@@ -105,6 +105,8 @@ Packages contain internal shared modules used across different applications:
 
 4. Database Setup
 
+   ### Option 1: Use Neon (Hosted)
+
    We use neon for the database so you need to create a Neon project and copy your connection string for prisma
 
    - Paste it in all env files `DATABASE_URL=<YOUR_STRING_HERE>`
@@ -115,6 +117,40 @@ Packages contain internal shared modules used across different applications:
       cd packages/db
       pnpm prisma migrate dev --name init
       ```
+
+   ### Option 2: Use Docker (Local)
+
+   Prerequisites: Docker Desktop (macOS/Windows) or Docker Engine + Docker Compose v2 (Linux).
+
+   Start a local Postgres and run migrations:
+
+   ```bash
+   # from repo root
+   pnpm docker:up
+   pnpm db:migrate
+   ```
+
+   If you’re using the local Docker DB, set your env files to:
+
+   ```bash
+   DATABASE_URL=postgresql://usemarble:justusemarble@localhost:5432/marble
+   ```
+
+
+   This will:
+  
+   -Build (if needed) and start the Postgres container defined in `docker-compose.yml`.
+   - Expose Postgres on port `5432` using the credentials from the compose file.
+   - Persist data in the `marble_pgdata` Docker volume.
+   - Note: If you already have a local Postgres on port 5432, stop it or adjust the port mapping in `docker-compose.yml`.
+   
+   Useful commands:
+   
+   ```bash
+   pnpm docker:logs    # follow DB logs
+   pnpm docker:down    # stop containers
+   pnpm docker:clean   # stop and remove volumes (DESTROYS local data)
+   ```
 
 ### Google OAuth
 
