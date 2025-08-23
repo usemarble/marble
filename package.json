@@ -6,6 +6,8 @@
     "docker:down": "docker compose down",
     "docker:clean": "docker compose down -v",
     "docker:logs": "docker compose logs -f",
+    "docker:ps": "docker compose ps",
+    "docker:restart": "docker compose restart",
 
     "db:migrate": "pnpm --filter @marble/db db:migrate",
     "db:deploy":  "pnpm --filter @marble/db db:deploy",
