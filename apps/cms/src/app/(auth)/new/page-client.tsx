@@ -21,7 +21,7 @@ import { Controller, useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
 import { ButtonLoader } from "@/components/ui/loader";
 import { TimezoneSelector } from "@/components/ui/timezone-selector";
-import { organization, useSession } from "@/lib/auth/client";
+import { organization } from "@/lib/auth/client";
 import { timezones } from "@/lib/constants";
 import {
   type CreateWorkspaceValues,
@@ -47,8 +47,6 @@ function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
 
   const router = useRouter();
   const { name } = watch();
-  const { data: session } = useSession();
-  console.log("session at create workspace page", session);
 
   useEffect(() => {
     if (name) {

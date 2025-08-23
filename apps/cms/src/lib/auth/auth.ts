@@ -170,5 +170,18 @@ export const auth = betterAuth({
         },
       },
     },
+    user: {
+      create: {
+        after: async (user) => {
+          // await handleUserCreated(user);
+        },
+      },
+    },
+  },
+  session: {
+    cookieCache: {
+      enabled: true,
+      maxAge: 5 * 60, // Cache duration in seconds
+    },
   },
 });

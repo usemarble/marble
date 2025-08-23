@@ -16,7 +16,6 @@ import {
 import { cn } from "@marble/ui/lib/utils";
 import { ArrowElbowUpLeft, SidebarSimple } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Editor } from "@tiptap/core";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import {
@@ -24,13 +23,15 @@ import {
   type EditorInstance,
   EditorRoot,
   type JSONContent,
-  useEditor,
 } from "novel";
 import { handleCommandNavigation } from "novel/extensions";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { EditorSidebar } from "@/components/editor/editor-sidebar";
 import { HiddenScrollbar } from "@/components/editor/hidden-scrollbar";
+import { useDebounce } from "@/hooks/use-debounce";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { QUERY_KEYS } from "@/lib/queries/keys";
 import { type PostValues, postSchema } from "@/lib/validations/post";
 import { useUnsavedChanges } from "@/providers/unsaved-changes";
 import { generateSlug } from "@/utils/string";
@@ -58,6 +59,7 @@ interface EditorPageProps {
 function EditorPage({ initialData, id }: EditorPageProps) {
   const router = useRouter();
   const params = useParams<{ workspace: string }>();
+  const workspaceId = useWorkspaceId();
   const { open, isMobile } = useSidebar();
   const formRef = useRef<HTMLFormElement>(null);
   const editorRef = useRef<EditorInstance | null>(null);
@@ -96,9 +98,11 @@ function EditorPage({ initialData, id }: EditorPageProps) {
     onSuccess: (data) => {
       toast.success("Post created");
       router.push(`/${params.workspace}/editor/p/${data.id}`);
-      queryClient.invalidateQueries({
-        queryKey: ["posts", params.workspace],
-      });
+      if (workspaceId) {
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.POSTS(workspaceId),
+        });
+      }
       setHasUnsavedChanges(false);
     },
     onError: () => {
@@ -114,12 +118,16 @@ function EditorPage({ initialData, id }: EditorPageProps) {
       }),
     onSuccess: async (_data, variables) => {
       toast.success("Post updated");
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: ["posts", params.workspace],
-        }),
-        queryClient.invalidateQueries({ queryKey: ["post", id] }),
-      ]);
+      if (workspaceId && id) {
+        await Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: QUERY_KEYS.POSTS(workspaceId),
+          }),
+          queryClient.invalidateQueries({
+            queryKey: QUERY_KEYS.POST(workspaceId, id),
+          }),
+        ]);
+      }
       form.reset({ ...variables });
       setHasUnsavedChanges(false);
     },
@@ -181,23 +189,15 @@ function EditorPage({ initialData, id }: EditorPageProps) {
   }
 
   const title = watch("title");
+  const debouncedTitle = useDebounce(title || "", 300);
 
   useEffect(() => {
-    if (title && !isUpdateMode) {
-      const slug = generateSlug(title);
-      setValue("slug", slug);
-      clearErrors("slug");
-    } else if (
-      title &&
-      isUpdateMode &&
-      initialDataRef.current &&
-      initialDataRef.current.title !== title
-    ) {
-      const slug = generateSlug(title);
+    if (debouncedTitle && !isUpdateMode) {
+      const slug = generateSlug(debouncedTitle);
       setValue("slug", slug);
       clearErrors("slug");
     }
-  }, [title, setValue, clearErrors, isUpdateMode]);
+  }, [debouncedTitle, setValue, clearErrors, isUpdateMode]);
 
   return (
     <>

@@ -51,7 +51,7 @@ function PageClient() {
     onSuccess: (data) => {
       setAvatarUrl(data.avatarUrl);
       updateUser({ image: data.avatarUrl });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USER] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.USER });
       setFile(null);
     },
     onError: (error) => {

@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "@marble/ui/lib/utils";
 import type { ReactNode } from "react";
 
@@ -11,7 +13,7 @@ export function WorkspacePageWrapper({
   return (
     <div
       className={cn(
-        "flex flex-col h-full w-full max-w-5xl mx-auto py-8",
+        "flex flex-col h-full w-full max-w-4xl mx-auto py-8",
         className,
       )}
     >
