@@ -5,23 +5,36 @@ import { Note } from "@phosphor-icons/react/dist/ssr";
 import { useQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
-import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
+import { toast } from "sonner";
+import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import { columns, type Post } from "@/components/posts/columns";
 import { PostDataTable } from "@/components/posts/data-table";
 import PageLoader from "@/components/shared/page-loader";
+import { QUERY_KEYS } from "@/lib/queries/keys";
+import { useWorkspace } from "@/providers/workspace";
 
 function PageClient() {
-  const params = useParams<{ workspace: string }>();
+  const { activeWorkspace } = useWorkspace();
 
   const { data: posts, isLoading } = useQuery({
-    queryKey: ["posts", params.workspace],
+    // biome-ignore lint/style/noNonNullAssertion: <>
+    queryKey: QUERY_KEYS.POSTS(activeWorkspace?.id!),
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
-      const res = await fetch("/api/posts");
-      const data: Post[] = await res.json();
-      return data;
+      try {
+        const res = await fetch("/api/posts");
+        if (!res.ok) {
+          throw new Error("Failed to fetch posts");
+        }
+        const data: Post[] = await res.json();
+        return data;
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : "Failed to fetch posts",
+        );
+      }
     },
+    enabled: !!activeWorkspace?.id,
   });
 
   if (isLoading) {
@@ -43,7 +56,7 @@ function PageClient() {
                 No posts yet. Click the button below to start writing.
               </p>
               <Link
-                href={`/${params.workspace}/editor/p/new`}
+                href={`/${activeWorkspace?.slug}/editor/p/new`}
                 className={buttonVariants({ variant: "default", size: "sm" })}
               >
                 <Plus size={16} />

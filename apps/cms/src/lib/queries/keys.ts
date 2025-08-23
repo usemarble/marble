@@ -1,21 +1,28 @@
 export const QUERY_KEYS = {
-  WORKSPACES: "workspaces",
-  WORKSPACE: (slug: string) => ["workspace", slug],
+  // Workspace keys
+  WORKSPACE_LIST: ["workspaces"],
+  WORKSPACE: (id: string) => ["workspace", id],
 
-  USER: "user",
+  // Workspace-scoped resources
+  POSTS: (workspaceId: string) => ["posts", workspaceId],
+  POST: (workspaceId: string, postId: string) => ["posts", workspaceId, postId],
 
-  POSTS: "posts",
-  POST: (id: string) => ["posts", id],
+  TAGS: (workspaceId: string) => ["tags", workspaceId],
+  TAG: (workspaceId: string, tagId: string) => ["tags", workspaceId, tagId],
 
-  TAGS: "tags",
-  TAG: (id: string) => ["tags", id],
+  CATEGORIES: (workspaceId: string) => ["categories", workspaceId],
+  CATEGORY: (workspaceId: string, categoryId: string) => [
+    "categories",
+    workspaceId,
+    categoryId,
+  ],
 
-  CATEGORIES: "categories",
-  CATEGORY: (id: string) => ["categories", id],
+  MEDIA: (workspaceId: string) => ["media", workspaceId],
 
-  MEDIA: "media",
+  TEAM: (workspaceId: string) => ["team", workspaceId],
 
-  TEAM: "team",
+  WEBHOOKS: (workspaceId: string) => ["webhooks", workspaceId],
 
-  WEBHOOKS: "webhooks",
+  // Globally scoped
+  USER: ["user"],
 };

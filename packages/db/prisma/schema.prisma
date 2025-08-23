@@ -65,7 +65,7 @@ model Post {
   workspaceId     String
   slug            String
   categoryId      String
-  status          PostStatus   @default(published)
+  status          PostStatus   @default(draft)
   featured        Boolean      @default(false)
   updatedAt       DateTime     @updatedAt
   createdAt       DateTime     @default(now())

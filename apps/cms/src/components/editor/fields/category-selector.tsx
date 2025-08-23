@@ -18,6 +18,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { type Control, useController } from "react-hook-form";
 import { CreateCategoryModal } from "@/components/categories/category-modals";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { PostValues } from "@/lib/validations/post";
 
 interface CategoryResponse {
@@ -40,10 +42,12 @@ export function CategorySelector({ control }: CategorySelectorProps) {
   });
 
   const [showCategoyModal, setShowCategoryModal] = useState(false);
+  const workspaceId = useWorkspaceId();
   const queryClient = useQueryClient();
 
   const { data: categories = [], isLoading: isLoadingCategories } = useQuery({
-    queryKey: ["categories"],
+    // biome-ignore lint/style/noNonNullAssertion: <>
+    queryKey: QUERY_KEYS.CATEGORIES(workspaceId!),
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
       const res = await fetch("/api/categories");
@@ -53,17 +57,22 @@ export function CategorySelector({ control }: CategorySelectorProps) {
       const data: CategoryResponse[] = await res.json();
       return data;
     },
+    enabled: !!workspaceId,
   });
 
   const handleCategoryCreated = (newCategory: CategoryResponse) => {
+    if (!workspaceId) return;
+
     queryClient.setQueryData(
-      ["categories"],
+      QUERY_KEYS.CATEGORIES(workspaceId),
       (oldData: CategoryResponse[] | undefined) => {
         return oldData ? [...oldData, newCategory] : [newCategory];
       },
     );
 
-    queryClient.invalidateQueries({ queryKey: ["categories"] });
+    queryClient.invalidateQueries({
+      queryKey: QUERY_KEYS.CATEGORIES(workspaceId),
+    });
   };
 
   return (

@@ -25,11 +25,11 @@ import {
 import { cn } from "@marble/ui/lib/utils";
 import { Check, Images, Info, Spinner, Trash } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
 import { useState } from "react";
 import { type Control, useController } from "react-hook-form";
 import { z } from "zod";
 import { ImageDropzone } from "@/components/shared/dropzone";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { uploadFile } from "@/lib/media/upload";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { PostValues } from "@/lib/validations/post";
@@ -57,7 +57,7 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
   const [isValidatingUrl, setIsValidatingUrl] = useState(false);
   const [urlError, setUrlError] = useState<string | null>(null);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
-  const params = useParams<{ workspace: string }>();
+  const workspaceId = useWorkspaceId();
   const queryClient = useQueryClient();
 
   const { mutate: uploadCover, isPending: isUploading } = useMutation({
@@ -67,9 +67,11 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
         onChange(data.url);
         toast.success("Uploaded successfully!");
         setFile(undefined);
-        queryClient.invalidateQueries({
-          queryKey: [QUERY_KEYS.MEDIA, params.workspace],
-        });
+        if (workspaceId) {
+          queryClient.invalidateQueries({
+            queryKey: QUERY_KEYS.MEDIA(workspaceId),
+          });
+        }
       } else {
         toast.error("Upload failed: Invalid response from server.");
       }
@@ -81,13 +83,15 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
 
   // Fetch media
   const { data: media } = useQuery({
-    queryKey: [QUERY_KEYS.MEDIA, params.workspace],
+    // biome-ignore lint/style/noNonNullAssertion: <>
+    queryKey: QUERY_KEYS.MEDIA(workspaceId!),
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
       const res = await fetch("/api/media");
       const data: Media[] = await res.json();
       return data;
     },
+    enabled: !!workspaceId,
   });
 
   const handleEmbed = async (url: string) => {

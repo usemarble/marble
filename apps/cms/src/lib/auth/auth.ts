@@ -170,5 +170,12 @@ export const auth = betterAuth({
         },
       },
     },
+    user: {
+      create: {
+        after: async (user) => {
+          // await handleUserCreated(user);
+        },
+      },
+    },
   },
 });

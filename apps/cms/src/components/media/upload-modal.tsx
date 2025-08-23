@@ -9,9 +9,9 @@ import {
 } from "@marble/ui/components/dialog";
 import { toast } from "@marble/ui/components/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
 import { useState } from "react";
 import { MediaDropzone } from "@/components/shared/dropzone";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { uploadFile } from "@/lib/media/upload";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { Media } from "@/types/media";
@@ -30,7 +30,7 @@ export function MediaUploadModal({
 }: MediaUploadModalProps) {
   const [file, setFile] = useState<File | undefined>();
   const queryClient = useQueryClient();
-  const params = useParams<{ workspace: string }>();
+  const workspaceId = useWorkspaceId();
 
   const { mutate: uploadMedia, isPending: isUploading } = useMutation({
     mutationFn: async (file: File) => {
@@ -41,9 +41,11 @@ export function MediaUploadModal({
       return media;
     },
     onSuccess: (data: Media) => {
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.MEDIA, params.workspace],
-      });
+      if (workspaceId) {
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.MEDIA(workspaceId),
+        });
+      }
       toast.success("Uploaded successfully!");
       if (onUploadComplete && data) {
         onUploadComplete(data);
