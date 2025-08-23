@@ -38,6 +38,8 @@ export const sanitizeHtml = (content: string) => {
     allowedAttributes: {
       ...defaults.allowedAttributes,
       "*": ["style"],
+      code: ["class"],
+      a: ["href", "target"],
       iframe: ["src", "allowfullscreen", "style"],
       input: ["type", "checked"],
     },
