@@ -15,7 +15,7 @@ import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
@@ -29,7 +29,7 @@ import {
 } from "@/lib/validations/workspace";
 import { generateSlug } from "@/utils/string";
 
-function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
+function PageClient() {
   const {
     register,
     handleSubmit,
@@ -46,6 +46,10 @@ function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
   });
 
   const router = useRouter();
+  const searchParams = useSearchParams();
+  // Yes i know manually changing this will show the button even if false
+  // but the middleware will just send you back here so it's whatever
+  const hasWorkspaces = searchParams.get("workspaces") === "true";
   const { name } = watch();
 
   useEffect(() => {

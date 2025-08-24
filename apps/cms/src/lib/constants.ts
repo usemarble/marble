@@ -100,3 +100,8 @@ export const WORKSPACE_SCOPED_PREFIXES = [
 ] as const;
 
 export type WorkspaceScopedPrefix = (typeof WORKSPACE_SCOPED_PREFIXES)[number];
+
+export const ALLOWED_AVATAR_HOSTS = [
+  "https://avatars.githubusercontent.com",
+  "https://lh3.googleusercontent.com",
+] as const;

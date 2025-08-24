@@ -44,7 +44,7 @@ importers:
     dependencies:
       '@hono/zod-validator':
         specifier: ^0.4.3
-        version: 0.4.3(hono@4.9.0)(zod@3.25.67)
+        version: 0.4.3(hono@4.9.0)(zod@3.25.76)
       '@marble/db':
         specifier: workspace:*
         version: link:../../packages/db
@@ -61,8 +61,8 @@ importers:
         specifier: ^1.3.0
         version: 1.3.0
       zod:
-        specifier: ^3.25.67
-        version: 3.25.67
+        specifier: ^3.25.76
+        version: 3.25.76
     devDependencies:
       '@cloudflare/workers-types':
         specifier: ^4.20250809.0
@@ -102,7 +102,7 @@ importers:
         version: 2.1.10(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@polar-sh/better-auth':
         specifier: ^1.1.0
-        version: 1.1.0(@polar-sh/sdk@0.34.13)(better-auth@1.3.7(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(zod@3.25.67))
+        version: 1.1.0(@polar-sh/sdk@0.34.13)(better-auth@1.3.5(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(zod@3.25.76))
       '@polar-sh/sdk':
         specifier: ^0.34.13
         version: 0.34.13
@@ -176,8 +176,8 @@ importers:
         specifier: ^1.8.4
         version: 1.8.4
       better-auth:
-        specifier: 1.3.7
-        version: 1.3.7(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(zod@3.25.67)
+        specifier: 1.3.5
+        version: 1.3.5(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(zod@3.25.76)
       canvas-confetti:
         specifier: ^1.9.3
         version: 1.9.3
@@ -260,8 +260,8 @@ importers:
         specifier: ^0.3.1
         version: 0.3.1
       zod:
-        specifier: ^3.25.67
-        version: 3.25.67
+        specifier: ^3.25.76
+        version: 3.25.76
     devDependencies:
       '@marble/tsconfig':
         specifier: workspace:*
@@ -4036,8 +4036,8 @@ packages:
   base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
 
-  better-auth@1.3.7:
-    resolution: {integrity: sha512-/1fEyx2SGgJQM5ujozDCh9eJksnVkNU/J7Fk/tG5Y390l8nKbrPvqiFlCjlMM+scR+UABJbQzA6An7HT50LHyQ==}
+  better-auth@1.3.5:
+    resolution: {integrity: sha512-jo4WTqvco7vjWNodxZyKVky9i6A7RqOb2DgS4uKwIAVucrXDv5OPxnoNE2iuEMD4Bm6l2UHRqYeqnsvsi2F23g==}
     peerDependencies:
       react: ^18.0.0 || ^19.0.0
       react-dom: ^18.0.0 || ^19.0.0
@@ -7166,9 +7166,6 @@ packages:
   zod@3.22.3:
     resolution: {integrity: sha512-EjIevzuJRiRPbVH4mGc8nApb/lVLKVpmUhAaR5R5doKGfAnGJ6Gr3CViAVjP+4FWSxCsybeWQdcgCtbX+7oZug==}
 
-  zod@3.25.67:
-    resolution: {integrity: sha512-idA2YXwpCdqUSKRCACDE6ItZD9TZzy3OZMtpfLoh6oPR47lipysRrJfjzMqFxQ3uJuUPyUeWe1r9vLH33xO/Qw==}
-
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
@@ -8276,10 +8273,10 @@ snapshots:
 
   '@hexagon/base64@1.1.28': {}
 
-  '@hono/zod-validator@0.4.3(hono@4.9.0)(zod@3.25.67)':
+  '@hono/zod-validator@0.4.3(hono@4.9.0)(zod@3.25.76)':
     dependencies:
       hono: 4.9.0
-      zod: 3.25.67
+      zod: 3.25.76
 
   '@hookform/resolvers@5.2.0(react-hook-form@7.61.1(react@19.1.1))':
     dependencies:
@@ -8626,10 +8623,10 @@ snapshots:
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
-  '@polar-sh/better-auth@1.1.0(@polar-sh/sdk@0.34.13)(better-auth@1.3.7(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(zod@3.25.67))':
+  '@polar-sh/better-auth@1.1.0(@polar-sh/sdk@0.34.13)(better-auth@1.3.5(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(zod@3.25.76))':
     dependencies:
       '@polar-sh/sdk': 0.34.13
-      better-auth: 1.3.7(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(zod@3.25.67)
+      better-auth: 1.3.5(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(zod@3.25.76)
       zod: 3.25.76
 
   '@polar-sh/sdk@0.34.13':
@@ -11762,7 +11759,7 @@ snapshots:
 
   base64-js@1.5.1: {}
 
-  better-auth@1.3.7(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(zod@3.25.67):
+  better-auth@1.3.5(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(zod@3.25.76):
     dependencies:
       '@better-auth/utils': 0.2.6
       '@better-fetch/fetch': 1.1.18
@@ -11775,7 +11772,7 @@ snapshots:
       jose: 5.10.0
       kysely: 0.28.5
       nanostores: 0.11.4
-      zod: 3.25.67
+      zod: 3.25.76
     optionalDependencies:
       react: 19.1.1
       react-dom: 19.1.1(react@19.1.1)
@@ -15560,8 +15557,6 @@ snapshots:
       zod: 3.25.76
 
   zod@3.22.3: {}
-
-  zod@3.25.67: {}
 
   zod@3.25.76: {}
 

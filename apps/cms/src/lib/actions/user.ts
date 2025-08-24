@@ -4,12 +4,21 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { db } from "@marble/db";
 import type { User } from "better-auth";
 import { nanoid } from "nanoid";
+import { ALLOWED_AVATAR_HOSTS } from "@/lib/constants";
 import { R2_BUCKET_NAME, R2_PUBLIC_URL, r2 } from "@/lib/r2";
 
 export async function storeUserImageAction(user: User) {
   if (!user.image) return;
 
   try {
+    // confirm the URL is from an allowed provider
+    const isAllowedHost = ALLOWED_AVATAR_HOSTS.some((host) =>
+      user.image?.startsWith(host),
+    );
+    if (!isAllowedHost) {
+      console.warn(`Avatar URL not from allowed host: ${user.image}`);
+      return;
+    }
     const response = await fetch(user.image);
     if (!response.ok) {
       throw new Error(`Failed to fetch image: ${response.statusText}`);

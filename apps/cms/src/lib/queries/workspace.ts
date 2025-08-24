@@ -82,7 +82,7 @@ export async function getInitialWorkspaceData() {
     }
 
     const workspace = await db.organization.findUnique({
-      where: { id: session.session.activeOrganizationId as string },
+      where: { id: session.session.activeOrganizationId },
       select: {
         id: true,
         name: true,
