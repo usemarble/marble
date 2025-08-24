@@ -19,12 +19,15 @@ app.use(trimTrailingSlash());
 app.use("*", async (c, next) => {
   await next();
   const method = c.req.method;
+  // Make sure we only set the Cache-Control header for GET and HEAD requests
+  // and only if the response status is in the 2xx or 3xx range.
   if (method === "GET" || method === "HEAD") {
     const status = c.res.status ?? 200;
     if (status >= 200 && status < 400) {
       const cc = c.res.headers.get("Cache-Control") ?? "";
       const hasNoStore = /\bno-store\b/i.test(cc);
       const hasSIE = /\bstale-if-error\s*=\s*\d+\b/i.test(cc);
+      // If we already set a cache control header with no-store or stale-if-error, skip setting it again
       if (!hasNoStore && !hasSIE) {
         const value = cc
           ? `${cc}, stale-if-error=${staleTime}`
