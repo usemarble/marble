@@ -3,7 +3,7 @@ import type { PostValues } from "../validations/post";
 export const emptyPost: PostValues = {
   title: "",
   slug: "",
-  status: "published" as const,
+  status: "draft" as const,
   content: "",
   contentJson: JSON.stringify({ type: "doc", content: [] }),
   coverImage: null,

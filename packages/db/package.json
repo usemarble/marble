@@ -9,7 +9,9 @@
     "db:generate": "prisma generate",
     "db:push": "prisma db push --skip-generate",
     "db:studio": "prisma studio",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",

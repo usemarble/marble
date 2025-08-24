@@ -89,7 +89,7 @@ export function NavMain() {
           asChild
           className={`border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
             isOverviewActive
-              ? "bg-sidebar-accent border-border text-foreground shadow-sm"
+              ? "bg-sidebar-accent border-border text-foreground shadow-xs"
               : "hover:text-accent-foreground"
           }`}
         >
@@ -104,7 +104,7 @@ export function NavMain() {
             key={item.name}
             className={`border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
               isActive(item.url)
-                ? "bg-sidebar-accent border-border text-foreground shadow-sm hover"
+                ? "bg-sidebar-accent border-border text-foreground shadow-xs hover"
                 : "hover:text-accent-foreground"
             }`}
           >
@@ -124,9 +124,9 @@ export function NavMain() {
               <CollapsibleTrigger asChild>
                 <SidebarMenuButton
                   tooltip="Settings"
-                  className={`border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
+                  className={`border cursor-pointer border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
                     isSettingsActive
-                      ? "bg-sidebar-accent border-border text-foreground shadow-sm"
+                      ? "bg-sidebar-accent border-border text-foreground shadow-xs"
                       : "hover:text-accent-foreground"
                   }`}
                 >

@@ -13,6 +13,7 @@ import { nextCookies } from "better-auth/next-js";
 import { emailOTP, organization } from "better-auth/plugins";
 import {
   sendInviteEmailAction,
+  sendResetPasswordAction,
   sendVerificationEmailAction,
 } from "@/lib/actions/email";
 import { handleCustomerCreated } from "@/lib/polar/customer.created";
@@ -33,6 +34,12 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    sendResetPassword: async ({ user, url, token }, _request) => {
+      await sendResetPasswordAction({
+        userEmail: user.email,
+        resetLink: url,
+      });
+    },
     // requireEmailVerification: true,
     // autoSignIn: true
     // ideally that would prevent a session being created on signup
@@ -105,6 +112,7 @@ export const auth = betterAuth({
     }),
     organization({
       // membershipLimit: 10,
+      // check plan limits and set membershipLimit
       schema: {
         organization: {
           additionalFields: {
@@ -145,10 +153,7 @@ export const auth = betterAuth({
     // for new users the middleware redirects them to create a workspace (organization)
     session: {
       create: {
-        before: async (session, ctx) => {
-          const allCookies = ctx?.request?.headers.getSetCookie();
-          console.log("allCookies before session create", allCookies);
-          // this returns an empty array when i tested it
+        before: async (session) => {
           try {
             const organization =
               await getLastActiveWorkspaceOrNewOneToSetAsActive(session.userId);
@@ -163,13 +168,20 @@ export const auth = betterAuth({
             return { data: session };
           }
         },
-        after: async (_session, ctx) => {
-          const allCookies = ctx?.request?.headers.getSetCookie();
-          console.log("allCookies after session create", allCookies);
-          // also returns an empty array when i tested it
-          // so i guess its pointless to pass it to the get active organization
+      },
+    },
+    user: {
+      create: {
+        after: async (user) => {
+          // await handleUserCreated(user);
         },
       },
+    },
+  },
+  session: {
+    cookieCache: {
+      enabled: true,
+      maxAge: 5 * 60, // Cache duration in seconds
     },
   },
 });

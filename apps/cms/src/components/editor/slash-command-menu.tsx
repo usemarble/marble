@@ -15,7 +15,7 @@ export function SlashCommandMenu() {
 
   return (
     <>
-      <EditorCommand className="z-50 h-auto max-h-80 w-60 overflow-y-auto rounded-sm border bg-background px-1 py-2 shadow-sm transition-all">
+      <EditorCommand className="z-50 h-auto max-h-80 w-60 overflow-y-auto rounded-sm border bg-background px-1 py-2 shadow-xs transition-all">
         <EditorCommandEmpty className="px-2 text-muted-foreground">
           No results
         </EditorCommandEmpty>

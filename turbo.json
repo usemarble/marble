@@ -29,7 +29,8 @@
         "POLAR_TEAM_PRODUCT_ID",
         "POLAR_SUCCESS_URL",
         "MARBLE_WORKSPACE_KEY",
-        "MARBLE_API_URL"
+        "MARBLE_API_URL",
+        "QSTASH_TOKEN"
       ]
     },
     "lint": {
@@ -40,8 +41,7 @@
       "cache": false,
       "persistent": true
     },
-    "//#format-and-lint": {},
-    "//#format-and-lint:fix": {
+    "//#format-lint:fix": {
       "cache": false
     },
     "db:generate": {

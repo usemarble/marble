@@ -63,7 +63,7 @@ export function UserProvider({
   };
 
   const { isLoading: isFetchingUser } = useQuery({
-    queryKey: [QUERY_KEYS.USER],
+    queryKey: QUERY_KEYS.USER,
     queryFn: fetchCurrentUser,
     enabled:
       (!user || !user.workspaceRole) && isAuthenticated && !isSessionPending,
@@ -83,8 +83,8 @@ export function UserProvider({
       onSuccess: (data) => {
         setUser(data);
         toast.success("Profile updated");
-        queryClient.setQueryData([QUERY_KEYS.USER], data);
-        queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USER] });
+        queryClient.setQueryData(QUERY_KEYS.USER, data);
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.USER });
       },
       onError: (_error) => {
         toast.error("Failed to update profile");
@@ -104,7 +104,7 @@ export function UserProvider({
       await authClient.signOut();
       setUser(null);
       router.push("/login");
-      queryClient.removeQueries({ queryKey: [QUERY_KEYS.USER] });
+      queryClient.removeQueries({ queryKey: QUERY_KEYS.USER });
     } catch (error) {
       console.error("Failed to sign out:", error);
       toast.error("Failed to sign out");

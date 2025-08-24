@@ -25,16 +25,17 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import {
   checkCategorySlugAction,
   checkCategorySlugForUpdateAction,
 } from "@/lib/actions/checks";
+import { QUERY_KEYS } from "@/lib/queries/keys";
 import {
   type CreateCategoryValues,
   categorySchema,
 } from "@/lib/validations/workspace";
 import { generateSlug } from "@/utils/string";
-import { useWorkspace } from "../../providers/workspace";
 import { ButtonLoader } from "../ui/loader";
 import type { Category } from "./columns";
 
@@ -65,7 +66,7 @@ export const CreateCategoryModal = ({
   });
 
   const { name } = watch();
-  const { activeWorkspace } = useWorkspace();
+  const workspaceId = useWorkspaceId();
 
   const { mutate: createCategory } = useMutation({
     mutationFn: (data: CreateCategoryValues) =>
@@ -81,9 +82,11 @@ export const CreateCategoryModal = ({
     onSuccess: (data) => {
       setOpen(false);
       toast.success("Category created successfully");
-      void queryClient.invalidateQueries({
-        queryKey: ["categories", activeWorkspace?.slug],
-      });
+      if (workspaceId) {
+        void queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.CATEGORIES(workspaceId),
+        });
+      }
       if (onCategoryCreated) {
         onCategoryCreated(data);
       }
@@ -98,10 +101,12 @@ export const CreateCategoryModal = ({
   }, [name, setValue]);
 
   const onSubmit = async (data: CreateCategoryValues) => {
-    const isTaken = await checkCategorySlugAction(
-      data.slug,
-      activeWorkspace?.id as string,
-    );
+    if (!workspaceId) {
+      toast.error("No active workspace");
+      return;
+    }
+
+    const isTaken = await checkCategorySlugAction(data.slug, workspaceId);
 
     if (isTaken) {
       setError("slug", {
@@ -181,8 +186,7 @@ export const UpdateCategoryModal = ({
   });
 
   const { name } = watch();
-
-  const { activeWorkspace } = useWorkspace();
+  const workspaceId = useWorkspaceId();
 
   const { mutate: updateCategory } = useMutation({
     mutationFn: (data: CreateCategoryValues) =>
@@ -198,9 +202,11 @@ export const UpdateCategoryModal = ({
     onSuccess: () => {
       setOpen(false);
       toast.success("Category updated successfully");
-      void queryClient.invalidateQueries({
-        queryKey: ["categories", activeWorkspace?.slug],
-      });
+      if (workspaceId) {
+        void queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.CATEGORIES(workspaceId),
+        });
+      }
     },
     onError: (error) => {
       toast.error(error.message);
@@ -212,9 +218,14 @@ export const UpdateCategoryModal = ({
   }, [name, setValue]);
 
   const onSubmit = async (data: CreateCategoryValues) => {
+    if (!workspaceId) {
+      toast.error("No active workspace");
+      return;
+    }
+
     const isTaken = await checkCategorySlugForUpdateAction(
       data.slug,
-      activeWorkspace?.id as string,
+      workspaceId,
       categoryData.id,
     );
 
@@ -280,7 +291,7 @@ export const DeleteCategoryModal = ({
   name: string;
 }) => {
   const queryClient = useQueryClient();
-  const { activeWorkspace } = useWorkspace();
+  const workspaceId = useWorkspaceId();
 
   const { mutate: deleteCategory, isPending } = useMutation({
     mutationFn: () =>
@@ -289,9 +300,11 @@ export const DeleteCategoryModal = ({
       }),
     onSuccess: () => {
       toast.success("Category deleted successfully");
-      void queryClient.invalidateQueries({
-        queryKey: ["categories", activeWorkspace?.id],
-      });
+      if (workspaceId) {
+        void queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.CATEGORIES(workspaceId),
+        });
+      }
       setOpen(false);
     },
     onError: () => {

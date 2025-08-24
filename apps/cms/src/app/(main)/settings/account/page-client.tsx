@@ -19,16 +19,18 @@ import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
-import { Copy, Image as ImageIcon, UploadSimple } from "@phosphor-icons/react";
+import { Image as ImageIcon, UploadSimple } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Check, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
 import { DeleteAccountModal } from "@/components/settings/delete-account-modal";
 import { ThemeSwitch } from "@/components/settings/theme";
+import { CopyButton } from "@/components/ui/copy-button";
 import { ButtonLoader } from "@/components/ui/loader";
+import { uploadFile } from "@/lib/media/upload";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { type ProfileData, profileSchema } from "@/lib/validations/settings";
 import { useUser } from "@/providers/user";
@@ -41,29 +43,15 @@ function PageClient() {
     user?.image ?? undefined,
   );
   const [file, setFile] = useState<File | null>(null);
-  const [avatarCopied, setAvatarCopied] = useState(false);
 
   const { mutate: uploadAvatar, isPending: isUploading } = useMutation({
-    mutationFn: async (file: File) => {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const response = await fetch("/api/uploads/avatar", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to upload avatar");
-      }
-
-      return response.json();
+    mutationFn: (file: File) => {
+      return uploadFile({ file, type: "avatar" });
     },
     onSuccess: (data) => {
       setAvatarUrl(data.avatarUrl);
       updateUser({ image: data.avatarUrl });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USER] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.USER });
       setFile(null);
     },
     onError: (error) => {
@@ -122,16 +110,8 @@ function PageClient() {
     }
   }, [file, handleAvatarUpload]);
 
-  const copyAvatar = () => {
-    navigator.clipboard.writeText(avatarUrl || "");
-    setAvatarCopied(true);
-    setTimeout(() => {
-      setAvatarCopied(false);
-    }, 1000);
-  };
-
   return (
-    <div className="flex flex-col gap-8 py-12 max-w-screen-md mx-auto w-full">
+    <div className="flex flex-col gap-8 py-12 max-w-(--breakpoint-md) mx-auto w-full">
       <div className="py-4">
         <div className="flex items-center gap-2 justify-between">
           <h1 className="text-lg font-medium">Account Settings</h1>
@@ -173,6 +153,7 @@ function PageClient() {
                       <ImageIcon className="size-4" />
                     </AvatarFallback>
                   </Avatar>
+                  {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
                   <input
                     title="Upload logo"
                     type="file"
@@ -189,7 +170,7 @@ function PageClient() {
                   />
                   <div
                     className={cn(
-                      "absolute inset-0 flex items-center justify-center transition-opacity duration-300 bg-background/50 backdrop-blur-sm size-full",
+                      "absolute inset-0 flex items-center justify-center transition-opacity duration-300 bg-background/50 backdrop-blur-xs size-full",
                       isUploading
                         ? "opacity-100"
                         : "opacity-0 group-hover:opacity-100",
@@ -204,21 +185,11 @@ function PageClient() {
                 </Label>
               </div>
               <div className="flex items-center gap-2 w-full">
-                <Input defaultValue={avatarUrl || undefined} readOnly />
-                <Button
-                  variant="outline"
-                  type="submit"
-                  size="icon"
-                  onClick={copyAvatar}
-                  className="px-3"
-                >
-                  <span className="sr-only">Copy</span>
-                  {avatarCopied ? (
-                    <Check className="size-4" />
-                  ) : (
-                    <Copy className="size-4" />
-                  )}
-                </Button>
+                <Input value={avatarUrl || ""} readOnly />
+                <CopyButton
+                  textToCopy={avatarUrl || ""}
+                  toastMessage="Avatar URL copied to clipboard."
+                />
               </div>
             </div>
           </CardContent>

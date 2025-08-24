@@ -7,20 +7,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@marble/ui/components/dialog";
-import { Input } from "@marble/ui/components/input";
-import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
-import { Upload } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { MediaDropzone } from "@/components/shared/dropzone";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { uploadFile } from "@/lib/media/upload";
 import { QUERY_KEYS } from "@/lib/queries/keys";
+import type { Media } from "@/types/media";
 import { ButtonLoader } from "../ui/loader";
-
-interface Media {
-  id: string;
-  url: string;
-  name: string;
-}
 
 interface MediaUploadModalProps {
   isOpen: boolean;
@@ -35,29 +30,25 @@ export function MediaUploadModal({
 }: MediaUploadModalProps) {
   const [file, setFile] = useState<File | undefined>();
   const queryClient = useQueryClient();
+  const workspaceId = useWorkspaceId();
 
   const { mutate: uploadMedia, isPending: isUploading } = useMutation({
     mutationFn: async (file: File) => {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const response = await fetch("/api/uploads/media", {
-        method: "POST",
-        body: formData,
+      const media = await uploadFile({
+        file,
+        type: "media",
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to upload media");
-      }
-
-      return response.json();
+      return media;
     },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MEDIA] });
+    onSuccess: (data: Media) => {
+      if (workspaceId) {
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.MEDIA(workspaceId),
+        });
+      }
       toast.success("Uploaded successfully!");
-      if (onUploadComplete && data.media) {
-        onUploadComplete(data.media);
+      if (onUploadComplete && data) {
+        onUploadComplete(data);
       }
       setFile(undefined);
       setIsOpen(false);
@@ -75,20 +66,29 @@ export function MediaUploadModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Upload Media</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col gap-4 py-4">
           {file ? (
             <div className="flex flex-col gap-4">
-              <div className="relative w-full h-64">
-                {/* biome-ignore lint/performance/noImgElement: <> */}
-                <img
-                  src={URL.createObjectURL(file)}
-                  alt="cover preview"
-                  className="w-full h-full object-cover rounded-md"
-                />
+              <div className="relative w-full min-h-[500px]">
+                {file.type.startsWith("image/") ? (
+                  // biome-ignore lint/performance/noImgElement: <>
+                  <img
+                    src={URL.createObjectURL(file)}
+                    alt="cover preview"
+                    className="w-full h-full object-cover rounded-md"
+                  />
+                ) : (
+                  // biome-ignore lint/a11y/useMediaCaption: <>
+                  <video
+                    src={URL.createObjectURL(file)}
+                    className="w-full h-full object-cover rounded-md"
+                    controls
+                  />
+                )}
               </div>
               <div className="flex items-center justify-end gap-2">
                 <Button
@@ -104,24 +104,11 @@ export function MediaUploadModal({
               </div>
             </div>
           ) : (
-            <Label
-              htmlFor="media-file-input"
+            <MediaDropzone
+              onFilesAccepted={(files: File[]) => setFile(files[0])}
               className="w-full h-64 rounded-md border border-dashed bg-background flex items-center justify-center cursor-pointer"
-            >
-              <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                <Upload className="size-8" />
-                <div className="flex flex-col items-center">
-                  <p className="text-sm font-medium">Click to browse</p>
-                </div>
-              </div>
-              <Input
-                onChange={(e) => setFile(e.target.files?.[0])}
-                id="media-file-input"
-                type="file"
-                accept="image/*"
-                className="sr-only"
-              />
-            </Label>
+              multiple={false}
+            />
           )}
         </div>
       </DialogContent>

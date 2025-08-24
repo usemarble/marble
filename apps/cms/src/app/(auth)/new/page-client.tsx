@@ -21,7 +21,7 @@ import { Controller, useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
 import { ButtonLoader } from "@/components/ui/loader";
 import { TimezoneSelector } from "@/components/ui/timezone-selector";
-import { organization, useSession } from "@/lib/auth/client";
+import { organization } from "@/lib/auth/client";
 import { timezones } from "@/lib/constants";
 import {
   type CreateWorkspaceValues,
@@ -47,8 +47,6 @@ function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
 
   const router = useRouter();
   const { name } = watch();
-  const { data: session } = useSession();
-  console.log("session at create workspace page", session);
 
   useEffect(() => {
     if (name) {
@@ -130,7 +128,7 @@ function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
                 <Label htmlFor="slug" className="sr-only">
                   Slug
                 </Label>
-                <div className="flex w-full rounded-md border border-input bg-background text-base placeholder:text-muted-foreground focus-within:outline-none focus-within:border-primary focus-within:ring-2 focus-within:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm overflow-hidden">
+                <div className="flex w-full rounded-md border border-input bg-background text-base placeholder:text-muted-foreground focus-within:outline-hidden focus-within:border-primary focus-within:ring-2 focus-within:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm overflow-hidden">
                   <span className="py-2.5 px-2 bg-sidebar border-r">
                     {process.env.NEXT_PUBLIC_APP_URL?.split("//")[1]}/
                   </span>
@@ -139,7 +137,7 @@ function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
                     placeholder="Slug"
                     {...register("slug")}
                     autoComplete="off"
-                    className="w-full bg-transparent py-2 px-2 outline-none ring-0"
+                    className="w-full bg-transparent py-2 px-2 outline-hidden ring-0"
                   />
                 </div>
                 {errors.slug && (

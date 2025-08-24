@@ -12,13 +12,15 @@ import {
 import { Button } from "@marble/ui/components/button";
 import { toast } from "@marble/ui/components/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
+import type { Media } from "@/types/media";
 import { ButtonLoader } from "../ui/loader";
 
 interface DeleteMediaProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  mediaToDelete: string;
+  mediaToDelete: Media | null;
   onDeleteComplete?: (deletedMediaId: string) => void;
 }
 
@@ -29,6 +31,7 @@ export function DeleteMediaModal({
   onDeleteComplete,
 }: DeleteMediaProps) {
   const queryClient = useQueryClient();
+  const workspaceId = useWorkspaceId();
 
   const { mutate: deleteMedia, isPending } = useMutation({
     mutationFn: async (mediaId: string) => {
@@ -49,9 +52,11 @@ export function DeleteMediaModal({
     },
     onSuccess: (data) => {
       toast.success("Media deleted successfully");
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.MEDIA],
-      });
+      if (workspaceId) {
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.MEDIA(workspaceId),
+        });
+      }
       if (onDeleteComplete) {
         onDeleteComplete(data.id);
       }
@@ -63,7 +68,9 @@ export function DeleteMediaModal({
   });
 
   const handleDelete = () => {
-    deleteMedia(mediaToDelete);
+    if (mediaToDelete) {
+      deleteMedia(mediaToDelete.id);
+    }
   };
 
   return (
@@ -71,10 +78,13 @@ export function DeleteMediaModal({
       <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete this image?</AlertDialogTitle>
+            <AlertDialogTitle>
+              Delete this {mediaToDelete?.type || "media"}?
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              Deleting this image will break posts where it is being used.
-              Please make sure to update all posts using this image.
+              Deleting this {mediaToDelete?.type} will break posts where it is
+              being used. Please make sure to update all posts using this{" "}
+              {mediaToDelete?.type}.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

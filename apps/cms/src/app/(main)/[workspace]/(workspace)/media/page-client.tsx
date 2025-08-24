@@ -1,34 +1,47 @@
 "use client";
 
 import { Button } from "@marble/ui/components/button";
-import { Images } from "@phosphor-icons/react";
+import { Images, Upload } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { UploadCloud } from "lucide-react";
-import { useParams } from "next/navigation";
+import dynamic from "next/dynamic";
 import { useState } from "react";
-import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
+import { toast } from "sonner";
+import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import { MediaGallery } from "@/components/media/media-gallery";
-import { MediaUploadModal } from "@/components/media/upload-modal";
 import PageLoader from "@/components/shared/page-loader";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { QUERY_KEYS } from "@/lib/queries/keys";
+import type { Media } from "@/types/media";
 
-type Media = {
-  id: string;
-  name: string;
-  url: string;
-};
+const MediaUploadModal = dynamic(() =>
+  import("@/components/media/upload-modal").then((mod) => mod.MediaUploadModal),
+);
 
 function PageClient() {
-  const params = useParams<{ workspace: string }>();
+  const workspaceId = useWorkspaceId();
   const [showUploadModal, setShowUploadModal] = useState(false);
 
   const { data: media, isLoading } = useQuery({
-    queryKey: ["media", params.workspace],
+    // biome-ignore lint/style/noNonNullAssertion: <>
+    queryKey: QUERY_KEYS.MEDIA(workspaceId!),
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
-      const res = await fetch("/api/media");
-      const data: Media[] = await res.json();
-      return data;
+      try {
+        const res = await fetch("/api/media");
+        if (!res.ok) {
+          throw new Error(
+            `Failed to fetch media: ${res.status} ${res.statusText}`,
+          );
+        }
+        const data: Media[] = await res.json();
+        return data;
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : "Failed to fetch media",
+        );
+      }
     },
+    enabled: !!workspaceId,
   });
 
   if (isLoading) {
@@ -52,7 +65,7 @@ function PageClient() {
                 Images you upload in this workspace will appear here.
               </p>
               <Button onClick={() => setShowUploadModal(true)} size="sm">
-                <UploadCloud size={16} />
+                <Upload size={16} />
                 <span>Upload image</span>
               </Button>
             </div>
