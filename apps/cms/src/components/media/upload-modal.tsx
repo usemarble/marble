@@ -65,7 +65,13 @@ export function MediaUploadModal({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        setIsOpen(open);
+        if (!open) setFile(undefined);
+      }}
+    >
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Upload Media</DialogTitle>
@@ -73,19 +79,19 @@ export function MediaUploadModal({
         <div className="flex flex-col gap-4 py-4">
           {file ? (
             <div className="flex flex-col gap-4">
-              <div className="relative w-full min-h-[500px]">
+              <div className="relative w-full h-[400px] flex items-center justify-center rounded-md overflow-hidden">
                 {file.type.startsWith("image/") ? (
                   // biome-ignore lint/performance/noImgElement: <>
                   <img
                     src={URL.createObjectURL(file)}
                     alt="cover preview"
-                    className="w-full h-full object-cover rounded-md"
+                    className="w-full h-full object-contain rounded-md"
                   />
                 ) : (
                   // biome-ignore lint/a11y/useMediaCaption: <>
                   <video
                     src={URL.createObjectURL(file)}
-                    className="w-full h-full object-cover rounded-md"
+                    className="w-full h-full object-contain rounded-md"
                     controls
                   />
                 )}

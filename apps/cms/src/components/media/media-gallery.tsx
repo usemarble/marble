@@ -58,8 +58,8 @@ export function MediaGallery({ media }: MediaGalleryProps) {
       <section className="flex justify-between items-center">
         <div />
         <Button size="sm" onClick={() => setShowUploadModal(true)}>
-          <Upload size={16} className="" />
-          <span>upload media</span>
+          <Upload size={16} />
+          <span>Upload Media</span>
         </Button>
       </section>
       <ul className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-4">

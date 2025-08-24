@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
+import { ImageZoom } from "@marble/ui/components/kibo-ui/image-zoom";
 import { toast } from "@marble/ui/components/sonner";
 import {
   DotsThreeVertical,
@@ -69,16 +70,16 @@ export function MediaCard({ media, onDelete }: MediaCardProps) {
       <CardContent className="p-0">
         <div className="aspect-video relative overflow-hidden">
           {media.type === "image" && (
-            // biome-ignore lint/performance/noImgElement: <>
-            <img
-              src={media.url}
-              alt={media.name}
-              className="object-cover w-full h-full"
-            />
+            <ImageZoom>
+              {/** biome-ignore lint/performance/noImgElement: <> */}
+              <img
+                src={media.url}
+                alt={media.name}
+                className="object-cover w-full h-full"
+              />
+            </ImageZoom>
           )}
-          {media.type === "video" && (
-            <VideoPlayer src={media.url} className="" />
-          )}
+          {media.type === "video" && <VideoPlayer src={media.url} />}
           {(media.type === "audio" || media.type === "document") && (
             <div className="w-full h-full flex items-center justify-center bg-muted">
               <Icon
