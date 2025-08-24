@@ -16,7 +16,8 @@ import {
   TabsTrigger,
 } from "@marble/ui/components/tabs";
 import { cn } from "@marble/ui/lib/utils";
-import { useMemo, useState } from "react";
+import { parseAsStringLiteral, useQueryState } from "nuqs";
+import { useMemo } from "react";
 import {
   type Control,
   type FieldErrors,
@@ -33,9 +34,14 @@ import {
   generateSuggestions,
   getReadabilityLevel,
 } from "@/utils/readability";
-
 import { ButtonLoader } from "../ui/loader";
-import { AnalysisTab, MetadataTab, ChatTab } from "./tabs";
+import { AnalysisTab, ChatTab, MetadataTab } from "./tabs";
+
+const tabs = {
+  metadata: "Metadata",
+  analysis: "Analysis",
+  chat: "Chat",
+};
 
 interface EditorSidebarProps extends React.ComponentProps<typeof Sidebar> {
   control: Control<PostValues>;
@@ -64,7 +70,10 @@ export function EditorSidebar({
   const hasErrors = Object.keys(errors).length > 0;
   const { tags, authors: initialAuthors } = watch();
   const { hasUnsavedChanges } = useUnsavedChanges();
-  const [activeTab, setActiveTab] = useState("metadata");
+  const [activeTab, setActiveTab] = useQueryState(
+    "active-tab",
+    parseAsStringLiteral(Object.keys(tabs)).withDefault("metadata"),
+  );
 
   const {
     field: { value: contentValue },
@@ -73,9 +82,7 @@ export function EditorSidebar({
     control,
   });
 
-  // const wordCount = editorIntsance.editor?.storage.
-
-  const debouncedContent = useDebounce(contentValue || "", 500);
+  const debouncedContent = useDebounce(contentValue || "", 500); // Debounce for 500ms
 
   const textMetrics = useMemo(() => {
     const inputHtml = debouncedContent || "";
@@ -140,23 +147,16 @@ export function EditorSidebar({
             className="w-full"
           >
             <TabsList variant="underline" className="grid grid-cols-3">
-              <TabsTrigger
-                variant="underline"
-                value="metadata"
-                className="px-2"
-              >
-                Metadata
-              </TabsTrigger>
-              <TabsTrigger
-                variant="underline"
-                value="analysis"
-                className="px-2"
-              >
-                Analysis
-              </TabsTrigger>
-              <TabsTrigger variant="underline" value="chat" className="px-2">
-                Chat
-              </TabsTrigger>
+              {Object.entries(tabs).map(([value, label]) => (
+                <TabsTrigger
+                  key={value}
+                  variant="underline"
+                  value={value}
+                  className="px-2"
+                >
+                  {label}
+                </TabsTrigger>
+              ))}
             </TabsList>
           </Tabs>
         </SidebarHeader>

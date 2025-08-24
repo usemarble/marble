@@ -17,10 +17,10 @@ import {
   PromptInputToolbar,
   PromptInputTools,
 } from "@marble/ui/components/ai-elements/prompt-input";
+import { Response } from "@marble/ui/components/ai-elements/response";
 import { Globe } from "@phosphor-icons/react";
 import { useState } from "react";
 import { HiddenScrollbar } from "../hidden-scrollbar";
-import { Response } from "@marble/ui/components/ai-elements/response";
 
 export function ChatTab() {
   const [search, setSearch] = useState<boolean>(false);
