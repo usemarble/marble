@@ -100,3 +100,33 @@ export const WORKSPACE_SCOPED_PREFIXES = [
 ] as const;
 
 export type WorkspaceScopedPrefix = (typeof WORKSPACE_SCOPED_PREFIXES)[number];
+
+export const ALLOWED_AVATAR_HOSTS = [
+  "avatars.githubusercontent.com",
+  "googleusercontent.com",
+] as const;
+
+/**
+ * Validates if a URL is from an allowed avatar host with HTTPS protocol
+ */
+export function isAllowedAvatarUrl(url: string): boolean {
+  try {
+    const parsedUrl = new URL(url);
+
+    // Enforce HTTPS protocol
+    if (parsedUrl.protocol !== "https:") {
+      return false;
+    }
+
+    const hostname = parsedUrl.hostname;
+
+    // Check if hostname matches exactly or is a subdomain of allowed hosts
+    return ALLOWED_AVATAR_HOSTS.some(
+      (allowedHost) =>
+        hostname === allowedHost || hostname.endsWith(`.${allowedHost}`),
+    );
+  } catch {
+    // Invalid URL
+    return false;
+  }
+}

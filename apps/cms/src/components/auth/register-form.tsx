@@ -61,7 +61,6 @@ export function RegisterForm() {
           email: formData.email.toLowerCase(),
           password: formData.password,
           name: formData.email.toLowerCase().split("@")[0] || "User",
-          image: `https://api.dicebear.com/9.x/glass/svg?seed=${formData.email.toLowerCase().split("@")[0]}`,
         },
         {
           onSuccess: () => {
