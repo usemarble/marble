@@ -14,6 +14,17 @@ const v1 = new Hono<{ Bindings: Env }>();
 app.use("*", ratelimit());
 app.use(trimTrailingSlash());
 
+app.use("*", async (c, next) => {
+  await next();
+  const cacheControl = c.res.headers.get("Cache-Control");
+  c.header(
+    "Cache-Control",
+    cacheControl
+      ? `${cacheControl}, stale-if-error=3600`
+      : "stale-if-error=3600",
+  );
+});
+
 // Workspace redirect logic
 app.use("/:workspaceId/*", async (c, next) => {
   const path = c.req.path;
