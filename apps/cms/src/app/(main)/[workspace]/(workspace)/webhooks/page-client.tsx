@@ -175,7 +175,12 @@ export function PageClient() {
               Manage webhook endpoints for your workspace.
             </p>
           </div>
-          <WebhookButton>Add Endpoint</WebhookButton>
+          <CreateWebhookSheet>
+            <Button>
+              <Plus className="size-4" />
+              Add Endpoint
+            </Button>
+          </CreateWebhookSheet>
         </div>
 
         <div className="grid gap-4">

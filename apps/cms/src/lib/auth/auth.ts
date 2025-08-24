@@ -16,12 +16,13 @@ import {
   sendResetPasswordAction,
   sendVerificationEmailAction,
 } from "@/lib/actions/email";
+import { storeUserImageAction } from "@/lib/actions/user";
 import { handleCustomerCreated } from "@/lib/polar/customer.created";
 import { handleSubscriptionCanceled } from "@/lib/polar/subscription.canceled";
 import { handleSubscriptionCreated } from "@/lib/polar/subscription.created";
 import { handleSubscriptionRevoked } from "@/lib/polar/subscription.revoked";
 import { handleSubscriptionUpdated } from "@/lib/polar/subscription.updated";
-import { getLastActiveWorkspaceOrNewOneToSetAsActive } from "../queries/workspace";
+import { getLastActiveWorkspaceOrNewOneToSetAsActive } from "@/lib/queries/workspace";
 
 const polarClient = new Polar({
   accessToken: process.env.POLAR_ACCESS_TOKEN,
@@ -34,7 +35,7 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
-    sendResetPassword: async ({ user, url, token }, _request) => {
+    sendResetPassword: async ({ user, url }, _request) => {
       await sendResetPasswordAction({
         userEmail: user.email,
         resetLink: url,
@@ -68,7 +69,7 @@ export const auth = betterAuth({
   plugins: [
     polar({
       client: polarClient,
-      createCustomerOnSignUp: true,
+      // createCustomerOnSignUp: true,
       authenticatedUsersOnly: true,
       use: [
         portal(),
@@ -173,7 +174,7 @@ export const auth = betterAuth({
     user: {
       create: {
         after: async (user) => {
-          // await handleUserCreated(user);
+          await storeUserImageAction(user);
         },
       },
     },
