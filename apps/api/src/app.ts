@@ -10,19 +10,29 @@ import type { Env } from "./types/env";
 const app = new Hono<{ Bindings: Env }>();
 const v1 = new Hono<{ Bindings: Env }>();
 
+const staleTime = 3600;
+
 // Global Middleware
 app.use("*", ratelimit());
 app.use(trimTrailingSlash());
 
 app.use("*", async (c, next) => {
   await next();
-  const cacheControl = c.res.headers.get("Cache-Control");
-  c.header(
-    "Cache-Control",
-    cacheControl
-      ? `${cacheControl}, stale-if-error=3600`
-      : "stale-if-error=3600",
-  );
+  const method = c.req.method;
+  if (method === "GET" || method === "HEAD") {
+    const status = c.res.status ?? 200;
+    if (status >= 200 && status < 400) {
+      const cc = c.res.headers.get("Cache-Control") ?? "";
+      const hasNoStore = /\bno-store\b/i.test(cc);
+      const hasSIE = /\bstale-if-error\s*=\s*\d+\b/i.test(cc);
+      if (!hasNoStore && !hasSIE) {
+        const value = cc
+          ? `${cc}, stale-if-error=${staleTime}`
+          : `stale-if-error=${staleTime}`;
+        c.header("Cache-Control", value);
+      }
+    }
+  }
 });
 
 // Workspace redirect logic
