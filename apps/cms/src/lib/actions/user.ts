@@ -28,11 +28,8 @@ export async function storeUserImageAction(user: User) {
     const arrayBuffer = await response.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Generate key for the avatar
-    const id = nanoid(6);
     const extension = contentType.split("/")[1];
-    const sluggedId = id.toLowerCase();
-    const key = `avatars/avatar-${sluggedId}.${extension}`;
+    const key = `avatars/${nanoid()}.${extension}`;
 
     await r2.send(
       new PutObjectCommand({
