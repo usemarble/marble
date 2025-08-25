@@ -63,7 +63,6 @@ export const WelcomeEmail = ({ userEmail }: WelcomeEmailProps) => {
 
             <Hr className="border-t border-gray-200 my-6" />
 
-            {/* Footer */}
             <Text className="text-gray-500 text-xs leading-relaxed text-center">
               This email was sent to <span className="text-black">{userEmail}</span>.  
               If you didn’t create an account, please contact our support team at{" "}
