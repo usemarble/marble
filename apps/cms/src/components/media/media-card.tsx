@@ -70,12 +70,12 @@ export function MediaCard({ media, onDelete }: MediaCardProps) {
       <CardContent className="p-0">
         <div className="aspect-video relative overflow-hidden">
           {media.type === "image" && (
-            <ImageZoom>
+            <ImageZoom className="absolute inset-0 size-full">
               {/** biome-ignore lint/performance/noImgElement: <> */}
               <img
                 src={media.url}
                 alt={media.name}
-                className="object-cover w-full h-full"
+                className="absolute inset-0 size-full object-cover"
               />
             </ImageZoom>
           )}
