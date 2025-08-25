@@ -51,7 +51,6 @@ export const WelcomeEmail = ({ userEmail }: WelcomeEmailProps) => {
               You can now explore all features and start building right away.
             </Text>
 
-            {/* Call to Action */}
             <Section className="text-center my-8">
               <Button
                 href={baseUrl}
