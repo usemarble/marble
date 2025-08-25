@@ -39,7 +39,7 @@ export function PublishDateField({ control }: PublishDateFieldProps) {
           <Button
             variant="outline"
             className={cn(
-              "justify-between text-left font-normal shadow-none",
+              "justify-between text-left font-normal shadow-none bg-editor-field",
               !value && "text-muted-foreground",
             )}
           >

@@ -129,7 +129,7 @@ export function AuthorSelector({
       </div>
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger>
-          <div className="flex items-center bg-background justify-between gap-2 relative w-full cursor-pointer rounded-md border border-input px-3 py-1.5 text-sm h-auto min-h-9">
+          <div className="flex items-center justify-between gap-2 relative w-full cursor-pointer rounded-md border px-3 py-1.5 text-sm h-auto min-h-9 bg-editor-field">
             <ul className="flex flex-wrap -space-x-2">
               {selected.length === 0 && (
                 <li className="text-muted-foreground">
