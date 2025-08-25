@@ -106,7 +106,7 @@ export function TeamDataTable<TData, TValue>({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs">
                     You cannot leave your own workspace.
                   </p>
                 </TooltipContent>

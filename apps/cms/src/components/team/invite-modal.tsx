@@ -119,7 +119,7 @@ export const InviteModal = ({
               }
               defaultValue="member"
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select a role" />
               </SelectTrigger>
               <SelectContent>

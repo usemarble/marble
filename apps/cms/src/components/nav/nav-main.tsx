@@ -14,14 +14,16 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  useSidebar,
 } from "@marble/ui/components/sidebar";
+import { cn } from "@marble/ui/lib/utils";
 import {
-  Faders,
-  Images as ImagesIcon,
-  Note,
-  Package,
-  Tag,
-  UsersThree,
+  FadersIcon,
+  ImagesIcon,
+  NoteIcon,
+  PackageIcon,
+  TagIcon,
+  UsersThreeIcon,
 } from "@phosphor-icons/react";
 
 import Link from "next/link";
@@ -31,17 +33,17 @@ const items = [
   {
     name: "Posts",
     url: "posts",
-    icon: Note,
+    icon: NoteIcon,
   },
   {
     name: "Categories",
     url: "categories",
-    icon: Package,
+    icon: PackageIcon,
   },
   {
     name: "Tags",
     url: "tags",
-    icon: Tag,
+    icon: TagIcon,
   },
   {
     name: "Media",
@@ -51,7 +53,7 @@ const items = [
   {
     name: "Team",
     url: "team",
-    icon: UsersThree,
+    icon: UsersThreeIcon,
   },
 ];
 
@@ -73,6 +75,7 @@ const settingsItems = [
 export function NavMain() {
   const pathname = usePathname();
   const params = useParams<{ workspace: string }>();
+  const { open } = useSidebar();
 
   const isActive = (url: string) => {
     return pathname === `/${params.workspace}/${url}`;
@@ -82,7 +85,7 @@ export function NavMain() {
   const isSettingsActive = pathname.startsWith(`/${params.workspace}/settings`);
 
   return (
-    <SidebarGroup>
+    <SidebarGroup className={cn(open ? "px-4" : "px-2")}>
       <SidebarGroupLabel>Workspace</SidebarGroupLabel>
       <SidebarMenu>
         {/* <SidebarMenuButton
@@ -130,7 +133,7 @@ export function NavMain() {
                       : "hover:text-accent-foreground"
                   }`}
                 >
-                  <Faders />
+                  <FadersIcon />
                   <span>Settings</span>
                 </SidebarMenuButton>
               </CollapsibleTrigger>

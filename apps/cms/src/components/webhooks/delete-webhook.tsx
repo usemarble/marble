@@ -2,19 +2,15 @@
 
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@marble/ui/components/alert-dialog";
-import { Button } from "@marble/ui/components/button";
 import { toast } from "@marble/ui/components/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
 import { AsyncButton } from "@/components/ui/async-button";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
@@ -23,16 +19,17 @@ interface DeleteWebhookModalProps {
   webhookId: string;
   webhookName: string;
   onDelete: () => void;
-  children: React.ReactNode;
+  isOpen: boolean;
+  onOpenChange: (isOpen: boolean) => void;
 }
 
 export function DeleteWebhookModal({
   webhookId,
   webhookName,
   onDelete,
-  children,
+  isOpen,
+  onOpenChange,
 }: DeleteWebhookModalProps) {
-  const [isOpen, setIsOpen] = useState(false);
   const workspaceId = useWorkspaceId();
   const queryClient = useQueryClient();
 
@@ -44,7 +41,7 @@ export function DeleteWebhookModal({
     onSuccess: () => {
       toast.success("Webhook deleted successfully");
       onDelete();
-      setIsOpen(false);
+      onOpenChange(false);
       if (workspaceId) {
         queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.WEBHOOKS(workspaceId),
@@ -57,8 +54,7 @@ export function DeleteWebhookModal({
   });
 
   return (
-    <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
-      <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
+    <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete webhook?</AlertDialogTitle>
@@ -71,19 +67,17 @@ export function DeleteWebhookModal({
           <AlertDialogCancel disabled={isPending} className="min-w-20">
             Cancel
           </AlertDialogCancel>
-          <AlertDialogAction asChild>
-            <AsyncButton
-              variant="destructive"
-              disabled={isPending}
-              onClick={(e) => {
-                e.preventDefault();
-                deleteWebhook();
-              }}
-              className="min-w-20"
-            >
-              Delete webhook
-            </AsyncButton>
-          </AlertDialogAction>
+          <AsyncButton
+            variant="destructive"
+            disabled={isPending}
+            onClick={(e) => {
+              e.preventDefault();
+              deleteWebhook();
+            }}
+            className="min-w-20"
+          >
+            Delete webhook
+          </AsyncButton>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

@@ -212,6 +212,7 @@ export function RegisterForm() {
             disabled={isGoogleLoading || isGithubLoading || isRedirecting}
             isLoading={isCredentialsLoading || isRedirecting}
             className={cn("mt-4", "relative")}
+            type="submit"
           >
             <LastUsedBadge
               show={lastUsedAuthMethod === "email"}

@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@marble/ui/components/button";
 import {
   InputOTP,
   InputOTPGroup,
@@ -9,7 +8,7 @@ import {
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
-import { Loader2 } from "lucide-react";
+
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AsyncButton } from "@/components/ui/async-button";
@@ -31,13 +30,16 @@ export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
 
   useEffect(() => {
     if (waitingSeconds > 0) {
-      const interval = setInterval(
-        () => setWaitingSeconds(waitingSeconds - 1),
-        1000,
-      );
-      return () => clearInterval(interval);
+      const timeout = setTimeout(() => {
+        setWaitingSeconds(waitingSeconds - 1);
+      }, 1000);
+      return () => clearTimeout(timeout);
     }
-  }, [waitingSeconds]);
+    if (waitingSeconds === 0 && isResendSuccess) {
+      // Reset success state when countdown ends
+      setIsResendSuccess(false);
+    }
+  }, [waitingSeconds, isResendSuccess]);
 
   const handleResendCode = async () => {
     setIsResendLoading(true);
@@ -114,7 +116,7 @@ export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
           variant="outline"
           onClick={handleResendCode}
           isLoading={isResendLoading}
-          disabled={isResendSuccess || waitingSeconds > 0}
+          disabled={waitingSeconds > 0}
           className={cn(
             "text-muted-foreground w-full",
             isResendLoading || (waitingSeconds > 0 && "cursor-not-allowed"),

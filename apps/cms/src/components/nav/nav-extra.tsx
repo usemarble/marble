@@ -67,11 +67,8 @@ export function NavExtra() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className={cn(
-                    buttonVariants({
-                      variant: "ghost",
-                      size: "sm",
-                      class: "w-full justify-start gap-2 text-muted-foreground",
-                    }),
+                    buttonVariants({ variant: "ghost", size: "sm" }),
+                    "w-full justify-start gap-2 text-muted-foreground",
                   )}
                 >
                   {link.icon}
@@ -94,11 +91,8 @@ export function NavExtra() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className={cn(
-                    buttonVariants({
-                      variant: "ghost",
-                      size: "sm",
-                      class: "w-full justify-start gap-2 text-muted-foreground",
-                    }),
+                    buttonVariants({ variant: "ghost", size: "sm" }),
+                    "w-full justify-start gap-2 text-muted-foreground",
                   )}
                 >
                   {link.icon}

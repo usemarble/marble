@@ -30,10 +30,13 @@ export function RemoveMemberModal({
   const [loading, setLoading] = useState(false);
   const { activeWorkspace } = useWorkspace();
   async function removeMember() {
-    setLoading(true);
+    // Guard against missing workspace before setting loading state
     if (!activeWorkspace?.id) {
+      toast.error("No active workspace found");
       return;
     }
+
+    setLoading(true);
     try {
       await organization.removeMember({
         memberIdOrEmail: member.id,
@@ -77,6 +80,7 @@ export function RemoveMemberModal({
           <AsyncButton
             onClick={removeMember}
             isLoading={loading}
+            disabled={loading}
             variant="destructive"
           >
             Remove

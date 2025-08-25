@@ -68,7 +68,14 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen) {
+          onClose();
+        }
+      }}
+    >
       <DialogContent className="sm:max-w-sm p-2">
         <DialogHeader className="sr-only">
           <DialogTitle>Upgrade Plan</DialogTitle>

@@ -1,6 +1,7 @@
 "use client";
 
-import { Button, type buttonVariants } from "@marble/ui/components/button";
+// biome-ignore lint/style/useImportType: buttonVariants needed for typeof in type definition
+import { Button, buttonVariants } from "@marble/ui/components/button";
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
 import { CheckIcon, CopyIcon } from "@phosphor-icons/react";

@@ -109,7 +109,7 @@ export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
         <section className="border-t mt-auto py-4 sticky bottom-0 bg-background">
           <SheetFooter className="flex gap-2 justify-end">
             <SheetClose asChild>
-              <Button variant="outline" size="sm" className="min-w-[100px]">
+              <Button variant="outline" className="min-w-[100px]">
                 Close
               </Button>
             </SheetClose>

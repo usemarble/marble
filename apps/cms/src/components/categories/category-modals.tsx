@@ -4,7 +4,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -129,12 +128,20 @@ export const CategoryModal = ({
   });
 
   useEffect(() => {
-    setValue("slug", generateSlug(name));
-  }, [name, setValue]);
+    if (mode === "create") {
+      setValue("slug", generateSlug(name));
+    }
+  }, [mode, name, setValue]);
 
   const onSubmit = async (data: CreateCategoryValues) => {
     if (!workspaceId) {
       toast.error("No active workspace");
+      return;
+    }
+
+    // Guard against missing category ID in update mode
+    if (mode === "update" && !categoryData.id) {
+      toast.error("Category ID is missing - cannot update category");
       return;
     }
 
@@ -144,7 +151,7 @@ export const CategoryModal = ({
         : await checkCategorySlugForUpdateAction(
             data.slug,
             workspaceId,
-            categoryData.id ?? "",
+            categoryData.id as string, // Safe to assert after guard check
           );
 
     if (isTaken) {
@@ -215,10 +222,20 @@ export const DeleteCategoryModal = ({
   const workspaceId = useWorkspaceId();
 
   const { mutate: deleteCategory, isPending } = useMutation({
-    mutationFn: () =>
-      fetch(`/api/categories/${id}`, {
+    mutationFn: async () => {
+      const res = await fetch(`/api/categories/${id}`, {
         method: "DELETE",
-      }),
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text().catch(() => "Unknown error");
+        throw new Error(
+          `Failed to delete category: ${res.status} ${res.statusText} - ${errorText}`,
+        );
+      }
+
+      return true;
+    },
     onSuccess: () => {
       toast.success("Category deleted successfully");
       if (workspaceId) {

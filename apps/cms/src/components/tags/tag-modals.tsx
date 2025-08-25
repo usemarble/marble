@@ -118,12 +118,19 @@ export function TagModal({
   });
 
   useEffect(() => {
-    setValue("slug", generateSlug(name));
-  }, [name, setValue]);
+    if (mode === "create") {
+      setValue("slug", generateSlug(name));
+    }
+  }, [mode, name, setValue]);
 
   const onSubmit = async (data: CreateTagValues) => {
     if (!workspaceId) {
       toast.error("No active workspace");
+      return;
+    }
+
+    if (mode === "update" && !tagData.id) {
+      toast.error("Tag ID is missing - cannot update tag");
       return;
     }
 
@@ -133,7 +140,7 @@ export function TagModal({
         : await checkTagSlugForUpdateAction(
             data.slug,
             workspaceId,
-            tagData.id ?? "",
+            tagData.id as string,
           );
 
     if (isTaken) {
@@ -202,10 +209,20 @@ export const DeleteTagModal = ({
   const workspaceId = useWorkspaceId();
 
   const { mutate: deleteTag, isPending } = useMutation({
-    mutationFn: () =>
-      fetch(`/api/tags/${id}`, {
+    mutationFn: async () => {
+      const res = await fetch(`/api/tags/${id}`, {
         method: "DELETE",
-      }),
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text().catch(() => "Unknown error");
+        throw new Error(
+          `Failed to delete tag: ${res.status} ${res.statusText} - ${errorText}`,
+        );
+      }
+
+      return true;
+    },
     onSuccess: () => {
       toast.success("Tag deleted successfully");
       if (workspaceId) {

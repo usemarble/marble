@@ -220,7 +220,8 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
                   className="shrink-0"
                   size="icon"
                   onClick={() => handleEmbed(embedUrl)}
-                  isLoading={isValidatingUrl || !embedUrl}
+                  isLoading={isValidatingUrl}
+                  disabled={!embedUrl}
                 >
                   <CheckIcon className="size-4" />
                 </AsyncButton>

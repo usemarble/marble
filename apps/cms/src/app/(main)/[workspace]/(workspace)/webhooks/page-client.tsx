@@ -1,57 +1,23 @@
 "use client";
 
-import { Badge } from "@marble/ui/components/badge";
 import { Button } from "@marble/ui/components/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@marble/ui/components/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@marble/ui/components/dropdown-menu";
 import { toast } from "@marble/ui/components/sonner";
-import {
-  CopyIcon,
-  DotsThreeVerticalIcon,
-  PlusIcon,
-  ToggleRightIcon,
-  TrashIcon,
-  WebhooksLogoIcon,
-} from "@phosphor-icons/react";
+import { PlusIcon, WebhooksLogoIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { format } from "date-fns";
 import dynamic from "next/dynamic";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
+import type { Webhook } from "@/types/webhook";
 
 const CreateWebhookSheet = dynamic(
   () => import("@/components/webhooks/create-webhook"),
 );
 
-const DeleteWebhookModal = dynamic(() =>
-  import("@/components/webhooks/delete-webhook").then(
-    (mod) => mod.DeleteWebhookModal,
-  ),
+const WebhookCard = dynamic(() =>
+  import("@/components/webhooks/webhook-card").then((mod) => mod.WebhookCard),
 );
-
-type Webhook = {
-  id: string;
-  name: string;
-  endpoint: string;
-  secret: string;
-  events: string[];
-  enabled: boolean;
-  format: string;
-  createdAt: Date;
-  updatedAt: Date;
-};
 
 export function PageClient() {
   const workspaceId = useWorkspaceId();
@@ -146,7 +112,6 @@ export function PageClient() {
               Webhooks let you run actions on your server when events happen in
               your workspace.
             </p>
-            {/* <WebhookButton /> */}
             <CreateWebhookSheet>
               <Button>
                 <PlusIcon className="size-4" />
@@ -158,11 +123,6 @@ export function PageClient() {
       </WorkspacePageWrapper>
     );
   }
-
-  const handleCopySecret = (secret: string) => {
-    navigator.clipboard.writeText(secret);
-    toast.success("Secret copied to clipboard");
-  };
 
   return (
     <WorkspacePageWrapper>
@@ -177,94 +137,24 @@ export function PageClient() {
           </CreateWebhookSheet>
         </div>
 
-        <div className="grid gap-4">
+        <ul className="grid gap-4">
           {webhooks?.map((webhook) => (
-            <Card key={webhook.id}>
-              <CardHeader className="flex justify-between">
-                <div className="flex items-center gap-3 mb-2">
-                  <CardTitle className="text-lg">{webhook.name}</CardTitle>
-                  <Badge
-                    variant={webhook.enabled ? "positive" : "negative"}
-                    className="text-xs"
-                  >
-                    {webhook.enabled ? "Enabled" : "Disabled"}
-                  </Badge>
-                </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <DotsThreeVerticalIcon size={16} />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem
-                      onClick={() =>
-                        toggleWebhook({
-                          id: webhook.id,
-                          enabled: !webhook.enabled,
-                        })
-                      }
-                      disabled={
-                        isToggling && toggleVariables?.id === webhook.id
-                      }
-                    >
-                      <ToggleRightIcon size={16} className="mr-1.5" />
-                      <span>
-                        {webhook.enabled ? "Disable" : "Enable"} webhook
-                      </span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => handleCopySecret(webhook.secret)}
-                    >
-                      <CopyIcon className="size-4 mr-1.5" />
-                      Copy secret
-                    </DropdownMenuItem>
-                    <DeleteWebhookModal
-                      webhookId={webhook.id}
-                      webhookName={webhook.name}
-                      onDelete={() => {
-                        if (workspaceId) {
-                          queryClient.invalidateQueries({
-                            queryKey: QUERY_KEYS.WEBHOOKS(workspaceId),
-                          });
-                        }
-                      }}
-                    >
-                      <DropdownMenuItem
-                        variant="destructive"
-                        onClick={(e) => e.preventDefault()}
-                      >
-                        <TrashIcon className="size-4 mr-1.5 text-inherit" />
-                        Delete
-                      </DropdownMenuItem>
-                    </DeleteWebhookModal>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-mono text-muted-foreground break-all mb-3">
-                      {webhook.endpoint}
-                    </p>
-                    <div className="flex items-center justify-between gap-4 text-xs text-muted-foreground">
-                      <span>
-                        Created{" "}
-                        {format(new Date(webhook.createdAt), "MMM d, yyyy")}
-                      </span>
-                      <div>
-                        <span>
-                          {webhook.events.length} event
-                          {webhook.events.length !== 1 ? "s" : ""}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <WebhookCard
+              key={webhook.id}
+              webhook={webhook}
+              onToggle={toggleWebhook}
+              onDelete={() => {
+                if (workspaceId) {
+                  queryClient.invalidateQueries({
+                    queryKey: QUERY_KEYS.WEBHOOKS(workspaceId),
+                  });
+                }
+              }}
+              isToggling={isToggling}
+              toggleVariables={toggleVariables}
+            />
           ))}
-        </div>
+        </ul>
       </div>
     </WorkspacePageWrapper>
   );
