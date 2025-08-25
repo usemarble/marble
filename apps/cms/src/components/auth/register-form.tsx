@@ -64,7 +64,7 @@ export function RegisterForm() {
           image: `https://api.dicebear.com/9.x/glass/svg?seed=${formData.email.toLowerCase().split("@")[0]}`,
         },
         {
-          onSuccess: async () => {
+          onSuccess: () => {
             setLastUsedAuthMethod("email");
             initiateEmailVerification(formData.email);
           },
