@@ -30,11 +30,6 @@ export const webhookSchema = z.object({
   events: z
     .array(webhookEventEnum)
     .min(1, { message: "Please select at least one event" }),
-  secret: z
-    .string()
-    .min(8, { message: "Secret must be at least 8 characters" })
-    .optional()
-    .or(z.literal("")),
   format: payloadFormatEnum,
 });
 

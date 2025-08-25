@@ -1,15 +1,16 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, buttonVariants } from "@marble/ui/components/button";
+import { buttonVariants } from "@marble/ui/components/button";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
-import { Eye, EyeClosed, Spinner } from "@phosphor-icons/react";
+import { EyeIcon, EyeSlashIcon, Spinner } from "@phosphor-icons/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
+import { AsyncButton } from "@/components/ui/async-button";
 import { useLocalStorage } from "@/hooks/use-localstorage";
 import { authClient } from "@/lib/auth/client";
 import { type CredentialData, credentialSchema } from "@/lib/validations/auth";
@@ -195,9 +196,9 @@ export function RegisterForm() {
                 onClick={() => setIsPasswordVisible((prev) => !prev)}
               >
                 {isPasswordVisible ? (
-                  <Eye className="size-4" />
+                  <EyeIcon className="size-4" />
                 ) : (
-                  <EyeClosed className="size-4" />
+                  <EyeSlashIcon className="size-4" />
                 )}
               </button>
             </div>
@@ -207,25 +208,18 @@ export function RegisterForm() {
               </p>
             )}
           </div>
-          <Button
-            disabled={
-              isCredentialsLoading ||
-              isGoogleLoading ||
-              isGithubLoading ||
-              isRedirecting
-            }
+          <AsyncButton
+            disabled={isGoogleLoading || isGithubLoading || isRedirecting}
+            isLoading={isCredentialsLoading || isRedirecting}
             className={cn("mt-4", "relative")}
+            type="submit"
           >
             <LastUsedBadge
               show={lastUsedAuthMethod === "email"}
               variant="secondary"
             />
-            {isCredentialsLoading ||
-              (isRedirecting && (
-                <Spinner className="mr-2 h-4 w-4 animate-spin" />
-              ))}
             Continue
-          </Button>
+          </AsyncButton>
         </div>
       </form>
     </div>

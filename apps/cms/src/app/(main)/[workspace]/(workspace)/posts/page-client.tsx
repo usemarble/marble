@@ -1,9 +1,8 @@
 "use client";
 
 import { buttonVariants } from "@marble/ui/components/button";
-import { Note } from "@phosphor-icons/react/dist/ssr";
+import { NoteIcon, PlusIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { Plus } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
@@ -49,7 +48,7 @@ function PageClient() {
         <WorkspacePageWrapper className="h-full grid place-content-center">
           <div className="flex flex-col gap-4 items-center max-w-80">
             <div className="p-2">
-              <Note className="size-16" />
+              <NoteIcon className="size-16" />
             </div>
             <div className="text-center flex flex-col gap-4 items-center">
               <p className="text-muted-foreground text-sm">
@@ -57,9 +56,9 @@ function PageClient() {
               </p>
               <Link
                 href={`/${activeWorkspace?.slug}/editor/p/new`}
-                className={buttonVariants({ variant: "default", size: "sm" })}
+                className={buttonVariants({ variant: "default" })}
               >
-                <Plus size={16} />
+                <PlusIcon size={16} />
                 <span>New Post</span>
               </Link>
             </div>

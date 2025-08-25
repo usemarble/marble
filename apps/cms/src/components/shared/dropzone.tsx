@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@marble/ui/lib/utils";
-import { Image as ImageIcon } from "@phosphor-icons/react";
+import { ImageIcon } from "@phosphor-icons/react";
 import { type DropzoneOptions, useDropzone } from "react-dropzone";
 import { IMAGE_DROPZONE_ACCEPT, MEDIA_DROPZONE_ACCEPT } from "@/lib/constants";
 

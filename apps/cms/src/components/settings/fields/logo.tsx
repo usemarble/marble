@@ -17,7 +17,7 @@ import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
-import { Image, UploadSimple } from "@phosphor-icons/react";
+import { ImageIcon, UploadSimpleIcon } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useId, useState } from "react";
@@ -90,7 +90,7 @@ export function Logo() {
   });
 
   return (
-    <Card className="pt-2">
+    <Card>
       <CardHeader className="px-6">
         <CardTitle className="text-lg font-medium">Workspace Logo.</CardTitle>
         <CardDescription>
@@ -112,7 +112,7 @@ export function Logo() {
               <Avatar className="size-16">
                 <AvatarImage src={logoUrl || undefined} />
                 <AvatarFallback>
-                  <Image className="size-4" />
+                  <ImageIcon className="size-4" />
                 </AvatarFallback>
               </Avatar>
               <input
@@ -140,7 +140,7 @@ export function Logo() {
                 {isUpdatingLogo ? (
                   <Loader2 className="size-4 animate-spin" />
                 ) : (
-                  <UploadSimple className="size-4" />
+                  <UploadSimpleIcon className="size-4" />
                 )}
               </div>
             </Label>
@@ -154,7 +154,7 @@ export function Logo() {
           </div>
         </div>
       </CardContent>
-      <CardFooter className="border-t px-6 py-6">
+      <CardFooter className="border-t">
         <p className="text-sm text-muted-foreground">
           Square images work best for logos
         </p>

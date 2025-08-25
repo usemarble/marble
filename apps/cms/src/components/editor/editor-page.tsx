@@ -14,7 +14,7 @@ import {
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { cn } from "@marble/ui/lib/utils";
-import { ArrowElbowUpLeft, SidebarSimple } from "@phosphor-icons/react";
+import { ArrowElbowUpLeftIcon, SidebarSimpleIcon } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -208,10 +208,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
               href={`/${params.workspace}/posts`}
               className={cn(buttonVariants({ variant: "ghost" }), "group")}
             >
-              <ArrowElbowUpLeft
-                weight="regular"
-                className="size-6 text-muted-foreground group-hover:text-foreground"
-              />
+              <ArrowElbowUpLeftIcon className="size-4 text-muted-foreground group-hover:text-foreground" />
             </Link>
           </div>
 
@@ -222,7 +219,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                   size="icon"
                   className="size-10 text-muted-foreground"
                 >
-                  <SidebarSimple />
+                  <SidebarSimpleIcon className="size-4" />
                 </SidebarTrigger>
               </TooltipTrigger>
               <TooltipContent>

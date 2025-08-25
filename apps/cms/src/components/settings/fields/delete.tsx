@@ -21,7 +21,7 @@ import {
 import { toast } from "@marble/ui/components/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { ButtonLoader } from "@/components/ui/loader";
+import { AsyncButton } from "@/components/ui/async-button";
 import { organization } from "@/lib/auth/client";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { useWorkspace } from "@/providers/workspace";
@@ -76,20 +76,18 @@ export function Delete() {
   }
 
   return (
-    <Card className="pt-2">
-      <CardHeader className="px-6">
+    <Card className="pb-4">
+      <CardHeader>
         <CardTitle className="text-lg font-medium">Delete workspace.</CardTitle>
         <CardDescription>
           Permanently delete your workspace and all associated data within. This
           action cannot be undone.
         </CardDescription>
       </CardHeader>
-      <CardFooter className="border-t px-6 py-4 justify-end">
+      <CardFooter className="border-t pt-4 justify-end">
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="destructive" size="sm">
-              Delete Workspace
-            </Button>
+            <Button variant="destructive">Delete Workspace</Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
@@ -100,18 +98,17 @@ export function Delete() {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel className="min-w-20">Cancel</AlertDialogCancel>
-              <Button
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AsyncButton
                 variant="destructive"
-                disabled={isPending || !activeWorkspace?.id}
+                isLoading={isPending || !activeWorkspace?.id}
                 onClick={() =>
                   activeWorkspace?.id &&
                   deleteWorkspace({ organizationId: activeWorkspace.id })
                 }
-                size="sm"
               >
-                {isPending ? <ButtonLoader variant="destructive" /> : "Delete"}
-              </Button>
+                Delete
+              </AsyncButton>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>

@@ -1,12 +1,11 @@
 "use client";
 
-import { Button } from "@marble/ui/components/button";
 import { Input } from "@marble/ui/components/input";
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
-import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { authClient } from "@/lib/auth/client";
+import { AsyncButton } from "../../ui/async-button";
 
 export default function ResetRequestForm() {
   const [email, setEmail] = useState("");
@@ -16,13 +15,16 @@ export default function ResetRequestForm() {
 
   useEffect(() => {
     if (waitingSeconds > 0) {
-      const interval = setInterval(
-        () => setWaitingSeconds(waitingSeconds - 1),
-        1000,
-      );
-      return () => clearInterval(interval);
+      const timeout = setTimeout(() => {
+        setWaitingSeconds(waitingSeconds - 1);
+      }, 1000);
+      return () => clearTimeout(timeout);
     }
-  }, [waitingSeconds]);
+    if (waitingSeconds === 0 && isRequestSuccess) {
+      // Reset success state when countdown ends
+      setIsRequestSuccess(false);
+    }
+  }, [waitingSeconds, isRequestSuccess]);
 
   const handleRequest = async () => {
     if (!email) {
@@ -63,23 +65,20 @@ export default function ResetRequestForm() {
         onChange={(e) => setEmail(e.target.value)}
       />
 
-      <Button
+      <AsyncButton
         onClick={handleRequest}
-        disabled={!email || isLoading || isRequestSuccess || waitingSeconds > 0}
+        disabled={!email || isLoading || waitingSeconds > 0}
         className={cn(
           "flex items-center justify-center min-w-48",
           isLoading || (waitingSeconds > 0 && "cursor-not-allowed"),
         )}
+        isLoading={isLoading}
       >
-        {isLoading ? (
-          <Loader2 className="size-4 animate-spin" />
-        ) : (
-          <div>
-            Send reset link{" "}
-            {waitingSeconds > 0 && <span>({waitingSeconds}s)</span>}
-          </div>
-        )}
-      </Button>
+        <div>
+          Send reset link{" "}
+          {waitingSeconds > 0 && <span>({waitingSeconds}s)</span>}
+        </div>
+      </AsyncButton>
     </section>
   );
 }

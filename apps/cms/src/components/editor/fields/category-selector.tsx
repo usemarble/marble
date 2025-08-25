@@ -8,19 +8,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@marble/ui/components/select";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@marble/ui/components/tooltip";
-import { Info, Plus } from "@phosphor-icons/react";
+import { PlusIcon } from "@phosphor-icons/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { type Control, useController } from "react-hook-form";
-import { CreateCategoryModal } from "@/components/categories/category-modals";
+import { CategoryModal } from "@/components/categories/category-modals";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { PostValues } from "@/lib/validations/post";
+import { FieldInfo } from "./field-info";
 
 interface CategoryResponse {
   id: string;
@@ -80,20 +76,10 @@ export function CategorySelector({ control }: CategorySelectorProps) {
       <div className="flex flex-col gap-3">
         <div className="flex items-center gap-1">
           <Label htmlFor="category">Category</Label>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Info className="size-4 text-gray-400" />
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="text-muted-foreground text-xs max-w-64">
-                Good for grouping posts together. You can have one category per
-                post.
-              </p>
-            </TooltipContent>
-          </Tooltip>
+          <FieldInfo text="Good for grouping posts together. You can have one category per post." />
         </div>
         <Select value={value} onValueChange={onChange}>
-          <SelectTrigger>
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="Choose a category" />
           </SelectTrigger>
           <SelectContent>
@@ -111,7 +97,7 @@ export function CategorySelector({ control }: CategorySelectorProps) {
                   className="flex items-center gap-1 p-1 hover:bg-accent"
                   onClick={() => setShowCategoryModal(true)}
                 >
-                  <Plus className="size-4 text-muted-foreground" />
+                  <PlusIcon className="size-4 text-muted-foreground" />
                   <span className="sr-only">Add New Category</span>
                 </button>
               </SelectLabel>
@@ -129,9 +115,10 @@ export function CategorySelector({ control }: CategorySelectorProps) {
           </p>
         )}
       </div>
-      <CreateCategoryModal
+      <CategoryModal
         open={showCategoyModal}
         setOpen={setShowCategoryModal}
+        mode="create"
         onCategoryCreated={handleCategoryCreated}
       />
     </>

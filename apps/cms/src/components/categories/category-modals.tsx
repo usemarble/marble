@@ -1,9 +1,9 @@
+/** biome-ignore-all lint/correctness/useUniqueElementIds: IDs are unique within their respective modals */
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -11,7 +11,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@marble/ui/components/alert-dialog";
-import { Button } from "@marble/ui/components/button";
 import {
   Dialog,
   DialogContent,
@@ -36,16 +35,20 @@ import {
   categorySchema,
 } from "@/lib/validations/workspace";
 import { generateSlug } from "@/utils/string";
-import { ButtonLoader } from "../ui/loader";
+import { AsyncButton } from "../ui/async-button";
 import type { Category } from "./columns";
 
-export const CreateCategoryModal = ({
+export const CategoryModal = ({
   open,
   setOpen,
+  mode = "create",
+  categoryData = { name: "", slug: "" },
   onCategoryCreated,
 }: {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  mode?: "create" | "update";
+  categoryData?: Partial<Category>;
   onCategoryCreated?: (category: {
     name: string;
     id: string;
@@ -62,7 +65,10 @@ export const CreateCategoryModal = ({
     formState: { errors, isSubmitting },
   } = useForm<CreateCategoryValues>({
     resolver: zodResolver(categorySchema),
-    defaultValues: { name: "" },
+    defaultValues: {
+      name: categoryData.name || "",
+      slug: categoryData.slug || "",
+    },
   });
 
   const { name } = watch();
@@ -96,98 +102,6 @@ export const CreateCategoryModal = ({
     },
   });
 
-  useEffect(() => {
-    setValue("slug", generateSlug(name));
-  }, [name, setValue]);
-
-  const onSubmit = async (data: CreateCategoryValues) => {
-    if (!workspaceId) {
-      toast.error("No active workspace");
-      return;
-    }
-
-    const isTaken = await checkCategorySlugAction(data.slug, workspaceId);
-
-    if (isTaken) {
-      setError("slug", {
-        message: "You already have a category with that slug",
-      });
-      return;
-    }
-
-    createCategory(data);
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-w-sm p-8">
-        <DialogHeader>
-          <DialogTitle className="font-medium text-center">
-            Create Category
-          </DialogTitle>
-        </DialogHeader>
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col gap-5 mt-2"
-        >
-          <div className="grid flex-1 gap-2">
-            <Label htmlFor="name" className="sr-only">
-              Name
-            </Label>
-            <Input id="name" {...register("name")} placeholder="Name" />
-            {errors.name && <ErrorMessage>{errors.name.message}</ErrorMessage>}
-          </div>
-          <div className="grid flex-1 gap-2">
-            <Label htmlFor="slug" className="sr-only">
-              Slug
-            </Label>
-            <Input
-              id="slug"
-              {...register("slug")}
-              defaultValue={generateSlug(name)}
-              placeholder="slug"
-            />
-            {errors.slug && <ErrorMessage>{errors.slug.message}</ErrorMessage>}
-          </div>
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            className="flex w-full gap-2 mt-4"
-            size={"sm"}
-          >
-            {isSubmitting ? <ButtonLoader /> : "Create Category"}
-          </Button>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
-};
-
-export const UpdateCategoryModal = ({
-  open,
-  setOpen,
-  categoryData,
-}: {
-  open: boolean;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  categoryData: Category;
-}) => {
-  const queryClient = useQueryClient();
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    watch,
-    setError,
-    formState: { errors, isSubmitting },
-  } = useForm<CreateCategoryValues>({
-    resolver: zodResolver(categorySchema),
-    defaultValues: { ...categoryData },
-  });
-
-  const { name } = watch();
-  const workspaceId = useWorkspaceId();
-
   const { mutate: updateCategory } = useMutation({
     mutationFn: (data: CreateCategoryValues) =>
       fetch(`/api/categories/${categoryData.id}`, {
@@ -214,8 +128,10 @@ export const UpdateCategoryModal = ({
   });
 
   useEffect(() => {
-    setValue("slug", generateSlug(name));
-  }, [name, setValue]);
+    if (mode === "create") {
+      setValue("slug", generateSlug(name));
+    }
+  }, [mode, name, setValue]);
 
   const onSubmit = async (data: CreateCategoryValues) => {
     if (!workspaceId) {
@@ -223,11 +139,20 @@ export const UpdateCategoryModal = ({
       return;
     }
 
-    const isTaken = await checkCategorySlugForUpdateAction(
-      data.slug,
-      workspaceId,
-      categoryData.id,
-    );
+    // Guard against missing category ID in update mode
+    if (mode === "update" && !categoryData.id) {
+      toast.error("Category ID is missing - cannot update category");
+      return;
+    }
+
+    const isTaken =
+      mode === "create"
+        ? await checkCategorySlugAction(data.slug, workspaceId)
+        : await checkCategorySlugForUpdateAction(
+            data.slug,
+            workspaceId,
+            categoryData.id as string, // Safe to assert after guard check
+          );
 
     if (isTaken) {
       setError("slug", {
@@ -236,15 +161,19 @@ export const UpdateCategoryModal = ({
       return;
     }
 
-    updateCategory(data);
+    if (mode === "create") {
+      createCategory(data);
+    } else {
+      updateCategory(data);
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-w-sm p-8">
+      <DialogContent className="sm:max-w-md p-8">
         <DialogHeader>
           <DialogTitle className="font-medium text-center">
-            Update category
+            {mode === "create" ? "Create Category" : "Update Category"}
           </DialogTitle>
         </DialogHeader>
         <form
@@ -265,14 +194,13 @@ export const UpdateCategoryModal = ({
             <Input id="slug" {...register("slug")} placeholder="slug" />
             {errors.slug && <ErrorMessage>{errors.slug.message}</ErrorMessage>}
           </div>
-          <Button
+          <AsyncButton
             type="submit"
-            disabled={isSubmitting}
+            isLoading={isSubmitting}
             className="flex w-full gap-2 mt-4"
-            size={"sm"}
           >
-            {isSubmitting ? <ButtonLoader /> : "Update category"}
-          </Button>
+            {mode === "create" ? "Create Category" : "Update Category"}
+          </AsyncButton>
         </form>
       </DialogContent>
     </Dialog>
@@ -294,10 +222,20 @@ export const DeleteCategoryModal = ({
   const workspaceId = useWorkspaceId();
 
   const { mutate: deleteCategory, isPending } = useMutation({
-    mutationFn: () =>
-      fetch(`/api/categories/${id}`, {
+    mutationFn: async () => {
+      const res = await fetch(`/api/categories/${id}`, {
         method: "DELETE",
-      }),
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text().catch(() => "Unknown error");
+        throw new Error(
+          `Failed to delete category: ${res.status} ${res.statusText} - ${errorText}`,
+        );
+      }
+
+      return true;
+    },
     onSuccess: () => {
       toast.success("Category deleted successfully");
       if (workspaceId) {
@@ -324,18 +262,16 @@ export const DeleteCategoryModal = ({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
-          <AlertDialogAction asChild>
-            <Button
-              onClick={(e) => {
-                e.preventDefault();
-                deleteCategory();
-              }}
-              disabled={isPending}
-              variant="destructive"
-            >
-              {isPending ? <ButtonLoader variant="destructive" /> : "Delete"}
-            </Button>
-          </AlertDialogAction>
+          <AsyncButton
+            variant="destructive"
+            onClick={(e) => {
+              e.preventDefault();
+              deleteCategory();
+            }}
+            isLoading={isPending}
+          >
+            Delete
+          </AsyncButton>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

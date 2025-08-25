@@ -12,7 +12,7 @@ import {
 } from "@phosphor-icons/react";
 import { useState } from "react";
 import type { Tag } from "./columns";
-import { DeleteTagModal, UpdateTagModal } from "./tag-modals";
+import { DeleteTagModal, TagModal } from "./tag-modals";
 
 export default function TableActions(props: Tag) {
   const [showUpdateModal, setShowUpdateModal] = useState(false);
@@ -49,9 +49,10 @@ export default function TableActions(props: Tag) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <UpdateTagModal
+      <TagModal
         open={showUpdateModal}
         setOpen={setShowUpdateModal}
+        mode="update"
         tagData={{ ...props }}
       />
 

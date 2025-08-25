@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@marble/ui/components/button";
 import {
   InputOTP,
   InputOTPGroup,
@@ -9,9 +8,10 @@ import {
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
-import { Loader2 } from "lucide-react";
+
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { AsyncButton } from "@/components/ui/async-button";
 import { authClient } from "@/lib/auth/client";
 import Container from "../shared/container";
 
@@ -30,13 +30,16 @@ export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
 
   useEffect(() => {
     if (waitingSeconds > 0) {
-      const interval = setInterval(
-        () => setWaitingSeconds(waitingSeconds - 1),
-        1000,
-      );
-      return () => clearInterval(interval);
+      const timeout = setTimeout(() => {
+        setWaitingSeconds(waitingSeconds - 1);
+      }, 1000);
+      return () => clearTimeout(timeout);
     }
-  }, [waitingSeconds]);
+    if (waitingSeconds === 0 && isResendSuccess) {
+      // Reset success state when countdown ends
+      setIsResendSuccess(false);
+    }
+  }, [waitingSeconds, isResendSuccess]);
 
   const handleResendCode = async () => {
     setIsResendLoading(true);
@@ -72,7 +75,7 @@ export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
 
   return (
     <Container className="flex flex-col items-center justify-between py-24">
-      <section className="flex w-full flex-col items-center gap-8">
+      <section className="flex max-w-xs w-full flex-col items-center gap-8">
         <div className="flex flex-col items-center gap-4 text-center">
           <h1 className="text-lg font-semibold leading-7">Verify your email</h1>
           <p className="leading-6">
@@ -92,43 +95,35 @@ export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
             ))}
           </InputOTPGroup>
         </InputOTP>
-        <Button
+        <AsyncButton
           onClick={handleVerifyOtp}
+          isLoading={isLoading}
           disabled={otp.length !== 6}
           className={cn(
-            "flex items-center justify-center min-w-48",
+            "flex items-center justify-center w-full",
             otp.length !== 6 && "cursor-not-allowed",
           )}
         >
-          {isLoading ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : (
-            <span className="w-full text-center">Verify email</span>
-          )}
-        </Button>
+          Verify email
+        </AsyncButton>
       </section>
       {/*  */}
-      <section className="flex w-full flex-col items-center gap-4">
+      <section className="flex max-w-xs w-full flex-col items-center gap-4">
         <p className="text-muted-foreground text-sm">
           Didn&apos;t receive the code?
         </p>
-        <Button
+        <AsyncButton
           variant="outline"
           onClick={handleResendCode}
-          disabled={isResendLoading || isResendSuccess || waitingSeconds > 0}
+          isLoading={isResendLoading}
+          disabled={waitingSeconds > 0}
           className={cn(
-            "text-muted-foreground min-w-48",
+            "text-muted-foreground w-full",
             isResendLoading || (waitingSeconds > 0 && "cursor-not-allowed"),
           )}
         >
-          {isResendLoading ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : (
-            <div>
-              Resend code {waitingSeconds > 0 && <span>{waitingSeconds}s</span>}
-            </div>
-          )}
-        </Button>
+          Resend code {waitingSeconds > 0 && <span>{waitingSeconds}s</span>}
+        </AsyncButton>
         {/* <div>
           <Button
             variant="outline"

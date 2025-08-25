@@ -23,13 +23,14 @@ import {
 } from "@marble/ui/components/sidebar";
 import { Skeleton } from "@marble/ui/components/skeleton";
 import { cn } from "@marble/ui/lib/utils";
-import { CaretDown, Check, Plus } from "@phosphor-icons/react";
+import { CaretDownIcon, CheckIcon, PlusIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import type { Workspace } from "@/types/workspace";
 import { useWorkspace } from "../../providers/workspace";
 
 export function WorkspaceSwitcher() {
-  const { isMobile } = useSidebar();
+  const { isMobile, state } = useSidebar();
+  const isCollapsed = state === "collapsed";
   const {
     activeWorkspace,
     updateActiveWorkspace,
@@ -67,10 +68,14 @@ export function WorkspaceSwitcher() {
             <DropdownMenuTrigger asChild>
               <SidebarMenuButton
                 size="lg"
-                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:bg-sidebar-accent border border-transparent hover:border-border hover:shadow-xs transition"
+                className={cn(
+                  "data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:bg-sidebar-accent border border-transparent hover:border-border hover:shadow-xs transition",
+                  isCollapsed &&
+                    "p-1 size-10 min-w-0 justify-center rounded-full",
+                )}
                 disabled={isFetchingWorkspace}
               >
-                <Avatar className="size-8 rounded-">
+                <Avatar className={cn("size-8", isCollapsed && "size-6.5")}>
                   <AvatarImage
                     src={activeWorkspace.logo || undefined}
                     className="rounded-[4px]"
@@ -79,34 +84,50 @@ export function WorkspaceSwitcher() {
                     {activeWorkspace.name.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
-                <div className="flex flex-1 gap-2 text-left text-sm leading-tight">
-                  <span className="truncate font-medium text-sm text-ellipsis">
-                    {activeWorkspace?.name}
-                  </span>
-                  <Badge
-                    variant="outline"
-                    className={cn(
-                      "text-center py-0 px-1.5 text-[11px] capitalize justify-center bg-gray-50 text-gray-500 border-gray-300",
-                      {
-                        "bg-emerald-50 dark:bg-transparent text-blue-500 border-blue-300":
-                          activeWorkspace.subscription?.plan === "pro",
-                      },
-                    )}
-                  >
-                    {activeWorkspace.subscription?.plan || "free"}
-                  </Badge>
-                </div>
-                <CaretDown className="ml-auto" />
+                {!isCollapsed && (
+                  <>
+                    <div className="flex flex-1 gap-2 text-left text-sm leading-tight">
+                      <span className="truncate font-medium text-sm text-ellipsis">
+                        {activeWorkspace?.name}
+                      </span>
+                      <Badge
+                        variant={
+                          activeWorkspace.subscription?.plan === "pro"
+                            ? "premium"
+                            : "free"
+                        }
+                        className="py-0 px-1.5 text-[11px] capitalize"
+                      >
+                        {activeWorkspace.subscription?.plan || "free"}
+                      </Badge>
+                    </div>
+                    <CaretDownIcon className="ml-auto" />
+                  </>
+                )}
               </SidebarMenuButton>
             </DropdownMenuTrigger>
           ) : (
-            <div className="bg-sidebar-accent rounded-md border p-2 flex items-center gap-2">
-              <Skeleton className="border rounded-md size-8 shrink-0" />
-              <div className="flex flex-col gap-1 w-full">
-                <Skeleton className="h-3 border w-3/4" />
-                <Skeleton className="border h-3 w-1/2" />
-              </div>
-              <Skeleton className="border rounded-md size-4 ml-auto" />
+            <div
+              className={cn(
+                "bg-sidebar-accent rounded-md border flex items-center",
+                isCollapsed ? "p-1 size-10 justify-center" : "p-2 gap-2",
+              )}
+            >
+              <Skeleton
+                className={cn(
+                  "border rounded-md shrink-0",
+                  isCollapsed ? "size-6" : "size-8",
+                )}
+              />
+              {!isCollapsed && (
+                <>
+                  <div className="flex flex-col gap-1 w-full">
+                    <Skeleton className="h-3 border w-3/4" />
+                    <Skeleton className="border h-3 w-1/2" />
+                  </div>
+                  <Skeleton className="border rounded-md size-4 ml-auto" />
+                </>
+              )}
             </div>
           )}
           <DropdownMenuContent
@@ -134,7 +155,7 @@ export function WorkspaceSwitcher() {
                       </Avatar>
                       {org.name}
                       {activeWorkspace?.id === org.id && (
-                        <Check className="text-muted-foreground absolute right-0 size-4" />
+                        <CheckIcon className="text-muted-foreground absolute right-0 size-4" />
                       )}
                     </button>
                   </DropdownMenuItem>
@@ -162,7 +183,7 @@ export function WorkspaceSwitcher() {
                       </Avatar>
                       {org.name}
                       {activeWorkspace?.id === org.id && (
-                        <Check className="text-muted-foreground absolute right-0 size-4" />
+                        <CheckIcon className="text-muted-foreground absolute right-0 size-4" />
                       )}
                     </button>
                   </DropdownMenuItem>
@@ -177,7 +198,7 @@ export function WorkspaceSwitcher() {
                 className="flex w-full items-center gap-2"
               >
                 <div className="bg-background flex size-6 items-center justify-center rounded-md border">
-                  <Plus className="size-4" />
+                  <PlusIcon className="size-4" />
                 </div>
                 <div className="text-muted-foreground font-medium">
                   Add workspace

@@ -7,14 +7,14 @@ import {
 } from "@marble/ui/components/dropdown-menu";
 import { toast } from "@marble/ui/components/sonner";
 import {
+  ArrowClockwiseIcon,
   CopyIcon,
-  Loader2,
-  MoreHorizontal,
-  RefreshCcwIcon,
-  ShieldAlertIcon,
+  DotsThreeVerticalIcon,
+  ShieldCheckIcon,
+  SpinnerIcon,
   TrashIcon,
   XCircleIcon,
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import { useState } from "react";
 import { authClient, organization } from "@/lib/auth/client";
 import type { TeamMemberRow } from "./columns";
@@ -114,9 +114,9 @@ export default function TableActions(props: TableActionsProps) {
           >
             <span className="sr-only">Open menu</span>
             {isResendingInvite || isCancelingInvite ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <SpinnerIcon className="h-4 w-4 animate-spin" />
             ) : (
-              <MoreHorizontal className="h-4 w-4" />
+              <DotsThreeVerticalIcon className="h-4 w-4" />
             )}
           </Button>
         </DropdownMenuTrigger>
@@ -130,7 +130,7 @@ export default function TableActions(props: TableActionsProps) {
           </DropdownMenuItem>
           {canManageInvites && (
             <DropdownMenuItem onClick={handleResendInvite}>
-              <RefreshCcwIcon className="mr-2 h-4 w-4" />
+              <ArrowClockwiseIcon className="mr-2 h-4 w-4" />
               Resend Invite
             </DropdownMenuItem>
           )}
@@ -171,7 +171,7 @@ export default function TableActions(props: TableActionsProps) {
             className="h-8 w-8 p-0 data-[state=open]:bg-muted"
           >
             <span className="sr-only">Open menu</span>
-            <MoreHorizontal className="h-4 w-4" />
+            <DotsThreeVerticalIcon className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
@@ -179,7 +179,7 @@ export default function TableActions(props: TableActionsProps) {
           className="w-[180px] text-muted-foreground"
         >
           <DropdownMenuItem onClick={() => setShowProfileSheet(true)}>
-            <ShieldAlertIcon className="mr-2 h-4 w-4" />
+            <ShieldCheckIcon className="mr-2 h-4 w-4" />
             Manage Access
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setShowRemoveModal(true)}>

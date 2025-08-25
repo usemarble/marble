@@ -25,7 +25,7 @@
   --destructive-foreground: hsl(0 0% 98%);
   --border: hsl(0 0% 89.8%);
   --input: hsl(0 0% 89.8%);
-  --ring: hsl(244 100% 82%);
+  --ring: hsl(244, 93%, 83%);
 
   /* chart */
   --chart-1: hsl(12 76% 61%);
@@ -50,6 +50,7 @@
   /* scrollbar */
   --scrollbar-thumb: hsl(0 0% 37%);
   --scrollbar-thumb-hover: hsl(0 0% 40%);
+  --sidebar: hsl(0 0% 98%);
 }
 .dark {
   --background: hsl(150 4% 9%);
@@ -92,6 +93,7 @@
   /* scrollbar */
   --scrollbar-thumb: hsl(0, 0%, 60%);
   --scrollbar-thumb-hover: hsl(0, 0%, 53%);
+  --sidebar: hsl(240 5.9% 10%);
 }
 
 @theme inline {

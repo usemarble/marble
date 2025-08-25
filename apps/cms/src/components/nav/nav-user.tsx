@@ -16,8 +16,7 @@ import {
 } from "@marble/ui/components/dropdown-menu";
 import { useSidebar } from "@marble/ui/components/sidebar";
 import { Skeleton } from "@marble/ui/components/skeleton";
-import { SignOut, User } from "@phosphor-icons/react";
-import { Loader2 } from "lucide-react";
+import { SignOutIcon, UserIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useUser } from "@/providers/user";
 
@@ -72,31 +71,14 @@ export function NavUser() {
               href="/settings/account"
               className="flex w-full items-center gap-4"
             >
-              <User className="size-4" />
+              <UserIcon className="size-4" />
               Account
             </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <button
-            type="button"
-            onClick={signOut}
-            disabled={isSigningOut}
-            className="flex w-full items-center gap-4"
-          >
-            {isSigningOut ? (
-              <>
-                <Loader2 className="size-4 animate-spin" />
-                Signing out...
-              </>
-            ) : (
-              <>
-                <SignOut className="size-4" />
-                Log out
-              </>
-            )}
-          </button>
+        <DropdownMenuItem variant="destructive" onSelect={signOut}>
+          <SignOutIcon className="size-4 mr-1.5" />
+          Log out
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

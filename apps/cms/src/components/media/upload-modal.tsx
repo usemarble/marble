@@ -15,7 +15,7 @@ import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { uploadFile } from "@/lib/media/upload";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { Media } from "@/types/media";
-import { ButtonLoader } from "../ui/loader";
+import { AsyncButton } from "../ui/async-button";
 
 interface MediaUploadModalProps {
   isOpen: boolean;
@@ -104,9 +104,9 @@ export function MediaUploadModal({
                 >
                   Cancel
                 </Button>
-                <Button onClick={handleUpload} disabled={isUploading}>
-                  {isUploading ? <ButtonLoader /> : "Upload"}
-                </Button>
+                <AsyncButton onClick={handleUpload} isLoading={isUploading}>
+                  Upload
+                </AsyncButton>
               </div>
             </div>
           ) : (

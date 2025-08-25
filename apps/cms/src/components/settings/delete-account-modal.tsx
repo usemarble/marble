@@ -14,7 +14,7 @@ import { toast } from "@marble/ui/components/sonner";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/providers/user";
-import { ButtonLoader } from "../ui/loader";
+import { AsyncButton } from "../ui/async-button";
 
 export function DeleteAccountModal() {
   const router = useRouter();
@@ -58,28 +58,18 @@ export function DeleteAccountModal() {
           todo: show confirmation inputs
        </form> */}
         <AlertDialogFooter>
-          <AlertDialogCancel className="min-w-20" disabled={isPending}>
-            Cancel
-          </AlertDialogCancel>
+          <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
           <AlertDialogAction asChild>
-            <Button
+            <AsyncButton
               variant="destructive"
-              disabled={isPending}
+              isLoading={isPending}
               onClick={(e) => {
                 e.preventDefault();
                 deleteAccount();
               }}
-              className="min-w-20"
             >
-              {isPending ? (
-                <ButtonLoader
-                  variant="destructive"
-                  className="size-4 animate-spin"
-                />
-              ) : (
-                "Delete"
-              )}
-            </Button>
+              Delete
+            </AsyncButton>
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
