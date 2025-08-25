@@ -28,7 +28,7 @@ export function CopyButton({
     <Button
       variant="outline"
       size="icon"
-      className={cn("px-3", className)}
+      className={cn("size-9", className)}
       {...props}
       onClick={() => {
         startTransition(async () => {
