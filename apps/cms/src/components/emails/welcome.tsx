@@ -39,7 +39,6 @@ export const WelcomeEmail = ({ userEmail }: WelcomeEmailProps) => {
               />
             </Section>
 
-            {/* Headline */}
             <Heading className="text-black text-2xl font-bold text-center my-6">
               Welcome aboard,
             </Heading>
