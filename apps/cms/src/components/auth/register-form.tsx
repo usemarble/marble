@@ -74,7 +74,6 @@ export function RegisterForm() {
         },
       );
     } catch (_error) {
-      console.log(_error)
       toast.error("Sign in failed. Please try again.");
     } finally {
       setIsCredentialsLoading(false);
