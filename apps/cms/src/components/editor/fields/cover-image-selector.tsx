@@ -198,13 +198,13 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
                   uploadCover(files[0]);
                 }
               }}
-              className="w-full h-48 rounded-md border border-dashed bg-background flex items-center justify-center cursor-pointer"
+              className="w-full h-48 rounded-md border border-dashed bg-editor-field flex items-center justify-center cursor-pointer"
               multiple={false}
             />
           )}
         </TabsContent>
         <TabsContent value="embed" className="h-48">
-          <div className="w-full h-48 rounded-md border border-dashed bg-background flex items-center justify-start">
+          <div className="w-full h-48 rounded-md border border-dashed bg-editor-field flex items-center justify-start">
             <div className="flex flex-col gap-2 w-full max-w-sm px-4">
               <div className="flex items-center gap-2">
                 <Input
@@ -214,7 +214,10 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
                     setUrlError(null);
                   }}
                   placeholder="Paste your cover image link"
-                  className={cn(urlError && "border-destructive")}
+                  className={cn(
+                    "bg-editor-sidebar-background",
+                    urlError && "border-destructive",
+                  )}
                 />
                 <AsyncButton
                   className="shrink-0"
@@ -236,7 +239,7 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
           <button
             type="button"
             onClick={() => setIsGalleryOpen(true)}
-            className="w-full h-48 rounded-md border border-dashed bg-background flex items-center justify-center cursor-pointer transition-colors"
+            className="w-full h-48 rounded-md border border-dashed bg-editor-field flex items-center justify-center cursor-pointer transition-colors"
           >
             <div className="flex flex-col items-center gap-2 text-muted-foreground">
               <ImagesIcon className="size-6" />

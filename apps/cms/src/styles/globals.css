@@ -51,6 +51,13 @@
   --sidebar-border: hsl(220 13% 91%);
   --sidebar-ring: hsl(217.2 91.2% 59.8%);
 
+  /* editor */
+  --editor-background: hsl(233 10% 94%);
+  --editor-content-background: hsl(0 0% 100%);
+  --editor-sidebar-background: hsl(0 0% 100%);
+  --editor-field-background: hsl(0 0% 97%);
+  --editor-field-border: hsl(0 0% 91%);
+
   /* scrollbar */
   --scrollbar-thumb: hsl(0 0% 37%);
   --scrollbar-thumb-hover: hsl(0 0% 40%);
@@ -92,6 +99,13 @@
   --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
   --sidebar-border: hsl(240 3.7% 15.9%);
   --sidebar-ring: hsl(217.2 91.2% 59.8%);
+
+  /* editor */
+  --editor-background: hsl(240 6% 10%);
+  --editor-content-background: hsl(233 7% 8%);
+  --editor-sidebar-background: hsl(233 7% 8%);
+  --editor-field-background: hsl(0 0% 14.9% / 0.3);
+  --editor-field-border: hsl(0 0% 14.9%);
 
   /* scrollbar */
   --scrollbar-thumb: hsl(0, 0%, 60%);
@@ -157,6 +171,13 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Editor colors */
+  --color-editor-background: var(--editor-background);
+  --color-editor-content-background: var(--editor-content-background);
+  --color-editor-sidebar-background: var(--editor-sidebar-background);
+  --color-editor-field-background: var(--editor-field-background);
+  --color-editor-field-border: var(--editor-field-border);
 }
 
 /*
@@ -197,5 +218,27 @@
   }
   .lightbackground {
     background-color: hsl(165, 100%, 97%);
+  }
+}
+
+@layer utilities {
+  .bg-editor-background {
+    background-color: var(--color-editor-background);
+  }
+  .bg-editor-content-background {
+    background-color: var(--color-editor-content-background);
+  }
+  .bg-editor-sidebar-background {
+    background-color: var(--color-editor-sidebar-background);
+  }
+  .bg-editor-field {
+    background-color: var(--color-editor-field-background);
+    border-color: var(--color-editor-field-border);
+  }
+  .bg-editor-field:hover {
+    background-color: hsl(0 0% 94%);
+  }
+  .dark .bg-editor-field:hover {
+    background-color: hsl(0 0% 14.9% / 0.5);
   }
 }

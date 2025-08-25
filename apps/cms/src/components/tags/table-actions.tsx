@@ -6,9 +6,9 @@ import {
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
 import {
-  DotsThreeVertical,
-  PencilSimpleLine,
-  Trash,
+  DotsThreeVerticalIcon,
+  PencilSimpleLineIcon,
+  TrashIcon,
 } from "@phosphor-icons/react";
 import { useState } from "react";
 import type { Tag } from "./columns";
@@ -24,27 +24,18 @@ export default function TableActions(props: Tag) {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="h-8 w-8 p-0">
             <span className="sr-only">Open menu</span>
-            <DotsThreeVertical />
+            <DotsThreeVerticalIcon />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="text-muted-foreground">
-          <DropdownMenuItem>
-            <button
-              type="button"
-              onClick={() => setShowUpdateModal(true)}
-              className="flex w-full items-center gap-2"
-            >
-              <PencilSimpleLine size={16} /> <span>Edit</span>
-            </button>
+          <DropdownMenuItem onClick={() => setShowUpdateModal(true)}>
+            <PencilSimpleLineIcon size={16} /> <span>Edit</span>
           </DropdownMenuItem>
-          <DropdownMenuItem>
-            <button
-              type="button"
-              onClick={() => setShowDeleteModal(true)}
-              className="flex w-full items-center gap-2"
-            >
-              <Trash size={16} /> <span>Delete</span>
-            </button>
+          <DropdownMenuItem
+            variant="destructive"
+            onClick={() => setShowDeleteModal(true)}
+          >
+            <TrashIcon size={16} /> <span>Delete</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

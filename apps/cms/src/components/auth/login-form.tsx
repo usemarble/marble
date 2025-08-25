@@ -97,7 +97,7 @@ export function LoginForm() {
         >
           <LastUsedBadge
             show={lastUsedAuthMethod === "google"}
-            variant="primary"
+            variant="info"
           />
           {isGoogleLoading ? (
             <SpinnerIcon className="mr-2 h-4 w-4 animate-spin" />
@@ -117,7 +117,7 @@ export function LoginForm() {
         >
           <LastUsedBadge
             show={lastUsedAuthMethod === "github"}
-            variant="primary"
+            variant="info"
           />
           {isGithubLoading ? (
             <SpinnerIcon className="mr-2 h-4 w-4 animate-spin" />
@@ -154,7 +154,7 @@ export function LoginForm() {
               {...register("email")}
             />
             {errors?.email && (
-              <p className="text-sm px-1 font-medium text-destructive">
+              <p className="text-xs px-1 font-medium text-destructive">
                 {errors.email.message}
               </p>
             )}
@@ -179,7 +179,7 @@ export function LoginForm() {
               />
               <button
                 type="button"
-                className="absolute right-4 top-3 text-muted-foreground"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground"
                 onClick={() => setIsPasswordVisible((prev) => !prev)}
               >
                 {isPasswordVisible ? (
@@ -190,7 +190,7 @@ export function LoginForm() {
               </button>
             </div>
             {errors?.password && (
-              <p className="text-sm px-1 font-medium text-destructive">
+              <p className="text-xs px-1 font-medium text-destructive">
                 {errors.password.message}
               </p>
             )}
@@ -205,6 +205,7 @@ export function LoginForm() {
             <LastUsedBadge
               show={lastUsedAuthMethod === "email"}
               variant="secondary"
+              className="border-input"
             />
             Continue
           </AsyncButton>

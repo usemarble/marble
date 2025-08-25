@@ -79,7 +79,7 @@ export function CategorySelector({ control }: CategorySelectorProps) {
           <FieldInfo text="Good for grouping posts together. You can have one category per post." />
         </div>
         <Select value={value} onValueChange={onChange}>
-          <SelectTrigger className="w-full">
+          <SelectTrigger className="w-full bg-editor-field">
             <SelectValue placeholder="Choose a category" />
           </SelectTrigger>
           <SelectContent>

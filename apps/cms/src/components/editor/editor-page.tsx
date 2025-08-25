@@ -14,7 +14,7 @@ import {
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { cn } from "@marble/ui/lib/utils";
-import { ArrowElbowUpLeftIcon, SidebarSimpleIcon } from "@phosphor-icons/react";
+import { SidebarSimpleIcon, XIcon } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -201,24 +201,31 @@ function EditorPage({ initialData, id }: EditorPageProps) {
 
   return (
     <>
-      <SidebarInset className="bg-sidebar/70 rounded-xl shadow-xs border min-h-[calc(100vh-1rem)] h-[calc(100vh-1rem)]">
+      <SidebarInset className="bg-editor-content-background rounded-xl shadow-xs border min-h-[calc(100vh-1rem)] h-[calc(100vh-1rem)]">
         <header className="sticky top-0 p-3 z-50 flex justify-between">
           <div className="flex gap-4 items-center">
-            <Link
-              href={`/${params.workspace}/posts`}
-              className={cn(buttonVariants({ variant: "ghost" }), "group")}
-            >
-              <ArrowElbowUpLeftIcon className="size-4 text-muted-foreground group-hover:text-foreground" />
-            </Link>
+            <Tooltip delayDuration={400}>
+              <TooltipTrigger asChild>
+                <Link
+                  href={`/${params.workspace}/posts`}
+                  className={cn(
+                    buttonVariants({ variant: "ghost", size: "icon" }),
+                    "group cursor-default rounded-full",
+                  )}
+                >
+                  <XIcon className="size-4 text-muted-foreground group-hover:text-foreground" />
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Close editor</p>
+              </TooltipContent>
+            </Tooltip>
           </div>
 
           <div>
             <Tooltip delayDuration={400}>
               <TooltipTrigger asChild>
-                <SidebarTrigger
-                  size="icon"
-                  className="size-10 text-muted-foreground"
-                >
+                <SidebarTrigger className="size-8 rounded-full text-muted-foreground">
                   <SidebarSimpleIcon className="size-4" />
                 </SidebarTrigger>
               </TooltipTrigger>
@@ -229,7 +236,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
           </div>
         </header>
         <section className="mx-auto w-full max-w-3xl flex-1">
-          <HiddenScrollbar className="h-[calc(100vh-8rem)]">
+          <HiddenScrollbar className="h-[calc(100vh-7rem)]">
             <form
               ref={formRef}
               onSubmit={handleSubmit(onSubmit)}
@@ -245,7 +252,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                   placeholder="Title"
                   {...register("title")}
                   onKeyDown={handleKeyDown}
-                  className="mb-2 resize-none scrollbar-hide w-full bg-transparent sm:px-4 text-4xl font-semibold focus:outline-hidden focus:ring-0"
+                  className="mb-2 resize-none scrollbar-hide w-full bg-transparent sm:px-4 text-4xl font-semibold focus:outline-hidden prose-headings:font-semibold focus:ring-0"
                 />
                 {errors.title && (
                   <p className="text-sm px-1 font-medium text-destructive">
@@ -275,7 +282,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                       },
                       attributes: {
                         class:
-                          "prose lg:prose-lg dark:prose-invert min-h-96 sm:px-4 focus:outline-hidden max-w-full prose-blockquote:border-border",
+                          "prose dark:prose-invert min-h-96 h-full sm:px-4 focus:outline-hidden max-w-full prose-blockquote:border-border",
                       },
                     }}
                   >
