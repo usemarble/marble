@@ -143,7 +143,7 @@ export const auth = betterAuth({
   ],
   hooks: {
     after: createAuthMiddleware(async (ctx) => {
-      // Prüfen, ob es sich um eine Sign-Up handelt
+      // Check whether it is a sign-up
       if (ctx.path.startsWith("/sign-up")) {
         const newSession = ctx.context.newSession;
         if (newSession?.user?.email) {
