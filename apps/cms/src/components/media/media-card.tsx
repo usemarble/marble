@@ -66,7 +66,7 @@ export function MediaCard({ media, onDelete }: MediaCardProps) {
   };
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden py-0 gap-0">
       <CardContent className="p-0">
         <div className="aspect-video relative overflow-hidden">
           {media.type === "image" && (
