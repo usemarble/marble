@@ -43,7 +43,6 @@ export const WelcomeEmail = ({ userEmail }: WelcomeEmailProps) => {
               Welcome aboard,
             </Heading>
 
-            {/* Intro */}
             <Text className="text-gray-700 text-base leading-relaxed text-center">
               Thanks for signing up with Marble. We’re excited to have you in the
               community!  
