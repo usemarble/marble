@@ -12,15 +12,19 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
-import { Separator } from "@marble/ui/components/separator";
 import { toast } from "@marble/ui/components/sonner";
-import { Switch } from "@marble/ui/components/switch";
-import { Copy, Plus, Trash, WebhooksLogo } from "@phosphor-icons/react";
+import {
+  CopyIcon,
+  DotsThreeVerticalIcon,
+  PlusIcon,
+  ToggleRightIcon,
+  TrashIcon,
+  WebhooksLogoIcon,
+} from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { MoreHorizontal } from "lucide-react";
+import { format } from "date-fns";
 import dynamic from "next/dynamic";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
@@ -29,12 +33,6 @@ import { QUERY_KEYS } from "@/lib/queries/keys";
 
 const CreateWebhookSheet = dynamic(
   () => import("@/components/webhooks/create-webhook"),
-);
-
-const WebhookButton = dynamic(() =>
-  import("@/components/webhooks/create-webhook").then(
-    (mod) => mod.WebhookButton,
-  ),
 );
 
 const DeleteWebhookModal = dynamic(() =>
@@ -141,7 +139,7 @@ export function PageClient() {
       <WorkspacePageWrapper className="h-full grid place-content-center">
         <div className="flex flex-col gap-4 items-center max-w-80">
           <div className="p-2">
-            <WebhooksLogo className="size-16" />
+            <WebhooksLogoIcon className="size-16" />
           </div>
           <div className="text-center flex flex-col gap-4 items-center">
             <p className="text-muted-foreground text-sm">
@@ -151,7 +149,7 @@ export function PageClient() {
             {/* <WebhookButton /> */}
             <CreateWebhookSheet>
               <Button>
-                <Plus className="size-4" />
+                <PlusIcon className="size-4" />
                 New webhook
               </Button>
             </CreateWebhookSheet>
@@ -170,14 +168,10 @@ export function PageClient() {
     <WorkspacePageWrapper>
       <div className="flex flex-col gap-6">
         <div className="flex items-center justify-between">
-          <div>
-            <p className="text-muted-foreground">
-              Manage webhook endpoints for your workspace.
-            </p>
-          </div>
+          <div />
           <CreateWebhookSheet>
             <Button>
-              <Plus className="size-4" />
+              <PlusIcon className="size-4" />
               Add Endpoint
             </Button>
           </CreateWebhookSheet>
@@ -186,89 +180,86 @@ export function PageClient() {
         <div className="grid gap-4">
           {webhooks?.map((webhook) => (
             <Card key={webhook.id}>
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
+              <CardHeader className="flex justify-between">
+                <div className="flex items-center gap-3 mb-2">
                   <CardTitle className="text-lg">{webhook.name}</CardTitle>
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      checked={webhook.enabled}
-                      onCheckedChange={(checked) =>
-                        toggleWebhook({ id: webhook.id, enabled: checked })
+                  <Badge
+                    variant={webhook.enabled ? "positive" : "negative"}
+                    className="text-xs"
+                  >
+                    {webhook.enabled ? "Enabled" : "Disabled"}
+                  </Badge>
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <DotsThreeVerticalIcon size={16} />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      onClick={() =>
+                        toggleWebhook({
+                          id: webhook.id,
+                          enabled: !webhook.enabled,
+                        })
                       }
                       disabled={
                         isToggling && toggleVariables?.id === webhook.id
                       }
-                    />
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontal className="size-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() => handleCopySecret(webhook.secret)}
-                        >
-                          <Copy className="size-4 mr-2" />
-                          Copy secret
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DeleteWebhookModal
-                          webhookId={webhook.id}
-                          webhookName={webhook.name}
-                          onDelete={() => {
-                            if (workspaceId) {
-                              queryClient.invalidateQueries({
-                                queryKey: QUERY_KEYS.WEBHOOKS(workspaceId),
-                              });
-                            }
-                          }}
-                        >
-                          <DropdownMenuItem
-                            className="text-destructive"
-                            onSelect={(e) => e.preventDefault()}
-                          >
-                            <Trash className="size-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DeleteWebhookModal>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </div>
+                    >
+                      <ToggleRightIcon size={16} className="mr-1.5" />
+                      <span>
+                        {webhook.enabled ? "Disable" : "Enable"} webhook
+                      </span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleCopySecret(webhook.secret)}
+                    >
+                      <CopyIcon className="size-4 mr-1.5" />
+                      Copy secret
+                    </DropdownMenuItem>
+                    <DeleteWebhookModal
+                      webhookId={webhook.id}
+                      webhookName={webhook.name}
+                      onDelete={() => {
+                        if (workspaceId) {
+                          queryClient.invalidateQueries({
+                            queryKey: QUERY_KEYS.WEBHOOKS(workspaceId),
+                          });
+                        }
+                      }}
+                    >
+                      <DropdownMenuItem
+                        variant="destructive"
+                        onClick={(e) => e.preventDefault()}
+                      >
+                        <TrashIcon className="size-4 mr-1.5 text-inherit" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DeleteWebhookModal>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-1">
-                    Endpoint
-                  </p>
-                  <p className="text-sm font-mono break-all">
-                    {webhook.endpoint}
-                  </p>
-                </div>
-
-                <Separator />
-
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-2">
-                    Events
-                  </p>
-                  <ul className="flex flex-wrap gap-2">
-                    {webhook.events.map((event) => (
-                      <li key={event}>
-                        <Badge variant="secondary" className="text-xs">
-                          {event}
-                        </Badge>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>Format: {webhook.format}</span>
-                  <span>
-                    Created {new Date(webhook.createdAt).toLocaleDateString()}
-                  </span>
+              <CardContent>
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-mono text-muted-foreground break-all mb-3">
+                      {webhook.endpoint}
+                    </p>
+                    <div className="flex items-center justify-between gap-4 text-xs text-muted-foreground">
+                      <span>
+                        Created{" "}
+                        {format(new Date(webhook.createdAt), "MMM d, yyyy")}
+                      </span>
+                      <div>
+                        <span>
+                          {webhook.events.length} event
+                          {webhook.events.length !== 1 ? "s" : ""}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>

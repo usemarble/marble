@@ -6,7 +6,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@marble/ui/components/avatar";
-import { Button, buttonVariants } from "@marble/ui/components/button";
+import { buttonVariants } from "@marble/ui/components/button";
 import {
   Card,
   CardContent,
@@ -19,7 +19,7 @@ import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
-import { Image as ImageIcon, UploadSimple } from "@phosphor-icons/react";
+import { ImageIcon, UploadSimpleIcon } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
@@ -28,8 +28,8 @@ import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
 import { DeleteAccountModal } from "@/components/settings/delete-account-modal";
 import { ThemeSwitch } from "@/components/settings/theme";
+import { AsyncButton } from "@/components/ui/async-button";
 import { CopyButton } from "@/components/ui/copy-button";
-import { ButtonLoader } from "@/components/ui/loader";
 import { uploadFile } from "@/lib/media/upload";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { type ProfileData, profileSchema } from "@/lib/validations/settings";
@@ -121,18 +121,21 @@ function PageClient() {
         </div>
       </div>
       <div className="flex flex-col gap-8 py-12">
-        <Card className="flex justify-between p-4">
+        <Card className="flex justify-between">
           <CardHeader>
             <CardTitle className="text-lg font-medium">Theme.</CardTitle>
-            <CardDescription>
-              Override the default theme of the application.
-            </CardDescription>
+            <CardDescription>Chose your preferred theme.</CardDescription>
           </CardHeader>
-          <CardContent className="flex items-center center pb-0">
+          <CardContent className="flex items-center center">
             <ThemeSwitch />
           </CardContent>
+          <CardFooter className="border-t">
+            <p className="text-sm text-muted-foreground">
+              This defaults to the system theme.
+            </p>
+          </CardFooter>
         </Card>
-        <Card className="p-4">
+        <Card>
           <CardHeader>
             <CardTitle className="text-lg font-medium">Avatar.</CardTitle>
             <CardDescription>Change your profile picture.</CardDescription>
@@ -150,12 +153,12 @@ function PageClient() {
                   <Avatar className="size-16">
                     <AvatarImage src={avatarUrl || undefined} />
                     <AvatarFallback>
-                      <ImageIcon className="size-4" />
+                      <ImageIcon className="size-4 text-muted-foreground" />
                     </AvatarFallback>
                   </Avatar>
                   {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
                   <input
-                    title="Upload logo"
+                    title="Upload avatar"
                     type="file"
                     id="logo"
                     accept="image/*"
@@ -179,7 +182,7 @@ function PageClient() {
                     {isUploading ? (
                       <Loader2 className="size-4 animate-spin" />
                     ) : (
-                      <UploadSimple className="size-4" />
+                      <UploadSimpleIcon className="size-4" />
                     )}
                   </div>
                 </Label>
@@ -193,10 +196,18 @@ function PageClient() {
               </div>
             </div>
           </CardContent>
+          <CardFooter className="border-t">
+            <p className="text-sm text-muted-foreground">
+              Square images work best for avatars
+            </p>
+          </CardFooter>
         </Card>
 
-        <Card className="p-4">
-          <form onSubmit={handleSubmit(onSubmit)}>
+        <Card className="pb-4">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col gap-6"
+          >
             <CardHeader>
               <CardTitle className="text-lg font-medium">Full Name</CardTitle>
               <CardDescription>
@@ -214,19 +225,20 @@ function PageClient() {
                 )}
               </div>
             </CardContent>
-            <CardFooter className="justify-end">
-              <Button
-                disabled={!isChanged || isSubmitting || isUpdatingUser}
+            <CardFooter className="border-t pt-4 justify-end">
+              <AsyncButton
+                disabled={!isChanged}
+                isLoading={isSubmitting || isUpdatingUser}
                 className="w-20 self-end"
                 type="submit"
               >
-                {isSubmitting || isUpdatingUser ? <ButtonLoader /> : "Save"}
-              </Button>
+                Save
+              </AsyncButton>
             </CardFooter>
           </form>
         </Card>
 
-        <Card className="p-4">
+        <Card>
           <CardHeader>
             <CardTitle className="text-lg font-medium">Email.</CardTitle>
             <CardDescription>
@@ -238,12 +250,17 @@ function PageClient() {
               <Label htmlFor="email" className="sr-only">
                 Email
               </Label>
-              <Input defaultValue={user?.email} disabled />
+              <Input defaultValue={user?.email} readOnly />
             </div>
           </CardContent>
+          <CardFooter className="border-t">
+            <p className="text-sm text-muted-foreground">
+              Email cannot be changed
+            </p>
+          </CardFooter>
         </Card>
 
-        <Card className="p-4">
+        <Card className="pb-4">
           <CardHeader>
             <CardTitle className="text-lg font-medium">
               Delete Account
@@ -253,7 +270,7 @@ function PageClient() {
               action cannot be undone.
             </CardDescription>
           </CardHeader>
-          <CardFooter className="justify-end">
+          <CardFooter className="border-t pt-4 justify-end">
             <DeleteAccountModal />
           </CardFooter>
         </Card>

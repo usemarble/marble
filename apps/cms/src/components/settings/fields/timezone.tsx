@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@marble/ui/components/button";
 import {
   Card,
   CardContent,
@@ -14,10 +13,10 @@ import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
+import { AsyncButton } from "@/components/ui/async-button";
 import { TimezoneSelector } from "@/components/ui/timezone-selector";
 import { organization } from "@/lib/auth/client";
 import { timezones } from "@/lib/constants";
@@ -82,15 +81,18 @@ export function Timezone() {
   };
 
   return (
-    <Card className="pt-2">
-      <CardHeader className="px-6">
+    <Card className="pb-4">
+      <CardHeader>
         <CardTitle className="text-lg font-medium">
           Workspace Timezone
         </CardTitle>
         <CardDescription>The timezone of your workspace.</CardDescription>
       </CardHeader>
-      <form onSubmit={timezoneForm.handleSubmit(onTimezoneSubmit)}>
-        <CardContent className="px-6">
+      <form
+        onSubmit={timezoneForm.handleSubmit(onTimezoneSubmit)}
+        className="flex flex-col gap-6"
+      >
+        <CardContent>
           <div className="flex flex-col gap-2 w-full">
             <div className="flex gap-2 items-center">
               <div className="flex flex-col gap-2 flex-1">
@@ -118,17 +120,17 @@ export function Timezone() {
             )}
           </div>
         </CardContent>
-        <CardFooter className="border-t px-6 py-4 flex justify-between">
+        <CardFooter className="border-t pt-4 flex justify-between">
           <p className="text-sm text-muted-foreground">
             Changes affect scheduled posts
           </p>
-          <Button
-            disabled={!isOwner || !timezoneForm.formState.isDirty || isPending}
+          <AsyncButton
+            isLoading={isPending}
+            disabled={!isOwner || !timezoneForm.formState.isDirty}
             className={cn("w-20 self-end flex gap-2 items-center")}
-            size="sm"
           >
-            {isPending ? <Loader2 className="animate-spin" /> : "Save"}
-          </Button>
+            Save
+          </AsyncButton>
         </CardFooter>
       </form>
     </Card>

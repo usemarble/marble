@@ -16,6 +16,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
+import { MagnifyingGlassIcon, XIcon } from "@phosphor-icons/react";
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -24,7 +25,6 @@ import {
   getFilteredRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { SearchIcon, XIcon } from "lucide-react";
 import { useState } from "react";
 import { InviteButton } from "./invite-button";
 
@@ -68,7 +68,7 @@ export function TeamDataTable<TData, TValue>({
     <div>
       <div className="flex items-center py-4 gap-4 justify-between">
         <div className="relative">
-          <SearchIcon
+          <MagnifyingGlassIcon
             size={16}
             className="text-muted-foreground size-4 absolute top-3 left-3"
           />
@@ -99,7 +99,6 @@ export function TeamDataTable<TData, TValue>({
               <Tooltip delayDuration={0}>
                 <TooltipTrigger asChild>
                   <Button
-                    size="sm"
                     variant="outline"
                     className="opacity-50 cursor-not-allowed"
                   >
@@ -115,7 +114,6 @@ export function TeamDataTable<TData, TValue>({
             </TooltipProvider>
           ) : (
             <Button
-              size="sm"
               variant="outline"
               onClick={() => setShowLeaveWorkspaceModal(true)}
             >

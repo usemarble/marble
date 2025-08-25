@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@marble/ui/components/button";
 import {
   Dialog,
   DialogContent,
@@ -24,7 +23,7 @@ import { ErrorMessage } from "@/components/auth/error-message";
 import { organization } from "@/lib/auth/client";
 import { type InviteData, inviteSchema } from "@/lib/validations/auth";
 import type { Workspace } from "@/types/workspace";
-import { ButtonLoader } from "../ui/loader";
+import { AsyncButton } from "../ui/async-button";
 
 export const InviteModal = ({
   open,
@@ -131,13 +130,13 @@ export const InviteModal = ({
             {errors.role && <ErrorMessage>{errors.role.message}</ErrorMessage>}
           </div>
 
-          <Button
+          <AsyncButton
             type="submit"
-            disabled={isSubmitting}
+            isLoading={isSubmitting}
             className="flex w-full gap-2 mt-4"
           >
-            {isSubmitting ? <ButtonLoader /> : "Invite"}
-          </Button>
+            Invite
+          </AsyncButton>
         </form>
       </DialogContent>
     </Dialog>

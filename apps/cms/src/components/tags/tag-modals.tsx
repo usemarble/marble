@@ -11,7 +11,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@marble/ui/components/alert-dialog";
-import { Button } from "@marble/ui/components/button";
 import {
   Dialog,
   DialogContent,
@@ -22,7 +21,7 @@ import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useId } from "react";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
@@ -33,20 +32,24 @@ import {
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { type CreateTagValues, tagSchema } from "@/lib/validations/workspace";
 import { generateSlug } from "@/utils/string";
-import { ButtonLoader } from "../ui/loader";
+import { AsyncButton } from "../ui/async-button";
 import type { Tag } from "./columns";
 
-interface CreateTagModalProps {
-  open: boolean;
-  setOpen: (open: boolean) => void;
-  onTagCreated?: (tag: { id: string; name: string; slug: string }) => void;
-}
-
-export function CreateTagModal({
+export function TagModal({
   open,
   setOpen,
+  mode = "create",
+  tagData = { name: "", slug: "" },
   onTagCreated,
-}: CreateTagModalProps) {
+}: {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  mode?: "create" | "update";
+  tagData?: Partial<Tag>;
+  onTagCreated?: (tag: { id: string; name: string; slug: string }) => void;
+}) {
+  const nameId = useId();
+  const slugId = useId();
   const queryClient = useQueryClient();
   const {
     register,
@@ -57,7 +60,7 @@ export function CreateTagModal({
     formState: { errors, isSubmitting },
   } = useForm<CreateTagValues>({
     resolver: zodResolver(tagSchema),
-    defaultValues: { name: "" },
+    defaultValues: { name: tagData.name || "", slug: tagData.slug || "" },
   });
 
   const { name } = watch();
@@ -88,96 +91,6 @@ export function CreateTagModal({
       toast.error(error.message);
     },
   });
-
-  useEffect(() => {
-    setValue("slug", generateSlug(name));
-  }, [name, setValue]);
-
-  const onSubmit = async (data: CreateTagValues) => {
-    if (!workspaceId) {
-      toast.error("No active workspace");
-      return;
-    }
-
-    const isTaken = await checkTagSlugAction(data.slug, workspaceId);
-
-    if (isTaken) {
-      setError("slug", { message: "You already have a tag with that slug" });
-      return;
-    }
-
-    createTag(data);
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-w-sm p-8">
-        <DialogHeader>
-          <DialogTitle className="font-medium text-center">
-            Create Tag
-          </DialogTitle>
-        </DialogHeader>
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col gap-5 mt-2"
-        >
-          <div className="grid flex-1 gap-2">
-            <Label htmlFor="name" className="sr-only">
-              Name
-            </Label>
-            <Input id="name" {...register("name")} placeholder="Name" />
-            {errors.name && <ErrorMessage>{errors.name.message}</ErrorMessage>}
-          </div>
-          <div className="grid flex-1 gap-2">
-            <Label htmlFor="slug" className="sr-only">
-              Slug
-            </Label>
-            <Input
-              id="slug"
-              {...register("slug")}
-              defaultValue={generateSlug(name)}
-              placeholder="slug"
-            />
-            {errors.slug && <ErrorMessage>{errors.slug.message}</ErrorMessage>}
-          </div>
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            className="flex w-full gap-2 mt-4"
-            size={"sm"}
-          >
-            {isSubmitting ? <ButtonLoader /> : "Create"}
-          </Button>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-export const UpdateTagModal = ({
-  open,
-  setOpen,
-  tagData,
-}: {
-  open: boolean;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  tagData: Tag;
-}) => {
-  const queryClient = useQueryClient();
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    watch,
-    setError,
-    formState: { errors, isSubmitting },
-  } = useForm<CreateTagValues>({
-    resolver: zodResolver(tagSchema),
-    defaultValues: { ...tagData },
-  });
-
-  const { name } = watch();
-  const workspaceId = useWorkspaceId();
 
   const { mutate: updateTag } = useMutation({
     mutationFn: (data: CreateTagValues) =>
@@ -214,26 +127,33 @@ export const UpdateTagModal = ({
       return;
     }
 
-    const isTaken = await checkTagSlugForUpdateAction(
-      data.slug,
-      workspaceId,
-      tagData.id,
-    );
+    const isTaken =
+      mode === "create"
+        ? await checkTagSlugAction(data.slug, workspaceId)
+        : await checkTagSlugForUpdateAction(
+            data.slug,
+            workspaceId,
+            tagData.id ?? "",
+          );
 
     if (isTaken) {
       setError("slug", { message: "You already have a tag with that slug" });
       return;
     }
 
-    updateTag(data);
+    if (mode === "create") {
+      createTag(data);
+    } else {
+      updateTag(data);
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-w-sm p-8">
+      <DialogContent className="sm:max-w-md p-8">
         <DialogHeader>
           <DialogTitle className="font-medium text-center">
-            Update tag
+            {mode === "create" ? "Create Tag" : "Update Tag"}
           </DialogTitle>
         </DialogHeader>
         <form
@@ -241,32 +161,31 @@ export const UpdateTagModal = ({
           className="flex flex-col gap-5 mt-2"
         >
           <div className="grid flex-1 gap-2">
-            <Label htmlFor="name" className="sr-only">
+            <Label htmlFor={nameId} className="sr-only">
               Name
             </Label>
-            <Input id="name" {...register("name")} placeholder="Name" />
+            <Input id={nameId} {...register("name")} placeholder="Name" />
             {errors.name && <ErrorMessage>{errors.name.message}</ErrorMessage>}
           </div>
           <div className="grid flex-1 gap-2">
-            <Label htmlFor="slug" className="sr-only">
+            <Label htmlFor={slugId} className="sr-only">
               Slug
             </Label>
-            <Input id="slug" {...register("slug")} placeholder="slug" />
+            <Input id={slugId} {...register("slug")} placeholder="slug" />
             {errors.slug && <ErrorMessage>{errors.slug.message}</ErrorMessage>}
           </div>
-          <Button
+          <AsyncButton
             type="submit"
-            disabled={isSubmitting}
+            isLoading={isSubmitting}
             className="flex w-full gap-2 mt-4"
-            size={"sm"}
           >
-            {isSubmitting ? <ButtonLoader /> : "Update tag"}
-          </Button>
+            {mode === "create" ? "Create Tag" : "Update Tag"}
+          </AsyncButton>
         </form>
       </DialogContent>
     </Dialog>
   );
-};
+}
 
 export const DeleteTagModal = ({
   open,
@@ -319,16 +238,16 @@ export const DeleteTagModal = ({
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction asChild>
-            <Button
+            <AsyncButton
               onClick={(e) => {
                 e.preventDefault();
                 deleteTag();
               }}
-              disabled={isPending}
+              isLoading={isPending}
               variant="destructive"
             >
-              {isPending ? <ButtonLoader variant="destructive" /> : "Delete"}
-            </Button>
+              Delete
+            </AsyncButton>
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

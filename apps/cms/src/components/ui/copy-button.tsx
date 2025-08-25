@@ -1,10 +1,15 @@
 "use client";
 
-import { Button, type ButtonProps } from "@marble/ui/components/button";
+import { Button, type buttonVariants } from "@marble/ui/components/button";
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
-import { Check, Copy } from "@phosphor-icons/react";
+import { CheckIcon, CopyIcon } from "@phosphor-icons/react";
+import type { VariantProps } from "class-variance-authority";
+import type * as React from "react";
 import { useOptimistic, useTransition } from "react";
+
+type ButtonProps = React.ComponentProps<"button"> &
+  VariantProps<typeof buttonVariants>;
 
 export function CopyButton({
   textToCopy,
@@ -38,9 +43,9 @@ export function CopyButton({
     >
       <span className="sr-only">Copy</span>
       {state === "idle" ? (
-        <Copy className="size-4" />
+        <CopyIcon className="size-4" />
       ) : (
-        <Check className="size-4" />
+        <CheckIcon className="size-4" />
       )}
     </Button>
   );

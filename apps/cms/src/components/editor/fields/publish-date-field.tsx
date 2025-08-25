@@ -8,16 +8,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@marble/ui/components/popover";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@marble/ui/components/tooltip";
 import { cn } from "@marble/ui/lib/utils";
-import { CalendarDots, Info } from "@phosphor-icons/react";
+import { CalendarDotsIcon } from "@phosphor-icons/react";
 import { format } from "date-fns";
 import { type Control, useController } from "react-hook-form";
 import type { PostValues } from "@/lib/validations/post";
+import { FieldInfo } from "./field-info";
 
 interface PublishDateFieldProps {
   control: Control<PostValues>;
@@ -36,32 +32,22 @@ export function PublishDateField({ control }: PublishDateFieldProps) {
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-1">
         <Label htmlFor="publishedAt">Published On</Label>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Info className="size-4 text-gray-400" />
-          </TooltipTrigger>
-          <TooltipContent>
-            <p className="text-muted-foreground text-xs max-w-64">
-              The date your post was published. This is set by default but you
-              can change it to any date.
-            </p>
-          </TooltipContent>
-        </Tooltip>
+        <FieldInfo text="The date your post was published. This is set by default but you can change it to any date." />
       </div>
       <Popover>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
             className={cn(
-              "justify-between text-left font-normal",
+              "justify-between text-left font-normal shadow-none",
               !value && "text-muted-foreground",
             )}
           >
             {value ? format(value, "PPP") : <span>Pick a date</span>}
-            <CalendarDots className="text-muted-foreground" />
+            <CalendarDotsIcon className="text-muted-foreground" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0">
+        <PopoverContent className="w-auto p-0 overflow-hidden">
           <Calendar
             mode="single"
             selected={value}
@@ -71,7 +57,7 @@ export function PublishDateField({ control }: PublishDateFieldProps) {
                 onChange(date);
               }
             }}
-            initialFocus
+            autoFocus
           />
         </PopoverContent>
       </Popover>

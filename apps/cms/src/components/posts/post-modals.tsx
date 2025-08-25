@@ -9,12 +9,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@marble/ui/components/alert-dialog";
-import { Button } from "@marble/ui/components/button";
 import { toast } from "@marble/ui/components/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
-import { ButtonLoader } from "../ui/loader";
+import { AsyncButton } from "../ui/async-button";
 
 export const DeletePostModal = ({
   open,
@@ -58,16 +57,16 @@ export const DeletePostModal = ({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
-          <Button
+          <AsyncButton
             onClick={(e) => {
               e.preventDefault();
               deletePost(id);
             }}
-            disabled={isPending}
             variant="destructive"
+            isLoading={isPending}
           >
-            {isPending ? <ButtonLoader /> : "Delete"}
-          </Button>
+            Delete
+          </AsyncButton>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

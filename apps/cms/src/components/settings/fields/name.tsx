@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@marble/ui/components/button";
 import {
   Card,
   CardContent,
@@ -15,10 +14,10 @@ import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useId } from "react";
 import { useForm } from "react-hook-form";
+import { AsyncButton } from "@/components/ui/async-button";
 import { organization } from "@/lib/auth/client";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { type NameValues, nameSchema } from "@/lib/validations/workspace";
@@ -78,15 +77,18 @@ export function Name() {
   };
 
   return (
-    <Card className="pt-2">
-      <CardHeader className="px-6">
+    <Card className="pb-4">
+      <CardHeader>
         <CardTitle className="text-lg font-medium">Workspace Name</CardTitle>
         <CardDescription>
           The name of your workspace on marble. typically your websites name
         </CardDescription>
       </CardHeader>
-      <form onSubmit={nameForm.handleSubmit(onNameSubmit)}>
-        <CardContent className="px-6">
+      <form
+        onSubmit={nameForm.handleSubmit(onNameSubmit)}
+        className="flex flex-col gap-6"
+      >
+        <CardContent>
           <div className="flex flex-col gap-2 w-full">
             <div className="flex gap-2 items-center">
               <div className="flex flex-col gap-2 flex-1">
@@ -108,15 +110,15 @@ export function Name() {
             )}
           </div>
         </CardContent>
-        <CardFooter className="border-t px-6 py-4 flex justify-between">
+        <CardFooter className="border-t pt-4 flex justify-between">
           <p className="text-sm text-muted-foreground">Max 32 characters</p>
-          <Button
-            disabled={!isOwner || !nameForm.formState.isDirty || isPending}
+          <AsyncButton
+            isLoading={isPending}
             className={cn("w-20 self-end flex gap-2 items-center")}
-            size="sm"
+            disabled={!isOwner || !nameForm.formState.isDirty}
           >
-            {isPending ? <Loader2 className="animate-spin" /> : "Save"}
-          </Button>
+            Save
+          </AsyncButton>
         </CardFooter>
       </form>
     </Card>

@@ -9,13 +9,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@marble/ui/components/alert-dialog";
-import { Button } from "@marble/ui/components/button";
 import { toast } from "@marble/ui/components/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { Media } from "@/types/media";
-import { ButtonLoader } from "../ui/loader";
+import { AsyncButton } from "../ui/async-button";
 
 interface DeleteMediaProps {
   isOpen: boolean;
@@ -90,13 +89,13 @@ export function DeleteMediaModal({
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             {/* <AlertDialogAction asChild> */}
-            <Button
+            <AsyncButton
               onClick={handleDelete}
               variant="destructive"
-              disabled={isPending}
+              isLoading={isPending}
             >
-              {isPending ? <ButtonLoader variant="destructive" /> : "Delete"}
-            </Button>
+              Delete
+            </AsyncButton>
             {/* </AlertDialogAction> */}
           </AlertDialogFooter>
         </AlertDialogContent>

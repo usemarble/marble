@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@marble/ui/components/table";
-import { MagnifyingGlass, Plus, X } from "@phosphor-icons/react";
+import { MagnifyingGlassIcon, PlusIcon, XIcon } from "@phosphor-icons/react";
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -21,7 +21,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { useState } from "react";
-import { CreateCategoryModal } from "./category-modals";
+import { CategoryModal } from "./category-modals";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -54,7 +54,7 @@ export function DataTable<TData, TValue>({
     <div>
       <div className="flex items-center py-4 justify-between">
         <div className="relative">
-          <MagnifyingGlass
+          <MagnifyingGlassIcon
             size={16}
             className="text-muted-foreground size-4 absolute top-3 left-3"
           />
@@ -72,14 +72,14 @@ export function DataTable<TData, TValue>({
               onClick={() => table.getColumn("name")?.setFilterValue("")}
               className="absolute right-3 top-3"
             >
-              <X className="size-4" />
+              <XIcon className="size-4" />
               <span className="sr-only">Clear search</span>
             </button>
           )}
         </div>
         <div>
-          <Button onClick={() => setShowCreateModal(true)} size="sm">
-            <Plus size={16} />
+          <Button onClick={() => setShowCreateModal(true)}>
+            <PlusIcon size={16} />
             <span>New Category</span>
           </Button>
         </div>
@@ -136,9 +136,10 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
 
-      <CreateCategoryModal
+      <CategoryModal
         open={showCreateModal}
         setOpen={setShowCreateModal}
+        mode="create"
       />
     </div>
   );

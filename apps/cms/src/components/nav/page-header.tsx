@@ -3,7 +3,6 @@
 import { Separator } from "@marble/ui/components/separator";
 import { SidebarTrigger } from "@marble/ui/components/sidebar";
 import { usePathname } from "next/navigation";
-// import { Announcements } from "./announcements";
 
 export const PageHeader = () => {
   const pathname = usePathname();
@@ -23,12 +22,9 @@ export const PageHeader = () => {
         <Separator orientation="vertical" className="mr-2 h-4" />
       </div>
       {/* <div>
-          <AppBreadcrumb />
-        </div> */}
+        <AppBreadcrumb />
+      </div> */}
       <h1 className="text-lg font-medium capitalize">{heading}</h1>
-      {/* <div className="ml-auto flex items-center">
-          <Announcements />
-        </div> */}
     </header>
   );
 };

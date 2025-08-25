@@ -22,10 +22,10 @@ import {
   SheetTitle,
 } from "@marble/ui/components/sheet";
 import { toast } from "@marble/ui/components/sonner";
-import { Calendar } from "@phosphor-icons/react";
-import { Loader2 } from "lucide-react";
+import { CalendarIcon } from "@phosphor-icons/react";
 import { useMemo, useState } from "react";
 import { organization } from "@/lib/auth/client";
+import { AsyncButton } from "../ui/async-button";
 import type { TeamMemberRow } from "./columns";
 
 interface ProfileSheetProps {
@@ -80,7 +80,7 @@ export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
               <p className="font-medium">{member.name}</p>
               <p className="text-sm text-muted-foreground">{member.email}</p>
               <div className="flex items-center gap-1 text-muted-foreground">
-                <Calendar className="size-4" />
+                <CalendarIcon className="size-4" />
                 <p className="text-sm">
                   Joined{" "}
                   {new Date(member.joinedAt ?? new Date()).toLocaleDateString()}
@@ -113,14 +113,14 @@ export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
                 Close
               </Button>
             </SheetClose>
-            <Button
-              size="sm"
+            <AsyncButton
               onClick={handleSave}
+              isLoading={loading}
               disabled={!settingsChanges}
               className="min-w-[100px]"
             >
-              {loading ? <Loader2 className="size-4 animate-spin" /> : "Save"}
-            </Button>
+              Save
+            </AsyncButton>
           </SheetFooter>
         </section>
       </SheetContent>

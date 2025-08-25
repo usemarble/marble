@@ -29,7 +29,7 @@
   --destructive-foreground: hsl(0 0% 98%);
   --border: hsl(0 0% 89.8%);
   --input: hsl(0 0% 89.8%);
-  --ring: hsl(244 100% 65%);
+  --ring: hsl(244, 91%, 70%);
 
   /* chart */
   --chart-1: hsl(12 76% 61%);
@@ -62,7 +62,7 @@
   --card-foreground: hsl(0 0% 98%);
   --popover: hsl(233 7% 8%);
   --popover-foreground: hsl(0 0% 98%);
-  --primary: hsl(244 98% 69%);
+  --primary: hsl(244, 97%, 65%);
   --primary-foreground: hsl(0 0% 98%);
   --secondary: hsl(0 0% 14.9%);
   --secondary-foreground: hsl(0 0% 98%);

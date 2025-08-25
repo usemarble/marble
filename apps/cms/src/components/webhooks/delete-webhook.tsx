@@ -15,9 +15,9 @@ import { Button } from "@marble/ui/components/button";
 import { toast } from "@marble/ui/components/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { AsyncButton } from "@/components/ui/async-button";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
-import { ButtonLoader } from "../ui/loader";
 
 interface DeleteWebhookModalProps {
   webhookId: string;
@@ -62,18 +62,9 @@ export function DeleteWebhookModal({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete webhook?</AlertDialogTitle>
-          <AlertDialogDescription className="space-y-2">
-            <span>
-              Are you sure you want to delete <strong>"{webhookName}"</strong>?
-              This action cannot be undone.
-            </span>
-            <span>
-              This will permanently delete the webhook endpoint and all
-              associated delivery logs and event history.
-            </span>
-            <span className="text-blue-600 font-medium">
-              Consider disabling the webhook instead if you might need it later.
-            </span>
+          <AlertDialogDescription>
+            Are you sure you want to delete <strong>"{webhookName}"</strong>?
+            This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -81,7 +72,7 @@ export function DeleteWebhookModal({
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction asChild>
-            <Button
+            <AsyncButton
               variant="destructive"
               disabled={isPending}
               onClick={(e) => {
@@ -90,8 +81,8 @@ export function DeleteWebhookModal({
               }}
               className="min-w-20"
             >
-              {isPending ? <ButtonLoader /> : "Delete webhook"}
-            </Button>
+              Delete webhook
+            </AsyncButton>
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -9,12 +9,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@marble/ui/components/alert-dialog";
-import { Button } from "@marble/ui/components/button";
 import { toast } from "@marble/ui/components/sonner";
 import { useState } from "react";
 import { organization } from "@/lib/auth/client";
 import { useWorkspace } from "@/providers/workspace";
-import { ButtonLoader } from "../ui/loader";
+import { AsyncButton } from "../ui/async-button";
 import type { TeamMemberRow } from "./columns";
 
 interface RemoveMemberModalProps {
@@ -75,13 +74,13 @@ export function RemoveMemberModal({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
-          <Button
+          <AsyncButton
             onClick={removeMember}
-            disabled={loading}
+            isLoading={loading}
             variant="destructive"
           >
-            {loading ? <ButtonLoader /> : "Remove"}
-          </Button>
+            Remove
+          </AsyncButton>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

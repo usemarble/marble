@@ -7,7 +7,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
-import { PlusIcon } from "lucide-react";
+import { PlusIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import { UpgradeModal } from "@/components/billing/upgrade-modal";
 import { usePlan } from "@/hooks/use-plan";
@@ -67,7 +67,7 @@ export function InviteButton({ onInvite }: InviteButtonProps) {
     <TooltipProvider>
       <Tooltip delayDuration={0}>
         <TooltipTrigger asChild>
-          <Button size="sm" onClick={onInvite}>
+          <Button onClick={onInvite}>
             <PlusIcon className="size-4" />
             <span>Invite</span>
           </Button>

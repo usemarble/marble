@@ -8,12 +8,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@marble/ui/components/dialog";
-import { Check } from "@phosphor-icons/react";
+import { CheckIcon } from "@phosphor-icons/react";
 import { useState } from "react";
+import { AsyncButton } from "@/components/ui/async-button";
 import { checkout } from "@/lib/auth/client";
 import { PRICING_PLANS } from "@/lib/constants";
 import { useWorkspace } from "@/providers/workspace";
-import { ButtonLoader } from "../ui/loader";
 
 interface UpgradeModalProps {
   isOpen: boolean;
@@ -57,19 +57,19 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
     }
 
     return (
-      <Button
-        disabled={!!checkoutLoading}
+      <AsyncButton
+        isLoading={!!checkoutLoading}
         className="w-full"
         onClick={() => handleCheckout(plan)}
       >
-        {checkoutLoading === plan ? <ButtonLoader /> : "Upgrade"}
-      </Button>
+        Upgrade
+      </AsyncButton>
     );
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-md">
+      <DialogContent className="sm:max-w-sm p-2">
         <DialogHeader className="sr-only">
           <DialogTitle>Upgrade Plan</DialogTitle>
           <DialogDescription>
@@ -81,7 +81,7 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
             {PRICING_PLANS.map((plan) => (
               <li
                 key={plan.title}
-                className=" flex flex-col gap-5 min-h-96 h-full w-full px-4 py-6 border border-dashed rounded-xl mt-4"
+                className=" flex flex-col gap-5 min-h-96 h-full w-full px-4 py-6 rounded-xl"
               >
                 <div className="flex flex-col gap-4">
                   <h4 className="text-medium text-2xl">{plan.title}</h4>
@@ -103,7 +103,7 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
                 <ul className="flex flex-col gap-2 text-sm">
                   {plan.features.map((feature) => (
                     <li key={feature} className="flex items-center gap-2">
-                      <Check className="size-4 text-primary" />
+                      <CheckIcon className="size-4 text-primary" />
                       <span>{feature}</span>
                     </li>
                   ))}

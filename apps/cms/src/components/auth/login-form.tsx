@@ -1,12 +1,12 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, buttonVariants } from "@marble/ui/components/button";
+import { buttonVariants } from "@marble/ui/components/button";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
-import { Eye, EyeClosed, Spinner } from "@phosphor-icons/react";
+import { EyeIcon, EyeSlashIcon, SpinnerIcon } from "@phosphor-icons/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -15,6 +15,7 @@ import { authClient } from "@/lib/auth/client";
 import { type CredentialData, credentialSchema } from "@/lib/validations/auth";
 import type { AuthMethod } from "@/types/misc";
 import { Github, Google } from "../icons/social";
+import { AsyncButton } from "../ui/async-button";
 import { LastUsedBadge } from "../ui/last-used-badge";
 
 export function LoginForm() {
@@ -99,7 +100,7 @@ export function LoginForm() {
             variant="primary"
           />
           {isGoogleLoading ? (
-            <Spinner className="mr-2 h-4 w-4 animate-spin" />
+            <SpinnerIcon className="mr-2 h-4 w-4 animate-spin" />
           ) : (
             <Google className="mr-2 size-4" />
           )}{" "}
@@ -119,7 +120,7 @@ export function LoginForm() {
             variant="primary"
           />
           {isGithubLoading ? (
-            <Spinner className="mr-2 h-4 w-4 animate-spin" />
+            <SpinnerIcon className="mr-2 h-4 w-4 animate-spin" />
           ) : (
             <Github className="mr-2 size-4" />
           )}{" "}
@@ -139,6 +140,7 @@ export function LoginForm() {
             <Label className="sr-only" htmlFor="email">
               Email
             </Label>
+            {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
             <Input
               id="email"
               placeholder="Email"
@@ -162,6 +164,7 @@ export function LoginForm() {
               Password
             </Label>
             <div className="relative">
+              {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
               <Input
                 id="password"
                 placeholder="Password"
@@ -180,9 +183,9 @@ export function LoginForm() {
                 onClick={() => setIsPasswordVisible((prev) => !prev)}
               >
                 {isPasswordVisible ? (
-                  <Eye className="size-4" />
+                  <EyeIcon className="size-4" />
                 ) : (
-                  <EyeClosed className="size-4" />
+                  <EyeSlashIcon className="size-4" />
                 )}
               </button>
             </div>
@@ -192,21 +195,19 @@ export function LoginForm() {
               </p>
             )}
           </div>
-          <Button
+          <AsyncButton
             disabled={
               isCredentialsLoading || isGoogleLoading || isGithubLoading
             }
+            isLoading={isCredentialsLoading}
             className={cn("mt-4", "relative")}
           >
             <LastUsedBadge
               show={lastUsedAuthMethod === "email"}
               variant="secondary"
             />
-            {isCredentialsLoading && (
-              <Spinner className="mr-2 h-4 w-4 animate-spin" />
-            )}
             Continue
-          </Button>
+          </AsyncButton>
         </div>
       </form>
     </div>

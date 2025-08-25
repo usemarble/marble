@@ -1,13 +1,12 @@
 "use client";
 
-import { Button } from "@marble/ui/components/button";
 import { Input } from "@marble/ui/components/input";
 import { toast } from "@marble/ui/components/sonner";
-import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { authClient } from "@/lib/auth/client";
 import Container from "../../shared/container";
+import { AsyncButton } from "../../ui/async-button";
 
 interface ResetFormProps {
   callbackUrl: string;
@@ -71,17 +70,14 @@ export function ResetForm({ callbackUrl, token }: ResetFormProps) {
           />
         </div>
 
-        <Button
+        <AsyncButton
           onClick={handleResetPassword}
           disabled={!password || !confirmPassword}
           className="flex items-center justify-center min-w-48"
+          isLoading={isLoading}
         >
-          {isLoading ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : (
-            <span className="w-full text-center">Reset password</span>
-          )}
-        </Button>
+          Reset password
+        </AsyncButton>
       </section>
     </Container>
   );

@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import PageClient from "./page-client";
 
 export const metadata: Metadata = {
-  title: "New workspace",
+  title: "Create new workspace",
 };
 
 async function Page() {
