@@ -29,7 +29,6 @@ export const WelcomeEmail = ({ userEmail }: WelcomeEmailProps) => {
       <Tailwind>
         <Body className="bg-gray-50 font-sans">
           <Container className="bg-white rounded-2xl shadow-md my-10 mx-auto p-8 max-w-[480px]">
-            {/* Logo */}
             <Section className="text-center">
               <Img
                 src={`${baseUrl}/logo.png`}
