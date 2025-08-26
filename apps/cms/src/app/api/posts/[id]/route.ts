@@ -91,7 +91,7 @@ export async function PATCH(
         title: values.title,
         status: values.status,
         content: cleanContent,
-        categoryId: values.categoryId,
+        categoryId: values.category,
         coverImage: values.coverImage,
         description: values.description,
         publishedAt: values.publishedAt,

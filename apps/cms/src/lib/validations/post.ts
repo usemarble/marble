@@ -17,13 +17,11 @@ export const postSchema = z.object({
   slug: z.string().min(1, { message: "Slug cannot be empty" }),
   content: z.string(),
   contentJson: z.string().min(10),
-  tags: z
-    .array(z.string().min(1))
-    .optional(),
+  tags: z.array(z.string().min(1)).optional(),
   authors: z
     .array(z.string().min(1))
     .min(1, { message: "An author is required" }),
-  categoryId: z.string().nullable().optional(),
+  category: z.string().min(1, { message: "Category is required" }),
   status: z.enum(["published", "draft"]),
   publishedAt: z.coerce.date(),
   attribution: attributionSchema.nullable().optional(),

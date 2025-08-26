@@ -33,7 +33,7 @@ export function CategorySelector({ control }: CategorySelectorProps) {
     field: { onChange, value },
     fieldState: { error },
   } = useController({
-    name: "categoryId",
+    name: "category",
     control,
   });
 
@@ -78,7 +78,7 @@ export function CategorySelector({ control }: CategorySelectorProps) {
           <Label htmlFor="category">Category</Label>
           <FieldInfo text="Good for grouping posts together. You can have one category per post." />
         </div>
-        <Select value={value ?? ""} onValueChange={onChange}>
+        <Select value={value} onValueChange={onChange}>
           <SelectTrigger className="w-full bg-editor-field">
             <SelectValue placeholder="Choose a category" />
           </SelectTrigger>

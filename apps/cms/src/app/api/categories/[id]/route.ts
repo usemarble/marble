@@ -50,5 +50,5 @@ export async function DELETE(
     },
   });
 
-  return NextResponse.json(deletedCategory.id, { status: 200 });
+  return NextResponse.json(deletedCategory.id, { status: 204 });
 }

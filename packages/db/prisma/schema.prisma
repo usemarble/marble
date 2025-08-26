@@ -64,7 +64,7 @@ model Post {
   views           Int          @default(0)
   workspaceId     String
   slug            String
-  categoryId      String?
+  categoryId      String
   status          PostStatus   @default(draft)
   featured        Boolean      @default(false)
   updatedAt       DateTime     @updatedAt
@@ -72,7 +72,7 @@ model Post {
   publishedAt     DateTime     @default(now())
   attribution     Json?
   primaryAuthorId String
-  category        Category?    @relation(fields: [categoryId], references: [id])
+  category        Category     @relation(fields: [categoryId], references: [id])
   primaryAuthor   User         @relation("PrimaryAuthor", fields: [primaryAuthorId], references: [id])
   workspace       Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   tags            Tag[]        @relation("PostToTag")
