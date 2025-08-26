@@ -2,6 +2,7 @@ import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { postSchema } from "@/lib/validations/post";
+import { validateWorkspaceTags } from "@/lib/validations/tags";
 import { sanitizeHtml } from "@/utils/editor";
 
 export async function GET() {
@@ -49,6 +50,17 @@ export async function POST(request: Request) {
   const validAttribution = values.attribution ? values.attribution : undefined;
   const cleanContent = sanitizeHtml(values.content);
 
+  const tagValidation = await validateWorkspaceTags(
+    values.tags,
+    session.session.activeOrganizationId,
+  );
+
+  if (!tagValidation.success) {
+    return tagValidation.response;
+  }
+
+  const { uniqueTagIds } = tagValidation;
+
   const postCreated = await db.post.create({
     data: {
       primaryAuthorId: authorId,
@@ -63,11 +75,12 @@ export async function POST(request: Request) {
       description: values.description,
       attribution: validAttribution,
       workspaceId: session.session.activeOrganizationId,
-      tags: values.tags
-        ? {
-            connect: values.tags.map((id) => ({ id })),
-          }
-        : undefined,
+      tags:
+        uniqueTagIds.length > 0
+          ? {
+              connect: uniqueTagIds.map((id) => ({ id })),
+            }
+          : undefined,
       authors: {
         connect: { id: authorId },
       },
