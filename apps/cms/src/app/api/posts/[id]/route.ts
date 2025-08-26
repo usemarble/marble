@@ -91,16 +91,17 @@ export async function PATCH(
         title: values.title,
         status: values.status,
         content: cleanContent,
-        categoryId: values.category,
+        categoryId: values.categoryId,
         coverImage: values.coverImage,
         description: values.description,
         publishedAt: values.publishedAt,
         attribution: validAttribution,
         workspaceId: session?.session.activeOrganizationId,
-        tags: {
-          set: [],
-          connect: values.tags.map((id: string) => ({ id })),
-        },
+        tags: values.tags
+         ?  {
+            set: [],
+            connect: values.tags.map((id: string) => ({ id })),
+          } : undefined,
         authors: {
           set: [],
           connect: values.authors.map((id: string) => ({ id })),

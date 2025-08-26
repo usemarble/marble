@@ -44,6 +44,8 @@ export async function POST(request: Request) {
 
   const values = postSchema.parse(await request.json());
 
+  console.log("for testing",values);
+
   const authorId = session.user.id;
   const contentJson = JSON.parse(values.contentJson);
   const validAttribution = values.attribution ? values.attribution : undefined;
@@ -57,15 +59,17 @@ export async function POST(request: Request) {
       title: values.title,
       status: values.status,
       content: cleanContent,
-      categoryId: values.category,
+      categoryId: values.categoryId,
       coverImage: values.coverImage,
       publishedAt: values.publishedAt,
       description: values.description,
       attribution: validAttribution,
       workspaceId: session.session.activeOrganizationId,
-      tags: {
-        connect: values.tags.map((id) => ({ id })),
-      },
+      tags: values.tags
+       ? {
+          connect: values.tags.map((id) => ({ id })),
+        } : undefined
+      ,
       authors: {
         connect: { id: authorId },
       },

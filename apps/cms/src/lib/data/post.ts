@@ -11,6 +11,6 @@ export const emptyPost: PostValues = {
   publishedAt: new Date(),
   attribution: null,
   tags: [],
-  category: "",
+  categoryId: null,
   authors: [],
 };
