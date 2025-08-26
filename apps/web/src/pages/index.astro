@@ -10,7 +10,7 @@ import AccordionItem from "@/components/ui/AccordionItem.astro";
 import Layout from "@/layouts/Layout.astro";
 import { APP, FAQs, PRICING, SITE } from "@/lib/constants";
 
-const sponsors = [
+const users = [
   {
     name: "I.A",
     url: "https://independent-arts.org",
@@ -90,15 +90,15 @@ const sponsors = [
             </h2>
           </div>
           <div class="flex flex-wrap justify-center gap-x-8 gap-y-4">
-            {sponsors.map((sponsor) => (
+            {users.map((user) => (
               <div class="flex items-center justify-center min-w-[14rem] p-8">
-                <a href={sponsor.url + "?utm_source=marble"} target="_blank" class={sponsor.showWordmark ? "flex items-center gap-2" : ""}>
-                  <sponsor.component />
-                  {sponsor.showWordmark && (
-                    <span class="text-xl font-medium">{sponsor.name}</span>
+                <a href={user.url + "?utm_source=marble"} target="_blank" class={user.showWordmark ? "flex items-center gap-2" : ""}>
+                  <user.component />
+                  {user.showWordmark && (
+                    <span class="text-xl font-medium">{user.name}</span>
                   )}
-                  {!sponsor.showWordmark && (
-                    <span class="text-xl font-medium sr-only">{sponsor.name}</span>
+                  {!user.showWordmark && (
+                    <span class="text-xl font-medium sr-only">{user.name}</span>
                   )}
                 </a>
               </div>
