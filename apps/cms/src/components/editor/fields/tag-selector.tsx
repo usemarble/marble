@@ -89,7 +89,7 @@ export const TagSelector = ({
 
   // Compute selected tags directly without useEffect
   const selected = useMemo(() => {
-    if (tags.length > 0 && value?.length > 0) {
+    if (tags.length > 0 && value && value?.length > 0) {
       return tags.filter((opt) => value.includes(opt.id));
     }
     return [];
