@@ -42,7 +42,7 @@ export default function PostTableActions(props: Post) {
             variant="destructive"
             onClick={() => setShowDeleteModal(true)}
           >
-            <TrashIcon className="size-4 mr-1.5" /> <span>Delete</span>
+            <TrashIcon size={16} /> <span>Delete</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
