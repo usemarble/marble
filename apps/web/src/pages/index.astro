@@ -1,6 +1,8 @@
 ---
 import Container from "@/components/Container.astro";
 import Bounty from "@/components/icons/brand/Bounty.astro";
+import Databuddy from "@/components/icons/brand/Databuddy.astro";
+import Helix from "@/components/icons/brand/Helix.astro";
 import Ia from "@/components/icons/brand/Ia.astro";
 import Mantlz from "@/components/icons/brand/Mantlz.astro";
 import Opencut from "@/components/icons/brand/Opencut.astro";
@@ -8,7 +10,6 @@ import AccordionItem from "@/components/ui/AccordionItem.astro";
 import Layout from "@/layouts/Layout.astro";
 import { APP, FAQs, PRICING, SITE } from "@/lib/constants";
 
-// Sponsors configuration
 const sponsors = [
   {
     name: "I.A",
@@ -33,6 +34,18 @@ const sponsors = [
     url: "https://bounty.new",
     component: Bounty,
     showWordmark: false,
+  },
+  {
+    name: "Helix DB",
+    url: "https://www.helix-db.com",
+    component: Helix,
+    showWordmark: true,
+  },
+  {
+    name: "Databuddy",
+    url: "https://databuddy.cc",
+    component: Databuddy,
+    showWordmark: true,
   },
 ];
 ---
@@ -76,9 +89,9 @@ const sponsors = [
               Used by the best<span class="text-accent">.</span>
             </h2>
           </div>
-          <ul class="grid grid-cols-[repeat(auto-fill,minmax(14rem,1fr))]">
+          <div class="flex flex-wrap justify-center gap-x-8 gap-y-4">
             {sponsors.map((sponsor) => (
-              <li class="p-8 flex items-center justify-center">
+              <div class="flex items-center justify-center min-w-[14rem] p-8">
                 <a href={sponsor.url + "?utm_source=marble"} target="_blank" class={sponsor.showWordmark ? "flex items-center gap-2" : ""}>
                   <sponsor.component />
                   {sponsor.showWordmark && (
@@ -88,9 +101,9 @@ const sponsors = [
                     <span class="text-xl font-medium sr-only">{sponsor.name}</span>
                   )}
                 </a>
-              </li>
+              </div>
             ))}
-          </ul>
+          </div>
         </Container>
       </div>
     </section>
