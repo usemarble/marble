@@ -21,7 +21,11 @@ export const workspaceSchema = z.object({
   slug: z
     .string()
     .min(4, { message: "Slug cannot be empty" })
-    .max(32, { message: "Slug cannot be more than 32 characters" }),
+    .max(32, { message: "Slug cannot be more than 32 characters" })
+    .regex(/^[a-z0-9]+([a-z0-9-]*[a-z0-9])?$/, {
+      message:
+        "Slug must start and end with letters or digits, and only contain lowercase letters, digits, and hyphens",
+    }),
   timezone: z
     .enum(timezones as [string, ...string[]], {
       errorMap: () => ({ message: "Please select a valid timezone" }),
@@ -38,7 +42,8 @@ export type NameValues = z.infer<typeof nameSchema>;
 export const slugSchema = z.object({
   slug: z
     .string()
-    .min(1)
+    .min(4, { message: "Slug cannot be empty" })
+    .max(32, { message: "Slug cannot be more than 32 characters" })
     .regex(/^[a-z0-9]+([a-z0-9-]*[a-z0-9])?$/, {
       message:
         "Slug must start and end with letters or digits, and only contain lowercase letters, digits, and hyphens",
