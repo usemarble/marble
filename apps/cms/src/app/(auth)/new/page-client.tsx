@@ -96,12 +96,12 @@ function PageClient() {
   }
   return (
     <div className="h-screen grid place-items-center bg-sidebar dark:bg-background">
-      <Card className="rounded-[24px] sm:min-w-[450px] py-6 px-4 dark:bg-sidebar">
+      <Card className="rounded-[24px] sm:w-[450px] py-6 px-4">
         <CardHeader className="text-center mb-5 items-center">
           <CardTitle className="font-medium">New workspace</CardTitle>
-          <CardDescription className="max-w-sm">
+          <CardDescription className="text-center">
             {hasWorkspaces
-              ? "Set up your new workspace"
+              ? "Set up your new workspace."
               : "You'll need a workspace to proceed."}
           </CardDescription>
         </CardHeader>
@@ -168,7 +168,7 @@ function PageClient() {
                 type="submit"
                 size="lg"
                 isLoading={isSubmitting}
-                className="flex w-full gap-2"
+                className="flex w-full gap-2 cursor-pointer"
               >
                 Create
               </AsyncButton>
