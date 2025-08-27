@@ -65,16 +65,26 @@ interface GitHubRepo {
 async function fetchGitHubData() {
   const baseUrl = "https://api.github.com";
   const org = "usemarble";
+  const headers: Record<string, string> = {
+    Accept: "application/vnd.github+json",
+    "X-GitHub-Api-Version": "2022-11-28",
+    "User-Agent": "marblecms.com (Astro SSR)",
+  };
+  if (import.meta.env.GITHUB_TOKEN) {
+    headers.Authorization = `Bearer ${import.meta.env.GITHUB_TOKEN}`;
+  }
   try {
     const [repoResponse, contributorsResponse, issuesResponse, prsResponse] =
       await Promise.all([
-        fetch(`${baseUrl}/repos/${org}/marble`),
-        fetch(`${baseUrl}/repos/${org}/marble/contributors?per_page=100`),
+        fetch(`${baseUrl}/repos/${org}/marble`, { headers }),
+        fetch(`${baseUrl}/repos/${org}/marble/contributors?per_page=100`, { headers }),
         fetch(
           `${baseUrl}/repos/${org}/marble/issues?state=open&per_page=20&sort=created`,
+          { headers },
         ),
         fetch(
           `${baseUrl}/repos/${org}/marble/pulls?state=open&per_page=5&sort=created`,
+          { headers },
         ),
       ]);
 
@@ -154,11 +164,10 @@ function getIssueTypeFromLabels(
     label.name.toLowerCase().includes("doc"),
   );
 
-  if (bugLabel) return { type: "Bug", color: "bg-red-100 text-red-800" };
-  if (featureLabel)
-    return { type: "Feature", color: "bg-blue-100 text-blue-800" };
-  if (docLabel) return { type: "Docs", color: "bg-green-100 text-green-800" };
-  return { type: "Issue", color: "bg-gray-100 text-gray-800" };
+  if (bugLabel) return { type: "Bug", color: "bg-red-500 text-white" };
+  if (featureLabel) return { type: "Feature", color: "bg-blue-500 text-white" };
+  if (docLabel) return { type: "Docs", color: "bg-green-500 text-white" };
+  return { type: "Issue", color: "bg-gray-500 text-white" };
 }
 
 Astro.response.headers.set(
@@ -324,7 +333,7 @@ Astro.response.headers.set(
                         />
                         <div class="flex-1 min-w-0">
                           <div class="flex items-center gap-2 mb-2">
-                            <span class={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${pr.draft ? 'bg-gray-100 text-gray-800' : 'bg-green-100 text-green-800'}`}>
+                            <span class={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${pr.draft ? 'bg-yellow-500 text-white' : 'bg-green-500 text-white'}`}>
                               {pr.draft ? 'Draft' : 'Ready'}
                             </span>
                             <span class="text-xs text-muted-foreground">

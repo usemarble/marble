@@ -22,7 +22,7 @@ export default defineConfig({
     },
     isr: {
       expiration: 3600,
-      exclude: ["^/(?!contributors$).*"],
+      exclude: [/^\/(?!contributors\/?$).*/],
     },
   }),
 });
