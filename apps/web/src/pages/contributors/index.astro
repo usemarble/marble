@@ -67,12 +67,8 @@ async function fetchGitHubData() {
   const org = "usemarble";
   const headers: Record<string, string> = {
     Accept: "application/vnd.github+json",
-    "X-GitHub-Api-Version": "2022-11-28",
-    "User-Agent": "marblecms.com (Astro SSR)",
   };
-  if (import.meta.env.GITHUB_TOKEN) {
-    headers.Authorization = `Bearer ${import.meta.env.GITHUB_TOKEN}`;
-  }
+
   try {
     const [repoResponse, contributorsResponse, issuesResponse, prsResponse] =
       await Promise.all([
@@ -166,10 +162,11 @@ function getIssueTypeFromLabels(
     label.name.toLowerCase().includes("doc"),
   );
 
-  if (bugLabel) return { type: "Bug", color: "bg-red-500 text-white" };
-  if (featureLabel) return { type: "Feature", color: "bg-blue-500 text-white" };
-  if (docLabel) return { type: "Docs", color: "bg-green-500 text-white" };
-  return { type: "Issue", color: "bg-gray-500 text-white" };
+  if (bugLabel) return { type: "Bug", color: "bg-red-100 text-red-800" };
+  if (featureLabel)
+    return { type: "Feature", color: "bg-blue-100 text-blue-800" };
+  if (docLabel) return { type: "Docs", color: "bg-green-100 text-green-800" };
+  return { type: "Issue", color: "bg-yellow-100 text-yellow-800" };
 }
 
 Astro.response.headers.set(
@@ -335,7 +332,7 @@ Astro.response.headers.set(
                         />
                         <div class="flex-1 min-w-0">
                           <div class="flex items-center gap-2 mb-2">
-                            <span class={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${pr.draft ? 'bg-yellow-500 text-white' : 'bg-green-500 text-white'}`}>
+                            <span class={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${pr.draft ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>
                               {pr.draft ? 'Draft' : 'Ready'}
                             </span>
                             <span class="text-xs text-muted-foreground">
