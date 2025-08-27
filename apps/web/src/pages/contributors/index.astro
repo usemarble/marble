@@ -230,7 +230,7 @@ Astro.response.headers.set(
                 >
                   <img
                     src={contributor.avatar_url}
-                    alt={contributor.login}
+                    alt={`Avatar of ${contributor.login}`}
                     class="w-12 h-12 rounded-full group-hover:scale-110 transition-transform duration-200"
                     loading="lazy"
                   />
@@ -269,7 +269,7 @@ Astro.response.headers.set(
                         <div class="flex items-start gap-3">
                           <img
                             src={issue.user.avatar_url}
-                            alt={issue.user.login}
+                            alt={`Avatar of ${issue.user.login}`}
                             class="w-6 h-6 rounded-full flex-shrink-0 mt-0.5"
                             loading="lazy"
                           />
@@ -326,7 +326,7 @@ Astro.response.headers.set(
                       <div class="flex items-start gap-3">
                         <img
                           src={pr.user.avatar_url}
-                          alt={pr.user.login}
+                          alt={`Avatar of ${pr.user.login}`}
                           class="w-6 h-6 rounded-full flex-shrink-0 mt-0.5"
                           loading="lazy"
                         />
