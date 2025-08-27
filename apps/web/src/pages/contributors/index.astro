@@ -65,11 +65,10 @@ interface GitHubRepo {
 async function fetchGitHubData() {
   const baseUrl = "https://api.github.com";
   const org = "usemarble";
-  console.log("Fetching GitHub data...");
   try {
-    const [reposResponse, contributorsResponse, issuesResponse, prsResponse] =
+    const [repoResponse, contributorsResponse, issuesResponse, prsResponse] =
       await Promise.all([
-        fetch(`${baseUrl}/orgs/${org}/repos?per_page=100&sort=updated`),
+        fetch(`${baseUrl}/repos/${org}/marble`),
         fetch(`${baseUrl}/repos/${org}/marble/contributors?per_page=100`),
         fetch(
           `${baseUrl}/repos/${org}/marble/issues?state=open&per_page=20&sort=created`,
@@ -79,9 +78,9 @@ async function fetchGitHubData() {
         ),
       ]);
 
-    const repos: GitHubRepo[] = reposResponse.ok
-      ? await reposResponse.json()
-      : [];
+    const repo: GitHubRepo | null = repoResponse.ok
+      ? await repoResponse.json()
+      : null;
     const contributors: GitHubUser[] = contributorsResponse.ok
       ? (await contributorsResponse.json()).filter(
           (c: GitHubUser) => c.login !== "turbobot-temp",
@@ -97,28 +96,16 @@ async function fetchGitHubData() {
       ? (await prsResponse.json()).slice(0, 5)
       : [];
 
-    const publicRepos = repos.filter((repo) => !repo.private);
-
-    const totalStars = publicRepos.reduce(
-      (sum, repo) => sum + repo.stargazers_count,
-      0,
-    );
-    const totalForks = publicRepos.reduce(
-      (sum, repo) => sum + repo.forks_count,
-      0,
-    );
-    const totalIssues = publicRepos.reduce(
-      (sum, repo) => sum + repo.open_issues_count,
-      0,
-    );
+    const totalStars = repo?.stargazers_count || 0;
+    const totalForks = repo?.forks_count || 0;
+    const totalIssues = repo?.open_issues_count || 0;
 
     return {
-      repos: publicRepos.slice(0, 6),
+      repo,
       contributors: contributors.filter((c) => c.type === "User").slice(0, 24),
       issues: issues,
       prs: prs,
       stats: {
-        totalRepos: publicRepos.length,
         totalStars,
         totalForks,
         totalIssues,
@@ -128,12 +115,11 @@ async function fetchGitHubData() {
   } catch (error) {
     console.error("Error fetching GitHub data:", error);
     return {
-      repos: [],
+      repo: null,
       contributors: [],
       issues: [],
       prs: [],
       stats: {
-        totalRepos: 0,
         totalStars: 0,
         totalForks: 0,
         totalIssues: 0,
@@ -212,8 +198,8 @@ Astro.response.headers.set(
               <div class="text-sm text-muted-foreground">Forks</div>
             </div>
             <div class="space-y-2">
-              <div class="text-3xl md:text-4xl font-bold text-primary">{githubData.stats.totalRepos}</div>
-              <div class="text-sm text-muted-foreground">Repositories</div>
+              <div class="text-3xl md:text-4xl font-bold text-primary">{githubData.stats.totalIssues}</div>
+              <div class="text-sm text-muted-foreground">Open Issues</div>
             </div>
           </div>
 
