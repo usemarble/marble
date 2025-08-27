@@ -22,7 +22,7 @@ export const StripeWelcomeEmail = () => (
       <Container style={container}>
         <Section style={box}>
           <Img
-            src={`${baseUrl}/stripe-logo.png`}
+            src={`${baseUrl}/stripe-icon.png`}
             width="49"
             height="21"
             alt="Stripe"

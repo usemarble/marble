@@ -49,7 +49,9 @@ export function RegisterForm() {
       })
       .then((_res) => {
         startTransition(() => {
-          router.push(`/verify?email=${email}&from=${callbackURL}`);
+          router.push(
+            `/verify?email=${encodeURIComponent(email)}&from=${callbackURL}`,
+          );
         });
       });
   };
