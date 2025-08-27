@@ -20,5 +20,9 @@ export default defineConfig({
     webAnalytics: {
       enabled: true,
     },
+    isr: {
+      expiration: 3600,
+      exclude: ["^/(?!contributors$).*"],
+    },
   }),
 });
