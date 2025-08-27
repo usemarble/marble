@@ -48,8 +48,9 @@ export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
         email: email,
         type: "email-verification",
       });
-    } catch (_error) {
-      toast.error("Failed to resend code");
+      toast.success("Verification code sent!");
+    } catch {
+      toast.error("Failed to resend code. Please try again.");
     } finally {
       setWaitingSeconds(30);
       setIsResendLoading(false);
@@ -60,29 +61,35 @@ export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
   const handleVerifyOtp = async () => {
     setIsLoading(true);
     try {
-      await authClient.emailOtp.verifyEmail({
+      const result = await authClient.emailOtp.verifyEmail({
         email: email,
         otp: otp,
       });
-      router.push(`${callbackUrl}`);
-    } catch (error) {
-      console.error("Login Failed:", error);
-      toast.error("Login Failed");
+
+      if (result.data) {
+        toast.success("Email verified successfully!");
+        router.push(callbackUrl);
+      } else {
+        toast.error("Invalid verification code");
+      }
+    } catch {
+      toast.error("Invalid verification code. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <Container className="flex flex-col items-center justify-between py-24">
-      <section className="flex max-w-xs w-full flex-col items-center gap-8">
+    <Container className="min-h-screen flex items-center justify-center py-12">
+      <div className="flex max-w-sm w-full flex-col items-center gap-8">
         <div className="flex flex-col items-center gap-4 text-center">
           <h1 className="text-lg font-semibold leading-7">Verify your email</h1>
-          <p className="leading-6">
+          <p className="leading-6 text-muted-foreground">
             We sent a verification code to
-            <span className="block font-medium">{email}</span>
+            <span className="block font-medium text-foreground">{email}</span>
           </p>
         </div>
+
         <InputOTP
           maxLength={6}
           value={otp}
@@ -95,46 +102,43 @@ export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
             ))}
           </InputOTPGroup>
         </InputOTP>
-        <AsyncButton
-          onClick={handleVerifyOtp}
-          isLoading={isLoading}
-          disabled={otp.length !== 6}
-          className={cn(
-            "flex items-center justify-center w-full",
-            otp.length !== 6 && "cursor-not-allowed",
-          )}
-        >
-          Verify email
-        </AsyncButton>
-      </section>
-      {/*  */}
-      <section className="flex max-w-xs w-full flex-col items-center gap-4">
-        <p className="text-muted-foreground text-sm">
-          Didn&apos;t receive the code?
-        </p>
-        <AsyncButton
-          variant="outline"
-          onClick={handleResendCode}
-          isLoading={isResendLoading}
-          disabled={waitingSeconds > 0}
-          className={cn(
-            "text-muted-foreground w-full",
-            isResendLoading || (waitingSeconds > 0 && "cursor-not-allowed"),
-          )}
-        >
-          Resend code {waitingSeconds > 0 && <span>{waitingSeconds}s</span>}
-        </AsyncButton>
-        {/* <div>
-          <Button
-            variant="outline"
-            type="button"
-            className="mt-4 cursor-pointer"
-            onClick={() => router.back()}
+
+        <div className="flex flex-col items-center gap-4 w-full">
+          <AsyncButton
+            onClick={handleVerifyOtp}
+            isLoading={isLoading}
+            disabled={otp.length !== 6}
+            className={cn(
+              "flex items-center justify-center w-full",
+              otp.length !== 6 && "cursor-not-allowed",
+            )}
           >
-            Back
-          </Button>
-        </div> */}
-      </section>
+            Verify email
+          </AsyncButton>
+
+          <div className="flex flex-col items-center gap-3">
+            <p className="text-muted-foreground text-sm">
+              Didn&apos;t receive the code?
+            </p>
+            <AsyncButton
+              variant="outline"
+              onClick={handleResendCode}
+              isLoading={isResendLoading}
+              disabled={waitingSeconds > 0}
+              className={cn(
+                "text-muted-foreground",
+                isResendLoading || (waitingSeconds > 0 && "cursor-not-allowed"),
+              )}
+            >
+              {isResendLoading
+                ? "Sending..."
+                : waitingSeconds > 0
+                  ? `Resend code (${waitingSeconds}s)`
+                  : "Resend code"}
+            </AsyncButton>
+          </div>
+        </div>
+      </div>
     </Container>
   );
 }
