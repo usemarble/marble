@@ -1,0 +1,408 @@
+---
+export const prerender = false;
+
+import Container from "@/components/Container.astro";
+import Layout from "@/layouts/Layout.astro";
+import { SITE } from "@/lib/constants";
+
+interface GitHubUser {
+  login: string;
+  id: number;
+  avatar_url: string;
+  html_url: string;
+  contributions: number;
+  type: string;
+}
+
+interface GitHubIssue {
+  id: number;
+  number: number;
+  title: string;
+  html_url: string;
+  state: string;
+  user: {
+    login: string;
+    avatar_url: string;
+    html_url: string;
+  };
+  created_at: string;
+  labels: Array<{
+    name: string;
+    color: string;
+  }>;
+  pull_request?: {
+    url: string;
+  };
+}
+
+interface GitHubPR {
+  id: number;
+  number: number;
+  title: string;
+  html_url: string;
+  state: string;
+  user: {
+    login: string;
+    avatar_url: string;
+    html_url: string;
+  };
+  created_at: string;
+  draft: boolean;
+}
+
+interface GitHubRepo {
+  name: string;
+  full_name: string;
+  html_url: string;
+  stargazers_count: number;
+  forks_count: number;
+  open_issues_count: number;
+  language: string;
+  description: string;
+  private: boolean;
+}
+
+async function fetchGitHubData() {
+  const baseUrl = "https://api.github.com";
+  const org = "usemarble";
+  const headers: Record<string, string> = {
+    Accept: "application/vnd.github+json",
+  };
+
+  try {
+    const [repoResponse, contributorsResponse, issuesResponse, prsResponse] =
+      await Promise.all([
+        fetch(`${baseUrl}/repos/${org}/marble`, { headers }),
+        fetch(`${baseUrl}/repos/${org}/marble/contributors?per_page=100`, {
+          headers,
+        }),
+        fetch(
+          `${baseUrl}/repos/${org}/marble/issues?state=open&per_page=20&sort=created`,
+          { headers },
+        ),
+        fetch(
+          `${baseUrl}/repos/${org}/marble/pulls?state=open&per_page=5&sort=created`,
+          { headers },
+        ),
+      ]);
+
+    const repo: GitHubRepo | null = repoResponse.ok
+      ? await repoResponse.json()
+      : null;
+    const contributors: GitHubUser[] = contributorsResponse.ok
+      ? (await contributorsResponse.json()).filter(
+          (c: GitHubUser) => c.login !== "turbobot-temp",
+        )
+      : [];
+    const allIssues: GitHubIssue[] = issuesResponse.ok
+      ? await issuesResponse.json()
+      : [];
+    const issues: GitHubIssue[] = allIssues
+      .filter((issue) => !issue.pull_request)
+      .slice(0, 5);
+    const prs: GitHubPR[] = prsResponse.ok
+      ? (await prsResponse.json()).slice(0, 5)
+      : [];
+
+    const totalStars = repo?.stargazers_count || 0;
+    const totalForks = repo?.forks_count || 0;
+    const totalIssues = repo?.open_issues_count || 0;
+
+    return {
+      repo,
+      contributors: contributors.filter((c) => c.type === "User").slice(0, 24),
+      issues: issues,
+      prs: prs,
+      stats: {
+        totalStars,
+        totalForks,
+        totalIssues,
+        totalContributors: contributors.filter((c) => c.type === "User").length,
+      },
+    };
+  } catch (error) {
+    console.error("Error fetching GitHub data:", error);
+    return {
+      repo: null,
+      contributors: [],
+      issues: [],
+      prs: [],
+      stats: {
+        totalStars: 0,
+        totalForks: 0,
+        totalIssues: 0,
+        totalContributors: 0,
+      },
+    };
+  }
+}
+
+const githubData = await fetchGitHubData();
+
+function formatDate(dateString: string) {
+  return new Date(dateString).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function getIssueTypeFromLabels(
+  labels: Array<{ name: string; color: string }>,
+) {
+  const bugLabel = labels.find((label) =>
+    label.name.toLowerCase().includes("bug"),
+  );
+  const featureLabel = labels.find(
+    (label) =>
+      label.name.toLowerCase().includes("feature") ||
+      label.name.toLowerCase().includes("enhancement"),
+  );
+  const docLabel = labels.find((label) =>
+    label.name.toLowerCase().includes("doc"),
+  );
+
+  if (bugLabel) return { type: "Bug", color: "bg-red-100 text-red-800" };
+  if (featureLabel)
+    return { type: "Feature", color: "bg-blue-100 text-blue-800" };
+  if (docLabel) return { type: "Docs", color: "bg-green-100 text-green-800" };
+  return { type: "Issue", color: "bg-yellow-100 text-yellow-800" };
+}
+
+Astro.response.headers.set(
+  "Cache-Control",
+  "public, s-maxage=3600, stale-while-revalidate=60",
+);
+---
+
+<Layout 
+  title={`Contributors & Community - ${SITE.TITLE}`} 
+  description="Meet the amazing developers and contributors who help build Marble. Explore our open source projects, contribute to issues, and join our growing community."
+>
+  <div class="divide-y divide-dashed">
+    <section class="border-t border-dashed">
+      <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
+        <Container class="space-y-12 lg:space-y-20 pt-12 pb-20 lg:py-24">
+          <div class="relative flex flex-col items-center space-y-6 text-center">
+            <h1 class="relative text-4xl font-medium md:text-5xl max-w-[25ch] mx-auto lg:text-[50px]">
+              Contributors & Community
+            </h1>
+            <p class="mx-auto max-w-[60ch] md:text-lg text-muted-foreground">
+              Meet the amazing developers and contributors who help build Marble. Join our open source community and help shape the future of content management.
+            </p>
+          </div>
+
+          <div class="grid gap-6 grid-cols-2 md:grid-cols-4 text-center">
+            <div class="space-y-2">
+              <div class="text-3xl md:text-4xl font-bold text-primary">{githubData.stats.totalContributors}</div>
+              <div class="text-sm text-muted-foreground">Contributors</div>
+            </div>
+            <div class="space-y-2">
+              <div class="text-3xl md:text-4xl font-bold text-primary">{githubData.stats.totalStars}</div>
+              <div class="text-sm text-muted-foreground">Stars</div>
+            </div>
+            <div class="space-y-2">
+              <div class="text-3xl md:text-4xl font-bold text-primary">{githubData.stats.totalForks}</div>
+              <div class="text-sm text-muted-foreground">Forks</div>
+            </div>
+            <div class="space-y-2">
+              <div class="text-3xl md:text-4xl font-bold text-primary">{githubData.stats.totalIssues}</div>
+              <div class="text-sm text-muted-foreground">Open Issues</div>
+            </div>
+          </div>
+
+          <div class="space-y-8">
+            <div class="text-center">
+              <h2 class="text-2xl md:text-3xl font-medium mb-4">Our Contributors<span class="text-accent">.</span></h2>
+              <p class="text-muted-foreground max-w-[50ch] mx-auto">
+                Thank you to all the amazing people who have contributed to Marble!
+              </p>
+            </div>
+            
+            <div class="grid gap-4 grid-cols-3 md:grid-cols-6 lg:grid-cols-8 max-w-4xl mx-auto">
+              {githubData.contributors.map((contributor) => (
+                <a
+                  href={contributor.html_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="group flex flex-col items-center space-y-2 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                  title={`${contributor.login} - ${contributor.contributions} contributions`}
+                >
+                  <img
+                    src={contributor.avatar_url}
+                    alt={contributor.login}
+                    class="w-12 h-12 rounded-full group-hover:scale-110 transition-transform duration-200"
+                    loading="lazy"
+                  />
+                  <span class="text-xs text-center text-muted-foreground group-hover:text-foreground transition-colors truncate w-full">
+                    {contributor.login}
+                  </span>
+                </a>
+              ))}
+            </div>
+          </div>
+
+          <div class="grid gap-8 lg:gap-12 grid-cols-1 lg:grid-cols-2">
+            <div class="space-y-6">
+              <div class="flex items-center justify-between">
+                <h2 class="text-xl md:text-2xl font-medium">Open Issues</h2>
+                <a
+                  href="https://github.com/usemarble/marble/issues"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-sm text-primary hover:text-primary-dark transition-colors"
+                >
+                  View all →
+                </a>
+              </div>
+              
+              <div class="space-y-3">
+                {githubData.issues.length === 0 ? (
+                  <div class="text-center py-8 text-muted-foreground">
+                    No open issues at the moment
+                  </div>
+                ) : (
+                  githubData.issues.map((issue) => {
+                    const issueType = getIssueTypeFromLabels(issue.labels);
+                    return (
+                      <div class="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                        <div class="flex items-start gap-3">
+                          <img
+                            src={issue.user.avatar_url}
+                            alt={issue.user.login}
+                            class="w-6 h-6 rounded-full flex-shrink-0 mt-0.5"
+                            loading="lazy"
+                          />
+                          <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-2">
+                              <span class={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${issueType.color}`}>
+                                {issueType.type}
+                              </span>
+                              <span class="text-xs text-muted-foreground">
+                                #{issue.number}
+                              </span>
+                            </div>
+                            <a
+                              href={issue.html_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              class="font-medium text-sm hover:text-primary transition-colors line-clamp-2"
+                            >
+                              {issue.title}
+                            </a>
+                            <p class="text-xs text-muted-foreground mt-1">
+                              by {issue.user.login} • {formatDate(issue.created_at)}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+
+            <div class="space-y-6">
+              <div class="flex items-center justify-between">
+                <h2 class="text-xl md:text-2xl font-medium">Open Pull Requests</h2>
+                <a
+                  href="https://github.com/usemarble/marble/pulls"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-sm text-primary hover:text-primary-dark transition-colors"
+                >
+                  View all →
+                </a>
+              </div>
+              
+              <div class="space-y-3">
+                {githubData.prs.length === 0 ? (
+                  <div class="text-center py-8 text-muted-foreground">
+                    No open pull requests at the moment
+                  </div>
+                ) : (
+                  githubData.prs.map((pr) => (
+                    <div class="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                      <div class="flex items-start gap-3">
+                        <img
+                          src={pr.user.avatar_url}
+                          alt={pr.user.login}
+                          class="w-6 h-6 rounded-full flex-shrink-0 mt-0.5"
+                          loading="lazy"
+                        />
+                        <div class="flex-1 min-w-0">
+                          <div class="flex items-center gap-2 mb-2">
+                            <span class={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${pr.draft ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>
+                              {pr.draft ? 'Draft' : 'Ready'}
+                            </span>
+                            <span class="text-xs text-muted-foreground">
+                              #{pr.number}
+                            </span>
+                          </div>
+                          <a
+                            href={pr.html_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="font-medium text-sm hover:text-primary transition-colors line-clamp-2"
+                          >
+                            {pr.title}
+                          </a>
+                          <p class="text-xs text-muted-foreground mt-1">
+                            by {pr.user.login} • {formatDate(pr.created_at)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+
+
+
+          <div class="max-w-2xl mx-auto text-center space-y-4">
+            <h2 class="text-xl md:text-2xl font-medium">Want to contribute?</h2>
+            <p class="text-muted-foreground">
+              We welcome contributions from developers of all skill levels. Check out our <a href="https://github.com/usemarble/marble" target="_blank" rel="noopener noreferrer" class="text-primary hover:text-primary-dark transition-colors">GitHub repository</a> to get started, or reach out to us on <a href="https://x.com/usemarblecms" target="_blank" rel="noopener noreferrer" class="text-primary hover:text-primary-dark transition-colors">Twitter</a>!
+            </p>
+            <div class="flex items-center justify-center gap-4 pt-4">
+              <a
+                href="https://github.com/usemarble/marble/issues"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flex gap-2 justify-center group w-48 bg-primary text-primary-foreground items-center py-2.5 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary focus-visible:ring-2 transition-all duration-300 ease-out px-4 group rounded"
+              >
+                <span>Browse Issues</span>
+              </a>
+              <a
+                href="https://github.com/usemarble/marble"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flex gap-2 justify-center group w-48 bg-white border border-primary text-primary items-center py-2.5 text-sm hover:bg-primary hover:text-primary-foreground focus-visible:ring-offset-2 focus-visible:ring-primary focus-visible:ring-2 transition-all duration-300 ease-out px-4 group rounded"
+              >
+                <span>View Repository</span>
+              </a>
+            </div>
+          </div>
+        </Container>
+      </div>
+    </section>
+  </div>
+</Layout>
+
+<style>
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>
