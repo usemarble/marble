@@ -6,6 +6,7 @@ import categoriesRoutes from "./routes/categories";
 import postsRoutes from "./routes/posts";
 import tagsRoutes from "./routes/tags";
 import type { Env } from "./types/env";
+import { analytics } from "./middleware/analytics";
 
 const app = new Hono<{ Bindings: Env }>();
 const v1 = new Hono<{ Bindings: Env }>();
@@ -13,7 +14,8 @@ const v1 = new Hono<{ Bindings: Env }>();
 const staleTime = 3600;
 
 // Global Middleware
-app.use("*", ratelimit());
+app.use("/:workspaceId/*", ratelimit());
+app.use("/:workspaceId/*", analytics());
 app.use(trimTrailingSlash());
 
 app.use("*", async (c, next) => {
