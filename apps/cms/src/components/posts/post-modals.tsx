@@ -9,11 +9,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@marble/ui/components/alert-dialog";
-import { Button } from "@marble/ui/components/button";
 import { toast } from "@marble/ui/components/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
-import { ButtonLoader } from "../ui/loader";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { QUERY_KEYS } from "@/lib/queries/keys";
+import { AsyncButton } from "../ui/async-button";
 
 export const DeletePostModal = ({
   open,
@@ -25,7 +25,7 @@ export const DeletePostModal = ({
   id: string;
 }) => {
   const queryClient = useQueryClient();
-  const params = useParams<{ workspace: string }>();
+  const workspaceId = useWorkspaceId();
 
   const { mutate: deletePost, isPending } = useMutation({
     mutationFn: (postId: string) =>
@@ -34,9 +34,11 @@ export const DeletePostModal = ({
       }),
     onSuccess: () => {
       toast.success("Post deleted");
-      queryClient.invalidateQueries({
-        queryKey: ["posts", params.workspace],
-      });
+      if (workspaceId) {
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.POSTS(workspaceId),
+        });
+      }
       setOpen(false);
     },
     onError: () => {
@@ -55,16 +57,16 @@ export const DeletePostModal = ({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
-          <Button
+          <AsyncButton
             onClick={(e) => {
               e.preventDefault();
               deletePost(id);
             }}
-            disabled={isPending}
             variant="destructive"
+            isLoading={isPending}
           >
-            {isPending ? <ButtonLoader /> : "Delete"}
-          </Button>
+            Delete
+          </AsyncButton>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

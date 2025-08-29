@@ -2,18 +2,29 @@
   "name": "marblecms",
   "private": true,
   "scripts": {
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:clean": "docker compose down -v",
+    "docker:logs": "docker compose logs -f",
+    "docker:ps": "docker compose ps",
+    "docker:restart": "docker compose restart",
+
+    "db:migrate": "pnpm --filter @marble/db db:migrate",
+    "db:deploy":  "pnpm --filter @marble/db db:deploy",
+    "db:generate":"pnpm --filter @marble/db db:generate",
+    "db:studio":  "pnpm --filter @marble/db db:studio",
+    "db:push": "pnpm --filter @marble/db db:push",
+
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
     "format": "biome format --write apps packages",
-    "format-lint:fix": "biome check apps packages --write --unsafe",
+    "format-lint:fix": "biome check apps packages --write",
     "format-lint:check": "biome ci apps packages",
     "web:dev": "turbo dev --filter=web",
     "cms:dev": "turbo dev --filter=cms",
     "api:dev": "turbo dev --filter=api",
     "docs:dev": "turbo dev --filter=docs",
-    "db:generate": "turbo run db:generate --filter=@marble/db",
-    "db:push": "turbo run db:push --filter=@marble/db",
     "prepare": "husky"
   },
   "devDependencies": {

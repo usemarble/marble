@@ -7,7 +7,7 @@ import {
 } from "@marble/ui/components/popover";
 import { Switch } from "@marble/ui/components/switch";
 import { cn } from "@marble/ui/lib/utils";
-import { Check, LinkSimple, Trash } from "@phosphor-icons/react";
+import { CheckIcon, LinkSimpleIcon, TrashIcon } from "@phosphor-icons/react";
 import { useEditor } from "novel";
 import { useEffect, useRef, useState } from "react";
 
@@ -52,11 +52,12 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
-          className={cn("gap-2 rounded-none border-none", {
+          size="icon"
+          className={cn("gap-2 border-none", {
             "text-emerald-500": editor.isActive("link"),
           })}
         >
-          <LinkSimple className="size-4" />
+          <LinkSimpleIcon className="size-4" />
         </Button>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-60 p-0" sideOffset={10}>
@@ -85,7 +86,7 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
               type="text"
               onChange={({ target }) => setInputValue(target.value)}
               placeholder="Paste or type link"
-              className="flex-1 bg-background p-1 text-sm outline-none"
+              className="flex-1 bg-background p-1 text-sm outline-hidden"
               defaultValue={editor.getAttributes("link").href || ""}
             />
             {editor.getAttributes("link").href ? (
@@ -93,12 +94,12 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
                 size="icon"
                 variant="outline"
                 type="button"
-                className="flex size-8 items-center rounded-sm text-destructive transition-all hover:bg-destructive hover:text-white"
+                className="flex items-center rounded-sm text-destructive transition-all hover:bg-destructive hover:text-white"
                 onClick={() => {
                   editor.chain().focus().unsetLink().run();
                 }}
               >
-                <Trash className="h-4 w-4" />
+                <TrashIcon className="size-4" />
               </Button>
             ) : (
               <Button
@@ -120,7 +121,7 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
                   }
                 }}
               >
-                <Check className="size-4" />
+                <CheckIcon className="size-4" />
               </Button>
             )}
           </div>

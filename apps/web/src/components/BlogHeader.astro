@@ -11,7 +11,7 @@ import WordMark from "./icons/WordMark.astro";
         <!-- mobile nav -->
         <div 
           id="mobile-nav"
-          class="hidden data-[expanded]:block data-[expanded]:fixed data-[expanded]:inset-0 z-50 pt-20 px-6 h-screen bg-background/90 backdrop-blur-[5px] md:hidden"
+          class="hidden data-expanded:block data-expanded:fixed data-expanded:inset-0 z-50 pt-20 px-6 h-screen bg-background/90 backdrop-blur-[5px] md:hidden"
         >
           <ul class="flex flex-col gap-6">
             <li
@@ -45,7 +45,7 @@ import WordMark from "./icons/WordMark.astro";
           </ul>
         </div>
         <!-- desktop nav -->
-        <div class="flex items-center gap-4 justify-start z-[100]">
+        <div class="flex items-center gap-4 justify-start z-100">
           <a
             href="/blog"
             class="text-lg tracking-wider flex items-center gap-2"
@@ -64,49 +64,17 @@ import WordMark from "./icons/WordMark.astro";
           </a>
         </div>
         <!-- mobile nav toggle -->
-        <div class="flex items-center justify-end md:hidden z-[100]">
-          <button id="toggle" class="flex flex-col justify-center gap-1.5 size-6 focus-visible:outline-dashed focus-visible:outline-offset-1">
-            <span id="bar" class="h-0.5 self-start bg-foreground w-1/2 data-[expanded]:w-[calc(50%-3px)] data-[expanded]:rotate-45 data-[expanded]:translate-y-[2px] data-[expanded]:translate-x-[2px] transition duration-300"></span>
-            <span id="bar" class="h-0.5 w-full bg-foreground data-[expanded]:-rotate-45 transition duration-300"></span>
-            <span id="bar" class="h-0.5 self-end bg-foreground w-1/2 data-[expanded]:w-[calc(50%-3px)] data-[expanded]:rotate-45 data-[expanded]:-translate-y-[3px] data-[expanded]:-translate-x-0.5 transition duration-300"></span>
+        <div class="flex items-center justify-end md:hidden z-100">
+          <button id="toggle" aria-label="Toggle mobile navigation" class="flex flex-col justify-center gap-1.5 size-6 focus-visible:outline-dashed focus-visible:outline-offset-1">
+            <span id="bar" class="h-0.5 self-start bg-foreground w-1/2 data-expanded:w-[calc(50%-3px)] data-expanded:rotate-45 data-expanded:translate-y-[2px] data-expanded:translate-x-[2px] transition duration-300"></span>
+            <span id="bar" class="h-0.5 w-full bg-foreground data-expanded:-rotate-45 transition duration-300"></span>
+            <span id="bar" class="h-0.5 self-end bg-foreground w-1/2 data-expanded:w-[calc(50%-3px)] data-expanded:rotate-45 data-expanded:-translate-y-[3px] data-expanded:-translate-x-0.5 transition duration-300"></span>
           </button>
         </div>
       </nav>
     </Container>
   </div>
 </header>
-
-<!-- <script>
-  document.addEventListener('astro:page-load', () => {
-    const header = document.getElementById('header');
-    const nav = document.getElementById('nav');
-
-    if (nav && header) {
-      window.addEventListener('scroll', () => {
-        const isScrolled = window.scrollY >= 64;
-        const headerRect = header.getBoundingClientRect();
-        const isHeaderVisible = headerRect.bottom >= window.innerHeight;
-
-        const scrollClasses = [
-          'sticky',
-          'top-0',
-          'bg-white/90',
-          'border',
-          'rounded-lg',
-          'backdrop-blur-md',
-          'py-2',
-          'px-4',
-        ];
-
-        if (window.scrollY >= 100 || !isHeaderVisible) {
-          scrollClasses.forEach(className => nav.classList.add(className));
-        } else {
-          scrollClasses.forEach(className => nav.classList.remove(className));
-        }
-      });
-    }
-  });
-</script> -->
 
 <script>
   function initMobileNav() {

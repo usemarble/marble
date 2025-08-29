@@ -6,7 +6,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@marble/ui/components/avatar";
-import { Button, buttonVariants } from "@marble/ui/components/button";
+import { buttonVariants } from "@marble/ui/components/button";
 import {
   Card,
   CardContent,
@@ -19,16 +19,18 @@ import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
-import { Copy, Image as ImageIcon, UploadSimple } from "@phosphor-icons/react";
+import { ImageIcon, UploadSimpleIcon } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Check, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
 import { DeleteAccountModal } from "@/components/settings/delete-account-modal";
 import { ThemeSwitch } from "@/components/settings/theme";
-import { ButtonLoader } from "@/components/ui/loader";
+import { AsyncButton } from "@/components/ui/async-button";
+import { CopyButton } from "@/components/ui/copy-button";
+import { uploadFile } from "@/lib/media/upload";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { type ProfileData, profileSchema } from "@/lib/validations/settings";
 import { useUser } from "@/providers/user";
@@ -41,29 +43,15 @@ function PageClient() {
     user?.image ?? undefined,
   );
   const [file, setFile] = useState<File | null>(null);
-  const [avatarCopied, setAvatarCopied] = useState(false);
 
   const { mutate: uploadAvatar, isPending: isUploading } = useMutation({
-    mutationFn: async (file: File) => {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const response = await fetch("/api/uploads/avatar", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to upload avatar");
-      }
-
-      return response.json();
+    mutationFn: (file: File) => {
+      return uploadFile({ file, type: "avatar" });
     },
     onSuccess: (data) => {
       setAvatarUrl(data.avatarUrl);
       updateUser({ image: data.avatarUrl });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USER] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.USER });
       setFile(null);
     },
     onError: (error) => {
@@ -122,16 +110,8 @@ function PageClient() {
     }
   }, [file, handleAvatarUpload]);
 
-  const copyAvatar = () => {
-    navigator.clipboard.writeText(avatarUrl || "");
-    setAvatarCopied(true);
-    setTimeout(() => {
-      setAvatarCopied(false);
-    }, 1000);
-  };
-
   return (
-    <div className="flex flex-col gap-8 py-12 max-w-screen-md mx-auto w-full">
+    <div className="flex flex-col gap-8 py-12 max-w-(--breakpoint-md) mx-auto w-full">
       <div className="py-4">
         <div className="flex items-center gap-2 justify-between">
           <h1 className="text-lg font-medium">Account Settings</h1>
@@ -141,18 +121,21 @@ function PageClient() {
         </div>
       </div>
       <div className="flex flex-col gap-8 py-12">
-        <Card className="flex justify-between p-4">
+        <Card className="flex justify-between">
           <CardHeader>
             <CardTitle className="text-lg font-medium">Theme.</CardTitle>
-            <CardDescription>
-              Override the default theme of the application.
-            </CardDescription>
+            <CardDescription>Chose your preferred theme.</CardDescription>
           </CardHeader>
-          <CardContent className="flex items-center center pb-0">
+          <CardContent className="flex items-center center">
             <ThemeSwitch />
           </CardContent>
+          <CardFooter className="border-t">
+            <p className="text-sm text-muted-foreground">
+              This defaults to the system theme.
+            </p>
+          </CardFooter>
         </Card>
-        <Card className="p-4">
+        <Card>
           <CardHeader>
             <CardTitle className="text-lg font-medium">Avatar.</CardTitle>
             <CardDescription>Change your profile picture.</CardDescription>
@@ -170,11 +153,12 @@ function PageClient() {
                   <Avatar className="size-16">
                     <AvatarImage src={avatarUrl || undefined} />
                     <AvatarFallback>
-                      <ImageIcon className="size-4" />
+                      <ImageIcon className="size-4 text-muted-foreground" />
                     </AvatarFallback>
                   </Avatar>
+                  {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
                   <input
-                    title="Upload logo"
+                    title="Upload avatar"
                     type="file"
                     id="logo"
                     accept="image/*"
@@ -189,7 +173,7 @@ function PageClient() {
                   />
                   <div
                     className={cn(
-                      "absolute inset-0 flex items-center justify-center transition-opacity duration-300 bg-background/50 backdrop-blur-sm size-full",
+                      "absolute inset-0 flex items-center justify-center transition-opacity duration-300 bg-background/50 backdrop-blur-xs size-full",
                       isUploading
                         ? "opacity-100"
                         : "opacity-0 group-hover:opacity-100",
@@ -198,34 +182,32 @@ function PageClient() {
                     {isUploading ? (
                       <Loader2 className="size-4 animate-spin" />
                     ) : (
-                      <UploadSimple className="size-4" />
+                      <UploadSimpleIcon className="size-4" />
                     )}
                   </div>
                 </Label>
               </div>
               <div className="flex items-center gap-2 w-full">
-                <Input defaultValue={avatarUrl || undefined} readOnly />
-                <Button
-                  variant="outline"
-                  type="submit"
-                  size="icon"
-                  onClick={copyAvatar}
-                  className="px-3"
-                >
-                  <span className="sr-only">Copy</span>
-                  {avatarCopied ? (
-                    <Check className="size-4" />
-                  ) : (
-                    <Copy className="size-4" />
-                  )}
-                </Button>
+                <Input value={avatarUrl || ""} readOnly />
+                <CopyButton
+                  textToCopy={avatarUrl || ""}
+                  toastMessage="Avatar URL copied to clipboard."
+                />
               </div>
             </div>
           </CardContent>
+          <CardFooter className="border-t">
+            <p className="text-sm text-muted-foreground">
+              Square images work best for avatars
+            </p>
+          </CardFooter>
         </Card>
 
-        <Card className="p-4">
-          <form onSubmit={handleSubmit(onSubmit)}>
+        <Card className="pb-4">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col gap-6"
+          >
             <CardHeader>
               <CardTitle className="text-lg font-medium">Full Name</CardTitle>
               <CardDescription>
@@ -243,19 +225,20 @@ function PageClient() {
                 )}
               </div>
             </CardContent>
-            <CardFooter className="justify-end">
-              <Button
-                disabled={!isChanged || isSubmitting || isUpdatingUser}
+            <CardFooter className="border-t pt-4 justify-end">
+              <AsyncButton
+                disabled={!isChanged}
+                isLoading={isSubmitting || isUpdatingUser}
                 className="w-20 self-end"
                 type="submit"
               >
-                {isSubmitting || isUpdatingUser ? <ButtonLoader /> : "Save"}
-              </Button>
+                Save
+              </AsyncButton>
             </CardFooter>
           </form>
         </Card>
 
-        <Card className="p-4">
+        <Card>
           <CardHeader>
             <CardTitle className="text-lg font-medium">Email.</CardTitle>
             <CardDescription>
@@ -267,12 +250,17 @@ function PageClient() {
               <Label htmlFor="email" className="sr-only">
                 Email
               </Label>
-              <Input defaultValue={user?.email} disabled />
+              <Input defaultValue={user?.email} readOnly />
             </div>
           </CardContent>
+          <CardFooter className="border-t">
+            <p className="text-sm text-muted-foreground">
+              Email cannot be changed
+            </p>
+          </CardFooter>
         </Card>
 
-        <Card className="p-4">
+        <Card className="pb-4">
           <CardHeader>
             <CardTitle className="text-lg font-medium">
               Delete Account
@@ -282,7 +270,7 @@ function PageClient() {
               action cannot be undone.
             </CardDescription>
           </CardHeader>
-          <CardFooter className="justify-end">
+          <CardFooter className="border-t pt-4 justify-end">
             <DeleteAccountModal />
           </CardFooter>
         </Card>

@@ -9,7 +9,6 @@ import {
   DialogTitle,
 } from "@marble/ui/components/dialog";
 import { Input } from "@marble/ui/components/input";
-import { Label } from "@marble/ui/components/label";
 import { ScrollArea } from "@marble/ui/components/scroll-area";
 import { toast } from "@marble/ui/components/sonner";
 import {
@@ -18,22 +17,16 @@ import {
   TabsList,
   TabsTrigger,
 } from "@marble/ui/components/tabs";
-import {
-  CloudArrowUp,
-  Image as ImageIcon,
-  Spinner,
-  Trash,
-} from "@phosphor-icons/react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { SpinnerIcon } from "@phosphor-icons/react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEditor } from "novel";
 import { useState } from "react";
+import { ImageDropzone } from "@/components/shared/dropzone";
+import { AsyncButton } from "@/components/ui/async-button";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { uploadFile } from "@/lib/media/upload";
 import { QUERY_KEYS } from "@/lib/queries/keys";
-
-interface MediaResponse {
-  id: string;
-  name: string;
-  url: string;
-}
+import type { Media } from "@/types/media";
 
 interface ImageUploadModalProps {
   isOpen: boolean;
@@ -44,27 +37,31 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
   const [embedUrl, setEmbedUrl] = useState("");
   const [file, setFile] = useState<File | undefined>();
   const [isValidatingUrl, setIsValidatingUrl] = useState(false);
+  const workspaceId = useWorkspaceId();
   const editorInstance = useEditor();
+  const queryClient = useQueryClient();
 
   const { mutate: uploadImage, isPending: isUploading } = useMutation({
-    mutationFn: async (file: File) => {
-      const formData = new FormData();
-      formData.append("file", file);
-      const response = await fetch("/api/uploads/media", {
-        method: "POST",
-        body: formData,
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to upload image.");
+    mutationFn: (file: File) => uploadFile({ file, type: "media" }),
+    onSuccess: (data: Media) => {
+      if (data?.url) {
+        editorInstance.editor
+          ?.chain()
+          .focus()
+          .setImage({ src: data.url })
+          .createParagraphNear()
+          .run();
+        toast.success("Image uploaded successfully.");
+        setIsOpen(false);
+        setFile(undefined);
+        if (workspaceId) {
+          queryClient.invalidateQueries({
+            queryKey: QUERY_KEYS.MEDIA(workspaceId),
+          });
+        }
+      } else {
+        toast.error("Upload failed: Invalid response from server.");
       }
-      return response.json();
-    },
-    onSuccess: (data) => {
-      editorInstance.editor?.chain().focus().setImage({ src: data.url }).run();
-      toast.success("Image uploaded successfully.");
-      setIsOpen(false);
-      setFile(undefined);
     },
     onError: (error) => {
       toast.error(error.message);
@@ -79,7 +76,12 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
       const img = new Image();
       img.onload = () => {
         if (editorInstance.editor) {
-          editorInstance.editor.chain().focus().setImage({ src: url }).run();
+          editorInstance.editor
+            .chain()
+            .focus()
+            .setImage({ src: url })
+            .createParagraphNear()
+            .run();
         }
         setIsOpen(false);
         setEmbedUrl("");
@@ -96,20 +98,17 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
     }
   };
 
-  const handleUpload = async (file: File) => {
-    if (!editorInstance.editor) return;
-    uploadImage(file);
-  };
-
   // fetch media
   const { data: media } = useQuery({
-    queryKey: [QUERY_KEYS.MEDIA],
+    // biome-ignore lint/style/noNonNullAssertion: <>
+    queryKey: QUERY_KEYS.MEDIA(workspaceId!),
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
       const res = await fetch("/api/media");
-      const data: MediaResponse[] = await res.json();
+      const data: Media[] = await res.json();
       return data;
     },
+    enabled: !!workspaceId,
   });
 
   return (
@@ -120,18 +119,12 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
           Upload an image from your computer or embed an image from the web.
         </DialogDescription>
       </DialogHeader>
-      <DialogContent className="sm:max-w-lg max-h-96">
+      <DialogContent className="max-w-xl max-h-96">
         <Tabs defaultValue="upload" className="w-full">
-          <TabsList variant="underline" className="flex justify-start mb-4">
-            <TabsTrigger variant="underline" value="upload">
-              Upload
-            </TabsTrigger>
-            <TabsTrigger variant="underline" value="embed">
-              Embed
-            </TabsTrigger>
-            <TabsTrigger variant="underline" value="media">
-              Media
-            </TabsTrigger>
+          <TabsList variant="line" className="flex justify-start mb-4">
+            <TabsTrigger value="upload">Upload</TabsTrigger>
+            <TabsTrigger value="embed">Embed</TabsTrigger>
+            <TabsTrigger value="media">Media</TabsTrigger>
           </TabsList>
           {/*  */}
           <TabsContent value="upload">
@@ -144,52 +137,29 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
                       <img
                         src={URL.createObjectURL(file)}
                         alt="cover"
-                        className="w-full h-full max-h-48 object-cover rounded-md"
+                        className="w-full h-full max-h-52 object-cover rounded-md"
                       />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <Button
-                        variant="outline"
-                        onClick={() => setFile(undefined)}
-                        disabled={isUploading}
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <Trash className="size-4" />
-                        <span>Remove</span>
-                      </Button>
-                      <Button
-                        onClick={() => file && handleUpload(file)}
-                        disabled={isUploading}
-                      >
-                        {isUploading ? (
-                          <Spinner className="size-4 animate-spin" />
-                        ) : (
-                          <CloudArrowUp className="size-4" />
-                        )}
-                        <span>{isUploading ? "Uploading..." : "Upload"}</span>
-                      </Button>
+                      {isUploading && (
+                        <div className="absolute grid size-full inset-0 place-content-center bg-black/50 rounded-md p-2 backdrop-blur-xs">
+                          <div className="flex flex-col items-center gap-2">
+                            <SpinnerIcon className="size-5 animate-spin text-white" />
+                            <p className="text-sm text-white">Uploading...</p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ) : (
-                  <Label
-                    htmlFor="bodyImage"
-                    className="w-full h-full min-h-56 rounded-md border border-dashed flex items-center justify-center cursor-pointer hover:border-primary"
-                  >
-                    <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                      <ImageIcon className="size-4" />
-                      <div className="flex flex-col items-center">
-                        <p className="text-sm font-medium">Upload Image</p>
-                        <p className="text-xs font-medium">(Max 4mb)</p>
-                      </div>
-                    </div>
-                    <Input
-                      onChange={(e) => setFile(e.target.files?.[0])}
-                      id="bodyImage"
-                      type="file"
-                      accept="image/*"
-                      className="sr-only"
-                    />
-                  </Label>
+                  <ImageDropzone
+                    onFilesAccepted={(files: File[]) => {
+                      if (files[0]) {
+                        setFile(files[0]);
+                        uploadImage(files[0]);
+                      }
+                    }}
+                    className="w-full h-64 rounded-md border border-dashed bg-background flex items-center justify-center cursor-pointer"
+                    multiple={false}
+                  />
                 )}
               </div>
             </section>
@@ -203,20 +173,13 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
                   placeholder="Paste your image link"
                   disabled={isValidatingUrl}
                 />
-                <Button
+                <AsyncButton
                   className="w-52 mx-auto"
                   onClick={() => handleEmbed(embedUrl)}
                   disabled={isValidatingUrl || !embedUrl}
                 >
-                  {isValidatingUrl ? (
-                    <>
-                      <Spinner className="size-4 animate-spin" />
-                      <span>Validating...</span>
-                    </>
-                  ) : (
-                    <span>Save</span>
-                  )}
-                </Button>
+                  <span>Save</span>
+                </AsyncButton>
               </div>
             </section>
           </TabsContent>
@@ -225,24 +188,27 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
               <section className="flex flex-col gap-4 p-4">
                 {media && media.length > 0 ? (
                   <ul className="grid grid-cols-3 gap-2 overflow-y-auto max-h-[400px]">
-                    {media.map((item) => (
-                      <li key={item.id} className="border">
-                        <button
-                          type="button"
-                          onClick={() => handleEmbed(item.url)}
-                        >
-                          {/* biome-ignore lint/performance/noImgElement: <> */}
-                          <img
-                            src={item.url}
-                            alt={item.name}
-                            className="h-24 object-cover"
-                          />
-                        </button>
-                        <p className="text-xs text-muted-foreground line-clamp-1 py-0.5 px-1">
-                          {item.name}
-                        </p>
-                      </li>
-                    ))}
+                    {/* ONCE video extension is added, we need to filter out videos */}
+                    {media
+                      .filter((item) => item.type === "image")
+                      .map((item) => (
+                        <li key={item.id} className="border">
+                          <button
+                            type="button"
+                            onClick={() => handleEmbed(item.url)}
+                          >
+                            {/* biome-ignore lint/performance/noImgElement: <> */}
+                            <img
+                              src={item.url}
+                              alt={item.name}
+                              className="h-24 object-cover"
+                            />
+                          </button>
+                          <p className="text-xs text-muted-foreground line-clamp-1 py-0.5 px-1">
+                            {item.name}
+                          </p>
+                        </li>
+                      ))}
                   </ul>
                 ) : (
                   <div className="h-full grid place-content-center">

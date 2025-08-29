@@ -7,25 +7,24 @@ import {
 } from "@marble/ui/components/popover";
 import { cn } from "@marble/ui/lib/utils";
 import {
-  ArrowUpRight,
-  BookOpen,
-  Bug,
-  DiscordLogo,
-  NewspaperClipping,
-  Question,
-  TwitterLogo,
+  ArrowUpRightIcon,
+  BookOpenIcon,
+  BugIcon,
+  NewspaperClippingIcon,
+  QuestionIcon,
 } from "@phosphor-icons/react";
+import { Discord, XFormerlyTwitter } from "../icons/social";
 
 const communityLinks = [
   {
     label: "Discord",
     href: "https://discord.gg/gU44Pmwqkx",
-    icon: <DiscordLogo size={16} />,
+    icon: <Discord className="size-4" />,
   },
   {
     label: "Twitter",
     href: "https://x.com/usemarblecms",
-    icon: <TwitterLogo size={16} />,
+    icon: <XFormerlyTwitter className="size-4" />,
   },
 ];
 
@@ -33,17 +32,17 @@ const resourceLinks = [
   {
     label: "Blog",
     href: "https://marblecms.com/blog",
-    icon: <NewspaperClipping size={16} />,
+    icon: <NewspaperClippingIcon className="size-4" />,
   },
   {
     label: "Documentation",
     href: "https://docs.marblecms.com",
-    icon: <BookOpen size={16} />,
+    icon: <BookOpenIcon className="size-4" />,
   },
   {
     label: "Report an issue",
     href: "https://github.com/usemarble/marble/issues",
-    icon: <Bug size={16} />,
+    icon: <BugIcon className="size-4" />,
   },
 ];
 
@@ -52,12 +51,12 @@ export function NavExtra() {
     <Popover>
       <PopoverTrigger asChild>
         <Button variant="ghost" size="icon" className="rounded-lg">
-          <Question size={20} />
+          <QuestionIcon className="size-4" />
         </Button>
       </PopoverTrigger>
       <PopoverContent side="right" sideOffset={6} className="w-60 divide-y p-0">
         <div className="p-2">
-          <h3 className="px-2 py-1.5 text-sm font-semibold text-muted-foreground">
+          <h3 className="px-2 py-1.5 text-sm font-medium text-muted-foreground">
             Get in touch
           </h3>
           <ul className="flex flex-col">
@@ -68,24 +67,20 @@ export function NavExtra() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className={cn(
-                    buttonVariants({
-                      variant: "ghost",
-                      size: "sm",
-                      class:
-                        "w-full justify-start gap-2 text-sidebar-foreground",
-                    }),
+                    buttonVariants({ variant: "ghost", size: "sm" }),
+                    "w-full justify-start gap-2 text-muted-foreground",
                   )}
                 >
                   {link.icon}
                   {link.label}
-                  <ArrowUpRight className="ml-auto" size={14} />
+                  <ArrowUpRightIcon className="ml-auto size-4" />
                 </a>
               </li>
             ))}
           </ul>
         </div>
         <div className="p-2">
-          <h3 className="px-2 py-1.5 text-sm font-semibold text-muted-foreground">
+          <h3 className="px-2 py-1.5 text-sm font-medium text-muted-foreground">
             Resources
           </h3>
           <ul className="flex flex-col">
@@ -96,17 +91,13 @@ export function NavExtra() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className={cn(
-                    buttonVariants({
-                      variant: "ghost",
-                      size: "sm",
-                      class:
-                        "w-full justify-start gap-2 text-sidebar-foreground",
-                    }),
+                    buttonVariants({ variant: "ghost", size: "sm" }),
+                    "w-full justify-start gap-2 text-muted-foreground",
                   )}
                 >
                   {link.icon}
                   {link.label}
-                  <ArrowUpRight className="ml-auto" size={14} />
+                  <ArrowUpRightIcon className="ml-auto size-4" />
                 </a>
               </li>
             ))}

@@ -3,11 +3,20 @@
 import { Button } from "@marble/ui/components/button";
 import { Card, CardContent } from "@marble/ui/components/card";
 import { Progress } from "@marble/ui/components/progress";
-import { Images, Plugs, Users, WebhooksLogo } from "@phosphor-icons/react";
-import { format, isValid, parseISO } from "date-fns";
-import { useState } from "react";
-import { UpgradeModal } from "@/components/billing/upgrade-modal";
-import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
+import {
+  ImagesIcon,
+  PlugsIcon,
+  UsersIcon,
+  WebhooksLogoIcon,
+} from "@phosphor-icons/react";
+import dynamic from "next/dynamic";
+import { useCallback, useEffect, useState } from "react";
+import { WorkspacePageWrapper } from "@/components/layout/wrapper";
+
+const UpgradeModal = dynamic(() =>
+  import("@/components/billing/upgrade-modal").then((mod) => mod.UpgradeModal),
+);
+
 import { usePlan } from "@/hooks/use-plan";
 import { useWorkspace } from "@/providers/workspace";
 
@@ -18,20 +27,26 @@ function PageClient() {
 
   const subscription = activeWorkspace?.subscription;
 
-  const formatDate = (dateValue: string | Date | null | undefined) => {
-    if (!dateValue) return null;
+  const formatDate = useCallback(
+    async (dateValue: string | Date | null | undefined) => {
+      if (!dateValue) return null;
 
-    let date: Date;
-    if (typeof dateValue === "string") {
-      date = parseISO(dateValue);
-    } else {
-      date = dateValue;
-    }
+      // Dynamically import date-fns only when formatting is needed
+      const { format, isValid, parseISO } = await import("date-fns");
 
-    if (!isValid(date)) return null;
+      let date: Date;
+      if (typeof dateValue === "string") {
+        date = parseISO(dateValue);
+      } else {
+        date = dateValue;
+      }
 
-    return format(date, "MMM d, yyyy");
-  };
+      if (!isValid(date)) return null;
+
+      return format(date, "MMM d, yyyy");
+    },
+    [],
+  );
 
   const getPlanDisplayName = () => {
     switch (currentPlan) {
@@ -56,25 +71,39 @@ function PageClient() {
     return `${limitMB} MB`;
   };
 
-  const getBillingCycleText = () => {
+  const [billingCycleText, setBillingCycleText] = useState<string>(
+    "Loading billing cycle...",
+  );
+
+  const updateBillingCycleText = useCallback(async () => {
     if (!subscription?.currentPeriodStart || !subscription?.currentPeriodEnd) {
-      return "No billing cycle";
+      setBillingCycleText("No billing cycle");
+      return;
     }
 
-    const startDate = formatDate(subscription.currentPeriodStart);
-    const endDate = formatDate(subscription.currentPeriodEnd);
+    const startDate = await formatDate(subscription.currentPeriodStart);
+    const endDate = await formatDate(subscription.currentPeriodEnd);
 
     if (!startDate || !endDate) {
-      return "No billing cycle";
+      setBillingCycleText("No billing cycle");
+      return;
     }
 
-    return `Current billing cycle: ${startDate} - ${endDate}`;
-  };
+    setBillingCycleText(`Current billing cycle: ${startDate} - ${endDate}`);
+  }, [
+    subscription?.currentPeriodStart,
+    subscription?.currentPeriodEnd,
+    formatDate,
+  ]);
+
+  // Update billing cycle text when subscription changes
+  useEffect(() => {
+    updateBillingCycleText();
+  }, [updateBillingCycleText]);
 
   return (
     <WorkspacePageWrapper>
       <div className="flex flex-col gap-6">
-        {/* Header */}
         <Card>
           <CardContent className="px-6 py-10">
             <div className="flex items-center justify-between">
@@ -83,7 +112,7 @@ function PageClient() {
                   {getPlanDisplayName()}
                 </h1>
                 <p className="text-sm text-muted-foreground">
-                  {getBillingCycleText()}
+                  {billingCycleText}
                 </p>
               </div>
               <div className="flex items-center gap-3">
@@ -106,7 +135,7 @@ function PageClient() {
             <CardContent className="p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="size-8 rounded-lg bg-muted flex items-center justify-center">
-                  <Plugs className="text-muted-foreground" size={16} />
+                  <PlugsIcon className="text-muted-foreground" size={16} />
                 </div>
                 <h3 className="font-medium">API Requests</h3>
               </div>
@@ -133,7 +162,7 @@ function PageClient() {
             <CardContent className="p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="size-8 rounded-lg bg-muted flex items-center justify-center">
-                  <WebhooksLogo className="text-muted-foreground" />
+                  <WebhooksLogoIcon className="text-muted-foreground" />
                 </div>
                 <h3 className="font-medium">Webhook Events</h3>
               </div>
@@ -153,7 +182,7 @@ function PageClient() {
             <CardContent className="p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="size-8 rounded-lg bg-muted flex items-center justify-center">
-                  <Images className="text-muted-foreground" />
+                  <ImagesIcon className="text-muted-foreground" />
                 </div>
                 <h3 className="font-medium">Media</h3>
               </div>
@@ -172,7 +201,7 @@ function PageClient() {
             <CardContent className="p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="size-8 rounded-lg bg-muted flex items-center justify-center">
-                  <Users className="text-muted-foreground" size={16} />
+                  <UsersIcon className="text-muted-foreground" size={16} />
                 </div>
                 <h3 className="font-medium">Members</h3>
               </div>

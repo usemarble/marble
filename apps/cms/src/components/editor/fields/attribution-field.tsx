@@ -3,15 +3,10 @@
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { Switch } from "@marble/ui/components/switch";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@marble/ui/components/tooltip";
-import { Info } from "@phosphor-icons/react";
 import { useState } from "react";
 import { type Control, type FieldErrors, useController } from "react-hook-form";
 import type { PostValues } from "@/lib/validations/post";
+import { FieldInfo } from "./field-info";
 
 interface AttributionFieldProps {
   control: Control<PostValues>;
@@ -33,17 +28,10 @@ export function AttributionField({ control, errors }: AttributionFieldProps) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1">
           <Label htmlFor="attribution">Add Attribution</Label>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Info className="size-4 text-gray-400" />
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="text-muted-foreground text-xs max-w-64">
-                Use this when republishing content from elsewhere to give credit
-                to the original author.
-              </p>
-            </TooltipContent>
-          </Tooltip>
+          <FieldInfo
+            text="Use this when republishing content from elsewhere to give credit to the original author."
+            className="size-4"
+          />
         </div>
         <Switch
           id="attribution"

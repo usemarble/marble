@@ -14,7 +14,7 @@ export const webhookEventEnum = z.enum([
   "media_deleted",
 ]);
 
-export const payloadFormatEnum = z.enum(["JSON", "FORM_ENCODED"]);
+export const payloadFormatEnum = z.enum(["json", "discord"]);
 
 export const webhookSchema = z.object({
   name: z
@@ -30,11 +30,6 @@ export const webhookSchema = z.object({
   events: z
     .array(webhookEventEnum)
     .min(1, { message: "Please select at least one event" }),
-  secret: z
-    .string()
-    .min(8, { message: "Secret must be at least 8 characters" })
-    .optional()
-    .or(z.literal("")),
   format: payloadFormatEnum,
 });
 

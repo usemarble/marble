@@ -14,8 +14,10 @@ interface PageProps {
 
 export default async function VerifyPage({ searchParams }: PageProps) {
   const s = await searchParams;
-  const from = s.from as string;
-  const email = s.email as string;
+  const from = (s.from as string) ?? "/";
+  const rawEmail = s.email as string;
+
+  const email = rawEmail ? decodeURIComponent(rawEmail) : "";
 
   return (
     <div>

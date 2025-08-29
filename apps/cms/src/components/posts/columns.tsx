@@ -2,10 +2,9 @@
 
 import { Badge } from "@marble/ui/components/badge";
 import { Button } from "@marble/ui/components/button";
-import { cn } from "@marble/ui/lib/utils";
+import { CaretUpDownIcon } from "@phosphor-icons/react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { CaretUpDown } from "@phosphor-icons/react";
 import TableActions from "./table-actions";
 
 export type Post = {
@@ -36,13 +35,8 @@ export const columns: ColumnDef<Post>[] = [
       const status = row.original.status;
       return (
         <Badge
-          variant="outline"
-          className={cn("rounded-[6px] w-full text-center justify-center", {
-            "bg-emerald-50 dark:bg-transparent text-emerald-500 border-emerald-300":
-              status === "published",
-            "bg-amber-50 dark:bg-transparent text-orange-500 border-amber-300":
-              status === "unpublished",
-          })}
+          variant={status === "published" ? "positive" : "pending"}
+          className="rounded-[6px]"
         >
           {status === "published" ? "Published" : "Draft"}
         </Badge>
@@ -59,7 +53,7 @@ export const columns: ColumnDef<Post>[] = [
           className="h-auto p-0 font-medium hover:bg-transparent"
         >
           Published
-          <CaretUpDown className="h-4 w-4" />
+          <CaretUpDownIcon className="h-4 w-4" />
         </Button>
       );
     },
@@ -75,7 +69,7 @@ export const columns: ColumnDef<Post>[] = [
           className="h-auto p-0 font-medium hover:bg-transparent"
         >
           Last Updated
-          <CaretUpDown className="h-4 w-4" />
+          <CaretUpDownIcon className="h-4 w-4" />
         </Button>
       );
     },

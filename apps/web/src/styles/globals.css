@@ -1,21 +1,79 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
+/* Plugins (and related config) */
+@plugin "@tailwindcss/typography";
+@config "../../tailwind.config.ts";
+
+:root {
+  --background: hsl(60, 11%, 98%);
+  --foreground: hsl(240 15% 14%);
+  --primary: hsl(240 10% 14%);
+  --primary-foreground: hsl(0 0% 98%);
+  --muted: hsl(0, 0%, 92%);
+  --muted-foreground: hsl(0 0% 45.1%);
+  --accent: hsl(244 100% 65%);
+  --accent-foreground: hsl(0 0% 9%);
+  --border: hsl(0 0% 86%);
+
+  /* radius */
+  --radius: 0.7rem;
+}
+
+@theme inline {
+  --font-sans:
+    Funnel-Sans, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-mono:
+    NovaMono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  --font-serif:
+    Literata, ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+
+  /* border radius */
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  /* Palette mapped to root design tokens */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-border: var(--border);
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
 @layer base {
-  :root {
-    --background: 60, 11%, 98%;
-    --foreground: 240 15% 14%;
-    --primary: 240 10% 14%;
-    --primary-foreground: 0 0% 98%;
-    --muted: 0, 0%, 92%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 244 100% 65%;
-    --accent-foreground: 0 0% 9%;
-    --border: 0 0% 86%;
-    --radius: 0.7rem;
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
   }
 }
+
+@utility prose {
+  & li p {
+    margin: 0;
+  }
+}
+
 @layer base {
   @font-face {
     font-family: "Manrope";
@@ -43,8 +101,8 @@
 @layer base {
   html {
     scroll-behavior: smooth;
-    color: hsl(var(--foreground));
-    background: hsl(var(--background));
+    color: var(--foreground);
+    background: var(--background);
     font-family: Funnel-Sans, system-ui, sans-serif;
   }
   * {
@@ -52,11 +110,5 @@
   }
   body {
     @apply bg-background text-foreground antialiased;
-  }
-}
-
-@layer utilities {
-  .prose li p {
-    margin: 0;
   }
 }
