@@ -14,10 +14,6 @@ const v1 = new Hono<{ Bindings: Env }>();
 const staleTime = 3600;
 
 // Global Middleware
-app.use("/:workspaceId/*", ratelimit());
-app.use("/:workspaceId/*", analytics());
-app.use(trimTrailingSlash());
-
 app.use("*", async (c, next) => {
   await next();
   const method = c.req.method;
@@ -39,6 +35,10 @@ app.use("*", async (c, next) => {
     }
   }
 });
+
+app.use("/v1/:workspaceId/*", ratelimit());
+app.use("/v1/:workspaceId/*", analytics());
+app.use(trimTrailingSlash());
 
 // Workspace redirect logic
 app.use("/:workspaceId/*", async (c, next) => {
