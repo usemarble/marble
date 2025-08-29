@@ -22,7 +22,7 @@ export const analytics = (): MiddlewareHandler => {
       workspaceId = pathParts[0];
     }
 
-    const monthlyKey =  new Date().toISOString().slice(0, 7);
+    const monthlyKey = new Date().toISOString().slice(0, 7);
 
     if (workspaceId) {
       await redisClient.hincrby(
