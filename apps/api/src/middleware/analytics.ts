@@ -22,20 +22,12 @@ export const analytics = (): MiddlewareHandler => {
       workspaceId = pathParts[0];
     }
 
-    const currentDate = new Date();
-    const dailyKey = currentDate.toISOString().split("T")[0];
-    const monthlyKey = currentDate.toISOString().slice(0, 7);
+    const monthlyKey =  new Date().toISOString().slice(0, 7);
 
     if (workspaceId) {
       await redisClient.hincrby(
         `analytics:workspace:${workspaceId}`,
         "pageViews",
-        1,
-      );
-
-      await redisClient.hincrby(
-        `analytics:workspace:${workspaceId}:daily`,
-        dailyKey,
         1,
       );
 
