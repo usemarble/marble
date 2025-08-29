@@ -9,12 +9,14 @@ import {
 import { Polar } from "@polar-sh/sdk";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import { createAuthMiddleware } from "better-auth/api";
 import { nextCookies } from "better-auth/next-js";
 import { emailOTP, organization } from "better-auth/plugins";
 import {
   sendInviteEmailAction,
   sendResetPasswordAction,
   sendVerificationEmailAction,
+  sendWelcomeEmailAction,
 } from "@/lib/actions/email";
 import { storeUserImageAction } from "@/lib/actions/user";
 import { handleCustomerCreated } from "@/lib/polar/customer.created";
@@ -148,6 +150,23 @@ export const auth = betterAuth({
     }),
     nextCookies(),
   ],
+  hooks: {
+    after: createAuthMiddleware(async (ctx) => {
+      // Check whether it is a sign-up
+      if (ctx.path.startsWith("/sign-up")) {
+        const newSession = ctx.context.newSession;
+        if (newSession?.user?.email) {
+          try {
+            await sendWelcomeEmailAction({
+              userEmail: newSession.user.email,
+            });
+          } catch (err) {
+            console.error("Failed to send welcome email:", err);
+          }
+        }
+      }
+    }),
+  },
   databaseHooks: {
     // To set active organization when a session is created
     // This works but only when user isnt a new user i.e they already have an organization
