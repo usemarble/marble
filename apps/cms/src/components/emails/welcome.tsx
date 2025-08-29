@@ -31,7 +31,7 @@ export const WelcomeEmail = ({ userEmail }: WelcomeEmailProps) => {
           <Container className="bg-white rounded-2xl shadow-md my-10 mx-auto p-8 max-w-[480px]">
             <Section className="text-center">
               <Img
-                src={`${baseUrl}/logo.png`}
+                src={`${baseUrl}/icon.png`}
                 width="48"
                 height="48"
                 alt="Marble Logo"
@@ -44,7 +44,7 @@ export const WelcomeEmail = ({ userEmail }: WelcomeEmailProps) => {
             </Heading>
 
             <Text className="text-gray-700 text-base leading-relaxed text-center">
-              Thanks for signing up with Marble. We’re excited to have you in
+              Thanks for signing up with Marble. We're excited to have you in
               the community!
               <br />
               You can now explore all features and start building right away.
@@ -63,7 +63,7 @@ export const WelcomeEmail = ({ userEmail }: WelcomeEmailProps) => {
 
             <Text className="text-gray-500 text-xs leading-relaxed text-center">
               This email was sent to{" "}
-              <span className="text-black">{userEmail}</span>. If you didn’t
+              <span className="text-black">{userEmail}</span>. If you didn't
               create an account, please contact our support team at{" "}
               <a
                 href="mailto:support@marblecms.com"
