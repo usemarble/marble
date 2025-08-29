@@ -8,15 +8,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
+import { ImageZoom } from "@marble/ui/components/kibo-ui/image-zoom";
 import { toast } from "@marble/ui/components/sonner";
 import {
-  DotsThreeVertical,
-  DownloadSimple,
-  File,
-  FileAudio,
-  FileImage,
-  FileVideo,
-  Trash,
+  DotsThreeVerticalIcon,
+  DownloadSimpleIcon,
+  FileAudioIcon,
+  FileIcon,
+  FileImageIcon,
+  FileVideoIcon,
+  TrashIcon,
 } from "@phosphor-icons/react";
 import { format } from "date-fns";
 import type { Media, MediaType } from "@/types/media";
@@ -32,10 +33,10 @@ const mediaTypeIcons: Record<
   MediaType,
   { icon: React.ElementType; color: string }
 > = {
-  image: { icon: FileImage, color: "text-blue-500" },
-  video: { icon: FileVideo, color: "text-red-500" },
-  audio: { icon: FileAudio, color: "text-green-500" },
-  document: { icon: File, color: "text-gray-500" },
+  image: { icon: FileImageIcon, color: "text-blue-500" },
+  video: { icon: FileVideoIcon, color: "text-red-500" },
+  audio: { icon: FileAudioIcon, color: "text-green-500" },
+  document: { icon: FileIcon, color: "text-gray-500" },
 };
 
 export function MediaCard({ media, onDelete }: MediaCardProps) {
@@ -65,20 +66,20 @@ export function MediaCard({ media, onDelete }: MediaCardProps) {
   };
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden py-0 gap-0">
       <CardContent className="p-0">
         <div className="aspect-video relative overflow-hidden">
           {media.type === "image" && (
-            // biome-ignore lint/performance/noImgElement: <>
-            <img
-              src={media.url}
-              alt={media.name}
-              className="object-cover w-full h-full"
-            />
+            <ImageZoom className="absolute inset-0 size-full">
+              {/** biome-ignore lint/performance/noImgElement: <> */}
+              <img
+                src={media.url}
+                alt={media.name}
+                className="absolute inset-0 size-full object-cover"
+              />
+            </ImageZoom>
           )}
-          {media.type === "video" && (
-            <VideoPlayer src={media.url} className="" />
-          )}
+          {media.type === "video" && <VideoPlayer src={media.url} />}
           {(media.type === "audio" || media.type === "document") && (
             <div className="w-full h-full flex items-center justify-center bg-muted">
               <Icon
@@ -106,19 +107,19 @@ export function MediaCard({ media, onDelete }: MediaCardProps) {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="size-8 shrink-0">
-              <DotsThreeVertical size={16} />
+              <DotsThreeVerticalIcon size={16} />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={handleDownload}>
-              <DownloadSimple size={16} className="mr-2" />
+              <DownloadSimpleIcon size={16} className="mr-2" />
               Download
             </DropdownMenuItem>
             <DropdownMenuItem
+              variant="destructive"
               onClick={() => onDelete(media)}
-              className="text-destructive focus:text-destructive hover:text-destructive hover:bg-destructive/10"
             >
-              <Trash size={16} className="mr-2" />
+              <TrashIcon size={16} className="mr-2" />
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>

@@ -2,57 +2,62 @@ import { db } from "@marble/db";
 import { getServerSession } from "@/lib/auth/session";
 
 export async function getInitialUserData() {
-  const sessionData = await getServerSession();
+  try {
+    const sessionData = await getServerSession();
 
-  if (!sessionData || !sessionData.user) {
-    return { user: null, isAuthenticated: false };
-  }
+    if (!sessionData || !sessionData.user) {
+      return { user: null, isAuthenticated: false };
+    }
 
-  const user = await db.user.findUnique({
-    where: { id: sessionData.user.id },
-  });
+    const user = await db.user.findUnique({
+      where: { id: sessionData.user.id },
+    });
 
-  if (!user) {
-    return { user: null, isAuthenticated: false };
-  }
+    if (!user) {
+      return { user: null, isAuthenticated: false };
+    }
 
-  const activeOrganizationId = sessionData.session?.activeOrganizationId;
+    const activeOrganizationId = sessionData.session?.activeOrganizationId;
 
-  if (activeOrganizationId && typeof activeOrganizationId !== "string") {
-    console.warn(
-      "Invalid activeOrganizationId type:",
-      typeof activeOrganizationId,
-    );
-    return { user: null, isAuthenticated: true };
-  }
+    if (activeOrganizationId && typeof activeOrganizationId !== "string") {
+      console.warn(
+        "Invalid activeOrganizationId type:",
+        typeof activeOrganizationId,
+      );
+      return { user: null, isAuthenticated: true };
+    }
 
-  let member = null;
+    let member = null;
 
-  if (activeOrganizationId) {
-    member = await db.member.findFirst({
-      where: {
-        organizationId: activeOrganizationId,
-        userId: user.id,
-      },
-      include: {
-        organization: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
+    if (activeOrganizationId) {
+      member = await db.member.findFirst({
+        where: {
+          organizationId: activeOrganizationId,
+          userId: user.id,
+        },
+        include: {
+          organization: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+            },
           },
         },
-      },
-    });
+      });
+    }
+
+    const userWithRole = {
+      ...user,
+      workspaceRole: member?.role || null,
+      activeWorkspace: member?.organization || null,
+    };
+
+    return { user: userWithRole, isAuthenticated: true };
+  } catch (error) {
+    console.error("Error fetching initial user data:", error);
+    return { user: null, isAuthenticated: false };
   }
-
-  const userWithRole = {
-    ...user,
-    workspaceRole: member?.role || null,
-    activeWorkspace: member?.organization || null,
-  };
-
-  return { user: userWithRole, isAuthenticated: true };
 }
 
 // export async function getInitialUserData() {

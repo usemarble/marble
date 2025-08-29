@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@marble/ui/components/button";
-import { Package, Plus } from "@phosphor-icons/react";
+import { PackageIcon, PlusIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import { useState } from "react";
@@ -13,9 +13,9 @@ import PageLoader from "@/components/shared/page-loader";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 
-const CreateCategoryModal = dynamic(() =>
+const CategoryModal = dynamic(() =>
   import("@/components/categories/category-modals").then(
-    (mod) => mod.CreateCategoryModal,
+    (mod) => mod.CategoryModal,
   ),
 );
 
@@ -66,24 +66,25 @@ function PageClient() {
         <WorkspacePageWrapper className="h-full grid place-content-center">
           <div className="flex flex-col gap-4 items-center max-w-80">
             <div>
-              <Package className="size-16" />
+              <PackageIcon className="size-16" />
             </div>
             <div className="text-center flex flex-col gap-4 items-center">
               <p className="text-muted-foreground text-sm">
                 Categories help organize your content. Create your first
                 category to get started.
               </p>
-              <Button onClick={() => setShowCreateModal(true)} size="sm">
-                <Plus size={16} />
+              <Button onClick={() => setShowCreateModal(true)}>
+                <PlusIcon size={16} />
                 <span>Create Category</span>
               </Button>
             </div>
           </div>
         </WorkspacePageWrapper>
       )}
-      <CreateCategoryModal
+      <CategoryModal
         open={showCreateModal}
         setOpen={setShowCreateModal}
+        mode="create"
       />
     </>
   );

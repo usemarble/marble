@@ -3,9 +3,9 @@
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
+import PageLoader from "@/components/shared/page-loader";
 import { columns, type TeamMemberRow } from "@/components/team/columns";
 import { TeamDataTable } from "@/components/team/data-table";
-import { PageLoader } from "@/components/ui/loader";
 import { useUser } from "@/providers/user";
 import { useWorkspace } from "@/providers/workspace";
 

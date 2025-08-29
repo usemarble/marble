@@ -9,12 +9,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@marble/ui/components/alert-dialog";
-import { Button } from "@marble/ui/components/button";
 import { toast } from "@marble/ui/components/sonner";
 import { useState } from "react";
 import { organization } from "@/lib/auth/client";
 import { useWorkspace } from "@/providers/workspace";
-import { ButtonLoader } from "../ui/loader";
+import { AsyncButton } from "../ui/async-button";
 import type { TeamMemberRow } from "./columns";
 
 interface RemoveMemberModalProps {
@@ -31,10 +30,13 @@ export function RemoveMemberModal({
   const [loading, setLoading] = useState(false);
   const { activeWorkspace } = useWorkspace();
   async function removeMember() {
-    setLoading(true);
+    // Guard against missing workspace before setting loading state
     if (!activeWorkspace?.id) {
+      toast.error("No active workspace found");
       return;
     }
+
+    setLoading(true);
     try {
       await organization.removeMember({
         memberIdOrEmail: member.id,
@@ -75,13 +77,14 @@ export function RemoveMemberModal({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
-          <Button
+          <AsyncButton
             onClick={removeMember}
+            isLoading={loading}
             disabled={loading}
             variant="destructive"
           >
-            {loading ? <ButtonLoader /> : "Remove"}
-          </Button>
+            Remove
+          </AsyncButton>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

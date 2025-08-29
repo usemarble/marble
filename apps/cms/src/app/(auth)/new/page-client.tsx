@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, buttonVariants } from "@marble/ui/components/button";
+import { buttonVariants } from "@marble/ui/components/button";
 import {
   Card,
   CardContent,
@@ -13,13 +13,12 @@ import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
-import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
-import { ButtonLoader } from "@/components/ui/loader";
+import { AsyncButton } from "@/components/ui/async-button";
 import { TimezoneSelector } from "@/components/ui/timezone-selector";
 import { organization } from "@/lib/auth/client";
 import { timezones } from "@/lib/constants";
@@ -29,7 +28,7 @@ import {
 } from "@/lib/validations/workspace";
 import { generateSlug } from "@/utils/string";
 
-function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
+function PageClient() {
   const {
     register,
     handleSubmit,
@@ -46,6 +45,10 @@ function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
   });
 
   const router = useRouter();
+  const searchParams = useSearchParams();
+  // Yes i know manually changing this will show the button even if false
+  // but the middleware will just send you back here so it's whatever
+  const hasWorkspaces = searchParams.get("workspaces") === "true";
   const { name } = watch();
 
   useEffect(() => {
@@ -93,19 +96,12 @@ function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
   }
   return (
     <div className="h-screen grid place-items-center bg-sidebar dark:bg-background">
-      <Card className="rounded-[24px] sm:min-w-[500px] py-7 px-5 dark:bg-sidebar">
+      <Card className="rounded-[24px] sm:w-[450px] py-6 px-4">
         <CardHeader className="text-center mb-5 items-center">
-          <Image
-            src="/icon.svg"
-            alt="MarbleCMS"
-            width={40}
-            height={40}
-            className="mb-4"
-          />
           <CardTitle className="font-medium">New workspace</CardTitle>
-          <CardDescription className="max-w-sm">
+          <CardDescription className="text-center">
             {hasWorkspaces
-              ? "Set up your new workspace"
+              ? "Set up your new workspace."
               : "You'll need a workspace to proceed."}
           </CardDescription>
         </CardHeader>
@@ -119,6 +115,7 @@ function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
                 <Label htmlFor="name" className="sr-only">
                   Name
                 </Label>
+                {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
                 <Input id="name" placeholder="Name" {...register("name")} />
                 {errors.name && (
                   <ErrorMessage>{errors.name.message}</ErrorMessage>
@@ -128,16 +125,17 @@ function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
                 <Label htmlFor="slug" className="sr-only">
                   Slug
                 </Label>
-                <div className="flex w-full rounded-md border border-input bg-background text-base placeholder:text-muted-foreground focus-within:outline-hidden focus-within:border-primary focus-within:ring-2 focus-within:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm overflow-hidden">
-                  <span className="py-2.5 px-2 bg-sidebar border-r">
+                <div className="flex w-full rounded-md border border-input bg-transparent dark:bg-input/30 text-base placeholder:text-muted-foreground shadow-xs transition-[color,box-shadow] focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm overflow-hidden">
+                  <span className="p-2 bg-muted border-r">
                     {process.env.NEXT_PUBLIC_APP_URL?.split("//")[1]}/
                   </span>
+                  {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
                   <input
                     id="slug"
                     placeholder="Slug"
                     {...register("slug")}
                     autoComplete="off"
-                    className="w-full bg-transparent py-2 px-2 outline-hidden ring-0"
+                    className="w-full bg-transparent py-2 px-2 outline-none ring-0"
                   />
                 </div>
                 {errors.slug && (
@@ -166,17 +164,21 @@ function PageClient({ hasWorkspaces }: { hasWorkspaces: boolean }) {
               </div>
             </div>
             <div className="flex flex-col gap-4">
-              <Button
+              <AsyncButton
                 type="submit"
-                disabled={isSubmitting}
-                className="flex w-full gap-2"
+                size="lg"
+                isLoading={isSubmitting}
+                className="flex w-full gap-2 cursor-pointer"
               >
-                {isSubmitting ? <ButtonLoader /> : "Create"}
-              </Button>
+                Create
+              </AsyncButton>
               {hasWorkspaces && (
                 <Link
                   href="/"
-                  className={cn(buttonVariants({ variant: "ghost" }), "w-full")}
+                  className={cn(
+                    buttonVariants({ variant: "ghost", size: "lg" }),
+                    "w-full",
+                  )}
                 >
                   Back to dashboard
                 </Link>

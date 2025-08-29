@@ -7,13 +7,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@marble/ui/components/alert-dialog";
-import { Button } from "@marble/ui/components/button";
 import { toast } from "@marble/ui/components/sonner";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { AsyncButton } from "@/components/ui/async-button";
 import { organization, useListOrganizations } from "@/lib/auth/client";
-import { useWorkspace } from "../../providers/workspace";
-import { ButtonLoader } from "../ui/loader";
+import { useWorkspace } from "@/providers/workspace";
 
 interface ListOrganizationResponse {
   // biome-ignore lint/suspicious/noExplicitAny: <>
@@ -92,18 +91,14 @@ export function LeaveWorkspaceModal({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel className="min-w-20">Cancel</AlertDialogCancel>
-          <Button
+          <AsyncButton
             variant="destructive"
-            disabled={isLeavingWorkspace}
+            isLoading={isLeavingWorkspace}
             onClick={handleLeaveWorkspace}
             className="min-w-20"
           >
-            {isLeavingWorkspace ? (
-              <ButtonLoader variant="destructive" />
-            ) : (
-              "Leave"
-            )}
-          </Button>
+            Leave
+          </AsyncButton>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

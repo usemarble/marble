@@ -3,7 +3,12 @@
 import { Button } from "@marble/ui/components/button";
 import { Card, CardContent } from "@marble/ui/components/card";
 import { Progress } from "@marble/ui/components/progress";
-import { Images, Plugs, Users, WebhooksLogo } from "@phosphor-icons/react";
+import {
+  ImagesIcon,
+  PlugsIcon,
+  UsersIcon,
+  WebhooksLogoIcon,
+} from "@phosphor-icons/react";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState } from "react";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
@@ -130,7 +135,7 @@ function PageClient() {
             <CardContent className="p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="size-8 rounded-lg bg-muted flex items-center justify-center">
-                  <Plugs className="text-muted-foreground" size={16} />
+                  <PlugsIcon className="text-muted-foreground" size={16} />
                 </div>
                 <h3 className="font-medium">API Requests</h3>
               </div>
@@ -157,7 +162,7 @@ function PageClient() {
             <CardContent className="p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="size-8 rounded-lg bg-muted flex items-center justify-center">
-                  <WebhooksLogo className="text-muted-foreground" />
+                  <WebhooksLogoIcon className="text-muted-foreground" />
                 </div>
                 <h3 className="font-medium">Webhook Events</h3>
               </div>
@@ -177,7 +182,7 @@ function PageClient() {
             <CardContent className="p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="size-8 rounded-lg bg-muted flex items-center justify-center">
-                  <Images className="text-muted-foreground" />
+                  <ImagesIcon className="text-muted-foreground" />
                 </div>
                 <h3 className="font-medium">Media</h3>
               </div>
@@ -196,7 +201,7 @@ function PageClient() {
             <CardContent className="p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="size-8 rounded-lg bg-muted flex items-center justify-center">
-                  <Users className="text-muted-foreground" size={16} />
+                  <UsersIcon className="text-muted-foreground" size={16} />
                 </div>
                 <h3 className="font-medium">Members</h3>
               </div>

@@ -5,7 +5,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@marble/ui/components/avatar";
-import { Button, buttonVariants } from "@marble/ui/components/button";
+import { buttonVariants } from "@marble/ui/components/button";
 import {
   Card,
   CardContent,
@@ -19,6 +19,7 @@ import { CheckIcon, Loader2, Undo, XIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { AsyncButton } from "@/components/ui/async-button";
 import { organization } from "@/lib/auth/client";
 
 interface PageClientProps {
@@ -201,24 +202,20 @@ function PageClient({ id, user }: PageClientProps) {
           </CardContent>
           {inviteStatus === "pending" && (
             <CardFooter className="grid gap-6 grid-cols-2 mt-4">
-              <Button
-                disabled={rejecting}
+              <AsyncButton
+                isLoading={rejecting}
                 variant="outline"
                 onClick={handleReject}
               >
-                {rejecting ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  "Reject"
-                )}
-              </Button>
-              <Button disabled={accepting} onClick={handleAccept}>
-                {accepting ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  "Accept"
-                )}
-              </Button>
+                Reject
+              </AsyncButton>
+              <AsyncButton
+                isLoading={accepting}
+                onClick={handleAccept}
+                variant="outline"
+              >
+                Accept
+              </AsyncButton>
             </CardFooter>
           )}
         </Card>

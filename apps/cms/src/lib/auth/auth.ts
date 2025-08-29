@@ -9,19 +9,22 @@ import {
 import { Polar } from "@polar-sh/sdk";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import { createAuthMiddleware } from "better-auth/api";
 import { nextCookies } from "better-auth/next-js";
 import { emailOTP, organization } from "better-auth/plugins";
 import {
   sendInviteEmailAction,
   sendResetPasswordAction,
   sendVerificationEmailAction,
+  sendWelcomeEmailAction,
 } from "@/lib/actions/email";
+import { storeUserImageAction } from "@/lib/actions/user";
 import { handleCustomerCreated } from "@/lib/polar/customer.created";
 import { handleSubscriptionCanceled } from "@/lib/polar/subscription.canceled";
 import { handleSubscriptionCreated } from "@/lib/polar/subscription.created";
 import { handleSubscriptionRevoked } from "@/lib/polar/subscription.revoked";
 import { handleSubscriptionUpdated } from "@/lib/polar/subscription.updated";
-import { getLastActiveWorkspaceOrNewOneToSetAsActive } from "../queries/workspace";
+import { getLastActiveWorkspaceOrNewOneToSetAsActive } from "@/lib/queries/workspace";
 
 const polarClient = new Polar({
   accessToken: process.env.POLAR_ACCESS_TOKEN,
@@ -34,7 +37,7 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
-    sendResetPassword: async ({ user, url, token }, _request) => {
+    sendResetPassword: async ({ user, url }, _request) => {
       await sendResetPasswordAction({
         userEmail: user.email,
         resetLink: url,
@@ -147,6 +150,23 @@ export const auth = betterAuth({
     }),
     nextCookies(),
   ],
+  hooks: {
+    after: createAuthMiddleware(async (ctx) => {
+      // Check whether it is a sign-up
+      if (ctx.path.startsWith("/sign-up")) {
+        const newSession = ctx.context.newSession;
+        if (newSession?.user?.email) {
+          try {
+            await sendWelcomeEmailAction({
+              userEmail: newSession.user.email,
+            });
+          } catch (err) {
+            console.error("Failed to send welcome email:", err);
+          }
+        }
+      }
+    }),
+  },
   databaseHooks: {
     // To set active organization when a session is created
     // This works but only when user isnt a new user i.e they already have an organization
@@ -173,15 +193,9 @@ export const auth = betterAuth({
     user: {
       create: {
         after: async (user) => {
-          // await handleUserCreated(user);
+          await storeUserImageAction(user);
         },
       },
-    },
-  },
-  session: {
-    cookieCache: {
-      enabled: true,
-      maxAge: 5 * 60, // Cache duration in seconds
     },
   },
 });

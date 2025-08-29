@@ -41,7 +41,7 @@ export async function POST(req: Request) {
   const json = await req.json();
   const body = webhookSchema.parse(json);
 
-  const secret = body.secret || randomBytes(32).toString("hex");
+  const secret = randomBytes(32).toString("hex");
 
   const webhook = await db.webhook.create({
     data: {

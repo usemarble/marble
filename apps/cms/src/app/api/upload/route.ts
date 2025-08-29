@@ -32,20 +32,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: message }, { status: 400 });
   }
 
-  const id = nanoid(6);
+  const id = nanoid();
   const extension = fileType.split("/")[1];
-  const sluggedId = id.toLocaleLowerCase();
   let key: string;
 
   switch (type) {
     case "avatar":
-      key = `avatars/avatar-${sluggedId}.${extension}`;
+      key = `avatars/${id}.${extension}`;
       break;
     case "logo":
-      key = `logos/logo-${sluggedId}.${extension}`;
+      key = `logos/${id}.${extension}`;
       break;
     case "media":
-      key = `media/media-${sluggedId}.${extension}`;
+      key = `media/${id}.${extension}`;
       break;
     default:
       return NextResponse.json(

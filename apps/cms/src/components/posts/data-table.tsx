@@ -16,7 +16,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
-import { MagnifyingGlass, Plus, X } from "@phosphor-icons/react";
+import {
+  GridFourIcon,
+  ListIcon,
+  MagnifyingGlassIcon,
+  PlusIcon,
+  XIcon,
+} from "@phosphor-icons/react";
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -27,7 +33,6 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { Grid3x3, List } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -78,7 +83,7 @@ export function PostDataTable<TData, TValue>({
     <div>
       <div className="flex items-center py-4 justify-between">
         <div className="relative">
-          <MagnifyingGlass
+          <MagnifyingGlassIcon
             size={16}
             className="text-muted-foreground size-4 absolute top-3 left-3"
           />
@@ -96,7 +101,7 @@ export function PostDataTable<TData, TValue>({
               onClick={() => table.getColumn("title")?.setFilterValue("")}
               className="absolute right-3 top-3"
             >
-              <X className="size-4" />
+              <XIcon className="size-4" />
               <span className="sr-only">Clear search</span>
             </button>
           )}
@@ -113,7 +118,7 @@ export function PostDataTable<TData, TValue>({
                       className="rounded-none px-3 opacity-50 cursor-not-allowed hover:bg-transparent"
                       disabled
                     >
-                      <Grid3x3 size={16} />
+                      <GridFourIcon size={16} />
                       <span className="sr-only">Card View (coming soon)</span>
                     </Button>
                   </span>
@@ -129,7 +134,7 @@ export function PostDataTable<TData, TValue>({
                     size="sm"
                     className="rounded-none px-3 bg-accent text-accent-foreground"
                   >
-                    <List size={16} />
+                    <ListIcon size={16} />
                     <span className="sr-only">Table View</span>
                   </Button>
                 </TooltipTrigger>
@@ -142,9 +147,9 @@ export function PostDataTable<TData, TValue>({
 
           <Link
             href={`/${params.workspace}/editor/p/new`}
-            className={buttonVariants({ variant: "default", size: "sm" })}
+            className={buttonVariants({ variant: "default" })}
           >
-            <Plus size={16} />
+            <PlusIcon size={16} />
             <span>New Post</span>
           </Link>
         </div>

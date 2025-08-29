@@ -6,7 +6,6 @@ import {
   AvatarImage,
 } from "@marble/ui/components/avatar";
 import { Badge } from "@marble/ui/components/badge";
-import { cn } from "@marble/ui/lib/utils";
 import type { ColumnDef } from "@tanstack/react-table";
 import { isBefore } from "date-fns";
 import TableActions from "./table-actions";
@@ -79,18 +78,7 @@ export const columns: ColumnDef<TeamMemberRow>[] = [
       if (displayStatus === "accepted") return null;
 
       return (
-        <Badge
-          variant="outline"
-          className={cn(
-            "text-xs capitalize",
-            displayStatus === "pending" &&
-              "bg-amber-100 border-amber-400 text-amber-600",
-            displayStatus === "rejected" &&
-              "bg-red-100 border-red-400 text-red-600",
-            (displayStatus === "canceled" || displayStatus === "expired") &&
-              "bg-gray-100 border-gray-400 text-gray-600",
-          )}
-        >
+        <Badge variant={displayStatus === "pending" ? "outline" : "default"}>
           {displayStatus === "pending" ? "Invited" : displayStatus}
         </Badge>
       );

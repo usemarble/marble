@@ -19,9 +19,9 @@
     "@hookform/resolvers": "^5.2.0",
     "@marble/db": "workspace:*",
     "@marble/ui": "workspace:*",
-    "@phosphor-icons/react": "^2.1.7",
+    "@phosphor-icons/react": "^2.1.10",
     "@polar-sh/better-auth": "^1.1.0",
-    "@polar-sh/sdk": "^0.34.11",
+    "@polar-sh/sdk": "^0.34.13",
     "@radix-ui/react-avatar": "^1.1.1",
     "@radix-ui/react-checkbox": "^1.1.2",
     "@radix-ui/react-dialog": "^1.1.4",
@@ -76,7 +76,7 @@
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^1.1.2",
     "word-count": "^0.3.1",
-    "zod": "^3.25.67"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@marble/tsconfig": "workspace:*",

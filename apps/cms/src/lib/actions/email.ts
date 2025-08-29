@@ -5,6 +5,7 @@ import { Resend } from "resend";
 import { InviteUserEmail } from "@/components/emails/invite";
 import { ResetPasswordEmail } from "@/components/emails/reset";
 import { VerifyUserEmail } from "@/components/emails/verify";
+import { WelcomeEmail } from "@/components/emails/welcome";
 import { getServerSession } from "../auth/session";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -99,7 +100,6 @@ export async function sendVerificationEmailAction({
       }),
     });
 
-    console.log("Email sent successfully:", response);
     return NextResponse.json(
       { message: "Email sent successfully" },
       { status: 200 },
@@ -148,5 +148,31 @@ export async function sendResetPasswordAction({
       { error: "Failed to send email", details: error },
       { status: 500 },
     );
+  }
+}
+
+export async function sendWelcomeEmailAction({
+  userEmail,
+}: {
+  userEmail: string;
+}) {
+  if (!process.env.RESEND_API_KEY) {
+    console.error("RESEND_API_KEY is not set");
+    return { error: "Email configuration missing" };
+  }
+
+  try {
+    await resend.emails.send({
+      from: "MarbleCMS <emails@marblecms.com>",
+      to: userEmail,
+      subject: "Welcome to Marble!",
+      react: WelcomeEmail({
+        userEmail,
+      }),
+    });
+    return { message: "Email sent successfully" };
+  } catch (error) {
+    console.error("Detailed error sending email:", error);
+    return { error: "Failed to send email", details: error };
   }
 }

@@ -19,14 +19,14 @@ export function Id() {
   const linkId = useId();
 
   return (
-    <Card className="pt-2">
-      <CardHeader className="px-6">
+    <Card>
+      <CardHeader>
         <CardTitle className="text-lg font-medium">Workspace ID.</CardTitle>
         <CardDescription>
           Unique identifier of your workspace on marble.
         </CardDescription>
       </CardHeader>
-      <CardContent className="px-6">
+      <CardContent>
         <div className="flex items-center space-x-2">
           <div className="grid flex-1 gap-2">
             <Label htmlFor={linkId} className="sr-only">
@@ -40,7 +40,7 @@ export function Id() {
           />
         </div>
       </CardContent>
-      <CardFooter className="border-t px-6 py-6">
+      <CardFooter className="border-t">
         <p className="text-sm text-muted-foreground">
           Please dont share this with anyone as it can be used to access your
           data

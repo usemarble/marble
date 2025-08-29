@@ -1,10 +1,9 @@
 "use client";
 
 import { Button } from "@marble/ui/components/button";
-import { Plus, Tag } from "@phosphor-icons/react";
+import { PlusIcon, TagIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
-import { useParams } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
@@ -14,8 +13,8 @@ import { DataTable } from "@/components/tags/data-table";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 
-const CreateTagModal = dynamic(() =>
-  import("@/components/tags/tag-modals").then((mod) => mod.CreateTagModal),
+const TagModal = dynamic(() =>
+  import("@/components/tags/tag-modals").then((mod) => mod.TagModal),
 );
 
 interface TagType {
@@ -63,22 +62,26 @@ function PageClient() {
         <WorkspacePageWrapper className="h-full grid place-content-center">
           <div className="flex flex-col gap-4 items-center max-w-80">
             <div className="p-2">
-              <Tag className="size-16" />
+              <TagIcon className="size-16" />
             </div>
             <div className="text-center flex flex-col gap-4 items-center">
               <p className="text-muted-foreground text-sm">
                 Tags help readers discover your content. Create your first tag
                 to get started.
               </p>
-              <Button onClick={() => setShowCreateModal(true)} size="sm">
-                <Plus size={16} />
+              <Button onClick={() => setShowCreateModal(true)}>
+                <PlusIcon size={16} />
                 <span>Create Tag</span>
               </Button>
             </div>
           </div>
         </WorkspacePageWrapper>
       )}
-      <CreateTagModal open={showCreateModal} setOpen={setShowCreateModal} />
+      <TagModal
+        open={showCreateModal}
+        setOpen={setShowCreateModal}
+        mode="create"
+      />
     </>
   );
 }

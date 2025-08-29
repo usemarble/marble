@@ -6,9 +6,11 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@marble/ui/components/sidebar";
+import { cn } from "@marble/ui/lib/utils";
 
-import { Key, WebhooksLogo } from "@phosphor-icons/react";
+import { KeyIcon, WebhooksLogoIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 
@@ -16,25 +18,25 @@ const items = [
   {
     name: "API Keys",
     url: "keys",
-    icon: Key,
+    icon: KeyIcon,
   },
   {
     name: "Webhooks",
     url: "webhooks",
-    icon: WebhooksLogo,
+    icon: WebhooksLogoIcon,
   },
 ];
 
 export function NavDevs() {
   const pathname = usePathname();
   const params = useParams<{ workspace: string }>();
-
+  const { open } = useSidebar();
   const isActive = (url: string) => {
     return pathname === `/${params.workspace}/${url}`;
   };
 
   return (
-    <SidebarGroup>
+    <SidebarGroup className={cn(open ? "px-4" : "px-2")}>
       <SidebarGroupLabel>Developers</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => (

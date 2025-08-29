@@ -1,5 +1,6 @@
 "use client";
 
+import { Databuddy } from "@databuddy/sdk";
 import { Toaster } from "@marble/ui/components/sonner";
 import { TooltipProvider } from "@marble/ui/components/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -23,6 +24,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         <TooltipProvider>
           <NuqsAdapter>{children}</NuqsAdapter>
           <Toaster position="top-center" />
+          <Databuddy clientId="CG1SRcfYdIQoCeBrPpbJ_" enableBatching={true} />
         </TooltipProvider>
       </ThemeProvider>
       <ReactQueryDevtools initialIsOpen={false} />

@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@marble/ui/components/button";
 import {
   Dialog,
   DialogContent,
@@ -17,11 +16,12 @@ import {
   TabsList,
   TabsTrigger,
 } from "@marble/ui/components/tabs";
-import { Spinner } from "@phosphor-icons/react";
+import { SpinnerIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEditor } from "novel";
 import { useState } from "react";
 import { ImageDropzone } from "@/components/shared/dropzone";
+import { AsyncButton } from "@/components/ui/async-button";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { uploadFile } from "@/lib/media/upload";
 import { QUERY_KEYS } from "@/lib/queries/keys";
@@ -120,16 +120,10 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
       </DialogHeader>
       <DialogContent className="max-w-xl max-h-96">
         <Tabs defaultValue="upload" className="w-full">
-          <TabsList variant="underline" className="flex justify-start mb-4">
-            <TabsTrigger variant="underline" value="upload">
-              Upload
-            </TabsTrigger>
-            <TabsTrigger variant="underline" value="embed">
-              Embed
-            </TabsTrigger>
-            <TabsTrigger variant="underline" value="media">
-              Media
-            </TabsTrigger>
+          <TabsList variant="line" className="flex justify-start mb-4">
+            <TabsTrigger value="upload">Upload</TabsTrigger>
+            <TabsTrigger value="embed">Embed</TabsTrigger>
+            <TabsTrigger value="media">Media</TabsTrigger>
           </TabsList>
           {/*  */}
           <TabsContent value="upload">
@@ -147,7 +141,7 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
                       {isUploading && (
                         <div className="absolute grid size-full inset-0 place-content-center bg-black/50 rounded-md p-2 backdrop-blur-xs">
                           <div className="flex flex-col items-center gap-2">
-                            <Spinner className="size-5 animate-spin text-white" />
+                            <SpinnerIcon className="size-5 animate-spin text-white" />
                             <p className="text-sm text-white">Uploading...</p>
                           </div>
                         </div>
@@ -178,20 +172,13 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
                   placeholder="Paste your image link"
                   disabled={isValidatingUrl}
                 />
-                <Button
+                <AsyncButton
                   className="w-52 mx-auto"
                   onClick={() => handleEmbed(embedUrl)}
                   disabled={isValidatingUrl || !embedUrl}
                 >
-                  {isValidatingUrl ? (
-                    <>
-                      <Spinner className="size-4 animate-spin" />
-                      <span>Validating...</span>
-                    </>
-                  ) : (
-                    <span>Save</span>
-                  )}
-                </Button>
+                  <span>Save</span>
+                </AsyncButton>
               </div>
             </section>
           </TabsContent>

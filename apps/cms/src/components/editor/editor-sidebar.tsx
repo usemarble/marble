@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@marble/ui/components/button";
 import {
   Sidebar,
   SidebarContent,
@@ -34,7 +33,7 @@ import {
   generateSuggestions,
   getReadabilityLevel,
 } from "@/utils/readability";
-import { ButtonLoader } from "../ui/loader";
+import { AsyncButton } from "../ui/async-button";
 import { AnalysisTab, ChatTab, MetadataTab } from "./tabs";
 
 const tabs = {
@@ -135,7 +134,7 @@ export function EditorSidebar({
       <Sidebar
         side="right"
         className={cn(
-          "bg-sidebar/70 m-2 h-[calc(100vh-1rem)] min-h-[calc(100vh-1rem)] overflow-hidden rounded-xl border",
+          "bg-editor-sidebar-background m-2 h-[calc(100vh-1rem)] min-h-[calc(100vh-1rem)] overflow-hidden rounded-xl border",
           !open ? "mr-0" : "",
         )}
         {...props}
@@ -146,11 +145,10 @@ export function EditorSidebar({
             onValueChange={setActiveTab}
             className="w-full"
           >
-            <TabsList variant="underline" className="grid grid-cols-3">
+            <TabsList variant="line" className="grid grid-cols-3">
               {Object.entries(tabs).map(([value, label]) => (
                 <TabsTrigger
                   key={value}
-                  variant="underline"
                   value={value}
                   className="px-2"
                 >
@@ -198,31 +196,25 @@ export function EditorSidebar({
         <SidebarFooter className="bg-transparent shrink-0 px-6 py-6">
           {activeTab === "metadata" &&
             (mode === "create" ? (
-              <Button
+              <AsyncButton
                 type="button"
-                disabled={isSubmitting || !hasUnsavedChanges}
+                disabled={!hasUnsavedChanges}
+                isLoading={isSubmitting}
                 onClick={triggerSubmit}
                 className="w-full"
               >
-                {isSubmitting ? (
-                  <ButtonLoader className="size-4 animate-spin" />
-                ) : (
-                  "Save"
-                )}
-              </Button>
+                Save
+              </AsyncButton>
             ) : (
-              <Button
+              <AsyncButton
                 type="button"
-                disabled={isSubmitting || !hasUnsavedChanges}
+                disabled={!hasUnsavedChanges}
+                isLoading={isSubmitting}
                 onClick={triggerSubmit}
                 className="w-full"
               >
-                {isSubmitting ? (
-                  <ButtonLoader className="size-4 animate-spin" />
-                ) : (
-                  "Update"
-                )}
-              </Button>
+                Update
+              </AsyncButton>
             ))}
         </SidebarFooter>
       </Sidebar>

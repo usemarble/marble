@@ -17,23 +17,25 @@ import {
   TabsList,
   TabsTrigger,
 } from "@marble/ui/components/tabs";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@marble/ui/components/tooltip";
 import { cn } from "@marble/ui/lib/utils";
-import { Check, Images, Info, Spinner, Trash } from "@phosphor-icons/react";
+import {
+  CheckIcon,
+  ImagesIcon,
+  SpinnerIcon,
+  TrashIcon,
+} from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { type Control, useController } from "react-hook-form";
 import { z } from "zod";
 import { ImageDropzone } from "@/components/shared/dropzone";
+import { AsyncButton } from "@/components/ui/async-button";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { uploadFile } from "@/lib/media/upload";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { PostValues } from "@/lib/validations/post";
 import type { Media } from "@/types/media";
+import { FieldInfo } from "./field-info";
 
 // URL schema
 const urlSchema = z.string().url({
@@ -144,7 +146,7 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
             onClick={() => onChange(null)}
             className="absolute top-2 right-2 p-2 transition bg-white rounded-full text-black hover:text-destructive opacity-0 group-hover:opacity-100"
           >
-            <Trash className="size-5" />
+            <TrashIcon className="size-5" />
             <span className="sr-only">remove image</span>
           </button>
         </div>
@@ -153,16 +155,10 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
 
     return (
       <Tabs defaultValue="upload" className="w-full">
-        <TabsList variant="underline" className="flex justify-start mb-4">
-          <TabsTrigger variant="underline" value="upload">
-            Upload
-          </TabsTrigger>
-          <TabsTrigger variant="underline" value="embed">
-            Embed
-          </TabsTrigger>
-          <TabsTrigger variant="underline" value="media">
-            Media
-          </TabsTrigger>
+        <TabsList variant="line" className="flex justify-start mb-4">
+          <TabsTrigger value="upload">Upload</TabsTrigger>
+          <TabsTrigger value="embed">Embed</TabsTrigger>
+          <TabsTrigger value="media">Media</TabsTrigger>
         </TabsList>
         <TabsContent value="upload" className="h-48">
           {file ? (
@@ -177,7 +173,7 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
                 <div className="absolute grid size-full inset-0 place-content-center bg-black/50 rounded-md p-2 backdrop-blur-xs">
                   {isUploading ? (
                     <div className="flex flex-col items-center gap-2">
-                      <Spinner className="size-5 animate-spin text-white" />
+                      <SpinnerIcon className="size-5 animate-spin text-white" />
                       <p className="text-sm text-white">Uploading...</p>
                     </div>
                   ) : (
@@ -187,7 +183,7 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
                         onClick={() => setFile(undefined)}
                         className="bg-white rounded-full text-black hover:bg-white hover:text-destructive"
                       >
-                        <Trash className="size-4" />
+                        <TrashIcon className="size-4" />
                       </Button>
                     </div>
                   )}
@@ -202,13 +198,13 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
                   uploadCover(files[0]);
                 }
               }}
-              className="w-full h-48 rounded-md border border-dashed bg-background flex items-center justify-center cursor-pointer"
+              className="w-full h-48 rounded-md border border-dashed bg-editor-field flex items-center justify-center cursor-pointer"
               multiple={false}
             />
           )}
         </TabsContent>
         <TabsContent value="embed" className="h-48">
-          <div className="w-full h-48 rounded-md border border-dashed bg-background flex items-center justify-start">
+          <div className="w-full h-48 rounded-md border border-dashed bg-editor-field flex items-center justify-start">
             <div className="flex flex-col gap-2 w-full max-w-sm px-4">
               <div className="flex items-center gap-2">
                 <Input
@@ -218,20 +214,20 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
                     setUrlError(null);
                   }}
                   placeholder="Paste your cover image link"
-                  className={cn(urlError && "border-destructive")}
+                  className={cn(
+                    "bg-editor-sidebar-background",
+                    urlError && "border-destructive",
+                  )}
                 />
-                <Button
+                <AsyncButton
                   className="shrink-0"
                   size="icon"
                   onClick={() => handleEmbed(embedUrl)}
-                  disabled={isValidatingUrl || !embedUrl}
+                  isLoading={isValidatingUrl}
+                  disabled={!embedUrl}
                 >
-                  {isValidatingUrl ? (
-                    <Spinner className="size-4 animate-spin" />
-                  ) : (
-                    <Check className="size-4" />
-                  )}
-                </Button>
+                  <CheckIcon className="size-4" />
+                </AsyncButton>
               </div>
               {urlError && (
                 <p className="text-sm text-destructive">{urlError}</p>
@@ -243,10 +239,10 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
           <button
             type="button"
             onClick={() => setIsGalleryOpen(true)}
-            className="w-full h-48 rounded-md border border-dashed bg-background flex items-center justify-center cursor-pointer transition-colors"
+            className="w-full h-48 rounded-md border border-dashed bg-editor-field flex items-center justify-center cursor-pointer transition-colors"
           >
             <div className="flex flex-col items-center gap-2 text-muted-foreground">
-              <Images className="size-6" />
+              <ImagesIcon className="size-6" />
               <p className="text-sm font-medium">Click to view your gallery</p>
             </div>
           </button>
@@ -259,23 +255,13 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-1">
         <p className="text-sm font-medium leading-none">Cover Image</p>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Info className="size-4 text-gray-400" />
-          </TooltipTrigger>
-          <TooltipContent>
-            <p className="text-muted-foreground text-xs max-w-64">
-              A featured image usually used for the post thumbnail and social
-              media previews (optional)
-            </p>
-          </TooltipContent>
-        </Tooltip>
+        <FieldInfo text="A featured image usually used for the post thumbnail and social media previews (optional)" />
       </div>
       {renderContent()}
 
       {/* Media Gallery Drawer */}
       <Drawer open={isGalleryOpen} onOpenChange={setIsGalleryOpen}>
-        <DrawerContent className="h-[95vh] mt-4">
+        <DrawerContent className="min-h-[95vh] mt-4">
           <DrawerHeader className="sr-only">
             <DrawerTitle>Gallery</DrawerTitle>
             <DrawerDescription>
@@ -314,7 +300,7 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
             ) : (
               <div className="flex items-center justify-center h-full">
                 <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                  <Images className="size-8" />
+                  <ImagesIcon className="size-8" />
                   <p className="text-sm font-medium">
                     Your gallery is empty. Upload some media to get started.
                   </p>

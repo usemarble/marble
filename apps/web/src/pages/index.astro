@@ -1,12 +1,53 @@
 ---
 import Container from "@/components/Container.astro";
 import Bounty from "@/components/icons/brand/Bounty.astro";
+import Databuddy from "@/components/icons/brand/Databuddy.astro";
+import Helix from "@/components/icons/brand/Helix.astro";
 import Ia from "@/components/icons/brand/Ia.astro";
+import Mantlz from "@/components/icons/brand/Mantlz.astro";
 import Opencut from "@/components/icons/brand/Opencut.astro";
-import Rivo from "@/components/icons/brand/Rivo.astro";
 import AccordionItem from "@/components/ui/AccordionItem.astro";
 import Layout from "@/layouts/Layout.astro";
 import { APP, FAQs, PRICING, SITE } from "@/lib/constants";
+
+const users = [
+  {
+    name: "I.A",
+    url: "https://independent-arts.org",
+    component: Ia,
+    showWordmark: true,
+  },
+  {
+    name: "OpenCut",
+    url: "https://opencut.app",
+    component: Opencut,
+    showWordmark: true,
+  },
+  {
+    name: "Mantlz",
+    url: "https://mantlz.com",
+    component: Mantlz,
+    showWordmark: true,
+  },
+  {
+    name: "Bounty",
+    url: "https://bounty.new",
+    component: Bounty,
+    showWordmark: false,
+  },
+  {
+    name: "Helix DB",
+    url: "https://www.helix-db.com",
+    component: Helix,
+    showWordmark: true,
+  },
+  {
+    name: "Databuddy",
+    url: "https://databuddy.cc",
+    component: Databuddy,
+    showWordmark: true,
+  },
+];
 ---
 
 <Layout 
@@ -40,40 +81,29 @@ import { APP, FAQs, PRICING, SITE } from "@/lib/constants";
     </section>
 
     <!--  Social Proof -->
-    <section class="">
+    <section >
       <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
         <Container class="space-y-10 py-12">
           <div class="relative flex flex-col items-center space-y-3 text-balance">
             <h2 class="relative text-center text-balance text-2xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
-              Used by the best.
+              Used by the best<span class="text-accent">.</span>
             </h2>
           </div>
-          <ul class="grid grid-cols-[repeat(auto-fill,minmax(14rem,1fr))]">
-            <li class="p-8 flex items-center justify-center">
-              <a href="https://independent-arts.org" target="_blank" class="flex items-center gap-2">
-                <Ia />
-                <span class="text-xl font-medium">I.A</span>
-              </a>
-            </li>
-            <li class="p-8 flex items-center justify-center">
-              <a href="https://opencut.app" target="_blank" class="flex items-center gap-2">
-                <Opencut />
-                <span class="text-xl font-medium">OpenCut</span>
-              </a>
-            </li>
-            <li class="p-8 flex items-center justify-center">
-              <a href="https://rivo.gg" target="_blank" class="flex items-center gap-2">
-                <Rivo />
-                <span class="text-xl font-medium">Rivo</span>
-              </a>
-            </li>
-            <li class="p-8 flex items-center justify-center">
-              <a href="https://bounty.new" target="_blank">
-                <Bounty  />
-                <span class="text-xl font-medium sr-only">Bounty</span>
-              </a>
-            </li>
-          </ul>
+          <div class="flex flex-wrap justify-center gap-x-8 gap-y-4">
+            {users.map((user) => (
+              <div class="flex items-center justify-center min-w-[14rem] p-8">
+                <a href={user.url + "?utm_source=marble"} target="_blank" class={user.showWordmark ? "flex items-center gap-2" : ""}>
+                  <user.component />
+                  {user.showWordmark && (
+                    <span class="text-xl font-medium">{user.name}</span>
+                  )}
+                  {!user.showWordmark && (
+                    <span class="text-xl font-medium sr-only">{user.name}</span>
+                  )}
+                </a>
+              </div>
+            ))}
+          </div>
         </Container>
       </div>
     </section>
@@ -83,8 +113,8 @@ import { APP, FAQs, PRICING, SITE } from "@/lib/constants";
       <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
         <Container class="space-y-10 lg:space-y-14 pt-12 pb-20">
           <div class="relative flex flex-col items-center space-y-3 text-balance">
-            <h2 class="relative text-center text-balance text-2xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
-              Features.
+            <h2 class="relative text-center text-balance text-acc text-2xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
+              Features<span class="text-accent">.</span>
             </h2>
             <p class="max-w-prose md:text-lg text-muted-foreground text-center">
               Everything you need to manage your content. 
@@ -196,7 +226,7 @@ import { APP, FAQs, PRICING, SITE } from "@/lib/constants";
         <Container class="space-y-10 lg:space-y-14 pt-12 pb-20">
           <div class="relative flex flex-col items-center space-y-4">
             <h2 class="relative text-center text-balance text-2xl sm:text-xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
-              Simple Pricing.
+              Simple Pricing<span class="text-accent">.</span>
             </h2>
             <p class="max-w-prose md:text-lg text-muted-foreground text-center">
               Choose a plan that fits your needs.
@@ -212,7 +242,7 @@ import { APP, FAQs, PRICING, SITE } from "@/lib/constants";
                         <div class="flex flex-col gap-5 sm:min-w-60 lg:min-w-0">
                           <div class="flex flex-col gap-4">
                             <h3 class="text-medium text-xl">{plan.title}</h3>
-                            <div class="">
+                            <div>
                               <p><span class="font-bold text-2xl">{plan.price.monthly}</span>{' '}<span>per month.</span></p>
                               <p class="text-muted-foreground text-sm">{plan.description}</p>
                             </div>
@@ -283,7 +313,7 @@ import { APP, FAQs, PRICING, SITE } from "@/lib/constants";
         <Container class="space-y-10 lg:space-y-14 pt-12 pb-20">
         <div class="relative flex flex-col items-center space-y-4">
           <h2 class="relative text-center text-balance text-2xl sm:text-xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
-            FAQ's.
+            FAQ's<span class="text-accent">.</span>
           </h2>
           <p class="max-w-prose md:text-lg text-muted-foreground text-center">
             Answers to common questions about marblecms.
