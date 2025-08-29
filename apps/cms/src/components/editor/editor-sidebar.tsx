@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@marble/ui/components/button";
 import { Separator } from "@marble/ui/components/separator";
 import {
   Sidebar,
