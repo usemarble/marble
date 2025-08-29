@@ -161,9 +161,8 @@ export async function sendWelcomeEmailAction({
     return { error: "Email configuration missing" };
   }
 
-  console.log("called welcome email");
   try {
-    const response = await resend.emails.send({
+    await resend.emails.send({
       from: "MarbleCMS <emails@marblecms.com>",
       to: userEmail,
       subject: "Welcome to Marble!",
@@ -171,8 +170,6 @@ export async function sendWelcomeEmailAction({
         userEmail,
       }),
     });
-
-    console.log("Email sent successfully:", response);
     return { message: "Email sent successfully" };
   } catch (error) {
     console.error("Detailed error sending email:", error);
