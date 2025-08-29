@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { trimTrailingSlash } from "hono/trailing-slash";
+import { analytics } from "./middleware/analytics";
 import { ratelimit } from "./middleware/ratelimit";
 import authorsRoutes from "./routes/authors";
 import categoriesRoutes from "./routes/categories";
@@ -13,7 +14,8 @@ const v1 = new Hono<{ Bindings: Env }>();
 const staleTime = 3600;
 
 // Global Middleware
-app.use("*", ratelimit());
+app.use("/:workspaceId/*", ratelimit());
+app.use("/:workspaceId/*", analytics());
 app.use(trimTrailingSlash());
 
 app.use("*", async (c, next) => {
