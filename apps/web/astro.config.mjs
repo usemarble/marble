@@ -2,14 +2,16 @@
 
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
-import tailwind from "@astrojs/tailwind";
-
 import vercel from "@astrojs/vercel";
+import tailwind from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
 
 // https://astro.build/config
 export default defineConfig({
-  integrations: [tailwind(), mdx(), sitemap()],
+  integrations: [mdx(), sitemap()],
+  vite: {
+    plugins: [tailwind()],
+  },
   site: "https://marblecms.com",
   image: {
     domains: ["images.marblecms.com"],
@@ -17,6 +19,10 @@ export default defineConfig({
   adapter: vercel({
     webAnalytics: {
       enabled: true,
+    },
+    isr: {
+      expiration: 3600,
+      exclude: [/^\/(?!contributors\/?$).*/],
     },
   }),
 });

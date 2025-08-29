@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
-import { CaretDown } from "@phosphor-icons/react";
+import { CaretDownIcon } from "@phosphor-icons/react";
 import { useTheme } from "next-themes";
 
 const themes = [
@@ -31,9 +31,9 @@ export function ThemeSwitch() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button variant="outline">
           <span className="capitalize">{theme}</span>
-          <CaretDown className="ml-2 size-4 text-muted-foreground" />
+          <CaretDownIcon className="ml-2 size-4 text-muted-foreground" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

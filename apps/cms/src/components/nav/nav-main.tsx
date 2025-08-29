@@ -14,14 +14,16 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  useSidebar,
 } from "@marble/ui/components/sidebar";
+import { cn } from "@marble/ui/lib/utils";
 import {
-  Faders,
-  Images as ImagesIcon,
-  Note,
-  Package,
-  Tag,
-  UsersThree,
+  FadersIcon,
+  ImagesIcon,
+  NoteIcon,
+  PackageIcon,
+  TagIcon,
+  UsersThreeIcon,
 } from "@phosphor-icons/react";
 
 import Link from "next/link";
@@ -31,17 +33,17 @@ const items = [
   {
     name: "Posts",
     url: "posts",
-    icon: Note,
+    icon: NoteIcon,
   },
   {
     name: "Categories",
     url: "categories",
-    icon: Package,
+    icon: PackageIcon,
   },
   {
     name: "Tags",
     url: "tags",
-    icon: Tag,
+    icon: TagIcon,
   },
   {
     name: "Media",
@@ -51,7 +53,7 @@ const items = [
   {
     name: "Team",
     url: "team",
-    icon: UsersThree,
+    icon: UsersThreeIcon,
   },
 ];
 
@@ -73,6 +75,7 @@ const settingsItems = [
 export function NavMain() {
   const pathname = usePathname();
   const params = useParams<{ workspace: string }>();
+  const { open } = useSidebar();
 
   const isActive = (url: string) => {
     return pathname === `/${params.workspace}/${url}`;
@@ -82,14 +85,14 @@ export function NavMain() {
   const isSettingsActive = pathname.startsWith(`/${params.workspace}/settings`);
 
   return (
-    <SidebarGroup>
+    <SidebarGroup className={cn(open ? "px-4" : "px-2")}>
       <SidebarGroupLabel>Workspace</SidebarGroupLabel>
       <SidebarMenu>
         {/* <SidebarMenuButton
           asChild
           className={`border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
             isOverviewActive
-              ? "bg-sidebar-accent border-border text-foreground shadow-sm"
+              ? "bg-sidebar-accent border-border text-foreground shadow-xs"
               : "hover:text-accent-foreground"
           }`}
         >
@@ -104,7 +107,7 @@ export function NavMain() {
             key={item.name}
             className={`border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
               isActive(item.url)
-                ? "bg-sidebar-accent border-border text-foreground shadow-sm hover"
+                ? "bg-sidebar-accent border-border text-foreground shadow-xs hover"
                 : "hover:text-accent-foreground"
             }`}
           >
@@ -124,13 +127,13 @@ export function NavMain() {
               <CollapsibleTrigger asChild>
                 <SidebarMenuButton
                   tooltip="Settings"
-                  className={`border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
+                  className={`border cursor-pointer border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
                     isSettingsActive
-                      ? "bg-sidebar-accent border-border text-foreground shadow-sm"
+                      ? "bg-sidebar-accent border-border text-foreground shadow-xs"
                       : "hover:text-accent-foreground"
                   }`}
                 >
-                  <Faders />
+                  <FadersIcon />
                   <span>Settings</span>
                 </SidebarMenuButton>
               </CollapsibleTrigger>

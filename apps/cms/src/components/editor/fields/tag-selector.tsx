@@ -1,7 +1,6 @@
 "use client";
 
 import { Badge } from "@marble/ui/components/badge";
-import { Button } from "@marble/ui/components/button";
 import {
   Command,
   CommandEmpty,
@@ -17,19 +16,22 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@marble/ui/components/popover";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@marble/ui/components/tooltip";
 import { cn } from "@marble/ui/lib/utils";
-import { CaretUpDown, Check, Info, Plus, X } from "@phosphor-icons/react";
+import {
+  CaretUpDownIcon,
+  CheckIcon,
+  PlusIcon,
+  XIcon,
+} from "@phosphor-icons/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { type Control, useController } from "react-hook-form";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { PostValues } from "@/lib/validations/post";
 import { ErrorMessage } from "../../auth/error-message";
-import { CreateTagModal } from "../../tags/tag-modals";
+import { TagModal } from "../../tags/tag-modals";
+import { FieldInfo } from "./field-info";
 
 interface Option {
   id: string;
@@ -67,10 +69,12 @@ export const TagSelector = ({
     defaultValue: defaultTags,
   });
   const [openTagModal, setOpenTagModal] = useState(false);
+  const workspaceId = useWorkspaceId();
   const queryClient = useQueryClient();
 
   const { data: tags = [], isLoading: isLoadingTags } = useQuery({
-    queryKey: ["tags"],
+    // biome-ignore lint/style/noNonNullAssertion: <>
+    queryKey: QUERY_KEYS.TAGS(workspaceId!),
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
       const res = await fetch("/api/tags");
@@ -80,11 +84,12 @@ export const TagSelector = ({
       const data: TagResponse[] = await res.json();
       return data;
     },
+    enabled: !!workspaceId,
   });
 
   // Compute selected tags directly without useEffect
   const selected = useMemo(() => {
-    if (tags.length > 0 && value?.length > 0) {
+    if (tags.length > 0 && value && value?.length > 0) {
       return tags.filter((opt) => value.includes(opt.id));
     }
     return [];
@@ -102,13 +107,18 @@ export const TagSelector = ({
   };
 
   const handleTagCreated = async (newTag: Option) => {
+    if (!workspaceId) return;
+
     // Optimistically update React Query cache
-    queryClient.setQueryData(["tags"], (oldData: TagResponse[] | undefined) => {
-      return oldData ? [...oldData, newTag] : [newTag];
-    });
+    queryClient.setQueryData(
+      QUERY_KEYS.TAGS(workspaceId),
+      (oldData: TagResponse[] | undefined) => {
+        return oldData ? [...oldData, newTag] : [newTag];
+      },
+    );
 
     // Also invalidate to refetch from server
-    queryClient.invalidateQueries({ queryKey: ["tags"] });
+    queryClient.invalidateQueries({ queryKey: QUERY_KEYS.TAGS(workspaceId) });
 
     const newValue = [...(value || []), newTag.id];
     onChange(newValue);
@@ -118,21 +128,11 @@ export const TagSelector = ({
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-1">
         <Label htmlFor="tags">Tags</Label>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Info className="size-4 text-gray-400" />
-          </TooltipTrigger>
-          <TooltipContent>
-            <p className="text-muted-foreground text-xs max-w-64">
-              Your articles can have multiple tags, we will use this to
-              determine related articles.
-            </p>
-          </TooltipContent>
-        </Tooltip>
+        <FieldInfo text="Your articles can have multiple tags, we will use this to determine related articles." />
       </div>
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
-          <div className="relative w-full cursor-pointer rounded-md border border-input bg-background px-3 py-2 text-sm min-h-10 h-auto">
+          <div className="relative w-full cursor-pointer rounded-md border px-3 py-2 text-sm min-h-9 h-auto bg-editor-field">
             <div className="flex items-center justify-between gap-2">
               <ul className="flex flex-wrap gap-1">
                 {selected.length === 0 && (
@@ -144,9 +144,7 @@ export const TagSelector = ({
                   <li key={item.id}>
                     <Badge variant="outline" className="font-normal">
                       {item.name}
-                      <Button
-                        variant="ghost"
-                        size="sm"
+                      <button
                         type="button"
                         className="ml-1 h-auto p-0 hover:bg-transparent"
                         onClick={(e) => {
@@ -154,13 +152,13 @@ export const TagSelector = ({
                           handleRemoveTag(item.id);
                         }}
                       >
-                        <X className="size-2.5" />
-                      </Button>
+                        <XIcon className="size-2.5 p-0" />
+                      </button>
                     </Badge>
                   </li>
                 ))}
               </ul>
-              <CaretUpDown className="size-4 shrink-0 opacity-50" />
+              <CaretUpDownIcon className="size-4 shrink-0 opacity-50" />
             </div>
           </div>
         </PopoverTrigger>
@@ -183,7 +181,7 @@ export const TagSelector = ({
                   className="flex items-center gap-1 p-1 hover:bg-accent"
                   onClick={() => setOpenTagModal(true)}
                 >
-                  <Plus className="size-4 text-muted-foreground" />
+                  <PlusIcon className="size-4 text-muted-foreground" />
                   <span className="sr-only">Add a new tag</span>
                 </button>
               </div>
@@ -196,7 +194,7 @@ export const TagSelector = ({
                       onSelect={() => addTag(option.id)}
                     >
                       {option.name}
-                      <Check
+                      <CheckIcon
                         className={cn(
                           "ml-auto h-4 w-4",
                           selected.some((item) => item.id === option.id)
@@ -214,9 +212,10 @@ export const TagSelector = ({
         </PopoverContent>
       </Popover>
 
-      <CreateTagModal
+      <TagModal
         open={openTagModal}
         setOpen={setOpenTagModal}
+        mode="create"
         onTagCreated={handleTagCreated}
       />
     </div>

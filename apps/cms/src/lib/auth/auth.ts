@@ -9,20 +9,22 @@ import {
 import { Polar } from "@polar-sh/sdk";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import { createAuthMiddleware } from "better-auth/api";
 import { nextCookies } from "better-auth/next-js";
 import { emailOTP, organization } from "better-auth/plugins";
 import {
   sendInviteEmailAction,
+  sendResetPasswordAction,
   sendVerificationEmailAction,
-  sendWelcomeEmailAction
+  sendWelcomeEmailAction,
 } from "@/lib/actions/email";
+import { storeUserImageAction } from "@/lib/actions/user";
 import { handleCustomerCreated } from "@/lib/polar/customer.created";
 import { handleSubscriptionCanceled } from "@/lib/polar/subscription.canceled";
 import { handleSubscriptionCreated } from "@/lib/polar/subscription.created";
 import { handleSubscriptionRevoked } from "@/lib/polar/subscription.revoked";
 import { handleSubscriptionUpdated } from "@/lib/polar/subscription.updated";
-import { getLastActiveWorkspaceOrNewOneToSetAsActive } from "../queries/workspace";
-import { createAuthMiddleware } from "better-auth/api";
+import { getLastActiveWorkspaceOrNewOneToSetAsActive } from "@/lib/queries/workspace";
 
 const polarClient = new Polar({
   accessToken: process.env.POLAR_ACCESS_TOKEN,
@@ -35,6 +37,12 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    sendResetPassword: async ({ user, url }, _request) => {
+      await sendResetPasswordAction({
+        userEmail: user.email,
+        resetLink: url,
+      });
+    },
     // requireEmailVerification: true,
     // autoSignIn: true
     // ideally that would prevent a session being created on signup
@@ -107,6 +115,7 @@ export const auth = betterAuth({
     }),
     organization({
       // membershipLimit: 10,
+      // check plan limits and set membershipLimit
       schema: {
         organization: {
           additionalFields: {
@@ -164,10 +173,7 @@ export const auth = betterAuth({
     // for new users the middleware redirects them to create a workspace (organization)
     session: {
       create: {
-        before: async (session, ctx) => {
-          const allCookies = ctx?.request?.headers.getSetCookie();
-          console.log("allCookies before session create", allCookies);
-          // this returns an empty array when i tested it
+        before: async (session) => {
           try {
             const organization =
               await getLastActiveWorkspaceOrNewOneToSetAsActive(session.userId);
@@ -182,11 +188,12 @@ export const auth = betterAuth({
             return { data: session };
           }
         },
-        after: async (_session, ctx) => {
-          const allCookies = ctx?.request?.headers.getSetCookie();
-          console.log("allCookies after session create", allCookies);
-          // also returns an empty array when i tested it
-          // so i guess its pointless to pass it to the get active organization
+      },
+    },
+    user: {
+      create: {
+        after: async (user) => {
+          await storeUserImageAction(user);
         },
       },
     },

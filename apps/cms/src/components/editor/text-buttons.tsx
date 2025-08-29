@@ -1,15 +1,15 @@
 import { Button } from "@marble/ui/components/button";
 import { cn } from "@marble/ui/lib/utils";
 import {
-  TextB as Bold,
+  TextBIcon as Bold,
   type Icon,
-  TextItalic as Italic,
-  TextStrikethrough as Strikethrough,
-  TextAlignCenter,
-  TextAlignJustify,
-  TextAlignLeft,
-  TextAlignRight,
-  TextUnderline as Underline,
+  TextItalicIcon as Italic,
+  TextStrikethroughIcon as StrikethroughIcon,
+  TextAlignCenterIcon,
+  TextAlignJustifyIcon,
+  TextAlignLeftIcon,
+  TextAlignRightIcon,
+  TextUnderlineIcon as UnderlineIcon,
 } from "@phosphor-icons/react";
 import { useEditor } from "novel";
 
@@ -45,37 +45,37 @@ export const TextButtons = () => {
       name: "underline",
       isActive: (editor) => editor.isActive("underline"),
       command: (editor) => editor.chain().focus().toggleUnderline().run(),
-      icon: Underline,
+      icon: UnderlineIcon,
     },
     {
       name: "strike",
       isActive: (editor) => editor.isActive("strike"),
       command: (editor) => editor.chain().focus().toggleStrike().run(),
-      icon: Strikethrough,
+      icon: StrikethroughIcon,
     },
     {
       name: "alignLeft",
       isActive: (editor) => editor.isActive({ textAlign: "left" }),
       command: (editor) => editor.chain().focus().setTextAlign("left").run(),
-      icon: TextAlignLeft,
+      icon: TextAlignLeftIcon,
     },
     {
       name: "alignRight",
       isActive: (editor) => editor.isActive({ textAlign: "right" }),
       command: (editor) => editor.chain().focus().setTextAlign("right").run(),
-      icon: TextAlignRight,
+      icon: TextAlignRightIcon,
     },
     {
       name: "alignCenter",
       isActive: (editor) => editor.isActive({ textAlign: "center" }),
       command: (editor) => editor.chain().focus().setTextAlign("center").run(),
-      icon: TextAlignCenter,
+      icon: TextAlignCenterIcon,
     },
     {
       name: "justify",
       isActive: (editor) => editor.isActive({ textAlign: "justify" }),
       command: (editor) => editor.chain().focus().setTextAlign("justify").run(),
-      icon: TextAlignJustify,
+      icon: TextAlignJustifyIcon,
     },
   ];
 
@@ -86,7 +86,6 @@ export const TextButtons = () => {
           key={item.name}
           type="button"
           size="icon"
-          className="rounded-none"
           variant="ghost"
           onClick={() => item.command(editor)}
         >

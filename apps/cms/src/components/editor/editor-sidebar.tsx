@@ -34,8 +34,8 @@ import {
   generateSuggestions,
   getReadabilityLevel,
 } from "@/utils/readability";
+import { AsyncButton } from "../ui/async-button";
 import { Gauge } from "../ui/gauge";
-import { ButtonLoader } from "../ui/loader";
 import { AttributionField } from "./fields/attribution-field";
 import { AuthorSelector } from "./fields/author-selector";
 import { CategorySelector } from "./fields/category-selector";
@@ -138,30 +138,22 @@ export function EditorSidebar({
       <Sidebar
         side="right"
         className={cn(
-          "bg-sidebar/70 m-2 h-[calc(100vh-1rem)] min-h-[calc(100vh-1rem)] overflow-hidden rounded-xl border",
+          "bg-editor-sidebar-background m-2 h-[calc(100vh-1rem)] min-h-[calc(100vh-1rem)] overflow-hidden rounded-xl border",
           !open ? "mr-0" : "",
         )}
         {...props}
       >
-        <SidebarHeader className="bg-transparent sticky top-0 z-10 flex-shrink-0 px-6 py-4">
+        <SidebarHeader className="bg-transparent sticky top-0 z-10 shrink-0 px-6 py-4">
           <Tabs
             value={activeTab}
             onValueChange={setActiveTab}
             className="w-full"
           >
-            <TabsList variant="underline" className="flex justify-start gap-2">
-              <TabsTrigger
-                variant="underline"
-                value="metadata"
-                className="px-2"
-              >
+            <TabsList variant="line" className="flex justify-start gap-2">
+              <TabsTrigger value="metadata" className="px-2">
                 Metadata
               </TabsTrigger>
-              <TabsTrigger
-                variant="underline"
-                value="analysis"
-                className="px-2"
-              >
+              <TabsTrigger value="analysis" className="px-2">
                 Analysis
               </TabsTrigger>
             </TabsList>
@@ -285,34 +277,28 @@ export function EditorSidebar({
           </Tabs>
         </SidebarContent>
 
-        <SidebarFooter className="bg-transparent flex-shrink-0 px-6 py-6">
+        <SidebarFooter className="bg-transparent shrink-0 px-6 py-6">
           {activeTab === "metadata" &&
             (mode === "create" ? (
-              <Button
+              <AsyncButton
                 type="button"
-                disabled={isSubmitting || !hasUnsavedChanges}
+                disabled={!hasUnsavedChanges}
+                isLoading={isSubmitting}
                 onClick={triggerSubmit}
                 className="w-full"
               >
-                {isSubmitting ? (
-                  <ButtonLoader className="size-4 animate-spin" />
-                ) : (
-                  "Save"
-                )}
-              </Button>
+                Save
+              </AsyncButton>
             ) : (
-              <Button
+              <AsyncButton
                 type="button"
-                disabled={isSubmitting || !hasUnsavedChanges}
+                disabled={!hasUnsavedChanges}
+                isLoading={isSubmitting}
                 onClick={triggerSubmit}
                 className="w-full"
               >
-                {isSubmitting ? (
-                  <ButtonLoader className="size-4 animate-spin" />
-                ) : (
-                  "Update"
-                )}
-              </Button>
+                Update
+              </AsyncButton>
             ))}
         </SidebarFooter>
       </Sidebar>

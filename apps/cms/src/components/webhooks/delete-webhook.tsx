@@ -2,36 +2,35 @@
 
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@marble/ui/components/alert-dialog";
-import { Button } from "@marble/ui/components/button";
 import { toast } from "@marble/ui/components/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { AsyncButton } from "@/components/ui/async-button";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
-import { ButtonLoader } from "../ui/loader";
 
 interface DeleteWebhookModalProps {
   webhookId: string;
   webhookName: string;
   onDelete: () => void;
-  children: React.ReactNode;
+  isOpen: boolean;
+  onOpenChange: (isOpen: boolean) => void;
 }
 
 export function DeleteWebhookModal({
   webhookId,
   webhookName,
   onDelete,
-  children,
+  isOpen,
+  onOpenChange,
 }: DeleteWebhookModalProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  const workspaceId = useWorkspaceId();
   const queryClient = useQueryClient();
 
   const { mutate: deleteWebhook, isPending } = useMutation({
@@ -42,8 +41,12 @@ export function DeleteWebhookModal({
     onSuccess: () => {
       toast.success("Webhook deleted successfully");
       onDelete();
-      setIsOpen(false);
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.WEBHOOKS] });
+      onOpenChange(false);
+      if (workspaceId) {
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.WEBHOOKS(workspaceId),
+        });
+      }
     },
     onError: () => {
       toast.error("Failed to delete webhook");
@@ -51,42 +54,30 @@ export function DeleteWebhookModal({
   });
 
   return (
-    <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
-      <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
+    <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete webhook?</AlertDialogTitle>
-          <AlertDialogDescription className="space-y-2">
-            <span>
-              Are you sure you want to delete <strong>"{webhookName}"</strong>?
-              This action cannot be undone.
-            </span>
-            <span>
-              This will permanently delete the webhook endpoint and all
-              associated delivery logs and event history.
-            </span>
-            <span className="text-blue-600 font-medium">
-              Consider disabling the webhook instead if you might need it later.
-            </span>
+          <AlertDialogDescription>
+            Are you sure you want to delete <strong>"{webhookName}"</strong>?
+            This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isPending} className="min-w-20">
             Cancel
           </AlertDialogCancel>
-          <AlertDialogAction asChild>
-            <Button
-              variant="destructive"
-              disabled={isPending}
-              onClick={(e) => {
-                e.preventDefault();
-                deleteWebhook();
-              }}
-              className="min-w-20"
-            >
-              {isPending ? <ButtonLoader /> : "Delete webhook"}
-            </Button>
-          </AlertDialogAction>
+          <AsyncButton
+            variant="destructive"
+            disabled={isPending}
+            onClick={(e) => {
+              e.preventDefault();
+              deleteWebhook();
+            }}
+            className="min-w-20"
+          >
+            Delete webhook
+          </AsyncButton>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

@@ -1,28 +1,8 @@
-import { DeleteObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
-
-const ACCESS_KEY_ID = process.env.CLOUDFLARE_ACCESS_KEY_ID;
-const SECRET_ACCESS_KEY = process.env.CLOUDFLARE_SECRET_ACCESS_KEY;
-const BUCKET_NAME = process.env.CLOUDFLARE_BUCKET_NAME;
-const ENDPOINT = process.env.CLOUDFLARE_S3_ENDPOINT;
-
-if (!ACCESS_KEY_ID || !SECRET_ACCESS_KEY || !BUCKET_NAME || !ENDPOINT) {
-  throw new Error("Missing Cloudflare R2 environment variables");
-}
-
-const bucketName = BUCKET_NAME;
-const endpoint = ENDPOINT;
-
-const s3Client = new S3Client({
-  region: "auto",
-  endpoint,
-  credentials: {
-    accessKeyId: ACCESS_KEY_ID,
-    secretAccessKey: SECRET_ACCESS_KEY,
-  },
-});
+import { R2_BUCKET_NAME, r2 } from "@/lib/r2";
 
 export async function GET() {
   const sessionData = await getServerSession();
@@ -31,12 +11,25 @@ export async function GET() {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
+  const orgId = sessionData.session?.activeOrganizationId;
+
+  if (!orgId) {
+    return NextResponse.json(
+      { error: "Active workspace not found in session" },
+      { status: 400 },
+    );
+  }
+
   const media = await db.media.findMany({
-    where: { workspaceId: sessionData.session?.activeOrganizationId as string },
+    where: { workspaceId: orgId },
+    orderBy: { createdAt: "desc" },
     select: {
       id: true,
       name: true,
       url: true,
+      createdAt: true,
+      type: true,
+      size: true,
     },
   });
 
@@ -67,12 +60,47 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "Media not found" }, { status: 404 });
     }
 
-    await s3Client.send(
-      new DeleteObjectCommand({
-        Bucket: bucketName,
-        Key: media.name,
-      }),
-    );
+    if (!media.url) {
+      console.error(
+        `Media with ID ${media.id} has no URL. Deleting database record only.`,
+      );
+    } else {
+      try {
+        const pathname = media.url.startsWith("http")
+          ? new URL(media.url).pathname
+          : media.url;
+
+        let key = pathname.replace(/^\/+/, ""); // Remove leading slash(es)
+
+        // Strip optional bucket prefix if present
+        if (key.startsWith(`${R2_BUCKET_NAME}/`)) {
+          key = key.slice(R2_BUCKET_NAME.length + 1);
+        }
+
+        // Sanitize for traversal or empty segments
+        if (!key || key.includes("..") || key.includes("//")) {
+          throw new Error(
+            "Invalid storage key: contains empty or traversal path segments.",
+          );
+        }
+
+        await r2.send(
+          new DeleteObjectCommand({
+            Bucket: R2_BUCKET_NAME,
+            Key: key,
+          }),
+        );
+      } catch (error) {
+        console.error(
+          `Failed to delete media object from R2 for media ID ${media.id}. URL: ${media.url}`,
+          error,
+        );
+        return NextResponse.json(
+          { error: "Failed to delete media from storage." },
+          { status: 500 },
+        );
+      }
+    }
 
     const deletedMedia = await db.media.delete({
       where: {

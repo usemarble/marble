@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 import "@/styles/globals.css";
 import "@/styles/editor.css";
-import { Databuddy } from "@databuddy/sdk";
 import { Geist } from "next/font/google";
-import { getInitialUserData } from "@/lib/queries/user";
-import { UserProvider } from "@/providers/user";
 import { SITE_CONFIG } from "@/utils/site";
 import Providers from "./providers";
 
@@ -54,8 +51,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { user: initialUser, isAuthenticated } = await getInitialUserData();
-
   return (
     <html lang="en" suppressHydrationWarning>
       {process.env.NODE_ENV === "development" && (
@@ -67,15 +62,7 @@ export default async function RootLayout({
         </head>
       )}
       <body className={`${fontSans.className} font-sans antialiased`}>
-        <Providers>
-          <UserProvider
-            initialUser={initialUser}
-            initialIsAuthenticated={isAuthenticated}
-          >
-            {children}
-            <Databuddy clientId="Dq_1D8IsZscrCY2rNneFZ" enableBatching={true} />
-          </UserProvider>
-        </Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

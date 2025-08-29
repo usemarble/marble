@@ -26,13 +26,14 @@ import {
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { cn } from "@marble/ui/lib/utils";
-import { CaretUpDown, Check, Info } from "@phosphor-icons/react";
+import { CaretUpDown, Check } from "@phosphor-icons/react";
 import { useEffect, useMemo, useState } from "react";
 import { type Control, useController } from "react-hook-form";
 import type { PostValues } from "@/lib/validations/post";
 import { useUser } from "@/providers/user";
 import { useWorkspace } from "@/providers/workspace";
 import { ErrorMessage } from "../../auth/error-message";
+import { FieldInfo } from "./field-info";
 
 interface AuthorOptions {
   id: string;
@@ -124,20 +125,11 @@ export function AuthorSelector({
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-1">
         <Label htmlFor="authors">Authors</Label>
-        <Tooltip delayDuration={0}>
-          <TooltipTrigger asChild>
-            <Info className="size-4 text-gray-400" />
-          </TooltipTrigger>
-          <TooltipContent>
-            <p className="text-muted-foreground text-xs max-w-64">
-              List of authors who contributed to the article.
-            </p>
-          </TooltipContent>
-        </Tooltip>
+        <FieldInfo text="List of authors who contributed to the article." />
       </div>
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger>
-          <div className="flex items-center bg-background justify-between gap-2 relative w-full cursor-pointer rounded-md border border-input px-3 py-1.5 text-sm h-auto min-h-11">
+          <div className="flex items-center justify-between gap-2 relative w-full cursor-pointer rounded-md border px-3 py-1.5 text-sm h-auto min-h-9 bg-editor-field">
             <ul className="flex flex-wrap -space-x-2">
               {selected.length === 0 && (
                 <li className="text-muted-foreground">
@@ -146,7 +138,7 @@ export function AuthorSelector({
               )}
               {selected.length === 1 && (
                 <li className="flex items-center gap-2">
-                  <Avatar className="size-7">
+                  <Avatar className="size-6">
                     <AvatarImage src={selected[0]?.image} />
                     <AvatarFallback>
                       {selected[0]?.name.charAt(0)}
@@ -160,7 +152,7 @@ export function AuthorSelector({
                   <li key={author.id} className="flex items-center">
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Avatar className="size-7">
+                        <Avatar className="size-6">
                           <AvatarImage src={author.image} />
                           <AvatarFallback>
                             {author.name.charAt(0)}

@@ -19,7 +19,7 @@ const formatSegment = (segment: string) => {
     .join(" ");
 };
 
-export default function AppBreadcrumb() {
+export function AppBreadcrumb() {
   const pathname = usePathname();
   const segments = pathname.split("/").filter(Boolean);
 

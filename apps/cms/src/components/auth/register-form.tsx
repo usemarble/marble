@@ -1,20 +1,22 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, buttonVariants } from "@marble/ui/components/button";
+import { buttonVariants } from "@marble/ui/components/button";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
-import { Eye, EyeClosed, Spinner } from "@phosphor-icons/react";
+import { EyeIcon, EyeSlashIcon, Spinner } from "@phosphor-icons/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
+import { AsyncButton } from "@/components/ui/async-button";
 import { useLocalStorage } from "@/hooks/use-localstorage";
 import { authClient } from "@/lib/auth/client";
 import { type CredentialData, credentialSchema } from "@/lib/validations/auth";
 import type { AuthMethod } from "@/types/misc";
 import { Github, Google } from "../icons/social";
+import { LoadingSpinner } from "../ui/async-button";
 import { LastUsedBadge } from "../ui/last-used-badge";
 
 export function RegisterForm() {
@@ -47,7 +49,9 @@ export function RegisterForm() {
       })
       .then((_res) => {
         startTransition(() => {
-          router.push(`/verify?email=${email}&from=${callbackURL}`);
+          router.push(
+            `/verify?email=${encodeURIComponent(email)}&from=${callbackURL}`,
+          );
         });
       });
   };
@@ -61,7 +65,6 @@ export function RegisterForm() {
           email: formData.email.toLowerCase(),
           password: formData.password,
           name: formData.email.toLowerCase().split("@")[0] || "User",
-          image: `https://api.dicebear.com/9.x/glass/svg?seed=${formData.email.toLowerCase().split("@")[0]}`,
         },
         {
           onSuccess: () => {
@@ -112,7 +115,7 @@ export function RegisterForm() {
         >
           <LastUsedBadge
             show={lastUsedAuthMethod === "google"}
-            variant="primary"
+            variant="info"
           />
           {isGoogleLoading ? (
             <Spinner className="mr-2 h-4 w-4 animate-spin" />
@@ -125,19 +128,19 @@ export function RegisterForm() {
           type="button"
           className={cn(
             buttonVariants({ variant: "outline", size: "lg" }),
-            "relative",
+            "relative gap-2",
           )}
           onClick={async () => handleSocialSignIn("github")}
           disabled={isCredentialsLoading || isGoogleLoading || isGithubLoading}
         >
           <LastUsedBadge
             show={lastUsedAuthMethod === "github"}
-            variant="primary"
+            variant="info"
           />
           {isGithubLoading ? (
-            <Spinner className="mr-2 h-4 w-4 animate-spin" />
+            <LoadingSpinner variant="outline" />
           ) : (
-            <Github className="mr-2 h-4 w-4" />
+            <Github className="size-4" />
           )}{" "}
           GitHub
         </button>
@@ -155,6 +158,7 @@ export function RegisterForm() {
             <Label className="sr-only" htmlFor="email">
               Email
             </Label>
+            {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
             <Input
               id="email"
               placeholder="name@example.com"
@@ -168,7 +172,7 @@ export function RegisterForm() {
               {...register("email")}
             />
             {errors?.email && (
-              <p className="text-sm px-1 font-medium text-destructive">
+              <p className="text-xs px-1 font-medium text-destructive">
                 {errors.email.message}
               </p>
             )}
@@ -178,6 +182,7 @@ export function RegisterForm() {
               Password
             </Label>
             <div className="relative">
+              {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
               <Input
                 id="password"
                 placeholder="Your password"
@@ -192,41 +197,35 @@ export function RegisterForm() {
               />
               <button
                 type="button"
-                className="absolute right-4 top-3 text-muted-foreground"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground"
                 onClick={() => setIsPasswordVisible((prev) => !prev)}
               >
                 {isPasswordVisible ? (
-                  <Eye className="size-4" />
+                  <EyeIcon className="size-4" />
                 ) : (
-                  <EyeClosed className="size-4" />
+                  <EyeSlashIcon className="size-4" />
                 )}
               </button>
             </div>
             {errors?.password && (
-              <p className="text-sm px-1 font-medium text-destructive">
+              <p className="text-xs px-1 font-medium text-destructive">
                 {errors.password.message}
               </p>
             )}
           </div>
-          <Button
-            disabled={
-              isCredentialsLoading ||
-              isGoogleLoading ||
-              isGithubLoading ||
-              isRedirecting
-            }
+          <AsyncButton
+            disabled={isGoogleLoading || isGithubLoading || isRedirecting}
+            isLoading={isCredentialsLoading || isRedirecting}
             className={cn("mt-4", "relative")}
+            type="submit"
           >
             <LastUsedBadge
-              show={lastUsedAuthMethod === "email"}
+              show={true}
               variant="secondary"
+              className="border-input"
             />
-            {isCredentialsLoading ||
-              (isRedirecting && (
-                <Spinner className="mr-2 h-4 w-4 animate-spin" />
-              ))}
             Continue
-          </Button>
+          </AsyncButton>
         </div>
       </form>
     </div>

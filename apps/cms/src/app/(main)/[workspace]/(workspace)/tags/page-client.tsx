@@ -1,14 +1,21 @@
 "use client";
 
 import { Button } from "@marble/ui/components/button";
-import { Plus, Tag } from "@phosphor-icons/react";
+import { PlusIcon, TagIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
+import dynamic from "next/dynamic";
 import { useState } from "react";
-import { WorkspacePageWrapper } from "@/components/layout/workspace-wrapper";
+import { toast } from "sonner";
+import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
 import { columns } from "@/components/tags/columns";
 import { DataTable } from "@/components/tags/data-table";
-import { CreateTagModal } from "@/components/tags/tag-modals";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { QUERY_KEYS } from "@/lib/queries/keys";
+
+const TagModal = dynamic(() =>
+  import("@/components/tags/tag-modals").then((mod) => mod.TagModal),
+);
 
 interface TagType {
   id: string;
@@ -17,16 +24,28 @@ interface TagType {
 }
 
 function PageClient() {
+  const workspaceId = useWorkspaceId();
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const { data: tags, isLoading } = useQuery({
-    queryKey: ["tags"],
+    // biome-ignore lint/style/noNonNullAssertion: <>
+    queryKey: QUERY_KEYS.TAGS(workspaceId!),
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
-      const res = await fetch("/api/tags");
-      const data: TagType[] = await res.json();
-      return data;
+      try {
+        const res = await fetch("/api/tags");
+        if (!res.ok) {
+          throw new Error("Failed to fetch tags");
+        }
+        const data: TagType[] = await res.json();
+        return data;
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : "Failed to fetch tags",
+        );
+      }
     },
+    enabled: !!workspaceId,
   });
 
   if (isLoading) {
@@ -43,22 +62,26 @@ function PageClient() {
         <WorkspacePageWrapper className="h-full grid place-content-center">
           <div className="flex flex-col gap-4 items-center max-w-80">
             <div className="p-2">
-              <Tag className="size-16" />
+              <TagIcon className="size-16" />
             </div>
             <div className="text-center flex flex-col gap-4 items-center">
               <p className="text-muted-foreground text-sm">
                 Tags help readers discover your content. Create your first tag
                 to get started.
               </p>
-              <Button onClick={() => setShowCreateModal(true)} size="sm">
-                <Plus size={16} />
+              <Button onClick={() => setShowCreateModal(true)}>
+                <PlusIcon size={16} />
                 <span>Create Tag</span>
               </Button>
             </div>
           </div>
         </WorkspacePageWrapper>
       )}
-      <CreateTagModal open={showCreateModal} setOpen={setShowCreateModal} />
+      <TagModal
+        open={showCreateModal}
+        setOpen={setShowCreateModal}
+        mode="create"
+      />
     </>
   );
 }

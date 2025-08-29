@@ -1,5 +1,6 @@
 import {
   Body,
+  Button,
   Container,
   Head,
   Heading,
@@ -10,7 +11,6 @@ import {
   Section,
   Tailwind,
   Text,
-  Button,
 } from "@react-email/components";
 
 interface WelcomeEmailProps {
@@ -44,8 +44,8 @@ export const WelcomeEmail = ({ userEmail }: WelcomeEmailProps) => {
             </Heading>
 
             <Text className="text-gray-700 text-base leading-relaxed text-center">
-              Thanks for signing up with Marble. We’re excited to have you in the
-              community!  
+              Thanks for signing up with Marble. We’re excited to have you in
+              the community!
               <br />
               You can now explore all features and start building right away.
             </Text>
@@ -62,11 +62,16 @@ export const WelcomeEmail = ({ userEmail }: WelcomeEmailProps) => {
             <Hr className="border-t border-gray-200 my-6" />
 
             <Text className="text-gray-500 text-xs leading-relaxed text-center">
-              This email was sent to <span className="text-black">{userEmail}</span>.  
-              If you didn’t create an account, please contact our support team at{" "}
-              <a href="mailto:support@marblecms.com" className="text-black underline">
+              This email was sent to{" "}
+              <span className="text-black">{userEmail}</span>. If you didn’t
+              create an account, please contact our support team at{" "}
+              <a
+                href="mailto:support@marblecms.com"
+                className="text-black underline"
+              >
                 support@marblecms.com
-              </a>.
+              </a>
+              .
             </Text>
           </Container>
         </Body>
