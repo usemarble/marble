@@ -14,9 +14,9 @@
     "db:deploy": "prisma migrate deploy"
   },
   "dependencies": {
-    "@neondatabase/serverless": "^0.10.4",
-    "@prisma/adapter-neon": "^6.2.1",
-    "@prisma/client": "^6.2.1",
+    "@neondatabase/serverless": "^1.0.1",
+    "@prisma/adapter-neon": "^6.15.0",
+    "@prisma/client": "^6.15.0",
     "ws": "^8.18.0"
   },
   "devDependencies": {
@@ -24,7 +24,7 @@
     "@types/node": "22.9.0",
     "@types/ws": "^8.5.13",
     "bufferutil": "^4.0.9",
-    "prisma": "6.2.1",
+    "prisma": "6.15.0",
     "typescript": "^5.6.3"
   }
 }
