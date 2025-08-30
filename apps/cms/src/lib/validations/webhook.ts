@@ -21,12 +21,10 @@ export const webhookSchema = z.object({
     .string()
     .min(1, { message: "Name cannot be empty" })
     .max(50, { message: "Name cannot be more than 50 characters" }),
-  endpoint: z
-    .string()
-    .url({ message: "Please enter a valid URL" })
-    .refine((url) => url.startsWith("https://"), {
-      message: "Webhook URL must use HTTPS",
-    }),
+  endpoint: z.string().url({ message: "Please enter a valid URL" }),
+  // .refine((url) => url.startsWith("https://"), {
+  //   message: "Webhook URL must use HTTPS",
+  //})
   events: z
     .array(webhookEventEnum)
     .min(1, { message: "Please select at least one event" }),

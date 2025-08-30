@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { type Attribution, postSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";
+import { WebhookClient } from "@/lib/webhooks/webhook-client";
 import { sanitizeHtml } from "@/utils/editor";
 
 export async function GET(
@@ -134,16 +135,43 @@ export async function DELETE(
 ) {
   const session = await getServerSession();
 
-  if (!session?.user) {
+  if (!session?.user || !session.session.activeOrganizationId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { id } = await params;
 
+  const post = await db.post.findFirst({
+    where: { id },
+    select: { slug: true },
+  });
+
+  if (!post) {
+    return NextResponse.json({ error: "Post not found" }, { status: 404 });
+  }
+
   try {
     const deletedPost = await db.post.delete({
       where: { id },
     });
+
+    const webhooks = db.webhook.findMany({
+      where: {
+        enabled: true,
+        workspaceId: session.session.activeOrganizationId,
+        events: { has: "post_deleted" },
+      },
+      select: { secret: true, endpoint: true },
+    });
+
+    for (const webhook of await webhooks) {
+      const webhookClient = new WebhookClient({ secret: webhook.secret });
+      await webhookClient.send({
+        url: webhook.endpoint,
+        event: "post.deleted",
+        data: { id: id, slug: post.slug },
+      });
+    }
 
     return NextResponse.json({ id: deletedPost.id }, { status: 200 });
   } catch (_e) {
