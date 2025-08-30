@@ -66,6 +66,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
   const [showSettings, setShowSettings] = useState(false);
   const { setHasUnsavedChanges } = useUnsavedChanges();
   const initialDataRef = useRef<PostValues>(initialData);
+
   const queryClient = useQueryClient();
   const isUpdateMode = !!id;
 

@@ -147,11 +147,7 @@ export function EditorSidebar({
           >
             <TabsList variant="line" className="grid grid-cols-3">
               {Object.entries(tabs).map(([value, label]) => (
-                <TabsTrigger
-                  key={value}
-                  value={value}
-                  className="px-2"
-                >
+                <TabsTrigger key={value} value={value} className="px-2">
                   {label}
                 </TabsTrigger>
               ))}

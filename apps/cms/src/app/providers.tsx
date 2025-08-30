@@ -6,7 +6,7 @@ import { TooltipProvider } from "@marble/ui/components/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ThemeProvider } from "next-themes";
-import { NuqsAdapter } from 'nuqs/adapters/next/app'
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const queryClient = new QueryClient({
