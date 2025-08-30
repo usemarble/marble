@@ -28,9 +28,7 @@ export const ratelimit = (): MiddlewareHandler => {
         "anonymous";
 
       // Check if there's a workspaceId in the URL path
-      const url = new URL(c.req.url);
-      const pathParts = url.pathname.split("/").filter(Boolean);
-      const workspaceId = pathParts.length > 0 ? pathParts[0] : null;
+      const workspaceId: string | null = c.req.param("workspaceId") ?? null;
 
       // Create a composite identifier that includes both IP and workspaceId if available
       const identifier = workspaceId
