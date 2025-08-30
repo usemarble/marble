@@ -1,6 +1,5 @@
 "use client";
 
-import { Separator } from "@marble/ui/components/separator";
 import {
   Sidebar,
   SidebarContent,
@@ -16,7 +15,8 @@ import {
   TabsTrigger,
 } from "@marble/ui/components/tabs";
 import { cn } from "@marble/ui/lib/utils";
-import { useMemo, useState } from "react";
+import { parseAsStringLiteral, useQueryState } from "nuqs";
+import { useMemo } from "react";
 import {
   type Control,
   type FieldErrors,
@@ -34,17 +34,13 @@ import {
   getReadabilityLevel,
 } from "@/utils/readability";
 import { AsyncButton } from "../ui/async-button";
-import { Gauge } from "../ui/gauge";
-import { AttributionField } from "./fields/attribution-field";
-import { AuthorSelector } from "./fields/author-selector";
-import { CategorySelector } from "./fields/category-selector";
-import { CoverImageSelector } from "./fields/cover-image-selector";
-import { DescriptionField } from "./fields/description-field";
-import { PublishDateField } from "./fields/publish-date-field";
-import { SlugField } from "./fields/slug-field";
-import { StatusField } from "./fields/status-field";
-import { TagSelector } from "./fields/tag-selector";
-import { HiddenScrollbar } from "./hidden-scrollbar";
+import { AnalysisTab, ChatTab, MetadataTab } from "./tabs";
+
+const tabs = {
+  metadata: "Metadata",
+  analysis: "Analysis",
+  chat: "Chat",
+};
 
 interface EditorSidebarProps extends React.ComponentProps<typeof Sidebar> {
   control: Control<PostValues>;
@@ -73,7 +69,10 @@ export function EditorSidebar({
   const hasErrors = Object.keys(errors).length > 0;
   const { tags, authors: initialAuthors } = watch();
   const { hasUnsavedChanges } = useUnsavedChanges();
-  const [activeTab, setActiveTab] = useState("metadata");
+  const [activeTab, setActiveTab] = useQueryState(
+    "active-tab",
+    parseAsStringLiteral(Object.keys(tabs)).withDefault("metadata"),
+  );
 
   const {
     field: { value: contentValue },
@@ -82,9 +81,7 @@ export function EditorSidebar({
     control,
   });
 
-  // const wordCount = editorIntsance.editor?.storage.
-
-  const debouncedContent = useDebounce(contentValue || "", 500);
+  const debouncedContent = useDebounce(contentValue || "", 500); // Debounce for 500ms
 
   const textMetrics = useMemo(() => {
     const inputHtml = debouncedContent || "";
@@ -148,13 +145,12 @@ export function EditorSidebar({
             onValueChange={setActiveTab}
             className="w-full"
           >
-            <TabsList variant="line" className="flex justify-start gap-2">
-              <TabsTrigger value="metadata" className="px-2">
-                Metadata
-              </TabsTrigger>
-              <TabsTrigger value="analysis" className="px-2">
-                Analysis
-              </TabsTrigger>
+            <TabsList variant="line" className="grid grid-cols-3">
+              {Object.entries(tabs).map(([value, label]) => (
+                <TabsTrigger key={value} value={value} className="px-2">
+                  {label}
+                </TabsTrigger>
+              ))}
             </TabsList>
           </Tabs>
         </SidebarHeader>
@@ -169,109 +165,26 @@ export function EditorSidebar({
               value="metadata"
               className="min-h-0 flex-1 data-[state=inactive]:hidden"
             >
-              <HiddenScrollbar className="h-full px-6">
-                <section className="grid gap-6 pb-5 pt-4">
-                  <StatusField control={control} />
-
-                  <Separator orientation="horizontal" className="flex" />
-
-                  <CoverImageSelector control={control} />
-
-                  <DescriptionField control={control} />
-
-                  <SlugField control={control} />
-
-                  <AuthorSelector
-                    control={control}
-                    defaultAuthors={initialAuthors || []}
-                  />
-
-                  <TagSelector control={control} defaultTags={tags || []} />
-
-                  <CategorySelector control={control} />
-
-                  <PublishDateField control={control} />
-
-                  <Separator orientation="horizontal" className="mt-4 flex" />
-
-                  <AttributionField control={control} errors={errors} />
-                </section>
-              </HiddenScrollbar>
+              <MetadataTab
+                control={control}
+                errors={errors}
+                initialAuthors={initialAuthors}
+                tags={tags}
+              />
             </TabsContent>
 
             <TabsContent
               value="analysis"
               className="min-h-0 flex-1 data-[state=inactive]:hidden"
             >
-              <HiddenScrollbar className="h-full px-6">
-                <section className="grid gap-6 pb-5 pt-4">
-                  <div className="flex flex-col gap-4">
-                    <div className="space-y-2">
-                      <h4 className="text-sm font-medium">Readability</h4>
-                      <div className="flex items-center justify-center">
-                        <Gauge
-                          value={textMetrics.readabilityScore}
-                          label="Score"
-                          size={200}
-                          animate={true}
-                        />
-                      </div>
-                      {textMetrics.wordCount > 0 && (
-                        <div className="space-y-1">
-                          <h5 className="text-sm font-medium">Feedback</h5>
-                          <p className="text-muted-foreground text-xs">
-                            <span className="font-medium">
-                              {textMetrics.readabilityLevel.level}:
-                            </span>{" "}
-                            {textMetrics.readabilityLevel.description}
-                          </p>
-                        </div>
-                      )}
-                    </div>
+              <AnalysisTab textMetrics={textMetrics} />
+            </TabsContent>
 
-                    <Separator />
-
-                    <div className="space-y-3">
-                      <h4 className="text-sm font-medium">Text Statistics</h4>
-                      <div className="grid grid-cols-2 gap-3 text-sm">
-                        <div className="space-y-1">
-                          <p className="text-muted-foreground">Words</p>
-                          <p className="font-medium">{textMetrics.wordCount}</p>
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-muted-foreground">Sentences</p>
-                          <p className="font-medium">
-                            {textMetrics.sentenceCount}
-                          </p>
-                        </div>
-                        <div className="col-span-2 space-y-1">
-                          <p className="text-muted-foreground">
-                            Avg. words per sentence
-                          </p>
-                          <p className="font-medium">
-                            {textMetrics.avgWordsPerSentence}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <Separator />
-
-                    <div className="space-y-3">
-                      <h4 className="text-sm font-medium">
-                        {textMetrics.wordCount === 0
-                          ? "Getting Started"
-                          : "Suggestions"}
-                      </h4>
-                      <div className="text-muted-foreground space-y-2 text-sm">
-                        {textMetrics.suggestions.map((suggestion) => (
-                          <p key={suggestion}>• {suggestion}</p>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </section>
-              </HiddenScrollbar>
+            <TabsContent
+              value="chat"
+              className="min-h-0 flex-1 data-[state=inactive]:hidden"
+            >
+              <ChatTab />
             </TabsContent>
           </Tabs>
         </SidebarContent>
