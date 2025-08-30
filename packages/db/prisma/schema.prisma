@@ -8,25 +8,23 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// https://docs.polar.sh/api-reference/webhooks/subscription.created
 model Subscription {
   id                 String             @id @default(cuid())
   userId             String
-  workspaceId        String             @unique
   plan               PlanType
   status             SubscriptionStatus @default(active)
-  polarId            String             @unique
-  createdAt          DateTime           @default(now())
-  currentPeriodStart DateTime // Start of current billing cycle
-  currentPeriodEnd   DateTime // End of current billing cycle
+  updatedAt          DateTime           @updatedAt
   cancelAtPeriodEnd  Boolean            @default(false)
   canceledAt         DateTime?
-  endsAt             DateTime? // When it *will* end
-  endedAt            DateTime? // When it *actually* ended (may be same as endsAt)
-  updatedAt          DateTime           @updatedAt
-
-  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  workspace Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdAt          DateTime           @default(now())
+  currentPeriodEnd   DateTime
+  currentPeriodStart DateTime
+  endedAt            DateTime?
+  endsAt             DateTime?
+  polarId            String             @unique
+  workspaceId        String             @unique
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace          Organization       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@map("subscription")
 }
@@ -47,9 +45,9 @@ model Organization {
   media        Media[]
   members      Member[]
   posts        Post[]
+  subscription Subscription?
   tags         Tag[]
   webhooks     Webhook[]
-  subscription Subscription?
 
   @@map("workspace")
 }
@@ -101,11 +99,11 @@ model Media {
   id          String       @id @default(cuid())
   name        String
   url         String
-  type        MediaType    @default(image)
   size        Int
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   workspaceId String
+  type        MediaType    @default(image)
   workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@map("media")
@@ -130,13 +128,13 @@ model Webhook {
   id          String         @id @default(cuid())
   name        String
   endpoint    String
-  events      WebhookEvent[]
   secret      String
-  format      PayloadFormat  @default(json)
   enabled     Boolean        @default(true)
   workspaceId String
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
+  events      WebhookEvent[]
+  format      PayloadFormat  @default(json)
   workspace   Organization   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@map("webhook")
@@ -210,7 +208,7 @@ model Member {
   id             String       @id @default(cuid())
   organizationId String
   userId         String
-  role           String
+  role           String?
   createdAt      DateTime
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -244,16 +242,16 @@ enum PlanType {
 
 enum SubscriptionStatus {
   active
-  trialing
-  past_due
   cancelled
   expired
+  trialing
+  past_due
 }
 
 enum WebhookEvent {
   post_published
-  post_updated
   post_deleted
+  post_updated
   category_created
   category_updated
   category_deleted
