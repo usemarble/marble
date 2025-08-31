@@ -1,3 +1,10 @@
+import Bounty from "@/components/icons/brand/Bounty.astro";
+import Databuddy from "@/components/icons/brand/Databuddy.astro";
+import Helix from "@/components/icons/brand/Helix.astro";
+import Ia from "@/components/icons/brand/Ia.astro";
+import Mantlz from "@/components/icons/brand/Mantlz.astro";
+import Opencut from "@/components/icons/brand/Opencut.astro";
+
 export type Site = {
   TITLE: string;
   DESCRIPTION: string;
@@ -13,14 +20,14 @@ export type Link = {
 export const SITE: Site = {
   TITLE: "Marble",
   DESCRIPTION: "A smarter way to manage your blog.",
-  EMAIL: "hello@taqib.dev",
+  EMAIL: "support@marblecms.com",
   URL: "https://marblecms.com",
 };
 
 export const SOCIAL_LINKS: Link[] = [
   { href: "https://github.com/usemarble", label: "GitHub" },
   { href: "https://x.com/usemarblecms", label: "Twitter" },
-  { href: "hello@taqib.dev", label: "Email" },
+  { href: "support@marblecms.com", label: "Email" },
   { href: "/rss.xml", label: "RSS" },
 ];
 
@@ -28,7 +35,7 @@ export const APP: Site = {
   TITLE: "Marble",
   DESCRIPTION: "The smarter way to manage your blog.",
   URL: "https://app.marblecms.com",
-  EMAIL: "hello@taqib.dev",
+  EMAIL: "support@marblecms.com",
 };
 
 export const FAQs: {
@@ -91,7 +98,7 @@ export const PRICING: Pricing[] = [
     },
     features: [
       "Unlimited posts",
-      "100 MB media storage",
+      "500 MB media storage",
       "Single member",
       "10k API requests per month",
       "Webhooks",
@@ -171,5 +178,44 @@ export const PRICING_FAQS: {
     question: "What happens when I downgrade my plan?",
     answer:
       "When you downgrade, you'll retain access to paid features until the end of your current billing cycle. Afterward, your workspace will be moved to the Free plan, and some features may become unavailable.",
+  },
+];
+
+export const USERS = [
+  {
+    name: "I.A",
+    url: "https://independent-arts.org",
+    component: Ia,
+    showWordmark: true,
+  },
+  {
+    name: "OpenCut",
+    url: "https://opencut.app",
+    component: Opencut,
+    showWordmark: true,
+  },
+  {
+    name: "Mantlz",
+    url: "https://mantlz.com",
+    component: Mantlz,
+    showWordmark: true,
+  },
+  {
+    name: "Bounty",
+    url: "https://bounty.new",
+    component: Bounty,
+    showWordmark: false,
+  },
+  {
+    name: "Helix DB",
+    url: "https://www.helix-db.com",
+    component: Helix,
+    showWordmark: true,
+  },
+  {
+    name: "Databuddy",
+    url: "https://databuddy.cc",
+    component: Databuddy,
+    showWordmark: true,
   },
 ];
