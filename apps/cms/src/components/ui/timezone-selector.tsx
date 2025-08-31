@@ -16,10 +16,10 @@ import {
   PopoverTrigger,
 } from "@marble/ui/components/popover";
 import { cn } from "@marble/ui/lib/utils";
+import { CaretUpDownIcon, CheckIcon } from "@phosphor-icons/react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { getTimeZones } from "@vvo/tzdb";
 import { Cron } from "croner";
-import { Check, ChevronsUpDown } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 interface TimezoneOption {
@@ -170,7 +170,7 @@ export function TimezoneSelector({
               <span>{placeholder}</span>
             )}
           </div>
-          <ChevronsUpDown className="size-4 shrink-0 opacity-50" />
+          <CaretUpDownIcon className="size-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent
@@ -219,7 +219,7 @@ export function TimezoneSelector({
                         <span className="text-muted-foreground text-sm">
                           {option.currentTime}
                         </span>
-                        <Check
+                        <CheckIcon
                           className={cn(
                             "h-4 w-4",
                             value === option.value
