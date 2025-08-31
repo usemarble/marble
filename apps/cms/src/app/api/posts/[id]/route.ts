@@ -169,7 +169,7 @@ export async function DELETE(
       await webhookClient.send({
         url: webhook.endpoint,
         event: "post.deleted",
-        data: { id: id, slug: post.slug },
+        data: { id: id, slug: post.slug, userId: session.user.id },
       });
     }
 
