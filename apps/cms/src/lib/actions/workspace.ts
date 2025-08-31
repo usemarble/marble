@@ -2,8 +2,8 @@
 
 import { db } from "@marble/db";
 import type { User } from "better-auth";
-import type { Organization } from "../auth/types";
 import { generateSlug } from "@/utils/string";
+import type { Organization } from "../auth/types";
 
 export async function createAuthor(user: User, organization: Organization) {
   try {
