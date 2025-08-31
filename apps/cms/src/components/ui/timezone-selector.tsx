@@ -20,7 +20,7 @@ import { CaretUpDownIcon, CheckIcon } from "@phosphor-icons/react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { getTimeZones } from "@vvo/tzdb";
 import { Cron } from "croner";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 interface TimezoneOption {
   value: string;
@@ -48,19 +48,7 @@ export function TimezoneSelector({
   const [isOpen, setIsOpen] = useState(false);
   const [timeUpdate, setTimeUpdate] = useState(0);
   const [query, setQuery] = useState("");
-  const parentRef = useRef(null);
-
-  // Forces a re-render when the popover opens, this ensures that the virtualizer has a valid ref to the scroll element since the ref updates
-  //  after the first render. WIthout this the popover would open empty.
-  const [popoverElement, setPopoverElement] = useState<HTMLDivElement | null>();
-  const ensureRefreshRefCallback = useCallback(
-    (element: HTMLDivElement | null) => {
-      if (popoverElement !== element) {
-        setPopoverElement(element);
-      }
-    },
-    [popoverElement],
-  );
+  const parentRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const cronJob = new Cron("* * * * *", () => {
@@ -139,6 +127,13 @@ export function TimezoneSelector({
     estimateSize: () => 48,
   });
 
+  // Triggers a re-render when the popover opens, this ensures that the virtualizer has a valid ref to the scroll element
+  useEffect(() => {
+    if (!isOpen) return;
+    const id = requestAnimationFrame(() => virtual.measure());
+    return () => cancelAnimationFrame(id);
+  }, [isOpen, virtual]);
+
   const selectedTimezone = timezoneOptions.find(
     (option) => option.value === value,
   );
@@ -173,11 +168,7 @@ export function TimezoneSelector({
           <CaretUpDownIcon className="size-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent
-        className="w-[370px] p-0"
-        align="center"
-        ref={ensureRefreshRefCallback}
-      >
+      <PopoverContent className="w-[370px] p-0" align="center">
         <Command shouldFilter={false}>
           <CommandInput
             placeholder="Search timezones..."
