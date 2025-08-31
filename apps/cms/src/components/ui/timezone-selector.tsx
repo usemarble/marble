@@ -181,9 +181,9 @@ export function TimezoneSelector({
               style={{ height: `${virtual.getTotalSize()}px` }}
               className="relative"
             >
-              {virtual.getVirtualItems().map((virtual) => {
+              {virtual.getVirtualItems().map((row) => {
                 // biome-ignore lint/style/noNonNullAssertion: known not null
-                const option = filteredOptions[virtual.index]!;
+                const option = filteredOptions[row.index]!;
 
                 return (
                   <CommandItem
@@ -195,8 +195,8 @@ export function TimezoneSelector({
                     }}
                     className="absolute top-0 left-0 w-full"
                     style={{
-                      height: `${virtual.size}px`,
-                      transform: `translateY(${virtual.start}px)`,
+                      height: `${row.size}px`,
+                      transform: `translateY(${row.start}px)`,
                     }}
                   >
                     <div className="flex items-center justify-between w-full">
