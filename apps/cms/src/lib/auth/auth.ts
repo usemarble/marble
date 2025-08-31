@@ -25,6 +25,7 @@ import { handleSubscriptionCreated } from "@/lib/polar/subscription.created";
 import { handleSubscriptionRevoked } from "@/lib/polar/subscription.revoked";
 import { handleSubscriptionUpdated } from "@/lib/polar/subscription.updated";
 import { getLastActiveWorkspaceOrNewOneToSetAsActive } from "@/lib/queries/workspace";
+// import { createAuthor } from "../actions/workspace";
 
 const polarClient = new Polar({
   accessToken: process.env.POLAR_ACCESS_TOKEN,
@@ -127,6 +128,11 @@ export const auth = betterAuth({
           },
         },
       },
+      // organizationCreation: {
+      //   afterCreate: async ({ organization, user }, _request) => {
+      //     await createAuthor(user, organization);
+      //   },
+      // },
       async sendInvitationEmail(data) {
         const inviteLink = `${process.env.NEXT_PUBLIC_APP_URL}/join/${data.id}`;
         await sendInviteEmailAction({

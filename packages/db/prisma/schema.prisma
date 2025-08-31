@@ -40,6 +40,7 @@ model Organization {
   updatedAt    DateTime      @updatedAt
   createdAt    DateTime      @default(now())
   timezone     String        @default("Europe/London")
+  authors      Author[]
   categories   Category[]
   invitations  Invitation[]
   media        Media[]
@@ -69,12 +70,20 @@ model Post {
   createdAt       DateTime     @default(now())
   publishedAt     DateTime     @default(now())
   attribution     Json?
+  
+  // Legacy author relationships (will be kept during migration)
   primaryAuthorId String
-  category        Category     @relation(fields: [categoryId], references: [id])
   primaryAuthor   User         @relation("PrimaryAuthor", fields: [primaryAuthorId], references: [id])
+  authors         User[]       @relation("PostToUser")
+  
+  // New author relationships (will replace the above after migration)
+  newPrimaryAuthorId String?
+  newPrimaryAuthor   Author?     @relation("NewPrimaryAuthor", fields: [newPrimaryAuthorId], references: [id])
+  newAuthors         Author[]    @relation("PostToAuthor")
+  
+  category        Category     @relation(fields: [categoryId], references: [id])
   workspace       Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   tags            Tag[]        @relation("PostToTag")
-  authors         User[]       @relation("PostToUser")
 
   @@unique([workspaceId, slug])
   @@map("post")
@@ -149,6 +158,7 @@ model User {
   createdAt       DateTime
   updatedAt       DateTime
   accounts        Account[]
+  authors         Author[]
   invitations     Invitation[]
   members         Member[]
   authoredPosts   Post[]         @relation("PrimaryAuthor")
@@ -157,6 +167,31 @@ model User {
   coAuthoredPosts Post[]         @relation("PostToUser")
 
   @@map("user")
+}
+
+model Author {
+  id          String       @id @default(cuid())
+  name        String
+  email       String?
+  bio         String?
+  image       String?
+  role        String?      
+  slug        String
+  socials     Json?        
+  workspaceId String
+  userId      String?      
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  
+  workspace           Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user                User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  primaryPosts        Post[]       @relation("NewPrimaryAuthor")
+  coAuthoredPosts     Post[]       @relation("PostToAuthor")
+
+  @@unique([workspaceId, userId])
+  @@unique([workspaceId, slug])
+  @@map("author")
 }
 
 model Session {
