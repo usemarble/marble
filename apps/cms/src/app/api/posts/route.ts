@@ -4,6 +4,7 @@ import { getServerSession } from "@/lib/auth/session";
 import { postSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";
 import { sanitizeHtml } from "@/utils/editor";
+import { getWebhooks, WebhookClient } from "@/lib/webhooks/webhook-client";
 
 export async function GET() {
   const sessionData = await getServerSession();
@@ -86,6 +87,23 @@ export async function POST(request: Request) {
       },
     },
   });
+
+  const webhooks = getWebhooks(session.session, "post_published");
+
+  if (postCreated.status === "published") {
+    for (const webhook of await webhooks) {
+      const webhookClient = new WebhookClient({ secret: webhook.secret });
+      await webhookClient.send({
+        url: webhook.endpoint,
+        event: "post.published",
+        data: {
+          id: postCreated.id,
+          slug: postCreated.slug,
+          userId: session.user.id,
+        },
+      });
+    }
+  }
 
   return NextResponse.json({ id: postCreated.id });
 }

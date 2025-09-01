@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { type Attribution, postSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";
-import { WebhookClient } from "@/lib/webhooks/webhook-client";
+import { getWebhooks, WebhookClient } from "@/lib/webhooks/webhook-client";
 import { sanitizeHtml } from "@/utils/editor";
 
 export async function GET(
@@ -95,6 +95,15 @@ export async function PATCH(
 
   const { uniqueTagIds } = tagValidation;
 
+  const post = await db.post.findFirst({
+    where: { id, workspaceId: session.session.activeOrganizationId },
+    select: { status: true },
+  });
+
+  if (!post) {
+    return NextResponse.json({ error: "Post not found" }, { status: 404 });
+  }
+
   try {
     const postUpdated = await db.post.update({
       where: { id },
@@ -120,6 +129,36 @@ export async function PATCH(
       },
     });
 
+    const data = {
+      id: postUpdated.id,
+      slug: postUpdated.slug,
+      userId: session.user.id,
+    };
+
+    if (values.status === "published" && post.status === "draft") {
+      const webhooksPublished = getWebhooks(session.session, "post_published");
+
+      for (const webhook of await webhooksPublished) {
+        const webhookClient = new WebhookClient({ secret: webhook.secret });
+        await webhookClient.send({
+          url: webhook.endpoint,
+          event: "post.published",
+          data,
+        });
+      }
+    }
+
+    const webhooksUpdated = getWebhooks(session.session, "post_updated");
+
+    for (const webhook of await webhooksUpdated) {
+      const webhookClient = new WebhookClient({ secret: webhook.secret });
+      await webhookClient.send({
+        url: webhook.endpoint,
+        event: "post.updated",
+        data,
+      });
+    }
+
     return NextResponse.json({ id: postUpdated.id }, { status: 200 });
   } catch (_e) {
     return NextResponse.json(
@@ -142,7 +181,7 @@ export async function DELETE(
   const { id } = await params;
 
   const post = await db.post.findFirst({
-    where: { id },
+    where: { id, workspaceId: session.session.activeOrganizationId },
     select: { slug: true },
   });
 
@@ -155,14 +194,7 @@ export async function DELETE(
       where: { id },
     });
 
-    const webhooks = db.webhook.findMany({
-      where: {
-        enabled: true,
-        workspaceId: session.session.activeOrganizationId,
-        events: { has: "post_deleted" },
-      },
-      select: { secret: true, endpoint: true },
-    });
+    const webhooks = getWebhooks(session.session, "post_deleted");
 
     for (const webhook of await webhooks) {
       const webhookClient = new WebhookClient({ secret: webhook.secret });

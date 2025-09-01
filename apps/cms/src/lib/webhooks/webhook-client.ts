@@ -1,5 +1,8 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { db } from "@marble/db";
 import { z } from "zod";
+import type { Session } from "../auth/types";
+import type { WebhookEvent as WebhookValidationEvent } from "../validations/webhook";
 import { qstash } from "./qstash";
 import { WebhookVerificationError } from "./webhook-errors";
 
@@ -117,6 +120,29 @@ export class WebhookClient {
       );
     }
   }
+}
+
+// biome-ignore lint/suspicious/noExplicitAny: can literally be anything
+type DatabaseFields = Record<string, any>;
+
+export function getWebhooks(
+  session: Session["session"],
+  event: WebhookValidationEvent,
+  where?: DatabaseFields,
+  select?: DatabaseFields,
+) {
+  if (!session.activeOrganizationId) {
+    throw new Error("No active organization");
+  }
+  return db.webhook.findMany({
+    where: {
+      enabled: true,
+      workspaceId: session.activeOrganizationId,
+      events: { has: event },
+      ...where,
+    },
+    select: { secret: true, endpoint: true, ...select },
+  });
 }
 
 /**
