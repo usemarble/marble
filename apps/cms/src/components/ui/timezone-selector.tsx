@@ -16,10 +16,11 @@ import {
   PopoverTrigger,
 } from "@marble/ui/components/popover";
 import { cn } from "@marble/ui/lib/utils";
-import { CaretUpDown, Check } from "@phosphor-icons/react";
+import { CaretUpDownIcon, CheckIcon } from "@phosphor-icons/react";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import { getTimeZones } from "@vvo/tzdb";
 import { Cron } from "croner";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 interface TimezoneOption {
   value: string;
@@ -46,6 +47,8 @@ export function TimezoneSelector({
 }: TimezoneSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [timeUpdate, setTimeUpdate] = useState(0);
+  const [query, setQuery] = useState("");
+  const parentRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const cronJob = new Cron("* * * * *", () => {
@@ -55,11 +58,19 @@ export function TimezoneSelector({
     return () => cronJob.stop();
   }, []);
 
+  const tzdbData = useMemo(() => {
+    try {
+      return getTimeZones();
+    } catch (err) {
+      console.error("Could not load tzdb data:", err);
+      return [];
+    }
+  }, []);
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: We use the state to retrigger the effect
   const timezoneOptions = useMemo<TimezoneOption[]>(() => {
     try {
       const now = new Date();
-      const tzdbData = getTimeZones();
 
       return timezones
         .map((timezone) => {
@@ -102,6 +113,27 @@ export function TimezoneSelector({
     }
   }, [timezones, timeUpdate]);
 
+  const filteredOptions = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return timezoneOptions;
+    return timezoneOptions.filter((opt) =>
+      `${opt.label} ${opt.value} ${opt.countryName}`.toLowerCase().includes(q),
+    );
+  }, [timezoneOptions, query]);
+
+  const virtual = useVirtualizer({
+    count: filteredOptions.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 48,
+  });
+
+  // Triggers a re-render when the popover opens, this ensures that the virtualizer has a valid ref to the scroll element
+  useEffect(() => {
+    if (!isOpen) return;
+    const id = requestAnimationFrame(() => virtual.measure());
+    return () => cancelAnimationFrame(id);
+  }, [isOpen, virtual]);
+
   const selectedTimezone = timezoneOptions.find(
     (option) => option.value === value,
   );
@@ -133,45 +165,64 @@ export function TimezoneSelector({
               <span>{placeholder}</span>
             )}
           </div>
-          <CaretUpDown className="size-4 shrink-0 opacity-50" />
+          <CaretUpDownIcon className="size-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full p-0" align="center">
-        <Command>
-          <CommandInput placeholder="Search timezones..." />
-          <CommandList>
+      <PopoverContent className="w-[370px] p-0" align="center">
+        <Command shouldFilter={false}>
+          <CommandInput
+            placeholder="Search timezones..."
+            value={query}
+            onValueChange={(v) => setQuery(v)}
+          />
+          <CommandList ref={parentRef}>
             <CommandEmpty>No timezone found.</CommandEmpty>
-            <CommandGroup>
-              {timezoneOptions.map((option) => (
-                <CommandItem
-                  key={option.value}
-                  value={`${option.label} ${option.value} ${option.countryName}`}
-                  onSelect={() => {
-                    onValueChange?.(option.value);
-                    setIsOpen(false);
-                  }}
-                >
-                  <div className="flex items-center justify-between w-full">
-                    <div className="flex flex-col">
-                      <span>{option.label}</span>
-                      <span className="text-muted-foreground text-xs">
-                        {option.countryName}
-                      </span>
+            <CommandGroup
+              style={{ height: `${virtual.getTotalSize()}px` }}
+              className="relative"
+            >
+              {virtual.getVirtualItems().map((row) => {
+                // biome-ignore lint/style/noNonNullAssertion: known not null
+                const option = filteredOptions[row.index]!;
+
+                return (
+                  <CommandItem
+                    key={option.value}
+                    value={`${option.label} ${option.value} ${option.countryName}`}
+                    onSelect={() => {
+                      onValueChange?.(option.value);
+                      setIsOpen(false);
+                    }}
+                    className="absolute top-0 left-0 w-full"
+                    style={{
+                      height: `${row.size}px`,
+                      transform: `translateY(${row.start}px)`,
+                    }}
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex flex-col">
+                        <span>{option.label}</span>
+                        <span className="text-muted-foreground text-xs">
+                          {option.countryName}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground text-sm">
+                          {option.currentTime}
+                        </span>
+                        <CheckIcon
+                          className={cn(
+                            "h-4 w-4",
+                            value === option.value
+                              ? "opacity-100"
+                              : "opacity-0",
+                          )}
+                        />
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-muted-foreground text-sm">
-                        {option.currentTime}
-                      </span>
-                      <Check
-                        className={cn(
-                          "h-4 w-4",
-                          value === option.value ? "opacity-100" : "opacity-0",
-                        )}
-                      />
-                    </div>
-                  </div>
-                </CommandItem>
-              ))}
+                  </CommandItem>
+                );
+              })}
             </CommandGroup>
           </CommandList>
         </Command>
