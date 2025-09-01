@@ -149,7 +149,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
             <div className="grid gap-3">
               <Label htmlFor="name">Name</Label>
               {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
-              <Input id="name" placeholder="My webhook" {...register("name")} />
+              <Input id="name" placeholder="My Webhook" {...register("name")} />
               {errors.name && (
                 <p className="text-sm text-destructive">
                   {errors.name.message}

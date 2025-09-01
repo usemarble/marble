@@ -5,19 +5,15 @@ import { getServerSession } from "@/lib/auth/session";
 import { webhookSchema } from "@/lib/validations/webhook";
 
 export async function GET() {
-  const session = await getServerSession();
+  const sessionData = await getServerSession();
 
-  if (!session?.user) {
+  if (!sessionData || !sessionData.session.activeOrganizationId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  if (!session?.session.activeOrganizationId) {
-    return NextResponse.json({ error: "No active workspace" }, { status: 400 });
   }
 
   const webhooks = await db.webhook.findMany({
     where: {
-      workspaceId: session.session.activeOrganizationId,
+      workspaceId: sessionData.session.activeOrganizationId,
     },
     orderBy: {
       createdAt: "desc",
@@ -28,14 +24,10 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const session = await getServerSession();
+  const sessionData = await getServerSession();
 
-  if (!session?.user) {
+  if (!sessionData || !sessionData.session.activeOrganizationId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  if (!session?.session.activeOrganizationId) {
-    return NextResponse.json({ error: "No active workspace" }, { status: 400 });
   }
 
   const json = await req.json();
@@ -50,7 +42,7 @@ export async function POST(req: Request) {
       events: body.events,
       secret,
       format: body.format,
-      workspaceId: session.session.activeOrganizationId,
+      workspaceId: sessionData.session.activeOrganizationId,
     },
   });
 

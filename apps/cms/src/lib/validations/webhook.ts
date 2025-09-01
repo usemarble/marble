@@ -10,7 +10,7 @@ export const webhookEventEnum = z.enum([
   "tag_created",
   "tag_updated",
   "tag_deleted",
-  "media_uploaded",
+  //"media_uploaded",
   "media_deleted",
 ]);
 
@@ -21,10 +21,12 @@ export const webhookSchema = z.object({
     .string()
     .min(1, { message: "Name cannot be empty" })
     .max(50, { message: "Name cannot be more than 50 characters" }),
-  endpoint: z.string().url({ message: "Please enter a valid URL" }),
-  // .refine((url) => url.startsWith("https://"), {
-  //   message: "Webhook URL must use HTTPS",
-  //})
+  endpoint: z
+    .string()
+    .url({ message: "Please enter a valid URL" })
+    .refine((url) => url.startsWith("https://"), {
+      message: "Webhook URL must use HTTPS",
+    }),
   events: z
     .array(webhookEventEnum)
     .min(1, { message: "Please select at least one event" }),
@@ -92,11 +94,11 @@ export const webhookEvents: Array<{
     label: "tag.deleted",
     description: "When a tag is deleted",
   },
-  {
-    id: "media_uploaded",
-    label: "media.uploaded",
-    description: "When media is uploaded",
-  },
+  //{
+  //  id: "media_uploaded",
+  //  label: "media.uploaded",
+  //  description: "When media is uploaded",
+  //},
   {
     id: "media_deleted",
     label: "media.deleted",

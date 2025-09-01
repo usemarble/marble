@@ -2,6 +2,7 @@ import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { categorySchema } from "@/lib/validations/workspace";
+import { getWebhooks, WebhookClient } from "@/lib/webhooks/webhook-client";
 
 export async function PATCH(
   req: Request,
@@ -18,7 +19,7 @@ export async function PATCH(
   const json = await req.json();
   const body = categorySchema.parse(json);
 
-  const category = await db.category.update({
+  const categoryUpdated = await db.category.update({
     where: {
       id: id,
       workspaceId: sessionData.session.activeOrganizationId,
@@ -29,7 +30,22 @@ export async function PATCH(
     },
   });
 
-  return NextResponse.json(category, { status: 200 });
+  const webhooks = getWebhooks(sessionData.session, "category_updated");
+
+  for (const webhook of await webhooks) {
+    const webhookClient = new WebhookClient({ secret: webhook.secret });
+    await webhookClient.send({
+      url: webhook.endpoint,
+      event: "category.updated",
+      data: {
+        id: categoryUpdated.id,
+        slug: categoryUpdated.slug,
+        userId: sessionData.user.id,
+      },
+    });
+  }
+
+  return NextResponse.json(categoryUpdated, { status: 200 });
 }
 
 export async function DELETE(
@@ -41,14 +57,42 @@ export async function DELETE(
   if (!sessionData || !sessionData.session.activeOrganizationId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
   const { id } = await params;
 
-  const deletedCategory = await db.category.delete({
-    where: {
-      id: id,
-      workspaceId: sessionData.session.activeOrganizationId,
-    },
+  const category = await db.category.findFirst({
+    where: { id, workspaceId: sessionData.session.activeOrganizationId },
+    select: { slug: true },
   });
 
-  return NextResponse.json(deletedCategory.id, { status: 204 });
+  if (!category) {
+    return NextResponse.json({ error: "Category not found" }, { status: 404 });
+  }
+
+  try {
+    const deletedCategory = await db.category.delete({
+      where: {
+        id: id,
+        workspaceId: sessionData.session.activeOrganizationId,
+      },
+    });
+
+    const webhooks = getWebhooks(sessionData.session, "category_deleted");
+
+    for (const webhook of await webhooks) {
+      const webhookClient = new WebhookClient({ secret: webhook.secret });
+      await webhookClient.send({
+        url: webhook.endpoint,
+        event: "category.deleted",
+        data: { id: id, slug: category.slug, userId: sessionData.user.id },
+      });
+    }
+
+    return NextResponse.json(deletedCategory.id, { status: 204 });
+  } catch (_e) {
+    return NextResponse.json(
+      { error: "Failed to delete category" },
+      { status: 500 },
+    );
+  }
 }

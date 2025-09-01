@@ -67,12 +67,12 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await getServerSession();
-  const user = session?.user;
+  const sessionData = await getServerSession();
+  const user = sessionData?.user;
 
   if (!user)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (!session?.session.activeOrganizationId)
+  if (!sessionData?.session.activeOrganizationId)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
@@ -86,7 +86,7 @@ export async function PATCH(
 
   const tagValidation = await validateWorkspaceTags(
     values.tags,
-    session.session.activeOrganizationId,
+    sessionData.session.activeOrganizationId,
   );
 
   if (!tagValidation.success) {
@@ -96,7 +96,7 @@ export async function PATCH(
   const { uniqueTagIds } = tagValidation;
 
   const post = await db.post.findFirst({
-    where: { id, workspaceId: session.session.activeOrganizationId },
+    where: { id, workspaceId: sessionData.session.activeOrganizationId },
     select: { status: true },
   });
 
@@ -118,7 +118,7 @@ export async function PATCH(
         description: values.description,
         publishedAt: values.publishedAt,
         attribution: validAttribution,
-        workspaceId: session?.session.activeOrganizationId,
+        workspaceId: sessionData?.session.activeOrganizationId,
         tags: values.tags
           ? { set: uniqueTagIds.map((id) => ({ id })) }
           : undefined,
@@ -132,11 +132,14 @@ export async function PATCH(
     const data = {
       id: postUpdated.id,
       slug: postUpdated.slug,
-      userId: session.user.id,
+      userId: sessionData.user.id,
     };
 
     if (values.status === "published" && post.status === "draft") {
-      const webhooksPublished = getWebhooks(session.session, "post_published");
+      const webhooksPublished = getWebhooks(
+        sessionData.session,
+        "post_published",
+      );
 
       for (const webhook of await webhooksPublished) {
         const webhookClient = new WebhookClient({ secret: webhook.secret });
@@ -148,7 +151,7 @@ export async function PATCH(
       }
     }
 
-    const webhooksUpdated = getWebhooks(session.session, "post_updated");
+    const webhooksUpdated = getWebhooks(sessionData.session, "post_updated");
 
     for (const webhook of await webhooksUpdated) {
       const webhookClient = new WebhookClient({ secret: webhook.secret });
@@ -172,16 +175,16 @@ export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await getServerSession();
+  const sessionData = await getServerSession();
 
-  if (!session?.user || !session.session.activeOrganizationId) {
+  if (!sessionData?.user || !sessionData.session.activeOrganizationId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { id } = await params;
 
   const post = await db.post.findFirst({
-    where: { id, workspaceId: session.session.activeOrganizationId },
+    where: { id, workspaceId: sessionData.session.activeOrganizationId },
     select: { slug: true },
   });
 
@@ -194,14 +197,14 @@ export async function DELETE(
       where: { id },
     });
 
-    const webhooks = getWebhooks(session.session, "post_deleted");
+    const webhooks = getWebhooks(sessionData.session, "post_deleted");
 
     for (const webhook of await webhooks) {
       const webhookClient = new WebhookClient({ secret: webhook.secret });
       await webhookClient.send({
         url: webhook.endpoint,
         event: "post.deleted",
-        data: { id: id, slug: post.slug, userId: session.user.id },
+        data: { id: id, slug: post.slug, userId: sessionData.user.id },
       });
     }
 
