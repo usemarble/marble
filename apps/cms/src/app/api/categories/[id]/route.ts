@@ -69,6 +69,21 @@ export async function DELETE(
     return NextResponse.json({ error: "Category not found" }, { status: 404 });
   }
 
+  const postsWithCategory = await db.post.findFirst({
+    where: {
+      categoryId: id,
+      workspaceId: sessionData.session.activeOrganizationId,
+    },
+    select: { id: true },
+  });
+
+  if (postsWithCategory) {
+    return NextResponse.json(
+      { error: "Category is associated with existing posts" },
+      { status: 400 },
+    );
+  }
+
   try {
     const deletedCategory = await db.category.delete({
       where: {
@@ -88,7 +103,7 @@ export async function DELETE(
       });
     }
 
-    return NextResponse.json(deletedCategory.id, { status: 204 });
+    return NextResponse.json(deletedCategory.id, { status: 200 });
   } catch (_e) {
     return NextResponse.json(
       { error: "Failed to delete category" },

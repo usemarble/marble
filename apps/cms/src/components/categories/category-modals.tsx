@@ -228,10 +228,8 @@ export const DeleteCategoryModal = ({
       });
 
       if (!res.ok) {
-        const errorText = await res.text().catch(() => "Unknown error");
-        throw new Error(
-          `Failed to delete category: ${res.status} ${res.statusText} - ${errorText}`,
-        );
+        const errorText = await res.json().catch(() => "Unknown error");
+        throw new Error(errorText.error || "Failed to delete category");
       }
 
       return true;
@@ -245,8 +243,8 @@ export const DeleteCategoryModal = ({
       }
       setOpen(false);
     },
-    onError: () => {
-      toast.error("Failed to delete category.");
+    onError: (error) => {
+      toast.error(error.message);
     },
   });
 

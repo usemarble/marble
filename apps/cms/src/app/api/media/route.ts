@@ -127,7 +127,7 @@ export async function DELETE(request: Request) {
       });
     }
 
-    return NextResponse.json({ success: true, id: deletedMedia.id });
+    return NextResponse.json({ id: deletedMedia.id }, { status: 200 });
   } catch (error) {
     console.error("Error deleting media:", error);
     const message =
