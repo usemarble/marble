@@ -206,7 +206,7 @@ export async function DELETE(
       });
     }
 
-    return new NextResponse(null, { status: 204 });
+    return NextResponse.json(null, { status: 204 });
   } catch (_e) {
     return NextResponse.json(
       { error: "Failed to delete post" },
