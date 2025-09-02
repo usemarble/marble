@@ -191,7 +191,7 @@ export async function DELETE(
   }
 
   try {
-    const deletedPost = await db.post.delete({
+    await db.post.delete({
       where: { id },
     });
 
@@ -206,7 +206,7 @@ export async function DELETE(
       });
     }
 
-    return NextResponse.json({ id: deletedPost.id }, { status: 200 });
+    return new NextResponse(null, { status: 204 });
   } catch (_e) {
     return NextResponse.json(
       { error: "Failed to delete post" },

@@ -85,7 +85,7 @@ export async function DELETE(
   }
 
   try {
-    const deletedCategory = await db.category.delete({
+    await db.category.delete({
       where: {
         id: id,
         workspaceId: sessionData.session.activeOrganizationId,
@@ -103,7 +103,7 @@ export async function DELETE(
       });
     }
 
-    return NextResponse.json(deletedCategory.id, { status: 200 });
+    return new NextResponse(null, { status: 204 });
   } catch (_e) {
     return NextResponse.json(
       { error: "Failed to delete category" },

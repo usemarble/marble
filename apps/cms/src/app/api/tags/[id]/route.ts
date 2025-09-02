@@ -70,7 +70,7 @@ export async function DELETE(
   }
 
   try {
-    const deletedTag = await db.tag.delete({
+    await db.tag.delete({
       where: {
         id: id,
         workspaceId: sessionData.session.activeOrganizationId,
@@ -88,7 +88,7 @@ export async function DELETE(
       });
     }
 
-    return NextResponse.json(deletedTag.id, { status: 200 });
+    return new NextResponse(null, { status: 204 });
   } catch (_e) {
     return NextResponse.json(
       { error: "Failed to delete tag" },

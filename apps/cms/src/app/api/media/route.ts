@@ -106,7 +106,7 @@ export async function DELETE(request: Request) {
       }
     }
 
-    const deletedMedia = await db.media.delete({
+    await db.media.delete({
       where: {
         id: mediaId,
       },
@@ -127,7 +127,7 @@ export async function DELETE(request: Request) {
       });
     }
 
-    return NextResponse.json({ id: deletedMedia.id }, { status: 200 });
+    return new NextResponse(null, { status: 204 });
   } catch (error) {
     console.error("Error deleting media:", error);
     const message =
