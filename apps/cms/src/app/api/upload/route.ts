@@ -7,8 +7,9 @@ import { R2_BUCKET_NAME, r2 } from "@/lib/r2";
 import { uploadSchema, validateUpload } from "@/lib/validations/upload";
 
 export async function POST(request: Request) {
-  const session = await getServerSession();
-  if (!session) {
+  const sessionData = await getServerSession();
+
+  if (!sessionData || !sessionData.session.activeOrganizationId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

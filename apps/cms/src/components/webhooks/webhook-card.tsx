@@ -83,13 +83,13 @@ export function WebhookCard({
                 disabled={isToggling && toggleVariables?.id === webhook.id}
               >
                 <ToggleRightIcon size={16} className="mr-1.5" />
-                <span>{webhook.enabled ? "Disable" : "Enable"} webhook</span>
+                <span>{webhook.enabled ? "Disable" : "Enable"} Webhook</span>
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => handleCopySecret(webhook.secret)}
               >
                 <CopyIcon className="size-4 mr-1.5" />
-                Copy secret
+                Copy Secret
               </DropdownMenuItem>
 
               <DropdownMenuItem

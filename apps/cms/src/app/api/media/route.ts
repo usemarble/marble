@@ -3,6 +3,7 @@ import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { R2_BUCKET_NAME, r2 } from "@/lib/r2";
+import { getWebhooks, WebhookClient } from "@/lib/webhooks/webhook-client";
 
 export async function GET() {
   const sessionData = await getServerSession();
@@ -37,8 +38,9 @@ export async function GET() {
 }
 
 export async function DELETE(request: Request) {
-  const sessionInfo = await getServerSession();
-  if (!sessionInfo) {
+  const sessionData = await getServerSession();
+
+  if (!sessionData || !sessionData.session.activeOrganizationId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -52,7 +54,7 @@ export async function DELETE(request: Request) {
     const media = await db.media.findUnique({
       where: {
         id: mediaId,
-        workspaceId: sessionInfo.session.activeOrganizationId as string,
+        workspaceId: sessionData.session.activeOrganizationId,
       },
     });
 
@@ -70,15 +72,17 @@ export async function DELETE(request: Request) {
           ? new URL(media.url).pathname
           : media.url;
 
-        let key = pathname.replace(/^\/+/, ""); // Remove leading slash(es)
+        let key = pathname.replace(/^\/+/, "");
 
-        // Strip optional bucket prefix if present
         if (key.startsWith(`${R2_BUCKET_NAME}/`)) {
+          // Remove leading slash(es)
+
+          // Strip optional bucket prefix if present
           key = key.slice(R2_BUCKET_NAME.length + 1);
         }
 
-        // Sanitize for traversal or empty segments
         if (!key || key.includes("..") || key.includes("//")) {
+          // Sanitize for traversal or empty segments
           throw new Error(
             "Invalid storage key: contains empty or traversal path segments.",
           );
@@ -102,13 +106,28 @@ export async function DELETE(request: Request) {
       }
     }
 
-    const deletedMedia = await db.media.delete({
+    await db.media.delete({
       where: {
         id: mediaId,
       },
     });
 
-    return NextResponse.json({ success: true, id: deletedMedia.id });
+    const webhooks = getWebhooks(sessionData.session, "media_deleted");
+
+    for (const webhook of await webhooks) {
+      const webhookClient = new WebhookClient({ secret: webhook.secret });
+      await webhookClient.send({
+        url: webhook.endpoint,
+        event: "media.deleted",
+        data: {
+          id: media.id,
+          name: media.name,
+          userId: sessionData.user.id,
+        },
+      });
+    }
+
+    return new NextResponse(null, { status: 204 });
   } catch (error) {
     console.error("Error deleting media:", error);
     const message =

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { postSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";
+import { getWebhooks, WebhookClient } from "@/lib/webhooks/webhook-client";
 import { sanitizeHtml } from "@/utils/editor";
 
 export async function GET() {
@@ -36,23 +37,23 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const session = await getServerSession();
-  const user = session?.user;
+  const sessionData = await getServerSession();
+  const user = sessionData?.user;
 
-  if (!user || !session?.session.activeOrganizationId) {
+  if (!user || !sessionData?.session.activeOrganizationId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const values = postSchema.parse(await request.json());
 
-  const authorId = session.user.id;
+  const authorId = sessionData.user.id;
   const contentJson = JSON.parse(values.contentJson);
   const validAttribution = values.attribution ? values.attribution : undefined;
   const cleanContent = sanitizeHtml(values.content);
 
   const tagValidation = await validateWorkspaceTags(
     values.tags,
-    session.session.activeOrganizationId,
+    sessionData.session.activeOrganizationId,
   );
 
   if (!tagValidation.success) {
@@ -74,7 +75,7 @@ export async function POST(request: Request) {
       publishedAt: values.publishedAt,
       description: values.description,
       attribution: validAttribution,
-      workspaceId: session.session.activeOrganizationId,
+      workspaceId: sessionData.session.activeOrganizationId,
       tags:
         uniqueTagIds.length > 0
           ? {
@@ -86,6 +87,23 @@ export async function POST(request: Request) {
       },
     },
   });
+
+  const webhooks = getWebhooks(sessionData.session, "post_published");
+
+  if (postCreated.status === "published") {
+    for (const webhook of await webhooks) {
+      const webhookClient = new WebhookClient({ secret: webhook.secret });
+      await webhookClient.send({
+        url: webhook.endpoint,
+        event: "post.published",
+        data: {
+          id: postCreated.id,
+          slug: postCreated.slug,
+          userId: sessionData.user.id,
+        },
+      });
+    }
+  }
 
   return NextResponse.json({ id: postCreated.id });
 }

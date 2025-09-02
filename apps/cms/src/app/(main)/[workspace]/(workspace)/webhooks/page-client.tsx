@@ -115,7 +115,7 @@ export function PageClient() {
             <CreateWebhookSheet>
               <Button>
                 <PlusIcon className="size-4" />
-                New webhook
+                New Webhook
               </Button>
             </CreateWebhookSheet>
           </div>

@@ -25,7 +25,7 @@ import { toast } from "@marble/ui/components/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useForm } from "react-hook-form";
 import { AsyncButton } from "@/components/ui/async-button";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
@@ -45,6 +45,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
   const [isOpen, setIsOpen] = useState(false);
   const workspaceId = useWorkspaceId();
   const queryClient = useQueryClient();
+  const masterCheckboxId = useId();
 
   const {
     register,
@@ -101,6 +102,22 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
     }
   };
 
+  const handleMasterCheckboxToggle = (checked: boolean) => {
+    if (checked) {
+      const allEventIds = webhookEvents.map((event) => event.id);
+      setValue("events", allEventIds);
+    } else {
+      setValue("events", []);
+    }
+  };
+
+  const getMasterCheckboxState = () => {
+    const currentEvents = watchedEvents || [];
+    const totalEvents = webhookEvents.length;
+
+    return currentEvents.length === totalEvents;
+  };
+
   const onSubmit = (data: WebhookFormValues) => {
     createWebhook(data);
   };
@@ -111,13 +128,13 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
         {children || (
           <Button>
             <Plus className="size-4 mr-2" />
-            New webhook
+            New Webhook
           </Button>
         )}
       </SheetTrigger>
       <SheetContent className="overflow-y-auto">
         <SheetHeader className="p-6">
-          <SheetTitle className="text-xl font-medium">New webhook</SheetTitle>
+          <SheetTitle className="text-xl font-medium">New Webhook</SheetTitle>
           <SheetDescription className="sr-only">
             Set the endpoint and select the events you want to receive
             notifications for.
@@ -132,7 +149,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
             <div className="grid gap-3">
               <Label htmlFor="name">Name</Label>
               {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
-              <Input id="name" placeholder="My webhook" {...register("name")} />
+              <Input id="name" placeholder="My Webhook" {...register("name")} />
               {errors.name && (
                 <p className="text-sm text-destructive">
                   {errors.name.message}
@@ -190,10 +207,27 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                   rel="noopener noreferrer"
                   className="text-xs text-primary cursor-pointer hover:underline ml-2 flex items-center"
                 >
-                  <span>View schemas</span>
+                  <span>View Schemas</span>
                 </a>
               </div>
               <div className="grid gap-1">
+                <div className="flex items-center space-x-3 pb-2 border-b border-border">
+                  <Checkbox
+                    id={masterCheckboxId}
+                    checked={getMasterCheckboxState()}
+                    onCheckedChange={(checked) =>
+                      handleMasterCheckboxToggle(checked as boolean)
+                    }
+                  />
+                  <div className="flex-1">
+                    <Label
+                      htmlFor={masterCheckboxId}
+                      className="text-sm font-medium cursor-pointer"
+                    >
+                      Select all events
+                    </Label>
+                  </div>
+                </div>
                 {webhookEvents.map((event) => (
                   <div key={event.id} className="flex items-center space-x-3">
                     <Checkbox

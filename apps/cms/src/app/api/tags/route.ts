@@ -2,6 +2,7 @@ import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { tagSchema } from "@/lib/validations/workspace";
+import { getWebhooks, WebhookClient } from "@/lib/webhooks/webhook-client";
 
 export async function GET() {
   const sessionData = await getServerSession();
@@ -33,7 +34,7 @@ export async function POST(req: Request) {
   const json = await req.json();
   const body = tagSchema.parse(json);
 
-  const tag = await db.tag.create({
+  const tagCreated = await db.tag.create({
     data: {
       name: body.name,
       slug: body.slug,
@@ -41,5 +42,20 @@ export async function POST(req: Request) {
     },
   });
 
-  return NextResponse.json(tag, { status: 201 });
+  const webhooks = getWebhooks(session.session, "tag_created");
+
+  for (const webhook of await webhooks) {
+    const webhookClient = new WebhookClient({ secret: webhook.secret });
+    await webhookClient.send({
+      url: webhook.endpoint,
+      event: "tag.created",
+      data: {
+        id: tagCreated.id,
+        slug: tagCreated.slug,
+        userId: session.user.id,
+      },
+    });
+  }
+
+  return NextResponse.json(tagCreated, { status: 201 });
 }
