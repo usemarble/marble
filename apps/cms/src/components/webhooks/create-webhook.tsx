@@ -40,6 +40,7 @@ import {
   webhookSchema,
 } from "@/lib/validations/webhook";
 import { Discord } from "../shared/icons";
+import { BracketsCurlyIcon } from "@phosphor-icons/react";
 
 interface CreateWebhookSheetProps {
   children?: React.ReactNode;
@@ -213,7 +214,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                   <SelectValue placeholder="Select a payload format" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="json">JSON</SelectItem>
+                  <SelectItem value="json"><BracketsCurlyIcon className="text-amber-500" weight="bold" />JSON</SelectItem>
                   <SelectItem value="discord">
                     <Discord fill="#5865F2" />
                     Discord

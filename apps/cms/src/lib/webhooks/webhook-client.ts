@@ -12,11 +12,13 @@ import { WebhookVerificationError } from "./webhook-errors";
 const eventSchema = z.object({
   "post.published": z.object({
     id: z.string(),
+    title: z.string(),
     slug: z.string(),
     userId: z.string(),
   }),
   "post.updated": z.object({
     id: z.string(),
+    title: z.string(),
     slug: z.string(),
     userId: z.string(),
   }),

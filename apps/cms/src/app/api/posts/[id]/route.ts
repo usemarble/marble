@@ -129,6 +129,7 @@ export async function PATCH(
 
     const data = {
       id: postUpdated.id,
+      title: postUpdated.title,
       slug: postUpdated.slug,
       userId: sessionData.user.id,
     };
