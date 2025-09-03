@@ -214,7 +214,13 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                   <SelectValue placeholder="Select a payload format" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="json"><BracketsCurlyIcon className="text-amber-500" weight="bold" />JSON</SelectItem>
+                  <SelectItem value="json">
+                    <BracketsCurlyIcon
+                      className="text-amber-500"
+                      weight="bold"
+                    />
+                    JSON
+                  </SelectItem>
                   <SelectItem value="discord">
                     <Discord fill="#5865F2" />
                     Discord
