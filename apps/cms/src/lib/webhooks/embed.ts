@@ -33,7 +33,10 @@ export function getDiscordEmbed(args: {
 
   const fields = [
     { name: "ID", value: data.id },
-    { name: "Performed By", value: username ? `${username} (${data.userId})` : data.userId },
+    {
+      name: "Performed By",
+      value: username ? `${username} (${data.userId})` : data.userId,
+    },
   ];
 
   if ("slug" in data) {

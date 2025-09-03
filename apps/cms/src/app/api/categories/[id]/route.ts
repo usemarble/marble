@@ -111,5 +111,5 @@ export async function DELETE(
     });
   }
 
-  return NextResponse.json(null, { status: 204 });
+  return new NextResponse(null, { status: 204 });
 }
