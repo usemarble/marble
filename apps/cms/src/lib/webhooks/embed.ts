@@ -13,7 +13,7 @@ function formatEvent(input: string): string {
 }
 
 export function getDiscordEmbed(args: {
-  event: string;
+  event: WebhookBody["event"];
   data: WebhookBody["data"];
   username?: string;
 }): RESTPostAPIWebhookWithTokenJSONBody {

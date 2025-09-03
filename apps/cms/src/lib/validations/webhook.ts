@@ -26,9 +26,16 @@ export const webhookSchema = z
     endpoint: z
       .string()
       .url({ message: "Please enter a valid URL" })
-      .refine((url) => url.startsWith("https://"), {
-        message: "Webhook URL must use HTTPS",
-      }),
+      .refine(
+        (raw) => {
+          try {
+            return new URL(raw).protocol === "https:";
+          } catch {
+            return false;
+          }
+        },
+        { message: "Webhook URL must use HTTPS" },
+      ),
     events: z
       .array(webhookEventEnum)
       .min(1, { message: "Please select at least one event" }),
