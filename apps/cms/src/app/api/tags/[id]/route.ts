@@ -70,32 +70,31 @@ export async function DELETE(
     return NextResponse.json({ error: "Tag not found" }, { status: 404 });
   }
 
-  await db.tag
-    .delete({
+  try {
+    await db.tag.delete({
       where: {
         id: id,
         workspaceId: sessionData.session.activeOrganizationId,
       },
-    })
-    .catch((_e) => {
-      console.log(_e);
-      return NextResponse.json(
-        { error: "Failed to delete tag" },
-        { status: 500 },
-      );
     });
 
-  const webhooks = getWebhooks(sessionData.session, "tag_deleted");
+    const webhooks = getWebhooks(sessionData.session, "tag_deleted");
 
-  for (const webhook of await webhooks) {
-    const webhookClient = new WebhookClient({ secret: webhook.secret });
-    await webhookClient.send({
-      url: webhook.endpoint,
-      event: "tag.deleted",
-      data: { id: id, slug: tag.slug, userId: sessionData.user.id },
-      format: webhook.format,
-    });
+    for (const webhook of await webhooks) {
+      const webhookClient = new WebhookClient({ secret: webhook.secret });
+      await webhookClient.send({
+        url: webhook.endpoint,
+        event: "tag.deleted",
+        data: { id: id, slug: tag.slug, userId: sessionData.user.id },
+        format: webhook.format,
+      });
+    }
+
+    return new NextResponse(null, { status: 204 });
+  } catch (_e) {
+    return NextResponse.json(
+      { error: "Failed to delete post" },
+      { status: 500 },
+    );
   }
-
-  return new NextResponse(null, { status: 204 });
 }
