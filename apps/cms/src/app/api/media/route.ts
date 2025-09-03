@@ -124,12 +124,12 @@ export async function DELETE(request: Request) {
           name: media.name,
           userId: sessionData.user.id,
         },
+        format: webhook.format,
       });
     }
 
     return NextResponse.json(null, { status: 204 });
   } catch (error) {
-    console.error("Error deleting media:", error);
     const message =
       error instanceof Error ? error.message : "Failed to delete media";
     return NextResponse.json({ error: message }, { status: 500 });

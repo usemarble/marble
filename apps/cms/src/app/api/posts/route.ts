@@ -101,6 +101,7 @@ export async function POST(request: Request) {
           slug: postCreated.slug,
           userId: sessionData.user.id,
         },
+        format: webhook.format,
       });
     }
   }

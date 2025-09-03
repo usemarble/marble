@@ -31,11 +31,13 @@ import { AsyncButton } from "@/components/ui/async-button";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import {
+  type PayloadFormat,
   type WebhookEvent,
   type WebhookFormValues,
   webhookEvents,
   webhookSchema,
 } from "@/lib/validations/webhook";
+import { Discord } from "../shared/icons";
 
 interface CreateWebhookSheetProps {
   children?: React.ReactNode;
@@ -177,8 +179,8 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
             <div className="grid gap-3">
               <Label htmlFor="format">Format</Label>
               <Select
-                onValueChange={(value) =>
-                  setValue("format", value as "json" | "discord")
+                onValueChange={(value: PayloadFormat) =>
+                  setValue("format", value)
                 }
                 defaultValue="json"
               >
@@ -187,7 +189,10 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="json">JSON</SelectItem>
-                  {/* <SelectItem value="discord">Discord</SelectItem> */}
+                  <SelectItem value="discord">
+                    <Discord fill="#5865F2" />
+                    Discord
+                  </SelectItem>
                 </SelectContent>
               </Select>
               {errors.format && (
