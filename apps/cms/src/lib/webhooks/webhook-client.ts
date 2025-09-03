@@ -58,8 +58,9 @@ export class WebhookClient {
     url: string;
     event: K;
     data: WebhookEvent[K];
+    retries?: number;
   }) {
-    const { url, event, data } = args;
+    const { url, event, data, retries = 3 } = args;
 
     const body = { event, data };
     const payload = JSON.stringify(body);
@@ -69,6 +70,7 @@ export class WebhookClient {
     await qstash.publishJSON({
       url,
       body,
+      retries,
       headers: {
         "x-marble-signature": `sha256=${signature}`,
       },
