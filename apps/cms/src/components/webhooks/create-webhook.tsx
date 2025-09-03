@@ -1,5 +1,6 @@
 "use client";
 
+import { BracketsCurlyIcon } from "@phosphor-icons/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@marble/ui/components/button";
 import { Checkbox } from "@marble/ui/components/checkbox";
@@ -40,7 +41,6 @@ import {
   webhookSchema,
 } from "@/lib/validations/webhook";
 import { Discord } from "../shared/icons";
-import { BracketsCurlyIcon } from "@phosphor-icons/react";
 
 interface CreateWebhookSheetProps {
   children?: React.ReactNode;
