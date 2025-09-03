@@ -85,31 +85,31 @@ export async function DELETE(
     );
   }
 
-  await db.category
-    .delete({
+  try {
+    await db.category.delete({
       where: {
         id: id,
         workspaceId: sessionData.session.activeOrganizationId,
       },
-    })
-    .catch((_e) => {
-      return NextResponse.json(
-        { error: "Failed to delete tag" },
-        { status: 500 },
-      );
     });
 
-  const webhooks = getWebhooks(sessionData.session, "category_deleted");
+    const webhooks = getWebhooks(sessionData.session, "category_deleted");
 
-  for (const webhook of await webhooks) {
-    const webhookClient = new WebhookClient({ secret: webhook.secret });
-    await webhookClient.send({
-      url: webhook.endpoint,
-      event: "category.deleted",
-      data: { id: id, slug: category.slug, userId: sessionData.user.id },
-      format: webhook.format,
-    });
+    for (const webhook of await webhooks) {
+      const webhookClient = new WebhookClient({ secret: webhook.secret });
+      await webhookClient.send({
+        url: webhook.endpoint,
+        event: "category.deleted",
+        data: { id: id, slug: category.slug, userId: sessionData.user.id },
+        format: webhook.format,
+      });
+    }
+
+    return new NextResponse(null, { status: 204 });
+  } catch (_e) {
+    return NextResponse.json(
+      { error: "Failed to delete category" },
+      { status: 500 },
+    );
   }
-
-  return new NextResponse(null, { status: 204 });
 }

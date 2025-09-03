@@ -192,28 +192,35 @@ export async function DELETE(
     return NextResponse.json({ error: "Post not found" }, { status: 404 });
   }
 
-  await db.post
-    .delete({
-      where: { id },
-    })
-    .catch((_e) => {
-      return NextResponse.json(
-        { error: "Failed to delete post" },
-        { status: 500 },
-      );
-    });
+  try {
+    await db.post
+      .delete({
+        where: { id },
+      })
+      .catch((_e) => {
+        return NextResponse.json(
+          { error: "Failed to delete post" },
+          { status: 500 },
+        );
+      });
 
-  const webhooks = getWebhooks(sessionData.session, "post_deleted");
+    const webhooks = getWebhooks(sessionData.session, "post_deleted");
 
-  for (const webhook of await webhooks) {
-    const webhookClient = new WebhookClient({ secret: webhook.secret });
-    await webhookClient.send({
-      url: webhook.endpoint,
-      event: "post.deleted",
-      data: { id: id, slug: post.slug, userId: sessionData.user.id },
-      format: webhook.format,
-    });
+    for (const webhook of await webhooks) {
+      const webhookClient = new WebhookClient({ secret: webhook.secret });
+      await webhookClient.send({
+        url: webhook.endpoint,
+        event: "post.deleted",
+        data: { id: id, slug: post.slug, userId: sessionData.user.id },
+        format: webhook.format,
+      });
+    }
+
+    return new NextResponse(null, { status: 204 });
+  } catch (_e) {
+    return NextResponse.json(
+      { error: "Failed to delete post" },
+      { status: 500 },
+    );
   }
-
-  return new NextResponse(null, { status: 204 });
 }
