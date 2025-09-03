@@ -1,6 +1,5 @@
 "use client";
 
-import { BracketsCurlyIcon } from "@phosphor-icons/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@marble/ui/components/button";
 import { Checkbox } from "@marble/ui/components/checkbox";
@@ -23,6 +22,7 @@ import {
   SheetTrigger,
 } from "@marble/ui/components/sheet";
 import { toast } from "@marble/ui/components/sonner";
+import { BracketsCurlyIcon } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
