@@ -48,6 +48,7 @@ export function getDiscordEmbed(args: {
   embed.addFields(...fields);
 
   return {
+    content: "title" in data ? data.title : undefined,
     username: "Marble",
     avatar_url: MARBLE_AVATAR_URL,
     embeds: [embed.toJSON()],

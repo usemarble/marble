@@ -22,6 +22,7 @@ import {
   SheetTrigger,
 } from "@marble/ui/components/sheet";
 import { toast } from "@marble/ui/components/sonner";
+import { BracketsCurlyIcon } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -213,7 +214,13 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                   <SelectValue placeholder="Select a payload format" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="json">JSON</SelectItem>
+                  <SelectItem value="json">
+                    <BracketsCurlyIcon
+                      className="text-amber-500"
+                      weight="bold"
+                    />
+                    JSON
+                  </SelectItem>
                   <SelectItem value="discord">
                     <Discord fill="#5865F2" />
                     Discord

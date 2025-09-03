@@ -98,6 +98,7 @@ export async function POST(request: Request) {
         event: "post.published",
         data: {
           id: postCreated.id,
+          title: postCreated.title,
           slug: postCreated.slug,
           userId: sessionData.user.id,
         },
