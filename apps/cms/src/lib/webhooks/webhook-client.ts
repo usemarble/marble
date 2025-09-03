@@ -2,25 +2,76 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { db } from "@marble/db";
 import { z } from "zod";
 import type { Session } from "../auth/types";
-import type { WebhookEvent as WebhookValidationEvent } from "../validations/webhook";
-import { qstash } from "./qstash";
+import type {
+  PayloadFormat,
+  WebhookEvent as WebhookValidationEvent,
+} from "../validations/webhook";
+import { handleWebhookDiscord, handleWebhookJSON } from "./util";
 import { WebhookVerificationError } from "./webhook-errors";
 
 const eventSchema = z.object({
-  "post.published": z.object({}),
-  "post.updated": z.object({}),
-  "post.deleted": z.object({}),
-  "category.created": z.object({}),
-  "category.updated": z.object({}),
-  "category.deleted": z.object({}),
-  "tag.created": z.object({}),
-  "tag.updated": z.object({}),
-  "tag.deleted": z.object({}),
-  "media.uploaded": z.object({}),
-  "media.deleted": z.object({}),
+  "post.published": z.object({
+    id: z.string(),
+    slug: z.string(),
+    userId: z.string(),
+  }),
+  "post.updated": z.object({
+    id: z.string(),
+    slug: z.string(),
+    userId: z.string(),
+  }),
+  "post.deleted": z.object({
+    id: z.string(),
+    slug: z.string(),
+    userId: z.string(),
+  }),
+  "category.created": z.object({
+    id: z.string(),
+    slug: z.string(),
+    userId: z.string(),
+  }),
+  "category.updated": z.object({
+    id: z.string(),
+    slug: z.string(),
+    userId: z.string(),
+  }),
+  "category.deleted": z.object({
+    id: z.string(),
+    slug: z.string(),
+    userId: z.string(),
+  }),
+  "tag.created": z.object({
+    id: z.string(),
+    slug: z.string(),
+    userId: z.string(),
+  }),
+  "tag.updated": z.object({
+    id: z.string(),
+    slug: z.string(),
+    userId: z.string(),
+  }),
+  "tag.deleted": z.object({
+    id: z.string(),
+    slug: z.string(),
+    userId: z.string(),
+  }),
+  "media.uploaded": z.object({
+    id: z.string(),
+    name: z.string(),
+    userId: z.string(),
+  }),
+  "media.deleted": z.object({
+    id: z.string(),
+    name: z.string(),
+    userId: z.string(),
+  }),
 });
 
 type WebhookEvent = z.infer<typeof eventSchema>;
+export type WebhookBody = {
+  event: keyof WebhookEvent;
+  data: WebhookEvent[keyof WebhookEvent];
+};
 
 export class WebhookClient {
   private secret: string;
@@ -58,21 +109,26 @@ export class WebhookClient {
     url: string;
     event: K;
     data: WebhookEvent[K];
+    format: PayloadFormat;
+    retries?: number;
   }) {
-    const { url, event, data } = args;
+    const { url, event, data, retries = 3, format } = args;
 
     const body = { event, data };
     const payload = JSON.stringify(body);
 
     const signature = this.sign(payload);
 
-    await qstash.publishJSON({
-      url,
-      body,
-      headers: {
-        "x-marble-signature": `sha256=${signature}`,
-      },
-    });
+    switch (format) {
+      case "json":
+        await handleWebhookJSON({ url, body, signature, retries });
+        break;
+      case "discord":
+        await handleWebhookDiscord({ url, body, retries });
+        break;
+      default:
+        throw new Error(`Unknown format: ${format}`);
+    }
   }
 
   async verify<K extends keyof WebhookEvent>(args: {
@@ -141,38 +197,6 @@ export function getWebhooks(
       events: { has: event },
       ...where,
     },
-    select: { secret: true, endpoint: true, ...select },
+    select: { secret: true, endpoint: true, format: true, ...select },
   });
 }
-
-/**
- * EXAMPLE USAGE
- * 
- * --- 
- * sending a webhook
- * 
- * const webhook = new WebhookClient({ secret: "my-secret" });
-
-  await webhook.send({
-    url: "https://sponge-relaxing-separately.ngrok-free.app/api/webhooks/test",
-    event: "post.published",
-    data: { my: "data" },
-  });
-
-  * --- 
-  * receiving a webhook
-  * 
-  * const webhook = new WebhookClient({ secret: "my-secret" });
-
-    const body = await req.text();
-    const signature = req.headers.get("x-marble-signature");
-
-    const { event, data } = await webhook.verify({
-        body,
-        signature,
-    });
-
-    if (event === "post.published") {
-        console.log(data);
-    }
- */

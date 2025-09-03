@@ -25,17 +25,21 @@ import { toast } from "@marble/ui/components/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useId, useState } from "react";
+import { useCallback, useEffect, useId, useState } from "react";
 import { useForm } from "react-hook-form";
 import { AsyncButton } from "@/components/ui/async-button";
+import { useDebounce } from "@/hooks/use-debounce";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { VALID_DISCORD_DOMAINS } from "@/lib/constants";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import {
+  type PayloadFormat,
   type WebhookEvent,
   type WebhookFormValues,
   webhookEvents,
   webhookSchema,
 } from "@/lib/validations/webhook";
+import { Discord } from "../shared/icons";
 
 interface CreateWebhookSheetProps {
   children?: React.ReactNode;
@@ -65,8 +69,31 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
   });
 
   const watchedEvents = watch("events");
+  const watchedEndpoint = watch("endpoint");
+  const debouncedEndpoint = useDebounce(watchedEndpoint, 500);
 
   const router = useRouter();
+
+  const isDiscordUrl = useCallback((url: string): boolean => {
+    if (!url) return false;
+    try {
+      const urlObj = new URL(url);
+      return VALID_DISCORD_DOMAINS.some((domain) => urlObj.hostname === domain);
+    } catch {
+      return false;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (debouncedEndpoint && isDiscordUrl(debouncedEndpoint)) {
+      setValue("format", "discord");
+    } else if (debouncedEndpoint && !isDiscordUrl(debouncedEndpoint)) {
+      const currentFormat = watch("format");
+      if (currentFormat === "discord") {
+        setValue("format", "json");
+      }
+    }
+  }, [debouncedEndpoint, setValue, watch, isDiscordUrl]);
 
   const { mutate: createWebhook, isPending: isCreating } = useMutation({
     mutationFn: (data: WebhookFormValues) =>
@@ -177,17 +204,20 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
             <div className="grid gap-3">
               <Label htmlFor="format">Format</Label>
               <Select
-                onValueChange={(value) =>
-                  setValue("format", value as "json" | "discord")
+                onValueChange={(value: PayloadFormat) =>
+                  setValue("format", value)
                 }
-                defaultValue="json"
+                value={watch("format")}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a payload format" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="json">JSON</SelectItem>
-                  {/* <SelectItem value="discord">Discord</SelectItem> */}
+                  <SelectItem value="discord">
+                    <Discord fill="#5865F2" />
+                    Discord
+                  </SelectItem>
                 </SelectContent>
               </Select>
               {errors.format && (

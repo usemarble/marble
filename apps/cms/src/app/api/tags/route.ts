@@ -54,6 +54,7 @@ export async function POST(req: Request) {
         slug: tagCreated.slug,
         userId: session.user.id,
       },
+      format: webhook.format,
     });
   }
 
