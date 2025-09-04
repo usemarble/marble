@@ -50,6 +50,14 @@ export function DeleteMediaModal({
       return response.json();
     },
     onSuccess: (data) => {
+      if (workspaceId) {
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.MEDIA(workspaceId),
+        });
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.BILLING_USAGE(workspaceId),
+        });
+      }
       toast.success("Media deleted successfully");
       if (workspaceId) {
         queryClient.invalidateQueries({
