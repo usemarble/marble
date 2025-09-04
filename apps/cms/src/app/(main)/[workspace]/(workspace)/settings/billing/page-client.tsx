@@ -12,7 +12,9 @@ const UpgradeModal = dynamic(() =>
   import("@/components/billing/upgrade-modal").then((mod) => mod.UpgradeModal),
 );
 
+import { toast } from "sonner";
 import { usePlan } from "@/hooks/use-plan";
+import { authClient } from "@/lib/auth/client";
 import { useWorkspace } from "@/providers/workspace";
 import { formatBytes } from "@/utils/string";
 
@@ -113,6 +115,14 @@ function PageClient() {
     ? Math.min(100, Math.round((currentMemberCount / memberMax) * 100))
     : 0;
 
+  const redirectCustomerPortal = async () => {
+    try {
+      await authClient.customer.portal();
+    } catch (_e) {
+      toast.error("Failed to redirect to customer portal");
+    }
+  };
+
   return (
     <WorkspacePageWrapper>
       <div className="flex flex-col gap-6">
@@ -133,7 +143,14 @@ function PageClient() {
                     <Button onClick={() => setShowUpgradeModal(true)}>
                       {subscription?.plan ? "Change Plan" : "Upgrade"}
                     </Button>
-                    <Button variant="outline">View invoices</Button>
+                    {subscription?.plan && (
+                      <Button
+                        onClick={() => redirectCustomerPortal()}
+                        variant="outline"
+                      >
+                        Manage Subscription
+                      </Button>
+                    )}
                   </>
                 )}
               </div>
