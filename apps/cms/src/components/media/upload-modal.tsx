@@ -45,8 +45,11 @@ export function MediaUploadModal({
         queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.MEDIA(workspaceId),
         });
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.BILLING_USAGE(workspaceId),
+        });
       }
-      toast.success("Uploaded successfully!");
+      toast.success("Media uploaded successfully!");
       if (onUploadComplete && data) {
         onUploadComplete(data);
       }
