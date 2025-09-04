@@ -12,6 +12,10 @@ import {
 } from "@/lib/plans";
 import { useWorkspace } from "@/providers/workspace";
 
+type BillingUsage = {
+  media: number;
+};
+
 export function usePlan() {
   const { activeWorkspace } = useWorkspace();
 
@@ -43,12 +47,10 @@ export function usePlan() {
     return isOverLimit(currentPlan, usage);
   };
 
-  const { data } = useQuery<{
-    media: number;
-  }>({
+  const { data } = useQuery({
     queryKey: ["billing-usage", activeWorkspace?.id],
     staleTime: 1000 * 60 * 5,
-    queryFn: async () => {
+    queryFn: async (): Promise<BillingUsage> => {
       const res = await fetch("/api/billing/usage");
       if (!res.ok) {
         throw new Error("Failed to fetch billing usage");
