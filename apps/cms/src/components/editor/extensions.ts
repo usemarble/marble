@@ -15,6 +15,7 @@ import {
   Youtube,
 } from "novel/extensions";
 import { UploadImagesPlugin } from "novel/plugins";
+import { CustomComponent } from "./custom-component-extension";
 
 // You can overwrite the placeholder with your own configuration
 const placeholder = Placeholder;
@@ -124,4 +125,5 @@ export const defaultExtensions: Extension[] = [
   horizontalRule as unknown as Extension,
   underline as unknown as Extension,
   tiptapImage as unknown as Extension,
+  CustomComponent as unknown as Extension,
 ];

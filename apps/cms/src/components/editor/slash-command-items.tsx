@@ -10,6 +10,7 @@ import {
   TextHThree,
   TextHTwo,
   YoutubeLogo,
+  PuzzlePieceIcon,
 } from "@phosphor-icons/react";
 import { Command, createSuggestionItems, renderItems } from "novel/extensions";
 
@@ -149,6 +150,15 @@ export const suggestionItems = createSuggestionItems([
     title: "YouTube",
     description: "Embed a YouTube video",
     icon: <YoutubeLogo className="size-4" />,
+  },
+  {
+    title: "Component",
+    description: "Insert a custom component",
+    searchTerms: ["custom", "component", "widget"],
+    icon: <PuzzlePieceIcon size={16} />,
+    command: ({ editor, range }) => {
+      editor.chain().focus().deleteRange(range).run();
+    },
   },
 ]);
 
