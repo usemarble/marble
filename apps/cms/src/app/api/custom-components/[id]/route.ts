@@ -1,13 +1,14 @@
 import { db } from "@marble/db";
-import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth/session";
+import { type NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "@/lib/auth/session";
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
-  const session = await auth();
-  if (!session?.user?.id) {
+  const sessionData = await getServerSession();
+
+  if (!sessionData || !sessionData.session.activeOrganizationId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -24,7 +25,7 @@ export async function PUT(
     if (!existingComponent) {
       return NextResponse.json(
         { error: "Custom component not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -39,12 +40,13 @@ export async function PUT(
           name,
           description,
           properties: {
-            create: properties?.map((prop: any) => ({
-              name: prop.name,
-              type: prop.type,
-              required: prop.required || false,
-              defaultValue: prop.defaultValue,
-            })) || [],
+            create:
+              properties?.map((prop: any) => ({
+                name: prop.name,
+                type: prop.type,
+                required: prop.required || false,
+                defaultValue: prop.defaultValue,
+              })) || [],
           },
         },
         include: {
@@ -58,17 +60,18 @@ export async function PUT(
     console.error("Error updating custom component:", error);
     return NextResponse.json(
       { error: "Failed to update custom component" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
-  const session = await auth();
-  if (!session?.user?.id) {
+  const sessionData = await getServerSession();
+
+  if (!sessionData || !sessionData.session.activeOrganizationId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -82,7 +85,7 @@ export async function DELETE(
     if (!existingComponent) {
       return NextResponse.json(
         { error: "Custom component not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -90,22 +93,25 @@ export async function DELETE(
       where: { id },
     });
 
-    return NextResponse.json({ message: "Custom component deleted successfully" });
+    return NextResponse.json({
+      message: "Custom component deleted successfully",
+    });
   } catch (error) {
     console.error("Error deleting custom component:", error);
     return NextResponse.json(
       { error: "Failed to delete custom component" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
-  const session = await auth();
-  if (!session?.user?.id) {
+  const sessionData = await getServerSession();
+
+  if (!sessionData || !sessionData.session.activeOrganizationId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -122,7 +128,7 @@ export async function GET(
     if (!customComponent) {
       return NextResponse.json(
         { error: "Custom component not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -131,7 +137,7 @@ export async function GET(
     console.error("Error fetching custom component:", error);
     return NextResponse.json(
       { error: "Failed to fetch custom component" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

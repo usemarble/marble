@@ -1,11 +1,11 @@
 "use client";
 
 import { Button } from "@marble/ui/components/button";
-import { Plus } from "@phosphor-icons/react";
+import { PlusIcon } from "@phosphor-icons/react";
 import { useState, useEffect } from "react";
 import { ComponentsDataTable } from "@/components/components/data-table";
 import { ComponentModals } from "@/components/components/component-modals";
-import { useWorkspace } from "@/hooks/use-workspace-id";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
 
 export interface CustomComponent {
   id: string;
@@ -25,11 +25,11 @@ export interface ComponentProperty {
   defaultValue?: string;
 }
 
-export function PageClient({ workspaceSlug }: { workspaceSlug: string }) {
+export function PageClient() {
   const [components, setComponents] = useState<CustomComponent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const workspaceId = useWorkspace();
+  const workspaceId = useWorkspaceId();
 
   const fetchComponents = async () => {
     if (!workspaceId) return;
@@ -48,9 +48,6 @@ export function PageClient({ workspaceSlug }: { workspaceSlug: string }) {
     }
   };
 
-  useEffect(() => {
-    fetchComponents();
-  }, [workspaceId]);
 
   const handleCreate = async (componentData: any) => {
     try {
@@ -116,7 +113,7 @@ export function PageClient({ workspaceSlug }: { workspaceSlug: string }) {
           </p>
         </div>
         <Button onClick={() => setShowCreateModal(true)}>
-          <Plus className="mr-2 h-4 w-4" />
+          <PlusIcon className="mr-2 h-4 w-4" />
           Create Component
         </Button>
       </div>

@@ -23,7 +23,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@marble/ui/components/
 import { Badge } from "@marble/ui/components/badge";
 import { PuzzlePieceIcon, ArrowLeftIcon } from "@phosphor-icons/react";
 import { useState, useEffect } from "react";
-import { useWorkspace } from "@/hooks/use-workspace-id";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
 
 interface ComponentSelectorModalProps {
   isOpen: boolean;
@@ -55,7 +55,7 @@ export function ComponentSelectorModal({
   const [selectedComponent, setSelectedComponent] = useState<CustomComponent | null>(null);
   const [propertyValues, setPropertyValues] = useState<Record<string, any>>({});
   const [isLoading, setIsLoading] = useState(false);
-  const workspaceId = useWorkspace();
+  const workspaceId = useWorkspaceId();
 
   useEffect(() => {
     if (isOpen && workspaceId) {
