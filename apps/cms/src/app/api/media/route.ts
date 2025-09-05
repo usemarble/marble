@@ -3,6 +3,7 @@ import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { R2_BUCKET_NAME, r2 } from "@/lib/r2";
+import { DeleteSchema } from "@/lib/validations/upload";
 import { getWebhooks, WebhookClient } from "@/lib/webhooks/webhook-client";
 
 export async function GET() {
@@ -44,7 +45,14 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { mediaId, mediaIds } = await request.json();
+  const parsedBody = await request.json();
+
+  const parsed = DeleteSchema.safeParse(parsedBody);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.message }, { status: 400 });
+  }
+
+  const { mediaId, mediaIds } = await parsed.data;
 
   const idsToDelete = mediaIds || (mediaId ? [mediaId] : []);
 
@@ -61,7 +69,7 @@ export async function DELETE(request: Request) {
 
     for (const id of idsToDelete) {
       try {
-        const media = await db.media.findUnique({
+        const media = await db.media.findFirst({
           where: {
             id,
             workspaceId: sessionData.session.activeOrganizationId,
@@ -79,22 +87,22 @@ export async function DELETE(request: Request) {
           );
         } else {
           try {
-            const pathname = media.url.startsWith("http")
+            const rawPath = media.url.startsWith("http")
               ? new URL(media.url).pathname
               : media.url;
-
-            let key = pathname.replace(/^\/+/, "");
-
+            let key = decodeURIComponent(rawPath).replace(/^\/+/, "");
             if (key.startsWith(`${R2_BUCKET_NAME}/`)) {
               key = key.slice(R2_BUCKET_NAME.length + 1);
             }
-
-            if (!key || key.includes("..") || key.includes("//")) {
+            key = key.replace(/\/{2,}/g, "/");
+            if (
+              !key ||
+              key.split("/").some((seg) => ["", ".", ".."].includes(seg))
+            ) {
               throw new Error(
                 "Invalid storage key: contains empty or traversal path segments.",
               );
             }
-
             await r2.send(
               new DeleteObjectCommand({
                 Bucket: R2_BUCKET_NAME,

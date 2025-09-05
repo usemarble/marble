@@ -50,7 +50,7 @@ export function MediaCard({
     mediaTypeIcons[media.type] || mediaTypeIcons.document;
 
   const handleDownload = () => {
-    window.open(media.url, "_blank");
+    window.open(media.url, "_blank", "noopener,noreferrer");
   };
 
   return (
