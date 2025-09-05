@@ -28,7 +28,7 @@ import {
 import { Textarea } from "@marble/ui/components/textarea";
 import { ArrowLeftIcon, PuzzlePieceIcon } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
-import { useWorkspace } from "@/hooks/use-workspace-id";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
 
 interface ComponentSelectorModalProps {
   isOpen: boolean;
@@ -61,24 +61,7 @@ export function ComponentSelectorModal({
     useState<CustomComponent | null>(null);
   const [propertyValues, setPropertyValues] = useState<Record<string, any>>({});
   const [isLoading, setIsLoading] = useState(false);
-  const workspaceId = useWorkspace();
-
-  useEffect(() => {
-    if (isOpen && workspaceId) {
-      fetchComponents();
-    }
-  }, [isOpen, workspaceId, fetchComponents]);
-
-  useEffect(() => {
-    if (selectedComponent) {
-      const initialValues: Record<string, any> = {};
-      selectedComponent.properties.forEach((prop) => {
-        initialValues[prop.name] =
-          prop.defaultValue || getDefaultValueForType(prop.type);
-      });
-      setPropertyValues(initialValues);
-    }
-  }, [selectedComponent, getDefaultValueForType]);
+  const workspaceId = useWorkspaceId();
 
   const fetchComponents = async () => {
     if (!workspaceId) return;
@@ -111,6 +94,23 @@ export function ComponentSelectorModal({
         return "";
     }
   };
+
+  useEffect(() => {
+    if (isOpen && workspaceId) {
+      fetchComponents();
+    }
+  }, [isOpen, workspaceId]);
+
+  useEffect(() => {
+    if (selectedComponent) {
+      const initialValues: Record<string, any> = {};
+      selectedComponent.properties.forEach((prop) => {
+        initialValues[prop.name] =
+          prop.defaultValue || getDefaultValueForType(prop.type);
+      });
+      setPropertyValues(initialValues);
+    }
+  }, [selectedComponent]);
 
   const handlePropertyChange = (propertyName: string, value: any) => {
     setPropertyValues((prev) => ({
@@ -259,7 +259,7 @@ export function ComponentSelectorModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle className="flex items-center">
             {selectedComponent && (
@@ -290,15 +290,15 @@ export function ComponentSelectorModal({
                 {Array.from({ length: 3 }).map((_, index) => (
                   <Card key={index}>
                     <CardContent className="p-4">
-                      <div className="h-4 bg-gray-200 rounded animate-pulse mb-2" />
-                      <div className="h-3 bg-gray-200 rounded animate-pulse w-2/3" />
+                      <div className="mb-2 h-4 animate-pulse rounded bg-gray-200" />
+                      <div className="h-3 w-2/3 animate-pulse rounded bg-gray-200" />
                     </CardContent>
                   </Card>
                 ))}
               </div>
             ) : components.length === 0 ? (
-              <div className="text-center py-8">
-                <PuzzlePieceIcon className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+              <div className="py-8 text-center">
+                <PuzzlePieceIcon className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
                 <p className="text-muted-foreground">
                   No custom components found. Create some in the Components
                   section first.
@@ -309,16 +309,16 @@ export function ComponentSelectorModal({
                 {components.map((component) => (
                   <Card
                     key={component.id}
-                    className="cursor-pointer hover:border-primary transition-colors"
+                    className="hover:border-primary cursor-pointer transition-colors"
                     onClick={() => setSelectedComponent(component)}
                   >
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-lg flex items-center">
+                      <CardTitle className="flex items-center text-lg">
                         <PuzzlePieceIcon className="mr-2 h-5 w-5" />
                         {component.name}
                       </CardTitle>
                       {component.description && (
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-muted-foreground text-sm">
                           {component.description}
                         </p>
                       )}
@@ -333,7 +333,7 @@ export function ComponentSelectorModal({
                           >
                             {prop.name}: {prop.type}
                             {prop.required && (
-                              <span className="text-red-500 ml-1">*</span>
+                              <span className="ml-1 text-red-500">*</span>
                             )}
                           </Badge>
                         ))}
@@ -352,7 +352,7 @@ export function ComponentSelectorModal({
                   <Label className="flex items-center">
                     {property.name}
                     {property.required && (
-                      <span className="text-red-500 ml-1">*</span>
+                      <span className="ml-1 text-red-500">*</span>
                     )}
                     <Badge variant="outline" className="ml-2 text-xs">
                       {property.type}

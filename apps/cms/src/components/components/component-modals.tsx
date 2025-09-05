@@ -109,7 +109,11 @@ export function ComponentModals({
     }));
   };
 
-  const updateProperty = (index: number, field: keyof FormPropertyData, value: string | boolean) => {
+  const updateProperty = (
+    index: number,
+    field: keyof FormPropertyData,
+    value: string | boolean,
+  ) => {
     setFormData((prev) => ({
       ...prev,
       properties: prev.properties.map((prop, i) =>
@@ -157,7 +161,7 @@ export function ComponentModals({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
@@ -208,7 +212,7 @@ export function ComponentModals({
             </div>
 
             {formData.properties.map((property, index) => (
-              <div key={index} className="border rounded-lg p-4 space-y-3">
+              <div key={index} className="space-y-3 rounded-lg border p-4">
                 <div className="flex items-center justify-between">
                   <h4 className="text-sm font-medium">Property {index + 1}</h4>
                   <Button
@@ -271,13 +275,17 @@ export function ComponentModals({
 
                   <div className="flex items-center space-x-2 pt-6">
                     <Checkbox
-                      id={`required-${editingComponent?.id || 'new'}-${index}`}
+                      id={`required-${editingComponent?.id || "new"}-${index}`}
                       checked={property.required}
                       onCheckedChange={(checked) =>
                         updateProperty(index, "required", checked)
                       }
                     />
-                    <Label htmlFor={`required-${editingComponent?.id || 'new'}-${index}`}>Required</Label>
+                    <Label
+                      htmlFor={`required-${editingComponent?.id || "new"}-${index}`}
+                    >
+                      Required
+                    </Label>
                   </div>
                 </div>
               </div>
