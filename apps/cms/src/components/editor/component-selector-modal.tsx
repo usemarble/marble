@@ -1,6 +1,14 @@
 "use client";
 
+import { Badge } from "@marble/ui/components/badge";
 import { Button } from "@marble/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@marble/ui/components/card";
+import { Checkbox } from "@marble/ui/components/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -10,8 +18,6 @@ import {
 } from "@marble/ui/components/dialog";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
-import { Textarea } from "@marble/ui/components/textarea";
-import { Checkbox } from "@marble/ui/components/checkbox";
 import {
   Select,
   SelectContent,
@@ -19,10 +25,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@marble/ui/components/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@marble/ui/components/card";
-import { Badge } from "@marble/ui/components/badge";
-import { PuzzlePieceIcon, ArrowLeftIcon } from "@phosphor-icons/react";
-import { useState, useEffect } from "react";
+import { Textarea } from "@marble/ui/components/textarea";
+import { ArrowLeftIcon, PuzzlePieceIcon } from "@phosphor-icons/react";
+import { useEffect, useState } from "react";
 import { useWorkspace } from "@/hooks/use-workspace-id";
 
 interface ComponentSelectorModalProps {
@@ -52,7 +57,8 @@ export function ComponentSelectorModal({
   editor,
 }: ComponentSelectorModalProps) {
   const [components, setComponents] = useState<CustomComponent[]>([]);
-  const [selectedComponent, setSelectedComponent] = useState<CustomComponent | null>(null);
+  const [selectedComponent, setSelectedComponent] =
+    useState<CustomComponent | null>(null);
   const [propertyValues, setPropertyValues] = useState<Record<string, any>>({});
   const [isLoading, setIsLoading] = useState(false);
   const workspaceId = useWorkspace();
@@ -61,24 +67,27 @@ export function ComponentSelectorModal({
     if (isOpen && workspaceId) {
       fetchComponents();
     }
-  }, [isOpen, workspaceId]);
+  }, [isOpen, workspaceId, fetchComponents]);
 
   useEffect(() => {
     if (selectedComponent) {
       const initialValues: Record<string, any> = {};
-      selectedComponent.properties.forEach(prop => {
-        initialValues[prop.name] = prop.defaultValue || getDefaultValueForType(prop.type);
+      selectedComponent.properties.forEach((prop) => {
+        initialValues[prop.name] =
+          prop.defaultValue || getDefaultValueForType(prop.type);
       });
       setPropertyValues(initialValues);
     }
-  }, [selectedComponent]);
+  }, [selectedComponent, getDefaultValueForType]);
 
   const fetchComponents = async () => {
     if (!workspaceId) return;
 
     try {
       setIsLoading(true);
-      const response = await fetch(`/api/custom-components?workspaceId=${workspaceId}`);
+      const response = await fetch(
+        `/api/custom-components?workspaceId=${workspaceId}`,
+      );
       if (response.ok) {
         const data = await response.json();
         setComponents(data);
@@ -104,7 +113,7 @@ export function ComponentSelectorModal({
   };
 
   const handlePropertyChange = (propertyName: string, value: any) => {
-    setPropertyValues(prev => ({
+    setPropertyValues((prev) => ({
       ...prev,
       [propertyName]: value,
     }));
@@ -114,7 +123,7 @@ export function ComponentSelectorModal({
     if (!selectedComponent || !editor) return;
 
     const componentData: Record<string, any> = {};
-    selectedComponent.properties.forEach(prop => {
+    selectedComponent.properties.forEach((prop) => {
       const value = propertyValues[prop.name];
       if (value !== undefined && value !== "") {
         componentData[prop.name] = value;
@@ -149,7 +158,9 @@ export function ComponentSelectorModal({
             <Checkbox
               id={property.name}
               checked={value}
-              onCheckedChange={(checked) => handlePropertyChange(property.name, checked)}
+              onCheckedChange={(checked) =>
+                handlePropertyChange(property.name, checked)
+              }
             />
             <Label htmlFor={property.name}>Enable {property.name}</Label>
           </div>
@@ -159,7 +170,9 @@ export function ComponentSelectorModal({
         return (
           <Textarea
             value={value}
-            onChange={(e) => handlePropertyChange(property.name, e.target.value)}
+            onChange={(e) =>
+              handlePropertyChange(property.name, e.target.value)
+            }
             placeholder={`Enter ${property.name}`}
             rows={3}
           />
@@ -169,7 +182,9 @@ export function ComponentSelectorModal({
         return (
           <Select
             value={value}
-            onValueChange={(newValue) => handlePropertyChange(property.name, newValue)}
+            onValueChange={(newValue) =>
+              handlePropertyChange(property.name, newValue)
+            }
           >
             <SelectTrigger>
               <SelectValue placeholder={`Select ${property.name}`} />
@@ -187,7 +202,9 @@ export function ComponentSelectorModal({
           <Input
             type="number"
             value={value}
-            onChange={(e) => handlePropertyChange(property.name, e.target.value)}
+            onChange={(e) =>
+              handlePropertyChange(property.name, e.target.value)
+            }
             placeholder={`Enter ${property.name}`}
           />
         );
@@ -197,7 +214,9 @@ export function ComponentSelectorModal({
           <Input
             type="date"
             value={value}
-            onChange={(e) => handlePropertyChange(property.name, e.target.value)}
+            onChange={(e) =>
+              handlePropertyChange(property.name, e.target.value)
+            }
           />
         );
 
@@ -206,7 +225,9 @@ export function ComponentSelectorModal({
           <Input
             type="email"
             value={value}
-            onChange={(e) => handlePropertyChange(property.name, e.target.value)}
+            onChange={(e) =>
+              handlePropertyChange(property.name, e.target.value)
+            }
             placeholder={`Enter ${property.name}`}
           />
         );
@@ -216,7 +237,9 @@ export function ComponentSelectorModal({
           <Input
             type="url"
             value={value}
-            onChange={(e) => handlePropertyChange(property.name, e.target.value)}
+            onChange={(e) =>
+              handlePropertyChange(property.name, e.target.value)
+            }
             placeholder={`Enter ${property.name}`}
           />
         );
@@ -225,7 +248,9 @@ export function ComponentSelectorModal({
         return (
           <Input
             value={value}
-            onChange={(e) => handlePropertyChange(property.name, e.target.value)}
+            onChange={(e) =>
+              handlePropertyChange(property.name, e.target.value)
+            }
             placeholder={`Enter ${property.name}`}
           />
         );
@@ -247,7 +272,9 @@ export function ComponentSelectorModal({
                 <ArrowLeftIcon className="h-4 w-4" />
               </Button>
             )}
-            {selectedComponent ? `Configure ${selectedComponent.name}` : "Insert Component"}
+            {selectedComponent
+              ? `Configure ${selectedComponent.name}`
+              : "Insert Component"}
           </DialogTitle>
           <DialogDescription>
             {selectedComponent
@@ -273,7 +300,8 @@ export function ComponentSelectorModal({
               <div className="text-center py-8">
                 <PuzzlePieceIcon className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                 <p className="text-muted-foreground">
-                  No custom components found. Create some in the Components section first.
+                  No custom components found. Create some in the Components
+                  section first.
                 </p>
               </div>
             ) : (
@@ -290,15 +318,23 @@ export function ComponentSelectorModal({
                         {component.name}
                       </CardTitle>
                       {component.description && (
-                        <p className="text-sm text-muted-foreground">{component.description}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {component.description}
+                        </p>
                       )}
                     </CardHeader>
                     <CardContent className="pt-0">
                       <div className="flex flex-wrap gap-1">
                         {component.properties.map((prop) => (
-                          <Badge key={prop.id} variant="secondary" className="text-xs">
+                          <Badge
+                            key={prop.id}
+                            variant="secondary"
+                            className="text-xs"
+                          >
                             {prop.name}: {prop.type}
-                            {prop.required && <span className="text-red-500 ml-1">*</span>}
+                            {prop.required && (
+                              <span className="text-red-500 ml-1">*</span>
+                            )}
                           </Badge>
                         ))}
                       </div>
@@ -315,7 +351,9 @@ export function ComponentSelectorModal({
                 <div key={property.id} className="space-y-2">
                   <Label className="flex items-center">
                     {property.name}
-                    {property.required && <span className="text-red-500 ml-1">*</span>}
+                    {property.required && (
+                      <span className="text-red-500 ml-1">*</span>
+                    )}
                     <Badge variant="outline" className="ml-2 text-xs">
                       {property.type}
                     </Badge>
@@ -326,12 +364,13 @@ export function ComponentSelectorModal({
             </div>
 
             <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => setSelectedComponent(null)}>
+              <Button
+                variant="outline"
+                onClick={() => setSelectedComponent(null)}
+              >
                 Back
               </Button>
-              <Button onClick={handleInsertComponent}>
-                Insert Component
-              </Button>
+              <Button onClick={handleInsertComponent}>Insert Component</Button>
             </div>
           </div>
         )}

@@ -89,7 +89,7 @@ export async function sendVerificationEmailAction({
 
   console.log("called verification email");
   try {
-    const response = await resend.emails.send({
+    const _response = await resend.emails.send({
       from: "Verification <emails@marblecms.com>",
       to: userEmail,
       subject: "Verify your email address",

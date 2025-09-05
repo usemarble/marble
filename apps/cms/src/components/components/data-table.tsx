@@ -1,13 +1,5 @@
 "use client";
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@marble/ui/components/table";
 import { Badge } from "@marble/ui/components/badge";
 import { Button } from "@marble/ui/components/button";
 import {
@@ -16,16 +8,27 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@marble/ui/components/table";
 import { DotsThree, PencilIcon, TrashIcon } from "@phosphor-icons/react";
-import { CustomComponent } from "@/app/(main)/[workspace]/(workspace)/components/page-client";
 import { formatDistanceToNow } from "date-fns";
 import { useState } from "react";
+import type {
+  CreateComponentData,
+  CustomComponent,
+} from "@/app/(main)/[workspace]/(workspace)/components/page-client";
 import { ComponentModals } from "./component-modals";
 
 interface ComponentsDataTableProps {
   data: CustomComponent[];
   isLoading: boolean;
-  onUpdate: (id: string, data: any) => Promise<void>;
+  onUpdate: (id: string, data: CreateComponentData) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
 }
 
@@ -35,7 +38,8 @@ export function ComponentsDataTable({
   onUpdate,
   onDelete,
 }: ComponentsDataTableProps) {
-  const [editingComponent, setEditingComponent] = useState<CustomComponent | null>(null);
+  const [editingComponent, setEditingComponent] =
+    useState<CustomComponent | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
 
   const handleEdit = (component: CustomComponent) => {
@@ -43,7 +47,7 @@ export function ComponentsDataTable({
     setShowEditModal(true);
   };
 
-  const handleEditSubmit = async (componentData: any) => {
+  const handleEditSubmit = async (componentData: CreateComponentData) => {
     if (editingComponent) {
       await onUpdate(editingComponent.id, componentData);
       setShowEditModal(false);
@@ -106,29 +110,43 @@ export function ComponentsDataTable({
           <TableBody>
             {data.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                  No custom components found. Create your first component to get started.
+                <TableCell
+                  colSpan={5}
+                  className="text-center py-8 text-muted-foreground"
+                >
+                  No custom components found. Create your first component to get
+                  started.
                 </TableCell>
               </TableRow>
             ) : (
               data.map((component) => (
                 <TableRow key={component.id}>
-                  <TableCell className="font-medium">{component.name}</TableCell>
+                  <TableCell className="font-medium">
+                    {component.name}
+                  </TableCell>
                   <TableCell className="text-muted-foreground">
                     {component.description || "No description"}
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
                       {component.properties.map((prop) => (
-                        <Badge key={prop.id} variant="secondary" className="text-xs">
+                        <Badge
+                          key={prop.id}
+                          variant="secondary"
+                          className="text-xs"
+                        >
                           {prop.name}: {prop.type}
-                          {prop.required && <span className="text-red-500 ml-1">*</span>}
+                          {prop.required && (
+                            <span className="text-red-500 ml-1">*</span>
+                          )}
                         </Badge>
                       ))}
                     </div>
                   </TableCell>
                   <TableCell className="text-muted-foreground">
-                    {formatDistanceToNow(new Date(component.createdAt), { addSuffix: true })}
+                    {formatDistanceToNow(new Date(component.createdAt), {
+                      addSuffix: true,
+                    })}
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>

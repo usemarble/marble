@@ -22,9 +22,9 @@ import {
   ImagesIcon,
   NoteIcon,
   PackageIcon,
+  PuzzlePieceIcon,
   TagIcon,
   UsersThreeIcon,
-  PuzzlePieceIcon,
 } from "@phosphor-icons/react";
 
 import Link from "next/link";

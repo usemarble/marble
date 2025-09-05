@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@marble/ui/components/button";
+import { Checkbox } from "@marble/ui/components/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -11,7 +12,6 @@ import {
 } from "@marble/ui/components/dialog";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
-import { Textarea } from "@marble/ui/components/textarea";
 import {
   Select,
   SelectContent,
@@ -19,19 +19,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@marble/ui/components/select";
-import { Checkbox } from "@marble/ui/components/checkbox";
+import { Textarea } from "@marble/ui/components/textarea";
 import { Plus, TrashIcon } from "@phosphor-icons/react";
-import { useState, useEffect } from "react";
-import { CustomComponent } from "@/app/(main)/[workspace]/(workspace)/components/page-client";
+import { useEffect, useState } from "react";
+import type {
+  CreateComponentData,
+  CustomComponent,
+} from "@/app/(main)/[workspace]/(workspace)/components/page-client";
 
 interface ComponentModalsProps {
   showCreateModal?: boolean;
   showEditModal?: boolean;
   onCreateClose?: () => void;
   onEditClose?: () => void;
-  onCreate?: (data: any) => Promise<void>;
-  onEdit?: (data: any) => Promise<void>;
+  onCreate?: (data: CreateComponentData) => Promise<void>;
+  onEdit?: (data: CreateComponentData) => Promise<void>;
   editingComponent?: CustomComponent | null;
+}
+
+interface FormPropertyData {
+  name: string;
+  type: string;
+  required: boolean;
+  defaultValue?: string;
 }
 
 const PROPERTY_TYPES = [
@@ -57,7 +67,7 @@ export function ComponentModals({
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    properties: [] as any[],
+    properties: [] as FormPropertyData[],
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -66,7 +76,7 @@ export function ComponentModals({
       setFormData({
         name: editingComponent.name,
         description: editingComponent.description || "",
-        properties: editingComponent.properties.map(prop => ({
+        properties: editingComponent.properties.map((prop) => ({
           name: prop.name,
           type: prop.type,
           required: prop.required,
@@ -83,7 +93,7 @@ export function ComponentModals({
   }, [editingComponent]);
 
   const addProperty = () => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       properties: [
         ...prev.properties,
@@ -93,17 +103,17 @@ export function ComponentModals({
   };
 
   const removeProperty = (index: number) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       properties: prev.properties.filter((_, i) => i !== index),
     }));
   };
 
-  const updateProperty = (index: number, field: string, value: any) => {
-    setFormData(prev => ({
+  const updateProperty = (index: number, field: keyof FormPropertyData, value: string | boolean) => {
+    setFormData((prev) => ({
       ...prev,
       properties: prev.properties.map((prop, i) =>
-        i === index ? { ...prop, [field]: value } : prop
+        i === index ? { ...prop, [field]: value } : prop,
       ),
     }));
   };
@@ -159,7 +169,9 @@ export function ComponentModals({
             <Input
               id="name"
               value={formData.name}
-              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, name: e.target.value }))
+              }
               placeholder="e.g. Button, Card, Hero Section"
               required
             />
@@ -170,7 +182,12 @@ export function ComponentModals({
             <Textarea
               id="description"
               value={formData.description}
-              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  description: e.target.value,
+                }))
+              }
               placeholder="Brief description of the component"
               rows={3}
             />
@@ -179,7 +196,12 @@ export function ComponentModals({
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <Label>Properties</Label>
-              <Button type="button" onClick={addProperty} size="sm" variant="outline">
+              <Button
+                type="button"
+                onClick={addProperty}
+                size="sm"
+                variant="outline"
+              >
                 <Plus className="mr-2 h-4 w-4" />
                 Add Property
               </Button>
@@ -205,7 +227,9 @@ export function ComponentModals({
                     <Label>Property Name</Label>
                     <Input
                       value={property.name}
-                      onChange={(e) => updateProperty(index, "name", e.target.value)}
+                      onChange={(e) =>
+                        updateProperty(index, "name", e.target.value)
+                      }
                       placeholder="e.g. title, color, size"
                       required
                     />
@@ -215,7 +239,9 @@ export function ComponentModals({
                     <Label>Type</Label>
                     <Select
                       value={property.type}
-                      onValueChange={(value) => updateProperty(index, "type", value)}
+                      onValueChange={(value) =>
+                        updateProperty(index, "type", value)
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue />
@@ -236,18 +262,22 @@ export function ComponentModals({
                     <Label>Default Value</Label>
                     <Input
                       value={property.defaultValue}
-                      onChange={(e) => updateProperty(index, "defaultValue", e.target.value)}
+                      onChange={(e) =>
+                        updateProperty(index, "defaultValue", e.target.value)
+                      }
                       placeholder="Optional default value"
                     />
                   </div>
 
                   <div className="flex items-center space-x-2 pt-6">
                     <Checkbox
-                      id={`required-${index}`}
+                      id={`required-${editingComponent?.id || 'new'}-${index}`}
                       checked={property.required}
-                      onCheckedChange={(checked) => updateProperty(index, "required", checked)}
+                      onCheckedChange={(checked) =>
+                        updateProperty(index, "required", checked)
+                      }
                     />
-                    <Label htmlFor={`required-${index}`}>Required</Label>
+                    <Label htmlFor={`required-${editingComponent?.id || 'new'}-${index}`}>Required</Label>
                   </div>
                 </div>
               </div>
@@ -258,8 +288,15 @@ export function ComponentModals({
             <Button type="button" variant="outline" onClick={handleClose}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting || !formData.name.trim()}>
-              {isSubmitting ? "Saving..." : editingComponent ? "Update" : "Create"}
+            <Button
+              type="submit"
+              disabled={isSubmitting || !formData.name.trim()}
+            >
+              {isSubmitting
+                ? "Saving..."
+                : editingComponent
+                  ? "Update"
+                  : "Create"}
             </Button>
           </DialogFooter>
         </form>
