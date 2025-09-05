@@ -5,9 +5,14 @@ import { Suspense } from "react";
 import { LoginForm } from "@/components/auth/login-form";
 import MarbleIcon from "@/components/icons/marble";
 import Credits from "@/components/util/credits";
+import { SITE_CONFIG } from "@/utils/site";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_CONFIG.url),
   title: "Log In - Marble",
+  alternates: {
+    canonical: "/login",
+  },
 };
 
 interface PageProps {

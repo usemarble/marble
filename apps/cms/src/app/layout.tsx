@@ -9,7 +9,6 @@ export const metadata: Metadata = {
   title: SITE_CONFIG.title,
   metadataBase: new URL(SITE_CONFIG.url),
   description: SITE_CONFIG.description,
-  keywords: SITE_CONFIG.keywords,
   openGraph: {
     type: "website",
     locale: "en_US",

@@ -15,7 +15,7 @@ import { authClient } from "@/lib/auth/client";
 import { type CredentialData, credentialSchema } from "@/lib/validations/auth";
 import type { AuthMethod } from "@/types/misc";
 import { Github, Google } from "../icons/social";
-import { AsyncButton } from "../ui/async-button";
+import { AsyncButton, LoadingSpinner } from "../ui/async-button";
 import { LastUsedBadge } from "../ui/last-used-badge";
 
 export function LoginForm() {
@@ -100,7 +100,7 @@ export function LoginForm() {
             variant="info"
           />
           {isGoogleLoading ? (
-            <SpinnerIcon className="mr-2 h-4 w-4 animate-spin" />
+            <SpinnerIcon className="mr-2 size-4 animate-spin" />
           ) : (
             <Google className="mr-2 size-4" />
           )}{" "}
@@ -120,9 +120,9 @@ export function LoginForm() {
             variant="info"
           />
           {isGithubLoading ? (
-            <SpinnerIcon className="mr-2 h-4 w-4 animate-spin" />
+            <LoadingSpinner variant="outline" />
           ) : (
-            <Github className="mr-2 size-4" />
+            <Github className="size-4" />
           )}{" "}
           GitHub
         </button>
