@@ -4,9 +4,14 @@ import { Suspense } from "react";
 import { RegisterForm } from "@/components/auth/register-form";
 import MarbleIcon from "@/components/icons/marble";
 import Credits from "@/components/util/credits";
+import { SITE_CONFIG } from "@/utils/site";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_CONFIG.url),
   title: "Sign Up - Marble",
+  alternates: {
+    canonical: "/register",
+  },
 };
 
 interface PageProps {

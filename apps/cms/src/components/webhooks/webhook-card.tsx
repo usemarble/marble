@@ -83,18 +83,19 @@ export function WebhookCard({
                 disabled={isToggling && toggleVariables?.id === webhook.id}
               >
                 <ToggleRightIcon size={16} className="mr-1.5" />
-                <span>{webhook.enabled ? "Disable" : "Enable"} webhook</span>
+                <span>{webhook.enabled ? "Disable" : "Enable"} Webhook</span>
               </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => handleCopySecret(webhook.secret)}
-              >
-                <CopyIcon className="size-4 mr-1.5" />
-                Copy secret
-              </DropdownMenuItem>
-
+              {webhook.format === "discord" ? null : (
+                <DropdownMenuItem
+                  onClick={() => handleCopySecret(webhook.secret)}
+                >
+                  <CopyIcon className="size-4 mr-1.5" />
+                  Copy Secret
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem
                 variant="destructive"
-                onSelect={(e) => setIsOpen(true)}
+                onSelect={(_e) => setIsOpen(true)}
                 disabled={isToggling}
               >
                 <TrashIcon className="size-4 mr-1.5 text-inherit" />
@@ -106,7 +107,7 @@ export function WebhookCard({
         <CardContent>
           <div className="flex items-start justify-between">
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-mono text-muted-foreground break-all mb-3">
+              <p className="text-sm font-mono text-muted-foreground break-all mb-3 line-clamp-1">
                 {webhook.endpoint}
               </p>
               <div className="flex items-center justify-between gap-4 text-xs text-muted-foreground">

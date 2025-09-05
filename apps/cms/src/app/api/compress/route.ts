@@ -26,7 +26,7 @@ export async function POST(request: Request) {
       })
       .toBuffer();
 
-    return new NextResponse(compressedBuffer, {
+    return NextResponse.json(compressedBuffer, {
       headers: {
         "Content-Type": "image/webp",
         "Content-Disposition": `attachment; filename="${file.name.replace(/\.[^/.]+$/, ".webp")}"`,

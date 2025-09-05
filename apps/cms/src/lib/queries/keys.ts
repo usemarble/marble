@@ -23,6 +23,8 @@ export const QUERY_KEYS = {
 
   WEBHOOKS: (workspaceId: string) => ["webhooks", workspaceId],
 
+  BILLING_USAGE: (workspaceId: string) => ["billing-usage", workspaceId],
+
   // Globally scoped
   USER: ["user"],
 };

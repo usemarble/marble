@@ -6,8 +6,9 @@ import { completeSchema } from "@/lib/validations/upload";
 import { getMediaType } from "@/utils/media";
 
 export async function POST(request: Request) {
-  const sessionInfo = await getServerSession();
-  if (!sessionInfo) {
+  const sessionData = await getServerSession();
+
+  if (!sessionData || !sessionData.session.activeOrganizationId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -27,7 +28,7 @@ export async function POST(request: Request) {
   try {
     switch (type) {
       case "avatar": {
-        const userId = sessionInfo.session.userId;
+        const userId = sessionData.session.userId;
         await db.user.update({
           where: { id: userId },
           data: { image: url },
@@ -35,7 +36,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ avatarUrl: url });
       }
       case "logo": {
-        const workspaceId = sessionInfo.session.activeOrganizationId as string;
+        const workspaceId = sessionData.session.activeOrganizationId as string;
         await db.organization.update({
           where: { id: workspaceId },
           data: { logo: url },
@@ -44,7 +45,7 @@ export async function POST(request: Request) {
       }
       case "media": {
         const mediaName = parsedBody.data.name;
-        const workspaceId = sessionInfo.session.activeOrganizationId as string;
+        const workspaceId = sessionData.session.activeOrganizationId as string;
         const media = await db.media.create({
           data: {
             name: mediaName,

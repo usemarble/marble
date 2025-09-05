@@ -3,12 +3,7 @@
 import { Button } from "@marble/ui/components/button";
 import { Card, CardContent } from "@marble/ui/components/card";
 import { Progress } from "@marble/ui/components/progress";
-import {
-  ImagesIcon,
-  PlugsIcon,
-  UsersIcon,
-  WebhooksLogoIcon,
-} from "@phosphor-icons/react";
+import { ImagesIcon, PlugsIcon, UsersIcon } from "@phosphor-icons/react";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState } from "react";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
@@ -17,13 +12,17 @@ const UpgradeModal = dynamic(() =>
   import("@/components/billing/upgrade-modal").then((mod) => mod.UpgradeModal),
 );
 
+import { toast } from "sonner";
 import { usePlan } from "@/hooks/use-plan";
+import { authClient } from "@/lib/auth/client";
 import { useWorkspace } from "@/providers/workspace";
+import { formatBytes } from "@/utils/string";
 
 function PageClient() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const { activeWorkspace, isOwner } = useWorkspace();
-  const { planLimits, currentMemberCount, currentPlan } = usePlan();
+  const { planLimits, currentMemberCount, currentPlan, currentMediaUsage } =
+    usePlan();
 
   const subscription = activeWorkspace?.subscription;
 
@@ -101,6 +100,29 @@ function PageClient() {
     updateBillingCycleText();
   }, [updateBillingCycleText]);
 
+  const maxMediaBytes = planLimits.maxMediaStorage * 1024 * 1024;
+  const mediaUsedBytes = currentMediaUsage;
+  const mediaRemainingMB = Math.max(
+    0,
+    Math.ceil(Math.max(0, maxMediaBytes - mediaUsedBytes) / (1024 * 1024)),
+  );
+  const mediaPercent = maxMediaBytes
+    ? Math.min(100, Math.round((mediaUsedBytes / maxMediaBytes) * 100))
+    : 0;
+
+  const memberMax = planLimits.maxMembers;
+  const memberPercent = memberMax
+    ? Math.min(100, Math.round((currentMemberCount / memberMax) * 100))
+    : 0;
+
+  const redirectCustomerPortal = async () => {
+    try {
+      await authClient.customer.portal();
+    } catch (_e) {
+      toast.error("Failed to redirect to customer portal");
+    }
+  };
+
   return (
     <WorkspacePageWrapper>
       <div className="flex flex-col gap-6">
@@ -121,7 +143,14 @@ function PageClient() {
                     <Button onClick={() => setShowUpgradeModal(true)}>
                       {subscription?.plan ? "Change Plan" : "Upgrade"}
                     </Button>
-                    <Button variant="outline">View invoices</Button>
+                    {subscription?.plan && (
+                      <Button
+                        onClick={() => redirectCustomerPortal()}
+                        variant="outline"
+                      >
+                        Manage Subscription
+                      </Button>
+                    )}
                   </>
                 )}
               </div>
@@ -141,38 +170,11 @@ function PageClient() {
               </div>
               <div className="space-y-3">
                 <div className="text-3xl font-bold">0</div>
-                <Progress
-                  value={planLimits.maxApiRequests === -1 ? 100 : 0}
-                  max={
-                    planLimits.maxApiRequests === -1
-                      ? 100
-                      : planLimits.maxApiRequests
-                  }
-                />
+                <Progress value={planLimits.maxApiRequests === -1 ? 100 : 0} />
                 <p className="text-sm text-muted-foreground">
                   {planLimits.maxApiRequests === -1
                     ? "Unlimited requests"
                     : `${formatApiRequestLimit(planLimits.maxApiRequests)} remaining of ${formatApiRequestLimit(planLimits.maxApiRequests)}`}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="size-8 rounded-lg bg-muted flex items-center justify-center">
-                  <WebhooksLogoIcon className="text-muted-foreground" />
-                </div>
-                <h3 className="font-medium">Webhook Events</h3>
-              </div>
-              <div className="space-y-3">
-                <div className="text-3xl font-bold">0</div>
-                <Progress value={0} max={planLimits.maxWebhookEvents || 1} />
-                <p className="text-sm text-muted-foreground">
-                  {planLimits.maxWebhookEvents === 0
-                    ? "No webhook access"
-                    : `${planLimits.maxWebhookEvents.toLocaleString()} remaining of ${planLimits.maxWebhookEvents.toLocaleString()}`}
                 </p>
               </div>
             </CardContent>
@@ -187,11 +189,13 @@ function PageClient() {
                 <h3 className="font-medium">Media</h3>
               </div>
               <div className="space-y-3">
-                <div className="text-3xl font-bold">10 MB</div>
-                <Progress value={10} max={planLimits.maxMediaStorage} />
+                <div className="text-3xl font-bold">
+                  {formatBytes(currentMediaUsage)}
+                </div>
+                <Progress value={mediaPercent} />
                 <p className="text-sm text-muted-foreground">
-                  {formatStorageLimit(planLimits.maxMediaStorage - 10)}{" "}
-                  remaining of {formatStorageLimit(planLimits.maxMediaStorage)}
+                  {formatStorageLimit(mediaRemainingMB)} remaining of{" "}
+                  {formatStorageLimit(planLimits.maxMediaStorage)}
                 </p>
               </div>
             </CardContent>
@@ -207,10 +211,7 @@ function PageClient() {
               </div>
               <div className="space-y-3">
                 <div className="text-3xl font-bold">{currentMemberCount}</div>
-                <Progress
-                  value={currentMemberCount}
-                  max={planLimits.maxMembers}
-                />
+                <Progress value={memberPercent} />
                 <p className="text-sm text-muted-foreground">
                   {Math.max(0, planLimits.maxMembers - currentMemberCount)}{" "}
                   remaining of {planLimits.maxMembers}

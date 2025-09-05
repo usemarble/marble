@@ -8,13 +8,11 @@
     "docker:logs": "docker compose logs -f",
     "docker:ps": "docker compose ps",
     "docker:restart": "docker compose restart",
-
     "db:migrate": "pnpm --filter @marble/db db:migrate",
-    "db:deploy":  "pnpm --filter @marble/db db:deploy",
-    "db:generate":"pnpm --filter @marble/db db:generate",
-    "db:studio":  "pnpm --filter @marble/db db:studio",
+    "db:deploy": "pnpm --filter @marble/db db:deploy",
+    "db:generate": "pnpm --filter @marble/db db:generate",
+    "db:studio": "pnpm --filter @marble/db db:studio",
     "db:push": "pnpm --filter @marble/db db:push",
-
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
@@ -47,5 +45,5 @@
       "@types/react-dom": "19.0.2"
     }
   },
-  "packageManager": "pnpm@10.13.1"
+  "packageManager": "pnpm@10.15.0"
 }

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { type Attribution, postSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";
+import { getWebhooks, WebhookClient } from "@/lib/webhooks/webhook-client";
 import { sanitizeHtml } from "@/utils/editor";
 
 export async function GET(
@@ -66,12 +67,10 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await getServerSession();
-  const user = session?.user;
+  const sessionData = await getServerSession();
+  const user = sessionData?.user;
 
-  if (!user)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (!session?.session.activeOrganizationId)
+  if (!user || !sessionData?.session.activeOrganizationId)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
@@ -85,7 +84,7 @@ export async function PATCH(
 
   const tagValidation = await validateWorkspaceTags(
     values.tags,
-    session.session.activeOrganizationId,
+    sessionData.session.activeOrganizationId,
   );
 
   if (!tagValidation.success) {
@@ -93,6 +92,15 @@ export async function PATCH(
   }
 
   const { uniqueTagIds } = tagValidation;
+
+  const post = await db.post.findFirst({
+    where: { id, workspaceId: sessionData.session.activeOrganizationId },
+    select: { status: true },
+  });
+
+  if (!post) {
+    return NextResponse.json({ error: "Post not found" }, { status: 404 });
+  }
 
   try {
     const postUpdated = await db.post.update({
@@ -108,7 +116,7 @@ export async function PATCH(
         description: values.description,
         publishedAt: values.publishedAt,
         attribution: validAttribution,
-        workspaceId: session?.session.activeOrganizationId,
+        workspaceId: sessionData?.session.activeOrganizationId,
         tags: values.tags
           ? { set: uniqueTagIds.map((id) => ({ id })) }
           : undefined,
@@ -118,6 +126,42 @@ export async function PATCH(
         },
       },
     });
+
+    const data = {
+      id: postUpdated.id,
+      title: postUpdated.title,
+      slug: postUpdated.slug,
+      userId: sessionData.user.id,
+    };
+
+    if (values.status === "published" && post.status === "draft") {
+      const webhooksPublished = getWebhooks(
+        sessionData.session,
+        "post_published",
+      );
+
+      for (const webhook of await webhooksPublished) {
+        const webhookClient = new WebhookClient({ secret: webhook.secret });
+        await webhookClient.send({
+          url: webhook.endpoint,
+          event: "post.published",
+          data,
+          format: webhook.format,
+        });
+      }
+    }
+
+    const webhooksUpdated = getWebhooks(sessionData.session, "post_updated");
+
+    for (const webhook of await webhooksUpdated) {
+      const webhookClient = new WebhookClient({ secret: webhook.secret });
+      await webhookClient.send({
+        url: webhook.endpoint,
+        event: "post.updated",
+        data,
+        format: webhook.format,
+      });
+    }
 
     return NextResponse.json({ id: postUpdated.id }, { status: 200 });
   } catch (_e) {
@@ -132,20 +176,48 @@ export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await getServerSession();
+  const sessionData = await getServerSession();
 
-  if (!session?.user) {
+  if (!sessionData?.user || !sessionData.session.activeOrganizationId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { id } = await params;
 
-  try {
-    const deletedPost = await db.post.delete({
-      where: { id },
-    });
+  const post = await db.post.findFirst({
+    where: { id, workspaceId: sessionData.session.activeOrganizationId },
+    select: { slug: true },
+  });
 
-    return NextResponse.json({ id: deletedPost.id }, { status: 200 });
+  if (!post) {
+    return NextResponse.json({ error: "Post not found" }, { status: 404 });
+  }
+
+  try {
+    await db.post
+      .delete({
+        where: { id },
+      })
+      .catch((_e) => {
+        return NextResponse.json(
+          { error: "Failed to delete post" },
+          { status: 500 },
+        );
+      });
+
+    const webhooks = getWebhooks(sessionData.session, "post_deleted");
+
+    for (const webhook of await webhooks) {
+      const webhookClient = new WebhookClient({ secret: webhook.secret });
+      await webhookClient.send({
+        url: webhook.endpoint,
+        event: "post.deleted",
+        data: { id: id, slug: post.slug, userId: sessionData.user.id },
+        format: webhook.format,
+      });
+    }
+
+    return new NextResponse(null, { status: 204 });
   } catch (_e) {
     return NextResponse.json(
       { error: "Failed to delete post" },
