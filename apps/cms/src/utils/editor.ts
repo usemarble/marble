@@ -42,6 +42,7 @@ export const sanitizeHtml = (content: string) => {
       a: ["href", "target"],
       iframe: ["src", "allowfullscreen", "style"],
       input: ["type", "checked"],
+      div: ["x-marble-*"]
     },
     allowedSchemes: ["http", "https", "ftp", "mailto"],
     allowedSchemesByTag: {

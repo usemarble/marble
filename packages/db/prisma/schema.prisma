@@ -49,6 +49,7 @@ model Organization {
   subscription Subscription?
   tags         Tag[]
   webhooks     Webhook[]
+  customComponents CustomComponent[]
 
   @@map("workspace")
 }
@@ -307,4 +308,44 @@ enum MediaType {
   video
   audio
   document
+}
+
+model CustomComponent {
+  id          String       @id @default(cuid())
+  name        String
+  description String?
+  workspaceId String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  properties  ComponentProperty[]
+
+  @@unique([workspaceId, name])
+  @@map("custom_component")
+}
+
+model ComponentProperty {
+  id                String            @id @default(cuid())
+  name              String
+  type              PropertyType
+  required          Boolean           @default(false)
+  defaultValue      String?
+  customComponentId String
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  customComponent   CustomComponent   @relation(fields: [customComponentId], references: [id], onDelete: Cascade)
+
+  @@unique([customComponentId, name])
+  @@map("component_property")
+}
+
+enum PropertyType {
+  string
+  number
+  boolean
+  date
+  email
+  url
+  textarea
+  select
 }
