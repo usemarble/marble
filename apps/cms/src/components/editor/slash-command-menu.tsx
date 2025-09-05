@@ -5,10 +5,10 @@ import {
   EditorCommandList,
 } from "novel";
 import { useState } from "react";
-import { ComponentSelectorModal } from "./component-selector-modal";
 import { ImageUploadModal } from "./image-upload-modal";
 import { suggestionItems } from "./slash-command-items";
 import { YoutubeEmbedModal } from "./youtube-embed-modal";
+import { ComponentSelectorModal } from "./component-selector-modal";
 
 export function SlashCommandMenu() {
   const [showImageModal, setShowImageModal] = useState(false);

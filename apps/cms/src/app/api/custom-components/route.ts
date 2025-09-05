@@ -1,5 +1,5 @@
 import { db } from "@marble/db";
-import { type NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/session";
 
 export async function GET(request: NextRequest) {
@@ -12,10 +12,7 @@ export async function GET(request: NextRequest) {
   const workspaceId = searchParams.get("workspaceId");
 
   if (!workspaceId) {
-    return NextResponse.json(
-      { error: "Workspace ID is required" },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "Workspace ID is required" }, { status: 400 });
   }
 
   try {
@@ -36,7 +33,7 @@ export async function GET(request: NextRequest) {
     console.error("Error fetching custom components:", error);
     return NextResponse.json(
       { error: "Failed to fetch custom components" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
@@ -54,7 +51,7 @@ export async function POST(request: NextRequest) {
     if (!name || !workspaceId) {
       return NextResponse.json(
         { error: "Name and workspace ID are required" },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -64,13 +61,12 @@ export async function POST(request: NextRequest) {
         description,
         workspaceId,
         properties: {
-          create:
-            properties?.map((prop: { name: string; type: string; required?: boolean; defaultValue?: string }) => ({
-              name: prop.name,
-              type: prop.type,
-              required: prop.required || false,
-              defaultValue: prop.defaultValue,
-            })) || [],
+          create: properties?.map((prop: any) => ({
+            name: prop.name,
+            type: prop.type,
+            required: prop.required || false,
+            defaultValue: prop.defaultValue,
+          })) || [],
         },
       },
       include: {
@@ -83,7 +79,7 @@ export async function POST(request: NextRequest) {
     console.error("Error creating custom component:", error);
     return NextResponse.json(
       { error: "Failed to create custom component" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

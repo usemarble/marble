@@ -2,9 +2,9 @@
 
 import { Button } from "@marble/ui/components/button";
 import { Plus } from "@phosphor-icons/react";
-import { useCallback, useEffect, useState } from "react";
-import { ComponentModals } from "@/components/components/component-modals";
+import { useState, useEffect } from "react";
 import { ComponentsDataTable } from "@/components/components/data-table";
+import { ComponentModals } from "@/components/components/component-modals";
 import { useWorkspace } from "@/hooks/use-workspace-id";
 
 export interface CustomComponent {
@@ -25,26 +25,18 @@ export interface ComponentProperty {
   defaultValue?: string;
 }
 
-export interface CreateComponentData {
-  name: string;
-  description?: string;
-  properties?: Omit<ComponentProperty, 'id'>[];
-}
-
-export function PageClient(_props: { workspaceSlug: string }) {
+export function PageClient({ workspaceSlug }: { workspaceSlug: string }) {
   const [components, setComponents] = useState<CustomComponent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const workspaceId = useWorkspace();
 
-  const fetchComponents = useCallback(async () => {
+  const fetchComponents = async () => {
     if (!workspaceId) return;
-
+    
     try {
       setIsLoading(true);
-      const response = await fetch(
-        `/api/custom-components?workspaceId=${workspaceId}`,
-      );
+      const response = await fetch(`/api/custom-components?workspaceId=${workspaceId}`);
       if (response.ok) {
         const data = await response.json();
         setComponents(data);
@@ -54,13 +46,13 @@ export function PageClient(_props: { workspaceSlug: string }) {
     } finally {
       setIsLoading(false);
     }
-  }, [workspaceId]);
+  };
 
   useEffect(() => {
     fetchComponents();
-  }, [fetchComponents]);
+  }, [workspaceId]);
 
-  const handleCreate = async (componentData: CreateComponentData) => {
+  const handleCreate = async (componentData: any) => {
     try {
       const response = await fetch("/api/custom-components", {
         method: "POST",
@@ -82,7 +74,7 @@ export function PageClient(_props: { workspaceSlug: string }) {
     }
   };
 
-  const handleUpdate = async (id: string, componentData: CreateComponentData) => {
+  const handleUpdate = async (id: string, componentData: any) => {
     try {
       const response = await fetch(`/api/custom-components/${id}`, {
         method: "PUT",

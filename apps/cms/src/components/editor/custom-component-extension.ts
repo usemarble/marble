@@ -3,16 +3,13 @@ import { ReactNodeViewRenderer } from "@tiptap/react";
 import { CustomComponentNodeView } from "./custom-component-node-view";
 
 export interface CustomComponentOptions {
-  HTMLAttributes: Record<string, unknown>;
+  HTMLAttributes: Record<string, any>;
 }
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     customComponent: {
-      setCustomComponent: (options: {
-        name: string;
-        attributes?: Record<string, unknown>;
-      }) => ReturnType;
+      setCustomComponent: (options: { name: string; attributes?: Record<string, any> }) => ReturnType;
     };
   }
 }
@@ -29,21 +26,18 @@ export const CustomComponent = Node.create<CustomComponentOptions>({
   parseHTML() {
     return [
       {
-        tag: "div[x-marble-component-name]",
+        tag: 'div[x-marble-component-name]',
         getAttrs: (node) => {
           if (typeof node === "string") return false;
           const element = node as HTMLElement;
-
+          
           const componentName = element.getAttribute("x-marble-component-name");
           if (!componentName) return false;
 
-          const attributes: Record<string, unknown> = { componentName };
-
+          const attributes: Record<string, any> = { componentName };
+          
           for (const attr of element.attributes) {
-            if (
-              attr.name.startsWith("x-marble-") &&
-              attr.name !== "x-marble-component-name"
-            ) {
+            if (attr.name.startsWith("x-marble-") && attr.name !== "x-marble-component-name") {
               const propName = attr.name.replace("x-marble-", "");
               attributes[propName] = attr.value;
             }
@@ -55,13 +49,12 @@ export const CustomComponent = Node.create<CustomComponentOptions>({
     ];
   },
 
-  renderHTML({ node }) {
+  renderHTML({ node, HTMLAttributes }) {
     const { componentName, ...props } = node.attrs;
-
-    const componentAttrs: Record<string, unknown> = {
+    
+    const componentAttrs: Record<string, any> = {
       "x-marble-component-name": componentName,
-      class:
-        "marble-custom-component border-2 border-dashed border-primary/30 rounded-md p-4 my-4 bg-primary/5",
+      class: "marble-custom-component border-2 border-dashed border-primary/30 rounded-md p-4 my-4 bg-primary/5",
     };
 
     Object.entries(props).forEach(([key, value]) => {

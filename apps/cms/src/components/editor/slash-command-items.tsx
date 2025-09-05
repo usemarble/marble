@@ -4,13 +4,13 @@ import {
   Image as ImageIcon,
   List,
   ListNumbers,
-  PuzzlePieceIcon,
   Quotes,
   TextAlignLeft,
   TextHFour,
   TextHThree,
   TextHTwo,
   YoutubeLogo,
+  PuzzlePieceIcon,
 } from "@phosphor-icons/react";
 import { Command, createSuggestionItems, renderItems } from "novel/extensions";
 
@@ -138,8 +138,8 @@ export const suggestionItems = createSuggestionItems([
       input.accept = "image/*";
       input.onchange = async () => {
         if (input.files?.length) {
-          const _file = input.files[0];
-          const _pos = editor.view.state.selection.from;
+          const file = input.files[0];
+          const pos = editor.view.state.selection.from;
           // if (file) uploadFile(file, editor.view, pos);
         }
       };
