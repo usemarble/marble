@@ -1,15 +1,12 @@
 import { db } from "@marble/db";
 import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/session";
-import { headers } from "next/headers";
 
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } },
 ) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -43,19 +40,12 @@ export async function PUT(
           description,
           properties: {
             create:
-              properties?.map(
-                (prop: {
-                  name: string;
-                  type: string;
-                  required?: boolean;
-                  defaultValue?: string;
-                }) => ({
-                  name: prop.name,
-                  type: prop.type,
-                  required: prop.required || false,
-                  defaultValue: prop.defaultValue,
-                }),
-              ) || [],
+              properties?.map((prop: { name: string; type: string; required?: boolean; defaultValue?: string }) => ({
+                name: prop.name,
+                type: prop.type,
+                required: prop.required || false,
+                defaultValue: prop.defaultValue,
+              })) || [],
           },
         },
         include: {
@@ -78,9 +68,7 @@ export async function DELETE(
   _request: NextRequest,
   { params }: { params: { id: string } },
 ) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -119,9 +107,7 @@ export async function GET(
   _request: NextRequest,
   { params }: { params: { id: string } },
 ) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

@@ -5,7 +5,7 @@ import { Plus } from "@phosphor-icons/react";
 import { useCallback, useEffect, useState } from "react";
 import { ComponentModals } from "@/components/components/component-modals";
 import { ComponentsDataTable } from "@/components/components/data-table";
-import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { useWorkspace } from "@/hooks/use-workspace-id";
 
 export interface CustomComponent {
   id: string;
@@ -35,7 +35,7 @@ export function PageClient(_props: { workspaceSlug: string }) {
   const [components, setComponents] = useState<CustomComponent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const workspaceId = useWorkspaceId();
+  const workspaceId = useWorkspace();
 
   const fetchComponents = useCallback(async () => {
     if (!workspaceId) return;
