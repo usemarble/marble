@@ -44,91 +44,119 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { mediaId } = await request.json();
+  const { mediaId, mediaIds } = await request.json();
 
-  if (!mediaId) {
-    return NextResponse.json({ error: "mediaId is required" }, { status: 400 });
+  const idsToDelete = mediaIds || (mediaId ? [mediaId] : []);
+
+  if (idsToDelete.length === 0) {
+    return NextResponse.json(
+      { error: "mediaId or mediaIds is required" },
+      { status: 400 },
+    );
   }
 
   try {
-    const media = await db.media.findUnique({
-      where: {
-        id: mediaId,
-        workspaceId: sessionData.session.activeOrganizationId,
-      },
-    });
+    const deletedIds: string[] = [];
+    const failedIds: string[] = [];
 
-    if (!media) {
-      return NextResponse.json({ error: "Media not found" }, { status: 404 });
-    }
-
-    if (!media.url) {
-      console.error(
-        `Media with ID ${media.id} has no URL. Deleting database record only.`,
-      );
-    } else {
+    for (const id of idsToDelete) {
       try {
-        const pathname = media.url.startsWith("http")
-          ? new URL(media.url).pathname
-          : media.url;
+        const media = await db.media.findUnique({
+          where: {
+            id,
+            workspaceId: sessionData.session.activeOrganizationId,
+          },
+        });
 
-        let key = pathname.replace(/^\/+/, "");
-
-        if (key.startsWith(`${R2_BUCKET_NAME}/`)) {
-          // Remove leading slash(es)
-
-          // Strip optional bucket prefix if present
-          key = key.slice(R2_BUCKET_NAME.length + 1);
+        if (!media) {
+          failedIds.push(id);
+          continue;
         }
 
-        if (!key || key.includes("..") || key.includes("//")) {
-          // Sanitize for traversal or empty segments
-          throw new Error(
-            "Invalid storage key: contains empty or traversal path segments.",
+        if (!media.url) {
+          console.error(
+            `Media with ID ${media.id} has no URL. Deleting database record only.`,
           );
+        } else {
+          try {
+            const pathname = media.url.startsWith("http")
+              ? new URL(media.url).pathname
+              : media.url;
+
+            let key = pathname.replace(/^\/+/, "");
+
+            if (key.startsWith(`${R2_BUCKET_NAME}/`)) {
+              key = key.slice(R2_BUCKET_NAME.length + 1);
+            }
+
+            if (!key || key.includes("..") || key.includes("//")) {
+              throw new Error(
+                "Invalid storage key: contains empty or traversal path segments.",
+              );
+            }
+
+            await r2.send(
+              new DeleteObjectCommand({
+                Bucket: R2_BUCKET_NAME,
+                Key: key,
+              }),
+            );
+          } catch (error) {
+            console.error(
+              `Failed to delete media object from R2 for media ID ${media.id}. URL: ${media.url}`,
+              error,
+            );
+            failedIds.push(id);
+            continue;
+          }
         }
 
-        await r2.send(
-          new DeleteObjectCommand({
-            Bucket: R2_BUCKET_NAME,
-            Key: key,
-          }),
-        );
+        await db.media.delete({
+          where: {
+            id,
+          },
+        });
+
+        const webhooks = getWebhooks(sessionData.session, "media_deleted");
+        for (const webhook of await webhooks) {
+          const webhookClient = new WebhookClient({ secret: webhook.secret });
+          await webhookClient.send({
+            url: webhook.endpoint,
+            event: "media.deleted",
+            data: {
+              id: media.id,
+              name: media.name,
+              userId: sessionData.user.id,
+            },
+            format: webhook.format,
+          });
+        }
+
+        deletedIds.push(id);
       } catch (error) {
-        console.error(
-          `Failed to delete media object from R2 for media ID ${media.id}. URL: ${media.url}`,
-          error,
-        );
-        return NextResponse.json(
-          { error: "Failed to delete media from storage." },
-          { status: 500 },
-        );
+        console.error(`Failed to delete media ${id}:`, error);
+        failedIds.push(id);
       }
     }
 
-    const deletedMedia = await db.media.delete({
-      where: {
-        id: mediaId,
-      },
-    });
-
-    const webhooks = getWebhooks(sessionData.session, "media_deleted");
-
-    for (const webhook of await webhooks) {
-      const webhookClient = new WebhookClient({ secret: webhook.secret });
-      await webhookClient.send({
-        url: webhook.endpoint,
-        event: "media.deleted",
-        data: {
-          id: media.id,
-          name: media.name,
-          userId: sessionData.user.id,
-        },
-        format: webhook.format,
-      });
+    if (deletedIds.length === 0) {
+      return NextResponse.json(
+        { error: "No media items were deleted successfully" },
+        { status: 500 },
+      );
     }
 
-    return NextResponse.json({ id: deletedMedia.id }, { status: 200 });
+    return NextResponse.json(
+      {
+        deletedIds,
+        failedIds: failedIds.length > 0 ? failedIds : undefined,
+        message:
+          failedIds.length > 0
+            ? `Deleted ${deletedIds.length} items, ${failedIds.length} failed`
+            : `Deleted ${deletedIds.length} items successfully`,
+      },
+      { status: 200 },
+    );
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Failed to delete media";
