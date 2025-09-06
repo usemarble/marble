@@ -34,7 +34,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useState } from "react";
 import type { Post } from "./columns";
 
@@ -49,7 +49,6 @@ export function PostDataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const params = useParams<{ workspace: string }>();
-  const router = useRouter();
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
@@ -67,17 +66,6 @@ export function PostDataTable<TData, TValue>({
     },
   });
 
-  const handleRowClick = (post: Post, event: React.MouseEvent) => {
-    if (
-      (event.target as HTMLElement).closest('[data-actions-cell="true"]') ||
-      (event.target as HTMLElement).closest("button") ||
-      (event.target as HTMLElement).closest("a") ||
-      (event.target as HTMLElement).closest('[role="menuitem"]')
-    ) {
-      return;
-    }
-    router.push(`/${params.workspace}/editor/p/${post.id}`);
-  };
 
   return (
     <div>
@@ -178,20 +166,21 @@ export function PostDataTable<TData, TValue>({
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow
+                <Link
                   key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                  className="cursor-pointer hover:bg-muted/50"
-                  onClick={(event) =>
-                    handleRowClick(row.original as Post, event)
-                  }
+                  href={`/${params.workspace}/editor/p/${(row.original as Post).id}`}
+                  rel="noopener noreferrer"
+                  className="contents"
                 >
+                  <TableRow
+                    data-state={row.getIsSelected() && "selected"}
+                    className="cursor-pointer hover:bg-muted/50"
+                  >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}
                       {...(cell.column.id === "actions" && {
                         "data-actions-cell": "true",
-                        onClick: (e: React.MouseEvent) => e.stopPropagation(),
                       })}
                     >
                       {flexRender(
@@ -200,7 +189,8 @@ export function PostDataTable<TData, TValue>({
                       )}
                     </TableCell>
                   ))}
-                </TableRow>
+                  </TableRow>
+                </Link>
               ))
             ) : (
               <TableRow>
