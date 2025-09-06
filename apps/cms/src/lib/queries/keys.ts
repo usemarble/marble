@@ -20,6 +20,7 @@ export const QUERY_KEYS = {
   MEDIA: (workspaceId: string) => ["media", workspaceId],
 
   TEAM: (workspaceId: string) => ["team", workspaceId],
+  AUTHORS: (workspaceId: string) => ["authors", workspaceId],
 
   WEBHOOKS: (workspaceId: string) => ["webhooks", workspaceId],
 
