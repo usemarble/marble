@@ -67,64 +67,74 @@ export async function DELETE(request: Request) {
     const deletedIds: string[] = [];
     const failedIds: string[] = [];
 
+    const existingMedia = await db.media.findMany({
+      where: {
+        id: { in: idsToDelete },
+        workspaceId: sessionData.session.activeOrganizationId,
+      },
+    });
+
+    const existingIds = existingMedia.map((media) => media.id);
     for (const id of idsToDelete) {
-      try {
-        const media = await db.media.findFirst({
-          where: {
-            id,
-            workspaceId: sessionData.session.activeOrganizationId,
-          },
-        });
+      if (!existingIds.includes(id)) {
+        failedIds.push(id);
+      }
+    }
 
-        if (!media) {
-          failedIds.push(id);
-          continue;
-        }
+    const successfullyDeletedFromR2: Array<{
+      id: string;
+      media: (typeof existingMedia)[0];
+    }> = [];
 
-        if (!media.url) {
-          console.error(
-            `Media with ID ${media.id} has no URL. Deleting database record only.`,
-          );
-        } else {
-          try {
-            const rawPath = media.url.startsWith("http")
-              ? new URL(media.url).pathname
-              : media.url;
-            let key = decodeURIComponent(rawPath).replace(/^\/+/, "");
-            if (key.startsWith(`${R2_BUCKET_NAME}/`)) {
-              key = key.slice(R2_BUCKET_NAME.length + 1);
-            }
-            key = key.replace(/\/{2,}/g, "/");
-            if (
-              !key ||
-              key.split("/").some((seg) => ["", ".", ".."].includes(seg))
-            ) {
-              throw new Error(
-                "Invalid storage key: contains empty or traversal path segments.",
-              );
-            }
-            await r2.send(
-              new DeleteObjectCommand({
-                Bucket: R2_BUCKET_NAME,
-                Key: key,
-              }),
-            );
-          } catch (error) {
-            console.error(
-              `Failed to delete media object from R2 for media ID ${media.id}. URL: ${media.url}`,
-              error,
-            );
-            failedIds.push(id);
-            continue;
+    for (const media of existingMedia) {
+      if (!media.url) {
+        console.error(
+          `Media with ID ${media.id} has no URL. Deleting database record only.`,
+        );
+        successfullyDeletedFromR2.push({ id: media.id, media });
+      } else {
+        try {
+          const rawPath = media.url.startsWith("http")
+            ? new URL(media.url).pathname
+            : media.url;
+          let key = decodeURIComponent(rawPath).replace(/^\/+/, "");
+          if (key.startsWith(`${R2_BUCKET_NAME}/`)) {
+            key = key.slice(R2_BUCKET_NAME.length + 1);
           }
+          key = key.replace(/\/{2,}/g, "/");
+          if (
+            !key ||
+            key.split("/").some((seg) => ["", ".", ".."].includes(seg))
+          ) {
+            throw new Error(
+              "Invalid storage key: contains empty or traversal path segments.",
+            );
+          }
+          await r2.send(
+            new DeleteObjectCommand({
+              Bucket: R2_BUCKET_NAME,
+              Key: key,
+            }),
+          );
+          successfullyDeletedFromR2.push({ id: media.id, media });
+        } catch (error) {
+          console.error(
+            `Failed to delete media object from R2 for media ID ${media.id}. URL: ${media.url}`,
+            error,
+          );
+          failedIds.push(media.id);
         }
+      }
+    }
 
-        await db.media.delete({
-          where: {
-            id,
-          },
-        });
+    if (successfullyDeletedFromR2.length > 0) {
+      await db.media.deleteMany({
+        where: {
+          id: { in: successfullyDeletedFromR2.map((item) => item.id) },
+        },
+      });
 
+      for (const { media } of successfullyDeletedFromR2) {
         const webhooks = getWebhooks(sessionData.session, "media_deleted");
         for (const webhook of await webhooks) {
           const webhookClient = new WebhookClient({ secret: webhook.secret });
@@ -139,11 +149,7 @@ export async function DELETE(request: Request) {
             format: webhook.format,
           });
         }
-
-        deletedIds.push(id);
-      } catch (error) {
-        console.error(`Failed to delete media ${id}:`, error);
-        failedIds.push(id);
+        deletedIds.push(media.id);
       }
     }
 
