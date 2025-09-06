@@ -66,7 +66,6 @@ export function PostDataTable<TData, TValue>({
     },
   });
 
-
   return (
     <div>
       <div className="flex items-center py-4 justify-between">
@@ -176,19 +175,19 @@ export function PostDataTable<TData, TValue>({
                     data-state={row.getIsSelected() && "selected"}
                     className="cursor-pointer hover:bg-muted/50"
                   >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell
-                      key={cell.id}
-                      {...(cell.column.id === "actions" && {
-                        "data-actions-cell": "true",
-                      })}
-                    >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
-                    </TableCell>
-                  ))}
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell
+                        key={cell.id}
+                        {...(cell.column.id === "actions" && {
+                          "data-actions-cell": "true",
+                        })}
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </TableCell>
+                    ))}
                   </TableRow>
                 </Link>
               ))
