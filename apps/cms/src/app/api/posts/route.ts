@@ -9,12 +9,12 @@ import { sanitizeHtml } from "@/utils/editor";
 export async function GET() {
   const sessionData = await getServerSession();
 
-  if (!sessionData) {
+  if (!sessionData || !sessionData.session.activeOrganizationId) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
   const posts = await db.post.findMany({
-    where: { workspaceId: sessionData.session?.activeOrganizationId as string },
+    where: { workspaceId: sessionData.session.activeOrganizationId },
     select: {
       id: true,
       title: true,
@@ -74,7 +74,6 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   }
-
   const contentJson = JSON.parse(values.contentJson);
   const validAttribution = values.attribution ? values.attribution : undefined;
   const cleanContent = sanitizeHtml(values.content);
@@ -110,19 +109,12 @@ export async function POST(request: Request) {
   const primaryAuthor =
     validAuthors.find((a) => a.id === author.id) || validAuthors[0];
 
-  if (!primaryAuthor) {
-    return NextResponse.json(
-      { error: "No valid primary author found" },
-      { status: 400 },
-    );
-  }
-
   const postCreated = await db.post.create({
     data: {
       // Legacy fields (keep for backward compatibility during transition)
       primaryAuthorId: sessionData.user.id,
       // New author fields
-      newPrimaryAuthorId: primaryAuthor.id,
+      newPrimaryAuthorId: primaryAuthor?.id,
       contentJson,
       slug: values.slug,
       title: values.title,
@@ -151,7 +143,6 @@ export async function POST(request: Request) {
     },
   });
 
-  // Handle webhooks for published posts
   const webhooks = getWebhooks(sessionData.session, "post_published");
 
   if (postCreated.status === "published") {

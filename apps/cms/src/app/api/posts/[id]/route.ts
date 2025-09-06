@@ -76,7 +76,9 @@ export async function PATCH(
   const sessionData = await getServerSession();
   const user = sessionData?.user;
 
-  if (!user || !sessionData?.session.activeOrganizationId)
+  if (!user)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!sessionData?.session.activeOrganizationId)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
@@ -117,13 +119,6 @@ export async function PATCH(
   // Use the first valid author as primary
   const primaryAuthor = validAuthors[0];
 
-  if (!primaryAuthor) {
-    return NextResponse.json(
-      { error: "No valid primary author found" },
-      { status: 400 },
-    );
-  }
-
   const post = await db.post.findFirst({
     where: { id, workspaceId: sessionData.session.activeOrganizationId },
     select: { status: true },
@@ -147,12 +142,12 @@ export async function PATCH(
         description: values.description,
         publishedAt: values.publishedAt,
         attribution: validAttribution,
-        workspaceId: sessionData?.session.activeOrganizationId,
+        workspaceId: sessionData.session.activeOrganizationId,
         tags: values.tags
           ? { set: uniqueTagIds.map((id) => ({ id })) }
           : undefined,
         // Update new author relationships
-        newPrimaryAuthorId: primaryAuthor.id,
+        newPrimaryAuthorId: primaryAuthor?.id,
         newAuthors: {
           set: validAuthors.map((author) => ({ id: author.id })),
         },
@@ -210,46 +205,18 @@ export async function DELETE(
 ) {
   const sessionData = await getServerSession();
 
-  if (!sessionData?.user || !sessionData.session.activeOrganizationId) {
+  if (!sessionData?.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { id } = await params;
 
-  const post = await db.post.findFirst({
-    where: { id, workspaceId: sessionData.session.activeOrganizationId },
-    select: { slug: true },
-  });
-
-  if (!post) {
-    return NextResponse.json({ error: "Post not found" }, { status: 404 });
-  }
-
   try {
-    await db.post
-      .delete({
-        where: { id },
-      })
-      .catch((_e) => {
-        return NextResponse.json(
-          { error: "Failed to delete post" },
-          { status: 500 },
-        );
-      });
+    const deletedPost = await db.post.delete({
+      where: { id },
+    });
 
-    const webhooks = getWebhooks(sessionData.session, "post_deleted");
-
-    for (const webhook of await webhooks) {
-      const webhookClient = new WebhookClient({ secret: webhook.secret });
-      await webhookClient.send({
-        url: webhook.endpoint,
-        event: "post.deleted",
-        data: { id: id, slug: post.slug, userId: sessionData.user.id },
-        format: webhook.format,
-      });
-    }
-
-    return new NextResponse(null, { status: 204 });
+    return NextResponse.json({ id: deletedPost.id }, { status: 200 });
   } catch (_e) {
     return NextResponse.json(
       { error: "Failed to delete post" },
