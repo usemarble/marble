@@ -25,6 +25,7 @@ import { handleSubscriptionCreated } from "@/lib/polar/subscription.created";
 import { handleSubscriptionRevoked } from "@/lib/polar/subscription.revoked";
 import { handleSubscriptionUpdated } from "@/lib/polar/subscription.updated";
 import { getLastActiveWorkspaceOrNewOneToSetAsActive } from "@/lib/queries/workspace";
+import { createAuthor } from "../actions/workspace";
 
 // import { createAuthor } from "../actions/workspace";
 
@@ -144,6 +145,14 @@ export const auth = betterAuth({
           teamLogo: data.organization.logo,
           inviteLink,
         });
+      },
+      organizationHooks: {
+        afterCreateOrganization: async ({ organization, user }) => {
+          await createAuthor(user, organization);
+        },
+        afterAcceptInvitation: async ({ user, organization }) => {
+          await createAuthor(user, organization);
+        },
       },
     }),
     emailOTP({
