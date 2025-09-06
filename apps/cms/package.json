@@ -45,7 +45,7 @@
     "@upstash/qstash": "^2.8.2",
     "@vvo/tzdb": "^6.176.0",
     "axios": "^1.8.4",
-    "better-auth": "1.3.5",
+    "better-auth": "1.3.8",
     "canvas-confetti": "^1.9.3",
     "class-variance-authority": "^0.7.0",
     "croner": "^9.1.0",
