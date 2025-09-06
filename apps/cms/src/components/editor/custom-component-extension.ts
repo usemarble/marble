@@ -9,7 +9,10 @@ export interface CustomComponentOptions {
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     customComponent: {
-      setCustomComponent: (options: { name: string; attributes?: Record<string, any> }) => ReturnType;
+      setCustomComponent: (options: {
+        name: string;
+        attributes?: Record<string, any>;
+      }) => ReturnType;
     };
   }
 }
@@ -34,7 +37,7 @@ export const CustomComponent = Node.create<CustomComponentOptions>({
   parseHTML() {
     return [
       {
-        tag: 'div[x-marble-component-name]',
+        tag: "div[x-marble-component-name]",
         getAttrs: (node) => {
           if (typeof node === "string") return false;
           const element = node as HTMLElement;
@@ -45,7 +48,10 @@ export const CustomComponent = Node.create<CustomComponentOptions>({
           const attributes: Record<string, any> = { componentName };
 
           for (const attr of element.attributes) {
-            if (attr.name.startsWith("x-marble-") && attr.name !== "x-marble-component-name") {
+            if (
+              attr.name.startsWith("x-marble-") &&
+              attr.name !== "x-marble-component-name"
+            ) {
               const propName = attr.name.replace("x-marble-", "");
               attributes[propName] = attr.value;
             }

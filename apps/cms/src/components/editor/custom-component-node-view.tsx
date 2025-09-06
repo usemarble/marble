@@ -1,7 +1,13 @@
-import React, { useState } from "react";
-import { NodeViewWrapper } from "@tiptap/react";
 import { Button } from "@marble/ui/components/button";
-import { PuzzlePieceIcon, PencilIcon, CaretDown, CaretRight } from "@phosphor-icons/react";
+import {
+  CaretDown,
+  CaretRight,
+  PencilIcon,
+  PuzzlePieceIcon,
+} from "@phosphor-icons/react";
+import { NodeViewWrapper } from "@tiptap/react";
+import type React from "react";
+import { useState } from "react";
 import { ComponentSelectorModal } from "./component-selector-modal";
 
 export function CustomComponentNodeView({ node, getPos, editor }: any) {
@@ -42,7 +48,9 @@ export function CustomComponentNodeView({ node, getPos, editor }: any) {
               <div className="flex items-center justify-center w-8 h-8 rounded-md bg-primary/10">
                 <PuzzlePieceIcon className="h-4 w-4 text-primary" />
               </div>
-              <span className="font-semibold text-foreground">{componentName}</span>
+              <span className="font-semibold text-foreground">
+                {componentName}
+              </span>
             </div>
 
             <div className="flex items-center space-x-1">
@@ -80,8 +88,13 @@ export function CustomComponentNodeView({ node, getPos, editor }: any) {
               </div>
               <div className="space-y-2">
                 {Object.entries(props).map(([key, value]) => (
-                  <div key={key} className="flex items-center justify-between py-1">
-                    <span className="text-sm font-medium text-muted-foreground">{key}</span>
+                  <div
+                    key={key}
+                    className="flex items-center justify-between py-1"
+                  >
+                    <span className="text-sm font-medium text-muted-foreground">
+                      {key}
+                    </span>
                     <span className="text-sm text-foreground bg-muted/50 px-2 py-0.5 rounded">
                       {String(value) || "—"}
                     </span>

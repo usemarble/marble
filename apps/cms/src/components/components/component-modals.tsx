@@ -212,7 +212,7 @@ export function ComponentModal({
           <div className="space-y-2">
             <Label htmlFor="name">Component Name</Label>
             {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
-<Input
+            <Input
               id="name"
               value={formData.name}
               onChange={(e) =>

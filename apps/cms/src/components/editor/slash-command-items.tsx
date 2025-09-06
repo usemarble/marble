@@ -4,13 +4,13 @@ import {
   Image as ImageIcon,
   List,
   ListNumbers,
+  PuzzlePieceIcon,
   Quotes,
   TextAlignLeft,
   TextHFour,
   TextHThree,
   TextHTwo,
   YoutubeLogo,
-  PuzzlePieceIcon,
 } from "@phosphor-icons/react";
 import { Command, createSuggestionItems, renderItems } from "novel/extensions";
 
@@ -159,7 +159,7 @@ export const suggestionItems = createSuggestionItems([
     command: ({ editor, range }) => {
       editor.chain().focus().deleteRange(range).run();
       // Dispatch custom event to open component selector modal
-      window.dispatchEvent(new CustomEvent('openComponentSelector'));
+      window.dispatchEvent(new CustomEvent("openComponentSelector"));
     },
   },
 ]);
