@@ -26,13 +26,25 @@ export async function GET() {
           image: true,
         },
       },
+      newPrimaryAuthor: {
+        select: {
+          name: true,
+          image: true,
+        },
+      },
     },
     orderBy: {
       createdAt: "desc",
     },
   });
 
-  return NextResponse.json(posts);
+  // Transform posts to use new author data when available
+  const transformedPosts = posts.map((post) => ({
+    ...post,
+    primaryAuthor: post.newPrimaryAuthor || post.primaryAuthor,
+  }));
+
+  return NextResponse.json(transformedPosts);
 }
 
 export async function POST(request: Request) {
@@ -45,7 +57,22 @@ export async function POST(request: Request) {
 
   const values = postSchema.parse(await request.json());
 
-  const authorId = session.user.id;
+  // Find the author for this user in the current workspace
+  const author = await db.author.findUnique({
+    where: {
+      workspaceId_userId: {
+        workspaceId: session.session.activeOrganizationId,
+        userId: session.user.id,
+      },
+    },
+  });
+
+  if (!author) {
+    return NextResponse.json(
+      { error: "Author not found for user" },
+      { status: 400 },
+    );
+  }
   const contentJson = JSON.parse(values.contentJson);
   const validAttribution = values.attribution ? values.attribution : undefined;
   const cleanContent = sanitizeHtml(values.content);
@@ -61,9 +88,32 @@ export async function POST(request: Request) {
 
   const { uniqueTagIds } = tagValidation;
 
+  // Find all authors for the provided author IDs
+  const authorIds = values.authors || [author.id];
+  const validAuthors = await db.author.findMany({
+    where: {
+      id: { in: authorIds },
+      workspaceId: session.session.activeOrganizationId,
+    },
+  });
+
+  if (validAuthors.length === 0) {
+    return NextResponse.json(
+      { error: "No valid authors found" },
+      { status: 400 },
+    );
+  }
+
+  // Use the first valid author as primary, or default to current user's author
+  const primaryAuthor =
+    validAuthors.find((a) => a.id === author.id) || validAuthors[0];
+
   const postCreated = await db.post.create({
     data: {
-      primaryAuthorId: authorId,
+      // Legacy fields (keep for backward compatibility during transition)
+      primaryAuthorId: session.user.id,
+      // New author fields
+      newPrimaryAuthorId: primaryAuthor?.id,
       contentJson,
       slug: values.slug,
       title: values.title,
@@ -81,8 +131,13 @@ export async function POST(request: Request) {
               connect: uniqueTagIds.map((id) => ({ id })),
             }
           : undefined,
+      // Legacy authors (keep for backward compatibility)
       authors: {
-        connect: { id: authorId },
+        connect: { id: session.user.id },
+      },
+      // New authors
+      newAuthors: {
+        connect: validAuthors.map((a) => ({ id: a.id })),
       },
     },
   });

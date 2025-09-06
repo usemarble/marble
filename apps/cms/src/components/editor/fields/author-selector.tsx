@@ -26,7 +26,8 @@ import {
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { cn } from "@marble/ui/lib/utils";
-import { CaretUpDown, Check } from "@phosphor-icons/react";
+import { CaretUpDownIcon, CheckIcon } from "@phosphor-icons/react";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { type Control, useController } from "react-hook-form";
 import type { PostValues } from "@/lib/validations/post";
@@ -38,7 +39,7 @@ import { FieldInfo } from "./field-info";
 interface AuthorOptions {
   id: string;
   name: string;
-  image: string;
+  image: string | null;
 }
 
 interface AuthorSelectorProps {
@@ -66,25 +67,36 @@ export function AuthorSelector({
   });
 
   const [selected, setSelected] = useState<AuthorOptions[]>([]);
+  const [authors, setAuthors] = useState<AuthorOptions[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const { user } = useUser();
   const { activeWorkspace } = useWorkspace();
 
-  // Transform workspace members into author options
-  const authors = useMemo(() => {
-    if (!activeWorkspace?.members) return [];
-
-    return activeWorkspace.members.map((member) => ({
-      id: member.userId,
-      name: member.user.name || member.user.email,
-      image: member.user.image || "",
-    }));
-  }, [activeWorkspace?.members]);
+  useQuery({
+    queryKey: ["authors", activeWorkspace?.id],
+    queryFn: async () => {
+      try {
+        const response = await fetch("/api/authors");
+        if (!response.ok) {
+          throw new Error("Failed to fetch authors");
+        }
+        const data = await response.json();
+        setAuthors(data);
+        console.log("authors", data);
+        return data;
+      } catch (error) {
+        console.error("Failed to fetch authors:", error);
+        return [];
+      }
+    },
+    enabled: !!activeWorkspace?.id,
+  });
 
   const derivedPrimaryAuthor: AuthorOptions | undefined = user
-    ? {
+    ? authors.find((author) => author.id === user.id) || {
         id: user.id,
         name: user.name,
-        image: user.image || "",
+        image: user.image || null,
       }
     : undefined;
 
@@ -119,8 +131,6 @@ export function AuthorSelector({
     onChange(newValue);
   };
 
-  const isLoading = !activeWorkspace || !authors.length;
-
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-1">
@@ -129,7 +139,7 @@ export function AuthorSelector({
       </div>
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger>
-          <div className="flex items-center justify-between gap-2 relative w-full cursor-pointer rounded-md border px-3 py-1.5 text-sm h-auto min-h-9 bg-editor-field">
+          <div className="bg-editor-field relative flex h-auto min-h-9 w-full cursor-pointer items-center justify-between gap-2 rounded-md border px-3 py-1.5 text-sm">
             <ul className="flex flex-wrap -space-x-2">
               {selected.length === 0 && (
                 <li className="text-muted-foreground">
@@ -139,12 +149,12 @@ export function AuthorSelector({
               {selected.length === 1 && (
                 <li className="flex items-center gap-2">
                   <Avatar className="size-6">
-                    <AvatarImage src={selected[0]?.image} />
+                    <AvatarImage src={selected[0]?.image || undefined} />
                     <AvatarFallback>
                       {selected[0]?.name.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
-                  <p className="text-sm max-w-64">{selected[0]?.name}</p>
+                  <p className="max-w-64 text-sm">{selected[0]?.name}</p>
                 </li>
               )}
               {selected.length > 1 &&
@@ -153,14 +163,14 @@ export function AuthorSelector({
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Avatar className="size-6">
-                          <AvatarImage src={author.image} />
+                          <AvatarImage src={author.image || undefined} />
                           <AvatarFallback>
                             {author.name.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p className="text-muted-foreground text-xs max-w-64">
+                        <p className="text-muted-foreground max-w-64 text-xs">
                           {author.name}
                         </p>
                       </TooltipContent>
@@ -168,13 +178,13 @@ export function AuthorSelector({
                   </li>
                 ))}
             </ul>
-            <CaretUpDown className="size-4 shrink-0 opacity-50" />
+            <CaretUpDownIcon className="size-4 shrink-0 opacity-50" />
           </div>
         </PopoverTrigger>
         {error && <ErrorMessage>{error.message}</ErrorMessage>}
         <PopoverContent className="min-w-[350.67px] p-0" align="start">
           <Command className="w-full">
-            <CommandInput placeholder="Search team members..." />
+            <CommandInput placeholder="Search authors..." />
             <CommandList>
               <CommandEmpty>
                 {isLoading ? "Loading authors..." : "No results found."}
@@ -191,14 +201,14 @@ export function AuthorSelector({
                     >
                       <div className="flex items-center gap-2">
                         <Avatar className="size-6">
-                          <AvatarImage src={option.image} />
+                          <AvatarImage src={option.image || undefined} />
                           <AvatarFallback>
                             {option.name.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
                         <p className="max-w-64">{option.name}</p>
                       </div>
-                      <Check
+                      <CheckIcon
                         className={cn(
                           "ml-auto h-4 w-4",
                           selected.some((item) => item.id === option.id)

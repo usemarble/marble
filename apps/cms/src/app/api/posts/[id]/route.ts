@@ -37,6 +37,9 @@ export async function GET(
       authors: {
         select: { id: true },
       },
+      newAuthors: {
+        select: { id: true },
+      },
     },
   });
 
@@ -56,7 +59,10 @@ export async function GET(
     contentJson: JSON.stringify(post.contentJson),
     tags: post.tags.map((tag) => tag.id),
     category: post.categoryId,
-    authors: post.authors.map((author) => author.id),
+    authors:
+      post.newAuthors?.length > 0
+        ? post.newAuthors.map((author) => author.id)
+        : post.authors.map((author) => author.id),
   };
 
   return NextResponse.json(structuredData, { status: 200 });
@@ -94,6 +100,24 @@ export async function PATCH(
 
   const { uniqueTagIds } = tagValidation;
 
+  // Find all authors for the provided author IDs
+  const validAuthors = await db.author.findMany({
+    where: {
+      id: { in: values.authors },
+      workspaceId: session.session.activeOrganizationId,
+    },
+  });
+
+  if (validAuthors.length === 0) {
+    return NextResponse.json(
+      { error: "No valid authors found" },
+      { status: 400 },
+    );
+  }
+
+  // Use the first valid author as primary
+  const primaryAuthor = validAuthors[0];
+
   try {
     const postUpdated = await db.post.update({
       where: { id },
@@ -112,9 +136,10 @@ export async function PATCH(
         tags: values.tags
           ? { set: uniqueTagIds.map((id) => ({ id })) }
           : undefined,
-        authors: {
-          set: [],
-          connect: values.authors.map((id: string) => ({ id })),
+        // Update new author relationships
+        newPrimaryAuthorId: primaryAuthor?.id,
+        newAuthors: {
+          set: validAuthors.map((author) => ({ id: author.id })),
         },
       },
     });
