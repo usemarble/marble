@@ -7,26 +7,18 @@ import {
 } from "@marble/ui/components/avatar";
 import { Badge } from "@marble/ui/components/badge";
 import type { ColumnDef } from "@tanstack/react-table";
-import { isBefore } from "date-fns";
 import TableActions from "./table-actions";
 
-// Define the roles explicitly
 type UserRole = "owner" | "admin" | "member";
-// Define possible invitation statuses
-type InvitationStatus = "pending" | "accepted" | "rejected" | "canceled";
 
-// Combined type for both members and invites
 export type TeamMemberRow = {
-  id: string; // Member ID or Invitation ID
-  type: "member" | "invite"; // Type identifier
-  name: string | null; // User name (null for invites)
+  id: string;
+  type: "member";
+  name: string | null;
   email: string;
-  image: string | null; // User image (null for invites)
-  role: UserRole; // User role in the org (roles are also defined for invites)
-  status: InvitationStatus; // Invitation status or 'accepted' for members
-  inviterId?: string | null; // ID of the user who invited (for invites)
-  expiresAt?: Date | null; // Expiry date (for invites)
-  // Add userId if available for members, might be useful for actions
+  image: string | null;
+  role: UserRole;
+  status: "accepted";
   userId?: string | null;
   joinedAt?: Date | null;
 };
@@ -39,48 +31,18 @@ export const columns: ColumnDef<TeamMemberRow>[] = [
       const item = row.original;
       const displayName = item.name || item.email;
       const avatarFallback = displayName?.charAt(0).toUpperCase() || "?";
-      const avatarSrc =
-        item.image ??
-        (item.type === "invite"
-          ? `https://api.dicebear.com/9.x/glass/svg?seed=${item.email}`
-          : undefined);
 
       return (
         <div className="flex items-center gap-3">
           <Avatar className="size-8">
-            <AvatarImage src={avatarSrc} />
+            <AvatarImage src={item.image || undefined} />
             <AvatarFallback>{avatarFallback}</AvatarFallback>
           </Avatar>
-          <span className="font-medium text-sm">{displayName}</span>
+          <div className="flex flex-col">
+            <span className="font-medium text-sm">{displayName}</span>
+            <span className="text-xs text-muted-foreground">{item.email}</span>
+          </div>
         </div>
-      );
-    },
-  },
-  {
-    accessorKey: "status",
-    header: "",
-    cell: ({ row }) => {
-      const item = row.original;
-
-      type DisplayStatus = InvitationStatus | "expired";
-
-      let displayStatus: DisplayStatus = item.status;
-      let _isExpired = false;
-      if (
-        item.status === "pending" &&
-        item.expiresAt &&
-        isBefore(new Date(item.expiresAt), new Date())
-      ) {
-        displayStatus = "expired";
-        _isExpired = true;
-      }
-
-      if (displayStatus === "accepted") return null;
-
-      return (
-        <Badge variant={displayStatus === "pending" ? "outline" : "default"}>
-          {displayStatus === "pending" ? "Invited" : displayStatus}
-        </Badge>
       );
     },
   },
@@ -90,15 +52,17 @@ export const columns: ColumnDef<TeamMemberRow>[] = [
     cell: ({ row }) => {
       const item = row.original;
 
-      return <p className="text-muted-foreground capitalize">{item.role}</p>;
+      return (
+        <Badge variant="outline" className="capitalize">
+          {item.role}
+        </Badge>
+      );
     },
   },
   {
     id: "actions",
     header: () => <div className="flex justify-end pr-10">Actions</div>,
-    // Pass the context including the row data and the additional props
     cell: ({ row, table }) => {
-      // Access props passed to DataTable via table options meta
       const meta = table.options.meta as {
         currentUserRole: UserRole | undefined;
         currentUserId: string | undefined;
