@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import Image from "next/image";
 import { RegisterForm } from "@/components/auth/register-form";
 import MarbleIcon from "@/components/icons/marble";
 import Credits from "@/components/util/credits";
@@ -25,11 +26,29 @@ export default async function RegisterPage(props: PageProps) {
 
   return (
     <div className="md:grid h-screen w-full md:grid-cols-2">
-      <section className="hidden md:flex flex-col justify-between p-10 overflow-hidden bg-cover bg-center bg-no-repeat bg-[url('/textures/marble-light.avif')] dark:bg-[url('/textures/marble-dark.avif')]">
-        <div>
+      <section className="hidden md:flex flex-col justify-between p-10 overflow-hidden relative">
+        <Image
+          src="/textures/marble-light.avif"
+          alt="Light marble texture background"
+          fill
+          className="object-cover object-center dark:hidden"
+          loading="lazy"
+          unoptimized
+          quality={100}
+        />
+        <Image
+          src="/textures/marble-dark.avif"
+          alt="Dark marble texture background"
+          fill
+          className="object-cover object-center hidden dark:block"
+          loading="lazy"
+          unoptimized
+          quality={100}
+        />
+        <div className="relative z-10">
           <MarbleIcon />
         </div>
-        <div className="flex items-center gap-4 justify-between">
+        <div className="relative z-10 flex items-center gap-4 justify-between">
           <p className="text-lg font-medium">
             The easiest way to manage your blog.
           </p>
