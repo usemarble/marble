@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { postSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";
+import { getWebhooks, WebhookClient } from "@/lib/webhooks/webhook-client";
 import { sanitizeHtml } from "@/utils/editor";
 
 export async function GET() {
@@ -48,10 +49,10 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const session = await getServerSession();
-  const user = session?.user;
+  const sessionData = await getServerSession();
+  const user = sessionData?.user;
 
-  if (!user || !session?.session.activeOrganizationId) {
+  if (!user || !sessionData?.session.activeOrganizationId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -61,8 +62,8 @@ export async function POST(request: Request) {
   const author = await db.author.findUnique({
     where: {
       workspaceId_userId: {
-        workspaceId: session.session.activeOrganizationId,
-        userId: session.user.id,
+        workspaceId: sessionData.session.activeOrganizationId,
+        userId: sessionData.user.id,
       },
     },
   });
@@ -73,13 +74,14 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   }
+
   const contentJson = JSON.parse(values.contentJson);
   const validAttribution = values.attribution ? values.attribution : undefined;
   const cleanContent = sanitizeHtml(values.content);
 
   const tagValidation = await validateWorkspaceTags(
     values.tags,
-    session.session.activeOrganizationId,
+    sessionData.session.activeOrganizationId,
   );
 
   if (!tagValidation.success) {
@@ -93,7 +95,7 @@ export async function POST(request: Request) {
   const validAuthors = await db.author.findMany({
     where: {
       id: { in: authorIds },
-      workspaceId: session.session.activeOrganizationId,
+      workspaceId: sessionData.session.activeOrganizationId,
     },
   });
 
@@ -108,12 +110,19 @@ export async function POST(request: Request) {
   const primaryAuthor =
     validAuthors.find((a) => a.id === author.id) || validAuthors[0];
 
+  if (!primaryAuthor) {
+    return NextResponse.json(
+      { error: "No valid primary author found" },
+      { status: 400 },
+    );
+  }
+
   const postCreated = await db.post.create({
     data: {
       // Legacy fields (keep for backward compatibility during transition)
-      primaryAuthorId: session.user.id,
+      primaryAuthorId: sessionData.user.id,
       // New author fields
-      newPrimaryAuthorId: primaryAuthor?.id,
+      newPrimaryAuthorId: primaryAuthor.id,
       contentJson,
       slug: values.slug,
       title: values.title,
@@ -124,7 +133,7 @@ export async function POST(request: Request) {
       publishedAt: values.publishedAt,
       description: values.description,
       attribution: validAttribution,
-      workspaceId: session.session.activeOrganizationId,
+      workspaceId: sessionData.session.activeOrganizationId,
       tags:
         uniqueTagIds.length > 0
           ? {
@@ -133,7 +142,7 @@ export async function POST(request: Request) {
           : undefined,
       // Legacy authors (keep for backward compatibility)
       authors: {
-        connect: { id: session.user.id },
+        connect: { id: sessionData.user.id },
       },
       // New authors
       newAuthors: {
@@ -141,6 +150,26 @@ export async function POST(request: Request) {
       },
     },
   });
+
+  // Handle webhooks for published posts
+  const webhooks = getWebhooks(sessionData.session, "post_published");
+
+  if (postCreated.status === "published") {
+    for (const webhook of await webhooks) {
+      const webhookClient = new WebhookClient({ secret: webhook.secret });
+      await webhookClient.send({
+        url: webhook.endpoint,
+        event: "post.published",
+        data: {
+          id: postCreated.id,
+          title: postCreated.title,
+          slug: postCreated.slug,
+          userId: sessionData.user.id,
+        },
+        format: webhook.format,
+      });
+    }
+  }
 
   return NextResponse.json({ id: postCreated.id });
 }

@@ -2,6 +2,7 @@ import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { tagSchema } from "@/lib/validations/workspace";
+import { getWebhooks, WebhookClient } from "@/lib/webhooks/webhook-client";
 
 export async function PATCH(
   req: Request,
@@ -18,7 +19,7 @@ export async function PATCH(
   const json = await req.json();
   const body = tagSchema.parse(json);
 
-  const tag = await db.tag.update({
+  const tagUpdated = await db.tag.update({
     where: {
       id: id,
       workspaceId: sessionData.session.activeOrganizationId,
@@ -29,7 +30,23 @@ export async function PATCH(
     },
   });
 
-  return NextResponse.json(tag, { status: 200 });
+  const webhooks = getWebhooks(sessionData.session, "tag_updated");
+
+  for (const webhook of await webhooks) {
+    const webhookClient = new WebhookClient({ secret: webhook.secret });
+    await webhookClient.send({
+      url: webhook.endpoint,
+      event: "tag.updated",
+      data: {
+        id: tagUpdated.id,
+        slug: tagUpdated.slug,
+        userId: sessionData.user.id,
+      },
+      format: webhook.format,
+    });
+  }
+
+  return NextResponse.json(tagUpdated, { status: 200 });
 }
 
 export async function DELETE(
@@ -44,12 +61,40 @@ export async function DELETE(
 
   const { id } = await params;
 
-  const deletedTag = await db.tag.delete({
-    where: {
-      id: id,
-      workspaceId: sessionData.session.activeOrganizationId,
-    },
+  const tag = await db.tag.findFirst({
+    where: { id, workspaceId: sessionData.session.activeOrganizationId },
+    select: { slug: true },
   });
 
-  return NextResponse.json(deletedTag.id, { status: 204 });
+  if (!tag) {
+    return NextResponse.json({ error: "Tag not found" }, { status: 404 });
+  }
+
+  try {
+    await db.tag.delete({
+      where: {
+        id: id,
+        workspaceId: sessionData.session.activeOrganizationId,
+      },
+    });
+
+    const webhooks = getWebhooks(sessionData.session, "tag_deleted");
+
+    for (const webhook of await webhooks) {
+      const webhookClient = new WebhookClient({ secret: webhook.secret });
+      await webhookClient.send({
+        url: webhook.endpoint,
+        event: "tag.deleted",
+        data: { id: id, slug: tag.slug, userId: sessionData.user.id },
+        format: webhook.format,
+      });
+    }
+
+    return new NextResponse(null, { status: 204 });
+  } catch (_e) {
+    return NextResponse.json(
+      { error: "Failed to delete post" },
+      { status: 500 },
+    );
+  }
 }

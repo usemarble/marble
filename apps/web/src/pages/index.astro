@@ -1,57 +1,12 @@
 ---
 import Container from "@/components/Container.astro";
-import Bounty from "@/components/icons/brand/Bounty.astro";
-import Databuddy from "@/components/icons/brand/Databuddy.astro";
-import Helix from "@/components/icons/brand/Helix.astro";
-import Ia from "@/components/icons/brand/Ia.astro";
-import Mantlz from "@/components/icons/brand/Mantlz.astro";
-import Opencut from "@/components/icons/brand/Opencut.astro";
 import AccordionItem from "@/components/ui/AccordionItem.astro";
 import Layout from "@/layouts/Layout.astro";
-import { APP, FAQs, PRICING, SITE } from "@/lib/constants";
-
-const users = [
-  {
-    name: "I.A",
-    url: "https://independent-arts.org",
-    component: Ia,
-    showWordmark: true,
-  },
-  {
-    name: "OpenCut",
-    url: "https://opencut.app",
-    component: Opencut,
-    showWordmark: true,
-  },
-  {
-    name: "Mantlz",
-    url: "https://mantlz.com",
-    component: Mantlz,
-    showWordmark: true,
-  },
-  {
-    name: "Bounty",
-    url: "https://bounty.new",
-    component: Bounty,
-    showWordmark: false,
-  },
-  {
-    name: "Helix DB",
-    url: "https://www.helix-db.com",
-    component: Helix,
-    showWordmark: true,
-  },
-  {
-    name: "Databuddy",
-    url: "https://databuddy.cc",
-    component: Databuddy,
-    showWordmark: true,
-  },
-];
+import { APP, FAQs, PRICING, SITE, USERS } from "@/lib/constants";
 ---
 
 <Layout 
-	title={SITE.TITLE}
+	title={`${SITE.TITLE} - Headless CMS`}
 	description={SITE.DESCRIPTION}
 >
   <div class="divide-y divide-dashed">
@@ -90,7 +45,7 @@ const users = [
             </h2>
           </div>
           <div class="flex flex-wrap justify-center gap-x-8 gap-y-4">
-            {users.map((user) => (
+            {USERS.map((user) => (
               <div class="flex items-center justify-center min-w-[14rem] p-8">
                 <a href={user.url + "?utm_source=marble"} target="_blank" class={user.showWordmark ? "flex items-center gap-2" : ""}>
                   <user.component />

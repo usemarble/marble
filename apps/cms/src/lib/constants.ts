@@ -12,6 +12,12 @@ export type PricingPlan = {
   };
 };
 
+export const VALID_DISCORD_DOMAINS = [
+  "discord.com",
+  "canary.discord.com",
+  "ptb.discord.com",
+];
+
 export const PRICING_PLANS: PricingPlan[] = [
   {
     title: "Pro",

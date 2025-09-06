@@ -6,17 +6,16 @@ import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
-import { EyeIcon, EyeSlashIcon, Spinner } from "@phosphor-icons/react";
+import { EyeIcon, EyeSlashIcon, SpinnerIcon } from "@phosphor-icons/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
-import { AsyncButton } from "@/components/ui/async-button";
 import { useLocalStorage } from "@/hooks/use-localstorage";
 import { authClient } from "@/lib/auth/client";
 import { type CredentialData, credentialSchema } from "@/lib/validations/auth";
 import type { AuthMethod } from "@/types/misc";
 import { Github, Google } from "../icons/social";
-import { LoadingSpinner } from "../ui/async-button";
+import { AsyncButton, LoadingSpinner } from "../ui/async-button";
 import { LastUsedBadge } from "../ui/last-used-badge";
 
 export function RegisterForm() {
@@ -118,9 +117,9 @@ export function RegisterForm() {
             variant="info"
           />
           {isGoogleLoading ? (
-            <Spinner className="mr-2 h-4 w-4 animate-spin" />
+            <SpinnerIcon className="mr-2 size-4 animate-spin" />
           ) : (
-            <Google className="mr-2 h-4 w-4" />
+            <Google className="mr-2 size-4" />
           )}{" "}
           Google
         </button>
@@ -219,11 +218,6 @@ export function RegisterForm() {
             className={cn("mt-4", "relative")}
             type="submit"
           >
-            <LastUsedBadge
-              show={true}
-              variant="secondary"
-              className="border-input"
-            />
             Continue
           </AsyncButton>
         </div>
