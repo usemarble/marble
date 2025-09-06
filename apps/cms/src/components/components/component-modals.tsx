@@ -1,5 +1,15 @@
 "use client";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@marble/ui/components/alert-dialog";
 import { Button } from "@marble/ui/components/button";
 import { Checkbox } from "@marble/ui/components/checkbox";
 import {
@@ -24,9 +34,23 @@ import { PlusIcon, TrashIcon } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import type { CustomComponent } from "@/app/(main)/[workspace]/(workspace)/components/page-client";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { MAX_COMPONENT_PROPERTIES } from "@/lib/constants";
 import { QUERY_KEYS } from "@/lib/queries/keys";
+import type { CustomComponent } from "./columns";
+
+interface ComponentProperty {
+  name: string;
+  type: string;
+  required: boolean;
+  defaultValue: string;
+}
+
+interface ComponentFormData {
+  name: string;
+  description: string;
+  properties: ComponentProperty[];
+}
 
 interface ComponentModalProps {
   open: boolean;
@@ -54,14 +78,14 @@ export function ComponentModal({
 }: ComponentModalProps) {
   const queryClient = useQueryClient();
   const workspaceId = useWorkspaceId();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ComponentFormData>({
     name: "",
     description: "",
-    properties: [] as any[],
+    properties: [],
   });
 
   const { mutate: createComponent, isPending: isCreating } = useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: ComponentFormData) => {
       const response = await fetch("/api/custom-components", {
         method: "POST",
         headers: {
@@ -94,7 +118,7 @@ export function ComponentModal({
   });
 
   const { mutate: updateComponent, isPending: isUpdating } = useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: ComponentFormData) => {
       if (!editingComponent) throw new Error("No component to update");
       const response = await fetch(
         `/api/custom-components/${editingComponent.id}`,
@@ -149,6 +173,11 @@ export function ComponentModal({
   }, [editingComponent]);
 
   const addProperty = () => {
+    if (formData.properties.length >= MAX_COMPONENT_PROPERTIES) {
+      toast.error(`Maximum of ${MAX_COMPONENT_PROPERTIES} properties allowed`);
+      return;
+    }
+
     setFormData((prev) => ({
       ...prev,
       properties: [
@@ -165,7 +194,11 @@ export function ComponentModal({
     }));
   };
 
-  const updateProperty = (index: number, field: string, value: any) => {
+  const updateProperty = (
+    index: number,
+    field: keyof ComponentProperty,
+    value: string | boolean,
+  ) => {
     setFormData((prev) => ({
       ...prev,
       properties: prev.properties.map((prop, i) =>
@@ -176,6 +209,7 @@ export function ComponentModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     if (!formData.name.trim()) return;
 
     if (mode === "update") {
@@ -211,9 +245,7 @@ export function ComponentModal({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name">Component Name</Label>
-            {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
             <Input
-              id="name"
               value={formData.name}
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, name: e.target.value }))
@@ -224,9 +256,8 @@ export function ComponentModal({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label>Description</Label>
             <Textarea
-              id="description"
               value={formData.description}
               onChange={(e) =>
                 setFormData((prev) => ({
@@ -241,12 +272,18 @@ export function ComponentModal({
 
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <Label>Properties</Label>
+              <Label>
+                Properties ({formData.properties.length}/
+                {MAX_COMPONENT_PROPERTIES})
+              </Label>
               <Button
                 type="button"
                 onClick={addProperty}
                 size="sm"
                 variant="outline"
+                disabled={
+                  formData.properties.length >= MAX_COMPONENT_PROPERTIES
+                }
               >
                 <PlusIcon className="mr-2 h-4 w-4" />
                 Add Property
@@ -351,5 +388,74 @@ export function ComponentModal({
         </form>
       </DialogContent>
     </Dialog>
+  );
+}
+
+interface DeleteComponentModalProps {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  component: {
+    id: string;
+    name: string;
+  };
+}
+
+export function DeleteComponentModal({
+  open,
+  setOpen,
+  component,
+}: DeleteComponentModalProps) {
+  const queryClient = useQueryClient();
+  const workspaceId = useWorkspaceId();
+
+  const { mutate: deleteComponent, isPending } = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`/api/custom-components/${component.id}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        throw new Error("Failed to delete component");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      toast.success("Component deleted successfully");
+      if (workspaceId) {
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.CUSTOM_COMPONENTS(workspaceId),
+        });
+      }
+      setOpen(false);
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to delete component",
+      );
+    },
+  });
+
+  return (
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete Component</AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to delete "{component.name}"? This action
+            cannot be undone and will permanently remove the component and all
+            its properties.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => deleteComponent()}
+            disabled={isPending}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            {isPending ? "Deleting..." : "Delete"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

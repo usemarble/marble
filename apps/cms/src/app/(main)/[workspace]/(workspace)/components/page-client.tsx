@@ -5,6 +5,7 @@ import { PlusIcon, PuzzlePieceIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import { useState } from "react";
+import { type CustomComponent, columns } from "@/components/components/columns";
 import { ComponentsDataTable } from "@/components/components/data-table";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
@@ -16,24 +17,6 @@ const ComponentModal = dynamic(() =>
     (mod) => mod.ComponentModal,
   ),
 );
-
-export interface CustomComponent {
-  id: string;
-  name: string;
-  description?: string;
-  workspaceId: string;
-  createdAt: string;
-  updatedAt: string;
-  properties: ComponentProperty[];
-}
-
-export interface ComponentProperty {
-  id: string;
-  name: string;
-  type: string;
-  required: boolean;
-  defaultValue?: string;
-}
 
 export default function PageClient() {
   const workspaceId = useWorkspaceId();
@@ -64,7 +47,7 @@ export default function PageClient() {
     <>
       {components && components.length > 0 ? (
         <WorkspacePageWrapper className="flex flex-col pt-10 pb-16 gap-8">
-          <ComponentsDataTable data={components || []} />
+          <ComponentsDataTable data={components} columns={columns} />
         </WorkspacePageWrapper>
       ) : (
         <WorkspacePageWrapper className="h-full grid place-content-center">

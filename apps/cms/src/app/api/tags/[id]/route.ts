@@ -73,7 +73,7 @@ export async function DELETE(
   try {
     await db.tag.delete({
       where: {
-        id: id,
+        id,
         workspaceId: sessionData.session.activeOrganizationId,
       },
     });

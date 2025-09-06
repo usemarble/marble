@@ -1,29 +1,21 @@
 import { db } from "@marble/db";
 import { type NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
+import {
+  type ComponentPropertyValues,
+  componentSchema,
+} from "@/lib/validations/components";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   const sessionData = await getServerSession();
 
   if (!sessionData || !sessionData.session.activeOrganizationId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { searchParams } = new URL(request.url);
-  const workspaceId = searchParams.get("workspaceId");
-
-  if (!workspaceId) {
-    return NextResponse.json(
-      { error: "Workspace ID is required" },
-      { status: 400 },
-    );
-  }
-
   try {
     const customComponents = await db.customComponent.findMany({
-      where: {
-        workspaceId,
-      },
+      where: { workspaceId: sessionData.session?.activeOrganizationId },
       include: {
         properties: true,
       },
@@ -32,9 +24,8 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    return NextResponse.json(customComponents);
-  } catch (error) {
-    console.error("Error fetching custom components:", error);
+    return NextResponse.json(customComponents, { status: 200 });
+  } catch (_e) {
     return NextResponse.json(
       { error: "Failed to fetch custom components" },
       { status: 500 },
@@ -42,32 +33,33 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest) {
   const sessionData = await getServerSession();
 
   if (!sessionData || !sessionData.session.activeOrganizationId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const body = await req.json();
+  const parsedBody = componentSchema.safeParse(body);
+
+  if (!parsedBody.success) {
+    return NextResponse.json(
+      { error: "Invalid request body" },
+      { status: 400 },
+    );
+  }
+  const { name, description, properties } = parsedBody.data;
+
   try {
-    const body = await request.json();
-    const { name, description, workspaceId, properties } = body;
-
-    if (!name || !workspaceId) {
-      return NextResponse.json(
-        { error: "Name and workspace ID are required" },
-        { status: 400 },
-      );
-    }
-
     const customComponent = await db.customComponent.create({
       data: {
         name,
         description,
-        workspaceId,
+        workspaceId: sessionData.session.activeOrganizationId,
         properties: {
           create:
-            properties?.map((prop: any) => ({
+            properties?.map((prop: ComponentPropertyValues) => ({
               name: prop.name,
               type: prop.type,
               required: prop.required || false,
@@ -81,8 +73,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(customComponent, { status: 201 });
-  } catch (error) {
-    console.error("Error creating custom component:", error);
+  } catch (_e) {
     return NextResponse.json(
       { error: "Failed to create custom component" },
       { status: 500 },

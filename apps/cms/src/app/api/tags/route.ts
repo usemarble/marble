@@ -7,20 +7,27 @@ import { getWebhooks, WebhookClient } from "@/lib/webhooks/webhook-client";
 export async function GET() {
   const sessionData = await getServerSession();
 
-  if (!sessionData) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!sessionData || !sessionData.session.activeOrganizationId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const tags = await db.tag.findMany({
-    where: { workspaceId: sessionData.session?.activeOrganizationId as string },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-    },
-  });
+  try {
+    const tags = await db.tag.findMany({
+      where: { workspaceId: sessionData.session?.activeOrganizationId },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+      },
+    });
 
-  return NextResponse.json(tags, { status: 200 });
+    return NextResponse.json(tags, { status: 200 });
+  } catch (_e) {
+    return NextResponse.json(
+      { error: "Failed to fetch tags" },
+      { status: 500 },
+    );
+  }
 }
 
 export async function POST(req: Request) {
