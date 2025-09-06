@@ -50,11 +50,11 @@ const items = [
     url: "media",
     icon: ImagesIcon,
   },
-  {
-    name: "Team",
-    url: "team",
-    icon: UsersThreeIcon,
-  },
+  // {
+  //   name: "Authors",
+  //   url: "authors",
+  //   icon: UsersThreeIcon,
+  // },
 ];
 
 const settingsItems = [
@@ -63,13 +63,17 @@ const settingsItems = [
     url: "settings/general",
   },
   {
+    title: "Members",
+    url: "settings/members",
+  },
+  {
     title: "Billing",
     url: "settings/billing",
   },
-  {
-    title: "Schemas",
-    url: "settings/schemas",
-  },
+  // {
+  //   title: "Schemas",
+  //   url: "settings/schemas",
+  // },
 ];
 
 export function NavMain() {

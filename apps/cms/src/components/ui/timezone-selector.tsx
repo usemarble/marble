@@ -144,7 +144,7 @@ export function TimezoneSelector({
         <Button
           type="button"
           variant="outline"
-          className="w-full items-center justify-between gap-2"
+          className="w-full items-center shadow-none justify-between gap-2"
           disabled={disabled}
           onClick={() => !disabled && setIsOpen(!isOpen)}
         >
