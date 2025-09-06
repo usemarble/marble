@@ -1,8 +1,8 @@
 import { Separator } from "@marble/ui/components/separator";
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
-import Image from "next/image";
 import { LoginForm } from "@/components/auth/login-form";
 import MarbleIcon from "@/components/icons/marble";
 import Credits from "@/components/util/credits";
