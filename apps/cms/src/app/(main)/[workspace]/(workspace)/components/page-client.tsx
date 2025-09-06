@@ -1,11 +1,21 @@
 "use client";
 
 import { Button } from "@marble/ui/components/button";
-import { PlusIcon } from "@phosphor-icons/react";
-import { useState, useEffect } from "react";
+import { PlusIcon, PuzzlePieceIcon } from "@phosphor-icons/react";
+import { useQuery } from "@tanstack/react-query";
+import dynamic from "next/dynamic";
+import { useState } from "react";
 import { ComponentsDataTable } from "@/components/components/data-table";
-import { ComponentModals } from "@/components/components/component-modals";
+import { WorkspacePageWrapper } from "@/components/layout/wrapper";
+import PageLoader from "@/components/shared/page-loader";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { QUERY_KEYS } from "@/lib/queries/keys";
+
+const ComponentModal = dynamic(() =>
+  import("@/components/components/component-modals").then(
+    (mod) => mod.ComponentModal,
+  ),
+);
 
 export interface CustomComponent {
   id: string;
@@ -25,111 +35,61 @@ export interface ComponentProperty {
   defaultValue?: string;
 }
 
-export function PageClient() {
-  const [components, setComponents] = useState<CustomComponent[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [showCreateModal, setShowCreateModal] = useState(false);
+export default function PageClient() {
   const workspaceId = useWorkspaceId();
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
-  const fetchComponents = async () => {
-    if (!workspaceId) return;
-    
-    try {
-      setIsLoading(true);
-      const response = await fetch(`/api/custom-components?workspaceId=${workspaceId}`);
-      if (response.ok) {
-        const data = await response.json();
-        setComponents(data);
+  const { data: components, isLoading } = useQuery({
+    // biome-ignore lint/style/noNonNullAssertion: <>
+    queryKey: QUERY_KEYS.CUSTOM_COMPONENTS(workspaceId!),
+    staleTime: 1000 * 60 * 60,
+    queryFn: async () => {
+      const res = await fetch(
+        `/api/custom-components?workspaceId=${workspaceId}`,
+      );
+      if (!res.ok) {
+        throw new Error("Failed to fetch components");
       }
-    } catch (error) {
-      console.error("Failed to fetch components:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      const data: CustomComponent[] = await res.json();
+      return data;
+    },
+    enabled: !!workspaceId,
+  });
 
-
-  const handleCreate = async (componentData: any) => {
-    try {
-      const response = await fetch("/api/custom-components", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...componentData,
-          workspaceId,
-        }),
-      });
-
-      if (response.ok) {
-        await fetchComponents();
-        setShowCreateModal(false);
-      }
-    } catch (error) {
-      console.error("Failed to create component:", error);
-    }
-  };
-
-  const handleUpdate = async (id: string, componentData: any) => {
-    try {
-      const response = await fetch(`/api/custom-components/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(componentData),
-      });
-
-      if (response.ok) {
-        await fetchComponents();
-      }
-    } catch (error) {
-      console.error("Failed to update component:", error);
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    try {
-      const response = await fetch(`/api/custom-components/${id}`, {
-        method: "DELETE",
-      });
-
-      if (response.ok) {
-        await fetchComponents();
-      }
-    } catch (error) {
-      console.error("Failed to delete component:", error);
-    }
-  };
+  if (isLoading) {
+    return <PageLoader />;
+  }
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">Custom Components</h1>
-          <p className="text-muted-foreground">
-            Create and manage custom components for your content.
-          </p>
-        </div>
-        <Button onClick={() => setShowCreateModal(true)}>
-          <PlusIcon className="mr-2 h-4 w-4" />
-          Create Component
-        </Button>
-      </div>
-
-      <ComponentsDataTable
-        data={components}
-        isLoading={isLoading}
-        onUpdate={handleUpdate}
-        onDelete={handleDelete}
+    <>
+      {components && components.length > 0 ? (
+        <WorkspacePageWrapper className="flex flex-col pt-10 pb-16 gap-8">
+          <ComponentsDataTable data={components || []} />
+        </WorkspacePageWrapper>
+      ) : (
+        <WorkspacePageWrapper className="h-full grid place-content-center">
+          <div className="flex flex-col gap-4 items-center max-w-80">
+            <div className="p-2">
+              <PuzzlePieceIcon className="size-16" />
+            </div>
+            <div className="text-center flex flex-col gap-4 items-center">
+              <p className="text-muted-foreground text-sm">
+                Custom components help you build reusable content blocks. Create
+                your first component to get started.
+              </p>
+              <Button onClick={() => setShowCreateModal(true)}>
+                <PlusIcon size={16} />
+                <span>Create Component</span>
+              </Button>
+            </div>
+          </div>
+        </WorkspacePageWrapper>
+      )}
+      <ComponentModal
+        open={showCreateModal}
+        setOpen={setShowCreateModal}
+        mode="create"
       />
-
-      <ComponentModals
-        showCreateModal={showCreateModal}
-        onCreateClose={() => setShowCreateModal(false)}
-        onCreate={handleCreate}
-      />
-    </div>
+    </>
   );
 }

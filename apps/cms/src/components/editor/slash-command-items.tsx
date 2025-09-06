@@ -158,6 +158,8 @@ export const suggestionItems = createSuggestionItems([
     icon: <PuzzlePieceIcon size={16} />,
     command: ({ editor, range }) => {
       editor.chain().focus().deleteRange(range).run();
+      // Dispatch custom event to open component selector modal
+      window.dispatchEvent(new CustomEvent('openComponentSelector'));
     },
   },
 ]);

@@ -36,6 +36,7 @@ import { type PostValues, postSchema } from "@/lib/validations/post";
 import { useUnsavedChanges } from "@/providers/unsaved-changes";
 import { generateSlug } from "@/utils/string";
 import { BubbleMenu } from "./bubble-menu";
+import { ComponentSelectorModal } from "./component-selector-modal";
 import { defaultExtensions } from "./extensions";
 import { slashCommand } from "./slash-command-items";
 import { SlashCommandMenu } from "./slash-command-menu";
@@ -64,6 +65,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const editorRef = useRef<EditorInstance | null>(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [showComponentSelector, setShowComponentSelector] = useState(false);
   const { setHasUnsavedChanges } = useUnsavedChanges();
   const initialDataRef = useRef<PostValues>(initialData);
   const queryClient = useQueryClient();
@@ -164,6 +166,24 @@ function EditorPage({ initialData, id }: EditorPageProps) {
 
     return () => subscription.unsubscribe();
   }, [watch, setHasUnsavedChanges]);
+
+  useEffect(() => {
+    const handleOpenComponentSelector = () => {
+      setShowComponentSelector(true);
+    };
+
+    window.addEventListener(
+      "openComponentSelector",
+      handleOpenComponentSelector,
+    );
+
+    return () => {
+      window.removeEventListener(
+        "openComponentSelector",
+        handleOpenComponentSelector,
+      );
+    };
+  }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter") {
@@ -317,6 +337,12 @@ function EditorPage({ initialData, id }: EditorPageProps) {
         isOpen={showSettings}
         setIsOpen={setShowSettings}
         mode={isUpdateMode ? "update" : "create"}
+      />
+
+      <ComponentSelectorModal
+        isOpen={showComponentSelector}
+        setIsOpen={setShowComponentSelector}
+        editor={editorRef.current}
       />
     </>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@marble/ui/components/button";
+import { Checkbox } from "@marble/ui/components/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -11,7 +12,6 @@ import {
 } from "@marble/ui/components/dialog";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
-import { Textarea } from "@marble/ui/components/textarea";
 import {
   Select,
   SelectContent,
@@ -19,18 +19,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@marble/ui/components/select";
-import { Checkbox } from "@marble/ui/components/checkbox";
-import { Plus, TrashIcon } from "@phosphor-icons/react";
-import { useState, useEffect } from "react";
-import { CustomComponent } from "@/app/(main)/[workspace]/(workspace)/components/page-client";
+import { Textarea } from "@marble/ui/components/textarea";
+import { PlusIcon, TrashIcon } from "@phosphor-icons/react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import type { CustomComponent } from "@/app/(main)/[workspace]/(workspace)/components/page-client";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { QUERY_KEYS } from "@/lib/queries/keys";
 
-interface ComponentModalsProps {
-  showCreateModal?: boolean;
-  showEditModal?: boolean;
-  onCreateClose?: () => void;
-  onEditClose?: () => void;
-  onCreate?: (data: any) => Promise<void>;
-  onEdit?: (data: any) => Promise<void>;
+interface ComponentModalProps {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  mode?: "create" | "update";
   editingComponent?: CustomComponent | null;
 }
 
@@ -45,28 +46,93 @@ const PROPERTY_TYPES = [
   { value: "select", label: "Select" },
 ];
 
-export function ComponentModals({
-  showCreateModal = false,
-  showEditModal = false,
-  onCreateClose,
-  onEditClose,
-  onCreate,
-  onEdit,
+export function ComponentModal({
+  open,
+  setOpen,
+  mode = "create",
   editingComponent,
-}: ComponentModalsProps) {
+}: ComponentModalProps) {
+  const queryClient = useQueryClient();
+  const workspaceId = useWorkspaceId();
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     properties: [] as any[],
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { mutate: createComponent, isPending: isCreating } = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await fetch("/api/custom-components", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...data,
+          workspaceId,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to create component");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      setOpen(false);
+      toast.success("Component created successfully");
+      if (workspaceId) {
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.CUSTOM_COMPONENTS(workspaceId),
+        });
+      }
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to create component",
+      );
+    },
+  });
+
+  const { mutate: updateComponent, isPending: isUpdating } = useMutation({
+    mutationFn: async (data: any) => {
+      if (!editingComponent) throw new Error("No component to update");
+      const response = await fetch(
+        `/api/custom-components/${editingComponent.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        },
+      );
+      if (!response.ok) {
+        throw new Error("Failed to update component");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      setOpen(false);
+      toast.success("Component updated successfully");
+      if (workspaceId) {
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.CUSTOM_COMPONENTS(workspaceId),
+        });
+      }
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to update component",
+      );
+    },
+  });
 
   useEffect(() => {
     if (editingComponent) {
       setFormData({
         name: editingComponent.name,
         description: editingComponent.description || "",
-        properties: editingComponent.properties.map(prop => ({
+        properties: editingComponent.properties.map((prop) => ({
           name: prop.name,
           type: prop.type,
           required: prop.required,
@@ -83,7 +149,7 @@ export function ComponentModals({
   }, [editingComponent]);
 
   const addProperty = () => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       properties: [
         ...prev.properties,
@@ -93,17 +159,17 @@ export function ComponentModals({
   };
 
   const removeProperty = (index: number) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       properties: prev.properties.filter((_, i) => i !== index),
     }));
   };
 
   const updateProperty = (index: number, field: string, value: any) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       properties: prev.properties.map((prop, i) =>
-        i === index ? { ...prop, [field]: value } : prop
+        i === index ? { ...prop, [field]: value } : prop,
       ),
     }));
   };
@@ -112,26 +178,15 @@ export function ComponentModals({
     e.preventDefault();
     if (!formData.name.trim()) return;
 
-    setIsSubmitting(true);
-    try {
-      if (editingComponent && onEdit) {
-        await onEdit(formData);
-      } else if (onCreate) {
-        await onCreate(formData);
-      }
-    } catch (error) {
-      console.error("Form submission error:", error);
-    } finally {
-      setIsSubmitting(false);
+    if (mode === "update") {
+      updateComponent(formData);
+    } else {
+      createComponent(formData);
     }
   };
 
   const handleClose = () => {
-    if (editingComponent && onEditClose) {
-      onEditClose();
-    } else if (onCreateClose) {
-      onCreateClose();
-    }
+    setOpen(false);
     setFormData({
       name: "",
       description: "",
@@ -139,14 +194,14 @@ export function ComponentModals({
     });
   };
 
-  const isOpen = showCreateModal || showEditModal;
-  const title = editingComponent ? "Edit Component" : "Create Component";
-  const description = editingComponent
-    ? "Update your custom component configuration."
-    : "Create a new custom component for your content.";
+  const title = mode === "update" ? "Edit Component" : "Create Component";
+  const description =
+    mode === "update"
+      ? "Update your custom component configuration."
+      : "Create a new custom component for your content.";
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
@@ -156,10 +211,13 @@ export function ComponentModals({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name">Component Name</Label>
-            <Input
+            {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
+<Input
               id="name"
               value={formData.name}
-              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, name: e.target.value }))
+              }
               placeholder="e.g. Button, Card, Hero Section"
               required
             />
@@ -170,7 +228,12 @@ export function ComponentModals({
             <Textarea
               id="description"
               value={formData.description}
-              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  description: e.target.value,
+                }))
+              }
               placeholder="Brief description of the component"
               rows={3}
             />
@@ -179,14 +242,22 @@ export function ComponentModals({
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <Label>Properties</Label>
-              <Button type="button" onClick={addProperty} size="sm" variant="outline">
-                <Plus className="mr-2 h-4 w-4" />
+              <Button
+                type="button"
+                onClick={addProperty}
+                size="sm"
+                variant="outline"
+              >
+                <PlusIcon className="mr-2 h-4 w-4" />
                 Add Property
               </Button>
             </div>
 
             {formData.properties.map((property, index) => (
-              <div key={index} className="border rounded-lg p-4 space-y-3">
+              <div
+                key={`property-${property.name || index}`}
+                className="border rounded-lg p-4 space-y-3"
+              >
                 <div className="flex items-center justify-between">
                   <h4 className="text-sm font-medium">Property {index + 1}</h4>
                   <Button
@@ -205,7 +276,9 @@ export function ComponentModals({
                     <Label>Property Name</Label>
                     <Input
                       value={property.name}
-                      onChange={(e) => updateProperty(index, "name", e.target.value)}
+                      onChange={(e) =>
+                        updateProperty(index, "name", e.target.value)
+                      }
                       placeholder="e.g. title, color, size"
                       required
                     />
@@ -215,7 +288,9 @@ export function ComponentModals({
                     <Label>Type</Label>
                     <Select
                       value={property.type}
-                      onValueChange={(value) => updateProperty(index, "type", value)}
+                      onValueChange={(value) =>
+                        updateProperty(index, "type", value)
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue />
@@ -236,7 +311,9 @@ export function ComponentModals({
                     <Label>Default Value</Label>
                     <Input
                       value={property.defaultValue}
-                      onChange={(e) => updateProperty(index, "defaultValue", e.target.value)}
+                      onChange={(e) =>
+                        updateProperty(index, "defaultValue", e.target.value)
+                      }
                       placeholder="Optional default value"
                     />
                   </div>
@@ -245,7 +322,9 @@ export function ComponentModals({
                     <Checkbox
                       id={`required-${index}`}
                       checked={property.required}
-                      onCheckedChange={(checked) => updateProperty(index, "required", checked)}
+                      onCheckedChange={(checked) =>
+                        updateProperty(index, "required", checked)
+                      }
                     />
                     <Label htmlFor={`required-${index}`}>Required</Label>
                   </div>
@@ -258,8 +337,15 @@ export function ComponentModals({
             <Button type="button" variant="outline" onClick={handleClose}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting || !formData.name.trim()}>
-              {isSubmitting ? "Saving..." : editingComponent ? "Update" : "Create"}
+            <Button
+              type="submit"
+              disabled={isCreating || isUpdating || !formData.name.trim()}
+            >
+              {isCreating || isUpdating
+                ? "Saving..."
+                : mode === "update"
+                  ? "Update"
+                  : "Create"}
             </Button>
           </DialogFooter>
         </form>

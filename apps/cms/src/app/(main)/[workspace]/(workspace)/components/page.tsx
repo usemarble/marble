@@ -1,12 +1,12 @@
-import { PageClient } from "./page-client";
+import PageClient from "./page-client";
 
-export default async function ComponentsPage({
-  params,
-}: {
-  params: { workspace: string };
-}) {
+export const metadata = {
+  title: "Components",
+  description: "Manage your custom components",
+};
 
-  const { workspace } = params;
-
+function Page() {
   return <PageClient />;
 }
+
+export default Page;

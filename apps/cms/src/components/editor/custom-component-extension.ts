@@ -21,7 +21,15 @@ export const CustomComponent = Node.create<CustomComponentOptions>({
 
   group: "block",
 
-  content: "inline*",
+  defining: true,
+
+  selectable: true,
+
+  draggable: true,
+
+  isolating: true,
+
+  atom: true,
 
   parseHTML() {
     return [
@@ -30,12 +38,12 @@ export const CustomComponent = Node.create<CustomComponentOptions>({
         getAttrs: (node) => {
           if (typeof node === "string") return false;
           const element = node as HTMLElement;
-          
+
           const componentName = element.getAttribute("x-marble-component-name");
           if (!componentName) return false;
 
           const attributes: Record<string, any> = { componentName };
-          
+
           for (const attr of element.attributes) {
             if (attr.name.startsWith("x-marble-") && attr.name !== "x-marble-component-name") {
               const propName = attr.name.replace("x-marble-", "");
@@ -51,10 +59,10 @@ export const CustomComponent = Node.create<CustomComponentOptions>({
 
   renderHTML({ node, HTMLAttributes }) {
     const { componentName, ...props } = node.attrs;
-    
+
     const componentAttrs: Record<string, any> = {
       "x-marble-component-name": componentName,
-      class: "marble-custom-component border-2 border-dashed border-primary/30 rounded-md p-4 my-4 bg-primary/5",
+      class: "marble-custom-component",
     };
 
     Object.entries(props).forEach(([key, value]) => {
@@ -63,7 +71,7 @@ export const CustomComponent = Node.create<CustomComponentOptions>({
       }
     });
 
-    return ["div", componentAttrs, 0];
+    return ["div", componentAttrs];
   },
 
   addAttributes() {

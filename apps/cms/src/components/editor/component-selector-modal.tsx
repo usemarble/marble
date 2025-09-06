@@ -29,6 +29,7 @@ interface ComponentSelectorModalProps {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
   editor?: any;
+  existingComponent?: any;
 }
 
 interface CustomComponent {
@@ -50,6 +51,7 @@ export function ComponentSelectorModal({
   isOpen,
   setIsOpen,
   editor,
+  existingComponent,
 }: ComponentSelectorModalProps) {
   const [components, setComponents] = useState<CustomComponent[]>([]);
   const [selectedComponent, setSelectedComponent] = useState<CustomComponent | null>(null);
@@ -64,14 +66,29 @@ export function ComponentSelectorModal({
   }, [isOpen, workspaceId]);
 
   useEffect(() => {
-    if (selectedComponent) {
+    if (existingComponent) {
+      const existingValues: Record<string, any> = {};
+      Object.entries(existingComponent.attrs).forEach(([key, value]) => {
+        if (key !== 'componentName') {
+          existingValues[key] = value;
+        }
+      });
+      setPropertyValues(existingValues);
+
+      if (components.length > 0) {
+        const componentDef = components.find(c => c.name === existingComponent.attrs.componentName);
+        if (componentDef) {
+          setSelectedComponent(componentDef);
+        }
+      }
+    } else if (selectedComponent) {
       const initialValues: Record<string, any> = {};
       selectedComponent.properties.forEach(prop => {
         initialValues[prop.name] = prop.defaultValue || getDefaultValueForType(prop.type);
       });
       setPropertyValues(initialValues);
     }
-  }, [selectedComponent]);
+  }, [selectedComponent, existingComponent, components]);
 
   const fetchComponents = async () => {
     if (!workspaceId) return;
@@ -121,14 +138,29 @@ export function ComponentSelectorModal({
       }
     });
 
-    editor
-      .chain()
-      .focus()
-      .setCustomComponent({
-        name: selectedComponent.name,
-        attributes: componentData,
-      })
-      .run();
+    if (existingComponent) {
+      const pos = editor.view.posAtDOM(existingComponent.dom);
+      if (pos !== undefined) {
+        editor
+          .chain()
+          .focus()
+          .setTextSelection(pos)
+          .setCustomComponent({
+            name: selectedComponent.name,
+            attributes: componentData,
+          })
+          .run();
+      }
+    } else {
+      editor
+        .chain()
+        .focus()
+        .setCustomComponent({
+          name: selectedComponent.name,
+          attributes: componentData,
+        })
+        .run();
+    }
 
     handleClose();
   };
@@ -247,11 +279,13 @@ export function ComponentSelectorModal({
                 <ArrowLeftIcon className="h-4 w-4" />
               </Button>
             )}
-            {selectedComponent ? `Configure ${selectedComponent.name}` : "Insert Component"}
+            {selectedComponent
+              ? `${existingComponent ? 'Edit' : 'Configure'} ${selectedComponent.name}`
+              : "Insert Component"}
           </DialogTitle>
           <DialogDescription>
             {selectedComponent
-              ? "Configure the properties for your component"
+              ? `${existingComponent ? 'Edit' : 'Configure'} the properties for your component`
               : "Choose a component to insert into your content"}
           </DialogDescription>
         </DialogHeader>
@@ -330,7 +364,7 @@ export function ComponentSelectorModal({
                 Back
               </Button>
               <Button onClick={handleInsertComponent}>
-                Insert Component
+                {existingComponent ? 'Update Component' : 'Insert Component'}
               </Button>
             </div>
           </div>
