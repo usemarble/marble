@@ -40,8 +40,6 @@ function PageClient() {
     image: member.user.image || null,
     role: member.role as "owner" | "admin" | "member",
     status: "accepted" as const,
-    inviterId: null,
-    expiresAt: null,
     joinedAt: new Date(member.createdAt),
     userId: member.userId,
   }));
