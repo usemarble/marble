@@ -76,9 +76,7 @@ export async function PATCH(
   const sessionData = await getServerSession();
   const user = sessionData?.user;
 
-  if (!user)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (!sessionData?.session.activeOrganizationId)
+  if (!user || !sessionData.session.activeOrganizationId)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
@@ -205,16 +203,33 @@ export async function DELETE(
 ) {
   const sessionData = await getServerSession();
 
-  if (!sessionData?.user) {
+  if (!sessionData?.user || !sessionData.session.activeOrganizationId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { id } = await params;
+  const activeWorkspaceId = sessionData.session.activeOrganizationId;
 
   try {
     const deletedPost = await db.post.delete({
-      where: { id },
+      where: { id: id, workspaceId: activeWorkspaceId },
     });
+
+    if (!deletedPost) {
+      return NextResponse.json({ error: "Post not found" }, { status: 404 });
+    }
+
+    const webhooksDeleted = getWebhooks(sessionData.session, "post_deleted");
+
+    for (const webhook of await webhooksDeleted) {
+      const webhookClient = new WebhookClient({ secret: webhook.secret });
+      await webhookClient.send({
+        url: webhook.endpoint,
+        event: "post.deleted",
+        data: { id: id, slug: deletedPost.slug, userId: sessionData.user.id },
+        format: webhook.format,
+      });
+    }
 
     return NextResponse.json({ id: deletedPost.id }, { status: 200 });
   } catch (_e) {

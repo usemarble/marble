@@ -28,8 +28,9 @@ import {
 import { cn } from "@marble/ui/lib/utils";
 import { CaretUpDownIcon, CheckIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { type Control, useController } from "react-hook-form";
+import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { PostValues } from "@/lib/validations/post";
 import { useUser } from "@/providers/user";
 import { useWorkspace } from "@/providers/workspace";
@@ -40,6 +41,7 @@ interface AuthorOptions {
   id: string;
   name: string;
   image: string | null;
+  userId: string | null;
 }
 
 interface AuthorSelectorProps {
@@ -68,12 +70,12 @@ export function AuthorSelector({
 
   const [selected, setSelected] = useState<AuthorOptions[]>([]);
   const [authors, setAuthors] = useState<AuthorOptions[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const { user } = useUser();
   const { activeWorkspace } = useWorkspace();
 
-  useQuery({
-    queryKey: ["authors", activeWorkspace?.id],
+  const { isLoading } = useQuery({
+    // biome-ignore lint/style/noNonNullAssertion: <>
+    queryKey: QUERY_KEYS.AUTHORS(activeWorkspace?.id!),
     queryFn: async () => {
       try {
         const response = await fetch("/api/authors");
@@ -90,24 +92,36 @@ export function AuthorSelector({
       }
     },
     enabled: !!activeWorkspace?.id,
+    staleTime: 10 * 60 * 1000,
   });
 
   const derivedPrimaryAuthor: AuthorOptions | undefined = user
-    ? authors.find((author) => author.id === user.id) || {
-        id: user.id,
-        name: user.name,
-        image: user.image || null,
-      }
+    ? authors.find((author) => author.userId === user.id) || authors[0]
     : undefined;
 
+  // Handle selected authors based on form value
   useEffect(() => {
-    if (authors && authors.length > 0 && value?.length > 0) {
+    if (authors.length === 0) return;
+
+    if (value?.length > 0) {
       const selectedAuthors = authors.filter((opt) => value.includes(opt.id));
       setSelected(selectedAuthors);
     } else {
       setSelected([]);
     }
   }, [value, authors]);
+
+  // Auto-select user's author profile on initial load
+  useEffect(() => {
+    if (
+      authors.length > 0 &&
+      derivedPrimaryAuthor &&
+      (!value || value.length === 0) &&
+      !isLoading
+    ) {
+      onChange([derivedPrimaryAuthor.id]);
+    }
+  }, [authors, derivedPrimaryAuthor, onChange, isLoading, value]);
 
   const addOrRemoveAuthor = (authorToAdd: string) => {
     const currentValues = value || [];
@@ -187,7 +201,7 @@ export function AuthorSelector({
             <CommandInput placeholder="Search authors..." />
             <CommandList>
               <CommandEmpty>
-                {isLoading ? "Loading authors..." : "No results found."}
+                {isLoading ? "Loading authors..." : "No authors found."}
               </CommandEmpty>
               {authors && authors.length > 0 && (
                 <CommandGroup>

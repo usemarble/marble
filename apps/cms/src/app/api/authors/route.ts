@@ -1,16 +1,17 @@
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
+import { generateSlug } from "@/utils/string";
 
-export async function GET(request: Request) {
-  const session = await getServerSession();
+export async function GET() {
+  const sessionData = await getServerSession();
 
-  if (!session?.user || !session?.session.activeOrganizationId) {
+  if (!sessionData?.user || !sessionData?.session.activeOrganizationId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const workspaceId = session.session.activeOrganizationId;
-  // Ensure user is requesting authors for their active workspace
+  const workspaceId = sessionData.session.activeOrganizationId;
+
   if (!workspaceId) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
@@ -46,9 +47,9 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const session = await getServerSession();
+  const sessionData = await getServerSession();
 
-  if (!session?.user || !session?.session.activeOrganizationId) {
+  if (!sessionData?.user || !sessionData?.session.activeOrganizationId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -60,18 +61,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Name is required" }, { status: 400 });
     }
 
-    // Generate slug from name
-    const slug = name
-      .toLowerCase()
-      .replace(/[^a-z0-9 -]/g, "")
-      .replace(/\s+/g, "-")
-      .replace(/-+/g, "-");
+    const slug = generateSlug(name);
 
-    // Check if slug already exists
     const existingAuthor = await db.author.findUnique({
       where: {
         workspaceId_slug: {
-          workspaceId: session.session.activeOrganizationId,
+          workspaceId: sessionData.session.activeOrganizationId,
           slug,
         },
       },
@@ -92,7 +87,7 @@ export async function POST(request: Request) {
         role,
         email,
         image,
-        workspaceId: session.session.activeOrganizationId,
+        workspaceId: sessionData.session.activeOrganizationId,
         userId: null,
       },
     });
