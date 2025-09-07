@@ -98,7 +98,7 @@ export const columns: ColumnDef<CustomComponent>[] = [
     header: () => <div className="flex justify-end pr-10">Actions</div>,
     cell: ({ row }) => {
       const component = row.original;
-      
+
       return (
         <div className="flex justify-end pr-10">
           <TableActions {...component} />

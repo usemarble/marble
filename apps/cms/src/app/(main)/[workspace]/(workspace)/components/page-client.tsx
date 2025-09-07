@@ -27,9 +27,7 @@ export default function PageClient() {
     queryKey: QUERY_KEYS.CUSTOM_COMPONENTS(workspaceId!),
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
-      const res = await fetch(
-        `/api/custom-components?workspaceId=${workspaceId}`,
-      );
+      const res = await fetch("/api/custom-components");
       if (!res.ok) {
         throw new Error("Failed to fetch components");
       }

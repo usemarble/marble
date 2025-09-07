@@ -1,7 +1,7 @@
 import { Button } from "@marble/ui/components/button";
 import {
-  CaretDown,
-  CaretRight,
+  CaretDownIcon,
+  CaretRightIcon,
   PencilIcon,
   PuzzlePieceIcon,
 } from "@phosphor-icons/react";
@@ -22,15 +22,13 @@ export function CustomComponentNodeView({ node, getPos, editor }: any) {
   };
 
   const handleEdit = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     setIsModalOpen(true);
   };
 
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-  };
-
   const handleToggleExpand = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     setIsExpanded(!isExpanded);
   };
@@ -38,9 +36,11 @@ export function CustomComponentNodeView({ node, getPos, editor }: any) {
   return (
     <>
       <NodeViewWrapper className="marble-custom-component">
-        <div
-          className="group relative border border-border rounded-lg p-4 my-3 bg-card hover:shadow-sm transition-all duration-200 cursor-pointer"
+        <button
+          type="button"
+          className="group relative border border-border rounded-lg p-4 my-3 bg-card hover:shadow-sm transition-all duration-200 cursor-pointer w-full text-left"
           onClick={handleClick}
+          aria-label={`Select ${componentName} component`}
         >
           {/* Header with component info and controls */}
           <div className="flex items-center justify-between mb-3">
@@ -62,9 +62,9 @@ export function CustomComponentNodeView({ node, getPos, editor }: any) {
                   className="h-8 w-8 p-0 hover:bg-muted"
                 >
                   {isExpanded ? (
-                    <CaretDown className="h-3.5 w-3.5" />
+                    <CaretDownIcon className="h-3.5 w-3.5" />
                   ) : (
-                    <CaretRight className="h-3.5 w-3.5" />
+                    <CaretRightIcon className="h-3.5 w-3.5" />
                   )}
                 </Button>
               )}
@@ -80,7 +80,6 @@ export function CustomComponentNodeView({ node, getPos, editor }: any) {
             </div>
           </div>
 
-          {/* Properties display */}
           {Object.keys(props).length > 0 && isExpanded && (
             <div className="mb-3 animate-in slide-in-from-top-1 duration-200">
               <div className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wide">
@@ -104,9 +103,8 @@ export function CustomComponentNodeView({ node, getPos, editor }: any) {
             </div>
           )}
 
-          {/* Hover overlay for better UX */}
           <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg pointer-events-none" />
-        </div>
+        </button>
       </NodeViewWrapper>
 
       <ComponentSelectorModal

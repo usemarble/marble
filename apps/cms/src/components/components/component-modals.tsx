@@ -123,7 +123,7 @@ export function ComponentModal({
       const response = await fetch(
         `/api/custom-components/${editingComponent.id}`,
         {
-          method: "PUT",
+          method: "PATCH",
           headers: {
             "Content-Type": "application/json",
           },

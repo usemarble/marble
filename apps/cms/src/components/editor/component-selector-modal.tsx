@@ -27,13 +27,15 @@ import {
 } from "@marble/ui/components/select";
 import { Textarea } from "@marble/ui/components/textarea";
 import { ArrowLeftIcon, PuzzlePieceIcon } from "@phosphor-icons/react";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useCallback, useEffect, useState } from "react";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { LoadingSpinner } from "../ui/async-button";
 
 interface ComponentSelectorModalProps {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
-  editor?: any;
+  editor?: Editor;
   existingComponent?: any;
 }
 
@@ -58,67 +60,25 @@ export function ComponentSelectorModal({
   editor,
   existingComponent,
 }: ComponentSelectorModalProps) {
-  const [components, setComponents] = useState<CustomComponent[]>([]);
   const [selectedComponent, setSelectedComponent] =
     useState<CustomComponent | null>(null);
   const [propertyValues, setPropertyValues] = useState<Record<string, any>>({});
-  const [isLoading, setIsLoading] = useState(false);
   const workspaceId = useWorkspaceId();
 
-  useEffect(() => {
-    if (isOpen && workspaceId) {
-      fetchComponents();
-    }
-  }, [isOpen, workspaceId]);
-
-  useEffect(() => {
-    if (existingComponent) {
-      const existingValues: Record<string, any> = {};
-      Object.entries(existingComponent.attrs).forEach(([key, value]) => {
-        if (key !== "componentName") {
-          existingValues[key] = value;
-        }
-      });
-      setPropertyValues(existingValues);
-
-      if (components.length > 0) {
-        const componentDef = components.find(
-          (c) => c.name === existingComponent.attrs.componentName,
-        );
-        if (componentDef) {
-          setSelectedComponent(componentDef);
-        }
+  const { data: components = [], isLoading } = useQuery({
+    queryKey: ["custom-components", workspaceId],
+    staleTime: 1000 * 60 * 5,
+    queryFn: async () => {
+      const response = await fetch("/api/custom-components");
+      if (!response.ok) {
+        throw new Error("Failed to fetch components");
       }
-    } else if (selectedComponent) {
-      const initialValues: Record<string, any> = {};
-      selectedComponent.properties.forEach((prop) => {
-        initialValues[prop.name] =
-          prop.defaultValue || getDefaultValueForType(prop.type);
-      });
-      setPropertyValues(initialValues);
-    }
-  }, [selectedComponent, existingComponent, components]);
+      return response.json();
+    },
+    enabled: !!workspaceId,
+  });
 
-  const fetchComponents = async () => {
-    if (!workspaceId) return;
-
-    try {
-      setIsLoading(true);
-      const response = await fetch(
-        `/api/custom-components?workspaceId=${workspaceId}`,
-      );
-      if (response.ok) {
-        const data = await response.json();
-        setComponents(data);
-      }
-    } catch (error) {
-      console.error("Failed to fetch components:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const getDefaultValueForType = (type: string) => {
+  const getDefaultValueForType = useCallback((type: string) => {
     switch (type) {
       case "boolean":
         return false;
@@ -129,7 +89,27 @@ export function ComponentSelectorModal({
       default:
         return "";
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (existingComponent && components.length > 0) {
+      const existingValues: Record<string, any> = {};
+      Object.entries(existingComponent.attrs).forEach(([key, value]) => {
+        if (key !== "componentName") {
+          existingValues[key] = value;
+        }
+      });
+      setPropertyValues(existingValues);
+
+      const componentDef = components.find(
+        (c: CustomComponent) =>
+          c.name === existingComponent.attrs.componentName,
+      );
+      if (componentDef) {
+        setSelectedComponent(componentDef);
+      }
+    }
+  }, [existingComponent, components]);
 
   const handlePropertyChange = (propertyName: string, value: any) => {
     setPropertyValues((prev) => ({
@@ -174,6 +154,16 @@ export function ComponentSelectorModal({
     }
 
     handleClose();
+  };
+
+  const handleComponentSelect = (component: CustomComponent) => {
+    setSelectedComponent(component);
+    const initialValues: Record<string, any> = {};
+    component.properties.forEach((prop) => {
+      initialValues[prop.name] =
+        prop.defaultValue || getDefaultValueForType(prop.type);
+    });
+    setPropertyValues(initialValues);
   };
 
   const handleClose = () => {
@@ -293,7 +283,10 @@ export function ComponentSelectorModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+      <DialogContent
+        className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle className="flex items-center">
             {selectedComponent && (
@@ -320,15 +313,8 @@ export function ComponentSelectorModal({
         {!selectedComponent ? (
           <div className="space-y-4">
             {isLoading ? (
-              <div className="grid gap-4">
-                {Array.from({ length: 3 }).map((_, index) => (
-                  <Card key={index}>
-                    <CardContent className="p-4">
-                      <div className="h-4 bg-gray-200 rounded animate-pulse mb-2" />
-                      <div className="h-3 bg-gray-200 rounded animate-pulse w-2/3" />
-                    </CardContent>
-                  </Card>
-                ))}
+              <div className="flex justify-center items-center h-32">
+                <LoadingSpinner />
               </div>
             ) : components.length === 0 ? (
               <div className="text-center py-8">
@@ -340,11 +326,11 @@ export function ComponentSelectorModal({
               </div>
             ) : (
               <div className="grid gap-3">
-                {components.map((component) => (
+                {components.map((component: CustomComponent) => (
                   <Card
                     key={component.id}
                     className="cursor-pointer hover:border-primary transition-colors"
-                    onClick={() => setSelectedComponent(component)}
+                    onClick={() => handleComponentSelect(component)}
                   >
                     <CardHeader className="pb-2">
                       <CardTitle className="text-lg flex items-center">
@@ -359,7 +345,7 @@ export function ComponentSelectorModal({
                     </CardHeader>
                     <CardContent className="pt-0">
                       <div className="flex flex-wrap gap-1">
-                        {component.properties.map((prop) => (
+                        {component.properties.map((prop: ComponentProperty) => (
                           <Badge
                             key={prop.id}
                             variant="secondary"
