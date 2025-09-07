@@ -56,7 +56,7 @@ export function NavExtra() {
       </PopoverTrigger>
       <PopoverContent side="right" sideOffset={6} className="w-60 divide-y p-0">
         <div className="p-2">
-          <h3 className="px-2 py-1.5 text-sm font-medium text-muted-foreground">
+          <h3 className="text-muted-foreground px-2 py-1.5 text-sm font-medium">
             Get in touch
           </h3>
           <ul className="flex flex-col">
@@ -68,7 +68,7 @@ export function NavExtra() {
                   rel="noopener noreferrer"
                   className={cn(
                     buttonVariants({ variant: "ghost", size: "sm" }),
-                    "w-full justify-start gap-2 text-muted-foreground",
+                    "text-muted-foreground w-full justify-start gap-2",
                   )}
                 >
                   {link.icon}
@@ -80,7 +80,7 @@ export function NavExtra() {
           </ul>
         </div>
         <div className="p-2">
-          <h3 className="px-2 py-1.5 text-sm font-medium text-muted-foreground">
+          <h3 className="text-muted-foreground px-2 py-1.5 text-sm font-medium">
             Resources
           </h3>
           <ul className="flex flex-col">
@@ -92,7 +92,7 @@ export function NavExtra() {
                   rel="noopener noreferrer"
                   className={cn(
                     buttonVariants({ variant: "ghost", size: "sm" }),
-                    "w-full justify-start gap-2 text-muted-foreground",
+                    "text-muted-foreground w-full justify-start gap-2",
                   )}
                 >
                   {link.icon}

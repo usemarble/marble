@@ -68,11 +68,11 @@ export function PostDataTable<TData, TValue>({
 
   return (
     <div>
-      <div className="flex items-center py-4 justify-between">
+      <div className="flex items-center justify-between py-4">
         <div className="relative">
           <MagnifyingGlassIcon
             size={16}
-            className="text-muted-foreground size-4 absolute top-3 left-3"
+            className="text-muted-foreground absolute left-3 top-3 size-4"
           />
           <Input
             value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
@@ -80,7 +80,7 @@ export function PostDataTable<TData, TValue>({
               table.getColumn("title")?.setFilterValue(event.target.value)
             }
             placeholder="Search posts..."
-            className="px-8 w-72"
+            className="w-72 px-8"
           />
           {(table.getColumn("title")?.getFilterValue() as string) && (
             <button
@@ -95,14 +95,14 @@ export function PostDataTable<TData, TValue>({
         </div>
         <div className="flex items-center gap-2">
           <TooltipProvider>
-            <div className="flex border rounded-md overflow-hidden">
+            <div className="flex overflow-hidden rounded-md border">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <span className="inline-block">
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="rounded-none px-3 opacity-50 cursor-not-allowed hover:bg-transparent"
+                      className="cursor-not-allowed rounded-none px-3 opacity-50 hover:bg-transparent"
                       disabled
                     >
                       <GridFourIcon size={16} />
@@ -119,7 +119,7 @@ export function PostDataTable<TData, TValue>({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="rounded-none px-3 bg-accent text-accent-foreground"
+                    className="bg-accent text-accent-foreground rounded-none px-3"
                   >
                     <ListIcon size={16} />
                     <span className="sr-only">Table View</span>
@@ -173,7 +173,7 @@ export function PostDataTable<TData, TValue>({
                 >
                   <TableRow
                     data-state={row.getIsSelected() && "selected"}
-                    className="cursor-pointer hover:bg-muted/50"
+                    className="hover:bg-muted/50 cursor-pointer"
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell

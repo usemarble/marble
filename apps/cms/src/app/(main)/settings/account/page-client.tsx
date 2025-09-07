@@ -111,9 +111,9 @@ function PageClient() {
   }, [file, handleAvatarUpload]);
 
   return (
-    <div className="flex flex-col gap-8 py-12 max-w-(--breakpoint-md) mx-auto w-full">
+    <div className="max-w-(--breakpoint-md) mx-auto flex w-full flex-col gap-8 py-12">
       <div className="py-4">
-        <div className="flex items-center gap-2 justify-between">
+        <div className="flex items-center justify-between gap-2">
           <h1 className="text-lg font-medium">Account Settings</h1>
           <Link href="/" className={cn(buttonVariants({ variant: "outline" }))}>
             Dashboard
@@ -126,11 +126,11 @@ function PageClient() {
             <CardTitle className="text-lg font-medium">Theme.</CardTitle>
             <CardDescription>Chose your preferred theme.</CardDescription>
           </CardHeader>
-          <CardContent className="flex items-center center">
+          <CardContent className="center flex items-center">
             <ThemeSwitch />
           </CardContent>
           <CardFooter className="border-t">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               This defaults to the system theme.
             </p>
           </CardFooter>
@@ -146,14 +146,14 @@ function PageClient() {
                 <Label
                   htmlFor="logo"
                   className={cn(
-                    "cursor-pointer relative overflow-hidden rounded-full size-16 group",
+                    "group relative size-16 cursor-pointer overflow-hidden rounded-full",
                     isUploading && "pointer-events-none",
                   )}
                 >
                   <Avatar className="size-16">
                     <AvatarImage src={avatarUrl || undefined} />
                     <AvatarFallback>
-                      <ImageIcon className="size-4 text-muted-foreground" />
+                      <ImageIcon className="text-muted-foreground size-4" />
                     </AvatarFallback>
                   </Avatar>
                   {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
@@ -173,7 +173,7 @@ function PageClient() {
                   />
                   <div
                     className={cn(
-                      "absolute inset-0 flex items-center justify-center transition-opacity duration-300 bg-background/50 backdrop-blur-xs size-full",
+                      "bg-background/50 backdrop-blur-xs absolute inset-0 flex size-full items-center justify-center transition-opacity duration-300",
                       isUploading
                         ? "opacity-100"
                         : "opacity-0 group-hover:opacity-100",
@@ -187,7 +187,7 @@ function PageClient() {
                   </div>
                 </Label>
               </div>
-              <div className="flex items-center gap-2 w-full">
+              <div className="flex w-full items-center gap-2">
                 <Input value={avatarUrl || ""} readOnly />
                 <CopyButton
                   textToCopy={avatarUrl || ""}
@@ -197,7 +197,7 @@ function PageClient() {
             </div>
           </CardContent>
           <CardFooter className="border-t">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Square images work best for avatars
             </p>
           </CardFooter>
@@ -225,7 +225,7 @@ function PageClient() {
                 )}
               </div>
             </CardContent>
-            <CardFooter className="border-t pt-4 justify-end">
+            <CardFooter className="justify-end border-t pt-4">
               <AsyncButton
                 disabled={!isChanged}
                 isLoading={isSubmitting || isUpdatingUser}
@@ -254,7 +254,7 @@ function PageClient() {
             </div>
           </CardContent>
           <CardFooter className="border-t">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Email cannot be changed
             </p>
           </CardFooter>
@@ -270,7 +270,7 @@ function PageClient() {
               action cannot be undone.
             </CardDescription>
           </CardHeader>
-          <CardFooter className="border-t pt-4 justify-end">
+          <CardFooter className="justify-end border-t pt-4">
             <DeleteAccountModal />
           </CardFooter>
         </Card>

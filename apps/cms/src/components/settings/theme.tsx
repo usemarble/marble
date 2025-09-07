@@ -33,7 +33,7 @@ export function ThemeSwitch() {
       <DropdownMenuTrigger asChild>
         <Button variant="outline">
           <span className="capitalize">{theme}</span>
-          <CaretDownIcon className="ml-2 size-4 text-muted-foreground" />
+          <CaretDownIcon className="text-muted-foreground ml-2 size-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

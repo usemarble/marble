@@ -157,15 +157,15 @@ export function TagModal({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-md p-8">
+      <DialogContent className="p-8 sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-medium text-center">
+          <DialogTitle className="text-center font-medium">
             {mode === "create" ? "Create Tag" : "Update Tag"}
           </DialogTitle>
         </DialogHeader>
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col gap-5 mt-2"
+          className="mt-2 flex flex-col gap-5"
         >
           <div className="grid flex-1 gap-2">
             <Label htmlFor={nameId} className="sr-only">
@@ -184,7 +184,7 @@ export function TagModal({
           <AsyncButton
             type="submit"
             isLoading={isSubmitting}
-            className="flex w-full gap-2 mt-4"
+            className="mt-4 flex w-full gap-2"
           >
             {mode === "create" ? "Create Tag" : "Update Tag"}
           </AsyncButton>

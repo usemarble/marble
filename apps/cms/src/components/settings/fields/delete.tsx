@@ -84,7 +84,7 @@ export function Delete() {
           action cannot be undone.
         </CardDescription>
       </CardHeader>
-      <CardFooter className="border-t pt-4 justify-end">
+      <CardFooter className="justify-end border-t pt-4">
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button variant="destructive">Delete Workspace</Button>

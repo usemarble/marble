@@ -41,7 +41,7 @@ export function Id() {
         </div>
       </CardContent>
       <CardFooter className="border-t">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Please dont share this with anyone as it can be used to access your
           data
         </p>

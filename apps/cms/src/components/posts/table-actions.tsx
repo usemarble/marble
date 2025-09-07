@@ -33,7 +33,7 @@ export default function PostTableActions(props: Post) {
           <DropdownMenuItem>
             <Link
               href={`/${params.workspace}/editor/p/${props.id}`}
-              className="flex w-full items-center gap-2 cursor-default"
+              className="flex w-full cursor-default items-center gap-2"
             >
               <PencilSimpleLineIcon size={16} /> <span>Edit</span>
             </Link>

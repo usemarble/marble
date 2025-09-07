@@ -39,8 +39,8 @@ export const columns: ColumnDef<TeamMemberRow>[] = [
             <AvatarFallback>{avatarFallback}</AvatarFallback>
           </Avatar>
           <div className="flex flex-col">
-            <span className="font-medium text-sm">{displayName}</span>
-            <span className="text-xs text-muted-foreground">{item.email}</span>
+            <span className="text-sm font-medium">{displayName}</span>
+            <span className="text-muted-foreground text-xs">{item.email}</span>
           </div>
         </div>
       );

@@ -75,26 +75,26 @@ export function MediaUploadModal({
         if (!open) setFile(undefined);
       }}
     >
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Upload Media</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col gap-4 py-4">
           {file ? (
             <div className="flex flex-col gap-4">
-              <div className="relative w-full h-[400px] flex items-center justify-center rounded-md overflow-hidden">
+              <div className="relative flex h-[400px] w-full items-center justify-center overflow-hidden rounded-md">
                 {file.type.startsWith("image/") ? (
                   // biome-ignore lint/performance/noImgElement: <>
                   <img
                     src={URL.createObjectURL(file)}
                     alt="cover preview"
-                    className="w-full h-full object-contain rounded-md"
+                    className="h-full w-full rounded-md object-contain"
                   />
                 ) : (
                   // biome-ignore lint/a11y/useMediaCaption: <>
                   <video
                     src={URL.createObjectURL(file)}
-                    className="w-full h-full object-contain rounded-md"
+                    className="h-full w-full rounded-md object-contain"
                     controls
                   />
                 )}
@@ -115,7 +115,7 @@ export function MediaUploadModal({
           ) : (
             <MediaDropzone
               onFilesAccepted={(files: File[]) => setFile(files[0])}
-              className="w-full h-64 rounded-md border border-dashed bg-background flex items-center justify-center cursor-pointer"
+              className="bg-background flex h-64 w-full cursor-pointer items-center justify-center rounded-md border border-dashed"
               multiple={false}
             />
           )}

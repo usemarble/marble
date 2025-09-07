@@ -25,13 +25,13 @@ export function NavUser() {
   const { user, isSigningOut, signOut, isFetchingUser } = useUser();
 
   if (!user || isFetchingUser) {
-    return <Skeleton className="border rounded-full size-8 shrink-0" />;
+    return <Skeleton className="size-8 shrink-0 rounded-full border" />;
   }
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="p-1 hover:bg-sidebar-accent rounded-full transition-colors">
-        <Avatar className="size-7 rounded-full cursor-pointer">
+      <DropdownMenuTrigger className="hover:bg-sidebar-accent rounded-full p-1 transition-colors">
+        <Avatar className="size-7 cursor-pointer rounded-full">
           <AvatarImage
             src={user?.image || undefined}
             alt={user?.name || "users profile image"}
@@ -45,7 +45,7 @@ export function NavUser() {
         side={isMobile ? "bottom" : "top"}
         align="start"
         sideOffset={5}
-        className="w-(--radix-dropdown-menu-trigger-width) rounded-lg min-w-52 text-sidebar-foreground"
+        className="w-(--radix-dropdown-menu-trigger-width) text-sidebar-foreground min-w-52 rounded-lg"
       >
         <DropdownMenuLabel className="p-0 font-normal">
           <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
@@ -77,7 +77,7 @@ export function NavUser() {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuItem variant="destructive" onSelect={signOut}>
-          <SignOutIcon className="size-4 mr-1.5" />
+          <SignOutIcon className="mr-1.5 size-4" />
           Log out
         </DropdownMenuItem>
       </DropdownMenuContent>

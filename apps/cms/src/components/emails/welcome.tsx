@@ -27,8 +27,8 @@ export const WelcomeEmail = ({ userEmail }: WelcomeEmailProps) => {
       <Head />
       <Preview>{previewText}</Preview>
       <Tailwind>
-        <Body className="bg-white my-auto mx-auto font-sans px-2">
-          <Container className="border border-solid border-[#eaeaea] rounded my-[40px] mx-auto p-[20px] max-w-[465px]">
+        <Body className="mx-auto my-auto bg-white px-2 font-sans">
+          <Container className="mx-auto my-[40px] max-w-[465px] rounded border border-solid border-[#eaeaea] p-[20px]">
             <Section className="mt-[32px]">
               <Img
                 src={`${baseUrl}/icon.png`}
@@ -39,28 +39,28 @@ export const WelcomeEmail = ({ userEmail }: WelcomeEmailProps) => {
               />
             </Section>
 
-            <Heading className="text-black text-2xl font-bold text-center my-6">
+            <Heading className="my-6 text-center text-2xl font-bold text-black">
               👋 Welcome aboard,
             </Heading>
 
-            <Text className="text-gray-700 text-base leading-relaxed text-center">
+            <Text className="text-center text-base leading-relaxed text-gray-700">
               Thanks for signing up with Marble. We're excited to have you in
               our community!
               <br />
               You can now explore all features and start building right away.
             </Text>
 
-            <Section className="text-center my-8">
+            <Section className="my-8 text-center">
               <Button
                 href={baseUrl}
-                className="bg-[#5B4FCC] text-white px-6 py-3 rounded-lg text-sm font-semibold"
+                className="rounded-lg bg-[#5B4FCC] px-6 py-3 text-sm font-semibold text-white"
               >
                 Go to Dashboard
               </Button>
             </Section>
 
-            <Hr className="border border-solid border-[#eaeaea] my-[26px] mx-0 w-full" />
-            <Text className="text-[#666666] text-[12px] leading-[24px]">
+            <Hr className="mx-0 my-[26px] w-full border border-solid border-[#eaeaea]" />
+            <Text className="text-[12px] leading-[24px] text-[#666666]">
               This email was intended for{" "}
               <span className="text-black">{userEmail}</span>. If you did not
               create an account, please send an email to support@marblecms.com

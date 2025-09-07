@@ -46,7 +46,7 @@ export function AttributionField({ control, errors }: AttributionFieldProps) {
       </div>
 
       {showAttribution && (
-        <div className="space-y-4 mt-2">
+        <div className="mt-2 space-y-4">
           <div className="space-y-2">
             <Input
               placeholder="Original author's name"
@@ -59,7 +59,7 @@ export function AttributionField({ control, errors }: AttributionFieldProps) {
               value={value?.author || ""}
             />
             {errors.attribution?.author && (
-              <p className="text-sm text-destructive px-1">
+              <p className="text-destructive px-1 text-sm">
                 {errors.attribution.author.message}
               </p>
             )}
@@ -77,7 +77,7 @@ export function AttributionField({ control, errors }: AttributionFieldProps) {
               value={value?.url || ""}
             />
             {errors.attribution?.url && (
-              <p className="text-sm text-destructive px-1">
+              <p className="text-destructive px-1 text-sm">
                 {errors.attribution.url.message}
               </p>
             )}

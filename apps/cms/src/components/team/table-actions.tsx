@@ -45,7 +45,7 @@ export default function TableActions(props: TableActionsProps) {
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
-            className="size-8 p-0 data-[state=open]:bg-muted"
+            className="data-[state=open]:bg-muted size-8 p-0"
           >
             <span className="sr-only">Open menu</span>
             <DotsThreeVerticalIcon className="size-4" />
@@ -53,7 +53,7 @@ export default function TableActions(props: TableActionsProps) {
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="end"
-          className="w-[180px] text-muted-foreground"
+          className="text-muted-foreground w-[180px]"
         >
           <DropdownMenuItem onClick={() => setShowProfileSheet(true)}>
             <ShieldCheckIcon className="size-4" />

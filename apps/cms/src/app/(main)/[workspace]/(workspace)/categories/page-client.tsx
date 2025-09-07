@@ -30,48 +30,51 @@ function PageClient() {
   const workspaceId = useWorkspaceId();
   const [showCreateModal, setShowCreateModal] = useState(false);
 
-  const { data: categories, isSuspending: isLoading } = useSuspenseQueryDeferred({
-    // biome-ignore lint/style/noNonNullAssertion: <>
-    queryKey: QUERY_KEYS.CATEGORIES(workspaceId!),
-    staleTime: 1000 * 60 * 60,
-    queryFn: async () => {
-      try {
-        const res = await fetch("/api/categories");
-        if (!res.ok) {
-          throw new Error(
-            `Failed to fetch categories: ${res.status} ${res.statusText}`,
+  const { data: categories, isSuspending: isLoading } =
+    useSuspenseQueryDeferred({
+      // biome-ignore lint/style/noNonNullAssertion: <>
+      queryKey: QUERY_KEYS.CATEGORIES(workspaceId!),
+      staleTime: 1000 * 60 * 60,
+      queryFn: async () => {
+        try {
+          const res = await fetch("/api/categories");
+          if (!res.ok) {
+            throw new Error(
+              `Failed to fetch categories: ${res.status} ${res.statusText}`,
+            );
+          }
+          const data: Category[] = await res.json();
+          return data;
+        } catch (error) {
+          toast.error(
+            error instanceof Error
+              ? error.message
+              : "Failed to fetch categories",
           );
+          return [];
         }
-        const data: Category[] = await res.json();
-        return data;
-      } catch (error) {
-        toast.error(
-          error instanceof Error ? error.message : "Failed to fetch categories",
-        );
-        return [];
-      }
-    },
-  });
+      },
+    });
 
   return (
     <>
       {categories && categories.length > 0 ? (
-        <WorkspacePageWrapper className="flex flex-col pt-10 pb-16 gap-8">
+        <WorkspacePageWrapper className="flex flex-col gap-8 pb-16 pt-10">
           {isLoading && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <div className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
+            <div className="text-muted-foreground flex items-center gap-2 text-sm">
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
               Loading categories...
             </div>
           )}
           <DataTable data={categories} columns={columns} />
         </WorkspacePageWrapper>
       ) : (
-        <WorkspacePageWrapper className="h-full grid place-content-center">
-          <div className="flex flex-col gap-4 items-center max-w-80">
+        <WorkspacePageWrapper className="grid h-full place-content-center">
+          <div className="flex max-w-80 flex-col items-center gap-4">
             <div>
               <PackageIcon className="size-16" />
             </div>
-            <div className="text-center flex flex-col gap-4 items-center">
+            <div className="flex flex-col items-center gap-4 text-center">
               <p className="text-muted-foreground text-sm">
                 Categories help organize your content. Create your first
                 category to get started.

@@ -132,7 +132,7 @@ export const TagSelector = ({
       </div>
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
-          <div className="relative w-full cursor-pointer rounded-md border px-3 py-2 text-sm min-h-9 h-auto bg-editor-field">
+          <div className="bg-editor-field relative h-auto min-h-9 w-full cursor-pointer rounded-md border px-3 py-2 text-sm">
             <div className="flex items-center justify-between gap-2">
               <ul className="flex flex-wrap gap-1">
                 {selected.length === 0 && (
@@ -168,7 +168,7 @@ export const TagSelector = ({
             <CommandInput placeholder="Search tags..." />
             <CommandList>
               <CommandEmpty>No results found.</CommandEmpty>
-              <div className="font-normal px-2 text-xs flex items-center gap-1 justify-between bg-background pt-2 pb-1">
+              <div className="bg-background flex items-center justify-between gap-1 px-2 pb-1 pt-2 text-xs font-normal">
                 <span className="text-muted-foreground text-xs">
                   {isLoadingTags
                     ? "Loading tags..."
@@ -178,10 +178,10 @@ export const TagSelector = ({
                 </span>
                 <button
                   type="button"
-                  className="flex items-center gap-1 p-1 hover:bg-accent"
+                  className="hover:bg-accent flex items-center gap-1 p-1"
                   onClick={() => setOpenTagModal(true)}
                 >
-                  <PlusIcon className="size-4 text-muted-foreground" />
+                  <PlusIcon className="text-muted-foreground size-4" />
                   <span className="sr-only">Add a new tag</span>
                 </button>
               </div>

@@ -15,8 +15,8 @@ export function SlashCommandMenu() {
 
   return (
     <>
-      <EditorCommand className="z-50 h-auto max-h-80 w-60 overflow-y-auto rounded-sm border bg-background px-1 py-2 shadow-xs transition-all">
-        <EditorCommandEmpty className="px-2 text-muted-foreground">
+      <EditorCommand className="bg-background shadow-xs z-50 h-auto max-h-80 w-60 overflow-y-auto rounded-sm border px-1 py-2 transition-all">
+        <EditorCommandEmpty className="text-muted-foreground px-2">
           No results
         </EditorCommandEmpty>
         <EditorCommandList>
@@ -39,9 +39,9 @@ export function SlashCommandMenu() {
                 }
               }}
               key={item.title}
-              className="flex w-full items-center space-x-2 rounded-[6px] px-2 py-1 text-left text-sm cursor-pointer hover:bg-accent aria-selected:bg-accent"
+              className="hover:bg-accent aria-selected:bg-accent flex w-full cursor-pointer items-center space-x-2 rounded-[6px] px-2 py-1 text-left text-sm"
             >
-              <div className="flex p-1 items-center justify-center border border-muted bg-background">
+              <div className="border-muted bg-background flex items-center justify-center border p-1">
                 {item.icon}
               </div>
               <div>

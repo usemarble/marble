@@ -59,7 +59,7 @@ export function Dropzone({
       <div
         {...getRootProps()}
         className={cn(
-          "w-full rounded-md border border-dashed bg-background flex items-center justify-center cursor-pointer transition-colors",
+          "bg-background flex w-full cursor-pointer items-center justify-center rounded-md border border-dashed transition-colors",
           isDragActive && !isDragReject && "border-primary bg-primary/5",
           isDragReject && "border-destructive bg-destructive/10",
           hasErrors && "border-destructive bg-destructive/5",
@@ -69,7 +69,7 @@ export function Dropzone({
       >
         <input {...getInputProps()} />
         {children || (
-          <div className="flex flex-col items-center gap-2 text-muted-foreground p-6">
+          <div className="text-muted-foreground flex flex-col items-center gap-2 p-6">
             <ImageIcon className="size-6" />
             <div className="flex flex-col items-center text-center">
               <p className="text-sm font-medium">
@@ -80,7 +80,7 @@ export function Dropzone({
                     : placeholder.idle}
               </p>
               {placeholder.subtitle && (
-                <p className="text-xs text-muted-foreground/70 mt-1">
+                <p className="text-muted-foreground/70 mt-1 text-xs">
                   {placeholder.subtitle}
                 </p>
               )}
@@ -91,7 +91,7 @@ export function Dropzone({
 
       {/* Error messages */}
       {hasErrors && (
-        <div className="mt-2 space-y-1 text-sm text-destructive">
+        <div className="text-destructive mt-2 space-y-1 text-sm">
           {fileRejections.map(({ file, errors }) => {
             const fileType = file.name.split(".").pop();
             const message =

@@ -38,22 +38,22 @@ function PageClient() {
   });
 
   return (
-    <WorkspacePageWrapper className="flex flex-col pt-10 pb-16 gap-8">
+    <WorkspacePageWrapper className="flex flex-col gap-8 pb-16 pt-10">
       {isLoading && (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <div className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
+        <div className="text-muted-foreground flex items-center gap-2 text-sm">
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
           Loading posts...
         </div>
       )}
       {posts && posts.length > 0 ? (
         <PostDataTable columns={columns} data={posts} />
       ) : (
-        <WorkspacePageWrapper className="h-full grid place-content-center">
-          <div className="flex flex-col gap-4 items-center max-w-80">
+        <WorkspacePageWrapper className="grid h-full place-content-center">
+          <div className="flex max-w-80 flex-col items-center gap-4">
             <div className="p-2">
               <NoteIcon className="size-16" />
             </div>
-            <div className="text-center flex flex-col gap-4 items-center">
+            <div className="flex flex-col items-center gap-4 text-center">
               <p className="text-muted-foreground text-sm">
                 No posts yet. Click the button below to start writing.
               </p>

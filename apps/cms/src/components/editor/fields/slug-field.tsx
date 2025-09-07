@@ -29,10 +29,10 @@ export function SlugField({ control }: SlugFieldProps) {
         id="slug"
         {...field}
         placeholder="my-awesome-post"
-        className="col-span-3 bg-editor-field"
+        className="bg-editor-field col-span-3"
       />
       {error && (
-        <p className="text-sm px-1 font-medium text-destructive">
+        <p className="text-destructive px-1 text-sm font-medium">
           {error.message}
         </p>
       )}

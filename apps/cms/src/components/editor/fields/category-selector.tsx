@@ -79,12 +79,12 @@ export function CategorySelector({ control }: CategorySelectorProps) {
           <FieldInfo text="Good for grouping posts together. You can have one category per post." />
         </div>
         <Select value={value} onValueChange={onChange}>
-          <SelectTrigger className="w-full bg-editor-field">
+          <SelectTrigger className="bg-editor-field w-full">
             <SelectValue placeholder="Choose a category" />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectLabel className="font-normal px-2 text-xs flex items-center gap-1 justify-between">
+              <SelectLabel className="flex items-center justify-between gap-1 px-2 text-xs font-normal">
                 <span className="text-muted-foreground text-xs">
                   {isLoadingCategories
                     ? "Loading categories..."
@@ -94,10 +94,10 @@ export function CategorySelector({ control }: CategorySelectorProps) {
                 </span>
                 <button
                   type="button"
-                  className="flex items-center gap-1 p-1 hover:bg-accent"
+                  className="hover:bg-accent flex items-center gap-1 p-1"
                   onClick={() => setShowCategoryModal(true)}
                 >
-                  <PlusIcon className="size-4 text-muted-foreground" />
+                  <PlusIcon className="text-muted-foreground size-4" />
                   <span className="sr-only">Add New Category</span>
                 </button>
               </SelectLabel>
@@ -110,7 +110,7 @@ export function CategorySelector({ control }: CategorySelectorProps) {
           </SelectContent>
         </Select>
         {error && (
-          <p className="text-sm px-1 font-medium text-destructive">
+          <p className="text-destructive px-1 text-sm font-medium">
             {error.message}
           </p>
         )}

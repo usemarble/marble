@@ -11,8 +11,8 @@
     "./hooks/*": "./src/hooks/*.ts"
   },
   "scripts": {
-    "lint": "biome check .",
-    "format": "biome --write ."
+    "lint": "prettier --check 'src/**/*.{ts,tsx,js,jsx}'",
+    "format": "prettier --write 'src/**/*.{ts,tsx,js,jsx}'"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

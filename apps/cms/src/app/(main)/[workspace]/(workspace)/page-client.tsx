@@ -13,8 +13,8 @@ export default function PageClient() {
   };
 
   return (
-    <div className="p-4 flex flex-col flex-1 h-full items-center justify-center">
-      <h1 className="text-2xl font-semibold mb-4">
+    <div className="flex h-full flex-1 flex-col items-center justify-center p-4">
+      <h1 className="mb-4 text-2xl font-semibold">
         {isFetchingUser ? (
           getTimeOfDay()
         ) : (

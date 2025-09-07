@@ -43,7 +43,7 @@ export function NavDevs() {
           <SidebarMenuItem key={item.name}>
             <SidebarMenuButton
               asChild
-              className={`border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
+              className={`hover:bg-sidebar-accent border border-transparent transition-colors duration-200 ${
                 isActive(item.url)
                   ? "bg-sidebar-accent border-border text-foreground shadow-xs"
                   : "hover:text-accent-foreground"

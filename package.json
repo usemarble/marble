@@ -16,9 +16,9 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
-    "format": "biome format --write apps packages",
-    "format-lint:fix": "biome check apps packages --write",
-    "format-lint:check": "biome ci apps packages",
+    "format": "prettier --write 'apps/**/*.{ts,tsx,js,jsx}' 'packages/**/*.{ts,tsx,js,jsx}'",
+    "format-lint:fix": "prettier --write 'apps/**/*.{ts,tsx,js,jsx}' 'packages/**/*.{ts,tsx,js,jsx}'",
+    "format-lint:check": "prettier --check 'apps/**/*.{ts,tsx,js,jsx}' 'packages/**/*.{ts,tsx,js,jsx}'",
     "web:dev": "turbo dev --filter=web",
     "cms:dev": "turbo dev --filter=cms",
     "api:dev": "turbo dev --filter=api",
@@ -26,7 +26,6 @@
     "prepare": "husky"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.2.3",
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "@marble/tsconfig": "workspace:*",

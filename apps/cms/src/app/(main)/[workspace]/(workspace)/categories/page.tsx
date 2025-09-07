@@ -10,10 +10,14 @@ export const metadata = {
 
 function ErrorFallback() {
   return (
-    <div className="flex items-center justify-center h-64">
+    <div className="flex h-64 items-center justify-center">
       <div className="text-center">
-        <h2 className="text-lg font-semibold text-red-600">Something went wrong</h2>
-        <p className="text-sm text-muted-foreground">Failed to load categories</p>
+        <h2 className="text-lg font-semibold text-red-600">
+          Something went wrong
+        </h2>
+        <p className="text-muted-foreground text-sm">
+          Failed to load categories
+        </p>
       </div>
     </div>
   );

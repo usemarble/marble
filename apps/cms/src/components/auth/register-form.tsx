@@ -171,7 +171,7 @@ export function RegisterForm() {
               {...register("email")}
             />
             {errors?.email && (
-              <p className="text-xs px-1 font-medium text-destructive">
+              <p className="text-destructive px-1 text-xs font-medium">
                 {errors.email.message}
               </p>
             )}
@@ -196,7 +196,7 @@ export function RegisterForm() {
               />
               <button
                 type="button"
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground"
+                className="text-muted-foreground absolute right-4 top-1/2 -translate-y-1/2"
                 onClick={() => setIsPasswordVisible((prev) => !prev)}
               >
                 {isPasswordVisible ? (
@@ -207,7 +207,7 @@ export function RegisterForm() {
               </button>
             </div>
             {errors?.password && (
-              <p className="text-xs px-1 font-medium text-destructive">
+              <p className="text-destructive px-1 text-xs font-medium">
                 {errors.password.message}
               </p>
             )}

@@ -109,7 +109,7 @@ export function NavMain() {
           <SidebarMenuButton
             asChild
             key={item.name}
-            className={`border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
+            className={`hover:bg-sidebar-accent border border-transparent transition-colors duration-200 ${
               isActive(item.url)
                 ? "bg-sidebar-accent border-border text-foreground shadow-xs hover"
                 : "hover:text-accent-foreground"
@@ -131,7 +131,7 @@ export function NavMain() {
               <CollapsibleTrigger asChild>
                 <SidebarMenuButton
                   tooltip="Settings"
-                  className={`border cursor-pointer border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
+                  className={`hover:bg-sidebar-accent cursor-pointer border border-transparent transition-colors duration-200 ${
                     isSettingsActive
                       ? "bg-sidebar-accent border-border text-foreground shadow-xs"
                       : "hover:text-accent-foreground"

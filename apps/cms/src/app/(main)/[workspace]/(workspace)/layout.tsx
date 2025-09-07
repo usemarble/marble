@@ -40,9 +40,9 @@ export default async function DashboardLayout({
   return (
     <SidebarProvider className="overflow-y-hidden">
       <AppSidebar />
-      <SidebarInset className="peer-data-[variant=inset]:border-l md:peer-data-[variant=inset]:shadow-none relative overflow-y-auto">
+      <SidebarInset className="relative overflow-y-auto peer-data-[variant=inset]:border-l md:peer-data-[variant=inset]:shadow-none">
         <PageHeader />
-        <section className="flex min-h-[calc(100vh-56px)] flex-1 flex-col gap-4 px-4 py-2 w-full">
+        <section className="flex min-h-[calc(100vh-56px)] w-full flex-1 flex-col gap-4 px-4 py-2">
           {children}
           <div className="fixed bottom-8 right-8" />
         </section>

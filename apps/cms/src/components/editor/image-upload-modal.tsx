@@ -118,9 +118,9 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
           Upload an image from your computer or embed an image from the web.
         </DialogDescription>
       </DialogHeader>
-      <DialogContent className="max-w-xl max-h-96">
+      <DialogContent className="max-h-96 max-w-xl">
         <Tabs defaultValue="upload" className="w-full">
-          <TabsList variant="line" className="flex justify-start mb-4">
+          <TabsList variant="line" className="mb-4 flex justify-start">
             <TabsTrigger value="upload">Upload</TabsTrigger>
             <TabsTrigger value="embed">Embed</TabsTrigger>
             <TabsTrigger value="media">Media</TabsTrigger>
@@ -131,15 +131,15 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
               <div className="min-h-52">
                 {file ? (
                   <div className="flex flex-col gap-4">
-                    <div className="relative w-full h-full">
+                    <div className="relative h-full w-full">
                       {/* biome-ignore lint/performance/noImgElement: <> */}
                       <img
                         src={URL.createObjectURL(file)}
                         alt="cover"
-                        className="w-full h-full max-h-52 object-cover rounded-md"
+                        className="h-full max-h-52 w-full rounded-md object-cover"
                       />
                       {isUploading && (
-                        <div className="absolute grid size-full inset-0 place-content-center bg-black/50 rounded-md p-2 backdrop-blur-xs">
+                        <div className="backdrop-blur-xs absolute inset-0 grid size-full place-content-center rounded-md bg-black/50 p-2">
                           <div className="flex flex-col items-center gap-2">
                             <SpinnerIcon className="size-5 animate-spin text-white" />
                             <p className="text-sm text-white">Uploading...</p>
@@ -156,7 +156,7 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
                         uploadImage(files[0]);
                       }
                     }}
-                    className="w-full h-64 rounded-md border border-dashed bg-background flex items-center justify-center cursor-pointer"
+                    className="bg-background flex h-64 w-full cursor-pointer items-center justify-center rounded-md border border-dashed"
                     multiple={false}
                   />
                 )}
@@ -173,7 +173,7 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
                   disabled={isValidatingUrl}
                 />
                 <AsyncButton
-                  className="w-52 mx-auto"
+                  className="mx-auto w-52"
                   onClick={() => handleEmbed(embedUrl)}
                   disabled={isValidatingUrl || !embedUrl}
                 >
@@ -186,7 +186,7 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
             <ScrollArea className="h-72">
               <section className="flex flex-col gap-4 p-4">
                 {media && media.length > 0 ? (
-                  <ul className="grid grid-cols-3 gap-2 overflow-y-auto max-h-[400px]">
+                  <ul className="grid max-h-[400px] grid-cols-3 gap-2 overflow-y-auto">
                     {/* ONCE video extension is added, we need to filter out videos */}
                     {media
                       .filter((item) => item.type === "image")
@@ -203,14 +203,14 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
                               className="h-24 object-cover"
                             />
                           </button>
-                          <p className="text-xs text-muted-foreground line-clamp-1 py-0.5 px-1">
+                          <p className="text-muted-foreground line-clamp-1 px-1 py-0.5 text-xs">
                             {item.name}
                           </p>
                         </li>
                       ))}
                   </ul>
                 ) : (
-                  <div className="h-full grid place-content-center">
+                  <div className="grid h-full place-content-center">
                     <div className="flex flex-col items-center gap-4">
                       <p>Your previously uploaded media will show up here </p>
                     </div>

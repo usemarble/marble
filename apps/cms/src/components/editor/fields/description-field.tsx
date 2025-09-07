@@ -30,10 +30,10 @@ export function DescriptionField({ control }: DescriptionFieldProps) {
         id="description"
         {...field}
         placeholder="A short description of your post"
-        className="col-span-3 bg-editor-field"
+        className="bg-editor-field col-span-3"
       />
       {error && (
-        <p className="text-sm px-1 font-medium text-destructive">
+        <p className="text-destructive px-1 text-sm font-medium">
           {error.message}
         </p>
       )}

@@ -66,11 +66,11 @@ export function TeamDataTable<TData, TValue>({
 
   return (
     <div>
-      <div className="flex items-center py-4 gap-4 justify-between">
+      <div className="flex items-center justify-between gap-4 py-4">
         <div className="relative">
           <MagnifyingGlassIcon
             size={16}
-            className="text-muted-foreground size-4 absolute top-1/2 -translate-y-1/2 left-3"
+            className="text-muted-foreground absolute left-3 top-1/2 size-4 -translate-y-1/2"
           />
           <Input
             value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
@@ -78,7 +78,7 @@ export function TeamDataTable<TData, TValue>({
               table.getColumn("name")?.setFilterValue(event.target.value)
             }
             placeholder="Search team members..."
-            className="px-8 w-72"
+            className="w-72 px-8"
           />
           {(table.getColumn("name")?.getFilterValue() as string) && (
             <button
@@ -92,7 +92,7 @@ export function TeamDataTable<TData, TValue>({
           )}
         </div>
 
-        <div className="flex gap-4 items-center">
+        <div className="flex items-center gap-4">
           <InviteButton onInvite={() => setShowInviteModal(true)} />
           {currentUserRole === "owner" ? (
             <TooltipProvider>
@@ -100,7 +100,7 @@ export function TeamDataTable<TData, TValue>({
                 <TooltipTrigger asChild>
                   <Button
                     variant="outline"
-                    className="opacity-50 cursor-not-allowed"
+                    className="cursor-not-allowed opacity-50"
                   >
                     <span>Leave Team</span>
                   </Button>
