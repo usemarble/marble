@@ -21,7 +21,7 @@ export async function GET() {
       status: true,
       publishedAt: true,
       updatedAt: true,
-      newPrimaryAuthor: {
+      primaryAuthor: {
         select: {
           name: true,
           image: true,
@@ -33,20 +33,13 @@ export async function GET() {
     },
   });
 
-  // Transform posts to use new author data
-  const transformedPosts = posts.map((post) => ({
-    ...post,
-    primaryAuthor: post.newPrimaryAuthor,
-  }));
-
-  return NextResponse.json(transformedPosts);
+  return NextResponse.json(posts);
 }
 
 export async function POST(request: Request) {
   const sessionData = await getServerSession();
-  const user = sessionData?.user;
 
-  if (!user || !sessionData?.session.activeOrganizationId) {
+  if (!sessionData || !sessionData?.session.activeOrganizationId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -68,6 +61,7 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   }
+
   const contentJson = JSON.parse(values.contentJson);
   const validAttribution = values.attribution ? values.attribution : undefined;
   const cleanContent = sanitizeHtml(values.content);
@@ -103,10 +97,17 @@ export async function POST(request: Request) {
   const primaryAuthor =
     validAuthors.find((a) => a.id === author.id) || validAuthors[0];
 
+  // We should ideally never hit this since validAuthors.length > 0
+  if (!primaryAuthor) {
+    return NextResponse.json(
+      { error: "Unable to determine primary author" },
+      { status: 500 },
+    );
+  }
+
   const postCreated = await db.post.create({
     data: {
-      // New author fields
-      newPrimaryAuthorId: primaryAuthor?.id as string,
+      primaryAuthorId: primaryAuthor.id,
       contentJson,
       slug: values.slug,
       title: values.title,
@@ -124,9 +125,8 @@ export async function POST(request: Request) {
               connect: uniqueTagIds.map((id) => ({ id })),
             }
           : undefined,
-      // New authors
-      newAuthors: {
-        connect: validAuthors.map((a) => ({ id: a.id })),
+      authors: {
+        connect: validAuthors.map((author) => ({ id: author.id })),
       },
     },
   });
