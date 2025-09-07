@@ -32,7 +32,7 @@ authors.get("/", async (c) => {
   const { limit, page } = queryValidation.data;
 
   try {
-    const authors = await db.author.findMany({
+    const authorsList = await db.author.findMany({
       where: {
         workspaceId: workspaceId,
         isActive: true,
@@ -43,6 +43,7 @@ authors.get("/", async (c) => {
         image: true,
         slug: true,
       },
+      orderBy: [{ name: "asc" }],
       take: limit,
       skip: (page - 1) * limit,
     });
@@ -73,7 +74,7 @@ authors.get("/", async (c) => {
     }
 
     return c.json({
-      authors,
+      authors: authorsList,
       pagination: {
         limit,
         currentPage: page,
