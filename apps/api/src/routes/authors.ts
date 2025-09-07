@@ -5,7 +5,7 @@ import { BasicPaginationSchema } from "../validations";
 
 const authors = new Hono<{ Bindings: Env }>();
 
-authors.get("/:workspaceId/authors", async (c) => {
+authors.get("/", async (c) => {
   const url = c.env.DATABASE_URL;
   const workspaceId = c.req.param("workspaceId");
   const db = createClient(url);
@@ -32,26 +32,25 @@ authors.get("/:workspaceId/authors", async (c) => {
   const { limit, page } = queryValidation.data;
 
   try {
-    const authors = await db.user.findMany({
+    const authors = await db.author.findMany({
       where: {
-        members: {
-          some: { organizationId: workspaceId },
-        },
+        workspaceId: workspaceId,
+        isActive: true,
       },
       select: {
         id: true,
         name: true,
         image: true,
+        slug: true,
       },
       take: limit,
       skip: (page - 1) * limit,
     });
 
-    const totalAuthors = await db.user.count({
+    const totalAuthors = await db.author.count({
       where: {
-        members: {
-          some: { organizationId: workspaceId },
-        },
+        workspaceId: workspaceId,
+        isActive: true,
       },
     });
 
@@ -89,19 +88,18 @@ authors.get("/:workspaceId/authors", async (c) => {
   }
 });
 
-authors.get("/:workspaceId/authors/:id", async (c) => {
+authors.get("/:identifier", async (c) => {
   const url = c.env.DATABASE_URL;
   const workspaceId = c.req.param("workspaceId");
-  const authorId = c.req.param("id");
+  const identifier = c.req.param("identifier");
   const db = createClient(url);
 
   try {
-    const author = await db.user.findFirst({
+    const author = await db.author.findFirst({
       where: {
-        id: authorId,
-        members: {
-          some: { organizationId: workspaceId },
-        },
+        workspaceId: workspaceId,
+        isActive: true,
+        OR: [{ id: identifier }, { slug: identifier }],
       },
       select: {
         id: true,

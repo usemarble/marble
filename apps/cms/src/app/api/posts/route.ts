@@ -21,12 +21,6 @@ export async function GET() {
       status: true,
       publishedAt: true,
       updatedAt: true,
-      primaryAuthor: {
-        select: {
-          name: true,
-          image: true,
-        },
-      },
       newPrimaryAuthor: {
         select: {
           name: true,
@@ -39,10 +33,10 @@ export async function GET() {
     },
   });
 
-  // Transform posts to use new author data when available
+  // Transform posts to use new author data
   const transformedPosts = posts.map((post) => ({
     ...post,
-    primaryAuthor: post.newPrimaryAuthor || post.primaryAuthor,
+    primaryAuthor: post.newPrimaryAuthor,
   }));
 
   return NextResponse.json(transformedPosts);
@@ -111,10 +105,8 @@ export async function POST(request: Request) {
 
   const postCreated = await db.post.create({
     data: {
-      // Legacy fields (keep for backward compatibility during transition)
-      primaryAuthorId: sessionData.user.id,
       // New author fields
-      newPrimaryAuthorId: primaryAuthor?.id as string, // i have to cast this for now
+      newPrimaryAuthorId: primaryAuthor?.id as string,
       contentJson,
       slug: values.slug,
       title: values.title,
@@ -132,10 +124,6 @@ export async function POST(request: Request) {
               connect: uniqueTagIds.map((id) => ({ id })),
             }
           : undefined,
-      // Legacy authors (keep for backward compatibility)
-      authors: {
-        connect: { id: sessionData.user.id },
-      },
       // New authors
       newAuthors: {
         connect: validAuthors.map((a) => ({ id: a.id })),

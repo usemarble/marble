@@ -35,9 +35,6 @@ export async function GET(
       tags: {
         select: { id: true },
       },
-      authors: {
-        select: { id: true },
-      },
       newAuthors: {
         select: { id: true },
       },
@@ -60,10 +57,7 @@ export async function GET(
     contentJson: JSON.stringify(post.contentJson),
     tags: post.tags.map((tag) => tag.id),
     category: post.categoryId,
-    authors:
-      post.newAuthors?.length > 0
-        ? post.newAuthors.map((author) => author.id)
-        : post.authors.map((author) => author.id),
+    authors: post.newAuthors.map((author) => author.id),
   };
 
   return NextResponse.json(structuredData, { status: 200 });
