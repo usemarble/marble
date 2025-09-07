@@ -20,7 +20,7 @@ tags.get("/", async (c) => {
 
   const { limit, page } = queryValidation.data;
   const totalTags = await db.tag.count({ where: { workspaceId } });
-  const tags = await db.tag.findMany({
+  const tagsList = await db.tag.findMany({
     where: { workspaceId },
     select: { id: true, name: true, slug: true },
     take: limit,
@@ -28,7 +28,7 @@ tags.get("/", async (c) => {
   });
 
   return c.json({
-    tags,
+    tags: tagsList,
     pagination: {
       limit,
       currentPage: page,

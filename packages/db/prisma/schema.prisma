@@ -71,12 +71,7 @@ model Post {
   publishedAt     DateTime     @default(now())
   attribution     Json?
   
-  // Legacy author relationships (will be kept during migration)
-  primaryAuthorId String
-  primaryAuthor   User         @relation("PrimaryAuthor", fields: [primaryAuthorId], references: [id])
-  authors         User[]       @relation("PostToUser")
-  
-  // New author relationships (will replace the above after migration)
+  // New author relationships (will be renamed in next migration)
   newPrimaryAuthorId String
   newPrimaryAuthor   Author     @relation("NewPrimaryAuthor", fields: [newPrimaryAuthorId], references: [id])
   newAuthors         Author[]    @relation("PostToAuthor")
@@ -161,10 +156,8 @@ model User {
   authors         Author[]
   invitations     Invitation[]
   members         Member[]
-  authoredPosts   Post[]         @relation("PrimaryAuthor")
   sessions        Session[]
   subscriptions   Subscription[]
-  coAuthoredPosts Post[]         @relation("PostToUser")
 
   @@map("user")
 }

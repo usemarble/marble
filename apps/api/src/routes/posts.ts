@@ -91,7 +91,7 @@ posts.get("/", async (c) => {
     const prevPage = page > 1 ? page - 1 : null;
     const nextPage = page < totalPages ? page + 1 : null;
 
-    const posts = await db.post.findMany({
+    const rawPosts = await db.post.findMany({
       where,
       orderBy: {
         publishedAt: order,
@@ -108,7 +108,7 @@ posts.get("/", async (c) => {
         publishedAt: true,
         updatedAt: true,
         attribution: true,
-        authors: {
+        newAuthors: {
           select: {
             id: true,
             name: true,
@@ -132,15 +132,19 @@ posts.get("/", async (c) => {
       },
     });
 
-    // Check if a format query was provided
-    // Convert html -> markdown
-    const formattedPosts =
+    // Map newAuthors to authors and remove newAuthors from the response
+    // I will change this one migration is completed
+    const posts =
       format === "markdown"
-        ? posts.map((post) => ({
+        ? rawPosts.map(({ newAuthors, ...post }) => ({
             ...post,
+            authors: newAuthors,
             content: NodeHtmlMarkdown.translate(post.content || ""),
           }))
-        : posts;
+        : rawPosts.map(({ newAuthors, ...post }) => ({
+            ...post,
+            authors: newAuthors,
+          }));
 
     const paginationInfo = limit
       ? {
@@ -161,7 +165,7 @@ posts.get("/", async (c) => {
         };
 
     return c.json({
-      posts: formattedPosts,
+      posts,
       pagination: paginationInfo,
       // meta: {
       //   filters: {
@@ -192,7 +196,7 @@ posts.get("/:identifier", async (c) => {
     const format = c.req.query("format");
     const db = createClient(url);
 
-    const post = await db.post.findFirst({
+    const rawPost = await db.post.findFirst({
       where: {
         workspaceId,
         OR: [{ slug: identifier }, { id: identifier }],
@@ -208,7 +212,7 @@ posts.get("/:identifier", async (c) => {
         publishedAt: true,
         updatedAt: true,
         attribution: true,
-        authors: {
+        newAuthors: {
           select: {
             id: true,
             name: true,
@@ -232,17 +236,20 @@ posts.get("/:identifier", async (c) => {
       },
     });
 
-    if (!post) {
+    if (!rawPost) {
       return c.json({ error: "Post not found" }, 404);
     }
 
-    // Check if format needs to be markdown
-    // Convert to html -> markdown
-    // If not provided go with the html
+    // Map newAuthors to authors and remove newAuthors from the response
+    const { newAuthors, ...post } = rawPost;
     const formattedPost =
       format === "markdown"
-        ? { ...post, content: NodeHtmlMarkdown.translate(post.content || "") }
-        : post;
+        ? {
+            ...post,
+            authors: newAuthors,
+            content: NodeHtmlMarkdown.translate(post.content || ""),
+          }
+        : { ...post, authors: newAuthors };
 
     return c.json({ post: formattedPost });
   } catch (_error) {
