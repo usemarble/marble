@@ -155,7 +155,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
       <SheetTrigger asChild>
         {children || (
           <Button>
-            <Plus className="mr-2 size-4" />
+            <Plus className="size-4 mr-2" />
             New Webhook
           </Button>
         )}
@@ -170,16 +170,16 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
         </SheetHeader>
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="flex h-full flex-col justify-between"
+          className="h-full flex flex-col justify-between"
         >
-          <div className="mb-5 grid flex-1 auto-rows-min gap-6 px-6">
+          <div className="grid flex-1 auto-rows-min mb-5 gap-6 px-6">
             {/* Name Field */}
             <div className="grid gap-3">
               <Label htmlFor="name">Name</Label>
               {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
               <Input id="name" placeholder="My Webhook" {...register("name")} />
               {errors.name && (
-                <p className="text-destructive text-sm">
+                <p className="text-sm text-destructive">
                   {errors.name.message}
                 </p>
               )}
@@ -195,7 +195,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                 {...register("endpoint")}
               />
               {errors.endpoint && (
-                <p className="text-destructive text-sm">
+                <p className="text-sm text-destructive">
                   {errors.endpoint.message}
                 </p>
               )}
@@ -228,7 +228,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                 </SelectContent>
               </Select>
               {errors.format && (
-                <p className="text-destructive text-sm">
+                <p className="text-sm text-destructive">
                   {errors.format.message}
                 </p>
               )}
@@ -242,13 +242,13 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                   href="https://docs.marblecms.com/content/guides/webhooks"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-primary ml-2 flex cursor-pointer items-center text-xs hover:underline"
+                  className="text-xs text-primary cursor-pointer hover:underline ml-2 flex items-center"
                 >
                   <span>View Schemas</span>
                 </a>
               </div>
               <div className="grid gap-1">
-                <div className="border-border flex items-center space-x-3 border-b pb-2">
+                <div className="flex items-center space-x-3 pb-2 border-b border-border">
                   <Checkbox
                     id={masterCheckboxId}
                     checked={getMasterCheckboxState()}
@@ -259,7 +259,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                   <div className="flex-1">
                     <Label
                       htmlFor={masterCheckboxId}
-                      className="cursor-pointer text-sm font-medium"
+                      className="text-sm font-medium cursor-pointer"
                     >
                       Select all events
                     </Label>
@@ -277,7 +277,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                     <div className="flex-1">
                       <Label
                         htmlFor={event.id}
-                        className="cursor-pointer text-sm font-medium"
+                        className="text-sm font-medium cursor-pointer"
                       >
                         {event.label}
                       </Label>
@@ -286,7 +286,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                 ))}
               </div>
               {errors.events && (
-                <p className="text-destructive text-sm">
+                <p className="text-sm text-destructive">
                   {errors.events.message}
                 </p>
               )}

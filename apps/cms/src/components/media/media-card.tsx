@@ -55,19 +55,19 @@ export function MediaCard({
 
   return (
     <Card
-      className={`group gap-0 overflow-hidden py-0 ${isSelected ? "ring-primary ring-2" : ""} cursor-pointer`}
+      className={`group overflow-hidden py-0 gap-0 ${isSelected ? "ring-2 ring-primary" : ""} cursor-pointer`}
       onClick={onSelect}
     >
       <CardContent className="p-0">
-        <div className="relative aspect-video overflow-hidden">
+        <div className="aspect-video relative overflow-hidden">
           <div className="absolute rounded-md" />
           <div
             className={`absolute inset-0 z-10 flex items-center justify-center transition-opacity duration-300 ${
               isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-100"
             }`}
           >
-            <div className="pointer-events-none absolute inset-0 z-10 rounded-md bg-black/50 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-            <div className="relative z-20 rounded-full bg-white p-2 shadow-lg">
+            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-md z-10 pointer-events-none" />
+            <div className="relative z-20 p-2 bg-white rounded-full shadow-lg">
               <CheckIcon weight="bold" className="size-5 text-black" />
             </div>
           </div>
@@ -83,23 +83,23 @@ export function MediaCard({
           )}
           {media.type === "video" && <VideoPlayer src={media.url} />}
           {(media.type === "audio" || media.type === "document") && (
-            <div className="bg-muted flex h-full w-full items-center justify-center">
+            <div className="w-full h-full flex items-center justify-center bg-muted">
               <Icon
-                className="text-muted-foreground size-16"
+                className="size-16 text-muted-foreground"
                 weight="duotone"
               />
             </div>
           )}
         </div>
       </CardContent>
-      <CardFooter className="grid w-full grid-cols-[1fr_auto] gap-4 border-t p-4">
+      <CardFooter className="p-4 border-t w-full grid gap-4 grid-cols-[1fr_auto]">
         <div className="flex items-start gap-3">
           <Icon className={`size-6 shrink-0 ${color}`} weight="duotone" />
           <div className="flex flex-col">
-            <p className="line-clamp-1 text-wrap text-sm font-medium">
+            <p className="text-sm font-medium line-clamp-1 text-wrap">
               {media.name}
             </p>
-            <div className="text-muted-foreground flex items-center gap-1 text-xs">
+            <div className="flex items-center text-xs text-muted-foreground gap-1">
               <p>{formatBytes(media.size)}</p>
               <span className="font-bold">·</span>
               <p>{format(new Date(media.createdAt), "dd MMM yyyy")}</p>

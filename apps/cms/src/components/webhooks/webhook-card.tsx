@@ -57,7 +57,7 @@ export function WebhookCard({
     <li>
       <Card>
         <CardHeader className="flex justify-between">
-          <div className="mb-2 flex items-center gap-3">
+          <div className="flex items-center gap-3 mb-2">
             <CardTitle className="text-lg">{webhook.name}</CardTitle>
             <Badge
               variant={webhook.enabled ? "positive" : "negative"}
@@ -89,7 +89,7 @@ export function WebhookCard({
                 <DropdownMenuItem
                   onClick={() => handleCopySecret(webhook.secret)}
                 >
-                  <CopyIcon className="mr-1.5 size-4" />
+                  <CopyIcon className="size-4 mr-1.5" />
                   Copy Secret
                 </DropdownMenuItem>
               )}
@@ -98,7 +98,7 @@ export function WebhookCard({
                 onSelect={(_e) => setIsOpen(true)}
                 disabled={isToggling}
               >
-                <TrashIcon className="mr-1.5 size-4 text-inherit" />
+                <TrashIcon className="size-4 mr-1.5 text-inherit" />
                 Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -106,11 +106,11 @@ export function WebhookCard({
         </CardHeader>
         <CardContent>
           <div className="flex items-start justify-between">
-            <div className="min-w-0 flex-1">
-              <p className="text-muted-foreground mb-3 line-clamp-1 break-all font-mono text-sm">
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-mono text-muted-foreground break-all mb-3 line-clamp-1">
                 {webhook.endpoint}
               </p>
-              <div className="text-muted-foreground flex items-center justify-between gap-4 text-xs">
+              <div className="flex items-center justify-between gap-4 text-xs text-muted-foreground">
                 <span>
                   Created {format(new Date(webhook.createdAt), "MMM d, yyyy")}
                 </span>

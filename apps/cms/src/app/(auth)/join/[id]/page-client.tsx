@@ -113,7 +113,7 @@ function PageClient({ id, user }: PageClientProps) {
   return (
     <div className="flex items-center justify-center">
       {invitation ? (
-        <Card className="max-w-md rounded-[24px] px-5 py-7">
+        <Card className="max-w-md rounded-[24px] py-7 px-5">
           <CardHeader
             className={cn(
               "items-center",
@@ -127,7 +127,7 @@ function PageClient({ id, user }: PageClientProps) {
           </CardHeader>
           <CardContent>
             {inviteStatus === "pending" && (
-              <div className="mt-5 flex flex-col gap-8">
+              <div className="flex flex-col gap-8 mt-5">
                 <div className="flex items-center justify-center gap-4">
                   <Avatar className="size-14">
                     <AvatarImage src={user.image || ""} />
@@ -152,7 +152,7 @@ function PageClient({ id, user }: PageClientProps) {
                     <AvatarFallback>XQ</AvatarFallback>
                   </Avatar>
                 </div>
-                <p className="text-center text-sm">
+                <p className="text-sm text-center">
                   <strong>{invitation?.inviterEmail}</strong> has invited you to
                   join <strong>{invitation?.organizationName}</strong>.
                 </p>
@@ -163,11 +163,11 @@ function PageClient({ id, user }: PageClientProps) {
               </div>
             )}
             {inviteStatus === "accepted" && (
-              <div className="space-y-4 pb-4 pt-8">
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-                  <CheckIcon className="h-8 w-8 text-green-600" />
+              <div className="space-y-4 pt-8 pb-4">
+                <div className="flex items-center justify-center w-16 h-16 mx-auto bg-green-100 rounded-full">
+                  <CheckIcon className="w-8 h-8 text-green-600" />
                 </div>
-                <h2 className="text-center text-2xl font-medium">
+                <h2 className="text-2xl font-medium text-center">
                   Welcome to {invitation?.organizationName}!
                 </h2>
                 <p className="text-center">
@@ -176,12 +176,12 @@ function PageClient({ id, user }: PageClientProps) {
               </div>
             )}
             {inviteStatus === "rejected" && (
-              <div className="space-y-4 pb-4 pt-8">
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
-                  <XIcon className="h-8 w-8 text-red-600" />
+              <div className="space-y-4 pt-8 pb-4">
+                <div className="flex items-center justify-center w-16 h-16 mx-auto bg-red-100 rounded-full">
+                  <XIcon className="w-8 h-8 text-red-600" />
                 </div>
-                <h2 className="text-center text-2xl font-medium">Declined</h2>
-                <p className="text-muted-foreground text-center">
+                <h2 className="text-2xl font-medium text-center">Declined</h2>
+                <p className="text-center text-muted-foreground">
                   You&lsquo;ve declined the invitation to join{" "}
                   {invitation?.organizationName}.
                 </p>
@@ -190,7 +190,7 @@ function PageClient({ id, user }: PageClientProps) {
                     href="/"
                     className={buttonVariants({
                       variant: "outline",
-                      className: "flex items-center gap-2",
+                      className: "gap-2 items-center flex",
                     })}
                   >
                     <Undo className="size-4" />
@@ -201,7 +201,7 @@ function PageClient({ id, user }: PageClientProps) {
             )}
           </CardContent>
           {inviteStatus === "pending" && (
-            <CardFooter className="mt-4 grid grid-cols-2 gap-6">
+            <CardFooter className="grid gap-6 grid-cols-2 mt-4">
               <AsyncButton
                 isLoading={rejecting}
                 variant="outline"
@@ -232,7 +232,7 @@ export default PageClient;
 
 function InviteError() {
   return (
-    <Card className="w-full max-w-md rounded-[24px] px-5 py-7">
+    <Card className="w-full max-w-md rounded-[24px] py-7 px-5">
       <CardHeader className="text-center">
         <CardTitle className="font-medium">Invalid Invite</CardTitle>
         <CardDescription className="sr-only">
@@ -250,10 +250,10 @@ function InviteError() {
             href="/"
             className={buttonVariants({
               variant: "outline",
-              className: "flex items-center gap-2",
+              className: "gap-2 items-center flex",
             })}
           >
-            <Undo className="text-muted-foreground size-4" />
+            <Undo className="size-4 text-muted-foreground" />
             <span>Back home</span>
           </Link>
         </div>
@@ -264,7 +264,7 @@ function InviteError() {
 
 function InviteLoading() {
   return (
-    <Card className="grid h-80 max-w-md place-content-center rounded-[24px] p-6">
+    <Card className="h-80 rounded-[24px] p-6 max-w-md grid place-content-center">
       <CardHeader className="sr-only">
         <CardTitle>Loading</CardTitle>
         <CardDescription>

@@ -50,16 +50,15 @@ export function WorkspaceProvider({
     !!workspaceSlug &&
     (!activeWorkspace || activeWorkspace.slug !== workspaceSlug);
 
-  const { data: usersWorkspaces, isSuspending: isLoadingWorkspaces } =
-    useSuspenseQueryDeferred({
-      queryKey: QUERY_KEYS.WORKSPACE_LIST,
-      queryFn: async () => {
-        const response = await request<Workspace[]>("workspaces");
-        return response.data;
-      },
-      staleTime: 5 * 60 * 1000,
-      gcTime: 10 * 60 * 1000,
-    });
+  const { data: usersWorkspaces, isSuspending: isLoadingWorkspaces } = useSuspenseQueryDeferred({
+    queryKey: QUERY_KEYS.WORKSPACE_LIST,
+    queryFn: async () => {
+      const response = await request<Workspace[]>("workspaces");
+      return response.data;
+    },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+  });
 
   const fetchWorkspaceData = async (slug: string) => {
     try {
@@ -80,23 +79,17 @@ export function WorkspaceProvider({
     }
   };
 
-  const {
-    data: fetchedActiveWorkspace,
-    isSuspending: isFetchingActiveWorkspace,
-  } = useSuspenseQueryDeferred({
-    queryKey: shouldFetchWorkspace
-      ? ["workspace_by_slug", workspaceSlug]
-      : ["workspace_by_slug", "disabled"],
-    queryFn: shouldFetchWorkspace
-      ? () => fetchWorkspaceData(workspaceSlug)
-      : () => Promise.resolve(null),
-    initialData:
-      initialWorkspace && initialWorkspace.slug === workspaceSlug
-        ? initialWorkspace
-        : undefined,
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
-  });
+  const { data: fetchedActiveWorkspace, isSuspending: isFetchingActiveWorkspace } =
+    useSuspenseQueryDeferred({
+      queryKey: shouldFetchWorkspace ? ["workspace_by_slug", workspaceSlug] : ["workspace_by_slug", "disabled"],
+      queryFn: shouldFetchWorkspace ? () => fetchWorkspaceData(workspaceSlug) : () => Promise.resolve(null),
+      initialData:
+        initialWorkspace && initialWorkspace.slug === workspaceSlug
+          ? initialWorkspace
+          : undefined,
+      staleTime: 5 * 60 * 1000,
+      gcTime: 10 * 60 * 1000,
+    });
 
   const { mutateAsync: updateActiveWorkspaceMutation } = useMutation({
     mutationFn: async (workspace: Partial<Workspace>) => {
@@ -186,8 +179,7 @@ export function WorkspaceProvider({
     updateActiveWorkspace,
   ]);
 
-  const isFetchingWorkspace =
-    isFetchingActiveWorkspace || isSwitchingWorkspace || isLoadingWorkspaces;
+  const isFetchingWorkspace = isFetchingActiveWorkspace || isSwitchingWorkspace || isLoadingWorkspaces;
   const isOwner = activeWorkspace?.currentUserRole === "owner";
   const isAdmin = activeWorkspace?.currentUserRole === "admin";
   const isMember = activeWorkspace?.currentUserRole === "member";

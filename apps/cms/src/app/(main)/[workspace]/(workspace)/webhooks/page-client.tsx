@@ -102,12 +102,12 @@ export function PageClient() {
 
   if (webhooks?.length === 0) {
     return (
-      <WorkspacePageWrapper className="grid h-full place-content-center">
-        <div className="flex max-w-80 flex-col items-center gap-4">
+      <WorkspacePageWrapper className="h-full grid place-content-center">
+        <div className="flex flex-col gap-4 items-center max-w-80">
           <div className="p-2">
             <WebhooksLogoIcon className="size-16" />
           </div>
-          <div className="flex flex-col items-center gap-4 text-center">
+          <div className="text-center flex flex-col gap-4 items-center">
             <p className="text-muted-foreground text-sm">
               Webhooks let you run actions on your server when events happen in
               your workspace.

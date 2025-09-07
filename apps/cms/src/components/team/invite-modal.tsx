@@ -86,7 +86,7 @@ export const InviteModal = ({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="p-8 sm:max-w-md">
+      <DialogContent className="sm:max-w-md p-8">
         <DialogHeader>
           <DialogTitle className="text-center font-medium">
             Invite Member
@@ -136,7 +136,7 @@ export const InviteModal = ({
           <AsyncButton
             type="submit"
             isLoading={inviteMutation.isPending}
-            className="mt-4 flex w-full gap-2"
+            className="flex w-full gap-2 mt-4"
           >
             Invite
           </AsyncButton>

@@ -39,7 +39,7 @@ export function PublishDateField({ control }: PublishDateFieldProps) {
           <Button
             variant="outline"
             className={cn(
-              "bg-editor-field justify-between text-left font-normal shadow-none",
+              "justify-between text-left font-normal shadow-none bg-editor-field",
               !value && "text-muted-foreground",
             )}
           >
@@ -47,7 +47,7 @@ export function PublishDateField({ control }: PublishDateFieldProps) {
             <CalendarDotsIcon className="text-muted-foreground" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto overflow-hidden p-0">
+        <PopoverContent className="w-auto p-0 overflow-hidden">
           <Calendar
             mode="single"
             selected={value}
@@ -62,7 +62,7 @@ export function PublishDateField({ control }: PublishDateFieldProps) {
         </PopoverContent>
       </Popover>
       {error && (
-        <p className="text-destructive px-1 text-sm font-medium">
+        <p className="text-sm px-1 font-medium text-destructive">
           {error.message}
         </p>
       )}

@@ -38,7 +38,7 @@ export function LastUsedBadge({
       variant={variant}
       className={cn(
         lastUsedBadgePositions({ position }),
-        "px-1.5 py-0 text-[11px] backdrop-blur-sm",
+        "text-[11px] py-0 px-1.5 backdrop-blur-sm",
         className,
       )}
       {...props}

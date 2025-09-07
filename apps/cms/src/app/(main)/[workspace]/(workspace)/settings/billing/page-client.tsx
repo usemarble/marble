@@ -133,7 +133,7 @@ function PageClient() {
                 <h1 className="text-2xl font-semibold">
                   {getPlanDisplayName()}
                 </h1>
-                <p className="text-muted-foreground text-sm">
+                <p className="text-sm text-muted-foreground">
                   {billingCycleText}
                 </p>
               </div>
@@ -159,11 +159,11 @@ function PageClient() {
         </Card>
 
         {/* Usage Cards */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card>
             <CardContent className="p-6">
-              <div className="mb-4 flex items-center gap-3">
-                <div className="bg-muted flex size-8 items-center justify-center rounded-lg">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="size-8 rounded-lg bg-muted flex items-center justify-center">
                   <PlugsIcon className="text-muted-foreground" size={16} />
                 </div>
                 <h3 className="font-medium">API Requests</h3>
@@ -171,7 +171,7 @@ function PageClient() {
               <div className="space-y-3">
                 <div className="text-3xl font-bold">0</div>
                 <Progress value={planLimits.maxApiRequests === -1 ? 100 : 0} />
-                <p className="text-muted-foreground text-sm">
+                <p className="text-sm text-muted-foreground">
                   {planLimits.maxApiRequests === -1
                     ? "Unlimited requests"
                     : `${formatApiRequestLimit(planLimits.maxApiRequests)} remaining of ${formatApiRequestLimit(planLimits.maxApiRequests)}`}
@@ -182,8 +182,8 @@ function PageClient() {
 
           <Card>
             <CardContent className="p-6">
-              <div className="mb-4 flex items-center gap-3">
-                <div className="bg-muted flex size-8 items-center justify-center rounded-lg">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="size-8 rounded-lg bg-muted flex items-center justify-center">
                   <ImagesIcon className="text-muted-foreground" />
                 </div>
                 <h3 className="font-medium">Media</h3>
@@ -193,7 +193,7 @@ function PageClient() {
                   {formatBytes(currentMediaUsage)}
                 </div>
                 <Progress value={mediaPercent} />
-                <p className="text-muted-foreground text-sm">
+                <p className="text-sm text-muted-foreground">
                   {formatStorageLimit(mediaRemainingMB)} remaining of{" "}
                   {formatStorageLimit(planLimits.maxMediaStorage)}
                 </p>
@@ -203,8 +203,8 @@ function PageClient() {
 
           <Card>
             <CardContent className="p-6">
-              <div className="mb-4 flex items-center gap-3">
-                <div className="bg-muted flex size-8 items-center justify-center rounded-lg">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="size-8 rounded-lg bg-muted flex items-center justify-center">
                   <UsersIcon className="text-muted-foreground" size={16} />
                 </div>
                 <h3 className="font-medium">Members</h3>
@@ -212,7 +212,7 @@ function PageClient() {
               <div className="space-y-3">
                 <div className="text-3xl font-bold">{currentMemberCount}</div>
                 <Progress value={memberPercent} />
-                <p className="text-muted-foreground text-sm">
+                <p className="text-sm text-muted-foreground">
                   {Math.max(0, planLimits.maxMembers - currentMemberCount)}{" "}
                   remaining of {planLimits.maxMembers}
                 </p>

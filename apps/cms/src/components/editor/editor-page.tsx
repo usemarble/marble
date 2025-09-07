@@ -201,9 +201,9 @@ function EditorPage({ initialData, id }: EditorPageProps) {
 
   return (
     <>
-      <SidebarInset className="bg-editor-content-background shadow-xs h-[calc(100vh-1rem)] min-h-[calc(100vh-1rem)] rounded-xl border">
-        <header className="sticky top-0 z-50 flex justify-between p-3">
-          <div className="flex items-center gap-4">
+      <SidebarInset className="bg-editor-content-background rounded-xl shadow-xs border min-h-[calc(100vh-1rem)] h-[calc(100vh-1rem)]">
+        <header className="sticky top-0 p-3 z-50 flex justify-between">
+          <div className="flex gap-4 items-center">
             <Tooltip delayDuration={400}>
               <TooltipTrigger asChild>
                 <Link
@@ -213,7 +213,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                     "group cursor-default rounded-full",
                   )}
                 >
-                  <XIcon className="text-muted-foreground group-hover:text-foreground size-4" />
+                  <XIcon className="size-4 text-muted-foreground group-hover:text-foreground" />
                 </Link>
               </TooltipTrigger>
               <TooltipContent>
@@ -225,7 +225,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
           <div>
             <Tooltip delayDuration={400}>
               <TooltipTrigger asChild>
-                <SidebarTrigger className="text-muted-foreground size-8 rounded-full">
+                <SidebarTrigger className="size-8 rounded-full text-muted-foreground">
                   <SidebarSimpleIcon className="size-4" />
                 </SidebarTrigger>
               </TooltipTrigger>
@@ -252,10 +252,10 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                   placeholder="Title"
                   {...register("title")}
                   onKeyDown={handleKeyDown}
-                  className="scrollbar-hide focus:outline-hidden prose-headings:font-semibold mb-2 w-full resize-none bg-transparent text-4xl font-semibold focus:ring-0 sm:px-4"
+                  className="mb-2 resize-none scrollbar-hide w-full bg-transparent sm:px-4 text-4xl font-semibold focus:outline-hidden prose-headings:font-semibold focus:ring-0"
                 />
                 {errors.title && (
-                  <p className="text-destructive px-1 text-sm font-medium">
+                  <p className="text-sm px-1 font-medium text-destructive">
                     {errors.title.message}
                   </p>
                 )}
@@ -291,7 +291,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                   </EditorContent>
                 </EditorRoot>
                 {errors.content && (
-                  <p className="text-destructive px-1 text-sm font-medium">
+                  <p className="text-sm px-1 font-medium text-destructive">
                     {errors.content.message}
                   </p>
                 )}

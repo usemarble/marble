@@ -29,14 +29,14 @@ export default function TableActions(props: Category) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="text-muted-foreground">
           <DropdownMenuItem onClick={() => setShowUpdateModal(true)}>
-            <PencilSimpleLineIcon className="mr-1.5 size-4" />
+            <PencilSimpleLineIcon className="size-4 mr-1.5" />
             <span>Edit</span>
           </DropdownMenuItem>
           <DropdownMenuItem
             variant="destructive"
             onClick={() => setShowDeleteModal(true)}
           >
-            <TrashIcon className="mr-1.5 size-4" /> <span>Delete</span>
+            <TrashIcon className="size-4 mr-1.5" /> <span>Delete</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

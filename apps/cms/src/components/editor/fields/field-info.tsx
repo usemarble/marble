@@ -26,7 +26,7 @@ export function FieldInfo({
         <InfoIcon className={className} />
       </TooltipTrigger>
       <TooltipContent>
-        <p className="max-w-64 text-balance text-xs">{text}</p>
+        <p className="text-xs max-w-64 text-balance">{text}</p>
       </TooltipContent>
     </Tooltip>
   );

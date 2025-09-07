@@ -104,7 +104,7 @@ export function Logo() {
             <Label
               htmlFor={fileId}
               className={cn(
-                "group relative size-16 cursor-pointer overflow-hidden rounded-full",
+                "cursor-pointer relative overflow-hidden rounded-full size-16 group",
                 (isUpdatingLogo || !isOwner) && "pointer-events-none",
                 !isOwner && "opacity-50",
               )}
@@ -131,7 +131,7 @@ export function Logo() {
               />
               <div
                 className={cn(
-                  "bg-background/50 backdrop-blur-xs absolute inset-0 flex size-full items-center justify-center transition-opacity duration-300",
+                  "absolute inset-0 flex items-center justify-center transition-opacity duration-300 bg-background/50 backdrop-blur-xs size-full",
                   isUpdatingLogo
                     ? "opacity-100"
                     : "opacity-0 group-hover:opacity-100",
@@ -145,7 +145,7 @@ export function Logo() {
               </div>
             </Label>
           </div>
-          <div className="flex w-full items-center gap-2">
+          <div className="flex items-center gap-2 w-full">
             <Input value={logoUrl || ""} readOnly />
             <CopyButton
               textToCopy={logoUrl || ""}
@@ -155,7 +155,7 @@ export function Logo() {
         </div>
       </CardContent>
       <CardFooter className="border-t">
-        <p className="text-muted-foreground text-sm">
+        <p className="text-sm text-muted-foreground">
           Square images work best for logos
         </p>
       </CardFooter>

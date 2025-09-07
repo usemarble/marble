@@ -102,7 +102,7 @@ export function MediaGallery({ media }: MediaGalleryProps) {
 
   return (
     <>
-      <section className="flex items-center justify-between">
+      <section className="flex justify-between items-center">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             {selectedItems.size > 0 && (

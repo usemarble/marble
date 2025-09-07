@@ -93,9 +93,9 @@ export function Timezone() {
         className="flex flex-col gap-6"
       >
         <CardContent>
-          <div className="flex w-full flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <div className="flex flex-1 flex-col gap-2">
+          <div className="flex flex-col gap-2 w-full">
+            <div className="flex gap-2 items-center">
+              <div className="flex flex-col gap-2 flex-1">
                 <Label htmlFor="timezone" className="sr-only">
                   Timezone
                 </Label>
@@ -114,20 +114,20 @@ export function Timezone() {
               </div>
             </div>
             {timezoneForm.formState.errors.timezone && (
-              <p className="text-destructive text-xs">
+              <p className="text-xs text-destructive">
                 {timezoneForm.formState.errors.timezone.message}
               </p>
             )}
           </div>
         </CardContent>
-        <CardFooter className="flex justify-between border-t pt-4">
-          <p className="text-muted-foreground text-sm">
+        <CardFooter className="border-t pt-4 flex justify-between">
+          <p className="text-sm text-muted-foreground">
             Changes affect scheduled posts
           </p>
           <AsyncButton
             isLoading={isPending}
             disabled={!isOwner || !timezoneForm.formState.isDirty}
-            className={cn("flex w-20 items-center gap-2 self-end")}
+            className={cn("w-20 self-end flex gap-2 items-center")}
           >
             Save
           </AsyncButton>

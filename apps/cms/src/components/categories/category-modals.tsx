@@ -170,15 +170,15 @@ export const CategoryModal = ({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="p-8 sm:max-w-md">
+      <DialogContent className="sm:max-w-md p-8">
         <DialogHeader>
-          <DialogTitle className="text-center font-medium">
+          <DialogTitle className="font-medium text-center">
             {mode === "create" ? "Create Category" : "Update Category"}
           </DialogTitle>
         </DialogHeader>
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="mt-2 flex flex-col gap-5"
+          className="flex flex-col gap-5 mt-2"
         >
           <div className="grid flex-1 gap-2">
             <Label htmlFor="name" className="sr-only">
@@ -197,7 +197,7 @@ export const CategoryModal = ({
           <AsyncButton
             type="submit"
             isLoading={isSubmitting}
-            className="mt-4 flex w-full gap-2"
+            className="flex w-full gap-2 mt-4"
           >
             {mode === "create" ? "Create Category" : "Update Category"}
           </AsyncButton>

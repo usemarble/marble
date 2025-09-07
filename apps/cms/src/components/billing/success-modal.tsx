@@ -78,7 +78,7 @@ export function PaymentSuccessModal({
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 animate-pulse items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20 animate-pulse">
             <CheckCircle
               className="h-8 w-8 text-green-600 dark:text-green-400"
               weight="fill"
@@ -94,9 +94,9 @@ export function PaymentSuccessModal({
         </DialogHeader>
 
         <div className="mt-6 space-y-4">
-          <div className="bg-muted/50 rounded-lg border p-4">
-            <h4 className="mb-2 font-medium">What's next?</h4>
-            <ul className="text-muted-foreground space-y-2 text-sm">
+          <div className="rounded-lg border bg-muted/50 p-4">
+            <h4 className="font-medium mb-2">What's next?</h4>
+            <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-center gap-2">
                 <CheckCircle className="h-4 w-4 text-green-500" weight="fill" />
                 Explore your new features in the dashboard

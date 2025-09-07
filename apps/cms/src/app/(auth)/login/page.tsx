@@ -26,8 +26,8 @@ export default async function LoginPage(props: PageProps) {
   const from = searchParams.from;
 
   return (
-    <div className="h-screen w-full md:grid md:grid-cols-2">
-      <section className="relative hidden flex-col justify-between overflow-hidden p-10 md:flex">
+    <div className="md:grid h-screen w-full md:grid-cols-2">
+      <section className="hidden md:flex flex-col justify-between p-10 overflow-hidden relative">
         <Image
           src="/textures/marble-light.avif"
           alt="Light marble texture background"
@@ -41,7 +41,7 @@ export default async function LoginPage(props: PageProps) {
           src="/textures/marble-dark.avif"
           alt="Dark marble texture background"
           fill
-          className="hidden object-cover object-center dark:block"
+          className="object-cover object-center hidden dark:block"
           loading="lazy"
           unoptimized
           quality={100}
@@ -49,16 +49,16 @@ export default async function LoginPage(props: PageProps) {
         <div className="relative z-10">
           <MarbleIcon />
         </div>
-        <div className="relative z-10 flex items-center justify-between gap-4">
+        <div className="relative z-10 flex items-center gap-4 justify-between">
           <p className="text-lg font-medium">
             The easiest way to manage your blog.
           </p>
           <Credits />
         </div>
       </section>
-      <section className="flex h-full flex-col items-center justify-between p-4">
+      <section className="flex flex-col items-center justify-between h-full p-4">
         <div className="self-start">
-          <h1 className="sr-only font-semibold uppercase">Marble</h1>
+          <h1 className="font-semibold uppercase sr-only">Marble</h1>
         </div>
         <div className="flex min-w-[300px] flex-col gap-8 rounded-md p-6 lg:w-[384px] lg:px-8 lg:py-10">
           <div className="text-center">
@@ -72,7 +72,7 @@ export default async function LoginPage(props: PageProps) {
             <LoginForm />
           </Suspense>
 
-          <div className="text-muted-foreground flex flex-col gap-4 px-8 text-center text-xs">
+          <div className="px-8 text-center text-xs text-muted-foreground flex flex-col gap-4">
             <p>
               Forgot your password?{" "}
               <Link

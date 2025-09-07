@@ -133,18 +133,18 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
   const renderContent = () => {
     if (coverImage) {
       return (
-        <div className="group relative h-48 w-full">
+        <div className="relative w-full h-48 group">
           {/* biome-ignore lint/performance/noImgElement: <> */}
           <img
             src={coverImage}
             alt="cover"
-            className="h-full w-full rounded-md object-cover"
+            className="w-full h-full object-cover rounded-md"
           />
-          <div className="absolute inset-0 rounded-md bg-black/50 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-md" />
           <button
             type="button"
             onClick={() => onChange(null)}
-            className="hover:text-destructive absolute right-2 top-2 rounded-full bg-white p-2 text-black opacity-0 transition group-hover:opacity-100"
+            className="absolute top-2 right-2 p-2 transition bg-white rounded-full text-black hover:text-destructive opacity-0 group-hover:opacity-100"
           >
             <TrashIcon className="size-5" />
             <span className="sr-only">remove image</span>
@@ -155,7 +155,7 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
 
     return (
       <Tabs defaultValue="upload" className="w-full">
-        <TabsList variant="line" className="mb-4 flex justify-start">
+        <TabsList variant="line" className="flex justify-start mb-4">
           <TabsTrigger value="upload">Upload</TabsTrigger>
           <TabsTrigger value="embed">Embed</TabsTrigger>
           <TabsTrigger value="media">Media</TabsTrigger>
@@ -163,14 +163,14 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
         <TabsContent value="upload" className="h-48">
           {file ? (
             <div className="flex flex-col gap-4">
-              <div className="relative h-48 w-full">
+              <div className="relative w-full h-48">
                 {/* biome-ignore lint/performance/noImgElement: <> */}
                 <img
                   src={URL.createObjectURL(file)}
                   alt="cover preview"
-                  className="h-full w-full rounded-md object-cover"
+                  className="w-full h-full object-cover rounded-md"
                 />
-                <div className="backdrop-blur-xs absolute inset-0 grid size-full place-content-center rounded-md bg-black/50 p-2">
+                <div className="absolute grid size-full inset-0 place-content-center bg-black/50 rounded-md p-2 backdrop-blur-xs">
                   {isUploading ? (
                     <div className="flex flex-col items-center gap-2">
                       <SpinnerIcon className="size-5 animate-spin text-white" />
@@ -181,7 +181,7 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
                       <Button
                         size="icon"
                         onClick={() => setFile(undefined)}
-                        className="hover:text-destructive rounded-full bg-white text-black hover:bg-white"
+                        className="bg-white rounded-full text-black hover:bg-white hover:text-destructive"
                       >
                         <TrashIcon className="size-4" />
                       </Button>
@@ -198,14 +198,14 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
                   uploadCover(files[0]);
                 }
               }}
-              className="bg-editor-field flex h-48 w-full cursor-pointer items-center justify-center rounded-md border border-dashed"
+              className="w-full h-48 rounded-md border border-dashed bg-editor-field flex items-center justify-center cursor-pointer"
               multiple={false}
             />
           )}
         </TabsContent>
         <TabsContent value="embed" className="h-48">
-          <div className="bg-editor-field flex h-48 w-full items-center justify-start rounded-md border border-dashed">
-            <div className="flex w-full max-w-sm flex-col gap-2 px-4">
+          <div className="w-full h-48 rounded-md border border-dashed bg-editor-field flex items-center justify-start">
+            <div className="flex flex-col gap-2 w-full max-w-sm px-4">
               <div className="flex items-center gap-2">
                 <Input
                   value={embedUrl}
@@ -230,7 +230,7 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
                 </AsyncButton>
               </div>
               {urlError && (
-                <p className="text-destructive text-sm">{urlError}</p>
+                <p className="text-sm text-destructive">{urlError}</p>
               )}
             </div>
           </div>
@@ -239,9 +239,9 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
           <button
             type="button"
             onClick={() => setIsGalleryOpen(true)}
-            className="bg-editor-field flex h-48 w-full cursor-pointer items-center justify-center rounded-md border border-dashed transition-colors"
+            className="w-full h-48 rounded-md border border-dashed bg-editor-field flex items-center justify-center cursor-pointer transition-colors"
           >
-            <div className="text-muted-foreground flex flex-col items-center gap-2">
+            <div className="flex flex-col items-center gap-2 text-muted-foreground">
               <ImagesIcon className="size-6" />
               <p className="text-sm font-medium">Click to view your gallery</p>
             </div>
@@ -261,7 +261,7 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
 
       {/* Media Gallery Drawer */}
       <Drawer open={isGalleryOpen} onOpenChange={setIsGalleryOpen}>
-        <DrawerContent className="mt-4 min-h-[95vh]">
+        <DrawerContent className="min-h-[95vh] mt-4">
           <DrawerHeader className="sr-only">
             <DrawerTitle>Gallery</DrawerTitle>
             <DrawerDescription>
@@ -279,18 +279,18 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
                     .map((item) => (
                       <li
                         key={item.id}
-                        className="group relative h-48 overflow-hidden rounded-[4px]"
+                        className="relative rounded-[4px] h-48 overflow-hidden group"
                       >
                         <button
                           type="button"
                           onClick={() => handleImageSelect(item.url)}
-                          className="h-full w-full"
+                          className="w-full h-full"
                         >
                           {/* biome-ignore lint/performance/noImgElement: <> */}
                           <img
                             src={item.url}
                             alt={item.name}
-                            className="h-full w-full object-cover"
+                            className="object-cover w-full h-full"
                           />
                         </button>
                       </li>
@@ -298,8 +298,8 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
                 </ul>
               </ScrollArea>
             ) : (
-              <div className="flex h-full items-center justify-center">
-                <div className="text-muted-foreground flex flex-col items-center gap-2">
+              <div className="flex items-center justify-center h-full">
+                <div className="flex flex-col items-center gap-2 text-muted-foreground">
                   <ImagesIcon className="size-8" />
                   <p className="text-sm font-medium">
                     Your gallery is empty. Upload some media to get started.

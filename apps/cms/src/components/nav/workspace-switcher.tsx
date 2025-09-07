@@ -69,9 +69,9 @@ export function WorkspaceSwitcher() {
               <SidebarMenuButton
                 size="lg"
                 className={cn(
-                  "data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:bg-sidebar-accent hover:border-border hover:shadow-xs border border-transparent transition",
+                  "data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:bg-sidebar-accent border border-transparent hover:border-border hover:shadow-xs transition",
                   isCollapsed &&
-                    "size-10 min-w-0 justify-center rounded-full p-1",
+                    "p-1 size-10 min-w-0 justify-center rounded-full",
                 )}
                 disabled={isFetchingWorkspace}
               >
@@ -80,14 +80,14 @@ export function WorkspaceSwitcher() {
                     src={activeWorkspace.logo || undefined}
                     className="rounded-[4px]"
                   />
-                  <AvatarFallback className="bg-sidebar-accent border">
+                  <AvatarFallback className="border bg-sidebar-accent">
                     {activeWorkspace.name.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
                 {!isCollapsed && (
                   <>
                     <div className="flex flex-1 gap-2 text-left text-sm leading-tight">
-                      <span className="truncate text-ellipsis text-sm font-medium">
+                      <span className="truncate font-medium text-sm text-ellipsis">
                         {activeWorkspace?.name}
                       </span>
                       <Badge
@@ -96,7 +96,7 @@ export function WorkspaceSwitcher() {
                             ? "premium"
                             : "free"
                         }
-                        className="px-1.5 py-0 text-[11px] capitalize"
+                        className="py-0 px-1.5 text-[11px] capitalize"
                       >
                         {activeWorkspace.subscription?.plan || "free"}
                       </Badge>
@@ -109,23 +109,23 @@ export function WorkspaceSwitcher() {
           ) : (
             <div
               className={cn(
-                "bg-sidebar-accent flex items-center rounded-md border",
-                isCollapsed ? "size-10 justify-center p-1" : "gap-2 p-2",
+                "bg-sidebar-accent rounded-md border flex items-center",
+                isCollapsed ? "p-1 size-10 justify-center" : "p-2 gap-2",
               )}
             >
               <Skeleton
                 className={cn(
-                  "shrink-0 rounded-md border",
+                  "border rounded-md shrink-0",
                   isCollapsed ? "size-6" : "size-8",
                 )}
               />
               {!isCollapsed && (
                 <>
-                  <div className="flex w-full flex-col gap-1">
-                    <Skeleton className="h-3 w-3/4 border" />
-                    <Skeleton className="h-3 w-1/2 border" />
+                  <div className="flex flex-col gap-1 w-full">
+                    <Skeleton className="h-3 border w-3/4" />
+                    <Skeleton className="border h-3 w-1/2" />
                   </div>
-                  <Skeleton className="ml-auto size-4 rounded-md border" />
+                  <Skeleton className="border rounded-md size-4 ml-auto" />
                 </>
               )}
             </div>

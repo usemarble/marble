@@ -76,7 +76,7 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
         }
       }}
     >
-      <DialogContent className="p-2 sm:max-w-sm">
+      <DialogContent className="sm:max-w-sm p-2">
         <DialogHeader className="sr-only">
           <DialogTitle>Upgrade Plan</DialogTitle>
           <DialogDescription>
@@ -88,13 +88,13 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
             {PRICING_PLANS.map((plan) => (
               <li
                 key={plan.title}
-                className="flex h-full min-h-96 w-full flex-col gap-5 rounded-xl px-4 py-6"
+                className=" flex flex-col gap-5 min-h-96 h-full w-full px-4 py-6 rounded-xl"
               >
                 <div className="flex flex-col gap-4">
                   <h4 className="text-medium text-2xl">{plan.title}</h4>
                   <div>
                     <p>
-                      <span className="text-2xl font-bold">
+                      <span className="font-bold text-2xl">
                         {plan.price.monthly}
                       </span>{" "}
                       <span>per month.</span>
@@ -110,7 +110,7 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
                 <ul className="flex flex-col gap-2 text-sm">
                   {plan.features.map((feature) => (
                     <li key={feature} className="flex items-center gap-2">
-                      <CheckIcon className="text-primary size-4" />
+                      <CheckIcon className="size-4 text-primary" />
                       <span>{feature}</span>
                     </li>
                   ))}

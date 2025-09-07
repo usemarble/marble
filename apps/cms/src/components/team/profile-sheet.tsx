@@ -66,7 +66,7 @@ export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
             Manage {member.name}&apos;s access to the workspace.
           </SheetDescription>
         </SheetHeader>
-        <div className="flex h-full flex-col justify-between">
+        <div className="h-full flex flex-col justify-between">
           <div className="grid flex-1 auto-rows-min gap-6 px-6">
             <div className="grid gap-3">
               <div className="flex gap-3">
@@ -78,10 +78,10 @@ export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
                 </Avatar>
                 <div className="flex flex-col gap-1 pt-1">
                   <p className="font-medium">{member.name}</p>
-                  <p className="text-muted-foreground text-sm">
+                  <p className="text-sm text-muted-foreground">
                     {member.email}
                   </p>
-                  <div className="text-muted-foreground flex items-center gap-1">
+                  <div className="flex items-center gap-1 text-muted-foreground">
                     <CalendarIcon className="size-4" />
                     <p className="text-sm">
                       Joined{" "}
@@ -95,7 +95,7 @@ export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
             </div>
 
             <div className="grid gap-3">
-              <div className="flex items-center justify-between gap-6">
+              <div className="flex items-center gap-6 justify-between">
                 <Label>Role</Label>
                 <Select
                   value={role}
@@ -113,7 +113,7 @@ export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
             </div>
           </div>
 
-          <SheetFooter className="flex justify-end gap-2 p-6">
+          <SheetFooter className="p-6 flex gap-2 justify-end">
             <AsyncButton
               onClick={handleSave}
               isLoading={loading}

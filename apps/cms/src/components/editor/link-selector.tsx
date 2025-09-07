@@ -78,15 +78,15 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
                   .run();
             }
           }}
-          className="flex flex-col divide-y p-1"
+          className="flex flex-col p-1 divide-y"
         >
-          <div className="mb-1 flex">
+          <div className="flex mb-1">
             <input
               ref={inputRef}
               type="text"
               onChange={({ target }) => setInputValue(target.value)}
               placeholder="Paste or type link"
-              className="bg-background outline-hidden flex-1 p-1 text-sm"
+              className="flex-1 bg-background p-1 text-sm outline-hidden"
               defaultValue={editor.getAttributes("link").href || ""}
             />
             {editor.getAttributes("link").href ? (
@@ -94,7 +94,7 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
                 size="icon"
                 variant="outline"
                 type="button"
-                className="text-destructive hover:bg-destructive flex items-center rounded-sm transition-all hover:text-white"
+                className="flex items-center rounded-sm text-destructive transition-all hover:bg-destructive hover:text-white"
                 onClick={() => {
                   editor.chain().focus().unsetLink().run();
                 }}
@@ -106,7 +106,7 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
                 type="button"
                 variant="outline"
                 size="icon"
-                className="size-8 shrink-0"
+                className="shrink-0 size-8"
                 onClick={() => {
                   const url = getUrlFromString(inputRef.current?.value || "");
                   if (url) {

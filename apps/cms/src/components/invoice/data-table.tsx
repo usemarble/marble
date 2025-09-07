@@ -46,7 +46,7 @@ export function InvoiceDataTable<TData, TValue>({
 
   return (
     <div>
-      <div className="flex items-center justify-between border-x py-4">
+      <div className="flex items-center py-4 justify-between border-x">
         {/* <div className="relative">
           <SearchIcon
             size={16}

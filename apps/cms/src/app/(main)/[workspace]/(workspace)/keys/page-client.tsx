@@ -6,12 +6,12 @@ import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 
 function PageClient() {
   return (
-    <WorkspacePageWrapper className="grid h-full place-content-center">
-      <div className="flex max-w-80 flex-col items-center gap-4">
+    <WorkspacePageWrapper className="h-full grid place-content-center">
+      <div className="flex flex-col gap-4 items-center max-w-80">
         <div className="p-2">
           <KeyIcon className="size-16" />
         </div>
-        <div className="flex flex-col items-center gap-4 text-center">
+        <div className="text-center flex flex-col gap-4 items-center">
           <p className="text-muted-foreground text-sm">
             API keys let you interact with your workspace using our API.
           </p>

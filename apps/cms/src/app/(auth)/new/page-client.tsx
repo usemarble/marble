@@ -95,9 +95,9 @@ function PageClient() {
     }
   }
   return (
-    <div className="bg-sidebar dark:bg-background grid h-screen place-items-center">
-      <Card className="rounded-[24px] px-4 py-6 sm:w-[450px]">
-        <CardHeader className="mb-5 items-center text-center">
+    <div className="h-screen grid place-items-center bg-sidebar dark:bg-background">
+      <Card className="rounded-[24px] sm:w-[450px] py-6 px-4">
+        <CardHeader className="text-center mb-5 items-center">
           <CardTitle className="font-medium">New workspace</CardTitle>
           <CardDescription className="text-center">
             {hasWorkspaces
@@ -125,8 +125,8 @@ function PageClient() {
                 <Label htmlFor="slug" className="sr-only">
                   Slug
                 </Label>
-                <div className="border-input dark:bg-input/30 placeholder:text-muted-foreground shadow-xs focus-within:border-ring focus-within:ring-ring/50 flex w-full overflow-hidden rounded-md border bg-transparent text-base transition-[color,box-shadow] focus-within:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm">
-                  <span className="bg-muted border-r p-2">
+                <div className="flex w-full rounded-md border border-input bg-transparent dark:bg-input/30 text-base placeholder:text-muted-foreground shadow-xs transition-[color,box-shadow] focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm overflow-hidden">
+                  <span className="p-2 bg-muted border-r">
                     {process.env.NEXT_PUBLIC_APP_URL?.split("//")[1]}/
                   </span>
                   {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
@@ -135,7 +135,7 @@ function PageClient() {
                     placeholder="Slug"
                     {...register("slug")}
                     autoComplete="off"
-                    className="w-full bg-transparent px-2 py-2 outline-none ring-0"
+                    className="w-full bg-transparent py-2 px-2 outline-none ring-0"
                   />
                 </div>
                 {errors.slug && (
@@ -168,7 +168,7 @@ function PageClient() {
                 type="submit"
                 size="lg"
                 isLoading={isSubmitting}
-                className="flex w-full cursor-pointer gap-2"
+                className="flex w-full gap-2 cursor-pointer"
               >
                 Create
               </AsyncButton>

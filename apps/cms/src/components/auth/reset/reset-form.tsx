@@ -55,7 +55,7 @@ export function ResetForm({ callbackUrl, token }: ResetFormProps) {
           </h1>
         </div>
 
-        <div className="flex w-full max-w-sm flex-col gap-4">
+        <div className="flex flex-col gap-4 w-full max-w-sm">
           <Input
             type="password"
             placeholder="New password"
@@ -73,7 +73,7 @@ export function ResetForm({ callbackUrl, token }: ResetFormProps) {
         <AsyncButton
           onClick={handleResetPassword}
           disabled={!password || !confirmPassword}
-          className="flex min-w-48 items-center justify-center"
+          className="flex items-center justify-center min-w-48"
           isLoading={isLoading}
         >
           Reset password
