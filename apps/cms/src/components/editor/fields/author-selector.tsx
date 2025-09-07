@@ -28,7 +28,7 @@ import {
 import { cn } from "@marble/ui/lib/utils";
 import { CaretUpDownIcon, CheckIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { type Control, useController } from "react-hook-form";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { PostValues } from "@/lib/validations/post";
@@ -73,7 +73,7 @@ export function AuthorSelector({
   const { user } = useUser();
   const { activeWorkspace } = useWorkspace();
 
-  const { isLoading } = useQuery({
+  const { data: authorsData, isLoading } = useQuery({
     // biome-ignore lint/style/noNonNullAssertion: <>
     queryKey: QUERY_KEYS.AUTHORS(activeWorkspace?.id!),
     queryFn: async () => {
@@ -83,7 +83,6 @@ export function AuthorSelector({
           throw new Error("Failed to fetch authors");
         }
         const data = await response.json();
-        setAuthors(data);
         console.log("authors", data);
         return data;
       } catch (error) {
@@ -95,9 +94,17 @@ export function AuthorSelector({
     staleTime: 10 * 60 * 1000,
   });
 
-  const derivedPrimaryAuthor: AuthorOptions | undefined = user
-    ? authors.find((author) => author.userId === user.id) || authors[0]
-    : undefined;
+  useEffect(() => {
+    if (authorsData) {
+      setAuthors(authorsData);
+    }
+  }, [authorsData]);
+
+  const derivedPrimaryAuthor: AuthorOptions | undefined = useMemo(() => {
+    return user
+      ? authors.find((author) => author.userId === user.id) || authors[0]
+      : undefined;
+  }, [user, authors]);
 
   // Handle selected authors based on form value
   useEffect(() => {
@@ -121,7 +128,7 @@ export function AuthorSelector({
     ) {
       onChange([derivedPrimaryAuthor.id]);
     }
-  }, [authors, derivedPrimaryAuthor, onChange, isLoading, value]);
+  }, [derivedPrimaryAuthor?.id, onChange, isLoading, value?.length, authors.length]);
 
   const addOrRemoveAuthor = (authorToAdd: string) => {
     const currentValues = value || [];
