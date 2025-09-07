@@ -34,7 +34,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import type { Post } from "./columns";
 
@@ -49,6 +49,7 @@ export function PostDataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const params = useParams<{ workspace: string }>();
+  const router = useRouter();
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
@@ -65,6 +66,18 @@ export function PostDataTable<TData, TValue>({
       columnFilters,
     },
   });
+
+  const handleRowClick = (post: Post, event: React.MouseEvent) => {
+    if (
+      (event.target as HTMLElement).closest('[data-actions-cell="true"]') ||
+      (event.target as HTMLElement).closest("button") ||
+      (event.target as HTMLElement).closest("a") ||
+      (event.target as HTMLElement).closest('[role="menuitem"]')
+    ) {
+      return;
+    }
+    router.push(`/${params.workspace}/editor/p/${post.id}`);
+  };
 
   return (
     <div>
@@ -165,31 +178,29 @@ export function PostDataTable<TData, TValue>({
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <Link
+                <TableRow
                   key={row.id}
-                  href={`/${params.workspace}/editor/p/${(row.original as Post).id}`}
-                  rel="noopener noreferrer"
-                  className="contents"
+                  data-state={row.getIsSelected() && "selected"}
+                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={(event) =>
+                    handleRowClick(row.original as Post, event)
+                  }
                 >
-                  <TableRow
-                    data-state={row.getIsSelected() && "selected"}
-                    className="cursor-pointer hover:bg-muted/50"
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell
-                        key={cell.id}
-                        {...(cell.column.id === "actions" && {
-                          "data-actions-cell": "true",
-                        })}
-                      >
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                </Link>
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell
+                      key={cell.id}
+                      {...(cell.column.id === "actions" && {
+                        "data-actions-cell": "true",
+                        onClick: (e: React.MouseEvent) => e.stopPropagation(),
+                      })}
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
               ))
             ) : (
               <TableRow>
