@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSuspenseQueryDeferred } from "@/hooks/use-suspense-query-deferred";
 import type { AxiosError } from "axios";
 import { useParams, useRouter } from "next/navigation";
@@ -56,6 +56,8 @@ export function WorkspaceProvider({
       const response = await request<Workspace[]>("workspaces");
       return response.data;
     },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 
   const fetchWorkspaceData = async (slug: string) => {
@@ -77,11 +79,10 @@ export function WorkspaceProvider({
     }
   };
 
-  const { data: fetchedActiveWorkspace, isLoading: isFetchingActiveWorkspace } =
-    useQuery({
-      queryKey: ["workspace_by_slug", workspaceSlug],
-      queryFn: () => fetchWorkspaceData(workspaceSlug),
-      enabled: shouldFetchWorkspace,
+  const { data: fetchedActiveWorkspace, isSuspending: isFetchingActiveWorkspace } =
+    useSuspenseQueryDeferred({
+      queryKey: shouldFetchWorkspace ? ["workspace_by_slug", workspaceSlug] : ["workspace_by_slug", "disabled"],
+      queryFn: shouldFetchWorkspace ? () => fetchWorkspaceData(workspaceSlug) : () => Promise.resolve(null),
       initialData:
         initialWorkspace && initialWorkspace.slug === workspaceSlug
           ? initialWorkspace
@@ -163,6 +164,8 @@ export function WorkspaceProvider({
   useEffect(() => {
     if (
       fetchedActiveWorkspace &&
+      fetchedActiveWorkspace !== null &&
+      shouldFetchWorkspace &&
       workspaceSlug !== fetchedActiveWorkspace.slug &&
       !isSwitchingWorkspace
     ) {
@@ -170,6 +173,7 @@ export function WorkspaceProvider({
     }
   }, [
     fetchedActiveWorkspace,
+    shouldFetchWorkspace,
     workspaceSlug,
     isSwitchingWorkspace,
     updateActiveWorkspace,
