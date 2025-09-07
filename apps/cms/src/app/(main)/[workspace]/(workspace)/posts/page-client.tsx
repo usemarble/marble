@@ -3,6 +3,7 @@
 import { buttonVariants } from "@marble/ui/components/button";
 import { NoteIcon, PlusIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQueryDeferred } from "@/hooks/use-suspense-query-deferred";
 import Link from "next/link";
 import { toast } from "sonner";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
@@ -15,7 +16,7 @@ import { useWorkspace } from "@/providers/workspace";
 function PageClient() {
   const { activeWorkspace } = useWorkspace();
 
-  const { data: posts, isLoading } = useQuery({
+  const { data: posts, isSuspending: isLoading } = useSuspenseQueryDeferred({
     // biome-ignore lint/style/noNonNullAssertion: <>
     queryKey: QUERY_KEYS.POSTS(activeWorkspace?.id!),
     staleTime: 1000 * 60 * 60,
@@ -31,17 +32,19 @@ function PageClient() {
         toast.error(
           error instanceof Error ? error.message : "Failed to fetch posts",
         );
+        return [];
       }
     },
-    enabled: !!activeWorkspace?.id,
   });
-
-  if (isLoading) {
-    return <PageLoader />;
-  }
 
   return (
     <WorkspacePageWrapper className="flex flex-col pt-10 pb-16 gap-8">
+      {isLoading && (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
+          Loading posts...
+        </div>
+      )}
       {posts && posts.length > 0 ? (
         <PostDataTable columns={columns} data={posts} />
       ) : (

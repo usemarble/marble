@@ -3,6 +3,7 @@
 import { Button } from "@marble/ui/components/button";
 import { PackageIcon, PlusIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQueryDeferred } from "@/hooks/use-suspense-query-deferred";
 import dynamic from "next/dynamic";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -29,7 +30,7 @@ function PageClient() {
   const workspaceId = useWorkspaceId();
   const [showCreateModal, setShowCreateModal] = useState(false);
 
-  const { data: categories, isLoading } = useQuery({
+  const { data: categories, isSuspending: isLoading } = useSuspenseQueryDeferred({
     // biome-ignore lint/style/noNonNullAssertion: <>
     queryKey: QUERY_KEYS.CATEGORIES(workspaceId!),
     staleTime: 1000 * 60 * 60,
@@ -47,19 +48,21 @@ function PageClient() {
         toast.error(
           error instanceof Error ? error.message : "Failed to fetch categories",
         );
+        return [];
       }
     },
-    enabled: !!workspaceId,
   });
-
-  if (isLoading) {
-    return <PageLoader />;
-  }
 
   return (
     <>
       {categories && categories.length > 0 ? (
         <WorkspacePageWrapper className="flex flex-col pt-10 pb-16 gap-8">
+          {isLoading && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <div className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
+              Loading categories...
+            </div>
+          )}
           <DataTable data={categories} columns={columns} />
         </WorkspacePageWrapper>
       ) : (

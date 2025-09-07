@@ -229,6 +229,9 @@ importers:
       react-dropzone:
         specifier: ^14.3.8
         version: 14.3.8(react@19.1.1)
+      react-error-boundary:
+        specifier: ^6.0.0
+        version: 6.0.0(react@19.1.1)
       react-hook-form:
         specifier: ^7.61.1
         version: 7.61.1(react@19.1.1)
@@ -253,12 +256,18 @@ importers:
       sonner:
         specifier: ^1.7.1
         version: 1.7.1(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      spin-delay:
+        specifier: ^2.0.1
+        version: 2.0.1(react@19.1.1)
       striptags:
         specifier: ^3.2.0
         version: 3.2.0
       tailwindcss-animate:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@4.1.12)
+      use-deep-compare:
+        specifier: ^1.3.0
+        version: 1.3.0(react@19.1.1)
       vaul:
         specifier: ^1.1.2
         version: 1.1.2(@types/react-dom@19.0.2(@types/react@19.0.2))(@types/react@19.0.2)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -6124,6 +6133,11 @@ packages:
     peerDependencies:
       react: '>= 16.8 || 18.0.0'
 
+  react-error-boundary@6.0.0:
+    resolution: {integrity: sha512-gdlJjD7NWr0IfkPlaREN2d9uUZUlksrfOx7SX62VRerwXbMY6ftGCIZua1VG1aXFNOimhISsTq+Owp725b9SiA==}
+    peerDependencies:
+      react: '>=16.13.1'
+
   react-hook-form@7.61.1:
     resolution: {integrity: sha512-2vbXUFDYgqEgM2RcXcAT2PwDW/80QARi+PKmHy5q2KhuKvOlG8iIYgf7eIlIANR5trW9fJbP4r5aub3a4egsew==}
     engines: {node: '>=18.0.0'}
@@ -6503,6 +6517,11 @@ packages:
 
   space-separated-tokens@2.0.2:
     resolution: {integrity: sha512-PEGlAwrG8yXGXRjW32fGbg66JAlOAwbObuqVoJpv/mRgoWDQfgH1wDPvtzWyUSNAXBGSk8h755YDbbcEy3SH2Q==}
+
+  spin-delay@2.0.1:
+    resolution: {integrity: sha512-ilggKXKqAMwk21PSYvxuF/KCnrsGFDrnO6mXa629mj8fvfo+dOQfubDViqsRjRX5U1jd3Xb8FTsV+m4Tg7YeUg==}
+    peerDependencies:
+      react: '>=17.0.1'
 
   split2@4.2.0:
     resolution: {integrity: sha512-UcjcJOWknrNkF6PLX83qcHM6KHgVKNkV62Y8a5uYDVv9ydGQVwAHMKqHdJje1VTWpljG0WYpCDhrCdAOYH4TWg==}
@@ -6938,6 +6957,11 @@ packages:
     peerDependenciesMeta:
       '@types/react':
         optional: true
+
+  use-deep-compare@1.3.0:
+    resolution: {integrity: sha512-94iG+dEdEP/Sl3WWde+w9StIunlV8Dgj+vkt5wTwMoFQLaijiEZSXXy8KtcStpmEDtIptRJiNeD4ACTtVvnIKA==}
+    peerDependencies:
+      react: '>=16.8.0'
 
   use-isomorphic-layout-effect@1.2.1:
     resolution: {integrity: sha512-tpZZ+EX0gaghDAiFR37hj5MgY6ZN55kLiPkJsKxBMZ6GZdOSPJXiOzPM984oPYZ5AnehYx5WQp1+ME8I/P/pRA==}
@@ -14552,6 +14576,11 @@ snapshots:
       prop-types: 15.8.1
       react: 19.1.1
 
+  react-error-boundary@6.0.0(react@19.1.1):
+    dependencies:
+      '@babel/runtime': 7.25.7
+      react: 19.1.1
+
   react-hook-form@7.61.1(react@19.1.1):
     dependencies:
       react: 19.1.1
@@ -15179,6 +15208,10 @@ snapshots:
 
   space-separated-tokens@2.0.2: {}
 
+  spin-delay@2.0.1(react@19.1.1):
+    dependencies:
+      react: 19.1.1
+
   split2@4.2.0: {}
 
   sqids@0.3.0:
@@ -15572,6 +15605,11 @@ snapshots:
       react: 19.1.1
     optionalDependencies:
       '@types/react': 19.0.2
+
+  use-deep-compare@1.3.0(react@19.1.1):
+    dependencies:
+      dequal: 2.0.3
+      react: 19.1.1
 
   use-isomorphic-layout-effect@1.2.1(@types/react@19.0.2)(react@19.1.1):
     dependencies:

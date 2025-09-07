@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useSuspenseQueryDeferred } from "@/hooks/use-suspense-query-deferred";
 import type { AxiosError } from "axios";
 import { useParams, useRouter } from "next/navigation";
 import {
@@ -49,7 +50,7 @@ export function WorkspaceProvider({
     !!workspaceSlug &&
     (!activeWorkspace || activeWorkspace.slug !== workspaceSlug);
 
-  const { data: usersWorkspaces } = useQuery({
+  const { data: usersWorkspaces, isSuspending: isLoadingWorkspaces } = useSuspenseQueryDeferred({
     queryKey: QUERY_KEYS.WORKSPACE_LIST,
     queryFn: async () => {
       const response = await request<Workspace[]>("workspaces");
@@ -174,7 +175,7 @@ export function WorkspaceProvider({
     updateActiveWorkspace,
   ]);
 
-  const isFetchingWorkspace = isFetchingActiveWorkspace || isSwitchingWorkspace;
+  const isFetchingWorkspace = isFetchingActiveWorkspace || isSwitchingWorkspace || isLoadingWorkspaces;
   const isOwner = activeWorkspace?.currentUserRole === "owner";
   const isAdmin = activeWorkspace?.currentUserRole === "admin";
   const isMember = activeWorkspace?.currentUserRole === "member";

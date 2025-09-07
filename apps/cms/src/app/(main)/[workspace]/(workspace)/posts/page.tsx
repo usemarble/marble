@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { ErrorBoundary } from "react-error-boundary";
+import PageLoader from "@/components/shared/page-loader";
 import PageClient from "./page-client";
 
 export const metadata = {
@@ -5,8 +8,25 @@ export const metadata = {
   description: "Manage your posts",
 };
 
+function ErrorFallback() {
+  return (
+    <div className="flex items-center justify-center h-64">
+      <div className="text-center">
+        <h2 className="text-lg font-semibold text-red-600">Something went wrong</h2>
+        <p className="text-sm text-muted-foreground">Failed to load posts</p>
+      </div>
+    </div>
+  );
+}
+
 function Page() {
-  return <PageClient />;
+  return (
+    <ErrorBoundary fallback={<ErrorFallback />}>
+      <Suspense fallback={<PageLoader />}>
+        <PageClient />
+      </Suspense>
+    </ErrorBoundary>
+  );
 }
 
 export default Page;
