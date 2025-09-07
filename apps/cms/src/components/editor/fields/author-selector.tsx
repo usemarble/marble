@@ -28,7 +28,7 @@ import {
 import { cn } from "@marble/ui/lib/utils";
 import { CaretUpDownIcon, CheckIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { type Control, useController } from "react-hook-form";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { PostValues } from "@/lib/validations/post";
@@ -99,11 +99,9 @@ export function AuthorSelector({
     }
   }, [authorsData]);
 
-  const derivedPrimaryAuthor: AuthorOptions | undefined = useMemo(() => {
-    return user
-      ? authors.find((author) => author.userId === user.id) || authors[0]
-      : undefined;
-  }, [user, authors]);
+  const derivedPrimaryAuthor: AuthorOptions | undefined = user
+    ? authors.find((author) => author.userId === user.id) || authors[0]
+    : undefined;
 
   // Handle selected authors based on form value
   useEffect(() => {
