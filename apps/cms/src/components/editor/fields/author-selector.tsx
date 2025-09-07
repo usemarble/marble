@@ -83,7 +83,6 @@ export function AuthorSelector({
           throw new Error("Failed to fetch authors");
         }
         const data = await response.json();
-        console.log("authors", data);
         return data;
       } catch (error) {
         console.error("Failed to fetch authors:", error);
@@ -128,7 +127,7 @@ export function AuthorSelector({
     ) {
       onChange([derivedPrimaryAuthor.id]);
     }
-  }, [derivedPrimaryAuthor?.id, onChange, isLoading, value?.length, authors.length]);
+  }, [derivedPrimaryAuthor, onChange, isLoading, value, authors]);
 
   const addOrRemoveAuthor = (authorToAdd: string) => {
     const currentValues = value || [];
