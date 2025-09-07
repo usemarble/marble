@@ -16,7 +16,7 @@ export const VALID_DISCORD_DOMAINS = [
   "discord.com",
   "canary.discord.com",
   "ptb.discord.com",
-];
+] as const;
 
 export const PRICING_PLANS: PricingPlan[] = [
   {
@@ -51,7 +51,7 @@ export const IMAGE_DROPZONE_ACCEPT = [
   ".gif",
   ".webp",
   ".avif",
-];
+] as const;
 
 export const MEDIA_DROPZONE_ACCEPT = {
   "image/*": [".jpeg", ".jpg", ".png", ".gif", ".webp", ".avif", ".svg"],
@@ -65,7 +65,7 @@ export const MEDIA_DROPZONE_ACCEPT = {
     ".mpeg",
     ".mpg",
     ".webm",
-    "",
+    ".m4v",
   ],
 };
 
