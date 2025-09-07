@@ -77,8 +77,8 @@ model Post {
   authors         User[]       @relation("PostToUser")
   
   // New author relationships (will replace the above after migration)
-  newPrimaryAuthorId String?
-  newPrimaryAuthor   Author?     @relation("NewPrimaryAuthor", fields: [newPrimaryAuthorId], references: [id])
+  newPrimaryAuthorId String
+  newPrimaryAuthor   Author     @relation("NewPrimaryAuthor", fields: [newPrimaryAuthorId], references: [id])
   newAuthors         Author[]    @relation("PostToAuthor")
   
   category        Category     @relation(fields: [categoryId], references: [id])

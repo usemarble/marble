@@ -114,7 +114,7 @@ export async function POST(request: Request) {
       // Legacy fields (keep for backward compatibility during transition)
       primaryAuthorId: sessionData.user.id,
       // New author fields
-      newPrimaryAuthorId: primaryAuthor?.id,
+      newPrimaryAuthorId: primaryAuthor?.id as string, // i have to cast this for now
       contentJson,
       slug: values.slug,
       title: values.title,
