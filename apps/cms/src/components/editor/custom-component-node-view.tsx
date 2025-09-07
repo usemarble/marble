@@ -8,10 +8,11 @@ import {
 import { NodeViewWrapper } from "@tiptap/react";
 import type React from "react";
 import { useState } from "react";
-import { ComponentSelectorModal } from "./component-selector-modal";
+import { ComponentEditorModal } from "./component-selector-modal";
 
 export function CustomComponentNodeView({ node, getPos, editor }: any) {
-  const { componentName, ...props } = node.attrs;
+  const { componentName, properties = {} } = node.attrs;
+  const props = properties;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -54,6 +55,15 @@ export function CustomComponentNodeView({ node, getPos, editor }: any) {
             </div>
 
             <div className="flex items-center space-x-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleEdit}
+                className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0"
+              >
+                <PencilIcon className="h-3.5 w-3.5" />
+              </Button>
+
               {Object.keys(props).length > 0 && (
                 <Button
                   variant="ghost"
@@ -68,15 +78,6 @@ export function CustomComponentNodeView({ node, getPos, editor }: any) {
                   )}
                 </Button>
               )}
-
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleEdit}
-                className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0"
-              >
-                <PencilIcon className="h-3.5 w-3.5" />
-              </Button>
             </div>
           </div>
 
@@ -107,7 +108,7 @@ export function CustomComponentNodeView({ node, getPos, editor }: any) {
         </button>
       </NodeViewWrapper>
 
-      <ComponentSelectorModal
+      <ComponentEditorModal
         isOpen={isModalOpen}
         setIsOpen={setIsModalOpen}
         editor={editor}

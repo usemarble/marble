@@ -33,6 +33,285 @@ import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import type { ComponentProperty, CustomComponent } from "../components/columns";
 import { LoadingSpinner } from "../ui/async-button";
 
+export function ComponentEditorModal({
+  isOpen,
+  setIsOpen,
+  editor,
+  existingComponent,
+}: ComponentSelectorModalProps) {
+  const [propertyValues, setPropertyValues] = useState<Record<string, any>>({});
+  const workspaceId = useWorkspaceId();
+
+  const { data: components = [] } = useQuery({
+    queryKey: ["custom-components", workspaceId],
+    staleTime: 1000 * 60 * 5,
+    queryFn: async () => {
+      const response = await fetch("/api/custom-components");
+      if (!response.ok) {
+        throw new Error("Failed to fetch components");
+      }
+      return response.json();
+    },
+    enabled: !!workspaceId,
+  });
+
+  // Find the component definition for the existing component
+  const componentDef =
+    existingComponent && components.length > 0
+      ? components.find(
+          (c: CustomComponent) =>
+            c.name === existingComponent.attrs.componentName,
+        )
+      : null;
+
+  useEffect(() => {
+    if (existingComponent && componentDef) {
+      const existingValues: Record<string, any> = {};
+      const properties = existingComponent.attrs.properties || {};
+
+      Object.entries(properties).forEach(([key, value]) => {
+        existingValues[key] = value;
+      });
+      setPropertyValues(existingValues);
+    }
+  }, [existingComponent, componentDef]);
+
+  const handlePropertyChange = (propertyName: string, value: any) => {
+    setPropertyValues((prev) => ({
+      ...prev,
+      [propertyName]: value,
+    }));
+  };
+
+  // Validate required fields for editing
+  const validateEditFields = () => {
+    if (!componentDef) return false;
+
+    return componentDef.properties
+      .filter((prop: ComponentProperty) => prop.required)
+      .every((prop: ComponentProperty) => {
+        const value = propertyValues[prop.name];
+        return value !== undefined && value !== "" && value !== null;
+      });
+  };
+
+  const handleUpdateComponent = () => {
+    if (!componentDef || !editor || !existingComponent) return;
+
+    // Check if all required fields are filled
+    if (!validateEditFields()) {
+      console.warn("Please fill in all required fields");
+      return;
+    }
+
+    const componentData: Record<string, any> = {};
+    componentDef.properties.forEach((prop: ComponentProperty) => {
+      const value = propertyValues[prop.name];
+      if (value !== undefined && value !== "") {
+        componentData[prop.name] = value;
+      }
+    });
+
+    const pos = editor.view.posAtDOM(existingComponent.dom);
+    if (pos !== undefined) {
+      editor
+        .chain()
+        .focus()
+        .setTextSelection(pos)
+        .setCustomComponent({
+          name: componentDef.name,
+          attributes: componentData,
+        })
+        .run();
+    }
+
+    handleClose();
+  };
+
+  const handleClose = () => {
+    setIsOpen(false);
+    setPropertyValues({});
+  };
+
+  const renderPropertyInput = (property: ComponentProperty) => {
+    const value = propertyValues[property.name] ?? "";
+
+    switch (property.type) {
+      case "boolean":
+        return (
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id={property.name}
+              checked={value}
+              onCheckedChange={(checked) =>
+                handlePropertyChange(property.name, checked)
+              }
+            />
+            <Label htmlFor={property.name}>Enable {property.name}</Label>
+          </div>
+        );
+
+      case "textarea":
+        return (
+          <Textarea
+            value={value}
+            onChange={(e) =>
+              handlePropertyChange(property.name, e.target.value)
+            }
+            placeholder={`Enter ${property.name}`}
+            rows={3}
+          />
+        );
+
+      case "select":
+        return (
+          <Select
+            value={value}
+            onValueChange={(newValue) =>
+              handlePropertyChange(property.name, newValue)
+            }
+          >
+            <SelectTrigger>
+              <SelectValue placeholder={`Select ${property.name}`} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="option1">Option 1</SelectItem>
+              <SelectItem value="option2">Option 2</SelectItem>
+              <SelectItem value="option3">Option 3</SelectItem>
+            </SelectContent>
+          </Select>
+        );
+
+      case "number":
+        return (
+          <Input
+            type="number"
+            value={value}
+            onChange={(e) =>
+              handlePropertyChange(property.name, e.target.value)
+            }
+            placeholder={`Enter ${property.name}`}
+          />
+        );
+
+      case "date":
+        return (
+          <Input
+            type="date"
+            value={value}
+            onChange={(e) =>
+              handlePropertyChange(property.name, e.target.value)
+            }
+          />
+        );
+
+      case "email":
+        return (
+          <Input
+            type="email"
+            value={value}
+            onChange={(e) =>
+              handlePropertyChange(property.name, e.target.value)
+            }
+            placeholder={`Enter ${property.name}`}
+          />
+        );
+
+      case "url":
+        return (
+          <Input
+            type="url"
+            value={value}
+            onChange={(e) =>
+              handlePropertyChange(property.name, e.target.value)
+            }
+            placeholder={`Enter ${property.name}`}
+          />
+        );
+
+      default:
+        return (
+          <Input
+            value={value}
+            onChange={(e) =>
+              handlePropertyChange(property.name, e.target.value)
+            }
+            placeholder={`Enter ${property.name}`}
+          />
+        );
+    }
+  };
+
+  if (!componentDef) {
+    console.warn(
+      "ComponentEditorModal: Component definition not found for:",
+      existingComponent?.attrs?.componentName,
+    );
+    return (
+      <Dialog open={isOpen} onOpenChange={handleClose}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Error</DialogTitle>
+            <DialogDescription>
+              Component definition not found. Please try again.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end">
+            <Button onClick={handleClose}>Close</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  return (
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent
+        className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
+        <DialogHeader>
+          <DialogTitle>Edit {componentDef.name}</DialogTitle>
+          <DialogDescription>
+            Configure the properties for your component
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-6">
+          <div className="space-y-4">
+            {componentDef.properties.map((property: ComponentProperty) => (
+              <div key={property.id} className="space-y-2">
+                <Label className="flex items-center">
+                  {property.name}
+                  {property.required && (
+                    <span className="text-red-500 ml-1">*</span>
+                  )}
+                  <Badge variant="outline" className="ml-2 text-xs">
+                    {property.type}
+                  </Badge>
+                </Label>
+                {renderPropertyInput(property)}
+              </div>
+            ))}
+          </div>
+
+          <div className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={handleClose}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleUpdateComponent}
+              disabled={!validateEditFields()}
+            >
+              Update Component
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 interface ComponentSelectorModalProps {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
@@ -80,10 +359,10 @@ export function ComponentSelectorModal({
   useEffect(() => {
     if (existingComponent && components.length > 0) {
       const existingValues: Record<string, any> = {};
-      Object.entries(existingComponent.attrs).forEach(([key, value]) => {
-        if (key !== "componentName") {
-          existingValues[key] = value;
-        }
+      const properties = existingComponent.attrs.properties || {};
+
+      Object.entries(properties).forEach(([key, value]) => {
+        existingValues[key] = value;
       });
       setPropertyValues(existingValues);
 
@@ -104,8 +383,27 @@ export function ComponentSelectorModal({
     }));
   };
 
+  // Validate required fields
+  const validateRequiredFields = () => {
+    if (!selectedComponent) return false;
+
+    return selectedComponent.properties
+      .filter((prop) => prop.required)
+      .every((prop) => {
+        const value = propertyValues[prop.name];
+        return value !== undefined && value !== "" && value !== null;
+      });
+  };
+
   const handleInsertComponent = () => {
     if (!selectedComponent || !editor) return;
+
+    // Check if all required fields are filled
+    if (!validateRequiredFields()) {
+      // You could add a toast notification here
+      console.warn("Please fill in all required fields");
+      return;
+    }
 
     const componentData: Record<string, any> = {};
     selectedComponent.properties.forEach((prop) => {
@@ -376,7 +674,10 @@ export function ComponentSelectorModal({
               >
                 Back
               </Button>
-              <Button onClick={handleInsertComponent}>
+              <Button
+                onClick={handleInsertComponent}
+                disabled={!validateRequiredFields()}
+              >
                 {existingComponent ? "Update Component" : "Insert Component"}
               </Button>
             </div>

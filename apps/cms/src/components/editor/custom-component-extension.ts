@@ -38,44 +38,37 @@ export const CustomComponent = Node.create<CustomComponentOptions>({
     return [
       {
         tag: "div[x-marble-component-name]",
-        getAttrs: (node) => {
-          if (typeof node === "string") return false;
-          const element = node as HTMLElement;
+        getAttrs: (element) => {
+          if (typeof element === "string") return false;
 
           const componentName = element.getAttribute("x-marble-component-name");
           if (!componentName) return false;
 
-          const attributes: Record<string, any> = { componentName };
-
-          for (const attr of element.attributes) {
-            if (
-              attr.name.startsWith("x-marble-") &&
-              attr.name !== "x-marble-component-name"
-            ) {
-              const propName = attr.name.replace("x-marble-", "");
-              attributes[propName] = attr.value;
-            }
-          }
-
-          return attributes;
+          return {
+            componentName,
+            // properties will be parsed by the properties attribute definition
+          };
         },
       },
     ];
   },
 
-  renderHTML({ node, HTMLAttributes }) {
-    const { componentName, ...props } = node.attrs;
+  renderHTML({ node }) {
+    const { componentName, properties } = node.attrs;
 
     const componentAttrs: Record<string, any> = {
       "x-marble-component-name": componentName,
       class: "marble-custom-component",
     };
 
-    Object.entries(props).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== "") {
-        componentAttrs[`x-marble-${key}`] = value;
-      }
-    });
+    // Render all properties as x-marble- prefixed attributes
+    if (properties && typeof properties === "object") {
+      Object.entries(properties).forEach(([key, value]) => {
+        const attrValue =
+          value !== undefined && value !== null ? String(value) : "";
+        componentAttrs[`x-marble-${key}`] = attrValue;
+      });
+    }
 
     return ["div", componentAttrs];
   },
@@ -88,6 +81,31 @@ export const CustomComponent = Node.create<CustomComponentOptions>({
         renderHTML: (attributes) => {
           if (!attributes.componentName) return {};
           return { "x-marble-component-name": attributes.componentName };
+        },
+      },
+      properties: {
+        default: {},
+        parseHTML: (element) => {
+          if (typeof element === "string") return {};
+
+          const properties: Record<string, any> = {};
+
+          // Parse all x-marble- prefixed attributes except component-name
+          for (const attr of element.attributes) {
+            if (
+              attr.name.startsWith("x-marble-") &&
+              attr.name !== "x-marble-component-name"
+            ) {
+              const propName = attr.name.replace("x-marble-", "");
+              properties[propName] = attr.value || "";
+            }
+          }
+
+          return properties;
+        },
+        renderHTML: (attributes) => {
+          // Properties are handled in renderHTML method above
+          return {};
         },
       },
     };
@@ -106,7 +124,7 @@ export const CustomComponent = Node.create<CustomComponentOptions>({
             type: this.name,
             attrs: {
               componentName: options.name,
-              ...options.attributes,
+              properties: options.attributes || {},
             },
           });
         },
