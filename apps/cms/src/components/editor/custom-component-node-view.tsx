@@ -5,14 +5,23 @@ import {
   PencilIcon,
   PuzzlePieceIcon,
 } from "@phosphor-icons/react";
+import type { NodeViewProps } from "@tiptap/react";
 import { NodeViewWrapper } from "@tiptap/react";
-import type React from "react";
 import { useState } from "react";
 import { ComponentEditorModal } from "./component-selector-modal";
 
-export function CustomComponentNodeView({ node, getPos, editor }: any) {
-  const { componentName, properties = {} } = node.attrs;
-  const props = properties;
+type CustomComponentAttrs = {
+  componentName: string;
+  properties?: Record<string, unknown>;
+};
+
+export function CustomComponentNodeView({
+  node,
+  getPos,
+  editor,
+}: NodeViewProps) {
+  const { componentName, properties = {} } = node.attrs as CustomComponentAttrs;
+  const props = properties as Record<string, unknown>;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -22,28 +31,38 @@ export function CustomComponentNodeView({ node, getPos, editor }: any) {
     }
   };
 
-  const handleEdit = (e: React.MouseEvent) => {
+  const handleEdit: React.MouseEventHandler = (e) => {
     e.preventDefault();
     e.stopPropagation();
     setIsModalOpen(true);
   };
 
-  const handleToggleExpand = (e: React.MouseEvent) => {
+  const handleToggleExpand: React.MouseEventHandler = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsExpanded(!isExpanded);
+    setIsExpanded((x) => !x);
+  };
+
+  const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      handleClick();
+    }
   };
 
   return (
     <>
       <NodeViewWrapper className="marble-custom-component">
-        <button
-          type="button"
-          className="group relative border border-border rounded-lg p-4 my-3 bg-card hover:shadow-sm transition-all duration-200 cursor-pointer w-full text-left"
+        {/** biome-ignore lint/a11y/useSemanticElements: <> */}
+        <div
+          role="button"
+          tabIndex={0}
           onClick={handleClick}
+          onKeyDown={handleKeyDown}
           aria-label={`Select ${componentName} component`}
+          aria-expanded={Object.keys(props).length > 0 ? isExpanded : undefined}
+          className="group relative border border-border rounded-lg p-4 my-3 bg-card hover:shadow-sm transition-all duration-200 cursor-pointer w-full text-left"
         >
-          {/* Header with component info and controls */}
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center space-x-3">
               <div className="flex items-center justify-center w-8 h-8 rounded-md bg-primary/10">
@@ -56,6 +75,7 @@ export function CustomComponentNodeView({ node, getPos, editor }: any) {
 
             <div className="flex items-center space-x-1">
               <Button
+                type="button"
                 variant="ghost"
                 size="sm"
                 onClick={handleEdit}
@@ -66,10 +86,15 @@ export function CustomComponentNodeView({ node, getPos, editor }: any) {
 
               {Object.keys(props).length > 0 && (
                 <Button
+                  type="button"
                   variant="ghost"
                   size="sm"
                   onClick={handleToggleExpand}
                   className="h-8 w-8 p-0 hover:bg-muted"
+                  aria-label={
+                    isExpanded ? "Collapse properties" : "Expand properties"
+                  }
+                  aria-expanded={isExpanded}
                 >
                   {isExpanded ? (
                     <CaretDownIcon className="h-3.5 w-3.5" />
@@ -96,7 +121,7 @@ export function CustomComponentNodeView({ node, getPos, editor }: any) {
                       {key}
                     </span>
                     <span className="text-sm text-foreground bg-muted/50 px-2 py-0.5 rounded">
-                      {String(value) || "—"}
+                      {String(value ?? "—")}
                     </span>
                   </div>
                 ))}
@@ -105,7 +130,7 @@ export function CustomComponentNodeView({ node, getPos, editor }: any) {
           )}
 
           <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg pointer-events-none" />
-        </button>
+        </div>
       </NodeViewWrapper>
 
       <ComponentEditorModal

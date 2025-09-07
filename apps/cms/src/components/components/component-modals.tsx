@@ -40,6 +40,7 @@ import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { CustomComponent } from "./columns";
 
 interface ComponentProperty {
+  id: string;
   name: string;
   type: string;
   required: boolean;
@@ -157,6 +158,7 @@ export function ComponentModal({
         name: editingComponent.name,
         description: editingComponent.description || "",
         properties: editingComponent.properties.map((prop) => ({
+          id: prop.id ?? crypto.randomUUID(),
           name: prop.name,
           type: prop.type,
           required: prop.required,
@@ -182,7 +184,13 @@ export function ComponentModal({
       ...prev,
       properties: [
         ...prev.properties,
-        { name: "", type: "string", required: false, defaultValue: "" },
+        {
+          id: crypto.randomUUID(),
+          name: "",
+          type: "string",
+          required: false,
+          defaultValue: "",
+        },
       ],
     }));
   };
@@ -292,7 +300,7 @@ export function ComponentModal({
 
             {formData.properties.map((property, index) => (
               <div
-                key={`property-${property.name || index}`}
+                key={`${property.id}`}
                 className="border rounded-lg p-4 space-y-3"
               >
                 <div className="flex items-center justify-between">
