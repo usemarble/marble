@@ -30,28 +30,14 @@ import { ArrowLeftIcon, PuzzlePieceIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import type { ComponentProperty, CustomComponent } from "../components/columns";
 import { LoadingSpinner } from "../ui/async-button";
 
 interface ComponentSelectorModalProps {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
-  editor?: Editor;
+  editor?: any;
   existingComponent?: any;
-}
-
-interface CustomComponent {
-  id: string;
-  name: string;
-  description?: string;
-  properties: ComponentProperty[];
-}
-
-interface ComponentProperty {
-  id: string;
-  name: string;
-  type: string;
-  required: boolean;
-  defaultValue?: string;
 }
 
 export function ComponentSelectorModal({
