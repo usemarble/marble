@@ -12,14 +12,15 @@ export async function GET(
 ) {
   const sessionData = await getServerSession();
 
-  if (!sessionData) {
+  if (!sessionData || !sessionData.session.activeOrganizationId) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
   const { id } = await params;
+  const activeWorkspaceId = sessionData.session.activeOrganizationId;
 
   const post = await db.post.findUnique({
-    where: { id: id },
+    where: { id: id, workspaceId: activeWorkspaceId },
     select: {
       id: true,
       slug: true,
@@ -35,7 +36,7 @@ export async function GET(
       tags: {
         select: { id: true },
       },
-      newAuthors: {
+      authors: {
         select: { id: true },
       },
     },
@@ -57,7 +58,7 @@ export async function GET(
     contentJson: JSON.stringify(post.contentJson),
     tags: post.tags.map((tag) => tag.id),
     category: post.categoryId,
-    authors: post.newAuthors.map((author) => author.id),
+    authors: post.authors.map((author) => author.id),
   };
 
   return NextResponse.json(structuredData, { status: 200 });
@@ -108,9 +109,6 @@ export async function PATCH(
     );
   }
 
-  // Use the first valid author as primary
-  const primaryAuthor = validAuthors[0];
-
   const post = await db.post.findFirst({
     where: { id, workspaceId: sessionData.session.activeOrganizationId },
     select: { status: true },
@@ -138,9 +136,7 @@ export async function PATCH(
         tags: values.tags
           ? { set: uniqueTagIds.map((id) => ({ id })) }
           : undefined,
-        // Update new author relationships
-        newPrimaryAuthorId: primaryAuthor?.id,
-        newAuthors: {
+        authors: {
           set: validAuthors.map((author) => ({ id: author.id })),
         },
       },

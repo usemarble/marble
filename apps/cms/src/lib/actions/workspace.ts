@@ -7,7 +7,6 @@ import type { Organization } from "../auth/types";
 
 export async function createAuthor(user: User, organization: Organization) {
   try {
-    // Check if author already exists for this user in this workspace
     const existingAuthor = await db.author.findUnique({
       where: {
         workspaceId_userId: {
@@ -31,6 +30,7 @@ export async function createAuthor(user: User, organization: Organization) {
     const author = await db.author.create({
       data: {
         name: user.name,
+        email: user.email,
         slug: generateSlug(user.name),
         image: user.image,
         workspaceId: organization.id,

@@ -91,7 +91,7 @@ posts.get("/", async (c) => {
     const prevPage = page > 1 ? page - 1 : null;
     const nextPage = page < totalPages ? page + 1 : null;
 
-    const rawPosts = await db.post.findMany({
+    const posts = await db.post.findMany({
       where,
       orderBy: {
         publishedAt: order,
@@ -108,7 +108,7 @@ posts.get("/", async (c) => {
         publishedAt: true,
         updatedAt: true,
         attribution: true,
-        newAuthors: {
+        authors: {
           select: {
             id: true,
             name: true,
@@ -132,19 +132,14 @@ posts.get("/", async (c) => {
       },
     });
 
-    // Map newAuthors to authors and remove newAuthors from the response
-    // I will change this one migration is completed
-    const posts =
+    // Format posts based on requested format
+    const formattedPosts =
       format === "markdown"
-        ? rawPosts.map(({ newAuthors, ...post }) => ({
+        ? posts.map((post) => ({
             ...post,
-            authors: newAuthors,
             content: NodeHtmlMarkdown.translate(post.content || ""),
           }))
-        : rawPosts.map(({ newAuthors, ...post }) => ({
-            ...post,
-            authors: newAuthors,
-          }));
+        : posts;
 
     const paginationInfo = limit
       ? {
@@ -165,16 +160,8 @@ posts.get("/", async (c) => {
         };
 
     return c.json({
-      posts,
+      posts: formattedPosts,
       pagination: paginationInfo,
-      // meta: {
-      //   filters: {
-      //     category: category || undefined,
-      //     tags: tags.length > 0 ? tags : undefined,
-      //     query: query || undefined,
-      //     order,
-      //   },
-      // },
     });
   } catch (error) {
     console.error("Error fetching posts:", error);
@@ -196,7 +183,7 @@ posts.get("/:identifier", async (c) => {
     const format = c.req.query("format");
     const db = createClient(url);
 
-    const rawPost = await db.post.findFirst({
+    const post = await db.post.findFirst({
       where: {
         workspaceId,
         OR: [{ slug: identifier }, { id: identifier }],
@@ -212,7 +199,7 @@ posts.get("/:identifier", async (c) => {
         publishedAt: true,
         updatedAt: true,
         attribution: true,
-        newAuthors: {
+        authors: {
           select: {
             id: true,
             name: true,
@@ -236,20 +223,15 @@ posts.get("/:identifier", async (c) => {
       },
     });
 
-    if (!rawPost) {
+    if (!post) {
       return c.json({ error: "Post not found" }, 404);
     }
 
-    // Map newAuthors to authors and remove newAuthors from the response
-    const { newAuthors, ...post } = rawPost;
+    // Format post based on requested format
     const formattedPost =
       format === "markdown"
-        ? {
-            ...post,
-            authors: newAuthors,
-            content: NodeHtmlMarkdown.translate(post.content || ""),
-          }
-        : { ...post, authors: newAuthors };
+        ? { ...post, content: NodeHtmlMarkdown.translate(post.content || "") }
+        : post;
 
     return c.json({ post: formattedPost });
   } catch (_error) {
