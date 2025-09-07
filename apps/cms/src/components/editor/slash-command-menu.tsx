@@ -3,6 +3,7 @@ import {
   EditorCommandEmpty,
   EditorCommandItem,
   EditorCommandList,
+  type EditorInstance,
 } from "novel";
 import { useState } from "react";
 import { ComponentSelectorModal } from "./component-selector-modal";
@@ -14,7 +15,9 @@ export function SlashCommandMenu() {
   const [showImageModal, setShowImageModal] = useState(false);
   const [showYoutubeModal, setShowYoutubeModal] = useState(false);
   const [showComponentModal, setShowComponentModal] = useState(false);
-  const [editorInstance, setEditorInstance] = useState<any>(null);
+  const [editorInstance, setEditorInstance] = useState<
+    EditorInstance | undefined
+  >(undefined);
 
   return (
     <>

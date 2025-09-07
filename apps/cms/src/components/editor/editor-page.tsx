@@ -342,7 +342,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
       <ComponentSelectorModal
         isOpen={showComponentSelector}
         setIsOpen={setShowComponentSelector}
-        editor={editorRef.current}
+        editor={editorRef.current ?? undefined}
       />
     </>
   );

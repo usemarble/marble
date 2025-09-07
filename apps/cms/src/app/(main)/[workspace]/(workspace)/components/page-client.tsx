@@ -16,7 +16,7 @@ const ComponentModal = dynamic(() =>
   import("@/components/components/component-modals").then(
     (mod) => mod.ComponentModal,
   ),
-);
+); 
 
 export default function PageClient() {
   const workspaceId = useWorkspaceId();

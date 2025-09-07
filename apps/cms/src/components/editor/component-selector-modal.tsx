@@ -28,21 +28,46 @@ import {
 import { Textarea } from "@marble/ui/components/textarea";
 import { ArrowLeftIcon, PuzzlePieceIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
+import type { Editor } from "@tiptap/react";
 import { useCallback, useEffect, useState } from "react";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import type { ComponentProperty, CustomComponent } from "../components/columns";
 import { LoadingSpinner } from "../ui/async-button";
+
+type Primitive = string | number | boolean | null;
+
+type NodeAttrs = {
+  componentName?: string;
+  properties?: Record<string, Primitive>;
+};
+
+type ExistingNode = { attrs?: NodeAttrs } | null;
+
+// For number inputs: allow number or empty string
+const asNumberValue = (v: Primitive): number | string =>
+  typeof v === "number" ? v : typeof v === "string" ? v : "";
+
+interface ComponentEditorModalProps {
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
+  editor: Editor;
+  existingComponent: ExistingNode;
+  getPos?: () => number;
+}
 
 export function ComponentEditorModal({
   isOpen,
   setIsOpen,
   editor,
   existingComponent,
-}: ComponentSelectorModalProps) {
-  const [propertyValues, setPropertyValues] = useState<Record<string, any>>({});
+  getPos,
+}: ComponentEditorModalProps) {
+  const [propertyValues, setPropertyValues] = useState<
+    Record<string, Primitive>
+  >({});
   const workspaceId = useWorkspaceId();
 
-  const { data: components = [] } = useQuery({
+  const { data: components = [] } = useQuery<CustomComponent[]>({
     queryKey: ["custom-components", workspaceId],
     staleTime: 1000 * 60 * 5,
     queryFn: async () => {
@@ -50,7 +75,7 @@ export function ComponentEditorModal({
       if (!response.ok) {
         throw new Error("Failed to fetch components");
       }
-      return response.json();
+      return (await response.json()) as CustomComponent[];
     },
     enabled: !!workspaceId,
   });
@@ -58,25 +83,26 @@ export function ComponentEditorModal({
   // Find the component definition for the existing component
   const componentDef =
     existingComponent && components.length > 0
-      ? components.find(
-          (c: CustomComponent) =>
-            c.name === existingComponent.attrs.componentName,
-        )
+      ? (components.find(
+          (c) =>
+            c.name ===
+            ((existingComponent.attrs ?? {}) as NodeAttrs).componentName,
+        ) ?? null)
       : null;
 
   useEffect(() => {
     if (existingComponent && componentDef) {
-      const existingValues: Record<string, any> = {};
-      const properties = existingComponent.attrs.properties || {};
-
-      Object.entries(properties).forEach(([key, value]) => {
-        existingValues[key] = value;
+      const attrs = (existingComponent.attrs ?? {}) as NodeAttrs;
+      const props = attrs.properties ?? {};
+      const existingValues: Record<string, Primitive> = {};
+      Object.entries(props).forEach(([key, value]) => {
+        existingValues[key] = value ?? "";
       });
       setPropertyValues(existingValues);
     }
   }, [existingComponent, componentDef]);
 
-  const handlePropertyChange = (propertyName: string, value: any) => {
+  const handlePropertyChange = (propertyName: string, value: Primitive) => {
     setPropertyValues((prev) => ({
       ...prev,
       [propertyName]: value,
@@ -84,57 +110,60 @@ export function ComponentEditorModal({
   };
 
   // Validate required fields for editing
-  const validateEditFields = () => {
+  const validateEditFields = (): boolean => {
     if (!componentDef) return false;
-
     return componentDef.properties
-      .filter((prop: ComponentProperty) => prop.required)
-      .every((prop: ComponentProperty) => {
+      .filter((prop) => prop.required)
+      .every((prop) => {
         const value = propertyValues[prop.name];
         return value !== undefined && value !== "" && value !== null;
       });
   };
 
-  const handleUpdateComponent = () => {
-    if (!componentDef || !editor || !existingComponent) return;
+  const handleUpdateComponent = (): void => {
+    if (!componentDef || !editor) return;
 
-    // Check if all required fields are filled
     if (!validateEditFields()) {
       console.warn("Please fill in all required fields");
       return;
     }
 
-    const componentData: Record<string, any> = {};
-    componentDef.properties.forEach((prop: ComponentProperty) => {
-      const value = propertyValues[prop.name];
-      if (value !== undefined && value !== "") {
-        componentData[prop.name] = value;
+    const componentData: Record<string, Primitive> = {};
+    componentDef.properties.forEach((prop) => {
+      const raw = propertyValues[prop.name];
+      if (raw !== undefined && raw !== "") {
+        componentData[prop.name] =
+          prop.type === "number" && typeof raw === "string"
+            ? raw.trim() === ""
+              ? ""
+              : Number(raw)
+            : raw;
       }
     });
 
-    const pos = editor.view.posAtDOM(existingComponent.dom);
-    if (pos !== undefined) {
-      editor
-        .chain()
-        .focus()
-        .setTextSelection(pos)
-        .setCustomComponent({
-          name: componentDef.name,
-          attributes: componentData,
-        })
-        .run();
+    const chain = editor.chain().focus();
+    const pos = typeof getPos === "function" ? getPos() : null;
+    if (typeof pos === "number") {
+      chain.setTextSelection(pos);
     }
+
+    chain
+      .setCustomComponent({
+        name: componentDef.name,
+        attributes: componentData,
+      })
+      .run();
 
     handleClose();
   };
 
-  const handleClose = () => {
+  const handleClose = (): void => {
     setIsOpen(false);
     setPropertyValues({});
   };
 
   const renderPropertyInput = (property: ComponentProperty) => {
-    const value = propertyValues[property.name] ?? "";
+    const value: Primitive = propertyValues[property.name] ?? "";
 
     switch (property.type) {
       case "boolean":
@@ -142,9 +171,9 @@ export function ComponentEditorModal({
           <div className="flex items-center space-x-2">
             <Checkbox
               id={property.name}
-              checked={value}
+              checked={value === true}
               onCheckedChange={(checked) =>
-                handlePropertyChange(property.name, checked)
+                handlePropertyChange(property.name, checked === true)
               }
             />
             <Label htmlFor={property.name}>Enable {property.name}</Label>
@@ -154,7 +183,7 @@ export function ComponentEditorModal({
       case "textarea":
         return (
           <Textarea
-            value={value}
+            value={(value ?? "") as string}
             onChange={(e) =>
               handlePropertyChange(property.name, e.target.value)
             }
@@ -166,7 +195,7 @@ export function ComponentEditorModal({
       case "select":
         return (
           <Select
-            value={value}
+            value={(value ?? "") as string}
             onValueChange={(newValue) =>
               handlePropertyChange(property.name, newValue)
             }
@@ -186,7 +215,7 @@ export function ComponentEditorModal({
         return (
           <Input
             type="number"
-            value={value}
+            value={asNumberValue(value)}
             onChange={(e) =>
               handlePropertyChange(property.name, e.target.value)
             }
@@ -198,7 +227,7 @@ export function ComponentEditorModal({
         return (
           <Input
             type="date"
-            value={value}
+            value={(value ?? "") as string}
             onChange={(e) =>
               handlePropertyChange(property.name, e.target.value)
             }
@@ -209,7 +238,7 @@ export function ComponentEditorModal({
         return (
           <Input
             type="email"
-            value={value}
+            value={(value ?? "") as string}
             onChange={(e) =>
               handlePropertyChange(property.name, e.target.value)
             }
@@ -221,7 +250,7 @@ export function ComponentEditorModal({
         return (
           <Input
             type="url"
-            value={value}
+            value={(value ?? "") as string}
             onChange={(e) =>
               handlePropertyChange(property.name, e.target.value)
             }
@@ -232,7 +261,7 @@ export function ComponentEditorModal({
       default:
         return (
           <Input
-            value={value}
+            value={(value ?? "") as string}
             onChange={(e) =>
               handlePropertyChange(property.name, e.target.value)
             }
@@ -245,7 +274,7 @@ export function ComponentEditorModal({
   if (!componentDef) {
     console.warn(
       "ComponentEditorModal: Component definition not found for:",
-      existingComponent?.attrs?.componentName,
+      (existingComponent?.attrs as NodeAttrs | undefined)?.componentName,
     );
     return (
       <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -279,7 +308,7 @@ export function ComponentEditorModal({
 
         <div className="space-y-6">
           <div className="space-y-4">
-            {componentDef.properties.map((property: ComponentProperty) => (
+            {componentDef.properties.map((property) => (
               <div key={property.id} className="space-y-2">
                 <Label className="flex items-center">
                   {property.name}
@@ -315,8 +344,10 @@ export function ComponentEditorModal({
 interface ComponentSelectorModalProps {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
-  editor?: any;
-  existingComponent?: any;
+  editor?: Editor;
+  existingComponent?: ExistingNode;
+  /** (optional) from NodeView; ensures selection targets this node */
+  getPos?: () => number;
 }
 
 export function ComponentSelectorModal({
@@ -324,13 +355,16 @@ export function ComponentSelectorModal({
   setIsOpen,
   editor,
   existingComponent,
+  getPos,
 }: ComponentSelectorModalProps) {
   const [selectedComponent, setSelectedComponent] =
     useState<CustomComponent | null>(null);
-  const [propertyValues, setPropertyValues] = useState<Record<string, any>>({});
+  const [propertyValues, setPropertyValues] = useState<
+    Record<string, Primitive>
+  >({});
   const workspaceId = useWorkspaceId();
 
-  const { data: components = [], isLoading } = useQuery({
+  const { data: components = [], isLoading } = useQuery<CustomComponent[]>({
     queryKey: ["custom-components", workspaceId],
     staleTime: 1000 * 60 * 5,
     queryFn: async () => {
@@ -338,45 +372,45 @@ export function ComponentSelectorModal({
       if (!response.ok) {
         throw new Error("Failed to fetch components");
       }
-      return response.json();
+      return (await response.json()) as CustomComponent[];
     },
     enabled: !!workspaceId,
   });
 
-  const getDefaultValueForType = useCallback((type: string) => {
-    switch (type) {
-      case "boolean":
-        return false;
-      case "number":
-        return "";
-      case "date":
-        return new Date().toISOString().split("T")[0];
-      default:
-        return "";
-    }
-  }, []);
+  const getDefaultValueForType = useCallback(
+    (type: ComponentProperty["type"]): Primitive => {
+      switch (type) {
+        case "boolean":
+          return false;
+        case "number":
+          return "";
+        case "date": {
+          const [d = ""] = new Date().toISOString().split("T");
+          return d;
+        }
+        default:
+          return "";
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
     if (existingComponent && components.length > 0) {
-      const existingValues: Record<string, any> = {};
-      const properties = existingComponent.attrs.properties || {};
-
-      Object.entries(properties).forEach(([key, value]) => {
-        existingValues[key] = value;
+      const attrs = (existingComponent.attrs ?? {}) as NodeAttrs;
+      const props = attrs.properties ?? {};
+      const existingValues: Record<string, Primitive> = {};
+      Object.entries(props).forEach(([k, v]) => {
+        existingValues[k] = v ?? "";
       });
       setPropertyValues(existingValues);
 
-      const componentDef = components.find(
-        (c: CustomComponent) =>
-          c.name === existingComponent.attrs.componentName,
-      );
-      if (componentDef) {
-        setSelectedComponent(componentDef);
-      }
+      const found = components.find((c) => c.name === attrs.componentName);
+      if (found) setSelectedComponent(found);
     }
   }, [existingComponent, components]);
 
-  const handlePropertyChange = (propertyName: string, value: any) => {
+  const handlePropertyChange = (propertyName: string, value: Primitive) => {
     setPropertyValues((prev) => ({
       ...prev,
       [propertyName]: value,
@@ -384,9 +418,8 @@ export function ComponentSelectorModal({
   };
 
   // Validate required fields
-  const validateRequiredFields = () => {
+  const validateRequiredFields = (): boolean => {
     if (!selectedComponent) return false;
-
     return selectedComponent.properties
       .filter((prop) => prop.required)
       .every((prop) => {
@@ -395,69 +428,61 @@ export function ComponentSelectorModal({
       });
   };
 
-  const handleInsertComponent = () => {
+  const handleInsertComponent = (): void => {
     if (!selectedComponent || !editor) return;
 
-    // Check if all required fields are filled
     if (!validateRequiredFields()) {
-      // You could add a toast notification here
       console.warn("Please fill in all required fields");
       return;
     }
 
-    const componentData: Record<string, any> = {};
+    const componentData: Record<string, Primitive> = {};
     selectedComponent.properties.forEach((prop) => {
-      const value = propertyValues[prop.name];
-      if (value !== undefined && value !== "") {
-        componentData[prop.name] = value;
+      const raw = propertyValues[prop.name];
+      if (raw !== undefined && raw !== "") {
+        componentData[prop.name] =
+          prop.type === "number" && typeof raw === "string"
+            ? raw.trim() === ""
+              ? ""
+              : Number(raw)
+            : raw;
       }
     });
 
-    if (existingComponent) {
-      const pos = editor.view.posAtDOM(existingComponent.dom);
-      if (pos !== undefined) {
-        editor
-          .chain()
-          .focus()
-          .setTextSelection(pos)
-          .setCustomComponent({
-            name: selectedComponent.name,
-            attributes: componentData,
-          })
-          .run();
-      }
-    } else {
-      editor
-        .chain()
-        .focus()
-        .setCustomComponent({
-          name: selectedComponent.name,
-          attributes: componentData,
-        })
-        .run();
+    const chain = editor.chain().focus();
+    if (existingComponent && typeof getPos === "function") {
+      const pos = getPos();
+      chain.setTextSelection(pos);
     }
+
+    chain
+      .setCustomComponent({
+        name: selectedComponent.name,
+        attributes: componentData,
+      })
+      .run();
 
     handleClose();
   };
 
   const handleComponentSelect = (component: CustomComponent) => {
     setSelectedComponent(component);
-    const initialValues: Record<string, any> = {};
+    const initialValues: Record<string, Primitive> = {};
     component.properties.forEach((prop) => {
       initialValues[prop.name] =
-        prop.defaultValue || getDefaultValueForType(prop.type);
+        prop.defaultValue ?? getDefaultValueForType(prop.type);
     });
     setPropertyValues(initialValues);
   };
 
-  const handleClose = () => {
+  const handleClose = (): void => {
     setIsOpen(false);
     setSelectedComponent(null);
     setPropertyValues({});
   };
 
   const renderPropertyInput = (property: ComponentProperty) => {
-    const value = propertyValues[property.name] ?? "";
+    const value: Primitive = propertyValues[property.name] ?? "";
 
     switch (property.type) {
       case "boolean":
@@ -465,9 +490,9 @@ export function ComponentSelectorModal({
           <div className="flex items-center space-x-2">
             <Checkbox
               id={property.name}
-              checked={value}
+              checked={value === true}
               onCheckedChange={(checked) =>
-                handlePropertyChange(property.name, checked)
+                handlePropertyChange(property.name, checked === true)
               }
             />
             <Label htmlFor={property.name}>Enable {property.name}</Label>
@@ -477,7 +502,7 @@ export function ComponentSelectorModal({
       case "textarea":
         return (
           <Textarea
-            value={value}
+            value={(value ?? "") as string}
             onChange={(e) =>
               handlePropertyChange(property.name, e.target.value)
             }
@@ -489,7 +514,7 @@ export function ComponentSelectorModal({
       case "select":
         return (
           <Select
-            value={value}
+            value={(value ?? "") as string}
             onValueChange={(newValue) =>
               handlePropertyChange(property.name, newValue)
             }
@@ -509,7 +534,7 @@ export function ComponentSelectorModal({
         return (
           <Input
             type="number"
-            value={value}
+            value={asNumberValue(value)}
             onChange={(e) =>
               handlePropertyChange(property.name, e.target.value)
             }
@@ -521,7 +546,7 @@ export function ComponentSelectorModal({
         return (
           <Input
             type="date"
-            value={value}
+            value={(value ?? "") as string}
             onChange={(e) =>
               handlePropertyChange(property.name, e.target.value)
             }
@@ -532,7 +557,7 @@ export function ComponentSelectorModal({
         return (
           <Input
             type="email"
-            value={value}
+            value={(value ?? "") as string}
             onChange={(e) =>
               handlePropertyChange(property.name, e.target.value)
             }
@@ -544,7 +569,7 @@ export function ComponentSelectorModal({
         return (
           <Input
             type="url"
-            value={value}
+            value={(value ?? "") as string}
             onChange={(e) =>
               handlePropertyChange(property.name, e.target.value)
             }
@@ -555,7 +580,7 @@ export function ComponentSelectorModal({
       default:
         return (
           <Input
-            value={value}
+            value={(value ?? "") as string}
             onChange={(e) =>
               handlePropertyChange(property.name, e.target.value)
             }
@@ -610,7 +635,7 @@ export function ComponentSelectorModal({
               </div>
             ) : (
               <div className="grid gap-3">
-                {components.map((component: CustomComponent) => (
+                {components.map((component) => (
                   <Card
                     key={component.id}
                     className="cursor-pointer hover:border-primary transition-colors"
@@ -629,7 +654,7 @@ export function ComponentSelectorModal({
                     </CardHeader>
                     <CardContent className="pt-0">
                       <div className="flex flex-wrap gap-1">
-                        {component.properties.map((prop: ComponentProperty) => (
+                        {component.properties.map((prop) => (
                           <Badge
                             key={prop.id}
                             variant="secondary"

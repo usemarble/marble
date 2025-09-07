@@ -2,8 +2,15 @@ import { Node } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import { CustomComponentNodeView } from "./custom-component-node-view";
 
+type Primitive = string | number | boolean | null | undefined;
+
 export interface CustomComponentOptions {
-  HTMLAttributes: Record<string, any>;
+  HTMLAttributes: Record<string, string>;
+}
+
+export interface CustomComponentAttrs {
+  componentName: string;
+  properties: Record<string, Primitive>;
 }
 
 declare module "@tiptap/core" {
@@ -11,7 +18,7 @@ declare module "@tiptap/core" {
     customComponent: {
       setCustomComponent: (options: {
         name: string;
-        attributes?: Record<string, any>;
+        attributes?: Record<string, Primitive>;
       }) => ReturnType;
     };
   }
@@ -56,7 +63,7 @@ export const CustomComponent = Node.create<CustomComponentOptions>({
   renderHTML({ node }) {
     const { componentName, properties } = node.attrs;
 
-    const componentAttrs: Record<string, any> = {
+    const componentAttrs: Record<string, string> = {
       "x-marble-component-name": componentName,
       class: "marble-custom-component",
     };
@@ -88,7 +95,7 @@ export const CustomComponent = Node.create<CustomComponentOptions>({
         parseHTML: (element) => {
           if (typeof element === "string") return {};
 
-          const properties: Record<string, any> = {};
+          const properties: Record<string, string> = {};
 
           // Parse all x-marble- prefixed attributes except component-name
           for (const attr of element.attributes) {
@@ -103,7 +110,7 @@ export const CustomComponent = Node.create<CustomComponentOptions>({
 
           return properties;
         },
-        renderHTML: (attributes) => {
+        renderHTML: () => {
           // Properties are handled in renderHTML method above
           return {};
         },
