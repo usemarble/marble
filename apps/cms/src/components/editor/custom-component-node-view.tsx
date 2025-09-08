@@ -4,6 +4,7 @@ import {
   CaretRightIcon,
   PencilIcon,
   PuzzlePieceIcon,
+  TrashIcon,
 } from "@phosphor-icons/react";
 import type { NodeViewProps } from "@tiptap/react";
 import { NodeViewWrapper } from "@tiptap/react";
@@ -25,6 +26,10 @@ export function CustomComponentNodeView({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
+  const selectThisNode = () => {
+    if (getPos) editor.chain().focus().setNodeSelection(getPos()).run();
+  };
+
   const handleClick = () => {
     if (getPos) {
       editor.chain().focus().setTextSelection(getPos()).run();
@@ -34,7 +39,20 @@ export function CustomComponentNodeView({
   const handleEdit: React.MouseEventHandler = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (getPos) {
+      editor.chain().focus().setNodeSelection(getPos()).run();
+    }
     setIsModalOpen(true);
+  };
+
+  const handleRemove: React.MouseEventHandler = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    selectThisNode();
+    const ok = window.confirm(`Remove "${componentName}" component?`);
+    if (!ok) return;
+
+    editor.chain().focus().deleteSelection().run();
   };
 
   const handleToggleExpand: React.MouseEventHandler = (e) => {
@@ -82,6 +100,18 @@ export function CustomComponentNodeView({
                 className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0"
               >
                 <PencilIcon className="h-3.5 w-3.5" />
+              </Button>
+
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleRemove}
+                className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 hover:bg-destructive/10"
+                aria-label="Remove component"
+                title="Remove"
+              >
+                <TrashIcon className="h-3.5 w-3.5" />
               </Button>
 
               {Object.keys(props).length > 0 && (
@@ -138,6 +168,7 @@ export function CustomComponentNodeView({
         setIsOpen={setIsModalOpen}
         editor={editor}
         existingComponent={node}
+        getPos={getPos}
       />
     </>
   );
