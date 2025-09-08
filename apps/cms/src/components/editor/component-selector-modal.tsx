@@ -43,6 +43,7 @@ type NodeAttrs = {
 
 type ExistingNode = { attrs?: NodeAttrs } | null;
 
+// For number inputs: allow number or empty string
 const asNumberValue = (v: Primitive): number | string =>
   typeof v === "number" ? v : typeof v === "string" ? v : "";
 
@@ -107,6 +108,7 @@ export function ComponentEditorModal({
     }));
   };
 
+  // Validate required fields for editing
   const validateEditFields = (): boolean => {
     if (!componentDef) return false;
     return componentDef.properties
