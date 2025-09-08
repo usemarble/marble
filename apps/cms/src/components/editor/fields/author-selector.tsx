@@ -73,7 +73,7 @@ export function AuthorSelector({
   const { user } = useUser();
   const { activeWorkspace } = useWorkspace();
 
-  const { isLoading } = useQuery({
+  const { data: authorsData, isLoading } = useQuery({
     // biome-ignore lint/style/noNonNullAssertion: <>
     queryKey: QUERY_KEYS.AUTHORS(activeWorkspace?.id!),
     queryFn: async () => {
@@ -83,8 +83,6 @@ export function AuthorSelector({
           throw new Error("Failed to fetch authors");
         }
         const data = await response.json();
-        setAuthors(data);
-        console.log("authors", data);
         return data;
       } catch (error) {
         console.error("Failed to fetch authors:", error);
@@ -94,6 +92,12 @@ export function AuthorSelector({
     enabled: !!activeWorkspace?.id,
     staleTime: 10 * 60 * 1000,
   });
+
+  useEffect(() => {
+    if (authorsData) {
+      setAuthors(authorsData);
+    }
+  }, [authorsData]);
 
   const derivedPrimaryAuthor: AuthorOptions | undefined = user
     ? authors.find((author) => author.userId === user.id) || authors[0]
@@ -121,7 +125,7 @@ export function AuthorSelector({
     ) {
       onChange([derivedPrimaryAuthor.id]);
     }
-  }, [authors, derivedPrimaryAuthor, onChange, isLoading, value]);
+  }, [derivedPrimaryAuthor, onChange, isLoading, value, authors]);
 
   const addOrRemoveAuthor = (authorToAdd: string) => {
     const currentValues = value || [];
