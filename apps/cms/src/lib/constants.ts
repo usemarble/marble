@@ -27,13 +27,12 @@ export const PRICING_PLANS: PricingPlan[] = [
       yearly: "$100",
     },
     features: [
-      "Unlimited posts",
+      "Everything in Hobby",
       "2 GB media storage",
       "Up to 10 team members",
-      "Unlimited API requests per month",
-      "Image optimization",
+      "50k API requests per month",
       "Readability insights",
-      "Keyword optimization suggestions",
+      //"Keyword optimization suggestions",
     ],
     button: {
       href: "https://app.marblecms.com",
