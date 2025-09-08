@@ -28,12 +28,12 @@ import {
 import { cn } from "@marble/ui/lib/utils";
 import { CaretUpDownIcon, CheckIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { type Control, useController } from "react-hook-form";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { PostValues } from "@/lib/validations/post";
 import { useUser } from "@/providers/user";
-import { useWorkspace } from "@/providers/workspace";
 import { ErrorMessage } from "../../auth/error-message";
 import { FieldInfo } from "./field-info";
 
@@ -69,13 +69,13 @@ export function AuthorSelector({
   });
 
   const [selected, setSelected] = useState<AuthorOptions[]>([]);
-  const [authors, setAuthors] = useState<AuthorOptions[]>([]);
   const { user } = useUser();
-  const { activeWorkspace } = useWorkspace();
+  const workspaceId = useWorkspaceId();
+  const isNewPost = defaultAuthors.length === 0;
 
-  const { data: authorsData, isLoading } = useQuery({
+  const { data: authors = [], isLoading } = useQuery<AuthorOptions[]>({
     // biome-ignore lint/style/noNonNullAssertion: <>
-    queryKey: QUERY_KEYS.AUTHORS(activeWorkspace?.id!),
+    queryKey: QUERY_KEYS.AUTHORS(workspaceId!),
     queryFn: async () => {
       try {
         const response = await fetch("/api/authors");
@@ -89,43 +89,49 @@ export function AuthorSelector({
         return [];
       }
     },
-    enabled: !!activeWorkspace?.id,
-    staleTime: 10 * 60 * 1000,
+    enabled: !!workspaceId,
   });
 
-  useEffect(() => {
-    if (authorsData) {
-      setAuthors(authorsData);
-    }
-  }, [authorsData]);
-
-  const derivedPrimaryAuthor: AuthorOptions | undefined = user
-    ? authors.find((author) => author.userId === user.id) || authors[0]
-    : undefined;
+  // Memoize the primary author to avoid recalculation
+  const derivedPrimaryAuthor = useMemo(() => {
+    if (!user || authors.length === 0) return undefined;
+    return authors.find((author) => author.userId === user.id) || authors[0];
+  }, [user, authors]);
 
   // Handle selected authors based on form value
+  // This is just to show the selected users in the UI
   useEffect(() => {
-    if (authors.length === 0) return;
+    if (isLoading || authors.length === 0) return;
 
-    if (value?.length > 0) {
-      const selectedAuthors = authors.filter((opt) => value.includes(opt.id));
-      setSelected(selectedAuthors);
+    if (value.length > 0) {
+      const authorsThatWerePreviouslySelected = authors.filter((opt) =>
+        value.includes(opt.id),
+      );
+      setSelected(authorsThatWerePreviouslySelected);
     } else {
       setSelected([]);
     }
-  }, [value, authors]);
+  }, [value, authors, isLoading]);
 
-  // Auto-select user's author profile on initial load
+  // Auto-select current user's author profile on initial load for better UX
+  // This makes it obvious who is creating the content and saves them from
+  // having to manually select themselves for original content.
+  // The user can always remove themselves from the list if they want to.
+  // In a case where they are publishing on behalf of another author, they can select them from the list.
+  // This auto select is only for new posts, not when editing.
+  // Check the post creation route to see how this is handled.
   useEffect(() => {
     if (
       authors.length > 0 &&
       derivedPrimaryAuthor &&
       (!value || value.length === 0) &&
-      !isLoading
+      !isLoading &&
+      isNewPost
     ) {
       onChange([derivedPrimaryAuthor.id]);
+      console.log("auto selected primary author", derivedPrimaryAuthor);
     }
-  }, [derivedPrimaryAuthor, onChange, isLoading, value, authors]);
+  }, [authors, derivedPrimaryAuthor, onChange, isLoading, value, isNewPost]);
 
   const addOrRemoveAuthor = (authorToAdd: string) => {
     const currentValues = value || [];
@@ -188,9 +194,7 @@ export function AuthorSelector({
                         </Avatar>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p className="text-muted-foreground max-w-64 text-xs">
-                          {author.name}
-                        </p>
+                        <p className="max-w-64 text-xs">{author.name}</p>
                       </TooltipContent>
                     </Tooltip>
                   </li>

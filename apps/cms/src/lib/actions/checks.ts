@@ -73,6 +73,45 @@ export async function checkTagSlugForUpdateAction(
 }
 
 /**
+ * Check if an author slug is taken
+ * @param slug - The slug of the author to check
+ * @param workspaceId - The id of the workspace
+ * @returns True if the slug is taken, false otherwise
+ */
+export async function checkAuthorSlugAction(slug: string, workspaceId: string) {
+  const result = await db.author.findFirst({
+    where: { workspaceId: workspaceId, slug: slug },
+  });
+
+  return !!result;
+}
+
+/**
+ * Check if an author slug is taken for update
+ * @param slug - The slug of the author to check
+ * @param workspaceId - The id of the workspace
+ * @param currentAuthorId - The id of the current author
+ * @returns True if the slug is taken, false otherwise
+ */
+export async function checkAuthorSlugForUpdateAction(
+  slug: string,
+  workspaceId: string,
+  currentAuthorId: string,
+) {
+  const result = await db.author.findFirst({
+    where: {
+      workspaceId: workspaceId,
+      slug: slug,
+      NOT: {
+        id: currentAuthorId,
+      },
+    },
+  });
+
+  return !!result;
+}
+
+/**
  * Verify an invite
  * @param inviteId - The invite ID
  * @returns The invite email

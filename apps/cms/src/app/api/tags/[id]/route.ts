@@ -9,8 +9,9 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const sessionData = await getServerSession();
+  const workspaceId = sessionData?.session.activeOrganizationId;
 
-  if (!sessionData || !sessionData.session.activeOrganizationId) {
+  if (!sessionData || !workspaceId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -19,11 +20,17 @@ export async function PATCH(
   const json = await req.json();
   const body = tagSchema.parse(json);
 
+  const existing = await db.tag.findFirst({
+    where: { id, workspaceId },
+    select: { id: true },
+  });
+
+  if (!existing) {
+    return NextResponse.json({ error: "Tag not found" }, { status: 404 });
+  }
+
   const tagUpdated = await db.tag.update({
-    where: {
-      id: id,
-      workspaceId: sessionData.session.activeOrganizationId,
-    },
+    where: { id },
     data: {
       name: body.name,
       slug: body.slug,
