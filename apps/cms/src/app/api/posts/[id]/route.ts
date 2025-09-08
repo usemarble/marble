@@ -18,7 +18,7 @@ export async function GET(
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const post = await db.post.findUnique({
+  const post = await db.post.findFirst({
     where: { id: id, workspaceId: activeWorkspaceId },
     select: {
       id: true,

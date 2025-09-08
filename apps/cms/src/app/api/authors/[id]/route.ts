@@ -23,7 +23,7 @@ export async function DELETE(
   }
 
   try {
-    const author = await db.author.findUnique({
+    const author = await db.author.findFirst({
       where: {
         id,
         workspaceId: sessionData.session.activeOrganizationId,
@@ -74,12 +74,12 @@ export async function PATCH(
       );
     }
 
-    const { name, bio, role, email, image, userId } = parsedBody.data;
+    const { name, bio, role, email, image, userId, slug } = parsedBody.data;
 
     const validEmail = email === "" ? null : email;
     const validUserId = userId ? userId : null;
 
-    const author = await db.author.findUnique({
+    const author = await db.author.findFirst({
       where: {
         id,
         workspaceId: workspaceId,
@@ -101,6 +101,7 @@ export async function PATCH(
         role,
         email: validEmail,
         image,
+        slug,
         userId: validUserId,
       },
     });

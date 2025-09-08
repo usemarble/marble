@@ -1,4 +1,5 @@
 import { db } from "@marble/db";
+import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { postSchema } from "@/lib/validations/post";
@@ -48,17 +49,9 @@ export async function POST(request: Request) {
     );
   }
 
-  // Find the author for this user in the current workspace
-  // this is the primary author for the post
-  let primaryAuthor = await db.author.findUnique({
-    where: {
-      workspaceId_userId: {
-        workspaceId: activeWorkspaceId,
-        userId: sessionData.user.id,
-      },
-    },
-  });
-
+  const baseSlug = generateSlug(sessionData.user.name);
+  const uniqueSlug = `${baseSlug}-${nanoid(6)}`;
+  // Ensure there is an author profile for this user; create if missing using upsert
   // since its possible for a user to have no author profile, We can take several directions
   // 1. create an author profile for the user
   // 2. use the first author in the workspace
@@ -66,20 +59,24 @@ export async function POST(request: Request) {
 
   // since primary author is not required and is really only a way for us to track the original creator of the post,
   // We'll go with the first option and create an author profile for the user (for now)
-
-  if (!primaryAuthor) {
-    primaryAuthor = await db.author.create({
-      data: {
-        name: sessionData.user.name,
-        email: sessionData.user.email,
-        slug: generateSlug(sessionData.user.name),
-        image: sessionData.user.image,
+  const primaryAuthor = await db.author.upsert({
+    where: {
+      workspaceId_userId: {
         workspaceId: activeWorkspaceId,
         userId: sessionData.user.id,
-        role: "Writer",
       },
-    });
-  }
+    },
+    update: {},
+    create: {
+      name: sessionData.user.name,
+      email: sessionData.user.email,
+      slug: uniqueSlug,
+      image: sessionData.user.image,
+      workspaceId: activeWorkspaceId,
+      userId: sessionData.user.id,
+      role: "Writer",
+    },
+  });
 
   const contentJson = JSON.parse(values.data.contentJson);
   const validAttribution = values.data.attribution

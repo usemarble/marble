@@ -3,15 +3,15 @@ import { timezones } from "@/lib/constants";
 
 // Tag Schema
 export const tagSchema = z.object({
-  name: z.string().min(1, { message: "Name cannot be empty" }),
-  slug: z.string().min(1, { message: "Slug cannot be empty" }),
+  name: z.string().trim().min(1, { message: "Name cannot be empty" }),
+  slug: z.string().trim().min(1, { message: "Slug cannot be empty" }),
 });
 export type CreateTagValues = z.infer<typeof tagSchema>;
 
 // Category Schema
 export const categorySchema = z.object({
-  name: z.string().min(1, { message: "Name cannot be empty" }),
-  slug: z.string().min(1, { message: "Slug cannot be empty" }),
+  name: z.string().trim().min(1, { message: "Name cannot be empty" }),
+  slug: z.string().trim().min(1, { message: "Slug cannot be empty" }),
 });
 export type CreateCategoryValues = z.infer<typeof categorySchema>;
 
@@ -39,7 +39,11 @@ export type CreateWorkspaceValues = z.infer<typeof workspaceSchema>;
 
 // Workspace Name Update Schema
 export const nameSchema = z.object({
-  name: z.string().min(1),
+  name: z
+    .string()
+    .trim()
+    .min(1)
+    .max(32, { message: "Name cannot be more than 32 characters" }),
 });
 export type NameValues = z.infer<typeof nameSchema>;
 
@@ -64,9 +68,17 @@ export type TimezoneValues = z.infer<typeof timezoneSchema>;
 
 // Author Schema
 export const authorSchema = z.object({
-  name: z.string().min(1, { message: "Name cannot be empty" }),
-  role: z.string().optional(),
-  bio: z.string().optional(),
+  name: z.string().trim().min(1, { message: "Name cannot be empty" }),
+  role: z
+    .string()
+    .trim()
+    .transform((v) => (v === "" ? undefined : v))
+    .optional(),
+  bio: z
+    .string()
+    .trim()
+    .transform((v) => (v === "" ? undefined : v))
+    .optional(),
   image: z.string().nullable().optional(),
   userId: z.string().nullable().optional(),
   email: z
