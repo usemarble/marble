@@ -51,10 +51,7 @@ export default function TableActions(props: TableActionsProps) {
             <DotsThreeVerticalIcon className="size-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent
-          align="end"
-          className="w-[180px] text-muted-foreground"
-        >
+        <DropdownMenuContent align="end" className="text-muted-foreground">
           <DropdownMenuItem onClick={() => setShowProfileSheet(true)}>
             <ShieldCheckIcon className="size-4" />
             Manage Access

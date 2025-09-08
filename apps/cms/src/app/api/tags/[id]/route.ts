@@ -9,8 +9,9 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const sessionData = await getServerSession();
+  const workspaceId = sessionData?.session.activeOrganizationId;
 
-  if (!sessionData || !sessionData.session.activeOrganizationId) {
+  if (!sessionData || !workspaceId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -22,7 +23,7 @@ export async function PATCH(
   const tagUpdated = await db.tag.update({
     where: {
       id: id,
-      workspaceId: sessionData.session.activeOrganizationId,
+      workspaceId: workspaceId,
     },
     data: {
       name: body.name,
