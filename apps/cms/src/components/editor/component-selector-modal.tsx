@@ -43,7 +43,6 @@ type NodeAttrs = {
 
 type ExistingNode = { attrs?: NodeAttrs } | null;
 
-// For number inputs: allow number or empty string
 const asNumberValue = (v: Primitive): number | string =>
   typeof v === "number" ? v : typeof v === "string" ? v : "";
 
@@ -80,7 +79,6 @@ export function ComponentEditorModal({
     enabled: !!workspaceId,
   });
 
-  // Find the component definition for the existing component
   const componentDef =
     existingComponent && components.length > 0
       ? (components.find(
@@ -109,7 +107,6 @@ export function ComponentEditorModal({
     }));
   };
 
-  // Validate required fields for editing
   const validateEditFields = (): boolean => {
     if (!componentDef) return false;
     return componentDef.properties
@@ -122,7 +119,6 @@ export function ComponentEditorModal({
 
   const handleUpdateComponent = (): void => {
     if (!componentDef || !editor) return;
-
     if (!validateEditFields()) {
       console.warn("Please fill in all required fields");
       return;
@@ -142,15 +138,16 @@ export function ComponentEditorModal({
     });
 
     const chain = editor.chain().focus();
+
     const pos = typeof getPos === "function" ? getPos() : null;
     if (typeof pos === "number") {
-      chain.setTextSelection(pos);
+      chain.setNodeSelection(pos);
     }
 
     chain
-      .setCustomComponent({
-        name: componentDef.name,
-        attributes: componentData,
+      .updateAttributes("customComponent", {
+        componentName: componentDef.name,
+        properties: componentData,
       })
       .run();
 
@@ -159,7 +156,6 @@ export function ComponentEditorModal({
 
   const handleClose = (): void => {
     setIsOpen(false);
-    setPropertyValues({});
   };
 
   const renderPropertyInput = (property: ComponentProperty) => {
@@ -311,10 +307,12 @@ export function ComponentEditorModal({
             {componentDef.properties.map((property) => (
               <div key={property.id} className="space-y-2">
                 <Label className="flex items-center">
-                  {property.name}
-                  {property.required && (
-                    <span className="text-red-500 ml-1">*</span>
-                  )}
+                  <span className="flex items-center gap-x-1">
+                    {property.name}
+                    {property.required && (
+                      <span className="text-red-500">*</span>
+                    )}
+                  </span>
                   <Badge variant="outline" className="ml-2 text-xs">
                     {property.type}
                   </Badge>
@@ -346,7 +344,6 @@ interface ComponentSelectorModalProps {
   setIsOpen: (open: boolean) => void;
   editor?: Editor;
   existingComponent?: ExistingNode;
-  /** (optional) from NodeView; ensures selection targets this node */
   getPos?: () => number;
 }
 
@@ -417,7 +414,6 @@ export function ComponentSelectorModal({
     }));
   };
 
-  // Validate required fields
   const validateRequiredFields = (): boolean => {
     if (!selectedComponent) return false;
     return selectedComponent.properties

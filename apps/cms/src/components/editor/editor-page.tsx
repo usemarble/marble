@@ -139,7 +139,6 @@ function EditorPage({ initialData, id }: EditorPageProps) {
   });
 
   useEffect(() => {
-    // Reset form if initialData changes (e.g., navigating between posts or from new to edit)
     form.reset({ ...initialData });
     initialDataRef.current = initialData;
   }, [initialData, form.reset]);
@@ -147,7 +146,6 @@ function EditorPage({ initialData, id }: EditorPageProps) {
   useEffect(() => {
     const subscription = watch((currentValues) => {
       const initial = initialDataRef.current;
-      // Ensure all relevant fields are stringified for comparison
       const hasChanged =
         JSON.stringify({
           ...currentValues,

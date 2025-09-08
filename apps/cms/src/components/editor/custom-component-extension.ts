@@ -1,4 +1,4 @@
-import { Node } from "@tiptap/core";
+import { isNodeSelection, Node } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import { CustomComponentNodeView } from "./custom-component-node-view";
 
@@ -28,17 +28,11 @@ export const CustomComponent = Node.create<CustomComponentOptions>({
   name: "customComponent",
 
   priority: 1000,
-
   group: "block",
-
   defining: true,
-
   selectable: true,
-
   draggable: true,
-
   isolating: true,
-
   atom: true,
 
   parseHTML() {
@@ -47,28 +41,22 @@ export const CustomComponent = Node.create<CustomComponentOptions>({
         tag: "div[x-marble-component-name]",
         getAttrs: (element) => {
           if (typeof element === "string") return false;
-
           const componentName = element.getAttribute("x-marble-component-name");
           if (!componentName) return false;
-
-          return {
-            componentName,
-            // properties will be parsed by the properties attribute definition
-          };
+          return { componentName };
         },
       },
     ];
   },
 
   renderHTML({ node }) {
-    const { componentName, properties } = node.attrs;
+    const { componentName, properties } = node.attrs as CustomComponentAttrs;
 
     const componentAttrs: Record<string, string> = {
       "x-marble-component-name": componentName,
       class: "marble-custom-component",
     };
 
-    // Render all properties as x-marble- prefixed attributes
     if (properties && typeof properties === "object") {
       Object.entries(properties).forEach(([key, value]) => {
         const attrValue =
@@ -94,10 +82,7 @@ export const CustomComponent = Node.create<CustomComponentOptions>({
         default: {},
         parseHTML: (element) => {
           if (typeof element === "string") return {};
-
           const properties: Record<string, string> = {};
-
-          // Parse all x-marble- prefixed attributes except component-name
           for (const attr of element.attributes) {
             if (
               attr.name.startsWith("x-marble-") &&
@@ -107,11 +92,9 @@ export const CustomComponent = Node.create<CustomComponentOptions>({
               properties[propName] = attr.value || "";
             }
           }
-
           return properties;
         },
         renderHTML: () => {
-          // Properties are handled in renderHTML method above
           return {};
         },
       },
@@ -126,13 +109,25 @@ export const CustomComponent = Node.create<CustomComponentOptions>({
     return {
       setCustomComponent:
         (options) =>
-        ({ commands }) => {
+        ({ state, commands }) => {
+          const sel = state.selection;
+
+          const nodeIsSelected =
+            isNodeSelection(sel) &&
+            state.doc.nodeAt(sel.from)?.type.name === this.name;
+
+          const attrs = {
+            componentName: options.name,
+            properties: options.attributes ?? {},
+          };
+
+          if (nodeIsSelected) {
+            return commands.updateAttributes(this.name, attrs);
+          }
+
           return commands.insertContent({
             type: this.name,
-            attrs: {
-              componentName: options.name,
-              properties: options.attributes || {},
-            },
+            attrs,
           });
         },
     };
