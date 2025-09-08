@@ -29,6 +29,7 @@ const nextConfig: NextConfig = {
         hostname: "images.marblecms.com",
       },
     ],
+    qualities: [20, 40, 60, 80, 100],
   },
 };
 
