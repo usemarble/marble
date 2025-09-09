@@ -259,7 +259,7 @@ export const ContributionGraph = ({
   const labelHeight = fontSize + LABEL_MARGIN;
 
   const year =
-    data.length > 0
+    data && data.length > 0 && data[0] && data[0].date
       ? getYear(parseISO(data[0].date))
       : new Date().getFullYear();
 
