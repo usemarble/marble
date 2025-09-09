@@ -130,7 +130,7 @@ export async function PATCH(
         categoryId: values.category,
         coverImage: values.coverImage,
         description: values.description,
-        publishedAt: values.publishedAt,
+        publishedAt: values.status === "published" ? values.publishedAt : null,
         attribution: validAttribution,
         workspaceId: sessionData.session.activeOrganizationId,
         tags: values.tags

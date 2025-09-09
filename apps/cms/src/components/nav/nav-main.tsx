@@ -20,10 +20,10 @@ import { cn } from "@marble/ui/lib/utils";
 import {
   FadersIcon,
   ImagesIcon,
+  LayoutIcon,
   NoteIcon,
   PackageIcon,
   TagIcon,
-  UsersThreeIcon,
 } from "@phosphor-icons/react";
 
 import Link from "next/link";
@@ -85,14 +85,14 @@ export function NavMain() {
     return pathname === `/${params.workspace}/${url}`;
   };
 
-  const _isOverviewActive = pathname === `/${params.workspace}`;
+  const isOverviewActive = pathname === `/${params.workspace}`;
   const isSettingsActive = pathname.startsWith(`/${params.workspace}/settings`);
 
   return (
     <SidebarGroup className={cn(open ? "px-4" : "px-2")}>
       <SidebarGroupLabel>Workspace</SidebarGroupLabel>
       <SidebarMenu>
-        {/* <SidebarMenuButton
+        <SidebarMenuButton
           asChild
           className={`border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
             isOverviewActive
@@ -101,10 +101,10 @@ export function NavMain() {
           }`}
         >
           <Link href={`/${params.workspace}`}>
-            <Layout />
+            <LayoutIcon />
             <span>Overview</span>
           </Link>
-        </SidebarMenuButton> */}
+        </SidebarMenuButton>
         {items.map((item) => (
           <SidebarMenuButton
             asChild

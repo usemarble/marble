@@ -26,6 +26,17 @@ export const QUERY_KEYS = {
 
   BILLING_USAGE: (workspaceId: string) => ["billing-usage", workspaceId],
 
+  PUBLISHING_METRICS: (workspaceId: string) => [
+    "publishing-metrics",
+    workspaceId,
+  ],
+
+  API_ANALYTICS: (workspaceId: string) => [
+    "analytics",
+    "api-usage",
+    workspaceId,
+  ],
+
   // Globally scoped
   USER: ["user"],
 };

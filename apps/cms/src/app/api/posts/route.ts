@@ -115,7 +115,7 @@ export async function POST(request: Request) {
       content: cleanContent,
       categoryId: values.category,
       coverImage: values.coverImage,
-      publishedAt: values.publishedAt,
+      publishedAt: values.status === "published" ? values.publishedAt : null,
       description: values.description,
       attribution: validAttribution,
       workspaceId: sessionData.session.activeOrganizationId,
