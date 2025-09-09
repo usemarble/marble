@@ -149,8 +149,7 @@ export async function PATCH(
         categoryId: values.data.category,
         coverImage: values.data.coverImage,
         description: values.data.description,
-        publishedAt:
-          values.data.status === "published" ? values.data.publishedAt : null,
+        publishedAt: values.data.publishedAt,
         attribution: validAttribution,
         workspaceId: workspaceId,
         tags: values.data.tags
