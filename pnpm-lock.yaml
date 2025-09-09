@@ -175,6 +175,9 @@ importers:
       '@upstash/qstash':
         specifier: ^2.8.2
         version: 2.8.2
+      '@upstash/redis':
+        specifier: ^1.35.3
+        version: 1.35.3
       '@vvo/tzdb':
         specifier: ^6.176.0
         version: 6.176.0
@@ -3900,6 +3903,9 @@ packages:
 
   '@upstash/redis@1.34.4':
     resolution: {integrity: sha512-AZx2iD5s1Pu/KCrRA7KVCffu3NSoaYnNY7N9YI7aLAYhcJfsriQKTe+8OxQWJqGqFbrvm17Lyr9HFnDLvqNpfA==}
+
+  '@upstash/redis@1.35.3':
+    resolution: {integrity: sha512-hSjv66NOuahW3MisRGlSgoszU2uONAY2l5Qo3Sae8OT3/Tng9K+2/cBRuyPBX8egwEGcNNCF9+r0V6grNnhL+w==}
 
   '@vercel/analytics@1.5.0':
     resolution: {integrity: sha512-MYsBzfPki4gthY5HnYN7jgInhAZ7Ac1cYDoRWFomwGHWEX7odTEzbtg9kf/QSo7XEsEAqlQugA6gJ2WS2DEa3g==}
@@ -11710,7 +11716,7 @@ snapshots:
 
   '@upstash/core-analytics@0.0.10':
     dependencies:
-      '@upstash/redis': 1.34.4
+      '@upstash/redis': 1.35.3
 
   '@upstash/qstash@2.8.2':
     dependencies:
@@ -11726,6 +11732,10 @@ snapshots:
   '@upstash/redis@1.34.4':
     dependencies:
       crypto-js: 4.2.0
+
+  '@upstash/redis@1.35.3':
+    dependencies:
+      uncrypto: 0.1.3
 
   '@vercel/analytics@1.5.0(next@15.5.2(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react@19.1.1)':
     optionalDependencies:

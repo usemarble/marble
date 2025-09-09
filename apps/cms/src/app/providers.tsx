@@ -23,7 +23,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         <TooltipProvider>
           {children}
           <Toaster position="top-center" />
-          <Databuddy clientId="CG1SRcfYdIQoCeBrPpbJ_" enableBatching={true} />
+          {process.env.NODE_ENV !== "development" && (
+            <Databuddy clientId="CG1SRcfYdIQoCeBrPpbJ_" enableBatching={true} />
+          )}
         </TooltipProvider>
       </ThemeProvider>
       <ReactQueryDevtools initialIsOpen={false} />
