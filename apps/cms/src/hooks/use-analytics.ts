@@ -39,7 +39,7 @@ export function useApiAnalytics() {
       }
       return response.json();
     },
-    refetchInterval: 5 * 60 * 1000,
+    staleTime: 1000 * 60 * 15,
     enabled: !!workspaceId,
   });
 }
@@ -54,6 +54,32 @@ export function usePublishingMetrics() {
       const response = await fetch("/api/metrics/publishing");
       if (!response.ok) {
         throw new Error("Failed to fetch publishing metrics");
+      }
+      return response.json();
+    },
+    staleTime: 1000 * 60 * 15,
+    enabled: !!workspaceId,
+  });
+}
+
+interface WorkspaceMetricsData {
+  totalPosts: number;
+  publishedPosts: number;
+  drafts: number;
+  tags: number;
+  categories: number;
+}
+
+export function useWorkspaceMetrics() {
+  const workspaceId = useWorkspaceId();
+
+  return useQuery({
+    // biome-ignore lint/style/noNonNullAssertion: <>
+    queryKey: QUERY_KEYS.WORKSPACE_METRICS(workspaceId!),
+    queryFn: async (): Promise<WorkspaceMetricsData> => {
+      const response = await fetch("/api/metrics/workspace");
+      if (!response.ok) {
+        throw new Error("Failed to fetch workspace metrics");
       }
       return response.json();
     },

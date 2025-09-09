@@ -1,6 +1,7 @@
-import { Redis } from "@upstash/redis";
+import { format } from "date-fns";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
+import { redis } from "@/lib/redis";
 
 export async function GET() {
   const sessionData = await getServerSession();
@@ -11,19 +12,7 @@ export async function GET() {
 
   const workspaceId = sessionData.session.activeOrganizationId;
 
-  if (!process.env.REDIS_URL || !process.env.REDIS_TOKEN) {
-    return NextResponse.json(
-      { error: "Redis configuration not found" },
-      { status: 500 },
-    );
-  }
-
   try {
-    const redisClient = new Redis({
-      url: process.env.REDIS_URL,
-      token: process.env.REDIS_TOKEN,
-    });
-
     const currentDate = new Date();
     const currentMonth = currentDate.toISOString().slice(0, 7);
     const lastMonth = new Date(
@@ -36,15 +25,9 @@ export async function GET() {
 
     const [totalStats, currentMonthRequests, lastMonthRequests] =
       await Promise.all([
-        redisClient.hgetall(`analytics:workspace:${workspaceId}`),
-        redisClient.hget(
-          `analytics:workspace:${workspaceId}:monthly`,
-          currentMonth,
-        ),
-        redisClient.hget(
-          `analytics:workspace:${workspaceId}:monthly`,
-          lastMonth,
-        ),
+        redis.hgetall(`analytics:workspace:${workspaceId}`),
+        redis.hget(`analytics:workspace:${workspaceId}:monthly`, currentMonth),
+        redis.hget(`analytics:workspace:${workspaceId}:monthly`, lastMonth),
       ]);
 
     const totalRequests = Number(totalStats?.pageViews || 0);
@@ -66,18 +49,14 @@ export async function GET() {
         1,
       );
       const monthKey = date.toISOString().slice(0, 7);
-      const monthRequests = await redisClient.hget(
+      const monthRequests = await redis.hget(
         `analytics:workspace:${workspaceId}:monthly`,
         monthKey,
       );
 
       last12MonthsData.push({
-        month: monthKey,
+        month: format(date, "MMM yy"),
         requests: Number(monthRequests || 0),
-        label: date.toLocaleDateString("en-US", {
-          month: "short",
-          year: "numeric",
-        }),
       });
     }
 

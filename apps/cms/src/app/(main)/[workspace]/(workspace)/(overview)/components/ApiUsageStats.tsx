@@ -3,6 +3,7 @@
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from "@marble/ui/components/card";
@@ -36,18 +37,19 @@ export function ApiUsageStats() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>API Usage Trend</CardTitle>
+          <CardTitle>API Requests over Time</CardTitle>{" "}
+          <CardDescription>
+            Track your API usage over the last 12 months
+          </CardDescription>
         </CardHeader>
+
         <CardContent>
           {isLoading ? (
             <div className="h-80">
               <PageLoader />
             </div>
           ) : data?.chartData && data.chartData.length > 0 ? (
-            <AnalyticsChart
-              data={data.chartData}
-              description="Track your API usage over the last 12 months"
-            />
+            <AnalyticsChart data={data.chartData} />
           ) : (
             <div className="h-80 flex items-center justify-center text-muted-foreground text-sm">
               No analytics data available yet. Start making API requests to see

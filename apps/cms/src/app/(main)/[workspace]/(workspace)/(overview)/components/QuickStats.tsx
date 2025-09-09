@@ -6,85 +6,23 @@ import {
   CardHeader,
   CardTitle,
 } from "@marble/ui/components/card";
-import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 import PageLoader from "@/components/shared/page-loader";
-import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { QUERY_KEYS } from "@/lib/queries/keys";
+import { useWorkspaceMetrics } from "@/hooks/use-analytics";
 
 export const QuickStats = () => {
-  const workspaceId = useWorkspaceId();
+  const { data: metrics, isLoading, error } = useWorkspaceMetrics();
 
-  const { data: posts, isLoading: isLoadingPosts } = useQuery({
-    // biome-ignore lint/style/noNonNullAssertion: workspaceId is guaranteed to exist when enabled
-    queryKey: QUERY_KEYS.POSTS(workspaceId!),
-    staleTime: 1000 * 60 * 5,
-    queryFn: async () => {
-      const res = await fetch("/api/posts");
-      if (!res.ok) throw new Error("Failed to fetch posts");
-      return res.json();
-    },
-    enabled: !!workspaceId,
-  });
-
-  const { data: tags, isLoading: isLoadingTags } = useQuery({
-    // biome-ignore lint/style/noNonNullAssertion: workspaceId is guaranteed to exist when enabled
-    queryKey: QUERY_KEYS.TAGS(workspaceId!),
-    staleTime: 1000 * 60 * 5,
-    queryFn: async () => {
-      const res = await fetch("/api/tags");
-      if (!res.ok) throw new Error("Failed to fetch tags");
-      return res.json();
-    },
-    enabled: !!workspaceId,
-  });
-
-  const { data: categories, isLoading: isLoadingCategories } = useQuery({
-    // biome-ignore lint/style/noNonNullAssertion: workspaceId is guaranteed to exist when enabled
-    queryKey: QUERY_KEYS.CATEGORIES(workspaceId!),
-    staleTime: 1000 * 60 * 5,
-    queryFn: async () => {
-      const res = await fetch("/api/categories");
-      if (!res.ok) throw new Error("Failed to fetch categories");
-      return res.json();
-    },
-    enabled: !!workspaceId,
-  });
-
-  const isLoading = isLoadingPosts || isLoadingTags || isLoadingCategories;
-
-  if (isLoading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Stats</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-24">
-            <PageLoader />
-          </div>
-        </CardContent>
-      </Card>
-    );
+  if (error) {
+    toast.error("Failed to load workspace metrics");
   }
 
-  const stats = {
-    totalPosts: posts?.length || 0,
-    publishedPosts:
-      posts?.filter((p: { status: string }) => p.status === "published")
-        .length || 0,
-    draftPosts:
-      posts?.filter((p: { status: string }) => p.status === "draft").length ||
-      0,
-    totalTags: tags?.length || 0,
-    totalCategories: categories?.length || 0,
-  };
-
   const statItems = [
-    { label: "Total Posts", value: stats.totalPosts },
-    { label: "Published", value: stats.publishedPosts },
-    { label: "Drafts", value: stats.draftPosts },
-    { label: "Tags", value: stats.totalTags },
-    { label: "Categories", value: stats.totalCategories },
+    { label: "Total Posts", value: metrics?.totalPosts || 0 },
+    { label: "Published", value: metrics?.publishedPosts || 0 },
+    { label: "Drafts", value: metrics?.drafts || 0 },
+    { label: "Tags", value: metrics?.tags || 0 },
+    { label: "Categories", value: metrics?.categories || 0 },
   ];
 
   return (
@@ -93,16 +31,24 @@ export const QuickStats = () => {
         <CardTitle>Quick Stats</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-5 gap-4">
-          {statItems.map((item) => (
-            <div key={item.label} className="text-center">
-              <div className="text-2xl font-bold text-primary">
-                {item.value}
+        {isLoading ? (
+          <div className="h-24">
+            <PageLoader />
+          </div>
+        ) : (
+          <div className="grid grid-cols-5 gap-4">
+            {statItems.map((item) => (
+              <div key={item.label} className="text-center">
+                <div className="text-2xl font-bold text-primary">
+                  {item.value}
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {item.label}
+                </div>
               </div>
-              <div className="text-sm text-muted-foreground">{item.label}</div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

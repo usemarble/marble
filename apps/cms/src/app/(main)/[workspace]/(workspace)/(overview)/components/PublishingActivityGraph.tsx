@@ -4,6 +4,7 @@ import { Badge } from "@marble/ui/components/badge";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from "@marble/ui/components/card";
@@ -38,6 +39,9 @@ export const PublishingActivityGraph = () => {
     <Card>
       <CardHeader>
         <CardTitle>Publishing Activity</CardTitle>
+        <CardDescription>
+          Track your publishing activity over the past year
+        </CardDescription>
       </CardHeader>
       <CardContent>
         {isLoading ? (

@@ -37,6 +37,11 @@ export const QUERY_KEYS = {
     workspaceId,
   ],
 
+  WORKSPACE_METRICS: (workspaceId: string) => [
+    "workspace-metrics",
+    workspaceId,
+  ],
+
   // Globally scoped
   USER: ["user"],
 };
