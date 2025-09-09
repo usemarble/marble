@@ -1,5 +1,12 @@
 import { Button } from "@marble/ui/components/button";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@marble/ui/components/dialog";
+import {
   CaretDownIcon,
   CaretRightIcon,
   PencilIcon,
@@ -25,6 +32,7 @@ export function CustomComponentNodeView({
   const props = properties as Record<string, unknown>;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   const selectThisNode = () => {
     if (getPos) editor.chain().focus().setNodeSelection(getPos()).run();
@@ -48,11 +56,7 @@ export function CustomComponentNodeView({
   const handleRemove: React.MouseEventHandler = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    selectThisNode();
-    const ok = window.confirm(`Remove "${componentName}" component?`);
-    if (!ok) return;
-
-    editor.chain().focus().deleteSelection().run();
+    setIsConfirmOpen(true);
   };
 
   const handleToggleExpand: React.MouseEventHandler = (e) => {
@@ -79,7 +83,7 @@ export function CustomComponentNodeView({
           onKeyDown={handleKeyDown}
           aria-label={`Select ${componentName} component`}
           aria-expanded={Object.keys(props).length > 0 ? isExpanded : undefined}
-          className="group relative border border-border rounded-lg p-4 my-3 bg-card hover:shadow-sm transition-all duration-200 cursor-pointer w-full text-left"
+          className="group relative border border-border rounded-lg p-4 my-3 bg-card hover:bg-card/60 hover:shadow-sm transition-all duration-200 cursor-pointer w-full text-left"
         >
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center space-x-3">
@@ -107,7 +111,7 @@ export function CustomComponentNodeView({
                 variant="ghost"
                 size="sm"
                 onClick={handleRemove}
-                className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 hover:bg-destructive/10"
+                className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 hover:!bg-destructive/20"
                 aria-label="Remove component"
                 title="Remove"
               >
@@ -158,8 +162,6 @@ export function CustomComponentNodeView({
               </div>
             </div>
           )}
-
-          <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg pointer-events-none" />
         </div>
       </NodeViewWrapper>
 
@@ -170,6 +172,34 @@ export function CustomComponentNodeView({
         existingComponent={node}
         getPos={getPos}
       />
+
+      <Dialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Remove Component</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to remove “{componentName}”? This action
+              cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end space-x-2 mt-4">
+            <Button variant="outline" onClick={() => setIsConfirmOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (getPos)
+                  editor.chain().focus().setNodeSelection(getPos()).run();
+                editor.chain().focus().deleteSelection().run();
+                setIsConfirmOpen(false);
+              }}
+            >
+              Remove
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

@@ -2,6 +2,12 @@
 
 import { Badge } from "@marble/ui/components/badge";
 import { Button } from "@marble/ui/components/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@marble/ui/components/tooltip";
 import { CaretUpDownIcon } from "@phosphor-icons/react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
@@ -51,24 +57,85 @@ export const columns: ColumnDef<CustomComponent>[] = [
       ) as CustomComponent["properties"];
 
       if (!properties || properties.length === 0) {
-        return <div className=" text-sm">No properties</div>;
+        return <div className="text-sm">No properties</div>;
       }
 
-      // Show first 2 properties, then count
-      const displayProps = properties.slice(0, 2);
-      const remainingCount = properties.length - displayProps.length;
+      const total = properties.length;
+
+      if (total === 1) {
+        const p = properties[0];
+        return (
+          <div className="flex flex-wrap gap-1 items-center">
+            <Badge key={p?.id} variant="secondary" className="text-xs gap-x-0.5">
+              {p?.name}
+              {p?.required && <span className="text-red-500">*</span>}
+            </Badge>
+          </div>
+        );
+      }
+
+      if (total === 2) {
+        const [p1, p2] = properties;
+        return (
+          <div className="flex flex-wrap gap-1 items-center">
+            {[p1, p2].map((p) => (
+              <Badge
+                key={p?.id}
+                variant="secondary"
+                className="text-xs gap-x-0.5"
+              >
+                {p?.name}
+                {p?.required && <span className="text-red-500">*</span>}
+              </Badge>
+            ))}
+          </div>
+        );
+      }
+
+      const first = properties[0];
+      const remaining = properties.slice(1);
+      const remainingCount = remaining.length;
 
       return (
         <div className="flex flex-wrap gap-1 items-center">
-          {displayProps.map((prop) => (
-            <Badge key={prop.id} variant="secondary" className="text-xs">
-              {prop.name}
-              {prop.required && <span className="text-red-500 ml-1">*</span>}
-            </Badge>
-          ))}
-          {remainingCount > 0 && (
-            <span className="text-xs ">+{remainingCount} more</span>
-          )}
+          <Badge
+            key={first?.id}
+            variant="secondary"
+            className="text-xs gap-x-0.5"
+          >
+            {first?.name}
+            {first?.required && <span className="text-red-500">*</span>}
+          </Badge>
+
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Badge
+                  key={`${row.original.id}-props-remaining`}
+                  variant="secondary"
+                  className="text-xs gap-x-0.5 cursor-default"
+                >
+                  +{remainingCount} more
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" align="start" className="p-2">
+                <div className="flex flex-wrap gap-1 max-w-[320px]">
+                  {remaining.map((p) => (
+                    <Badge
+                      key={p.id}
+                      variant="secondary"
+                      className="text-xs gap-x-0.5"
+                    >
+                      {p.name}
+                      {p.required && (
+                        <span className="text-red-500 ml-1">*</span>
+                      )}
+                    </Badge>
+                  ))}
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       );
     },
