@@ -86,7 +86,7 @@ export function AnalyticsChart({ data }: AnalyticsChartProps) {
           onMouseEnter={() => setActiveProperty("requests")}
           onMouseLeave={() => setActiveProperty(null)}
           dataKey="requests"
-          type="basis"
+          type="bump"
           fill={
             activeProperty === "requests"
               ? "url(#hatched-background-pattern-requests)"
