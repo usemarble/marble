@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
+import { cn } from "@marble/ui/lib/utils";
 import {
   CheckIcon,
   DotsThreeVerticalIcon,
@@ -55,7 +56,12 @@ export function MediaCard({
 
   return (
     <Card
-      className={`group overflow-hidden py-0 gap-0 ${isSelected ? "ring-2 ring-primary" : ""} cursor-pointer`}
+      className={cn(
+        "group overflow-hidden py-0 gap-0",
+        isSelected &&
+          "ring-2 ring-offset-2 ring-offset-background ring-primary",
+        "cursor-pointer",
+      )}
       onClick={onSelect}
     >
       <CardContent className="p-0">
@@ -66,7 +72,12 @@ export function MediaCard({
               isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-100"
             }`}
           >
-            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-md z-10 pointer-events-none" />
+            <div
+              className={cn(
+                "absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 pointer-events-none",
+                isSelected && "opacity-100 backdrop-blur-xs",
+              )}
+            />
             <div className="relative z-20 p-2 bg-white rounded-full shadow-lg">
               <CheckIcon weight="bold" className="size-5 text-black" />
             </div>
