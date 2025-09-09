@@ -83,7 +83,7 @@ export function CustomComponentNodeView({
           onKeyDown={handleKeyDown}
           aria-label={`Select ${componentName} component`}
           aria-expanded={Object.keys(props).length > 0 ? isExpanded : undefined}
-          className="group relative border border-border rounded-lg p-4 my-3 bg-card hover:bg-card/60 hover:shadow-sm transition-all duration-200 cursor-pointer w-full text-left"
+          className="group relative border border-border rounded-lg p-4 my-3 bg-card hover:bg-muted/50 hover:shadow-sm transition-all duration-200 cursor-pointer w-full text-left"
         >
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center space-x-3">
