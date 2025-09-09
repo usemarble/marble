@@ -124,7 +124,8 @@ export async function POST(request: Request) {
       content: cleanContent,
       categoryId: values.data.category,
       coverImage: values.data.coverImage,
-      publishedAt: values.data.status === "published" ? values.data.publishedAt : null,
+      publishedAt:
+        values.data.status === "published" ? values.data.publishedAt : null,
       description: values.data.description,
       attribution: validAttribution,
       workspaceId: activeWorkspaceId,
