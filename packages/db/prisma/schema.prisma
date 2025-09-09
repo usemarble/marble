@@ -71,8 +71,8 @@ model Post {
   publishedAt     DateTime?     
   attribution     Json?
   
-  primaryAuthorId String
-  primaryAuthor   Author     @relation("PrimaryAuthor", fields: [primaryAuthorId], references: [id])
+  primaryAuthorId String?
+  primaryAuthor   Author?    @relation("PrimaryAuthor", fields: [primaryAuthorId], references: [id], onDelete: SetNull)
   authors         Author[]   @relation("PostToAuthor")
   
   category        Category     @relation(fields: [categoryId], references: [id])

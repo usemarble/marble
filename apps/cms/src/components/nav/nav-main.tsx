@@ -50,11 +50,11 @@ const items = [
     url: "media",
     icon: ImagesIcon,
   },
-  // {
-  //   name: "Authors",
-  //   url: "authors",
-  //   icon: UsersThreeIcon,
-  // },
+  {
+    name: "Authors",
+    url: "authors",
+    icon: UsersThreeIcon,
+  },
 ];
 
 const settingsItems = [

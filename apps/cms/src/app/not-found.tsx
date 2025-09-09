@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@marble/ui/components/button";
-import { ArrowArcLeft } from "@phosphor-icons/react";
+import { ArrowArcLeftIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 
 export default function NotFound() {
@@ -12,7 +12,7 @@ export default function NotFound() {
 
       <Button asChild className="mt-4">
         <Link href="/">
-          <ArrowArcLeft className="mr-2 h-4 w-4" /> Go to homepage
+          <ArrowArcLeftIcon className="size-4" /> Go to homepage
         </Link>
       </Button>
     </main>

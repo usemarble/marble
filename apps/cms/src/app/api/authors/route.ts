@@ -1,7 +1,7 @@
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
-import { generateSlug } from "@/utils/string";
+import { authorSchema } from "@/lib/validations/workspace";
 
 export async function GET() {
   const sessionData = await getServerSession();
@@ -28,8 +28,12 @@ export async function GET() {
         image: true,
         role: true,
         bio: true,
+        slug: true,
         email: true,
         userId: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
       },
       orderBy: {
         name: "asc",
@@ -48,25 +52,35 @@ export async function GET() {
 
 export async function POST(request: Request) {
   const sessionData = await getServerSession();
+  const workspaceId = sessionData?.session.activeOrganizationId;
 
-  if (!sessionData?.user || !sessionData?.session.activeOrganizationId) {
+  if (!sessionData?.user || !workspaceId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
     const body = await request.json();
-    const { name, bio, role, email, image } = body;
+    const parsedBody = authorSchema.safeParse(body);
 
-    if (!name) {
-      return NextResponse.json({ error: "Name is required" }, { status: 400 });
+    if (!parsedBody.success) {
+      return NextResponse.json(
+        { error: "Invalid request body", details: parsedBody.error.issues },
+        { status: 400 },
+      );
     }
 
-    const slug = generateSlug(name);
+    const { name, bio, role, email, image, slug, userId } = parsedBody.data;
+
+    const validEmail = email === "" ? null : email;
+
+    const validUserId = userId ? userId : null;
+
+    // const slug = generateSlug(name);
 
     const existingAuthor = await db.author.findUnique({
       where: {
         workspaceId_slug: {
-          workspaceId: sessionData.session.activeOrganizationId,
+          workspaceId: workspaceId,
           slug,
         },
       },
@@ -85,10 +99,10 @@ export async function POST(request: Request) {
         slug,
         bio,
         role,
-        email,
+        email: validEmail,
         image,
-        workspaceId: sessionData.session.activeOrganizationId,
-        userId: null,
+        workspaceId: workspaceId,
+        userId: validUserId,
       },
     });
 
