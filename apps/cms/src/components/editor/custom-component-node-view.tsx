@@ -34,10 +34,6 @@ export function CustomComponentNodeView({
   const [isExpanded, setIsExpanded] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
-  const selectThisNode = () => {
-    if (getPos) editor.chain().focus().setNodeSelection(getPos()).run();
-  };
-
   const handleClick = () => {
     if (getPos) {
       editor.chain().focus().setTextSelection(getPos()).run();
