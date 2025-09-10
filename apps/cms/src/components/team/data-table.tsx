@@ -70,14 +70,14 @@ export function TeamDataTable<TData, TValue>({
         <div className="relative">
           <MagnifyingGlassIcon
             size={16}
-            className="text-muted-foreground size-4 absolute top-3 left-3"
+            className="text-muted-foreground size-4 absolute top-1/2 -translate-y-1/2 left-3"
           />
           <Input
             value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
             onChange={(event) =>
               table.getColumn("name")?.setFilterValue(event.target.value)
             }
-            placeholder="Search members..."
+            placeholder="Search team members..."
             className="px-8 w-72"
           />
           {(table.getColumn("name")?.getFilterValue() as string) && (

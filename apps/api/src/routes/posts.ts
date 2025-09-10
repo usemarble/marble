@@ -132,8 +132,7 @@ posts.get("/", async (c) => {
       },
     });
 
-    // Check if a format query was provided
-    // Convert html -> markdown
+    // Format posts based on requested format
     const formattedPosts =
       format === "markdown"
         ? posts.map((post) => ({
@@ -163,14 +162,6 @@ posts.get("/", async (c) => {
     return c.json({
       posts: formattedPosts,
       pagination: paginationInfo,
-      // meta: {
-      //   filters: {
-      //     category: category || undefined,
-      //     tags: tags.length > 0 ? tags : undefined,
-      //     query: query || undefined,
-      //     order,
-      //   },
-      // },
     });
   } catch (error) {
     console.error("Error fetching posts:", error);
@@ -236,9 +227,7 @@ posts.get("/:identifier", async (c) => {
       return c.json({ error: "Post not found" }, 404);
     }
 
-    // Check if format needs to be markdown
-    // Convert to html -> markdown
-    // If not provided go with the html
+    // Format post based on requested format
     const formattedPost =
       format === "markdown"
         ? { ...post, content: NodeHtmlMarkdown.translate(post.content || "") }

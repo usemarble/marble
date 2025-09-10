@@ -20,6 +20,7 @@ import { cn } from "@marble/ui/lib/utils";
 import {
   FadersIcon,
   ImagesIcon,
+  LayoutIcon,
   NoteIcon,
   PackageIcon,
   PuzzlePieceIcon,
@@ -42,6 +43,11 @@ const items = [
     icon: PackageIcon,
   },
   {
+    name: "Components",
+    url: "components",
+    icon: PuzzlePieceIcon,
+  },
+  {
     name: "Tags",
     url: "tags",
     icon: TagIcon,
@@ -52,13 +58,8 @@ const items = [
     icon: ImagesIcon,
   },
   {
-    name: "Components",
-    url: "components",
-    icon: PuzzlePieceIcon,
-  },
-  {
-    name: "Team",
-    url: "team",
+    name: "Authors",
+    url: "authors",
     icon: UsersThreeIcon,
   },
 ];
@@ -69,13 +70,17 @@ const settingsItems = [
     url: "settings/general",
   },
   {
+    title: "Members",
+    url: "settings/members",
+  },
+  {
     title: "Billing",
     url: "settings/billing",
   },
-  {
-    title: "Schemas",
-    url: "settings/schemas",
-  },
+  // {
+  //   title: "Schemas",
+  //   url: "settings/schemas",
+  // },
 ];
 
 export function NavMain() {
@@ -87,14 +92,14 @@ export function NavMain() {
     return pathname === `/${params.workspace}/${url}`;
   };
 
-  const _isOverviewActive = pathname === `/${params.workspace}`;
+  const isOverviewActive = pathname === `/${params.workspace}`;
   const isSettingsActive = pathname.startsWith(`/${params.workspace}/settings`);
 
   return (
     <SidebarGroup className={cn(open ? "px-4" : "px-2")}>
       <SidebarGroupLabel>Workspace</SidebarGroupLabel>
       <SidebarMenu>
-        {/* <SidebarMenuButton
+        <SidebarMenuButton
           asChild
           className={`border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
             isOverviewActive
@@ -103,10 +108,10 @@ export function NavMain() {
           }`}
         >
           <Link href={`/${params.workspace}`}>
-            <Layout />
+            <LayoutIcon />
             <span>Overview</span>
           </Link>
-        </SidebarMenuButton> */}
+        </SidebarMenuButton>
         {items.map((item) => (
           <SidebarMenuButton
             asChild

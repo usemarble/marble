@@ -6,13 +6,14 @@ import { getWebhooks, WebhookClient } from "@/lib/webhooks/webhook-client";
 
 export async function GET() {
   const sessionData = await getServerSession();
+  const workspaceId = sessionData?.session.activeOrganizationId;
 
-  if (!sessionData) {
+  if (!sessionData || !workspaceId) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
   const categories = await db.category.findMany({
-    where: { workspaceId: sessionData.session?.activeOrganizationId as string },
+    where: { workspaceId: workspaceId },
     select: {
       id: true,
       name: true,
@@ -24,25 +25,32 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const session = await getServerSession();
-  const user = session?.user;
+  const sessionData = await getServerSession();
+  const workspaceId = sessionData?.session.activeOrganizationId;
 
-  if (!user || !session?.session.activeOrganizationId) {
+  if (!sessionData || !workspaceId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const json = await req.json();
-  const body = categorySchema.parse(json);
+  const body = categorySchema.safeParse(json);
+
+  if (!body.success) {
+    return NextResponse.json(
+      { error: "Invalid request body", details: body.error.issues },
+      { status: 400 },
+    );
+  }
 
   const categoryCreated = await db.category.create({
     data: {
-      name: body.name,
-      slug: body.slug,
-      workspaceId: session.session.activeOrganizationId,
+      name: body.data.name,
+      slug: body.data.slug,
+      workspaceId: workspaceId,
     },
   });
 
-  const webhooks = getWebhooks(session.session, "category_created");
+  const webhooks = getWebhooks(sessionData.session, "category_created");
 
   for (const webhook of await webhooks) {
     const webhookClient = new WebhookClient({ secret: webhook.secret });
@@ -52,7 +60,7 @@ export async function POST(req: Request) {
       data: {
         id: categoryCreated.id,
         slug: categoryCreated.slug,
-        userId: session.user.id,
+        userId: sessionData.user.id,
       },
       format: webhook.format,
     });

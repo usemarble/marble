@@ -8,9 +8,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
-import { ImageZoom } from "@marble/ui/components/kibo-ui/image-zoom";
-import { toast } from "@marble/ui/components/sonner";
+import { cn } from "@marble/ui/lib/utils";
 import {
+  CheckIcon,
   DotsThreeVerticalIcon,
   DownloadSimpleIcon,
   FileAudioIcon,
@@ -27,6 +27,8 @@ import { VideoPlayer } from "./video-player";
 interface MediaCardProps {
   media: Media;
   onDelete: (media: Media) => void;
+  isSelected?: boolean;
+  onSelect?: () => void;
 }
 
 const mediaTypeIcons: Record<
@@ -39,45 +41,56 @@ const mediaTypeIcons: Record<
   document: { icon: FileIcon, color: "text-gray-500" },
 };
 
-export function MediaCard({ media, onDelete }: MediaCardProps) {
+export function MediaCard({
+  media,
+  onDelete,
+  isSelected = false,
+  onSelect,
+}: MediaCardProps) {
   const { icon: Icon, color } =
     mediaTypeIcons[media.type] || mediaTypeIcons.document;
 
-  const handleDownload = async () => {
-    try {
-      const response = await fetch(media.url);
-      if (!response.ok) {
-        throw new Error("Network response was not ok.");
-      }
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = media.name;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-      toast.success("Download complete!");
-    } catch (error) {
-      console.error("Download failed:", error);
-      toast.error("Download failed. Please try again.");
-    }
+  const handleDownload = () => {
+    window.open(media.url, "_blank", "noopener,noreferrer");
   };
 
   return (
-    <Card className="overflow-hidden py-0 gap-0">
+    <Card
+      className={cn(
+        "group overflow-hidden py-0 gap-0",
+        isSelected &&
+          "ring-2 ring-offset-2 ring-offset-background ring-primary",
+        "cursor-pointer",
+      )}
+      onClick={onSelect}
+    >
       <CardContent className="p-0">
         <div className="aspect-video relative overflow-hidden">
+          <div className="absolute rounded-md" />
+          <div
+            className={`absolute inset-0 z-10 flex items-center justify-center transition-opacity duration-300 ${
+              isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+            }`}
+          >
+            <div
+              className={cn(
+                "absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 pointer-events-none",
+                isSelected && "opacity-100 backdrop-blur-xs",
+              )}
+            />
+            <div className="relative z-20 p-2 bg-white rounded-full shadow-lg">
+              <CheckIcon weight="bold" className="size-5 text-black" />
+            </div>
+          </div>
           {media.type === "image" && (
-            <ImageZoom className="absolute inset-0 size-full">
+            <>
               {/** biome-ignore lint/performance/noImgElement: <> */}
               <img
                 src={media.url}
                 alt={media.name}
                 className="absolute inset-0 size-full object-cover"
               />
-            </ImageZoom>
+            </>
           )}
           {media.type === "video" && <VideoPlayer src={media.url} />}
           {(media.type === "audio" || media.type === "document") && (
@@ -106,18 +119,31 @@ export function MediaCard({ media, onDelete }: MediaCardProps) {
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="size-8 shrink-0">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-8 shrink-0"
+              onClick={(e) => e.stopPropagation()}
+            >
               <DotsThreeVerticalIcon size={16} />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={handleDownload}>
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDownload();
+              }}
+            >
               <DownloadSimpleIcon size={16} className="mr-2" />
               Download
             </DropdownMenuItem>
             <DropdownMenuItem
               variant="destructive"
-              onClick={() => onDelete(media)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(media);
+              }}
             >
               <TrashIcon size={16} className="mr-2" />
               Delete

@@ -66,7 +66,7 @@ function PageClient() {
               </p>
               <Button onClick={() => setShowUploadModal(true)}>
                 <UploadIcon size={16} />
-                <span>Upload image</span>
+                <span>Upload Image</span>
               </Button>
             </div>
           </div>

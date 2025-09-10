@@ -9,24 +9,32 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const sessionData = await getServerSession();
+  const workspaceId = sessionData?.session.activeOrganizationId;
 
-  if (!sessionData || !sessionData.session.activeOrganizationId) {
+  if (!sessionData || !workspaceId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { id } = await params;
 
   const json = await req.json();
-  const body = categorySchema.parse(json);
+  const body = categorySchema.safeParse(json);
+
+  if (!body.success) {
+    return NextResponse.json(
+      { error: "Invalid request body", details: body.error.issues },
+      { status: 400 },
+    );
+  }
 
   const categoryUpdated = await db.category.update({
     where: {
       id: id,
-      workspaceId: sessionData.session.activeOrganizationId,
+      workspaceId: workspaceId,
     },
     data: {
-      name: body.name,
-      slug: body.slug,
+      name: body.data.name,
+      slug: body.data.slug,
     },
   });
 
@@ -54,15 +62,16 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const sessionData = await getServerSession();
+  const workspaceId = sessionData?.session.activeOrganizationId;
 
-  if (!sessionData || !sessionData.session.activeOrganizationId) {
+  if (!sessionData || !workspaceId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { id } = await params;
 
   const category = await db.category.findFirst({
-    where: { id, workspaceId: sessionData.session.activeOrganizationId },
+    where: { id, workspaceId: workspaceId },
     select: { slug: true },
   });
 
@@ -73,7 +82,7 @@ export async function DELETE(
   const postsWithCategory = await db.post.findFirst({
     where: {
       categoryId: id,
-      workspaceId: sessionData.session.activeOrganizationId,
+      workspaceId: workspaceId,
     },
     select: { id: true },
   });
@@ -89,7 +98,7 @@ export async function DELETE(
     await db.category.delete({
       where: {
         id: id,
-        workspaceId: sessionData.session.activeOrganizationId,
+        workspaceId: workspaceId,
       },
     });
 

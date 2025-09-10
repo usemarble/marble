@@ -56,7 +56,7 @@ categories.get("/", async (c) => {
       );
     }
 
-    const categories = await db.category.findMany({
+    const categoriesList = await db.category.findMany({
       where: {
         workspaceId,
       },
@@ -70,7 +70,7 @@ categories.get("/", async (c) => {
     });
 
     return c.json({
-      categories,
+      categories: categoriesList,
       pagination: {
         limit,
         currentPage: page,

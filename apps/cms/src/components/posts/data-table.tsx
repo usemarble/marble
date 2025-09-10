@@ -34,8 +34,9 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useWorkspace } from "@/providers/workspace";
 import type { Post } from "./columns";
 
 interface DataTableProps<TData, TValue> {
@@ -48,8 +49,8 @@ export function PostDataTable<TData, TValue>({
   data,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const params = useParams<{ workspace: string }>();
   const router = useRouter();
+  const { activeWorkspace } = useWorkspace();
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
@@ -76,7 +77,7 @@ export function PostDataTable<TData, TValue>({
     ) {
       return;
     }
-    router.push(`/${params.workspace}/editor/p/${post.id}`);
+    router.push(`/${activeWorkspace?.slug}/editor/p/${post.id}`);
   };
 
   return (
@@ -146,7 +147,7 @@ export function PostDataTable<TData, TValue>({
           </TooltipProvider>
 
           <Link
-            href={`/${params.workspace}/editor/p/new`}
+            href={`/${activeWorkspace?.slug}/editor/p/new`}
             className={buttonVariants({ variant: "default" })}
           >
             <PlusIcon size={16} />

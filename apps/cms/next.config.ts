@@ -2,14 +2,6 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   transpilePackages: ["@marble/db", "@marble/ui"],
-  rewrites: async () => {
-    return [
-      {
-        source: "/:workspace",
-        destination: "/:workspace/posts",
-      },
-    ];
-  },
   images: {
     remotePatterns: [
       {
@@ -29,6 +21,7 @@ const nextConfig: NextConfig = {
         hostname: "images.marblecms.com",
       },
     ],
+    qualities: [20, 40, 60, 80, 100],
   },
 };
 
