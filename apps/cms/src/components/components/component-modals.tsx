@@ -45,6 +45,7 @@ interface ComponentProperty {
   type: string;
   required: boolean;
   defaultValue: string;
+  options?: Array<{ label: string; value: string }>;
 }
 
 interface ComponentFormData {
@@ -157,6 +158,7 @@ export function ComponentModal({
           type: prop.type,
           required: prop.required,
           defaultValue: prop.defaultValue || "",
+          options: prop.options || [],
         })),
       });
     } else {
@@ -184,6 +186,7 @@ export function ComponentModal({
           type: "string",
           required: false,
           defaultValue: "",
+          options: [],
         },
       ],
     }));
@@ -199,7 +202,7 @@ export function ComponentModal({
   const updateProperty = (
     index: number,
     field: keyof ComponentProperty,
-    value: string | boolean,
+    value: string | boolean | Array<{ label: string; value: string }>,
   ) => {
     setFormData((prev) => ({
       ...prev,
@@ -207,6 +210,36 @@ export function ComponentModal({
         i === index ? { ...prop, [field]: value } : prop,
       ),
     }));
+  };
+
+  const addSelectOption = (propertyIndex: number) => {
+    const property = formData.properties[propertyIndex];
+    if (!property) return;
+    const newOptions = [...(property.options || []), { label: "", value: "" }];
+    updateProperty(propertyIndex, "options", newOptions);
+  };
+
+  const removeSelectOption = (propertyIndex: number, optionIndex: number) => {
+    const property = formData.properties[propertyIndex];
+    if (!property) return;
+    const newOptions = (property.options || []).filter(
+      (_, i) => i !== optionIndex,
+    );
+    updateProperty(propertyIndex, "options", newOptions);
+  };
+
+  const updateSelectOption = (
+    propertyIndex: number,
+    optionIndex: number,
+    field: "label" | "value",
+    value: string,
+  ) => {
+    const property = formData.properties[propertyIndex];
+    if (!property) return;
+    const newOptions = (property.options || []).map((option, i) =>
+      i === optionIndex ? { ...option, [field]: value } : option,
+    );
+    updateProperty(propertyIndex, "options", newOptions);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -327,9 +360,12 @@ export function ComponentModal({
                     <Label>Type</Label>
                     <Select
                       value={property.type}
-                      onValueChange={(value) =>
-                        updateProperty(index, "type", value)
-                      }
+                      onValueChange={(value) => {
+                        updateProperty(index, "type", value);
+                        if (value !== "select") {
+                          updateProperty(index, "options", []);
+                        }
+                      }}
                     >
                       <SelectTrigger>
                         <SelectValue />
@@ -368,6 +404,83 @@ export function ComponentModal({
                     <Label htmlFor={`required-${index}`}>Required</Label>
                   </div>
                 </div>
+
+                {property.type === "select" && (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Label>Options</Label>
+                      <Button
+                        type="button"
+                        onClick={() => addSelectOption(index)}
+                        size="sm"
+                        variant="outline"
+                      >
+                        <PlusIcon className="mr-2 h-4 w-4" />
+                        Add Option
+                      </Button>
+                    </div>
+
+                    {(property.options || []).map((option, optionIndex) => (
+                      <div
+                        key={`${property.id}-option-${optionIndex}`}
+                        className="grid grid-cols-2 gap-3 items-end"
+                      >
+                        <div className="space-y-2">
+                          <Label>Label</Label>
+                          <Input
+                            value={option.label}
+                            onChange={(e) =>
+                              updateSelectOption(
+                                index,
+                                optionIndex,
+                                "label",
+                                e.target.value,
+                              )
+                            }
+                            placeholder="Display text"
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Value</Label>
+                          <div className="flex space-x-2">
+                            <Input
+                              value={option.value}
+                              onChange={(e) =>
+                                updateSelectOption(
+                                  index,
+                                  optionIndex,
+                                  "value",
+                                  e.target.value,
+                                )
+                              }
+                              placeholder="Stored value"
+                              required
+                            />
+                            <Button
+                              type="button"
+                              onClick={() =>
+                                removeSelectOption(index, optionIndex)
+                              }
+                              size="sm"
+                              variant="ghost"
+                              className="text-destructive px-2"
+                            >
+                              <TrashIcon className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+
+                    {(!property.options || property.options.length === 0) && (
+                      <p className="text-sm text-muted-foreground">
+                        No options added yet. Click "Add Option" to create
+                        select options.
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
             ))}
           </div>

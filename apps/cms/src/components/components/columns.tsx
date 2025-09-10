@@ -29,6 +29,7 @@ export interface ComponentProperty {
   type: string;
   required: boolean;
   defaultValue?: string;
+  options?: Array<{ label: string; value: string }>;
 }
 
 export const columns: ColumnDef<CustomComponent>[] = [
@@ -66,7 +67,11 @@ export const columns: ColumnDef<CustomComponent>[] = [
         const p = properties[0];
         return (
           <div className="flex flex-wrap gap-1 items-center">
-            <Badge key={p?.id} variant="secondary" className="text-xs gap-x-0.5">
+            <Badge
+              key={p?.id}
+              variant="secondary"
+              className="text-xs gap-x-0.5"
+            >
               {p?.name}
               {p?.required && <span className="text-red-500">*</span>}
             </Badge>

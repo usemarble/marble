@@ -64,6 +64,7 @@ export async function POST(req: NextRequest) {
               type: prop.type,
               required: prop.required || false,
               defaultValue: prop.defaultValue,
+              options: prop.options || null,
             })) || [],
         },
       },

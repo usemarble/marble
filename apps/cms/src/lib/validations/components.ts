@@ -12,6 +12,11 @@ const propertyTypeSchema = z.enum([
   "select",
 ]);
 
+const selectOptionSchema = z.object({
+  label: z.string().min(1, "Option label is required"),
+  value: z.string().min(1, "Option value is required"),
+});
+
 const componentPropertySchema = z.object({
   name: z
     .string()
@@ -20,6 +25,7 @@ const componentPropertySchema = z.object({
   type: propertyTypeSchema,
   required: z.boolean().default(false),
   defaultValue: z.string().max(500, "Default value is too long").optional(),
+  options: z.array(selectOptionSchema).optional(),
 });
 
 export const componentSchema = z.object({

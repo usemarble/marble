@@ -11,7 +11,7 @@ export async function GET() {
   if (!sessionData || !workspaceId) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
-  
+
   try {
     const tags = await db.tag.findMany({
       where: { workspaceId: workspaceId },

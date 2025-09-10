@@ -61,6 +61,7 @@ export async function PATCH(
                 type: prop.type as PropertyType,
                 required: prop.required || false,
                 defaultValue: prop.defaultValue,
+                options: prop.options || null,
               })) || [],
           },
         },

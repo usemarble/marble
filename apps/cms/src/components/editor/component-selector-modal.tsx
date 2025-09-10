@@ -2,6 +2,7 @@
 
 import { Badge } from "@marble/ui/components/badge";
 import { Button } from "@marble/ui/components/button";
+import { Calendar } from "@marble/ui/components/calendar";
 import {
   Card,
   CardContent,
@@ -19,20 +20,25 @@ import {
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@marble/ui/components/select";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@marble/ui/components/popover";
 import { Textarea } from "@marble/ui/components/textarea";
-import { ArrowLeftIcon, PuzzlePieceIcon } from "@phosphor-icons/react";
+import { cn } from "@marble/ui/lib/utils";
+import {
+  ArrowLeftIcon,
+  CalendarDotsIcon,
+  PuzzlePieceIcon,
+} from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import type { Editor } from "@tiptap/react";
+import { format } from "date-fns";
 import { useCallback, useEffect, useState } from "react";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import type { ComponentProperty, CustomComponent } from "../components/columns";
 import { LoadingSpinner } from "../ui/async-button";
+import { VirtualizedSelect } from "../ui/virtualized-select";
 
 type Primitive = string | number | boolean | null;
 
@@ -192,21 +198,14 @@ export function ComponentEditorModal({
 
       case "select":
         return (
-          <Select
+          <VirtualizedSelect
+            options={property.options || []}
             value={(value ?? "") as string}
             onValueChange={(newValue) =>
               handlePropertyChange(property.name, newValue)
             }
-          >
-            <SelectTrigger>
-              <SelectValue placeholder={`Select ${property.name}`} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="option1">Option 1</SelectItem>
-              <SelectItem value="option2">Option 2</SelectItem>
-              <SelectItem value="option3">Option 3</SelectItem>
-            </SelectContent>
-          </Select>
+            placeholder={`Select ${property.name}`}
+          />
         );
 
       case "number":
@@ -223,13 +222,37 @@ export function ComponentEditorModal({
 
       case "date":
         return (
-          <Input
-            type="date"
-            value={(value ?? "") as string}
-            onChange={(e) =>
-              handlePropertyChange(property.name, e.target.value)
-            }
-          />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "justify-between text-left font-normal shadow-none bg-editor-field",
+                  !value && "text-muted-foreground",
+                )}
+              >
+                {value ? (
+                  format(new Date(value as string), "PPP")
+                ) : (
+                  <span>Pick a date</span>
+                )}
+                <CalendarDotsIcon className="text-muted-foreground" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0 overflow-hidden">
+              <Calendar
+                mode="single"
+                selected={value ? new Date(value as string) : undefined}
+                captionLayout="dropdown"
+                onSelect={(date: Date | undefined) => {
+                  if (date) {
+                    handlePropertyChange(property.name, date.toISOString());
+                  }
+                }}
+                autoFocus
+              />
+            </PopoverContent>
+          </Popover>
         );
 
       case "email":
@@ -511,21 +534,14 @@ export function ComponentSelectorModal({
 
       case "select":
         return (
-          <Select
+          <VirtualizedSelect
+            options={property.options || []}
             value={(value ?? "") as string}
             onValueChange={(newValue) =>
               handlePropertyChange(property.name, newValue)
             }
-          >
-            <SelectTrigger>
-              <SelectValue placeholder={`Select ${property.name}`} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="option1">Option 1</SelectItem>
-              <SelectItem value="option2">Option 2</SelectItem>
-              <SelectItem value="option3">Option 3</SelectItem>
-            </SelectContent>
-          </Select>
+            placeholder={`Select ${property.name}`}
+          />
         );
 
       case "number":
@@ -542,13 +558,37 @@ export function ComponentSelectorModal({
 
       case "date":
         return (
-          <Input
-            type="date"
-            value={(value ?? "") as string}
-            onChange={(e) =>
-              handlePropertyChange(property.name, e.target.value)
-            }
-          />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "justify-between text-left font-normal shadow-none bg-editor-field",
+                  !value && "text-muted-foreground",
+                )}
+              >
+                {value ? (
+                  format(new Date(value as string), "PPP")
+                ) : (
+                  <span>Pick a date</span>
+                )}
+                <CalendarDotsIcon className="text-muted-foreground" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0 overflow-hidden">
+              <Calendar
+                mode="single"
+                selected={value ? new Date(value as string) : undefined}
+                captionLayout="dropdown"
+                onSelect={(date: Date | undefined) => {
+                  if (date) {
+                    handlePropertyChange(property.name, date.toISOString());
+                  }
+                }}
+                autoFocus
+              />
+            </PopoverContent>
+          </Popover>
         );
 
       case "email":

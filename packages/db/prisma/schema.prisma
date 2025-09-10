@@ -322,6 +322,7 @@ model ComponentProperty {
   type              PropertyType
   required          Boolean           @default(false)
   defaultValue      String?
+  options           Json?
   customComponentId String
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
