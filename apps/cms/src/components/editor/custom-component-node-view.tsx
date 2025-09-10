@@ -79,7 +79,7 @@ export function CustomComponentNodeView({
           onKeyDown={handleKeyDown}
           aria-label={`Select ${componentName} component`}
           aria-expanded={Object.keys(props).length > 0 ? isExpanded : undefined}
-          className="group relative border border-border rounded-lg p-4 my-3 bg-card hover:bg-muted/50 hover:shadow-sm transition-all duration-200 cursor-pointer w-full text-left"
+          className="group relative border border-border rounded-lg p-4 my-3 bg-card hover:bg-muted/50 hover:shadow-sm transition-all duration-200 w-full text-left"
         >
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center space-x-3">
@@ -97,7 +97,7 @@ export function CustomComponentNodeView({
                 variant="ghost"
                 size="sm"
                 onClick={handleEdit}
-                className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0"
+                className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 cursor-pointer"
               >
                 <PencilIcon className="h-3.5 w-3.5" />
               </Button>
@@ -107,7 +107,7 @@ export function CustomComponentNodeView({
                 variant="ghost"
                 size="sm"
                 onClick={handleRemove}
-                className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 hover:!bg-destructive/20"
+                className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 hover:!bg-destructive/20 cursor-pointer"
                 aria-label="Remove component"
                 title="Remove"
               >
@@ -120,7 +120,7 @@ export function CustomComponentNodeView({
                   variant="ghost"
                   size="sm"
                   onClick={handleToggleExpand}
-                  className="h-8 w-8 p-0 hover:bg-muted"
+                  className="h-8 w-8 p-0 hover:bg-muted cursor-pointer"
                   aria-label={
                     isExpanded ? "Collapse properties" : "Expand properties"
                   }
