@@ -89,9 +89,6 @@ export function ComponentModal({
     mutationFn: async (data: ComponentFormData) => {
       const response = await fetch("/api/custom-components", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           ...data,
           workspaceId,
@@ -125,9 +122,6 @@ export function ComponentModal({
         `/api/custom-components/${editingComponent.id}`,
         {
           method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
           body: JSON.stringify(data),
         },
       );
