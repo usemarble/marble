@@ -96,19 +96,14 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
   }, []);
 
   useEffect(() => {
-    if (debouncedEndpoint && isDiscordUrl(debouncedEndpoint)) {
-      setValue("format", "discord");
-    } else if (debouncedEndpoint && isSlackUrl(debouncedEndpoint)) {
-      setValue("format", "slack");
-    } else if (
-      debouncedEndpoint &&
-      !isDiscordUrl(debouncedEndpoint) &&
-      !isSlackUrl(debouncedEndpoint)
-    ) {
-      const currentFormat = watch("format");
-      if (currentFormat === "discord") {
-        setValue("format", "json");
-      }
+    const endpoint = debouncedEndpoint?.trim();
+    let nextFormat: PayloadFormat = "json";
+    if (endpoint) {
+      if (isDiscordUrl(endpoint)) nextFormat = "discord";
+      else if (isSlackUrl(endpoint)) nextFormat = "slack";
+    }
+    if (watch("format") !== nextFormat) {
+      setValue("format", nextFormat);
     }
   }, [debouncedEndpoint, setValue, watch, isDiscordUrl, isSlackUrl]);
 

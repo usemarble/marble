@@ -42,13 +42,11 @@ export const webhookSchema = z
     format: payloadFormatEnum,
   })
   .superRefine((data, ctx) => {
+    const hostname = new URL(data.endpoint).hostname;
+
     switch (data.format) {
       case "discord":
-        if (
-          !VALID_DISCORD_DOMAINS.some(
-            (domain) => new URL(data.endpoint).hostname === domain,
-          )
-        ) {
+        if (!VALID_DISCORD_DOMAINS.includes(hostname)) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message: `Discord webhook URL must be from one of: ${VALID_DISCORD_DOMAINS.join(", ")}`,
@@ -57,11 +55,7 @@ export const webhookSchema = z
         }
         break;
       case "slack":
-        if (
-          !VALID_SLACK_DOMAINS.some(
-            (domain) => new URL(data.endpoint).hostname === domain,
-          )
-        ) {
+        if (!VALID_SLACK_DOMAINS.includes(hostname)) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message: `Slack webhook URL must be from: ${VALID_SLACK_DOMAINS.join(", ")}`,
