@@ -55,3 +55,58 @@ export function getDiscordEmbed(args: {
     allowed_mentions: { parse: [] },
   };
 }
+
+export function getSlackMessage(args: {
+  event: WebhookBody["event"];
+  data: WebhookBody["data"];
+  username?: string;
+}) {
+  const { event, data, username = undefined } = args;
+
+  const fields = [
+    `*ID:* ${data.id}`,
+    `*Performed By:* ${username ? `${username} (${data.userId})` : data.userId}`,
+  ];
+
+  if ("slug" in data) {
+    fields.splice(1, 0, `*Slug:* ${data.slug}`);
+  } else if ("name" in data) {
+    fields.splice(1, 0, `*Name:* ${data.name}`);
+  }
+
+  const blocks = [
+    {
+      type: "header",
+      text: {
+        type: "plain_text",
+        text: formatEvent(event),
+      },
+    },
+    {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: fields.join("\n"),
+      },
+      accessory: {
+        type: "image",
+        image_url: MARBLE_AVATAR_URL,
+        alt_text: "Marble",
+      },
+    },
+    {
+      type: "context",
+      elements: [
+        {
+          type: "mrkdwn",
+          text: "Powered by marblecms.com",
+        },
+      ],
+    },
+  ];
+
+  return {
+    text: "title" in data ? data.title : formatEvent(event),
+    blocks,
+  };
+}
