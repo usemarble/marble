@@ -41,6 +41,13 @@ export function useApiAnalytics() {
     },
     staleTime: 1000 * 60 * 15,
     enabled: !!workspaceId,
+    placeholderData: {
+      totalRequests: 0,
+      currentMonthRequests: 0,
+      lastMonthRequests: 0,
+      monthlyGrowth: 0,
+      chartData: []
+    },
   });
 }
 
@@ -59,6 +66,11 @@ export function usePublishingMetrics() {
     },
     staleTime: 1000 * 60 * 15,
     enabled: !!workspaceId,
+    placeholderData: {
+      graph: {
+        activity: []
+      }
+    },
   });
 }
 
@@ -85,5 +97,12 @@ export function useWorkspaceMetrics() {
     },
     staleTime: 1000 * 60 * 15,
     enabled: !!workspaceId,
+    placeholderData: {
+      totalPosts: 0,
+      publishedPosts: 0,
+      drafts: 0,
+      tags: 0,
+      categories: 0
+    },
   });
 }

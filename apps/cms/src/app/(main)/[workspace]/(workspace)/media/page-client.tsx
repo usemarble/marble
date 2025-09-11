@@ -4,7 +4,7 @@ import { Button } from "@marble/ui/components/button";
 import { ImagesIcon, UploadIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { toast } from "sonner";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import { MediaGallery } from "@/components/media/media-gallery";
@@ -21,11 +21,11 @@ function PageClient() {
   const workspaceId = useWorkspaceId();
   const [showUploadModal, setShowUploadModal] = useState(false);
 
-  const { data: media, isLoading } = useQuery({
+  const { data: media, isLoading } = useQuery<Media[]>({
     // biome-ignore lint/style/noNonNullAssertion: <>
     queryKey: QUERY_KEYS.MEDIA(workspaceId!),
-    staleTime: 1000 * 60 * 60,
-    queryFn: async () => {
+    staleTime: 1000 * 60 * 20, // 20 minutes for media files
+    queryFn: async (): Promise<Media[]> => {
       try {
         const res = await fetch("/api/media");
         if (!res.ok) {
@@ -39,39 +39,49 @@ function PageClient() {
         toast.error(
           error instanceof Error ? error.message : "Failed to fetch media",
         );
+        return [];
       }
     },
     enabled: !!workspaceId,
+    placeholderData: [] as Media[],
   });
 
-  if (isLoading) {
-    return <PageLoader />;
-  }
+  const content = useMemo(() => {
+    if (isLoading) {
+      return <PageLoader />;
+    }
 
-  return (
-    <>
-      {media && media.length > 0 ? (
+    if (media && media.length > 0) {
+      return (
         <WorkspacePageWrapper className="flex flex-col pt-10 pb-16 gap-8">
           <MediaGallery media={media} />
         </WorkspacePageWrapper>
-      ) : (
-        <WorkspacePageWrapper className="h-full grid place-content-center">
-          <div className="flex flex-col gap-4 items-center max-w-80">
-            <div className="p-2">
-              <ImagesIcon className="size-16" />
-            </div>
-            <div className="text-center flex flex-col gap-4 items-center">
-              <p className="text-muted-foreground text-sm">
-                Images you upload in this workspace will appear here.
-              </p>
-              <Button onClick={() => setShowUploadModal(true)}>
-                <UploadIcon size={16} />
-                <span>Upload Image</span>
-              </Button>
-            </div>
+      );
+    }
+
+    return (
+      <WorkspacePageWrapper className="h-full grid place-content-center">
+        <div className="flex flex-col gap-4 items-center max-w-80">
+          <div className="p-2">
+            <ImagesIcon className="size-16" />
           </div>
-        </WorkspacePageWrapper>
-      )}
+          <div className="text-center flex flex-col gap-4 items-center">
+            <p className="text-muted-foreground text-sm">
+              Images you upload in this workspace will appear here.
+            </p>
+            <Button onClick={() => setShowUploadModal(true)}>
+              <UploadIcon size={16} />
+              <span>Upload Image</span>
+            </Button>
+          </div>
+        </div>
+      </WorkspacePageWrapper>
+    );
+  }, [media, isLoading, setShowUploadModal]);
+
+  return (
+    <>
+      {content}
       <MediaUploadModal
         isOpen={showUploadModal}
         setIsOpen={setShowUploadModal}

@@ -4,7 +4,7 @@ import { Button } from "@marble/ui/components/button";
 import { PackageIcon, PlusIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { toast } from "sonner";
 import { columns } from "@/components/categories/columns";
 import { DataTable } from "@/components/categories/data-table";
@@ -29,11 +29,11 @@ function PageClient() {
   const workspaceId = useWorkspaceId();
   const [showCreateModal, setShowCreateModal] = useState(false);
 
-  const { data: categories, isLoading } = useQuery({
+  const { data: categories, isLoading } = useQuery<Category[]>({
     // biome-ignore lint/style/noNonNullAssertion: <>
     queryKey: QUERY_KEYS.CATEGORIES(workspaceId!),
-    staleTime: 1000 * 60 * 60,
-    queryFn: async () => {
+    staleTime: 1000 * 60 * 15, // 15 minutes for fairly static data
+    queryFn: async (): Promise<Category[]> => {
       try {
         const res = await fetch("/api/categories");
         if (!res.ok) {
@@ -47,40 +47,50 @@ function PageClient() {
         toast.error(
           error instanceof Error ? error.message : "Failed to fetch categories",
         );
+        return [];
       }
     },
     enabled: !!workspaceId,
+    placeholderData: [] as Category[],
   });
 
-  if (isLoading) {
-    return <PageLoader />;
-  }
+  const content = useMemo(() => {
+    if (isLoading) {
+      return <PageLoader />;
+    }
 
-  return (
-    <>
-      {categories && categories.length > 0 ? (
+    if (categories && categories.length > 0) {
+      return (
         <WorkspacePageWrapper className="flex flex-col pt-10 pb-16 gap-8">
           <DataTable data={categories} columns={columns} />
         </WorkspacePageWrapper>
-      ) : (
-        <WorkspacePageWrapper className="h-full grid place-content-center">
-          <div className="flex flex-col gap-4 items-center max-w-80">
-            <div>
-              <PackageIcon className="size-16" />
-            </div>
-            <div className="text-center flex flex-col gap-4 items-center">
-              <p className="text-muted-foreground text-sm">
-                Categories help organize your content. Create your first
-                category to get started.
-              </p>
-              <Button onClick={() => setShowCreateModal(true)}>
-                <PlusIcon size={16} />
-                <span>Create Category</span>
-              </Button>
-            </div>
+      );
+    }
+
+    return (
+      <WorkspacePageWrapper className="h-full grid place-content-center">
+        <div className="flex flex-col gap-4 items-center max-w-80">
+          <div>
+            <PackageIcon className="size-16" />
           </div>
-        </WorkspacePageWrapper>
-      )}
+          <div className="text-center flex flex-col gap-4 items-center">
+            <p className="text-muted-foreground text-sm">
+              Categories help organize your content. Create your first
+              category to get started.
+            </p>
+            <Button onClick={() => setShowCreateModal(true)}>
+              <PlusIcon size={16} />
+              <span>Create Category</span>
+            </Button>
+          </div>
+        </div>
+      </WorkspacePageWrapper>
+    );
+  }, [categories, isLoading, setShowCreateModal]);
+
+  return (
+    <>
+      {content}
       <CategoryModal
         open={showCreateModal}
         setOpen={setShowCreateModal}
