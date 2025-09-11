@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { VALID_DISCORD_DOMAINS } from "../constants";
+import { VALID_DISCORD_DOMAINS, VALID_SLACK_DOMAINS } from "../constants";
 
 export const webhookEventEnum = z.enum([
   "post_published",
@@ -15,7 +15,7 @@ export const webhookEventEnum = z.enum([
   "media_deleted",
 ]);
 
-export const payloadFormatEnum = z.enum(["json", "discord"]);
+export const payloadFormatEnum = z.enum(["json", "discord", "slack"]);
 
 export const webhookSchema = z
   .object({
@@ -41,26 +41,38 @@ export const webhookSchema = z
       .min(1, { message: "Please select at least one event" }),
     format: payloadFormatEnum,
   })
-  .refine(
-    (data) => {
-      if (data.format === "discord") {
-        try {
-          const url = new URL(data.endpoint);
-          return VALID_DISCORD_DOMAINS.some(
-            (domain) => url.hostname === domain,
-          );
-        } catch {
-          return false;
+  .superRefine((data, ctx) => {
+    switch (data.format) {
+      case "discord":
+        if (
+          !VALID_DISCORD_DOMAINS.some(
+            (domain) => new URL(data.endpoint).hostname === domain,
+          )
+        ) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Discord webhook URL must be from one of: ${VALID_DISCORD_DOMAINS.join(", ")}`,
+            path: ["endpoint"],
+          });
         }
-      }
-      return true;
-    },
-    {
-      message:
-        "Discord webhook URL must be a valid Discord webhook (discord.com domain)",
-      path: ["endpoint"],
-    },
-  );
+        break;
+      case "slack":
+        if (
+          !VALID_SLACK_DOMAINS.some(
+            (domain) => new URL(data.endpoint).hostname === domain,
+          )
+        ) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Slack webhook URL must be from: ${VALID_SLACK_DOMAINS.join(", ")}`,
+            path: ["endpoint"],
+          });
+        }
+        break;
+      default:
+        break;
+    }
+  });
 
 export type WebhookFormValues = z.infer<typeof webhookSchema>;
 

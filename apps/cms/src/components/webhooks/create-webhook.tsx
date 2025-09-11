@@ -31,7 +31,7 @@ import { useForm } from "react-hook-form";
 import { AsyncButton } from "@/components/ui/async-button";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { VALID_DISCORD_DOMAINS } from "@/lib/constants";
+import { VALID_DISCORD_DOMAINS, VALID_SLACK_DOMAINS } from "@/lib/constants";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import {
   type PayloadFormat,
@@ -40,7 +40,7 @@ import {
   webhookEvents,
   webhookSchema,
 } from "@/lib/validations/webhook";
-import { Discord } from "../shared/icons";
+import { Discord, Slack } from "../shared/icons";
 
 interface CreateWebhookSheetProps {
   children?: React.ReactNode;
@@ -85,16 +85,32 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
     }
   }, []);
 
+  const isSlackUrl = useCallback((url: string): boolean => {
+    if (!url) return false;
+    try {
+      const urlObj = new URL(url);
+      return VALID_SLACK_DOMAINS.some((domain) => urlObj.hostname === domain);
+    } catch {
+      return false;
+    }
+  }, []);
+
   useEffect(() => {
     if (debouncedEndpoint && isDiscordUrl(debouncedEndpoint)) {
       setValue("format", "discord");
-    } else if (debouncedEndpoint && !isDiscordUrl(debouncedEndpoint)) {
+    } else if (debouncedEndpoint && isSlackUrl(debouncedEndpoint)) {
+      setValue("format", "slack");
+    } else if (
+      debouncedEndpoint &&
+      !isDiscordUrl(debouncedEndpoint) &&
+      !isSlackUrl(debouncedEndpoint)
+    ) {
       const currentFormat = watch("format");
       if (currentFormat === "discord") {
         setValue("format", "json");
       }
     }
-  }, [debouncedEndpoint, setValue, watch, isDiscordUrl]);
+  }, [debouncedEndpoint, setValue, watch, isDiscordUrl, isSlackUrl]);
 
   const { mutate: createWebhook, isPending: isCreating } = useMutation({
     mutationFn: (data: WebhookFormValues) =>
@@ -173,7 +189,6 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
           className="h-full flex flex-col justify-between"
         >
           <div className="grid flex-1 auto-rows-min mb-5 gap-6 px-6">
-            {/* Name Field */}
             <div className="grid gap-3">
               <Label htmlFor="name">Name</Label>
               {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
@@ -185,7 +200,6 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
               )}
             </div>
 
-            {/* URL Field */}
             <div className="grid gap-3">
               <Label htmlFor="endpoint">URL</Label>
               {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
@@ -201,7 +215,6 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
               )}
             </div>
 
-            {/* Format Field */}
             <div className="grid gap-3">
               <Label htmlFor="format">Format</Label>
               <Select
@@ -225,6 +238,10 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                     <Discord fill="#5865F2" />
                     Discord
                   </SelectItem>
+                  <SelectItem value="slack">
+                    <Slack />
+                    Slack
+                  </SelectItem>
                 </SelectContent>
               </Select>
               {errors.format && (
@@ -234,7 +251,6 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
               )}
             </div>
 
-            {/* Events Field */}
             <div className="grid gap-3">
               <div className="flex items-end">
                 <Label>Events</Label>

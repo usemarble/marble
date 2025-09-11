@@ -1,5 +1,5 @@
 import { getServerSession } from "../auth/session";
-import { getDiscordEmbed } from "./embed";
+import { getDiscordEmbed, getSlackMessage } from "./embed";
 import { qstash } from "./qstash";
 import type { WebhookBody } from "./webhook-client";
 
@@ -39,6 +39,29 @@ export async function handleWebhookDiscord({
   await qstash.publishJSON({
     url,
     body: getDiscordEmbed({
+      event: body.event,
+      data: body.data,
+      username: username,
+    }),
+    retries,
+  });
+}
+
+export async function handleWebhookSlack({
+  url,
+  body,
+  retries,
+}: {
+  url: string;
+  body: WebhookBody;
+  retries: number;
+}) {
+  const sessionData = await getServerSession();
+  const username = sessionData?.user?.name;
+
+  await qstash.publishJSON({
+    url,
+    body: getSlackMessage({
       event: body.event,
       data: body.data,
       username: username,

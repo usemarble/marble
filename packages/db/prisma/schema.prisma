@@ -292,6 +292,7 @@ enum WebhookEvent {
 enum PayloadFormat {
   json
   discord
+  slack
 }
 
 enum MediaType {
