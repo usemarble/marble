@@ -4,7 +4,7 @@ import { Button } from "@marble/ui/components/button";
 import { ImagesIcon, UploadIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import { MediaGallery } from "@/components/media/media-gallery";
@@ -77,7 +77,7 @@ function PageClient() {
         </div>
       </WorkspacePageWrapper>
     );
-  }, [media, isLoading, setShowUploadModal]);
+  }, [media, isLoading]);
 
   return (
     <>

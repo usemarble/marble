@@ -4,7 +4,7 @@ import { Button } from "@marble/ui/components/button";
 import { PlusIcon, TagIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
@@ -71,8 +71,8 @@ function PageClient() {
           </div>
           <div className="text-center flex flex-col gap-4 items-center">
             <p className="text-muted-foreground text-sm">
-              Tags help readers discover your content. Create your first tag
-              to get started.
+              Tags help readers discover your content. Create your first tag to
+              get started.
             </p>
             <Button onClick={() => setShowCreateModal(true)}>
               <PlusIcon size={16} />
@@ -82,7 +82,7 @@ function PageClient() {
         </div>
       </WorkspacePageWrapper>
     );
-  }, [tags, isLoading, setShowCreateModal]);
+  }, [tags, isLoading]);
 
   return (
     <>

@@ -4,7 +4,7 @@ import { Button } from "@marble/ui/components/button";
 import { PackageIcon, PlusIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { columns } from "@/components/categories/columns";
 import { DataTable } from "@/components/categories/data-table";
@@ -75,8 +75,8 @@ function PageClient() {
           </div>
           <div className="text-center flex flex-col gap-4 items-center">
             <p className="text-muted-foreground text-sm">
-              Categories help organize your content. Create your first
-              category to get started.
+              Categories help organize your content. Create your first category
+              to get started.
             </p>
             <Button onClick={() => setShowCreateModal(true)}>
               <PlusIcon size={16} />
@@ -86,7 +86,7 @@ function PageClient() {
         </div>
       </WorkspacePageWrapper>
     );
-  }, [categories, isLoading, setShowCreateModal]);
+  }, [categories, isLoading]);
 
   return (
     <>

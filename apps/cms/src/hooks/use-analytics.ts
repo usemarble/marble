@@ -46,7 +46,7 @@ export function useApiAnalytics() {
       currentMonthRequests: 0,
       lastMonthRequests: 0,
       monthlyGrowth: 0,
-      chartData: []
+      chartData: [],
     },
   });
 }
@@ -68,8 +68,8 @@ export function usePublishingMetrics() {
     enabled: !!workspaceId,
     placeholderData: {
       graph: {
-        activity: []
-      }
+        activity: [],
+      },
     },
   });
 }
@@ -102,7 +102,7 @@ export function useWorkspaceMetrics() {
       publishedPosts: 0,
       drafts: 0,
       tags: 0,
-      categories: 0
+      categories: 0,
     },
   });
 }

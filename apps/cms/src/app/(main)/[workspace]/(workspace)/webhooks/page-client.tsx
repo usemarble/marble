@@ -113,8 +113,8 @@ export function PageClient() {
             </div>
             <div className="text-center flex flex-col gap-4 items-center">
               <p className="text-muted-foreground text-sm">
-                Webhooks let you run actions on your server when events happen in
-                your workspace.
+                Webhooks let you run actions on your server when events happen
+                in your workspace.
               </p>
               <CreateWebhookSheet>
                 <Button>
@@ -162,7 +162,15 @@ export function PageClient() {
         </div>
       </WorkspacePageWrapper>
     );
-  }, [webhooks, isLoading, toggleWebhook, workspaceId, queryClient, isToggling, toggleVariables]);
+  }, [
+    webhooks,
+    isLoading,
+    toggleWebhook,
+    workspaceId,
+    queryClient,
+    isToggling,
+    toggleVariables,
+  ]);
 
   return content;
 }
