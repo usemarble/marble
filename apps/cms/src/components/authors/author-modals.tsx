@@ -341,7 +341,7 @@ export const AuthorModal = ({
           </div>
           <AsyncButton
             type="submit"
-            isLoading={isSubmitting || isUploading}
+            isLoading={isSubmitting}
             disabled={(mode === "update" && !isDirty) || isUploading}
             className="flex w-full gap-2 mt-4"
           >
