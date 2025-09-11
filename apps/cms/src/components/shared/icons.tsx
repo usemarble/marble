@@ -48,7 +48,7 @@ export const Slack = ({ ...props }: LucideProps) => (
     {...props}
   >
     <title>Slack</title>
-    <g clip-rule="evenodd" fill-rule="evenodd">
+    <g clipRule="evenodd" fillRule="evenodd">
       <path
         d="M8.799 0A2.4 2.4 0 0 0 6.4 2.404a2.4 2.4 0 0 0 2.4 2.404h2.4V2.405A2.403 2.403 0 0 0 8.799 0q.001 0 0 0m0 6.413H2.4A2.4 2.4 0 0 0 0 8.817a2.4 2.4 0 0 0 2.399 2.405h6.4a2.4 2.4 0 0 0 2.4-2.404 2.4 2.4 0 0 0-2.4-2.405"
         fill="#36c5f0"
@@ -68,7 +68,6 @@ export const Slack = ({ ...props }: LucideProps) => (
     </g>
   </svg>
 );
-
 export const Google = ({ ...props }: LucideProps) => (
   <svg
     role="img"
