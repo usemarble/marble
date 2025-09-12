@@ -32,14 +32,14 @@ const formattedDate = new Date(entry.data.lastUpdated).toLocaleDateString(
   <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto"> 
     <Container class="pt-14 pb-32">
     <div class='max-w-2xl mx-auto mb-10 space-y-2'>
-      <h1 class='font-medium text-2xl sm:text-3xl md:text-4xl text-center'>
+      <h1 class='text-2xl sm:text-3xl md:text-4xl text-center'>
         Terms of service.
       </h1>
       <p class="text-center text-muted-foreground">Last updated: {formattedDate}</p>
     </div>
 
-    <Prose class="prose-sm max-w-(--breakpoint-sm) prose-p:font-sans prose-li:font-sans">
-      <Content/>
+    <Prose class="prose-sm max-w-(--breakpoint-sm)">
+      <Content />
     </Prose>
     </Container>
   </div>
