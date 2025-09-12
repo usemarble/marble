@@ -34,7 +34,7 @@ const formattedDate = new Date(publishedAt).toLocaleDateString("en-US", {
     <div class="flex flex-col gap-4 md:gap-6">
       <div class="space-y-2">
         <h2 class='md:text-lg font-medium font-serif'>{title}</h2>
-        <p class='text-muted-foreground text-sm'>{description}</p>
+        <p class='text-muted-foreground text-sm line-clamp-2'>{description}</p>
       </div>
       <div class="flex items-center gap-2 justify-between">
         <p class="text-muted-foreground text-sm">
