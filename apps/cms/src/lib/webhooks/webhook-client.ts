@@ -6,7 +6,11 @@ import type {
   PayloadFormat,
   WebhookEvent as WebhookValidationEvent,
 } from "../validations/webhook";
-import { handleWebhookDiscord, handleWebhookJSON } from "./util";
+import {
+  handleWebhookDiscord,
+  handleWebhookJSON,
+  handleWebhookSlack,
+} from "./util";
 import { WebhookVerificationError } from "./webhook-errors";
 
 const eventSchema = z.object({
@@ -127,6 +131,9 @@ export class WebhookClient {
         break;
       case "discord":
         await handleWebhookDiscord({ url, body, retries });
+        break;
+      case "slack":
+        await handleWebhookSlack({ url, body, retries });
         break;
       default:
         throw new Error(`Unknown format: ${format}`);

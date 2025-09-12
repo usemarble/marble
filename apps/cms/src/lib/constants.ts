@@ -18,6 +18,8 @@ export const VALID_DISCORD_DOMAINS = [
   "ptb.discord.com",
 ];
 
+export const VALID_SLACK_DOMAINS = ["hooks.slack.com"];
+
 export const PRICING_PLANS: PricingPlan[] = [
   {
     title: "Pro",

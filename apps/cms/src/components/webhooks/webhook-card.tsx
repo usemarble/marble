@@ -85,14 +85,14 @@ export function WebhookCard({
                 <ToggleRightIcon size={16} className="mr-1.5" />
                 <span>{webhook.enabled ? "Disable" : "Enable"} Webhook</span>
               </DropdownMenuItem>
-              {webhook.format === "discord" ? null : (
+              {webhook.format === "json" ? (
                 <DropdownMenuItem
                   onClick={() => handleCopySecret(webhook.secret)}
                 >
                   <CopyIcon className="size-4 mr-1.5" />
                   Copy Secret
                 </DropdownMenuItem>
-              )}
+              ) : undefined}
               <DropdownMenuItem
                 variant="destructive"
                 onSelect={(_e) => setIsOpen(true)}
