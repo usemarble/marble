@@ -87,12 +87,11 @@ export const TagSelector = ({
     enabled: !!workspaceId,
   });
 
-  // Compute selected tags directly without useEffect
-  const selected = useMemo(() => {
-    if (tags.length > 0 && value && value?.length > 0) {
-      return tags.filter((opt) => value.includes(opt.id));
-    }
-    return [];
+  // Cache filtered data results from the query
+  const selectedTags = useMemo(() => {
+    return tags.length > 0 && value?.length > 0 
+      ? tags.filter((tag) => value.includes(tag.id))
+      : [];
   }, [tags, value]);
 
   const addTag = (tagToAdd: string) => {
@@ -135,12 +134,12 @@ export const TagSelector = ({
           <div className="relative w-full cursor-pointer rounded-md border px-3 py-2 text-sm min-h-9 h-auto bg-editor-field">
             <div className="flex items-center justify-between gap-2">
               <ul className="flex flex-wrap gap-1">
-                {selected.length === 0 && (
+                {selectedTags.length === 0 && (
                   <li className="text-muted-foreground">
                     {placeholder || "Select some tags"}
                   </li>
                 )}
-                {selected.map((item) => (
+                {selectedTags.map((item) => (
                   <li key={item.id}>
                     <Badge variant="outline" className="font-normal">
                       {item.name}
@@ -197,7 +196,7 @@ export const TagSelector = ({
                       <CheckIcon
                         className={cn(
                           "ml-auto h-4 w-4",
-                          selected.some((item) => item.id === option.id)
+                          selectedTags.some((item) => item.id === option.id)
                             ? "opacity-100"
                             : "opacity-0",
                         )}
