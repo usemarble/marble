@@ -7,6 +7,7 @@
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**", "dist/**"],
       "env": [
+        "NODE_ENV",
         "DATABASE_URL",
         "NEXT_PUBLIC_APP_URL",
         "BETTER_AUTH_URL",
@@ -30,7 +31,9 @@
         "POLAR_SUCCESS_URL",
         "MARBLE_WORKSPACE_KEY",
         "MARBLE_API_URL",
-        "QSTASH_TOKEN"
+        "QSTASH_TOKEN",
+        "REDIS_URL",
+        "REDIS_TOKEN"
       ]
     },
     "lint": {

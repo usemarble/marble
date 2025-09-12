@@ -12,6 +12,11 @@ import {
   AlertDialogTitle,
 } from "@marble/ui/components/alert-dialog";
 import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@marble/ui/components/avatar";
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -21,8 +26,11 @@ import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { Textarea } from "@marble/ui/components/textarea";
+import { cn } from "@marble/ui/lib/utils";
+import { ImageIcon, UploadSimpleIcon } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { Loader2 } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
@@ -30,6 +38,7 @@ import {
   checkAuthorSlugAction,
   checkAuthorSlugForUpdateAction,
 } from "@/lib/actions/checks";
+import { uploadFile } from "@/lib/media/upload";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import {
   authorSchema,
@@ -86,6 +95,26 @@ export const AuthorModal = ({
 
   const { name } = watch();
   const workspaceId = useWorkspaceId();
+
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(
+    authorData.image || null,
+  );
+  const [file, setFile] = useState<File | null>(null);
+  const { mutate: uploadAvatar, isPending: isUploading } = useMutation({
+    mutationFn: (file: File) => {
+      return uploadFile({ file, type: "avatar" });
+    },
+    onSuccess: (data) => {
+      setAvatarUrl(data.avatarUrl);
+      setValue("image", data.avatarUrl, { shouldDirty: true });
+      setFile(null);
+      toast.success("Avatar uploaded successfully");
+    },
+    onError: (error) => {
+      console.error("Upload error:", error);
+      toast.error(error.message || "Failed to upload avatar");
+    },
+  });
 
   const { mutate: createAuthor } = useMutation({
     mutationFn: (data: CreateAuthorValues) =>
@@ -146,6 +175,21 @@ export const AuthorModal = ({
     }
   }, [mode, name, setValue]);
 
+  useEffect(() => {
+    setAvatarUrl(authorData.image || null);
+  }, [authorData.image]);
+
+  const handleAvatarUpload = useCallback(() => {
+    if (!file) return;
+    uploadAvatar(file);
+  }, [file, uploadAvatar]);
+
+  useEffect(() => {
+    if (file) {
+      handleAvatarUpload();
+    }
+  }, [file, handleAvatarUpload]);
+
   const onSubmit = async (data: CreateAuthorValues) => {
     if (!workspaceId) {
       toast.error("No active workspace");
@@ -174,10 +218,16 @@ export const AuthorModal = ({
       return;
     }
 
+    // Include the current avatar URL in the submission data
+    const submissionData = {
+      ...data,
+      image: avatarUrl,
+    };
+
     if (mode === "create") {
-      createAuthor(data);
+      createAuthor(submissionData);
     } else {
-      updateAuthor(data);
+      updateAuthor(submissionData);
     }
   };
 
@@ -194,6 +244,54 @@ export const AuthorModal = ({
           className="flex flex-col gap-5 mt-2"
         >
           <div className="grid flex-1 gap-2">
+            <Label>Avatar</Label>
+            <div className="flex items-center gap-4">
+              <Label
+                htmlFor="author-avatar"
+                className={cn(
+                  "cursor-pointer relative overflow-hidden rounded-full size-16 group",
+                  isUploading && "pointer-events-none",
+                )}
+              >
+                <Avatar className="size-16">
+                  <AvatarImage src={avatarUrl || undefined} />
+                  <AvatarFallback>
+                    <ImageIcon className="size-4 text-muted-foreground" />
+                  </AvatarFallback>
+                </Avatar>
+                <input
+                  title="Upload avatar"
+                  type="file"
+                  id="author-avatar"
+                  accept="image/*"
+                  className="sr-only"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file && !isUploading) {
+                      setFile(file);
+                      handleAvatarUpload();
+                    }
+                  }}
+                />
+                <div
+                  className={cn(
+                    "absolute inset-0 flex items-center justify-center transition-opacity duration-300 bg-background/50 backdrop-blur-xs size-full",
+                    isUploading
+                      ? "opacity-100"
+                      : "opacity-0 group-hover:opacity-100",
+                  )}
+                >
+                  {isUploading ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <UploadSimpleIcon className="size-4" />
+                  )}
+                </div>
+              </Label>
+            </div>
+          </div>
+
+          <div className="grid flex-1 gap-2">
             <Label htmlFor="name">Name</Label>
             <Input
               id="name"
@@ -201,6 +299,16 @@ export const AuthorModal = ({
               placeholder="Author's full name"
             />
             {errors.name && <ErrorMessage>{errors.name.message}</ErrorMessage>}
+          </div>
+
+          <div className="grid flex-1 gap-2">
+            <Label htmlFor="slug">Slug</Label>
+            <Input
+              id="slug"
+              {...register("slug")}
+              placeholder="unique-identifier"
+            />
+            {errors.slug && <ErrorMessage>{errors.slug.message}</ErrorMessage>}
           </div>
 
           <div className="grid flex-1 gap-2">
@@ -231,20 +339,10 @@ export const AuthorModal = ({
             <Textarea id="bio" {...register("bio")} placeholder="Authors bio" />
             {errors.bio && <ErrorMessage>{errors.bio.message}</ErrorMessage>}
           </div>
-
-          <div className="grid flex-1 gap-2">
-            <Label htmlFor="slug">Slug</Label>
-            <Input
-              id="slug"
-              {...register("slug")}
-              placeholder="unique identifier"
-            />
-            {errors.slug && <ErrorMessage>{errors.slug.message}</ErrorMessage>}
-          </div>
           <AsyncButton
             type="submit"
             isLoading={isSubmitting}
-            disabled={mode === "update" && !isDirty}
+            disabled={(mode === "update" && !isDirty) || isUploading}
             className="flex w-full gap-2 mt-4"
           >
             {mode === "create" ? "Create Author" : "Update Author"}

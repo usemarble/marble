@@ -40,7 +40,7 @@ async function completeUpload(key: string, file: File, type: UploadType) {
   // UX check to potentially avoid wasted uploads from overly long filenames.
   // The server will still validate this, but truncating here is a bit better.
   // It avoids us having orphaned files in the storage without a corresponding database record.
-  // Max length is 255 leaving space for extension and dot.
+  // Max length is 240 leaving space for extension and dot.
   const maxBaseNameLength = 240;
   const truncatedBaseName =
     baseName.length > maxBaseNameLength

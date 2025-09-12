@@ -68,7 +68,7 @@ model Post {
   featured        Boolean      @default(false)
   updatedAt       DateTime     @updatedAt
   createdAt       DateTime     @default(now())
-  publishedAt     DateTime     @default(now())
+  publishedAt     DateTime     
   attribution     Json?
   
   primaryAuthorId String?
@@ -292,6 +292,7 @@ enum WebhookEvent {
 enum PayloadFormat {
   json
   discord
+  slack
 }
 
 enum MediaType {
