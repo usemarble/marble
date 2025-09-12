@@ -127,7 +127,6 @@ export const PRICING: Pricing[] = [
       "2 GB media storage",
       "Up to 10 team members",
       "50k API requests per month",
-      "Readability insights",
       //"Keyword optimization suggestions",
     ],
     button: {
