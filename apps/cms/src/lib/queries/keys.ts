@@ -24,6 +24,16 @@ export const QUERY_KEYS = {
 
   WEBHOOKS: (workspaceId: string) => ["webhooks", workspaceId],
 
+  CUSTOM_COMPONENTS: (workspaceId: string) => [
+    "custom-components",
+    workspaceId,
+  ],
+  CUSTOM_COMPONENT: (workspaceId: string, componentId: string) => [
+    "custom-components",
+    workspaceId,
+    componentId,
+  ],
+
   BILLING_USAGE: (workspaceId: string) => ["billing-usage", workspaceId],
 
   PUBLISHING_METRICS: (workspaceId: string) => [
