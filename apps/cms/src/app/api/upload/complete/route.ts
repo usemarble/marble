@@ -39,7 +39,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ avatarUrl: url });
       }
       case "logo": {
-        const workspaceId = sessionData.session.activeOrganizationId as string;
+        const workspaceId = sessionData.session.activeOrganizationId;
         await db.organization.update({
           where: { id: workspaceId },
           data: { logo: url },
@@ -48,7 +48,7 @@ export async function POST(request: Request) {
       }
       case "media": {
         const mediaName = parsedBody.data.name;
-        const workspaceId = sessionData.session.activeOrganizationId as string;
+        const workspaceId = sessionData.session.activeOrganizationId;
         const media = await db.media.create({
           data: {
             name: mediaName,
