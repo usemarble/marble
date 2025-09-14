@@ -22,6 +22,18 @@ export const uploadAvatarSchema = z.object({
     }),
 });
 
+export const uploadAuthorAvatarSchema = z.object({
+  type: z.literal("author-avatar"),
+  fileType: z.coerce.string().nonempty(),
+  fileSize: z.coerce
+    .number()
+    .int()
+    .positive()
+    .max(MAX_AVATAR_FILE_SIZE, {
+      message: `Author avatar must be less than ${MAX_AVATAR_FILE_SIZE / 1024 / 1024}MB`,
+    }),
+});
+
 export const uploadLogoSchema = z.object({
   type: z.literal("logo"),
   fileType: z.coerce.string().nonempty(),
@@ -48,12 +60,14 @@ export const uploadMediaSchema = z.object({
 
 export const uploadSchema = z.union([
   uploadAvatarSchema,
+  uploadAuthorAvatarSchema,
   uploadLogoSchema,
   uploadMediaSchema,
 ]);
 
 const maxSizeByType = {
   avatar: MAX_AVATAR_FILE_SIZE,
+  "author-avatar": MAX_AVATAR_FILE_SIZE,
   logo: MAX_LOGO_FILE_SIZE,
   media: MAX_MEDIA_FILE_SIZE,
 };
@@ -68,6 +82,23 @@ export const completeAvatarSchema = z.object({
       (k) =>
         k.startsWith("avatars/") && !k.includes("..") && !k.startsWith("/"),
       "Invalid key: must start with avatars/ and not contain path traversal",
+    ),
+  fileType: z.string().min(1),
+  fileSize: z.coerce.number().int().positive().max(MAX_AVATAR_FILE_SIZE),
+});
+
+export const completeAuthorAvatarSchema = z.object({
+  type: z.literal("author-avatar"),
+  key: z
+    .string()
+    .min(3)
+    .max(1024)
+    .refine(
+      (k) =>
+        k.startsWith("author-avatars/") &&
+        !k.includes("..") &&
+        !k.startsWith("/"),
+      "Invalid key: must start with author-avatars/ and not contain path traversal",
     ),
   fileType: z.string().min(1),
   fileSize: z.coerce.number().int().positive().max(MAX_AVATAR_FILE_SIZE),
@@ -104,6 +135,7 @@ export const completeMediaSchema = z.object({
 
 export const completeSchema = z.union([
   completeAvatarSchema,
+  completeAuthorAvatarSchema,
   completeLogoSchema,
   completeMediaSchema,
 ]);
@@ -135,6 +167,7 @@ export function validateUpload({
 
   switch (type) {
     case "avatar":
+    case "author-avatar":
     case "logo":
       if (
         !ALLOWED_RASTER_MIME_TYPES.includes(fileType as AllowedRasterMimeType)

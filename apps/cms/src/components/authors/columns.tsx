@@ -26,11 +26,11 @@ export const columns: ColumnDef<Author>[] = [
           </Avatar>
           <div className="flex flex-col">
             <span className="font-medium text-sm">{author.name}</span>
-            {author.email && (
+            {/* {author.email && (
               <span className="text-xs text-muted-foreground">
                 {author.email}
               </span>
-            )}
+            )} */}
           </div>
         </div>
       );

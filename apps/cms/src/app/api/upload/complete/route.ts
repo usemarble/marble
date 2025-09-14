@@ -35,6 +35,9 @@ export async function POST(request: Request) {
         });
         return NextResponse.json({ avatarUrl: url });
       }
+      case "author-avatar": {
+        return NextResponse.json({ avatarUrl: url });
+      }
       case "logo": {
         const workspaceId = sessionData.session.activeOrganizationId as string;
         await db.organization.update({

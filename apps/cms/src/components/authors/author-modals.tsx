@@ -47,6 +47,7 @@ import {
 import type { Author } from "@/types/author";
 import { generateSlug } from "@/utils/string";
 import { AsyncButton } from "../ui/async-button";
+import { CopyButton } from "../ui/copy-button";
 
 interface AuthorModalProps {
   open: boolean;
@@ -102,7 +103,7 @@ export const AuthorModal = ({
   const [file, setFile] = useState<File | null>(null);
   const { mutate: uploadAvatar, isPending: isUploading } = useMutation({
     mutationFn: (file: File) => {
-      return uploadFile({ file, type: "avatar" });
+      return uploadFile({ file, type: "author-avatar" });
     },
     onSuccess: (data) => {
       setAvatarUrl(data.avatarUrl);
@@ -244,50 +245,61 @@ export const AuthorModal = ({
           className="flex flex-col gap-5 mt-2"
         >
           <div className="grid flex-1 gap-2">
-            <Label>Avatar</Label>
-            <div className="flex items-center gap-4">
-              <Label
-                htmlFor="author-avatar"
-                className={cn(
-                  "cursor-pointer relative overflow-hidden rounded-full size-16 group",
-                  isUploading && "pointer-events-none",
-                )}
-              >
-                <Avatar className="size-16">
-                  <AvatarImage src={avatarUrl || undefined} />
-                  <AvatarFallback>
-                    <ImageIcon className="size-4 text-muted-foreground" />
-                  </AvatarFallback>
-                </Avatar>
-                <input
-                  title="Upload avatar"
-                  type="file"
-                  id="author-avatar"
-                  accept="image/*"
-                  className="sr-only"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file && !isUploading) {
-                      setFile(file);
-                      handleAvatarUpload();
-                    }
-                  }}
-                />
-                <div
+            <Label htmlFor="avatar">Avatar</Label>
+            <div className="flex gap-4 items-center">
+              <div className="flex items-center gap-4">
+                <Label
+                  htmlFor="avatar"
                   className={cn(
-                    "absolute inset-0 flex items-center justify-center transition-opacity duration-300 bg-background/50 backdrop-blur-xs size-full",
-                    isUploading
-                      ? "opacity-100"
-                      : "opacity-0 group-hover:opacity-100",
+                    "cursor-pointer relative overflow-hidden rounded-full size-16 group",
+                    isUploading && "pointer-events-none",
                   )}
                 >
-                  {isUploading ? (
-                    <Loader2 className="size-4 animate-spin" />
-                  ) : (
-                    <UploadSimpleIcon className="size-4" />
-                  )}
-                </div>
-              </Label>
+                  <Avatar className="size-16">
+                    <AvatarImage src={avatarUrl || undefined} />
+                    <AvatarFallback>
+                      <ImageIcon className="size-4 text-muted-foreground" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <input
+                    title="Upload avatar"
+                    type="file"
+                    id="avatar"
+                    accept="image/*"
+                    className="sr-only"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file && !isUploading) {
+                        setFile(file);
+                        handleAvatarUpload();
+                      }
+                    }}
+                  />
+                  <div
+                    className={cn(
+                      "absolute inset-0 flex items-center justify-center transition-opacity duration-300 bg-black/50 backdrop-blur-xs size-full",
+                      isUploading
+                        ? "opacity-100"
+                        : "opacity-0 group-hover:opacity-100",
+                    )}
+                  >
+                    {isUploading ? (
+                      <Loader2 className="size-4 animate-spin text-white" />
+                    ) : (
+                      <UploadSimpleIcon className="size-4 text-white" />
+                    )}
+                  </div>
+                </Label>
+              </div>
+              <div className="flex items-center gap-2 w-full">
+                <Input value={avatarUrl || ""} readOnly />
+                <CopyButton
+                  textToCopy={avatarUrl || ""}
+                  disabled={!avatarUrl}
+                  type="button"
+                  toastMessage="Avatar URL copied to clipboard."
+                />
+              </div>
             </div>
           </div>
 
