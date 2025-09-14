@@ -1,7 +1,9 @@
-node_modules
+node_modules/
 # Keep environment variables out of version control
 .env
 
 scripts
 
 *.md
+
+generated/

@@ -2,7 +2,7 @@
 
 import { db } from "@marble/db";
 import type { WebhookSubscriptionCreatedPayload } from "@polar-sh/sdk/models/components/webhooksubscriptioncreatedpayload.js";
-import { PlanType, SubscriptionStatus } from "@prisma/client";
+import { PlanType, SubscriptionStatus } from "@marble/db/client";
 
 function getPlanType(productName: string): PlanType | null {
   const plan = productName.toLowerCase();
