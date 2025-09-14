@@ -59,4 +59,4 @@ We may update this Privacy Policy from time to time. Any changes will be posted 
 If you have any questions or concerns about this Privacy Policy, please contact us at [support@marblecms.com](mailto:support@marblecms.com)
 
 ---
-*By using the App, you acknowledge that you have read and understood this Privacy Policy.*
+By using the App, you acknowledge that you have read and understood this Privacy Policy.
