@@ -5,6 +5,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@marble/ui/components/popover";
+import { Separator } from "@marble/ui/components/separator";
 import { Switch } from "@marble/ui/components/switch";
 import { cn } from "@marble/ui/lib/utils";
 import { CheckIcon, LinkSimpleIcon, TrashIcon } from "@phosphor-icons/react";
@@ -78,9 +79,9 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
                   .run();
             }
           }}
-          className="flex flex-col p-1 divide-y"
+          className="flex flex-col p-1"
         >
-          <div className="flex mb-1">
+          <div className="flex mb-3">
             <input
               ref={inputRef}
               type="text"
@@ -125,11 +126,14 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
               </Button>
             )}
           </div>
+          <Separator className="mb-3" />
           <div className="flex items-center space-x-2 p-2">
+            {/** biome-ignore lint/correctness/useUniqueElementIds: Its only one */}
             <Switch
               id="new-tab"
               checked={openInNewTab}
               onCheckedChange={setOpenInNewTab}
+              aria-labelledby="new-tab"
             />
             <Label htmlFor="new-tab" className="text-muted-foreground text-xs">
               Open in new tab
