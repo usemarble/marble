@@ -95,9 +95,7 @@ export const completeAuthorAvatarSchema = z.object({
     .max(1024)
     .refine(
       (k) =>
-        k.startsWith("avatars/") &&
-        !k.includes("..") &&
-        !k.startsWith("/"),
+        k.startsWith("avatars/") && !k.includes("..") && !k.startsWith("/"),
       "Invalid key: must start with avatars/ and not contain path traversal",
     ),
   fileType: z.string().min(1),
