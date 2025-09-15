@@ -38,9 +38,6 @@ CREATE INDEX "member_organizationId_idx" ON "public"."member"("organizationId");
 CREATE INDEX "member_organizationId_userId_idx" ON "public"."member"("organizationId", "userId");
 
 -- CreateIndex
-CREATE INDEX "post_workspaceId_slug_idx" ON "public"."post"("workspaceId", "slug");
-
--- CreateIndex
 CREATE INDEX "post_workspaceId_status_idx" ON "public"."post"("workspaceId", "status");
 
 -- CreateIndex
@@ -72,6 +69,3 @@ CREATE INDEX "webhook_workspaceId_idx" ON "public"."webhook"("workspaceId");
 
 -- CreateIndex
 CREATE INDEX "webhook_workspaceId_enabled_idx" ON "public"."webhook"("workspaceId", "enabled");
-
--- CreateIndex
-CREATE INDEX "workspace_slug_idx" ON "public"."workspace"("slug");

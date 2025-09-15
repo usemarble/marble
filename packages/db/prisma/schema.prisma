@@ -54,8 +54,6 @@ model Organization {
   webhooks     Webhook[]
 
   @@map("workspace")
-
-  @@index([slug])
 }
 
 model Post {
@@ -87,7 +85,6 @@ model Post {
   @@unique([workspaceId, slug])
   @@map("post")
 
-  @@index([workspaceId, slug])
   @@index([workspaceId, status])
   @@index([workspaceId, createdAt])
   @@index([workspaceId, status, publishedAt])
