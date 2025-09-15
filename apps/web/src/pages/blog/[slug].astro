@@ -1,6 +1,6 @@
 ---
 import { Image } from "astro:assets";
-import { getCollection, render } from "astro:content";
+import { getCollection } from "astro:content";
 import Container from "@/components/Container.astro";
 import Prose from "@/components/Prose.astro";
 import BlogLayout from "@/layouts/BlogLayout.astro";
@@ -40,7 +40,7 @@ const formattedDate = new Date(entry.data.publishedAt).toLocaleDateString(
       <Container class="md:py-20 py-10 md:pb-24">
         <section class='max-w-3xl mx-auto mb-6 md:mb-10 space-y-6'>
           <div class='flex flex-col gap-4 text-center'>
-            <h1 class='text-3xl lg:text-4xl text-balance font-serif'>
+            <h1 class='text-3xl lg:text-4xl text-balance leading-[1.2]'>
               {entry.data.title}
             </h1>
             <time datetime={entry.data.publishedAt.toISOString()} class="text-muted-foreground text-sm sm:text-base">Published on {formattedDate}</time>

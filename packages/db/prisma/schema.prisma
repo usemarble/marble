@@ -27,6 +27,9 @@ model Subscription {
   workspace          Organization       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@map("subscription")
+  
+  @@index([userId])
+  @@index([status])
 }
 
 model Organization {
@@ -82,6 +85,12 @@ model Post {
 
   @@unique([workspaceId, slug])
   @@map("post")
+
+  @@index([workspaceId, status])
+  @@index([workspaceId, createdAt])
+  @@index([workspaceId, status, publishedAt])
+  @@index([categoryId])
+
 }
 
 model Tag {
@@ -97,6 +106,8 @@ model Tag {
 
   @@unique([workspaceId, slug])
   @@map("tag")
+
+  @@index([workspaceId])
 }
 
 model Media {
@@ -111,6 +122,9 @@ model Media {
   workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@map("media")
+
+  @@index([workspaceId, createdAt])
+  @@index([workspaceId, type])
 }
 
 model Category {
@@ -126,6 +140,8 @@ model Category {
 
   @@unique([workspaceId, slug])
   @@map("category")
+
+  @@index([workspaceId])
 }
 
 model Webhook {
@@ -142,6 +158,9 @@ model Webhook {
   workspace   Organization   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@map("webhook")
+
+  @@index([workspaceId])
+  @@index([workspaceId, enabled])
 }
 
 model User {
@@ -185,6 +204,9 @@ model Author {
   @@unique([workspaceId, userId])
   @@unique([workspaceId, slug])
   @@map("author")
+
+  @@index([workspaceId, isActive])
+  @@index([userId])
 }
 
 model Session {
@@ -200,6 +222,9 @@ model Session {
   user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("session")
+
+  @@index([userId])
+  @@index([activeOrganizationId])
 }
 
 model Account {
@@ -219,6 +244,9 @@ model Account {
   user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("account")
+
+  @@index([userId])
+  @@index([providerId, accountId])
 }
 
 model Verification {
@@ -242,6 +270,10 @@ model Member {
   user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("member")
+
+  @@index([userId])
+  @@index([organizationId])
+  @@index([organizationId, userId])
 }
 
 model Invitation {
@@ -256,6 +288,10 @@ model Invitation {
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@map("invitation")
+
+  @@index([organizationId])
+  @@index([email])
+  @@index([inviterId])
 }
 
 enum PostStatus {

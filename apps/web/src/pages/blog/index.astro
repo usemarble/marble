@@ -9,16 +9,16 @@ const posts = await getCollection("posts");
 ---
 
 <Layout title={`Blog - ${SITE.TITLE}`} image="/og-blog.jpg" description="Bits and pieces about SEO and content writing.">
-  <section class='lg:border-y border-dashed h-[calc(100vh-140px)]'>
+  <section class='lg:border-y border-dashed min-h-[calc(100vh-140px)]'>
     <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto h-full">
-      <Container class='pt-20 pb-32 h-full'>
+      <Container class='pt-20 lg:pt-24 pb-32 h-full'>
         <div class='max-w-2xl mx-auto mb-16 space-y-2'>
-          <h1 class='text-2xl leading-[1.1] sm:text-3xl md:text-4xl text-center font-serif'>
-            The blog.
+          <h1 class='text-2xl leading-[1.1] sm:text-3xl md:text-4xl text-center'>
+            Blog
           </h1>
-          <p class='text-muted-foreground text-center text-sm md:text-base'>Updates, news, and thoughts from the team.</p>
+          <p class='text-muted-foreground text-center text-sm md:text-base'>Updates, news, and tutorials from the team.</p>
         </div>
-        <ul class='grid md:grid-cols-2 lg:grid-cols-3 gap-6 mx-auto'>
+        <ul class='grid grid-cols-1 md:grid-cols-2 lg:grid-cols3 gap-6 md:gap-8 auto-rows-fr'>
           {
             posts.map((post) => (
               <PostCard entry={post} />

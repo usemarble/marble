@@ -48,4 +48,4 @@ These Terms are governed by the laws of the Federal Republic of Nigeria.
 For questions or concerns about these Terms, contact us at [support@marblecms.com](mailto:support@marblecms.com).
 
 ---
-*By using the App, you agree to these Terms of Service.*
+By using the App, you agree to these Terms.

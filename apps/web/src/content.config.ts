@@ -12,6 +12,7 @@ const postSchema = z.object({
   description: z.string(),
   coverImage: z.string().url(),
   publishedAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
   authors: z.array(
     z.object({
       id: z.string(),

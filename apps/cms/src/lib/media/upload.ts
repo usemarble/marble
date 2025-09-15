@@ -27,8 +27,6 @@ async function uploadToR2(presignedUrl: string, file: File) {
     throw new Error(response.data.error);
   }
 
-  console.log("response from r2", response.data);
-
   return response.data;
 }
 

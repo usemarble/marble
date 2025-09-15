@@ -6,7 +6,7 @@ import { APP, FAQs, PRICING, SITE, USERS } from "@/lib/constants";
 ---
 
 <Layout 
-	title={`${SITE.TITLE} - Headless CMS`}
+	title={`${SITE.TITLE} - Super Simple Headless CMS`}
 	description={SITE.DESCRIPTION}
 >
   <div class="divide-y divide-dashed">
@@ -15,7 +15,7 @@ import { APP, FAQs, PRICING, SITE, USERS } from "@/lib/constants";
       <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] grid place-content-center h-full mx-auto">
           <Container class="py-24 md:py-28 lg:py-40">
             <div class="relative mx-auto text-center space-y-6">
-              <h1 class="relative text-4xl font-medium md:text-5xl max-w-[25ch] mx-auto lg:text-[50px]">
+              <h1 class="relative text-4xl md:text-5xl max-w-[25ch] mx-auto lg:text-6xl">
                 Simple content management for modern sites
               </h1>
               <p class="mx-auto max-w-[50ch] md:text-lg text-muted-foreground">
@@ -25,7 +25,7 @@ import { APP, FAQs, PRICING, SITE, USERS } from "@/lib/constants";
               <div>
                 <a href={`${APP.URL}`}
                 target="_blank"
-                class="flex gap-2 justify-center group w-48 bg-primary text-primary-foreground items-center py-2.5 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary focus-visible:ring-2 transition-all duration-300 ease-out px-4 group rounded"
+                class="flex gap-2 justify-center group w-48 bg-primary text-primary-foreground items-center py-3 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary focus-visible:ring-2 transition-all duration-300 ease-out px-4 group rounded"
                 >
                 <span>Get started</span>
               </a>
@@ -40,13 +40,13 @@ import { APP, FAQs, PRICING, SITE, USERS } from "@/lib/constants";
       <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
         <Container class="space-y-10 py-12">
           <div class="relative flex flex-col items-center space-y-3 text-balance">
-            <h2 class="relative text-center text-balance text-2xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
-              Used by the best<span class="text-accent">.</span>
+            <h2 class="relative text-center text-balance text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
+              Trusted by
             </h2>
           </div>
-          <div class="flex flex-wrap justify-center gap-x-8 gap-y-4">
+          <ul class="flex flex-wrap justify-center gap-4">
             {USERS.map((user) => (
-              <div class="flex items-center justify-center min-w-[14rem] p-8">
+              <li class="flex items-center justify-center min-w-[14rem] p-6">
                 <a href={user.url + "?utm_source=marble"} target="_blank" class={user.showWordmark ? "flex items-center gap-2" : ""}>
                   <user.component />
                   {user.showWordmark && (
@@ -56,9 +56,9 @@ import { APP, FAQs, PRICING, SITE, USERS } from "@/lib/constants";
                     <span class="text-xl font-medium sr-only">{user.name}</span>
                   )}
                 </a>
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
         </Container>
       </div>
     </section>
@@ -68,8 +68,8 @@ import { APP, FAQs, PRICING, SITE, USERS } from "@/lib/constants";
       <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
         <Container class="space-y-10 lg:space-y-14 pt-12 pb-20">
           <div class="relative flex flex-col items-center space-y-3 text-balance">
-            <h2 class="relative text-center text-balance text-acc text-2xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
-              Features<span class="text-accent">.</span>
+            <h2 class="relative text-center text-balance text-acc text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
+              Features
             </h2>
             <p class="max-w-prose md:text-lg text-muted-foreground text-center">
               Everything you need to manage your content. 
@@ -180,8 +180,8 @@ import { APP, FAQs, PRICING, SITE, USERS } from "@/lib/constants";
       <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
         <Container class="space-y-10 lg:space-y-14 pt-12 pb-20">
           <div class="relative flex flex-col items-center space-y-4">
-            <h2 class="relative text-center text-balance text-2xl sm:text-xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
-              Simple Pricing<span class="text-accent">.</span>
+            <h2 class="relative text-center text-balance text-2xl sm:text-xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
+              Simple Pricing
             </h2>
             <p class="max-w-prose md:text-lg text-muted-foreground text-center">
               Choose a plan that fits your needs.
@@ -267,8 +267,8 @@ import { APP, FAQs, PRICING, SITE, USERS } from "@/lib/constants";
       <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
         <Container class="space-y-10 lg:space-y-14 pt-12 pb-20">
         <div class="relative flex flex-col items-center space-y-4">
-          <h2 class="relative text-center text-balance text-2xl sm:text-xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
-            FAQ's<span class="text-accent">.</span>
+          <h2 class="relative text-center text-balance text-2xl sm:text-xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
+            Frequently Asked Questions
           </h2>
           <p class="max-w-prose md:text-lg text-muted-foreground text-center">
             Answers to common questions about marblecms.
@@ -292,14 +292,14 @@ import { APP, FAQs, PRICING, SITE, USERS } from "@/lib/constants";
         <Container class="space-y-10 lg:space-y-14 pt-12 lg:pt-20 pb-20">
           <div class="min-h-96 lg:min-h-[500px] grid place-content-center bg-white rounded-md relative border px-4">
             <div class="space-y-2">
-              <h2 class="relative text-center text-balance text-2xl sm:text-2xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
+              <h2 class="relative text-center text-balance text-2xl sm:text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
                 Ready to start writing?
               </h2>
               <p class="lg:text-lg text-muted-foreground text-center max-w-lg">
                 Create your account and start publishing in minutes.
               </p>
             </div>
-            <div class="flex flex-col gap-3 items-center mt-10">
+            <div class="flex flex-col gap-3 items-center mt-8">
               <a href={`${APP.URL}/register`}
                 class="flex gap-2 justify-center group w-48 bg-primary text-primary-foreground items-center py-3 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary focus-visible:ring-2 transition-all duration-300 ease-out px-6 group rounded font-medium"
               >
