@@ -3,6 +3,7 @@ generator client {
   output                 = "../src/generated/prisma"
   engineType             = "client"
   importFileExtension    = ""
+  runtime                = "workerd"
 }
 
 datasource db {
