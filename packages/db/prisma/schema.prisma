@@ -90,7 +90,6 @@ model Post {
   @@unique([workspaceId, slug])
   @@map("post")
 
-  @@index([workspaceId, slug])
   @@index([workspaceId, status])
   @@index([workspaceId, createdAt])
   @@index([workspaceId, status, publishedAt])
