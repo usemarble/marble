@@ -4,6 +4,7 @@ import {
   ImageIcon,
   ListIcon,
   ListNumbersIcon,
+  PuzzlePieceIcon,
   QuotesIcon,
   TextAlignLeftIcon,
   TextHFourIcon,
@@ -149,6 +150,17 @@ export const suggestionItems = createSuggestionItems([
     title: "YouTube",
     description: "Embed a YouTube video",
     icon: <YoutubeLogoIcon className="size-4" />,
+  },
+  {
+    title: "Component",
+    description: "Insert a custom component",
+    searchTerms: ["custom", "component", "widget"],
+    icon: <PuzzlePieceIcon size={16} />,
+    command: ({ editor, range }) => {
+      editor.chain().focus().deleteRange(range).run();
+      // Dispatch custom event to open component selector modal
+      window.dispatchEvent(new CustomEvent("openComponentSelector"));
+    },
   },
 ]);
 
