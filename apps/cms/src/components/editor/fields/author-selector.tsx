@@ -28,7 +28,7 @@ import {
 import { cn } from "@marble/ui/lib/utils";
 import { CaretUpDownIcon, CheckIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { type Control, useController } from "react-hook-form";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
@@ -68,7 +68,6 @@ export function AuthorSelector({
     defaultValue: defaultAuthors,
   });
 
-  const [selected, setSelected] = useState<AuthorOptions[]>([]);
   const { user } = useUser();
   const workspaceId = useWorkspaceId();
   const isNewPost = defaultAuthors.length === 0;
@@ -92,26 +91,18 @@ export function AuthorSelector({
     enabled: !!workspaceId,
   });
 
-  // Memoize the primary author to avoid recalculation
-  const derivedPrimaryAuthor = useMemo(() => {
+  // Cache the computed primary author from the query data
+  const primaryAuthor = useMemo(() => {
     if (!user || authors.length === 0) return undefined;
     return authors.find((author) => author.userId === user.id) || authors[0];
   }, [user, authors]);
 
-  // Handle selected authors based on form value
-  // This is just to show the selected users in the UI
-  useEffect(() => {
-    if (isLoading || authors.length === 0) return;
+  // Cache the selected authors from the form value
+  const selectedAuthors = useMemo(() => {
+    if (!value?.length || authors.length === 0) return [];
+    return authors.filter((author) => value.includes(author.id));
+  }, [value, authors]);
 
-    if (value.length > 0) {
-      const authorsThatWerePreviouslySelected = authors.filter((opt) =>
-        value.includes(opt.id),
-      );
-      setSelected(authorsThatWerePreviouslySelected);
-    } else {
-      setSelected([]);
-    }
-  }, [value, authors, isLoading]);
 
   // Auto-select current user's author profile on initial load for better UX
   // This makes it obvious who is creating the content and saves them from
@@ -123,15 +114,15 @@ export function AuthorSelector({
   useEffect(() => {
     if (
       authors.length > 0 &&
-      derivedPrimaryAuthor &&
+      primaryAuthor &&
       (!value || value.length === 0) &&
       !isLoading &&
       isNewPost
     ) {
-      onChange([derivedPrimaryAuthor.id]);
-      console.log("auto selected primary author", derivedPrimaryAuthor);
+      onChange([primaryAuthor.id]);
+      console.log("auto selected primary author", primaryAuthor);
     }
-  }, [authors, derivedPrimaryAuthor, onChange, isLoading, value, isNewPost]);
+  }, [authors, primaryAuthor, onChange, isLoading, value, isNewPost]);
 
   const addOrRemoveAuthor = (authorToAdd: string) => {
     const currentValues = value || [];
@@ -140,16 +131,16 @@ export function AuthorSelector({
       : [...currentValues, authorToAdd];
 
     if (
-      derivedPrimaryAuthor &&
+      primaryAuthor &&
       newValue.length === 0 &&
-      currentValues.includes(derivedPrimaryAuthor.id) &&
-      authorToAdd === derivedPrimaryAuthor.id
+      currentValues.includes(primaryAuthor.id) &&
+      authorToAdd === primaryAuthor.id
     ) {
-      newValue = [derivedPrimaryAuthor.id];
+      newValue = [primaryAuthor.id];
     }
 
-    if (newValue.length === 0 && derivedPrimaryAuthor) {
-      newValue = [derivedPrimaryAuthor.id];
+    if (newValue.length === 0 && primaryAuthor) {
+      newValue = [primaryAuthor.id];
     }
 
     onChange(newValue);
@@ -165,24 +156,24 @@ export function AuthorSelector({
         <PopoverTrigger>
           <div className="bg-editor-field relative flex h-auto min-h-9 w-full cursor-pointer items-center justify-between gap-2 rounded-md border px-3 py-1.5 text-sm">
             <ul className="flex flex-wrap -space-x-2">
-              {selected.length === 0 && (
+              {selectedAuthors.length === 0 && (
                 <li className="text-muted-foreground">
                   {placeholder || "Select authors"}
                 </li>
               )}
-              {selected.length === 1 && (
+              {selectedAuthors.length === 1 && (
                 <li className="flex items-center gap-2">
                   <Avatar className="size-6">
-                    <AvatarImage src={selected[0]?.image || undefined} />
+                    <AvatarImage src={selectedAuthors[0]?.image || undefined} />
                     <AvatarFallback>
-                      {selected[0]?.name.charAt(0)}
+                      {selectedAuthors[0]?.name.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
-                  <p className="max-w-64 text-sm">{selected[0]?.name}</p>
+                  <p className="max-w-64 text-sm">{selectedAuthors[0]?.name}</p>
                 </li>
               )}
-              {selected.length > 1 &&
-                selected.map((author) => (
+              {selectedAuthors.length > 1 &&
+                selectedAuthors.map((author) => (
                   <li key={author.id} className="flex items-center">
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -233,7 +224,7 @@ export function AuthorSelector({
                       <CheckIcon
                         className={cn(
                           "ml-auto h-4 w-4",
-                          selected.some((item) => item.id === option.id)
+                          selectedAuthors.some((item) => item.id === option.id)
                             ? "opacity-100"
                             : "opacity-0",
                         )}

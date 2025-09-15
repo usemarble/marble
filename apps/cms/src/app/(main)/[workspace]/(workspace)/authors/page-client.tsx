@@ -13,10 +13,11 @@ import type { Author } from "@/types/author";
 function PageClient() {
   const { activeWorkspace } = useWorkspace();
 
-  const { data: authors, isLoading } = useQuery({
+  const { data: authors, isLoading } = useQuery<Author[]>({
     // biome-ignore lint/style/noNonNullAssertion: <>
     queryKey: QUERY_KEYS.AUTHORS(activeWorkspace?.id!),
-    queryFn: async () => {
+    staleTime: 1000 * 60 * 10, // 10 minutes for user data
+    queryFn: async (): Promise<Author[]> => {
       try {
         const response = await fetch("/api/authors");
         if (!response.ok) {
@@ -28,9 +29,11 @@ function PageClient() {
         toast.error(
           error instanceof Error ? error.message : "Failed to fetch authors",
         );
+        return [];
       }
     },
     enabled: !!activeWorkspace?.id,
+    placeholderData: [] as Author[],
   });
 
   if (isLoading) {

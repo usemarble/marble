@@ -86,33 +86,33 @@ export function EditorSidebar({
 
   const debouncedContent = useDebounce(contentValue || "", 500);
 
-  const textMetrics = useMemo(() => {
-    const inputHtml = debouncedContent || "";
-    const inputText = striptags(inputHtml);
-
-    const wordCountResult = wordCount(inputText);
-
-    const sentences = inputText
+  // Cache computed text analysis metrics from content
+  const contentMetrics = useMemo(() => {
+    const htmlContent = debouncedContent || "";
+    const plainText = striptags(htmlContent);
+    const wordCountResult = wordCount(plainText);
+    const sentences = plainText
       .split(/[.!?]+/)
       .filter((sentence) => sentence.trim().length > 0);
     const sentenceCount = sentences.length;
-
-    const avgWordsPerSentence =
-      sentenceCount > 0 ? Math.round(wordCountResult / sentenceCount) : 0;
-    const readabilityScore = calculateReadabilityScore(inputHtml);
+    const avgWordsPerSentence = sentenceCount > 0 
+      ? Math.round(wordCountResult / sentenceCount) 
+      : 0;
+    
+    const readabilityScore = calculateReadabilityScore(htmlContent);
     const readabilityLevel = getReadabilityLevel(readabilityScore);
-
-    const metrics = {
+    const suggestions = generateSuggestions({
       wordCount: wordCountResult,
       sentenceCount,
       avgWordsPerSentence,
       readabilityScore,
-    };
-
-    const suggestions = generateSuggestions(metrics);
+    });
 
     return {
-      ...metrics,
+      wordCount: wordCountResult,
+      sentenceCount,
+      avgWordsPerSentence,
+      readabilityScore,
       readabilityLevel,
       suggestions,
     };
@@ -210,20 +210,20 @@ export function EditorSidebar({
                       <h4 className="text-sm font-medium">Readability</h4>
                       <div className="flex items-center justify-center">
                         <Gauge
-                          value={textMetrics.readabilityScore}
+                          value={contentMetrics.readabilityScore}
                           label="Score"
                           size={200}
                           animate={true}
                         />
                       </div>
-                      {textMetrics.wordCount > 0 && (
+                      {contentMetrics.wordCount > 0 && (
                         <div className="space-y-1">
                           <h5 className="text-sm font-medium">Feedback</h5>
                           <p className="text-muted-foreground text-xs">
                             <span className="font-medium">
-                              {textMetrics.readabilityLevel.level}:
+                              {contentMetrics.readabilityLevel.level}:
                             </span>{" "}
-                            {textMetrics.readabilityLevel.description}
+                            {contentMetrics.readabilityLevel.description}
                           </p>
                         </div>
                       )}
@@ -236,12 +236,12 @@ export function EditorSidebar({
                       <div className="grid grid-cols-2 gap-3 text-sm">
                         <div className="space-y-1">
                           <p className="text-muted-foreground">Words</p>
-                          <p className="font-medium">{textMetrics.wordCount}</p>
+                          <p className="font-medium">{contentMetrics.wordCount}</p>
                         </div>
                         <div className="space-y-1">
                           <p className="text-muted-foreground">Sentences</p>
                           <p className="font-medium">
-                            {textMetrics.sentenceCount}
+                            {contentMetrics.sentenceCount}
                           </p>
                         </div>
                         <div className="col-span-2 space-y-1">
@@ -249,7 +249,7 @@ export function EditorSidebar({
                             Avg. words per sentence
                           </p>
                           <p className="font-medium">
-                            {textMetrics.avgWordsPerSentence}
+                            {contentMetrics.avgWordsPerSentence}
                           </p>
                         </div>
                       </div>
@@ -259,12 +259,12 @@ export function EditorSidebar({
 
                     <div className="space-y-3">
                       <h4 className="text-sm font-medium">
-                        {textMetrics.wordCount === 0
+                        {contentMetrics.wordCount === 0
                           ? "Getting Started"
                           : "Suggestions"}
                       </h4>
                       <div className="text-muted-foreground space-y-2 text-sm">
-                        {textMetrics.suggestions.map((suggestion) => (
+                        {contentMetrics.suggestions.map((suggestion) => (
                           <p key={suggestion}>• {suggestion}</p>
                         ))}
                       </div>

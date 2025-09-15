@@ -58,7 +58,8 @@ export function TimezoneSelector({
     return () => cronJob.stop();
   }, []);
 
-  const tzdbData = useMemo(() => {
+  // Cache timezone database data - only computed once
+  const timezoneData = useMemo(() => {
     try {
       return getTimeZones();
     } catch (err) {
@@ -67,62 +68,60 @@ export function TimezoneSelector({
     }
   }, []);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: We use the state to retrigger the effect
+  // Cache timezone options with current times - recomputes when time updates
   const timezoneOptions = useMemo<TimezoneOption[]>(() => {
-    try {
-      const now = new Date();
+    if (!timezones.length) return [];
+    
+    const now = new Date();
+    
+    return timezones
+      .map((timezone) => {
+        try {
+          const formatter = new Intl.DateTimeFormat("en-US", {
+            timeZone: timezone,
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+          });
 
-      return timezones
-        .map((timezone) => {
-          try {
-            const formatter = new Intl.DateTimeFormat("en-US", {
-              timeZone: timezone,
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: true,
-            });
+          const currentTime = formatter.format(now);
+          const tzInfo = timezoneData.find(
+            (tz) => tz.name === timezone || tz.group.includes(timezone),
+          );
 
-            const currentTime = formatter.format(now);
+          return {
+            value: timezone,
+            label: timezone.replace(/_/g, " "),
+            currentTime,
+            countryName: tzInfo?.countryName || "Unknown",
+            countryCode: tzInfo?.countryCode || "XX",
+          };
+        } catch (_error) {
+          return {
+            value: timezone,
+            label: timezone.replace(/_/g, " "),
+            currentTime: "N/A",
+            countryName: "Unknown",
+            countryCode: "XX",
+          };
+        }
+      })
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }, [timezones, timezoneData, timeUpdate]);
 
-            // Find country information from tzdb
-            const tzInfo = tzdbData.find(
-              (tz) => tz.name === timezone || tz.group.includes(timezone),
-            );
-
-            return {
-              value: timezone,
-              label: timezone.replace(/_/g, " "),
-              currentTime,
-              countryName: tzInfo?.countryName || "Unknown",
-              countryCode: tzInfo?.countryCode || "XX",
-            };
-          } catch (_error) {
-            return {
-              value: timezone,
-              label: timezone.replace(/_/g, " "),
-              currentTime: "N/A",
-              countryName: "Unknown",
-              countryCode: "XX",
-            };
-          }
-        })
-        .sort((a, b) => a.label.localeCompare(b.label));
-    } catch (error) {
-      console.error("Error generating timezone options:", error);
-      return [];
-    }
-  }, [timezones, timeUpdate]);
-
-  const filteredOptions = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return timezoneOptions;
-    return timezoneOptions.filter((opt) =>
-      `${opt.label} ${opt.value} ${opt.countryName}`.toLowerCase().includes(q),
+  // Cache filtered search results
+  const filteredTimezones = useMemo(() => {
+    if (!query.trim()) return timezoneOptions;
+    const searchQuery = query.trim().toLowerCase();
+    return timezoneOptions.filter((option) =>
+      `${option.label} ${option.value} ${option.countryName}`
+        .toLowerCase()
+        .includes(searchQuery),
     );
   }, [timezoneOptions, query]);
 
   const virtual = useVirtualizer({
-    count: filteredOptions.length,
+    count: filteredTimezones.length,
     getScrollElement: () => parentRef.current,
     estimateSize: () => 48,
   });
@@ -183,7 +182,7 @@ export function TimezoneSelector({
             >
               {virtual.getVirtualItems().map((row) => {
                 // biome-ignore lint/style/noNonNullAssertion: known not null
-                const option = filteredOptions[row.index]!;
+                const option = filteredTimezones[row.index]!;
 
                 return (
                   <CommandItem
