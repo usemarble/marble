@@ -41,6 +41,9 @@ export async function POST(request: Request) {
     case "avatar":
       key = `avatars/${id}.${extension}`;
       break;
+    case "author-avatar":
+      key = `avatars/${id}.${extension}`;
+      break;
     case "logo":
       key = `logos/${id}.${extension}`;
       break;
