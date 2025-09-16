@@ -7,7 +7,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import { columns, type Post } from "@/components/posts/columns";
-import { PostDataTable } from "@/components/posts/data-table";
+import { PostDataView } from "@/components/posts/data-view";
 import PageLoader from "@/components/shared/page-loader";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { useWorkspace } from "@/providers/workspace";
@@ -43,7 +43,7 @@ function PageClient() {
   return (
     <WorkspacePageWrapper className="flex flex-col pt-10 pb-16 gap-8">
       {posts && posts.length > 0 ? (
-        <PostDataTable columns={columns} data={posts} />
+        <PostDataView columns={columns} data={posts} />
       ) : (
         <WorkspacePageWrapper className="h-full grid place-content-center">
           <div className="flex flex-col gap-4 items-center max-w-80">
