@@ -1,9 +1,17 @@
-generator client {
+generator client_workerd {
   provider               = "prisma-client"
-  output                 = "../src/generated/prisma"
+  output                 = "../src/generated/workerd"
   engineType             = "client"
   importFileExtension    = ""
   runtime                = "workerd"
+}
+
+generator client_node {
+  provider               = "prisma-client"
+  output                 = "../src/generated/nodejs"
+  engineType             = "client"
+  importFileExtension    = ""
+  runtime                = "nodejs"
 }
 
 datasource db {
