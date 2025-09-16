@@ -1,4 +1,4 @@
-import { createClient } from "@marble/db";
+import { createWorker } from "@marble/db";
 import { Hono } from "hono";
 import type { Env } from "../types/env";
 import { BasicPaginationSchema } from "../validations";
@@ -8,7 +8,7 @@ const authors = new Hono<{ Bindings: Env }>();
 authors.get("/", async (c) => {
   const url = c.env.DATABASE_URL;
   const workspaceId = c.req.param("workspaceId");
-  const db = createClient(url);
+  const db = createWorker(url);
 
   // Validate pagination params
   const queryValidation = BasicPaginationSchema.safeParse({
@@ -93,7 +93,7 @@ authors.get("/:identifier", async (c) => {
   const url = c.env.DATABASE_URL;
   const workspaceId = c.req.param("workspaceId");
   const identifier = c.req.param("identifier");
-  const db = createClient(url);
+  const db = createWorker(url);
 
   try {
     const author = await db.author.findFirst({

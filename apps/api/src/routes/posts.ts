@@ -1,4 +1,4 @@
-import { createClient } from "@marble/db";
+import { createWorker } from "@marble/db";
 import { Hono } from "hono";
 import { NodeHtmlMarkdown } from "node-html-markdown";
 import type { Env } from "../types/env";
@@ -11,7 +11,7 @@ posts.get("/", async (c) => {
     const url = c.env.DATABASE_URL;
     const workspaceId = c.req.param("workspaceId");
     const format = c.req.query("format");
-    const db = createClient(url);
+    const db = createWorker(url);
 
     // Validate query parameters
     const queryValidation = PostsQuerySchema.safeParse({
@@ -181,7 +181,7 @@ posts.get("/:identifier", async (c) => {
     const workspaceId = c.req.param("workspaceId");
     const identifier = c.req.param("identifier");
     const format = c.req.query("format");
-    const db = createClient(url);
+    const db = createWorker(url);
 
     const post = await db.post.findFirst({
       where: {

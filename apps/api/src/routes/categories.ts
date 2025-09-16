@@ -1,4 +1,4 @@
-import { createClient } from "@marble/db";
+import { createWorker } from "@marble/db";
 import { Hono } from "hono";
 import type { Env } from "../types/env";
 import { BasicPaginationSchema } from "../validations";
@@ -9,7 +9,7 @@ categories.get("/", async (c) => {
   try {
     const url = c.env.DATABASE_URL;
     const workspaceId = c.req.param("workspaceId");
-    const db = createClient(url);
+    const db = createWorker(url);
 
     // Validate pagination params
     const queryValidation = BasicPaginationSchema.safeParse({

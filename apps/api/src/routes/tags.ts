@@ -1,4 +1,4 @@
-import { createClient } from "@marble/db";
+import { createWorker } from "@marble/db";
 import { Hono } from "hono";
 import type { Env } from "../types/env";
 import { BasicPaginationSchema } from "../validations";
@@ -6,7 +6,7 @@ import { BasicPaginationSchema } from "../validations";
 const tags = new Hono<{ Bindings: Env }>();
 
 tags.get("/", async (c) => {
-  const db = createClient(c.env.DATABASE_URL);
+  const db = createWorker(c.env.DATABASE_URL);
   const workspaceId = c.req.param("workspaceId");
 
   const queryValidation = BasicPaginationSchema.safeParse({
