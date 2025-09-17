@@ -4,8 +4,30 @@
 @plugin "@tailwindcss/typography";
 @config "../../tailwind.config.ts";
 
+@font-face {
+  font-family: "Manrope";
+  src: url("/fonts/Manrope-Variable.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Funnel-Sans";
+  src: url("/fonts/FunnelSans-Variable.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Literata";
+  src: url("/fonts/Literata-Variable.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
-  --background: hsl(60, 11%, 98%);
+  --background: hsl(60 11% 98%);
   --foreground: hsl(240 15% 14%);
   --primary: hsl(240 10% 14%);
   --primary-foreground: hsl(0 0% 98%);
@@ -71,30 +93,6 @@
 @utility prose {
   & li p {
     margin: 0;
-  }
-}
-
-@layer base {
-  @font-face {
-    font-family: "Manrope";
-    src: url("/fonts/Manrope-Variable.ttf") format("truetype");
-    font-weight: 100 900;
-    font-style: normal;
-    font-display: swap;
-  }
-  @font-face {
-    font-family: "Funnel-Sans";
-    src: url("/fonts/FunnelSans-Variable.ttf") format("truetype");
-    font-weight: 100 900;
-    font-style: normal;
-    font-display: swap;
-  }
-  @font-face {
-    font-family: "Literata";
-    src: url("/fonts/Literata-Variable.ttf") format("truetype");
-    font-weight: 100 900;
-    font-style: normal;
-    font-display: swap;
   }
 }
 
