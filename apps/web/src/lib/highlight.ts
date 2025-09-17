@@ -57,7 +57,6 @@ export async function highlightContent(htmlContent: string): Promise<string> {
       const supportedLanguages = highlighter.getLoadedLanguages();
       const finalLang = supportedLanguages.includes(lang) ? lang : "text";
 
-      // https://shiki.style/guide/install#usage
       const highlighted = highlighter.codeToHtml(decodedCode, {
         lang: finalLang,
         theme: "github-dark",
