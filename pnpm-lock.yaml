@@ -256,18 +256,12 @@ importers:
       sonner:
         specifier: ^1.7.1
         version: 1.7.1(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
-      striptags:
-        specifier: ^3.2.0
-        version: 3.2.0
       tailwindcss-animate:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@4.1.12)
       vaul:
         specifier: ^1.1.2
         version: 1.1.2(@types/react-dom@19.0.2(@types/react@19.0.2))(@types/react@19.0.2)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
-      word-count:
-        specifier: ^0.3.1
-        version: 0.3.1
       zod:
         specifier: ^3.25.76
         version: 3.25.76
@@ -6608,9 +6602,6 @@ packages:
     resolution: {integrity: sha512-iq6eVVI64nQQTRYq2KtEg2d2uU7LElhTJwsH4YzIHZshxlgZms/wIc4VoDQTlG/IvVIrBKG06CrZnp0qv7hkcQ==}
     engines: {node: '>=12'}
 
-  striptags@3.2.0:
-    resolution: {integrity: sha512-g45ZOGzHDMe2bdYMdIvdAfCQkCTDMGBazSw1ypMowwGIee7ZQ5dU0rBJ8Jqgl+jAKIv4dbeE1jscZq9wid1Tkw==}
-
   strnum@1.0.5:
     resolution: {integrity: sha512-J8bbNyKKXl5qYcR36TIO8W3mVGVHrmmxsd5PAItGkmyzwJvybiw2IVq5nqd0i4LSNSkB/sx9VHllbfFdr9k1JA==}
 
@@ -7247,9 +7238,6 @@ packages:
   widest-line@5.0.0:
     resolution: {integrity: sha512-c9bZp7b5YtRj2wOe6dlj32MK+Bx/M/d+9VB2SHM1OtsUHR0aV0tdP6DWh/iMt0kWi1t5g1Iudu6hQRNd1A4PVA==}
     engines: {node: '>=18'}
-
-  word-count@0.3.1:
-    resolution: {integrity: sha512-tTDKyKX1yy8FZWUw64TOgnMeLeXPZBA+ZunaCCpFRrGFeLSwSdEgSsFI/5DIJkiUfM7CkCREFPkZd9U4eLXgqA==}
 
   workerd@1.20250902.0:
     resolution: {integrity: sha512-rM+8ARYoy9gWJNPW89ERWyjbp7+m1hu6PFbehiP8FW9Hm5kNVo71lXFrkCP2HSsTP1OLfIU/IwanYOijJ0mQDw==}
@@ -15372,8 +15360,6 @@ snapshots:
     dependencies:
       ansi-regex: 6.1.0
 
-  striptags@3.2.0: {}
-
   strnum@1.0.5: {}
 
   strnum@2.1.1: {}
@@ -15968,8 +15954,6 @@ snapshots:
   widest-line@5.0.0:
     dependencies:
       string-width: 7.2.0
-
-  word-count@0.3.1: {}
 
   workerd@1.20250902.0:
     optionalDependencies:

@@ -24,7 +24,7 @@ import {
   EditorRoot,
   type JSONContent,
 } from "novel";
-import { handleCommandNavigation } from "novel/extensions";
+import { CharacterCount, handleCommandNavigation } from "novel/extensions";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { EditorSidebar } from "@/components/editor/editor-sidebar";
@@ -200,72 +200,75 @@ function EditorPage({ initialData, id }: EditorPageProps) {
   }, [debouncedTitle, setValue, clearErrors, isUpdateMode]);
 
   return (
-    <>
-      <SidebarInset className="bg-editor-content-background rounded-xl shadow-xs border min-h-[calc(100vh-1rem)] h-[calc(100vh-1rem)]">
-        <header className="sticky top-0 p-3 z-50 flex justify-between">
-          <div className="flex gap-4 items-center">
-            <Tooltip delayDuration={400}>
-              <TooltipTrigger asChild>
-                <Link
-                  href={`/${params.workspace}/posts`}
-                  className={cn(
-                    buttonVariants({ variant: "ghost", size: "icon" }),
-                    "group cursor-default rounded-full",
-                  )}
-                >
-                  <XIcon className="size-4 text-muted-foreground group-hover:text-foreground" />
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Close editor</p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
+    <EditorRoot>
+        <SidebarInset className="bg-editor-content-background rounded-xl shadow-xs border min-h-[calc(100vh-1rem)] h-[calc(100vh-1rem)]">
+          <header className="sticky top-0 p-3 z-50 flex justify-between">
+            <div className="flex gap-4 items-center">
+              <Tooltip delayDuration={400}>
+                <TooltipTrigger asChild>
+                  <Link
+                    href={`/${params.workspace}/posts`}
+                    className={cn(
+                      buttonVariants({ variant: "ghost", size: "icon" }),
+                      "group cursor-default rounded-full",
+                    )}
+                  >
+                    <XIcon className="size-4 text-muted-foreground group-hover:text-foreground" />
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Close editor</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
 
-          <div>
-            <Tooltip delayDuration={400}>
-              <TooltipTrigger asChild>
-                <SidebarTrigger className="size-8 rounded-full text-muted-foreground">
-                  <SidebarSimpleIcon className="size-4" />
-                </SidebarTrigger>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Toggle sidebar ({getToggleSidebarShortcut()})</p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
-        </header>
-        <section className="mx-auto w-full max-w-3xl flex-1">
-          <HiddenScrollbar className="h-[calc(100vh-7rem)]">
-            <form
-              ref={formRef}
-              onSubmit={handleSubmit(onSubmit)}
-              className="space-y-5 rounded-md p-4"
-            >
-              <div className="flex flex-col">
-                <label htmlFor="title" className="sr-only">
-                  Enter post your title
-                </label>
-                {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
-                <TextareaAutosize
-                  id="title"
-                  placeholder="Title"
-                  {...register("title")}
-                  onKeyDown={handleKeyDown}
-                  className="mb-2 resize-none scrollbar-hide w-full bg-transparent sm:px-4 text-4xl font-semibold focus:outline-hidden prose-headings:font-semibold focus:ring-0"
-                />
-                {errors.title && (
-                  <p className="text-sm px-1 font-medium text-destructive">
-                    {errors.title.message}
-                  </p>
-                )}
-              </div>
-              <div className="flex flex-col">
-                <EditorRoot>
+            <div>
+              <Tooltip delayDuration={400}>
+                <TooltipTrigger asChild>
+                  <SidebarTrigger className="size-8 rounded-full text-muted-foreground">
+                    <SidebarSimpleIcon className="size-4" />
+                  </SidebarTrigger>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Toggle sidebar ({getToggleSidebarShortcut()})</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+          </header>
+          <section className="mx-auto w-full max-w-3xl flex-1">
+            <HiddenScrollbar className="h-[calc(100vh-7rem)]">
+              <form
+                ref={formRef}
+                onSubmit={handleSubmit(onSubmit)}
+                className="space-y-5 rounded-md p-4"
+              >
+                <div className="flex flex-col">
+                  <label htmlFor="title" className="sr-only">
+                    Enter post your title
+                  </label>
+                  {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
+                  <TextareaAutosize
+                    id="title"
+                    placeholder="Title"
+                    {...register("title")}
+                    onKeyDown={handleKeyDown}
+                    className="mb-2 resize-none scrollbar-hide w-full bg-transparent sm:px-4 text-4xl font-semibold focus:outline-hidden prose-headings:font-semibold focus:ring-0"
+                  />
+                  {errors.title && (
+                    <p className="text-sm px-1 font-medium text-destructive">
+                      {errors.title.message}
+                    </p>
+                  )}
+                </div>
+                <div className="flex flex-col">
                   <EditorContent
                     initialContent={JSON.parse(watch("contentJson") || "{}")}
                     immediatelyRender={false}
-                    extensions={[...defaultExtensions, slashCommand]}
+                    extensions={[
+                      ...defaultExtensions,
+                      slashCommand,
+                      CharacterCount,
+                    ]}
                     onCreate={({ editor }) => {
                       editorRef.current = editor;
                     }}
@@ -289,36 +292,35 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                     <BubbleMenu />
                     <SlashCommandMenu />
                   </EditorContent>
-                </EditorRoot>
-                {errors.content && (
-                  <p className="text-sm px-1 font-medium text-destructive">
-                    {errors.content.message}
-                  </p>
-                )}
-              </div>
-            </form>
-          </HiddenScrollbar>
-        </section>
-      </SidebarInset>
-      {!isMobile && (
-        <div
-          className={cn(
-            "h-svh transition-[width] ease-linear",
-            open ? "w-2" : "w-0",
-          )}
+                  {errors.content && (
+                    <p className="text-sm px-1 font-medium text-destructive">
+                      {errors.content.message}
+                    </p>
+                  )}
+                </div>
+              </form>
+            </HiddenScrollbar>
+          </section>
+        </SidebarInset>
+        {!isMobile && (
+          <div
+            className={cn(
+              "h-svh transition-[width] ease-linear",
+              open ? "w-2" : "w-0",
+            )}
+          />
+        )}
+        <EditorSidebar
+          errors={errors}
+          control={control}
+          formRef={formRef}
+          watch={watch}
+          isSubmitting={isCreating || isUpdating}
+          isOpen={showSettings}
+          setIsOpen={setShowSettings}
+          mode={isUpdateMode ? "update" : "create"}
         />
-      )}
-      <EditorSidebar
-        errors={errors}
-        control={control}
-        formRef={formRef}
-        watch={watch}
-        isSubmitting={isCreating || isUpdating}
-        isOpen={showSettings}
-        setIsOpen={setShowSettings}
-        mode={isUpdateMode ? "update" : "create"}
-      />
-    </>
+    </EditorRoot>
   );
 }
 export default EditorPage;

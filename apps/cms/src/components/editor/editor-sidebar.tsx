@@ -16,16 +16,9 @@ import {
   TabsTrigger,
 } from "@marble/ui/components/tabs";
 import { cn } from "@marble/ui/lib/utils";
+import { useEditor } from "novel";
 import { useMemo, useState } from "react";
-import {
-  type Control,
-  type FieldErrors,
-  type UseFormWatch,
-  useController,
-} from "react-hook-form";
-import striptags from "striptags";
-import wordCount from "word-count";
-import { useDebounce } from "@/hooks/use-debounce";
+import type { Control, FieldErrors, UseFormWatch } from "react-hook-form";
 import type { PostValues } from "@/lib/validations/post";
 import { useUnsavedChanges } from "@/providers/unsaved-changes";
 import {
@@ -70,27 +63,27 @@ export function EditorSidebar({
   ...props
 }: EditorSidebarProps) {
   const { open } = useSidebar();
+  const { editor } = useEditor();
   const hasErrors = Object.keys(errors).length > 0;
   const { tags, authors: initialAuthors } = watch();
   const { hasUnsavedChanges } = useUnsavedChanges();
   const [activeTab, setActiveTab] = useState("metadata");
 
-  const {
-    field: { value: contentValue },
-  } = useController({
-    name: "content",
-    control,
-  });
-
-  // const wordCount = editorIntsance.editor?.storage.
-
-  const debouncedContent = useDebounce(contentValue || "", 500);
-
   const textMetrics = useMemo(() => {
-    const inputHtml = debouncedContent || "";
-    const inputText = striptags(inputHtml);
+    console.log("editor", editor?.getText());
+    const inputText = editor?.getText();
 
-    const wordCountResult = wordCount(inputText);
+    if (!editor || !inputText)
+      return {
+        wordCount: 0,
+        sentenceCount: 0,
+        avgWordsPerSentence: 0,
+        readabilityScore: 0,
+        readabilityLevel: { level: "Unknown", description: "Unknown" },
+        suggestions: [],
+      };
+    console.log("editor?.storage", editor.storage.characterCount);
+    const wordCountResult = editor.storage.characterCount.words();
 
     const sentences = inputText
       .split(/[.!?]+/)
@@ -99,7 +92,7 @@ export function EditorSidebar({
 
     const avgWordsPerSentence =
       sentenceCount > 0 ? Math.round(wordCountResult / sentenceCount) : 0;
-    const readabilityScore = calculateReadabilityScore(inputHtml);
+    const readabilityScore = calculateReadabilityScore(editor);
     const readabilityLevel = getReadabilityLevel(readabilityScore);
 
     const metrics = {
@@ -107,6 +100,7 @@ export function EditorSidebar({
       sentenceCount,
       avgWordsPerSentence,
       readabilityScore,
+      readabilityLevel,
     };
 
     const suggestions = generateSuggestions(metrics);
@@ -116,7 +110,7 @@ export function EditorSidebar({
       readabilityLevel,
       suggestions,
     };
-  }, [debouncedContent]);
+  }, [editor]);
 
   const triggerSubmit = async () => {
     if (hasErrors) {

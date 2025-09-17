@@ -1,11 +1,10 @@
-import striptags from "striptags";
-import wordCount from "word-count";
+import type { EditorInstance } from "novel";
 
-export function calculateReadabilityScore(html: string): number {
-  const text = striptags(html);
+export function calculateReadabilityScore(editor: EditorInstance): number {
+  const text = editor?.getText();
   if (!text || text.trim().length === 0) return 0;
 
-  const wordCountResult = wordCount(text);
+  const wordCountResult = editor.storage.characterCount.words();
   const sentences = text
     .split(/[.!?]+/)
     .filter((sentence) => sentence.trim().length > 0);
