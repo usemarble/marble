@@ -1,5 +1,6 @@
 import { defineCollection, z } from "astro:content";
 import { glob } from "astro/loaders";
+import { highlightContent } from "./lib/highlight";
 
 const key = import.meta.env.MARBLE_WORKSPACE_KEY;
 const url = import.meta.env.MARBLE_API_URL;
@@ -48,9 +49,12 @@ const articleCollection = defineCollection({
     const posts = data.posts as Post[];
     // Must return an array of entries with an id property
     // or an object with IDs as keys and entries as values
-    return posts.map((post) => ({
-      ...post,
-    }));
+    return Promise.all(
+      posts.map(async (post) => ({
+        ...post,
+        content: await highlightContent(post.content),
+      })),
+    );
   },
   schema: postSchema,
 });
