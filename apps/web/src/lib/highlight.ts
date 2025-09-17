@@ -34,8 +34,8 @@ async function getHighlighter() {
 export async function highlightContent(htmlContent: string): Promise<string> {
   const highlighter = await getHighlighter();
 
-  // Marble returns the language as a class attribute on the <pre> tag
-  // i.e <pre class="language-jsx"><code>...</code></pre>
+  // Marble returns the language as a class attribute on the <code> tag
+  // i.e <pre><code class="language-jsx">...</code></pre>
   // so we use a regex to find and pick the language from the classname
   const codeBlockRegex =
     /<pre><code(?:\s+class="language-([^"]+)")?[^>]*>([\s\S]*?)<\/code><\/pre>/g;
