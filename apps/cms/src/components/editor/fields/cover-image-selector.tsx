@@ -57,7 +57,6 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
   const [file, setFile] = useState<File | undefined>();
   const [embedUrl, setEmbedUrl] = useState<string>("");
   const [isValidatingUrl, setIsValidatingUrl] = useState(false);
-  const [altText, setAltText] = useState<string>("");
   const [urlError, setUrlError] = useState<string | null>(null);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const workspaceId = useWorkspaceId();
@@ -215,15 +214,6 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
                     setUrlError(null);
                   }}
                   placeholder="Paste your cover image link"
-                  className={cn(
-                    "bg-editor-sidebar-background",
-                    urlError && "border-destructive",
-                  )}
-                />
-                <Input
-                  value={altText}
-                  onChange={({ target }) => setAltText(target.value)}
-                  placeholder="Describe the cover image (alt text)"
                   className={cn(
                     "bg-editor-sidebar-background",
                     urlError && "border-destructive",

@@ -14,7 +14,6 @@ import { BulkDeleteMediaModal } from "@/components/media/bulk-delete-modal";
 import { DeleteMediaModal } from "@/components/media/delete-modal";
 import { MediaCard } from "@/components/media/media-card";
 import { MediaUploadModal } from "@/components/media/upload-modal";
-import { MediaEditModal } from "@/components/media/media-edit-modal";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { MediaType } from "@/types/media";
@@ -38,8 +37,6 @@ export function MediaGallery({ media }: MediaGalleryProps) {
   const [mediaToDelete, setMediaToDelete] = useState<Media | null>(null);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [mediaToEdit, setMediaToEdit] = useState<Media | null>(null);
   const queryClient = useQueryClient();
   const workspaceId = useWorkspaceId();
 
@@ -152,10 +149,6 @@ export function MediaGallery({ media }: MediaGalleryProps) {
             media={item}
             isSelected={selectedItems.has(item.id)}
             onSelect={() => handleSelectItem(item.id)}
-            onEdit={() => {
-              setMediaToEdit(item);
-              setShowEditModal(true);
-            }}
             onDelete={() => {
               setMediaToDelete(item);
               setShowDeleteModal(true);
@@ -183,13 +176,6 @@ export function MediaGallery({ media }: MediaGalleryProps) {
         selectedItems={Array.from(selectedItems)}
         onDeleteComplete={handleBulkDeleteComplete}
       />
-      {mediaToEdit && (
-        <MediaEditModal
-          isOpen={showEditModal}
-          setIsOpen={setShowEditModal}
-          media={mediaToEdit}
-        />
-      )}
     </>
   );
 }

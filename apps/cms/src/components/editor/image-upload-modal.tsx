@@ -48,7 +48,7 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
         editorInstance.editor
           ?.chain()
           .focus()
-          .setImage({ src: data.url, alt: altText || data.alt || "" })
+          .setImage({ src: data.url, alt: altText })
           .createParagraphNear()
           .run();
         toast.success("Image uploaded successfully.");

@@ -29,7 +29,6 @@ export async function GET() {
       id: true,
       name: true,
       url: true,
-      alt: true,
       createdAt: true,
       type: true,
       size: true,
@@ -175,49 +174,6 @@ export async function DELETE(request: Request) {
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Failed to delete media";
-    return NextResponse.json({ error: message }, { status: 500 });
-  }
-}
-
-export async function PATCH(request: Request) {
-  const sessionData = await getServerSession();
-
-  if (!sessionData || !sessionData.session.activeOrganizationId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  try {
-    const body = await request.json();
-    const { id, alt } = body as { id?: string; alt?: string | null };
-
-    if (!id) {
-      return NextResponse.json(
-        { error: "id is required" },
-        { status: 400 },
-      );
-    }
-
-    const updated = await db.media.update({
-      where: {
-        id,
-        workspaceId: sessionData.session.activeOrganizationId,
-      },
-      data: { alt: alt ?? null },
-      select: {
-        id: true,
-        name: true,
-        url: true,
-        alt: true,
-        createdAt: true,
-        type: true,
-        size: true,
-      },
-    });
-
-    return NextResponse.json(updated, { status: 200 });
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to update media";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

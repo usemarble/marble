@@ -113,7 +113,6 @@ model Media {
   id          String       @id @default(cuid())
   name        String
   url         String
-  alt         String?
   size        Int
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt

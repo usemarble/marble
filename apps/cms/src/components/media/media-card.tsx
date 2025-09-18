@@ -29,7 +29,6 @@ interface MediaCardProps {
   onDelete: (media: Media) => void;
   isSelected?: boolean;
   onSelect?: () => void;
-  onEdit?: (media: Media) => void;
 }
 
 const mediaTypeIcons: Record<
@@ -47,7 +46,6 @@ export function MediaCard({
   onDelete,
   isSelected = false,
   onSelect,
-  onEdit,
 }: MediaCardProps) {
   const { icon: Icon, color } =
     mediaTypeIcons[media.type] || mediaTypeIcons.document;
@@ -131,14 +129,6 @@ export function MediaCard({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem
-              onClick={(e) => {
-                e.stopPropagation();
-                onEdit?.(media);
-              }}
-            >
-              Edit details
-            </DropdownMenuItem>
             <DropdownMenuItem
               onClick={(e) => {
                 e.stopPropagation();
