@@ -24,7 +24,7 @@ const formattedDate = new Date(publishedAt).toLocaleDateString("en-US", {
   >
     <div class="w-full border rounded-md overflow-hidden group">
       <Image
-        src={coverImage}
+        src={coverImage || "/og-blog.webp"}
         alt={title}
         loading="eager"
         inferSize

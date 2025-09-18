@@ -42,7 +42,7 @@ posts.get("/", async (c) => {
       page,
       order,
       category,
-      exclude,
+      exclude = [],
       tags = [],
       query,
     } = queryValidation.data;
@@ -51,14 +51,15 @@ posts.get("/", async (c) => {
     const where = {
       workspaceId,
       status: "published" as const,
-      ...(category && { category: { slug: category } }),
-      ...(exclude && {
-        category: {
-          slug: {
-            not: exclude,
-          },
-        },
-      }),
+      ...(() => {
+        if (category) {
+          return { category: { slug: category } };
+        }
+        if (exclude.length > 0) {
+          return { category: { slug: { notIn: exclude } } };
+        }
+        return {};
+      })(),
       ...(tags.length > 0 && {
         tags: {
           some: {
