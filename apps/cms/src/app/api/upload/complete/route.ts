@@ -63,6 +63,7 @@ export async function POST(request: Request) {
           id: media.id,
           name: media.name,
           url: media.url,
+          alt: media.alt,
           size: media.size,
           type: media.type,
           createdAt: media.createdAt.toISOString(),

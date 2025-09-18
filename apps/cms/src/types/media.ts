@@ -6,6 +6,7 @@ export type Media = {
   id: string;
   name: string;
   url: string;
+  alt?: string | null;
   type: MediaType;
   size: number;
   createdAt: string;

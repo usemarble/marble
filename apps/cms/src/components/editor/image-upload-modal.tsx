@@ -35,6 +35,7 @@ interface ImageUploadModalProps {
 export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
   const [embedUrl, setEmbedUrl] = useState("");
   const [file, setFile] = useState<File | undefined>();
+  const [altText, setAltText] = useState("");
   const [isValidatingUrl, setIsValidatingUrl] = useState(false);
   const workspaceId = useWorkspaceId();
   const editorInstance = useEditor();
@@ -47,12 +48,13 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
         editorInstance.editor
           ?.chain()
           .focus()
-          .setImage({ src: data.url })
+          .setImage({ src: data.url, alt: altText || data.alt || "" })
           .createParagraphNear()
           .run();
         toast.success("Image uploaded successfully.");
         setIsOpen(false);
         setFile(undefined);
+        setAltText("");
         if (workspaceId) {
           queryClient.invalidateQueries({
             queryKey: QUERY_KEYS.MEDIA(workspaceId),
@@ -78,13 +80,14 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
           editorInstance.editor
             .chain()
             .focus()
-            .setImage({ src: url })
+            .setImage({ src: url, alt: altText })
             .createParagraphNear()
             .run();
         }
         setIsOpen(false);
         setEmbedUrl("");
         setIsValidatingUrl(false);
+        setAltText("");
       };
       img.onerror = () => {
         toast.error("Invalid image URL");
@@ -147,6 +150,11 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
                         </div>
                       )}
                     </div>
+                    <Input
+                      value={altText}
+                      onChange={({ target }) => setAltText(target.value)}
+                      placeholder="Describe the image (alt text)"
+                    />
                   </div>
                 ) : (
                   <ImageDropzone
@@ -170,6 +178,12 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
                   value={embedUrl}
                   onChange={({ target }) => setEmbedUrl(target.value)}
                   placeholder="Paste your image link"
+                  disabled={isValidatingUrl}
+                />
+                <Input
+                  value={altText}
+                  onChange={({ target }) => setAltText(target.value)}
+                  placeholder="Describe the image (alt text)"
                   disabled={isValidatingUrl}
                 />
                 <AsyncButton
