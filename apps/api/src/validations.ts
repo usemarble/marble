@@ -22,6 +22,7 @@ export const PostsQuerySchema = z.object({
     .default("1"),
   order: OrderSchema,
   category: z.string().optional(),
+  exclude: z.string().optional(),
   tags: z
     .string()
     .transform((val) => val.split(",").filter(Boolean))

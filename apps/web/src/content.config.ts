@@ -1,5 +1,4 @@
 import { defineCollection, z } from "astro:content";
-import { glob } from "astro/loaders";
 import { highlightContent } from "./lib/highlight";
 
 const key = import.meta.env.MARBLE_WORKSPACE_KEY;
@@ -44,7 +43,7 @@ type Post = z.infer<typeof postSchema>;
 
 const articleCollection = defineCollection({
   loader: async () => {
-    const response = await fetch(`${url}/${key}/posts`);
+    const response = await fetch(`${url}/${key}/posts?exclude=legal`);
     const data = await response.json();
     const posts = data.posts as Post[];
     // Must return an array of entries with an id property
@@ -60,13 +59,19 @@ const articleCollection = defineCollection({
 });
 
 const page = defineCollection({
-  loader: glob({ pattern: "**/[^_]*.md", base: "./src/content/pages" }),
-  schema: z.object({
-    title: z.string(),
-    published: z.date(),
-    description: z.string(),
-    lastUpdated: z.date(),
-  }),
+  loader: async () => {
+    const response = await fetch(`${url}/${key}/posts?category=legal`);
+    const data = await response.json();
+    const posts = data.posts as Post[];
+
+    return posts.map((post) => ({
+      ...post,
+      // Astro uses the id as a key to get the entry
+      // We can't know the id of the post so we use the slug
+      id: post.slug,
+    }));
+  },
+  schema: postSchema,
 });
 
 export const collections = { posts: articleCollection, page };

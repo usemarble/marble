@@ -19,6 +19,7 @@ posts.get("/", async (c) => {
       page: c.req.query("page"),
       order: c.req.query("order"),
       category: c.req.query("category"),
+      exclude: c.req.query("exclude"),
       tags: c.req.query("tags"),
       query: c.req.query("query"),
     });
@@ -41,6 +42,7 @@ posts.get("/", async (c) => {
       page,
       order,
       category,
+      exclude,
       tags = [],
       query,
     } = queryValidation.data;
@@ -50,6 +52,13 @@ posts.get("/", async (c) => {
       workspaceId,
       status: "published" as const,
       ...(category && { category: { slug: category } }),
+      ...(exclude && {
+        category: {
+          slug: {
+            not: exclude,
+          },
+        },
+      }),
       ...(tags.length > 0 && {
         tags: {
           some: {

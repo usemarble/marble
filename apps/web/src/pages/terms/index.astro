@@ -1,5 +1,5 @@
 ---
-import { getEntry, render } from "astro:content";
+import { getEntry } from "astro:content";
 import Container from "@/components/Container.astro";
 import Prose from "@/components/Prose.astro";
 import Layout from "@/layouts/Layout.astro";
@@ -11,9 +11,7 @@ if (!entry) {
   throw new Error("Page not found");
 }
 
-const { Content } = await render(entry);
-
-const formattedDate = new Date(entry.data.lastUpdated).toLocaleDateString(
+const formattedDate = new Date(entry.data.updatedAt).toLocaleDateString(
   "en-US",
   {
     year: "numeric",
@@ -38,8 +36,8 @@ const formattedDate = new Date(entry.data.lastUpdated).toLocaleDateString(
       <p class="text-center text-muted-foreground">Last updated: {formattedDate}</p>
     </div>
 
-    <Prose class="prose-sm max-w-(--breakpoint-sm)">
-      <Content />
+    <Prose>
+      <div set:html={entry.data.content} />
     </Prose>
     </Container>
   </div>
