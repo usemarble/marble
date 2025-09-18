@@ -16,8 +16,8 @@ import {
   TabsTrigger,
 } from "@marble/ui/components/tabs";
 import { cn } from "@marble/ui/lib/utils";
-import { useEditor } from "novel";
-import { useMemo, useState } from "react";
+import type { EditorInstance } from "novel";
+import { useEffect, useMemo, useState } from "react";
 import type { Control, FieldErrors, UseFormWatch } from "react-hook-form";
 import type { PostValues } from "@/lib/validations/post";
 import { useUnsavedChanges } from "@/providers/unsaved-changes";
@@ -49,6 +49,7 @@ interface EditorSidebarProps extends React.ComponentProps<typeof Sidebar> {
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   mode?: "create" | "update";
+  editor?: EditorInstance | null;
 }
 
 export function EditorSidebar({
@@ -60,18 +61,30 @@ export function EditorSidebar({
   isOpen,
   setIsOpen,
   mode = "create",
+  editor,
   ...props
 }: EditorSidebarProps) {
   const { open } = useSidebar();
-  const { editor } = useEditor();
   const hasErrors = Object.keys(errors).length > 0;
   const { tags, authors: initialAuthors } = watch();
   const { hasUnsavedChanges } = useUnsavedChanges();
   const [activeTab, setActiveTab] = useState("metadata");
+  const [editorText, setEditorText] = useState("");
+
+  useEffect(() => {
+    if (!editor) return;
+    setEditorText(editor.getText());
+    const handler = () => setEditorText(editor.getText());
+    editor.on("update", handler);
+    editor.on("create", handler);
+    return () => {
+      editor.off("update", handler);
+      editor.off("create", handler);
+    };
+  }, [editor]);
 
   const textMetrics = useMemo(() => {
-    console.log("editor", editor?.getText());
-    const inputText = editor?.getText();
+    const inputText = editorText;
 
     if (!editor || !inputText)
       return {
@@ -82,7 +95,6 @@ export function EditorSidebar({
         readabilityLevel: { level: "Unknown", description: "Unknown" },
         suggestions: [],
       };
-    console.log("editor?.storage", editor.storage.characterCount);
     const wordCountResult = editor.storage.characterCount.words();
 
     const sentences = inputText
@@ -110,7 +122,7 @@ export function EditorSidebar({
       readabilityLevel,
       suggestions,
     };
-  }, [editor]);
+  }, [editor, editorText]);
 
   const triggerSubmit = async () => {
     if (hasErrors) {

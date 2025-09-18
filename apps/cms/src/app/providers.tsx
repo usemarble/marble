@@ -6,6 +6,21 @@ import { TooltipProvider } from "@marble/ui/components/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ThemeProvider } from "next-themes";
+import { Suspense } from "react";
+
+function DatabuddyProvider() {
+  return (
+    <>
+      {process.env.NODE_ENV !== "development" &&
+        process.env.DATEBUDDY_CLIENT_ID && (
+          <Databuddy
+            clientId={process.env.DATEBUDDY_CLIENT_ID}
+            enableBatching={true}
+          />
+        )}
+    </>
+  );
+}
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const queryClient = new QueryClient({
@@ -19,16 +34,16 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <DatabuddyProvider />
       <ThemeProvider attribute="class" enableSystem disableTransitionOnChange>
         <TooltipProvider>
           {children}
-          <Toaster position="top-center" />
-          {process.env.NODE_ENV !== "development" && (
-            <Databuddy clientId="CG1SRcfYdIQoCeBrPpbJ_" enableBatching={true} />
-          )}
+          <Suspense>
+            <Toaster position="top-center" />
+          </Suspense>
         </TooltipProvider>
       </ThemeProvider>
-      <ReactQueryDevtools initialIsOpen={false} />
+      <ReactQueryDevtools initialIsOpen={false} buttonPosition="top-right" />
     </QueryClientProvider>
   );
 }

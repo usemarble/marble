@@ -1,6 +1,11 @@
 "use client";
 
 import { Button } from "@marble/ui/components/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@marble/ui/components/tooltip";
 import { KeyIcon } from "@phosphor-icons/react";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 
@@ -15,9 +20,16 @@ function PageClient() {
           <p className="text-muted-foreground text-sm">
             API keys let you interact with your workspace using our API.
           </p>
-          <Button disabled className="w-fit">
-            <span>New API Key</span>
-          </Button>
+          <Tooltip>
+            <TooltipTrigger>
+              <Button disabled className="w-fit">
+                <span>New API Key</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Feature Coming Soon</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
       </div>
     </WorkspacePageWrapper>

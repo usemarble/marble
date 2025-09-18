@@ -13,7 +13,7 @@ import { useApiAnalytics } from "@/hooks/use-analytics";
 import { AnalyticsChart } from "./AnalyticsChart";
 
 export function ApiUsageStats() {
-  const { data, isLoading, error } = useApiAnalytics();
+  const { data, isPending, error } = useApiAnalytics();
 
   if (error) {
     return (
@@ -44,7 +44,7 @@ export function ApiUsageStats() {
         </CardHeader>
 
         <CardContent>
-          {isLoading ? (
+          {isPending ? (
             <div className="h-80">
               <PageLoader />
             </div>

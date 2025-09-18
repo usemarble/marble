@@ -131,7 +131,6 @@ export function NavMain() {
             <Link href={`/${params.workspace}/settings/general`}>
               <CollapsibleTrigger asChild>
                 <SidebarMenuButton
-                  tooltip="Settings"
                   className={`border cursor-pointer border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
                     isSettingsActive
                       ? "bg-sidebar-accent border-border text-foreground shadow-xs"
