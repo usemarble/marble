@@ -5,14 +5,14 @@ import { Input } from "@marble/ui/components/input";
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
+import { cn } from "@marble/ui/lib/utils";
 import {
-  GridFourIcon,
-  ListIcon,
   MagnifyingGlassIcon,
   PlusIcon,
+  RowsIcon,
+  SquaresFourIcon,
   XIcon,
 } from "@phosphor-icons/react";
 import {
@@ -31,8 +31,8 @@ import { useLocalStorage } from "@/hooks/use-localstorage";
 import { useWorkspace } from "@/providers/workspace";
 import type { Post } from "./columns";
 
-const DataCard = dynamic(
-  () => import("./data-card").then((mod) => ({ default: mod.DataCard })),
+const DataGrid = dynamic(
+  () => import("./data-grid").then((mod) => ({ default: mod.DataGrid })),
   {
     ssr: false,
   },
@@ -53,7 +53,7 @@ interface DataViewProps<TData, TValue> {
   data: TData[];
 }
 
-type ViewType = "table" | "card";
+type ViewType = "table" | "grid";
 
 export function PostDataView<TData, TValue>({
   columns,
@@ -84,11 +84,11 @@ export function PostDataView<TData, TValue>({
 
   return (
     <div>
-      <div className="flex items-center py-4 justify-between">
+      <div className="flex items-center py-4 mb-4 justify-between">
         <div className="relative">
           <MagnifyingGlassIcon
             size={16}
-            className="text-muted-foreground size-4 absolute top-3 left-3"
+            className="text-muted-foreground size-4 absolute top-1/2 left-3 -translate-y-1/2"
           />
           <Input
             value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
@@ -110,50 +110,48 @@ export function PostDataView<TData, TValue>({
           )}
         </div>
         <div className="flex items-center gap-2">
-          <TooltipProvider>
-            <div className="flex border rounded-md overflow-hidden">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={`rounded-none px-3 ${
-                      viewType === "card"
-                        ? ""
-                        : "bg-accent text-accent-foreground"
-                    }`}
-                    onClick={() => setViewType("card")}
-                  >
-                    <GridFourIcon size={16} />
-                    <span className="sr-only">Card View</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Card View</p>
-                </TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={`rounded-none px-3 ${
-                      viewType === "table"
-                        ? ""
-                        : "bg-accent text-accent-foreground"
-                    }`}
-                    onClick={() => setViewType("table")}
-                  >
-                    <ListIcon size={16} />
-                    <span className="sr-only">Table View</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Table View</p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
-          </TooltipProvider>
+          <div className="flex bg-sidebar dark:bg-accent/50 gap-1 p-1 rounded-xl">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={cn(
+                    "px-3 rounded-l-[8px] size-7 rounded-r-none transition duration-300",
+                    viewType === "grid" &&
+                      "bg-background text-accent-foreground shadow-sm hover:bg-background dark:hover:bg-background",
+                  )}
+                  onClick={() => setViewType("grid")}
+                >
+                  <SquaresFourIcon size={16} />
+                  <span className="sr-only">Grid View</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Grid View</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={cn(
+                    "px-3 rounded-r-[8px] size-7 rounded-l-none transition duration-300",
+                    viewType === "table" &&
+                      "bg-background text-accent-foreground shadow-sm hover:bg-background dark:hover:bg-background",
+                  )}
+                  onClick={() => setViewType("table")}
+                >
+                  <RowsIcon size={16} />
+                  <span className="sr-only">Table View</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Table View</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
 
           <Link
             href={`/${activeWorkspace?.slug}/editor/p/new`}
@@ -168,7 +166,7 @@ export function PostDataView<TData, TValue>({
       {viewType === "table" ? (
         <DataTable table={table} columns={columns} />
       ) : (
-        <DataCard
+        <DataGrid
           data={
             table
               .getFilteredRowModel()
