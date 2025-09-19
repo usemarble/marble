@@ -70,54 +70,50 @@ export const auth = betterAuth({
     modelName: "workspace",
   },
   plugins: [
-    ...(process.env.NODE_ENV === "production"
-      ? [
-          polar({
-            client: polarClient,
-            createCustomerOnSignUp: true,
-            authenticatedUsersOnly: true,
-            use: [
-              portal(),
-              usage(),
-              checkout({
-                products: [
-                  {
-                    productId: process.env.POLAR_HOBBY_PRODUCT_ID || "",
-                    slug: "hobby",
-                  },
-                  {
-                    productId: process.env.POLAR_PRO_PRODUCT_ID || "",
-                    slug: "pro",
-                  },
-                  {
-                    productId: process.env.POLAR_TEAM_PRODUCT_ID || "",
-                    slug: "team",
-                  },
-                ],
-                successUrl: process.env.POLAR_SUCCESS_URL || "",
-              }),
-              webhooks({
-                secret: process.env.POLAR_WEBHOOK_SECRET || "",
-                onCustomerCreated: async (payload) => {
-                  await handleCustomerCreated(payload);
-                },
-                onSubscriptionCreated: async (payload) => {
-                  await handleSubscriptionCreated(payload);
-                },
-                onSubscriptionUpdated: async (payload) => {
-                  await handleSubscriptionUpdated(payload);
-                },
-                onSubscriptionCanceled: async (payload) => {
-                  await handleSubscriptionCanceled(payload);
-                },
-                onSubscriptionRevoked: async (payload) => {
-                  await handleSubscriptionRevoked(payload);
-                },
-              }),
-            ],
-          }),
-        ]
-      : []),
+    polar({
+      client: polarClient,
+      createCustomerOnSignUp: process.env.NODE_ENV === "production",
+      authenticatedUsersOnly: true,
+      use: [
+        portal(),
+        usage(),
+        checkout({
+          products: [
+            {
+              productId: process.env.POLAR_HOBBY_PRODUCT_ID || "",
+              slug: "hobby",
+            },
+            {
+              productId: process.env.POLAR_PRO_PRODUCT_ID || "",
+              slug: "pro",
+            },
+            {
+              productId: process.env.POLAR_TEAM_PRODUCT_ID || "",
+              slug: "team",
+            },
+          ],
+          successUrl: process.env.POLAR_SUCCESS_URL || "",
+        }),
+        webhooks({
+          secret: process.env.POLAR_WEBHOOK_SECRET || "",
+          onCustomerCreated: async (payload) => {
+            await handleCustomerCreated(payload);
+          },
+          onSubscriptionCreated: async (payload) => {
+            await handleSubscriptionCreated(payload);
+          },
+          onSubscriptionUpdated: async (payload) => {
+            await handleSubscriptionUpdated(payload);
+          },
+          onSubscriptionCanceled: async (payload) => {
+            await handleSubscriptionCanceled(payload);
+          },
+          onSubscriptionRevoked: async (payload) => {
+            await handleSubscriptionRevoked(payload);
+          },
+        }),
+      ],
+    }),
     organization({
       // membershipLimit: 10,
       // check plan limits and set membershipLimit
