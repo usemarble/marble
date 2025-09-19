@@ -72,7 +72,7 @@ export const auth = betterAuth({
   plugins: [
     polar({
       client: polarClient,
-      createCustomerOnSignUp: true,
+      createCustomerOnSignUp: process.env.NODE_ENV === "production",
       authenticatedUsersOnly: true,
       use: [
         portal(),
