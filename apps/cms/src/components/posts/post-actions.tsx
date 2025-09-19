@@ -39,7 +39,7 @@ export default function PostActions({
     setShowDeleteModal(true);
   };
 
-  // if (mode === "grid") {
+  // if (view === "grid") {
   //   return (
   //     <>
   //       <Button
