@@ -15,10 +15,6 @@ declare global {
   var prisma: PrismaClient | undefined;
 }
 
-const global = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
-};
-
 let db: PrismaClient;
 
 if (process.env.NODE_ENV === "production") {

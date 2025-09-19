@@ -18,7 +18,7 @@ const posts = await getCollection("posts");
           </h1>
           <p class='text-muted-foreground text-center text-sm md:text-base'>Updates, news, and tutorials from the team.</p>
         </div>
-        <ul class='grid grid-cols-1 md:grid-cols-2 lg:grid-cols3 gap-6 md:gap-8 auto-rows-fr'>
+        <ul class='grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 auto-rows-fr'>
           {
             posts.map((post) => (
               <PostCard entry={post} />
