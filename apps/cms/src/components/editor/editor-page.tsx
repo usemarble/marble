@@ -37,6 +37,7 @@ import { useUnsavedChanges } from "@/providers/unsaved-changes";
 import { generateSlug } from "@/utils/string";
 import { BubbleMenu } from "./bubble-menu";
 import { defaultExtensions } from "./extensions";
+import { ImageBubbleMenu } from "./image-bubble-menu";
 import { slashCommand } from "./slash-command-items";
 import { SlashCommandMenu } from "./slash-command-menu";
 import { TextareaAutosize } from "./textarea-autosize";
@@ -287,6 +288,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                     }}
                   >
                     <BubbleMenu />
+                    <ImageBubbleMenu />
                     <SlashCommandMenu />
                   </EditorContent>
                 </EditorRoot>

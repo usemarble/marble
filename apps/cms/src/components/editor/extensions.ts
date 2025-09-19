@@ -30,7 +30,7 @@ const tiptapImage = TiptapImage.extend({
 }).configure({
   allowBase64: true,
   HTMLAttributes: {
-    class: cx("rounded-md border border-muted"),
+    class: cx("rounded-md border border-muted cursor-pointer hover:opacity-90 transition-opacity"),
   },
 });
 const tiptapLink = TiptapLink.configure({
