@@ -24,6 +24,13 @@ export async function GET() {
       status: true,
       publishedAt: true,
       updatedAt: true,
+      authors: {
+        select: {
+          id: true,
+          name: true,
+          image: true,
+        },
+      },
     },
     orderBy: {
       createdAt: "desc",

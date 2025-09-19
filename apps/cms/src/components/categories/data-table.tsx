@@ -56,7 +56,7 @@ export function DataTable<TData, TValue>({
         <div className="relative">
           <MagnifyingGlassIcon
             size={16}
-            className="text-muted-foreground size-4 absolute top-3 left-3"
+            className="text-muted-foreground size-4 absolute top-1/2 left-3 -translate-y-1/2"
           />
           <Input
             value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
