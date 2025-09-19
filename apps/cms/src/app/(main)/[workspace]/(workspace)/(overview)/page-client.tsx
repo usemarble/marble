@@ -7,6 +7,7 @@ import { useUser } from "@/providers/user";
 import { ApiUsageStats } from "./components/ApiUsageStats";
 import { PublishingActivityGraph } from "./components/PublishingActivityGraph";
 import { QuickStats } from "./components/QuickStats";
+import { useFlags } from "@databuddy/sdk/react";
 
 export default function PageClient() {
   const { user, isFetchingUser } = useUser();
@@ -18,9 +19,20 @@ export default function PageClient() {
     return "Good evening";
   };
 
+  const { isEnabled } = useFlags();
+
+  const hasAiWritingSuggestions = isEnabled("ai-writing-suggestions");
+  
   return (
     <WorkspacePageWrapper className="flex flex-col pt-10 pb-16 gap-8">
       <div className="flex flex-col gap-2">
+        {hasAiWritingSuggestions && (
+          <div className="flex items-center gap-2">
+            <p className="text-muted-foreground">
+              AI Writing Suggestions is enabled
+            </p>
+          </div>
+        )}
         <h1 className="text-3xl font-bold">
           {isFetchingUser ? (
             getTimeOfDay()

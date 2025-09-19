@@ -1,20 +1,23 @@
 "use client";
 
-import { Databuddy } from "@databuddy/sdk";
+import {
+  Databuddy,
+  FlagsProvider as DatabuddyFlagsProvider,
+} from "@databuddy/sdk/react";
 import { Toaster } from "@marble/ui/components/sonner";
 import { TooltipProvider } from "@marble/ui/components/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ThemeProvider } from "next-themes";
-import { Suspense } from "react";
+import { useSession } from "@/lib/auth/client";
 
-function DatabuddyProvider() {
+function DatabuddyAnalytics() {
   return (
     <>
       {process.env.NODE_ENV !== "development" &&
-        process.env.DATEBUDDY_CLIENT_ID && (
+        process.env.NEXT_PUBLIC_DATEBUDDY_CLIENT_ID && (
           <Databuddy
-            clientId={process.env.DATEBUDDY_CLIENT_ID}
+            clientId={process.env.NEXT_PUBLIC_DATEBUDDY_CLIENT_ID}
             enableBatching={true}
           />
         )}
@@ -23,6 +26,8 @@ function DatabuddyProvider() {
 }
 
 export default function Providers({ children }: { children: React.ReactNode }) {
+  const { data, isPending } = useSession();
+
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -34,13 +39,29 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <DatabuddyProvider />
+      <DatabuddyAnalytics />
       <ThemeProvider attribute="class" enableSystem disableTransitionOnChange>
         <TooltipProvider>
-          {children}
-          <Suspense>
-            <Toaster position="top-center" />
-          </Suspense>
+          {process.env.NEXT_PUBLIC_DATEBUDDY_CLIENT_ID && (
+            <DatabuddyFlagsProvider
+              clientId={process.env.NEXT_PUBLIC_DATEBUDDY_CLIENT_ID}
+              isPending={isPending}
+              apiUrl="https://api.databuddy.cc"
+              debug={false}
+              user={data?.user
+                ? {
+                  userId: data.user.id,
+                  email: data.user.email,
+                  properties: {
+                    workspace: data.session.activeOrganizationId,
+                  },
+                }
+                : undefined}
+            >
+              {children}
+            </DatabuddyFlagsProvider>
+          )}
+          <Toaster position="top-center" />
         </TooltipProvider>
       </ThemeProvider>
       <ReactQueryDevtools initialIsOpen={false} buttonPosition="top-right" />
