@@ -89,7 +89,7 @@ export const CategoryModal = ({
       setOpen(false);
       toast.success("Category created successfully");
       if (workspaceId) {
-        void queryClient.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.CATEGORIES(workspaceId),
         });
       }
@@ -117,7 +117,7 @@ export const CategoryModal = ({
       setOpen(false);
       toast.success("Category updated successfully");
       if (workspaceId) {
-        void queryClient.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.CATEGORIES(workspaceId),
         });
       }
@@ -237,7 +237,7 @@ export const DeleteCategoryModal = ({
     onSuccess: () => {
       toast.success("Category deleted successfully");
       if (workspaceId) {
-        void queryClient.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.CATEGORIES(workspaceId),
         });
       }

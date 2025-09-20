@@ -23,8 +23,7 @@
       },
       "complexity": {
         "useSimplifiedLogicExpression": "off",
-        "noExcessiveCognitiveComplexity": "off",
-        "noVoid": "off"
+        "noExcessiveCognitiveComplexity": "off"
       },
       "nursery": {
         "useSortedClasses": "off",

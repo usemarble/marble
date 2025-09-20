@@ -132,7 +132,7 @@ export const AuthorModal = ({
       setOpen(false);
       toast.success("Author created successfully");
       if (workspaceId) {
-        void queryClient.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.AUTHORS(workspaceId),
         });
       }
@@ -160,7 +160,7 @@ export const AuthorModal = ({
       setOpen(false);
       toast.success("Author updated successfully");
       if (workspaceId) {
-        void queryClient.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.AUTHORS(workspaceId),
         });
       }
@@ -397,7 +397,7 @@ export const DeleteAuthorModal = ({
     onSuccess: () => {
       toast.success("Author deleted successfully");
       if (workspaceId) {
-        void queryClient.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.AUTHORS(workspaceId),
         });
       }

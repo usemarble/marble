@@ -125,7 +125,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
       reset();
       setIsOpen(false);
       if (workspaceId) {
-        void queryClient.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.WEBHOOKS(workspaceId),
         });
       }
