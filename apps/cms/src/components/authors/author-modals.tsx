@@ -236,24 +236,24 @@ export const AuthorModal = ({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-md p-8">
+      <DialogContent className="p-8 sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-medium text-center">
+          <DialogTitle className="text-center font-medium">
             {mode === "create" ? "Create Author" : "Update Author"}
           </DialogTitle>
         </DialogHeader>
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col gap-5 mt-2"
+          className="mt-2 flex flex-col gap-5"
         >
           <div className="grid flex-1 gap-2">
             <Label htmlFor="avatar">Avatar</Label>
-            <div className="flex gap-4 items-center">
+            <div className="flex items-center gap-4">
               <div className="flex items-center gap-4">
                 <Label
                   htmlFor="avatar"
                   className={cn(
-                    "cursor-pointer relative overflow-hidden rounded-full size-16 group",
+                    "group relative size-16 cursor-pointer overflow-hidden rounded-full",
                     isUploading && "pointer-events-none"
                   )}
                 >
@@ -279,7 +279,7 @@ export const AuthorModal = ({
                   />
                   <div
                     className={cn(
-                      "absolute inset-0 flex items-center justify-center transition-opacity duration-300 bg-black/50 backdrop-blur-xs size-full",
+                      "absolute inset-0 flex size-full items-center justify-center bg-black/50 backdrop-blur-xs transition-opacity duration-300",
                       isUploading
                         ? "opacity-100"
                         : "opacity-0 group-hover:opacity-100"
@@ -293,7 +293,7 @@ export const AuthorModal = ({
                   </div>
                 </Label>
               </div>
-              <div className="flex items-center gap-2 w-full">
+              <div className="flex w-full items-center gap-2">
                 <Input value={avatarUrl || ""} readOnly />
                 <CopyButton
                   textToCopy={avatarUrl || ""}
@@ -357,7 +357,7 @@ export const AuthorModal = ({
             type="submit"
             isLoading={isSubmitting}
             disabled={(mode === "update" && !isDirty) || isUploading}
-            className="flex w-full gap-2 mt-4"
+            className="mt-4 flex w-full gap-2"
           >
             {mode === "create" ? "Create Author" : "Update Author"}
           </AsyncButton>

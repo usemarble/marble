@@ -17,8 +17,8 @@ export function Announcements() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
-        <div className="min-h-28 grid place-content-center">
-          <div className="text-muted-foreground flex flex-col gap-3 justify-center items-center">
+        <div className="grid min-h-28 place-content-center">
+          <div className="flex flex-col items-center justify-center gap-3 text-muted-foreground">
             <p className="text-sm">No announcements yet</p>
           </div>
         </div>

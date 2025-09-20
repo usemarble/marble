@@ -86,7 +86,7 @@ export function CategorySelector({ control }: CategorySelectorProps) {
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectLabel className="font-normal px-2 text-xs flex items-center gap-1 justify-between">
+              <SelectLabel className="flex items-center justify-between gap-1 px-2 font-normal text-xs">
                 <span className="text-muted-foreground text-xs">
                   {isLoadingCategories
                     ? "Loading categories..."
@@ -112,7 +112,7 @@ export function CategorySelector({ control }: CategorySelectorProps) {
           </SelectContent>
         </Select>
         {error && (
-          <p className="text-sm px-1 font-medium text-destructive">
+          <p className="px-1 font-medium text-destructive text-sm">
             {error.message}
           </p>
         )}

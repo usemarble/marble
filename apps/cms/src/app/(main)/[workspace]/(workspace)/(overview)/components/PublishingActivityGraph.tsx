@@ -114,7 +114,7 @@ export const PublishingActivityGraph = () => {
             </ContributionGraph>
           </TooltipProvider>
         ) : (
-          <div className="h-32 flex items-center justify-center text-muted-foreground text-sm">
+          <div className="flex h-32 items-center justify-center text-muted-foreground text-sm">
             No publishing activity data available
           </div>
         )}

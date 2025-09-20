@@ -166,17 +166,17 @@ export function InviteSection({ invitations }: InviteSectionProps) {
           {pendingInvitations.map((invitation) => (
             <div
               key={invitation.id}
-              className="flex items-center justify-between p-3 border rounded-sm"
+              className="flex items-center justify-between rounded-sm border p-3"
             >
               <div className="flex items-center gap-3">
-                <div className="size-8 rounded-full bg-muted flex items-center justify-center">
-                  <span className="text-sm font-medium">
+                <div className="flex size-8 items-center justify-center rounded-full bg-muted">
+                  <span className="font-medium text-sm">
                     {invitation.email.charAt(0).toUpperCase()}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <p className="font-medium text-sm">{invitation.email}</p>
-                  <Badge variant="outline" className="capitalize text-xs">
+                  <Badge variant="outline" className="text-xs capitalize">
                     {invitation.role || "member"}
                   </Badge>
                 </div>

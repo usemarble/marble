@@ -21,7 +21,7 @@ export function Id() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg font-medium">Workspace ID.</CardTitle>
+        <CardTitle className="font-medium text-lg">Workspace ID.</CardTitle>
         <CardDescription>
           Unique identifier of your workspace on marble.
         </CardDescription>
@@ -41,7 +41,7 @@ export function Id() {
         </div>
       </CardContent>
       <CardFooter className="border-t">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Please dont share this with anyone as it can be used to access your
           data
         </p>

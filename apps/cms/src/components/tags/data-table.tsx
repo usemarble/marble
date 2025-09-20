@@ -52,11 +52,11 @@ export function DataTable<TData, TValue>({
 
   return (
     <div>
-      <div className="flex items-center py-4 justify-between">
+      <div className="flex items-center justify-between py-4">
         <div className="relative">
           <MagnifyingGlassIcon
             size={16}
-            className="text-muted-foreground size-4 absolute top-1/2 left-3 -translate-y-1/2"
+            className="-translate-y-1/2 absolute top-1/2 left-3 size-4 text-muted-foreground"
           />
           <Input
             value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
@@ -64,13 +64,13 @@ export function DataTable<TData, TValue>({
               table.getColumn("name")?.setFilterValue(event.target.value)
             }
             placeholder="Search tags..."
-            className="px-8 w-72"
+            className="w-72 px-8"
           />
           {(table.getColumn("name")?.getFilterValue() as string) && (
             <button
               type="button"
               onClick={() => table.getColumn("name")?.setFilterValue("")}
-              className="absolute right-3 top-3"
+              className="absolute top-3 right-3"
             >
               <XIcon className="size-4" />
               <span className="sr-only">Clear search</span>

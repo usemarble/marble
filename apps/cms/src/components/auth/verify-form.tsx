@@ -80,11 +80,11 @@ export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
   };
 
   return (
-    <Container className="min-h-screen flex items-center justify-center py-12">
-      <div className="flex max-w-sm w-full flex-col items-center gap-8">
+    <Container className="flex min-h-screen items-center justify-center py-12">
+      <div className="flex w-full max-w-sm flex-col items-center gap-8">
         <div className="flex flex-col items-center gap-4 text-center">
-          <h1 className="text-lg font-semibold leading-7">Verify your email</h1>
-          <p className="leading-6 text-muted-foreground">
+          <h1 className="font-semibold text-lg leading-7">Verify your email</h1>
+          <p className="text-muted-foreground leading-6">
             We sent a verification code to
             <span className="block font-medium text-foreground">{email}</span>
           </p>
@@ -103,13 +103,13 @@ export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
           </InputOTPGroup>
         </InputOTP>
 
-        <div className="flex flex-col items-center gap-4 w-full">
+        <div className="flex w-full flex-col items-center gap-4">
           <AsyncButton
             onClick={handleVerifyOtp}
             isLoading={isLoading}
             disabled={otp.length !== 6}
             className={cn(
-              "flex items-center justify-center w-full",
+              "flex w-full items-center justify-center",
               otp.length !== 6 && "cursor-not-allowed"
             )}
           >

@@ -37,10 +37,10 @@ export const invoiceTableColumns: ColumnDef<Invoice>[] = [
       return (
         <Badge
           variant="outline"
-          className={cn("rounded-[6px] w-full text-center justify-center", {
-            "bg-emerald-50 text-emerald-500 border-emerald-300":
+          className={cn("w-full justify-center rounded-[6px] text-center", {
+            "border-emerald-300 bg-emerald-50 text-emerald-500":
               status === "Success",
-            "bg-red-50 text-red-500 border-red-300": status === "Failed",
+            "border-red-300 bg-red-50 text-red-500": status === "Failed",
           })}
         >
           {status === "Success" ? "Success" : "Failed"}

@@ -145,11 +145,11 @@ export function RegisterForm() {
         </button>
       </div>
       <div className="relative flex items-center">
-        <span className="bg-border inline-block h-px w-full border-t" />
-        <span className="text-muted-foreground shrink-0 px-2 text-xs uppercase">
+        <span className="inline-block h-px w-full border-t bg-border" />
+        <span className="shrink-0 px-2 text-muted-foreground text-xs uppercase">
           Or
         </span>
-        <span className="bg-border inline-block h-px w-full border-t" />
+        <span className="inline-block h-px w-full border-t bg-border" />
       </div>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="grid gap-3">
@@ -171,7 +171,7 @@ export function RegisterForm() {
               {...register("email")}
             />
             {errors?.email && (
-              <p className="text-xs px-1 font-medium text-destructive">
+              <p className="px-1 font-medium text-destructive text-xs">
                 {errors.email.message}
               </p>
             )}
@@ -196,7 +196,7 @@ export function RegisterForm() {
               />
               <button
                 type="button"
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground"
+                className="-translate-y-1/2 absolute top-1/2 right-4 text-muted-foreground"
                 onClick={() => setIsPasswordVisible((prev) => !prev)}
               >
                 {isPasswordVisible ? (
@@ -207,7 +207,7 @@ export function RegisterForm() {
               </button>
             </div>
             {errors?.password && (
-              <p className="text-xs px-1 font-medium text-destructive">
+              <p className="px-1 font-medium text-destructive text-xs">
                 {errors.password.message}
               </p>
             )}

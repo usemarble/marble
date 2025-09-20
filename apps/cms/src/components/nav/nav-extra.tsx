@@ -56,7 +56,7 @@ export function NavExtra() {
       </PopoverTrigger>
       <PopoverContent side="right" sideOffset={6} className="w-60 divide-y p-0">
         <div className="p-2">
-          <h3 className="px-2 py-1.5 text-sm font-medium text-muted-foreground">
+          <h3 className="px-2 py-1.5 font-medium text-muted-foreground text-sm">
             Get in touch
           </h3>
           <ul className="flex flex-col">
@@ -80,7 +80,7 @@ export function NavExtra() {
           </ul>
         </div>
         <div className="p-2">
-          <h3 className="px-2 py-1.5 text-sm font-medium text-muted-foreground">
+          <h3 className="px-2 py-1.5 font-medium text-muted-foreground text-sm">
             Resources
           </h3>
           <ul className="flex flex-col">

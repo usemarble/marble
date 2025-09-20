@@ -56,7 +56,7 @@ function AccountForm({ name, email }: AccountFormProps) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-      <section className="grid gap-6 grid-cols-2 mt-5">
+      <section className="mt-5 grid grid-cols-2 gap-6">
         <div className="flex flex-col gap-2">
           <Label>Name</Label>
           <Input {...register("name")} />
@@ -75,7 +75,7 @@ function AccountForm({ name, email }: AccountFormProps) {
       <Separator />
       <section className="space-y-8">
         <div>
-          <h1 className="text-lg font-semibold">Notifications</h1>
+          <h1 className="font-semibold text-lg">Notifications</h1>
           <p className="text-muted-foreground text-sm">
             Manage your personal notification settings for this workspace. Read
             the governance documentation to learn more.
@@ -113,10 +113,10 @@ function AccountForm({ name, email }: AccountFormProps) {
         </ul>
       </section>
       <Separator />
-      <section className="flex gap-4 justify-end w-full">
+      <section className="flex w-full justify-end gap-4">
         <Button
           disabled={!dataChanged || isSubmitting}
-          className="w-20 self-end flex gap-2 items-center"
+          className="flex w-20 items-center gap-2 self-end"
         >
           {isSubmitting ? <Loader2 className="animate-spin" /> : "Save"}
         </Button>

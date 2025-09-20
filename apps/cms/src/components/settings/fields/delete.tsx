@@ -78,13 +78,13 @@ export function Delete() {
   return (
     <Card className="pb-4">
       <CardHeader>
-        <CardTitle className="text-lg font-medium">Delete workspace.</CardTitle>
+        <CardTitle className="font-medium text-lg">Delete workspace.</CardTitle>
         <CardDescription>
           Permanently delete your workspace and all associated data within. This
           action cannot be undone.
         </CardDescription>
       </CardHeader>
-      <CardFooter className="border-t pt-4 justify-end">
+      <CardFooter className="justify-end border-t pt-4">
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button variant="destructive">Delete Workspace</Button>

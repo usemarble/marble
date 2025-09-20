@@ -68,7 +68,7 @@ export default function PostActions({
             className={cn(
               "size-8 p-0",
               view === "grid" &&
-                "rounded-full bg-sidebar hover:text-primary dark:hover:text-accent-foreground hover:bg-primary/10 dark:bg-accent/50"
+                "rounded-full bg-sidebar hover:bg-primary/10 hover:text-primary dark:bg-accent/50 dark:hover:text-accent-foreground"
             )}
           >
             <span className="sr-only">Open menu</span>
@@ -82,7 +82,7 @@ export default function PostActions({
           <DropdownMenuItem>
             <Link
               href={`/${activeWorkspace?.slug}/editor/p/${post.id}`}
-              className="flex w-full items-center gap-2 cursor-default"
+              className="flex w-full cursor-default items-center gap-2"
             >
               <PencilSimpleLineIcon size={16} /> <span>Edit</span>
             </Link>

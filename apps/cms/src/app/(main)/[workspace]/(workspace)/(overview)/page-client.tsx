@@ -23,9 +23,9 @@ export default function PageClient() {
   };
 
   return (
-    <WorkspacePageWrapper className="flex flex-col pt-10 pb-16 gap-8">
+    <WorkspacePageWrapper className="flex flex-col gap-8 pt-10 pb-16">
       <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold">
+        <h1 className="font-bold text-3xl">
           {isFetchingUser ? (
             getTimeOfDay()
           ) : (
@@ -42,8 +42,8 @@ export default function PageClient() {
       <div className="grid gap-8">
         <div className="space-y-6">
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-semibold">Publishing Data</h2>
-            <div className="flex-1 h-px bg-border" />
+            <h2 className="font-semibold text-xl">Publishing Data</h2>
+            <div className="h-px flex-1 bg-border" />
           </div>
 
           <Suspense
@@ -69,8 +69,8 @@ export default function PageClient() {
 
         <div className="space-y-6">
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-semibold">API Usage</h2>
-            <div className="flex-1 h-px bg-border" />
+            <h2 className="font-semibold text-xl">API Usage</h2>
+            <div className="h-px flex-1 bg-border" />
           </div>
 
           <Suspense

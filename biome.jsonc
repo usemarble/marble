@@ -26,7 +26,6 @@
         "noExcessiveCognitiveComplexity": "off"
       },
       "nursery": {
-        "useSortedClasses": "off",
         "noShadow": "off",
         "noUselessUndefined": "off",
         "useImageSize": "off",

@@ -55,16 +55,16 @@ function PageClient() {
   return (
     <>
       {tags && tags.length > 0 ? (
-        <WorkspacePageWrapper className="flex flex-col pt-10 pb-16 gap-8">
+        <WorkspacePageWrapper className="flex flex-col gap-8 pt-10 pb-16">
           <DataTable data={tags} columns={columns} />
         </WorkspacePageWrapper>
       ) : (
-        <WorkspacePageWrapper className="h-full grid place-content-center">
-          <div className="flex flex-col gap-4 items-center max-w-80">
+        <WorkspacePageWrapper className="grid h-full place-content-center">
+          <div className="flex max-w-80 flex-col items-center gap-4">
             <div className="p-2">
               <TagIcon className="size-16" />
             </div>
-            <div className="text-center flex flex-col gap-4 items-center">
+            <div className="flex flex-col items-center gap-4 text-center">
               <p className="text-muted-foreground text-sm">
                 Tags help readers discover your content. Create your first tag
                 to get started.

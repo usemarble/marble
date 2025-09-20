@@ -81,7 +81,7 @@ export function Name() {
   return (
     <Card className="pb-4">
       <CardHeader>
-        <CardTitle className="text-lg font-medium">Workspace Name</CardTitle>
+        <CardTitle className="font-medium text-lg">Workspace Name</CardTitle>
         <CardDescription>
           The name of your workspace on marble. typically your websites name
         </CardDescription>
@@ -91,9 +91,9 @@ export function Name() {
         className="flex flex-col gap-6"
       >
         <CardContent>
-          <div className="flex flex-col gap-2 w-full">
-            <div className="flex gap-2 items-center">
-              <div className="flex flex-col gap-2 flex-1">
+          <div className="flex w-full flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <div className="flex flex-1 flex-col gap-2">
                 <Label htmlFor={nameId} className="sr-only">
                   Name
                 </Label>
@@ -106,17 +106,17 @@ export function Name() {
               </div>
             </div>
             {nameForm.formState.errors.name && (
-              <p className="text-xs text-destructive">
+              <p className="text-destructive text-xs">
                 {nameForm.formState.errors.name.message}
               </p>
             )}
           </div>
         </CardContent>
-        <CardFooter className="border-t pt-4 flex justify-between">
-          <p className="text-sm text-muted-foreground">Max 32 characters</p>
+        <CardFooter className="flex justify-between border-t pt-4">
+          <p className="text-muted-foreground text-sm">Max 32 characters</p>
           <AsyncButton
             isLoading={isPending}
-            className={cn("w-20 self-end flex gap-2 items-center")}
+            className={cn("flex w-20 items-center gap-2 self-end")}
             disabled={!isOwner || !nameForm.formState.isDirty}
           >
             Save

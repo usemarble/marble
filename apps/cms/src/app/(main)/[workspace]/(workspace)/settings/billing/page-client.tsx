@@ -136,10 +136,10 @@ function PageClient() {
           <CardContent className="px-6 py-10">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-semibold">
+                <h1 className="font-semibold text-2xl">
                   {getPlanDisplayName()}
                 </h1>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   {billingCycleText}
                 </p>
               </div>
@@ -165,19 +165,19 @@ function PageClient() {
         </Card>
 
         {/* Usage Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <Card>
             <CardContent className="p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="size-8 rounded-lg bg-muted flex items-center justify-center">
+              <div className="mb-4 flex items-center gap-3">
+                <div className="flex size-8 items-center justify-center rounded-lg bg-muted">
                   <PlugsIcon className="text-muted-foreground" size={16} />
                 </div>
                 <h3 className="font-medium">API Requests</h3>
               </div>
               <div className="space-y-3">
-                <div className="text-3xl font-bold">0</div>
+                <div className="font-bold text-3xl">0</div>
                 <Progress value={planLimits.maxApiRequests === -1 ? 100 : 0} />
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   {planLimits.maxApiRequests === -1
                     ? "Unlimited requests"
                     : `${formatApiRequestLimit(planLimits.maxApiRequests)} remaining of ${formatApiRequestLimit(planLimits.maxApiRequests)}`}
@@ -188,18 +188,18 @@ function PageClient() {
 
           <Card>
             <CardContent className="p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="size-8 rounded-lg bg-muted flex items-center justify-center">
+              <div className="mb-4 flex items-center gap-3">
+                <div className="flex size-8 items-center justify-center rounded-lg bg-muted">
                   <ImagesIcon className="text-muted-foreground" />
                 </div>
                 <h3 className="font-medium">Media</h3>
               </div>
               <div className="space-y-3">
-                <div className="text-3xl font-bold">
+                <div className="font-bold text-3xl">
                   {formatBytes(currentMediaUsage)}
                 </div>
                 <Progress value={mediaPercent} />
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   {formatStorageLimit(mediaRemainingMB)} remaining of{" "}
                   {formatStorageLimit(planLimits.maxMediaStorage)}
                 </p>
@@ -209,16 +209,16 @@ function PageClient() {
 
           <Card>
             <CardContent className="p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="size-8 rounded-lg bg-muted flex items-center justify-center">
+              <div className="mb-4 flex items-center gap-3">
+                <div className="flex size-8 items-center justify-center rounded-lg bg-muted">
                   <UsersIcon className="text-muted-foreground" size={16} />
                 </div>
                 <h3 className="font-medium">Members</h3>
               </div>
               <div className="space-y-3">
-                <div className="text-3xl font-bold">{currentMemberCount}</div>
+                <div className="font-bold text-3xl">{currentMemberCount}</div>
                 <Progress value={memberPercent} />
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   {Math.max(0, planLimits.maxMembers - currentMemberCount)}{" "}
                   remaining of {planLimits.maxMembers}
                 </p>

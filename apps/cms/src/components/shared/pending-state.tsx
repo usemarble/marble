@@ -20,12 +20,12 @@ export function PendingState({
         <Icon className="size-6" />
       </div>
       {title && (
-        <p className="text-center text-base font-medium text-gray-950">
+        <p className="text-center font-medium text-base text-gray-950">
           {title}
         </p>
       )}
       {description && (
-        <p className="max-w-sm text-balance text-center text-sm text-gray-500">
+        <p className="max-w-sm text-balance text-center text-gray-500 text-sm">
           {description}{" "}
           {learnMore && (
             <a

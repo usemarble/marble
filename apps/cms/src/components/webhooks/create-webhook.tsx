@@ -173,14 +173,14 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
       <SheetTrigger asChild>
         {children || (
           <Button>
-            <Plus className="size-4 mr-2" />
+            <Plus className="mr-2 size-4" />
             New Webhook
           </Button>
         )}
       </SheetTrigger>
       <SheetContent className="overflow-y-auto">
         <SheetHeader className="p-6">
-          <SheetTitle className="text-xl font-medium">New Webhook</SheetTitle>
+          <SheetTitle className="font-medium text-xl">New Webhook</SheetTitle>
           <SheetDescription className="sr-only">
             Set the endpoint and select the events you want to receive
             notifications for.
@@ -188,15 +188,15 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
         </SheetHeader>
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="h-full flex flex-col justify-between"
+          className="flex h-full flex-col justify-between"
         >
-          <div className="grid flex-1 auto-rows-min mb-5 gap-6 px-6">
+          <div className="mb-5 grid flex-1 auto-rows-min gap-6 px-6">
             <div className="grid gap-3">
               <Label htmlFor="name">Name</Label>
               {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
               <Input id="name" placeholder="My Webhook" {...register("name")} />
               {errors.name && (
-                <p className="text-sm text-destructive">
+                <p className="text-destructive text-sm">
                   {errors.name.message}
                 </p>
               )}
@@ -211,7 +211,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                 {...register("endpoint")}
               />
               {errors.endpoint && (
-                <p className="text-sm text-destructive">
+                <p className="text-destructive text-sm">
                   {errors.endpoint.message}
                 </p>
               )}
@@ -247,7 +247,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                 </SelectContent>
               </Select>
               {errors.format && (
-                <p className="text-sm text-destructive">
+                <p className="text-destructive text-sm">
                   {errors.format.message}
                 </p>
               )}
@@ -260,13 +260,13 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                   href="https://docs.marblecms.com/content/guides/webhooks"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs text-primary cursor-pointer hover:underline ml-2 flex items-center"
+                  className="ml-2 flex cursor-pointer items-center text-primary text-xs hover:underline"
                 >
                   <span>View Schemas</span>
                 </a>
               </div>
               <div className="grid gap-1">
-                <div className="flex items-center space-x-3 pb-2 border-b border-border">
+                <div className="flex items-center space-x-3 border-border border-b pb-2">
                   <Checkbox
                     id={masterCheckboxId}
                     checked={getMasterCheckboxState()}
@@ -277,7 +277,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                   <div className="flex-1">
                     <Label
                       htmlFor={masterCheckboxId}
-                      className="text-sm font-medium cursor-pointer"
+                      className="cursor-pointer font-medium text-sm"
                     >
                       Select all events
                     </Label>
@@ -295,7 +295,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                     <div className="flex-1">
                       <Label
                         htmlFor={event.id}
-                        className="text-sm font-medium cursor-pointer"
+                        className="cursor-pointer font-medium text-sm"
                       >
                         {event.label}
                       </Label>
@@ -304,7 +304,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                 ))}
               </div>
               {errors.events && (
-                <p className="text-sm text-destructive">
+                <p className="text-destructive text-sm">
                   {errors.events.message}
                 </p>
               )}

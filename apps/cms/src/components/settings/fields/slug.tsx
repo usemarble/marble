@@ -102,7 +102,7 @@ export function Slug() {
   return (
     <Card className="pb-4">
       <CardHeader>
-        <CardTitle className="text-lg font-medium">Workspace Slug</CardTitle>
+        <CardTitle className="font-medium text-lg">Workspace Slug</CardTitle>
         <CardDescription>Your unique workspace slug.</CardDescription>
       </CardHeader>
       <form
@@ -110,9 +110,9 @@ export function Slug() {
         className="flex flex-col gap-6"
       >
         <CardContent>
-          <div className="flex flex-col gap-2 w-full">
-            <div className="flex gap-2 items-center">
-              <div className="flex flex-col gap-2 flex-1">
+          <div className="flex w-full flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <div className="flex flex-1 flex-col gap-2">
                 <Label htmlFor={slugId} className="sr-only">
                   Slug
                 </Label>
@@ -125,20 +125,20 @@ export function Slug() {
               </div>
             </div>
             {slugForm.formState.errors.slug && (
-              <p className="text-xs text-destructive">
+              <p className="text-destructive text-xs">
                 {slugForm.formState.errors.slug.message}
               </p>
             )}
           </div>
         </CardContent>
-        <CardFooter className="border-t pt-4 flex justify-between">
-          <p className="text-sm text-muted-foreground">
+        <CardFooter className="flex justify-between border-t pt-4">
+          <p className="text-muted-foreground text-sm">
             Used in your workspace URL
           </p>
           <AsyncButton
             isLoading={isPending}
             disabled={!isOwner || !slugForm.formState.isDirty}
-            className={cn("w-20 self-end flex gap-2 items-center")}
+            className={cn("flex w-20 items-center gap-2 self-end")}
           >
             Save
           </AsyncButton>

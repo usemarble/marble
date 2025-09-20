@@ -137,12 +137,12 @@ export function EditorSidebar({
       <Sidebar
         side="right"
         className={cn(
-          "bg-editor-sidebar-background m-2 h-[calc(100vh-1rem)] min-h-[calc(100vh-1rem)] overflow-hidden rounded-xl border",
+          "m-2 h-[calc(100vh-1rem)] min-h-[calc(100vh-1rem)] overflow-hidden rounded-xl border bg-editor-sidebar-background",
           open ? "" : "mr-0"
         )}
         {...props}
       >
-        <SidebarHeader className="bg-transparent sticky top-0 z-10 shrink-0 px-6 py-4">
+        <SidebarHeader className="sticky top-0 z-10 shrink-0 bg-transparent px-6 py-4">
           <Tabs
             value={activeTab}
             onValueChange={setActiveTab}
@@ -159,7 +159,7 @@ export function EditorSidebar({
           </Tabs>
         </SidebarHeader>
 
-        <SidebarContent className="bg-transparent min-h-0 flex-1 overflow-hidden">
+        <SidebarContent className="min-h-0 flex-1 overflow-hidden bg-transparent">
           <Tabs
             value={activeTab}
             onValueChange={setActiveTab}
@@ -170,7 +170,7 @@ export function EditorSidebar({
               className="min-h-0 flex-1 data-[state=inactive]:hidden"
             >
               <HiddenScrollbar className="h-full px-6">
-                <section className="grid gap-6 pb-5 pt-4">
+                <section className="grid gap-6 pt-4 pb-5">
                   <StatusField control={control} />
 
                   <Separator orientation="horizontal" className="flex" />
@@ -204,10 +204,10 @@ export function EditorSidebar({
               className="min-h-0 flex-1 data-[state=inactive]:hidden"
             >
               <HiddenScrollbar className="h-full px-6">
-                <section className="grid gap-6 pb-5 pt-4">
+                <section className="grid gap-6 pt-4 pb-5">
                   <div className="flex flex-col gap-4">
                     <div className="space-y-2">
-                      <h4 className="text-sm font-medium">Readability</h4>
+                      <h4 className="font-medium text-sm">Readability</h4>
                       <div className="flex items-center justify-center">
                         <Gauge
                           value={textMetrics.readabilityScore}
@@ -218,7 +218,7 @@ export function EditorSidebar({
                       </div>
                       {textMetrics.wordCount > 0 && (
                         <div className="space-y-1">
-                          <h5 className="text-sm font-medium">Feedback</h5>
+                          <h5 className="font-medium text-sm">Feedback</h5>
                           <p className="text-muted-foreground text-xs">
                             <span className="font-medium">
                               {textMetrics.readabilityLevel.level}:
@@ -232,7 +232,7 @@ export function EditorSidebar({
                     <Separator />
 
                     <div className="space-y-3">
-                      <h4 className="text-sm font-medium">Text Statistics</h4>
+                      <h4 className="font-medium text-sm">Text Statistics</h4>
                       <div className="grid grid-cols-2 gap-3 text-sm">
                         <div className="space-y-1">
                           <p className="text-muted-foreground">Words</p>
@@ -258,12 +258,12 @@ export function EditorSidebar({
                     <Separator />
 
                     <div className="space-y-3">
-                      <h4 className="text-sm font-medium">
+                      <h4 className="font-medium text-sm">
                         {textMetrics.wordCount === 0
                           ? "Getting Started"
                           : "Suggestions"}
                       </h4>
-                      <div className="text-muted-foreground space-y-2 text-sm">
+                      <div className="space-y-2 text-muted-foreground text-sm">
                         {textMetrics.suggestions.map((suggestion) => (
                           <p key={suggestion}>• {suggestion}</p>
                         ))}
@@ -276,7 +276,7 @@ export function EditorSidebar({
           </Tabs>
         </SidebarContent>
 
-        <SidebarFooter className="bg-transparent shrink-0 px-6 py-6">
+        <SidebarFooter className="shrink-0 bg-transparent px-6 py-6">
           {activeTab === "metadata" &&
             (mode === "create" ? (
               <AsyncButton

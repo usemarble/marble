@@ -148,7 +148,7 @@ export function TimezoneSelector({
         <Button
           type="button"
           variant="outline"
-          className="w-full items-center shadow-none justify-between gap-2"
+          className="w-full items-center justify-between gap-2 shadow-none"
           disabled={disabled}
           onClick={() => !disabled && setIsOpen(!isOpen)}
         >
@@ -161,7 +161,7 @@ export function TimezoneSelector({
             {selectedTimezone ? (
               <div className="flex gap-2">
                 <span>{selectedTimezone.label}</span>
-                <Badge variant="outline" className="font-light bg-muted">
+                <Badge variant="outline" className="bg-muted font-light">
                   {selectedTimezone.currentTime}
                 </Badge>
               </div>
@@ -203,7 +203,7 @@ export function TimezoneSelector({
                       transform: `translateY(${row.start}px)`,
                     }}
                   >
-                    <div className="flex items-center justify-between w-full">
+                    <div className="flex w-full items-center justify-between">
                       <div className="flex flex-col">
                         <span>{option.label}</span>
                         <span className="text-muted-foreground text-xs">

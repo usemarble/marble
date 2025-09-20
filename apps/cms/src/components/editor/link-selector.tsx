@@ -85,7 +85,7 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
           }}
           className="flex flex-col p-1"
         >
-          <div className="flex mb-3">
+          <div className="mb-3 flex">
             <input
               ref={inputRef}
               type="text"
@@ -111,7 +111,7 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
                 type="button"
                 variant="outline"
                 size="icon"
-                className="shrink-0 size-8"
+                className="size-8 shrink-0"
                 onClick={() => {
                   const url = getUrlFromString(inputRef.current?.value || "");
                   if (url) {

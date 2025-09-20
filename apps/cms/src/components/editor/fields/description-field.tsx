@@ -33,7 +33,7 @@ export function DescriptionField({ control }: DescriptionFieldProps) {
         className="col-span-3 bg-editor-field"
       />
       {error && (
-        <p className="text-sm px-1 font-medium text-destructive">
+        <p className="px-1 font-medium text-destructive text-sm">
           {error.message}
         </p>
       )}

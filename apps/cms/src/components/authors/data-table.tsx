@@ -49,11 +49,11 @@ export function AuthorDataTable({ columns, data }: AuthorDataTableProps) {
 
   return (
     <div>
-      <div className="flex items-center py-4 gap-4 justify-between">
+      <div className="flex items-center justify-between gap-4 py-4">
         <div className="relative">
           <MagnifyingGlassIcon
             size={16}
-            className="text-muted-foreground size-4 absolute top-1/2 -translate-y-1/2 left-3"
+            className="-translate-y-1/2 absolute top-1/2 left-3 size-4 text-muted-foreground"
           />
           <Input
             value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
@@ -61,13 +61,13 @@ export function AuthorDataTable({ columns, data }: AuthorDataTableProps) {
               table.getColumn("name")?.setFilterValue(event.target.value)
             }
             placeholder="Search authors..."
-            className="px-8 w-72"
+            className="w-72 px-8"
           />
           {(table.getColumn("name")?.getFilterValue() as string) && (
             <button
               type="button"
               onClick={() => table.getColumn("name")?.setFilterValue("")}
-              className="absolute right-3 top-3"
+              className="absolute top-3 right-3"
             >
               <XIcon className="size-4" />
               <span className="sr-only">Clear search</span>
@@ -75,7 +75,7 @@ export function AuthorDataTable({ columns, data }: AuthorDataTableProps) {
           )}
         </div>
 
-        <div className="flex gap-4 items-center">
+        <div className="flex items-center gap-4">
           <Button onClick={handleAddAuthor}>
             <PlusIcon className="size-4" />
             <span>Add Author</span>

@@ -121,7 +121,7 @@ export function Gauge({
 
       <div className="absolute inset-0 mt-8 flex flex-col items-center justify-center">
         <motion.div
-          className={cn("text-foreground text-4xl font-bold", valueClassName)}
+          className={cn("font-bold text-4xl text-foreground", valueClassName)}
           initial={
             animate ? { opacity: 0, scale: 0.5 } : { opacity: 1, scale: 1 }
           }
@@ -138,7 +138,7 @@ export function Gauge({
         </motion.div>
         {label && (
           <motion.div
-            className={cn("text-muted-foreground mt-1 text-sm", labelClassName)}
+            className={cn("mt-1 text-muted-foreground text-sm", labelClassName)}
             initial={animate ? { opacity: 0, y: 10 } : { opacity: 1, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.8 }}
