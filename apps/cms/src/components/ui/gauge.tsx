@@ -76,6 +76,7 @@ export function Gauge({
         viewBox={`0 0 ${size} ${size * 0.6}`}
         className="overflow-visible"
       >
+        <title>Gauge</title>
         <defs>
           <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
             {colors.map((color, index) => (

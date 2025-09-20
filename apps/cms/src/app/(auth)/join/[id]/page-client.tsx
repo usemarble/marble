@@ -141,6 +141,7 @@ function PageClient({ id, user }: PageClientProps) {
                     stroke="currentColor"
                     className="size-6"
                   >
+                    <title>X</title>
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"

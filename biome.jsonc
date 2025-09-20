@@ -47,7 +47,6 @@
         "useTopLevelRegex": "off"
       },
       "a11y": {
-        "noSvgWithoutTitle": "off",
         "noNoninteractiveElementInteractions": "off"
       },
       "correctness": {
