@@ -13,7 +13,7 @@ export async function GET() {
   }
 
   const tags = await db.tag.findMany({
-    where: { workspaceId: workspaceId },
+    where: { workspaceId },
     select: {
       id: true,
       name: true,
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
     data: {
       name: body.name,
       slug: body.slug,
-      workspaceId: workspaceId,
+      workspaceId,
     },
   });
 

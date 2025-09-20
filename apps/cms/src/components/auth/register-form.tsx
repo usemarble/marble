@@ -43,7 +43,7 @@ export function RegisterForm() {
     // they can initiate another verification email from the verify page
     await authClient.emailOtp
       .sendVerificationOtp({
-        email: email,
+        email,
         type: "email-verification",
       })
       .then((_res) => {

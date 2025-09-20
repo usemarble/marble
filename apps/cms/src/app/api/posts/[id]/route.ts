@@ -19,7 +19,7 @@ export async function GET(
   }
 
   const post = await db.post.findFirst({
-    where: { id: id, workspaceId: activeWorkspaceId },
+    where: { id, workspaceId: activeWorkspaceId },
     select: {
       id: true,
       slug: true,
@@ -107,7 +107,7 @@ export async function PATCH(
   const validAuthors = await db.author.findMany({
     where: {
       id: { in: values.data.authors },
-      workspaceId: workspaceId,
+      workspaceId,
     },
   });
 
@@ -130,7 +130,7 @@ export async function PATCH(
   }
 
   const post = await db.post.findFirst({
-    where: { id, workspaceId: workspaceId },
+    where: { id, workspaceId },
     select: { status: true },
   });
 
@@ -152,7 +152,7 @@ export async function PATCH(
         description: values.data.description,
         publishedAt: values.data.publishedAt,
         attribution: validAttribution,
-        workspaceId: workspaceId,
+        workspaceId,
         tags: values.data.tags
           ? { set: uniqueTagIds.map((id) => ({ id })) }
           : undefined,
@@ -223,7 +223,7 @@ export async function DELETE(
 
   try {
     const deletedPost = await db.post.delete({
-      where: { id: id, workspaceId: activeWorkspaceId },
+      where: { id, workspaceId: activeWorkspaceId },
     });
 
     if (!deletedPost) {
@@ -237,7 +237,7 @@ export async function DELETE(
       await webhookClient.send({
         url: webhook.endpoint,
         event: "post.deleted",
-        data: { id: id, slug: deletedPost.slug, userId: sessionData.user.id },
+        data: { id, slug: deletedPost.slug, userId: sessionData.user.id },
         format: webhook.format,
       });
     }

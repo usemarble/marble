@@ -16,7 +16,7 @@ export async function DELETE(
 
   const deletedAccount = await db.account.delete({
     where: {
-      id: id,
+      id,
       userId: session.user.id,
     },
   });

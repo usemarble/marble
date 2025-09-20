@@ -80,7 +80,7 @@ export async function DELETE(
   try {
     await db.tag.delete({
       where: {
-        id: id,
+        id,
         workspaceId: sessionData.session.activeOrganizationId,
       },
     });
@@ -92,7 +92,7 @@ export async function DELETE(
       await webhookClient.send({
         url: webhook.endpoint,
         event: "tag.deleted",
-        data: { id: id, slug: tag.slug, userId: sessionData.user.id },
+        data: { id, slug: tag.slug, userId: sessionData.user.id },
         format: webhook.format,
       });
     }

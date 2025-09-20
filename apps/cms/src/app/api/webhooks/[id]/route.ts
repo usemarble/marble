@@ -25,7 +25,7 @@ export async function PATCH(
 
   const webhook = await db.webhook.update({
     where: {
-      id: id,
+      id,
       workspaceId: session.session.activeOrganizationId,
     },
     data: { ...body },
@@ -52,7 +52,7 @@ export async function DELETE(
 
   const existingWebhook = await db.webhook.findFirst({
     where: {
-      id: id,
+      id,
       workspaceId: session.session.activeOrganizationId,
     },
   });
@@ -62,7 +62,7 @@ export async function DELETE(
   }
 
   const deletedWebhook = await db.webhook.delete({
-    where: { id: id },
+    where: { id },
   });
 
   return NextResponse.json(deletedWebhook.id, { status: 204 });

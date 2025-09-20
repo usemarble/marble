@@ -17,7 +17,7 @@ export async function getLastActiveWorkspaceOrNewOneToSetAsActive(
           slug: lastVisitedWorkspaceSlug,
           members: {
             some: {
-              userId: userId,
+              userId,
             },
           },
         },
@@ -38,7 +38,7 @@ export async function getLastActiveWorkspaceOrNewOneToSetAsActive(
     where: {
       members: {
         some: {
-          userId: userId,
+          userId,
           role: "owner",
         },
       },
@@ -58,7 +58,7 @@ export async function getLastActiveWorkspaceOrNewOneToSetAsActive(
     where: {
       members: {
         some: {
-          userId: userId,
+          userId,
         },
       },
     },

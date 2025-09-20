@@ -19,7 +19,7 @@ export async function GET() {
   try {
     const authors = await db.author.findMany({
       where: {
-        workspaceId: workspaceId,
+        workspaceId,
         isActive: true,
       },
       select: {
@@ -80,7 +80,7 @@ export async function POST(request: Request) {
     const existingAuthor = await db.author.findUnique({
       where: {
         workspaceId_slug: {
-          workspaceId: workspaceId,
+          workspaceId,
           slug,
         },
       },
@@ -101,7 +101,7 @@ export async function POST(request: Request) {
         role,
         email: validEmail,
         image,
-        workspaceId: workspaceId,
+        workspaceId,
         userId: validUserId,
       },
     });

@@ -15,7 +15,7 @@ export async function checkCategorySlugAction(
   workspaceId: string
 ) {
   const result = await db.category.findFirst({
-    where: { workspaceId: workspaceId, slug: slug },
+    where: { workspaceId, slug },
   });
 
   return !!result;
@@ -35,8 +35,8 @@ export async function checkCategorySlugForUpdateAction(
 ) {
   const result = await db.category.findFirst({
     where: {
-      workspaceId: workspaceId,
-      slug: slug,
+      workspaceId,
+      slug,
       NOT: {
         id: currentCategoryId,
       },
@@ -48,7 +48,7 @@ export async function checkCategorySlugForUpdateAction(
 
 export async function checkTagSlugAction(slug: string, workspaceId: string) {
   const result = await db.tag.findFirst({
-    where: { workspaceId: workspaceId, slug: slug },
+    where: { workspaceId, slug },
   });
 
   return !!result;
@@ -61,8 +61,8 @@ export async function checkTagSlugForUpdateAction(
 ) {
   const result = await db.tag.findFirst({
     where: {
-      workspaceId: workspaceId,
-      slug: slug,
+      workspaceId,
+      slug,
       NOT: {
         id: currentTagId,
       },
@@ -80,7 +80,7 @@ export async function checkTagSlugForUpdateAction(
  */
 export async function checkAuthorSlugAction(slug: string, workspaceId: string) {
   const result = await db.author.findFirst({
-    where: { workspaceId: workspaceId, slug: slug },
+    where: { workspaceId, slug },
   });
 
   return !!result;
@@ -100,8 +100,8 @@ export async function checkAuthorSlugForUpdateAction(
 ) {
   const result = await db.author.findFirst({
     where: {
-      workspaceId: workspaceId,
-      slug: slug,
+      workspaceId,
+      slug,
       NOT: {
         id: currentAuthorId,
       },

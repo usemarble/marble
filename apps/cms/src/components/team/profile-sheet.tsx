@@ -44,7 +44,7 @@ export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
     setLoading(true);
     await organization.updateMemberRole({
       memberId: member.id,
-      role: role,
+      role,
       fetchOptions: {
         onSuccess: () => {
           toast.success("Role updated");

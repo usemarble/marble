@@ -47,7 +47,7 @@ export async function sendInviteEmailAction({
       to: inviteeEmail,
       subject: `Join ${workspaceName} on Marble`,
       react: InviteUserEmail({
-        inviteeEmail: inviteeEmail,
+        inviteeEmail,
         invitedByUsername: inviterName,
         invitedByEmail: inviterEmail,
         teamName: workspaceName,

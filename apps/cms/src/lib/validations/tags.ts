@@ -20,7 +20,7 @@ export async function validateWorkspaceTags(
     const valid = await db.tag.findMany({
       where: {
         id: { in: uniqueTagIds },
-        workspaceId: workspaceId,
+        workspaceId,
       },
       select: { id: true },
     });

@@ -18,7 +18,6 @@
       "style": {
         "noExportedImports": "off",
         "noMagicNumbers": "off",
-        "useConsistentObjectDefinitions": "off",
         "noNestedTernary": "off",
         "useFilenamingConvention": "off"
       },

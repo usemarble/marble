@@ -29,8 +29,8 @@ export async function PATCH(
 
   const categoryUpdated = await db.category.update({
     where: {
-      id: id,
-      workspaceId: workspaceId,
+      id,
+      workspaceId,
     },
     data: {
       name: body.data.name,
@@ -71,7 +71,7 @@ export async function DELETE(
   const { id } = await params;
 
   const category = await db.category.findFirst({
-    where: { id, workspaceId: workspaceId },
+    where: { id, workspaceId },
     select: { slug: true },
   });
 
@@ -82,7 +82,7 @@ export async function DELETE(
   const postsWithCategory = await db.post.findFirst({
     where: {
       categoryId: id,
-      workspaceId: workspaceId,
+      workspaceId,
     },
     select: { id: true },
   });
@@ -97,8 +97,8 @@ export async function DELETE(
   try {
     await db.category.delete({
       where: {
-        id: id,
-        workspaceId: workspaceId,
+        id,
+        workspaceId,
       },
     });
 
@@ -109,7 +109,7 @@ export async function DELETE(
       await webhookClient.send({
         url: webhook.endpoint,
         event: "category.deleted",
-        data: { id: id, slug: category.slug, userId: sessionData.user.id },
+        data: { id, slug: category.slug, userId: sessionData.user.id },
         format: webhook.format,
       });
     }

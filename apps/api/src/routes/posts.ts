@@ -155,9 +155,9 @@ posts.get("/", async (c) => {
       ? {
           limit,
           currentPage: page,
-          nextPage: nextPage,
+          nextPage,
           previousPage: prevPage,
-          totalPages: totalPages,
+          totalPages,
           totalItems: totalPosts,
         }
       : {

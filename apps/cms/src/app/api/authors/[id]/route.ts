@@ -82,7 +82,7 @@ export async function PATCH(
     const author = await db.author.findFirst({
       where: {
         id,
-        workspaceId: workspaceId,
+        workspaceId,
       },
     });
 
@@ -93,7 +93,7 @@ export async function PATCH(
     const updatedAuthor = await db.author.update({
       where: {
         id,
-        workspaceId: workspaceId,
+        workspaceId,
       },
       data: {
         name,

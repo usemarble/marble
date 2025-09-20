@@ -45,7 +45,7 @@ export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
     setIsResendLoading(true);
     try {
       await authClient.emailOtp.sendVerificationOtp({
-        email: email,
+        email,
         type: "email-verification",
       });
       toast.success("Verification code sent!");
@@ -62,8 +62,8 @@ export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
     setIsLoading(true);
     try {
       const result = await authClient.emailOtp.verifyEmail({
-        email: email,
-        otp: otp,
+        email,
+        otp,
       });
 
       if (result.data) {

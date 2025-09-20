@@ -15,7 +15,7 @@ export async function GET(
   }
 
   const workspace = await db.organization.findUnique({
-    where: { slug: slug },
+    where: { slug },
     select: {
       id: true,
       name: true,

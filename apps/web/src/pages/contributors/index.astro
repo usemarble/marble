@@ -111,8 +111,8 @@ async function fetchGitHubData() {
     return {
       repo,
       contributors: contributors.filter((c) => c.type === "User").slice(0, 24),
-      issues: issues,
-      prs: prs,
+      issues,
+      prs,
       stats: {
         totalStars,
         totalForks,

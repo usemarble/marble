@@ -98,7 +98,7 @@ function PageClient({ id, user }: PageClientProps) {
     organization
       .getInvitation({
         query: {
-          id: id,
+          id,
         },
       })
       .then((res) => {

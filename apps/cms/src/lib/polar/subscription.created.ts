@@ -107,8 +107,8 @@ export async function handleSubscriptionCreated(
         status,
         currentPeriodStart: new Date(subscription.currentPeriodStart),
         currentPeriodEnd: new Date(subscription.currentPeriodEnd),
-        userId: userId,
-        workspaceId: workspaceId,
+        userId,
+        workspaceId,
       },
     });
 
