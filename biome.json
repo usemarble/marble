@@ -3,5 +3,60 @@
   "extends": ["ultracite"],
   "files": {
     "includes": ["**", "!packages/ui/src"]
+  },
+  "linter": {
+    "rules": {
+      "suspicious": {
+        "noConsole": "off",
+        "noQuickfixBiome": "off",
+        "useAwait": "off",
+        "noEvolvingTypes": "off",
+        "noExplicitAny": "off",
+        "noUnknownAtRules": "off"
+      },
+      "style": {
+        "noExportedImports": "off",
+        "noMagicNumbers": "off",
+        "useBlockStatements": "off",
+        "useConsistentObjectDefinitions": "off",
+        "noNestedTernary": "off",
+        "useFilenamingConvention": "off",
+        "noNegationElse": "off",
+        "useNumericSeparators": "off",
+        "useReadonlyClassProperties": "off"
+      },
+      "complexity": {
+        "useSimplifiedLogicExpression": "off",
+        "noExcessiveCognitiveComplexity": "off",
+        "noVoid": "off"
+      },
+      "nursery": {
+        "useConsistentTypeDefinitions": "off",
+        "useSortedClasses": "off",
+        "noShadow": "off",
+        "noNonNullAssertedOptionalChain": "off",
+        "noUselessUndefined": "off",
+        "useImageSize": "off",
+        "noUnnecessaryConditions": "off"
+      },
+      "performance": {
+        "useTopLevelRegex": "off",
+        "noBarrelFile": "off",
+        "noNamespaceImport": "off"
+      },
+      "a11y": {
+        "noSvgWithoutTitle": "off",
+        "noNoninteractiveElementInteractions": "off"
+      },
+      "correctness": {
+        "useUniqueElementIds": "off",
+        "noUnusedImports": "off",
+        "noUnusedVariables": "off",
+        "noUnusedFunctionParameters": "off"
+      }
+    }
+  },
+  "assist": {
+    "enabled": false
   }
 }
