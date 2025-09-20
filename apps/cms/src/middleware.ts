@@ -53,9 +53,15 @@ export async function middleware(request: NextRequest) {
     }
 
     const callbackUrl = encodeURIComponent(request.nextUrl.pathname);
+
+    const email = session.user.email;
+
     // Redirect unverified users to verify page
     return NextResponse.redirect(
-      new URL(`/verify?from=${callbackUrl}`, request.url),
+      new URL(
+        `/verify?email=${encodeURIComponent(email)}&from=${callbackUrl}`,
+        request.url,
+      ),
     );
   }
 
