@@ -17,7 +17,7 @@ export function getDiscordEmbed(args: {
   data: WebhookBody["data"];
   username?: string;
 }): RESTPostAPIWebhookWithTokenJSONBody {
-  const { event, data, username = undefined } = args;
+  const { event, data, username } = args;
 
   const embed = new EmbedBuilder()
     .setTitle(formatEvent(event))
@@ -61,7 +61,7 @@ export function getSlackMessage(args: {
   data: WebhookBody["data"];
   username?: string;
 }) {
-  const { event, data, username = undefined } = args;
+  const { event, data, username } = args;
 
   const fields = [
     `*ID:* ${data.id}`,

@@ -95,7 +95,7 @@ export function AuthorSelector({
   // Memoize the primary author to avoid recalculation
   const derivedPrimaryAuthor = useMemo(() => {
     if (!user || authors.length === 0) {
-      return undefined;
+      return;
     }
     return authors.find((author) => author.userId === user.id) || authors[0];
   }, [user, authors]);

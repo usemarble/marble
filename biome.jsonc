@@ -33,8 +33,8 @@
         "noExcessiveCognitiveComplexity": "off"
       },
       "nursery": {
+        /* Needs more work to fix */
         "noShadow": "off",
-        "noUselessUndefined": "off",
         "useImageSize": "off",
         "noUnnecessaryConditions": "off"
       },
