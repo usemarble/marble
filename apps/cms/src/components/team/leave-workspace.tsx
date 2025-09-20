@@ -14,7 +14,7 @@ import { AsyncButton } from "@/components/ui/async-button";
 import { organization, useListOrganizations } from "@/lib/auth/client";
 import { useWorkspace } from "@/providers/workspace";
 
-interface ListOrganizationResponse {
+type ListOrganizationResponse = {
   // biome-ignore lint/suspicious/noExplicitAny: <>
   metadata?: any;
   name: string;
@@ -22,14 +22,14 @@ interface ListOrganizationResponse {
   logo?: string | null | undefined | undefined;
   createdAt: Date;
   id: string;
-}
+};
 
-interface LeaveWorkspaceModalProps {
+type LeaveWorkspaceModalProps = {
   id: string;
   name: string;
   open: boolean;
   setOpen: (open: boolean) => void;
-}
+};
 
 export function LeaveWorkspaceModal({
   id,

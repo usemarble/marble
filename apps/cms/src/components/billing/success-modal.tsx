@@ -12,11 +12,11 @@ import { CheckCircle } from "@phosphor-icons/react";
 import confetti from "canvas-confetti";
 import { useEffect, useState } from "react";
 
-interface PaymentSuccessModalProps {
+type PaymentSuccessModalProps = {
   isOpen: boolean;
   onClose: () => void;
   planName?: string;
-}
+};
 
 export function PaymentSuccessModal({
   isOpen,

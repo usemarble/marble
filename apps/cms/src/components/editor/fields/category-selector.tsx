@@ -18,15 +18,15 @@ import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { PostValues } from "@/lib/validations/post";
 import { FieldInfo } from "./field-info";
 
-interface CategoryResponse {
+type CategoryResponse = {
   id: string;
   name: string;
   slug: string;
-}
+};
 
-interface CategorySelectorProps {
+type CategorySelectorProps = {
   control: Control<PostValues>;
-}
+};
 
 export function CategorySelector({ control }: CategorySelectorProps) {
   const {

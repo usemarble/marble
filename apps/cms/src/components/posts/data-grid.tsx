@@ -25,9 +25,9 @@ import { useWorkspace } from "@/providers/workspace";
 import type { Post } from "./columns";
 import PostActions from "./post-actions";
 
-interface DataGridProps {
+type DataGridProps = {
   data: Post[];
-}
+};
 
 export function DataGrid({ data }: DataGridProps) {
   const { activeWorkspace } = useWorkspace();

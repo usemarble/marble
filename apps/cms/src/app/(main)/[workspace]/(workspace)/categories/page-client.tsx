@@ -19,11 +19,11 @@ const CategoryModal = dynamic(() =>
   )
 );
 
-interface Category {
+type Category = {
   id: string;
   name: string;
   slug: string;
-}
+};
 
 function PageClient() {
   const workspaceId = useWorkspaceId();

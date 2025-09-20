@@ -15,10 +15,10 @@ import { checkout } from "@/lib/auth/client";
 import { PRICING_PLANS } from "@/lib/constants";
 import { useWorkspace } from "@/providers/workspace";
 
-interface UpgradeModalProps {
+type UpgradeModalProps = {
   isOpen: boolean;
   onClose: () => void;
-}
+};
 
 export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
   const [checkoutLoading, setCheckoutLoading] = useState<"pro" | "team" | null>(

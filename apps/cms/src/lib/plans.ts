@@ -1,6 +1,6 @@
 export type PlanType = "free" | "pro" | "team";
 
-export interface PlanLimits {
+export type PlanLimits = {
   maxMembers: number;
   maxMediaStorage: number;
   maxApiRequests: number;
@@ -11,7 +11,7 @@ export interface PlanLimits {
     keywordOptimization: boolean;
     unlimitedPosts: boolean;
   };
-}
+};
 
 export const PLAN_LIMITS: Record<PlanType, PlanLimits> = {
   free: {

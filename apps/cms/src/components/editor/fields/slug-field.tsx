@@ -6,9 +6,9 @@ import { type Control, useController } from "react-hook-form";
 import type { PostValues } from "@/lib/validations/post";
 import { FieldInfo } from "./field-info";
 
-interface SlugFieldProps {
+type SlugFieldProps = {
   control: Control<PostValues>;
-}
+};
 
 export function SlugField({ control }: SlugFieldProps) {
   const {

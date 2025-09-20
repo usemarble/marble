@@ -27,9 +27,9 @@ type Media = {
   createdAt: string;
 };
 
-interface MediaGalleryProps {
+type MediaGalleryProps = {
   media: Media[];
-}
+};
 
 export function MediaGallery({ media }: MediaGalleryProps) {
   const [showUploadModal, setShowUploadModal] = useState(false);

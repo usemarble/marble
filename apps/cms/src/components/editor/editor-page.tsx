@@ -51,10 +51,10 @@ const getToggleSidebarShortcut = () => {
   return isMac ? "⌘K" : "Ctrl+K";
 };
 
-interface EditorPageProps {
+type EditorPageProps = {
   initialData: PostValues;
   id?: string;
-}
+};
 
 function EditorPage({ initialData, id }: EditorPageProps) {
   const router = useRouter();

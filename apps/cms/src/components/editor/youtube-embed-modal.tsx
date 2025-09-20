@@ -12,10 +12,10 @@ import { YoutubeLogo } from "@phosphor-icons/react";
 import { useEditor } from "novel";
 import { useState } from "react";
 
-interface YoutubeEmbedModalProps {
+type YoutubeEmbedModalProps = {
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-}
+};
 
 export function YoutubeEmbedModal({
   isOpen,

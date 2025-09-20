@@ -13,9 +13,9 @@ import {
   Text,
 } from "@react-email/components";
 
-interface WelcomeEmailProps {
+type WelcomeEmailProps = {
   userEmail: string;
-}
+};
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
 

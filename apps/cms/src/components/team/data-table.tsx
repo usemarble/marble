@@ -30,14 +30,14 @@ import { InviteButton } from "./invite-button";
 
 type UserRole = "owner" | "admin" | "member" | undefined;
 
-interface DataTableProps<TData, TValue> {
+type DataTableProps<TData, TValue> = {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   currentUserRole: UserRole;
   currentUserId: string | undefined;
   setShowInviteModal: (open: boolean) => void;
   setShowLeaveWorkspaceModal: (open: boolean) => void;
-}
+};
 
 export function TeamDataTable<TData, TValue>({
   columns,

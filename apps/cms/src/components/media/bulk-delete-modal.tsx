@@ -15,12 +15,12 @@ import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { AsyncButton } from "../ui/async-button";
 
-interface BulkDeleteMediaProps {
+type BulkDeleteMediaProps = {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   selectedItems: string[];
   onDeleteComplete?: (deletedIds: string[]) => void;
-}
+};
 
 export function BulkDeleteMediaModal({
   isOpen,

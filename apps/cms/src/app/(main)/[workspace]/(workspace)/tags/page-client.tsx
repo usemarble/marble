@@ -17,11 +17,11 @@ const TagModal = dynamic(() =>
   import("@/components/tags/tag-modals").then((mod) => mod.TagModal)
 );
 
-interface TagType {
+type TagType = {
   id: string;
   name: string;
   slug: string;
-}
+};
 
 function PageClient() {
   const workspaceId = useWorkspaceId();

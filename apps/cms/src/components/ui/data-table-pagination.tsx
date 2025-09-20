@@ -14,9 +14,9 @@ import {
   ChevronsRight,
 } from "lucide-react";
 
-interface DataTablePaginationProps<TData> {
+type DataTablePaginationProps<TData> = {
   table: Table<TData>;
-}
+};
 
 export function DataTablePagination<TData>({
   table,

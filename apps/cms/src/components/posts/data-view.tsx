@@ -48,10 +48,10 @@ const DataTable = dynamic(
   columns: ColumnDef<TData, TValue>[];
 }) => JSX.Element;
 
-interface DataViewProps<TData, TValue> {
+type DataViewProps<TData, TValue> = {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-}
+};
 
 type ViewType = "table" | "grid";
 

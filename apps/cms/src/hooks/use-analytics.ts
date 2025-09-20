@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { useWorkspaceId } from "./use-workspace-id";
 
-interface ApiAnalyticsData {
+type ApiAnalyticsData = {
   totalRequests: number;
   currentMonthRequests: number;
   lastMonthRequests: number;
@@ -12,19 +12,19 @@ interface ApiAnalyticsData {
     requests: number;
     label: string;
   }[];
-}
+};
 
-interface PublishingActivityData {
+type PublishingActivityData = {
   date: string;
   count: number;
   level: number;
-}
+};
 
-interface PublishingMetricsResponse {
+type PublishingMetricsResponse = {
   graph: {
     activity: PublishingActivityData[];
   };
-}
+};
 
 export function useApiAnalytics() {
   const workspaceId = useWorkspaceId();
@@ -62,13 +62,13 @@ export function usePublishingMetrics() {
   });
 }
 
-interface WorkspaceMetricsData {
+type WorkspaceMetricsData = {
   totalPosts: number;
   publishedPosts: number;
   drafts: number;
   tags: number;
   categories: number;
-}
+};
 
 export function useWorkspaceMetrics() {
   const workspaceId = useWorkspaceId();

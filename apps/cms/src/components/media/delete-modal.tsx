@@ -16,12 +16,12 @@ import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { Media } from "@/types/media";
 import { AsyncButton } from "../ui/async-button";
 
-interface DeleteMediaProps {
+type DeleteMediaProps = {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   mediaToDelete: Media | null;
   onDeleteComplete?: (deletedMediaId: string) => void;
-}
+};
 
 export function DeleteMediaModal({
   isOpen,

@@ -12,11 +12,11 @@ import {
   Text,
 } from "@react-email/components";
 
-interface VerifyUserEmailProps {
+type VerifyUserEmailProps = {
   userEmail: string;
   otp: string;
   type: "sign-in" | "email-verification" | "forget-password";
-}
+};
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
 

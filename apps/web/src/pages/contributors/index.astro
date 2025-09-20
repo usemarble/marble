@@ -5,16 +5,16 @@ import Container from "@/components/Container.astro";
 import Layout from "@/layouts/Layout.astro";
 import { SITE } from "@/lib/constants";
 
-interface GitHubUser {
+type GitHubUser = {
   login: string;
   id: number;
   avatar_url: string;
   html_url: string;
   contributions: number;
   type: string;
-}
+};
 
-interface GitHubIssue {
+type GitHubIssue = {
   id: number;
   number: number;
   title: string;
@@ -33,9 +33,9 @@ interface GitHubIssue {
   pull_request?: {
     url: string;
   };
-}
+};
 
-interface GitHubPR {
+type GitHubPR = {
   id: number;
   number: number;
   title: string;
@@ -48,9 +48,9 @@ interface GitHubPR {
   };
   created_at: string;
   draft: boolean;
-}
+};
 
-interface GitHubRepo {
+type GitHubRepo = {
   name: string;
   full_name: string;
   html_url: string;
@@ -60,7 +60,7 @@ interface GitHubRepo {
   language: string;
   description: string;
   private: boolean;
-}
+};
 
 async function fetchGitHubData() {
   const baseUrl = "https://api.github.com";

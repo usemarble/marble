@@ -27,7 +27,6 @@
         "noVoid": "off"
       },
       "nursery": {
-        "useConsistentTypeDefinitions": "off",
         "useSortedClasses": "off",
         "noShadow": "off",
         "noNonNullAssertedOptionalChain": "off",

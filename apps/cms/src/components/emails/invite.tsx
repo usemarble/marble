@@ -16,7 +16,7 @@ import {
   Text,
 } from "@react-email/components";
 
-interface InviteUserEmailProps {
+type InviteUserEmailProps = {
   inviteeEmail: string;
   invitedByUsername: string;
   invitedByEmail: string;
@@ -24,7 +24,7 @@ interface InviteUserEmailProps {
   teamImage: string;
   userImage: string;
   inviteLink: string;
-}
+};
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
 

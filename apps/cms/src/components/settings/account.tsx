@@ -13,10 +13,10 @@ import { type ProfileData, profileSchema } from "@/lib/validations/settings";
 import { useUser } from "@/providers/user";
 import { ErrorMessage } from "../auth/error-message";
 
-interface AccountFormProps {
+type AccountFormProps = {
   email: string;
   name: string;
-}
+};
 
 function AccountForm({ name, email }: AccountFormProps) {
   const {

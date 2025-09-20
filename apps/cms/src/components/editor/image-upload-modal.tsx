@@ -27,10 +27,10 @@ import { uploadFile } from "@/lib/media/upload";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { Media } from "@/types/media";
 
-interface ImageUploadModalProps {
+type ImageUploadModalProps = {
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-}
+};
 
 export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
   const [embedUrl, setEmbedUrl] = useState("");

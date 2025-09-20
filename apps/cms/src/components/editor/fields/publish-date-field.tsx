@@ -15,9 +15,9 @@ import { type Control, useController } from "react-hook-form";
 import type { PostValues } from "@/lib/validations/post";
 import { FieldInfo } from "./field-info";
 
-interface PublishDateFieldProps {
+type PublishDateFieldProps = {
   control: Control<PostValues>;
-}
+};
 
 export function PublishDateField({ control }: PublishDateFieldProps) {
   const {

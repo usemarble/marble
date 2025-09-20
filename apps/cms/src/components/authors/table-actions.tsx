@@ -16,9 +16,9 @@ import { useState } from "react";
 import type { Author } from "@/types/author";
 import { AuthorModal, DeleteAuthorModal } from "./author-modals";
 
-interface AuthorTableActionsProps {
+type AuthorTableActionsProps = {
   author: Author;
-}
+};
 
 export function AuthorTableActions({ author }: AuthorTableActionsProps) {
   const [showEditModal, setShowEditModal] = useState(false);

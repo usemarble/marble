@@ -10,14 +10,14 @@ import { format, parseISO } from "date-fns";
 import { useState } from "react";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
-interface ChartData {
+type ChartData = {
   month: string;
   requests: number;
-}
+};
 
-interface AnalyticsChartProps {
+type AnalyticsChartProps = {
   data: ChartData[];
-}
+};
 
 const chartConfig = {
   requests: {

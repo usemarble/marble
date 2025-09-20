@@ -2,10 +2,10 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 
-interface UnsavedChangesContextType {
+type UnsavedChangesContextType = {
   hasUnsavedChanges: boolean;
   setHasUnsavedChanges: (value: boolean) => void;
-}
+};
 
 const UnsavedChangesContext = createContext<
   UnsavedChangesContextType | undefined

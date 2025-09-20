@@ -13,10 +13,10 @@ import {
   Text,
 } from "@react-email/components";
 
-interface ResetPasswordProps {
+type ResetPasswordProps = {
   userEmail: string;
   resetLink: string;
-}
+};
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
 

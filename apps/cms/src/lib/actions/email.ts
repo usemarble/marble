@@ -10,7 +10,7 @@ import { getServerSession } from "../auth/session";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-interface SendInviteEmailProps {
+type SendInviteEmailProps = {
   inviteeEmail: string;
   inviteeUsername?: string;
   inviterName: string;
@@ -18,7 +18,7 @@ interface SendInviteEmailProps {
   workspaceName: string;
   inviteLink: string;
   teamLogo?: string | null;
-}
+};
 
 export async function sendInviteEmailAction({
   inviteeEmail,

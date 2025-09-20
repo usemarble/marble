@@ -24,12 +24,12 @@ import type { Media, MediaType } from "@/types/media";
 import { formatBytes } from "@/utils/string";
 import { VideoPlayer } from "./video-player";
 
-interface MediaCardProps {
+type MediaCardProps = {
   media: Media;
   onDelete: (media: Media) => void;
   isSelected?: boolean;
   onSelect?: () => void;
-}
+};
 
 const mediaTypeIcons: Record<
   MediaType,

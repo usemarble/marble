@@ -15,13 +15,13 @@ import { AsyncButton } from "@/components/ui/async-button";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 
-interface DeleteWebhookModalProps {
+type DeleteWebhookModalProps = {
   webhookId: string;
   webhookName: string;
   onDelete: () => void;
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-}
+};
 
 export function DeleteWebhookModal({
   webhookId,

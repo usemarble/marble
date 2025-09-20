@@ -49,13 +49,13 @@ import { generateSlug } from "@/utils/string";
 import { AsyncButton } from "../ui/async-button";
 import { CopyButton } from "../ui/copy-button";
 
-interface AuthorModalProps {
+type AuthorModalProps = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   mode?: "create" | "update";
   authorData?: Partial<Author>;
   onAuthorCreated?: (author: Author) => void;
-}
+};
 
 export const AuthorModal = ({
   open,
