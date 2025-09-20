@@ -16,7 +16,6 @@
         "noUnknownAtRules": "off"
       },
       "style": {
-        "noExportedImports": "off",
         "noMagicNumbers": "off",
         "noNestedTernary": "off",
         "useFilenamingConvention": "off"
