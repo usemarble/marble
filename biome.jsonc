@@ -57,6 +57,11 @@
     }
   },
   "assist": {
-    "enabled": false
+    "actions": {
+      "source": {
+        "organizeImports": "off",
+        "useSortedAttributes": "off"
+      }
+    }
   }
 }
