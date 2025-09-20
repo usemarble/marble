@@ -87,12 +87,7 @@ export async function DELETE(request: Request) {
     }> = [];
 
     for (const media of existingMedia) {
-      if (!media.url) {
-        console.error(
-          `Media with ID ${media.id} has no URL. Deleting database record only.`
-        );
-        successfullyDeletedFromR2.push({ id: media.id, media });
-      } else {
+      if (media.url) {
         try {
           const rawPath = media.url.startsWith("http")
             ? new URL(media.url).pathname
@@ -124,6 +119,11 @@ export async function DELETE(request: Request) {
           );
           failedIds.push(media.id);
         }
+      } else {
+        console.error(
+          `Media with ID ${media.id} has no URL. Deleting database record only.`
+        );
+        successfullyDeletedFromR2.push({ id: media.id, media });
       }
     }
 
