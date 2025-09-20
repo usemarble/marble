@@ -29,7 +29,6 @@
       "nursery": {
         "useSortedClasses": "off",
         "noShadow": "off",
-        "noNonNullAssertedOptionalChain": "off",
         "noUselessUndefined": "off",
         "useImageSize": "off",
         "noUnnecessaryConditions": "off"
