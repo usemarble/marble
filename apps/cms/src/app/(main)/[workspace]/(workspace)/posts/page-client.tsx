@@ -16,7 +16,7 @@ function PageClient() {
   const { activeWorkspace } = useWorkspace();
 
   const { data: posts, isLoading } = useQuery({
-    queryKey: QUERY_KEYS.POSTS(activeWorkspace?.id),
+    queryKey: QUERY_KEYS.POSTS(activeWorkspace?.id ?? ""),
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
       try {
