@@ -35,12 +35,16 @@
       "nursery": {
         /* Needs more work to fix */
         "noShadow": "off",
+
+        /* Too Next.js-specific */
         "useImageSize": "off",
+
+        /* Has false positives */
         "noUnnecessaryConditions": "off"
       },
       "performance": {
+        /* Needs more work to fix */
         "useTopLevelRegex": "off",
-        "noBarrelFile": "off",
         "noNamespaceImport": "off"
       },
       "a11y": {
