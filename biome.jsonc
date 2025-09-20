@@ -46,9 +46,6 @@
         /* Needs more work to fix */
         "useTopLevelRegex": "off"
       },
-      "a11y": {
-        "noNoninteractiveElementInteractions": "off"
-      },
       "correctness": {
         /* Doesn't work with Astro */
         "noUnusedImports": "off",

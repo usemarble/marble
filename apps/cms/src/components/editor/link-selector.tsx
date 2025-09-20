@@ -66,7 +66,8 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
         </Button>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-60 p-0" sideOffset={10}>
-        {/* biome-ignore lint/a11y/noStaticElementInteractions: <> */}
+        {/** biome-ignore lint/a11y/noNoninteractiveElementInteractions: It's acting as a button */}
+        {/** biome-ignore lint/a11y/noStaticElementInteractions: It's acting as a button */}
         <div
           onKeyDown={(e) => {
             if (e.key === "Enter") {
@@ -132,7 +133,6 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
           </div>
           <Separator className="mb-3" />
           <div className="flex items-center space-x-2 p-2">
-            {/** biome-ignore lint/correctness/useUniqueElementIds: Its only one */}
             <Switch
               id="new-tab"
               checked={openInNewTab}
