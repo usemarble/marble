@@ -115,7 +115,7 @@ function PageClient() {
                 <Label htmlFor="name" className="sr-only">
                   Name
                 </Label>
-                {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
+
                 <Input id="name" placeholder="Name" {...register("name")} />
                 {errors.name && (
                   <ErrorMessage>{errors.name.message}</ErrorMessage>
@@ -129,7 +129,7 @@ function PageClient() {
                   <span className="border-r bg-muted p-2">
                     {process.env.NEXT_PUBLIC_APP_URL?.split("//")[1]}/
                   </span>
-                  {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
+
                   <input
                     id="slug"
                     placeholder="Slug"

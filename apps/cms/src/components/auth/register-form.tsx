@@ -157,7 +157,7 @@ export function RegisterForm() {
             <Label className="sr-only" htmlFor="email">
               Email
             </Label>
-            {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
+
             <Input
               id="email"
               placeholder="name@example.com"
@@ -181,7 +181,6 @@ export function RegisterForm() {
               Password
             </Label>
             <div className="relative">
-              {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
               <Input
                 id="password"
                 placeholder="Your password"

@@ -246,7 +246,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                 <label htmlFor="title" className="sr-only">
                   Enter post your title
                 </label>
-                {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
+
                 <TextareaAutosize
                   id="title"
                   placeholder="Title"

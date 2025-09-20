@@ -24,7 +24,7 @@ export function StatusField({ control }: StatusFieldProps) {
         <Label htmlFor="status">Published</Label>
         <FieldInfo text="Whether your post is published or saved as a draft." />
       </div>
-      {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
+
       <Switch
         id="status"
         checked={value === "published"}

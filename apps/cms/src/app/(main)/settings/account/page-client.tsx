@@ -160,7 +160,7 @@ function PageClient() {
                       <ImageIcon className="size-4 text-muted-foreground" />
                     </AvatarFallback>
                   </Avatar>
-                  {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
+
                   <input
                     title="Upload avatar"
                     type="file"

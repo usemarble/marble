@@ -100,7 +100,7 @@ export const InviteModal = ({
             <Label htmlFor="email" className="sr-only">
               Email
             </Label>
-            {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
+
             <Input
               id="email"
               {...register("email")}

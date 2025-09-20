@@ -193,7 +193,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
           <div className="mb-5 grid flex-1 auto-rows-min gap-6 px-6">
             <div className="grid gap-3">
               <Label htmlFor="name">Name</Label>
-              {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
+
               <Input id="name" placeholder="My Webhook" {...register("name")} />
               {errors.name && (
                 <p className="text-destructive text-sm">
@@ -204,7 +204,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
 
             <div className="grid gap-3">
               <Label htmlFor="endpoint">URL</Label>
-              {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
+
               <Input
                 id="endpoint"
                 placeholder="https://marblecms.com/webhooks/"

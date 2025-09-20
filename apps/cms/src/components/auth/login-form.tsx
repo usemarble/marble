@@ -140,7 +140,7 @@ export function LoginForm() {
             <Label className="sr-only" htmlFor="email">
               Email
             </Label>
-            {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
+
             <Input
               id="email"
               placeholder="Email"
@@ -164,7 +164,6 @@ export function LoginForm() {
               Password
             </Label>
             <div className="relative">
-              {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
               <Input
                 id="password"
                 placeholder="Password"
