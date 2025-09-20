@@ -19,7 +19,7 @@ export const DeletePostModal = ({
   open,
   setOpen,
   id,
-  view,
+  // view,
 }: {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
