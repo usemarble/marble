@@ -87,13 +87,13 @@ export function LoginForm() {
     <div className="grid gap-6">
       <div className="grid grid-cols-2 gap-4">
         <button
-          type="button"
           className={cn(
             buttonVariants({ variant: "outline", size: "lg" }),
             "relative"
           )}
-          onClick={async () => handleSocialSignIn("google")}
           disabled={isCredentialsLoading || isGoogleLoading || isGithubLoading}
+          onClick={async () => handleSocialSignIn("google")}
+          type="button"
         >
           <LastUsedBadge
             show={lastUsedAuthMethod === "google"}
@@ -107,13 +107,13 @@ export function LoginForm() {
           Google
         </button>
         <button
-          type="button"
           className={cn(
             buttonVariants({ variant: "outline", size: "lg" }),
             "relative"
           )}
-          onClick={async () => handleSocialSignIn("github")}
           disabled={isCredentialsLoading || isGoogleLoading || isGithubLoading}
+          onClick={async () => handleSocialSignIn("github")}
+          type="button"
         >
           <LastUsedBadge
             show={lastUsedAuthMethod === "github"}
@@ -142,15 +142,15 @@ export function LoginForm() {
             </Label>
 
             <Input
-              id="email"
-              placeholder="Email"
-              type="email"
               autoCapitalize="none"
               autoComplete="email"
               autoCorrect="off"
               disabled={
                 isCredentialsLoading || isGoogleLoading || isGithubLoading
               }
+              id="email"
+              placeholder="Email"
+              type="email"
               {...register("email")}
             />
             {errors?.email && (
@@ -165,21 +165,21 @@ export function LoginForm() {
             </Label>
             <div className="relative">
               <Input
-                id="password"
-                placeholder="Password"
-                type={isPasswordVisible ? "text" : "password"}
                 autoCapitalize="none"
                 autoCorrect="off"
+                className="pr-9"
                 disabled={
                   isCredentialsLoading || isGoogleLoading || isGithubLoading
                 }
-                className="pr-9"
+                id="password"
+                placeholder="Password"
+                type={isPasswordVisible ? "text" : "password"}
                 {...register("password")}
               />
               <button
-                type="button"
                 className="-translate-y-1/2 absolute top-1/2 right-4 text-muted-foreground"
                 onClick={() => setIsPasswordVisible((prev) => !prev)}
+                type="button"
               >
                 {isPasswordVisible ? (
                   <EyeIcon className="size-4" />
@@ -195,16 +195,16 @@ export function LoginForm() {
             )}
           </div>
           <AsyncButton
+            className={cn("mt-4", "relative")}
             disabled={
               isCredentialsLoading || isGoogleLoading || isGithubLoading
             }
             isLoading={isCredentialsLoading}
-            className={cn("mt-4", "relative")}
           >
             <LastUsedBadge
+              className="border-input"
               show={lastUsedAuthMethod === "email"}
               variant="secondary"
-              className="border-input"
             />
             Continue
           </AsyncButton>

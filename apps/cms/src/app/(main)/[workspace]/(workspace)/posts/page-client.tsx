@@ -54,8 +54,8 @@ function PageClient() {
                 No posts yet. Click the button below to start writing.
               </p>
               <Link
-                href={`/${activeWorkspace?.slug}/editor/p/new`}
                 className={buttonVariants({ variant: "default" })}
+                href={`/${activeWorkspace?.slug}/editor/p/new`}
               >
                 <PlusIcon size={16} />
                 <span>New Post</span>

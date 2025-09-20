@@ -104,12 +104,12 @@ export function Logo() {
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-5">
             <Label
-              htmlFor={fileId}
               className={cn(
                 "group relative size-16 cursor-pointer overflow-hidden rounded-full",
                 (isUpdatingLogo || !isOwner) && "pointer-events-none",
                 !isOwner && "opacity-50"
               )}
+              htmlFor={fileId}
             >
               <Avatar className="size-16">
                 <AvatarImage src={logoUrl || undefined} />
@@ -118,18 +118,18 @@ export function Logo() {
                 </AvatarFallback>
               </Avatar>
               <input
-                title="Upload logo"
-                type="file"
-                id={fileId}
                 accept="image/*"
+                className="sr-only"
                 disabled={!isOwner}
+                id={fileId}
                 onChange={(e) => {
                   const file = e.target.files?.[0];
                   if (file && !isUpdatingLogo && isOwner) {
                     uploadLogo(file);
                   }
                 }}
-                className="sr-only"
+                title="Upload logo"
+                type="file"
               />
               <div
                 className={cn(
@@ -148,7 +148,7 @@ export function Logo() {
             </Label>
           </div>
           <div className="flex w-full items-center gap-2">
-            <Input value={logoUrl || ""} readOnly />
+            <Input readOnly value={logoUrl || ""} />
             <CopyButton
               textToCopy={logoUrl || ""}
               toastMessage="Logo URL copied to clipboard."

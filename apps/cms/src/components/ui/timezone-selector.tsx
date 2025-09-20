@@ -143,14 +143,14 @@ export function TimezoneSelector({
   );
 
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
+    <Popover onOpenChange={setIsOpen} open={isOpen}>
       <PopoverTrigger asChild>
         <Button
-          type="button"
-          variant="outline"
           className="w-full items-center justify-between gap-2 shadow-none"
           disabled={disabled}
           onClick={() => !disabled && setIsOpen(!isOpen)}
+          type="button"
+          variant="outline"
         >
           <div
             className={cn(
@@ -161,7 +161,7 @@ export function TimezoneSelector({
             {selectedTimezone ? (
               <div className="flex gap-2">
                 <span>{selectedTimezone.label}</span>
-                <Badge variant="outline" className="bg-muted font-light">
+                <Badge className="bg-muted font-light" variant="outline">
                   {selectedTimezone.currentTime}
                 </Badge>
               </div>
@@ -172,18 +172,18 @@ export function TimezoneSelector({
           <CaretUpDownIcon className="size-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[370px] p-0" align="center">
+      <PopoverContent align="center" className="w-[370px] p-0">
         <Command shouldFilter={false}>
           <CommandInput
+            onValueChange={(v) => setQuery(v)}
             placeholder="Search timezones..."
             value={query}
-            onValueChange={(v) => setQuery(v)}
           />
           <CommandList ref={parentRef}>
             <CommandEmpty>No timezone found.</CommandEmpty>
             <CommandGroup
-              style={{ height: `${virtual.getTotalSize()}px` }}
               className="relative"
+              style={{ height: `${virtual.getTotalSize()}px` }}
             >
               {virtual.getVirtualItems().map((row) => {
                 // biome-ignore lint/style/noNonNullAssertion: known not null
@@ -191,17 +191,17 @@ export function TimezoneSelector({
 
                 return (
                   <CommandItem
+                    className="absolute top-0 left-0 w-full"
                     key={option.value}
-                    value={`${option.label} ${option.value} ${option.countryName}`}
                     onSelect={() => {
                       onValueChange?.(option.value);
                       setIsOpen(false);
                     }}
-                    className="absolute top-0 left-0 w-full"
                     style={{
                       height: `${row.size}px`,
                       transform: `translateY(${row.start}px)`,
                     }}
+                    value={`${option.label} ${option.value} ${option.countryName}`}
                   >
                     <div className="flex w-full items-center justify-between">
                       <div className="flex flex-col">

@@ -26,8 +26,8 @@ export function StatusField({ control }: StatusFieldProps) {
       </div>
 
       <Switch
-        id="status"
         checked={value === "published"}
+        id="status"
         onCheckedChange={() =>
           onChange(value === "published" ? "draft" : "published")
         }

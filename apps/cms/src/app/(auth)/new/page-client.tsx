@@ -112,7 +112,7 @@ function PageClient() {
           >
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-2">
-                <Label htmlFor="name" className="sr-only">
+                <Label className="sr-only" htmlFor="name">
                   Name
                 </Label>
 
@@ -122,7 +122,7 @@ function PageClient() {
                 )}
               </div>
               <div className="grid flex-1 gap-2">
-                <Label htmlFor="slug" className="sr-only">
+                <Label className="sr-only" htmlFor="slug">
                   Slug
                 </Label>
                 <div className="flex w-full overflow-hidden rounded-md border border-input bg-transparent text-base shadow-xs transition-[color,box-shadow] placeholder:text-muted-foreground focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30">
@@ -143,18 +143,18 @@ function PageClient() {
                 )}
               </div>
               <div className="flex flex-col gap-2">
-                <Label htmlFor="timezone" className="sr-only">
+                <Label className="sr-only" htmlFor="timezone">
                   Timezone
                 </Label>
                 <Controller
-                  name="timezone"
                   control={control}
+                  name="timezone"
                   render={({ field }) => (
                     <TimezoneSelector
-                      value={field.value}
                       onValueChange={field.onChange}
                       placeholder="Select timezone..."
                       timezones={timezones}
+                      value={field.value}
                     />
                   )}
                 />
@@ -165,20 +165,20 @@ function PageClient() {
             </div>
             <div className="flex flex-col gap-4">
               <AsyncButton
-                type="submit"
-                size="lg"
-                isLoading={isSubmitting}
                 className="flex w-full cursor-pointer gap-2"
+                isLoading={isSubmitting}
+                size="lg"
+                type="submit"
               >
                 Create
               </AsyncButton>
               {hasWorkspaces && (
                 <Link
-                  href="/"
                   className={cn(
                     buttonVariants({ variant: "ghost", size: "lg" }),
                     "w-full"
                   )}
+                  href="/"
                 >
                   Back to dashboard
                 </Link>

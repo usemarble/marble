@@ -29,13 +29,13 @@ export function AttributionField({ control, errors }: AttributionFieldProps) {
         <div className="flex items-center gap-1">
           <Label htmlFor="attribution">Add Attribution</Label>
           <FieldInfo
-            text="Use this when republishing content from elsewhere to give credit to the original author."
             className="size-4"
+            text="Use this when republishing content from elsewhere to give credit to the original author."
           />
         </div>
         <Switch
-          id="attribution"
           checked={showAttribution}
+          id="attribution"
           onCheckedChange={(checked) => {
             setShowAttribution(checked);
             if (!checked) {
@@ -49,13 +49,13 @@ export function AttributionField({ control, errors }: AttributionFieldProps) {
         <div className="mt-2 space-y-4">
           <div className="space-y-2">
             <Input
-              placeholder="Original author's name"
               onChange={(e) => {
                 onChange({
                   author: e.target.value,
                   url: value?.url || "",
                 });
               }}
+              placeholder="Original author's name"
               value={value?.author || ""}
             />
             {errors.attribution?.author && (
@@ -67,13 +67,13 @@ export function AttributionField({ control, errors }: AttributionFieldProps) {
 
           <div className="space-y-2">
             <Input
-              placeholder="Link to original post"
               onChange={(e) => {
                 onChange({
                   author: value?.author || "",
                   url: e.target.value,
                 });
               }}
+              placeholder="Link to original post"
               value={value?.url || ""}
             />
             {errors.attribution?.url && (

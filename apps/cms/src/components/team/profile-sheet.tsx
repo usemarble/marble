@@ -58,7 +58,7 @@ export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
   }
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <Sheet onOpenChange={setOpen} open={open}>
       <SheetContent className="overflow-y-auto">
         <SheetHeader className="p-6">
           <SheetTitle>Profile</SheetTitle>
@@ -98,8 +98,8 @@ export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
               <div className="flex items-center justify-between gap-6">
                 <Label>Role</Label>
                 <Select
-                  value={role}
                   onValueChange={(role) => setRole(role as "admin" | "member")}
+                  value={role}
                 >
                   <SelectTrigger className="w-[220px]">
                     <SelectValue placeholder="Role" />
@@ -115,10 +115,10 @@ export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
 
           <SheetFooter className="flex justify-end gap-2 p-6">
             <AsyncButton
-              onClick={handleSave}
-              isLoading={loading}
-              disabled={!settingsChanges}
               className="min-w-[100px]"
+              disabled={!settingsChanges}
+              isLoading={loading}
+              onClick={handleSave}
             >
               Save
             </AsyncButton>

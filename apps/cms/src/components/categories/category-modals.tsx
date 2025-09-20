@@ -169,7 +169,7 @@ export const CategoryModal = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog onOpenChange={setOpen} open={open}>
       <DialogContent className="p-8 sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-center font-medium">
@@ -177,27 +177,27 @@ export const CategoryModal = ({
           </DialogTitle>
         </DialogHeader>
         <form
-          onSubmit={handleSubmit(onSubmit)}
           className="mt-2 flex flex-col gap-5"
+          onSubmit={handleSubmit(onSubmit)}
         >
           <div className="grid flex-1 gap-2">
-            <Label htmlFor="name" className="sr-only">
+            <Label className="sr-only" htmlFor="name">
               Name
             </Label>
             <Input id="name" {...register("name")} placeholder="Name" />
             {errors.name && <ErrorMessage>{errors.name.message}</ErrorMessage>}
           </div>
           <div className="grid flex-1 gap-2">
-            <Label htmlFor="slug" className="sr-only">
+            <Label className="sr-only" htmlFor="slug">
               Slug
             </Label>
             <Input id="slug" {...register("slug")} placeholder="slug" />
             {errors.slug && <ErrorMessage>{errors.slug.message}</ErrorMessage>}
           </div>
           <AsyncButton
-            type="submit"
-            isLoading={isSubmitting}
             className="mt-4 flex w-full gap-2"
+            isLoading={isSubmitting}
+            type="submit"
           >
             {mode === "create" ? "Create Category" : "Update Category"}
           </AsyncButton>
@@ -249,7 +249,7 @@ export const DeleteCategoryModal = ({
   });
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
+    <AlertDialog onOpenChange={setOpen} open={open}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete {name}?</AlertDialogTitle>
@@ -261,12 +261,12 @@ export const DeleteCategoryModal = ({
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
           <AsyncButton
-            variant="destructive"
+            isLoading={isPending}
             onClick={(e) => {
               e.preventDefault();
               deleteCategory();
             }}
-            isLoading={isPending}
+            variant="destructive"
           >
             Delete
           </AsyncButton>

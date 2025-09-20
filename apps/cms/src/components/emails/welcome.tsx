@@ -31,11 +31,11 @@ export const WelcomeEmail = ({ userEmail }: WelcomeEmailProps) => {
           <Container className="mx-auto my-[40px] max-w-[465px] rounded border border-[#eaeaea] border-solid p-[20px]">
             <Section className="mt-[32px]">
               <Img
-                src={`${baseUrl}/icon.png`}
-                width="48"
-                height="48"
                 alt="Marble Logo"
                 className="mx-auto"
+                height="48"
+                src={`${baseUrl}/icon.png`}
+                width="48"
               />
             </Section>
 
@@ -52,8 +52,8 @@ export const WelcomeEmail = ({ userEmail }: WelcomeEmailProps) => {
 
             <Section className="my-8 text-center">
               <Button
-                href={baseUrl}
                 className="rounded-lg bg-[#5B4FCC] px-6 py-3 font-semibold text-sm text-white"
+                href={baseUrl}
               >
                 Go to Dashboard
               </Button>

@@ -134,7 +134,7 @@ export const TagSelector = ({
         <Label htmlFor="tags">Tags</Label>
         <FieldInfo text="Your articles can have multiple tags, we will use this to determine related articles." />
       </div>
-      <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <Popover onOpenChange={setIsOpen} open={isOpen}>
         <PopoverTrigger asChild>
           <div className="relative h-auto min-h-9 w-full cursor-pointer rounded-md border bg-editor-field px-3 py-2 text-sm">
             <div className="flex items-center justify-between gap-2">
@@ -146,15 +146,15 @@ export const TagSelector = ({
                 )}
                 {selected.map((item) => (
                   <li key={item.id}>
-                    <Badge variant="outline" className="font-normal">
+                    <Badge className="font-normal" variant="outline">
                       {item.name}
                       <button
-                        type="button"
                         className="ml-1 h-auto p-0 hover:bg-transparent"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleRemoveTag(item.id);
                         }}
+                        type="button"
                       >
                         <XIcon className="size-2.5 p-0" />
                       </button>
@@ -167,7 +167,7 @@ export const TagSelector = ({
           </div>
         </PopoverTrigger>
         {error && <ErrorMessage>{error.message}</ErrorMessage>}
-        <PopoverContent className="min-w-[350.67px] p-0" align="start">
+        <PopoverContent align="start" className="min-w-[350.67px] p-0">
           <Command className="w-full">
             <CommandInput placeholder="Search tags..." />
             <CommandList>
@@ -181,9 +181,9 @@ export const TagSelector = ({
                       : "Tags"}
                 </span>
                 <button
-                  type="button"
                   className="flex items-center gap-1 p-1 hover:bg-accent"
                   onClick={() => setOpenTagModal(true)}
+                  type="button"
                 >
                   <PlusIcon className="size-4 text-muted-foreground" />
                   <span className="sr-only">Add a new tag</span>
@@ -193,8 +193,8 @@ export const TagSelector = ({
                 <CommandGroup>
                   {tags.map((option) => (
                     <CommandItem
-                      key={option.id}
                       id={option.id}
+                      key={option.id}
                       onSelect={() => addTag(option.id)}
                     >
                       {option.name}
@@ -217,10 +217,10 @@ export const TagSelector = ({
       </Popover>
 
       <TagModal
-        open={openTagModal}
-        setOpen={setOpenTagModal}
         mode="create"
         onTagCreated={handleTagCreated}
+        open={openTagModal}
+        setOpen={setOpenTagModal}
       />
     </div>
   );

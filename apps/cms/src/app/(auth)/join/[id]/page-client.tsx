@@ -134,18 +134,18 @@ function PageClient({ id, user }: PageClientProps) {
                     <AvatarFallback>XQ</AvatarFallback>
                   </Avatar>
                   <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1}
-                    stroke="currentColor"
                     className="size-6"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={1}
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
                   >
                     <title>X</title>
                     <path
+                      d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3"
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3"
                     />
                   </svg>
                   <Avatar className="size-14">
@@ -188,11 +188,11 @@ function PageClient({ id, user }: PageClientProps) {
                 </p>
                 <div className="flex items-center justify-center">
                   <Link
-                    href="/"
                     className={buttonVariants({
                       variant: "outline",
                       className: "flex items-center gap-2",
                     })}
+                    href="/"
                   >
                     <Undo className="size-4" />
                     <span>Back home</span>
@@ -205,8 +205,8 @@ function PageClient({ id, user }: PageClientProps) {
             <CardFooter className="mt-4 grid grid-cols-2 gap-6">
               <AsyncButton
                 isLoading={rejecting}
-                variant="outline"
                 onClick={handleReject}
+                variant="outline"
               >
                 Reject
               </AsyncButton>
@@ -248,11 +248,11 @@ function InviteError() {
             valid invitation or contact the sender.
           </p>
           <Link
-            href="/"
             className={buttonVariants({
               variant: "outline",
               className: "flex items-center gap-2",
             })}
+            href="/"
           >
             <Undo className="size-4 text-muted-foreground" />
             <span>Back home</span>

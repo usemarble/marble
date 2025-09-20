@@ -27,8 +27,8 @@ function LoadingSpinner({
         variant === "link" && "text-primary",
         className
       )}
-      viewBox="0 0 100 101"
       fill="none"
+      viewBox="0 0 100 101"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
@@ -85,7 +85,7 @@ const AsyncButton = forwardRef<HTMLButtonElement, AsyncButtonProps>(
       if (loadingText) {
         return (
           <>
-            <LoadingSpinner variant={variant} className="mr-2" />
+            <LoadingSpinner className="mr-2" variant={variant} />
             {loadingText}
           </>
         );
@@ -94,7 +94,7 @@ const AsyncButton = forwardRef<HTMLButtonElement, AsyncButtonProps>(
       if (keepTextWhileLoading) {
         return (
           <>
-            <LoadingSpinner variant={variant} className="mr-2" />
+            <LoadingSpinner className="mr-2" variant={variant} />
             {children}
           </>
         );
@@ -106,10 +106,10 @@ const AsyncButton = forwardRef<HTMLButtonElement, AsyncButtonProps>(
 
     return (
       <Button
-        ref={ref}
-        disabled={disabled || isLoading}
-        variant={variant}
         className={className}
+        disabled={disabled || isLoading}
+        ref={ref}
+        variant={variant}
         {...props}
       >
         {isLoading ? renderLoadingContent() : children}

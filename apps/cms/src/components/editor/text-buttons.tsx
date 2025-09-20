@@ -86,10 +86,10 @@ export const TextButtons = () => {
       {items.map((item) => (
         <Button
           key={item.name}
-          type="button"
-          size="icon"
-          variant="ghost"
           onClick={() => item.command(editor)}
+          size="icon"
+          type="button"
+          variant="ghost"
         >
           <item.icon
             className={cn("size-4", {

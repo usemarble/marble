@@ -47,11 +47,11 @@ export function DataGrid({ data }: DataGridProps) {
   return (
     <ul className="grid auto-rows-fr gap-6 md:grid-cols-2">
       {data.map((post) => (
-        <li key={post.id} className="h-full">
+        <li className="h-full" key={post.id}>
           <Card className="h-full gap-0 rounded-[20px] border-none bg-sidebar p-2 pb-0">
             <Link
-              href={`/${activeWorkspace?.slug}/editor/p/${post.id}`}
               className="flex h-full min-h-[170px] flex-col rounded-[12px] bg-background p-5 shadow-sm outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+              href={`/${activeWorkspace?.slug}/editor/p/${post.id}`}
             >
               <CardHeader className="gap-y-0 px-0 pb-3">
                 <div className="flex items-start justify-between gap-8">
@@ -97,7 +97,7 @@ export function DataGrid({ data }: DataGridProps) {
             <CardFooter className="px-2 py-2.5">
               <ul className="-space-x-2 flex items-center">
                 {post.authors.map((author) => (
-                  <li key={author.id} className="flex items-center">
+                  <li className="flex items-center" key={author.id}>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Avatar className="size-8 border-2 border-background">

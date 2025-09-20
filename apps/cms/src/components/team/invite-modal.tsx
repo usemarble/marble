@@ -85,7 +85,7 @@ export const InviteModal = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog onOpenChange={setOpen} open={open}>
       <DialogContent className="p-8 sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-center font-medium">
@@ -95,9 +95,9 @@ export const InviteModal = ({
             Invite a team member to your workspace.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+        <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)}>
           <div className="grid flex-1 gap-2">
-            <Label htmlFor="email" className="sr-only">
+            <Label className="sr-only" htmlFor="email">
               Email
             </Label>
 
@@ -113,14 +113,14 @@ export const InviteModal = ({
           </div>
 
           <div className="grid flex-1 gap-2">
-            <Label htmlFor="role" className="sr-only">
+            <Label className="sr-only" htmlFor="role">
               Role
             </Label>
             <Select
+              defaultValue="member"
               onValueChange={(value: "member" | "admin") =>
                 setValue("role", value)
               }
-              defaultValue="member"
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select a role" />
@@ -134,9 +134,9 @@ export const InviteModal = ({
           </div>
 
           <AsyncButton
-            type="submit"
-            isLoading={inviteMutation.isPending}
             className="mt-4 flex w-full gap-2"
+            isLoading={inviteMutation.isPending}
+            type="submit"
           >
             Invite
           </AsyncButton>

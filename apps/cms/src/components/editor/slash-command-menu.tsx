@@ -22,7 +22,8 @@ export function SlashCommandMenu() {
         <EditorCommandList>
           {suggestionItems.map((item) => (
             <EditorCommandItem
-              value={item.title}
+              className="flex w-full cursor-pointer items-center space-x-2 rounded-[6px] px-2 py-1 text-left text-sm hover:bg-accent aria-selected:bg-accent"
+              key={item.title}
               onCommand={(val) => {
                 if (item.title === "Image") {
                   if (val.editor && val.range) {
@@ -38,8 +39,7 @@ export function SlashCommandMenu() {
                   item.command?.(val);
                 }
               }}
-              key={item.title}
-              className="flex w-full cursor-pointer items-center space-x-2 rounded-[6px] px-2 py-1 text-left text-sm hover:bg-accent aria-selected:bg-accent"
+              value={item.title}
             >
               <div className="flex items-center justify-center border border-muted bg-background p-1">
                 {item.icon}

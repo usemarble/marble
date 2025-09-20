@@ -165,8 +165,8 @@ export function InviteSection({ invitations }: InviteSectionProps) {
         <div className="space-y-3 divide-y">
           {pendingInvitations.map((invitation) => (
             <div
-              key={invitation.id}
               className="flex items-center justify-between rounded-sm border p-3"
+              key={invitation.id}
             >
               <div className="flex items-center gap-3">
                 <div className="flex size-8 items-center justify-center rounded-full bg-muted">
@@ -176,7 +176,7 @@ export function InviteSection({ invitations }: InviteSectionProps) {
                 </div>
                 <div className="flex items-center gap-2">
                   <p className="font-medium text-sm">{invitation.email}</p>
-                  <Badge variant="outline" className="text-xs capitalize">
+                  <Badge className="text-xs capitalize" variant="outline">
                     {invitation.role || "member"}
                   </Badge>
                 </div>
@@ -185,33 +185,33 @@ export function InviteSection({ invitations }: InviteSectionProps) {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
-                    variant="ghost"
-                    size="sm"
                     disabled={
                       resendInviteMutation.isPending ||
                       cancelInviteMutation.isPending
                     }
+                    size="sm"
+                    variant="ghost"
                   >
                     <DotsThreeVerticalIcon className="size-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem
-                    onClick={() => handleResendInvite(invitation)}
                     disabled={
                       resendInviteMutation.isPending ||
                       cancelInviteMutation.isPending
                     }
+                    onClick={() => handleResendInvite(invitation)}
                   >
                     <ArrowsClockwiseIcon className="size-4" />
                     Resend Invite
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() => handleCancelInvite(invitation)}
                     disabled={
                       resendInviteMutation.isPending ||
                       cancelInviteMutation.isPending
                     }
+                    onClick={() => handleCancelInvite(invitation)}
                     variant="destructive"
                   >
                     <XIcon className="size-4" />

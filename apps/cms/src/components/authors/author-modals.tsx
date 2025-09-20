@@ -235,7 +235,7 @@ export const AuthorModal = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog onOpenChange={setOpen} open={open}>
       <DialogContent className="p-8 sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-center font-medium">
@@ -243,19 +243,19 @@ export const AuthorModal = ({
           </DialogTitle>
         </DialogHeader>
         <form
-          onSubmit={handleSubmit(onSubmit)}
           className="mt-2 flex flex-col gap-5"
+          onSubmit={handleSubmit(onSubmit)}
         >
           <div className="grid flex-1 gap-2">
             <Label htmlFor="avatar">Avatar</Label>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-4">
                 <Label
-                  htmlFor="avatar"
                   className={cn(
                     "group relative size-16 cursor-pointer overflow-hidden rounded-full",
                     isUploading && "pointer-events-none"
                   )}
+                  htmlFor="avatar"
                 >
                   <Avatar className="size-16">
                     <AvatarImage src={avatarUrl || undefined} />
@@ -264,11 +264,9 @@ export const AuthorModal = ({
                     </AvatarFallback>
                   </Avatar>
                   <input
-                    title="Upload avatar"
-                    type="file"
-                    id="avatar"
                     accept="image/*"
                     className="sr-only"
+                    id="avatar"
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (file && !isUploading) {
@@ -276,6 +274,8 @@ export const AuthorModal = ({
                         handleAvatarUpload();
                       }
                     }}
+                    title="Upload avatar"
+                    type="file"
                   />
                   <div
                     className={cn(
@@ -294,12 +294,12 @@ export const AuthorModal = ({
                 </Label>
               </div>
               <div className="flex w-full items-center gap-2">
-                <Input value={avatarUrl || ""} readOnly />
+                <Input readOnly value={avatarUrl || ""} />
                 <CopyButton
-                  textToCopy={avatarUrl || ""}
                   disabled={!avatarUrl}
-                  type="button"
+                  textToCopy={avatarUrl || ""}
                   toastMessage="Avatar URL copied to clipboard."
+                  type="button"
                 />
               </div>
             </div>
@@ -354,10 +354,10 @@ export const AuthorModal = ({
             {errors.bio && <ErrorMessage>{errors.bio.message}</ErrorMessage>}
           </div>
           <AsyncButton
-            type="submit"
-            isLoading={isSubmitting}
-            disabled={(mode === "update" && !isDirty) || isUploading}
             className="mt-4 flex w-full gap-2"
+            disabled={(mode === "update" && !isDirty) || isUploading}
+            isLoading={isSubmitting}
+            type="submit"
           >
             {mode === "create" ? "Create Author" : "Update Author"}
           </AsyncButton>
@@ -409,7 +409,7 @@ export const DeleteAuthorModal = ({
   });
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
+    <AlertDialog onOpenChange={setOpen} open={open}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete {name}?</AlertDialogTitle>
@@ -421,12 +421,12 @@ export const DeleteAuthorModal = ({
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
           <AsyncButton
-            variant="destructive"
+            isLoading={isPending}
             onClick={(e) => {
               e.preventDefault();
               deleteAuthor();
             }}
-            isLoading={isPending}
+            variant="destructive"
           >
             Delete
           </AsyncButton>

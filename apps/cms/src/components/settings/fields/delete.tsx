@@ -100,12 +100,12 @@ export function Delete() {
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AsyncButton
-                variant="destructive"
                 isLoading={isPending || !activeWorkspace?.id}
                 onClick={() =>
                   activeWorkspace?.id &&
                   deleteWorkspace({ organizationId: activeWorkspace.id })
                 }
+                variant="destructive"
               >
                 Delete
               </AsyncButton>

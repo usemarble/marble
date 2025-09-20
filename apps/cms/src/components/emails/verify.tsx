@@ -41,11 +41,11 @@ export const VerifyUserEmail = ({
           <Container className="mx-auto my-[40px] max-w-[465px] rounded border border-[#eaeaea] border-solid p-[20px]">
             <Section className="mt-[32px]">
               <Img
-                src={`${baseUrl}/icon.png`}
-                width="40"
-                height="37"
                 alt="logo"
                 className="mx-auto my-0"
+                height="37"
+                src={`${baseUrl}/icon.png`}
+                width="40"
               />
             </Section>
             <Heading className="mx-0 my-[30px] p-0 text-center font-normal text-[24px] text-black">

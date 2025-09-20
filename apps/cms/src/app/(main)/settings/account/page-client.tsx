@@ -119,7 +119,7 @@ function PageClient() {
       <div className="py-4">
         <div className="flex items-center justify-between gap-2">
           <h1 className="font-medium text-lg">Account Settings</h1>
-          <Link href="/" className={cn(buttonVariants({ variant: "outline" }))}>
+          <Link className={cn(buttonVariants({ variant: "outline" }))} href="/">
             Dashboard
           </Link>
         </div>
@@ -148,11 +148,11 @@ function PageClient() {
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-5">
                 <Label
-                  htmlFor="logo"
                   className={cn(
                     "group relative size-16 cursor-pointer overflow-hidden rounded-full",
                     isUploading && "pointer-events-none"
                   )}
+                  htmlFor="logo"
                 >
                   <Avatar className="size-16">
                     <AvatarImage src={avatarUrl || undefined} />
@@ -162,10 +162,9 @@ function PageClient() {
                   </Avatar>
 
                   <input
-                    title="Upload avatar"
-                    type="file"
-                    id="logo"
                     accept="image/*"
+                    className="sr-only"
+                    id="logo"
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (file && !isUploading) {
@@ -173,7 +172,8 @@ function PageClient() {
                         handleAvatarUpload();
                       }
                     }}
-                    className="sr-only"
+                    title="Upload avatar"
+                    type="file"
                   />
                   <div
                     className={cn(
@@ -192,7 +192,7 @@ function PageClient() {
                 </Label>
               </div>
               <div className="flex w-full items-center gap-2">
-                <Input value={avatarUrl || ""} readOnly />
+                <Input readOnly value={avatarUrl || ""} />
                 <CopyButton
                   textToCopy={avatarUrl || ""}
                   toastMessage="Avatar URL copied to clipboard."
@@ -209,8 +209,8 @@ function PageClient() {
 
         <Card className="pb-4">
           <form
-            onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col gap-6"
+            onSubmit={handleSubmit(onSubmit)}
           >
             <CardHeader>
               <CardTitle className="font-medium text-lg">Full Name</CardTitle>
@@ -220,7 +220,7 @@ function PageClient() {
             </CardHeader>
             <CardContent>
               <div>
-                <Label htmlFor="name" className="sr-only">
+                <Label className="sr-only" htmlFor="name">
                   Name
                 </Label>
                 <Input {...register("name")} />
@@ -231,9 +231,9 @@ function PageClient() {
             </CardContent>
             <CardFooter className="justify-end border-t pt-4">
               <AsyncButton
+                className="w-20 self-end"
                 disabled={!isChanged}
                 isLoading={isSubmitting || isUpdatingUser}
-                className="w-20 self-end"
                 type="submit"
               >
                 Save
@@ -251,7 +251,7 @@ function PageClient() {
           </CardHeader>
           <CardContent className="justify-end">
             <div>
-              <Label htmlFor="email" className="sr-only">
+              <Label className="sr-only" htmlFor="email">
                 Email
               </Label>
               <Input defaultValue={user?.email} readOnly />

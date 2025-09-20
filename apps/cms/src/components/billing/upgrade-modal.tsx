@@ -50,7 +50,7 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
 
     if (isCurrentPlan) {
       return (
-        <Button disabled variant="default" className="w-full">
+        <Button className="w-full" disabled variant="default">
           Current plan
         </Button>
       );
@@ -58,8 +58,8 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
 
     return (
       <AsyncButton
-        isLoading={!!checkoutLoading}
         className="w-full"
+        isLoading={!!checkoutLoading}
         onClick={() => handleCheckout(plan)}
       >
         Upgrade
@@ -69,12 +69,12 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
 
   return (
     <Dialog
-      open={isOpen}
       onOpenChange={(nextOpen) => {
         if (!nextOpen) {
           onClose();
         }
       }}
+      open={isOpen}
     >
       <DialogContent className="p-2 sm:max-w-sm">
         <DialogHeader className="sr-only">
@@ -87,8 +87,8 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
           <ul>
             {PRICING_PLANS.map((plan) => (
               <li
-                key={plan.title}
                 className="flex h-full min-h-96 w-full flex-col gap-5 rounded-xl px-4 py-6"
+                key={plan.title}
               >
                 <div className="flex flex-col gap-4">
                   <h4 className="text-2xl text-medium">{plan.title}</h4>
@@ -109,7 +109,7 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
                 </div>
                 <ul className="flex flex-col gap-2 text-sm">
                   {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-center gap-2">
+                    <li className="flex items-center gap-2" key={feature}>
                       <CheckIcon className="size-4 text-primary" />
                       <span>{feature}</span>
                     </li>

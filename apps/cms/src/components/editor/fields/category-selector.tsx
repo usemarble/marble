@@ -80,7 +80,7 @@ export function CategorySelector({ control }: CategorySelectorProps) {
           <Label htmlFor="category">Category</Label>
           <FieldInfo text="Good for grouping posts together. You can have one category per post." />
         </div>
-        <Select value={value} onValueChange={onChange}>
+        <Select onValueChange={onChange} value={value}>
           <SelectTrigger className="w-full bg-editor-field">
             <SelectValue placeholder="Choose a category" />
           </SelectTrigger>
@@ -95,9 +95,9 @@ export function CategorySelector({ control }: CategorySelectorProps) {
                       : "Categories"}
                 </span>
                 <button
-                  type="button"
                   className="flex items-center gap-1 p-1 hover:bg-accent"
                   onClick={() => setShowCategoryModal(true)}
+                  type="button"
                 >
                   <PlusIcon className="size-4 text-muted-foreground" />
                   <span className="sr-only">Add New Category</span>
@@ -118,10 +118,10 @@ export function CategorySelector({ control }: CategorySelectorProps) {
         )}
       </div>
       <CategoryModal
-        open={showCategoyModal}
-        setOpen={setShowCategoryModal}
         mode="create"
         onCategoryCreated={handleCategoryCreated}
+        open={showCategoyModal}
+        setOpen={setShowCategoryModal}
       />
     </>
   );

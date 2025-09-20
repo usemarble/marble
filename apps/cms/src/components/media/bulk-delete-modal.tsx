@@ -87,7 +87,7 @@ export function BulkDeleteMediaModal({
 
   return (
     <div>
-      <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
+      <AlertDialog onOpenChange={setIsOpen} open={isOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
@@ -102,9 +102,9 @@ export function BulkDeleteMediaModal({
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AsyncButton
+              isLoading={isPending}
               onClick={handleBulkDelete}
               variant="destructive"
-              isLoading={isPending}
             >
               Delete {selectedItems.length}{" "}
               {selectedItems.length === 1 ? "item" : "items"}

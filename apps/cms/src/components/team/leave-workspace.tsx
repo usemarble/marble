@@ -80,7 +80,7 @@ export function LeaveWorkspaceModal({
   };
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
+    <AlertDialog onOpenChange={setOpen} open={open}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Leave {name}?</AlertDialogTitle>
@@ -92,10 +92,10 @@ export function LeaveWorkspaceModal({
         <AlertDialogFooter>
           <AlertDialogCancel className="min-w-20">Cancel</AlertDialogCancel>
           <AsyncButton
-            variant="destructive"
+            className="min-w-20"
             isLoading={isLeavingWorkspace}
             onClick={handleLeaveWorkspace}
-            className="min-w-20"
+            variant="destructive"
           >
             Leave
           </AsyncButton>

@@ -15,7 +15,7 @@ function Page() {
           <p className="text-muted-foreground text-sm">
             Extend the default post schema with custom fields.
           </p>
-          <Button disabled className="w-fit">
+          <Button className="w-fit" disabled>
             <span>Create a Schema</span>
           </Button>
         </div>

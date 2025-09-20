@@ -75,7 +75,7 @@ export function PaymentSuccessModal({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <Dialog onOpenChange={handleClose} open={isOpen}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader className="text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 animate-pulse items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
@@ -112,7 +112,7 @@ export function PaymentSuccessModal({
             </ul>
           </div>
 
-          <Button onClick={handleClose} className="w-full">
+          <Button className="w-full" onClick={handleClose}>
             Get Started
           </Button>
         </div>

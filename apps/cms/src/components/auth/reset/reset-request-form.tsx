@@ -59,20 +59,20 @@ export default function ResetRequestForm() {
       </div>
 
       <Input
-        type="email"
-        placeholder="you@example.com"
-        value={email}
         onChange={(e) => setEmail(e.target.value)}
+        placeholder="you@example.com"
+        type="email"
+        value={email}
       />
 
       <AsyncButton
-        onClick={handleRequest}
-        disabled={!email || isLoading || waitingSeconds > 0}
         className={cn(
           "flex min-w-48 items-center justify-center",
           isLoading || (waitingSeconds > 0 && "cursor-not-allowed")
         )}
+        disabled={!email || isLoading || waitingSeconds > 0}
         isLoading={isLoading}
+        onClick={handleRequest}
       >
         <div>
           Send reset link{" "}

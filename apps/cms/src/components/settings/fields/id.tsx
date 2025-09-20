@@ -29,10 +29,10 @@ export function Id() {
       <CardContent>
         <div className="flex items-center space-x-2">
           <div className="grid flex-1 gap-2">
-            <Label htmlFor={linkId} className="sr-only">
+            <Label className="sr-only" htmlFor={linkId}>
               Link
             </Label>
-            <Input id={linkId} value={activeWorkspace?.id || ""} readOnly />
+            <Input id={linkId} readOnly value={activeWorkspace?.id || ""} />
           </div>
           <CopyButton
             textToCopy={activeWorkspace?.id || ""}

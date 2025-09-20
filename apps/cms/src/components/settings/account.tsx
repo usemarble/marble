@@ -55,7 +55,7 @@ function AccountForm({ name, email }: AccountFormProps) {
   }, [watch, name]);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+    <form className="space-y-8" onSubmit={handleSubmit(onSubmit)}>
       <section className="mt-5 grid grid-cols-2 gap-6">
         <div className="flex flex-col gap-2">
           <Label>Name</Label>
@@ -66,8 +66,8 @@ function AccountForm({ name, email }: AccountFormProps) {
           <Label>Email</Label>
           <Input
             {...register("email")}
-            readOnly
             className="cursor-not-allowed"
+            readOnly
           />
           {errors.email && <ErrorMessage>{errors.email.message}</ErrorMessage>}
         </div>
@@ -83,7 +83,7 @@ function AccountForm({ name, email }: AccountFormProps) {
         </div>
         <ul className="flex flex-col gap-6">
           <li className="flex gap-4">
-            <Checkbox id="newsletter" checked disabled />{" "}
+            <Checkbox checked disabled id="newsletter" />{" "}
             <div className="flex flex-col gap-2">
               <Label htmlFor="newsletter">Receive newsletter</Label>
               <p className="text-muted-foreground text-sm">
@@ -115,8 +115,8 @@ function AccountForm({ name, email }: AccountFormProps) {
       <Separator />
       <section className="flex w-full justify-end gap-4">
         <Button
-          disabled={!dataChanged || isSubmitting}
           className="flex w-20 items-center gap-2 self-end"
+          disabled={!dataChanged || isSubmitting}
         >
           {isSubmitting ? <Loader2 className="animate-spin" /> : "Save"}
         </Button>

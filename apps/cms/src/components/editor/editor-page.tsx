@@ -207,11 +207,11 @@ function EditorPage({ initialData, id }: EditorPageProps) {
             <Tooltip delayDuration={400}>
               <TooltipTrigger asChild>
                 <Link
-                  href={`/${params.workspace}/posts`}
                   className={cn(
                     buttonVariants({ variant: "ghost", size: "icon" }),
                     "group cursor-default rounded-full"
                   )}
+                  href={`/${params.workspace}/posts`}
                 >
                   <XIcon className="size-4 text-muted-foreground group-hover:text-foreground" />
                 </Link>
@@ -238,12 +238,12 @@ function EditorPage({ initialData, id }: EditorPageProps) {
         <section className="mx-auto w-full max-w-3xl flex-1">
           <HiddenScrollbar className="h-[calc(100vh-7rem)]">
             <form
-              ref={formRef}
-              onSubmit={handleSubmit(onSubmit)}
               className="space-y-5 rounded-md p-4"
+              onSubmit={handleSubmit(onSubmit)}
+              ref={formRef}
             >
               <div className="flex flex-col">
-                <label htmlFor="title" className="sr-only">
+                <label className="sr-only" htmlFor="title">
                   Enter post your title
                 </label>
 
@@ -251,8 +251,8 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                   id="title"
                   placeholder="Title"
                   {...register("title")}
-                  onKeyDown={handleKeyDown}
                   className="scrollbar-hide mb-2 w-full resize-none bg-transparent font-semibold prose-headings:font-semibold text-4xl focus:outline-hidden focus:ring-0 sm:px-4"
+                  onKeyDown={handleKeyDown}
                 />
                 {errors.title && (
                   <p className="px-1 font-medium text-destructive text-sm">
@@ -263,18 +263,6 @@ function EditorPage({ initialData, id }: EditorPageProps) {
               <div className="flex flex-col">
                 <EditorRoot>
                   <EditorContent
-                    initialContent={JSON.parse(watch("contentJson") || "{}")}
-                    immediatelyRender={false}
-                    extensions={[...defaultExtensions, slashCommand]}
-                    onCreate={({ editor }) => {
-                      editorRef.current = editor;
-                    }}
-                    onUpdate={({ editor }) => {
-                      editorRef.current = editor;
-                      const html = editor.getHTML();
-                      const json = editor.getJSON();
-                      handleEditorChange(html, json);
-                    }}
                     editorProps={{
                       handleDOMEvents: {
                         keydown: (_view, event) =>
@@ -284,6 +272,18 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                         class:
                           "prose dark:prose-invert min-h-96 h-full sm:px-4 focus:outline-hidden max-w-full prose-blockquote:border-border",
                       },
+                    }}
+                    extensions={[...defaultExtensions, slashCommand]}
+                    immediatelyRender={false}
+                    initialContent={JSON.parse(watch("contentJson") || "{}")}
+                    onCreate={({ editor }) => {
+                      editorRef.current = editor;
+                    }}
+                    onUpdate={({ editor }) => {
+                      editorRef.current = editor;
+                      const html = editor.getHTML();
+                      const json = editor.getJSON();
+                      handleEditorChange(html, json);
                     }}
                   >
                     <BubbleMenu />
@@ -309,14 +309,14 @@ function EditorPage({ initialData, id }: EditorPageProps) {
         />
       )}
       <EditorSidebar
-        errors={errors}
         control={control}
+        errors={errors}
         formRef={formRef}
-        watch={watch}
-        isSubmitting={isCreating || isUpdating}
         isOpen={showSettings}
-        setIsOpen={setShowSettings}
+        isSubmitting={isCreating || isUpdating}
         mode={isUpdateMode ? "update" : "create"}
+        setIsOpen={setShowSettings}
+        watch={watch}
       />
     </>
   );

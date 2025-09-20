@@ -65,7 +65,7 @@ export function RemoveMemberModal({
   }
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
+    <AlertDialog onOpenChange={setOpen} open={open}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
@@ -78,9 +78,9 @@ export function RemoveMemberModal({
         <AlertDialogFooter>
           <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
           <AsyncButton
-            onClick={removeMember}
-            isLoading={loading}
             disabled={loading}
+            isLoading={loading}
+            onClick={removeMember}
             variant="destructive"
           >
             Remove

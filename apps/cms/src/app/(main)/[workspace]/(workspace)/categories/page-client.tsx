@@ -60,7 +60,7 @@ function PageClient() {
     <>
       {categories && categories.length > 0 ? (
         <WorkspacePageWrapper className="flex flex-col gap-8 pt-10 pb-16">
-          <DataTable data={categories} columns={columns} />
+          <DataTable columns={columns} data={categories} />
         </WorkspacePageWrapper>
       ) : (
         <WorkspacePageWrapper className="grid h-full place-content-center">
@@ -82,9 +82,9 @@ function PageClient() {
         </WorkspacePageWrapper>
       )}
       <CategoryModal
+        mode="create"
         open={showCreateModal}
         setOpen={setShowCreateModal}
-        mode="create"
       />
     </>
   );

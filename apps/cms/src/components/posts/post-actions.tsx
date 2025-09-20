@@ -64,12 +64,12 @@ export default function PostActions({
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
-            variant="ghost"
             className={cn(
               "size-8 p-0",
               view === "grid" &&
                 "rounded-full bg-sidebar hover:bg-primary/10 hover:text-primary dark:bg-accent/50 dark:hover:text-accent-foreground"
             )}
+            variant="ghost"
           >
             <span className="sr-only">Open menu</span>
             <DotsThreeVerticalIcon size={16} weight="bold" />
@@ -81,15 +81,15 @@ export default function PostActions({
         >
           <DropdownMenuItem>
             <Link
-              href={`/${activeWorkspace?.slug}/editor/p/${post.id}`}
               className="flex w-full cursor-default items-center gap-2"
+              href={`/${activeWorkspace?.slug}/editor/p/${post.id}`}
             >
               <PencilSimpleLineIcon size={16} /> <span>Edit</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem
-            variant="destructive"
             onClick={(e) => handleCardButtonClick(e)}
+            variant="destructive"
           >
             <TrashIcon size={16} /> <span>Delete</span>
           </DropdownMenuItem>
@@ -97,9 +97,9 @@ export default function PostActions({
       </DropdownMenu>
 
       <DeletePostModal
+        id={post.id}
         open={showDeleteModal}
         setOpen={setShowDeleteModal}
-        id={post.id}
         view={view}
       />
     </>

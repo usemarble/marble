@@ -169,7 +169,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+    <Sheet onOpenChange={setIsOpen} open={isOpen}>
       <SheetTrigger asChild>
         {children || (
           <Button>
@@ -187,8 +187,8 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
           </SheetDescription>
         </SheetHeader>
         <form
-          onSubmit={handleSubmit(onSubmit)}
           className="flex h-full flex-col justify-between"
+          onSubmit={handleSubmit(onSubmit)}
         >
           <div className="mb-5 grid flex-1 auto-rows-min gap-6 px-6">
             <div className="grid gap-3">
@@ -257,10 +257,10 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
               <div className="flex items-end">
                 <Label>Events</Label>
                 <a
-                  href="https://docs.marblecms.com/content/guides/webhooks"
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="ml-2 flex cursor-pointer items-center text-primary text-xs hover:underline"
+                  href="https://docs.marblecms.com/content/guides/webhooks"
+                  rel="noopener noreferrer"
+                  target="_blank"
                 >
                   <span>View Schemas</span>
                 </a>
@@ -268,34 +268,34 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
               <div className="grid gap-1">
                 <div className="flex items-center space-x-3 border-border border-b pb-2">
                   <Checkbox
-                    id={masterCheckboxId}
                     checked={getMasterCheckboxState()}
+                    id={masterCheckboxId}
                     onCheckedChange={(checked) =>
                       handleMasterCheckboxToggle(checked as boolean)
                     }
                   />
                   <div className="flex-1">
                     <Label
-                      htmlFor={masterCheckboxId}
                       className="cursor-pointer font-medium text-sm"
+                      htmlFor={masterCheckboxId}
                     >
                       Select all events
                     </Label>
                   </div>
                 </div>
                 {webhookEvents.map((event) => (
-                  <div key={event.id} className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-3" key={event.id}>
                     <Checkbox
-                      id={event.id}
                       checked={watchedEvents?.includes(event.id) || false}
+                      id={event.id}
                       onCheckedChange={(checked) =>
                         handleEventToggle(event.id, checked as boolean)
                       }
                     />
                     <div className="flex-1">
                       <Label
-                        htmlFor={event.id}
                         className="cursor-pointer font-medium text-sm"
+                        htmlFor={event.id}
                       >
                         {event.label}
                       </Label>
@@ -313,9 +313,9 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
 
           <SheetFooter className="p-6">
             <AsyncButton
-              type="submit"
-              isLoading={isCreating}
               className="w-full"
+              isLoading={isCreating}
+              type="submit"
             >
               Create webhook
             </AsyncButton>

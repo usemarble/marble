@@ -79,16 +79,16 @@ export function MediaCard({
               )}
             />
             <div className="relative z-20 rounded-full bg-white p-2 shadow-lg">
-              <CheckIcon weight="bold" className="size-5 text-black" />
+              <CheckIcon className="size-5 text-black" weight="bold" />
             </div>
           </div>
           {media.type === "image" && (
             <>
               {/** biome-ignore lint/performance/noImgElement: <> */}
               <img
-                src={media.url}
                 alt={media.name}
                 className="absolute inset-0 size-full object-cover"
+                src={media.url}
               />
             </>
           )}
@@ -120,10 +120,10 @@ export function MediaCard({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
-              variant="ghost"
-              size="icon"
               className="size-8 shrink-0"
               onClick={(e) => e.stopPropagation()}
+              size="icon"
+              variant="ghost"
             >
               <DotsThreeVerticalIcon size={16} />
             </Button>
@@ -135,17 +135,17 @@ export function MediaCard({
                 handleDownload();
               }}
             >
-              <DownloadSimpleIcon size={16} className="mr-2" />
+              <DownloadSimpleIcon className="mr-2" size={16} />
               Download
             </DropdownMenuItem>
             <DropdownMenuItem
-              variant="destructive"
               onClick={(e) => {
                 e.stopPropagation();
                 onDelete(media);
               }}
+              variant="destructive"
             >
-              <TrashIcon size={16} className="mr-2" />
+              <TrashIcon className="mr-2" size={16} />
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>

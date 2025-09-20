@@ -109,12 +109,12 @@ export function NavMain() {
         {items.map((item) => (
           <SidebarMenuButton
             asChild
-            key={item.name}
             className={`border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
               isActive(item.url)
                 ? "hover border-border bg-sidebar-accent text-foreground shadow-xs"
                 : "hover:text-accent-foreground"
             }`}
+            key={item.name}
           >
             <Link href={`/${params.workspace}/${item.url}`}>
               <item.icon />
@@ -124,19 +124,19 @@ export function NavMain() {
         ))}
         <Collapsible
           asChild
-          open={isSettingsActive}
           className="group/collapsible"
+          open={isSettingsActive}
         >
           <SidebarMenuItem>
             <Link href={`/${params.workspace}/settings/general`}>
               <CollapsibleTrigger asChild>
                 <SidebarMenuButton
-                  tooltip="Settings"
                   className={`cursor-pointer border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
                     isSettingsActive
                       ? "border-border bg-sidebar-accent text-foreground shadow-xs"
                       : "hover:text-accent-foreground"
                   }`}
+                  tooltip="Settings"
                 >
                   <FadersIcon />
                   <span>Settings</span>

@@ -52,22 +52,22 @@ export function AuthorDataTable({ columns, data }: AuthorDataTableProps) {
       <div className="flex items-center justify-between gap-4 py-4">
         <div className="relative">
           <MagnifyingGlassIcon
-            size={16}
             className="-translate-y-1/2 absolute top-1/2 left-3 size-4 text-muted-foreground"
+            size={16}
           />
           <Input
-            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+            className="w-72 px-8"
             onChange={(event) =>
               table.getColumn("name")?.setFilterValue(event.target.value)
             }
             placeholder="Search authors..."
-            className="w-72 px-8"
+            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
           />
           {(table.getColumn("name")?.getFilterValue() as string) && (
             <button
-              type="button"
-              onClick={() => table.getColumn("name")?.setFilterValue("")}
               className="absolute top-3 right-3"
+              onClick={() => table.getColumn("name")?.setFilterValue("")}
+              type="button"
             >
               <XIcon className="size-4" />
               <span className="sr-only">Clear search</span>
@@ -105,8 +105,8 @@ export function AuthorDataTable({ columns, data }: AuthorDataTableProps) {
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
-                  key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  key={row.id}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -121,8 +121,8 @@ export function AuthorDataTable({ columns, data }: AuthorDataTableProps) {
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
                   className="h-24 text-center"
+                  colSpan={columns.length}
                 >
                   No authors found.
                 </TableCell>
@@ -133,9 +133,9 @@ export function AuthorDataTable({ columns, data }: AuthorDataTableProps) {
       </div>
 
       <AuthorModal
+        mode="create"
         open={showCreateModal}
         setOpen={setShowCreateModal}
-        mode="create"
       />
     </div>
   );

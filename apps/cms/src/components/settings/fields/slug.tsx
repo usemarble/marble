@@ -105,21 +105,21 @@ export function Slug() {
         <CardDescription>Your unique workspace slug.</CardDescription>
       </CardHeader>
       <form
-        onSubmit={slugForm.handleSubmit(onSlugSubmit)}
         className="flex flex-col gap-6"
+        onSubmit={slugForm.handleSubmit(onSlugSubmit)}
       >
         <CardContent>
           <div className="flex w-full flex-col gap-2">
             <div className="flex items-center gap-2">
               <div className="flex flex-1 flex-col gap-2">
-                <Label htmlFor={slugId} className="sr-only">
+                <Label className="sr-only" htmlFor={slugId}>
                   Slug
                 </Label>
                 <Input
                   id={slugId}
                   {...slugForm.register("slug")}
-                  placeholder="workspace"
                   disabled={!isOwner}
+                  placeholder="workspace"
                 />
               </div>
             </div>
@@ -135,9 +135,9 @@ export function Slug() {
             Used in your workspace URL
           </p>
           <AsyncButton
-            isLoading={isPending}
-            disabled={!isOwner || !slugForm.formState.isDirty}
             className={cn("flex w-20 items-center gap-2 self-end")}
+            disabled={!isOwner || !slugForm.formState.isDirty}
+            isLoading={isPending}
           >
             Save
           </AsyncButton>

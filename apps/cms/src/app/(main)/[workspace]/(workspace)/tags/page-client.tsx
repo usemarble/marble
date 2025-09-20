@@ -56,7 +56,7 @@ function PageClient() {
     <>
       {tags && tags.length > 0 ? (
         <WorkspacePageWrapper className="flex flex-col gap-8 pt-10 pb-16">
-          <DataTable data={tags} columns={columns} />
+          <DataTable columns={columns} data={tags} />
         </WorkspacePageWrapper>
       ) : (
         <WorkspacePageWrapper className="grid h-full place-content-center">
@@ -78,9 +78,9 @@ function PageClient() {
         </WorkspacePageWrapper>
       )}
       <TagModal
+        mode="create"
         open={showCreateModal}
         setOpen={setShowCreateModal}
-        mode="create"
       />
     </>
   );

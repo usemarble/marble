@@ -12,7 +12,7 @@ export function Announcements() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button size="icon" variant="ghost" className="size-4">
+        <Button className="size-4" size="icon" variant="ghost">
           <BellRinging />
         </Button>
       </DropdownMenuTrigger>

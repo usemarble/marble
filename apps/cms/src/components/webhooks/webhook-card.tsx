@@ -60,29 +60,29 @@ export function WebhookCard({
           <div className="mb-2 flex items-center gap-3">
             <CardTitle className="text-lg">{webhook.name}</CardTitle>
             <Badge
-              variant={webhook.enabled ? "positive" : "negative"}
               className="text-xs"
+              variant={webhook.enabled ? "positive" : "negative"}
             >
               {webhook.enabled ? "Enabled" : "Disabled"}
             </Badge>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
+              <Button size="icon" variant="ghost">
                 <DotsThreeVerticalIcon size={16} />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem
+                disabled={isToggling && toggleVariables?.id === webhook.id}
                 onClick={() =>
                   onToggle({
                     id: webhook.id,
                     enabled: !webhook.enabled,
                   })
                 }
-                disabled={isToggling && toggleVariables?.id === webhook.id}
               >
-                <ToggleRightIcon size={16} className="mr-1.5" />
+                <ToggleRightIcon className="mr-1.5" size={16} />
                 <span>{webhook.enabled ? "Disable" : "Enable"} Webhook</span>
               </DropdownMenuItem>
               {webhook.format === "json" ? (
@@ -94,9 +94,9 @@ export function WebhookCard({
                 </DropdownMenuItem>
               ) : undefined}
               <DropdownMenuItem
-                variant="destructive"
-                onSelect={(_e) => setIsOpen(true)}
                 disabled={isToggling}
+                onSelect={(_e) => setIsOpen(true)}
+                variant="destructive"
               >
                 <TrashIcon className="mr-1.5 size-4 text-inherit" />
                 Delete
@@ -126,11 +126,11 @@ export function WebhookCard({
         </CardContent>
       </Card>
       <DeleteWebhookModal
+        isOpen={isOpen}
+        onDelete={onDelete}
+        onOpenChange={setIsOpen}
         webhookId={webhook.id}
         webhookName={webhook.name}
-        onDelete={onDelete}
-        isOpen={isOpen}
-        onOpenChange={setIsOpen}
       />
     </li>
   );

@@ -156,7 +156,7 @@ export function TagModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog onOpenChange={setOpen} open={open}>
       <DialogContent className="p-8 sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-center font-medium">
@@ -164,27 +164,27 @@ export function TagModal({
           </DialogTitle>
         </DialogHeader>
         <form
-          onSubmit={handleSubmit(onSubmit)}
           className="mt-2 flex flex-col gap-5"
+          onSubmit={handleSubmit(onSubmit)}
         >
           <div className="grid flex-1 gap-2">
-            <Label htmlFor={nameId} className="sr-only">
+            <Label className="sr-only" htmlFor={nameId}>
               Name
             </Label>
             <Input id={nameId} {...register("name")} placeholder="Name" />
             {errors.name && <ErrorMessage>{errors.name.message}</ErrorMessage>}
           </div>
           <div className="grid flex-1 gap-2">
-            <Label htmlFor={slugId} className="sr-only">
+            <Label className="sr-only" htmlFor={slugId}>
               Slug
             </Label>
             <Input id={slugId} {...register("slug")} placeholder="slug" />
             {errors.slug && <ErrorMessage>{errors.slug.message}</ErrorMessage>}
           </div>
           <AsyncButton
-            type="submit"
-            isLoading={isSubmitting}
             className="mt-4 flex w-full gap-2"
+            isLoading={isSubmitting}
+            type="submit"
           >
             {mode === "create" ? "Create Tag" : "Update Tag"}
           </AsyncButton>
@@ -238,7 +238,7 @@ export const DeleteTagModal = ({
   });
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
+    <AlertDialog onOpenChange={setOpen} open={open}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete "{name}"?</AlertDialogTitle>
@@ -249,18 +249,18 @@ export const DeleteTagModal = ({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel
-            onClick={() => setOpen(false)}
             disabled={isPending}
+            onClick={() => setOpen(false)}
           >
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction asChild>
             <AsyncButton
+              isLoading={isPending}
               onClick={(e) => {
                 e.preventDefault();
                 deleteTag();
               }}
-              isLoading={isPending}
               variant="destructive"
             >
               Delete

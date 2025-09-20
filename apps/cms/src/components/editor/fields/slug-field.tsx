@@ -28,8 +28,8 @@ export function SlugField({ control }: SlugFieldProps) {
       <Input
         id="slug"
         {...field}
-        placeholder="my-awesome-post"
         className="col-span-3 bg-editor-field"
+        placeholder="my-awesome-post"
       />
       {error && (
         <p className="px-1 font-medium text-destructive text-sm">

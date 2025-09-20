@@ -165,7 +165,7 @@ export function AuthorSelector({
         <Label htmlFor="authors">Authors</Label>
         <FieldInfo text="List of authors who contributed to the article." />
       </div>
-      <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <Popover onOpenChange={setIsOpen} open={isOpen}>
         <PopoverTrigger>
           <div className="relative flex h-auto min-h-9 w-full cursor-pointer items-center justify-between gap-2 rounded-md border bg-editor-field px-3 py-1.5 text-sm">
             <ul className="-space-x-2 flex flex-wrap">
@@ -187,7 +187,7 @@ export function AuthorSelector({
               )}
               {selected.length > 1 &&
                 selected.map((author) => (
-                  <li key={author.id} className="flex items-center">
+                  <li className="flex items-center" key={author.id}>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Avatar className="size-6">
@@ -208,7 +208,7 @@ export function AuthorSelector({
           </div>
         </PopoverTrigger>
         {error && <ErrorMessage>{error.message}</ErrorMessage>}
-        <PopoverContent className="min-w-[350.67px] p-0" align="start">
+        <PopoverContent align="start" className="min-w-[350.67px] p-0">
           <Command className="w-full">
             <CommandInput placeholder="Search authors..." />
             <CommandList>
@@ -219,8 +219,8 @@ export function AuthorSelector({
                 <CommandGroup>
                   {authors.map((option) => (
                     <CommandItem
-                      key={option.id}
                       id={option.id}
+                      key={option.id}
                       onSelect={() => {
                         addOrRemoveAuthor(option.id);
                       }}

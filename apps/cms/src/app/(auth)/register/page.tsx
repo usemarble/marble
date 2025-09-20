@@ -28,22 +28,22 @@ export default async function RegisterPage(props: PageProps) {
     <div className="h-screen w-full md:grid md:grid-cols-2">
       <section className="relative hidden flex-col justify-between overflow-hidden p-10 md:flex">
         <Image
-          src="/textures/marble-light.avif"
           alt="Light marble texture background"
-          fill
           className="object-cover object-center dark:hidden"
+          fill
           loading="lazy"
-          unoptimized
           quality={100}
+          src="/textures/marble-light.avif"
+          unoptimized
         />
         <Image
-          src="/textures/marble-dark.avif"
           alt="Dark marble texture background"
-          fill
           className="hidden object-cover object-center dark:block"
+          fill
           loading="lazy"
-          unoptimized
           quality={100}
+          src="/textures/marble-dark.avif"
+          unoptimized
         />
         <div className="relative z-10">
           <MarbleIcon />
@@ -76,8 +76,8 @@ export default async function RegisterPage(props: PageProps) {
           <p className="px-8 text-center text-muted-foreground text-xs">
             Already have an account?{" "}
             <Link
-              href={from && from !== "/" ? `/login?from=${from}` : "/login"}
               className="underline underline-offset-4 hover:text-primary"
+              href={from && from !== "/" ? `/login?from=${from}` : "/login"}
             >
               Login
             </Link>
@@ -87,17 +87,17 @@ export default async function RegisterPage(props: PageProps) {
           <p className="px-8 text-center text-muted-foreground text-xs">
             By continuing, you agree to our{" "}
             <Link
+              className="underline underline-offset-4 hover:text-primary"
               href="https://marblecms.com/terms"
               target="_blank"
-              className="underline underline-offset-4 hover:text-primary"
             >
               Terms of Service
             </Link>{" "}
             and{" "}
             <Link
+              className="underline underline-offset-4 hover:text-primary"
               href="https://marblecms.com/privacy"
               target="_blank"
-              className="underline underline-offset-4 hover:text-primary"
             >
               Privacy Policy
             </Link>

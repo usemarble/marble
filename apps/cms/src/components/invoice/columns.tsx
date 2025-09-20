@@ -36,12 +36,12 @@ export const invoiceTableColumns: ColumnDef<Invoice>[] = [
       const status = row.original.status;
       return (
         <Badge
-          variant="outline"
           className={cn("w-full justify-center rounded-[6px] text-center", {
             "border-emerald-300 bg-emerald-50 text-emerald-500":
               status === "Success",
             "border-red-300 bg-red-50 text-red-500": status === "Failed",
           })}
+          variant="outline"
         >
           {status === "Success" ? "Success" : "Failed"}
         </Badge>

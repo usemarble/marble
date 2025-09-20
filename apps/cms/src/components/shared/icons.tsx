@@ -16,10 +16,10 @@ export const AcmeLogo = ({ ...props }: LucideProps) => (
 
 export const Github = ({ ...props }: LucideProps) => (
   <svg
+    fill="currentColor"
     role="img"
     viewBox="0 0 24 24"
     xmlns="http://www.w3.org/2000/svg"
-    fill="currentColor"
     {...props}
   >
     <title>GitHub</title>
@@ -29,10 +29,10 @@ export const Github = ({ ...props }: LucideProps) => (
 
 export const Discord = ({ ...props }: LucideProps) => (
   <svg
+    fill="currentColor"
     role="img"
     viewBox="0 0 24 24"
     xmlns="http://www.w3.org/2000/svg"
-    fill="currentColor"
     {...props}
   >
     <title>Discord</title>
@@ -42,10 +42,10 @@ export const Discord = ({ ...props }: LucideProps) => (
 
 export const Slack = ({ ...props }: LucideProps) => (
   <svg
+    fill="currentColor"
     role="img"
     viewBox="0 0 24 24.048"
     xmlns="http://www.w3.org/2000/svg"
-    fill="currentColor"
     {...props}
   >
     <title>Slack</title>
@@ -71,10 +71,10 @@ export const Slack = ({ ...props }: LucideProps) => (
 );
 export const Google = ({ ...props }: LucideProps) => (
   <svg
+    fill="currentColor"
     role="img"
     viewBox="0 0 24 24"
     xmlns="http://www.w3.org/2000/svg"
-    fill="currentColor"
     {...props}
   >
     <title>Google</title>
@@ -84,10 +84,10 @@ export const Google = ({ ...props }: LucideProps) => (
 
 export const X = ({ ...props }: LucideProps) => (
   <svg
+    fill="currentColor"
     role="img"
     viewBox="0 0 24 24"
     xmlns="http://www.w3.org/2000/svg"
-    fill="currentColor"
     {...props}
   >
     <title>X</title>

@@ -38,7 +38,7 @@ export const QuickStats = () => {
         ) : (
           <div className="grid grid-cols-5 gap-4">
             {statItems.map((item) => (
-              <div key={item.label} className="text-center">
+              <div className="text-center" key={item.label}>
                 <div className="font-bold text-2xl text-primary">
                   {item.value}
                 </div>

@@ -53,7 +53,7 @@ export const columns: ColumnDef<TeamMemberRow>[] = [
       const item = row.original;
 
       return (
-        <Badge variant="outline" className="capitalize">
+        <Badge className="capitalize" variant="outline">
           {item.role}
         </Badge>
       );
@@ -71,8 +71,8 @@ export const columns: ColumnDef<TeamMemberRow>[] = [
         <div className="flex justify-end pr-10">
           <TableActions
             {...row.original}
-            currentUserRole={meta?.currentUserRole}
             currentUserId={meta?.currentUserId}
+            currentUserRole={meta?.currentUserRole}
           />
         </div>
       );

@@ -87,21 +87,21 @@ export function Name() {
         </CardDescription>
       </CardHeader>
       <form
-        onSubmit={nameForm.handleSubmit(onNameSubmit)}
         className="flex flex-col gap-6"
+        onSubmit={nameForm.handleSubmit(onNameSubmit)}
       >
         <CardContent>
           <div className="flex w-full flex-col gap-2">
             <div className="flex items-center gap-2">
               <div className="flex flex-1 flex-col gap-2">
-                <Label htmlFor={nameId} className="sr-only">
+                <Label className="sr-only" htmlFor={nameId}>
                   Name
                 </Label>
                 <Input
                   id={nameId}
                   {...nameForm.register("name")}
-                  placeholder="Technology"
                   disabled={!isOwner}
+                  placeholder="Technology"
                 />
               </div>
             </div>
@@ -115,9 +115,9 @@ export function Name() {
         <CardFooter className="flex justify-between border-t pt-4">
           <p className="text-muted-foreground text-sm">Max 32 characters</p>
           <AsyncButton
-            isLoading={isPending}
             className={cn("flex w-20 items-center gap-2 self-end")}
             disabled={!isOwner || !nameForm.formState.isDirty}
+            isLoading={isPending}
           >
             Save
           </AsyncButton>

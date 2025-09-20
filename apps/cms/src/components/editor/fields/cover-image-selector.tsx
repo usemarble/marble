@@ -138,15 +138,15 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
         <div className="group relative h-48 w-full">
           {/* biome-ignore lint/performance/noImgElement: <> */}
           <img
-            src={coverImage}
             alt="cover"
             className="h-full w-full rounded-md object-cover"
+            src={coverImage}
           />
           <div className="absolute inset-0 rounded-md bg-black/50 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
           <button
-            type="button"
-            onClick={() => onChange(null)}
             className="absolute top-2 right-2 rounded-full bg-white p-2 text-black opacity-0 transition hover:text-destructive group-hover:opacity-100"
+            onClick={() => onChange(null)}
+            type="button"
           >
             <TrashIcon className="size-5" />
             <span className="sr-only">remove image</span>
@@ -156,21 +156,21 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
     }
 
     return (
-      <Tabs defaultValue="upload" className="w-full">
-        <TabsList variant="line" className="mb-4 flex justify-start">
+      <Tabs className="w-full" defaultValue="upload">
+        <TabsList className="mb-4 flex justify-start" variant="line">
           <TabsTrigger value="upload">Upload</TabsTrigger>
           <TabsTrigger value="embed">Embed</TabsTrigger>
           <TabsTrigger value="media">Media</TabsTrigger>
         </TabsList>
-        <TabsContent value="upload" className="h-48">
+        <TabsContent className="h-48" value="upload">
           {file ? (
             <div className="flex flex-col gap-4">
               <div className="relative h-48 w-full">
                 {/* biome-ignore lint/performance/noImgElement: <> */}
                 <img
-                  src={URL.createObjectURL(file)}
                   alt="cover preview"
                   className="h-full w-full rounded-md object-cover"
+                  src={URL.createObjectURL(file)}
                 />
                 <div className="absolute inset-0 grid size-full place-content-center rounded-md bg-black/50 p-2 backdrop-blur-xs">
                   {isUploading ? (
@@ -181,9 +181,9 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
                   ) : (
                     <div className="flex items-center gap-2">
                       <Button
-                        size="icon"
-                        onClick={() => setFile(undefined)}
                         className="rounded-full bg-white text-black hover:bg-white hover:text-destructive"
+                        onClick={() => setFile(undefined)}
+                        size="icon"
                       >
                         <TrashIcon className="size-4" />
                       </Button>
@@ -194,39 +194,39 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
             </div>
           ) : (
             <ImageDropzone
+              className="flex h-48 w-full cursor-pointer items-center justify-center rounded-md border border-dashed bg-editor-field"
+              multiple={false}
               onFilesAccepted={(files: File[]) => {
                 if (files[0]) {
                   setFile(files[0]);
                   uploadCover(files[0]);
                 }
               }}
-              className="flex h-48 w-full cursor-pointer items-center justify-center rounded-md border border-dashed bg-editor-field"
-              multiple={false}
             />
           )}
         </TabsContent>
-        <TabsContent value="embed" className="h-48">
+        <TabsContent className="h-48" value="embed">
           <div className="flex h-48 w-full items-center justify-start rounded-md border border-dashed bg-editor-field">
             <div className="flex w-full max-w-sm flex-col gap-2 px-4">
               <div className="flex items-center gap-2">
                 <Input
-                  value={embedUrl}
+                  className={cn(
+                    "bg-editor-sidebar-background",
+                    urlError && "border-destructive"
+                  )}
                   onChange={({ target }) => {
                     setEmbedUrl(target.value);
                     setUrlError(null);
                   }}
                   placeholder="Paste your cover image link"
-                  className={cn(
-                    "bg-editor-sidebar-background",
-                    urlError && "border-destructive"
-                  )}
+                  value={embedUrl}
                 />
                 <AsyncButton
                   className="shrink-0"
-                  size="icon"
-                  onClick={() => handleEmbed(embedUrl)}
-                  isLoading={isValidatingUrl}
                   disabled={!embedUrl}
+                  isLoading={isValidatingUrl}
+                  onClick={() => handleEmbed(embedUrl)}
+                  size="icon"
                 >
                   <CheckIcon className="size-4" />
                 </AsyncButton>
@@ -237,11 +237,11 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
             </div>
           </div>
         </TabsContent>
-        <TabsContent value="media" className="h-48">
+        <TabsContent className="h-48" value="media">
           <button
-            type="button"
-            onClick={() => setIsGalleryOpen(true)}
             className="flex h-48 w-full cursor-pointer items-center justify-center rounded-md border border-dashed bg-editor-field transition-colors"
+            onClick={() => setIsGalleryOpen(true)}
+            type="button"
           >
             <div className="flex flex-col items-center gap-2 text-muted-foreground">
               <ImagesIcon className="size-6" />
@@ -262,7 +262,7 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
       {renderContent()}
 
       {/* Media Gallery Drawer */}
-      <Drawer open={isGalleryOpen} onOpenChange={setIsGalleryOpen}>
+      <Drawer onOpenChange={setIsGalleryOpen} open={isGalleryOpen}>
         <DrawerContent className="mt-4 min-h-[95vh]">
           <DrawerHeader className="sr-only">
             <DrawerTitle>Gallery</DrawerTitle>
@@ -280,19 +280,19 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
                     .filter((item) => item.type === "image")
                     .map((item) => (
                       <li
-                        key={item.id}
                         className="group relative h-48 overflow-hidden rounded-[4px]"
+                        key={item.id}
                       >
                         <button
-                          type="button"
-                          onClick={() => handleImageSelect(item.url)}
                           className="h-full w-full"
+                          onClick={() => handleImageSelect(item.url)}
+                          type="button"
                         >
                           {/* biome-ignore lint/performance/noImgElement: <> */}
                           <img
-                            src={item.url}
                             alt={item.name}
                             className="h-full w-full object-cover"
+                            src={item.url}
                           />
                         </button>
                       </li>

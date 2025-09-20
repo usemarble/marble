@@ -113,7 +113,7 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
   });
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog onOpenChange={setIsOpen} open={isOpen}>
       <DialogHeader className="sr-only">
         <DialogTitle>Upload Image</DialogTitle>
         <DialogDescription>
@@ -121,8 +121,8 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
         </DialogDescription>
       </DialogHeader>
       <DialogContent className="max-h-96 max-w-xl">
-        <Tabs defaultValue="upload" className="w-full">
-          <TabsList variant="line" className="mb-4 flex justify-start">
+        <Tabs className="w-full" defaultValue="upload">
+          <TabsList className="mb-4 flex justify-start" variant="line">
             <TabsTrigger value="upload">Upload</TabsTrigger>
             <TabsTrigger value="embed">Embed</TabsTrigger>
             <TabsTrigger value="media">Media</TabsTrigger>
@@ -136,9 +136,9 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
                     <div className="relative h-full w-full">
                       {/* biome-ignore lint/performance/noImgElement: <> */}
                       <img
-                        src={URL.createObjectURL(file)}
                         alt="cover"
                         className="h-full max-h-52 w-full rounded-md object-cover"
+                        src={URL.createObjectURL(file)}
                       />
                       {isUploading && (
                         <div className="absolute inset-0 grid size-full place-content-center rounded-md bg-black/50 p-2 backdrop-blur-xs">
@@ -152,14 +152,14 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
                   </div>
                 ) : (
                   <ImageDropzone
+                    className="flex h-64 w-full cursor-pointer items-center justify-center rounded-md border border-dashed bg-background"
+                    multiple={false}
                     onFilesAccepted={(files: File[]) => {
                       if (files[0]) {
                         setFile(files[0]);
                         uploadImage(files[0]);
                       }
                     }}
-                    className="flex h-64 w-full cursor-pointer items-center justify-center rounded-md border border-dashed bg-background"
-                    multiple={false}
                   />
                 )}
               </div>
@@ -169,15 +169,15 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
             <section className="space-y-8">
               <div className="flex flex-col gap-6">
                 <Input
-                  value={embedUrl}
+                  disabled={isValidatingUrl}
                   onChange={({ target }) => setEmbedUrl(target.value)}
                   placeholder="Paste your image link"
-                  disabled={isValidatingUrl}
+                  value={embedUrl}
                 />
                 <AsyncButton
                   className="mx-auto w-52"
-                  onClick={() => handleEmbed(embedUrl)}
                   disabled={isValidatingUrl || !embedUrl}
+                  onClick={() => handleEmbed(embedUrl)}
                 >
                   <span>Save</span>
                 </AsyncButton>
@@ -193,16 +193,16 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
                     {media
                       .filter((item) => item.type === "image")
                       .map((item) => (
-                        <li key={item.id} className="border">
+                        <li className="border" key={item.id}>
                           <button
-                            type="button"
                             onClick={() => handleEmbed(item.url)}
+                            type="button"
                           >
                             {/* biome-ignore lint/performance/noImgElement: <> */}
                             <img
-                              src={item.url}
                               alt={item.name}
                               className="h-24 object-cover"
+                              src={item.url}
                             />
                           </button>
                           <p className="line-clamp-1 px-1 py-0.5 text-muted-foreground text-xs">

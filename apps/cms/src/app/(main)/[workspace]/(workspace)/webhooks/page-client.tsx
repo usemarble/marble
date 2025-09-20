@@ -142,9 +142,8 @@ export function PageClient() {
         <ul className="grid gap-4">
           {webhooks?.map((webhook) => (
             <WebhookCard
+              isToggling={isToggling}
               key={webhook.id}
-              webhook={webhook}
-              onToggle={toggleWebhook}
               onDelete={() => {
                 if (workspaceId) {
                   queryClient.invalidateQueries({
@@ -152,8 +151,9 @@ export function PageClient() {
                   });
                 }
               }}
-              isToggling={isToggling}
+              onToggle={toggleWebhook}
               toggleVariables={toggleVariables}
+              webhook={webhook}
             />
           ))}
         </ul>

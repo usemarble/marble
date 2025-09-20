@@ -91,27 +91,27 @@ export function Timezone() {
         <CardDescription>The timezone of your workspace.</CardDescription>
       </CardHeader>
       <form
-        onSubmit={timezoneForm.handleSubmit(onTimezoneSubmit)}
         className="flex flex-col gap-6"
+        onSubmit={timezoneForm.handleSubmit(onTimezoneSubmit)}
       >
         <CardContent>
           <div className="flex w-full flex-col gap-2">
             <div className="flex items-center gap-2">
               <div className="flex flex-1 flex-col gap-2">
-                <Label htmlFor="timezone" className="sr-only">
+                <Label className="sr-only" htmlFor="timezone">
                   Timezone
                 </Label>
                 <TimezoneSelector
-                  value={timezoneForm.watch("timezone")}
+                  disabled={!isOwner}
                   onValueChange={(value) => {
                     timezoneForm.setValue("timezone", value, {
                       shouldDirty: true,
                     });
                     timezoneForm.trigger("timezone");
                   }}
-                  disabled={!isOwner}
                   placeholder="Select timezone..."
                   timezones={timezones}
+                  value={timezoneForm.watch("timezone")}
                 />
               </div>
             </div>
@@ -127,9 +127,9 @@ export function Timezone() {
             Changes affect scheduled posts
           </p>
           <AsyncButton
-            isLoading={isPending}
-            disabled={!isOwner || !timezoneForm.formState.isDirty}
             className={cn("flex w-20 items-center gap-2 self-end")}
+            disabled={!isOwner || !timezoneForm.formState.isDirty}
+            isLoading={isPending}
           >
             Save
           </AsyncButton>

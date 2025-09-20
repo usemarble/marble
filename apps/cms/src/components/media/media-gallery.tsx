@@ -106,11 +106,11 @@ export function MediaGallery({ media }: MediaGalleryProps) {
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             {selectedItems.size > 0 && (
-              <Button variant="outline" size="icon" onClick={handleDeselectAll}>
+              <Button onClick={handleDeselectAll} size="icon" variant="outline">
                 <XIcon size={16} />
               </Button>
             )}
-            <Button variant="outline" onClick={handleSelectAll}>
+            <Button onClick={handleSelectAll} variant="outline">
               {selectedItems.size === media.length
                 ? "Deselect All"
                 : "Select All"}
@@ -120,9 +120,9 @@ export function MediaGallery({ media }: MediaGalleryProps) {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
-                      variant="destructive"
-                      size="icon"
                       onClick={() => setShowBulkDeleteModal(true)}
+                      size="icon"
+                      variant="destructive"
                     >
                       <TrashIcon size={16} />
                     </Button>
@@ -145,36 +145,36 @@ export function MediaGallery({ media }: MediaGalleryProps) {
       <ul className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-4">
         {media.map((item) => (
           <MediaCard
+            isSelected={selectedItems.has(item.id)}
             key={item.id}
             media={item}
-            isSelected={selectedItems.has(item.id)}
-            onSelect={() => handleSelectItem(item.id)}
             onDelete={() => {
               setMediaToDelete(item);
               setShowDeleteModal(true);
             }}
+            onSelect={() => handleSelectItem(item.id)}
           />
         ))}
       </ul>
 
       <MediaUploadModal
         isOpen={showUploadModal}
-        setIsOpen={setShowUploadModal}
         onUploadComplete={handleUploadComplete}
+        setIsOpen={setShowUploadModal}
       />
       {mediaToDelete && (
         <DeleteMediaModal
           isOpen={showDeleteModal}
-          setIsOpen={setShowDeleteModal}
-          onDeleteComplete={handleDeleteComplete}
           mediaToDelete={mediaToDelete}
+          onDeleteComplete={handleDeleteComplete}
+          setIsOpen={setShowDeleteModal}
         />
       )}
       <BulkDeleteMediaModal
         isOpen={showBulkDeleteModal}
-        setIsOpen={setShowBulkDeleteModal}
-        selectedItems={Array.from(selectedItems)}
         onDeleteComplete={handleBulkDeleteComplete}
+        selectedItems={Array.from(selectedItems)}
+        setIsOpen={setShowBulkDeleteModal}
       />
     </>
   );

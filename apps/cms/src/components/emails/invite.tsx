@@ -47,11 +47,11 @@ export const InviteUserEmail = ({
           <Container className="mx-auto my-[40px] max-w-[465px] rounded border border-[#eaeaea] border-solid p-[20px]">
             <Section className="mt-[32px]">
               <Img
-                src={`${baseUrl}/icon.png`}
-                width="40"
-                height="37"
                 alt="logo"
                 className="mx-auto my-0"
+                height="37"
+                src={`${baseUrl}/icon.png`}
+                width="40"
               />
             </Section>
             <Heading className="mx-0 my-[30px] p-0 text-center font-normal text-[24px] text-black">
@@ -66,9 +66,9 @@ export const InviteUserEmail = ({
                 <Column align="right">
                   <Img
                     className="rounded-full"
+                    height="64"
                     src={userImage}
                     width="64"
-                    height="64"
                   />
                 </Column>
                 <Column align="center">
@@ -79,9 +79,9 @@ export const InviteUserEmail = ({
                 <Column align="left">
                   <Img
                     className="rounded-full"
+                    height="64"
                     src={teamImage}
                     width="64"
-                    height="64"
                   />
                 </Column>
               </Row>
@@ -96,7 +96,7 @@ export const InviteUserEmail = ({
             </Section>
             <Text className="text-[14px] text-black leading-[24px]">
               or copy and paste this URL into your browser:{" "}
-              <Link href={inviteLink} className="text-blue-600 no-underline">
+              <Link className="text-blue-600 no-underline" href={inviteLink}>
                 {inviteLink}
               </Link>
             </Text>

@@ -29,8 +29,8 @@ export function DescriptionField({ control }: DescriptionFieldProps) {
       <Textarea
         id="description"
         {...field}
-        placeholder="A short description of your post"
         className="col-span-3 bg-editor-field"
+        placeholder="A short description of your post"
       />
       {error && (
         <p className="px-1 font-medium text-destructive text-sm">

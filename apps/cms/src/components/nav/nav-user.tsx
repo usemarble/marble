@@ -33,8 +33,8 @@ export function NavUser() {
       <DropdownMenuTrigger className="rounded-full p-1 transition-colors hover:bg-sidebar-accent">
         <Avatar className="size-7 cursor-pointer rounded-full">
           <AvatarImage
-            src={user?.image || undefined}
             alt={user?.name || "users profile image"}
+            src={user?.image || undefined}
           />
           <AvatarFallback className="rounded-lg">
             {user?.name?.charAt(0)}
@@ -42,17 +42,17 @@ export function NavUser() {
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        side={isMobile ? "bottom" : "top"}
         align="start"
-        sideOffset={5}
         className="w-(--radix-dropdown-menu-trigger-width) min-w-52 rounded-lg text-sidebar-foreground"
+        side={isMobile ? "bottom" : "top"}
+        sideOffset={5}
       >
         <DropdownMenuLabel className="p-0 font-normal">
           <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
             <Avatar className="size-7">
               <AvatarImage
-                src={user?.image || undefined}
                 alt={user?.name || "users profile image"}
+                src={user?.image || undefined}
               />
               <AvatarFallback className="rounded-lg">
                 {user?.name?.charAt(0)}
@@ -68,15 +68,15 @@ export function NavUser() {
         <DropdownMenuGroup>
           <DropdownMenuItem>
             <Link
-              href="/settings/account"
               className="flex w-full items-center gap-4"
+              href="/settings/account"
             >
               <UserIcon className="size-4" />
               Account
             </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
-        <DropdownMenuItem variant="destructive" onSelect={signOut}>
+        <DropdownMenuItem onSelect={signOut} variant="destructive">
           <SignOutIcon className="mr-1.5 size-4" />
           Log out
         </DropdownMenuItem>

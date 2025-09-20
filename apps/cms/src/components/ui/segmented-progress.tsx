@@ -35,12 +35,12 @@ export function SegmentedProgress({
       <div className="flex items-end gap-1" style={{ width: `${width}px` }}>
         {Array.from({ length: segments }, (_, index) => (
           <div
-            key={nanoid()}
             className={cn(
               "h-8 rounded-sm transition-colors duration-200",
               index < filledSegments ? filledColor : unfilledColor,
               segmentClassName
             )}
+            key={nanoid()}
             style={{ width: `${segmentWidth}px` }}
           />
         ))}

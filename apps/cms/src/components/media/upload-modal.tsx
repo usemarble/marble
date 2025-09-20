@@ -69,13 +69,13 @@ export function MediaUploadModal({
 
   return (
     <Dialog
-      open={isOpen}
       onOpenChange={(open) => {
         setIsOpen(open);
         if (!open) {
           setFile(undefined);
         }
       }}
+      open={isOpen}
     >
       <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
         <DialogHeader>
@@ -88,37 +88,37 @@ export function MediaUploadModal({
                 {file.type.startsWith("image/") ? (
                   // biome-ignore lint/performance/noImgElement: <>
                   <img
-                    src={URL.createObjectURL(file)}
                     alt="cover preview"
                     className="h-full w-full rounded-md object-contain"
+                    src={URL.createObjectURL(file)}
                   />
                 ) : (
                   // biome-ignore lint/a11y/useMediaCaption: <>
                   <video
-                    src={URL.createObjectURL(file)}
                     className="h-full w-full rounded-md object-contain"
                     controls
+                    src={URL.createObjectURL(file)}
                   />
                 )}
               </div>
               <div className="flex items-center justify-end gap-2">
                 <Button
-                  variant="outline"
-                  onClick={() => setFile(undefined)}
                   disabled={isUploading}
+                  onClick={() => setFile(undefined)}
+                  variant="outline"
                 >
                   Cancel
                 </Button>
-                <AsyncButton onClick={handleUpload} isLoading={isUploading}>
+                <AsyncButton isLoading={isUploading} onClick={handleUpload}>
                   Upload
                 </AsyncButton>
               </div>
             </div>
           ) : (
             <MediaDropzone
-              onFilesAccepted={(files: File[]) => setFile(files[0])}
               className="flex h-64 w-full cursor-pointer items-center justify-center rounded-md border border-dashed bg-background"
               multiple={false}
+              onFilesAccepted={(files: File[]) => setFile(files[0])}
             />
           )}
         </div>

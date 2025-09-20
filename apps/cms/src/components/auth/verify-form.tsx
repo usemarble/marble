@@ -92,26 +92,26 @@ export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
 
         <InputOTP
           maxLength={6}
-          value={otp}
-          pattern={REGEXP_ONLY_DIGITS}
           onChange={(value: string) => setOtp(value)}
+          pattern={REGEXP_ONLY_DIGITS}
+          value={otp}
         >
           <InputOTPGroup className="flex items-center gap-3">
             {Array.from({ length: 6 }).map((_, index) => (
-              <InputOTPSlot key={crypto.randomUUID()} index={index} />
+              <InputOTPSlot index={index} key={crypto.randomUUID()} />
             ))}
           </InputOTPGroup>
         </InputOTP>
 
         <div className="flex w-full flex-col items-center gap-4">
           <AsyncButton
-            onClick={handleVerifyOtp}
-            isLoading={isLoading}
-            disabled={otp.length !== 6}
             className={cn(
               "flex w-full items-center justify-center",
               otp.length !== 6 && "cursor-not-allowed"
             )}
+            disabled={otp.length !== 6}
+            isLoading={isLoading}
+            onClick={handleVerifyOtp}
           >
             Verify email
           </AsyncButton>
@@ -121,14 +121,14 @@ export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
               Didn&apos;t receive the code?
             </p>
             <AsyncButton
-              variant="outline"
-              onClick={handleResendCode}
-              isLoading={isResendLoading}
-              disabled={waitingSeconds > 0}
               className={cn(
                 "text-muted-foreground",
                 isResendLoading || (waitingSeconds > 0 && "cursor-not-allowed")
               )}
+              disabled={waitingSeconds > 0}
+              isLoading={isResendLoading}
+              onClick={handleResendCode}
+              variant="outline"
             >
               {isResendLoading
                 ? "Sending..."

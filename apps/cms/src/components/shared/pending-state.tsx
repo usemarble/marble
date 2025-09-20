@@ -29,10 +29,10 @@ export function PendingState({
           {description}{" "}
           {learnMore && (
             <a
-              href={learnMore}
-              target="_blank"
               className="underline underline-offset-2 hover:text-gray-800"
+              href={learnMore}
               rel="noreferrer"
+              target="_blank"
             >
               Learn more ↗
             </a>

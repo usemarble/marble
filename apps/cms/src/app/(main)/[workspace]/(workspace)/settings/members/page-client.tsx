@@ -49,11 +49,11 @@ function PageClient() {
       <div className="space-y-6">
         <TeamDataTable
           columns={columns}
-          data={data}
+          currentUserId={user.id}
           currentUserRole={
             currentUserRole as "owner" | "admin" | "member" | undefined
           }
-          currentUserId={user.id}
+          data={data}
           setShowInviteModal={setShowInviteModal}
           setShowLeaveWorkspaceModal={setShowLeaveWorkspaceModal}
         />

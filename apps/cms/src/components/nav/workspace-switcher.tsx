@@ -69,18 +69,18 @@ export function WorkspaceSwitcher() {
           {activeWorkspace && !showSkeleton ? (
             <DropdownMenuTrigger asChild>
               <SidebarMenuButton
-                size="lg"
                 className={cn(
                   "border border-transparent transition hover:border-border hover:bg-sidebar-accent hover:shadow-xs data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground",
                   isCollapsed &&
                     "size-10 min-w-0 justify-center rounded-full p-1"
                 )}
                 disabled={isFetchingWorkspace}
+                size="lg"
               >
                 <Avatar className={cn("size-8", isCollapsed && "size-6.5")}>
                   <AvatarImage
-                    src={activeWorkspace.logo || undefined}
                     className="rounded-[4px]"
+                    src={activeWorkspace.logo || undefined}
                   />
                   <AvatarFallback className="border bg-sidebar-accent">
                     {activeWorkspace.name.charAt(0)}
@@ -93,12 +93,12 @@ export function WorkspaceSwitcher() {
                         {activeWorkspace?.name}
                       </span>
                       <Badge
+                        className="px-1.5 py-0 text-[11px] capitalize"
                         variant={
                           activeWorkspace.subscription?.plan === "pro"
                             ? "premium"
                             : "free"
                         }
-                        className="px-1.5 py-0 text-[11px] capitalize"
                       >
                         {activeWorkspace.subscription?.plan || "free"}
                       </Badge>
@@ -133,8 +133,8 @@ export function WorkspaceSwitcher() {
             </div>
           )}
           <DropdownMenuContent
-            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
             align="start"
+            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
             side={isMobile ? "bottom" : "right"}
             sideOffset={4}
           >
@@ -146,10 +146,10 @@ export function WorkspaceSwitcher() {
                 {ownedWorkspaces.map((org) => (
                   <DropdownMenuItem key={org.id}>
                     <button
-                      type="button"
-                      onClick={() => switchWorkspace(org)}
-                      disabled={isFetchingWorkspace}
                       className="relative flex w-full items-center gap-4 disabled:opacity-50"
+                      disabled={isFetchingWorkspace}
+                      onClick={() => switchWorkspace(org)}
+                      type="button"
                     >
                       <Avatar className="size-6 rounded-[0.2rem]">
                         <AvatarImage src={org.logo || undefined} />
@@ -174,10 +174,10 @@ export function WorkspaceSwitcher() {
                 {sharedWorkspaces.map((org) => (
                   <DropdownMenuItem key={org.id}>
                     <button
-                      type="button"
-                      onClick={() => switchWorkspace(org)}
-                      disabled={isFetchingWorkspace}
                       className="relative flex w-full items-center gap-4 disabled:opacity-50"
+                      disabled={isFetchingWorkspace}
+                      onClick={() => switchWorkspace(org)}
+                      type="button"
                     >
                       <Avatar className="size-6 rounded-[0.2rem]">
                         <AvatarImage src={org.logo || undefined} />
@@ -196,8 +196,8 @@ export function WorkspaceSwitcher() {
             <DropdownMenuSeparator />
             <DropdownMenuItem>
               <Link
-                href={`/new?workspaces=${workspaceList && workspaceList.length > 0}`}
                 className="flex w-full items-center gap-2"
+                href={`/new?workspaces=${workspaceList && workspaceList.length > 0}`}
               >
                 <div className="flex size-6 items-center justify-center rounded-md border bg-background">
                   <PlusIcon className="size-4" />

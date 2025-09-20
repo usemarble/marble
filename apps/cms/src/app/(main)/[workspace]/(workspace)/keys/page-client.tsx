@@ -15,7 +15,7 @@ function PageClient() {
           <p className="text-muted-foreground text-sm">
             API keys let you interact with your workspace using our API.
           </p>
-          <Button disabled className="w-fit">
+          <Button className="w-fit" disabled>
             <span>New API Key</span>
           </Button>
         </div>

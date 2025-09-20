@@ -82,7 +82,7 @@ export function DeleteMediaModal({
 
   return (
     <div>
-      <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
+      <AlertDialog onOpenChange={setIsOpen} open={isOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
@@ -98,9 +98,9 @@ export function DeleteMediaModal({
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             {/* <AlertDialogAction asChild> */}
             <AsyncButton
+              isLoading={isPending}
               onClick={handleDelete}
               variant="destructive"
-              isLoading={isPending}
             >
               Delete
             </AsyncButton>

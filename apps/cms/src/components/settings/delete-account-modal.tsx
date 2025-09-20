@@ -61,12 +61,12 @@ export function DeleteAccountModal() {
           <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
           <AlertDialogAction asChild>
             <AsyncButton
-              variant="destructive"
               isLoading={isPending}
               onClick={(e) => {
                 e.preventDefault();
                 deleteAccount();
               }}
+              variant="destructive"
             >
               Delete
             </AsyncButton>

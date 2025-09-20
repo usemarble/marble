@@ -22,7 +22,7 @@ export default function TableActions(props: Category) {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
+          <Button className="h-8 w-8 p-0" variant="ghost">
             <span className="sr-only">Open menu</span>
             <DotsThreeVerticalIcon />
           </Button>
@@ -33,8 +33,8 @@ export default function TableActions(props: Category) {
             <span>Edit</span>
           </DropdownMenuItem>
           <DropdownMenuItem
-            variant="destructive"
             onClick={() => setShowDeleteModal(true)}
+            variant="destructive"
           >
             <TrashIcon className="mr-1.5 size-4" /> <span>Delete</span>
           </DropdownMenuItem>
@@ -42,17 +42,17 @@ export default function TableActions(props: Category) {
       </DropdownMenu>
 
       <CategoryModal
+        categoryData={{ ...props }}
+        mode="update"
         open={showUpdateModal}
         setOpen={setShowUpdateModal}
-        mode="update"
-        categoryData={{ ...props }}
       />
 
       <DeleteCategoryModal
+        id={props.id}
+        name={props.name}
         open={showDeleteModal}
         setOpen={setShowDeleteModal}
-        name={props.name}
-        id={props.id}
       />
     </>
   );

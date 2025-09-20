@@ -37,11 +37,11 @@ export function PublishDateField({ control }: PublishDateFieldProps) {
       <Popover>
         <PopoverTrigger asChild>
           <Button
-            variant="outline"
             className={cn(
               "justify-between bg-editor-field text-left font-normal shadow-none",
               !value && "text-muted-foreground"
             )}
+            variant="outline"
           >
             {value ? format(value, "PPP") : <span>Pick a date</span>}
             <CalendarDotsIcon className="text-muted-foreground" />
@@ -49,15 +49,15 @@ export function PublishDateField({ control }: PublishDateFieldProps) {
         </PopoverTrigger>
         <PopoverContent className="w-auto overflow-hidden p-0">
           <Calendar
-            mode="single"
-            selected={value}
+            autoFocus
             captionLayout="dropdown"
+            mode="single"
             onSelect={(date: Date | undefined) => {
               if (date) {
                 onChange(date);
               }
             }}
-            autoFocus
+            selected={value}
           />
         </PopoverContent>
       </Popover>
