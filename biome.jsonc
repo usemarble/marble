@@ -16,8 +16,13 @@
         "noUnknownAtRules": "off"
       },
       "style": {
+        /* Needs more work to fix */
         "noMagicNumbers": "off",
+
+        /* Needs more work to fix */
         "noNestedTernary": "off",
+
+        /* Doesn't work with Astro */
         "useFilenamingConvention": "off"
       },
       "complexity": {
