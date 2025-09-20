@@ -1,7 +1,17 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  reactStrictMode: true,
   transpilePackages: ["@marble/db", "@marble/ui"],
+  async redirects() {
+    return [
+      {
+        source: "/settings/",
+        destination: "/settings/general",
+        permanent: true,
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       {
