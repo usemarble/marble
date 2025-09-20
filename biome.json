@@ -8,7 +8,6 @@
     "rules": {
       "suspicious": {
         "noConsole": "off",
-        "noQuickfixBiome": "off",
         "useAwait": "off",
         "noEvolvingTypes": "off",
         "noExplicitAny": "off",
