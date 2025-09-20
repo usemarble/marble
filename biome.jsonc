@@ -20,8 +20,7 @@
         "noMagicNumbers": "off",
         "useConsistentObjectDefinitions": "off",
         "noNestedTernary": "off",
-        "useFilenamingConvention": "off",
-        "noNegationElse": "off"
+        "useFilenamingConvention": "off"
       },
       "complexity": {
         "useSimplifiedLogicExpression": "off",
