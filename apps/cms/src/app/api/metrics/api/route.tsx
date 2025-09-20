@@ -41,7 +41,7 @@ export async function GET() {
           ? 100
           : 0;
 
-    const last12MonthsData = [];
+    const last12MonthsData: { month: string; requests: number }[] = [];
     for (let i = 11; i >= 0; i--) {
       const date = new Date(
         currentDate.getFullYear(),

@@ -9,7 +9,6 @@
       "suspicious": {
         "noConsole": "off",
         "useAwait": "off",
-        "noEvolvingTypes": "off",
 
         /* Allowed for Tailwind */
         "noUnknownAtRules": "off"

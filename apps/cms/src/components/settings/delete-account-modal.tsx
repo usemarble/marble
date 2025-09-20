@@ -20,7 +20,7 @@ export function DeleteAccountModal() {
   const router = useRouter();
   const { signOut } = useUser();
 
-  const accountId = null;
+  const accountId: string | null = null;
 
   const { mutate: deleteAccount, isPending } = useMutation({
     mutationFn: () => {

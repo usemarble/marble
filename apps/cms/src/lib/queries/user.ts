@@ -27,25 +27,23 @@ export async function getInitialUserData() {
       return { user: null, isAuthenticated: true };
     }
 
-    let member = null;
-
-    if (activeOrganizationId) {
-      member = await db.member.findFirst({
-        where: {
-          organizationId: activeOrganizationId,
-          userId: user.id,
-        },
-        include: {
-          organization: {
-            select: {
-              id: true,
-              name: true,
-              slug: true,
+    const member = activeOrganizationId
+      ? await db.member.findFirst({
+          where: {
+            organizationId: activeOrganizationId,
+            userId: user.id,
+          },
+          include: {
+            organization: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+              },
             },
           },
-        },
-      });
-    }
+        })
+      : null;
 
     const userWithRole = {
       ...user,
