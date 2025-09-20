@@ -22,7 +22,10 @@
         "useFilenamingConvention": "off"
       },
       "complexity": {
+        /* Has false positives */
         "useSimplifiedLogicExpression": "off",
+
+        /* Needs more work to fix */
         "noExcessiveCognitiveComplexity": "off"
       },
       "nursery": {
