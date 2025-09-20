@@ -41,6 +41,7 @@
         "noNoninteractiveElementInteractions": "off"
       },
       "correctness": {
+        /* Doesn't work with Astro */
         "noUnusedImports": "off",
 
         /* Needs more work to fix */
