@@ -64,7 +64,9 @@ export function Slug() {
       });
     },
     onSuccess: (data, variables) => {
-      if (!data) return;
+      if (!data) {
+        return;
+      }
 
       toast.success("Workspace slug updated");
       slugForm.reset({ slug: data.data?.slug });
@@ -87,7 +89,9 @@ export function Slug() {
   });
 
   const onSlugSubmit = (payload: SlugValues) => {
-    if (!isOwner || !activeWorkspace?.id) return;
+    if (!isOwner || !activeWorkspace?.id) {
+      return;
+    }
     const cleanSlug = generateSlug(payload.slug);
     updateSlug({
       organizationId: activeWorkspace.id,

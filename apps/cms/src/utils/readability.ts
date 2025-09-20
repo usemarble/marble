@@ -3,7 +3,9 @@ import wordCount from "word-count";
 
 export function calculateReadabilityScore(html: string): number {
   const text = striptags(html);
-  if (!text || text.trim().length === 0) return 0;
+  if (!text || text.trim().length === 0) {
+    return 0;
+  }
 
   const wordCountResult = wordCount(text);
   const sentences = text
@@ -16,7 +18,9 @@ export function calculateReadabilityScore(html: string): number {
     .filter((word) => word.length > 0);
   const syllables = words.reduce((acc, word) => acc + countSyllables(word), 0);
 
-  if (sentences.length === 0 || wordCountResult === 0) return 0;
+  if (sentences.length === 0 || wordCountResult === 0) {
+    return 0;
+  }
 
   const avgSentenceLength = wordCountResult / sentences.length;
   const avgSyllablesPerWord = syllables / wordCountResult;
@@ -29,7 +33,9 @@ export function calculateReadabilityScore(html: string): number {
 
 function countSyllables(word: string): number {
   const lowerCaseWord = word.toLowerCase();
-  if (lowerCaseWord.length <= 3) return 1;
+  if (lowerCaseWord.length <= 3) {
+    return 1;
+  }
 
   const lowerCaseWordWithoutEs = lowerCaseWord.replace(
     /(?:[^laeiouy]es|ed|[^laeiouy]e)$/,
@@ -45,36 +51,42 @@ export function getReadabilityLevel(score: number): {
   level: string;
   description: string;
 } {
-  if (score >= 90)
+  if (score >= 90) {
     return {
       level: "Very Easy",
       description: "Easily understood by an average 11-year-old student",
     };
-  if (score >= 80)
+  }
+  if (score >= 80) {
     return {
       level: "Easy",
       description: "Conversational English for consumers",
     };
-  if (score >= 70)
+  }
+  if (score >= 70) {
     return {
       level: "Fairly Easy",
       description: "Easily understood by 13- to 15-year-old students",
     };
-  if (score >= 60)
+  }
+  if (score >= 60) {
     return {
       level: "Standard",
       description: "Easily understood by 15- to 17-year-old students",
     };
-  if (score >= 50)
+  }
+  if (score >= 50) {
     return {
       level: "Fairly Difficult",
       description: "Understood by 13- to 15-year-old students",
     };
-  if (score >= 30)
+  }
+  if (score >= 30) {
     return {
       level: "Difficult",
       description: "Best understood by university graduates",
     };
+  }
   return {
     level: "Very Difficult",
     description: "Best understood by university graduates",

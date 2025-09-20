@@ -31,7 +31,9 @@ export function LastUsedBadge({
   text,
   ...props
 }: LastUsedBadgeProps) {
-  if (!show) return null;
+  if (!show) {
+    return null;
+  }
 
   return (
     <Badge

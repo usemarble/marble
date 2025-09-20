@@ -11,12 +11,13 @@
         "useAwait": "off",
         "noEvolvingTypes": "off",
         "noExplicitAny": "off",
+
+        /* Allowed for Tailwind */
         "noUnknownAtRules": "off"
       },
       "style": {
         "noExportedImports": "off",
         "noMagicNumbers": "off",
-        "useBlockStatements": "off",
         "useConsistentObjectDefinitions": "off",
         "noNestedTernary": "off",
         "useFilenamingConvention": "off",

@@ -26,7 +26,9 @@ export type SelectorItem = {
 
 export const TextButtons = () => {
   const { editor } = useEditor();
-  if (!editor) return null;
+  if (!editor) {
+    return null;
+  }
 
   const items: SelectorItem[] = [
     {

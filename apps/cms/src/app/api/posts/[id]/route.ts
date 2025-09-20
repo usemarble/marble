@@ -71,8 +71,9 @@ export async function PATCH(
   const workspaceId = sessionData?.session.activeOrganizationId;
   const { id } = await params;
 
-  if (!sessionData || !workspaceId)
+  if (!sessionData || !workspaceId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const body = await request.json();
 

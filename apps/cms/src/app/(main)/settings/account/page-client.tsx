@@ -95,12 +95,16 @@ function PageClient() {
   }, [watch, user?.name]);
 
   const onSubmit = (data: ProfileData) => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      return;
+    }
     handleUpdateUser({ name: data.name });
   };
 
   const handleAvatarUpload = useCallback(() => {
-    if (!file) return;
+    if (!file) {
+      return;
+    }
     uploadAvatar(file);
   }, [file, uploadAvatar]);
 

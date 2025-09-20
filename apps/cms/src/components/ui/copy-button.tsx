@@ -32,7 +32,9 @@ export function CopyButton({
       {...props}
       onClick={() => {
         startTransition(async () => {
-          if (!textToCopy) return;
+          if (!textToCopy) {
+            return;
+          }
           await navigator.clipboard.writeText(textToCopy);
           if (toastMessage) {
             toast.success(toastMessage);

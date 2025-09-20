@@ -69,7 +69,9 @@ export function Name() {
 
   const onNameSubmit = (data: NameValues) => {
     // need to work on proper permissons later
-    if (!isOwner || !activeWorkspace?.id) return;
+    if (!isOwner || !activeWorkspace?.id) {
+      return;
+    }
     updateName({
       organizationId: activeWorkspace.id,
       data: { name: data.name.trim() },

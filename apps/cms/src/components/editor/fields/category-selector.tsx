@@ -57,7 +57,9 @@ export function CategorySelector({ control }: CategorySelectorProps) {
   });
 
   const handleCategoryCreated = (newCategory: CategoryResponse) => {
-    if (!workspaceId) return;
+    if (!workspaceId) {
+      return;
+    }
 
     queryClient.setQueryData(
       QUERY_KEYS.CATEGORIES(workspaceId),

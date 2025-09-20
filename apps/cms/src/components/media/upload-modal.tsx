@@ -72,7 +72,9 @@ export function MediaUploadModal({
       open={isOpen}
       onOpenChange={(open) => {
         setIsOpen(open);
-        if (!open) setFile(undefined);
+        if (!open) {
+          setFile(undefined);
+        }
       }}
     >
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">

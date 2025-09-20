@@ -58,11 +58,17 @@ export const PLAN_LIMITS: Record<PlanType, PlanLimits> = {
 export function getWorkspacePlan(
   subscription?: { plan: string } | null
 ): PlanType {
-  if (!subscription?.plan) return "free";
+  if (!subscription?.plan) {
+    return "free";
+  }
 
   const plan = subscription.plan.toLowerCase();
-  if (plan === "pro") return "pro";
-  if (plan === "team") return "team";
+  if (plan === "pro") {
+    return "pro";
+  }
+  if (plan === "team") {
+    return "team";
+  }
 
   return "free";
 }

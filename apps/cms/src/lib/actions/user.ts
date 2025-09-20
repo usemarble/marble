@@ -8,7 +8,9 @@ import { isAllowedAvatarUrl } from "@/lib/constants";
 import { R2_BUCKET_NAME, R2_PUBLIC_URL, r2 } from "@/lib/r2";
 
 export async function storeUserImageAction(user: User) {
-  if (!user.image) return;
+  if (!user.image) {
+    return;
+  }
 
   try {
     // Validate the URL is from an allowed provider with HTTPS

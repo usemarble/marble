@@ -96,7 +96,9 @@ export const TagSelector = ({
   }, [tags, value]);
 
   const addTag = (tagToAdd: string) => {
-    if (value?.includes(tagToAdd)) return;
+    if (value?.includes(tagToAdd)) {
+      return;
+    }
     const newValue = [...(value || []), tagToAdd];
     onChange(newValue);
   };
@@ -107,7 +109,9 @@ export const TagSelector = ({
   };
 
   const handleTagCreated = async (newTag: Option) => {
-    if (!workspaceId) return;
+    if (!workspaceId) {
+      return;
+    }
 
     // Optimistically update React Query cache
     queryClient.setQueryData(

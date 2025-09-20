@@ -22,7 +22,9 @@ export function isValidUrl(url: string) {
 }
 
 export function getUrlFromString(str: string) {
-  if (isValidUrl(str)) return str;
+  if (isValidUrl(str)) {
+    return str;
+  }
   try {
     if (str.includes(".") && !str.includes(" ")) {
       return new URL(`https://${str}`).toString();
@@ -46,7 +48,9 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
-  if (!editor) return null;
+  if (!editor) {
+    return null;
+  }
 
   return (
     <Popover modal={true} open={open} onOpenChange={onOpenChange}>

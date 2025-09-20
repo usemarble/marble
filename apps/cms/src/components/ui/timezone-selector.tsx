@@ -115,7 +115,9 @@ export function TimezoneSelector({
 
   const filteredOptions = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return timezoneOptions;
+    if (!q) {
+      return timezoneOptions;
+    }
     return timezoneOptions.filter((opt) =>
       `${opt.label} ${opt.value} ${opt.countryName}`.toLowerCase().includes(q)
     );
@@ -129,7 +131,9 @@ export function TimezoneSelector({
 
   // Triggers a re-render when the popover opens, this ensures that the virtualizer has a valid ref to the scroll element
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {
+      return;
+    }
     const id = requestAnimationFrame(() => virtual.measure());
     return () => cancelAnimationFrame(id);
   }, [isOpen, virtual]);

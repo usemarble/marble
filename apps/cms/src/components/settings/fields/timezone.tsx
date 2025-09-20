@@ -73,7 +73,9 @@ export function Timezone() {
   });
 
   const onTimezoneSubmit = async (data: TimezoneValues) => {
-    if (!isOwner || !activeWorkspace?.id) return;
+    if (!isOwner || !activeWorkspace?.id) {
+      return;
+    }
     updateTimezone({
       organizationId: activeWorkspace.id,
       data,

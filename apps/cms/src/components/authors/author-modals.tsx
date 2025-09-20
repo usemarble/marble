@@ -181,7 +181,9 @@ export const AuthorModal = ({
   }, [authorData.image]);
 
   const handleAvatarUpload = useCallback(() => {
-    if (!file) return;
+    if (!file) {
+      return;
+    }
     uploadAvatar(file);
   }, [file, uploadAvatar]);
 

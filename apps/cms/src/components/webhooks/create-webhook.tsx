@@ -76,7 +76,9 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
   const router = useRouter();
 
   const isDiscordUrl = useCallback((url: string): boolean => {
-    if (!url) return false;
+    if (!url) {
+      return false;
+    }
     try {
       const urlObj = new URL(url);
       return VALID_DISCORD_DOMAINS.some((domain) => urlObj.hostname === domain);
@@ -86,7 +88,9 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
   }, []);
 
   const isSlackUrl = useCallback((url: string): boolean => {
-    if (!url) return false;
+    if (!url) {
+      return false;
+    }
     try {
       const urlObj = new URL(url);
       return VALID_SLACK_DOMAINS.some((domain) => urlObj.hostname === domain);
@@ -99,8 +103,11 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
     const endpoint = debouncedEndpoint?.trim();
     let nextFormat: PayloadFormat = "json";
     if (endpoint) {
-      if (isDiscordUrl(endpoint)) nextFormat = "discord";
-      else if (isSlackUrl(endpoint)) nextFormat = "slack";
+      if (isDiscordUrl(endpoint)) {
+        nextFormat = "discord";
+      } else if (isSlackUrl(endpoint)) {
+        nextFormat = "slack";
+      }
     }
     if (watch("format") !== nextFormat) {
       setValue("format", nextFormat);

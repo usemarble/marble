@@ -94,14 +94,18 @@ export function AuthorSelector({
 
   // Memoize the primary author to avoid recalculation
   const derivedPrimaryAuthor = useMemo(() => {
-    if (!user || authors.length === 0) return undefined;
+    if (!user || authors.length === 0) {
+      return undefined;
+    }
     return authors.find((author) => author.userId === user.id) || authors[0];
   }, [user, authors]);
 
   // Handle selected authors based on form value
   // This is just to show the selected users in the UI
   useEffect(() => {
-    if (isLoading || authors.length === 0) return;
+    if (isLoading || authors.length === 0) {
+      return;
+    }
 
     if (value.length > 0) {
       const authorsThatWerePreviouslySelected = authors.filter((opt) =>

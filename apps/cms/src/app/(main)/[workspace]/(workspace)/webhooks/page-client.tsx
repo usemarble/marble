@@ -57,7 +57,9 @@ export function PageClient() {
         body: JSON.stringify({ enabled }),
       }),
     onMutate: async (newWebhookData) => {
-      if (!workspaceId) return;
+      if (!workspaceId) {
+        return;
+      }
 
       await queryClient.cancelQueries({
         queryKey: QUERY_KEYS.WEBHOOKS(workspaceId),

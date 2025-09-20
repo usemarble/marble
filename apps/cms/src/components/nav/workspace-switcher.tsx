@@ -49,7 +49,9 @@ export function WorkspaceSwitcher() {
     ) || [];
 
   async function switchWorkspace(org: Workspace) {
-    if (org.slug === activeWorkspace?.slug) return;
+    if (org.slug === activeWorkspace?.slug) {
+      return;
+    }
 
     try {
       await updateActiveWorkspace(org);

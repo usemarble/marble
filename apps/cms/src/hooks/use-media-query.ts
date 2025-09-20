@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 
 function getDevice(): "mobile" | "tablet" | "desktop" | null {
-  if (typeof window === "undefined") return null;
+  if (typeof window === "undefined") {
+    return null;
+  }
 
   return window.matchMedia("(min-width: 1024px)").matches
     ? "desktop"
@@ -11,7 +13,9 @@ function getDevice(): "mobile" | "tablet" | "desktop" | null {
 }
 
 function getDimensions() {
-  if (typeof window === "undefined") return null;
+  if (typeof window === "undefined") {
+    return null;
+  }
 
   return { width: window.innerWidth, height: window.innerHeight };
 }

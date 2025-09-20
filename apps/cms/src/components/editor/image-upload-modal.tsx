@@ -68,7 +68,9 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
   });
 
   const handleEmbed = async (url: string) => {
-    if (!url || !editorInstance.editor) return;
+    if (!url || !editorInstance.editor) {
+      return;
+    }
 
     try {
       setIsValidatingUrl(true);

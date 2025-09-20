@@ -70,7 +70,9 @@ export function Logo() {
     },
     onSuccess: (data) => {
       const { logoUrl } = data;
-      if (!logoUrl || !activeWorkspace?.id) return;
+      if (!logoUrl || !activeWorkspace?.id) {
+        return;
+      }
 
       setLogoUrl(logoUrl);
       toast.success("Upload complete");

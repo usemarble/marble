@@ -28,7 +28,9 @@ function PageClient() {
 
   const formatDate = useCallback(
     async (dateValue: string | Date | null | undefined) => {
-      if (!dateValue) return null;
+      if (!dateValue) {
+        return null;
+      }
 
       // Dynamically import date-fns only when formatting is needed
       const { format, isValid, parseISO } = await import("date-fns");
@@ -40,7 +42,9 @@ function PageClient() {
         date = dateValue;
       }
 
-      if (!isValid(date)) return null;
+      if (!isValid(date)) {
+        return null;
+      }
 
       return format(date, "MMM d, yyyy");
     },
@@ -59,7 +63,9 @@ function PageClient() {
   };
 
   const formatApiRequestLimit = (limit: number) => {
-    if (limit === -1) return "Unlimited";
+    if (limit === -1) {
+      return "Unlimited";
+    }
     return limit.toLocaleString();
   };
 

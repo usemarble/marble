@@ -97,7 +97,9 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
   });
 
   const handleEmbed = async (url: string) => {
-    if (!url) return;
+    if (!url) {
+      return;
+    }
 
     setIsValidatingUrl(true);
     setUrlError(null);
