@@ -10,7 +10,6 @@
         "noConsole": "off",
         "useAwait": "off",
         "noEvolvingTypes": "off",
-        "noExplicitAny": "off",
 
         /* Allowed for Tailwind */
         "noUnknownAtRules": "off"

@@ -4,6 +4,7 @@ import Neon from "@/components/icons/sponsors/Neon.astro";
 import Upstash from "@/components/icons/sponsors/Upstash.astro";
 import Layout from "@/layouts/Layout.astro";
 import { SITE } from "@/lib/constants";
+import type { FC } from "react";
 
 const sponsorsData = [
   {
@@ -20,7 +21,7 @@ const sponsorsData = [
   },
 ];
 
-const iconComponents: Record<string, any> = {
+const iconComponents: Record<string, FC> = {
   Upstash,
   Neon,
 };
