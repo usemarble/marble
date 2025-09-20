@@ -42,6 +42,8 @@
       },
       "correctness": {
         "noUnusedImports": "off",
+
+        /* Needs more work to fix */
         "noUnusedVariables": "off",
         "noUnusedFunctionParameters": "off"
       }
