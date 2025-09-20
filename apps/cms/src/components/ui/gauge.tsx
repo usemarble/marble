@@ -3,7 +3,7 @@
 import { cn } from "@marble/ui/lib/utils";
 import { motion } from "motion/react";
 import { nanoid } from "nanoid";
-import * as React from "react";
+import { useId } from "react";
 
 type GaugeProps = {
   value: number;
@@ -63,7 +63,7 @@ export function Gauge({
   };
 
   const fullArcPath = createArcPath(startAngle, endAngle, radius);
-  const gradientId = React.useId();
+  const gradientId = useId();
   const circumference = Math.PI * radius;
 
   return (

@@ -4,7 +4,7 @@
 import { Button, buttonVariants } from "@marble/ui/components/button";
 import { cn } from "@marble/ui/lib/utils";
 import type { VariantProps } from "class-variance-authority";
-import * as React from "react";
+import { type ComponentProps, forwardRef, type ReactNode } from "react";
 
 // Spinner component with proper variant-based styling
 function LoadingSpinner({
@@ -44,7 +44,7 @@ function LoadingSpinner({
   );
 }
 
-interface AsyncButtonProps extends React.ComponentProps<typeof Button> {
+interface AsyncButtonProps extends ComponentProps<typeof Button> {
   /**
    * Whether the button is in a loading state
    */
@@ -52,7 +52,7 @@ interface AsyncButtonProps extends React.ComponentProps<typeof Button> {
   /**
    * Text to display when not loading
    */
-  children: React.ReactNode;
+  children: ReactNode;
   /**
    * Optional loading text to display when loading (takes priority over children)
    */
@@ -66,7 +66,7 @@ interface AsyncButtonProps extends React.ComponentProps<typeof Button> {
   keepTextWhileLoading?: boolean;
 }
 
-const AsyncButton = React.forwardRef<HTMLButtonElement, AsyncButtonProps>(
+const AsyncButton = forwardRef<HTMLButtonElement, AsyncButtonProps>(
   (
     {
       children,
