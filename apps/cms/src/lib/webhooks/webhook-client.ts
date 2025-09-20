@@ -80,7 +80,7 @@ export type WebhookBody = {
 };
 
 export class WebhookClient {
-  private secret: string;
+  private readonly secret: string;
 
   constructor({ secret }: { secret: string }) {
     this.secret = secret;

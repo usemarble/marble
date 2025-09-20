@@ -21,8 +21,7 @@
         "useConsistentObjectDefinitions": "off",
         "noNestedTernary": "off",
         "useFilenamingConvention": "off",
-        "noNegationElse": "off",
-        "useReadonlyClassProperties": "off"
+        "noNegationElse": "off"
       },
       "complexity": {
         "useSimplifiedLogicExpression": "off",
