@@ -41,7 +41,6 @@
         "noNoninteractiveElementInteractions": "off"
       },
       "correctness": {
-        "useUniqueElementIds": "off",
         "noUnusedImports": "off",
         "noUnusedVariables": "off",
         "noUnusedFunctionParameters": "off"
