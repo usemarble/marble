@@ -20,5 +20,8 @@
   "editor.formatOnPaste": true,
   "search.exclude": {
     "**/node_modules": true
+  },
+  "[prisma]": {
+    "editor.defaultFormatter": "Prisma.prisma"
   }
 }

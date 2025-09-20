@@ -1,7 +1,11 @@
 import { Ratelimit } from "@upstash/ratelimit";
 import { redis } from "./redis";
 
-export const rateLimitHeaders = (limit: number, remaining: number, reset: number): Headers => {
+export const rateLimitHeaders = (
+  limit: number,
+  remaining: number,
+  reset: number,
+): Headers => {
   return new Headers({
     "X-RateLimit-Limit": limit.toString(),
     "X-RateLimit-Remaining": remaining.toString(),
@@ -15,5 +19,3 @@ export const aiSuggestionsRateLimiter = new Ratelimit({
   ephemeralCache: new Map(),
   prefix: "ai-suggestions-rate-limit",
 });
-
-

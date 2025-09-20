@@ -71,10 +71,10 @@ const settingsItems = [
     title: "Billing",
     url: "settings/billing",
   },
-  // {
-  //   title: "Schemas",
-  //   url: "settings/schemas",
-  // },
+  {
+    title: "AI",
+    url: "settings/ai",
+  },
 ];
 
 export function NavMain() {

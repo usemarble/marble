@@ -17,7 +17,7 @@ export default function PageClient() {
     if (hour < 17) return "Good afternoon";
     return "Good evening";
   };
-  
+
   return (
     <WorkspacePageWrapper className="flex flex-col pt-10 pb-16 gap-8">
       <div className="flex flex-col gap-2">

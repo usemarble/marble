@@ -4,6 +4,7 @@ export interface Workspace {
   slug: string;
   logo: string | null;
   timezone: string | null;
+  aiEnabled?: boolean;
   createdAt: Date | string;
   currentUserRole: string | null;
   members: Array<{

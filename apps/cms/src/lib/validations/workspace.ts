@@ -96,3 +96,9 @@ export const authorSchema = z.object({
     }),
 });
 export type CreateAuthorValues = z.infer<typeof authorSchema>;
+
+// AI Integration Enable Schema
+export const aiEnableSchema = z.object({
+  aiEnabled: z.boolean(),
+});
+export type AiEnableValues = z.infer<typeof aiEnableSchema>;

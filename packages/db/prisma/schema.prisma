@@ -4,8 +4,8 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Subscription {
@@ -26,10 +26,9 @@ model Subscription {
   user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   workspace          Organization       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
-  @@map("subscription")
-  
   @@index([userId])
   @@index([status])
+  @@map("subscription")
 }
 
 model Organization {
@@ -52,44 +51,50 @@ model Organization {
   subscription Subscription?
   tags         Tag[]
   webhooks     Webhook[]
+  ai           Ai?
 
   @@map("workspace")
 }
 
+model Ai {
+  id          String       @id @default(cuid())
+  enabled     Boolean      @default(false)
+  workspaceId String       @unique
+  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
 model Post {
-  id              String       @id @default(cuid())
-  title           String
-  content         String
-  coverImage      String?
-  contentJson     Json
-  description     String
-  views           Int          @default(0)
-  workspaceId     String
-  slug            String
-  categoryId      String
-  status          PostStatus   @default(draft)
-  featured        Boolean      @default(false)
-  updatedAt       DateTime     @updatedAt
-  createdAt       DateTime     @default(now())
-  publishedAt     DateTime     
-  attribution     Json?
-  
+  id          String     @id @default(cuid())
+  title       String
+  content     String
+  coverImage  String?
+  contentJson Json
+  description String
+  views       Int        @default(0)
+  workspaceId String
+  slug        String
+  categoryId  String
+  status      PostStatus @default(draft)
+  featured    Boolean    @default(false)
+  updatedAt   DateTime   @updatedAt
+  createdAt   DateTime   @default(now())
+  publishedAt DateTime
+  attribution Json?
+
   primaryAuthorId String?
-  primaryAuthor   Author?    @relation("PrimaryAuthor", fields: [primaryAuthorId], references: [id], onDelete: SetNull)
-  authors         Author[]   @relation("PostToAuthor")
-  
-  category        Category     @relation(fields: [categoryId], references: [id])
-  workspace       Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  tags            Tag[]        @relation("PostToTag")
+  primaryAuthor   Author?  @relation("PrimaryAuthor", fields: [primaryAuthorId], references: [id], onDelete: SetNull)
+  authors         Author[] @relation("PostToAuthor")
+
+  category  Category     @relation(fields: [categoryId], references: [id])
+  workspace Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  tags      Tag[]        @relation("PostToTag")
 
   @@unique([workspaceId, slug])
-  @@map("post")
-
   @@index([workspaceId, status])
   @@index([workspaceId, createdAt])
   @@index([workspaceId, status, publishedAt])
   @@index([categoryId])
-
+  @@map("post")
 }
 
 model Tag {
@@ -104,9 +109,8 @@ model Tag {
   posts       Post[]       @relation("PostToTag")
 
   @@unique([workspaceId, slug])
-  @@map("tag")
-
   @@index([workspaceId])
+  @@map("tag")
 }
 
 model Media {
@@ -120,10 +124,9 @@ model Media {
   type        MediaType    @default(image)
   workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
-  @@map("media")
-
   @@index([workspaceId, createdAt])
   @@index([workspaceId, type])
+  @@map("media")
 }
 
 model Category {
@@ -138,9 +141,8 @@ model Category {
   posts       Post[]
 
   @@unique([workspaceId, slug])
-  @@map("category")
-
   @@index([workspaceId])
+  @@map("category")
 }
 
 model Webhook {
@@ -156,56 +158,54 @@ model Webhook {
   format      PayloadFormat  @default(json)
   workspace   Organization   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
-  @@map("webhook")
-
   @@index([workspaceId])
   @@index([workspaceId, enabled])
+  @@map("webhook")
 }
 
 model User {
-  id              String         @id @default(cuid())
-  name            String
-  email           String         @unique
-  emailVerified   Boolean
-  image           String?
-  createdAt       DateTime
-  updatedAt       DateTime
-  accounts        Account[]
-  authors         Author[]
-  invitations     Invitation[]
-  members         Member[]
-  sessions        Session[]
-  subscriptions   Subscription[]
+  id            String         @id @default(cuid())
+  name          String
+  email         String         @unique
+  emailVerified Boolean
+  image         String?
+  createdAt     DateTime
+  updatedAt     DateTime
+  accounts      Account[]
+  authors       Author[]
+  invitations   Invitation[]
+  members       Member[]
+  sessions      Session[]
+  subscriptions Subscription[]
 
   @@map("user")
 }
 
 model Author {
-  id          String       @id @default(cuid())
+  id          String   @id @default(cuid())
   name        String
   email       String?
   bio         String?
   image       String?
-  role        String?      
+  role        String?
   slug        String
-  socials     Json?        
+  socials     Json?
   workspaceId String
-  userId      String?      
-  isActive    Boolean      @default(true)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  
-  workspace           Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  user                User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
-  primaryPosts        Post[]       @relation("PrimaryAuthor")
-  coAuthoredPosts     Post[]       @relation("PostToAuthor")
+  userId      String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace       Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user            User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  primaryPosts    Post[]       @relation("PrimaryAuthor")
+  coAuthoredPosts Post[]       @relation("PostToAuthor")
 
   @@unique([workspaceId, userId])
   @@unique([workspaceId, slug])
-  @@map("author")
-
   @@index([workspaceId, isActive])
   @@index([userId])
+  @@map("author")
 }
 
 model Session {
@@ -220,10 +220,9 @@ model Session {
   activeOrganizationId String?
   user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("session")
-
   @@index([userId])
   @@index([activeOrganizationId])
+  @@map("session")
 }
 
 model Account {
@@ -242,10 +241,9 @@ model Account {
   updatedAt             DateTime
   user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("account")
-
   @@index([userId])
   @@index([providerId, accountId])
+  @@map("account")
 }
 
 model Verification {
@@ -268,11 +266,10 @@ model Member {
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("member")
-
   @@index([userId])
   @@index([organizationId])
   @@index([organizationId, userId])
+  @@map("member")
 }
 
 model Invitation {
@@ -286,11 +283,10 @@ model Invitation {
   user           User         @relation(fields: [inviterId], references: [id], onDelete: Cascade)
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
-  @@map("invitation")
-
   @@index([organizationId])
   @@index([email])
   @@index([inviterId])
+  @@map("invitation")
 }
 
 enum PostStatus {
