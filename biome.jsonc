@@ -22,7 +22,6 @@
         "noNestedTernary": "off",
         "useFilenamingConvention": "off",
         "noNegationElse": "off",
-        "useNumericSeparators": "off",
         "useReadonlyClassProperties": "off"
       },
       "complexity": {

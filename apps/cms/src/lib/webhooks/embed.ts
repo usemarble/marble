@@ -2,7 +2,7 @@ import { EmbedBuilder } from "@discordjs/builders";
 import type { RESTPostAPIWebhookWithTokenJSONBody } from "discord-api-types/v10";
 import type { WebhookBody } from "./webhook-client";
 
-const MARBLE_COLOR = 5786879;
+const MARBLE_COLOR = 5_786_879;
 const MARBLE_AVATAR_URL = "https://app.marblecms.com/logo.png";
 
 function formatEvent(input: string): string {

@@ -5,7 +5,7 @@ const lastVisitedWorkspace = "last-visited-workspace";
 
 export const setLastVisitedWorkspace = (
   workspace: string,
-  maxAge: number = 30 * 86400
+  maxAge: number = 30 * 86_400
 ) => {
   // biome-ignore lint/suspicious/noDocumentCookie: <>
   document.cookie = `${lastVisitedWorkspace}=${workspace}; max-age=${maxAge}; path=/`;
