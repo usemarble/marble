@@ -56,7 +56,7 @@ export function LoginForm() {
               toast.error("Please verify your email address");
             }
           },
-        },
+        }
       );
     } catch (_error) {
       return toast("Login failed. Please try again.");
@@ -90,7 +90,7 @@ export function LoginForm() {
           type="button"
           className={cn(
             buttonVariants({ variant: "outline", size: "lg" }),
-            "relative",
+            "relative"
           )}
           onClick={async () => handleSocialSignIn("google")}
           disabled={isCredentialsLoading || isGoogleLoading || isGithubLoading}
@@ -110,7 +110,7 @@ export function LoginForm() {
           type="button"
           className={cn(
             buttonVariants({ variant: "outline", size: "lg" }),
-            "relative",
+            "relative"
           )}
           onClick={async () => handleSocialSignIn("github")}
           disabled={isCredentialsLoading || isGoogleLoading || isGithubLoading}

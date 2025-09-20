@@ -25,7 +25,7 @@ authors.get("/", async (c) => {
           message: err.message,
         })),
       },
-      400,
+      400
     );
   }
 
@@ -69,7 +69,7 @@ authors.get("/", async (c) => {
             requestedPage: page,
           },
         },
-        400,
+        400
       );
     }
 

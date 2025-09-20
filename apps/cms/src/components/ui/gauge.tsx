@@ -47,7 +47,7 @@ export function Gauge({
   const createArcPath = (
     startAngle: number,
     endAngle: number,
-    radius: number,
+    radius: number
   ) => {
     const start = {
       x: center + radius * Math.cos(startAngle),

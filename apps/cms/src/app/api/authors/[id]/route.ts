@@ -5,7 +5,7 @@ import { authorSchema } from "@/lib/validations/workspace";
 
 export async function DELETE(
   _request: Request,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const sessionData = await getServerSession();
 
@@ -18,7 +18,7 @@ export async function DELETE(
   if (!id) {
     return NextResponse.json(
       { error: "Author ID is required" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -46,14 +46,14 @@ export async function DELETE(
     console.error("Failed to delete author:", error);
     return NextResponse.json(
       { error: "Failed to delete author" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
 
 export async function PATCH(
   request: Request,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const sessionData = await getServerSession();
   const workspaceId = sessionData?.session.activeOrganizationId;
@@ -70,7 +70,7 @@ export async function PATCH(
     if (!parsedBody.success) {
       return NextResponse.json(
         { error: "Invalid request body", details: parsedBody.error.issues },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -111,7 +111,7 @@ export async function PATCH(
     console.error("Failed to update author:", error);
     return NextResponse.json(
       { error: "Failed to update author" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

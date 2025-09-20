@@ -64,7 +64,7 @@ export function Dropzone({
           isDragReject && "border-destructive bg-destructive/10",
           hasErrors && "border-destructive bg-destructive/5",
           disabled && "cursor-not-allowed opacity-50",
-          className,
+          className
         )}
       >
         <input {...getInputProps()} />

@@ -9,7 +9,7 @@ import { useCallback, useEffect, useState } from "react";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 
 const UpgradeModal = dynamic(() =>
-  import("@/components/billing/upgrade-modal").then((mod) => mod.UpgradeModal),
+  import("@/components/billing/upgrade-modal").then((mod) => mod.UpgradeModal)
 );
 
 import { toast } from "sonner";
@@ -44,7 +44,7 @@ function PageClient() {
 
       return format(date, "MMM d, yyyy");
     },
-    [],
+    []
   );
 
   const getPlanDisplayName = () => {
@@ -71,7 +71,7 @@ function PageClient() {
   };
 
   const [billingCycleText, setBillingCycleText] = useState<string>(
-    "Loading billing cycle...",
+    "Loading billing cycle..."
   );
 
   const updateBillingCycleText = useCallback(async () => {
@@ -104,7 +104,7 @@ function PageClient() {
   const mediaUsedBytes = currentMediaUsage;
   const mediaRemainingMB = Math.max(
     0,
-    Math.ceil(Math.max(0, maxMediaBytes - mediaUsedBytes) / (1024 * 1024)),
+    Math.ceil(Math.max(0, maxMediaBytes - mediaUsedBytes) / (1024 * 1024))
   );
   const mediaPercent = maxMediaBytes
     ? Math.min(100, Math.round((mediaUsedBytes / maxMediaBytes) * 100))

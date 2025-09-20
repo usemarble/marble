@@ -30,7 +30,7 @@ export function UserProvider({
   const { data: session, isPending: isSessionPending } = useSession();
 
   const [isAuthenticated, setIsAuthenticated] = useState(
-    initialIsAuthenticated || !!session,
+    initialIsAuthenticated || !!session
   );
 
   // console.log("isAuthenticated", isAuthenticated);
@@ -75,7 +75,7 @@ export function UserProvider({
   const { mutate: updateUserMutation, isPending: isUpdatingUser } = useMutation(
     {
       mutationFn: async (
-        updates: Partial<Pick<UserProfile, "name" | "image">>,
+        updates: Partial<Pick<UserProfile, "name" | "image">>
       ) => {
         const response = await request<UserProfile>("user", "PATCH", updates);
         return response.data;
@@ -89,11 +89,11 @@ export function UserProvider({
       onError: (_error) => {
         toast.error("Failed to update profile");
       },
-    },
+    }
   );
 
   const updateUser = async (
-    updates: Partial<Pick<UserProfile, "name" | "image">>,
+    updates: Partial<Pick<UserProfile, "name" | "image">>
   ) => {
     updateUserMutation(updates);
   };

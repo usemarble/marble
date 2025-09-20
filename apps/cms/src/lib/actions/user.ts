@@ -38,7 +38,7 @@ export async function storeUserImageAction(user: User) {
         Body: buffer,
         ContentType: contentType,
         ContentLength: buffer.length,
-      }),
+      })
     );
 
     const avatarUrl = `${R2_PUBLIC_URL}/${key}`;

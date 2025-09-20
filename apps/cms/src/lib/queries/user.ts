@@ -22,7 +22,7 @@ export async function getInitialUserData() {
     if (activeOrganizationId && typeof activeOrganizationId !== "string") {
       console.warn(
         "Invalid activeOrganizationId type:",
-        typeof activeOrganizationId,
+        typeof activeOrganizationId
       );
       return { user: null, isAuthenticated: true };
     }

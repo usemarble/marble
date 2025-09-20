@@ -105,7 +105,7 @@ export function AuthorSelector({
 
     if (value.length > 0) {
       const authorsThatWerePreviouslySelected = authors.filter((opt) =>
-        value.includes(opt.id),
+        value.includes(opt.id)
       );
       setSelected(authorsThatWerePreviouslySelected);
     } else {
@@ -235,7 +235,7 @@ export function AuthorSelector({
                           "ml-auto h-4 w-4",
                           selected.some((item) => item.id === option.id)
                             ? "opacity-100"
-                            : "opacity-0",
+                            : "opacity-0"
                         )}
                       />
                     </CommandItem>

@@ -18,7 +18,7 @@ export async function GET() {
     const lastMonth = new Date(
       currentDate.getFullYear(),
       currentDate.getMonth() - 1,
-      1,
+      1
     )
       .toISOString()
       .slice(0, 7);
@@ -46,12 +46,12 @@ export async function GET() {
       const date = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth() - i,
-        1,
+        1
       );
       const monthKey = date.toISOString().slice(0, 7);
       const monthRequests = await redis.hget(
         `analytics:workspace:${workspaceId}:monthly`,
-        monthKey,
+        monthKey
       );
 
       last12MonthsData.push({
@@ -71,7 +71,7 @@ export async function GET() {
     console.error("Error fetching analytics data:", error);
     return NextResponse.json(
       { error: "Failed to fetch analytics data" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

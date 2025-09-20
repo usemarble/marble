@@ -56,7 +56,7 @@ export const PLAN_LIMITS: Record<PlanType, PlanLimits> = {
  * Get the plan type from workspace subscription
  */
 export function getWorkspacePlan(
-  subscription?: { plan: string } | null,
+  subscription?: { plan: string } | null
 ): PlanType {
   if (!subscription?.plan) return "free";
 
@@ -72,7 +72,7 @@ export function getWorkspacePlan(
  */
 export function canPerformAction(
   plan: PlanType,
-  action: keyof PlanLimits["features"],
+  action: keyof PlanLimits["features"]
 ): boolean {
   return PLAN_LIMITS[plan].features[action];
 }
@@ -82,7 +82,7 @@ export function canPerformAction(
  */
 export function canInviteMoreMembers(
   plan: PlanType,
-  currentMemberCount: number,
+  currentMemberCount: number
 ): boolean {
   const limits = PLAN_LIMITS[plan];
   return (
@@ -95,7 +95,7 @@ export function canInviteMoreMembers(
  */
 export function getRemainingMemberSlots(
   plan: PlanType,
-  currentMemberCount: number,
+  currentMemberCount: number
 ): number {
   const maxMembers = PLAN_LIMITS[plan].maxMembers;
   return Math.max(0, maxMembers - currentMemberCount);
@@ -118,7 +118,7 @@ export function isOverLimit(
     mediaStorage?: number;
     apiRequests?: number;
     webhookEvents?: number;
-  },
+  }
 ): {
   isOver: boolean;
   violations: string[];
@@ -128,13 +128,13 @@ export function isOverLimit(
 
   if (usage.members && usage.members > limits.maxMembers) {
     violations.push(
-      `Member count (${usage.members}) exceeds limit (${limits.maxMembers})`,
+      `Member count (${usage.members}) exceeds limit (${limits.maxMembers})`
     );
   }
 
   if (usage.mediaStorage && usage.mediaStorage > limits.maxMediaStorage) {
     violations.push(
-      `Media storage (${usage.mediaStorage}MB) exceeds limit (${limits.maxMediaStorage}MB)`,
+      `Media storage (${usage.mediaStorage}MB) exceeds limit (${limits.maxMediaStorage}MB)`
     );
   }
 
@@ -144,13 +144,13 @@ export function isOverLimit(
     usage.apiRequests > limits.maxApiRequests
   ) {
     violations.push(
-      `API requests (${usage.apiRequests}) exceed limit (${limits.maxApiRequests})`,
+      `API requests (${usage.apiRequests}) exceed limit (${limits.maxApiRequests})`
     );
   }
 
   if (usage.webhookEvents && usage.webhookEvents > limits.maxWebhookEvents) {
     violations.push(
-      `Webhook events (${usage.webhookEvents}) exceed limit (${limits.maxWebhookEvents})`,
+      `Webhook events (${usage.webhookEvents}) exceed limit (${limits.maxWebhookEvents})`
     );
   }
 

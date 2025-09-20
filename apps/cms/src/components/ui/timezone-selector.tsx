@@ -86,7 +86,7 @@ export function TimezoneSelector({
 
             // Find country information from tzdb
             const tzInfo = tzdbData.find(
-              (tz) => tz.name === timezone || tz.group.includes(timezone),
+              (tz) => tz.name === timezone || tz.group.includes(timezone)
             );
 
             return {
@@ -117,7 +117,7 @@ export function TimezoneSelector({
     const q = query.trim().toLowerCase();
     if (!q) return timezoneOptions;
     return timezoneOptions.filter((opt) =>
-      `${opt.label} ${opt.value} ${opt.countryName}`.toLowerCase().includes(q),
+      `${opt.label} ${opt.value} ${opt.countryName}`.toLowerCase().includes(q)
     );
   }, [timezoneOptions, query]);
 
@@ -135,7 +135,7 @@ export function TimezoneSelector({
   }, [isOpen, virtual]);
 
   const selectedTimezone = timezoneOptions.find(
-    (option) => option.value === value,
+    (option) => option.value === value
   );
 
   return (
@@ -151,7 +151,7 @@ export function TimezoneSelector({
           <div
             className={cn(
               "flex flex-col items-start",
-              !selectedTimezone && "text-muted-foreground",
+              !selectedTimezone && "text-muted-foreground"
             )}
           >
             {selectedTimezone ? (
@@ -213,9 +213,7 @@ export function TimezoneSelector({
                         <CheckIcon
                           className={cn(
                             "h-4 w-4",
-                            value === option.value
-                              ? "opacity-100"
-                              : "opacity-0",
+                            value === option.value ? "opacity-100" : "opacity-0"
                           )}
                         />
                       </div>

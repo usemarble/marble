@@ -52,7 +52,7 @@ type InviteStatus = "pending" | "accepted" | "rejected";
 
 function PageClient({ id, user }: PageClientProps) {
   const [invitation, setInvitation] = useState<GetOrganizationResponse | null>(
-    null,
+    null
   );
   const [inviteStatus, setInviteStatus] = useState<InviteStatus>("pending");
   const [error, setError] = useState<string | null>(null);
@@ -117,7 +117,7 @@ function PageClient({ id, user }: PageClientProps) {
           <CardHeader
             className={cn(
               "items-center",
-              inviteStatus !== "pending" && "sr-only",
+              inviteStatus !== "pending" && "sr-only"
             )}
           >
             <CardTitle className="font-medium">Invitation</CardTitle>

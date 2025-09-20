@@ -216,7 +216,7 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
                   placeholder="Paste your cover image link"
                   className={cn(
                     "bg-editor-sidebar-background",
-                    urlError && "border-destructive",
+                    urlError && "border-destructive"
                   )}
                 />
                 <AsyncButton

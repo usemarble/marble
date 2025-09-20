@@ -37,7 +37,7 @@ export async function sendInviteEmailAction({
   if (!session) {
     return NextResponse.json(
       { error: "Failed to send email" },
-      { status: 401 },
+      { status: 401 }
     );
   }
 
@@ -62,13 +62,13 @@ export async function sendInviteEmailAction({
     console.log("Email sent successfully:", response);
     return NextResponse.json(
       { message: "Email sent successfully" },
-      { status: 200 },
+      { status: 200 }
     );
   } catch (error) {
     console.error("Detailed error sending email:", error);
     return NextResponse.json(
       { error: "Failed to send email", details: error },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
@@ -102,13 +102,13 @@ export async function sendVerificationEmailAction({
 
     return NextResponse.json(
       { message: "Email sent successfully" },
-      { status: 200 },
+      { status: 200 }
     );
   } catch (error) {
     console.error("Detailed error sending email:", error);
     return NextResponse.json(
       { error: "Failed to send email", details: error },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
@@ -140,13 +140,13 @@ export async function sendResetPasswordAction({
     console.log("Email sent successfully:", response);
     return NextResponse.json(
       { message: "Email sent successfully" },
-      { status: 200 },
+      { status: 200 }
     );
   } catch (error) {
     console.error("Detailed error sending email:", error);
     return NextResponse.json(
       { error: "Failed to send email", details: error },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

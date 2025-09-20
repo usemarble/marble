@@ -127,7 +127,7 @@ export function EditorSidebar({
     }
     if (formRef.current) {
       formRef.current.dispatchEvent(
-        new Event("submit", { cancelable: true, bubbles: true }),
+        new Event("submit", { cancelable: true, bubbles: true })
       );
     }
   };
@@ -138,7 +138,7 @@ export function EditorSidebar({
         side="right"
         className={cn(
           "bg-editor-sidebar-background m-2 h-[calc(100vh-1rem)] min-h-[calc(100vh-1rem)] overflow-hidden rounded-xl border",
-          !open ? "mr-0" : "",
+          !open ? "mr-0" : ""
         )}
         {...props}
       >

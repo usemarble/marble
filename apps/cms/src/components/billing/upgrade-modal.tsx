@@ -22,7 +22,7 @@ interface UpgradeModalProps {
 
 export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
   const [checkoutLoading, setCheckoutLoading] = useState<"pro" | "team" | null>(
-    null,
+    null
   );
   const { activeWorkspace } = useWorkspace();
 

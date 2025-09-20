@@ -86,7 +86,7 @@ export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
                     <p className="text-sm">
                       Joined{" "}
                       {new Date(
-                        member.joinedAt ?? new Date(),
+                        member.joinedAt ?? new Date()
                       ).toLocaleDateString()}
                     </p>
                   </div>

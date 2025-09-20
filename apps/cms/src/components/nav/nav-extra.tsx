@@ -68,7 +68,7 @@ export function NavExtra() {
                   rel="noopener noreferrer"
                   className={cn(
                     buttonVariants({ variant: "ghost", size: "sm" }),
-                    "w-full justify-start gap-2 text-muted-foreground",
+                    "w-full justify-start gap-2 text-muted-foreground"
                   )}
                 >
                   {link.icon}
@@ -92,7 +92,7 @@ export function NavExtra() {
                   rel="noopener noreferrer"
                   className={cn(
                     buttonVariants({ variant: "ghost", size: "sm" }),
-                    "w-full justify-start gap-2 text-muted-foreground",
+                    "w-full justify-start gap-2 text-muted-foreground"
                   )}
                 >
                   {link.icon}

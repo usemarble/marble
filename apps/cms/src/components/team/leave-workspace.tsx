@@ -54,7 +54,7 @@ export function LeaveWorkspaceModal({
 
       // Find the next available workspace or redirect to new
       const remainingWorkspaces = organizations?.filter(
-        (org: ListOrganizationResponse) => org.id !== id,
+        (org: ListOrganizationResponse) => org.id !== id
       );
 
       if (!remainingWorkspaces || remainingWorkspaces.length === 0) {

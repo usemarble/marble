@@ -39,7 +39,7 @@ const formatXAxisTick = (value: string) => {
 
 export function AnalyticsChart({ data }: AnalyticsChartProps) {
   const [activeProperty, setActiveProperty] = useState<ActiveProperty | null>(
-    null,
+    null
   );
 
   return (
@@ -104,7 +104,7 @@ export function AnalyticsChart({ data }: AnalyticsChartProps) {
 
 const HatchedBackgroundPattern = ({ config }: { config: ChartConfig }) => {
   const items = Object.fromEntries(
-    Object.entries(config).map(([key, value]) => [key, value.color]),
+    Object.entries(config).map(([key, value]) => [key, value.color])
   );
   return (
     <>

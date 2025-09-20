@@ -49,7 +49,7 @@ export function RegisterForm() {
       .then((_res) => {
         startTransition(() => {
           router.push(
-            `/verify?email=${encodeURIComponent(email)}&from=${callbackURL}`,
+            `/verify?email=${encodeURIComponent(email)}&from=${callbackURL}`
           );
         });
       });
@@ -73,7 +73,7 @@ export function RegisterForm() {
           onError: (ctx) => {
             toast.error(ctx.error.message);
           },
-        },
+        }
       );
     } catch (_error) {
       toast.error("Sign in failed. Please try again.");
@@ -107,7 +107,7 @@ export function RegisterForm() {
           type="button"
           className={cn(
             buttonVariants({ variant: "outline", size: "lg" }),
-            "relative",
+            "relative"
           )}
           onClick={async () => handleSocialSignIn("google")}
           disabled={isCredentialsLoading || isGoogleLoading || isGithubLoading}
@@ -127,7 +127,7 @@ export function RegisterForm() {
           type="button"
           className={cn(
             buttonVariants({ variant: "outline", size: "lg" }),
-            "relative gap-2",
+            "relative gap-2"
           )}
           onClick={async () => handleSocialSignIn("github")}
           disabled={isCredentialsLoading || isGoogleLoading || isGithubLoading}

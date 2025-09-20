@@ -25,7 +25,7 @@ function LoadingSpinner({
         variant === "secondary" && "text-secondary-foreground",
         variant === "ghost" && "text-foreground",
         variant === "link" && "text-primary",
-        className,
+        className
       )}
       viewBox="0 0 100 101"
       fill="none"
@@ -78,7 +78,7 @@ const AsyncButton = React.forwardRef<HTMLButtonElement, AsyncButtonProps>(
       className,
       ...props
     },
-    ref,
+    ref
   ) => {
     const renderLoadingContent = () => {
       // Priority: loadingText > keepTextWhileLoading > spinner only
@@ -115,7 +115,7 @@ const AsyncButton = React.forwardRef<HTMLButtonElement, AsyncButtonProps>(
         {isLoading ? renderLoadingContent() : children}
       </Button>
     );
-  },
+  }
 );
 
 AsyncButton.displayName = "AsyncButton";

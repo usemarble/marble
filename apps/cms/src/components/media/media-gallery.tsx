@@ -46,7 +46,7 @@ export function MediaGallery({ media }: MediaGalleryProps) {
         QUERY_KEYS.MEDIA(workspaceId),
         (oldData: Media[] | undefined) => {
           return oldData ? [...oldData, newMedia] : [newMedia];
-        },
+        }
       );
     }
   };
@@ -57,7 +57,7 @@ export function MediaGallery({ media }: MediaGalleryProps) {
         QUERY_KEYS.MEDIA(workspaceId),
         (oldData: Media[] | undefined) => {
           return oldData ? oldData.filter((m) => m.id !== id) : [];
-        },
+        }
       );
     }
   };
@@ -94,7 +94,7 @@ export function MediaGallery({ media }: MediaGalleryProps) {
           return oldData
             ? oldData.filter((m) => !deletedIds.includes(m.id))
             : [];
-        },
+        }
       );
     }
     setSelectedItems(new Set());

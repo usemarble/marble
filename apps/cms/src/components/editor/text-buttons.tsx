@@ -17,10 +17,10 @@ export type SelectorItem = {
   name: string;
   icon: Icon;
   command: (
-    editor: NonNullable<ReturnType<typeof useEditor>["editor"]>,
+    editor: NonNullable<ReturnType<typeof useEditor>["editor"]>
   ) => void;
   isActive: (
-    editor: NonNullable<ReturnType<typeof useEditor>["editor"]>,
+    editor: NonNullable<ReturnType<typeof useEditor>["editor"]>
   ) => boolean;
 };
 

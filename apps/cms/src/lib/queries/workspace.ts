@@ -6,7 +6,7 @@ import { getServerSession } from "../auth/session";
 
 export async function getLastActiveWorkspaceOrNewOneToSetAsActive(
   userId: string,
-  cookies?: RequestCookies,
+  cookies?: RequestCookies
 ) {
   if (cookies) {
     const lastVisitedWorkspaceSlug = getLastVisitedWorkspace(cookies);
@@ -133,7 +133,7 @@ export async function getInitialWorkspaceData() {
 
     // Find current user's role in this workspace
     const currentUserMember = workspace.members.find(
-      (member) => member.userId === session.user.id,
+      (member) => member.userId === session.user.id
     );
 
     return {

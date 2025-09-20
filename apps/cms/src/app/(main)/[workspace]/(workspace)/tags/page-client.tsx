@@ -14,7 +14,7 @@ import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 
 const TagModal = dynamic(() =>
-  import("@/components/tags/tag-modals").then((mod) => mod.TagModal),
+  import("@/components/tags/tag-modals").then((mod) => mod.TagModal)
 );
 
 interface TagType {
@@ -41,7 +41,7 @@ function PageClient() {
         return data;
       } catch (error) {
         toast.error(
-          error instanceof Error ? error.message : "Failed to fetch tags",
+          error instanceof Error ? error.message : "Failed to fetch tags"
         );
       }
     },

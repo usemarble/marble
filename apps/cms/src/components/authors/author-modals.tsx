@@ -98,7 +98,7 @@ export const AuthorModal = ({
   const workspaceId = useWorkspaceId();
 
   const [avatarUrl, setAvatarUrl] = useState<string | null>(
-    authorData.image || null,
+    authorData.image || null
   );
   const [file, setFile] = useState<File | null>(null);
   const { mutate: uploadAvatar, isPending: isUploading } = useMutation({
@@ -209,7 +209,7 @@ export const AuthorModal = ({
         : await checkAuthorSlugForUpdateAction(
             data.slug,
             workspaceId,
-            authorData.id as string,
+            authorData.id as string
           );
 
     if (isTaken) {
@@ -252,7 +252,7 @@ export const AuthorModal = ({
                   htmlFor="avatar"
                   className={cn(
                     "cursor-pointer relative overflow-hidden rounded-full size-16 group",
-                    isUploading && "pointer-events-none",
+                    isUploading && "pointer-events-none"
                   )}
                 >
                   <Avatar className="size-16">
@@ -280,7 +280,7 @@ export const AuthorModal = ({
                       "absolute inset-0 flex items-center justify-center transition-opacity duration-300 bg-black/50 backdrop-blur-xs size-full",
                       isUploading
                         ? "opacity-100"
-                        : "opacity-0 group-hover:opacity-100",
+                        : "opacity-0 group-hover:opacity-100"
                     )}
                   >
                     {isUploading ? (

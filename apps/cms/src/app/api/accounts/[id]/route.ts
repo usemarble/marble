@@ -4,7 +4,7 @@ import { getServerSession } from "@/lib/auth/session";
 
 export async function DELETE(
   _req: Request,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession();
 

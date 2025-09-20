@@ -8,7 +8,7 @@ import { sanitizeHtml } from "@/utils/editor";
 
 export async function GET(
   _request: Request,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const sessionData = await getServerSession();
   const activeWorkspaceId = sessionData?.session.activeOrganizationId;
@@ -65,7 +65,7 @@ export async function GET(
 
 export async function PATCH(
   request: Request,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const sessionData = await getServerSession();
   const workspaceId = sessionData?.session.activeOrganizationId;
@@ -81,7 +81,7 @@ export async function PATCH(
   if (!values.success) {
     return NextResponse.json(
       { error: "Invalid request body", details: values.error.issues },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -93,7 +93,7 @@ export async function PATCH(
 
   const tagValidation = await validateWorkspaceTags(
     values.data.tags,
-    workspaceId,
+    workspaceId
   );
 
   if (!tagValidation.success) {
@@ -113,7 +113,7 @@ export async function PATCH(
   if (validAuthors.length === 0) {
     return NextResponse.json(
       { error: "No valid authors found" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -124,7 +124,7 @@ export async function PATCH(
     // This should never happen since validAuthors.length > 0
     return NextResponse.json(
       { error: "Unable to determine primary author" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 
@@ -172,7 +172,7 @@ export async function PATCH(
     if (values.data.status === "published" && post.status === "draft") {
       const webhooksPublished = getWebhooks(
         sessionData.session,
-        "post_published",
+        "post_published"
       );
 
       for (const webhook of await webhooksPublished) {
@@ -202,14 +202,14 @@ export async function PATCH(
   } catch (_e) {
     return NextResponse.json(
       { error: "Failed to update post" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
 
 export async function DELETE(
   _request: Request,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const sessionData = await getServerSession();
 
@@ -245,7 +245,7 @@ export async function DELETE(
   } catch (_e) {
     return NextResponse.json(
       { error: "Failed to delete post" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

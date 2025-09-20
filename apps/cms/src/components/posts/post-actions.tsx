@@ -68,7 +68,7 @@ export default function PostActions({
             className={cn(
               "size-8 p-0",
               view === "grid" &&
-                "rounded-full bg-sidebar hover:text-primary dark:hover:text-accent-foreground hover:bg-primary/10 dark:bg-accent/50",
+                "rounded-full bg-sidebar hover:text-primary dark:hover:text-accent-foreground hover:bg-primary/10 dark:bg-accent/50"
             )}
           >
             <span className="sr-only">Open menu</span>

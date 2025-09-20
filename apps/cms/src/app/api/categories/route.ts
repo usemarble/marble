@@ -38,7 +38,7 @@ export async function POST(req: Request) {
   if (!body.success) {
     return NextResponse.json(
       { error: "Invalid request body", details: body.error.issues },
-      { status: 400 },
+      { status: 400 }
     );
   }
 

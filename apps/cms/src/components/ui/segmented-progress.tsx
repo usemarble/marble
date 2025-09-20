@@ -39,7 +39,7 @@ export function SegmentedProgress({
             className={cn(
               "h-8 rounded-sm transition-colors duration-200",
               index < filledSegments ? filledColor : unfilledColor,
-              segmentClassName,
+              segmentClassName
             )}
             style={{ width: `${segmentWidth}px` }}
           />

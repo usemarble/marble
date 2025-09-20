@@ -15,8 +15,8 @@ import { QUERY_KEYS } from "@/lib/queries/keys";
 
 const CategoryModal = dynamic(() =>
   import("@/components/categories/category-modals").then(
-    (mod) => mod.CategoryModal,
-  ),
+    (mod) => mod.CategoryModal
+  )
 );
 
 interface Category {
@@ -38,14 +38,14 @@ function PageClient() {
         const res = await fetch("/api/categories");
         if (!res.ok) {
           throw new Error(
-            `Failed to fetch categories: ${res.status} ${res.statusText}`,
+            `Failed to fetch categories: ${res.status} ${res.statusText}`
           );
         }
         const data: Category[] = await res.json();
         return data;
       } catch (error) {
         toast.error(
-          error instanceof Error ? error.message : "Failed to fetch categories",
+          error instanceof Error ? error.message : "Failed to fetch categories"
         );
       }
     },

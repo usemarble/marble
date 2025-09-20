@@ -28,7 +28,7 @@ export const PostsQuerySchema = z.object({
       val
         .split(",")
         .map((s) => s.trim())
-        .filter(Boolean),
+        .filter(Boolean)
     )
     .optional(),
   tags: z

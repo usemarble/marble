@@ -12,7 +12,7 @@ import { getServerSession } from "@/lib/auth/session";
  */
 export async function checkCategorySlugAction(
   slug: string,
-  workspaceId: string,
+  workspaceId: string
 ) {
   const result = await db.category.findFirst({
     where: { workspaceId: workspaceId, slug: slug },
@@ -31,7 +31,7 @@ export async function checkCategorySlugAction(
 export async function checkCategorySlugForUpdateAction(
   slug: string,
   workspaceId: string,
-  currentCategoryId: string,
+  currentCategoryId: string
 ) {
   const result = await db.category.findFirst({
     where: {
@@ -57,7 +57,7 @@ export async function checkTagSlugAction(slug: string, workspaceId: string) {
 export async function checkTagSlugForUpdateAction(
   slug: string,
   workspaceId: string,
-  currentTagId: string,
+  currentTagId: string
 ) {
   const result = await db.tag.findFirst({
     where: {
@@ -96,7 +96,7 @@ export async function checkAuthorSlugAction(slug: string, workspaceId: string) {
 export async function checkAuthorSlugForUpdateAction(
   slug: string,
   workspaceId: string,
-  currentAuthorId: string,
+  currentAuthorId: string
 ) {
   const result = await db.author.findFirst({
     where: {
@@ -154,7 +154,7 @@ export const generateWebhookSecretAction = async () => {
 
 export async function checkWorkspaceSlug(
   slug: string,
-  currentWorkspaceId?: string,
+  currentWorkspaceId?: string
 ) {
   const session = await getServerSession();
   if (!session?.user) {

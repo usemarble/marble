@@ -14,7 +14,7 @@ import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { Media } from "@/types/media";
 
 const MediaUploadModal = dynamic(() =>
-  import("@/components/media/upload-modal").then((mod) => mod.MediaUploadModal),
+  import("@/components/media/upload-modal").then((mod) => mod.MediaUploadModal)
 );
 
 function PageClient() {
@@ -30,14 +30,14 @@ function PageClient() {
         const res = await fetch("/api/media");
         if (!res.ok) {
           throw new Error(
-            `Failed to fetch media: ${res.status} ${res.statusText}`,
+            `Failed to fetch media: ${res.status} ${res.statusText}`
           );
         }
         const data: Media[] = await res.json();
         return data;
       } catch (error) {
         toast.error(
-          error instanceof Error ? error.message : "Failed to fetch media",
+          error instanceof Error ? error.message : "Failed to fetch media"
         );
       }
     },

@@ -63,7 +63,7 @@ export function BulkDeleteMediaModal({
 
       if (failedCount > 0) {
         toast.warning(
-          `${deletedIds.length} items deleted, ${failedCount} failed`,
+          `${deletedIds.length} items deleted, ${failedCount} failed`
         );
       } else {
         toast.success(`${deletedIds.length} items deleted successfully`);

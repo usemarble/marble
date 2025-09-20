@@ -106,7 +106,7 @@ export function Logo() {
               className={cn(
                 "cursor-pointer relative overflow-hidden rounded-full size-16 group",
                 (isUpdatingLogo || !isOwner) && "pointer-events-none",
-                !isOwner && "opacity-50",
+                !isOwner && "opacity-50"
               )}
             >
               <Avatar className="size-16">
@@ -134,7 +134,7 @@ export function Logo() {
                   "absolute inset-0 flex items-center justify-center transition-opacity duration-300 bg-background/50 backdrop-blur-xs size-full",
                   isUpdatingLogo
                     ? "opacity-100"
-                    : "opacity-0 group-hover:opacity-100",
+                    : "opacity-0 group-hover:opacity-100"
                 )}
               >
                 {isUpdatingLogo ? (

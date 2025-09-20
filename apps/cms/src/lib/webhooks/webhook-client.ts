@@ -181,7 +181,7 @@ export class WebhookClient {
       }
 
       throw new WebhookVerificationError(
-        `Failed to parse webhook payload: ${JSON.stringify(err, null, 2)}`,
+        `Failed to parse webhook payload: ${JSON.stringify(err, null, 2)}`
       );
     }
   }
@@ -194,7 +194,7 @@ export function getWebhooks(
   session: Session["session"],
   event: WebhookValidationEvent,
   where?: DatabaseFields,
-  select?: DatabaseFields,
+  select?: DatabaseFields
 ) {
   if (!session.activeOrganizationId) {
     throw new Error("No active organization");

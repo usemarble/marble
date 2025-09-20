@@ -110,7 +110,7 @@ export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
             disabled={otp.length !== 6}
             className={cn(
               "flex items-center justify-center w-full",
-              otp.length !== 6 && "cursor-not-allowed",
+              otp.length !== 6 && "cursor-not-allowed"
             )}
           >
             Verify email
@@ -127,7 +127,7 @@ export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
               disabled={waitingSeconds > 0}
               className={cn(
                 "text-muted-foreground",
-                isResendLoading || (waitingSeconds > 0 && "cursor-not-allowed"),
+                isResendLoading || (waitingSeconds > 0 && "cursor-not-allowed")
               )}
             >
               {isResendLoading

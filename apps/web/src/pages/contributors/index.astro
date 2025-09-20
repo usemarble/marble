@@ -78,11 +78,11 @@ async function fetchGitHubData() {
         }),
         fetch(
           `${baseUrl}/repos/${org}/marble/issues?state=open&per_page=20&sort=created`,
-          { headers },
+          { headers }
         ),
         fetch(
           `${baseUrl}/repos/${org}/marble/pulls?state=open&per_page=5&sort=created`,
-          { headers },
+          { headers }
         ),
       ]);
 
@@ -91,7 +91,7 @@ async function fetchGitHubData() {
       : null;
     const contributors: GitHubUser[] = contributorsResponse.ok
       ? (await contributorsResponse.json()).filter(
-          (c: GitHubUser) => c.login !== "turbobot-temp",
+          (c: GitHubUser) => c.login !== "turbobot-temp"
         )
       : [];
     const allIssues: GitHubIssue[] = issuesResponse.ok
@@ -148,18 +148,18 @@ function formatDate(dateString: string) {
 }
 
 function getIssueTypeFromLabels(
-  labels: Array<{ name: string; color: string }>,
+  labels: Array<{ name: string; color: string }>
 ) {
   const bugLabel = labels.find((label) =>
-    label.name.toLowerCase().includes("bug"),
+    label.name.toLowerCase().includes("bug")
   );
   const featureLabel = labels.find(
     (label) =>
       label.name.toLowerCase().includes("feature") ||
-      label.name.toLowerCase().includes("enhancement"),
+      label.name.toLowerCase().includes("enhancement")
   );
   const docLabel = labels.find((label) =>
-    label.name.toLowerCase().includes("doc"),
+    label.name.toLowerCase().includes("doc")
   );
 
   if (bugLabel) return { type: "Bug", color: "bg-red-100 text-red-800" };
@@ -171,7 +171,7 @@ function getIssueTypeFromLabels(
 
 Astro.response.headers.set(
   "Cache-Control",
-  "public, s-maxage=3600, stale-while-revalidate=60",
+  "public, s-maxage=3600, stale-while-revalidate=60"
 );
 ---
 

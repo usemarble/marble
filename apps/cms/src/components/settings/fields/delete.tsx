@@ -40,7 +40,7 @@ export function Delete() {
     },
     onSuccess: async () => {
       const remainingWorkspaces = workspaceList?.filter(
-        (org) => org.id !== activeWorkspace?.id,
+        (org) => org.id !== activeWorkspace?.id
       );
 
       if (!remainingWorkspaces || remainingWorkspaces.length === 0) {

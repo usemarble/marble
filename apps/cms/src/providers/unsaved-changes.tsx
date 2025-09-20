@@ -43,7 +43,7 @@ export function useUnsavedChanges() {
   const ctx = useContext(UnsavedChangesContext);
   if (!ctx)
     throw new Error(
-      "useUnsavedChanges must be used within UnsavedChangesProvider",
+      "useUnsavedChanges must be used within UnsavedChangesProvider"
     );
   return ctx;
 }

@@ -51,7 +51,7 @@ app.use("/:workspaceId/*", async (c, next) => {
   const isWorkspaceRoute = workspaceRoutes.some(
     (route) =>
       path === `/${workspaceId}${route}` ||
-      path.startsWith(`/${workspaceId}${route}/`),
+      path.startsWith(`/${workspaceId}${route}/`)
   );
 
   if (isWorkspaceRoute) {

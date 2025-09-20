@@ -35,14 +35,14 @@ const DataGrid = dynamic(
   () => import("./data-grid").then((mod) => ({ default: mod.DataGrid })),
   {
     ssr: false,
-  },
+  }
 ) as ComponentType<{ data: Post[] }>;
 
 const DataTable = dynamic(
   () => import("./data-table").then((mod) => ({ default: mod.DataTable })),
   {
     ssr: false,
-  },
+  }
 ) as <TData, TValue>(props: {
   table: ReturnType<typeof useReactTable<TData>>;
   columns: ColumnDef<TData, TValue>[];
@@ -63,7 +63,7 @@ export function PostDataView<TData, TValue>({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [viewType, setViewType] = useLocalStorage<ViewType | null>(
     "viewType",
-    "table",
+    "table"
   );
 
   const { activeWorkspace } = useWorkspace();
@@ -119,7 +119,7 @@ export function PostDataView<TData, TValue>({
                   className={cn(
                     "px-3 rounded-l-[8px] size-7 rounded-r-none transition duration-300",
                     viewType === "grid" &&
-                      "bg-background text-accent-foreground shadow-sm hover:bg-background dark:hover:bg-background",
+                      "bg-background text-accent-foreground shadow-sm hover:bg-background dark:hover:bg-background"
                   )}
                   onClick={() => setViewType("grid")}
                 >
@@ -139,7 +139,7 @@ export function PostDataView<TData, TValue>({
                   className={cn(
                     "px-3 rounded-r-[8px] size-7 rounded-l-none transition duration-300",
                     viewType === "table" &&
-                      "bg-background text-accent-foreground shadow-sm hover:bg-background dark:hover:bg-background",
+                      "bg-background text-accent-foreground shadow-sm hover:bg-background dark:hover:bg-background"
                   )}
                   onClick={() => setViewType("table")}
                 >

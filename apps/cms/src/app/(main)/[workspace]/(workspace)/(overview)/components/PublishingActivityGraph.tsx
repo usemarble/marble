@@ -63,7 +63,7 @@ export const PublishingActivityGraph = () => {
                             'data-[level="1"]:fill-primary/20 dark:data-[level="1"]:fill-primary/30',
                             'data-[level="2"]:fill-primary/40 dark:data-[level="2"]:fill-primary/50',
                             'data-[level="3"]:fill-primary/60 dark:data-[level="3"]:fill-primary/70',
-                            'data-[level="4"]:fill-primary/80 dark:data-[level="4"]:fill-primary/90',
+                            'data-[level="4"]:fill-primary/80 dark:data-[level="4"]:fill-primary/90'
                           )}
                           dayIndex={dayIndex}
                           weekIndex={weekIndex}

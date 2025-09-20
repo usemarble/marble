@@ -6,7 +6,7 @@ import { getWebhooks, WebhookClient } from "@/lib/webhooks/webhook-client";
 
 export async function PATCH(
   req: Request,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const sessionData = await getServerSession();
   const workspaceId = sessionData?.session.activeOrganizationId;
@@ -23,7 +23,7 @@ export async function PATCH(
   if (!body.success) {
     return NextResponse.json(
       { error: "Invalid request body", details: body.error.issues },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -59,7 +59,7 @@ export async function PATCH(
 
 export async function DELETE(
   _req: Request,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const sessionData = await getServerSession();
   const workspaceId = sessionData?.session.activeOrganizationId;
@@ -90,7 +90,7 @@ export async function DELETE(
   if (postsWithCategory) {
     return NextResponse.json(
       { error: "Category is associated with existing posts" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -118,7 +118,7 @@ export async function DELETE(
   } catch (_e) {
     return NextResponse.json(
       { error: "Failed to delete category" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

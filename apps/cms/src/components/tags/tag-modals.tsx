@@ -140,7 +140,7 @@ export function TagModal({
         : await checkTagSlugForUpdateAction(
             data.slug,
             workspaceId,
-            tagData.id as string,
+            tagData.id as string
           );
 
     if (isTaken) {
@@ -217,7 +217,7 @@ export const DeleteTagModal = ({
       if (!res.ok) {
         const errorText = await res.text().catch(() => "Unknown error");
         throw new Error(
-          `Failed to delete tag: ${res.status} ${res.statusText} - ${errorText}`,
+          `Failed to delete tag: ${res.status} ${res.statusText} - ${errorText}`
         );
       }
 

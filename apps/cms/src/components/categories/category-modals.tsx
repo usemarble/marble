@@ -151,7 +151,7 @@ export const CategoryModal = ({
         : await checkCategorySlugForUpdateAction(
             data.slug,
             workspaceId,
-            categoryData.id as string, // Safe to assert after guard check
+            categoryData.id as string // Safe to assert after guard check
           );
 
     if (isTaken) {

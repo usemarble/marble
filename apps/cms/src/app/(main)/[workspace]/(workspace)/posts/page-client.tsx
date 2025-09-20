@@ -29,7 +29,7 @@ function PageClient() {
         return data;
       } catch (error) {
         toast.error(
-          error instanceof Error ? error.message : "Failed to fetch posts",
+          error instanceof Error ? error.message : "Failed to fetch posts"
         );
       }
     },

@@ -28,8 +28,8 @@ import type { Webhook } from "@/types/webhook";
 
 const DeleteWebhookModal = dynamic(() =>
   import("@/components/webhooks/delete-webhook").then(
-    (mod) => mod.DeleteWebhookModal,
-  ),
+    (mod) => mod.DeleteWebhookModal
+  )
 );
 
 interface WebhookCardProps {

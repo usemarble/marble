@@ -11,13 +11,13 @@ import { useUser } from "@/providers/user";
 import { useWorkspace } from "@/providers/workspace";
 
 const InviteModal = dynamic(() =>
-  import("@/components/team/invite-modal").then((mod) => mod.InviteModal),
+  import("@/components/team/invite-modal").then((mod) => mod.InviteModal)
 );
 
 const LeaveWorkspaceModal = dynamic(() =>
   import("@/components/team/leave-workspace").then(
-    (mod) => mod.LeaveWorkspaceModal,
-  ),
+    (mod) => mod.LeaveWorkspaceModal
+  )
 );
 
 function PageClient() {

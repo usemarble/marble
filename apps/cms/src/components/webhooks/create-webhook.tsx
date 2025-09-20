@@ -136,7 +136,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
     } else {
       setValue(
         "events",
-        currentEvents.filter((id) => id !== eventId),
+        currentEvents.filter((id) => id !== eventId)
       );
     }
   };

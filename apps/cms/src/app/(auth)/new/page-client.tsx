@@ -177,7 +177,7 @@ function PageClient() {
                   href="/"
                   className={cn(
                     buttonVariants({ variant: "ghost", size: "lg" }),
-                    "w-full",
+                    "w-full"
                   )}
                 >
                   Back to dashboard

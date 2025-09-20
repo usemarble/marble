@@ -12,11 +12,11 @@ import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { Webhook } from "@/types/webhook";
 
 const CreateWebhookSheet = dynamic(
-  () => import("@/components/webhooks/create-webhook"),
+  () => import("@/components/webhooks/create-webhook")
 );
 
 const WebhookCard = dynamic(() =>
-  import("@/components/webhooks/webhook-card").then((mod) => mod.WebhookCard),
+  import("@/components/webhooks/webhook-card").then((mod) => mod.WebhookCard)
 );
 
 export function PageClient() {
@@ -32,14 +32,14 @@ export function PageClient() {
         const res = await fetch("/api/webhooks");
         if (!res.ok) {
           throw new Error(
-            `Failed to fetch webhooks: ${res.status} ${res.statusText}`,
+            `Failed to fetch webhooks: ${res.status} ${res.statusText}`
           );
         }
         const data: Webhook[] = await res.json();
         return data;
       } catch (error) {
         toast.error(
-          error instanceof Error ? error.message : "Failed to fetch webhooks",
+          error instanceof Error ? error.message : "Failed to fetch webhooks"
         );
       }
     },
@@ -63,7 +63,7 @@ export function PageClient() {
         queryKey: QUERY_KEYS.WEBHOOKS(workspaceId),
       });
       const previousWebhooks = queryClient.getQueryData<Webhook[]>(
-        QUERY_KEYS.WEBHOOKS(workspaceId),
+        QUERY_KEYS.WEBHOOKS(workspaceId)
       );
 
       queryClient.setQueryData<Webhook[]>(
@@ -72,8 +72,8 @@ export function PageClient() {
           old?.map((webhook) =>
             webhook.id === newWebhookData.id
               ? { ...webhook, enabled: newWebhookData.enabled }
-              : webhook,
-          ) ?? [],
+              : webhook
+          ) ?? []
       );
 
       return { previousWebhooks };
@@ -82,7 +82,7 @@ export function PageClient() {
       if (context?.previousWebhooks && workspaceId) {
         queryClient.setQueryData(
           QUERY_KEYS.WEBHOOKS(workspaceId),
-          context.previousWebhooks,
+          context.previousWebhooks
         );
       }
       toast.error("Failed to update");

@@ -60,7 +60,7 @@ export function MediaCard({
         "group overflow-hidden py-0 gap-0",
         isSelected &&
           "ring-2 ring-offset-2 ring-offset-background ring-primary",
-        "cursor-pointer",
+        "cursor-pointer"
       )}
       onClick={onSelect}
     >
@@ -75,7 +75,7 @@ export function MediaCard({
             <div
               className={cn(
                 "absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 pointer-events-none",
-                isSelected && "opacity-100 backdrop-blur-xs",
+                isSelected && "opacity-100 backdrop-blur-xs"
               )}
             />
             <div className="relative z-20 p-2 bg-white rounded-full shadow-lg">

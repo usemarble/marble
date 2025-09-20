@@ -9,7 +9,7 @@ import { NextResponse } from "next/server";
  */
 export async function validateWorkspaceTags(
   tagIds: string[] | undefined,
-  workspaceId: string,
+  workspaceId: string
 ): Promise<
   | { success: true; uniqueTagIds: string[] }
   | { success: false; response: NextResponse }
@@ -30,7 +30,7 @@ export async function validateWorkspaceTags(
         success: false,
         response: NextResponse.json(
           { error: "One or more tags are invalid for this workspace." },
-          { status: 400 },
+          { status: 400 }
         ),
       };
     }

@@ -40,7 +40,7 @@ function PageClient() {
   const { user, updateUser, isUpdatingUser } = useUser();
   const [isChanged, setIsChanged] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | undefined>(
-    user?.image ?? undefined,
+    user?.image ?? undefined
   );
   const [file, setFile] = useState<File | null>(null);
 
@@ -147,7 +147,7 @@ function PageClient() {
                   htmlFor="logo"
                   className={cn(
                     "cursor-pointer relative overflow-hidden rounded-full size-16 group",
-                    isUploading && "pointer-events-none",
+                    isUploading && "pointer-events-none"
                   )}
                 >
                   <Avatar className="size-16">
@@ -176,7 +176,7 @@ function PageClient() {
                       "absolute inset-0 flex items-center justify-center transition-opacity duration-300 bg-background/50 backdrop-blur-xs size-full",
                       isUploading
                         ? "opacity-100"
-                        : "opacity-0 group-hover:opacity-100",
+                        : "opacity-0 group-hover:opacity-100"
                     )}
                   >
                     {isUploading ? (

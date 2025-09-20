@@ -14,7 +14,7 @@ export async function GET() {
   if (!workspaceId) {
     return NextResponse.json(
       { error: "Active workspace not found in session" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -27,6 +27,6 @@ export async function GET() {
 
   return NextResponse.json(
     { media: totalMediaSize._sum.size ?? 0 },
-    { status: 200 },
+    { status: 200 }
   );
 }

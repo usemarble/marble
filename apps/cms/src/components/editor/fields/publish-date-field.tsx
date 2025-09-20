@@ -40,7 +40,7 @@ export function PublishDateField({ control }: PublishDateFieldProps) {
             variant="outline"
             className={cn(
               "justify-between text-left font-normal shadow-none bg-editor-field",
-              !value && "text-muted-foreground",
+              !value && "text-muted-foreground"
             )}
           >
             {value ? format(value, "PPP") : <span>Pick a date</span>}

@@ -44,7 +44,7 @@ export function InviteSection({ invitations }: InviteSectionProps) {
   const queryClient = useQueryClient();
 
   const pendingInvitations = invitations.filter(
-    (invitation) => invitation.status === "pending",
+    (invitation) => invitation.status === "pending"
   );
 
   const resendInviteMutation = useMutation({
@@ -89,7 +89,7 @@ export function InviteSection({ invitations }: InviteSectionProps) {
         error instanceof Error ? error.message : "Failed to resend invitation",
         {
           id: "resend-invitation",
-        },
+        }
       );
     },
   });
@@ -127,7 +127,7 @@ export function InviteSection({ invitations }: InviteSectionProps) {
         error instanceof Error ? error.message : "Failed to cancel invitation",
         {
           id: "cancel-invitation",
-        },
+        }
       );
     },
   });

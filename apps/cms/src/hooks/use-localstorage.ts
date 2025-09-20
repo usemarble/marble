@@ -11,10 +11,10 @@ function getItemFromLocalStorage(key: string) {
 
 export function useLocalStorage<T>(
   key: string,
-  initialValue: T,
+  initialValue: T
 ): [T, (value: T) => void] {
   const [storedValue, setStoredValue] = useState(
-    getItemFromLocalStorage(key) ?? initialValue,
+    getItemFromLocalStorage(key) ?? initialValue
   );
 
   useEffect(() => {

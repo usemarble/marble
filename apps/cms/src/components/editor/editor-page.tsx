@@ -46,7 +46,7 @@ const getToggleSidebarShortcut = () => {
     () =>
       typeof navigator !== "undefined" &&
       navigator.platform.toUpperCase().indexOf("MAC") >= 0,
-    [],
+    []
   );
   return isMac ? "⌘K" : "Ctrl+K";
 };
@@ -210,7 +210,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                   href={`/${params.workspace}/posts`}
                   className={cn(
                     buttonVariants({ variant: "ghost", size: "icon" }),
-                    "group cursor-default rounded-full",
+                    "group cursor-default rounded-full"
                   )}
                 >
                   <XIcon className="size-4 text-muted-foreground group-hover:text-foreground" />
@@ -304,7 +304,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
         <div
           className={cn(
             "h-svh transition-[width] ease-linear",
-            open ? "w-2" : "w-0",
+            open ? "w-2" : "w-0"
           )}
         />
       )}

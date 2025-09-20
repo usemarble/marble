@@ -70,7 +70,7 @@ export default function ResetRequestForm() {
         disabled={!email || isLoading || waitingSeconds > 0}
         className={cn(
           "flex items-center justify-center min-w-48",
-          isLoading || (waitingSeconds > 0 && "cursor-not-allowed"),
+          isLoading || (waitingSeconds > 0 && "cursor-not-allowed")
         )}
         isLoading={isLoading}
       >

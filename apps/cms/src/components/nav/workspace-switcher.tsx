@@ -40,12 +40,12 @@ export function WorkspaceSwitcher() {
 
   const ownedWorkspaces =
     workspaceList?.filter(
-      (workspace) => workspace.currentUserRole === "owner",
+      (workspace) => workspace.currentUserRole === "owner"
     ) || [];
 
   const sharedWorkspaces =
     workspaceList?.filter(
-      (workspace) => workspace.currentUserRole !== "owner",
+      (workspace) => workspace.currentUserRole !== "owner"
     ) || [];
 
   async function switchWorkspace(org: Workspace) {
@@ -71,7 +71,7 @@ export function WorkspaceSwitcher() {
                 className={cn(
                   "data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:bg-sidebar-accent border border-transparent hover:border-border hover:shadow-xs transition",
                   isCollapsed &&
-                    "p-1 size-10 min-w-0 justify-center rounded-full",
+                    "p-1 size-10 min-w-0 justify-center rounded-full"
                 )}
                 disabled={isFetchingWorkspace}
               >
@@ -110,13 +110,13 @@ export function WorkspaceSwitcher() {
             <div
               className={cn(
                 "bg-sidebar-accent rounded-md border flex items-center",
-                isCollapsed ? "p-1 size-10 justify-center" : "p-2 gap-2",
+                isCollapsed ? "p-1 size-10 justify-center" : "p-2 gap-2"
               )}
             >
               <Skeleton
                 className={cn(
                   "border rounded-md shrink-0",
-                  isCollapsed ? "size-6" : "size-8",
+                  isCollapsed ? "size-6" : "size-8"
                 )}
               />
               {!isCollapsed && (

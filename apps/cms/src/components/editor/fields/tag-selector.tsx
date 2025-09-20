@@ -114,7 +114,7 @@ export const TagSelector = ({
       QUERY_KEYS.TAGS(workspaceId),
       (oldData: TagResponse[] | undefined) => {
         return oldData ? [...oldData, newTag] : [newTag];
-      },
+      }
     );
 
     // Also invalidate to refetch from server
@@ -199,7 +199,7 @@ export const TagSelector = ({
                           "ml-auto h-4 w-4",
                           selected.some((item) => item.id === option.id)
                             ? "opacity-100"
-                            : "opacity-0",
+                            : "opacity-0"
                         )}
                       />
                     </CommandItem>
