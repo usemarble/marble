@@ -15,10 +15,10 @@ import { AsyncButton } from "@/components/ui/async-button";
 import { authClient } from "@/lib/auth/client";
 import Container from "../shared/container";
 
-interface VerifyFormProps {
+type VerifyFormProps = {
   email: string;
   callbackUrl: string;
-}
+};
 
 export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
   const [otp, setOtp] = useState("");
@@ -45,7 +45,7 @@ export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
     setIsResendLoading(true);
     try {
       await authClient.emailOtp.sendVerificationOtp({
-        email: email,
+        email,
         type: "email-verification",
       });
       toast.success("Verification code sent!");
@@ -62,8 +62,8 @@ export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
     setIsLoading(true);
     try {
       const result = await authClient.emailOtp.verifyEmail({
-        email: email,
-        otp: otp,
+        email,
+        otp,
       });
 
       if (result.data) {
@@ -80,11 +80,11 @@ export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
   };
 
   return (
-    <Container className="min-h-screen flex items-center justify-center py-12">
-      <div className="flex max-w-sm w-full flex-col items-center gap-8">
+    <Container className="flex min-h-screen items-center justify-center py-12">
+      <div className="flex w-full max-w-sm flex-col items-center gap-8">
         <div className="flex flex-col items-center gap-4 text-center">
-          <h1 className="text-lg font-semibold leading-7">Verify your email</h1>
-          <p className="leading-6 text-muted-foreground">
+          <h1 className="font-semibold text-lg leading-7">Verify your email</h1>
+          <p className="text-muted-foreground leading-6">
             We sent a verification code to
             <span className="block font-medium text-foreground">{email}</span>
           </p>
@@ -92,26 +92,26 @@ export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
 
         <InputOTP
           maxLength={6}
-          value={otp}
-          pattern={REGEXP_ONLY_DIGITS}
           onChange={(value: string) => setOtp(value)}
+          pattern={REGEXP_ONLY_DIGITS}
+          value={otp}
         >
           <InputOTPGroup className="flex items-center gap-3">
             {Array.from({ length: 6 }).map((_, index) => (
-              <InputOTPSlot key={crypto.randomUUID()} index={index} />
+              <InputOTPSlot index={index} key={crypto.randomUUID()} />
             ))}
           </InputOTPGroup>
         </InputOTP>
 
-        <div className="flex flex-col items-center gap-4 w-full">
+        <div className="flex w-full flex-col items-center gap-4">
           <AsyncButton
-            onClick={handleVerifyOtp}
-            isLoading={isLoading}
-            disabled={otp.length !== 6}
             className={cn(
-              "flex items-center justify-center w-full",
-              otp.length !== 6 && "cursor-not-allowed",
+              "flex w-full items-center justify-center",
+              otp.length !== 6 && "cursor-not-allowed"
             )}
+            disabled={otp.length !== 6}
+            isLoading={isLoading}
+            onClick={handleVerifyOtp}
           >
             Verify email
           </AsyncButton>
@@ -121,14 +121,14 @@ export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
               Didn&apos;t receive the code?
             </p>
             <AsyncButton
-              variant="outline"
-              onClick={handleResendCode}
-              isLoading={isResendLoading}
-              disabled={waitingSeconds > 0}
               className={cn(
                 "text-muted-foreground",
-                isResendLoading || (waitingSeconds > 0 && "cursor-not-allowed"),
+                isResendLoading || (waitingSeconds > 0 && "cursor-not-allowed")
               )}
+              disabled={waitingSeconds > 0}
+              isLoading={isResendLoading}
+              onClick={handleResendCode}
+              variant="outline"
             >
               {isResendLoading
                 ? "Sending..."

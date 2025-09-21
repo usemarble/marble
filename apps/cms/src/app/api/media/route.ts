@@ -18,7 +18,7 @@ export async function GET() {
   if (!orgId) {
     return NextResponse.json(
       { error: "Active workspace not found in session" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -59,7 +59,7 @@ export async function DELETE(request: Request) {
   if (idsToDelete.length === 0) {
     return NextResponse.json(
       { error: "mediaId or mediaIds is required" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -87,12 +87,7 @@ export async function DELETE(request: Request) {
     }> = [];
 
     for (const media of existingMedia) {
-      if (!media.url) {
-        console.error(
-          `Media with ID ${media.id} has no URL. Deleting database record only.`,
-        );
-        successfullyDeletedFromR2.push({ id: media.id, media });
-      } else {
+      if (media.url) {
         try {
           const rawPath = media.url.startsWith("http")
             ? new URL(media.url).pathname
@@ -107,23 +102,28 @@ export async function DELETE(request: Request) {
             key.split("/").some((seg) => ["", ".", ".."].includes(seg))
           ) {
             throw new Error(
-              "Invalid storage key: contains empty or traversal path segments.",
+              "Invalid storage key: contains empty or traversal path segments."
             );
           }
           await r2.send(
             new DeleteObjectCommand({
               Bucket: R2_BUCKET_NAME,
               Key: key,
-            }),
+            })
           );
           successfullyDeletedFromR2.push({ id: media.id, media });
         } catch (error) {
           console.error(
             `Failed to delete media object from R2 for media ID ${media.id}. URL: ${media.url}`,
-            error,
+            error
           );
           failedIds.push(media.id);
         }
+      } else {
+        console.error(
+          `Media with ID ${media.id} has no URL. Deleting database record only.`
+        );
+        successfullyDeletedFromR2.push({ id: media.id, media });
       }
     }
 
@@ -156,7 +156,7 @@ export async function DELETE(request: Request) {
     if (deletedIds.length === 0) {
       return NextResponse.json(
         { error: "No media items were deleted successfully" },
-        { status: 500 },
+        { status: 500 }
       );
     }
 
@@ -169,7 +169,7 @@ export async function DELETE(request: Request) {
             ? `Deleted ${deletedIds.length} items, ${failedIds.length} failed`
             : `Deleted ${deletedIds.length} items successfully`,
       },
-      { status: 200 },
+      { status: 200 }
     );
   } catch (error) {
     const message =

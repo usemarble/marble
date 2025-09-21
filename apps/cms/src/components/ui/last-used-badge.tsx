@@ -31,16 +31,18 @@ export function LastUsedBadge({
   text,
   ...props
 }: LastUsedBadgeProps) {
-  if (!show) return null;
+  if (!show) {
+    return null;
+  }
 
   return (
     <Badge
-      variant={variant}
       className={cn(
         lastUsedBadgePositions({ position }),
-        "text-[11px] py-0 px-1.5 backdrop-blur-sm",
-        className,
+        "px-1.5 py-0 text-[11px] backdrop-blur-sm",
+        className
       )}
+      variant={variant}
       {...props}
     >
       {text ?? "Last Used"}

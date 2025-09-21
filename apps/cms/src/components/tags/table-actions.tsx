@@ -22,7 +22,7 @@ export default function TableActions(props: Tag) {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
+          <Button className="h-8 w-8 p-0" variant="ghost">
             <span className="sr-only">Open menu</span>
             <DotsThreeVerticalIcon />
           </Button>
@@ -32,8 +32,8 @@ export default function TableActions(props: Tag) {
             <PencilSimpleLineIcon size={16} /> <span>Edit</span>
           </DropdownMenuItem>
           <DropdownMenuItem
-            variant="destructive"
             onClick={() => setShowDeleteModal(true)}
+            variant="destructive"
           >
             <TrashIcon size={16} /> <span>Delete</span>
           </DropdownMenuItem>
@@ -41,17 +41,17 @@ export default function TableActions(props: Tag) {
       </DropdownMenu>
 
       <TagModal
+        mode="update"
         open={showUpdateModal}
         setOpen={setShowUpdateModal}
-        mode="update"
         tagData={{ ...props }}
       />
 
       <DeleteTagModal
+        id={props.id}
+        name={props.name}
         open={showDeleteModal}
         setOpen={setShowDeleteModal}
-        name={props.name}
-        id={props.id}
       />
     </>
   );

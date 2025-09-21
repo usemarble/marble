@@ -35,23 +35,23 @@ const DataGrid = dynamic(
   () => import("./data-grid").then((mod) => ({ default: mod.DataGrid })),
   {
     ssr: false,
-  },
+  }
 ) as ComponentType<{ data: Post[] }>;
 
 const DataTable = dynamic(
   () => import("./data-table").then((mod) => ({ default: mod.DataTable })),
   {
     ssr: false,
-  },
+  }
 ) as <TData, TValue>(props: {
   table: ReturnType<typeof useReactTable<TData>>;
   columns: ColumnDef<TData, TValue>[];
 }) => JSX.Element;
 
-interface DataViewProps<TData, TValue> {
+type DataViewProps<TData, TValue> = {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-}
+};
 
 type ViewType = "table" | "grid";
 
@@ -63,7 +63,7 @@ export function PostDataView<TData, TValue>({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [viewType, setViewType] = useLocalStorage<ViewType | null>(
     "viewType",
-    "table",
+    "table"
   );
 
   const { activeWorkspace } = useWorkspace();
@@ -84,25 +84,25 @@ export function PostDataView<TData, TValue>({
 
   return (
     <div>
-      <div className="flex items-center py-4 mb-4 justify-between">
+      <div className="mb-4 flex items-center justify-between py-4">
         <div className="relative">
           <MagnifyingGlassIcon
+            className="-translate-y-1/2 absolute top-1/2 left-3 size-4 text-muted-foreground"
             size={16}
-            className="text-muted-foreground size-4 absolute top-1/2 left-3 -translate-y-1/2"
           />
           <Input
-            value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
+            className="w-72 px-8"
             onChange={(event) =>
               table.getColumn("title")?.setFilterValue(event.target.value)
             }
             placeholder="Search posts..."
-            className="px-8 w-72"
+            value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
           />
           {(table.getColumn("title")?.getFilterValue() as string) && (
             <button
-              type="button"
+              className="absolute top-3 right-3"
               onClick={() => table.getColumn("title")?.setFilterValue("")}
-              className="absolute right-3 top-3"
+              type="button"
             >
               <XIcon className="size-4" />
               <span className="sr-only">Clear search</span>
@@ -110,18 +110,18 @@ export function PostDataView<TData, TValue>({
           )}
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex bg-sidebar dark:bg-accent/50 gap-1 p-1 rounded-xl">
+          <div className="flex gap-1 rounded-xl bg-sidebar p-1 dark:bg-accent/50">
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  variant="ghost"
-                  size="sm"
                   className={cn(
-                    "px-3 rounded-l-[8px] size-7 rounded-r-none transition duration-300",
+                    "size-7 rounded-r-none rounded-l-[8px] px-3 transition duration-300",
                     viewType === "grid" &&
-                      "bg-background text-accent-foreground shadow-sm hover:bg-background dark:hover:bg-background",
+                      "bg-background text-accent-foreground shadow-sm hover:bg-background dark:hover:bg-background"
                   )}
                   onClick={() => setViewType("grid")}
+                  size="sm"
+                  variant="ghost"
                 >
                   <SquaresFourIcon size={16} />
                   <span className="sr-only">Grid View</span>
@@ -134,14 +134,14 @@ export function PostDataView<TData, TValue>({
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  variant="ghost"
-                  size="sm"
                   className={cn(
-                    "px-3 rounded-r-[8px] size-7 rounded-l-none transition duration-300",
+                    "size-7 rounded-r-[8px] rounded-l-none px-3 transition duration-300",
                     viewType === "table" &&
-                      "bg-background text-accent-foreground shadow-sm hover:bg-background dark:hover:bg-background",
+                      "bg-background text-accent-foreground shadow-sm hover:bg-background dark:hover:bg-background"
                   )}
                   onClick={() => setViewType("table")}
+                  size="sm"
+                  variant="ghost"
                 >
                   <RowsIcon size={16} />
                   <span className="sr-only">Table View</span>
@@ -154,8 +154,8 @@ export function PostDataView<TData, TValue>({
           </div>
 
           <Link
-            href={`/${activeWorkspace?.slug}/editor/p/new`}
             className={buttonVariants({ variant: "default" })}
+            href={`/${activeWorkspace?.slug}/editor/p/new`}
           >
             <PlusIcon size={16} />
             <span>New Post</span>
@@ -164,7 +164,7 @@ export function PostDataView<TData, TValue>({
       </div>
 
       {viewType === "table" ? (
-        <DataTable table={table} columns={columns} />
+        <DataTable columns={columns} table={table} />
       ) : (
         <DataGrid
           data={

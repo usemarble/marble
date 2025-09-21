@@ -81,7 +81,7 @@ export const completeAvatarSchema = z.object({
     .refine(
       (k) =>
         k.startsWith("avatars/") && !k.includes("..") && !k.startsWith("/"),
-      "Invalid key: must start with avatars/ and not contain path traversal",
+      "Invalid key: must start with avatars/ and not contain path traversal"
     ),
   fileType: z.string().min(1),
   fileSize: z.coerce.number().int().positive().max(MAX_AVATAR_FILE_SIZE),
@@ -96,7 +96,7 @@ export const completeAuthorAvatarSchema = z.object({
     .refine(
       (k) =>
         k.startsWith("avatars/") && !k.includes("..") && !k.startsWith("/"),
-      "Invalid key: must start with avatars/ and not contain path traversal",
+      "Invalid key: must start with avatars/ and not contain path traversal"
     ),
   fileType: z.string().min(1),
   fileSize: z.coerce.number().int().positive().max(MAX_AVATAR_FILE_SIZE),
@@ -110,7 +110,7 @@ export const completeLogoSchema = z.object({
     .max(1024)
     .refine(
       (k) => k.startsWith("logos/") && !k.includes("..") && !k.startsWith("/"),
-      "Invalid key: must start with logos/ and not contain path traversal",
+      "Invalid key: must start with logos/ and not contain path traversal"
     ),
   fileType: z.string().min(1),
   fileSize: z.coerce.number().int().positive().max(MAX_LOGO_FILE_SIZE),
@@ -124,7 +124,7 @@ export const completeMediaSchema = z.object({
     .max(1024)
     .refine(
       (k) => k.startsWith("media/") && !k.includes("..") && !k.startsWith("/"),
-      "Invalid key: must start with media/ and not contain path traversal",
+      "Invalid key: must start with media/ and not contain path traversal"
     ),
   fileType: z.string().min(1),
   fileSize: z.coerce.number().int().positive().max(MAX_MEDIA_FILE_SIZE),
@@ -159,7 +159,7 @@ export function validateUpload({
   const maxSize = maxSizeByType[type];
   if (fileSize > maxSize) {
     throw new Error(
-      `File size exceeds the maximum limit of ${maxSize / 1024 / 1024}MB for ${type}.`,
+      `File size exceeds the maximum limit of ${maxSize / 1024 / 1024}MB for ${type}.`
     );
   }
 
@@ -171,14 +171,14 @@ export function validateUpload({
         !ALLOWED_RASTER_MIME_TYPES.includes(fileType as AllowedRasterMimeType)
       ) {
         throw new Error(
-          `File type ${fileType} is not allowed for ${type}. Allowed raster types: ${ALLOWED_RASTER_MIME_TYPES.join(", ")}`,
+          `File type ${fileType} is not allowed for ${type}. Allowed raster types: ${ALLOWED_RASTER_MIME_TYPES.join(", ")}`
         );
       }
       break;
     case "media":
       if (!ALLOWED_MIME_TYPES.includes(fileType as AllowedMimeType)) {
         throw new Error(
-          `File type ${fileType} is not allowed. Allowed types: ${ALLOWED_MIME_TYPES.join(", ")}`,
+          `File type ${fileType} is not allowed. Allowed types: ${ALLOWED_MIME_TYPES.join(", ")}`
         );
       }
       break;

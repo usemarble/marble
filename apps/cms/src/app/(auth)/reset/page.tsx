@@ -8,9 +8,9 @@ export const metadata: Metadata = {
   title: "Reset Password",
 };
 
-interface PageProps {
+type PageProps = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}
+};
 
 export default async function ResetPage({ searchParams }: PageProps) {
   let token = (await searchParams).token;

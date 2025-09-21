@@ -41,7 +41,7 @@ const postSchema = z.object({
       id: z.string(),
       name: z.string(),
       image: z.string().url().nullable().optional(),
-    }),
+    })
   ),
   category: z.object({
     id: z.string(),
@@ -53,7 +53,7 @@ const postSchema = z.object({
       id: z.string(),
       name: z.string(),
       slug: z.string(),
-    }),
+    })
   ),
   attribution: z
     .object({
@@ -73,7 +73,7 @@ const articleCollection = defineCollection({
       posts.map(async (post) => ({
         ...post,
         content: await highlightContent(post.content),
-      })),
+      }))
     );
   },
   schema: postSchema,

@@ -24,9 +24,9 @@ export default function Credits() {
 
   return (
     <Link
+      className="font-medium text-muted-foreground text-sm underline underline-offset-4 hover:text-primary"
       href={image}
       target="_blank"
-      className="text-sm font-medium text-muted-foreground hover:text-primary underline underline-offset-4"
     >
       Image by {text}
     </Link>

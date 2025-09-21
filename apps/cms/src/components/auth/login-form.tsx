@@ -56,7 +56,7 @@ export function LoginForm() {
               toast.error("Please verify your email address");
             }
           },
-        },
+        }
       );
     } catch (_error) {
       return toast("Login failed. Please try again.");
@@ -87,13 +87,13 @@ export function LoginForm() {
     <div className="grid gap-6">
       <div className="grid grid-cols-2 gap-4">
         <button
-          type="button"
           className={cn(
             buttonVariants({ variant: "outline", size: "lg" }),
-            "relative",
+            "relative"
           )}
-          onClick={async () => handleSocialSignIn("google")}
           disabled={isCredentialsLoading || isGoogleLoading || isGithubLoading}
+          onClick={async () => handleSocialSignIn("google")}
+          type="button"
         >
           <LastUsedBadge
             show={lastUsedAuthMethod === "google"}
@@ -107,13 +107,13 @@ export function LoginForm() {
           Google
         </button>
         <button
-          type="button"
           className={cn(
             buttonVariants({ variant: "outline", size: "lg" }),
-            "relative",
+            "relative"
           )}
-          onClick={async () => handleSocialSignIn("github")}
           disabled={isCredentialsLoading || isGoogleLoading || isGithubLoading}
+          onClick={async () => handleSocialSignIn("github")}
+          type="button"
         >
           <LastUsedBadge
             show={lastUsedAuthMethod === "github"}
@@ -128,11 +128,11 @@ export function LoginForm() {
         </button>
       </div>
       <div className="relative flex items-center">
-        <span className="bg-border inline-block h-px w-full border-t" />
-        <span className="text-muted-foreground shrink-0 px-2 text-xs uppercase">
+        <span className="inline-block h-px w-full border-t bg-border" />
+        <span className="shrink-0 px-2 text-muted-foreground text-xs uppercase">
           Or
         </span>
-        <span className="bg-border inline-block h-px w-full border-t" />
+        <span className="inline-block h-px w-full border-t bg-border" />
       </div>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="grid gap-3">
@@ -140,21 +140,21 @@ export function LoginForm() {
             <Label className="sr-only" htmlFor="email">
               Email
             </Label>
-            {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
+
             <Input
-              id="email"
-              placeholder="Email"
-              type="email"
               autoCapitalize="none"
               autoComplete="email"
               autoCorrect="off"
               disabled={
                 isCredentialsLoading || isGoogleLoading || isGithubLoading
               }
+              id="email"
+              placeholder="Email"
+              type="email"
               {...register("email")}
             />
             {errors?.email && (
-              <p className="text-xs px-1 font-medium text-destructive">
+              <p className="px-1 font-medium text-destructive text-xs">
                 {errors.email.message}
               </p>
             )}
@@ -164,23 +164,22 @@ export function LoginForm() {
               Password
             </Label>
             <div className="relative">
-              {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
               <Input
-                id="password"
-                placeholder="Password"
-                type={isPasswordVisible ? "text" : "password"}
                 autoCapitalize="none"
                 autoCorrect="off"
+                className="pr-9"
                 disabled={
                   isCredentialsLoading || isGoogleLoading || isGithubLoading
                 }
-                className="pr-9"
+                id="password"
+                placeholder="Password"
+                type={isPasswordVisible ? "text" : "password"}
                 {...register("password")}
               />
               <button
-                type="button"
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground"
+                className="-translate-y-1/2 absolute top-1/2 right-4 text-muted-foreground"
                 onClick={() => setIsPasswordVisible((prev) => !prev)}
+                type="button"
               >
                 {isPasswordVisible ? (
                   <EyeIcon className="size-4" />
@@ -190,22 +189,22 @@ export function LoginForm() {
               </button>
             </div>
             {errors?.password && (
-              <p className="text-xs px-1 font-medium text-destructive">
+              <p className="px-1 font-medium text-destructive text-xs">
                 {errors.password.message}
               </p>
             )}
           </div>
           <AsyncButton
+            className={cn("mt-4", "relative")}
             disabled={
               isCredentialsLoading || isGoogleLoading || isGithubLoading
             }
             isLoading={isCredentialsLoading}
-            className={cn("mt-4", "relative")}
           >
             <LastUsedBadge
+              className="border-input"
               show={lastUsedAuthMethod === "email"}
               variant="secondary"
-              className="border-input"
             />
             Continue
           </AsyncButton>

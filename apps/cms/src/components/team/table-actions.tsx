@@ -44,8 +44,8 @@ export default function TableActions(props: TableActionsProps) {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
-            variant="ghost"
             className="size-8 p-0 data-[state=open]:bg-muted"
+            variant="ghost"
           >
             <span className="sr-only">Open menu</span>
             <DotsThreeVerticalIcon className="size-4" />
@@ -67,14 +67,14 @@ export default function TableActions(props: TableActionsProps) {
       </DropdownMenu>
 
       <RemoveMemberModal
+        member={props}
         open={showRemoveModal}
         setOpen={setShowRemoveModal}
-        member={props}
       />
       <ProfileSheet
+        member={props}
         open={showProfileSheet}
         setOpen={setShowProfileSheet}
-        member={props}
       />
     </>
   );

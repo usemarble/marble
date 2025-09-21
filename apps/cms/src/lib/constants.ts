@@ -130,7 +130,7 @@ export function isAllowedAvatarUrl(url: string): boolean {
     // Check if hostname matches exactly or is a subdomain of allowed hosts
     return ALLOWED_AVATAR_HOSTS.some(
       (allowedHost) =>
-        hostname === allowedHost || hostname.endsWith(`.${allowedHost}`),
+        hostname === allowedHost || hostname.endsWith(`.${allowedHost}`)
     );
   } catch {
     // Invalid URL

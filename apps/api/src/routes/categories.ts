@@ -26,7 +26,7 @@ categories.get("/", async (c) => {
             message: err.message,
           })),
         },
-        400,
+        400
       );
     }
 
@@ -52,7 +52,7 @@ categories.get("/", async (c) => {
             requestedPage: page,
           },
         },
-        400,
+        400
       );
     }
 

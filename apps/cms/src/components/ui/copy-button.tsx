@@ -26,13 +26,15 @@ export function CopyButton({
 
   return (
     <Button
-      variant="outline"
-      size="icon"
       className={cn("size-9", className)}
+      size="icon"
+      variant="outline"
       {...props}
       onClick={() => {
         startTransition(async () => {
-          if (!textToCopy) return;
+          if (!textToCopy) {
+            return;
+          }
           await navigator.clipboard.writeText(textToCopy);
           if (toastMessage) {
             toast.success(toastMessage);

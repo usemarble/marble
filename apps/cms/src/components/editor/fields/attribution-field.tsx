@@ -8,10 +8,10 @@ import { type Control, type FieldErrors, useController } from "react-hook-form";
 import type { PostValues } from "@/lib/validations/post";
 import { FieldInfo } from "./field-info";
 
-interface AttributionFieldProps {
+type AttributionFieldProps = {
   control: Control<PostValues>;
   errors: FieldErrors<PostValues>;
-}
+};
 
 export function AttributionField({ control, errors }: AttributionFieldProps) {
   const {
@@ -29,13 +29,13 @@ export function AttributionField({ control, errors }: AttributionFieldProps) {
         <div className="flex items-center gap-1">
           <Label htmlFor="attribution">Add Attribution</Label>
           <FieldInfo
-            text="Use this when republishing content from elsewhere to give credit to the original author."
             className="size-4"
+            text="Use this when republishing content from elsewhere to give credit to the original author."
           />
         </div>
         <Switch
-          id="attribution"
           checked={showAttribution}
+          id="attribution"
           onCheckedChange={(checked) => {
             setShowAttribution(checked);
             if (!checked) {
@@ -46,20 +46,20 @@ export function AttributionField({ control, errors }: AttributionFieldProps) {
       </div>
 
       {showAttribution && (
-        <div className="space-y-4 mt-2">
+        <div className="mt-2 space-y-4">
           <div className="space-y-2">
             <Input
-              placeholder="Original author's name"
               onChange={(e) => {
                 onChange({
                   author: e.target.value,
                   url: value?.url || "",
                 });
               }}
+              placeholder="Original author's name"
               value={value?.author || ""}
             />
             {errors.attribution?.author && (
-              <p className="text-sm text-destructive px-1">
+              <p className="px-1 text-destructive text-sm">
                 {errors.attribution.author.message}
               </p>
             )}
@@ -67,17 +67,17 @@ export function AttributionField({ control, errors }: AttributionFieldProps) {
 
           <div className="space-y-2">
             <Input
-              placeholder="Link to original post"
               onChange={(e) => {
                 onChange({
                   author: value?.author || "",
                   url: e.target.value,
                 });
               }}
+              placeholder="Link to original post"
               value={value?.url || ""}
             />
             {errors.attribution?.url && (
-              <p className="text-sm text-destructive px-1">
+              <p className="px-1 text-destructive text-sm">
                 {errors.attribution.url.message}
               </p>
             )}

@@ -21,7 +21,7 @@ export async function createAuthor(user: User, organization: Organization) {
         "Author already exists for user",
         user.id,
         "in workspace",
-        organization.id,
+        organization.id
       );
       return existingAuthor;
     }
@@ -43,7 +43,7 @@ export async function createAuthor(user: User, organization: Organization) {
       "Created author for user",
       user.id,
       "in workspace",
-      organization.id,
+      organization.id
     );
     return author;
   } catch (error) {

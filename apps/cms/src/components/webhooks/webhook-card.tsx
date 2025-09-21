@@ -28,17 +28,17 @@ import type { Webhook } from "@/types/webhook";
 
 const DeleteWebhookModal = dynamic(() =>
   import("@/components/webhooks/delete-webhook").then(
-    (mod) => mod.DeleteWebhookModal,
-  ),
+    (mod) => mod.DeleteWebhookModal
+  )
 );
 
-interface WebhookCardProps {
+type WebhookCardProps = {
   webhook: Webhook;
   onToggle: (data: { id: string; enabled: boolean }) => void;
   onDelete: () => void;
   isToggling: boolean;
   toggleVariables?: { id: string; enabled: boolean };
-}
+};
 
 export function WebhookCard({
   webhook,
@@ -57,48 +57,48 @@ export function WebhookCard({
     <li>
       <Card>
         <CardHeader className="flex justify-between">
-          <div className="flex items-center gap-3 mb-2">
+          <div className="mb-2 flex items-center gap-3">
             <CardTitle className="text-lg">{webhook.name}</CardTitle>
             <Badge
-              variant={webhook.enabled ? "positive" : "negative"}
               className="text-xs"
+              variant={webhook.enabled ? "positive" : "negative"}
             >
               {webhook.enabled ? "Enabled" : "Disabled"}
             </Badge>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
+              <Button size="icon" variant="ghost">
                 <DotsThreeVerticalIcon size={16} />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem
+                disabled={isToggling && toggleVariables?.id === webhook.id}
                 onClick={() =>
                   onToggle({
                     id: webhook.id,
                     enabled: !webhook.enabled,
                   })
                 }
-                disabled={isToggling && toggleVariables?.id === webhook.id}
               >
-                <ToggleRightIcon size={16} className="mr-1.5" />
+                <ToggleRightIcon className="mr-1.5" size={16} />
                 <span>{webhook.enabled ? "Disable" : "Enable"} Webhook</span>
               </DropdownMenuItem>
               {webhook.format === "json" ? (
                 <DropdownMenuItem
                   onClick={() => handleCopySecret(webhook.secret)}
                 >
-                  <CopyIcon className="size-4 mr-1.5" />
+                  <CopyIcon className="mr-1.5 size-4" />
                   Copy Secret
                 </DropdownMenuItem>
               ) : undefined}
               <DropdownMenuItem
-                variant="destructive"
-                onSelect={(_e) => setIsOpen(true)}
                 disabled={isToggling}
+                onSelect={(_e) => setIsOpen(true)}
+                variant="destructive"
               >
-                <TrashIcon className="size-4 mr-1.5 text-inherit" />
+                <TrashIcon className="mr-1.5 size-4 text-inherit" />
                 Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -106,11 +106,11 @@ export function WebhookCard({
         </CardHeader>
         <CardContent>
           <div className="flex items-start justify-between">
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-mono text-muted-foreground break-all mb-3 line-clamp-1">
+            <div className="min-w-0 flex-1">
+              <p className="mb-3 line-clamp-1 break-all font-mono text-muted-foreground text-sm">
                 {webhook.endpoint}
               </p>
-              <div className="flex items-center justify-between gap-4 text-xs text-muted-foreground">
+              <div className="flex items-center justify-between gap-4 text-muted-foreground text-xs">
                 <span>
                   Created {format(new Date(webhook.createdAt), "MMM d, yyyy")}
                 </span>
@@ -126,11 +126,11 @@ export function WebhookCard({
         </CardContent>
       </Card>
       <DeleteWebhookModal
+        isOpen={isOpen}
+        onDelete={onDelete}
+        onOpenChange={setIsOpen}
         webhookId={webhook.id}
         webhookName={webhook.name}
-        onDelete={onDelete}
-        isOpen={isOpen}
-        onOpenChange={setIsOpen}
       />
     </li>
   );

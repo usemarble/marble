@@ -16,11 +16,11 @@ import { useWorkspace } from "@/providers/workspace";
 import { AsyncButton } from "../ui/async-button";
 import type { TeamMemberRow } from "./columns";
 
-interface RemoveMemberModalProps {
+type RemoveMemberModalProps = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   member: TeamMemberRow;
-}
+};
 
 export function RemoveMemberModal({
   open,
@@ -65,7 +65,7 @@ export function RemoveMemberModal({
   }
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
+    <AlertDialog onOpenChange={setOpen} open={open}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
@@ -78,9 +78,9 @@ export function RemoveMemberModal({
         <AlertDialogFooter>
           <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
           <AsyncButton
-            onClick={removeMember}
-            isLoading={loading}
             disabled={loading}
+            isLoading={loading}
+            onClick={removeMember}
             variant="destructive"
           >
             Remove
