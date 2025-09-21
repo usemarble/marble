@@ -6,9 +6,9 @@ import { type Control, useController } from "react-hook-form";
 import type { PostValues } from "@/lib/validations/post";
 import { FieldInfo } from "./field-info";
 
-interface StatusFieldProps {
+type StatusFieldProps = {
   control: Control<PostValues>;
-}
+};
 
 export function StatusField({ control }: StatusFieldProps) {
   const {
@@ -19,15 +19,15 @@ export function StatusField({ control }: StatusFieldProps) {
   });
 
   return (
-    <div className="flex items-center gap-2 justify-between">
+    <div className="flex items-center justify-between gap-2">
       <div className="flex items-center gap-1">
         <Label htmlFor="status">Published</Label>
         <FieldInfo text="Whether your post is published or saved as a draft." />
       </div>
-      {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
+
       <Switch
-        id="status"
         checked={value === "published"}
+        id="status"
         onCheckedChange={() =>
           onChange(value === "published" ? "draft" : "published")
         }

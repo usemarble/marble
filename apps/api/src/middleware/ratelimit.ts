@@ -2,12 +2,12 @@ import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis/cloudflare";
 import type { Context, MiddlewareHandler, Next } from "hono";
 
-export interface RateLimit {
+export type RateLimit = {
   limit: number;
   remaining: number;
   reset: number;
   success: boolean;
-}
+};
 
 // Create a cache to store rate limit results
 const cache = new Map();

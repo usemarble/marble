@@ -14,8 +14,7 @@ function PageClient() {
   const { activeWorkspace } = useWorkspace();
 
   const { data: authors, isLoading } = useQuery({
-    // biome-ignore lint/style/noNonNullAssertion: <>
-    queryKey: QUERY_KEYS.AUTHORS(activeWorkspace?.id!),
+    queryKey: QUERY_KEYS.AUTHORS(activeWorkspace?.id ?? ""),
     queryFn: async () => {
       try {
         const response = await fetch("/api/authors");
@@ -26,7 +25,7 @@ function PageClient() {
         return data;
       } catch (error) {
         toast.error(
-          error instanceof Error ? error.message : "Failed to fetch authors",
+          error instanceof Error ? error.message : "Failed to fetch authors"
         );
       }
     },

@@ -1,10 +1,10 @@
 ---
-interface Props {
+type Props = {
   open?: boolean;
   title: string;
   name?: string;
   class?: string;
-}
+};
 
 const { open, title, name, class: className } = Astro.props;
 ---

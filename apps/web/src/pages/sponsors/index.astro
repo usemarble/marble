@@ -1,4 +1,5 @@
 ---
+import type { FC } from "react";
 import Container from "@/components/Container.astro";
 import Neon from "@/components/icons/sponsors/Neon.astro";
 import Upstash from "@/components/icons/sponsors/Upstash.astro";
@@ -20,7 +21,7 @@ const sponsorsData = [
   },
 ];
 
-const iconComponents: Record<string, any> = {
+const iconComponents: Record<string, FC> = {
   Upstash,
   Neon,
 };

@@ -50,26 +50,26 @@ export function NavExtra() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="rounded-lg">
+        <Button className="rounded-lg" size="icon" variant="ghost">
           <QuestionIcon className="size-4" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent side="right" sideOffset={6} className="w-60 divide-y p-0">
+      <PopoverContent className="w-60 divide-y p-0" side="right" sideOffset={6}>
         <div className="p-2">
-          <h3 className="px-2 py-1.5 text-sm font-medium text-muted-foreground">
+          <h3 className="px-2 py-1.5 font-medium text-muted-foreground text-sm">
             Get in touch
           </h3>
           <ul className="flex flex-col">
             {communityLinks.map((link) => (
               <li key={link.label}>
                 <a
-                  href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className={cn(
                     buttonVariants({ variant: "ghost", size: "sm" }),
-                    "w-full justify-start gap-2 text-muted-foreground",
+                    "w-full justify-start gap-2 text-muted-foreground"
                   )}
+                  href={link.href}
+                  rel="noopener noreferrer"
+                  target="_blank"
                 >
                   {link.icon}
                   {link.label}
@@ -80,20 +80,20 @@ export function NavExtra() {
           </ul>
         </div>
         <div className="p-2">
-          <h3 className="px-2 py-1.5 text-sm font-medium text-muted-foreground">
+          <h3 className="px-2 py-1.5 font-medium text-muted-foreground text-sm">
             Resources
           </h3>
           <ul className="flex flex-col">
             {resourceLinks.map((link) => (
               <li key={link.label}>
                 <a
-                  href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className={cn(
                     buttonVariants({ variant: "ghost", size: "sm" }),
-                    "w-full justify-start gap-2 text-muted-foreground",
+                    "w-full justify-start gap-2 text-muted-foreground"
                   )}
+                  href={link.href}
+                  rel="noopener noreferrer"
+                  target="_blank"
                 >
                   {link.icon}
                   {link.label}

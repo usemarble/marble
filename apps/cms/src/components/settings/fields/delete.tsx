@@ -40,7 +40,7 @@ export function Delete() {
     },
     onSuccess: async () => {
       const remainingWorkspaces = workspaceList?.filter(
-        (org) => org.id !== activeWorkspace?.id,
+        (org) => org.id !== activeWorkspace?.id
       );
 
       if (!remainingWorkspaces || remainingWorkspaces.length === 0) {
@@ -78,13 +78,13 @@ export function Delete() {
   return (
     <Card className="pb-4">
       <CardHeader>
-        <CardTitle className="text-lg font-medium">Delete workspace.</CardTitle>
+        <CardTitle className="font-medium text-lg">Delete workspace.</CardTitle>
         <CardDescription>
           Permanently delete your workspace and all associated data within. This
           action cannot be undone.
         </CardDescription>
       </CardHeader>
-      <CardFooter className="border-t pt-4 justify-end">
+      <CardFooter className="justify-end border-t pt-4">
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button variant="destructive">Delete Workspace</Button>
@@ -100,12 +100,12 @@ export function Delete() {
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AsyncButton
-                variant="destructive"
                 isLoading={isPending || !activeWorkspace?.id}
                 onClick={() =>
                   activeWorkspace?.id &&
                   deleteWorkspace({ organizationId: activeWorkspace.id })
                 }
+                variant="destructive"
               >
                 Delete
               </AsyncButton>

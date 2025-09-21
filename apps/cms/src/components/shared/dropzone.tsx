@@ -5,7 +5,7 @@ import { ImageIcon } from "@phosphor-icons/react";
 import { type DropzoneOptions, useDropzone } from "react-dropzone";
 import { IMAGE_DROPZONE_ACCEPT, MEDIA_DROPZONE_ACCEPT } from "@/lib/constants";
 
-interface DropzoneProps {
+type DropzoneProps = {
   onFilesAccepted: (files: File[]) => void;
   className?: string;
   multiple?: boolean;
@@ -18,7 +18,7 @@ interface DropzoneProps {
     active: string;
     subtitle?: string;
   };
-}
+};
 
 export function Dropzone({
   onFilesAccepted,
@@ -59,20 +59,20 @@ export function Dropzone({
       <div
         {...getRootProps()}
         className={cn(
-          "w-full rounded-md border border-dashed bg-background flex items-center justify-center cursor-pointer transition-colors",
+          "flex w-full cursor-pointer items-center justify-center rounded-md border border-dashed bg-background transition-colors",
           isDragActive && !isDragReject && "border-primary bg-primary/5",
           isDragReject && "border-destructive bg-destructive/10",
           hasErrors && "border-destructive bg-destructive/5",
           disabled && "cursor-not-allowed opacity-50",
-          className,
+          className
         )}
       >
         <input {...getInputProps()} />
         {children || (
-          <div className="flex flex-col items-center gap-2 text-muted-foreground p-6">
+          <div className="flex flex-col items-center gap-2 p-6 text-muted-foreground">
             <ImageIcon className="size-6" />
             <div className="flex flex-col items-center text-center">
-              <p className="text-sm font-medium">
+              <p className="font-medium text-sm">
                 {isDragReject
                   ? "Unsupported file type"
                   : isDragActive
@@ -80,7 +80,7 @@ export function Dropzone({
                     : placeholder.idle}
               </p>
               {placeholder.subtitle && (
-                <p className="text-xs text-muted-foreground/70 mt-1">
+                <p className="mt-1 text-muted-foreground/70 text-xs">
                   {placeholder.subtitle}
                 </p>
               )}
@@ -91,7 +91,7 @@ export function Dropzone({
 
       {/* Error messages */}
       {hasErrors && (
-        <div className="mt-2 space-y-1 text-sm text-destructive">
+        <div className="mt-2 space-y-1 text-destructive text-sm">
           {fileRejections.map(({ file, errors }) => {
             const fileType = file.name.split(".").pop();
             const message =

@@ -37,20 +37,20 @@ import { useUser } from "@/providers/user";
 import { ErrorMessage } from "../../auth/error-message";
 import { FieldInfo } from "./field-info";
 
-interface AuthorOptions {
+type AuthorOptions = {
   id: string;
   name: string;
   image: string | null;
   userId: string | null;
-}
+};
 
-interface AuthorSelectorProps {
+type AuthorSelectorProps = {
   control: Control<PostValues>;
   placeholder?: string;
   isOpen?: boolean;
   setIsOpen?: (open: boolean) => void;
   defaultAuthors?: string[];
-}
+};
 
 export function AuthorSelector({
   control,
@@ -94,18 +94,22 @@ export function AuthorSelector({
 
   // Memoize the primary author to avoid recalculation
   const derivedPrimaryAuthor = useMemo(() => {
-    if (!user || authors.length === 0) return undefined;
+    if (!user || authors.length === 0) {
+      return;
+    }
     return authors.find((author) => author.userId === user.id) || authors[0];
   }, [user, authors]);
 
   // Handle selected authors based on form value
   // This is just to show the selected users in the UI
   useEffect(() => {
-    if (isLoading || authors.length === 0) return;
+    if (isLoading || authors.length === 0) {
+      return;
+    }
 
     if (value.length > 0) {
       const authorsThatWerePreviouslySelected = authors.filter((opt) =>
-        value.includes(opt.id),
+        value.includes(opt.id)
       );
       setSelected(authorsThatWerePreviouslySelected);
     } else {
@@ -161,10 +165,10 @@ export function AuthorSelector({
         <Label htmlFor="authors">Authors</Label>
         <FieldInfo text="List of authors who contributed to the article." />
       </div>
-      <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <Popover onOpenChange={setIsOpen} open={isOpen}>
         <PopoverTrigger>
-          <div className="bg-editor-field relative flex h-auto min-h-9 w-full cursor-pointer items-center justify-between gap-2 rounded-md border px-3 py-1.5 text-sm">
-            <ul className="flex flex-wrap -space-x-2">
+          <div className="relative flex h-auto min-h-9 w-full cursor-pointer items-center justify-between gap-2 rounded-md border bg-editor-field px-3 py-1.5 text-sm">
+            <ul className="-space-x-2 flex flex-wrap">
               {selected.length === 0 && (
                 <li className="text-muted-foreground">
                   {placeholder || "Select authors"}
@@ -183,7 +187,7 @@ export function AuthorSelector({
               )}
               {selected.length > 1 &&
                 selected.map((author) => (
-                  <li key={author.id} className="flex items-center">
+                  <li className="flex items-center" key={author.id}>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Avatar className="size-6">
@@ -204,7 +208,7 @@ export function AuthorSelector({
           </div>
         </PopoverTrigger>
         {error && <ErrorMessage>{error.message}</ErrorMessage>}
-        <PopoverContent className="min-w-[350.67px] p-0" align="start">
+        <PopoverContent align="start" className="min-w-[350.67px] p-0">
           <Command className="w-full">
             <CommandInput placeholder="Search authors..." />
             <CommandList>
@@ -215,8 +219,8 @@ export function AuthorSelector({
                 <CommandGroup>
                   {authors.map((option) => (
                     <CommandItem
-                      key={option.id}
                       id={option.id}
+                      key={option.id}
                       onSelect={() => {
                         addOrRemoveAuthor(option.id);
                       }}
@@ -235,7 +239,7 @@ export function AuthorSelector({
                           "ml-auto h-4 w-4",
                           selected.some((item) => item.id === option.id)
                             ? "opacity-100"
-                            : "opacity-0",
+                            : "opacity-0"
                         )}
                       />
                     </CommandItem>

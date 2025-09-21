@@ -25,7 +25,7 @@ authors.get("/", async (c) => {
           message: err.message,
         })),
       },
-      400,
+      400
     );
   }
 
@@ -34,7 +34,7 @@ authors.get("/", async (c) => {
   try {
     const authorsList = await db.author.findMany({
       where: {
-        workspaceId: workspaceId,
+        workspaceId,
         isActive: true,
       },
       select: {
@@ -50,7 +50,7 @@ authors.get("/", async (c) => {
 
     const totalAuthors = await db.author.count({
       where: {
-        workspaceId: workspaceId,
+        workspaceId,
         isActive: true,
       },
     });
@@ -69,7 +69,7 @@ authors.get("/", async (c) => {
             requestedPage: page,
           },
         },
-        400,
+        400
       );
     }
 
@@ -78,9 +78,9 @@ authors.get("/", async (c) => {
       pagination: {
         limit,
         currentPage: page,
-        nextPage: nextPage,
+        nextPage,
         previousPage: prevPage,
-        totalPages: totalPages,
+        totalPages,
         totalItems: totalAuthors,
       },
     });
@@ -98,7 +98,7 @@ authors.get("/:identifier", async (c) => {
   try {
     const author = await db.author.findFirst({
       where: {
-        workspaceId: workspaceId,
+        workspaceId,
         isActive: true,
         OR: [{ id: identifier }, { slug: identifier }],
       },

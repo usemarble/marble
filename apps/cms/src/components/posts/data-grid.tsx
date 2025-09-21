@@ -25,9 +25,9 @@ import { useWorkspace } from "@/providers/workspace";
 import type { Post } from "./columns";
 import PostActions from "./post-actions";
 
-interface DataGridProps {
+type DataGridProps = {
   data: Post[];
-}
+};
 
 export function DataGrid({ data }: DataGridProps) {
   const { activeWorkspace } = useWorkspace();
@@ -38,24 +38,24 @@ export function DataGrid({ data }: DataGridProps) {
 
   if (data.length === 0) {
     return (
-      <div className="flex items-center justify-center h-96">
+      <div className="flex h-96 items-center justify-center">
         <p className="text-muted-foreground">No posts found.</p>
       </div>
     );
   }
 
   return (
-    <ul className="grid gap-6 md:grid-cols-2 auto-rows-fr">
+    <ul className="grid auto-rows-fr gap-6 md:grid-cols-2">
       {data.map((post) => (
-        <li key={post.id} className="h-full">
-          <Card className="bg-sidebar border-none p-2 pb-0 gap-0 rounded-[20px] h-full">
+        <li className="h-full" key={post.id}>
+          <Card className="h-full gap-0 rounded-[20px] border-none bg-sidebar p-2 pb-0">
             <Link
+              className="flex h-full min-h-[170px] flex-col rounded-[12px] bg-background p-5 shadow-sm outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
               href={`/${activeWorkspace?.slug}/editor/p/${post.id}`}
-              className="outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] bg-background p-5 flex flex-col rounded-[12px] min-h-[170px] shadow-sm h-full"
             >
-              <CardHeader className="pb-3 gap-y-0 px-0">
-                <div className="flex items-start gap-8 justify-between">
-                  <CardTitle className="font-medium leading-[1.4] line-clamp-2 flex-1 mr-2">
+              <CardHeader className="gap-y-0 px-0 pb-3">
+                <div className="flex items-start justify-between gap-8">
+                  <CardTitle className="mr-2 line-clamp-2 flex-1 font-medium leading-[1.4]">
                     {post.title}
                   </CardTitle>
                   <div>
@@ -63,7 +63,7 @@ export function DataGrid({ data }: DataGridProps) {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="pt-0 px-0 flex- mt-auto flex justify-between items-center flexcol">
+              <CardContent className="flex- flexcol mt-auto flex items-center justify-between px-0 pt-0">
                 <div className="space-y-3">
                   <Badge
                     variant={
@@ -94,10 +94,10 @@ export function DataGrid({ data }: DataGridProps) {
                 </div>
               </CardContent>
             </Link>
-            <CardFooter className="py-2.5 px-2">
-              <ul className="flex items-center -space-x-2">
+            <CardFooter className="px-2 py-2.5">
+              <ul className="-space-x-2 flex items-center">
                 {post.authors.map((author) => (
-                  <li key={author.id} className="flex items-center">
+                  <li className="flex items-center" key={author.id}>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Avatar className="size-8 border-2 border-background">

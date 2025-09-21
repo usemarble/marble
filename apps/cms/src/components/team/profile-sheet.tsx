@@ -26,11 +26,11 @@ import { organization } from "@/lib/auth/client";
 import { AsyncButton } from "../ui/async-button";
 import type { TeamMemberRow } from "./columns";
 
-interface ProfileSheetProps {
+type ProfileSheetProps = {
   open: boolean;
   setOpen: (open: boolean) => void;
   member: TeamMemberRow;
-}
+};
 
 export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
   const [role, setRole] = useState(member.role);
@@ -44,7 +44,7 @@ export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
     setLoading(true);
     await organization.updateMemberRole({
       memberId: member.id,
-      role: role,
+      role,
       fetchOptions: {
         onSuccess: () => {
           toast.success("Role updated");
@@ -58,7 +58,7 @@ export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
   }
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <Sheet onOpenChange={setOpen} open={open}>
       <SheetContent className="overflow-y-auto">
         <SheetHeader className="p-6">
           <SheetTitle>Profile</SheetTitle>
@@ -66,7 +66,7 @@ export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
             Manage {member.name}&apos;s access to the workspace.
           </SheetDescription>
         </SheetHeader>
-        <div className="h-full flex flex-col justify-between">
+        <div className="flex h-full flex-col justify-between">
           <div className="grid flex-1 auto-rows-min gap-6 px-6">
             <div className="grid gap-3">
               <div className="flex gap-3">
@@ -78,7 +78,7 @@ export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
                 </Avatar>
                 <div className="flex flex-col gap-1 pt-1">
                   <p className="font-medium">{member.name}</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-muted-foreground text-sm">
                     {member.email}
                   </p>
                   <div className="flex items-center gap-1 text-muted-foreground">
@@ -86,7 +86,7 @@ export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
                     <p className="text-sm">
                       Joined{" "}
                       {new Date(
-                        member.joinedAt ?? new Date(),
+                        member.joinedAt ?? new Date()
                       ).toLocaleDateString()}
                     </p>
                   </div>
@@ -95,11 +95,11 @@ export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
             </div>
 
             <div className="grid gap-3">
-              <div className="flex items-center gap-6 justify-between">
+              <div className="flex items-center justify-between gap-6">
                 <Label>Role</Label>
                 <Select
-                  value={role}
                   onValueChange={(role) => setRole(role as "admin" | "member")}
+                  value={role}
                 >
                   <SelectTrigger className="w-[220px]">
                     <SelectValue placeholder="Role" />
@@ -113,12 +113,12 @@ export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
             </div>
           </div>
 
-          <SheetFooter className="p-6 flex gap-2 justify-end">
+          <SheetFooter className="flex justify-end gap-2 p-6">
             <AsyncButton
-              onClick={handleSave}
-              isLoading={loading}
-              disabled={!settingsChanges}
               className="min-w-[100px]"
+              disabled={!settingsChanges}
+              isLoading={loading}
+              onClick={handleSave}
             >
               Save
             </AsyncButton>

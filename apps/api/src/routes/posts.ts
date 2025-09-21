@@ -33,7 +33,7 @@ posts.get("/", async (c) => {
             message: err.message,
           })),
         },
-        400,
+        400
       );
     }
 
@@ -92,7 +92,7 @@ posts.get("/", async (c) => {
             requestedPage: page,
           },
         },
-        400,
+        400
       );
     }
 
@@ -155,9 +155,9 @@ posts.get("/", async (c) => {
       ? {
           limit,
           currentPage: page,
-          nextPage: nextPage,
+          nextPage,
           previousPage: prevPage,
-          totalPages: totalPages,
+          totalPages,
           totalItems: totalPosts,
         }
       : {
@@ -180,7 +180,7 @@ posts.get("/", async (c) => {
         error: "Failed to fetch posts",
         message: error instanceof Error ? error.message : "Unknown error",
       },
-      500,
+      500
     );
   }
 });

@@ -15,13 +15,13 @@ import { AsyncButton } from "@/components/ui/async-button";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 
-interface DeleteWebhookModalProps {
+type DeleteWebhookModalProps = {
   webhookId: string;
   webhookName: string;
   onDelete: () => void;
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-}
+};
 
 export function DeleteWebhookModal({
   webhookId,
@@ -54,7 +54,7 @@ export function DeleteWebhookModal({
   });
 
   return (
-    <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
+    <AlertDialog onOpenChange={onOpenChange} open={isOpen}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete webhook?</AlertDialogTitle>
@@ -64,17 +64,17 @@ export function DeleteWebhookModal({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isPending} className="min-w-20">
+          <AlertDialogCancel className="min-w-20" disabled={isPending}>
             Cancel
           </AlertDialogCancel>
           <AsyncButton
-            variant="destructive"
+            className="min-w-20"
             disabled={isPending}
             onClick={(e) => {
               e.preventDefault();
               deleteWebhook();
             }}
-            className="min-w-20"
+            variant="destructive"
           >
             Delete webhook
           </AsyncButton>

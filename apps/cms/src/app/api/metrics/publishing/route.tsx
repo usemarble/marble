@@ -56,11 +56,17 @@ export async function GET() {
     let level: number;
     const percentage = count === 0 ? 0 : (count / maxCount) * 100;
 
-    if (count === 0) level = 0;
-    else if (percentage <= 25) level = 1;
-    else if (percentage <= 50) level = 2;
-    else if (percentage <= 75) level = 3;
-    else level = 4;
+    if (count === 0) {
+      level = 0;
+    } else if (percentage <= 25) {
+      level = 1;
+    } else if (percentage <= 50) {
+      level = 2;
+    } else if (percentage <= 75) {
+      level = 3;
+    } else {
+      level = 4;
+    }
 
     return {
       date: dateKey,

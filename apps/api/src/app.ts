@@ -44,14 +44,15 @@ app.use(trimTrailingSlash());
 app.use("/:workspaceId/*", async (c, next) => {
   const path = c.req.path;
   const workspaceId = c.req.param("workspaceId");
-  if (path.startsWith("/v1/") || path === "/" || path === "/status")
+  if (path.startsWith("/v1/") || path === "/" || path === "/status") {
     return next();
+  }
 
   const workspaceRoutes = ["/tags", "/categories", "/posts", "/authors"];
   const isWorkspaceRoute = workspaceRoutes.some(
     (route) =>
       path === `/${workspaceId}${route}` ||
-      path.startsWith(`/${workspaceId}${route}/`),
+      path.startsWith(`/${workspaceId}${route}/`)
   );
 
   if (isWorkspaceRoute) {

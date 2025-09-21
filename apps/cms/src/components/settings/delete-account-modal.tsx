@@ -20,7 +20,7 @@ export function DeleteAccountModal() {
   const router = useRouter();
   const { signOut } = useUser();
 
-  const accountId = null;
+  const accountId: string | null = null;
 
   const { mutate: deleteAccount, isPending } = useMutation({
     mutationFn: () => {
@@ -61,12 +61,12 @@ export function DeleteAccountModal() {
           <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
           <AlertDialogAction asChild>
             <AsyncButton
-              variant="destructive"
               isLoading={isPending}
               onClick={(e) => {
                 e.preventDefault();
                 deleteAccount();
               }}
+              variant="destructive"
             >
               Delete
             </AsyncButton>

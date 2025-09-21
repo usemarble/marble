@@ -13,7 +13,7 @@ export async function GET() {
   }
 
   const categories = await db.category.findMany({
-    where: { workspaceId: workspaceId },
+    where: { workspaceId },
     select: {
       id: true,
       name: true,
@@ -38,7 +38,7 @@ export async function POST(req: Request) {
   if (!body.success) {
     return NextResponse.json(
       { error: "Invalid request body", details: body.error.issues },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -46,7 +46,7 @@ export async function POST(req: Request) {
     data: {
       name: body.data.name,
       slug: body.data.slug,
-      workspaceId: workspaceId,
+      workspaceId,
     },
   });
 

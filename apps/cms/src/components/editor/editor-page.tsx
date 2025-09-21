@@ -47,15 +47,15 @@ const getToggleSidebarShortcut = () => {
     () =>
       typeof navigator !== "undefined" &&
       navigator.platform.toUpperCase().indexOf("MAC") >= 0,
-    [],
+    []
   );
   return isMac ? "⌘K" : "Ctrl+K";
 };
 
-interface EditorPageProps {
+type EditorPageProps = {
   initialData: PostValues;
   id?: string;
-}
+};
 
 function EditorPage({ initialData, id }: EditorPageProps) {
   const router = useRouter();
@@ -202,17 +202,17 @@ function EditorPage({ initialData, id }: EditorPageProps) {
 
   return (
     <>
-      <SidebarInset className="bg-editor-content-background rounded-xl shadow-xs border min-h-[calc(100vh-1rem)] h-[calc(100vh-1rem)]">
-        <header className="sticky top-0 p-3 z-50 flex justify-between">
-          <div className="flex gap-4 items-center">
+      <SidebarInset className="h-[calc(100vh-1rem)] min-h-[calc(100vh-1rem)] rounded-xl border bg-editor-content-background shadow-xs">
+        <header className="sticky top-0 z-50 flex justify-between p-3">
+          <div className="flex items-center gap-4">
             <Tooltip delayDuration={400}>
               <TooltipTrigger asChild>
                 <Link
-                  href={`/${params.workspace}/posts`}
                   className={cn(
                     buttonVariants({ variant: "ghost", size: "icon" }),
-                    "group cursor-default rounded-full",
+                    "group cursor-default rounded-full"
                   )}
+                  href={`/${params.workspace}/posts`}
                 >
                   <XIcon className="size-4 text-muted-foreground group-hover:text-foreground" />
                 </Link>
@@ -240,24 +240,24 @@ function EditorPage({ initialData, id }: EditorPageProps) {
         <section className="mx-auto w-full max-w-3xl flex-1">
           <HiddenScrollbar className="h-[calc(100vh-7rem)]">
             <form
-              ref={formRef}
-              onSubmit={handleSubmit(onSubmit)}
               className="space-y-5 rounded-md p-4"
+              onSubmit={handleSubmit(onSubmit)}
+              ref={formRef}
             >
               <div className="flex flex-col">
-                <label htmlFor="title" className="sr-only">
+                <label className="sr-only" htmlFor="title">
                   Enter post your title
                 </label>
-                {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
+
                 <TextareaAutosize
                   id="title"
                   placeholder="Title"
                   {...register("title")}
+                  className="scrollbar-hide mb-2 w-full resize-none bg-transparent font-semibold prose-headings:font-semibold text-4xl focus:outline-hidden focus:ring-0 sm:px-4"
                   onKeyDown={handleKeyDown}
-                  className="mb-2 resize-none scrollbar-hide w-full bg-transparent sm:px-4 text-4xl font-semibold focus:outline-hidden prose-headings:font-semibold focus:ring-0"
                 />
                 {errors.title && (
-                  <p className="text-sm px-1 font-medium text-destructive">
+                  <p className="px-1 font-medium text-destructive text-sm">
                     {errors.title.message}
                   </p>
                 )}
@@ -265,18 +265,6 @@ function EditorPage({ initialData, id }: EditorPageProps) {
               <div className="flex flex-col">
                 <EditorRoot>
                   <EditorContent
-                    initialContent={JSON.parse(watch("contentJson") || "{}")}
-                    immediatelyRender={false}
-                    extensions={[...defaultExtensions, slashCommand]}
-                    onCreate={({ editor }) => {
-                      editorRef.current = editor;
-                    }}
-                    onUpdate={({ editor }) => {
-                      editorRef.current = editor;
-                      const html = editor.getHTML();
-                      const json = editor.getJSON();
-                      handleEditorChange(html, json);
-                    }}
                     editorProps={{
                       handleDOMEvents: {
                         keydown: (_view, event) =>
@@ -287,13 +275,25 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                           "prose dark:prose-invert min-h-96 h-full sm:px-4 focus:outline-hidden max-w-full prose-blockquote:border-border",
                       },
                     }}
+                    extensions={[...defaultExtensions, slashCommand]}
+                    immediatelyRender={false}
+                    initialContent={JSON.parse(watch("contentJson") || "{}")}
+                    onCreate={({ editor }) => {
+                      editorRef.current = editor;
+                    }}
+                    onUpdate={({ editor }) => {
+                      editorRef.current = editor;
+                      const html = editor.getHTML();
+                      const json = editor.getJSON();
+                      handleEditorChange(html, json);
+                    }}
                   >
                     <BubbleMenu />
                     <SlashCommandMenu />
                   </EditorContent>
                 </EditorRoot>
                 {errors.content && (
-                  <p className="text-sm px-1 font-medium text-destructive">
+                  <p className="px-1 font-medium text-destructive text-sm">
                     {errors.content.message}
                   </p>
                 )}
@@ -306,19 +306,19 @@ function EditorPage({ initialData, id }: EditorPageProps) {
         <div
           className={cn(
             "h-svh transition-[width] ease-linear",
-            open ? "w-2" : "w-0",
+            open ? "w-2" : "w-0"
           )}
         />
       )}
       <EditorSidebar
-        errors={errors}
         control={control}
+        errors={errors}
         formRef={formRef}
-        watch={watch}
-        isSubmitting={isCreating || isUpdating}
         isOpen={showSettings}
-        setIsOpen={setShowSettings}
+        isSubmitting={isCreating || isUpdating}
         mode={isUpdateMode ? "update" : "create"}
+        setIsOpen={setShowSettings}
+        watch={watch}
       />
     </>
   );

@@ -152,8 +152,8 @@ export const auth = betterAuth({
       async sendVerificationOTP({ email, otp, type }) {
         await sendVerificationEmailAction({
           userEmail: email,
-          otp: otp,
-          type: type,
+          otp,
+          type,
         });
       },
     }),

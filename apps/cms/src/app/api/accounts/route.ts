@@ -40,7 +40,7 @@ export async function GET() {
     console.error("Error fetching account details:", error);
     return NextResponse.json(
       { error: "Failed to fetch account details" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
