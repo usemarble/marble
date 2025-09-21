@@ -5,8 +5,16 @@ import { getServerSession } from "@/lib/auth/session";
 import { R2_BUCKET_NAME, r2 } from "@/lib/r2";
 import { DeleteSchema } from "@/lib/validations/upload";
 import { getWebhooks, WebhookClient } from "@/lib/webhooks/webhook-client";
+import { z } from "zod";
 
-export async function GET() {
+const GET_SCHEMA = z.object({
+  limit: z.coerce.number().min(1).max(100).default(20),
+  cursor: z.string().optional(),
+  type: z.enum(["image", "video", "audio", "document"]).optional(),
+  sort: z.enum(["createdAt_desc", "createdAt_asc", "name_asc", "name_desc"]).default("createdAt_desc"),
+});
+
+export async function GET(request: Request) {
   const sessionData = await getServerSession();
 
   if (!sessionData) {
@@ -22,20 +30,57 @@ export async function GET() {
     );
   }
 
-  const media = await db.media.findMany({
-    where: { workspaceId: orgId },
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      name: true,
-      url: true,
-      createdAt: true,
-      type: true,
-      size: true,
-    },
-  });
+  const { searchParams } = new URL(request.url);
+  const parsed = GET_SCHEMA.safeParse(Object.fromEntries(searchParams));
 
-  return NextResponse.json(media, { status: 200 });
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.message }, { status: 400 });
+  }
+
+  const { limit, cursor, type, sort } = parsed.data;
+
+  const [field, direction] = sort.split("_") as [string, string];
+  const orderBy = {
+    [field]: direction,
+  };
+
+  try {
+    const hasAnyMedia = await db.media.count({
+    where: { workspaceId: orgId },
+    }) > 0;
+
+    const media = await db.media.findMany({
+      where: {
+        workspaceId: orgId,
+        ...(type && { type }),
+      },
+      take: limit + 1,
+      cursor: cursor ? { id: cursor } : undefined,
+      orderBy: orderBy as any,
+      select: {
+        id: true,
+        name: true,
+        url: true,
+        createdAt: true,
+        type: true,
+        size: true,
+      },
+    });
+
+    let nextCursor: typeof cursor | undefined = undefined;
+    if (media.length > limit) {
+      const nextItem = media.pop();
+      nextCursor = nextItem!.id;
+    }
+
+    return NextResponse.json(
+      { media, nextCursor, hasAnyMedia },
+      { status: 200 }
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to fetch media";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }
 
 export async function DELETE(request: Request) {
