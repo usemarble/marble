@@ -12,9 +12,9 @@ import { useState } from "react";
 import { UpgradeModal } from "@/components/billing/upgrade-modal";
 import { usePlan } from "@/hooks/use-plan";
 
-interface InviteButtonProps {
+type InviteButtonProps = {
   onInvite: () => void;
-}
+};
 
 export function InviteButton({ onInvite }: InviteButtonProps) {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -41,9 +41,9 @@ export function InviteButton({ onInvite }: InviteButtonProps) {
         <Tooltip delayDuration={0}>
           <TooltipTrigger asChild>
             <Button
+              className={isFreePlan ? "" : "opacity-50"}
               onClick={handleInviteClick}
               variant={isFreePlan ? "default" : "outline"}
-              className={isFreePlan ? "" : "opacity-50"}
             >
               <PlusIcon className="size-4" />
               Invite

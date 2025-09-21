@@ -6,9 +6,9 @@ import { type Control, useController } from "react-hook-form";
 import type { PostValues } from "@/lib/validations/post";
 import { FieldInfo } from "./field-info";
 
-interface SlugFieldProps {
+type SlugFieldProps = {
   control: Control<PostValues>;
-}
+};
 
 export function SlugField({ control }: SlugFieldProps) {
   const {
@@ -28,11 +28,11 @@ export function SlugField({ control }: SlugFieldProps) {
       <Input
         id="slug"
         {...field}
-        placeholder="my-awesome-post"
         className="col-span-3 bg-editor-field"
+        placeholder="my-awesome-post"
       />
       {error && (
-        <p className="text-sm px-1 font-medium text-destructive">
+        <p className="px-1 font-medium text-destructive text-sm">
           {error.message}
         </p>
       )}

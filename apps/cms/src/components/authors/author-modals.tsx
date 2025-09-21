@@ -49,13 +49,13 @@ import { generateSlug } from "@/utils/string";
 import { AsyncButton } from "../ui/async-button";
 import { CopyButton } from "../ui/copy-button";
 
-interface AuthorModalProps {
+type AuthorModalProps = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   mode?: "create" | "update";
   authorData?: Partial<Author>;
   onAuthorCreated?: (author: Author) => void;
-}
+};
 
 export const AuthorModal = ({
   open,
@@ -98,7 +98,7 @@ export const AuthorModal = ({
   const workspaceId = useWorkspaceId();
 
   const [avatarUrl, setAvatarUrl] = useState<string | null>(
-    authorData.image || null,
+    authorData.image || null
   );
   const [file, setFile] = useState<File | null>(null);
   const { mutate: uploadAvatar, isPending: isUploading } = useMutation({
@@ -132,7 +132,7 @@ export const AuthorModal = ({
       setOpen(false);
       toast.success("Author created successfully");
       if (workspaceId) {
-        void queryClient.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.AUTHORS(workspaceId),
         });
       }
@@ -160,7 +160,7 @@ export const AuthorModal = ({
       setOpen(false);
       toast.success("Author updated successfully");
       if (workspaceId) {
-        void queryClient.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.AUTHORS(workspaceId),
         });
       }
@@ -181,7 +181,9 @@ export const AuthorModal = ({
   }, [authorData.image]);
 
   const handleAvatarUpload = useCallback(() => {
-    if (!file) return;
+    if (!file) {
+      return;
+    }
     uploadAvatar(file);
   }, [file, uploadAvatar]);
 
@@ -209,7 +211,7 @@ export const AuthorModal = ({
         : await checkAuthorSlugForUpdateAction(
             data.slug,
             workspaceId,
-            authorData.id as string,
+            authorData.id as string
           );
 
     if (isTaken) {
@@ -233,27 +235,27 @@ export const AuthorModal = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-md p-8">
+    <Dialog onOpenChange={setOpen} open={open}>
+      <DialogContent className="p-8 sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-medium text-center">
+          <DialogTitle className="text-center font-medium">
             {mode === "create" ? "Create Author" : "Update Author"}
           </DialogTitle>
         </DialogHeader>
         <form
+          className="mt-2 flex flex-col gap-5"
           onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col gap-5 mt-2"
         >
           <div className="grid flex-1 gap-2">
             <Label htmlFor="avatar">Avatar</Label>
-            <div className="flex gap-4 items-center">
+            <div className="flex items-center gap-4">
               <div className="flex items-center gap-4">
                 <Label
-                  htmlFor="avatar"
                   className={cn(
-                    "cursor-pointer relative overflow-hidden rounded-full size-16 group",
-                    isUploading && "pointer-events-none",
+                    "group relative size-16 cursor-pointer overflow-hidden rounded-full",
+                    isUploading && "pointer-events-none"
                   )}
+                  htmlFor="avatar"
                 >
                   <Avatar className="size-16">
                     <AvatarImage src={avatarUrl || undefined} />
@@ -262,11 +264,9 @@ export const AuthorModal = ({
                     </AvatarFallback>
                   </Avatar>
                   <input
-                    title="Upload avatar"
-                    type="file"
-                    id="avatar"
                     accept="image/*"
                     className="sr-only"
+                    id="avatar"
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (file && !isUploading) {
@@ -274,13 +274,15 @@ export const AuthorModal = ({
                         handleAvatarUpload();
                       }
                     }}
+                    title="Upload avatar"
+                    type="file"
                   />
                   <div
                     className={cn(
-                      "absolute inset-0 flex items-center justify-center transition-opacity duration-300 bg-black/50 backdrop-blur-xs size-full",
+                      "absolute inset-0 flex size-full items-center justify-center bg-black/50 backdrop-blur-xs transition-opacity duration-300",
                       isUploading
                         ? "opacity-100"
-                        : "opacity-0 group-hover:opacity-100",
+                        : "opacity-0 group-hover:opacity-100"
                     )}
                   >
                     {isUploading ? (
@@ -291,13 +293,13 @@ export const AuthorModal = ({
                   </div>
                 </Label>
               </div>
-              <div className="flex items-center gap-2 w-full">
-                <Input value={avatarUrl || ""} readOnly />
+              <div className="flex w-full items-center gap-2">
+                <Input readOnly value={avatarUrl || ""} />
                 <CopyButton
-                  textToCopy={avatarUrl || ""}
                   disabled={!avatarUrl}
-                  type="button"
+                  textToCopy={avatarUrl || ""}
                   toastMessage="Avatar URL copied to clipboard."
+                  type="button"
                 />
               </div>
             </div>
@@ -352,10 +354,10 @@ export const AuthorModal = ({
             {errors.bio && <ErrorMessage>{errors.bio.message}</ErrorMessage>}
           </div>
           <AsyncButton
-            type="submit"
-            isLoading={isSubmitting}
+            className="mt-4 flex w-full gap-2"
             disabled={(mode === "update" && !isDirty) || isUploading}
-            className="flex w-full gap-2 mt-4"
+            isLoading={isSubmitting}
+            type="submit"
           >
             {mode === "create" ? "Create Author" : "Update Author"}
           </AsyncButton>
@@ -395,7 +397,7 @@ export const DeleteAuthorModal = ({
     onSuccess: () => {
       toast.success("Author deleted successfully");
       if (workspaceId) {
-        void queryClient.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.AUTHORS(workspaceId),
         });
       }
@@ -407,7 +409,7 @@ export const DeleteAuthorModal = ({
   });
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
+    <AlertDialog onOpenChange={setOpen} open={open}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete {name}?</AlertDialogTitle>
@@ -419,12 +421,12 @@ export const DeleteAuthorModal = ({
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
           <AsyncButton
-            variant="destructive"
+            isLoading={isPending}
             onClick={(e) => {
               e.preventDefault();
               deleteAuthor();
             }}
-            isLoading={isPending}
+            variant="destructive"
           >
             Delete
           </AsyncButton>

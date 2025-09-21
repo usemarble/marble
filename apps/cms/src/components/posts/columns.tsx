@@ -40,8 +40,8 @@ export const columns: ColumnDef<Post>[] = [
       const status = row.original.status;
       return (
         <Badge
-          variant={status === "published" ? "positive" : "pending"}
           className="rounded-[6px]"
+          variant={status === "published" ? "positive" : "pending"}
         >
           {status === "published" ? "Published" : "Draft"}
         </Badge>
@@ -53,9 +53,9 @@ export const columns: ColumnDef<Post>[] = [
     header: ({ column }) => {
       return (
         <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="h-auto p-0 font-medium hover:bg-transparent"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          variant="ghost"
         >
           Published
           <CaretUpDownIcon className="h-4 w-4" />
@@ -69,9 +69,9 @@ export const columns: ColumnDef<Post>[] = [
     header: ({ column }) => {
       return (
         <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="h-auto p-0 font-medium hover:bg-transparent"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          variant="ghost"
         >
           Last Updated
           <CaretUpDownIcon className="h-4 w-4" />

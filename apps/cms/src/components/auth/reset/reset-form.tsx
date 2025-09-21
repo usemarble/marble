@@ -8,10 +8,10 @@ import { authClient } from "@/lib/auth/client";
 import Container from "../../shared/container";
 import { AsyncButton } from "../../ui/async-button";
 
-interface ResetFormProps {
+type ResetFormProps = {
   callbackUrl: string;
   token: string;
-}
+};
 
 export function ResetForm({ callbackUrl, token }: ResetFormProps) {
   const [password, setPassword] = useState("");
@@ -50,31 +50,31 @@ export function ResetForm({ callbackUrl, token }: ResetFormProps) {
     <Container className="flex flex-col items-center justify-between py-24">
       <section className="flex w-full flex-col items-center gap-8">
         <div className="flex flex-col items-center gap-4 text-center">
-          <h1 className="text-lg font-semibold leading-7">
+          <h1 className="font-semibold text-lg leading-7">
             Reset your password
           </h1>
         </div>
 
-        <div className="flex flex-col gap-4 w-full max-w-sm">
+        <div className="flex w-full max-w-sm flex-col gap-4">
           <Input
-            type="password"
-            placeholder="New password"
-            value={password}
             onChange={(e) => setPassword(e.target.value)}
+            placeholder="New password"
+            type="password"
+            value={password}
           />
           <Input
-            type="password"
-            placeholder="Confirm new password"
-            value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="Confirm new password"
+            type="password"
+            value={confirmPassword}
           />
         </div>
 
         <AsyncButton
-          onClick={handleResetPassword}
+          className="flex min-w-48 items-center justify-center"
           disabled={!password || !confirmPassword}
-          className="flex items-center justify-center min-w-48"
           isLoading={isLoading}
+          onClick={handleResetPassword}
         >
           Reset password
         </AsyncButton>

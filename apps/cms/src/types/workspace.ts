@@ -1,4 +1,4 @@
-export interface Workspace {
+export type Workspace = {
   id: string;
   name: string;
   slug: string;
@@ -37,9 +37,9 @@ export interface Workspace {
     cancelAtPeriodEnd?: boolean;
     canceledAt?: string | Date | null;
   } | null;
-}
+};
 
-export interface WorkspaceContextType {
+export type WorkspaceContextType = {
   activeWorkspace: Workspace | null;
   updateActiveWorkspace: (workspace: Partial<Workspace>) => Promise<void>;
   workspaceList: Workspace[] | null;
@@ -48,9 +48,9 @@ export interface WorkspaceContextType {
   isAdmin: boolean;
   isMember: boolean;
   currentUserRole: string | null;
-}
+};
 
-export interface WorkspaceProviderProps {
+export type WorkspaceProviderProps = {
   children: React.ReactNode;
   initialWorkspace: Workspace | null;
-}
+};

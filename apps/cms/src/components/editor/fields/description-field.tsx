@@ -6,9 +6,9 @@ import { type Control, useController } from "react-hook-form";
 import type { PostValues } from "@/lib/validations/post";
 import { FieldInfo } from "./field-info";
 
-interface DescriptionFieldProps {
+type DescriptionFieldProps = {
   control: Control<PostValues>;
-}
+};
 
 export function DescriptionField({ control }: DescriptionFieldProps) {
   const {
@@ -29,11 +29,11 @@ export function DescriptionField({ control }: DescriptionFieldProps) {
       <Textarea
         id="description"
         {...field}
-        placeholder="A short description of your post"
         className="col-span-3 bg-editor-field"
+        placeholder="A short description of your post"
       />
       {error && (
-        <p className="text-sm px-1 font-medium text-destructive">
+        <p className="px-1 font-medium text-destructive text-sm">
           {error.message}
         </p>
       )}

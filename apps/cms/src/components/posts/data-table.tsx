@@ -17,10 +17,10 @@ import { useRouter } from "next/navigation";
 import { useWorkspace } from "@/providers/workspace";
 import type { Post } from "./columns";
 
-interface DataTableProps<TData, TValue> {
+type DataTableProps<TData, TValue> = {
   table: TableType<TData>;
   columns: ColumnDef<TData, TValue>[];
-}
+};
 
 export function DataTable<TData, TValue>({
   table,
@@ -54,7 +54,7 @@ export function DataTable<TData, TValue>({
                       ? null
                       : flexRender(
                           header.column.columnDef.header,
-                          header.getContext(),
+                          header.getContext()
                         )}
                   </TableHead>
                 );
@@ -66,9 +66,9 @@ export function DataTable<TData, TValue>({
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
               <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && "selected"}
                 className="cursor-pointer hover:bg-muted/50"
+                data-state={row.getIsSelected() && "selected"}
+                key={row.id}
                 onClick={(event) => handleRowClick(row.original as Post, event)}
               >
                 {row.getVisibleCells().map((cell) => (
@@ -86,7 +86,7 @@ export function DataTable<TData, TValue>({
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={columns.length} className="h-96 text-center">
+              <TableCell className="h-96 text-center" colSpan={columns.length}>
                 No posts results.
               </TableCell>
             </TableRow>

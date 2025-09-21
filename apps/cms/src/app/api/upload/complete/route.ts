@@ -18,7 +18,7 @@ export async function POST(request: Request) {
   if (!parsedBody.success) {
     return NextResponse.json(
       { error: "Invalid request body" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -72,7 +72,7 @@ export async function POST(request: Request) {
       default:
         return NextResponse.json(
           { error: "Invalid upload type" },
-          { status: 400 },
+          { status: 400 }
         );
     }
   } catch (error) {

@@ -95,9 +95,9 @@ function PageClient() {
     }
   }
   return (
-    <div className="h-screen grid place-items-center bg-sidebar dark:bg-background">
-      <Card className="rounded-[24px] sm:w-[450px] py-6 px-4">
-        <CardHeader className="text-center mb-5 items-center">
+    <div className="grid h-screen place-items-center bg-sidebar dark:bg-background">
+      <Card className="rounded-[24px] px-4 py-6 sm:w-[450px]">
+        <CardHeader className="mb-5 items-center text-center">
           <CardTitle className="font-medium">New workspace</CardTitle>
           <CardDescription className="text-center">
             {hasWorkspaces
@@ -112,30 +112,30 @@ function PageClient() {
           >
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-2">
-                <Label htmlFor="name" className="sr-only">
+                <Label className="sr-only" htmlFor="name">
                   Name
                 </Label>
-                {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
+
                 <Input id="name" placeholder="Name" {...register("name")} />
                 {errors.name && (
                   <ErrorMessage>{errors.name.message}</ErrorMessage>
                 )}
               </div>
               <div className="grid flex-1 gap-2">
-                <Label htmlFor="slug" className="sr-only">
+                <Label className="sr-only" htmlFor="slug">
                   Slug
                 </Label>
-                <div className="flex w-full rounded-md border border-input bg-transparent dark:bg-input/30 text-base placeholder:text-muted-foreground shadow-xs transition-[color,box-shadow] focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm overflow-hidden">
-                  <span className="p-2 bg-muted border-r">
+                <div className="flex w-full overflow-hidden rounded-md border border-input bg-transparent text-base shadow-xs transition-[color,box-shadow] placeholder:text-muted-foreground focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30">
+                  <span className="border-r bg-muted p-2">
                     {process.env.NEXT_PUBLIC_APP_URL?.split("//")[1]}/
                   </span>
-                  {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
+
                   <input
                     id="slug"
                     placeholder="Slug"
                     {...register("slug")}
                     autoComplete="off"
-                    className="w-full bg-transparent py-2 px-2 outline-none ring-0"
+                    className="w-full bg-transparent px-2 py-2 outline-none ring-0"
                   />
                 </div>
                 {errors.slug && (
@@ -143,18 +143,18 @@ function PageClient() {
                 )}
               </div>
               <div className="flex flex-col gap-2">
-                <Label htmlFor="timezone" className="sr-only">
+                <Label className="sr-only" htmlFor="timezone">
                   Timezone
                 </Label>
                 <Controller
-                  name="timezone"
                   control={control}
+                  name="timezone"
                   render={({ field }) => (
                     <TimezoneSelector
-                      value={field.value}
                       onValueChange={field.onChange}
                       placeholder="Select timezone..."
                       timezones={timezones}
+                      value={field.value}
                     />
                   )}
                 />
@@ -165,20 +165,20 @@ function PageClient() {
             </div>
             <div className="flex flex-col gap-4">
               <AsyncButton
-                type="submit"
-                size="lg"
+                className="flex w-full cursor-pointer gap-2"
                 isLoading={isSubmitting}
-                className="flex w-full gap-2 cursor-pointer"
+                size="lg"
+                type="submit"
               >
                 Create
               </AsyncButton>
               {hasWorkspaces && (
                 <Link
-                  href="/"
                   className={cn(
                     buttonVariants({ variant: "ghost", size: "lg" }),
-                    "w-full",
+                    "w-full"
                   )}
+                  href="/"
                 >
                   Back to dashboard
                 </Link>

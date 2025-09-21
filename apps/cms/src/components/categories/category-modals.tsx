@@ -89,7 +89,7 @@ export const CategoryModal = ({
       setOpen(false);
       toast.success("Category created successfully");
       if (workspaceId) {
-        void queryClient.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.CATEGORIES(workspaceId),
         });
       }
@@ -117,7 +117,7 @@ export const CategoryModal = ({
       setOpen(false);
       toast.success("Category updated successfully");
       if (workspaceId) {
-        void queryClient.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.CATEGORIES(workspaceId),
         });
       }
@@ -151,7 +151,7 @@ export const CategoryModal = ({
         : await checkCategorySlugForUpdateAction(
             data.slug,
             workspaceId,
-            categoryData.id as string, // Safe to assert after guard check
+            categoryData.id as string // Safe to assert after guard check
           );
 
     if (isTaken) {
@@ -169,35 +169,35 @@ export const CategoryModal = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-md p-8">
+    <Dialog onOpenChange={setOpen} open={open}>
+      <DialogContent className="p-8 sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-medium text-center">
+          <DialogTitle className="text-center font-medium">
             {mode === "create" ? "Create Category" : "Update Category"}
           </DialogTitle>
         </DialogHeader>
         <form
+          className="mt-2 flex flex-col gap-5"
           onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col gap-5 mt-2"
         >
           <div className="grid flex-1 gap-2">
-            <Label htmlFor="name" className="sr-only">
+            <Label className="sr-only" htmlFor="name">
               Name
             </Label>
             <Input id="name" {...register("name")} placeholder="Name" />
             {errors.name && <ErrorMessage>{errors.name.message}</ErrorMessage>}
           </div>
           <div className="grid flex-1 gap-2">
-            <Label htmlFor="slug" className="sr-only">
+            <Label className="sr-only" htmlFor="slug">
               Slug
             </Label>
             <Input id="slug" {...register("slug")} placeholder="slug" />
             {errors.slug && <ErrorMessage>{errors.slug.message}</ErrorMessage>}
           </div>
           <AsyncButton
-            type="submit"
+            className="mt-4 flex w-full gap-2"
             isLoading={isSubmitting}
-            className="flex w-full gap-2 mt-4"
+            type="submit"
           >
             {mode === "create" ? "Create Category" : "Update Category"}
           </AsyncButton>
@@ -237,7 +237,7 @@ export const DeleteCategoryModal = ({
     onSuccess: () => {
       toast.success("Category deleted successfully");
       if (workspaceId) {
-        void queryClient.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.CATEGORIES(workspaceId),
         });
       }
@@ -249,7 +249,7 @@ export const DeleteCategoryModal = ({
   });
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
+    <AlertDialog onOpenChange={setOpen} open={open}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete {name}?</AlertDialogTitle>
@@ -261,12 +261,12 @@ export const DeleteCategoryModal = ({
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
           <AsyncButton
-            variant="destructive"
+            isLoading={isPending}
             onClick={(e) => {
               e.preventDefault();
               deleteCategory();
             }}
-            isLoading={isPending}
+            variant="destructive"
           >
             Delete
           </AsyncButton>

@@ -41,7 +41,7 @@ export async function handleWebhookDiscord({
     body: getDiscordEmbed({
       event: body.event,
       data: body.data,
-      username: username,
+      username,
     }),
     retries,
   });
@@ -64,7 +64,7 @@ export async function handleWebhookSlack({
     body: getSlackMessage({
       event: body.event,
       data: body.data,
-      username: username,
+      username,
     }),
     retries,
   });

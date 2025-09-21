@@ -3,9 +3,9 @@
 import { cn } from "@marble/ui/lib/utils";
 import { motion } from "motion/react";
 import { nanoid } from "nanoid";
-import * as React from "react";
+import { useId } from "react";
 
-interface GaugeProps {
+type GaugeProps = {
   value: number;
   min?: number;
   max?: number;
@@ -19,7 +19,7 @@ interface GaugeProps {
   formatValue?: (value: number) => string;
   onAnimationComplete?: () => void;
   animate?: boolean;
-}
+};
 
 export function Gauge({
   value,
@@ -47,7 +47,7 @@ export function Gauge({
   const createArcPath = (
     startAngle: number,
     endAngle: number,
-    radius: number,
+    radius: number
   ) => {
     const start = {
       x: center + radius * Math.cos(startAngle),
@@ -63,7 +63,7 @@ export function Gauge({
   };
 
   const fullArcPath = createArcPath(startAngle, endAngle, radius);
-  const gradientId = React.useId();
+  const gradientId = useId();
   const circumference = Math.PI * radius;
 
   return (
@@ -71,13 +71,14 @@ export function Gauge({
       className={cn("relative inline-flex flex-col items-center", className)}
     >
       <svg
-        width={size}
+        className="overflow-visible"
         height={size * 0.6}
         viewBox={`0 0 ${size} ${size * 0.6}`}
-        className="overflow-visible"
+        width={size}
       >
+        <title>Gauge</title>
         <defs>
-          <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
+          <linearGradient id={gradientId} x1="0%" x2="100%" y1="0%" y2="0%">
             {colors.map((color, index) => (
               <stop
                 key={nanoid()}
@@ -91,46 +92,46 @@ export function Gauge({
         <path
           d={fullArcPath}
           fill="none"
-          stroke="hsl(var(--muted-foreground))"
-          strokeWidth={strokeWidth}
-          strokeLinecap="round"
           opacity={0.15}
+          stroke="hsl(var(--muted-foreground))"
+          strokeLinecap="round"
+          strokeWidth={strokeWidth}
         />
 
         <motion.path
+          animate={{ strokeDashoffset: circumference * (1 - percentage) }}
           d={fullArcPath}
           fill="none"
-          stroke={`url(#${gradientId})`}
-          strokeWidth={strokeWidth}
-          strokeLinecap="round"
-          strokeDasharray={circumference}
           initial={
             animate
               ? { strokeDashoffset: circumference }
               : { strokeDashoffset: circumference * (1 - percentage) }
           }
-          animate={{ strokeDashoffset: circumference * (1 - percentage) }}
+          onAnimationComplete={onAnimationComplete}
+          stroke={`url(#${gradientId})`}
+          strokeDasharray={circumference}
+          strokeLinecap="round"
+          strokeWidth={strokeWidth}
           transition={{
             duration: 1.5,
             ease: "easeInOut",
             delay: 0.2,
           }}
-          onAnimationComplete={onAnimationComplete}
         />
       </svg>
 
       <div className="absolute inset-0 mt-8 flex flex-col items-center justify-center">
         <motion.div
-          className={cn("text-foreground text-4xl font-bold", valueClassName)}
+          animate={{ opacity: 1, scale: 1 }}
+          className={cn("font-bold text-4xl text-foreground", valueClassName)}
           initial={
             animate ? { opacity: 0, scale: 0.5 } : { opacity: 1, scale: 1 }
           }
-          animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.5 }}
         >
           <motion.span
-            initial={animate ? { opacity: 0 } : { opacity: 1 }}
             animate={{ opacity: 1 }}
+            initial={animate ? { opacity: 0 } : { opacity: 1 }}
             transition={{ duration: 0.5, delay: 1 }}
           >
             {formatValue(normalizedValue)}
@@ -138,9 +139,9 @@ export function Gauge({
         </motion.div>
         {label && (
           <motion.div
-            className={cn("text-muted-foreground mt-1 text-sm", labelClassName)}
-            initial={animate ? { opacity: 0, y: 10 } : { opacity: 1, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
+            className={cn("mt-1 text-muted-foreground text-sm", labelClassName)}
+            initial={animate ? { opacity: 0, y: 10 } : { opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.8 }}
           >
             {label}

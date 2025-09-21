@@ -52,7 +52,7 @@ export async function POST(request: Request) {
   if (!values.success) {
     return NextResponse.json(
       { error: "Invalid request body", details: values.error.issues },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -93,7 +93,7 @@ export async function POST(request: Request) {
 
   const tagValidation = await validateWorkspaceTags(
     values.data.tags,
-    activeWorkspaceId,
+    activeWorkspaceId
   );
 
   if (!tagValidation.success) {
@@ -117,7 +117,7 @@ export async function POST(request: Request) {
   if (validAuthors.length === 0) {
     return NextResponse.json(
       { error: "No valid authors found" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
