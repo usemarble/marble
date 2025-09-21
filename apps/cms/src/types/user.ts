@@ -17,14 +17,14 @@ export interface UserProfile extends Omit<User, "emailVerified"> {
   } | null;
 }
 
-export interface UserContextType {
+export type UserContextType = {
   user: UserProfile | null;
   isAuthenticated: boolean;
   isFetchingUser: boolean;
   updateUser: (
-    updates: Partial<Pick<UserProfile, "name" | "image">>,
+    updates: Partial<Pick<UserProfile, "name" | "image">>
   ) => Promise<void>;
   isUpdatingUser: boolean;
   signOut: () => Promise<void>;
   isSigningOut: boolean;
-}
+};

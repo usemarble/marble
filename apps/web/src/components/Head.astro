@@ -2,11 +2,11 @@
 import "@/styles/globals.css";
 import { ClientRouter } from "astro:transitions";
 
-interface Props {
+type Props = {
   title: string;
   description: string;
   image?: string;
-}
+};
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 

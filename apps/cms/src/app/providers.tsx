@@ -22,7 +22,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider attribute="class" enableSystem disableTransitionOnChange>
+      <ThemeProvider attribute="class" disableTransitionOnChange enableSystem>
         <TooltipProvider>
           {process.env.NEXT_PUBLIC_DATEBUDDY_CLIENT_ID && (
             <DatabuddyFlagsProvider

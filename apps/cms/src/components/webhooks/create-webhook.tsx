@@ -42,9 +42,9 @@ import {
 } from "@/lib/validations/webhook";
 import { Discord, Slack } from "../shared/icons";
 
-interface CreateWebhookSheetProps {
+type CreateWebhookSheetProps = {
   children?: React.ReactNode;
-}
+};
 
 function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -76,7 +76,9 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
   const router = useRouter();
 
   const isDiscordUrl = useCallback((url: string): boolean => {
-    if (!url) return false;
+    if (!url) {
+      return false;
+    }
     try {
       const urlObj = new URL(url);
       return VALID_DISCORD_DOMAINS.some((domain) => urlObj.hostname === domain);
@@ -86,7 +88,9 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
   }, []);
 
   const isSlackUrl = useCallback((url: string): boolean => {
-    if (!url) return false;
+    if (!url) {
+      return false;
+    }
     try {
       const urlObj = new URL(url);
       return VALID_SLACK_DOMAINS.some((domain) => urlObj.hostname === domain);
@@ -99,8 +103,11 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
     const endpoint = debouncedEndpoint?.trim();
     let nextFormat: PayloadFormat = "json";
     if (endpoint) {
-      if (isDiscordUrl(endpoint)) nextFormat = "discord";
-      else if (isSlackUrl(endpoint)) nextFormat = "slack";
+      if (isDiscordUrl(endpoint)) {
+        nextFormat = "discord";
+      } else if (isSlackUrl(endpoint)) {
+        nextFormat = "slack";
+      }
     }
     if (watch("format") !== nextFormat) {
       setValue("format", nextFormat);
@@ -118,7 +125,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
       reset();
       setIsOpen(false);
       if (workspaceId) {
-        void queryClient.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.WEBHOOKS(workspaceId),
         });
       }
@@ -136,7 +143,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
     } else {
       setValue(
         "events",
-        currentEvents.filter((id) => id !== eventId),
+        currentEvents.filter((id) => id !== eventId)
       );
     }
   };
@@ -162,34 +169,34 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+    <Sheet onOpenChange={setIsOpen} open={isOpen}>
       <SheetTrigger asChild>
         {children || (
           <Button>
-            <Plus className="size-4 mr-2" />
+            <Plus className="mr-2 size-4" />
             New Webhook
           </Button>
         )}
       </SheetTrigger>
       <SheetContent className="overflow-y-auto">
         <SheetHeader className="p-6">
-          <SheetTitle className="text-xl font-medium">New Webhook</SheetTitle>
+          <SheetTitle className="font-medium text-xl">New Webhook</SheetTitle>
           <SheetDescription className="sr-only">
             Set the endpoint and select the events you want to receive
             notifications for.
           </SheetDescription>
         </SheetHeader>
         <form
+          className="flex h-full flex-col justify-between"
           onSubmit={handleSubmit(onSubmit)}
-          className="h-full flex flex-col justify-between"
         >
-          <div className="grid flex-1 auto-rows-min mb-5 gap-6 px-6">
+          <div className="mb-5 grid flex-1 auto-rows-min gap-6 px-6">
             <div className="grid gap-3">
               <Label htmlFor="name">Name</Label>
-              {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
+
               <Input id="name" placeholder="My Webhook" {...register("name")} />
               {errors.name && (
-                <p className="text-sm text-destructive">
+                <p className="text-destructive text-sm">
                   {errors.name.message}
                 </p>
               )}
@@ -197,14 +204,14 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
 
             <div className="grid gap-3">
               <Label htmlFor="endpoint">URL</Label>
-              {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
+
               <Input
                 id="endpoint"
                 placeholder="https://marblecms.com/webhooks/"
                 {...register("endpoint")}
               />
               {errors.endpoint && (
-                <p className="text-sm text-destructive">
+                <p className="text-destructive text-sm">
                   {errors.endpoint.message}
                 </p>
               )}
@@ -240,7 +247,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                 </SelectContent>
               </Select>
               {errors.format && (
-                <p className="text-sm text-destructive">
+                <p className="text-destructive text-sm">
                   {errors.format.message}
                 </p>
               )}
@@ -250,45 +257,45 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
               <div className="flex items-end">
                 <Label>Events</Label>
                 <a
+                  className="ml-2 flex cursor-pointer items-center text-primary text-xs hover:underline"
                   href="https://docs.marblecms.com/content/guides/webhooks"
-                  target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs text-primary cursor-pointer hover:underline ml-2 flex items-center"
+                  target="_blank"
                 >
                   <span>View Schemas</span>
                 </a>
               </div>
               <div className="grid gap-1">
-                <div className="flex items-center space-x-3 pb-2 border-b border-border">
+                <div className="flex items-center space-x-3 border-border border-b pb-2">
                   <Checkbox
-                    id={masterCheckboxId}
                     checked={getMasterCheckboxState()}
+                    id={masterCheckboxId}
                     onCheckedChange={(checked) =>
                       handleMasterCheckboxToggle(checked as boolean)
                     }
                   />
                   <div className="flex-1">
                     <Label
+                      className="cursor-pointer font-medium text-sm"
                       htmlFor={masterCheckboxId}
-                      className="text-sm font-medium cursor-pointer"
                     >
                       Select all events
                     </Label>
                   </div>
                 </div>
                 {webhookEvents.map((event) => (
-                  <div key={event.id} className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-3" key={event.id}>
                     <Checkbox
-                      id={event.id}
                       checked={watchedEvents?.includes(event.id) || false}
+                      id={event.id}
                       onCheckedChange={(checked) =>
                         handleEventToggle(event.id, checked as boolean)
                       }
                     />
                     <div className="flex-1">
                       <Label
+                        className="cursor-pointer font-medium text-sm"
                         htmlFor={event.id}
-                        className="text-sm font-medium cursor-pointer"
                       >
                         {event.label}
                       </Label>
@@ -297,7 +304,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                 ))}
               </div>
               {errors.events && (
-                <p className="text-sm text-destructive">
+                <p className="text-destructive text-sm">
                   {errors.events.message}
                 </p>
               )}
@@ -306,9 +313,9 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
 
           <SheetFooter className="p-6">
             <AsyncButton
-              type="submit"
-              isLoading={isCreating}
               className="w-full"
+              isLoading={isCreating}
+              type="submit"
             >
               Create webhook
             </AsyncButton>

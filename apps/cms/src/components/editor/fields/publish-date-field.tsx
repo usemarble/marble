@@ -15,9 +15,9 @@ import { type Control, useController } from "react-hook-form";
 import type { PostValues } from "@/lib/validations/post";
 import { FieldInfo } from "./field-info";
 
-interface PublishDateFieldProps {
+type PublishDateFieldProps = {
   control: Control<PostValues>;
-}
+};
 
 export function PublishDateField({ control }: PublishDateFieldProps) {
   const {
@@ -37,32 +37,32 @@ export function PublishDateField({ control }: PublishDateFieldProps) {
       <Popover>
         <PopoverTrigger asChild>
           <Button
-            variant="outline"
             className={cn(
-              "justify-between text-left font-normal shadow-none bg-editor-field",
-              !value && "text-muted-foreground",
+              "justify-between bg-editor-field text-left font-normal shadow-none",
+              !value && "text-muted-foreground"
             )}
+            variant="outline"
           >
             {value ? format(value, "PPP") : <span>Pick a date</span>}
             <CalendarDotsIcon className="text-muted-foreground" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0 overflow-hidden">
+        <PopoverContent className="w-auto overflow-hidden p-0">
           <Calendar
-            mode="single"
-            selected={value}
+            autoFocus
             captionLayout="dropdown"
+            mode="single"
             onSelect={(date: Date | undefined) => {
               if (date) {
                 onChange(date);
               }
             }}
-            autoFocus
+            selected={value}
           />
         </PopoverContent>
       </Popover>
       {error && (
-        <p className="text-sm px-1 font-medium text-destructive">
+        <p className="px-1 font-medium text-destructive text-sm">
           {error.message}
         </p>
       )}

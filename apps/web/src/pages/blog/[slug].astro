@@ -24,7 +24,7 @@ const formattedDate = new Date(entry.data.publishedAt).toLocaleDateString(
     year: "numeric",
     month: "long",
     day: "numeric",
-  },
+  }
 );
 ---
 
@@ -47,7 +47,9 @@ const formattedDate = new Date(entry.data.publishedAt).toLocaleDateString(
           </div>
         </section>
         <div>
-          <Image src={entry.data.coverImage} alt={entry.data.title} class="w-full max-w-3xl mx-auto mb-8" inferSize />
+          {entry.data.coverImage && (
+            <Image src={entry.data.coverImage} alt={entry.data.title} class="w-full max-w-3xl mx-auto mb-8" inferSize />
+          )}
         </div>
         <Prose>
           <div set:html={entry.data.content} />

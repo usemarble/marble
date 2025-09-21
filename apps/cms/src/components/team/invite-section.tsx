@@ -26,25 +26,25 @@ import { organization } from "@/lib/auth/client";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { useWorkspace } from "@/providers/workspace";
 
-interface Invite {
+type Invite = {
   id: string;
   email: string;
   role: string | null;
   status: string;
   expiresAt: string | Date;
   inviterId: string;
-}
+};
 
-interface InviteSectionProps {
+type InviteSectionProps = {
   invitations: Invite[];
-}
+};
 
 export function InviteSection({ invitations }: InviteSectionProps) {
   const { activeWorkspace } = useWorkspace();
   const queryClient = useQueryClient();
 
   const pendingInvitations = invitations.filter(
-    (invitation) => invitation.status === "pending",
+    (invitation) => invitation.status === "pending"
   );
 
   const resendInviteMutation = useMutation({
@@ -89,7 +89,7 @@ export function InviteSection({ invitations }: InviteSectionProps) {
         error instanceof Error ? error.message : "Failed to resend invitation",
         {
           id: "resend-invitation",
-        },
+        }
       );
     },
   });
@@ -127,7 +127,7 @@ export function InviteSection({ invitations }: InviteSectionProps) {
         error instanceof Error ? error.message : "Failed to cancel invitation",
         {
           id: "cancel-invitation",
-        },
+        }
       );
     },
   });
@@ -165,18 +165,18 @@ export function InviteSection({ invitations }: InviteSectionProps) {
         <div className="space-y-3 divide-y">
           {pendingInvitations.map((invitation) => (
             <div
+              className="flex items-center justify-between rounded-sm border p-3"
               key={invitation.id}
-              className="flex items-center justify-between p-3 border rounded-sm"
             >
               <div className="flex items-center gap-3">
-                <div className="size-8 rounded-full bg-muted flex items-center justify-center">
-                  <span className="text-sm font-medium">
+                <div className="flex size-8 items-center justify-center rounded-full bg-muted">
+                  <span className="font-medium text-sm">
                     {invitation.email.charAt(0).toUpperCase()}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <p className="font-medium text-sm">{invitation.email}</p>
-                  <Badge variant="outline" className="capitalize text-xs">
+                  <Badge className="text-xs capitalize" variant="outline">
                     {invitation.role || "member"}
                   </Badge>
                 </div>
@@ -185,33 +185,33 @@ export function InviteSection({ invitations }: InviteSectionProps) {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
-                    variant="ghost"
-                    size="sm"
                     disabled={
                       resendInviteMutation.isPending ||
                       cancelInviteMutation.isPending
                     }
+                    size="sm"
+                    variant="ghost"
                   >
                     <DotsThreeVerticalIcon className="size-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem
-                    onClick={() => handleResendInvite(invitation)}
                     disabled={
                       resendInviteMutation.isPending ||
                       cancelInviteMutation.isPending
                     }
+                    onClick={() => handleResendInvite(invitation)}
                   >
                     <ArrowsClockwiseIcon className="size-4" />
                     Resend Invite
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() => handleCancelInvite(invitation)}
                     disabled={
                       resendInviteMutation.isPending ||
                       cancelInviteMutation.isPending
                     }
+                    onClick={() => handleCancelInvite(invitation)}
                     variant="destructive"
                   >
                     <XIcon className="size-4" />

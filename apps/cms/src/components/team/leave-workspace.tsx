@@ -14,7 +14,7 @@ import { AsyncButton } from "@/components/ui/async-button";
 import { organization, useListOrganizations } from "@/lib/auth/client";
 import { useWorkspace } from "@/providers/workspace";
 
-interface ListOrganizationResponse {
+type ListOrganizationResponse = {
   // biome-ignore lint/suspicious/noExplicitAny: <>
   metadata?: any;
   name: string;
@@ -22,14 +22,14 @@ interface ListOrganizationResponse {
   logo?: string | null | undefined | undefined;
   createdAt: Date;
   id: string;
-}
+};
 
-interface LeaveWorkspaceModalProps {
+type LeaveWorkspaceModalProps = {
   id: string;
   name: string;
   open: boolean;
   setOpen: (open: boolean) => void;
-}
+};
 
 export function LeaveWorkspaceModal({
   id,
@@ -54,7 +54,7 @@ export function LeaveWorkspaceModal({
 
       // Find the next available workspace or redirect to new
       const remainingWorkspaces = organizations?.filter(
-        (org: ListOrganizationResponse) => org.id !== id,
+        (org: ListOrganizationResponse) => org.id !== id
       );
 
       if (!remainingWorkspaces || remainingWorkspaces.length === 0) {
@@ -80,7 +80,7 @@ export function LeaveWorkspaceModal({
   };
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
+    <AlertDialog onOpenChange={setOpen} open={open}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Leave {name}?</AlertDialogTitle>
@@ -92,10 +92,10 @@ export function LeaveWorkspaceModal({
         <AlertDialogFooter>
           <AlertDialogCancel className="min-w-20">Cancel</AlertDialogCancel>
           <AsyncButton
-            variant="destructive"
+            className="min-w-20"
             isLoading={isLeavingWorkspace}
             onClick={handleLeaveWorkspace}
-            className="min-w-20"
+            variant="destructive"
           >
             Leave
           </AsyncButton>

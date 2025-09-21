@@ -13,8 +13,8 @@ export function WorkspacePageWrapper({
   return (
     <div
       className={cn(
-        "flex flex-col h-full w-full max-w-4xl mx-auto py-8",
-        className,
+        "mx-auto flex h-full w-full max-w-4xl flex-col py-8",
+        className
       )}
     >
       {children}

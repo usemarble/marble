@@ -14,7 +14,7 @@ import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { Media } from "@/types/media";
 
 const MediaUploadModal = dynamic(() =>
-  import("@/components/media/upload-modal").then((mod) => mod.MediaUploadModal),
+  import("@/components/media/upload-modal").then((mod) => mod.MediaUploadModal)
 );
 
 function PageClient() {
@@ -30,14 +30,14 @@ function PageClient() {
         const res = await fetch("/api/media");
         if (!res.ok) {
           throw new Error(
-            `Failed to fetch media: ${res.status} ${res.statusText}`,
+            `Failed to fetch media: ${res.status} ${res.statusText}`
           );
         }
         const data: Media[] = await res.json();
         return data;
       } catch (error) {
         toast.error(
-          error instanceof Error ? error.message : "Failed to fetch media",
+          error instanceof Error ? error.message : "Failed to fetch media"
         );
       }
     },
@@ -51,16 +51,16 @@ function PageClient() {
   return (
     <>
       {media && media.length > 0 ? (
-        <WorkspacePageWrapper className="flex flex-col pt-10 pb-16 gap-8">
+        <WorkspacePageWrapper className="flex flex-col gap-8 pt-10 pb-16">
           <MediaGallery media={media} />
         </WorkspacePageWrapper>
       ) : (
-        <WorkspacePageWrapper className="h-full grid place-content-center">
-          <div className="flex flex-col gap-4 items-center max-w-80">
+        <WorkspacePageWrapper className="grid h-full place-content-center">
+          <div className="flex max-w-80 flex-col items-center gap-4">
             <div className="p-2">
               <ImagesIcon className="size-16" />
             </div>
-            <div className="text-center flex flex-col gap-4 items-center">
+            <div className="flex flex-col items-center gap-4 text-center">
               <p className="text-muted-foreground text-sm">
                 Images you upload in this workspace will appear here.
               </p>

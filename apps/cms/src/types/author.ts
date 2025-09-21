@@ -1,4 +1,4 @@
-export interface Author {
+export type Author = {
   id: string;
   name: string;
   image: string | null;
@@ -10,4 +10,4 @@ export interface Author {
   isActive: boolean;
   createdAt: Date | string;
   updatedAt: Date | string;
-}
+};

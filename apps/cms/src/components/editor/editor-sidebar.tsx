@@ -133,7 +133,7 @@ export function EditorSidebar({
     }
     if (formRef.current) {
       formRef.current.dispatchEvent(
-        new Event("submit", { cancelable: true, bubbles: true }),
+        new Event("submit", { cancelable: true, bubbles: true })
       );
     }
   };
@@ -141,45 +141,45 @@ export function EditorSidebar({
   return (
     <div>
       <Sidebar
-        side="right"
         className={cn(
-          "bg-editor-sidebar-background m-2 h-[calc(100vh-1rem)] min-h-[calc(100vh-1rem)] overflow-hidden rounded-xl border",
-          !open ? "mr-0" : "",
+          "m-2 h-[calc(100vh-1rem)] min-h-[calc(100vh-1rem)] overflow-hidden rounded-xl border bg-editor-sidebar-background",
+          open ? "" : "mr-0"
         )}
+        side="right"
         {...props}
       >
-        <SidebarHeader className="bg-transparent sticky top-0 z-10 shrink-0 px-6 py-4">
+        <SidebarHeader className="sticky top-0 z-10 shrink-0 bg-transparent px-6 py-4">
           <Tabs
-            value={activeTab}
-            onValueChange={setActiveTab}
             className="w-full"
+            onValueChange={setActiveTab}
+            value={activeTab}
           >
-            <TabsList variant="line" className="flex justify-start gap-2">
-              <TabsTrigger value="metadata" className="px-2">
+            <TabsList className="flex justify-start gap-2" variant="line">
+              <TabsTrigger className="px-2" value="metadata">
                 Metadata
               </TabsTrigger>
-              <TabsTrigger value="analysis" className="px-2">
+              <TabsTrigger className="px-2" value="analysis">
                 Analysis
               </TabsTrigger>
             </TabsList>
           </Tabs>
         </SidebarHeader>
 
-        <SidebarContent className="bg-transparent min-h-0 flex-1 overflow-hidden">
+        <SidebarContent className="min-h-0 flex-1 overflow-hidden bg-transparent">
           <Tabs
-            value={activeTab}
-            onValueChange={setActiveTab}
             className="flex h-full flex-col"
+            onValueChange={setActiveTab}
+            value={activeTab}
           >
             <TabsContent
-              value="metadata"
               className="min-h-0 flex-1 data-[state=inactive]:hidden"
+              value="metadata"
             >
               <HiddenScrollbar className="h-full px-6">
-                <section className="grid gap-6 pb-5 pt-4">
+                <section className="grid gap-6 pt-4 pb-5">
                   <StatusField control={control} />
 
-                  <Separator orientation="horizontal" className="flex" />
+                  <Separator className="flex" orientation="horizontal" />
 
                   <CoverImageSelector control={control} />
 
@@ -198,7 +198,7 @@ export function EditorSidebar({
 
                   <PublishDateField control={control} />
 
-                  <Separator orientation="horizontal" className="mt-4 flex" />
+                  <Separator className="mt-4 flex" orientation="horizontal" />
 
                   <AttributionField control={control} errors={errors} />
                 </section>
@@ -206,25 +206,25 @@ export function EditorSidebar({
             </TabsContent>
 
             <TabsContent
-              value="analysis"
               className="min-h-0 flex-1 data-[state=inactive]:hidden"
+              value="analysis"
             >
               <HiddenScrollbar className="h-full px-6">
-                <section className="grid gap-6 pb-5 pt-4">
+                <section className="grid gap-6 pt-4 pb-5">
                   <div className="flex flex-col gap-4">
                     <div className="space-y-2">
-                      <h4 className="text-sm font-medium">Readability</h4>
+                      <h4 className="font-medium text-sm">Readability</h4>
                       <div className="flex items-center justify-center">
                         <Gauge
-                          value={textMetrics.readabilityScore}
+                          animate={true}
                           label="Score"
                           size={200}
-                          animate={true}
+                          value={textMetrics.readabilityScore}
                         />
                       </div>
                       {textMetrics.wordCount > 0 && (
                         <div className="space-y-1">
-                          <h5 className="text-sm font-medium">Feedback</h5>
+                          <h5 className="font-medium text-sm">Feedback</h5>
                           <p className="text-muted-foreground text-xs">
                             <span className="font-medium">
                               {textMetrics.readabilityLevel.level}:
@@ -238,7 +238,7 @@ export function EditorSidebar({
                     <Separator />
 
                     <div className="space-y-3">
-                      <h4 className="text-sm font-medium">Text Statistics</h4>
+                      <h4 className="font-medium text-sm">Text Statistics</h4>
                       <div className="grid grid-cols-2 gap-3 text-sm">
                         <div className="space-y-1">
                           <p className="text-muted-foreground">Words</p>
@@ -264,12 +264,12 @@ export function EditorSidebar({
                     <Separator />
 
                     <div className="space-y-3">
-                      <h4 className="text-sm font-medium">
+                      <h4 className="font-medium text-sm">
                         {textMetrics.wordCount === 0
                           ? "Getting Started"
                           : "Suggestions"}
                       </h4>
-                      <div className="text-muted-foreground space-y-2 text-sm">
+                      <div className="space-y-2 text-muted-foreground text-sm">
                         {textMetrics.suggestions.map((suggestion) => (
                           <p key={suggestion}>• {suggestion}</p>
                         ))}
@@ -282,25 +282,25 @@ export function EditorSidebar({
           </Tabs>
         </SidebarContent>
 
-        <SidebarFooter className="bg-transparent shrink-0 px-6 py-6">
+        <SidebarFooter className="shrink-0 bg-transparent px-6 py-6">
           {activeTab === "metadata" &&
             (mode === "create" ? (
               <AsyncButton
-                type="button"
+                className="w-full"
                 disabled={!hasUnsavedChanges}
                 isLoading={isSubmitting}
                 onClick={triggerSubmit}
-                className="w-full"
+                type="button"
               >
                 Save
               </AsyncButton>
             ) : (
               <AsyncButton
-                type="button"
+                className="w-full"
                 disabled={!hasUnsavedChanges}
                 isLoading={isSubmitting}
                 onClick={triggerSubmit}
-                className="w-full"
+                type="button"
               >
                 Update
               </AsyncButton>

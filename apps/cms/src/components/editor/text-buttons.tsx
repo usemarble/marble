@@ -17,16 +17,18 @@ export type SelectorItem = {
   name: string;
   icon: Icon;
   command: (
-    editor: NonNullable<ReturnType<typeof useEditor>["editor"]>,
+    editor: NonNullable<ReturnType<typeof useEditor>["editor"]>
   ) => void;
   isActive: (
-    editor: NonNullable<ReturnType<typeof useEditor>["editor"]>,
+    editor: NonNullable<ReturnType<typeof useEditor>["editor"]>
   ) => boolean;
 };
 
 export const TextButtons = () => {
   const { editor } = useEditor();
-  if (!editor) return null;
+  if (!editor) {
+    return null;
+  }
 
   const items: SelectorItem[] = [
     {
@@ -84,10 +86,10 @@ export const TextButtons = () => {
       {items.map((item) => (
         <Button
           key={item.name}
-          type="button"
-          size="icon"
-          variant="ghost"
           onClick={() => item.command(editor)}
+          size="icon"
+          type="button"
+          variant="ghost"
         >
           <item.icon
             className={cn("size-4", {
