@@ -16,7 +16,7 @@ export async function POST(request: Request) {
   if (!values.success) {
     return NextResponse.json(
       { error: "Invalid request body", details: values.error.issues },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
 
   const existingShareLink = await db.shareLink.findFirst({
     where: {
-      postId: postId,
+      postId,
       isActive: true,
       expiresAt: {
         gt: new Date(),

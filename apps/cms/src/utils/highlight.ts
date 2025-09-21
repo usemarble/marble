@@ -49,7 +49,7 @@ async function getHighlighter() {
  */
 export async function highlightContent(
   htmlContent: string,
-  theme: "light" | "dark" = "dark",
+  theme: "light" | "dark" = "dark"
 ): Promise<string> {
   const highlighter = await getHighlighter();
 

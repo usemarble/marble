@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   _request: Request,
-  { params }: { params: Promise<{ token: string }> },
+  { params }: { params: Promise<{ token: string }> }
 ) {
   const { token } = await params;
 
@@ -64,14 +64,14 @@ export async function GET(
   if (!shareLink) {
     return NextResponse.json(
       { error: "Share link not found" },
-      { status: 404 },
+      { status: 404 }
     );
   }
 
   if (shareLink.expiresAt < new Date()) {
     return NextResponse.json(
       { error: "Share link has expired" },
-      { status: 410 },
+      { status: 410 }
     );
   }
 

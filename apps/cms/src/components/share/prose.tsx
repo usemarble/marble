@@ -10,8 +10,8 @@ function Prose({ children, html, className }: ProseProps) {
   return (
     <article
       className={cn(
-        "prose dark:prose-invert prose-h1:font-bold prose-h1:text-xl prose-a:hover:text-primary prose-p:text-justify prose-img:rounded-xl prose-headings:font-abc-favorit prose-headings:font-normal mx-auto",
-        className,
+        "prose dark:prose-invert mx-auto prose-img:rounded-xl prose-p:text-justify prose-h1:font-bold prose-headings:font-abc-favorit prose-headings:font-normal prose-h1:text-xl prose-a:hover:text-primary",
+        className
       )}
     >
       {html ? <div dangerouslySetInnerHTML={{ __html: html }} /> : children}

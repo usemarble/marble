@@ -15,8 +15,8 @@ import { toast } from "@marble/ui/components/sonner";
 import { LinkSimpleIcon, ShareFatIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
-import { CopyButton } from "../ui/copy-button";
 import { AsyncButton } from "../ui/async-button";
+import { CopyButton } from "../ui/copy-button";
 
 interface ShareModalProps {
   postId: string;
@@ -51,9 +51,7 @@ export function ShareModal({ postId }: ShareModalProps) {
     },
     onError: (error) => {
       toast.error(
-        error instanceof Error
-          ? error.message
-          : "Failed to generate share link",
+        error instanceof Error ? error.message : "Failed to generate share link"
       );
     },
   });
@@ -61,7 +59,7 @@ export function ShareModal({ postId }: ShareModalProps) {
   const formatExpiration = (date: Date) => {
     const now = new Date();
     const diffInHours = Math.ceil(
-      (date.getTime() - now.getTime()) / (1000 * 60 * 60),
+      (date.getTime() - now.getTime()) / (1000 * 60 * 60)
     );
 
     if (diffInHours < 1) {
@@ -76,7 +74,7 @@ export function ShareModal({ postId }: ShareModalProps) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="ghost" type="button" size="icon">
+        <Button size="icon" type="button" variant="ghost">
           <LinkSimpleIcon className="size-4" />
         </Button>
       </DialogTrigger>
@@ -88,22 +86,22 @@ export function ShareModal({ postId }: ShareModalProps) {
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2 w-full">
-            <Label htmlFor="link" className="sr-only">
+          <div className="flex w-full items-center gap-2">
+            <Label className="sr-only" htmlFor="link">
               Link
             </Label>
             {/** biome-ignore lint/correctness/useUniqueElementIds: <> */}
             <Input
               id="link"
-              value={shareLink || ""}
               placeholder="your share link will appear here"
               readOnly
+              value={shareLink || ""}
             />
             <CopyButton
-              textToCopy={shareLink || ""}
-              toastMessage="Link copied to clipboard."
               className="shadow-none"
               disabled={!shareLink}
+              textToCopy={shareLink || ""}
+              toastMessage="Link copied to clipboard."
             />
           </div>
           {expiresAt && (
@@ -124,10 +122,10 @@ export function ShareModal({ postId }: ShareModalProps) {
             </Button>
           </DialogClose>
           <AsyncButton
-            type="button"
-            onClick={() => generateShareLink()}
             disabled={isPending}
             isLoading={isPending}
+            onClick={() => generateShareLink()}
+            type="button"
           >
             Generate
           </AsyncButton>

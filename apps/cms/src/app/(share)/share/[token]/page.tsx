@@ -12,7 +12,7 @@ async function fetchShareData(token: string) {
     `${process.env.NEXT_PUBLIC_APP_URL}/api/share/${token}`,
     {
       cache: "force-cache",
-    },
+    }
   );
 
   if (response.status === 404) {
