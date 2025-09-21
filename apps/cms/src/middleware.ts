@@ -60,8 +60,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(
       new URL(
         `/verify?email=${encodeURIComponent(email)}&from=${callbackUrl}`,
-        request.url,
-      ),
+        request.url
+      )
     );
   }
 
