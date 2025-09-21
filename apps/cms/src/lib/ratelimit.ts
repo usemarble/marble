@@ -4,7 +4,7 @@ import { redis } from "./redis";
 export const rateLimitHeaders = (
   limit: number,
   remaining: number,
-  reset: number,
+  reset: number
 ): Headers => {
   return new Headers({
     "X-RateLimit-Limit": limit.toString(),

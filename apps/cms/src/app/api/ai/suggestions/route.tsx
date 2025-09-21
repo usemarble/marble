@@ -11,13 +11,13 @@ export async function POST(request: Request) {
 
   const { success, limit, remaining, reset } =
     await aiSuggestionsRateLimiter.limit(
-      sessionData.session.activeOrganizationId,
+      sessionData.session.activeOrganizationId
     );
 
   if (!success) {
     return NextResponse.json(
       { error: "Too many requests", remaining },
-      { status: 429, headers: rateLimitHeaders(limit, remaining, reset) },
+      { status: 429, headers: rateLimitHeaders(limit, remaining, reset) }
     );
   }
 

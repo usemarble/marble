@@ -50,7 +50,7 @@ export function Enable() {
         data: {
           ai: {
             enabled: data.aiEnabled,
-          }
+          },
         },
       });
     },
@@ -58,9 +58,10 @@ export function Enable() {
       toast.success(
         variables.data.aiEnabled
           ? "AI integration enabled"
-          : "AI integration disabled",
+          : "AI integration disabled"
       );
-      enableForm.reset({ aiEnabled: enableForm.getValues("aiEnabled") });P
+      enableForm.reset({ aiEnabled: enableForm.getValues("aiEnabled") });
+
       queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.WORKSPACE(variables.organizationId),
       });
@@ -75,7 +76,9 @@ export function Enable() {
   });
 
   const onEnableSubmit = (data: AiEnableValues) => {
-    if (!isOwner || !activeWorkspace?.id) return;
+    if (!isOwner || !activeWorkspace?.id) {
+      return;
+    }
     updateAiSettings({
       organizationId: activeWorkspace.id,
       data: { aiEnabled: data.aiEnabled },
@@ -85,55 +88,56 @@ export function Enable() {
   return (
     <Card className="pb-4">
       <CardHeader>
-        <CardTitle className="text-lg font-medium">AI Integration</CardTitle>
+        <CardTitle className="font-medium text-lg">AI Integration</CardTitle>
         <CardDescription>
           Enable AI-powered writing suggestions and content assistance for your
           workspace
         </CardDescription>
       </CardHeader>
       <form
-        onSubmit={enableForm.handleSubmit(onEnableSubmit)}
         className="flex flex-col gap-6"
+        onSubmit={enableForm.handleSubmit(onEnableSubmit)}
       >
         <CardContent>
-          <div className="flex flex-col gap-4 w-full">
+          <div className="flex w-full flex-col gap-4">
             <div className="flex items-center justify-between">
               <div className="flex flex-col gap-1">
-                <Label htmlFor={enableId} className="text-sm font-medium">
+                <Label className="font-medium text-sm" htmlFor={enableId}>
                   Enable AI Features
                 </Label>
-                <p className="text-xs text-muted-foreground">
-                  Enabling AI features will share your content with third party AI providers.
+                <p className="text-muted-foreground text-xs">
+                  Enabling AI features will share your content with third party
+                  AI providers.
                 </p>
               </div>
               <Switch
-                id={enableId}
                 checked={enableForm.watch("aiEnabled")}
+                disabled={!isOwner}
+                id={enableId}
                 onCheckedChange={(checked) =>
                   enableForm.setValue("aiEnabled", checked, {
                     shouldDirty: true,
                   })
                 }
-                disabled={!isOwner}
               />
             </div>
             {enableForm.formState.errors.aiEnabled && (
-              <p className="text-xs text-destructive">
+              <p className="text-destructive text-xs">
                 {enableForm.formState.errors.aiEnabled.message}
               </p>
             )}
           </div>
         </CardContent>
-        <CardFooter className="border-t pt-4 flex justify-between">
-          <p className="text-sm text-muted-foreground">
+        <CardFooter className="flex justify-between border-t pt-4">
+          <p className="text-muted-foreground text-sm">
             {enableForm.watch("aiEnabled")
               ? "AI features are enabled for this workspace"
               : "AI features are disabled for this workspace"}
           </p>
           <AsyncButton
-            isLoading={isPending}
-            className={cn("w-20 self-end flex gap-2 items-center")}
+            className={cn("flex w-20 items-center gap-2 self-end")}
             disabled={!isOwner || !enableForm.formState.isDirty}
+            isLoading={isPending}
           >
             Save
           </AsyncButton>

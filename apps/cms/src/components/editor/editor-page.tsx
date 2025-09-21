@@ -25,7 +25,7 @@ import {
   type JSONContent,
 } from "novel";
 import { CharacterCount, handleCommandNavigation } from "novel/extensions";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { SetStateAction, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { EditorSidebar } from "@/components/editor/editor-sidebar";
 import { HiddenScrollbar } from "@/components/editor/hidden-scrollbar";
@@ -201,9 +201,9 @@ function EditorPage({ initialData, id }: EditorPageProps) {
 
   return (
     <EditorRoot>
-      <SidebarInset className="bg-editor-content-background rounded-xl shadow-xs border min-h-[calc(100vh-1rem)] h-[calc(100vh-1rem)]">
-        <header className="sticky top-0 p-3 z-50 flex justify-between">
-          <div className="flex gap-4 items-center">
+      <SidebarInset className="h-[calc(100vh-1rem)] min-h-[calc(100vh-1rem)] rounded-xl border bg-editor-content-background shadow-xs">
+        <header className="sticky top-0 z-50 flex justify-between p-3">
+          <div className="flex items-center gap-4">
             <Tooltip delayDuration={400}>
               <TooltipTrigger asChild>
                 <Link
@@ -262,22 +262,6 @@ function EditorPage({ initialData, id }: EditorPageProps) {
               </div>
               <div className="flex flex-col">
                 <EditorContent
-                  initialContent={JSON.parse(watch("contentJson") || "{}")}
-                  immediatelyRender={false}
-                  extensions={[
-                    ...defaultExtensions,
-                    slashCommand,
-                    CharacterCount,
-                  ]}
-                  onCreate={({ editor }) => {
-                    editorRef.current = editor;
-                  }}
-                  onUpdate={({ editor }) => {
-                    editorRef.current = editor;
-                    const html = editor.getHTML();
-                    const json = editor.getJSON();
-                    handleEditorChange(html, json);
-                  }}
                   editorProps={{
                     handleDOMEvents: {
                       keydown: (_view, event) => handleCommandNavigation(event),
@@ -286,6 +270,22 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                       class:
                         "prose dark:prose-invert min-h-96 h-full sm:px-4 focus:outline-hidden max-w-full prose-blockquote:border-border",
                     },
+                  }}
+                  extensions={[
+                    ...defaultExtensions,
+                    slashCommand,
+                    CharacterCount,
+                  ]}
+                  immediatelyRender={false}
+                  initialContent={JSON.parse(watch("contentJson") || "{}")}
+                  onCreate={({ editor }) => {
+                    editorRef.current = editor;
+                  }}
+                  onUpdate={({ editor }) => {
+                    editorRef.current = editor;
+                    const html = editor.getHTML();
+                    const json = editor.getJSON();
+                    handleEditorChange(html, json);
                   }}
                 >
                   <BubbleMenu />
@@ -311,12 +311,14 @@ function EditorPage({ initialData, id }: EditorPageProps) {
       )}
       <EditorSidebar
         control={control}
+        editor={editorRef.current}
         errors={errors}
         formRef={formRef}
         isOpen={showSettings}
         isSubmitting={isCreating || isUpdating}
         mode={isUpdateMode ? "update" : "create"}
-        editor={editorRef.current}
+        setIsOpen={setShowSettings}
+        watch={watch}
       />
     </EditorRoot>
   );

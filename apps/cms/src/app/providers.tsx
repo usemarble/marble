@@ -26,10 +26,10 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         <TooltipProvider>
           {process.env.NEXT_PUBLIC_DATEBUDDY_CLIENT_ID && (
             <DatabuddyFlagsProvider
-              clientId={process.env.NEXT_PUBLIC_DATEBUDDY_CLIENT_ID}
-              isPending={isPending}
               apiUrl="https://api.databuddy.cc"
+              clientId={process.env.NEXT_PUBLIC_DATEBUDDY_CLIENT_ID}
               debug={false}
+              isPending={isPending}
               user={
                 data?.user
                   ? {
@@ -48,7 +48,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           <Toaster position="top-center" />
         </TooltipProvider>
       </ThemeProvider>
-      <ReactQueryDevtools initialIsOpen={false} buttonPosition="top-right" />
+      <ReactQueryDevtools buttonPosition="top-right" initialIsOpen={false} />
     </QueryClientProvider>
   );
 }

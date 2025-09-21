@@ -22,7 +22,7 @@ function PageClient() {
           </p>
           <Tooltip>
             <TooltipTrigger>
-              <Button disabled className="w-fit">
+              <Button className="w-fit" disabled>
                 <span>New API Key</span>
               </Button>
             </TooltipTrigger>

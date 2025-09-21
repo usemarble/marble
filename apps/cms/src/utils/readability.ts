@@ -2,7 +2,9 @@ import type { EditorInstance } from "novel";
 
 export function calculateReadabilityScore(editor: EditorInstance): number {
   const text = editor?.getText();
-  if (!text || text.trim().length === 0) return 0;
+  if (!text || text.trim().length === 0) {
+    return 0;
+  }
 
   const wordCountResult = editor.storage.characterCount.words();
   const sentences = text

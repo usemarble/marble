@@ -72,7 +72,9 @@ export function EditorSidebar({
   const [editorText, setEditorText] = useState("");
 
   useEffect(() => {
-    if (!editor) return;
+    if (!editor) {
+      return;
+    }
     setEditorText(editor.getText());
     const handler = () => setEditorText(editor.getText());
     editor.on("update", handler);
@@ -86,7 +88,7 @@ export function EditorSidebar({
   const textMetrics = useMemo(() => {
     const inputText = editorText;
 
-    if (!editor || !inputText)
+    if (!editor || !inputText) {
       return {
         wordCount: 0,
         sentenceCount: 0,
@@ -95,6 +97,7 @@ export function EditorSidebar({
         readabilityLevel: { level: "Unknown", description: "Unknown" },
         suggestions: [],
       };
+    }
     const wordCountResult = editor.storage.characterCount.words();
 
     const sentences = inputText
