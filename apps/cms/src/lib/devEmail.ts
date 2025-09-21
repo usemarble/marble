@@ -26,6 +26,5 @@ export async function sendDevEmail(options: MockableEmailOptions) {
 
   console.log("----------------------------------------------");
 
-  // simulate a successful email send
   return { data: { id: "mock-email-id" }, error: null };
 }
