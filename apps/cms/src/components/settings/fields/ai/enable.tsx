@@ -18,7 +18,6 @@ import { useRouter } from "next/navigation";
 import { useId } from "react";
 import { useForm } from "react-hook-form";
 import { AsyncButton } from "@/components/ui/async-button";
-import { organization } from "@/lib/auth/client";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import {
   type AiEnableValues,
@@ -34,36 +33,29 @@ export function Enable() {
 
   const enableForm = useForm<AiEnableValues>({
     resolver: zodResolver(aiEnableSchema),
-    defaultValues: { aiEnabled: activeWorkspace?.aiEnabled || false },
+    defaultValues: { ai: { enabled: activeWorkspace?.ai?.enabled ?? false } },
   });
 
   const { mutate: updateAiSettings, isPending } = useMutation({
     mutationFn: async ({
-      organizationId,
       data,
+      workspaceId,
     }: {
-      organizationId: string;
+      workspaceId: string;
       data: AiEnableValues;
     }) => {
-      return await organization.update({
-        organizationId,
-        data: {
-          ai: {
-            enabled: data.aiEnabled,
-          },
-        },
-      });
+      console.log(data, workspaceId);
     },
     onSuccess: (_, variables) => {
       toast.success(
-        variables.data.aiEnabled
+        variables.data.ai.enabled
           ? "AI integration enabled"
           : "AI integration disabled"
       );
-      enableForm.reset({ aiEnabled: enableForm.getValues("aiEnabled") });
+      enableForm.reset({ ai: { enabled: enableForm.getValues("ai.enabled") } });
 
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.WORKSPACE(variables.organizationId),
+        queryKey: QUERY_KEYS.WORKSPACE(variables.workspaceId),
       });
       router.refresh();
     },
@@ -80,8 +72,8 @@ export function Enable() {
       return;
     }
     updateAiSettings({
-      organizationId: activeWorkspace.id,
-      data: { aiEnabled: data.aiEnabled },
+      workspaceId: activeWorkspace.id,
+      data,
     });
   };
 
@@ -111,26 +103,26 @@ export function Enable() {
                 </p>
               </div>
               <Switch
-                checked={enableForm.watch("aiEnabled")}
+                checked={enableForm.watch("ai.enabled")}
                 disabled={!isOwner}
                 id={enableId}
                 onCheckedChange={(checked) =>
-                  enableForm.setValue("aiEnabled", checked, {
+                  enableForm.setValue("ai.enabled", checked, {
                     shouldDirty: true,
                   })
                 }
               />
             </div>
-            {enableForm.formState.errors.aiEnabled && (
+            {enableForm.formState.errors.ai?.enabled && (
               <p className="text-destructive text-xs">
-                {enableForm.formState.errors.aiEnabled.message}
+                {enableForm.formState.errors.ai.enabled.message}
               </p>
             )}
           </div>
         </CardContent>
         <CardFooter className="flex justify-between border-t pt-4">
           <p className="text-muted-foreground text-sm">
-            {enableForm.watch("aiEnabled")
+            {enableForm.watch("ai.enabled")
               ? "AI features are enabled for this workspace"
               : "AI features are disabled for this workspace"}
           </p>

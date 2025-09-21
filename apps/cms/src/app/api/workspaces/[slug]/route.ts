@@ -10,12 +10,15 @@ export async function GET(
 
   const sessionData = await getServerSession();
 
-  if (!sessionData) {
+  if (!sessionData || !sessionData.session.activeOrganizationId) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
   const workspace = await db.organization.findUnique({
-    where: { slug },
+    where: {
+      slug,
+      id: sessionData.session.activeOrganizationId,
+    },
     select: {
       id: true,
       name: true,
@@ -53,6 +56,15 @@ export async function GET(
           currentPeriodEnd: true,
           cancelAtPeriodEnd: true,
           canceledAt: true,
+        },
+      },
+      editorPreferences: {
+        select: {
+          ai: {
+            select: {
+              enabled: true,
+            },
+          },
         },
       },
     },

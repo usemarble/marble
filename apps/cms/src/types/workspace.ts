@@ -4,7 +4,6 @@ export type Workspace = {
   slug: string;
   logo: string | null;
   timezone: string | null;
-  aiEnabled?: boolean;
   createdAt: Date | string;
   currentUserRole: string | null;
   members: Array<{
@@ -37,6 +36,9 @@ export type Workspace = {
     currentPeriodEnd?: string | Date;
     cancelAtPeriodEnd?: boolean;
     canceledAt?: string | Date | null;
+  } | null;
+  ai: {
+    enabled: boolean;
   } | null;
 };
 

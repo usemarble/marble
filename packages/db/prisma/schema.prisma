@@ -32,35 +32,46 @@ model Subscription {
 }
 
 model Organization {
-  id           String        @id @default(cuid())
-  name         String
-  slug         String        @unique
-  logo         String?
-  metadata     String?
-  description  String?
-  subdomain    String?       @unique
-  updatedAt    DateTime      @updatedAt
-  createdAt    DateTime      @default(now())
-  timezone     String        @default("Europe/London")
-  authors      Author[]
-  categories   Category[]
-  invitations  Invitation[]
-  media        Media[]
-  members      Member[]
-  posts        Post[]
-  subscription Subscription?
-  tags         Tag[]
-  webhooks     Webhook[]
-  ai           Ai?
+  id                String             @id @default(cuid())
+  name              String
+  slug              String             @unique
+  logo              String?
+  metadata          String?
+  description       String?
+  subdomain         String?            @unique
+  updatedAt         DateTime           @updatedAt
+  createdAt         DateTime           @default(now())
+  timezone          String             @default("Europe/London")
+  authors           Author[]
+  categories        Category[]
+  invitations       Invitation[]
+  media             Media[]
+  members           Member[]
+  posts             Post[]
+  subscription      Subscription?
+  tags              Tag[]
+  webhooks          Webhook[]
+  editorPreferences EditorPreferences?
 
   @@map("workspace")
 }
 
-model Ai {
+model EditorPreferences {
   id          String       @id @default(cuid())
-  enabled     Boolean      @default(false)
+  ai          Ai?
   workspaceId String       @unique
   workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@map("editor_preferences")
+}
+
+model Ai {
+  id                  String            @id @default(cuid())
+  enabled             Boolean           @default(false)
+  editorPreferencesId String            @unique
+  editorPreferences   EditorPreferences @relation(fields: [editorPreferencesId], references: [id], onDelete: Cascade)
+
+  @@map("ai")
 }
 
 model Post {
