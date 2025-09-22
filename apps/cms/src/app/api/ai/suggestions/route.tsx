@@ -21,10 +21,14 @@ export async function POST(request: Request) {
     );
   }
 
-  const { content } = await request.json();
+  const body = await request.json();
+  const parsedBody = aiSuggestionsSchema.safeParse(body);
 
-  if (!content) {
-    return NextResponse.json({ error: "Content is required" }, { status: 400 });
+  if (!parsedBody.success) {
+    return NextResponse.json(
+      { error: "Invalid request body", details: parsedBody.error.issues },
+      { status: 400 }
+    );
   }
 
   const { createOpenRouter } = await import("@openrouter/ai-sdk-provider");

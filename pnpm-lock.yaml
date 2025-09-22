@@ -92,8 +92,8 @@ importers:
         specifier: ^1.1.18
         version: 1.1.18
       '@databuddy/sdk':
-        specifier: ^2.1.1
-        version: 2.1.1(jotai@2.10.1(@types/react@19.0.2)(react@19.1.1))(react@19.1.1)
+        specifier: ^2.1.75
+        version: 2.1.75(@types/react@19.0.2)(react@19.1.1)
       '@discordjs/builders':
         specifier: ^1.11.3
         version: 1.11.3
@@ -994,15 +994,12 @@ packages:
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
     engines: {node: '>=12'}
 
-  '@databuddy/sdk@2.1.1':
-    resolution: {integrity: sha512-PrFRH4zY3dQQvJCn/ZgysRM2xT3qJqIzb571LKIbM3TZ76JrO+alzWI/HH5ggwQUhufj0KOaLYGeM8KKzIDQhg==}
+  '@databuddy/sdk@2.1.75':
+    resolution: {integrity: sha512-6It3a7p3Ur4TxSlIA2+gSI6BWnxPF3sHGS+OC6OeiPr1tdGfhanPlPwY6p77HdtprHOb+KrqPfnVIgQnS+RnMw==}
     peerDependencies:
-      jotai: '>=2.0.0'
       react: '>=18'
       vue: '>=3'
     peerDependenciesMeta:
-      jotai:
-        optional: true
       react:
         optional: true
       vue:
@@ -8466,10 +8463,13 @@ snapshots:
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
 
-  '@databuddy/sdk@2.1.1(jotai@2.10.1(@types/react@19.0.2)(react@19.1.1))(react@19.1.1)':
-    optionalDependencies:
+  '@databuddy/sdk@2.1.75(@types/react@19.0.2)(react@19.1.1)':
+    dependencies:
       jotai: 2.10.1(@types/react@19.0.2)(react@19.1.1)
+    optionalDependencies:
       react: 19.1.1
+    transitivePeerDependencies:
+      - '@types/react'
 
   '@date-fns/tz@1.4.1': {}
 
