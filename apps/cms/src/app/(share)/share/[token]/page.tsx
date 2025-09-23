@@ -3,9 +3,9 @@ import type { ShareData, ShareStatus } from "@/types/share";
 import { highlightContent } from "@/utils/highlight";
 import SharePageClient from "./page-client";
 
-interface SharePageProps {
+type SharePageProps = {
   params: Promise<{ token: string }>;
-}
+};
 
 async function fetchShareData(token: string) {
   const response = await fetch(

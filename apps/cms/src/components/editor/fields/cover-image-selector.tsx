@@ -135,14 +135,14 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
   const renderContent = () => {
     if (coverImage) {
       return (
-        <div className="group relative h-48 w-full">
+        <div className="group relative h-48 w-full overflow-hidden rounded-md border border-dashed">
           {/* biome-ignore lint/performance/noImgElement: <> */}
           <img
             alt="cover"
-            className="h-full w-full rounded-md object-cover"
+            className="h-full w-full object-cover"
             src={coverImage}
           />
-          <div className="absolute inset-0 rounded-md bg-black/50 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+          <div className="absolute inset-0 bg-black/50 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
           <button
             className="absolute top-2 right-2 rounded-full bg-white p-2 text-black opacity-0 transition hover:text-destructive group-hover:opacity-100"
             onClick={() => onChange(null)}

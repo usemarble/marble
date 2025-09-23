@@ -22,7 +22,6 @@ export async function POST(request: Request) {
 
   const { postId } = values.data;
 
-  // Verify the post exists and belongs to the user's workspace
   const post = await db.post.findFirst({
     where: {
       id: postId,
@@ -58,7 +57,6 @@ export async function POST(request: Request) {
 
   const token = nanoid(32);
 
-  // 24 hours from now
   const expiresAt = new Date();
   expiresAt.setHours(expiresAt.getHours() + 24);
 
