@@ -17,15 +17,11 @@ import {
 } from "@marble/ui/components/tabs";
 import { cn } from "@marble/ui/lib/utils";
 import type { EditorInstance } from "novel";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import type { Control, FieldErrors, UseFormWatch } from "react-hook-form";
+import { useReadability } from "@/hooks/use-readability";
 import type { PostValues } from "@/lib/validations/post";
 import { useUnsavedChanges } from "@/providers/unsaved-changes";
-import {
-  calculateReadabilityScore,
-  generateSuggestions,
-  getReadabilityLevel,
-} from "@/utils/readability";
 import { AsyncButton } from "../ui/async-button";
 import { Gauge } from "../ui/gauge";
 import { AttributionField } from "./fields/attribution-field";
@@ -85,47 +81,7 @@ export function EditorSidebar({
     };
   }, [editor]);
 
-  const textMetrics = useMemo(() => {
-    const inputText = editorText;
-
-    if (!editor || !inputText) {
-      return {
-        wordCount: 0,
-        sentenceCount: 0,
-        avgWordsPerSentence: 0,
-        readabilityScore: 0,
-        readabilityLevel: { level: "Unknown", description: "Unknown" },
-        suggestions: [],
-      };
-    }
-    const wordCountResult = editor.storage.characterCount.words();
-
-    const sentences = inputText
-      .split(/[.!?]+/)
-      .filter((sentence) => sentence.trim().length > 0);
-    const sentenceCount = sentences.length;
-
-    const avgWordsPerSentence =
-      sentenceCount > 0 ? Math.round(wordCountResult / sentenceCount) : 0;
-    const readabilityScore = calculateReadabilityScore(editor);
-    const readabilityLevel = getReadabilityLevel(readabilityScore);
-
-    const metrics = {
-      wordCount: wordCountResult,
-      sentenceCount,
-      avgWordsPerSentence,
-      readabilityScore,
-      readabilityLevel,
-    };
-
-    const suggestions = generateSuggestions(metrics);
-
-    return {
-      ...metrics,
-      readabilityLevel,
-      suggestions,
-    };
-  }, [editor, editorText]);
+  const textMetrics = useReadability({ editor, text: editorText });
 
   const triggerSubmit = async () => {
     if (hasErrors) {
@@ -253,12 +209,18 @@ export function EditorSidebar({
                             {textMetrics.sentenceCount}
                           </p>
                         </div>
-                        <div className="col-span-2 space-y-1">
+                        <div className="space-y-1">
                           <p className="text-muted-foreground">
-                            Avg. words per sentence
+                            Words per Sentence
                           </p>
                           <p className="font-medium">
-                            {textMetrics.avgWordsPerSentence}
+                            {textMetrics.wordsPerSentence}
+                          </p>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-muted-foreground">Reading Time</p>
+                          <p className="font-medium">
+                            {textMetrics.readingTime.toFixed(0)} minutes
                           </p>
                         </div>
                       </div>

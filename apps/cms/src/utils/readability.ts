@@ -95,10 +95,10 @@ export function getReadabilityLevel(score: number): {
 export function generateSuggestions(metrics: {
   wordCount: number;
   sentenceCount: number;
-  avgWordsPerSentence: number;
+  wordsPerSentence: number;
   readabilityScore: number;
 }): string[] {
-  const { wordCount, sentenceCount, avgWordsPerSentence, readabilityScore } =
+  const { wordCount, sentenceCount, wordsPerSentence, readabilityScore } =
     metrics;
   const suggestions: string[] = [];
 
@@ -139,9 +139,9 @@ export function generateSuggestions(metrics: {
     suggestions.push(
       "Good start! Consider expanding to 300-600 words for better SEO performance"
     );
-    if (avgWordsPerSentence > 25) {
+    if (wordsPerSentence > 25) {
       suggestions.push(
-        `Your sentences are quite long (avg: ${avgWordsPerSentence} words). Try shorter sentences for better readability`
+        `Your sentences are quite long (avg: ${wordsPerSentence} words). Try shorter sentences for better readability`
       );
     }
     if (readabilityScore < 50) {
@@ -149,9 +149,9 @@ export function generateSuggestions(metrics: {
     }
     return suggestions;
   }
-  if (avgWordsPerSentence > 25) {
+  if (wordsPerSentence > 25) {
     suggestions.push(
-      `Consider shorter sentences (avg: ${avgWordsPerSentence} words) to improve readability`
+      `Consider shorter sentences (avg: ${wordsPerSentence} words) to improve readability`
     );
   }
 
@@ -171,7 +171,7 @@ export function generateSuggestions(metrics: {
     );
   }
 
-  if (wordCount > 1000 && avgWordsPerSentence < 15) {
+  if (wordCount > 1000 && wordsPerSentence < 15) {
     suggestions.push(
       "Your content is comprehensive! Consider varying sentence length for better flow"
     );
