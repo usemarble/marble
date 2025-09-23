@@ -4,6 +4,6 @@ import type { HTMLAttributes } from "astro/types";
 interface Props extends HTMLAttributes<"article"> {}
 const { class: classNames, ...attrs } = Astro.props;
 ---
-<article {...attrs} class={`prose prose-marble max-w-2xl prose-headings:font-sans prose-headings:mb-5 prose-headings:mt-8 prose-headings:font-medium prose-headings:text-balance font-serif mx-auto ${classNames}`}>
+<article {...attrs} class={`prose prose-marble max-w-2xl prose-headings:font-sans prose-headings:mb-5 prose-headings:mt-8 prose-headings:font-medium prose-headings:text-balance prose-code:before:content-none prose-code:after:content-none my-6 font-serif mx-auto ${classNames}`}>
   <slot />
 </article>
