@@ -62,12 +62,25 @@ export async function PATCH(request: Request) {
     );
   }
 
-  const updatedPreferences = await db.editorPreferences.update({
+  const updatedPreferences = await db.editorPreferences.upsert({
     where: { workspaceId: sessionData.session.activeOrganizationId },
-    data: {
+    create: {
+      workspaceId: sessionData.session.activeOrganizationId,
       ai: {
-        update: {
+        create: {
           enabled: parsedBody.data.ai.enabled,
+        },
+      },
+    },
+    update: {
+      ai: {
+        upsert: {
+          create: {
+            enabled: parsedBody.data.ai.enabled,
+          },
+          update: {
+            enabled: parsedBody.data.ai.enabled,
+          },
         },
       },
     },
