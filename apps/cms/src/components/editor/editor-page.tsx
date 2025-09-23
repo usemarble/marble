@@ -63,6 +63,9 @@ function EditorPage({ initialData, id }: EditorPageProps) {
   const { open, isMobile } = useSidebar();
   const formRef = useRef<HTMLFormElement>(null);
   const editorRef = useRef<EditorInstance | null>(null);
+  const [editorInstance, setEditorInstance] = useState<EditorInstance | null>(
+    null
+  );
   const [showSettings, setShowSettings] = useState(false);
   const { setHasUnsavedChanges } = useUnsavedChanges();
   const initialDataRef = useRef<PostValues>(initialData);
@@ -280,9 +283,11 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                   initialContent={JSON.parse(watch("contentJson") || "{}")}
                   onCreate={({ editor }) => {
                     editorRef.current = editor;
+                    setEditorInstance(editor);
                   }}
                   onUpdate={({ editor }) => {
                     editorRef.current = editor;
+                    setEditorInstance(editor);
                     const html = editor.getHTML();
                     const json = editor.getJSON();
                     handleEditorChange(html, json);
@@ -311,7 +316,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
       )}
       <EditorSidebar
         control={control}
-        editor={editorRef.current}
+        editor={editorInstance}
         errors={errors}
         formRef={formRef}
         isOpen={showSettings}

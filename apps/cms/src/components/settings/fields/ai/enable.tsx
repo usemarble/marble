@@ -24,6 +24,7 @@ import {
   aiEnableSchema,
 } from "@/lib/validations/workspace";
 import { useWorkspace } from "@/providers/workspace";
+import type { Workspace } from "@/types/workspace";
 
 export function Enable() {
   const router = useRouter();
@@ -37,14 +38,64 @@ export function Enable() {
   });
 
   const { mutate: updateAiSettings, isPending } = useMutation({
-    mutationFn: async ({
-      data,
-      workspaceId,
-    }: {
+    mutationFn: async (variables: {
       workspaceId: string;
       data: AiEnableValues;
     }) => {
-      console.log(data, workspaceId);
+      try {
+      const res = await fetch("/api/editor/preferences", {
+        method: "PATCH",
+        body: JSON.stringify({
+          ai: {
+            enabled: variables.data.ai.enabled,
+          },
+        }),
+      });
+
+        if (!res.ok) {
+          throw new Error(
+            `Failed to update AI settings: ${res.status} ${res.statusText}`
+          );
+        }
+        const data = await res.json();
+        return data;
+      } catch (error) {
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : "Failed to update AI settings"
+        );
+      }
+    },
+    
+    onMutate: async (newData) => {
+      if (!newData.workspaceId) {
+        return;
+      }
+
+      await queryClient.cancelQueries({
+        queryKey: QUERY_KEYS.WORKSPACE(newData.workspaceId),
+      });
+
+      const previousWorkspace = queryClient.getQueryData<Workspace>(
+        QUERY_KEYS.WORKSPACE(newData.workspaceId)
+      );
+
+      queryClient.setQueryData<Workspace | undefined>(
+        QUERY_KEYS.WORKSPACE(newData.workspaceId),
+        (old) =>
+          old
+            ? {
+                ...old,
+                ai: {
+                  ...(old.ai ?? {}),
+                  enabled: newData.data.ai.enabled,
+                },
+              }
+            : old
+      );
+
+      return { previousWorkspace };
     },
     onSuccess: (_, variables) => {
       toast.success(
@@ -53,17 +104,26 @@ export function Enable() {
           : "AI integration disabled"
       );
       enableForm.reset({ ai: { enabled: enableForm.getValues("ai.enabled") } });
-
-      queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.WORKSPACE(variables.workspaceId),
-      });
       router.refresh();
     },
-    onError: (error) => {
+    onError: (error, _variables, context) => {
+      if (context?.previousWorkspace && _variables?.workspaceId) {
+        queryClient.setQueryData(
+          QUERY_KEYS.WORKSPACE(_variables.workspaceId),
+          context.previousWorkspace
+        );
+      }
       const errorMessage =
         error instanceof Error ? error.message : "Failed to update AI settings";
       toast.error(errorMessage);
       console.error("Failed to update AI settings:", error);
+    },
+    onSettled: (_data, _error, variables) => {
+      if (variables?.workspaceId) {
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.WORKSPACE(variables.workspaceId),
+        });
+      }
     },
   });
 
