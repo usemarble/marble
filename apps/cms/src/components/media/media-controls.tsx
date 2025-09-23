@@ -1,24 +1,24 @@
 import { Button } from "@marble/ui/components/button";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@marble/ui/components/tooltip";
-import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@marble/ui/components/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@marble/ui/components/tooltip";
 import { TrashIcon, UploadIcon, XIcon } from "@phosphor-icons/react";
 
-export function MediaControls({ 
-  type, 
-  setType, 
-  sort, 
-  setSort, 
+export function MediaControls({
+  type,
+  setType,
+  sort,
+  setSort,
   onUpload,
   selectedItems,
   onSelectAll,
@@ -38,11 +38,11 @@ export function MediaControls({
   mediaLength: number;
 }) {
   return (
-    <section className="flex items-center justify-between">
-      <div className="flex items-center gap-4">
+    <section className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-4">
         <Select
-          value={type || "all"}
           onValueChange={(val) => setType(val === "all" ? undefined : val)}
+          value={type || "all"}
         >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Filter by type" />
@@ -55,7 +55,7 @@ export function MediaControls({
             <SelectItem value="document">Document</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={sort} onValueChange={setSort}>
+        <Select onValueChange={setSort} value={sort}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
@@ -72,7 +72,7 @@ export function MediaControls({
               <XIcon size={16} />
             </Button>
           )}
-          {mediaLength > 0 && ( 
+          {mediaLength > 0 && (
             <Button onClick={onSelectAll} variant="outline">
               {selectedItems.size === mediaLength
                 ? "Deselect All"
@@ -99,12 +99,12 @@ export function MediaControls({
           )}
         </div>
       </div>
-      <div className="flex items-center gap-2">
-        <Button onClick={onUpload}>
+      <div className="flex justify-end">
+        <Button className="w-full sm:w-auto" onClick={onUpload}>
           <UploadIcon size={16} />
           <span>Upload Media</span>
         </Button>
       </div>
     </section>
   );
-};
+}
