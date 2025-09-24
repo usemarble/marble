@@ -232,6 +232,7 @@ model Session {
   user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([token])
   @@index([activeOrganizationId])
   @@map("session")
 }
@@ -265,6 +266,7 @@ model Verification {
   createdAt  DateTime?
   updatedAt  DateTime?
 
+  @@index([identifier])
   @@map("verification")
 }
 
