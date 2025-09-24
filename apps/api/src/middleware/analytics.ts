@@ -31,7 +31,7 @@ export const analytics = (): MiddlewareHandler => {
     c.executionCtx?.waitUntil(
       task().catch((err) => {
         console.error("analytics error:", err);
-      }),
+      })
     );
   };
 };

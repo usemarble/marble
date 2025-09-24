@@ -19,7 +19,7 @@ export async function GET() {
   try {
     const authors = await db.author.findMany({
       where: {
-        workspaceId: workspaceId,
+        workspaceId,
         isActive: true,
       },
       select: {
@@ -45,7 +45,7 @@ export async function GET() {
     console.error("Failed to fetch authors:", error);
     return NextResponse.json(
       { error: "Failed to fetch authors" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
@@ -65,7 +65,7 @@ export async function POST(request: Request) {
     if (!parsedBody.success) {
       return NextResponse.json(
         { error: "Invalid request body", details: parsedBody.error.issues },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -80,7 +80,7 @@ export async function POST(request: Request) {
     const existingAuthor = await db.author.findUnique({
       where: {
         workspaceId_slug: {
-          workspaceId: workspaceId,
+          workspaceId,
           slug,
         },
       },
@@ -89,7 +89,7 @@ export async function POST(request: Request) {
     if (existingAuthor) {
       return NextResponse.json(
         { error: "Author with this name already exists" },
-        { status: 409 },
+        { status: 409 }
       );
     }
 
@@ -101,7 +101,7 @@ export async function POST(request: Request) {
         role,
         email: validEmail,
         image,
-        workspaceId: workspaceId,
+        workspaceId,
         userId: validUserId,
       },
     });
@@ -111,7 +111,7 @@ export async function POST(request: Request) {
     console.error("Failed to create author:", error);
     return NextResponse.json(
       { error: "Failed to create author" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

@@ -36,7 +36,7 @@ export async function POST(request: Request) {
     console.error("Compression error:", error);
     return NextResponse.json(
       { error: "Failed to compress image" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

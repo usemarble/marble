@@ -12,7 +12,7 @@ export async function GET(request: Request) {
 
   if (!authInfo) {
     return NextResponse.redirect(
-      new URL("/login", process.env.NEXT_PUBLIC_APP_URL),
+      new URL("/login", process.env.NEXT_PUBLIC_APP_URL)
     );
   }
 
@@ -36,8 +36,8 @@ export async function GET(request: Request) {
     return NextResponse.redirect(
       new URL(
         `/${workspaceSlug}/settings/billing?success=true`,
-        process.env.NEXT_PUBLIC_APP_URL,
-      ),
+        process.env.NEXT_PUBLIC_APP_URL
+      )
     );
   }
 

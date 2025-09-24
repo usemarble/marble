@@ -12,11 +12,11 @@ import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { Webhook } from "@/types/webhook";
 
 const CreateWebhookSheet = dynamic(
-  () => import("@/components/webhooks/create-webhook"),
+  () => import("@/components/webhooks/create-webhook")
 );
 
 const WebhookCard = dynamic(() =>
-  import("@/components/webhooks/webhook-card").then((mod) => mod.WebhookCard),
+  import("@/components/webhooks/webhook-card").then((mod) => mod.WebhookCard)
 );
 
 export function PageClient() {
@@ -32,14 +32,14 @@ export function PageClient() {
         const res = await fetch("/api/webhooks");
         if (!res.ok) {
           throw new Error(
-            `Failed to fetch webhooks: ${res.status} ${res.statusText}`,
+            `Failed to fetch webhooks: ${res.status} ${res.statusText}`
           );
         }
         const data: Webhook[] = await res.json();
         return data;
       } catch (error) {
         toast.error(
-          error instanceof Error ? error.message : "Failed to fetch webhooks",
+          error instanceof Error ? error.message : "Failed to fetch webhooks"
         );
       }
     },
@@ -57,13 +57,15 @@ export function PageClient() {
         body: JSON.stringify({ enabled }),
       }),
     onMutate: async (newWebhookData) => {
-      if (!workspaceId) return;
+      if (!workspaceId) {
+        return;
+      }
 
       await queryClient.cancelQueries({
         queryKey: QUERY_KEYS.WEBHOOKS(workspaceId),
       });
       const previousWebhooks = queryClient.getQueryData<Webhook[]>(
-        QUERY_KEYS.WEBHOOKS(workspaceId),
+        QUERY_KEYS.WEBHOOKS(workspaceId)
       );
 
       queryClient.setQueryData<Webhook[]>(
@@ -72,8 +74,8 @@ export function PageClient() {
           old?.map((webhook) =>
             webhook.id === newWebhookData.id
               ? { ...webhook, enabled: newWebhookData.enabled }
-              : webhook,
-          ) ?? [],
+              : webhook
+          ) ?? []
       );
 
       return { previousWebhooks };
@@ -82,7 +84,7 @@ export function PageClient() {
       if (context?.previousWebhooks && workspaceId) {
         queryClient.setQueryData(
           QUERY_KEYS.WEBHOOKS(workspaceId),
-          context.previousWebhooks,
+          context.previousWebhooks
         );
       }
       toast.error("Failed to update");
@@ -102,12 +104,12 @@ export function PageClient() {
 
   if (webhooks?.length === 0) {
     return (
-      <WorkspacePageWrapper className="h-full grid place-content-center">
-        <div className="flex flex-col gap-4 items-center max-w-80">
+      <WorkspacePageWrapper className="grid h-full place-content-center">
+        <div className="flex max-w-80 flex-col items-center gap-4">
           <div className="p-2">
             <WebhooksLogoIcon className="size-16" />
           </div>
-          <div className="text-center flex flex-col gap-4 items-center">
+          <div className="flex flex-col items-center gap-4 text-center">
             <p className="text-muted-foreground text-sm">
               Webhooks let you run actions on your server when events happen in
               your workspace.
@@ -140,9 +142,8 @@ export function PageClient() {
         <ul className="grid gap-4">
           {webhooks?.map((webhook) => (
             <WebhookCard
+              isToggling={isToggling}
               key={webhook.id}
-              webhook={webhook}
-              onToggle={toggleWebhook}
               onDelete={() => {
                 if (workspaceId) {
                   queryClient.invalidateQueries({
@@ -150,8 +151,9 @@ export function PageClient() {
                   });
                 }
               }}
-              isToggling={isToggling}
+              onToggle={toggleWebhook}
               toggleVariables={toggleVariables}
+              webhook={webhook}
             />
           ))}
         </ul>

@@ -23,10 +23,10 @@ import { useState } from "react";
 import type { Author } from "@/types/author";
 import { AuthorModal } from "./author-modals";
 
-interface AuthorDataTableProps {
+type AuthorDataTableProps = {
   columns: ColumnDef<Author>[];
   data: Author[];
-}
+};
 
 export function AuthorDataTable({ columns, data }: AuthorDataTableProps) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -49,25 +49,25 @@ export function AuthorDataTable({ columns, data }: AuthorDataTableProps) {
 
   return (
     <div>
-      <div className="flex items-center py-4 gap-4 justify-between">
+      <div className="flex items-center justify-between gap-4 py-4">
         <div className="relative">
           <MagnifyingGlassIcon
+            className="-translate-y-1/2 absolute top-1/2 left-3 size-4 text-muted-foreground"
             size={16}
-            className="text-muted-foreground size-4 absolute top-1/2 -translate-y-1/2 left-3"
           />
           <Input
-            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+            className="w-72 px-8"
             onChange={(event) =>
               table.getColumn("name")?.setFilterValue(event.target.value)
             }
             placeholder="Search authors..."
-            className="px-8 w-72"
+            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
           />
           {(table.getColumn("name")?.getFilterValue() as string) && (
             <button
-              type="button"
+              className="absolute top-3 right-3"
               onClick={() => table.getColumn("name")?.setFilterValue("")}
-              className="absolute right-3 top-3"
+              type="button"
             >
               <XIcon className="size-4" />
               <span className="sr-only">Clear search</span>
@@ -75,7 +75,7 @@ export function AuthorDataTable({ columns, data }: AuthorDataTableProps) {
           )}
         </div>
 
-        <div className="flex gap-4 items-center">
+        <div className="flex items-center gap-4">
           <Button onClick={handleAddAuthor}>
             <PlusIcon className="size-4" />
             <span>Add Author</span>
@@ -94,7 +94,7 @@ export function AuthorDataTable({ columns, data }: AuthorDataTableProps) {
                       ? null
                       : flexRender(
                           header.column.columnDef.header,
-                          header.getContext(),
+                          header.getContext()
                         )}
                   </TableHead>
                 ))}
@@ -105,14 +105,14 @@ export function AuthorDataTable({ columns, data }: AuthorDataTableProps) {
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
-                  key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  key={row.id}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext(),
+                        cell.getContext()
                       )}
                     </TableCell>
                   ))}
@@ -121,8 +121,8 @@ export function AuthorDataTable({ columns, data }: AuthorDataTableProps) {
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
                   className="h-24 text-center"
+                  colSpan={columns.length}
                 >
                   No authors found.
                 </TableCell>
@@ -133,9 +133,9 @@ export function AuthorDataTable({ columns, data }: AuthorDataTableProps) {
       </div>
 
       <AuthorModal
+        mode="create"
         open={showCreateModal}
         setOpen={setShowCreateModal}
-        mode="create"
       />
     </div>
   );

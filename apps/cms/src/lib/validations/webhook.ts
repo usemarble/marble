@@ -34,7 +34,7 @@ export const webhookSchema = z
             return false;
           }
         },
-        { message: "Webhook URL must use HTTPS" },
+        { message: "Webhook URL must use HTTPS" }
       ),
     events: z
       .array(webhookEventEnum)

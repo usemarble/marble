@@ -10,8 +10,8 @@ export default async function MainLayout({
 
   return (
     <UserProvider
-      initialUser={initialUser}
       initialIsAuthenticated={isAuthenticated}
+      initialUser={initialUser}
     >
       {children}
     </UserProvider>

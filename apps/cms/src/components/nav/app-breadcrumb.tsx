@@ -39,7 +39,7 @@ export function AppBreadcrumb() {
     <Breadcrumb>
       <BreadcrumbList>
         <BreadcrumbItem>
-          <BreadcrumbLink href="/" className="text-sm">
+          <BreadcrumbLink className="text-sm" href="/">
             Dashboard
           </BreadcrumbLink>
         </BreadcrumbItem>
@@ -53,8 +53,8 @@ export function AppBreadcrumb() {
                 <BreadcrumbPage>{formatSegment(segment)}</BreadcrumbPage>
               ) : (
                 <BreadcrumbLink
-                  href={`/${segments.slice(0, index + 1).join("/")}`}
                   className="text-sm"
+                  href={`/${segments.slice(0, index + 1).join("/")}`}
                 >
                   {formatSegment(segment)}
                 </BreadcrumbLink>

@@ -64,7 +64,7 @@ export async function GET() {
 
   const workspacesWithRole = workspaces.map((workspace) => {
     const currentUserMember = workspace.members.find(
-      (member) => member.userId === sessionData.user.id,
+      (member) => member.userId === sessionData.user.id
     );
     return {
       ...workspace,

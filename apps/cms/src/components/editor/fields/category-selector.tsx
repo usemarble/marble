@@ -18,15 +18,15 @@ import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { PostValues } from "@/lib/validations/post";
 import { FieldInfo } from "./field-info";
 
-interface CategoryResponse {
+type CategoryResponse = {
   id: string;
   name: string;
   slug: string;
-}
+};
 
-interface CategorySelectorProps {
+type CategorySelectorProps = {
   control: Control<PostValues>;
-}
+};
 
 export function CategorySelector({ control }: CategorySelectorProps) {
   const {
@@ -57,13 +57,15 @@ export function CategorySelector({ control }: CategorySelectorProps) {
   });
 
   const handleCategoryCreated = (newCategory: CategoryResponse) => {
-    if (!workspaceId) return;
+    if (!workspaceId) {
+      return;
+    }
 
     queryClient.setQueryData(
       QUERY_KEYS.CATEGORIES(workspaceId),
       (oldData: CategoryResponse[] | undefined) => {
         return oldData ? [...oldData, newCategory] : [newCategory];
-      },
+      }
     );
 
     queryClient.invalidateQueries({
@@ -78,13 +80,13 @@ export function CategorySelector({ control }: CategorySelectorProps) {
           <Label htmlFor="category">Category</Label>
           <FieldInfo text="Good for grouping posts together. You can have one category per post." />
         </div>
-        <Select value={value} onValueChange={onChange}>
+        <Select onValueChange={onChange} value={value}>
           <SelectTrigger className="w-full bg-editor-field">
             <SelectValue placeholder="Choose a category" />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectLabel className="font-normal px-2 text-xs flex items-center gap-1 justify-between">
+              <SelectLabel className="flex items-center justify-between gap-1 px-2 font-normal text-xs">
                 <span className="text-muted-foreground text-xs">
                   {isLoadingCategories
                     ? "Loading categories..."
@@ -93,9 +95,9 @@ export function CategorySelector({ control }: CategorySelectorProps) {
                       : "Categories"}
                 </span>
                 <button
-                  type="button"
                   className="flex items-center gap-1 p-1 hover:bg-accent"
                   onClick={() => setShowCategoryModal(true)}
+                  type="button"
                 >
                   <PlusIcon className="size-4 text-muted-foreground" />
                   <span className="sr-only">Add New Category</span>
@@ -110,16 +112,16 @@ export function CategorySelector({ control }: CategorySelectorProps) {
           </SelectContent>
         </Select>
         {error && (
-          <p className="text-sm px-1 font-medium text-destructive">
+          <p className="px-1 font-medium text-destructive text-sm">
             {error.message}
           </p>
         )}
       </div>
       <CategoryModal
-        open={showCategoyModal}
-        setOpen={setShowCategoryModal}
         mode="create"
         onCategoryCreated={handleCategoryCreated}
+        open={showCategoyModal}
+        setOpen={setShowCategoryModal}
       />
     </>
   );

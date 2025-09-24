@@ -19,10 +19,12 @@ export const DeletePostModal = ({
   open,
   setOpen,
   id,
+  // view,
 }: {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   id: string;
+  view: "table" | "grid";
 }) => {
   const queryClient = useQueryClient();
   const workspaceId = useWorkspaceId();
@@ -47,7 +49,7 @@ export const DeletePostModal = ({
   });
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
+    <AlertDialog onOpenChange={setOpen} open={open}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete?</AlertDialogTitle>
@@ -56,14 +58,23 @@ export const DeletePostModal = ({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel
+            disabled={isPending}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setOpen(false);
+            }}
+          >
+            Cancel
+          </AlertDialogCancel>
           <AsyncButton
+            isLoading={isPending}
             onClick={(e) => {
               e.preventDefault();
               deletePost(id);
             }}
             variant="destructive"
-            isLoading={isPending}
           >
             Delete
           </AsyncButton>

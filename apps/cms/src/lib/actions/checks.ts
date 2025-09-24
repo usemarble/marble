@@ -12,10 +12,10 @@ import { getServerSession } from "@/lib/auth/session";
  */
 export async function checkCategorySlugAction(
   slug: string,
-  workspaceId: string,
+  workspaceId: string
 ) {
   const result = await db.category.findFirst({
-    where: { workspaceId: workspaceId, slug: slug },
+    where: { workspaceId, slug },
   });
 
   return !!result;
@@ -31,12 +31,12 @@ export async function checkCategorySlugAction(
 export async function checkCategorySlugForUpdateAction(
   slug: string,
   workspaceId: string,
-  currentCategoryId: string,
+  currentCategoryId: string
 ) {
   const result = await db.category.findFirst({
     where: {
-      workspaceId: workspaceId,
-      slug: slug,
+      workspaceId,
+      slug,
       NOT: {
         id: currentCategoryId,
       },
@@ -48,7 +48,7 @@ export async function checkCategorySlugForUpdateAction(
 
 export async function checkTagSlugAction(slug: string, workspaceId: string) {
   const result = await db.tag.findFirst({
-    where: { workspaceId: workspaceId, slug: slug },
+    where: { workspaceId, slug },
   });
 
   return !!result;
@@ -57,12 +57,12 @@ export async function checkTagSlugAction(slug: string, workspaceId: string) {
 export async function checkTagSlugForUpdateAction(
   slug: string,
   workspaceId: string,
-  currentTagId: string,
+  currentTagId: string
 ) {
   const result = await db.tag.findFirst({
     where: {
-      workspaceId: workspaceId,
-      slug: slug,
+      workspaceId,
+      slug,
       NOT: {
         id: currentTagId,
       },
@@ -80,7 +80,7 @@ export async function checkTagSlugForUpdateAction(
  */
 export async function checkAuthorSlugAction(slug: string, workspaceId: string) {
   const result = await db.author.findFirst({
-    where: { workspaceId: workspaceId, slug: slug },
+    where: { workspaceId, slug },
   });
 
   return !!result;
@@ -96,12 +96,12 @@ export async function checkAuthorSlugAction(slug: string, workspaceId: string) {
 export async function checkAuthorSlugForUpdateAction(
   slug: string,
   workspaceId: string,
-  currentAuthorId: string,
+  currentAuthorId: string
 ) {
   const result = await db.author.findFirst({
     where: {
-      workspaceId: workspaceId,
-      slug: slug,
+      workspaceId,
+      slug,
       NOT: {
         id: currentAuthorId,
       },
@@ -154,7 +154,7 @@ export const generateWebhookSecretAction = async () => {
 
 export async function checkWorkspaceSlug(
   slug: string,
-  currentWorkspaceId?: string,
+  currentWorkspaceId?: string
 ) {
   const session = await getServerSession();
   if (!session?.user) {

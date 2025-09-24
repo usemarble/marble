@@ -73,7 +73,9 @@ export function Timezone() {
   });
 
   const onTimezoneSubmit = async (data: TimezoneValues) => {
-    if (!isOwner || !activeWorkspace?.id) return;
+    if (!isOwner || !activeWorkspace?.id) {
+      return;
+    }
     updateTimezone({
       organizationId: activeWorkspace.id,
       data,
@@ -83,51 +85,51 @@ export function Timezone() {
   return (
     <Card className="pb-4">
       <CardHeader>
-        <CardTitle className="text-lg font-medium">
+        <CardTitle className="font-medium text-lg">
           Workspace Timezone
         </CardTitle>
         <CardDescription>The timezone of your workspace.</CardDescription>
       </CardHeader>
       <form
-        onSubmit={timezoneForm.handleSubmit(onTimezoneSubmit)}
         className="flex flex-col gap-6"
+        onSubmit={timezoneForm.handleSubmit(onTimezoneSubmit)}
       >
         <CardContent>
-          <div className="flex flex-col gap-2 w-full">
-            <div className="flex gap-2 items-center">
-              <div className="flex flex-col gap-2 flex-1">
-                <Label htmlFor="timezone" className="sr-only">
+          <div className="flex w-full flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <div className="flex flex-1 flex-col gap-2">
+                <Label className="sr-only" htmlFor="timezone">
                   Timezone
                 </Label>
                 <TimezoneSelector
-                  value={timezoneForm.watch("timezone")}
+                  disabled={!isOwner}
                   onValueChange={(value) => {
                     timezoneForm.setValue("timezone", value, {
                       shouldDirty: true,
                     });
                     timezoneForm.trigger("timezone");
                   }}
-                  disabled={!isOwner}
                   placeholder="Select timezone..."
                   timezones={timezones}
+                  value={timezoneForm.watch("timezone")}
                 />
               </div>
             </div>
             {timezoneForm.formState.errors.timezone && (
-              <p className="text-xs text-destructive">
+              <p className="text-destructive text-xs">
                 {timezoneForm.formState.errors.timezone.message}
               </p>
             )}
           </div>
         </CardContent>
-        <CardFooter className="border-t pt-4 flex justify-between">
-          <p className="text-sm text-muted-foreground">
+        <CardFooter className="flex justify-between border-t pt-4">
+          <p className="text-muted-foreground text-sm">
             Changes affect scheduled posts
           </p>
           <AsyncButton
-            isLoading={isPending}
+            className={cn("flex w-20 items-center gap-2 self-end")}
             disabled={!isOwner || !timezoneForm.formState.isDirty}
-            className={cn("w-20 self-end flex gap-2 items-center")}
+            isLoading={isPending}
           >
             Save
           </AsyncButton>
