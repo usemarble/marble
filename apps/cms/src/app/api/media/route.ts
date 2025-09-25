@@ -30,11 +30,15 @@ export async function GET(request: Request) {
   }
 
   const { limit, cursor, type, sort } = parsed.data;
+  const cursorId = searchParams.get("cursorId");
+  const cursorValue = searchParams.get("cursorValue");
 
-  const [field, direction] = sort.split("_") as [string, string];
-  const orderBy = {
-    [field]: direction as "asc" | "desc",
-  };
+  // Break sort option into field + direction (e.g. "createdAt_desc")
+  const [field, direction] = sort.split("_") as [
+    "createdAt" | "name",
+    "asc" | "desc",
+  ];
+  const orderBy = [{ [field]: direction }, { id: direction }];
 
   try {
     const hasAnyMedia =
@@ -42,13 +46,34 @@ export async function GET(request: Request) {
         where: { workspaceId: orgId },
       })) > 0;
 
+    // Convert cursorValue to the right type depending on field
+    let parsedCursorValue: string | Date | null = null;
+    if (cursorValue) {
+      parsedCursorValue =
+        field === "createdAt" ? new Date(cursorValue) : cursorValue;
+    }
+
+    // Fetch one more than the requested limit to detect "hasNextPage"
     const media = await db.media.findMany({
       where: {
         workspaceId: orgId,
         ...(type && { type }),
+        ...(cursorId &&
+          parsedCursorValue !== null && {
+            OR: [
+              {
+                [field]: {
+                  [direction === "asc" ? "gt" : "lt"]: parsedCursorValue,
+                },
+              },
+              {
+                [field]: parsedCursorValue,
+                id: { [direction === "asc" ? "gt" : "lt"]: cursorId },
+              },
+            ],
+          }),
       },
       take: limit + 1,
-      cursor: cursor ? { id: cursor } : undefined,
       orderBy,
       select: {
         id: true,
@@ -61,10 +86,18 @@ export async function GET(request: Request) {
     });
 
     let nextCursor: typeof cursor | undefined;
+
+    // If more than "limit" items, drop the extra and set next cursor
     if (media.length > limit) {
-      const nextItem = media.pop();
-      if (nextItem) {
-        nextCursor = nextItem.id;
+      media.pop();
+      const lastItem = media.at(-1);
+
+      if (lastItem) {
+        nextCursor = `${lastItem.id}_${
+          field === "createdAt"
+            ? lastItem.createdAt.toISOString()
+            : lastItem.name
+        }`;
       }
     }
 

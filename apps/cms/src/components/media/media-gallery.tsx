@@ -33,7 +33,7 @@ type MediaGalleryProps = {
   onLoadMore?: () => void;
   isFetchingNextPage?: boolean;
   isFetching?: boolean;
-  type?: string;
+  type?: MediaType;
   selectedItems: Set<string>;
   onSelectItem: (items: Set<string>) => void;
   hasAnyMedia: boolean;

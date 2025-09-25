@@ -15,16 +15,21 @@ export function getMediaType(mimeType: string): MediaType {
   return "document";
 }
 
-// this helps us to compare the current query with the other queries for logical equality
+// compares the current query with the other queries for logical equality
 export function queryKeysEqual(key1: MediaQueryKey, key2: MediaQueryKey) {
-  if (key1.length !== key2.length) {
+  const [prefix1, obj1] = key1;
+  const [prefix2, obj2] = key2;
+
+  if (prefix1.length !== prefix2.length) {
     return false;
   }
-  if (key1[0] !== key2[0]) {
-    return false;
+
+  for (let i = 0; i < prefix1.length; i++) {
+    if (prefix1[i] !== prefix2[i]) {
+      return false;
+    }
   }
-  const obj1 = key1[1];
-  const obj2 = key2[1];
+
   return (
     (obj1.type ?? "all") === (obj2.type ?? "all") && obj1.sort === obj2.sort
   );
@@ -46,9 +51,9 @@ export function invalidateOtherMediaQueries(
   }
 }
 
-export function getEmptyStateMessage(type?: string, hasAnyMedia?: boolean) {
+export function getEmptyStateMessage(type?: MediaType, hasAnyMedia?: boolean) {
   if (!hasAnyMedia) {
-    return "Images you upload in this workspace will appear here.";
+    return "Media you upload in this workspace will appear here.";
   }
   switch (type) {
     case "image":

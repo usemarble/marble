@@ -13,6 +13,7 @@ import {
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { TrashIcon, UploadIcon, XIcon } from "@phosphor-icons/react";
+import type { MediaType } from "@/types/media";
 
 export function MediaControls({
   type,
@@ -26,8 +27,8 @@ export function MediaControls({
   onBulkDelete,
   mediaLength,
 }: {
-  type?: string;
-  setType: (type?: string) => void;
+  type?: MediaType;
+  setType: (type?: MediaType) => void;
   sort: string;
   setSort: (sort: string) => void;
   onUpload: () => void;
@@ -41,7 +42,13 @@ export function MediaControls({
     <section className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
       <div className="flex flex-wrap items-center gap-2 sm:gap-4">
         <Select
-          onValueChange={(val) => setType(val === "all" ? undefined : val)}
+          onValueChange={(val: string) => {
+            if (val === "all") {
+              setType(undefined);
+            } else {
+              setType(val as MediaType);
+            }
+          }}
           value={type || "all"}
         >
           <SelectTrigger className="w-[180px]">
@@ -68,8 +75,14 @@ export function MediaControls({
         </Select>
         <div className="flex items-center gap-2">
           {selectedItems.size > 0 && (
-            <Button onClick={onDeselectAll} size="icon" variant="outline">
-              <XIcon size={16} />
+            <Button
+              aria-label="Deselect all"
+              onClick={onDeselectAll}
+              size="icon"
+              type="button"
+              variant="outline"
+            >
+              <XIcon aria-hidden="true" size={16} />
             </Button>
           )}
           {mediaLength > 0 && (
@@ -84,11 +97,13 @@ export function MediaControls({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
+                    aria-label={`Delete selected (${selectedItems.size})`}
                     onClick={onBulkDelete}
                     size="icon"
+                    type="button"
                     variant="destructive"
                   >
-                    <TrashIcon size={16} />
+                    <TrashIcon aria-hidden="true" size={16} />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>

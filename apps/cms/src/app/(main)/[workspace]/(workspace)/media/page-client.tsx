@@ -11,7 +11,7 @@ import PageLoader from "@/components/shared/page-loader";
 import { useMediaActions } from "@/hooks/use-media-actions";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
-import type { Media, MediaQueryKey } from "@/types/media";
+import type { Media, MediaQueryKey, MediaType } from "@/types/media";
 
 const MediaUploadModal = dynamic(() =>
   import("@/components/media/upload-modal").then((mod) => mod.MediaUploadModal)
@@ -20,7 +20,7 @@ const MediaUploadModal = dynamic(() =>
 function PageClient() {
   const workspaceId = useWorkspaceId();
   const [showUploadModal, setShowUploadModal] = useState(false);
-  const [type, setType] = useState<string | undefined>();
+  const [type, setType] = useState<MediaType | undefined>();
   const [sort, setSort] = useState("createdAt_desc");
   const [limit] = useState(12);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
@@ -46,7 +46,10 @@ function PageClient() {
           params.set("type", type);
         }
         if (pageParam) {
-          params.set("cursor", pageParam);
+          // Cursor comes in as "id_value" -> split into id and field value
+          const [cursorId, cursorValue] = pageParam.split("_");
+          params.set("cursorId", cursorId as string);
+          params.set("cursorValue", cursorValue as string);
         }
 
         const res = await fetch(`/api/media?${params}`);
