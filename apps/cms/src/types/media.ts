@@ -10,3 +10,5 @@ export type Media = {
   size: number;
   createdAt: string;
 };
+
+export type MediaQueryKey = [string[], { type?: string; sort: string }];
