@@ -1,8 +1,13 @@
 import type { Config } from "tailwindcss";
+import defaultTheme from "tailwindcss/defaultTheme";
 
 export default {
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["var(--font-geist)", ...defaultTheme.fontFamily.sans],
+        serif: ["var(--font-literata)", ...defaultTheme.fontFamily.serif],
+      },
       typography: () => ({
         marble: {
           css: {
