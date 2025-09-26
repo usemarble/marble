@@ -3,7 +3,7 @@
 import { Button } from "@marble/ui/components/button";
 import { ImagesIcon, UploadIcon } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "motion/react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BulkDeleteMediaModal } from "@/components/media/bulk-delete-modal";
 import { DeleteMediaModal } from "@/components/media/delete-modal";
 import { MediaCard } from "@/components/media/media-card";
@@ -12,11 +12,7 @@ import PageLoader from "@/components/shared/page-loader";
 import { useMediaActions } from "@/hooks/use-media-actions";
 import type { MediaQueryKey, MediaType } from "@/types/media";
 import { getEmptyStateMessage } from "@/utils/media";
-import {
-  containerVariants,
-  itemVariants,
-  loadMoreButtonVariants,
-} from "./media-gallery.variants";
+import { containerVariants, itemVariants } from "./media-gallery.variants";
 
 type Media = {
   id: string;
@@ -64,6 +60,36 @@ export function MediaGallery({
     handleDeleteComplete,
     handleBulkDeleteComplete,
   } = useMediaActions(mediaQueryKey);
+
+  const loaderRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!hasNextPage || isFetchingNextPage) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+
+        if (entry?.isIntersecting) {
+          onLoadMore?.();
+        }
+      },
+      { rootMargin: "200px" }
+    );
+
+    const el = loaderRef.current;
+    if (el) {
+      observer.observe(el);
+    }
+
+    return () => {
+      if (el) {
+        observer.unobserve(el);
+      }
+    };
+  }, [hasNextPage, isFetchingNextPage, onLoadMore]);
 
   const onDelete = (id: string) => {
     handleDeleteComplete(id);
@@ -190,17 +216,13 @@ export function MediaGallery({
 
       <AnimatePresence>
         {hasNextPage && (
-          <motion.div
-            animate="visible"
-            className="mt-4 flex justify-center"
-            exit="hidden"
-            initial="hidden"
-            variants={loadMoreButtonVariants}
-          >
-            <Button disabled={isFetchingNextPage} onClick={onLoadMore}>
-              {isFetchingNextPage ? "Loading..." : "Load More"}
-            </Button>
-          </motion.div>
+          <div className="flex justify-center py-6" ref={loaderRef}>
+            {isFetchingNextPage && (
+              <div className="flex justify-center">
+                <PageLoader />
+              </div>
+            )}
+          </div>
         )}
       </AnimatePresence>
 

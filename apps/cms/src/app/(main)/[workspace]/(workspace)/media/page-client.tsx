@@ -46,8 +46,10 @@ function PageClient() {
           params.set("type", type);
         }
         if (pageParam) {
-          // Cursor comes in as "id_value" -> split into id and field value
-          const [cursorId, cursorValue] = pageParam.split("_");
+          const [cursorId, ...rest] = pageParam.split("_");
+          const encodedCursorValue = rest.join("_");
+          const cursorValue = decodeURIComponent(encodedCursorValue);
+
           params.set("cursorId", cursorId as string);
           params.set("cursorValue", cursorValue as string);
         }

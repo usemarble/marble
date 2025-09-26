@@ -96,7 +96,7 @@ export async function GET(request: Request) {
         nextCursor = `${lastItem.id}_${
           field === "createdAt"
             ? lastItem.createdAt.toISOString()
-            : lastItem.name
+            : encodeURIComponent(lastItem.name)
         }`;
       }
     }

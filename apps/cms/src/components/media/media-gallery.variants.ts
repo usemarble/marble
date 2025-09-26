@@ -16,12 +16,3 @@ export const itemVariants = {
   },
   exit: { opacity: 0, y: -10, scale: 0.9, transition: { duration: 0.2 } },
 };
-
-export const loadMoreButtonVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { delay: 0.3, duration: 0.3 },
-  },
-};
