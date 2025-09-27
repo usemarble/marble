@@ -71,5 +71,3 @@ export const timezoneSchema = z.object({
   timezone: z.enum(timezones as [string, ...string[]]),
 });
 export type TimezoneValues = z.infer<typeof timezoneSchema>;
-
-
