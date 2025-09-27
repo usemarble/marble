@@ -31,7 +31,7 @@
     "husky": "^9.1.7",
     "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.8",
-    "turbo": "^2.5.7",
+    "turbo": "^2.5.8",
     "typescript": "^5.4.5",
     "ultracite": "5.3.9"
   },
