@@ -92,7 +92,6 @@ export async function GET(
 
   const currentUserRole = currentUserMember?.role || null;
 
-  // Add current user role to the response
   const workspaceWithUserRole = {
     ...workspace,
     currentUserRole,

@@ -1,6 +1,14 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
+import { openrouter } from "@/lib/openrouter";
 import { aiSuggestionsRateLimiter, rateLimitHeaders } from "@/lib/ratelimit";
+import {
+  aiReadabilityBodySchema,
+  aiReadabilityResponseSchema,
+} from "@/lib/validations/editor";
+import { systemPrompt } from "./prompt";
+
+export const maxDuration = 30;
 
 export async function POST(request: Request) {
   const sessionData = await getServerSession();
@@ -22,7 +30,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const parsedBody = aiSuggestionsSchema.safeParse(body);
+  const parsedBody = aiReadabilityBodySchema.safeParse(body);
 
   if (!parsedBody.success) {
     return NextResponse.json(
@@ -31,27 +39,25 @@ export async function POST(request: Request) {
     );
   }
 
-  const { createOpenRouter } = await import("@openrouter/ai-sdk-provider");
   const { streamObject } = await import("ai");
-  const { z } = await import("zod");
-
-  const openrouter = createOpenRouter({
-    apiKey: process.env.OPENROUTER_API_KEY,
-  });
-
-  const systemPrompt = (content: string) => {
-    return `
-  You are a helpful assistant that generates suggestions for content.
-  You will be given a piece of content and you will need to generate suggestions for it.
-  You will need to generate 10 suggestions for the content.
-  The current content of the post is: ${content}
-  `;
-  };
 
   const result = streamObject({
     model: openrouter.chat("google/gemini-2.5-flash-lite"),
-    prompt: systemPrompt(content),
-    schema: z.array(z.string()),
+    messages: [
+      {
+        role: "system",
+        content: systemPrompt({ metrics: parsedBody.data.metrics }),
+      },
+      {
+        role: "user",
+        content: `
+        <CONTENT>
+        ${parsedBody.data.content}
+        </CONTENT>
+        `,
+      },
+    ],
+    schema: aiReadabilityResponseSchema,
     providerOptions: {
       google: {
         safetySettings: [

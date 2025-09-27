@@ -1,6 +1,5 @@
 "use client";
 
-import { Separator } from "@marble/ui/components/separator";
 import {
   Sidebar,
   SidebarContent,
@@ -16,26 +15,34 @@ import {
   TabsTrigger,
 } from "@marble/ui/components/tabs";
 import { cn } from "@marble/ui/lib/utils";
+import { SpinnerIcon } from "@phosphor-icons/react";
 import type { EditorInstance } from "novel";
-import { useEffect, useState } from "react";
+import { parseAsStringLiteral, useQueryState } from "nuqs";
+import { lazy, Suspense } from "react";
 import type { Control, FieldErrors, UseFormWatch } from "react-hook-form";
-import { useReadability } from "@/hooks/use-readability";
 import type { PostValues } from "@/lib/validations/post";
 import { useUnsavedChanges } from "@/providers/unsaved-changes";
 import { AsyncButton } from "../ui/async-button";
-import { Gauge } from "../ui/gauge";
-import { AttributionField } from "./fields/attribution-field";
-import { AuthorSelector } from "./fields/author-selector";
-import { CategorySelector } from "./fields/category-selector";
-import { CoverImageSelector } from "./fields/cover-image-selector";
-import { DescriptionField } from "./fields/description-field";
-import { PublishDateField } from "./fields/publish-date-field";
-import { SlugField } from "./fields/slug-field";
-import { StatusField } from "./fields/status-field";
-import { TagSelector } from "./fields/tag-selector";
-import { HiddenScrollbar } from "./hidden-scrollbar";
 
-interface EditorSidebarProps extends React.ComponentProps<typeof Sidebar> {
+const MetadataTab = lazy(() =>
+  import("./tabs/metadata-tab").then((m) => ({ default: m.MetadataTab }))
+);
+const AnalysisTab = lazy(() =>
+  import("./tabs/analysis-tab").then((m) => ({ default: m.AnalysisTab }))
+);
+
+const tabs = {
+  metadata: "Metadata",
+  analysis: "Analysis",
+};
+
+const TabLoadingSpinner = () => (
+  <div className="flex h-full items-center justify-center px-6">
+    <SpinnerIcon className="size-5 animate-spin" />
+  </div>
+);
+
+type EditorSidebarProps = React.ComponentProps<typeof Sidebar> & {
   control: Control<PostValues>;
   errors: FieldErrors<PostValues>;
   watch: UseFormWatch<PostValues>;
@@ -46,7 +53,7 @@ interface EditorSidebarProps extends React.ComponentProps<typeof Sidebar> {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   mode?: "create" | "update";
   editor?: EditorInstance | null;
-}
+};
 
 export function EditorSidebar({
   control,
@@ -64,24 +71,10 @@ export function EditorSidebar({
   const hasErrors = Object.keys(errors).length > 0;
   const { tags, authors: initialAuthors } = watch();
   const { hasUnsavedChanges } = useUnsavedChanges();
-  const [activeTab, setActiveTab] = useState("metadata");
-  const [editorText, setEditorText] = useState("");
-
-  useEffect(() => {
-    if (!editor) {
-      return;
-    }
-    setEditorText(editor.getText());
-    const handler = () => setEditorText(editor.getText());
-    editor.on("update", handler);
-    editor.on("create", handler);
-    return () => {
-      editor.off("update", handler);
-      editor.off("create", handler);
-    };
-  }, [editor]);
-
-  const textMetrics = useReadability({ editor, text: editorText });
+  const [activeTab, setActiveTab] = useQueryState(
+    "active-tab",
+    parseAsStringLiteral(Object.keys(tabs)).withDefault("metadata")
+  );
 
   const triggerSubmit = async () => {
     if (hasErrors) {
@@ -113,13 +106,15 @@ export function EditorSidebar({
             onValueChange={setActiveTab}
             value={activeTab}
           >
-            <TabsList className="flex justify-start gap-2" variant="line">
-              <TabsTrigger className="px-2" value="metadata">
-                Metadata
-              </TabsTrigger>
-              <TabsTrigger className="px-2" value="analysis">
-                Analysis
-              </TabsTrigger>
+            <TabsList
+              className={`grid grid-cols-${Object.keys(tabs).length}`}
+              variant="line"
+            >
+              {Object.entries(tabs).map(([value, label]) => (
+                <TabsTrigger className="px-2" key={value} value={value}>
+                  {label}
+                </TabsTrigger>
+              ))}
             </TabsList>
           </Tabs>
         </SidebarHeader>
@@ -134,115 +129,23 @@ export function EditorSidebar({
               className="min-h-0 flex-1 data-[state=inactive]:hidden"
               value="metadata"
             >
-              <HiddenScrollbar className="h-full px-6">
-                <section className="grid gap-6 pt-4 pb-5">
-                  <StatusField control={control} />
-
-                  <Separator className="flex" orientation="horizontal" />
-
-                  <CoverImageSelector control={control} />
-
-                  <DescriptionField control={control} />
-
-                  <SlugField control={control} />
-
-                  <AuthorSelector
-                    control={control}
-                    defaultAuthors={initialAuthors || []}
-                  />
-
-                  <TagSelector control={control} defaultTags={tags || []} />
-
-                  <CategorySelector control={control} />
-
-                  <PublishDateField control={control} />
-
-                  <Separator className="mt-4 flex" orientation="horizontal" />
-
-                  <AttributionField control={control} errors={errors} />
-                </section>
-              </HiddenScrollbar>
+              <Suspense fallback={<TabLoadingSpinner />}>
+                <MetadataTab
+                  control={control}
+                  errors={errors}
+                  initialAuthors={initialAuthors}
+                  tags={tags}
+                />
+              </Suspense>
             </TabsContent>
 
             <TabsContent
               className="min-h-0 flex-1 data-[state=inactive]:hidden"
               value="analysis"
             >
-              <HiddenScrollbar className="h-full px-6">
-                <section className="grid gap-6 pt-4 pb-5">
-                  <div className="flex flex-col gap-4">
-                    <div className="space-y-2">
-                      <h4 className="font-medium text-sm">Readability</h4>
-                      <div className="flex items-center justify-center">
-                        <Gauge
-                          animate={true}
-                          label="Score"
-                          size={200}
-                          value={textMetrics.readabilityScore}
-                        />
-                      </div>
-                      {textMetrics.wordCount > 0 && (
-                        <div className="space-y-1">
-                          <h5 className="font-medium text-sm">Feedback</h5>
-                          <p className="text-muted-foreground text-xs">
-                            <span className="font-medium">
-                              {textMetrics.readabilityLevel.level}:
-                            </span>{" "}
-                            {textMetrics.readabilityLevel.description}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-
-                    <Separator />
-
-                    <div className="space-y-3">
-                      <h4 className="font-medium text-sm">Text Statistics</h4>
-                      <div className="grid grid-cols-2 gap-3 text-sm">
-                        <div className="space-y-1">
-                          <p className="text-muted-foreground">Words</p>
-                          <p className="font-medium">{textMetrics.wordCount}</p>
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-muted-foreground">Sentences</p>
-                          <p className="font-medium">
-                            {textMetrics.sentenceCount}
-                          </p>
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-muted-foreground">
-                            Words per Sentence
-                          </p>
-                          <p className="font-medium">
-                            {textMetrics.wordsPerSentence}
-                          </p>
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-muted-foreground">Reading Time</p>
-                          <p className="font-medium">
-                            {textMetrics.readingTime.toFixed(0)} minutes
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <Separator />
-
-                    <div className="space-y-3">
-                      <h4 className="font-medium text-sm">
-                        {textMetrics.wordCount === 0
-                          ? "Getting Started"
-                          : "Suggestions"}
-                      </h4>
-                      <div className="space-y-2 text-muted-foreground text-sm">
-                        {textMetrics.suggestions.map((suggestion) => (
-                          <p key={suggestion}>• {suggestion}</p>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </section>
-              </HiddenScrollbar>
+              <Suspense fallback={<TabLoadingSpinner />}>
+                <AnalysisTab editor={editor} />
+              </Suspense>
             </TabsContent>
           </Tabs>
         </SidebarContent>

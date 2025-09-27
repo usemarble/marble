@@ -15,7 +15,7 @@ export const rateLimitHeaders = (
 
 export const aiSuggestionsRateLimiter = new Ratelimit({
   redis,
-  limiter: Ratelimit.slidingWindow(100, "60 s"),
+  limiter: Ratelimit.slidingWindow(20, "60 s"),
   ephemeralCache: new Map(),
   prefix: "ai-suggestions-rate-limit",
 });

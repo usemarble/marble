@@ -34,7 +34,7 @@ export function Enable() {
 
   const enableForm = useForm<AiEnableValues>({
     resolver: zodResolver(aiEnableSchema),
-    defaultValues: { ai: { enabled: activeWorkspace?.ai?.enabled ?? false } },
+    defaultValues: { ai: { enabled: activeWorkspace?.ai?.enabled } },
   });
 
   const { mutate: updateAiSettings, isPending } = useMutation({
@@ -43,14 +43,14 @@ export function Enable() {
       data: AiEnableValues;
     }) => {
       try {
-      const res = await fetch("/api/editor/preferences", {
-        method: "PATCH",
-        body: JSON.stringify({
-          ai: {
-            enabled: variables.data.ai.enabled,
-          },
-        }),
-      });
+        const res = await fetch("/api/editor/preferences", {
+          method: "PATCH",
+          body: JSON.stringify({
+            ai: {
+              enabled: variables.data.ai.enabled,
+            },
+          }),
+        });
 
         if (!res.ok) {
           throw new Error(
@@ -67,7 +67,7 @@ export function Enable() {
         );
       }
     },
-    
+
     onMutate: async (newData) => {
       if (!newData.workspaceId) {
         return;

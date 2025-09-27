@@ -25,6 +25,7 @@ import {
   TrashIcon,
 } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import NextImage from "next/image";
 import { useState } from "react";
 import { type Control, useController } from "react-hook-form";
 import { z } from "zod";
@@ -135,16 +136,17 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
   const renderContent = () => {
     if (coverImage) {
       return (
-        <div className="group relative h-48 w-full">
-          {/* biome-ignore lint/performance/noImgElement: <> */}
-          <img
+        <div className="group/cover relative isolate h-48 w-full">
+          <NextImage
             alt="cover"
-            className="h-full w-full rounded-md object-cover"
+            className="rounded-md object-cover"
+            fill
             src={coverImage}
+            unoptimized
           />
-          <div className="absolute inset-0 rounded-md bg-black/50 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+          <div className="absolute inset-0 rounded-md bg-black/50 opacity-0 transition-opacity duration-300 group-hover/cover:opacity-100" />
           <button
-            className="absolute top-2 right-2 rounded-full bg-white p-2 text-black opacity-0 transition hover:text-destructive group-hover:opacity-100"
+            className="absolute top-2 right-2 rounded-full bg-white p-2 text-black opacity-0 transition hover:text-destructive group-hover/cover:opacity-100"
             onClick={() => onChange(null)}
             type="button"
           >

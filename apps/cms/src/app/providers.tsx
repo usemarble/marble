@@ -6,6 +6,7 @@ import { TooltipProvider } from "@marble/ui/components/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ThemeProvider } from "next-themes";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { useSession } from "@/lib/auth/client";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
@@ -42,7 +43,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
                   : undefined
               }
             >
-              {children}
+              <NuqsAdapter>{children}</NuqsAdapter>
             </DatabuddyFlagsProvider>
           )}
           <Toaster position="top-center" />

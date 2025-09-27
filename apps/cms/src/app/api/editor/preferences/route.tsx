@@ -21,14 +21,14 @@ export async function GET(_request: Request) {
     },
   });
 
-  if (!editorPreferences) {
-    return NextResponse.json(
-      { error: "Editor preferences not found" },
-      { status: 404 }
-    );
-  }
-
-  return NextResponse.json(editorPreferences, { status: 200 });
+  // Return defaults when missing
+  return NextResponse.json(
+    editorPreferences ?? {
+      workspaceId: sessionData.session.activeOrganizationId,
+      ai: { enabled: false },
+    },
+    { status: 200 }
+  );
 }
 
 export async function PATCH(request: Request) {
@@ -38,16 +38,7 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const workspacePreferences = await db.post.findFirst({
-    where: { workspaceId: sessionData.session.activeOrganizationId },
-  });
-
-  if (!workspacePreferences) {
-    return NextResponse.json(
-      { error: "No workspace preferences found" },
-      { status: 404 }
-    );
-  }
+  // No need for pre-check; upsert below handles creation
 
   const { editorPreferenceSchema } = await import("@/lib/validations/editor");
 

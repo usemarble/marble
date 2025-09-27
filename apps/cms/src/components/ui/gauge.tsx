@@ -3,7 +3,7 @@
 import { cn } from "@marble/ui/lib/utils";
 import { motion } from "motion/react";
 import { nanoid } from "nanoid";
-import { useId } from "react";
+import { useEffect, useId, useRef } from "react";
 
 type GaugeProps = {
   value: number;
@@ -34,7 +34,7 @@ export function Gauge({
   labelClassName,
   formatValue = (val) => val.toFixed(1),
   onAnimationComplete,
-  animate = true,
+  animate = false,
 }: GaugeProps) {
   const normalizedValue = Math.max(min, Math.min(max, value));
   const percentage = (normalizedValue - min) / (max - min);
@@ -43,6 +43,22 @@ export function Gauge({
   const center = size / 2;
   const startAngle = Math.PI;
   const endAngle = 0;
+
+  // Track completed animations
+  const completedAnimations = useRef(new Set<string>());
+  const totalAnimations = useRef(animate ? (label ? 3 : 2) : 0); // path, value, label (if exists)
+
+  const handleAnimationComplete = (animationKey: string) => {
+    if (!animate || !onAnimationComplete) {
+      return;
+    }
+
+    completedAnimations.current.add(animationKey);
+
+    if (completedAnimations.current.size === totalAnimations.current) {
+      onAnimationComplete();
+    }
+  };
 
   const createArcPath = (
     startAngle: number,
@@ -107,7 +123,7 @@ export function Gauge({
               ? { strokeDashoffset: circumference }
               : { strokeDashoffset: circumference * (1 - percentage) }
           }
-          onAnimationComplete={onAnimationComplete}
+          onAnimationComplete={() => handleAnimationComplete("path")}
           stroke={`url(#${gradientId})`}
           strokeDasharray={circumference}
           strokeLinecap="round"
@@ -127,6 +143,7 @@ export function Gauge({
           initial={
             animate ? { opacity: 0, scale: 0.5 } : { opacity: 1, scale: 1 }
           }
+          onAnimationComplete={() => handleAnimationComplete("value")}
           transition={{ duration: 0.8, delay: 0.5 }}
         >
           <motion.span
@@ -142,6 +159,7 @@ export function Gauge({
             animate={{ opacity: 1, y: 0 }}
             className={cn("mt-1 text-muted-foreground text-sm", labelClassName)}
             initial={animate ? { opacity: 0, y: 10 } : { opacity: 1, y: 0 }}
+            onAnimationComplete={() => handleAnimationComplete("label")}
             transition={{ duration: 0.6, delay: 0.8 }}
           >
             {label}
