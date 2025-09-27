@@ -1,3 +1,11 @@
+import type { SocialPlatform } from "@/lib/constants";
+
+export type AuthorSocial = {
+  id: string;
+  url: string;
+  platform: SocialPlatform;
+};
+
 export type Author = {
   id: string;
   name: string;
@@ -10,4 +18,5 @@ export type Author = {
   isActive: boolean;
   createdAt: Date | string;
   updatedAt: Date | string;
+  socials?: AuthorSocial[];
 };

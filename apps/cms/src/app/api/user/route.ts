@@ -1,15 +1,16 @@
 import { db } from "@marble/db";
+import { headers as nextHeaders } from "next/headers";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 
 export async function GET() {
   const sessionData = await getServerSession();
+  const orgId = sessionData?.session?.activeOrganizationId;
 
-  if (!sessionData) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!sessionData || !sessionData.user || !orgId) {
+    return NextResponse.json(null, { status: 401 });
   }
 
-  // Get user with their role in the current active workspace
   const user = await db.user.findUnique({
     where: { id: sessionData.user.id },
     select: {
@@ -22,7 +23,7 @@ export async function GET() {
       updatedAt: true,
       members: {
         where: {
-          organizationId: sessionData.session.activeOrganizationId as string,
+          organizationId: orgId,
         },
         select: {
           role: true,
@@ -40,7 +41,7 @@ export async function GET() {
   });
 
   if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
+    return NextResponse.json(null, { status: 401 });
   }
 
   const userWithRole = {
@@ -55,8 +56,9 @@ export async function GET() {
 
 export async function PATCH(request: Request) {
   const sessionData = await getServerSession();
+  const orgId = sessionData?.session?.activeOrganizationId;
 
-  if (!sessionData) {
+  if (!sessionData || !orgId) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
@@ -91,7 +93,7 @@ export async function PATCH(request: Request) {
         updatedAt: true,
         members: {
           where: {
-            organizationId: sessionData.session.activeOrganizationId as string,
+            organizationId: orgId,
           },
           select: {
             role: true,

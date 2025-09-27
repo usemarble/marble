@@ -28,6 +28,7 @@ import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
 import { DeleteAccountModal } from "@/components/settings/delete-account-modal";
 import { ThemeSwitch } from "@/components/settings/theme";
+import PageLoader from "@/components/shared/page-loader";
 import { AsyncButton } from "@/components/ui/async-button";
 import { CopyButton } from "@/components/ui/copy-button";
 import { uploadFile } from "@/lib/media/upload";
@@ -37,7 +38,7 @@ import { useUser } from "@/providers/user";
 
 function PageClient() {
   const queryClient = useQueryClient();
-  const { user, updateUser, isUpdatingUser } = useUser();
+  const { user, updateUser, isUpdatingUser, isFetchingUser } = useUser();
   const [isChanged, setIsChanged] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | undefined>(
     user?.image ?? undefined
@@ -113,6 +114,10 @@ function PageClient() {
       handleAvatarUpload();
     }
   }, [file, handleAvatarUpload]);
+
+  if (isFetchingUser) {
+    return <PageLoader />;
+  }
 
   return (
     <div className="mx-auto flex w-full max-w-(--breakpoint-md) flex-col gap-8 py-12">
