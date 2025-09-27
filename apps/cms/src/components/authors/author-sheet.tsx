@@ -42,7 +42,7 @@ import { QUERY_KEYS } from "@/lib/queries/keys";
 import {
   authorSchema,
   type CreateAuthorValues,
-} from "@/lib/validations/workspace";
+} from "@/lib/validations/authors";
 import type { Author } from "@/types/author";
 import { detectPlatform, getPlatformIcon } from "@/utils/author";
 import { generateSlug } from "@/utils/string";
@@ -83,6 +83,7 @@ export const AuthorSheet = ({
     control,
     setError,
     reset,
+    clearErrors,
     formState: { errors, isSubmitting, isDirty },
   } = useForm<CreateAuthorValues>({
     resolver: zodResolver(authorSchema),
@@ -402,33 +403,45 @@ export const AuthorSheet = ({
               {/* Social links - now all consistent */}
               <ul className="flex flex-col gap-2">
                 {fields.map((field, index) => (
-                  <li className="flex items-center gap-2" key={field.id}>
-                    <div>
-                      {getPlatformIcon(
-                        watchedSocials?.[index]?.url
-                          ? detectPlatform(watchedSocials[index].url)
-                          : field.platform
-                      )}
+                  <li className="flex flex-col gap-1" key={field.id}>
+                    <div className="flex items-center gap-2">
+                      <div>
+                        {getPlatformIcon(
+                          watchedSocials?.[index]?.url
+                            ? detectPlatform(watchedSocials[index].url)
+                            : field.platform
+                        )}
+                      </div>
+                      <Input
+                        {...register(`socials.${index}.url`)}
+                        className={cn(
+                          errors.socials?.[index]?.url && "border-destructive"
+                        )}
+                        onChange={(e) => {
+                          const newPlatform = detectPlatform(e.target.value);
+                          setValue(`socials.${index}.platform`, newPlatform);
+                          setValue(`socials.${index}.url`, e.target.value, {
+                            shouldDirty: true,
+                          });
+                          clearErrors(`socials.${index}.url`);
+                        }}
+                        placeholder="Enter social media URL"
+                      />
+                      <Button
+                        aria-label="Remove social link"
+                        className="size-9 shadow-none"
+                        onClick={() => remove(index)}
+                        type="button"
+                        variant="ghost"
+                      >
+                        <XIcon className="size-4" />
+                      </Button>
                     </div>
-                    <Input
-                      {...register(`socials.${index}.url`)}
-                      onChange={(e) => {
-                        const newPlatform = detectPlatform(e.target.value);
-                        setValue(`socials.${index}.platform`, newPlatform);
-                        setValue(`socials.${index}.url`, e.target.value, {
-                          shouldDirty: true,
-                        });
-                      }}
-                      placeholder="Enter social media URL"
-                    />
-                    <Button
-                      className="size-9 shadow-none"
-                      onClick={() => remove(index)}
-                      type="button"
-                      variant="ghost"
-                    >
-                      <XIcon className="size-4" />
-                    </Button>
+                    {errors.socials?.[index]?.url && (
+                      <ErrorMessage className="ml-8 text-xs">
+                        {errors.socials[index].url.message}
+                      </ErrorMessage>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -445,10 +458,8 @@ export const AuthorSheet = ({
                 </Button>
               )}
 
-              {errors.socials && (
-                <ErrorMessage>
-                  {errors.socials.message || "Invalid social links"}
-                </ErrorMessage>
+              {errors.socials?.message && (
+                <ErrorMessage>{errors.socials.message}</ErrorMessage>
               )}
             </div>
           </div>

@@ -14,11 +14,14 @@ import { PLATFORM_DOMAINS, type SocialPlatform } from "@/lib/constants";
  */
 export function detectPlatform(url: string): SocialPlatform {
   try {
-    const parsedUrl = new URL(url);
-    const hostname = parsedUrl.hostname.toLowerCase().replace(/^www\./, "");
+    const normalized = /^(https?:)?\/\//i.test(url) ? url : `https://${url}`;
+    const { hostname } = new URL(normalized);
+    const host = hostname.toLowerCase().replace(/^www\./, "");
 
     for (const [platform, domains] of Object.entries(PLATFORM_DOMAINS)) {
-      if (domains.some((domain) => hostname.includes(domain))) {
+      if (
+        domains.some((domain) => host === domain || host.endsWith(`.${domain}`))
+      ) {
         return platform as SocialPlatform;
       }
     }

@@ -1,7 +1,7 @@
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
-import { authorSchema } from "@/lib/validations/workspace";
+import { authorSchema } from "@/lib/validations/authors";
 
 export async function GET() {
   const sessionData = await getServerSession();
