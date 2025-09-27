@@ -13,48 +13,22 @@ import { request } from "@/utils/fetch/client";
 type UserProviderProps = {
   children: React.ReactNode;
   initialUser: UserProfile | null;
-  initialIsAuthenticated: boolean;
 };
 
 const UserContext = createContext<UserContextType | null>(null);
 
-export function UserProvider({
-  children,
-  initialUser,
-  initialIsAuthenticated,
-}: UserProviderProps) {
+export function UserProvider({ children, initialUser }: UserProviderProps) {
   const queryClient = useQueryClient();
   const router = useRouter();
   const [user, setUser] = useState<UserProfile | null>(initialUser);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const { data: session, isPending: isSessionPending } = useSession();
-
-  const [isAuthenticated, setIsAuthenticated] = useState(
-    initialIsAuthenticated || !!session
-  );
-
-  // console.log("isAuthenticated", isAuthenticated);
-  // console.log("isSessionPending", isSessionPending);
-  // console.log("isSigningOut", isSigningOut);
-  // console.log("user", user);
-  // console.log("session", session);
-  // console.log("initialIsAuthenticated", initialIsAuthenticated);
-  // console.log("initialUser", initialUser);
-
-  // useEffect(() => {
-  //   if (!session && !isSessionPending && !isSigningOut) {
-  //     setUser(null);
-  //     queryClient.removeQueries({ queryKey: [QUERY_KEYS.USER] });
-  //     queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USER] });
-  //   }
-  // }, [session, isSessionPending, isSigningOut, queryClient]);
+  const isAuthenticated = !!session;
 
   const fetchCurrentUser = async (): Promise<UserProfile> => {
     try {
       const response = await request<UserProfile>("user");
       setUser(response.data);
-      setIsAuthenticated(true);
-      console.log("fresh user data", response.data);
       return response.data;
     } catch (error) {
       console.error("Failed to fetch user:", error);
@@ -65,11 +39,11 @@ export function UserProvider({
   const { isLoading: isFetchingUser } = useQuery({
     queryKey: QUERY_KEYS.USER,
     queryFn: fetchCurrentUser,
-    enabled:
-      (!user || !user.workspaceRole) && isAuthenticated && !isSessionPending,
-    initialData: initialUser,
-    staleTime: 5 * 60 * 1000,
+    enabled: isAuthenticated && !isSessionPending,
+    staleTime: 60 * 60 * 1000, // 1 hour
     gcTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    retry: false,
   });
 
   const { mutate: updateUserMutation, isPending: isUpdatingUser } = useMutation(
@@ -102,9 +76,8 @@ export function UserProvider({
     setIsSigningOut(true);
     try {
       await authClient.signOut();
-      setUser(null);
-      router.push("/login");
       queryClient.removeQueries({ queryKey: QUERY_KEYS.USER });
+      router.push("/login");
     } catch (error) {
       console.error("Failed to sign out:", error);
       toast.error("Failed to sign out");

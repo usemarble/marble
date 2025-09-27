@@ -18,6 +18,7 @@ export async function GET() {
       id: true,
       name: true,
       slug: true,
+      description: true,
     },
   });
 
@@ -39,6 +40,7 @@ export async function POST(req: Request) {
     data: {
       name: body.name,
       slug: body.slug,
+      description: body.description,
       workspaceId,
     },
   });

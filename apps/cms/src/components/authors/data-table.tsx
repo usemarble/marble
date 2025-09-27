@@ -22,6 +22,7 @@ import {
 import { useState } from "react";
 import type { Author } from "@/types/author";
 import { AuthorModal } from "./author-modals";
+import AuthorSheet from "./author-sheet";
 
 type AuthorDataTableProps = {
   columns: ColumnDef<Author>[];
@@ -132,7 +133,12 @@ export function AuthorDataTable({ columns, data }: AuthorDataTableProps) {
         </Table>
       </div>
 
-      <AuthorModal
+      {/* <AuthorModal
+        mode="create"
+        open={showCreateModal}
+        setOpen={setShowCreateModal}
+      /> */}
+      <AuthorSheet
         mode="create"
         open={showCreateModal}
         setOpen={setShowCreateModal}

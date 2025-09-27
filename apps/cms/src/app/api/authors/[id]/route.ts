@@ -74,7 +74,8 @@ export async function PATCH(
       );
     }
 
-    const { name, bio, role, email, image, userId, slug } = parsedBody.data;
+    const { name, bio, role, email, image, userId, slug, socials } =
+      parsedBody.data;
 
     const validEmail = email === "" ? null : email;
     const validUserId = userId ? userId : null;
@@ -103,6 +104,19 @@ export async function PATCH(
         image,
         slug,
         userId: validUserId,
+        socials: {
+          deleteMany: {},
+          ...(socials &&
+            socials.length > 0 && {
+              create: socials.map((social) => ({
+                url: social.url,
+                platform: social.platform,
+              })),
+            }),
+        },
+      },
+      include: {
+        socials: true,
       },
     });
 

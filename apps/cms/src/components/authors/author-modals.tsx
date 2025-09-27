@@ -16,6 +16,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@marble/ui/components/avatar";
+import { Button } from "@marble/ui/components/button";
 import {
   Dialog,
   DialogContent,
@@ -27,11 +28,16 @@ import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { Textarea } from "@marble/ui/components/textarea";
 import { cn } from "@marble/ui/lib/utils";
-import { ImageIcon, UploadSimpleIcon } from "@phosphor-icons/react";
+import {
+  ImageIcon,
+  PlusIcon,
+  UploadSimpleIcon,
+  XIcon,
+} from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import {
@@ -69,6 +75,7 @@ export const AuthorModal = ({
     email: "",
     image: null,
     userId: null,
+    socials: [],
   },
   onAuthorCreated,
 }: AuthorModalProps) => {
@@ -79,6 +86,7 @@ export const AuthorModal = ({
     handleSubmit,
     setValue,
     watch,
+    control,
     setError,
     formState: { errors, isSubmitting, isDirty },
   } = useForm<CreateAuthorValues>({
@@ -93,6 +101,11 @@ export const AuthorModal = ({
       userId: authorData.userId || null,
     },
   });
+
+  // const { fields, append, remove } = useFieldArray({
+  //   name: "socials",
+  //   control,
+  // });
 
   const { name } = watch();
   const workspaceId = useWorkspaceId();
@@ -352,6 +365,26 @@ export const AuthorModal = ({
             <Label htmlFor="bio">Bio (optional)</Label>
             <Textarea id="bio" {...register("bio")} placeholder="Authors bio" />
             {errors.bio && <ErrorMessage>{errors.bio.message}</ErrorMessage>}
+          </div>
+
+          <div className="grid flex-1 gap-3">
+            <Label htmlFor="socials">Socials (optional)</Label>
+            <ul className="flex flex-col gap-2">
+              <li className="flex gap-2">
+                <Input />
+                <Button
+                  className="size-9 shadow-none"
+                  type="button"
+                  variant="ghost"
+                >
+                  <XIcon />
+                </Button>
+              </li>
+            </ul>
+            <Button className="w-fit shadow-none" variant="outline">
+              <PlusIcon />
+              Add Link
+            </Button>
           </div>
           <AsyncButton
             className="mt-4 flex w-full gap-2"

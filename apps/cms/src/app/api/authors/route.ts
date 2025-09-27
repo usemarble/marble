@@ -34,6 +34,13 @@ export async function GET() {
         isActive: true,
         createdAt: true,
         updatedAt: true,
+        socials: {
+          select: {
+            id: true,
+            url: true,
+            platform: true,
+          },
+        },
       },
       orderBy: {
         name: "asc",
@@ -69,7 +76,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const { name, bio, role, email, image, slug, userId } = parsedBody.data;
+    const { name, bio, role, email, image, slug, userId, socials } =
+      parsedBody.data;
 
     const validEmail = email === "" ? null : email;
 
@@ -103,6 +111,18 @@ export async function POST(request: Request) {
         image,
         workspaceId,
         userId: validUserId,
+        ...(socials &&
+          socials.length > 0 && {
+            socials: {
+              create: socials.map((social) => ({
+                url: social.url,
+                platform: social.platform,
+              })),
+            },
+          }),
+      },
+      include: {
+        socials: true,
       },
     });
 
