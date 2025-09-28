@@ -1,3 +1,4 @@
+import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { openrouter } from "@/lib/openrouter";
@@ -27,6 +28,21 @@ export async function POST(request: Request) {
       { error: "Too many requests", remaining },
       { status: 429, headers: rateLimitHeaders(limit, remaining, reset) }
     );
+  }
+
+  const workspace = await db.organization.findUnique({
+    where: { id: sessionData.session.activeOrganizationId },
+    select: {
+      editorPreferences: {
+        select: {
+          ai: { select: { enabled: true } },
+        },
+      },
+    },
+  });
+
+  if (!workspace?.editorPreferences?.ai?.enabled) {
+    return NextResponse.json({ error: "AI is not enabled" }, { status: 400 });
   }
 
   const body = await request.json();

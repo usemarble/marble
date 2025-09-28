@@ -128,7 +128,7 @@ export function EditorSidebar({
       : words.length;
     const sentences = text.split(/[.!?]+/).filter((s) => s.trim().length > 0);
     const sentenceCount = sentences.length;
-    
+
     const wordsPerSentence =
       sentenceCount > 0 ? Math.round(wordCount / sentenceCount) : 0;
 
