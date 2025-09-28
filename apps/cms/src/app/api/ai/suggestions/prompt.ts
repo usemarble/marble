@@ -46,7 +46,7 @@ export const systemPrompt = ({ metrics }: SystemPromptParams) => {
         - Provide brief "explanation" when helpful (e.g., examples of complex words, specific improvements)
         - Include "textReference" for specific text snippets that should be highlighted (optional)
         - Only suggest actual issues - don't fabricate problems if text is good
-        - Be specific and concrete, not generic
+        - Be specific and concrete, not generic. Make sure the suggestions are actionable and specific.
         - Focus on immediate improvements the writer can make
         - Don't use an em dash in the suggestions
         </RESPONSE-REQUIREMENTS>

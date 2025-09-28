@@ -123,12 +123,10 @@ export function useReadability({
 
   const debouncedText = useDebounce(text, debounceMs);
 
-  // Compute metrics immediately from current text so UI renders without waiting for debounce
   const metrics = useMemo(() => computeMetrics(text, editor), [text, editor]);
 
-  // Compute metrics for debounced content used by AI requests
   const debouncedMetrics = useMemo(() => {
-    const m = computeMetrics(debouncedText, editor);
+    const m = computeMetrics(debouncedText);
     return {
       wordCount: m.wordCount,
       sentenceCount: m.sentenceCount,
@@ -136,7 +134,7 @@ export function useReadability({
       readabilityScore: m.readabilityScore,
       readingTime: m.readingTime,
     };
-  }, [debouncedText, editor]);
+  }, [debouncedText]);
 
   const contentKey = useMemo(
     () => buildContentKey(debouncedText),

@@ -34,7 +34,7 @@ export function Enable() {
 
   const enableForm = useForm<AiEnableValues>({
     resolver: zodResolver(aiEnableSchema),
-    defaultValues: { ai: { enabled: activeWorkspace?.ai?.enabled } },
+    defaultValues: { ai: { enabled: activeWorkspace?.ai?.enabled ?? false } },
   });
 
   const { mutate: updateAiSettings, isPending } = useMutation({
@@ -117,7 +117,6 @@ export function Enable() {
       const errorMessage =
         error instanceof Error ? error.message : "Failed to update AI settings";
       toast.error(errorMessage);
-      console.error("Failed to update AI settings:", error);
     },
     onSettled: (_data, _error, variables) => {
       if (variables?.workspaceId) {
