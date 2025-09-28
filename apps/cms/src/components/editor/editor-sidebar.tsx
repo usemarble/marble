@@ -27,6 +27,10 @@ import { aiReadabilityResponseSchema } from "@/lib/validations/editor";
 import type { PostValues } from "@/lib/validations/post";
 import { useUnsavedChanges } from "@/providers/unsaved-changes";
 import { useWorkspace } from "@/providers/workspace";
+import {
+  calculateReadabilityScore,
+  generateSuggestions as generateLocalSuggestions,
+} from "@/utils/readability";
 import { AsyncButton } from "../ui/async-button";
 
 const MetadataTab = lazy(() =>
@@ -124,10 +128,11 @@ export function EditorSidebar({
       : words.length;
     const sentences = text.split(/[.!?]+/).filter((s) => s.trim().length > 0);
     const sentenceCount = sentences.length;
+    
     const wordsPerSentence =
       sentenceCount > 0 ? Math.round(wordCount / sentenceCount) : 0;
-    // Fallback readability approximation without importing utilities
-    const readabilityScore = 0;
+
+    const readabilityScore = editor ? calculateReadabilityScore(editor) : 0;
     const readingTime = wordCount / 238;
     return {
       wordCount,
@@ -147,6 +152,20 @@ export function EditorSidebar({
 
   const shouldQueryAi =
     aiEnabled && activeTab === "analysis" && debouncedText.trim().length > 0;
+
+  const localSuggestions = useMemo(() => {
+    return generateLocalSuggestions({
+      wordCount: metrics.wordCount,
+      sentenceCount: metrics.sentenceCount,
+      wordsPerSentence: metrics.wordsPerSentence,
+      readabilityScore: metrics.readabilityScore,
+    });
+  }, [
+    metrics.wordCount,
+    metrics.sentenceCount,
+    metrics.wordsPerSentence,
+    metrics.readabilityScore,
+  ]);
 
   const {
     data: aiData,
@@ -278,6 +297,7 @@ export function EditorSidebar({
                   aiLoading={aiLoading}
                   aiSuggestions={aiData?.suggestions ?? []}
                   editor={editor}
+                  localSuggestions={localSuggestions}
                   onRefreshAi={handleRefreshAi}
                 />
               </Suspense>

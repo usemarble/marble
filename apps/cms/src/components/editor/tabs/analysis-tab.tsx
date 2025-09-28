@@ -17,6 +17,7 @@ type AnalysisTabProps = {
   aiLoading?: boolean;
   onRefreshAi?: () => void;
   aiEnabled?: boolean;
+  localSuggestions?: string[];
 };
 
 export function AnalysisTab({
@@ -25,6 +26,7 @@ export function AnalysisTab({
   aiLoading,
   onRefreshAi,
   aiEnabled,
+  localSuggestions,
 }: AnalysisTabProps) {
   const [editorText, setEditorText] = useState("");
 
@@ -129,9 +131,11 @@ export function AnalysisTab({
               />
             ) : (
               <div className="space-y-2 text-muted-foreground text-sm">
-                {textMetrics.suggestions.map((suggestion) => (
-                  <p key={suggestion}>• {suggestion}</p>
-                ))}
+                {(localSuggestions ?? textMetrics.suggestions).map(
+                  (suggestion) => (
+                    <p key={suggestion}>• {suggestion}</p>
+                  )
+                )}
               </div>
             )}
           </div>
