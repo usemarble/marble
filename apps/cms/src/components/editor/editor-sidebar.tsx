@@ -22,6 +22,7 @@ import { parseAsStringLiteral, useQueryState } from "nuqs";
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import type { Control, FieldErrors, UseFormWatch } from "react-hook-form";
 import { useDebounce } from "@/hooks/use-debounce";
+import { QUERY_KEYS } from "@/lib/queries/keys";
 import { aiReadabilityResponseSchema } from "@/lib/validations/editor";
 import type { PostValues } from "@/lib/validations/post";
 import { useUnsavedChanges } from "@/providers/unsaved-changes";
@@ -152,11 +153,11 @@ export function EditorSidebar({
     isFetching: aiLoading,
     refetch: refetchAi,
   } = useQuery({
-    queryKey: [
-      "ai-readability-suggestions-object",
-      activeWorkspace?.id,
-      contentKey,
-    ],
+    queryKey: QUERY_KEYS.AI_READABILITY_SUGGESTIONS(
+      // biome-ignore lint/style/noNonNullAssertion: <>
+      activeWorkspace!.id!,
+      contentKey
+    ),
     enabled: shouldQueryAi,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
@@ -171,13 +172,11 @@ export function EditorSidebar({
       if (!res.ok) {
         throw new Error("Failed to fetch AI suggestions");
       }
-      // The endpoint streams; collect full text then parse safe JSON
       const text = await res.text();
       let json: unknown = null;
       try {
         json = JSON.parse(text);
       } catch {
-        // Try line-by-line JSON chunks
         const chunk = text
           .split(/\r?\n/)
           .map((l) => l.trim())

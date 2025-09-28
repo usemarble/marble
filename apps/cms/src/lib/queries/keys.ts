@@ -43,6 +43,12 @@ export const QUERY_KEYS = {
     workspaceId,
   ],
 
+  AI_READABILITY_SUGGESTIONS: (workspaceId: string, contentKey: string) => [
+    "ai-readability-suggestions",
+    workspaceId,
+    contentKey,
+  ],
+
   // Globally scoped
   USER: ["user"],
 };
