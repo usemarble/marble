@@ -137,3 +137,26 @@ export function isAllowedAvatarUrl(url: string): boolean {
     return false;
   }
 }
+
+export const SOCIAL_PLATFORMS = {
+  x: "x",
+  github: "github",
+  facebook: "facebook",
+  instagram: "instagram",
+  youtube: "youtube",
+  tiktok: "tiktok",
+  linkedin: "linkedin",
+  website: "website",
+} as const;
+
+export type SocialPlatform = keyof typeof SOCIAL_PLATFORMS;
+
+export const PLATFORM_DOMAINS = {
+  x: ["twitter.com", "x.com"],
+  github: ["github.com"],
+  facebook: ["facebook.com", "fb.com"],
+  instagram: ["instagram.com"],
+  youtube: ["youtube.com", "youtu.be"],
+  tiktok: ["tiktok.com"],
+  linkedin: ["linkedin.com"],
+} as const;
