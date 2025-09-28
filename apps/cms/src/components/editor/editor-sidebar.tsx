@@ -16,12 +16,16 @@ import {
 } from "@marble/ui/components/tabs";
 import { cn } from "@marble/ui/lib/utils";
 import { SpinnerIcon } from "@phosphor-icons/react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { EditorInstance } from "novel";
 import { parseAsStringLiteral, useQueryState } from "nuqs";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import type { Control, FieldErrors, UseFormWatch } from "react-hook-form";
+import { useDebounce } from "@/hooks/use-debounce";
+import { aiReadabilityResponseSchema } from "@/lib/validations/editor";
 import type { PostValues } from "@/lib/validations/post";
 import { useUnsavedChanges } from "@/providers/unsaved-changes";
+import { useWorkspace } from "@/providers/workspace";
 import { AsyncButton } from "../ui/async-button";
 
 const MetadataTab = lazy(() =>
@@ -71,10 +75,136 @@ export function EditorSidebar({
   const hasErrors = Object.keys(errors).length > 0;
   const { tags, authors: initialAuthors } = watch();
   const { hasUnsavedChanges } = useUnsavedChanges();
+  const { activeWorkspace } = useWorkspace();
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useQueryState(
     "active-tab",
     parseAsStringLiteral(Object.keys(tabs)).withDefault("metadata")
   );
+
+  const [editorText, setEditorText] = useState("");
+  useEffect(() => {
+    if (!editor) {
+      return;
+    }
+    setEditorText(editor.getText());
+    const handler = () => {
+      const nextText = editor.getText();
+      setEditorText((prev) => (prev === nextText ? prev : nextText));
+    };
+    editor.on("update", handler);
+    editor.on("create", handler);
+    return () => {
+      editor.off("update", handler);
+      editor.off("create", handler);
+    };
+  }, [editor]);
+
+  const aiEnabled = Boolean(activeWorkspace?.ai?.enabled);
+  const debouncedText = useDebounce(editorText, aiEnabled ? 1500 : 500);
+
+  const metrics = useMemo(() => {
+    const text = editorText;
+    if (!text || text.trim().length === 0) {
+      return {
+        wordCount: 0,
+        sentenceCount: 0,
+        wordsPerSentence: 0,
+        readabilityScore: 0,
+        readingTime: 0,
+      };
+    }
+    const words = text
+      .trim()
+      .split(/\s+/u)
+      .filter((w) => w.length > 0);
+    const wordCount = editor?.storage?.characterCount?.words
+      ? editor.storage.characterCount.words()
+      : words.length;
+    const sentences = text.split(/[.!?]+/).filter((s) => s.trim().length > 0);
+    const sentenceCount = sentences.length;
+    const wordsPerSentence =
+      sentenceCount > 0 ? Math.round(wordCount / sentenceCount) : 0;
+    // Fallback readability approximation without importing utilities
+    const readabilityScore = 0;
+    const readingTime = wordCount / 238;
+    return {
+      wordCount,
+      sentenceCount,
+      wordsPerSentence,
+      readabilityScore,
+      readingTime,
+    };
+  }, [editor, editorText]);
+
+  const contentKey = useMemo(() => {
+    const input = debouncedText;
+    const start = input.slice(0, 200);
+    const end = input.slice(-200);
+    return `${input.length}:${start}:${end}`;
+  }, [debouncedText]);
+
+  const shouldQueryAi =
+    aiEnabled && activeTab === "analysis" && debouncedText.trim().length > 0;
+
+  const {
+    data: aiData,
+    isFetching: aiLoading,
+    refetch: refetchAi,
+  } = useQuery({
+    queryKey: [
+      "ai-readability-suggestions-object",
+      activeWorkspace?.id,
+      contentKey,
+    ],
+    enabled: shouldQueryAi,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    retry: 0,
+    queryFn: async () => {
+      const res = await fetch("/api/ai/suggestions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: debouncedText, metrics }),
+      });
+      if (!res.ok) {
+        throw new Error("Failed to fetch AI suggestions");
+      }
+      // The endpoint streams; collect full text then parse safe JSON
+      const text = await res.text();
+      let json: unknown = null;
+      try {
+        json = JSON.parse(text);
+      } catch {
+        // Try line-by-line JSON chunks
+        const chunk = text
+          .split(/\r?\n/)
+          .map((l) => l.trim())
+          .filter(Boolean)
+          .find((l) => l.startsWith("{") && l.endsWith("}"));
+        if (chunk) {
+          json = JSON.parse(chunk);
+        }
+      }
+      const parsed = aiReadabilityResponseSchema.safeParse(json);
+      if (!parsed.success) {
+        return { suggestions: [] };
+      }
+      return parsed.data;
+    },
+  });
+
+  const handleRefreshAi = () => {
+    queryClient.invalidateQueries({
+      queryKey: [
+        "ai-readability-suggestions-object",
+        activeWorkspace?.id,
+        contentKey,
+      ],
+    });
+    refetchAi();
+  };
 
   const triggerSubmit = async () => {
     if (hasErrors) {
@@ -144,7 +274,13 @@ export function EditorSidebar({
               value="analysis"
             >
               <Suspense fallback={<TabLoadingSpinner />}>
-                <AnalysisTab editor={editor} />
+                <AnalysisTab
+                  aiEnabled={aiEnabled}
+                  aiLoading={aiLoading}
+                  aiSuggestions={aiData?.suggestions ?? []}
+                  editor={editor}
+                  onRefreshAi={handleRefreshAi}
+                />
               </Suspense>
             </TabsContent>
           </Tabs>

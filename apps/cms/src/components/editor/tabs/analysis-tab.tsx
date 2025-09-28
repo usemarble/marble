@@ -1,17 +1,31 @@
 "use client";
 
+import { Button } from "@marble/ui/components/button";
 import { Separator } from "@marble/ui/components/separator";
+import { ArrowClockwise } from "@phosphor-icons/react";
 import type { EditorInstance } from "novel";
 import { useEffect, useState } from "react";
 import { useReadability } from "@/hooks/use-readability";
 import { Gauge } from "../../ui/gauge";
+import type { ReadabilitySuggestion } from "../ai/readability-suggestions";
+import { ReadabilitySuggestions } from "../ai/readability-suggestions";
 import { HiddenScrollbar } from "../hidden-scrollbar";
 
 type AnalysisTabProps = {
   editor?: EditorInstance | null;
+  aiSuggestions?: ReadabilitySuggestion[];
+  aiLoading?: boolean;
+  onRefreshAi?: () => void;
+  aiEnabled?: boolean;
 };
 
-export function AnalysisTab({ editor }: AnalysisTabProps) {
+export function AnalysisTab({
+  editor,
+  aiSuggestions,
+  aiLoading,
+  onRefreshAi,
+  aiEnabled,
+}: AnalysisTabProps) {
   const [editorText, setEditorText] = useState("");
 
   useEffect(() => {
@@ -84,15 +98,42 @@ export function AnalysisTab({ editor }: AnalysisTabProps) {
 
           <Separator />
 
-          <div className="space-y-3">
-            <h4 className="font-medium text-sm">
-              {textMetrics.wordCount === 0 ? "Getting Started" : "Suggestions"}
-            </h4>
-            <div className="space-y-2 text-muted-foreground text-sm">
-              {textMetrics.suggestions.map((suggestion) => (
-                <p key={suggestion}>• {suggestion}</p>
-              ))}
+          <div className="group space-y-3">
+            <div className="flex items-center justify-between">
+              <h4 className="font-medium text-sm">
+                {textMetrics.wordCount === 0
+                  ? "Getting Started"
+                  : "Suggestions"}
+              </h4>
+              {aiEnabled && (
+                <Button
+                  aria-label="Refresh suggestions"
+                  className="h-7 w-7 cursor-pointer"
+                  disabled={Boolean(aiLoading)}
+                  onClick={onRefreshAi}
+                  size="icon"
+                  type="button"
+                  variant="ghost"
+                >
+                  <ArrowClockwise
+                    className={aiLoading ? "h-4 w-4 animate-spin" : "h-4 w-4"}
+                  />
+                </Button>
+              )}
             </div>
+            {aiEnabled ? (
+              <ReadabilitySuggestions
+                editor={editor ?? null}
+                isLoading={aiLoading}
+                suggestions={aiSuggestions ?? []}
+              />
+            ) : (
+              <div className="space-y-2 text-muted-foreground text-sm">
+                {textMetrics.suggestions.map((suggestion) => (
+                  <p key={suggestion}>• {suggestion}</p>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>
