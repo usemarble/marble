@@ -193,19 +193,19 @@ model User {
 }
 
 model Author {
-  id          String   @id @default(cuid())
+  id          String         @id @default(cuid())
   name        String
   email       String?
   bio         String?
   image       String?
   role        String?
   slug        String
-  socials     AuthorSocial[]        
+  socials     AuthorSocial[]
   workspaceId String
   userId      String?
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  isActive    Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 
   workspace       Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   user            User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
@@ -226,11 +226,11 @@ model AuthorSocial {
   url       String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
-  author    Author   @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  
-  @@map("author_social")
+
+  author Author @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
   @@index([authorId])
+  @@map("author_social")
 }
 
 model Session {
