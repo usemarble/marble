@@ -2,7 +2,12 @@
 
 import { Button } from "@marble/ui/components/button";
 import { Separator } from "@marble/ui/components/separator";
-import { ArrowClockwise } from "@phosphor-icons/react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@marble/ui/components/tooltip";
+import { ArrowClockwiseIcon, InfoIcon } from "@phosphor-icons/react";
 import type { EditorInstance } from "novel";
 import { useEffect, useState } from "react";
 import { useReadability } from "@/hooks/use-readability";
@@ -102,11 +107,28 @@ export function AnalysisTab({
 
           <div className="group space-y-3">
             <div className="flex items-center justify-between">
-              <h4 className="font-medium text-sm">
-                {textMetrics.wordCount === 0
-                  ? "Getting Started"
-                  : "Suggestions"}
-              </h4>
+              <div className="flex items-center gap-1">
+                <h4 className="font-medium text-sm">
+                  {textMetrics.wordCount === 0
+                    ? "Getting Started"
+                    : "Suggestions"}
+                </h4>
+                {aiEnabled && textMetrics.wordCount > 0 ? (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <InfoIcon
+                        aria-label="AI generated"
+                        className="h-3.5 w-3.5 text-muted-foreground"
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="text-xs">
+                        These suggestions are AI-generated
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                ) : null}
+              </div>
               {aiEnabled && (
                 <Button
                   aria-label="Refresh suggestions"
@@ -117,7 +139,7 @@ export function AnalysisTab({
                   type="button"
                   variant="ghost"
                 >
-                  <ArrowClockwise
+                  <ArrowClockwiseIcon
                     className={aiLoading ? "h-4 w-4 animate-spin" : "h-4 w-4"}
                   />
                 </Button>

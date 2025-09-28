@@ -103,6 +103,7 @@ export function Enable() {
           ? "AI integration enabled"
           : "AI integration disabled"
       );
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.WORKSPACE(variables.workspaceId) });
       enableForm.reset({ ai: { enabled: enableForm.getValues("ai.enabled") } });
       router.refresh();
     },

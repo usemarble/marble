@@ -233,20 +233,6 @@ model AuthorSocial {
   @@index([authorId])
 }
 
-model AuthorSocial {
-  id        String   @id @default(cuid())
-  authorId  String
-  platform  String
-  url       String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  author    Author   @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  
-  @@map("author_social")
-  @@index([authorId])
-}
-
 model Session {
   id                   String   @id @default(cuid())
   expiresAt            DateTime

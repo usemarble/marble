@@ -71,3 +71,11 @@ export const timezoneSchema = z.object({
   timezone: z.enum(timezones as [string, ...string[]]),
 });
 export type TimezoneValues = z.infer<typeof timezoneSchema>;
+
+// AI Integration Enable Schema
+export const aiEnableSchema = z.object({
+  ai: z.object({
+    enabled: z.boolean(),
+  }),
+});
+export type AiEnableValues = z.infer<typeof aiEnableSchema>;

@@ -72,7 +72,7 @@ const settingsItems = [
     url: "settings/billing",
   },
   {
-    title: "Editor",
+    title: "Editor Preferences",
     url: "settings/editor-preferences",
   },
 ];
