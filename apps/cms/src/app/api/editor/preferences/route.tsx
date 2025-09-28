@@ -21,7 +21,6 @@ export async function GET(_request: Request) {
     },
   });
 
-  // Return defaults when missing
   return NextResponse.json(
     editorPreferences ?? {
       workspaceId: sessionData.session.activeOrganizationId,
@@ -37,8 +36,6 @@ export async function PATCH(request: Request) {
   if (!sessionData || !sessionData.session.activeOrganizationId) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
-
-  // No need for pre-check; upsert below handles creation
 
   const { editorPreferenceSchema } = await import("@/lib/validations/editor");
 
@@ -72,6 +69,14 @@ export async function PATCH(request: Request) {
           update: {
             enabled: parsedBody.data.ai.enabled,
           },
+        },
+      },
+    },
+    select: {
+      workspaceId: true,
+      ai: {
+        select: {
+          enabled: true,
         },
       },
     },

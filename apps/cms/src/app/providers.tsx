@@ -25,10 +25,10 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider attribute="class" disableTransitionOnChange enableSystem>
         <TooltipProvider>
-          {process.env.NEXT_PUBLIC_DATEBUDDY_CLIENT_ID && (
+          {process.env.NEXT_PUBLIC_DATABUDDY_CLIENT_ID ? (
             <DatabuddyFlagsProvider
               apiUrl="https://api.databuddy.cc"
-              clientId={process.env.NEXT_PUBLIC_DATEBUDDY_CLIENT_ID}
+              clientId={process.env.NEXT_PUBLIC_DATABUDDY_CLIENT_ID}
               debug={false}
               isPending={isPending}
               user={
@@ -45,6 +45,8 @@ export default function Providers({ children }: { children: React.ReactNode }) {
             >
               <NuqsAdapter>{children}</NuqsAdapter>
             </DatabuddyFlagsProvider>
+          ) : (
+            <NuqsAdapter>{children}</NuqsAdapter>
           )}
           <Toaster position="top-center" />
         </TooltipProvider>

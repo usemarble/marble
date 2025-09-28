@@ -4,6 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import type { EditorInstance } from "novel";
 import { useMemo } from "react";
 import { useDebounce } from "@/hooks/use-debounce";
+import { fetchAiReadabilitySuggestionsStrings } from "@/lib/ai/readability";
+import { QUERY_KEYS } from "@/lib/queries/keys";
 import { useWorkspace } from "@/providers/workspace";
 import {
   calculateReadabilityScore,
@@ -124,6 +126,18 @@ export function useReadability({
   // Compute metrics immediately from current text so UI renders without waiting for debounce
   const metrics = useMemo(() => computeMetrics(text, editor), [text, editor]);
 
+  // Compute metrics for debounced content used by AI requests
+  const debouncedMetrics = useMemo(() => {
+    const m = computeMetrics(debouncedText, editor);
+    return {
+      wordCount: m.wordCount,
+      sentenceCount: m.sentenceCount,
+      wordsPerSentence: m.wordsPerSentence,
+      readabilityScore: m.readabilityScore,
+      readingTime: m.readingTime,
+    };
+  }, [debouncedText, editor]);
+
   const contentKey = useMemo(
     () => buildContentKey(debouncedText),
     [debouncedText]
@@ -131,51 +145,20 @@ export function useReadability({
   const shouldQueryAi = aiEnabled && debouncedText.trim().length > 0;
 
   const { data: aiSuggestions, isFetching: isFetchingAi } = useQuery<string[]>({
-    queryKey: ["ai-readability-suggestions", activeWorkspace?.id, contentKey],
+    queryKey: QUERY_KEYS.AI_READABILITY_SUGGESTIONS(
+      activeWorkspace?.id ?? "no-workspace",
+      contentKey
+    ),
     enabled: shouldQueryAi,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     retry: 0,
-    queryFn: async () => {
-      const response = await fetch("/api/ai/suggestions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: debouncedText }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch AI suggestions");
-      }
-
-      const textBody = await response.text();
-
-      const safeParseArray = (s: string): string[] | null => {
-        try {
-          const parsed = JSON.parse(s);
-          return Array.isArray(parsed) ? (parsed as string[]) : null;
-        } catch (_err) {
-          return null;
-        }
-      };
-
-      const asWhole = safeParseArray(textBody);
-      if (asWhole) {
-        return asWhole;
-      }
-
-      const lines = textBody
-        .split(/\r?\n/)
-        .map((l) => l.trim())
-        .filter(Boolean);
-      for (const line of lines) {
-        const arr = safeParseArray(line);
-        if (arr) {
-          return arr;
-        }
-      }
-      return [];
-    },
+    queryFn: async () =>
+      fetchAiReadabilitySuggestionsStrings({
+        content: debouncedText,
+        metrics: debouncedMetrics,
+      }),
   });
 
   const { data: localSuggestions = [] } = useQuery<string[]>({

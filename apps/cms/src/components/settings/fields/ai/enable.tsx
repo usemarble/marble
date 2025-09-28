@@ -60,11 +60,9 @@ export function Enable() {
         const data = await res.json();
         return data;
       } catch (error) {
-        toast.error(
-          error instanceof Error
-            ? error.message
-            : "Failed to update AI settings"
-        );
+        throw error instanceof Error
+          ? error
+          : new Error("Failed to update AI settings");
       }
     },
 

@@ -22,8 +22,8 @@ import { parseAsStringLiteral, useQueryState } from "nuqs";
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import type { Control, FieldErrors, UseFormWatch } from "react-hook-form";
 import { useDebounce } from "@/hooks/use-debounce";
+import { fetchAiReadabilitySuggestionsObject } from "@/lib/ai/readability";
 import { QUERY_KEYS } from "@/lib/queries/keys";
-import { aiReadabilityResponseSchema } from "@/lib/validations/editor";
 import type { PostValues } from "@/lib/validations/post";
 import { useUnsavedChanges } from "@/providers/unsaved-changes";
 import { useWorkspace } from "@/providers/workspace";
@@ -167,50 +167,31 @@ export function EditorSidebar({
     metrics.readabilityScore,
   ]);
 
+  // biome-ignore lint/style/noNonNullAssertion: <>
+  const workspaceId = activeWorkspace!.id;
+
   const {
     data: aiData,
     isFetching: aiLoading,
     refetch: refetchAi,
   } = useQuery({
-    queryKey: QUERY_KEYS.AI_READABILITY_SUGGESTIONS(
-      // biome-ignore lint/style/noNonNullAssertion: <>
-      activeWorkspace!.id!,
-      contentKey
-    ),
-    enabled: shouldQueryAi,
+    queryKey: QUERY_KEYS.AI_READABILITY_SUGGESTIONS(workspaceId, contentKey),
+    enabled: shouldQueryAi && !!workspaceId,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     retry: 0,
-    queryFn: async () => {
-      const res = await fetch("/api/ai/suggestions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: debouncedText, metrics }),
-      });
-      if (!res.ok) {
-        throw new Error("Failed to fetch AI suggestions");
-      }
-      const text = await res.text();
-      let json: unknown = null;
-      try {
-        json = JSON.parse(text);
-      } catch {
-        const chunk = text
-          .split(/\r?\n/)
-          .map((l) => l.trim())
-          .filter(Boolean)
-          .find((l) => l.startsWith("{") && l.endsWith("}"));
-        if (chunk) {
-          json = JSON.parse(chunk);
-        }
-      }
-      const parsed = aiReadabilityResponseSchema.safeParse(json);
-      if (!parsed.success) {
-        return { suggestions: [] };
-      }
-      return parsed.data;
-    },
+    queryFn: async () =>
+      fetchAiReadabilitySuggestionsObject({
+        content: debouncedText,
+        metrics: {
+          wordCount: metrics.wordCount,
+          sentenceCount: metrics.sentenceCount,
+          wordsPerSentence: metrics.wordsPerSentence,
+          readabilityScore: metrics.readabilityScore,
+          readingTime: metrics.readingTime,
+        },
+      }),
   });
 
   const handleRefreshAi = () => {
@@ -255,7 +236,10 @@ export function EditorSidebar({
             value={activeTab}
           >
             <TabsList
-              className={`grid grid-cols-${Object.keys(tabs).length}`}
+              className="grid"
+              style={{
+                gridTemplateColumns: `repeat(${Object.keys(tabs).length}, 1fr)`,
+              }}
               variant="line"
             >
               {Object.entries(tabs).map(([value, label]) => (

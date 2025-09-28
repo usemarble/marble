@@ -3,11 +3,13 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   transpilePackages: ["@marble/db", "@marble/ui"],
-  experimental: {
-    turbopackPersistentCaching: true,
-  },
   async redirects() {
     return [
+      {
+        source: "/settings",
+        destination: "/settings/general",
+        permanent: true,
+      },
       {
         source: "/settings/",
         destination: "/settings/general",

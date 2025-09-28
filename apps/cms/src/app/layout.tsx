@@ -49,9 +49,9 @@ const fontSans = Geist({
 function DatabuddyAnalytics() {
   return (
     <>
-      {process.env.NEXT_PUBLIC_DATEBUDDY_CLIENT_ID && (
+      {process.env.NEXT_PUBLIC_DATABUDDY_CLIENT_ID && (
         <Databuddy
-          clientId={process.env.NEXT_PUBLIC_DATEBUDDY_CLIENT_ID}
+          clientId={process.env.NEXT_PUBLIC_DATABUDDY_CLIENT_ID}
           enableBatching={true}
         />
       )}

@@ -24,7 +24,6 @@ function highlightTextInEditor(editor: EditorInstance, textReference: string) {
     return;
   }
 
-  // Try to find the text inside a single text node and select it
   let foundFrom: number | null = null;
   let foundTo: number | null = null;
 
@@ -32,7 +31,6 @@ function highlightTextInEditor(editor: EditorInstance, textReference: string) {
     if (foundFrom !== null) {
       return false;
     }
-    console.log("expensive search");
     if (node.isText && typeof node.text === "string") {
       const index = node.text.indexOf(trimmed);
       if (index >= 0) {

@@ -3,7 +3,7 @@
 import { cn } from "@marble/ui/lib/utils";
 import { motion } from "motion/react";
 import { nanoid } from "nanoid";
-import { useEffect, useId, useRef } from "react";
+import { useId, useRef } from "react";
 
 type GaugeProps = {
   value: number;
