@@ -1,5 +1,6 @@
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
+import { NodeHtmlMarkdown } from "node-html-markdown";
 import { getServerSession } from "@/lib/auth/session";
 import { openrouter } from "@/lib/openrouter";
 import { aiSuggestionsRateLimiter, rateLimitHeaders } from "@/lib/ratelimit";
@@ -68,7 +69,7 @@ export async function POST(request: Request) {
         role: "user",
         content: `
         <CONTENT>
-        ${parsedBody.data.content}
+        ${NodeHtmlMarkdown.translate(parsedBody.data.content)}
         </CONTENT>
         `,
       },
