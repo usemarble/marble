@@ -15,7 +15,9 @@ export async function GET(
   }
 
   const workspace = await db.organization.findUnique({
-    where: { slug },
+    where: {
+      slug,
+    },
     select: {
       id: true,
       name: true,
@@ -55,6 +57,15 @@ export async function GET(
           canceledAt: true,
         },
       },
+      editorPreferences: {
+        select: {
+          ai: {
+            select: {
+              enabled: true,
+            },
+          },
+        },
+      },
     },
   });
 
@@ -80,7 +91,6 @@ export async function GET(
 
   const currentUserRole = currentUserMember?.role || null;
 
-  // Add current user role to the response
   const workspaceWithUserRole = {
     ...workspace,
     currentUserRole,

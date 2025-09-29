@@ -29,7 +29,7 @@ import PageLoader from "@/components/shared/page-loader";
 import { usePublishingMetrics } from "@/hooks/use-analytics";
 
 export const PublishingActivityGraph = () => {
-  const { data: metrics, isLoading, error } = usePublishingMetrics();
+  const { data: metrics, isPending, error } = usePublishingMetrics();
 
   if (error) {
     toast.error("Failed to load publishing activity");
@@ -44,7 +44,7 @@ export const PublishingActivityGraph = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {isLoading ? (
+        {isPending ? (
           <div className="h-32">
             <PageLoader />
           </div>

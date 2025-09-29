@@ -24,8 +24,8 @@ import {
   EditorRoot,
   type JSONContent,
 } from "novel";
-import { handleCommandNavigation } from "novel/extensions";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { CharacterCount, handleCommandNavigation } from "novel/extensions";
+import { SetStateAction, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { EditorSidebar } from "@/components/editor/editor-sidebar";
 import { HiddenScrollbar } from "@/components/editor/hidden-scrollbar";
@@ -63,6 +63,9 @@ function EditorPage({ initialData, id }: EditorPageProps) {
   const { open, isMobile } = useSidebar();
   const formRef = useRef<HTMLFormElement>(null);
   const editorRef = useRef<EditorInstance | null>(null);
+  const [editorInstance, setEditorInstance] = useState<EditorInstance | null>(
+    null
+  );
   const [showSettings, setShowSettings] = useState(false);
   const { setHasUnsavedChanges } = useUnsavedChanges();
   const initialDataRef = useRef<PostValues>(initialData);
@@ -200,7 +203,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
   }, [debouncedTitle, setValue, clearErrors, isUpdateMode]);
 
   return (
-    <>
+    <EditorRoot>
       <SidebarInset className="h-[calc(100vh-1rem)] min-h-[calc(100vh-1rem)] rounded-xl border bg-editor-content-background shadow-xs">
         <header className="sticky top-0 z-50 flex justify-between p-3">
           <div className="flex items-center gap-4">
@@ -261,35 +264,38 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                 )}
               </div>
               <div className="flex flex-col">
-                <EditorRoot>
-                  <EditorContent
-                    editorProps={{
-                      handleDOMEvents: {
-                        keydown: (_view, event) =>
-                          handleCommandNavigation(event),
-                      },
-                      attributes: {
-                        class:
-                          "prose dark:prose-invert min-h-96 h-full sm:px-4 focus:outline-hidden max-w-full prose-blockquote:border-border",
-                      },
-                    }}
-                    extensions={[...defaultExtensions, slashCommand]}
-                    immediatelyRender={false}
-                    initialContent={JSON.parse(watch("contentJson") || "{}")}
-                    onCreate={({ editor }) => {
-                      editorRef.current = editor;
-                    }}
-                    onUpdate={({ editor }) => {
-                      editorRef.current = editor;
-                      const html = editor.getHTML();
-                      const json = editor.getJSON();
-                      handleEditorChange(html, json);
-                    }}
-                  >
-                    <BubbleMenu />
-                    <SlashCommandMenu />
-                  </EditorContent>
-                </EditorRoot>
+                <EditorContent
+                  editorProps={{
+                    handleDOMEvents: {
+                      keydown: (_view, event) => handleCommandNavigation(event),
+                    },
+                    attributes: {
+                      class:
+                        "prose dark:prose-invert min-h-96 h-full sm:px-4 focus:outline-hidden max-w-full prose-blockquote:border-border",
+                    },
+                  }}
+                  extensions={[
+                    ...defaultExtensions,
+                    slashCommand,
+                    CharacterCount,
+                  ]}
+                  immediatelyRender={false}
+                  initialContent={JSON.parse(watch("contentJson") || "{}")}
+                  onCreate={({ editor }) => {
+                    editorRef.current = editor;
+                    setEditorInstance(editor);
+                  }}
+                  onUpdate={({ editor }) => {
+                    editorRef.current = editor;
+                    setEditorInstance(editor);
+                    const html = editor.getHTML();
+                    const json = editor.getJSON();
+                    handleEditorChange(html, json);
+                  }}
+                >
+                  <BubbleMenu />
+                  <SlashCommandMenu />
+                </EditorContent>
                 {errors.content && (
                   <p className="px-1 font-medium text-destructive text-sm">
                     {errors.content.message}
@@ -310,6 +316,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
       )}
       <EditorSidebar
         control={control}
+        editor={editorInstance}
         errors={errors}
         formRef={formRef}
         isOpen={showSettings}
@@ -318,7 +325,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
         setIsOpen={setShowSettings}
         watch={watch}
       />
-    </>
+    </EditorRoot>
   );
 }
 export default EditorPage;
