@@ -147,6 +147,8 @@ export const SOCIAL_PLATFORMS = {
   tiktok: "tiktok",
   linkedin: "linkedin",
   website: "website",
+  onlyfans: "onlyfans",
+  discord: "discord",
 } as const;
 
 export type SocialPlatform = keyof typeof SOCIAL_PLATFORMS;
@@ -159,4 +161,6 @@ export const PLATFORM_DOMAINS = {
   youtube: ["youtube.com", "youtu.be"],
   tiktok: ["tiktok.com"],
   linkedin: ["linkedin.com"],
+  onlyfans: ["onlyfans.com"],
+  discord: ["discord.com"],
 } as const;
