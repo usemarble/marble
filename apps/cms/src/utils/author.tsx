@@ -1,5 +1,7 @@
 import {
+  DiscordLogoIcon,
   FacebookLogoIcon,
+  FanIcon,
   GithubLogoIcon,
   GlobeHemisphereEastIcon,
   InstagramLogoIcon,
@@ -44,6 +46,8 @@ export function getPlatformDisplayName(platform: SocialPlatform): string {
     youtube: "YouTube",
     tiktok: "TikTok",
     linkedin: "LinkedIn",
+    onlyfans: "OnlyFans",
+    discord: "Discord",
     website: "Website",
   };
 
@@ -70,6 +74,10 @@ export const getPlatformIcon = (platform: SocialPlatform) => {
       return <GlobeHemisphereEastIcon {...iconProps} />;
     case "website":
       return <GlobeHemisphereEastIcon {...iconProps} />;
+    case "onlyfans":
+      return <FanIcon {...iconProps} />;
+    case "discord":
+      return <DiscordLogoIcon {...iconProps} />;
     default:
       return <GlobeHemisphereEastIcon {...iconProps} />;
   }
