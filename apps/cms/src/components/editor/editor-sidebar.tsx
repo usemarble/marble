@@ -16,7 +16,7 @@ import {
 } from "@marble/ui/components/tabs";
 import { cn } from "@marble/ui/lib/utils";
 import { SpinnerIcon } from "@phosphor-icons/react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import type { EditorInstance } from "novel";
 import { parseAsStringLiteral, useQueryState } from "nuqs";
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
@@ -81,21 +81,26 @@ export function EditorSidebar({
   const { tags, authors: initialAuthors } = watch();
   const { hasUnsavedChanges } = useUnsavedChanges();
   const { activeWorkspace } = useWorkspace();
-  const queryClient = useQueryClient();
+
   const [activeTab, setActiveTab] = useQueryState(
-    "active-tab",
+    "tab",
     parseAsStringLiteral(Object.keys(tabs)).withDefault("metadata")
   );
 
   const [editorText, setEditorText] = useState("");
+  const [editorHTML, setEditorHTML] = useState("");
+  
   useEffect(() => {
     if (!editor) {
       return;
     }
     setEditorText(editor.getText());
+    setEditorHTML(editor.getHTML());
     const handler = () => {
       const nextText = editor.getText();
+      const nextHTML = editor.getHTML();
       setEditorText((prev) => (prev === nextText ? prev : nextText));
+      setEditorHTML((prev) => (prev === nextHTML ? prev : nextHTML));
     };
     editor.on("update", handler);
     editor.on("create", handler);
@@ -109,7 +114,7 @@ export function EditorSidebar({
   const debouncedText = useDebounce(editorText, aiEnabled ? 1500 : 500);
 
   const metrics = useMemo(() => {
-    const text = editorText;
+    const text = debouncedText;
     if (!text || text.trim().length === 0) {
       return {
         wordCount: 0,
@@ -141,17 +146,9 @@ export function EditorSidebar({
       readabilityScore,
       readingTime,
     };
-  }, [editor, editorText]);
+  }, [editor, debouncedText]);
 
-  const contentKey = useMemo(() => {
-    const input = debouncedText;
-    const start = input.slice(0, 200);
-    const end = input.slice(-200);
-    return `${input.length}:${start}:${end}`;
-  }, [debouncedText]);
-
-  const shouldQueryAi =
-    aiEnabled && activeTab === "analysis" && debouncedText.trim().length > 0;
+  const [hasFetchedAiOnce, setHasFetchedAiOnce] = useState(false);
 
   const localSuggestions = useMemo(() => {
     return generateLocalSuggestions({
@@ -175,15 +172,21 @@ export function EditorSidebar({
     isFetching: aiLoading,
     refetch: refetchAi,
   } = useQuery({
-    queryKey: QUERY_KEYS.AI_READABILITY_SUGGESTIONS(workspaceId, contentKey),
-    enabled: shouldQueryAi && !!workspaceId,
+    // Use a stable key so content changes don't auto-trigger refetches
+    queryKey: QUERY_KEYS.AI_READABILITY_SUGGESTIONS(
+      workspaceId,
+      "current-document"
+    ),
+    // Disabled by default; we'll manually refetch on initial open and button click
+    enabled: false,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     retry: 0,
     queryFn: async () =>
       fetchAiReadabilitySuggestionsObject({
-        content: debouncedText,
+        // Provide HTML content to the AI instead of plain text
+        content: editorHTML,
         metrics: {
           wordCount: metrics.wordCount,
           sentenceCount: metrics.sentenceCount,
@@ -194,14 +197,27 @@ export function EditorSidebar({
       }),
   });
 
+  useEffect(() => {
+    if (
+      aiEnabled &&
+      activeTab === "analysis" &&
+      !!workspaceId &&
+      !hasFetchedAiOnce &&
+      editorHTML.trim().length > 0
+    ) {
+      refetchAi();
+      setHasFetchedAiOnce(true);
+    }
+  }, [
+    aiEnabled,
+    activeTab,
+    workspaceId,
+    hasFetchedAiOnce,
+    editorHTML,
+    refetchAi,
+  ]);
+
   const handleRefreshAi = () => {
-    queryClient.invalidateQueries({
-      queryKey: [
-        "ai-readability-suggestions-object",
-        activeWorkspace?.id,
-        contentKey,
-      ],
-    });
     refetchAi();
   };
 
