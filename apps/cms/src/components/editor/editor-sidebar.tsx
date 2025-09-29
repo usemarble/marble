@@ -89,7 +89,7 @@ export function EditorSidebar({
 
   const [editorText, setEditorText] = useState("");
   const [editorHTML, setEditorHTML] = useState("");
-  
+
   useEffect(() => {
     if (!editor) {
       return;
