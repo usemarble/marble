@@ -27,3 +27,28 @@ if (process.env.NODE_ENV === "production") {
 }
 
 export { createClient, db };
+
+export async function backfillEditorPreferencesForAllWorkspaces() {
+  const prisma = db;
+  const workspaces = await prisma.organization.findMany({
+    select: { id: true },
+  });
+
+  for (const ws of workspaces) {
+    await prisma.editorPreferences.upsert({
+      where: { workspaceId: ws.id },
+      create: {
+        workspaceId: ws.id,
+        ai: { create: { enabled: false } },
+      },
+      update: {
+        ai: {
+          upsert: {
+            create: { enabled: false },
+            update: {},
+          },
+        },
+      },
+    });
+  }
+}

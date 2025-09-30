@@ -1,30 +1,9 @@
 ---
-import type { FC } from "react";
 import Container from "@/components/Container.astro";
 import Neon from "@/components/icons/sponsors/Neon.astro";
 import Upstash from "@/components/icons/sponsors/Upstash.astro";
 import Layout from "@/layouts/Layout.astro";
 import { SITE } from "@/lib/constants";
-
-const sponsorsData = [
-  {
-    name: "Upstash",
-    url: "https://upstash.com?utm_source=marble",
-    icon: "Upstash",
-    useCase: "Powers our caching, webhooks and rate limiting infrastructure",
-  },
-  {
-    name: "Neon",
-    url: "https://neon.com?utm_source=marble",
-    icon: "Neon",
-    useCase: "Powers our entire database, literally",
-  },
-];
-
-const iconComponents: Record<string, FC> = {
-  Upstash,
-  Neon,
-};
 ---
 
 <Layout 
@@ -45,44 +24,75 @@ const iconComponents: Record<string, FC> = {
           </div>
 
           <div class="grid gap-8 md:gap-10 grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto">
-            {sponsorsData.map((sponsor) => {
-              const IconComponent = iconComponents[sponsor.icon];
-              return (
-                <div class="border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl min-h-64">
-                  <div class="border flex flex-col justify-between rounded-[8px] bg-white h-full w-full p-8 text-center">
-                    <div class="space-y-6">
-                      <div class="flex items-center justify-center">
-                        <a 
-                          href={sponsor.url}
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          class="flex items-center gap-3 group hover:scale-105 transition-transform duration-200"
-                        >
-                          <IconComponent class="h-8 w-8" />
-                          <span class="text-2xl font-medium text-gray-900 group-hover:text-primary-background/70 transition-colors">{sponsor.name}</span>
-                        </a>
-                      </div>
-                      <p class="text-muted-foreground text-sm lg:text-base leading-relaxed">
-                        {sponsor.useCase}
-                      </p>
-                    </div>
-                    <div class="pt-6 border-t border-dashed">
-                      <a
-                        href={sponsor.url}
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        class={`inline-flex items-center text-sm text-primary-background/70 font-medium hover:underline transition-all duration-300 ease-in-out`}
-                      >
-                        Learn more about {sponsor.name}
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 ml-1">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-                        </svg>
-                      </a>
-                    </div>
+            <div class="border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl min-h-64">
+              <div class="border flex flex-col justify-between rounded-[8px] bg-white h-full w-full p-8 text-center">
+                <div class="space-y-6">
+                  <div class="flex items-center justify-center">
+                    <a 
+                      href="https://upstash.com?utm_source=marble"
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      class="flex items-center gap-3 group hover:scale-105 transition-transform duration-200"
+                    >
+                      <Upstash class="h-8 w-8" />
+                      <span class="text-2xl font-medium text-gray-900 group-hover:text-primary-background/70 transition-colors">Upstash</span>
+                    </a>
                   </div>
+                  <p class="text-muted-foreground text-sm lg:text-base leading-relaxed">
+                    Powers our caching, webhooks and rate limiting infrastructure
+                  </p>
                 </div>
-              );
-            })}
+                <div class="pt-6 border-t border-dashed">
+                  <a
+                    href="https://upstash.com?utm_source=marble"
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center text-sm text-primary-background/70 font-medium hover:underline transition-all duration-300 ease-in-out"
+                  >
+                    Learn more about Upstash
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 ml-1">
+                      <title>External link</title>
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div class="border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl min-h-64">
+              <div class="border flex flex-col justify-between rounded-[8px] bg-white h-full w-full p-8 text-center">
+                <div class="space-y-6">
+                  <div class="flex items-center justify-center">
+                    <a 
+                      href="https://neon.com?utm_source=marble"
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      class="flex items-center gap-3 group hover:scale-105 transition-transform duration-200"
+                    >
+                      <Neon class="h-8 w-8" />
+                      <span class="text-2xl font-medium text-gray-900 group-hover:text-primary-background/70 transition-colors">Neon</span>
+                    </a>
+                  </div>
+                  <p class="text-muted-foreground text-sm lg:text-base leading-relaxed">
+                    Powers our entire database, literally
+                  </p>
+                </div>
+                <div class="pt-6 border-t border-dashed">
+                  <a
+                    href="https://neon.com?utm_source=marble"
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center text-sm text-primary-background/70 font-medium hover:underline transition-all duration-300 ease-in-out"
+                  >
+                    Learn more about Neon
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 ml-1">
+                      <title>External link</title>
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="max-w-2xl mx-auto text-center space-y-4">
