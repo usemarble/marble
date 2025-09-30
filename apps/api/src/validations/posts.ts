@@ -37,6 +37,10 @@ export const PostsQuerySchema = z.object({
     .transform((val) => val.split(",").filter(Boolean))
     .optional(),
   query: z.string().optional(),
+  featured: z
+    .string()
+    .transform((val) => val === "true")
+    .optional(),
   include: z
     .string()
     .transform((val) =>

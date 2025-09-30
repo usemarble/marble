@@ -2,14 +2,19 @@ import { Hono } from "hono";
 import { trimTrailingSlash } from "hono/trailing-slash";
 import { analytics } from "./middleware/analytics";
 import { ratelimit } from "./middleware/ratelimit";
-import authorsRoutes from "./routes/authors";
-import categoriesRoutes from "./routes/categories";
-import postsRoutes from "./routes/posts";
-import tagsRoutes from "./routes/tags";
+import authorsRoutes from "./routes/v1/authors";
+import categoriesRoutes from "./routes/v1/categories";
+import postsRoutes from "./routes/v1/posts";
+import tagsRoutes from "./routes/v1/tags";
+import authorsV2Routes from "./routes/v2/authors";
+import categoriesV2Routes from "./routes/v2/categories";
+import postsV2Routes from "./routes/v2/posts";
+import tagsV2Routes from "./routes/v2/tags";
 import type { Env } from "./types/env";
 
 const app = new Hono<{ Bindings: Env }>();
 const v1 = new Hono<{ Bindings: Env }>();
+const v2 = new Hono<{ Bindings: Env }>();
 
 const staleTime = 3600;
 
@@ -38,6 +43,10 @@ app.use("*", async (c, next) => {
 
 app.use("/v1/:workspaceId/*", ratelimit());
 app.use("/v1/:workspaceId/*", analytics());
+
+app.use("/v2/:workspaceId/*", ratelimit());
+app.use("/v2/:workspaceId/*", analytics());
+
 app.use(trimTrailingSlash());
 
 // Workspace redirect logic
@@ -73,6 +82,12 @@ v1.route("/:workspaceId/categories", categoriesRoutes);
 v1.route("/:workspaceId/posts", postsRoutes);
 v1.route("/:workspaceId/authors", authorsRoutes);
 
+v2.route("/:workspaceId/tags", tagsV2Routes);
+v2.route("/:workspaceId/categories", categoriesV2Routes);
+v2.route("/:workspaceId/posts", postsV2Routes);
+v2.route("/:workspaceId/authors", authorsV2Routes);
+
 app.route("/v1", v1);
+app.route("/v2", v2);
 
 export default app;

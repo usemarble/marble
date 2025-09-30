@@ -1,8 +1,8 @@
 import { createClient } from "@marble/db";
 import { Hono } from "hono";
 import { NodeHtmlMarkdown } from "node-html-markdown";
-import type { Env } from "../types/env";
-import { PostsQuerySchema } from "../validations/posts";
+import type { Env } from "../../types/env";
+import { PostsQuerySchema } from "../../validations/posts";
 
 const posts = new Hono<{ Bindings: Env }>();
 

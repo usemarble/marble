@@ -1,7 +1,7 @@
 import { createClient } from "@marble/db";
 import { Hono } from "hono";
-import type { Env } from "../types/env";
-import { TagQuerySchema, TagsQuerySchema } from "../validations/tags";
+import type { Env } from "../../types/env";
+import { TagQuerySchema, TagsQuerySchema } from "../../validations/tags";
 
 const tags = new Hono<{ Bindings: Env }>();
 

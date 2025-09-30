@@ -1,10 +1,10 @@
 import { createClient } from "@marble/db";
 import { Hono } from "hono";
-import type { Env } from "../types/env";
+import type { Env } from "../../types/env";
 import {
   CategoriesQuerySchema,
   CategoryQuerySchema,
-} from "../validations/categories";
+} from "../../validations/categories";
 
 const categories = new Hono<{ Bindings: Env }>();
 
