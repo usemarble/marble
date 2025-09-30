@@ -2,7 +2,7 @@ import { createClient } from "@marble/db";
 import { Hono } from "hono";
 import { NodeHtmlMarkdown } from "node-html-markdown";
 import type { Env } from "../types/env";
-import { PostsQuerySchema } from "../validations";
+import { PostsQuerySchema } from "../validations/posts";
 
 const posts = new Hono<{ Bindings: Env }>();
 
@@ -123,6 +123,15 @@ posts.get("/", async (c) => {
             id: true,
             name: true,
             image: true,
+            bio: true,
+            role: true,
+            slug: true,
+            socials: {
+              select: {
+                url: true,
+                platform: true,
+              },
+            },
           },
         },
         category: {
@@ -214,6 +223,15 @@ posts.get("/:identifier", async (c) => {
             id: true,
             name: true,
             image: true,
+            bio: true,
+            role: true,
+            slug: true,
+            socials: {
+              select: {
+                url: true,
+                platform: true,
+              },
+            },
           },
         },
         category: {
