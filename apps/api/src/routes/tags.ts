@@ -16,7 +16,16 @@ tags.get("/", async (c) => {
   });
 
   if (!queryValidation.success) {
-    return c.json({ error: "Invalid query parameters" }, 400);
+    return c.json(
+      {
+        error: "Invalid query parameters",
+        details: queryValidation.error.errors.map((err) => ({
+          field: err.path.join("."),
+          message: err.message,
+        })),
+      },
+      400
+    );
   }
 
   const { limit, page } = queryValidation.data;
@@ -70,11 +79,13 @@ tags.get("/", async (c) => {
   });
 
   // because I dont want prisma's ugly _count
-  const transformedTags = tagsList.map((tag) => ({
-    ...tag,
-    count: tag._count,
-    _count: undefined,
-  }));
+  const transformedTags = tagsList.map((tag) => {
+    const { _count, ...rest } = tag;
+    return {
+      ...rest,
+      count: _count,
+    };
+  });
 
   return c.json({
     tags: transformedTags,

@@ -97,13 +97,15 @@ authors.get("/", async (c) => {
     });
 
     // because I dont want prisma's ugly _count
-    const transformedAuthors = authorsList.map((author) => ({
-      ...author,
-      count: {
-        posts: author._count.coAuthoredPosts,
-      },
-      _count: undefined,
-    }));
+    const transformedAuthors = authorsList.map((author) => {
+      const { _count, ...rest } = author;
+      return {
+        ...rest,
+        count: {
+          posts: _count.coAuthoredPosts,
+        },
+      };
+    });
 
     return c.json({
       authors: transformedAuthors,

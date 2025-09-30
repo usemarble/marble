@@ -83,11 +83,13 @@ categories.get("/", async (c) => {
       skip: categoriesToSkip,
     });
 
-    const transformedCategories = categoriesList.map((category) => ({
-      ...category,
-      count: category._count,
-      _count: undefined,
-    }));
+    const transformedCategories = categoriesList.map((category) => {
+      const { _count, ...rest } = category;
+      return {
+        ...rest,
+        count: _count,
+      };
+    });
 
     return c.json({
       categories: transformedCategories,
