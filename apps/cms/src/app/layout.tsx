@@ -72,9 +72,9 @@ export default async function RootLayout({
             crossOrigin="anonymous"
             src="//unpkg.com/react-scan/dist/auto.global.js"
           />
-        )}
-        <DatabuddyAnalytics />
+        )}  
       </head>
+      <DatabuddyAnalytics />
       <body className={`${fontSans.className} font-sans antialiased`}>
         <Providers>{children}</Providers>
       </body>
