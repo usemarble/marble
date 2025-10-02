@@ -9,21 +9,6 @@ const _getWorkspaceData = async (workspace: string) => {
   return res.data;
 };
 
-// export async function generateMetadata({
-//   params,
-// }: {
-//   params: Promise<{ workspace: string }>;
-// }): Promise<Metadata> {
-//   const { workspace } = await params;
-//   const data = await getWorkspaceData(workspace);
-//   return {
-//     title: {
-//       template: `%s | ${data?.name} | Marble`,
-//       default: data?.name ?? "",
-//     },
-//   };
-// }
-
 export const metadata = {
   title: {
     template: "%s | Marble",

@@ -1,7 +1,7 @@
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
-import { authorSchema } from "@/lib/validations/workspace";
+import { authorSchema } from "@/lib/validations/authors";
 
 export async function DELETE(
   _request: Request,
@@ -74,7 +74,8 @@ export async function PATCH(
       );
     }
 
-    const { name, bio, role, email, image, userId, slug } = parsedBody.data;
+    const { name, bio, role, email, image, userId, slug, socials } =
+      parsedBody.data;
 
     const validEmail = email === "" ? null : email;
     const validUserId = userId ? userId : null;
@@ -103,6 +104,20 @@ export async function PATCH(
         image,
         slug,
         userId: validUserId,
+        ...(typeof socials !== "undefined" && {
+          socials: {
+            deleteMany: {},
+            ...(socials.length > 0 && {
+              create: socials.map((social) => ({
+                url: social.url,
+                platform: social.platform,
+              })),
+            }),
+          },
+        }),
+      },
+      include: {
+        socials: true,
       },
     });
 

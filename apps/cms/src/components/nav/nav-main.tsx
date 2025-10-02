@@ -71,10 +71,10 @@ const settingsItems = [
     title: "Billing",
     url: "settings/billing",
   },
-  // {
-  //   title: "Schemas",
-  //   url: "settings/schemas",
-  // },
+  {
+    title: "Editor Preferences",
+    url: "settings/editor-preferences",
+  },
 ];
 
 export function NavMain() {
