@@ -82,11 +82,6 @@ export function EditorSidebar({
   const { hasUnsavedChanges } = useUnsavedChanges();
   const { activeWorkspace } = useWorkspace();
 
-  const [activeTab, setActiveTab] = useQueryState(
-    "tab",
-    parseAsStringLiteral(Object.keys(tabs)).withDefault("metadata")
-  );
-
   const [editorText, setEditorText] = useState("");
   const [editorHTML, setEditorHTML] = useState("");
 
@@ -185,7 +180,6 @@ export function EditorSidebar({
     retry: 0,
     queryFn: async () =>
       fetchAiReadabilitySuggestionsObject({
-        // Provide HTML content to the AI instead of plain text
         content: editorHTML,
         metrics: {
           wordCount: metrics.wordCount,
@@ -196,6 +190,11 @@ export function EditorSidebar({
         },
       }),
   });
+
+  const [activeTab, setActiveTab] = useQueryState(
+    "tab",
+    parseAsStringLiteral(Object.keys(tabs)).withDefault("metadata")
+  );
 
   useEffect(() => {
     if (

@@ -1,22 +1,18 @@
 "use client";
 
 import { Button } from "@marble/ui/components/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@marble/ui/components/tooltip";
-import { TrashIcon, UploadIcon, XIcon } from "@phosphor-icons/react";
-import { useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { ImagesIcon, UploadIcon } from "@phosphor-icons/react";
+import { AnimatePresence, motion } from "motion/react";
+import { useEffect, useRef, useState } from "react";
 import { BulkDeleteMediaModal } from "@/components/media/bulk-delete-modal";
 import { DeleteMediaModal } from "@/components/media/delete-modal";
 import { MediaCard } from "@/components/media/media-card";
 import { MediaUploadModal } from "@/components/media/upload-modal";
-import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { QUERY_KEYS } from "@/lib/queries/keys";
-import type { MediaType } from "@/types/media";
+import PageLoader from "@/components/shared/page-loader";
+import { useMediaActions } from "@/hooks/use-media-actions";
+import type { MediaQueryKey, MediaType } from "@/types/media";
+import { getEmptyStateMessage } from "@/utils/media";
+import { containerVariants, itemVariants } from "./media-gallery.variants";
 
 type Media = {
   id: string;
@@ -29,133 +25,206 @@ type Media = {
 
 type MediaGalleryProps = {
   media: Media[];
+  hasNextPage?: boolean;
+  onLoadMore?: () => void;
+  isFetchingNextPage?: boolean;
+  isFetching?: boolean;
+  type?: MediaType;
+  selectedItems: Set<string>;
+  onSelectItem: (items: Set<string>) => void;
+  hasAnyMedia: boolean;
+  showBulkDeleteModal: boolean;
+  setShowBulkDeleteModal: (show: boolean) => void;
+  mediaQueryKey: MediaQueryKey;
 };
 
-export function MediaGallery({ media }: MediaGalleryProps) {
+export function MediaGallery({
+  media,
+  hasNextPage,
+  onLoadMore,
+  isFetchingNextPage,
+  isFetching,
+  type,
+  selectedItems,
+  onSelectItem,
+  hasAnyMedia,
+  showBulkDeleteModal,
+  setShowBulkDeleteModal,
+  mediaQueryKey,
+}: MediaGalleryProps) {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [mediaToDelete, setMediaToDelete] = useState<Media | null>(null);
-  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
-  const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
-  const queryClient = useQueryClient();
-  const workspaceId = useWorkspaceId();
+  const {
+    handleUploadComplete,
+    handleDeleteComplete,
+    handleBulkDeleteComplete,
+  } = useMediaActions(mediaQueryKey);
 
-  const handleUploadComplete = (newMedia?: Media) => {
-    if (newMedia && workspaceId) {
-      queryClient.setQueryData(
-        QUERY_KEYS.MEDIA(workspaceId),
-        (oldData: Media[] | undefined) => {
-          return oldData ? [...oldData, newMedia] : [newMedia];
+  const loaderRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!hasNextPage || isFetchingNextPage) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+
+        if (entry?.isIntersecting) {
+          onLoadMore?.();
         }
-      );
+      },
+      { rootMargin: "200px" }
+    );
+
+    const el = loaderRef.current;
+    if (el) {
+      observer.observe(el);
+    }
+
+    return () => {
+      if (el) {
+        observer.unobserve(el);
+      }
+    };
+  }, [hasNextPage, isFetchingNextPage, onLoadMore]);
+
+  const onDelete = (id: string) => {
+    handleDeleteComplete(id);
+    if (selectedItems.has(id)) {
+      const newSelectedItems = new Set(selectedItems);
+      newSelectedItems.delete(id);
+      onSelectItem(newSelectedItems);
     }
   };
 
-  const handleDeleteComplete = (id: string) => {
-    if (workspaceId) {
-      queryClient.setQueryData(
-        QUERY_KEYS.MEDIA(workspaceId),
-        (oldData: Media[] | undefined) => {
-          return oldData ? oldData.filter((m) => m.id !== id) : [];
-        }
-      );
-    }
+  const onBulkDelete = (ids: string[]) => {
+    handleBulkDeleteComplete(ids);
+    onSelectItem(new Set());
   };
 
   const handleSelectItem = (id: string) => {
-    setSelectedItems((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
-      }
-      return newSet;
-    });
-  };
-
-  const handleSelectAll = () => {
-    if (selectedItems.size === media.length) {
-      setSelectedItems(new Set());
+    const newSet = new Set(selectedItems);
+    if (newSet.has(id)) {
+      newSet.delete(id);
     } else {
-      setSelectedItems(new Set(media.map((item) => item.id)));
+      newSet.add(id);
     }
-  };
-
-  const handleDeselectAll = () => {
-    setSelectedItems(new Set());
-  };
-
-  const handleBulkDeleteComplete = (deletedIds: string[]) => {
-    if (workspaceId) {
-      queryClient.setQueryData(
-        QUERY_KEYS.MEDIA(workspaceId),
-        (oldData: Media[] | undefined) => {
-          return oldData
-            ? oldData.filter((m) => !deletedIds.includes(m.id))
-            : [];
-        }
-      );
-    }
-    setSelectedItems(new Set());
+    onSelectItem(newSet);
   };
 
   return (
     <>
-      <section className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            {selectedItems.size > 0 && (
-              <Button onClick={handleDeselectAll} size="icon" variant="outline">
-                <XIcon size={16} />
-              </Button>
-            )}
-            <Button onClick={handleSelectAll} variant="outline">
-              {selectedItems.size === media.length
-                ? "Deselect All"
-                : "Select All"}
-            </Button>
-            {selectedItems.size > 0 && (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      onClick={() => setShowBulkDeleteModal(true)}
-                      size="icon"
-                      variant="destructive"
-                    >
-                      <TrashIcon size={16} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Delete selected ({selectedItems.size})</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+      <div className="relative min-h-[50vh]">
+        <AnimatePresence>
+          {isFetching && !isFetchingNextPage && (
+            <motion.div
+              animate={{ opacity: 1 }}
+              className="absolute inset-0 z-10 flex items-center justify-center bg-background/80"
+              exit={{ opacity: 0 }}
+              initial={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <PageLoader />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {media.length === 0 && !hasAnyMedia ? (
+          <motion.div
+            animate={{ opacity: 1, y: 0 }}
+            className="grid h-full place-content-center"
+            initial={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="flex max-w-80 flex-col items-center gap-4">
+              <motion.div
+                animate={{ scale: 1 }}
+                className="p-2"
+                initial={{ scale: 0 }}
+                transition={{
+                  delay: 0.2,
+                  type: "spring",
+                  stiffness: 300,
+                  damping: 25,
+                }}
+              >
+                <ImagesIcon className="size-16" />
+              </motion.div>
+              <motion.div
+                animate={{ opacity: 1, y: 0 }}
+                className="flex flex-col items-center gap-4 text-center"
+                initial={{ opacity: 0, y: 10 }}
+                transition={{ delay: 0.4, duration: 0.3 }}
+              >
+                <p className="text-muted-foreground text-sm">
+                  {getEmptyStateMessage(type, hasAnyMedia)}
+                </p>
+                <Button onClick={() => setShowUploadModal(true)} type="button">
+                  <UploadIcon size={16} />
+                  <span>Upload Media</span>
+                </Button>
+              </motion.div>
+            </div>
+          </motion.div>
+        ) : media.length === 0 ? (
+          <motion.div
+            animate={{ opacity: 1 }}
+            className="py-8 text-center"
+            initial={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <p className="text-muted-foreground text-sm">
+              {getEmptyStateMessage(type, hasAnyMedia)}
+            </p>
+          </motion.div>
+        ) : (
+          <motion.ul
+            animate="visible"
+            className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-4"
+            initial="hidden"
+            variants={containerVariants}
+          >
+            <AnimatePresence mode="popLayout">
+              {media.map((item) => (
+                <motion.li
+                  animate="visible"
+                  exit="exit"
+                  initial="hidden"
+                  key={item.id}
+                  layout
+                  layoutId={item.id}
+                  variants={itemVariants}
+                >
+                  <MediaCard
+                    isSelected={selectedItems.has(item.id)}
+                    media={item}
+                    onDelete={() => {
+                      setMediaToDelete(item);
+                      setShowDeleteModal(true);
+                    }}
+                    onSelect={() => handleSelectItem(item.id)}
+                  />
+                </motion.li>
+              ))}
+            </AnimatePresence>
+          </motion.ul>
+        )}
+      </div>
+
+      <AnimatePresence>
+        {hasNextPage && (
+          <div className="flex justify-center py-6" ref={loaderRef}>
+            {isFetchingNextPage && (
+              <div className="flex justify-center">
+                <PageLoader />
+              </div>
             )}
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button onClick={() => setShowUploadModal(true)}>
-            <UploadIcon size={16} />
-            <span>Upload Media</span>
-          </Button>
-        </div>
-      </section>
-      <ul className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-4">
-        {media.map((item) => (
-          <MediaCard
-            isSelected={selectedItems.has(item.id)}
-            key={item.id}
-            media={item}
-            onDelete={() => {
-              setMediaToDelete(item);
-              setShowDeleteModal(true);
-            }}
-            onSelect={() => handleSelectItem(item.id)}
-          />
-        ))}
-      </ul>
+        )}
+      </AnimatePresence>
 
       <MediaUploadModal
         isOpen={showUploadModal}
@@ -166,13 +235,13 @@ export function MediaGallery({ media }: MediaGalleryProps) {
         <DeleteMediaModal
           isOpen={showDeleteModal}
           mediaToDelete={mediaToDelete}
-          onDeleteComplete={handleDeleteComplete}
+          onDeleteComplete={onDelete}
           setIsOpen={setShowDeleteModal}
         />
       )}
       <BulkDeleteMediaModal
         isOpen={showBulkDeleteModal}
-        onDeleteComplete={handleBulkDeleteComplete}
+        onDeleteComplete={onBulkDelete}
         selectedItems={Array.from(selectedItems)}
         setIsOpen={setShowBulkDeleteModal}
       />

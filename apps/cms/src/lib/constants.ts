@@ -164,3 +164,16 @@ export const PLATFORM_DOMAINS = {
   onlyfans: ["onlyfans.com"],
   discord: ["discord.com"],
 } as const;
+
+export const MEDIA_SORTS = [
+  "createdAt_desc",
+  "createdAt_asc",
+  "name_asc",
+  "name_desc",
+];
+
+export const MEDIA_TYPES = ["image", "video"];
+
+export const MEDIA_FILTER_TYPES = ["all", ...MEDIA_TYPES];
+
+export const MEDIA_LIMIT = 12;

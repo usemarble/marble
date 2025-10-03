@@ -132,7 +132,7 @@ function PageClient() {
       <div className="flex flex-col gap-8 py-12">
         <Card className="flex justify-between">
           <CardHeader>
-            <CardTitle className="font-medium text-lg">Theme.</CardTitle>
+            <CardTitle className="font-medium text-lg">Theme</CardTitle>
             <CardDescription>Chose your preferred theme.</CardDescription>
           </CardHeader>
           <CardContent className="center flex items-center">
@@ -146,7 +146,7 @@ function PageClient() {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle className="font-medium text-lg">Avatar.</CardTitle>
+            <CardTitle className="font-medium text-lg">Avatar</CardTitle>
             <CardDescription>Change your profile picture.</CardDescription>
           </CardHeader>
           <CardContent className="justify-end">
@@ -249,7 +249,7 @@ function PageClient() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="font-medium text-lg">Email.</CardTitle>
+            <CardTitle className="font-medium text-lg">Email</CardTitle>
             <CardDescription>
               Email associated with your account.
             </CardDescription>
