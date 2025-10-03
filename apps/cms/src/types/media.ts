@@ -25,7 +25,9 @@ export function isMediaSort(value: string): value is MediaSort {
   return MEDIA_SORTS.includes(value);
 }
 
-export function isMediaFilterType(value: string): value is MediaFilterType {
+export function isMediaFilterType(
+  value: MediaFilterType
+): value is MediaFilterType {
   return MEDIA_FILTER_TYPES.includes(value);
 }
 

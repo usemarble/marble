@@ -43,7 +43,7 @@ export function MediaControls({
     <section className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
       <div className="flex flex-wrap items-center gap-1 sm:gap-4">
         <Select
-          onValueChange={(val: string) => {
+          onValueChange={(val: MediaFilterType) => {
             if (isMediaFilterType(val)) {
               setType(val);
             }

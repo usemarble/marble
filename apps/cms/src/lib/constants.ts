@@ -172,8 +172,8 @@ export const MEDIA_SORTS = [
   "name_desc",
 ];
 
-export const MEDIA_TYPES = ["image", "video"];
+export const MEDIA_TYPES = ["image", "video", "audio", "document"] as const;
 
-export const MEDIA_FILTER_TYPES = ["all", ...MEDIA_TYPES];
+export const MEDIA_FILTER_TYPES = ["all", ...MEDIA_TYPES] as const;
 
 export const MEDIA_LIMIT = 12;
