@@ -12,7 +12,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
-import { TrashIcon, UploadIcon, XIcon } from "@phosphor-icons/react";
+import { PlusIcon, TrashIcon, UploadIcon, XIcon } from "@phosphor-icons/react";
 import type { MediaFilterType, MediaSort } from "@/types/media";
 import { isMediaFilterType, isMediaSort } from "@/types/media";
 
@@ -90,7 +90,12 @@ export function MediaControls({
             </Button>
           )}
           {mediaLength > 0 && (
-            <Button onClick={onSelectAll} type="button" variant="outline">
+            <Button
+              className="shadow-none"
+              onClick={onSelectAll}
+              type="button"
+              variant="outline"
+            >
               {selectedItems.size === mediaLength
                 ? "Deselect All"
                 : "Select All"}
@@ -120,8 +125,8 @@ export function MediaControls({
       </div>
       <div className="flex justify-end">
         <Button className="w-full sm:w-auto" onClick={onUpload} type="button">
-          <UploadIcon size={16} />
-          <span>Upload Media</span>
+          <PlusIcon className="size-4" />
+          <span>Upload</span>
         </Button>
       </div>
     </section>

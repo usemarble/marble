@@ -1,9 +1,11 @@
 "use client";
 
 import { Button } from "@marble/ui/components/button";
+import { Skeleton } from "@marble/ui/components/skeleton";
 import { ImagesIcon, UploadIcon } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
+
 import { BulkDeleteMediaModal } from "@/components/media/bulk-delete-modal";
 import { DeleteMediaModal } from "@/components/media/delete-modal";
 import { MediaCard } from "@/components/media/media-card";
@@ -60,36 +62,6 @@ export function MediaGallery({
     handleDeleteComplete,
     handleBulkDeleteComplete,
   } = useMediaActions(mediaQueryKey);
-
-  const loaderRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    if (!hasNextPage || isFetchingNextPage) {
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-
-        if (entry?.isIntersecting) {
-          onLoadMore?.();
-        }
-      },
-      { rootMargin: "200px" }
-    );
-
-    const el = loaderRef.current;
-    if (el) {
-      observer.observe(el);
-    }
-
-    return () => {
-      if (el) {
-        observer.unobserve(el);
-      }
-    };
-  }, [hasNextPage, isFetchingNextPage, onLoadMore]);
 
   const onDelete = (id: string) => {
     handleDeleteComplete(id);
@@ -209,22 +181,38 @@ export function MediaGallery({
                   />
                 </motion.li>
               ))}
+              {isFetchingNextPage &&
+                Array.from({ length: 10 }).map((_, index) => (
+                  <li
+                    className="space-y-2"
+                    // biome-ignore lint/suspicious/noArrayIndexKey: <>
+                    key={`skeleton-${index}`}
+                  >
+                    <Skeleton className="h-40 w-full" />
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="size-10 shrink-0 rounded-md" />
+                      <div className="flex w-full flex-col gap-1">
+                        <Skeleton className="h-4 w-3/4" />
+                        <Skeleton className="h-4 w-1/2" />
+                      </div>
+                    </div>
+                  </li>
+                ))}
             </AnimatePresence>
           </motion.ul>
         )}
       </div>
 
-      <AnimatePresence>
-        {hasNextPage && (
-          <div className="flex justify-center py-6" ref={loaderRef}>
-            {isFetchingNextPage && (
-              <div className="flex justify-center">
-                <PageLoader />
-              </div>
-            )}
-          </div>
-        )}
-      </AnimatePresence>
+      {hasNextPage && (
+        <motion.div
+          className="h-1"
+          onViewportEnter={() => {
+            if (!isFetchingNextPage) {
+              onLoadMore?.();
+            }
+          }}
+        />
+      )}
 
       <MediaUploadModal
         isOpen={showUploadModal}
