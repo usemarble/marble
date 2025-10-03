@@ -13,7 +13,8 @@ import {
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { TrashIcon, UploadIcon, XIcon } from "@phosphor-icons/react";
-import type { MediaType } from "@/types/media";
+import type { MediaFilterType, MediaSort } from "@/types/media";
+import { isMediaFilterType, isMediaSort } from "@/types/media";
 
 export function MediaControls({
   type,
@@ -27,10 +28,10 @@ export function MediaControls({
   onBulkDelete,
   mediaLength,
 }: {
-  type?: MediaType;
-  setType: (type?: MediaType) => void;
-  sort: string;
-  setSort: (sort: string) => void;
+  type: MediaFilterType;
+  setType: (value: MediaFilterType) => void;
+  sort: MediaSort;
+  setSort: (value: MediaSort) => void;
   onUpload: () => void;
   selectedItems: Set<string>;
   onSelectAll: () => void;
@@ -40,16 +41,14 @@ export function MediaControls({
 }) {
   return (
     <section className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-      <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+      <div className="flex flex-wrap items-center gap-1 sm:gap-4">
         <Select
           onValueChange={(val: string) => {
-            if (val === "all") {
-              setType(undefined);
-            } else {
-              setType(val as MediaType);
+            if (isMediaFilterType(val)) {
+              setType(val);
             }
           }}
-          value={type || "all"}
+          value={type}
         >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Filter by type" />
@@ -58,11 +57,16 @@ export function MediaControls({
             <SelectItem value="all">All</SelectItem>
             <SelectItem value="image">Image</SelectItem>
             <SelectItem value="video">Video</SelectItem>
-            <SelectItem value="audio">Audio</SelectItem>
-            <SelectItem value="document">Document</SelectItem>
           </SelectContent>
         </Select>
-        <Select onValueChange={setSort} value={sort}>
+        <Select
+          onValueChange={(val: string) => {
+            if (isMediaSort(val)) {
+              setSort(val);
+            }
+          }}
+          value={sort}
+        >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
@@ -86,7 +90,7 @@ export function MediaControls({
             </Button>
           )}
           {mediaLength > 0 && (
-            <Button onClick={onSelectAll} variant="outline">
+            <Button onClick={onSelectAll} type="button" variant="outline">
               {selectedItems.size === mediaLength
                 ? "Deselect All"
                 : "Select All"}
@@ -115,7 +119,7 @@ export function MediaControls({
         </div>
       </div>
       <div className="flex justify-end">
-        <Button className="w-full sm:w-auto" onClick={onUpload}>
+        <Button className="w-full sm:w-auto" onClick={onUpload} type="button">
           <UploadIcon size={16} />
           <span>Upload Media</span>
         </Button>

@@ -41,7 +41,7 @@ export function invalidateOtherMediaQueries(
   currentKey: MediaQueryKey
 ) {
   const queries = queryClient.getQueryCache().findAll({
-    queryKey: [QUERY_KEYS.MEDIA(workspaceId)],
+    queryKey: QUERY_KEYS.MEDIA(workspaceId),
     exact: false,
   });
   for (const query of queries) {

@@ -2,6 +2,7 @@
 
 import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
+import { parseAsStringLiteral, useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
@@ -10,8 +11,15 @@ import { MediaGallery } from "@/components/media/media-gallery";
 import PageLoader from "@/components/shared/page-loader";
 import { useMediaActions } from "@/hooks/use-media-actions";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { MEDIA_FILTER_TYPES, MEDIA_LIMIT, MEDIA_SORTS } from "@/lib/constants";
 import { QUERY_KEYS } from "@/lib/queries/keys";
-import type { Media, MediaQueryKey, MediaType } from "@/types/media";
+import {
+  type Media,
+  type MediaFilterType,
+  type MediaQueryKey,
+  type MediaSort,
+  toMediaType,
+} from "@/types/media";
 
 const MediaUploadModal = dynamic(() =>
   import("@/components/media/upload-modal").then((mod) => mod.MediaUploadModal)
@@ -20,9 +28,15 @@ const MediaUploadModal = dynamic(() =>
 function PageClient() {
   const workspaceId = useWorkspaceId();
   const [showUploadModal, setShowUploadModal] = useState(false);
-  const [type, setType] = useState<MediaType | undefined>();
-  const [sort, setSort] = useState("createdAt_desc");
-  const [limit] = useState(12);
+  const [type, setType] = useQueryState<MediaFilterType>(
+    "type",
+    parseAsStringLiteral(MEDIA_FILTER_TYPES).withDefault("all")
+  );
+  const [sort, setSort] = useQueryState<MediaSort>(
+    "sort",
+    parseAsStringLiteral(MEDIA_SORTS).withDefault("createdAt_desc")
+  );
+  const normalizedType = toMediaType(type);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
 
@@ -35,23 +49,18 @@ function PageClient() {
     isFetchingNextPage,
   } = useInfiniteQuery({
     // biome-ignore lint/style/noNonNullAssertion: <>
-    queryKey: [QUERY_KEYS.MEDIA(workspaceId!), { type, sort }],
+    queryKey: [QUERY_KEYS.MEDIA(workspaceId!), { type: normalizedType, sort }],
     queryFn: async ({ pageParam }: { pageParam?: string }) => {
       try {
         const params = new URLSearchParams();
-        params.set("limit", String(limit));
+        params.set("limit", String(MEDIA_LIMIT));
         params.set("sort", sort);
 
-        if (type) {
-          params.set("type", type);
+        if (normalizedType) {
+          params.set("type", normalizedType);
         }
         if (pageParam) {
-          const [cursorId, ...rest] = pageParam.split("_");
-          const encodedCursorValue = rest.join("_");
-          const cursorValue = decodeURIComponent(encodedCursorValue);
-
-          params.set("cursorId", cursorId as string);
-          params.set("cursorValue", cursorValue as string);
+          params.set("cursor", pageParam);
         }
 
         const res = await fetch(`/api/media?${params}`);
@@ -86,7 +95,7 @@ function PageClient() {
   const mediaQueryKey: MediaQueryKey = [
     // biome-ignore lint/style/noNonNullAssertion: <>
     QUERY_KEYS.MEDIA(workspaceId!),
-    { type, sort },
+    { type: normalizedType, sort },
   ];
 
   const { handleUploadComplete } = useMediaActions(mediaQueryKey);
@@ -141,7 +150,7 @@ function PageClient() {
           selectedItems={selectedItems}
           setShowBulkDeleteModal={setShowBulkDeleteModal}
           showBulkDeleteModal={showBulkDeleteModal}
-          type={type}
+          type={normalizedType}
         />
       </WorkspacePageWrapper>
 

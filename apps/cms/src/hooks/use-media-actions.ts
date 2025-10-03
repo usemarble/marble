@@ -9,21 +9,21 @@ export function useMediaActions(mediaQueryKey: MediaQueryKey) {
 
   const handleUploadComplete = () => {
     if (workspaceId) {
-      queryClient.invalidateQueries({ queryKey: mediaQueryKey });
+      queryClient.invalidateQueries({ queryKey: mediaQueryKey, exact: true });
       invalidateOtherMediaQueries(queryClient, workspaceId, mediaQueryKey);
     }
   };
 
   const handleDeleteComplete = (_id: string) => {
     if (workspaceId) {
-      queryClient.invalidateQueries({ queryKey: mediaQueryKey });
+      queryClient.invalidateQueries({ queryKey: mediaQueryKey, exact: true });
       invalidateOtherMediaQueries(queryClient, workspaceId, mediaQueryKey);
     }
   };
 
   const handleBulkDeleteComplete = (_ids: string[]) => {
     if (workspaceId) {
-      queryClient.invalidateQueries({ queryKey: mediaQueryKey });
+      queryClient.invalidateQueries({ queryKey: mediaQueryKey, exact: true });
       invalidateOtherMediaQueries(queryClient, workspaceId, mediaQueryKey);
     }
   };

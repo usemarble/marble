@@ -162,7 +162,7 @@ export function MediaGallery({
                 <p className="text-muted-foreground text-sm">
                   {getEmptyStateMessage(type, hasAnyMedia)}
                 </p>
-                <Button onClick={() => setShowUploadModal(true)}>
+                <Button onClick={() => setShowUploadModal(true)} type="button">
                   <UploadIcon size={16} />
                   <span>Upload Media</span>
                 </Button>

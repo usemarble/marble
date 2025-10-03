@@ -30,8 +30,6 @@ export async function GET(request: Request) {
   }
 
   const { limit, cursor, type, sort } = parsed.data;
-  const cursorId = searchParams.get("cursorId");
-  const cursorValue = searchParams.get("cursorValue");
 
   // Break sort option into field + direction (e.g. "createdAt_desc")
   const [field, direction] = sort.split("_") as [
@@ -46,11 +44,18 @@ export async function GET(request: Request) {
         where: { workspaceId: orgId },
       })) > 0;
 
-    // Convert cursorValue to the right type depending on field
+    // Parse the validated cursor (format: `${id}_${encodedValue}`)
+    let cursorId: string | null = null;
     let parsedCursorValue: string | Date | null = null;
-    if (cursorValue) {
-      parsedCursorValue =
-        field === "createdAt" ? new Date(cursorValue) : cursorValue;
+    if (cursor) {
+      const [idPart, ...rest] = cursor.split("_");
+      const encodedValue = rest.join("_");
+      const valuePart = decodeURIComponent(encodedValue);
+      cursorId = idPart || null;
+      if (valuePart) {
+        parsedCursorValue =
+          field === "createdAt" ? new Date(valuePart) : valuePart;
+      }
     }
 
     // Fetch one more than the requested limit to detect "hasNextPage"
@@ -93,11 +98,11 @@ export async function GET(request: Request) {
       const lastItem = media.at(-1);
 
       if (lastItem) {
-        nextCursor = `${lastItem.id}_${
+        const value =
           field === "createdAt"
             ? lastItem.createdAt.toISOString()
-            : encodeURIComponent(lastItem.name)
-        }`;
+            : lastItem.name;
+        nextCursor = `${lastItem.id}_${encodeURIComponent(value)}`;
       }
     }
 
