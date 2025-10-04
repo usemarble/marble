@@ -18,7 +18,7 @@ type PropertyType =
 
 export async function PATCH(
   req: Request,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const sessionData = await getServerSession();
 
@@ -40,7 +40,7 @@ export async function PATCH(
     if (!existingComponent) {
       return NextResponse.json(
         { error: "Custom component not found" },
-        { status: 404 },
+        { status: 404 }
       );
     }
 
@@ -88,20 +88,20 @@ export async function PATCH(
             message: e.message,
           })),
         },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
     return NextResponse.json(
       { error: "Failed to update custom component" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
 
 export async function DELETE(
   _req: Request,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const sessionData = await getServerSession();
 
@@ -118,7 +118,7 @@ export async function DELETE(
   if (!existingComponent) {
     return NextResponse.json(
       { error: "Custom component not found" },
-      { status: 404 },
+      { status: 404 }
     );
   }
 
@@ -137,14 +137,14 @@ export async function DELETE(
     console.error("Error deleting custom component:", error);
     return NextResponse.json(
       { error: "Failed to delete custom component" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const sessionData = await getServerSession();
 
@@ -165,7 +165,7 @@ export async function GET(
     if (!customComponent) {
       return NextResponse.json(
         { error: "Custom component not found" },
-        { status: 404 },
+        { status: 404 }
       );
     }
 
@@ -174,7 +174,7 @@ export async function GET(
     console.error("Error fetching custom component:", error);
     return NextResponse.json(
       { error: "Failed to fetch custom component" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

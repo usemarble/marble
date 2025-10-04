@@ -37,7 +37,7 @@ export const VirtualizedSelect = forwardRef<
 >(
   (
     { options, value, onValueChange, placeholder, disabled, className },
-    ref,
+    ref
   ) => {
     const [open, setOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
@@ -46,7 +46,7 @@ export const VirtualizedSelect = forwardRef<
     const filteredOptions = options.filter(
       (option) =>
         option.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        option.value.toLowerCase().includes(searchQuery.toLowerCase()),
+        option.value.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     const virtualizer = useVirtualizer({
@@ -59,35 +59,35 @@ export const VirtualizedSelect = forwardRef<
     const selectedOption = options.find((option) => option.value === value);
 
     return (
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover onOpenChange={setOpen} open={open}>
         <PopoverTrigger asChild>
           <Button
-            ref={ref}
-            variant="outline"
-            role="combobox"
             aria-expanded={open}
             className={cn(
-              "justify-between shadow-none bg-editor-field",
+              "justify-between bg-editor-field shadow-none",
               !value && "text-muted-foreground",
-              className,
+              className
             )}
             disabled={disabled}
+            ref={ref}
+            role="combobox"
+            variant="outline"
           >
             {selectedOption ? selectedOption.label : placeholder}
             <CaretUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[200px] p-0" align="start">
+        <PopoverContent align="start" className="w-[200px] p-0">
           <Command>
             <CommandInput
+              onValueChange={setSearchQuery}
               placeholder="Search options..."
               value={searchQuery}
-              onValueChange={setSearchQuery}
             />
             <CommandEmpty>No options found.</CommandEmpty>
             <div
-              ref={parentRef}
               className="max-h-[200px] overflow-auto"
+              ref={parentRef}
               style={{
                 height: `${Math.min(filteredOptions.length * 32, 200)}px`,
               }}
@@ -104,11 +104,11 @@ export const VirtualizedSelect = forwardRef<
 
                   return (
                     <CommandItem
+                      className="flex cursor-pointer items-center justify-between"
                       key={option.value}
-                      value={option.value}
                       onSelect={(currentValue) => {
                         onValueChange?.(
-                          currentValue === value ? "" : currentValue,
+                          currentValue === value ? "" : currentValue
                         );
                         setOpen(false);
                         setSearchQuery("");
@@ -121,13 +121,13 @@ export const VirtualizedSelect = forwardRef<
                         height: `${virtualItem.size}px`,
                         transform: `translateY(${virtualItem.start}px)`,
                       }}
-                      className="flex items-center justify-between cursor-pointer"
+                      value={option.value}
                     >
                       <span className="truncate">{option.label}</span>
                       <CheckIcon
                         className={cn(
                           "ml-2 h-4 w-4",
-                          isSelected ? "opacity-100" : "opacity-0",
+                          isSelected ? "opacity-100" : "opacity-0"
                         )}
                       />
                     </CommandItem>
@@ -139,7 +139,7 @@ export const VirtualizedSelect = forwardRef<
         </PopoverContent>
       </Popover>
     );
-  },
+  }
 );
 
 VirtualizedSelect.displayName = "VirtualizedSelect";

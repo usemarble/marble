@@ -23,7 +23,6 @@ import {
   LayoutIcon,
   NoteIcon,
   PackageIcon,
-  PuzzlePieceIcon,
   TagIcon,
   UsersThreeIcon,
 } from "@phosphor-icons/react";
@@ -41,11 +40,6 @@ const items = [
     name: "Categories",
     url: "categories",
     icon: PackageIcon,
-  },
-  {
-    name: "Components",
-    url: "components",
-    icon: PuzzlePieceIcon,
   },
   {
     name: "Tags",

@@ -38,7 +38,7 @@ export const componentSchema = z.object({
     .array(componentPropertySchema)
     .max(
       MAX_COMPONENT_PROPERTIES,
-      `Maximum of ${MAX_COMPONENT_PROPERTIES} properties allowed per component`,
+      `Maximum of ${MAX_COMPONENT_PROPERTIES} properties allowed per component`
     ),
 });
 

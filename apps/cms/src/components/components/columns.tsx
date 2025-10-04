@@ -54,7 +54,7 @@ export const columns: ColumnDef<CustomComponent>[] = [
     header: "Properties",
     cell: ({ row }) => {
       const properties = row.getValue(
-        "properties",
+        "properties"
       ) as CustomComponent["properties"];
 
       if (!properties || properties.length === 0) {
@@ -66,11 +66,11 @@ export const columns: ColumnDef<CustomComponent>[] = [
       if (total === 1) {
         const p = properties[0];
         return (
-          <div className="flex flex-wrap gap-1 items-center">
+          <div className="flex flex-wrap items-center gap-1">
             <Badge
+              className="gap-x-0.5 text-xs"
               key={p?.id}
               variant="secondary"
-              className="text-xs gap-x-0.5"
             >
               {p?.name}
               {p?.required && <span className="text-red-500">*</span>}
@@ -82,12 +82,12 @@ export const columns: ColumnDef<CustomComponent>[] = [
       if (total === 2) {
         const [p1, p2] = properties;
         return (
-          <div className="flex flex-wrap gap-1 items-center">
+          <div className="flex flex-wrap items-center gap-1">
             {[p1, p2].map((p) => (
               <Badge
+                className="gap-x-0.5 text-xs"
                 key={p?.id}
                 variant="secondary"
-                className="text-xs gap-x-0.5"
               >
                 {p?.name}
                 {p?.required && <span className="text-red-500">*</span>}
@@ -102,11 +102,11 @@ export const columns: ColumnDef<CustomComponent>[] = [
       const remainingCount = remaining.length;
 
       return (
-        <div className="flex flex-wrap gap-1 items-center">
+        <div className="flex flex-wrap items-center gap-1">
           <Badge
+            className="gap-x-0.5 text-xs"
             key={first?.id}
             variant="secondary"
-            className="text-xs gap-x-0.5"
           >
             {first?.name}
             {first?.required && <span className="text-red-500">*</span>}
@@ -116,24 +116,24 @@ export const columns: ColumnDef<CustomComponent>[] = [
             <Tooltip>
               <TooltipTrigger asChild>
                 <Badge
+                  className="cursor-default gap-x-0.5 text-xs"
                   key={`${row.original.id}-props-remaining`}
                   variant="secondary"
-                  className="text-xs gap-x-0.5 cursor-default"
                 >
                   +{remainingCount} more
                 </Badge>
               </TooltipTrigger>
-              <TooltipContent side="bottom" align="start" className="p-2">
-                <div className="flex flex-wrap gap-1 max-w-[320px]">
+              <TooltipContent align="start" className="p-2" side="bottom">
+                <div className="flex max-w-[320px] flex-wrap gap-1">
                   {remaining.map((p) => (
                     <Badge
+                      className="gap-x-0.5 text-xs"
                       key={p.id}
                       variant="secondary"
-                      className="text-xs gap-x-0.5"
                     >
                       {p.name}
                       {p.required && (
-                        <span className="text-red-500 ml-1">*</span>
+                        <span className="ml-1 text-red-500">*</span>
                       )}
                     </Badge>
                   ))}
@@ -150,9 +150,9 @@ export const columns: ColumnDef<CustomComponent>[] = [
     header: ({ column }) => {
       return (
         <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="h-auto p-0 font-medium hover:bg-transparent"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          variant="ghost"
         >
           Created
           <CaretUpDownIcon className="h-4 w-4" />

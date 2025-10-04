@@ -10,7 +10,7 @@ import {
 } from "@marble/ui/components/sidebar";
 import { cn } from "@marble/ui/lib/utils";
 
-import { KeyIcon, WebhooksLogoIcon } from "@phosphor-icons/react";
+import { KeyIcon, PuzzlePieceIcon, WebhooksLogoIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 
@@ -24,6 +24,11 @@ const items = [
     name: "Webhooks",
     url: "webhooks",
     icon: WebhooksLogoIcon,
+  },
+  {
+    name: "Components",
+    url: "components",
+    icon: PuzzlePieceIcon,
   },
 ];
 

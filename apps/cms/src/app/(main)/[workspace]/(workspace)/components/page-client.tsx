@@ -14,8 +14,8 @@ import { QUERY_KEYS } from "@/lib/queries/keys";
 
 const ComponentModal = dynamic(() =>
   import("@/components/components/component-modals").then(
-    (mod) => mod.ComponentModal,
-  ),
+    (mod) => mod.ComponentModal
+  )
 );
 
 export default function PageClient() {
@@ -44,16 +44,16 @@ export default function PageClient() {
   return (
     <>
       {components && components.length > 0 ? (
-        <WorkspacePageWrapper className="flex flex-col pt-10 pb-16 gap-8">
-          <ComponentsDataTable data={components} columns={columns} />
+        <WorkspacePageWrapper className="flex flex-col gap-8 pt-10 pb-16">
+          <ComponentsDataTable columns={columns} data={components} />
         </WorkspacePageWrapper>
       ) : (
-        <WorkspacePageWrapper className="h-full grid place-content-center">
-          <div className="flex flex-col gap-4 items-center max-w-80">
+        <WorkspacePageWrapper className="grid h-full place-content-center">
+          <div className="flex max-w-80 flex-col items-center gap-4">
             <div className="p-2">
               <PuzzlePieceIcon className="size-16" />
             </div>
-            <div className="text-center flex flex-col gap-4 items-center">
+            <div className="flex flex-col items-center gap-4 text-center">
               <p className="text-muted-foreground text-sm">
                 Custom components help you build reusable content blocks. Create
                 your first component to get started.
@@ -67,9 +67,9 @@ export default function PageClient() {
         </WorkspacePageWrapper>
       )}
       <ComponentModal
+        mode="create"
         open={showCreateModal}
         setOpen={setShowCreateModal}
-        mode="create"
       />
     </>
   );

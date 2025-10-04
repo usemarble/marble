@@ -22,37 +22,37 @@ export default function ComponentTableActions(props: CustomComponent) {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
+          <Button className="h-8 w-8 p-0" variant="ghost">
             <span className="sr-only">Open menu</span>
             <DotsThreeVerticalIcon />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="text-muted-foreground">
           <DropdownMenuItem onClick={() => setShowEditModal(true)}>
-            <PencilSimpleLineIcon size={16} className="mr-2" />
+            <PencilSimpleLineIcon className="mr-2" size={16} />
             <span>Edit</span>
           </DropdownMenuItem>
           <DropdownMenuItem
-            variant="destructive"
             onClick={() => setShowDeleteModal(true)}
+            variant="destructive"
           >
-            <TrashIcon size={16} className="mr-2" />
+            <TrashIcon className="mr-2" size={16} />
             <span>Delete</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
       <ComponentModal
+        editingComponent={props}
+        mode="update"
         open={showEditModal}
         setOpen={setShowEditModal}
-        mode="update"
-        editingComponent={props}
       />
 
       <DeleteComponentModal
+        component={{ name: props.name, id: props.id }}
         open={showDeleteModal}
         setOpen={setShowDeleteModal}
-        component={{ name: props.name, id: props.id }}
       />
     </>
   );

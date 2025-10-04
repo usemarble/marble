@@ -111,7 +111,7 @@ export function ComponentModal({
     },
     onError: (error) => {
       toast.error(
-        error instanceof Error ? error.message : "Failed to create component",
+        error instanceof Error ? error.message : "Failed to create component"
       );
     },
   });
@@ -124,7 +124,7 @@ export function ComponentModal({
         {
           method: "PATCH",
           body: JSON.stringify(data),
-        },
+        }
       );
       if (!response.ok) {
         throw new Error("Failed to update component");
@@ -142,7 +142,7 @@ export function ComponentModal({
     },
     onError: (error) => {
       toast.error(
-        error instanceof Error ? error.message : "Failed to update component",
+        error instanceof Error ? error.message : "Failed to update component"
       );
     },
   });
@@ -202,12 +202,12 @@ export function ComponentModal({
   const updateProperty = (
     index: number,
     field: keyof ComponentProperty,
-    value: string | boolean | Array<{ label: string; value: string }>,
+    value: string | boolean | Array<{ label: string; value: string }>
   ) => {
     setFormData((prev) => ({
       ...prev,
       properties: prev.properties.map((prop, i) =>
-        i === index ? { ...prop, [field]: value } : prop,
+        i === index ? { ...prop, [field]: value } : prop
       ),
     }));
   };
@@ -223,7 +223,7 @@ export function ComponentModal({
     const property = formData.properties[propertyIndex];
     if (!property) return;
     const newOptions = (property.options || []).filter(
-      (_, i) => i !== optionIndex,
+      (_, i) => i !== optionIndex
     );
     updateProperty(propertyIndex, "options", newOptions);
   };
@@ -232,12 +232,12 @@ export function ComponentModal({
     propertyIndex: number,
     optionIndex: number,
     field: "label" | "value",
-    value: string,
+    value: string
   ) => {
     const property = formData.properties[propertyIndex];
     if (!property) return;
     const newOptions = (property.options || []).map((option, i) =>
-      i === optionIndex ? { ...option, [field]: value } : option,
+      i === optionIndex ? { ...option, [field]: value } : option
     );
     updateProperty(propertyIndex, "options", newOptions);
   };
@@ -270,30 +270,29 @@ export function ComponentModal({
       : "Create a new custom component for your content.";
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+    <Dialog onOpenChange={setOpen} open={open}>
+      <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form className="space-y-4" onSubmit={handleSubmit}>
           <div className="space-y-2">
             <Label htmlFor="name">Component Name</Label>
             <Input
-              value={formData.name}
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, name: e.target.value }))
               }
               placeholder="e.g. Button, Card, Hero Section"
               required
+              value={formData.name}
             />
           </div>
 
           <div className="space-y-2">
             <Label>Description</Label>
             <Textarea
-              value={formData.description}
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
@@ -302,6 +301,7 @@ export function ComponentModal({
               }
               placeholder="Brief description of the component"
               rows={3}
+              value={formData.description}
             />
           </div>
 
@@ -312,13 +312,13 @@ export function ComponentModal({
                 {MAX_COMPONENT_PROPERTIES})
               </Label>
               <Button
-                type="button"
-                onClick={addProperty}
-                size="sm"
-                variant="outline"
                 disabled={
                   formData.properties.length >= MAX_COMPONENT_PROPERTIES
                 }
+                onClick={addProperty}
+                size="sm"
+                type="button"
+                variant="outline"
               >
                 <PlusIcon className="mr-2 h-4 w-4" />
                 Add Property
@@ -327,17 +327,17 @@ export function ComponentModal({
 
             {formData.properties.map((property, index) => (
               <div
+                className="space-y-3 rounded-lg border p-4"
                 key={`${property.id}`}
-                className="border rounded-lg p-4 space-y-3"
               >
                 <div className="flex items-center justify-between">
-                  <h4 className="text-sm font-medium">Property {index + 1}</h4>
+                  <h4 className="font-medium text-sm">Property {index + 1}</h4>
                   <Button
-                    type="button"
+                    className="text-destructive"
                     onClick={() => removeProperty(index)}
                     size="sm"
+                    type="button"
                     variant="ghost"
-                    className="text-destructive"
                   >
                     <TrashIcon className="h-4 w-4" />
                   </Button>
@@ -347,25 +347,25 @@ export function ComponentModal({
                   <div className="space-y-2">
                     <Label>Property Name</Label>
                     <Input
-                      value={property.name}
                       onChange={(e) =>
                         updateProperty(index, "name", e.target.value)
                       }
                       placeholder="e.g. title, color, size"
                       required
+                      value={property.name}
                     />
                   </div>
 
                   <div className="space-y-2">
                     <Label>Type</Label>
                     <Select
-                      value={property.type}
                       onValueChange={(value) => {
                         updateProperty(index, "type", value);
                         if (value !== "select") {
                           updateProperty(index, "options", []);
                         }
                       }}
+                      value={property.type}
                     >
                       <SelectTrigger>
                         <SelectValue />
@@ -385,18 +385,18 @@ export function ComponentModal({
                   <div className="space-y-2">
                     <Label>Default Value</Label>
                     <Input
-                      value={property.defaultValue}
                       onChange={(e) =>
                         updateProperty(index, "defaultValue", e.target.value)
                       }
                       placeholder="Optional default value"
+                      value={property.defaultValue}
                     />
                   </div>
 
                   <div className="flex items-center space-x-2 pt-6">
                     <Checkbox
-                      id={`required-${index}`}
                       checked={property.required}
+                      id={`required-${index}`}
                       onCheckedChange={(checked) =>
                         updateProperty(index, "required", checked)
                       }
@@ -410,9 +410,9 @@ export function ComponentModal({
                     <div className="flex items-center justify-between">
                       <Label>Options</Label>
                       <Button
-                        type="button"
                         onClick={() => addSelectOption(index)}
                         size="sm"
+                        type="button"
                         variant="outline"
                       >
                         <PlusIcon className="mr-2 h-4 w-4" />
@@ -422,49 +422,49 @@ export function ComponentModal({
 
                     {(property.options || []).map((option, optionIndex) => (
                       <div
+                        className="grid grid-cols-2 items-end gap-3"
                         key={`${property.id}-option-${optionIndex}`}
-                        className="grid grid-cols-2 gap-3 items-end"
                       >
                         <div className="space-y-2">
                           <Label>Label</Label>
                           <Input
-                            value={option.label}
                             onChange={(e) =>
                               updateSelectOption(
                                 index,
                                 optionIndex,
                                 "label",
-                                e.target.value,
+                                e.target.value
                               )
                             }
                             placeholder="Display text"
                             required
+                            value={option.label}
                           />
                         </div>
                         <div className="space-y-2">
                           <Label>Value</Label>
                           <div className="flex space-x-2">
                             <Input
-                              value={option.value}
                               onChange={(e) =>
                                 updateSelectOption(
                                   index,
                                   optionIndex,
                                   "value",
-                                  e.target.value,
+                                  e.target.value
                                 )
                               }
                               placeholder="Stored value"
                               required
+                              value={option.value}
                             />
                             <Button
-                              type="button"
+                              className="px-2 text-destructive"
                               onClick={() =>
                                 removeSelectOption(index, optionIndex)
                               }
                               size="sm"
+                              type="button"
                               variant="ghost"
-                              className="text-destructive px-2"
                             >
                               <TrashIcon className="h-4 w-4" />
                             </Button>
@@ -474,7 +474,7 @@ export function ComponentModal({
                     ))}
 
                     {(!property.options || property.options.length === 0) && (
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-muted-foreground text-sm">
                         No options added yet. Click "Add Option" to create
                         select options.
                       </p>
@@ -486,12 +486,12 @@ export function ComponentModal({
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={handleClose}>
+            <Button onClick={handleClose} type="button" variant="outline">
               Cancel
             </Button>
             <Button
-              type="submit"
               disabled={isCreating || isUpdating || !formData.name.trim()}
+              type="submit"
             >
               {isCreating || isUpdating
                 ? "Saving..."
@@ -544,13 +544,13 @@ export function DeleteComponentModal({
     },
     onError: (error) => {
       toast.error(
-        error instanceof Error ? error.message : "Failed to delete component",
+        error instanceof Error ? error.message : "Failed to delete component"
       );
     },
   });
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
+    <AlertDialog onOpenChange={setOpen} open={open}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete Component</AlertDialogTitle>
@@ -563,9 +563,9 @@ export function DeleteComponentModal({
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
           <AlertDialogAction
-            onClick={() => deleteComponent()}
-            disabled={isPending}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            disabled={isPending}
+            onClick={() => deleteComponent()}
           >
             {isPending ? "Deleting..." : "Delete"}
           </AlertDialogAction>

@@ -73,17 +73,17 @@ export function CustomComponentNodeView({
       <NodeViewWrapper className="marble-custom-component">
         {/** biome-ignore lint/a11y/useSemanticElements: <> */}
         <div
-          role="button"
-          tabIndex={0}
+          aria-expanded={Object.keys(props).length > 0 ? isExpanded : undefined}
+          aria-label={`Select ${componentName} component`}
+          className="group relative my-3 w-full rounded-lg border border-border bg-card p-4 text-left transition-all duration-200 hover:bg-muted/50 hover:shadow-sm"
           onClick={handleClick}
           onKeyDown={handleKeyDown}
-          aria-label={`Select ${componentName} component`}
-          aria-expanded={Object.keys(props).length > 0 ? isExpanded : undefined}
-          className="group relative border border-border rounded-lg p-4 my-3 bg-card hover:bg-muted/50 hover:shadow-sm transition-all duration-200 w-full text-left"
+          role="button"
+          tabIndex={0}
         >
-          <div className="flex items-center justify-between mb-3">
+          <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="flex items-center justify-center w-8 h-8 rounded-md bg-primary/10">
+              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10">
                 <PuzzlePieceIcon className="h-4 w-4 text-primary" />
               </div>
               <span className="font-semibold text-foreground">
@@ -93,38 +93,38 @@ export function CustomComponentNodeView({
 
             <div className="flex items-center space-x-1">
               <Button
+                className="h-8 w-8 cursor-pointer p-0 opacity-0 transition-opacity group-hover:opacity-100"
+                onClick={handleEdit}
+                size="sm"
                 type="button"
                 variant="ghost"
-                size="sm"
-                onClick={handleEdit}
-                className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 cursor-pointer"
               >
                 <PencilIcon className="h-3.5 w-3.5" />
               </Button>
 
               <Button
+                aria-label="Remove component"
+                className="hover:!bg-destructive/20 h-8 w-8 cursor-pointer p-0 opacity-0 transition-opacity group-hover:opacity-100"
+                onClick={handleRemove}
+                size="sm"
+                title="Remove"
                 type="button"
                 variant="ghost"
-                size="sm"
-                onClick={handleRemove}
-                className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 hover:!bg-destructive/20 cursor-pointer"
-                aria-label="Remove component"
-                title="Remove"
               >
                 <TrashIcon className="h-3.5 w-3.5" />
               </Button>
 
               {Object.keys(props).length > 0 && (
                 <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleToggleExpand}
-                  className="h-8 w-8 p-0 hover:bg-muted cursor-pointer"
+                  aria-expanded={isExpanded}
                   aria-label={
                     isExpanded ? "Collapse properties" : "Expand properties"
                   }
-                  aria-expanded={isExpanded}
+                  className="h-8 w-8 cursor-pointer p-0 hover:bg-muted"
+                  onClick={handleToggleExpand}
+                  size="sm"
+                  type="button"
+                  variant="ghost"
                 >
                   {isExpanded ? (
                     <CaretDownIcon className="h-3.5 w-3.5" />
@@ -137,20 +137,20 @@ export function CustomComponentNodeView({
           </div>
 
           {Object.keys(props).length > 0 && isExpanded && (
-            <div className="mb-3 animate-in slide-in-from-top-1 duration-200">
-              <div className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wide">
+            <div className="slide-in-from-top-1 mb-3 animate-in duration-200">
+              <div className="mb-2 font-medium text-muted-foreground text-xs uppercase tracking-wide">
                 Properties
               </div>
               <div className="space-y-2">
                 {Object.entries(props).map(([key, value]) => (
                   <div
-                    key={key}
                     className="flex items-center justify-between py-1"
+                    key={key}
                   >
-                    <span className="text-sm font-medium text-muted-foreground">
+                    <span className="font-medium text-muted-foreground text-sm">
                       {key}
                     </span>
-                    <span className="text-sm text-foreground bg-muted/50 px-2 py-0.5 rounded">
+                    <span className="rounded bg-muted/50 px-2 py-0.5 text-foreground text-sm">
                       {String(value ?? "—")}
                     </span>
                   </div>
@@ -162,14 +162,14 @@ export function CustomComponentNodeView({
       </NodeViewWrapper>
 
       <ComponentEditorModal
-        isOpen={isModalOpen}
-        setIsOpen={setIsModalOpen}
         editor={editor}
         existingComponent={node}
         getPos={getPos}
+        isOpen={isModalOpen}
+        setIsOpen={setIsModalOpen}
       />
 
-      <Dialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
+      <Dialog onOpenChange={setIsConfirmOpen} open={isConfirmOpen}>
         <DialogContent className="sm:max-w-[400px]">
           <DialogHeader>
             <DialogTitle>Remove Component</DialogTitle>
@@ -178,18 +178,18 @@ export function CustomComponentNodeView({
               cannot be undone.
             </DialogDescription>
           </DialogHeader>
-          <div className="flex justify-end space-x-2 mt-4">
-            <Button variant="outline" onClick={() => setIsConfirmOpen(false)}>
+          <div className="mt-4 flex justify-end space-x-2">
+            <Button onClick={() => setIsConfirmOpen(false)} variant="outline">
               Cancel
             </Button>
             <Button
-              variant="destructive"
               onClick={() => {
                 if (getPos)
                   editor.chain().focus().setNodeSelection(getPos()).run();
                 editor.chain().focus().deleteSelection().run();
                 setIsConfirmOpen(false);
               }}
+              variant="destructive"
             >
               Remove
             </Button>

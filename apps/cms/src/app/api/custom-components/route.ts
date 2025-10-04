@@ -28,7 +28,7 @@ export async function GET() {
   } catch (_e) {
     return NextResponse.json(
       { error: "Failed to fetch custom components" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
   if (!parsedBody.success) {
     return NextResponse.json(
       { error: "Invalid request body" },
-      { status: 400 },
+      { status: 400 }
     );
   }
   const { name, description, properties } = parsedBody.data;
@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
   } catch (_e) {
     return NextResponse.json(
       { error: "Failed to create custom component" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

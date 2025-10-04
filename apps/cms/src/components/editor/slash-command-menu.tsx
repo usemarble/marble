@@ -69,9 +69,9 @@ export function SlashCommandMenu() {
         setIsOpen={setShowYoutubeModal}
       />
       <ComponentSelectorModal
+        editor={editorInstance}
         isOpen={showComponentModal}
         setIsOpen={setShowComponentModal}
-        editor={editorInstance}
       />
     </>
   );

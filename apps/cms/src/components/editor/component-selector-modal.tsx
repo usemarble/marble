@@ -91,7 +91,7 @@ export function ComponentEditorModal({
       ? (components.find(
           (c) =>
             c.name ===
-            ((existingComponent.attrs ?? {}) as NodeAttrs).componentName,
+            ((existingComponent.attrs ?? {}) as NodeAttrs).componentName
         ) ?? null)
       : null;
 
@@ -174,8 +174,8 @@ export function ComponentEditorModal({
         return (
           <div className="flex items-center space-x-2">
             <Checkbox
-              id={property.name}
               checked={value === true}
+              id={property.name}
               onCheckedChange={(checked) =>
                 handlePropertyChange(property.name, checked === true)
               }
@@ -187,36 +187,36 @@ export function ComponentEditorModal({
       case "textarea":
         return (
           <Textarea
-            value={(value ?? "") as string}
             onChange={(e) =>
               handlePropertyChange(property.name, e.target.value)
             }
             placeholder={`Enter ${property.name}`}
             rows={3}
+            value={(value ?? "") as string}
           />
         );
 
       case "select":
         return (
           <VirtualizedSelect
-            options={property.options || []}
-            value={(value ?? "") as string}
             onValueChange={(newValue) =>
               handlePropertyChange(property.name, newValue)
             }
+            options={property.options || []}
             placeholder={`Select ${property.name}`}
+            value={(value ?? "") as string}
           />
         );
 
       case "number":
         return (
           <Input
-            type="number"
-            value={asNumberValue(value)}
             onChange={(e) =>
               handlePropertyChange(property.name, e.target.value)
             }
             placeholder={`Enter ${property.name}`}
+            type="number"
+            value={asNumberValue(value)}
           />
         );
 
@@ -225,11 +225,11 @@ export function ComponentEditorModal({
           <Popover>
             <PopoverTrigger asChild>
               <Button
-                variant="outline"
                 className={cn(
-                  "justify-between text-left font-normal shadow-none bg-editor-field",
-                  !value && "text-muted-foreground",
+                  "justify-between bg-editor-field text-left font-normal shadow-none",
+                  !value && "text-muted-foreground"
                 )}
+                variant="outline"
               >
                 {value ? (
                   format(new Date(value as string), "PPP")
@@ -239,17 +239,17 @@ export function ComponentEditorModal({
                 <CalendarDotsIcon className="text-muted-foreground" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 overflow-hidden">
+            <PopoverContent className="w-auto overflow-hidden p-0">
               <Calendar
-                mode="single"
-                selected={value ? new Date(value as string) : undefined}
+                autoFocus
                 captionLayout="dropdown"
+                mode="single"
                 onSelect={(date: Date | undefined) => {
                   if (date) {
                     handlePropertyChange(property.name, date.toISOString());
                   }
                 }}
-                autoFocus
+                selected={value ? new Date(value as string) : undefined}
               />
             </PopoverContent>
           </Popover>
@@ -258,35 +258,35 @@ export function ComponentEditorModal({
       case "email":
         return (
           <Input
-            type="email"
-            value={(value ?? "") as string}
             onChange={(e) =>
               handlePropertyChange(property.name, e.target.value)
             }
             placeholder={`Enter ${property.name}`}
+            type="email"
+            value={(value ?? "") as string}
           />
         );
 
       case "url":
         return (
           <Input
-            type="url"
-            value={(value ?? "") as string}
             onChange={(e) =>
               handlePropertyChange(property.name, e.target.value)
             }
             placeholder={`Enter ${property.name}`}
+            type="url"
+            value={(value ?? "") as string}
           />
         );
 
       default:
         return (
           <Input
-            value={(value ?? "") as string}
             onChange={(e) =>
               handlePropertyChange(property.name, e.target.value)
             }
             placeholder={`Enter ${property.name}`}
+            value={(value ?? "") as string}
           />
         );
     }
@@ -295,10 +295,10 @@ export function ComponentEditorModal({
   if (!componentDef) {
     console.warn(
       "ComponentEditorModal: Component definition not found for:",
-      (existingComponent?.attrs as NodeAttrs | undefined)?.componentName,
+      (existingComponent?.attrs as NodeAttrs | undefined)?.componentName
     );
     return (
-      <Dialog open={isOpen} onOpenChange={handleClose}>
+      <Dialog onOpenChange={handleClose} open={isOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Error</DialogTitle>
@@ -315,9 +315,9 @@ export function ComponentEditorModal({
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <Dialog onOpenChange={handleClose} open={isOpen}>
       <DialogContent
-        className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto"
+        className="max-h-[80vh] overflow-y-auto sm:max-w-[600px]"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <DialogHeader>
@@ -330,7 +330,7 @@ export function ComponentEditorModal({
         <div className="space-y-6">
           <div className="space-y-4">
             {componentDef.properties.map((property) => (
-              <div key={property.id} className="space-y-2">
+              <div className="space-y-2" key={property.id}>
                 <Label className="flex items-center">
                   <span className="flex items-center gap-x-1">
                     {property.name}
@@ -338,7 +338,7 @@ export function ComponentEditorModal({
                       <span className="text-red-500">*</span>
                     )}
                   </span>
-                  <Badge variant="outline" className="ml-2 text-xs">
+                  <Badge className="ml-2 text-xs" variant="outline">
                     {property.type}
                   </Badge>
                 </Label>
@@ -348,12 +348,12 @@ export function ComponentEditorModal({
           </div>
 
           <div className="flex justify-end space-x-2">
-            <Button variant="outline" onClick={handleClose}>
+            <Button onClick={handleClose} variant="outline">
               Cancel
             </Button>
             <Button
-              onClick={handleUpdateComponent}
               disabled={!validateEditFields()}
+              onClick={handleUpdateComponent}
             >
               Update Component
             </Button>
@@ -414,7 +414,7 @@ export function ComponentSelectorModal({
           return "";
       }
     },
-    [],
+    []
   );
 
   useEffect(() => {
@@ -510,8 +510,8 @@ export function ComponentSelectorModal({
         return (
           <div className="flex items-center space-x-2">
             <Checkbox
-              id={property.name}
               checked={value === true}
+              id={property.name}
               onCheckedChange={(checked) =>
                 handlePropertyChange(property.name, checked === true)
               }
@@ -523,36 +523,36 @@ export function ComponentSelectorModal({
       case "textarea":
         return (
           <Textarea
-            value={(value ?? "") as string}
             onChange={(e) =>
               handlePropertyChange(property.name, e.target.value)
             }
             placeholder={`Enter ${property.name}`}
             rows={3}
+            value={(value ?? "") as string}
           />
         );
 
       case "select":
         return (
           <VirtualizedSelect
-            options={property.options || []}
-            value={(value ?? "") as string}
             onValueChange={(newValue) =>
               handlePropertyChange(property.name, newValue)
             }
+            options={property.options || []}
             placeholder={`Select ${property.name}`}
+            value={(value ?? "") as string}
           />
         );
 
       case "number":
         return (
           <Input
-            type="number"
-            value={asNumberValue(value)}
             onChange={(e) =>
               handlePropertyChange(property.name, e.target.value)
             }
             placeholder={`Enter ${property.name}`}
+            type="number"
+            value={asNumberValue(value)}
           />
         );
 
@@ -561,11 +561,11 @@ export function ComponentSelectorModal({
           <Popover>
             <PopoverTrigger asChild>
               <Button
-                variant="outline"
                 className={cn(
-                  "justify-between text-left font-normal shadow-none bg-editor-field",
-                  !value && "text-muted-foreground",
+                  "justify-between bg-editor-field text-left font-normal shadow-none",
+                  !value && "text-muted-foreground"
                 )}
+                variant="outline"
               >
                 {value ? (
                   format(new Date(value as string), "PPP")
@@ -575,17 +575,17 @@ export function ComponentSelectorModal({
                 <CalendarDotsIcon className="text-muted-foreground" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 overflow-hidden">
+            <PopoverContent className="w-auto overflow-hidden p-0">
               <Calendar
-                mode="single"
-                selected={value ? new Date(value as string) : undefined}
+                autoFocus
                 captionLayout="dropdown"
+                mode="single"
                 onSelect={(date: Date | undefined) => {
                   if (date) {
                     handlePropertyChange(property.name, date.toISOString());
                   }
                 }}
-                autoFocus
+                selected={value ? new Date(value as string) : undefined}
               />
             </PopoverContent>
           </Popover>
@@ -594,54 +594,54 @@ export function ComponentSelectorModal({
       case "email":
         return (
           <Input
-            type="email"
-            value={(value ?? "") as string}
             onChange={(e) =>
               handlePropertyChange(property.name, e.target.value)
             }
             placeholder={`Enter ${property.name}`}
+            type="email"
+            value={(value ?? "") as string}
           />
         );
 
       case "url":
         return (
           <Input
-            type="url"
-            value={(value ?? "") as string}
             onChange={(e) =>
               handlePropertyChange(property.name, e.target.value)
             }
             placeholder={`Enter ${property.name}`}
+            type="url"
+            value={(value ?? "") as string}
           />
         );
 
       default:
         return (
           <Input
-            value={(value ?? "") as string}
             onChange={(e) =>
               handlePropertyChange(property.name, e.target.value)
             }
             placeholder={`Enter ${property.name}`}
+            value={(value ?? "") as string}
           />
         );
     }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <Dialog onOpenChange={handleClose} open={isOpen}>
       <DialogContent
-        className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto"
+        className="max-h-[80vh] overflow-y-auto sm:max-w-[600px]"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <DialogHeader>
           <DialogTitle className="flex items-center">
             {selectedComponent && (
               <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setSelectedComponent(null)}
                 className="mr-2 p-1"
+                onClick={() => setSelectedComponent(null)}
+                size="sm"
+                variant="ghost"
               >
                 <ArrowLeftIcon className="h-4 w-4" />
               </Button>
@@ -657,71 +657,17 @@ export function ComponentSelectorModal({
           </DialogDescription>
         </DialogHeader>
 
-        {!selectedComponent ? (
-          <div className="space-y-4">
-            {isLoading ? (
-              <div className="flex justify-center items-center h-32">
-                <LoadingSpinner />
-              </div>
-            ) : components.length === 0 ? (
-              <div className="text-center py-8">
-                <PuzzlePieceIcon className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">
-                  No custom components found. Create some in the Components
-                  section first.
-                </p>
-              </div>
-            ) : (
-              <div className="grid gap-3">
-                {components.map((component) => (
-                  <Card
-                    key={component.id}
-                    className="cursor-pointer hover:border-primary transition-colors"
-                    onClick={() => handleComponentSelect(component)}
-                  >
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-lg flex items-center">
-                        <PuzzlePieceIcon className="mr-2 h-5 w-5" />
-                        {component.name}
-                      </CardTitle>
-                      {component.description && (
-                        <p className="text-sm text-muted-foreground">
-                          {component.description}
-                        </p>
-                      )}
-                    </CardHeader>
-                    <CardContent className="pt-0">
-                      <div className="flex flex-wrap gap-1">
-                        {component.properties.map((prop) => (
-                          <Badge
-                            key={prop.id}
-                            variant="secondary"
-                            className="text-xs"
-                          >
-                            {prop.name}: {prop.type}
-                            {prop.required && (
-                              <span className="text-red-500 ml-1">*</span>
-                            )}
-                          </Badge>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </div>
-        ) : (
+        {selectedComponent ? (
           <div className="space-y-6">
             <div className="space-y-4">
               {selectedComponent.properties.map((property) => (
-                <div key={property.id} className="space-y-2">
+                <div className="space-y-2" key={property.id}>
                   <Label className="flex items-center">
                     {property.name}
                     {property.required && (
-                      <span className="text-red-500 ml-1">*</span>
+                      <span className="ml-1 text-red-500">*</span>
                     )}
-                    <Badge variant="outline" className="ml-2 text-xs">
+                    <Badge className="ml-2 text-xs" variant="outline">
                       {property.type}
                     </Badge>
                   </Label>
@@ -732,18 +678,72 @@ export function ComponentSelectorModal({
 
             <div className="flex justify-end space-x-2">
               <Button
-                variant="outline"
                 onClick={() => setSelectedComponent(null)}
+                variant="outline"
               >
                 Back
               </Button>
               <Button
-                onClick={handleInsertComponent}
                 disabled={!validateRequiredFields()}
+                onClick={handleInsertComponent}
               >
                 {existingComponent ? "Update Component" : "Insert Component"}
               </Button>
             </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {isLoading ? (
+              <div className="flex h-32 items-center justify-center">
+                <LoadingSpinner />
+              </div>
+            ) : components.length === 0 ? (
+              <div className="py-8 text-center">
+                <PuzzlePieceIcon className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+                <p className="text-muted-foreground">
+                  No custom components found. Create some in the Components
+                  section first.
+                </p>
+              </div>
+            ) : (
+              <div className="grid gap-3">
+                {components.map((component) => (
+                  <Card
+                    className="cursor-pointer transition-colors hover:border-primary"
+                    key={component.id}
+                    onClick={() => handleComponentSelect(component)}
+                  >
+                    <CardHeader className="pb-2">
+                      <CardTitle className="flex items-center text-lg">
+                        <PuzzlePieceIcon className="mr-2 h-5 w-5" />
+                        {component.name}
+                      </CardTitle>
+                      {component.description && (
+                        <p className="text-muted-foreground text-sm">
+                          {component.description}
+                        </p>
+                      )}
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <div className="flex flex-wrap gap-1">
+                        {component.properties.map((prop) => (
+                          <Badge
+                            className="text-xs"
+                            key={prop.id}
+                            variant="secondary"
+                          >
+                            {prop.name}: {prop.type}
+                            {prop.required && (
+                              <span className="ml-1 text-red-500">*</span>
+                            )}
+                          </Badge>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </DialogContent>
