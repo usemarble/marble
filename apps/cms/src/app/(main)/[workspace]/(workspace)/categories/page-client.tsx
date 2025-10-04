@@ -15,15 +15,15 @@ import { QUERY_KEYS } from "@/lib/queries/keys";
 
 const CategoryModal = dynamic(() =>
   import("@/components/categories/category-modals").then(
-    (mod) => mod.CategoryModal,
-  ),
+    (mod) => mod.CategoryModal
+  )
 );
 
-interface Category {
+type Category = {
   id: string;
   name: string;
   slug: string;
-}
+};
 
 function PageClient() {
   const workspaceId = useWorkspaceId();
@@ -38,14 +38,14 @@ function PageClient() {
         const res = await fetch("/api/categories");
         if (!res.ok) {
           throw new Error(
-            `Failed to fetch categories: ${res.status} ${res.statusText}`,
+            `Failed to fetch categories: ${res.status} ${res.statusText}`
           );
         }
         const data: Category[] = await res.json();
         return data;
       } catch (error) {
         toast.error(
-          error instanceof Error ? error.message : "Failed to fetch categories",
+          error instanceof Error ? error.message : "Failed to fetch categories"
         );
       }
     },
@@ -59,16 +59,16 @@ function PageClient() {
   return (
     <>
       {categories && categories.length > 0 ? (
-        <WorkspacePageWrapper className="flex flex-col pt-10 pb-16 gap-8">
-          <DataTable data={categories} columns={columns} />
+        <WorkspacePageWrapper className="flex flex-col gap-8 pt-10 pb-16">
+          <DataTable columns={columns} data={categories} />
         </WorkspacePageWrapper>
       ) : (
-        <WorkspacePageWrapper className="h-full grid place-content-center">
-          <div className="flex flex-col gap-4 items-center max-w-80">
+        <WorkspacePageWrapper className="grid h-full place-content-center">
+          <div className="flex max-w-80 flex-col items-center gap-4">
             <div>
               <PackageIcon className="size-16" />
             </div>
-            <div className="text-center flex flex-col gap-4 items-center">
+            <div className="flex flex-col items-center gap-4 text-center">
               <p className="text-muted-foreground text-sm">
                 Categories help organize your content. Create your first
                 category to get started.
@@ -82,9 +82,9 @@ function PageClient() {
         </WorkspacePageWrapper>
       )}
       <CategoryModal
+        mode="create"
         open={showCreateModal}
         setOpen={setShowCreateModal}
-        mode="create"
       />
     </>
   );

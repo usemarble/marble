@@ -14,11 +14,12 @@ export async function GET() {
 
   try {
     const tags = await db.tag.findMany({
-      where: { workspaceId: workspaceId },
+      where: { workspaceId },
       select: {
         id: true,
         name: true,
         slug: true,
+        description: true,
       },
     });
 
@@ -26,7 +27,7 @@ export async function GET() {
   } catch (_e) {
     return NextResponse.json(
       { error: "Failed to fetch tags" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
@@ -46,7 +47,8 @@ export async function POST(req: Request) {
     data: {
       name: body.name,
       slug: body.slug,
-      workspaceId: workspaceId,
+      description: body.description,
+      workspaceId,
     },
   });
 

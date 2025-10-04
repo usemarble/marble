@@ -22,30 +22,28 @@ export async function getInitialUserData() {
     if (activeOrganizationId && typeof activeOrganizationId !== "string") {
       console.warn(
         "Invalid activeOrganizationId type:",
-        typeof activeOrganizationId,
+        typeof activeOrganizationId
       );
       return { user: null, isAuthenticated: true };
     }
 
-    let member = null;
-
-    if (activeOrganizationId) {
-      member = await db.member.findFirst({
-        where: {
-          organizationId: activeOrganizationId,
-          userId: user.id,
-        },
-        include: {
-          organization: {
-            select: {
-              id: true,
-              name: true,
-              slug: true,
+    const member = activeOrganizationId
+      ? await db.member.findFirst({
+          where: {
+            organizationId: activeOrganizationId,
+            userId: user.id,
+          },
+          include: {
+            organization: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+              },
             },
           },
-        },
-      });
-    }
+        })
+      : null;
 
     const userWithRole = {
       ...user,

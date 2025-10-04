@@ -14,11 +14,12 @@ import {
 } from "@phosphor-icons/react";
 import { useState } from "react";
 import type { Author } from "@/types/author";
-import { AuthorModal, DeleteAuthorModal } from "./author-modals";
+import { DeleteAuthorModal } from "./author-modals";
+import { AuthorSheet } from "./author-sheet";
 
-interface AuthorTableActionsProps {
+type AuthorTableActionsProps = {
   author: Author;
-}
+};
 
 export function AuthorTableActions({ author }: AuthorTableActionsProps) {
   const [showEditModal, setShowEditModal] = useState(false);
@@ -37,8 +38,8 @@ export function AuthorTableActions({ author }: AuthorTableActionsProps) {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
-            variant="ghost"
             className="size-8 p-0 data-[state=open]:bg-muted"
+            variant="ghost"
           >
             <span className="sr-only">Open menu</span>
             <DotsThreeVerticalIcon className="size-4" />
@@ -59,18 +60,18 @@ export function AuthorTableActions({ author }: AuthorTableActionsProps) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <AuthorModal
+      <AuthorSheet
+        authorData={author}
+        mode="update"
         open={showEditModal}
         setOpen={setShowEditModal}
-        mode="update"
-        authorData={author}
       />
 
       <DeleteAuthorModal
-        open={showDeleteModal}
-        setOpen={setShowDeleteModal}
         id={author.id}
         name={author.name}
+        open={showDeleteModal}
+        setOpen={setShowDeleteModal}
       />
     </>
   );

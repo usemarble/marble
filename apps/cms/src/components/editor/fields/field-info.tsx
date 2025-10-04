@@ -5,7 +5,7 @@ import {
 } from "@marble/ui/components/tooltip";
 import { InfoIcon } from "@phosphor-icons/react";
 
-interface FieldInfoProps {
+type FieldInfoProps = {
   /**
    * The information text to display in the tooltip
    */
@@ -14,7 +14,7 @@ interface FieldInfoProps {
    * Additional className for the icon
    */
   className?: string;
-}
+};
 
 export function FieldInfo({
   text,
@@ -26,7 +26,7 @@ export function FieldInfo({
         <InfoIcon className={className} />
       </TooltipTrigger>
       <TooltipContent>
-        <p className="text-xs max-w-64 text-balance">{text}</p>
+        <p className="max-w-64 text-balance text-xs">{text}</p>
       </TooltipContent>
     </Tooltip>
   );

@@ -6,7 +6,7 @@ import { getWebhooks, WebhookClient } from "@/lib/webhooks/webhook-client";
 
 export async function PATCH(
   req: Request,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const sessionData = await getServerSession();
   const workspaceId = sessionData?.session.activeOrganizationId;
@@ -34,6 +34,7 @@ export async function PATCH(
     data: {
       name: body.name,
       slug: body.slug,
+      description: body.description,
     },
   });
 
@@ -58,7 +59,7 @@ export async function PATCH(
 
 export async function DELETE(
   _req: Request,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const sessionData = await getServerSession();
 
@@ -92,7 +93,7 @@ export async function DELETE(
       await webhookClient.send({
         url: webhook.endpoint,
         event: "tag.deleted",
-        data: { id: id, slug: tag.slug, userId: sessionData.user.id },
+        data: { id, slug: tag.slug, userId: sessionData.user.id },
         format: webhook.format,
       });
     }
@@ -101,7 +102,7 @@ export async function DELETE(
   } catch (_e) {
     return NextResponse.json(
       { error: "Failed to delete post" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

@@ -11,7 +11,7 @@ import PageLoader from "@/components/shared/page-loader";
 import { useWorkspaceMetrics } from "@/hooks/use-analytics";
 
 export const QuickStats = () => {
-  const { data: metrics, isLoading, error } = useWorkspaceMetrics();
+  const { data: metrics, isPending, error } = useWorkspaceMetrics();
 
   if (error) {
     toast.error("Failed to load workspace metrics");
@@ -31,18 +31,18 @@ export const QuickStats = () => {
         <CardTitle>Quick Stats</CardTitle>
       </CardHeader>
       <CardContent>
-        {isLoading ? (
+        {isPending ? (
           <div className="h-24">
             <PageLoader />
           </div>
         ) : (
           <div className="grid grid-cols-5 gap-4">
             {statItems.map((item) => (
-              <div key={item.label} className="text-center">
-                <div className="text-2xl font-bold text-primary">
+              <div className="text-center" key={item.label}>
+                <div className="font-bold text-2xl text-primary">
                   {item.value}
                 </div>
-                <div className="text-sm text-muted-foreground">
+                <div className="text-muted-foreground text-sm">
                   {item.label}
                 </div>
               </div>

@@ -1,6 +1,5 @@
 "use client";
 
-import { Separator } from "@marble/ui/components/separator";
 import {
   Sidebar,
   SidebarContent,
@@ -16,37 +15,43 @@ import {
   TabsTrigger,
 } from "@marble/ui/components/tabs";
 import { cn } from "@marble/ui/lib/utils";
-import { useMemo, useState } from "react";
-import {
-  type Control,
-  type FieldErrors,
-  type UseFormWatch,
-  useController,
-} from "react-hook-form";
-import striptags from "striptags";
-import wordCount from "word-count";
+import { SpinnerIcon } from "@phosphor-icons/react";
+import { useQuery } from "@tanstack/react-query";
+import type { EditorInstance } from "novel";
+import { parseAsStringLiteral, useQueryState } from "nuqs";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import type { Control, FieldErrors, UseFormWatch } from "react-hook-form";
 import { useDebounce } from "@/hooks/use-debounce";
+import { fetchAiReadabilitySuggestionsObject } from "@/lib/ai/readability";
+import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { PostValues } from "@/lib/validations/post";
 import { useUnsavedChanges } from "@/providers/unsaved-changes";
+import { useWorkspace } from "@/providers/workspace";
 import {
   calculateReadabilityScore,
-  generateSuggestions,
-  getReadabilityLevel,
+  generateSuggestions as generateLocalSuggestions,
 } from "@/utils/readability";
 import { AsyncButton } from "../ui/async-button";
-import { Gauge } from "../ui/gauge";
-import { AttributionField } from "./fields/attribution-field";
-import { AuthorSelector } from "./fields/author-selector";
-import { CategorySelector } from "./fields/category-selector";
-import { CoverImageSelector } from "./fields/cover-image-selector";
-import { DescriptionField } from "./fields/description-field";
-import { PublishDateField } from "./fields/publish-date-field";
-import { SlugField } from "./fields/slug-field";
-import { StatusField } from "./fields/status-field";
-import { TagSelector } from "./fields/tag-selector";
-import { HiddenScrollbar } from "./hidden-scrollbar";
 
-interface EditorSidebarProps extends React.ComponentProps<typeof Sidebar> {
+const MetadataTab = lazy(() =>
+  import("./tabs/metadata-tab").then((m) => ({ default: m.MetadataTab }))
+);
+const AnalysisTab = lazy(() =>
+  import("./tabs/analysis-tab").then((m) => ({ default: m.AnalysisTab }))
+);
+
+const tabs = {
+  metadata: "Metadata",
+  analysis: "Analysis",
+};
+
+const TabLoadingSpinner = () => (
+  <div className="flex h-full items-center justify-center px-6">
+    <SpinnerIcon className="size-5 animate-spin" />
+  </div>
+);
+
+type EditorSidebarProps = React.ComponentProps<typeof Sidebar> & {
   control: Control<PostValues>;
   errors: FieldErrors<PostValues>;
   watch: UseFormWatch<PostValues>;
@@ -56,7 +61,8 @@ interface EditorSidebarProps extends React.ComponentProps<typeof Sidebar> {
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   mode?: "create" | "update";
-}
+  editor?: EditorInstance | null;
+};
 
 export function EditorSidebar({
   control,
@@ -67,56 +73,152 @@ export function EditorSidebar({
   isOpen,
   setIsOpen,
   mode = "create",
+  editor,
   ...props
 }: EditorSidebarProps) {
   const { open } = useSidebar();
   const hasErrors = Object.keys(errors).length > 0;
   const { tags, authors: initialAuthors } = watch();
   const { hasUnsavedChanges } = useUnsavedChanges();
-  const [activeTab, setActiveTab] = useState("metadata");
+  const { activeWorkspace } = useWorkspace();
 
-  const {
-    field: { value: contentValue },
-  } = useController({
-    name: "content",
-    control,
-  });
+  const [editorText, setEditorText] = useState("");
+  const [editorHTML, setEditorHTML] = useState("");
 
-  // const wordCount = editorIntsance.editor?.storage.
+  useEffect(() => {
+    if (!editor) {
+      return;
+    }
+    setEditorText(editor.getText());
+    setEditorHTML(editor.getHTML());
+    const handler = () => {
+      const nextText = editor.getText();
+      const nextHTML = editor.getHTML();
+      setEditorText((prev) => (prev === nextText ? prev : nextText));
+      setEditorHTML((prev) => (prev === nextHTML ? prev : nextHTML));
+    };
+    editor.on("update", handler);
+    editor.on("create", handler);
+    return () => {
+      editor.off("update", handler);
+      editor.off("create", handler);
+    };
+  }, [editor]);
 
-  const debouncedContent = useDebounce(contentValue || "", 500);
+  const aiEnabled = Boolean(activeWorkspace?.ai?.enabled);
+  const debouncedText = useDebounce(editorText, aiEnabled ? 1500 : 500);
 
-  const textMetrics = useMemo(() => {
-    const inputHtml = debouncedContent || "";
-    const inputText = striptags(inputHtml);
-
-    const wordCountResult = wordCount(inputText);
-
-    const sentences = inputText
-      .split(/[.!?]+/)
-      .filter((sentence) => sentence.trim().length > 0);
+  const metrics = useMemo(() => {
+    const text = debouncedText;
+    if (!text || text.trim().length === 0) {
+      return {
+        wordCount: 0,
+        sentenceCount: 0,
+        wordsPerSentence: 0,
+        readabilityScore: 0,
+        readingTime: 0,
+      };
+    }
+    const words = text
+      .trim()
+      .split(/\s+/u)
+      .filter((w) => w.length > 0);
+    const wordCount = editor?.storage?.characterCount?.words
+      ? editor.storage.characterCount.words()
+      : words.length;
+    const sentences = text.split(/[.!?]+/).filter((s) => s.trim().length > 0);
     const sentenceCount = sentences.length;
 
-    const avgWordsPerSentence =
-      sentenceCount > 0 ? Math.round(wordCountResult / sentenceCount) : 0;
-    const readabilityScore = calculateReadabilityScore(inputHtml);
-    const readabilityLevel = getReadabilityLevel(readabilityScore);
+    const wordsPerSentence =
+      sentenceCount > 0 ? Math.round(wordCount / sentenceCount) : 0;
 
-    const metrics = {
-      wordCount: wordCountResult,
-      sentenceCount,
-      avgWordsPerSentence,
-      readabilityScore,
-    };
-
-    const suggestions = generateSuggestions(metrics);
-
+    const readabilityScore = editor ? calculateReadabilityScore(editor) : 0;
+    const readingTime = wordCount / 238;
     return {
-      ...metrics,
-      readabilityLevel,
-      suggestions,
+      wordCount,
+      sentenceCount,
+      wordsPerSentence,
+      readabilityScore,
+      readingTime,
     };
-  }, [debouncedContent]);
+  }, [editor, debouncedText]);
+
+  const [hasFetchedAiOnce, setHasFetchedAiOnce] = useState(false);
+
+  const localSuggestions = useMemo(() => {
+    return generateLocalSuggestions({
+      wordCount: metrics.wordCount,
+      sentenceCount: metrics.sentenceCount,
+      wordsPerSentence: metrics.wordsPerSentence,
+      readabilityScore: metrics.readabilityScore,
+    });
+  }, [
+    metrics.wordCount,
+    metrics.sentenceCount,
+    metrics.wordsPerSentence,
+    metrics.readabilityScore,
+  ]);
+
+  // biome-ignore lint/style/noNonNullAssertion: <>
+  const workspaceId = activeWorkspace!.id;
+
+  const {
+    data: aiData,
+    isFetching: aiLoading,
+    refetch: refetchAi,
+  } = useQuery({
+    // Use a stable key so content changes don't auto-trigger refetches
+    queryKey: QUERY_KEYS.AI_READABILITY_SUGGESTIONS(
+      workspaceId,
+      "current-document"
+    ),
+    // Disabled by default; we'll manually refetch on initial open and button click
+    enabled: false,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    retry: 0,
+    queryFn: async () =>
+      fetchAiReadabilitySuggestionsObject({
+        content: editorHTML,
+        metrics: {
+          wordCount: metrics.wordCount,
+          sentenceCount: metrics.sentenceCount,
+          wordsPerSentence: metrics.wordsPerSentence,
+          readabilityScore: metrics.readabilityScore,
+          readingTime: metrics.readingTime,
+        },
+      }),
+  });
+
+  const [activeTab, setActiveTab] = useQueryState(
+    "tab",
+    parseAsStringLiteral(Object.keys(tabs)).withDefault("metadata")
+  );
+
+  useEffect(() => {
+    if (
+      aiEnabled &&
+      activeTab === "analysis" &&
+      !!workspaceId &&
+      !hasFetchedAiOnce &&
+      editorHTML.trim().length > 0
+    ) {
+      refetchAi();
+      setHasFetchedAiOnce(true);
+    }
+  }, [
+    aiEnabled,
+    activeTab,
+    workspaceId,
+    hasFetchedAiOnce,
+    editorHTML,
+    refetchAi,
+  ]);
+
+  const handleRefreshAi = () => {
+    refetchAi();
+  };
 
   const triggerSubmit = async () => {
     if (hasErrors) {
@@ -127,7 +229,7 @@ export function EditorSidebar({
     }
     if (formRef.current) {
       formRef.current.dispatchEvent(
-        new Event("submit", { cancelable: true, bubbles: true }),
+        new Event("submit", { cancelable: true, bubbles: true })
       );
     }
   };
@@ -135,166 +237,92 @@ export function EditorSidebar({
   return (
     <div>
       <Sidebar
-        side="right"
         className={cn(
-          "bg-editor-sidebar-background m-2 h-[calc(100vh-1rem)] min-h-[calc(100vh-1rem)] overflow-hidden rounded-xl border",
-          !open ? "mr-0" : "",
+          "m-2 h-[calc(100vh-1rem)] min-h-[calc(100vh-1rem)] overflow-hidden rounded-xl border bg-editor-sidebar-background",
+          open ? "" : "mr-0"
         )}
+        side="right"
         {...props}
       >
-        <SidebarHeader className="bg-transparent sticky top-0 z-10 shrink-0 px-6 py-4">
+        <SidebarHeader className="sticky top-0 z-10 shrink-0 bg-transparent px-6 py-4">
           <Tabs
-            value={activeTab}
-            onValueChange={setActiveTab}
             className="w-full"
+            onValueChange={setActiveTab}
+            value={activeTab}
           >
-            <TabsList variant="line" className="flex justify-start gap-2">
-              <TabsTrigger value="metadata" className="px-2">
-                Metadata
-              </TabsTrigger>
-              <TabsTrigger value="analysis" className="px-2">
-                Analysis
-              </TabsTrigger>
+            <TabsList
+              className="grid"
+              style={{
+                gridTemplateColumns: `repeat(${Object.keys(tabs).length}, 1fr)`,
+              }}
+              variant="line"
+            >
+              {Object.entries(tabs).map(([value, label]) => (
+                <TabsTrigger className="px-2" key={value} value={value}>
+                  {label}
+                </TabsTrigger>
+              ))}
             </TabsList>
           </Tabs>
         </SidebarHeader>
 
-        <SidebarContent className="bg-transparent min-h-0 flex-1 overflow-hidden">
+        <SidebarContent className="min-h-0 flex-1 overflow-hidden bg-transparent">
           <Tabs
-            value={activeTab}
-            onValueChange={setActiveTab}
             className="flex h-full flex-col"
+            onValueChange={setActiveTab}
+            value={activeTab}
           >
             <TabsContent
-              value="metadata"
               className="min-h-0 flex-1 data-[state=inactive]:hidden"
+              value="metadata"
             >
-              <HiddenScrollbar className="h-full px-6">
-                <section className="grid gap-6 pb-5 pt-4">
-                  <StatusField control={control} />
-
-                  <Separator orientation="horizontal" className="flex" />
-
-                  <CoverImageSelector control={control} />
-
-                  <DescriptionField control={control} />
-
-                  <SlugField control={control} />
-
-                  <AuthorSelector
-                    control={control}
-                    defaultAuthors={initialAuthors || []}
-                  />
-
-                  <TagSelector control={control} defaultTags={tags || []} />
-
-                  <CategorySelector control={control} />
-
-                  <PublishDateField control={control} />
-
-                  <Separator orientation="horizontal" className="mt-4 flex" />
-
-                  <AttributionField control={control} errors={errors} />
-                </section>
-              </HiddenScrollbar>
+              <Suspense fallback={<TabLoadingSpinner />}>
+                <MetadataTab
+                  control={control}
+                  errors={errors}
+                  initialAuthors={initialAuthors}
+                  tags={tags}
+                />
+              </Suspense>
             </TabsContent>
 
             <TabsContent
-              value="analysis"
               className="min-h-0 flex-1 data-[state=inactive]:hidden"
+              value="analysis"
             >
-              <HiddenScrollbar className="h-full px-6">
-                <section className="grid gap-6 pb-5 pt-4">
-                  <div className="flex flex-col gap-4">
-                    <div className="space-y-2">
-                      <h4 className="text-sm font-medium">Readability</h4>
-                      <div className="flex items-center justify-center">
-                        <Gauge
-                          value={textMetrics.readabilityScore}
-                          label="Score"
-                          size={200}
-                          animate={true}
-                        />
-                      </div>
-                      {textMetrics.wordCount > 0 && (
-                        <div className="space-y-1">
-                          <h5 className="text-sm font-medium">Feedback</h5>
-                          <p className="text-muted-foreground text-xs">
-                            <span className="font-medium">
-                              {textMetrics.readabilityLevel.level}:
-                            </span>{" "}
-                            {textMetrics.readabilityLevel.description}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-
-                    <Separator />
-
-                    <div className="space-y-3">
-                      <h4 className="text-sm font-medium">Text Statistics</h4>
-                      <div className="grid grid-cols-2 gap-3 text-sm">
-                        <div className="space-y-1">
-                          <p className="text-muted-foreground">Words</p>
-                          <p className="font-medium">{textMetrics.wordCount}</p>
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-muted-foreground">Sentences</p>
-                          <p className="font-medium">
-                            {textMetrics.sentenceCount}
-                          </p>
-                        </div>
-                        <div className="col-span-2 space-y-1">
-                          <p className="text-muted-foreground">
-                            Avg. words per sentence
-                          </p>
-                          <p className="font-medium">
-                            {textMetrics.avgWordsPerSentence}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <Separator />
-
-                    <div className="space-y-3">
-                      <h4 className="text-sm font-medium">
-                        {textMetrics.wordCount === 0
-                          ? "Getting Started"
-                          : "Suggestions"}
-                      </h4>
-                      <div className="text-muted-foreground space-y-2 text-sm">
-                        {textMetrics.suggestions.map((suggestion) => (
-                          <p key={suggestion}>• {suggestion}</p>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </section>
-              </HiddenScrollbar>
+              <Suspense fallback={<TabLoadingSpinner />}>
+                <AnalysisTab
+                  aiEnabled={aiEnabled}
+                  aiLoading={aiLoading}
+                  aiSuggestions={aiData?.suggestions ?? []}
+                  editor={editor}
+                  localSuggestions={localSuggestions}
+                  onRefreshAi={handleRefreshAi}
+                />
+              </Suspense>
             </TabsContent>
           </Tabs>
         </SidebarContent>
 
-        <SidebarFooter className="bg-transparent shrink-0 px-6 py-6">
+        <SidebarFooter className="shrink-0 bg-transparent px-6 py-6">
           {activeTab === "metadata" &&
             (mode === "create" ? (
               <AsyncButton
-                type="button"
+                className="w-full"
                 disabled={!hasUnsavedChanges}
                 isLoading={isSubmitting}
                 onClick={triggerSubmit}
-                className="w-full"
+                type="button"
               >
                 Save
               </AsyncButton>
             ) : (
               <AsyncButton
-                type="button"
+                className="w-full"
                 disabled={!hasUnsavedChanges}
                 isLoading={isSubmitting}
                 onClick={triggerSubmit}
-                className="w-full"
+                type="button"
               >
                 Update
               </AsyncButton>

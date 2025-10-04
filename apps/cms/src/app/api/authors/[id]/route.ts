@@ -1,11 +1,11 @@
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
-import { authorSchema } from "@/lib/validations/workspace";
+import { authorSchema } from "@/lib/validations/authors";
 
 export async function DELETE(
   _request: Request,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const sessionData = await getServerSession();
 
@@ -18,7 +18,7 @@ export async function DELETE(
   if (!id) {
     return NextResponse.json(
       { error: "Author ID is required" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -46,14 +46,14 @@ export async function DELETE(
     console.error("Failed to delete author:", error);
     return NextResponse.json(
       { error: "Failed to delete author" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
 
 export async function PATCH(
   request: Request,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const sessionData = await getServerSession();
   const workspaceId = sessionData?.session.activeOrganizationId;
@@ -70,11 +70,12 @@ export async function PATCH(
     if (!parsedBody.success) {
       return NextResponse.json(
         { error: "Invalid request body", details: parsedBody.error.issues },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
-    const { name, bio, role, email, image, userId, slug } = parsedBody.data;
+    const { name, bio, role, email, image, userId, slug, socials } =
+      parsedBody.data;
 
     const validEmail = email === "" ? null : email;
     const validUserId = userId ? userId : null;
@@ -82,7 +83,7 @@ export async function PATCH(
     const author = await db.author.findFirst({
       where: {
         id,
-        workspaceId: workspaceId,
+        workspaceId,
       },
     });
 
@@ -93,7 +94,7 @@ export async function PATCH(
     const updatedAuthor = await db.author.update({
       where: {
         id,
-        workspaceId: workspaceId,
+        workspaceId,
       },
       data: {
         name,
@@ -103,6 +104,20 @@ export async function PATCH(
         image,
         slug,
         userId: validUserId,
+        ...(typeof socials !== "undefined" && {
+          socials: {
+            deleteMany: {},
+            ...(socials.length > 0 && {
+              create: socials.map((social) => ({
+                url: social.url,
+                platform: social.platform,
+              })),
+            }),
+          },
+        }),
+      },
+      include: {
+        socials: true,
       },
     });
 
@@ -111,7 +126,7 @@ export async function PATCH(
     console.error("Failed to update author:", error);
     return NextResponse.json(
       { error: "Failed to update author" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

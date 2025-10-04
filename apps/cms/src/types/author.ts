@@ -1,4 +1,12 @@
-export interface Author {
+import type { SocialPlatform } from "@/lib/constants";
+
+export type AuthorSocial = {
+  id: string;
+  url: string;
+  platform: SocialPlatform;
+};
+
+export type Author = {
   id: string;
   name: string;
   image: string | null;
@@ -10,4 +18,5 @@ export interface Author {
   isActive: boolean;
   createdAt: Date | string;
   updatedAt: Date | string;
-}
+  socials?: AuthorSocial[];
+};

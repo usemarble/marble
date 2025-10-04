@@ -52,7 +52,7 @@ export async function GET() {
     console.error("Error fetching workspace metrics:", error);
     return NextResponse.json(
       { error: "Failed to fetch workspace metrics" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

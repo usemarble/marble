@@ -5,7 +5,7 @@ import { Button } from "@marble/ui/components/button";
 import { CaretUpDownIcon } from "@phosphor-icons/react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import TableActions from "./table-actions";
+import PostActions from "./post-actions";
 
 export type Post = {
   id: string;
@@ -13,6 +13,11 @@ export type Post = {
   status: "published" | "unpublished";
   publishedAt: Date;
   updatedAt: Date;
+  authors: Array<{
+    id: string;
+    name: string;
+    image: string | null;
+  }>;
 };
 
 export const columns: ColumnDef<Post>[] = [
@@ -35,8 +40,8 @@ export const columns: ColumnDef<Post>[] = [
       const status = row.original.status;
       return (
         <Badge
-          variant={status === "published" ? "positive" : "pending"}
           className="rounded-[6px]"
+          variant={status === "published" ? "positive" : "pending"}
         >
           {status === "published" ? "Published" : "Draft"}
         </Badge>
@@ -48,9 +53,9 @@ export const columns: ColumnDef<Post>[] = [
     header: ({ column }) => {
       return (
         <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="h-auto p-0 font-medium hover:bg-transparent"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          variant="ghost"
         >
           Published
           <CaretUpDownIcon className="h-4 w-4" />
@@ -64,9 +69,9 @@ export const columns: ColumnDef<Post>[] = [
     header: ({ column }) => {
       return (
         <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="h-auto p-0 font-medium hover:bg-transparent"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          variant="ghost"
         >
           Last Updated
           <CaretUpDownIcon className="h-4 w-4" />
@@ -83,7 +88,7 @@ export const columns: ColumnDef<Post>[] = [
 
       return (
         <div className="flex justify-end pr-10">
-          <TableActions {...post} />
+          <PostActions post={post} />
         </div>
       );
     },

@@ -5,7 +5,7 @@
 @config "../../tailwind.config.ts";
 
 :root {
-  --background: hsl(60, 11%, 98%);
+  --background: hsl(60 11% 98%);
   --foreground: hsl(240 15% 14%);
   --primary: hsl(240 10% 14%);
   --primary-foreground: hsl(0 0% 98%);
@@ -21,13 +21,11 @@
 
 @theme inline {
   --font-sans:
-    Funnel-Sans, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    var(--font-geist), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
     "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  --font-mono:
-    NovaMono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace;
   --font-serif:
-    Literata, ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+    var(--font-literata), ui-serif, Georgia, Cambria, "Times New Roman", Times,
+    serif;
 
   /* border radius */
   --radius-lg: var(--radius);
@@ -75,35 +73,11 @@
 }
 
 @layer base {
-  @font-face {
-    font-family: "Manrope";
-    src: url("/fonts/Manrope-Variable.ttf") format("truetype");
-    font-weight: 100 900;
-    font-style: normal;
-    font-display: swap;
-  }
-  @font-face {
-    font-family: "Funnel-Sans";
-    src: url("/fonts/FunnelSans-Variable.ttf") format("truetype");
-    font-weight: 100 900;
-    font-style: normal;
-    font-display: swap;
-  }
-  @font-face {
-    font-family: "Literata";
-    src: url("/fonts/Literata-Variable.ttf") format("truetype");
-    font-weight: 100 900;
-    font-style: normal;
-    font-display: swap;
-  }
-}
-
-@layer base {
   html {
     scroll-behavior: smooth;
     color: var(--foreground);
     background: var(--background);
-    font-family: Funnel-Sans, system-ui, sans-serif;
+    font-family: var(--font-geist), system-ui, sans-serif;
   }
   * {
     @apply border-border selection:bg-border;

@@ -29,7 +29,7 @@ import PageLoader from "@/components/shared/page-loader";
 import { usePublishingMetrics } from "@/hooks/use-analytics";
 
 export const PublishingActivityGraph = () => {
-  const { data: metrics, isLoading, error } = usePublishingMetrics();
+  const { data: metrics, isPending, error } = usePublishingMetrics();
 
   if (error) {
     toast.error("Failed to load publishing activity");
@@ -44,7 +44,7 @@ export const PublishingActivityGraph = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {isLoading ? (
+        {isPending ? (
           <div className="h-32">
             <PageLoader />
           </div>
@@ -63,7 +63,7 @@ export const PublishingActivityGraph = () => {
                             'data-[level="1"]:fill-primary/20 dark:data-[level="1"]:fill-primary/30',
                             'data-[level="2"]:fill-primary/40 dark:data-[level="2"]:fill-primary/50',
                             'data-[level="3"]:fill-primary/60 dark:data-[level="3"]:fill-primary/70',
-                            'data-[level="4"]:fill-primary/80 dark:data-[level="4"]:fill-primary/90',
+                            'data-[level="4"]:fill-primary/80 dark:data-[level="4"]:fill-primary/90'
                           )}
                           dayIndex={dayIndex}
                           weekIndex={weekIndex}
@@ -114,7 +114,7 @@ export const PublishingActivityGraph = () => {
             </ContributionGraph>
           </TooltipProvider>
         ) : (
-          <div className="h-32 flex items-center justify-center text-muted-foreground text-sm">
+          <div className="flex h-32 items-center justify-center text-muted-foreground text-sm">
             No publishing activity data available
           </div>
         )}

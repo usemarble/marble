@@ -131,10 +131,50 @@ export function isAllowedAvatarUrl(url: string): boolean {
     // Check if hostname matches exactly or is a subdomain of allowed hosts
     return ALLOWED_AVATAR_HOSTS.some(
       (allowedHost) =>
-        hostname === allowedHost || hostname.endsWith(`.${allowedHost}`),
+        hostname === allowedHost || hostname.endsWith(`.${allowedHost}`)
     );
   } catch {
     // Invalid URL
     return false;
   }
 }
+
+export const SOCIAL_PLATFORMS = {
+  x: "x",
+  github: "github",
+  facebook: "facebook",
+  instagram: "instagram",
+  youtube: "youtube",
+  tiktok: "tiktok",
+  linkedin: "linkedin",
+  website: "website",
+  onlyfans: "onlyfans",
+  discord: "discord",
+} as const;
+
+export type SocialPlatform = keyof typeof SOCIAL_PLATFORMS;
+
+export const PLATFORM_DOMAINS = {
+  x: ["twitter.com", "x.com"],
+  github: ["github.com"],
+  facebook: ["facebook.com", "fb.com"],
+  instagram: ["instagram.com"],
+  youtube: ["youtube.com", "youtu.be"],
+  tiktok: ["tiktok.com"],
+  linkedin: ["linkedin.com"],
+  onlyfans: ["onlyfans.com"],
+  discord: ["discord.com"],
+} as const;
+
+export const MEDIA_SORTS = [
+  "createdAt_desc",
+  "createdAt_asc",
+  "name_asc",
+  "name_desc",
+];
+
+export const MEDIA_TYPES = ["image", "video", "audio", "document"] as const;
+
+export const MEDIA_FILTER_TYPES = ["all", ...MEDIA_TYPES] as const;
+
+export const MEDIA_LIMIT = 12;

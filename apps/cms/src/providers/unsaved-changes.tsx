@@ -2,10 +2,10 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 
-interface UnsavedChangesContextType {
+type UnsavedChangesContextType = {
   hasUnsavedChanges: boolean;
   setHasUnsavedChanges: (value: boolean) => void;
-}
+};
 
 const UnsavedChangesContext = createContext<
   UnsavedChangesContextType | undefined
@@ -19,7 +19,9 @@ export function UnsavedChangesProvider({
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   useEffect(() => {
-    if (!hasUnsavedChanges) return;
+    if (!hasUnsavedChanges) {
+      return;
+    }
 
     const beforeUnload = (e: BeforeUnloadEvent) => {
       e.preventDefault();
@@ -41,9 +43,10 @@ export function UnsavedChangesProvider({
 
 export function useUnsavedChanges() {
   const ctx = useContext(UnsavedChangesContext);
-  if (!ctx)
+  if (!ctx) {
     throw new Error(
-      "useUnsavedChanges must be used within UnsavedChangesProvider",
+      "useUnsavedChanges must be used within UnsavedChangesProvider"
     );
+  }
   return ctx;
 }

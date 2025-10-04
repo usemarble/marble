@@ -13,7 +13,7 @@ import { useApiAnalytics } from "@/hooks/use-analytics";
 import { AnalyticsChart } from "./AnalyticsChart";
 
 export function ApiUsageStats() {
-  const { data, isLoading, error } = useApiAnalytics();
+  const { data, isPending, error } = useApiAnalytics();
 
   if (error) {
     return (
@@ -25,7 +25,7 @@ export function ApiUsageStats() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Failed to load API analytics data. Please try again later.
           </p>
         </CardContent>
@@ -44,14 +44,14 @@ export function ApiUsageStats() {
         </CardHeader>
 
         <CardContent>
-          {isLoading ? (
+          {isPending ? (
             <div className="h-80">
               <PageLoader />
             </div>
           ) : data?.chartData && data.chartData.length > 0 ? (
             <AnalyticsChart data={data.chartData} />
           ) : (
-            <div className="h-80 flex items-center justify-center text-muted-foreground text-sm">
+            <div className="flex h-80 items-center justify-center text-muted-foreground text-sm">
               No analytics data available yet. Start making API requests to see
               your usage statistics.
             </div>

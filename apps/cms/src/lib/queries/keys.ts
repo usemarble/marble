@@ -2,6 +2,7 @@ export const QUERY_KEYS = {
   // Workspace keys
   WORKSPACE_LIST: ["workspaces"],
   WORKSPACE: (id: string) => ["workspace", id],
+  WORKSPACE_BY_SLUG: (slug: string) => ["workspace_by_slug", slug],
 
   // Workspace-scoped resources
   POSTS: (workspaceId: string) => ["posts", workspaceId],
@@ -50,6 +51,12 @@ export const QUERY_KEYS = {
   WORKSPACE_METRICS: (workspaceId: string) => [
     "workspace-metrics",
     workspaceId,
+  ],
+
+  AI_READABILITY_SUGGESTIONS: (workspaceId: string, contentKey: string) => [
+    "ai-readability-suggestions",
+    workspaceId,
+    contentKey,
   ],
 
   // Globally scoped

@@ -25,16 +25,16 @@ export function NavUser() {
   const { user, isSigningOut, signOut, isFetchingUser } = useUser();
 
   if (!user || isFetchingUser) {
-    return <Skeleton className="border rounded-full size-8 shrink-0" />;
+    return <Skeleton className="size-8 shrink-0 rounded-full border" />;
   }
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="p-1 hover:bg-sidebar-accent rounded-full transition-colors">
-        <Avatar className="size-7 rounded-full cursor-pointer">
+      <DropdownMenuTrigger className="rounded-full p-1 transition-colors hover:bg-sidebar-accent">
+        <Avatar className="size-7 cursor-pointer rounded-full">
           <AvatarImage
-            src={user?.image || undefined}
             alt={user?.name || "users profile image"}
+            src={user?.image || undefined}
           />
           <AvatarFallback className="rounded-lg">
             {user?.name?.charAt(0)}
@@ -42,24 +42,24 @@ export function NavUser() {
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        side={isMobile ? "bottom" : "top"}
         align="start"
+        className="w-(--radix-dropdown-menu-trigger-width) min-w-52 rounded-lg text-sidebar-foreground"
+        side={isMobile ? "bottom" : "top"}
         sideOffset={5}
-        className="w-(--radix-dropdown-menu-trigger-width) rounded-lg min-w-52 text-sidebar-foreground"
       >
         <DropdownMenuLabel className="p-0 font-normal">
           <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
             <Avatar className="size-7">
               <AvatarImage
-                src={user?.image || undefined}
                 alt={user?.name || "users profile image"}
+                src={user?.image || undefined}
               />
               <AvatarFallback className="rounded-lg">
                 {user?.name?.charAt(0)}
               </AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate text-sm font-medium">{user?.name}</span>
+              <span className="truncate font-medium text-sm">{user?.name}</span>
               <span className="truncate text-xs">{user?.email}</span>
             </div>
           </div>
@@ -68,16 +68,16 @@ export function NavUser() {
         <DropdownMenuGroup>
           <DropdownMenuItem>
             <Link
-              href="/settings/account"
               className="flex w-full items-center gap-4"
+              href="/settings/account"
             >
               <UserIcon className="size-4" />
               Account
             </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
-        <DropdownMenuItem variant="destructive" onSelect={signOut}>
-          <SignOutIcon className="size-4 mr-1.5" />
+        <DropdownMenuItem onSelect={signOut} variant="destructive">
+          <SignOutIcon className="mr-1.5 size-4" />
           Log out
         </DropdownMenuItem>
       </DropdownMenuContent>

@@ -17,6 +17,7 @@
     "astro": "^5.13.6",
     "free-astro-components": "^1.2.0",
     "sharp": "^0.34.3",
+    "shiki": "^3.12.2",
     "tailwindcss": "^4.1.12"
   },
   "devDependencies": {

@@ -4,6 +4,7 @@ export type Icon = LucideIcon;
 
 export const AcmeLogo = ({ ...props }: LucideProps) => (
   <svg fill="none" height="36" viewBox="0 0 32 32" width="36" {...props}>
+    <title>Acme Logo</title>
     <path
       clipRule="evenodd"
       d="M17.6482 10.1305L15.8785 7.02583L7.02979 22.5499H10.5278L17.6482 10.1305ZM19.8798 14.0457L18.11 17.1983L19.394 19.4511H16.8453L15.1056 22.5499H24.7272L19.8798 14.0457Z"
@@ -15,10 +16,10 @@ export const AcmeLogo = ({ ...props }: LucideProps) => (
 
 export const Github = ({ ...props }: LucideProps) => (
   <svg
+    fill="currentColor"
     role="img"
     viewBox="0 0 24 24"
     xmlns="http://www.w3.org/2000/svg"
-    fill="currentColor"
     {...props}
   >
     <title>GitHub</title>
@@ -28,10 +29,10 @@ export const Github = ({ ...props }: LucideProps) => (
 
 export const Discord = ({ ...props }: LucideProps) => (
   <svg
+    fill="currentColor"
     role="img"
     viewBox="0 0 24 24"
     xmlns="http://www.w3.org/2000/svg"
-    fill="currentColor"
     {...props}
   >
     <title>Discord</title>
@@ -41,10 +42,10 @@ export const Discord = ({ ...props }: LucideProps) => (
 
 export const Slack = ({ ...props }: LucideProps) => (
   <svg
+    fill="currentColor"
     role="img"
     viewBox="0 0 24 24.048"
     xmlns="http://www.w3.org/2000/svg"
-    fill="currentColor"
     {...props}
   >
     <title>Slack</title>
@@ -70,10 +71,10 @@ export const Slack = ({ ...props }: LucideProps) => (
 );
 export const Google = ({ ...props }: LucideProps) => (
   <svg
+    fill="currentColor"
     role="img"
     viewBox="0 0 24 24"
     xmlns="http://www.w3.org/2000/svg"
-    fill="currentColor"
     {...props}
   >
     <title>Google</title>
@@ -83,10 +84,10 @@ export const Google = ({ ...props }: LucideProps) => (
 
 export const X = ({ ...props }: LucideProps) => (
   <svg
+    fill="currentColor"
     role="img"
     viewBox="0 0 24 24"
     xmlns="http://www.w3.org/2000/svg"
-    fill="currentColor"
     {...props}
   >
     <title>X</title>

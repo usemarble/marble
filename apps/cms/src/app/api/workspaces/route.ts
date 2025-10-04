@@ -56,6 +56,15 @@ export async function GET() {
           canceledAt: true,
         },
       },
+      editorPreferences: {
+        select: {
+          ai: {
+            select: {
+              enabled: true,
+            },
+          },
+        },
+      },
     },
     orderBy: {
       createdAt: "desc",
@@ -64,11 +73,12 @@ export async function GET() {
 
   const workspacesWithRole = workspaces.map((workspace) => {
     const currentUserMember = workspace.members.find(
-      (member) => member.userId === sessionData.user.id,
+      (member) => member.userId === sessionData.user.id
     );
     return {
       ...workspace,
       currentUserRole: currentUserMember?.role || null,
+      ai: workspace.editorPreferences?.ai || { enabled: false },
     };
   });
 
