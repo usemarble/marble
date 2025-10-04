@@ -53,7 +53,7 @@ model Organization {
   webhooks          Webhook[]
   editorPreferences EditorPreferences?
   customComponents  CustomComponent[]
-  
+
   @@map("workspace")
 }
 
@@ -363,30 +363,31 @@ enum MediaType {
 }
 
 model CustomComponent {
-  id          String       @id @default(cuid())
-  name        String
-  description String?
-  workspaceId String
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  properties  ComponentProperty[]
+  id            String              @id @default(cuid())
+  name          String
+  technicalName String
+  description   String?
+  workspaceId   String
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  workspace     Organization        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  properties    ComponentProperty[]
 
   @@unique([workspaceId, name])
   @@map("custom_component")
 }
 
 model ComponentProperty {
-  id                String            @id @default(cuid())
+  id                String          @id @default(cuid())
   name              String
   type              PropertyType
-  required          Boolean           @default(false)
+  required          Boolean         @default(false)
   defaultValue      String?
   options           Json?
   customComponentId String
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
-  customComponent   CustomComponent   @relation(fields: [customComponentId], references: [id], onDelete: Cascade)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  customComponent   CustomComponent @relation(fields: [customComponentId], references: [id], onDelete: Cascade)
 
   @@unique([customComponentId, name])
   @@map("component_property")
