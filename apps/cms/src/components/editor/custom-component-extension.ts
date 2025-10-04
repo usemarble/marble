@@ -4,24 +4,24 @@ import { CustomComponentNodeView } from "./custom-component-node-view";
 
 type Primitive = string | number | boolean | null | undefined;
 
-export interface CustomComponentOptions {
+export type CustomComponentOptions = {
   HTMLAttributes: Record<string, string>;
-}
+};
 
-export interface CustomComponentAttrs {
+export type CustomComponentAttrs = {
   componentName: string;
   properties: Record<string, Primitive>;
-}
+};
 
 declare module "@tiptap/core" {
-  interface Commands<ReturnType> {
+  type Commands<ReturnType> = {
     customComponent: {
       setCustomComponent: (options: {
         name: string;
         attributes?: Record<string, Primitive>;
       }) => ReturnType;
     };
-  }
+  };
 }
 
 export const CustomComponent = Node.create<CustomComponentOptions>({
@@ -40,9 +40,13 @@ export const CustomComponent = Node.create<CustomComponentOptions>({
       {
         tag: "div[x-marble-component-name]",
         getAttrs: (element) => {
-          if (typeof element === "string") return false;
+          if (typeof element === "string") {
+            return false;
+          }
           const componentName = element.getAttribute("x-marble-component-name");
-          if (!componentName) return false;
+          if (!componentName) {
+            return false;
+          }
           return { componentName };
         },
       },
@@ -58,11 +62,12 @@ export const CustomComponent = Node.create<CustomComponentOptions>({
     };
 
     if (properties && typeof properties === "object") {
-      Object.entries(properties).forEach(([key, value]) => {
+      for (const [key, value] of Object.entries(properties)) {
         const attrValue =
           value !== undefined && value !== null ? String(value) : "";
+        // TODO: Add this stuff to the api later
         componentAttrs[`x-marble-${key}`] = attrValue;
-      });
+      }
     }
 
     return ["div", componentAttrs];
@@ -74,14 +79,18 @@ export const CustomComponent = Node.create<CustomComponentOptions>({
         default: null,
         parseHTML: (element) => element.getAttribute("x-marble-component-name"),
         renderHTML: (attributes) => {
-          if (!attributes.componentName) return {};
+          if (!attributes.componentName) {
+            return {};
+          }
           return { "x-marble-component-name": attributes.componentName };
         },
       },
       properties: {
         default: {},
         parseHTML: (element) => {
-          if (typeof element === "string") return {};
+          if (typeof element === "string") {
+            return {};
+          }
           const properties: Record<string, string> = {};
           for (const attr of element.attributes) {
             if (

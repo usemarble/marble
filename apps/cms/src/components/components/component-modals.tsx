@@ -39,27 +39,28 @@ import { MAX_COMPONENT_PROPERTIES } from "@/lib/constants";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { CustomComponent } from "./columns";
 
-interface ComponentProperty {
+type ComponentProperty = {
   id: string;
   name: string;
+  technicalName: string;
   type: string;
   required: boolean;
   defaultValue: string;
   options?: Array<{ label: string; value: string }>;
-}
+};
 
-interface ComponentFormData {
+type ComponentFormData = {
   name: string;
   description: string;
   properties: ComponentProperty[];
-}
+};
 
-interface ComponentModalProps {
+type ComponentModalProps = {
   open: boolean;
   setOpen: (open: boolean) => void;
   mode?: "create" | "update";
   editingComponent?: CustomComponent | null;
-}
+};
 
 const PROPERTY_TYPES = [
   { value: "string", label: "String" },
@@ -118,7 +119,9 @@ export function ComponentModal({
 
   const { mutate: updateComponent, isPending: isUpdating } = useMutation({
     mutationFn: async (data: ComponentFormData) => {
-      if (!editingComponent) throw new Error("No component to update");
+      if (!editingComponent) {
+        throw new Error("No component to update");
+      }
       const response = await fetch(
         `/api/custom-components/${editingComponent.id}`,
         {
@@ -155,6 +158,7 @@ export function ComponentModal({
         properties: editingComponent.properties.map((prop) => ({
           id: prop.id ?? crypto.randomUUID(),
           name: prop.name,
+          technicalName: prop.technicalName,
           type: prop.type,
           required: prop.required,
           defaultValue: prop.defaultValue || "",
@@ -183,6 +187,7 @@ export function ComponentModal({
         {
           id: crypto.randomUUID(),
           name: "",
+          technicalName: "",
           type: "string",
           required: false,
           defaultValue: "",
@@ -214,14 +219,18 @@ export function ComponentModal({
 
   const addSelectOption = (propertyIndex: number) => {
     const property = formData.properties[propertyIndex];
-    if (!property) return;
+    if (!property) {
+      return;
+    }
     const newOptions = [...(property.options || []), { label: "", value: "" }];
     updateProperty(propertyIndex, "options", newOptions);
   };
 
   const removeSelectOption = (propertyIndex: number, optionIndex: number) => {
     const property = formData.properties[propertyIndex];
-    if (!property) return;
+    if (!property) {
+      return;
+    }
     const newOptions = (property.options || []).filter(
       (_, i) => i !== optionIndex
     );
@@ -235,7 +244,9 @@ export function ComponentModal({
     value: string
   ) => {
     const property = formData.properties[propertyIndex];
-    if (!property) return;
+    if (!property) {
+      return;
+    }
     const newOptions = (property.options || []).map((option, i) =>
       i === optionIndex ? { ...option, [field]: value } : option
     );
@@ -245,7 +256,9 @@ export function ComponentModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!formData.name.trim()) return;
+    if (!formData.name.trim()) {
+      return;
+    }
 
     if (mode === "update") {
       updateComponent(formData);
@@ -267,7 +280,7 @@ export function ComponentModal({
   const description =
     mode === "update"
       ? "Update your custom component configuration."
-      : "Create a new custom component for your content.";
+      : "Create a new custom component for in your workspace.";
 
   return (
     <Dialog onOpenChange={setOpen} open={open}>
@@ -506,14 +519,14 @@ export function ComponentModal({
   );
 }
 
-interface DeleteComponentModalProps {
+type DeleteComponentModalProps = {
   open: boolean;
   setOpen: (open: boolean) => void;
   component: {
     id: string;
     name: string;
   };
-}
+};
 
 export function DeleteComponentModal({
   open,

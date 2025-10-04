@@ -17,19 +17,19 @@ import { CaretUpDownIcon, CheckIcon } from "@phosphor-icons/react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { forwardRef, useRef, useState } from "react";
 
-export interface SelectOption {
+export type SelectOption = {
   label: string;
   value: string;
-}
+};
 
-interface VirtualizedSelectProps {
+type VirtualizedSelectProps = {
   options: SelectOption[];
   value?: string;
   onValueChange?: (value: string) => void;
   placeholder?: string;
   disabled?: boolean;
   className?: string;
-}
+};
 
 export const VirtualizedSelect = forwardRef<
   HTMLButtonElement,

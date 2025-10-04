@@ -25,10 +25,10 @@ import {
 import { useState } from "react";
 import { ComponentModal } from "./component-modals";
 
-interface DataTableProps<TData, TValue> {
+type DataTableProps<TData, TValue> = {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-}
+};
 
 export function ComponentsDataTable<TData, TValue>({
   columns,

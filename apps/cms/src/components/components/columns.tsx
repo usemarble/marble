@@ -13,7 +13,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import TableActions from "./table-actions";
 
-export interface CustomComponent {
+export type CustomComponent = {
   id: string;
   name: string;
   description?: string;
@@ -21,16 +21,16 @@ export interface CustomComponent {
   createdAt: string;
   updatedAt: string;
   properties: ComponentProperty[];
-}
+};
 
-export interface ComponentProperty {
+export type ComponentProperty = {
   id: string;
   name: string;
   type: string;
   required: boolean;
   defaultValue?: string;
   options?: Array<{ label: string; value: string }>;
-}
+};
 
 export const columns: ColumnDef<CustomComponent>[] = [
   {

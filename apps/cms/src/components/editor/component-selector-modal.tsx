@@ -53,13 +53,13 @@ type ExistingNode = { attrs?: NodeAttrs } | null;
 const asNumberValue = (v: Primitive): number | string =>
   typeof v === "number" ? v : typeof v === "string" ? v : "";
 
-interface ComponentEditorModalProps {
+type ComponentEditorModalProps = {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
   editor: Editor;
   existingComponent: ExistingNode;
   getPos?: () => number;
-}
+};
 
 export function ComponentEditorModal({
   isOpen,
@@ -100,9 +100,9 @@ export function ComponentEditorModal({
       const attrs = (existingComponent.attrs ?? {}) as NodeAttrs;
       const props = attrs.properties ?? {};
       const existingValues: Record<string, Primitive> = {};
-      Object.entries(props).forEach(([key, value]) => {
+      for (const [key, value] of Object.entries(props)) {
         existingValues[key] = value ?? "";
-      });
+      }
       setPropertyValues(existingValues);
     }
   }, [existingComponent, componentDef]);
@@ -116,7 +116,9 @@ export function ComponentEditorModal({
 
   // Validate required fields for editing
   const validateEditFields = (): boolean => {
-    if (!componentDef) return false;
+    if (!componentDef) {
+      return false;
+    }
     return componentDef.properties
       .filter((prop) => prop.required)
       .every((prop) => {
@@ -126,14 +128,16 @@ export function ComponentEditorModal({
   };
 
   const handleUpdateComponent = (): void => {
-    if (!componentDef || !editor) return;
+    if (!componentDef || !editor) {
+      return;
+    }
     if (!validateEditFields()) {
       console.warn("Please fill in all required fields");
       return;
     }
 
     const componentData: Record<string, Primitive> = {};
-    componentDef.properties.forEach((prop) => {
+    for (const prop of componentDef.properties) {
       const raw = propertyValues[prop.name];
       if (raw !== undefined && raw !== "") {
         componentData[prop.name] =
@@ -143,7 +147,7 @@ export function ComponentEditorModal({
               : Number(raw)
             : raw;
       }
-    });
+    }
 
     const chain = editor.chain().focus();
 
@@ -364,13 +368,13 @@ export function ComponentEditorModal({
   );
 }
 
-interface ComponentSelectorModalProps {
+type ComponentSelectorModalProps = {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
   editor?: Editor;
   existingComponent?: ExistingNode;
   getPos?: () => number;
-}
+};
 
 export function ComponentSelectorModal({
   isOpen,
@@ -422,13 +426,15 @@ export function ComponentSelectorModal({
       const attrs = (existingComponent.attrs ?? {}) as NodeAttrs;
       const props = attrs.properties ?? {};
       const existingValues: Record<string, Primitive> = {};
-      Object.entries(props).forEach(([k, v]) => {
+      for (const [k, v] of Object.entries(props)) {
         existingValues[k] = v ?? "";
-      });
+      }
       setPropertyValues(existingValues);
 
       const found = components.find((c) => c.name === attrs.componentName);
-      if (found) setSelectedComponent(found);
+      if (found) {
+        setSelectedComponent(found);
+      }
     }
   }, [existingComponent, components]);
 
@@ -440,7 +446,9 @@ export function ComponentSelectorModal({
   };
 
   const validateRequiredFields = (): boolean => {
-    if (!selectedComponent) return false;
+    if (!selectedComponent) {
+      return false;
+    }
     return selectedComponent.properties
       .filter((prop) => prop.required)
       .every((prop) => {
@@ -450,7 +458,9 @@ export function ComponentSelectorModal({
   };
 
   const handleInsertComponent = (): void => {
-    if (!selectedComponent || !editor) return;
+    if (!selectedComponent || !editor) {
+      return;
+    }
 
     if (!validateRequiredFields()) {
       console.warn("Please fill in all required fields");
@@ -458,7 +468,7 @@ export function ComponentSelectorModal({
     }
 
     const componentData: Record<string, Primitive> = {};
-    selectedComponent.properties.forEach((prop) => {
+    for (const prop of selectedComponent.properties) {
       const raw = propertyValues[prop.name];
       if (raw !== undefined && raw !== "") {
         componentData[prop.name] =
@@ -468,7 +478,7 @@ export function ComponentSelectorModal({
               : Number(raw)
             : raw;
       }
-    });
+    }
 
     const chain = editor.chain().focus();
     if (existingComponent && typeof getPos === "function") {
@@ -489,10 +499,10 @@ export function ComponentSelectorModal({
   const handleComponentSelect = (component: CustomComponent) => {
     setSelectedComponent(component);
     const initialValues: Record<string, Primitive> = {};
-    component.properties.forEach((prop) => {
+    for (const prop of component.properties) {
       initialValues[prop.name] =
         prop.defaultValue ?? getDefaultValueForType(prop.type);
-    });
+    }
     setPropertyValues(initialValues);
   };
 

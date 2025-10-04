@@ -184,8 +184,9 @@ export function CustomComponentNodeView({
             </Button>
             <Button
               onClick={() => {
-                if (getPos)
+                if (getPos) {
                   editor.chain().focus().setNodeSelection(getPos()).run();
+                }
                 editor.chain().focus().deleteSelection().run();
                 setIsConfirmOpen(false);
               }}
