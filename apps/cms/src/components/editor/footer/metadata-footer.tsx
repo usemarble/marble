@@ -14,7 +14,7 @@ export function MetadataFooter({
 }: MetadataFooterProps) {
   const { hasUnsavedChanges } = useUnsavedChanges();
 
-  return mode === "create" ? (
+  return (
     <AsyncButton
       className="w-full"
       disabled={!hasUnsavedChanges}
@@ -22,17 +22,7 @@ export function MetadataFooter({
       onClick={triggerSubmit}
       type="button"
     >
-      Save
-    </AsyncButton>
-  ) : (
-    <AsyncButton
-      className="w-full"
-      disabled={!hasUnsavedChanges}
-      isLoading={isSubmitting}
-      onClick={triggerSubmit}
-      type="button"
-    >
-      Update
+      {mode === "create" ? "Save" : "Update"}
     </AsyncButton>
   );
 }

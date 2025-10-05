@@ -11,6 +11,7 @@ import { ArrowClockwiseIcon, InfoIcon } from "@phosphor-icons/react";
 import type { EditorInstance } from "novel";
 import { useEffect, useState } from "react";
 import { useReadability } from "@/hooks/use-readability";
+import { useUnsavedChanges } from "@/providers/unsaved-changes";
 import { Gauge } from "../../ui/gauge";
 import type { ReadabilitySuggestion } from "../ai/readability-suggestions";
 import { ReadabilitySuggestions } from "../ai/readability-suggestions";
@@ -34,20 +35,24 @@ export function AnalysisTab({
   localSuggestions,
 }: AnalysisTabProps) {
   const [editorText, setEditorText] = useState("");
+  const { setHasUnsavedChanges } = useUnsavedChanges();
 
   useEffect(() => {
     if (!editor) {
       return;
     }
     setEditorText(editor.getText());
-    const handler = () => setEditorText(editor.getText());
+    const handler = () => {
+      setEditorText(editor.getText());
+      setHasUnsavedChanges(true);
+    };
     editor.on("update", handler);
     editor.on("create", handler);
     return () => {
       editor.off("update", handler);
       editor.off("create", handler);
     };
-  }, [editor]);
+  }, [editor, setHasUnsavedChanges]);
 
   const textMetrics = useReadability({ editor, text: editorText });
 
