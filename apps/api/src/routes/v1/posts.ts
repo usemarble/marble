@@ -38,7 +38,7 @@ posts.get("/", async (c) => {
     }
 
     const {
-      limit: rawLimit,
+      limit,
       page,
       order,
       category,
@@ -78,11 +78,10 @@ posts.get("/", async (c) => {
     const totalPosts = await db.post.count({ where });
 
     // Handle pagination
-    const limit = rawLimit === "all" ? undefined : rawLimit;
-    const totalPages = limit ? Math.ceil(totalPosts / limit) : 1;
+    const totalPages = Math.ceil(totalPosts / limit);
 
-    // Validate page number if pagination is enabled
-    if (limit && page > totalPages && totalPosts > 0) {
+    // Validate page number
+    if (page > totalPages && totalPosts > 0) {
       return c.json(
         {
           error: "Invalid page number",
@@ -97,7 +96,7 @@ posts.get("/", async (c) => {
     }
 
     // Infer some additional stuff
-    const postsToSkip = limit ? (page - 1) * limit : 0;
+    const postsToSkip = (page - 1) * limit;
     const prevPage = page > 1 ? page - 1 : null;
     const nextPage = page < totalPages ? page + 1 : null;
 
@@ -160,23 +159,14 @@ posts.get("/", async (c) => {
           }))
         : posts;
 
-    const paginationInfo = limit
-      ? {
-          limit,
-          currentPage: page,
-          nextPage,
-          previousPage: prevPage,
-          totalPages,
-          totalItems: totalPosts,
-        }
-      : {
-          limit: totalPosts,
-          currentPage: 1,
-          nextPage: null,
-          previousPage: null,
-          totalPages: 1,
-          totalItems: totalPosts,
-        };
+    const paginationInfo = {
+      limit,
+      currentPage: page,
+      nextPage,
+      previousPage: prevPage,
+      totalPages,
+      totalItems: totalPosts,
+    };
 
     return c.json({
       posts: formattedPosts,

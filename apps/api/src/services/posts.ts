@@ -15,8 +15,6 @@ export async function getPosts({
   includeCategory,
   includeTags,
 }: GetPostsParams) {
-
-    
   return db.post.findMany({
     skip: (page - 1) * limit,
     take: limit,
