@@ -25,13 +25,12 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { fetchAiReadabilitySuggestionsObject } from "@/lib/ai/readability";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { PostValues } from "@/lib/validations/post";
-import { useUnsavedChanges } from "@/providers/unsaved-changes";
 import { useWorkspace } from "@/providers/workspace";
 import {
   calculateReadabilityScore,
   generateSuggestions as generateLocalSuggestions,
 } from "@/utils/readability";
-import { AsyncButton } from "../ui/async-button";
+import { MetadataFooter } from "./footer/metadata-footer";
 
 const MetadataTab = lazy(() =>
   import("./tabs/metadata-tab").then((m) => ({ default: m.MetadataTab }))
@@ -79,7 +78,6 @@ export function EditorSidebar({
   const { open } = useSidebar();
   const hasErrors = Object.keys(errors).length > 0;
   const { tags, authors: initialAuthors } = watch();
-  const { hasUnsavedChanges } = useUnsavedChanges();
   const { activeWorkspace } = useWorkspace();
 
   const [editorText, setEditorText] = useState("");
@@ -305,28 +303,13 @@ export function EditorSidebar({
         </SidebarContent>
 
         <SidebarFooter className="shrink-0 bg-transparent px-6 py-6">
-          {activeTab === "metadata" &&
-            (mode === "create" ? (
-              <AsyncButton
-                className="w-full"
-                disabled={!hasUnsavedChanges}
-                isLoading={isSubmitting}
-                onClick={triggerSubmit}
-                type="button"
-              >
-                Save
-              </AsyncButton>
-            ) : (
-              <AsyncButton
-                className="w-full"
-                disabled={!hasUnsavedChanges}
-                isLoading={isSubmitting}
-                onClick={triggerSubmit}
-                type="button"
-              >
-                Update
-              </AsyncButton>
-            ))}
+          {activeTab === "metadata" && (
+            <MetadataFooter
+              isSubmitting={isSubmitting}
+              mode={mode}
+              triggerSubmit={triggerSubmit}
+            />
+          )}
         </SidebarFooter>
       </Sidebar>
     </div>

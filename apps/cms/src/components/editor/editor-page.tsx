@@ -162,7 +162,9 @@ function EditorPage({ initialData, id }: EditorPageProps) {
             ? JSON.parse(initial.contentJson)
             : {},
         });
-      setHasUnsavedChanges(hasChanged);
+      if (hasChanged) {
+        setHasUnsavedChanges(true);
+      }
     });
 
     return () => subscription.unsubscribe();
