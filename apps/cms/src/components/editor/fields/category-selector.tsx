@@ -71,6 +71,12 @@ export function CategorySelector({ control }: CategorySelectorProps) {
     queryClient.invalidateQueries({
       queryKey: QUERY_KEYS.CATEGORIES(workspaceId),
     });
+
+    // Preselect the newly created category
+    onChange(newCategory.id);
+
+    // Close the category modal
+    setShowCategoryModal(false);
   };
 
   return (
