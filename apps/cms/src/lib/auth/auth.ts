@@ -52,6 +52,10 @@ export const auth = betterAuth({
       await redis.del(key);
     },
   },
+  session: {
+    storeSessionInDatabase: true,
+    preserveSessionInDatabase: true,
+  },
   emailAndPassword: {
     enabled: true,
     sendResetPassword: async ({ user, url }, _request) => {
