@@ -133,7 +133,7 @@ function PageClient() {
         <Card className="flex justify-between">
           <CardHeader>
             <CardTitle className="font-medium text-lg">Theme</CardTitle>
-            <CardDescription>Chose your preferred theme.</CardDescription>
+            <CardDescription>Choose your preferred theme.</CardDescription>
           </CardHeader>
           <CardContent className="center flex items-center">
             <ThemeSwitch />
