@@ -149,6 +149,7 @@ export const SOCIAL_PLATFORMS = {
   website: "website",
   onlyfans: "onlyfans",
   discord: "discord",
+  bluesky: "bluesky",
 } as const;
 
 export type SocialPlatform = keyof typeof SOCIAL_PLATFORMS;
@@ -163,6 +164,7 @@ export const PLATFORM_DOMAINS = {
   linkedin: ["linkedin.com"],
   onlyfans: ["onlyfans.com"],
   discord: ["discord.com"],
+  bluesky: ["bsky.app"],
 } as const;
 
 export const MEDIA_SORTS = [
