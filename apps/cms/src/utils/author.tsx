@@ -9,6 +9,7 @@ import {
   XLogoIcon,
   YoutubeLogoIcon,
 } from "@phosphor-icons/react";
+import { Bluesky as BlueskyIcon } from "@/components/icons/social";
 import { PLATFORM_DOMAINS, type SocialPlatform } from "@/lib/constants";
 
 /**
@@ -49,6 +50,7 @@ export function getPlatformDisplayName(platform: SocialPlatform): string {
     onlyfans: "OnlyFans",
     discord: "Discord",
     website: "Website",
+    bluesky: "Bluesky",
   };
 
   return displayNames[platform] || platform;
@@ -78,6 +80,8 @@ export const getPlatformIcon = (platform: SocialPlatform) => {
       return <FanIcon {...iconProps} />;
     case "discord":
       return <DiscordLogoIcon {...iconProps} />;
+    case "bluesky":
+      return <BlueskyIcon {...iconProps} />;
     default:
       return <GlobeHemisphereEastIcon {...iconProps} />;
   }
