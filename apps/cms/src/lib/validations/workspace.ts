@@ -29,7 +29,7 @@ export const workspaceSchema = z.object({
     .max(32, { message: "Name cannot be more than 32 characters" }),
   slug: z
     .string()
-    .min(4, { message: "Slug cannot be empty" })
+    .min(4, { message: "Slug must be at least 4 characters long" })
     .max(32, { message: "Slug cannot be more than 32 characters" })
     .regex(/^[a-z0-9]+([a-z0-9-]*[a-z0-9])?$/, {
       message:
@@ -57,7 +57,7 @@ export type NameValues = z.infer<typeof nameSchema>;
 export const slugSchema = z.object({
   slug: z
     .string()
-    .min(4, { message: "Slug cannot be empty" })
+    .min(4, { message: "Slug must be at least 4 characters long" })
     .max(32, { message: "Slug cannot be more than 32 characters" })
     .regex(/^[a-z0-9]+([a-z0-9-]*[a-z0-9])?$/, {
       message:
