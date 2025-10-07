@@ -18,17 +18,18 @@ export const systemPrompt = ({ metrics }: SystemPromptParams) => {
         - Word choice and vocabulary complexity  
         - Passive vs active voice usage
         - Paragraph structure and length
-        - Heading hierarchy validation (HTML: h1, h2-h6; Markdown: #, ##-######)
+        - Heading hierarchy validation (Markdown: #, ##-######)
         - Overall tone consistency and appropriateness
         - Text flow and logical progression
         - Redundancy and wordiness
         - Clarity and ambiguity issues
 
         ## HEADING-STRUCTURE-RULES
-        - Maximum 1 h1/# heading (should be the main title, so 0 in body text)
-        - Proper hierarchy: h2/## follows h1/#, h3/### follows h2/##, etc.
-        - No skipping levels (don't go from h2 to h4)
-        - Check both HTML (<h1>, <h2>) and Markdown (#, ##) syntax
+        - Maximum 1 # heading (should be the main title, so 0 in body text)
+        - Proper hierarchy: ## follows #, ### follows ##, etc.
+        - No skipping levels (don't go from # to ####)
+        - Check Markdown (#, ##) syntax
+        - Don't mention this syntax to the user use "heading 2/3/4" etc.
 
         ## TEXT-METRICS-INPUT
         - Word count: ${metrics.wordCount}
