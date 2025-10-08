@@ -55,6 +55,7 @@
     "class-variance-authority": "^0.7.0",
     "croner": "^9.1.0",
     "date-fns": "^4.1.0",
+    "gray-matter": "^4.0.3",
     "input-otp": "^1.4.2",
     "lowlight": "^3.3.0",
     "lucide-react": "^0.452.0",

@@ -13,6 +13,7 @@ import {
   PlusIcon,
   RowsIcon,
   SquaresFourIcon,
+  UploadSimpleIcon,
   XIcon,
 } from "@phosphor-icons/react";
 import {
@@ -24,6 +25,7 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
+import nextDynamic from "next/dynamic";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { type ComponentType, type JSX, useState } from "react";
@@ -61,12 +63,19 @@ export function PostDataView<TData, TValue>({
 }: DataViewProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [viewType, setViewType] = useLocalStorage<ViewType | null>(
     "viewType",
     "table"
   );
 
   const { activeWorkspace } = useWorkspace();
+  const [importOpen, setImportOpen] = useState(false);
+  const PostsImportModal = nextDynamic(
+    () =>
+      import("@/components/posts/import-modal").then((m) => m.PostsImportModal),
+    { ssr: false }
+  );
 
   const table = useReactTable({
     data,
@@ -153,13 +162,31 @@ export function PostDataView<TData, TValue>({
             </Tooltip>
           </div>
 
-          <Link
-            className={buttonVariants({ variant: "default" })}
-            href={`/${activeWorkspace?.slug}/editor/p/new`}
-          >
-            <PlusIcon size={16} />
-            <span>New Post</span>
-          </Link>
+          <div className="flex">
+            <Link
+              className={cn(
+                buttonVariants({ variant: "default" }),
+                "rounded-r-none"
+              )}
+              href={`/${activeWorkspace?.slug}/editor/p/new`}
+            >
+              <PlusIcon size={16} />
+              <span>New Post</span>
+            </Link>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  aria-label="Upload"
+                  className="rounded-l-none"
+                  onClick={() => setImportOpen(true)}
+                  variant="outline"
+                >
+                  <UploadSimpleIcon className="size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="top">Upload</TooltipContent>
+            </Tooltip>
+          </div>
         </div>
       </div>
 
@@ -174,6 +201,7 @@ export function PostDataView<TData, TValue>({
           }
         />
       )}
+      <PostsImportModal open={importOpen} setOpen={setImportOpen} />
     </div>
   );
 }
