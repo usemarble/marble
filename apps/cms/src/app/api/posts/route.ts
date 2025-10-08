@@ -5,7 +5,7 @@ import { getServerSession } from "@/lib/auth/session";
 import { postSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";
 import { getWebhooks, WebhookClient } from "@/lib/webhooks/webhook-client";
-import { sanitizeHtml } from "@/utils/editor";
+import { processCustomComponents, sanitizeHtml } from "@/utils/editor";
 import { generateSlug } from "@/utils/string";
 
 export async function GET() {
@@ -146,6 +146,19 @@ export async function POST(request: Request) {
       },
     },
   });
+
+  const processedContentJson = await processCustomComponents(
+    contentJson,
+    postCreated.id,
+    activeWorkspaceId
+  );
+
+  if (JSON.stringify(processedContentJson) !== JSON.stringify(contentJson)) {
+    await db.post.update({
+      where: { id: postCreated.id },
+      data: { contentJson: processedContentJson },
+    });
+  }
 
   const webhooks = getWebhooks(sessionData.session, "post_published");
 

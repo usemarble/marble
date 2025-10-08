@@ -20,6 +20,8 @@ import { ComponentEditorModal } from "./component-selector-modal";
 
 type CustomComponentAttrs = {
   componentName: string;
+  technicalName?: string;
+  instanceId?: string;
   properties?: Record<string, unknown>;
 };
 
@@ -28,7 +30,11 @@ export function CustomComponentNodeView({
   getPos,
   editor,
 }: NodeViewProps) {
-  const { componentName, properties = {} } = node.attrs as CustomComponentAttrs;
+  const {
+    componentName,
+    instanceId,
+    properties = {},
+  } = node.attrs as CustomComponentAttrs;
   const props = properties as Record<string, unknown>;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -166,6 +172,7 @@ export function CustomComponentNodeView({
         existingComponent={node}
         getPos={getPos}
         isOpen={isModalOpen}
+        postId={editor.storage.postId}
         setIsOpen={setIsModalOpen}
       />
 
@@ -183,7 +190,19 @@ export function CustomComponentNodeView({
               Cancel
             </Button>
             <Button
-              onClick={() => {
+              onClick={async () => {
+                if (instanceId && editor.storage.postId) {
+                  try {
+                    await fetch(
+                      `/api/custom-components/instances/${instanceId}`,
+                      {
+                        method: "DELETE",
+                      }
+                    );
+                  } catch (error) {
+                    console.error("Error deleting component instance:", error);
+                  }
+                }
                 if (getPos) {
                   editor.chain().focus().setNodeSelection(getPos()).run();
                 }

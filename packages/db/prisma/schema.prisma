@@ -97,9 +97,10 @@ model Post {
   primaryAuthor   Author?  @relation("PrimaryAuthor", fields: [primaryAuthorId], references: [id], onDelete: SetNull)
   authors         Author[] @relation("PostToAuthor")
 
-  category  Category     @relation(fields: [categoryId], references: [id])
-  workspace Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  tags      Tag[]        @relation("PostToTag")
+  category           Category            @relation(fields: [categoryId], references: [id])
+  workspace          Organization        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  tags               Tag[]               @relation("PostToTag")
+  componentInstances ComponentInstance[]
 
   @@unique([workspaceId, slug])
   @@index([workspaceId, status])
@@ -372,6 +373,7 @@ model CustomComponent {
   updatedAt     DateTime            @updatedAt
   workspace     Organization        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   properties    ComponentProperty[]
+  instances     ComponentInstance[]
 
   @@unique([workspaceId, name])
   @@map("custom_component")
@@ -402,4 +404,19 @@ enum PropertyType {
   url
   textarea
   select
+}
+
+model ComponentInstance {
+  id                String          @id @default(cuid())
+  postId            String
+  customComponentId String
+  data              Json
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  post              Post            @relation(fields: [postId], references: [id], onDelete: Cascade)
+  customComponent   CustomComponent @relation(fields: [customComponentId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@index([customComponentId])
+  @@map("component_instance")
 }

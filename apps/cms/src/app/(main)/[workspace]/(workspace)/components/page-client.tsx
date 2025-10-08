@@ -58,7 +58,10 @@ export default function PageClient() {
                 Custom components help you build reusable content blocks. Create
                 your first component to get started.
               </p>
-              <Button onClick={() => setShowCreateModal(true)}>
+              <Button
+                className="cursor-pointer"
+                onClick={() => setShowCreateModal(true)}
+              >
                 <PlusIcon size={16} />
                 <span>Create Component</span>
               </Button>

@@ -1,3 +1,4 @@
+import type { CommandProps } from "@tiptap/core";
 import { isNodeSelection, Node } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import { CustomComponentNodeView } from "./custom-component-node-view";
@@ -10,18 +11,23 @@ export type CustomComponentOptions = {
 
 export type CustomComponentAttrs = {
   componentName: string;
+  technicalName?: string;
+  instanceId?: string;
   properties: Record<string, Primitive>;
 };
 
 declare module "@tiptap/core" {
-  type Commands<ReturnType> = {
+  // biome-ignore lint/nursery/useConsistentTypeDefinitions: Module augmentation requires interface
+  interface Commands<ReturnType> {
     customComponent: {
       setCustomComponent: (options: {
         name: string;
+        technicalName?: string;
+        instanceId?: string;
         attributes?: Record<string, Primitive>;
       }) => ReturnType;
     };
-  };
+  }
 }
 
 export const CustomComponent = Node.create<CustomComponentOptions>({
@@ -38,34 +44,44 @@ export const CustomComponent = Node.create<CustomComponentOptions>({
   parseHTML() {
     return [
       {
-        tag: "div[x-marble-component-name]",
+        tag: "div[data-component-name]",
         getAttrs: (element) => {
           if (typeof element === "string") {
             return false;
           }
-          const componentName = element.getAttribute("x-marble-component-name");
+          const componentName = element.getAttribute("data-component-name");
+          const technicalName = element.getAttribute("data-technical-name");
+          const instanceId = element.getAttribute("data-id");
           if (!componentName) {
             return false;
           }
-          return { componentName };
+          return { componentName, technicalName, instanceId };
         },
       },
     ];
   },
 
   renderHTML({ node }) {
-    const { componentName, properties } = node.attrs as CustomComponentAttrs;
+    const { componentName, technicalName, instanceId, properties } =
+      node.attrs as CustomComponentAttrs;
 
     const componentAttrs: Record<string, string> = {
-      "x-marble-component-name": componentName,
+      "data-component-name": componentName,
       class: "marble-custom-component",
     };
+
+    if (technicalName) {
+      componentAttrs["data-technical-name"] = technicalName;
+    }
+
+    if (instanceId) {
+      componentAttrs["data-id"] = instanceId;
+    }
 
     if (properties && typeof properties === "object") {
       for (const [key, value] of Object.entries(properties)) {
         const attrValue =
           value !== undefined && value !== null ? String(value) : "";
-        // TODO: Add this stuff to the api later
         componentAttrs[`x-marble-${key}`] = attrValue;
       }
     }
@@ -77,12 +93,32 @@ export const CustomComponent = Node.create<CustomComponentOptions>({
     return {
       componentName: {
         default: null,
-        parseHTML: (element) => element.getAttribute("x-marble-component-name"),
+        parseHTML: (element) => element.getAttribute("data-component-name"),
         renderHTML: (attributes) => {
           if (!attributes.componentName) {
             return {};
           }
-          return { "x-marble-component-name": attributes.componentName };
+          return { "data-component-name": attributes.componentName };
+        },
+      },
+      technicalName: {
+        default: null,
+        parseHTML: (element) => element.getAttribute("data-technical-name"),
+        renderHTML: (attributes) => {
+          if (!attributes.technicalName) {
+            return {};
+          }
+          return { "data-technical-name": attributes.technicalName };
+        },
+      },
+      instanceId: {
+        default: null,
+        parseHTML: (element) => element.getAttribute("data-id"),
+        renderHTML: (attributes) => {
+          if (!attributes.instanceId) {
+            return {};
+          }
+          return { "data-id": attributes.instanceId };
         },
       },
       properties: {
@@ -117,8 +153,13 @@ export const CustomComponent = Node.create<CustomComponentOptions>({
   addCommands() {
     return {
       setCustomComponent:
-        (options) =>
-        ({ state, commands }) => {
+        (options: {
+          name: string;
+          technicalName?: string;
+          instanceId?: string;
+          attributes?: Record<string, Primitive>;
+        }) =>
+        ({ state, commands }: CommandProps) => {
           const sel = state.selection;
 
           const nodeIsSelected =
@@ -127,6 +168,8 @@ export const CustomComponent = Node.create<CustomComponentOptions>({
 
           const attrs = {
             componentName: options.name,
+            technicalName: options.technicalName,
+            instanceId: options.instanceId,
             properties: options.attributes ?? {},
           };
 

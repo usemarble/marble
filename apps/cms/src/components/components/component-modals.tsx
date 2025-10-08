@@ -42,7 +42,6 @@ import type { CustomComponent } from "./columns";
 type ComponentProperty = {
   id: string;
   name: string;
-  technicalName: string;
   type: string;
   required: boolean;
   defaultValue: string;
@@ -51,6 +50,7 @@ type ComponentProperty = {
 
 type ComponentFormData = {
   name: string;
+  technicalName: string;
   description: string;
   properties: ComponentProperty[];
 };
@@ -83,6 +83,7 @@ export function ComponentModal({
   const workspaceId = useWorkspaceId();
   const [formData, setFormData] = useState<ComponentFormData>({
     name: "",
+    technicalName: "",
     description: "",
     properties: [],
   });
@@ -154,11 +155,11 @@ export function ComponentModal({
     if (editingComponent) {
       setFormData({
         name: editingComponent.name,
+        technicalName: editingComponent.technicalName,
         description: editingComponent.description || "",
         properties: editingComponent.properties.map((prop) => ({
           id: prop.id ?? crypto.randomUUID(),
           name: prop.name,
-          technicalName: prop.technicalName,
           type: prop.type,
           required: prop.required,
           defaultValue: prop.defaultValue || "",
@@ -168,6 +169,7 @@ export function ComponentModal({
     } else {
       setFormData({
         name: "",
+        technicalName: "",
         description: "",
         properties: [],
       });
@@ -187,7 +189,6 @@ export function ComponentModal({
         {
           id: crypto.randomUUID(),
           name: "",
-          technicalName: "",
           type: "string",
           required: false,
           defaultValue: "",
@@ -271,6 +272,7 @@ export function ComponentModal({
     setOpen(false);
     setFormData({
       name: "",
+      technicalName: "",
       description: "",
       properties: [],
     });
@@ -291,16 +293,49 @@ export function ComponentModal({
         </DialogHeader>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
-          <div className="space-y-2">
-            <Label htmlFor="name">Component Name</Label>
-            <Input
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, name: e.target.value }))
-              }
-              placeholder="e.g. Button, Card, Hero Section"
-              required
-              value={formData.name}
-            />
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <Label className="font-medium text-sm">Component Names</Label>
+              <p className="text-muted-foreground text-xs">
+                Define both the display name and technical identifier for your
+                component
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label className="text-xs" htmlFor="name">
+                  Display Name
+                </Label>
+                <Input
+                  id="name"
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, name: e.target.value }))
+                  }
+                  placeholder="e.g. Button, Card, Hero Section"
+                  required
+                  value={formData.name}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-xs" htmlFor="technicalName">
+                  Technical Name
+                </Label>
+                <Input
+                  id="technicalName"
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      technicalName: e.target.value,
+                    }))
+                  }
+                  placeholder="e.g. button, card, hero-section"
+                  required
+                  value={formData.technicalName}
+                />
+              </div>
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -325,6 +360,7 @@ export function ComponentModal({
                 {MAX_COMPONENT_PROPERTIES})
               </Label>
               <Button
+                className="cursor-pointer"
                 disabled={
                   formData.properties.length >= MAX_COMPONENT_PROPERTIES
                 }
@@ -346,7 +382,7 @@ export function ComponentModal({
                 <div className="flex items-center justify-between">
                   <h4 className="font-medium text-sm">Property {index + 1}</h4>
                   <Button
-                    className="text-destructive"
+                    className="cursor-pointer text-destructive"
                     onClick={() => removeProperty(index)}
                     size="sm"
                     type="button"
@@ -409,6 +445,7 @@ export function ComponentModal({
                   <div className="flex items-center space-x-2 pt-6">
                     <Checkbox
                       checked={property.required}
+                      className="cursor-pointer"
                       id={`required-${index}`}
                       onCheckedChange={(checked) =>
                         updateProperty(index, "required", checked)
@@ -499,10 +536,16 @@ export function ComponentModal({
           </div>
 
           <DialogFooter>
-            <Button onClick={handleClose} type="button" variant="outline">
+            <Button
+              className="cursor-pointer"
+              onClick={handleClose}
+              type="button"
+              variant="outline"
+            >
               Cancel
             </Button>
             <Button
+              className="cursor-pointer"
               disabled={isCreating || isUpdating || !formData.name.trim()}
               type="submit"
             >

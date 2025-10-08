@@ -16,6 +16,7 @@ import TableActions from "./table-actions";
 export type CustomComponent = {
   id: string;
   name: string;
+  technicalName: string;
   description?: string;
   workspaceId: string;
   createdAt: string;

@@ -44,6 +44,8 @@ type Primitive = string | number | boolean | null;
 
 type NodeAttrs = {
   componentName?: string;
+  technicalName?: string;
+  instanceId?: string;
   properties?: Record<string, Primitive>;
 };
 
@@ -59,6 +61,7 @@ type ComponentEditorModalProps = {
   editor: Editor;
   existingComponent: ExistingNode;
   getPos?: () => number;
+  postId?: string;
 };
 
 export function ComponentEditorModal({
@@ -67,6 +70,7 @@ export function ComponentEditorModal({
   editor,
   existingComponent,
   getPos,
+  postId,
 }: ComponentEditorModalProps) {
   const [propertyValues, setPropertyValues] = useState<
     Record<string, Primitive>
@@ -127,7 +131,7 @@ export function ComponentEditorModal({
       });
   };
 
-  const handleUpdateComponent = (): void => {
+  const handleUpdateComponent = async (): Promise<void> => {
     if (!componentDef || !editor) {
       return;
     }
@@ -149,6 +153,28 @@ export function ComponentEditorModal({
       }
     }
 
+    const attrs = (existingComponent?.attrs ?? {}) as NodeAttrs;
+    const instanceId = attrs.instanceId;
+
+    // If instance exists, update it immediately
+    if (postId && componentDef.id && instanceId) {
+      try {
+        const response = await fetch(
+          `/api/custom-components/instances/${instanceId}`,
+          {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ data: componentData }),
+          }
+        );
+        if (!response.ok) {
+          console.warn("Failed to update component instance");
+        }
+      } catch (error) {
+        console.error("Error managing component instance:", error);
+      }
+    }
+
     const chain = editor.chain().focus();
 
     const pos = typeof getPos === "function" ? getPos() : null;
@@ -159,6 +185,8 @@ export function ComponentEditorModal({
     chain
       .updateAttributes("customComponent", {
         componentName: componentDef.name,
+        technicalName: componentDef.technicalName,
+        instanceId,
         properties: componentData,
       })
       .run();
@@ -267,7 +295,7 @@ export function ComponentEditorModal({
             }
             placeholder={`Enter ${property.name}`}
             type="email"
-            value={(value ?? "") as string}
+            value={String(value ?? "")}
           />
         );
 
@@ -279,7 +307,7 @@ export function ComponentEditorModal({
             }
             placeholder={`Enter ${property.name}`}
             type="url"
-            value={(value ?? "") as string}
+            value={String(value ?? "")}
           />
         );
 
@@ -290,7 +318,7 @@ export function ComponentEditorModal({
               handlePropertyChange(property.name, e.target.value)
             }
             placeholder={`Enter ${property.name}`}
-            value={(value ?? "") as string}
+            value={String(value ?? "")}
           />
         );
     }
@@ -374,6 +402,7 @@ type ComponentSelectorModalProps = {
   editor?: Editor;
   existingComponent?: ExistingNode;
   getPos?: () => number;
+  postId?: string;
 };
 
 export function ComponentSelectorModal({
@@ -457,7 +486,7 @@ export function ComponentSelectorModal({
       });
   };
 
-  const handleInsertComponent = (): void => {
+  const handleInsertComponent = async (): Promise<void> => {
     if (!selectedComponent || !editor) {
       return;
     }
@@ -480,6 +509,7 @@ export function ComponentSelectorModal({
       }
     }
 
+    // Don't create instance here - will be created on post save
     const chain = editor.chain().focus();
     if (existingComponent && typeof getPos === "function") {
       const pos = getPos();
@@ -489,6 +519,8 @@ export function ComponentSelectorModal({
     chain
       .setCustomComponent({
         name: selectedComponent.name,
+        technicalName: selectedComponent.technicalName,
+        instanceId: undefined,
         attributes: componentData,
       })
       .run();
@@ -538,7 +570,7 @@ export function ComponentSelectorModal({
             }
             placeholder={`Enter ${property.name}`}
             rows={3}
-            value={(value ?? "") as string}
+            value={String(value)}
           />
         );
 
@@ -550,7 +582,7 @@ export function ComponentSelectorModal({
             }
             options={property.options || []}
             placeholder={`Select ${property.name}`}
-            value={(value ?? "") as string}
+            value={String(value)}
           />
         );
 
@@ -595,7 +627,7 @@ export function ComponentSelectorModal({
                     handlePropertyChange(property.name, date.toISOString());
                   }
                 }}
-                selected={value ? new Date(value as string) : undefined}
+                selected={value ? new Date(String(value)) : undefined}
               />
             </PopoverContent>
           </Popover>
@@ -609,7 +641,7 @@ export function ComponentSelectorModal({
             }
             placeholder={`Enter ${property.name}`}
             type="email"
-            value={(value ?? "") as string}
+            value={String(value)}
           />
         );
 
@@ -621,7 +653,7 @@ export function ComponentSelectorModal({
             }
             placeholder={`Enter ${property.name}`}
             type="url"
-            value={(value ?? "") as string}
+            value={new URL(String(value)).toString()}
           />
         );
 
@@ -632,7 +664,7 @@ export function ComponentSelectorModal({
               handlePropertyChange(property.name, e.target.value)
             }
             placeholder={`Enter ${property.name}`}
-            value={(value ?? "") as string}
+            value={String(value ?? "")}
           />
         );
     }

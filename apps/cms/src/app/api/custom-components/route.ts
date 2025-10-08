@@ -49,12 +49,13 @@ export async function POST(req: NextRequest) {
       { status: 400 }
     );
   }
-  const { name, description, properties } = parsedBody.data;
+  const { name, technicalName, description, properties } = parsedBody.data;
 
   try {
     const customComponent = await db.customComponent.create({
       data: {
         name,
+        technicalName,
         description,
         workspaceId: sessionData.session.activeOrganizationId,
         properties: {
@@ -64,7 +65,7 @@ export async function POST(req: NextRequest) {
               type: prop.type,
               required: prop.required || false,
               defaultValue: prop.defaultValue,
-              options: prop.options || null,
+              options: prop.options,
             })) || [],
         },
       },

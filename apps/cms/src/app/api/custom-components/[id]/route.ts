@@ -31,7 +31,7 @@ export async function PATCH(
   try {
     const json = await req.json();
     const validatedData = componentUpdateSchema.parse(json);
-    const { name, description, properties } = validatedData;
+    const { name, technicalName, description, properties } = validatedData;
     const existingComponent = await db.customComponent.findUnique({
       where: { id },
       include: { properties: true },
@@ -53,6 +53,7 @@ export async function PATCH(
         where: { id },
         data: {
           name,
+          technicalName,
           description,
           properties: {
             create:
@@ -61,7 +62,7 @@ export async function PATCH(
                 type: prop.type as PropertyType,
                 required: prop.required || false,
                 defaultValue: prop.defaultValue,
-                options: prop.options || null,
+                options: prop.options,
               })) || [],
           },
         },

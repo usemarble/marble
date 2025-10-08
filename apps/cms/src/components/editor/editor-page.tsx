@@ -304,6 +304,9 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                   onCreate={({ editor }) => {
                     editorRef.current = editor;
                     setEditorInstance(editor);
+                    if (id) {
+                      editor.storage.postId = id;
+                    }
                   }}
                   onUpdate={({ editor }) => {
                     editorRef.current = editor;
@@ -349,6 +352,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
       <ComponentSelectorModal
         editor={editorRef.current ?? undefined}
         isOpen={showComponentSelector}
+        postId={id}
         setIsOpen={setShowComponentSelector}
       />
     </EditorRoot>
