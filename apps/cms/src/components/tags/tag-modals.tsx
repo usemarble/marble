@@ -172,9 +172,7 @@ export function TagModal({
           onSubmit={handleSubmit(onSubmit)}
         >
           <div className="grid flex-1 gap-2">
-            <Label className="" htmlFor="name">
-              Name
-            </Label>
+            <Label htmlFor="name">Name</Label>
             <Input
               id="name"
               {...register("name")}
@@ -183,9 +181,7 @@ export function TagModal({
             {errors.name && <ErrorMessage>{errors.name.message}</ErrorMessage>}
           </div>
           <div className="grid flex-1 gap-2">
-            <Label className="" htmlFor="slug">
-              Slug
-            </Label>
+            <Label htmlFor="slug">Slug</Label>
             <Input
               id="slug"
               {...register("slug")}
@@ -194,9 +190,7 @@ export function TagModal({
             {errors.slug && <ErrorMessage>{errors.slug.message}</ErrorMessage>}
           </div>
           <div className="grid flex-1 gap-2">
-            <Label className="" htmlFor="description">
-              Description (optional)
-            </Label>
+            <Label htmlFor="description">Description (optional)</Label>
             <Textarea
               id="description"
               {...register("description")}

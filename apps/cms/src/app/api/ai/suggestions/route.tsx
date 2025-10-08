@@ -59,7 +59,7 @@ export async function POST(request: Request) {
   const { streamObject } = await import("ai");
 
   const result = streamObject({
-    model: openrouter.chat("google/gemini-2.5-flash-lite"),
+    model: openrouter.chat("google/gemini-2.5-flash"),
     messages: [
       {
         role: "system",

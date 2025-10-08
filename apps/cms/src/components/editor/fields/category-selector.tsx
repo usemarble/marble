@@ -71,6 +71,8 @@ export function CategorySelector({ control }: CategorySelectorProps) {
     queryClient.invalidateQueries({
       queryKey: QUERY_KEYS.CATEGORIES(workspaceId),
     });
+
+    onChange(newCategory.id);
   };
 
   return (

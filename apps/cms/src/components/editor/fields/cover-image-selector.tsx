@@ -263,9 +263,8 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
       </div>
       {renderContent()}
 
-      {/* Media Gallery Drawer */}
       <Drawer onOpenChange={setIsGalleryOpen} open={isGalleryOpen}>
-        <DrawerContent className="mt-4 min-h-[95vh]">
+        <DrawerContent className="mt-4 flex min-h-[95vh] flex-col">
           <DrawerHeader className="sr-only">
             <DrawerTitle>Gallery</DrawerTitle>
             <DrawerDescription>
@@ -277,7 +276,6 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
             {media && media.length > 0 ? (
               <ScrollArea className="h-full">
                 <ul className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-4 p-4">
-                  {/* We will filter via query params once endpoint is updated */}
                   {media
                     .filter((item) => item.type === "image")
                     .map((item) => (
@@ -302,7 +300,7 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
                 </ul>
               </ScrollArea>
             ) : (
-              <div className="flex h-full items-center justify-center">
+              <div className="grid h-full place-items-center p-4">
                 <div className="flex flex-col items-center gap-2 text-muted-foreground">
                   <ImagesIcon className="size-8" />
                   <p className="font-medium text-sm">
