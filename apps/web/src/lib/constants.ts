@@ -61,7 +61,7 @@ export const FAQs: {
   {
     question: "Do I need technical knowledge to use Marble?",
     answer:
-      "No technical knowledge is required to use our content management dashboard. However, to integrate the API with your website or app, basic development experience is helpful. We provide detailed <a href='https://docs.marblecms.com'>documentation</a> and templates to make integration easy.",
+      "No technical knowledge is required to use our content management dashboard. However, to integrate the API with your website or app, basic development experience is helpful. We provide detailed documentation and templates to make integration easy.",
   },
   {
     question: "What kind of content can I manage?",
@@ -104,11 +104,11 @@ export const PRICING: Pricing[] = [
     },
     features: [
       "Unlimited posts",
-      "500 MB media storage",
-      "Single member",
+      "1GB media storage",
+      "2 member seats",
+      "AI Readability insights",
       "10k API requests per month",
-      "Readability insights",
-      "Webhooks",
+      "100 webhook events per month",
     ],
     button: {
       href: "https://app.marblecms.com",
@@ -119,15 +119,16 @@ export const PRICING: Pricing[] = [
     title: "Pro",
     description: "For Small Teams",
     price: {
-      monthly: "$10",
-      yearly: "$100",
+      monthly: "$20",
+      yearly: "$180",
     },
     features: [
-      "Everything in Hobby",
-      "2 GB media storage",
-      "Up to 10 team members",
+      "Unlimited posts",
+      "10GB media storage",
+      "10 member seats",
+      "AI Readability insights",
       "50k API requests per month",
-      //"Keyword optimization suggestions",
+      "1k webhook events per month",
     ],
     button: {
       href: "https://app.marblecms.com",
