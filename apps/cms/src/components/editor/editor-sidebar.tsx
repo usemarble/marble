@@ -31,10 +31,8 @@ import {
   generateSuggestions as generateLocalSuggestions,
 } from "@/utils/readability";
 import { MetadataFooter } from "./footer/metadata-footer";
+import { MetadataTab } from "./tabs/metadata-tab";
 
-const MetadataTab = lazy(() =>
-  import("./tabs/metadata-tab").then((m) => ({ default: m.MetadataTab }))
-);
 const AnalysisTab = lazy(() =>
   import("./tabs/analysis-tab").then((m) => ({ default: m.AnalysisTab }))
 );
