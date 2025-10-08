@@ -13,10 +13,10 @@ import { QUERY_KEYS } from "@/lib/queries/keys";
 import { useWorkspace } from "@/providers/workspace";
 
 function PageClient() {
-  const { activeWorkspace } = useWorkspace();
+  const { activeWorkspace, currentWorkspaceId } = useWorkspace();
 
   const { data: posts, isLoading } = useQuery({
-    queryKey: QUERY_KEYS.POSTS(activeWorkspace?.id ?? ""),
+    queryKey: QUERY_KEYS.POSTS(currentWorkspaceId ?? ""),
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
       try {
@@ -32,7 +32,7 @@ function PageClient() {
         );
       }
     },
-    enabled: !!activeWorkspace?.id,
+    enabled: !!currentWorkspaceId,
   });
 
   if (isLoading) {

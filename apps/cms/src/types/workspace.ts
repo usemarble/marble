@@ -51,6 +51,7 @@ export type WorkspaceContextType = {
   isAdmin: boolean;
   isMember: boolean;
   currentUserRole: string | null;
+  currentWorkspaceId: string | null;
 };
 
 export type WorkspaceProviderProps = {
