@@ -7,7 +7,6 @@ import {
 } from "@marble/ui/components/avatar";
 import { format } from "date-fns";
 import Image from "next/image";
-import { useTheme } from "next-themes";
 import Prose from "@/components/share/prose";
 import { LinkExpired, LinkNotFound } from "@/components/share/screens";
 import type { ShareData } from "@/types/share";
@@ -19,7 +18,6 @@ type SharePageClientProps = {
 };
 
 function SharePageClient({ data, status }: SharePageClientProps) {
-  const { theme } = useTheme();
   if (status === "expired") {
     return <LinkExpired />;
   }
@@ -28,14 +26,7 @@ function SharePageClient({ data, status }: SharePageClientProps) {
     return <LinkNotFound />;
   }
 
-  const { post, expiresAt } = data;
-  const expirationDate = new Date(expiresAt);
-  const isExpiringSoon =
-    expirationDate.getTime() - Date.now() < 2 * 60 * 60 * 1000;
-
-  const formatExpiration = (date: Date) => {
-    return format(date, "MMM d, yyyy");
-  };
+  const { post } = data;
 
   return (
     <div className="relative min-h-screen bg-background">
@@ -63,12 +54,14 @@ function SharePageClient({ data, status }: SharePageClientProps) {
 
             <div className="mb-6 border-y py-4">
               <div className="flex items-center gap-2">
-                <Avatar className="size-9">
-                  <AvatarImage src={post.authors[0]?.image || undefined} />
-                  <AvatarFallback>
-                    {post.authors[0]?.name.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
+                {post.authors[0] && (
+                  <Avatar className="size-9">
+                    <AvatarImage src={post.authors[0].image || undefined} />
+                    <AvatarFallback>
+                      {post.authors[0].name.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                )}
                 <div className="flex flex-col">
                   <span className="text-muted-foreground text-xs">
                     {post.authors[0]?.name}
@@ -79,11 +72,7 @@ function SharePageClient({ data, status }: SharePageClientProps) {
                 </div>
               </div>
             </div>
-            {/* <p className="mb-6 text-muted-foreground text-sm">
-              {post.description}
-            </p> */}
 
-            {/* Cover Image */}
             {post.coverImage && (
               <div className="mb-8">
                 <Image
