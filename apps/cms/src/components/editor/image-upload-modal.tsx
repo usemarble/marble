@@ -109,8 +109,7 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
         const res = await fetch("/api/media");
         const data: MediaListResponse = await res.json();
         return data.media;
-      } catch (error) {
-        console.error(error);
+      } catch (_error) {
         return [];
       }
     },

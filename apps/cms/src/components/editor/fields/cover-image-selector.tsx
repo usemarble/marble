@@ -94,8 +94,7 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
         const res = await fetch("/api/media");
         const data: MediaListResponse = await res.json();
         return data.media;
-      } catch (error) {
-        console.error(error);
+      } catch (_error) {
         return [];
       }
     },

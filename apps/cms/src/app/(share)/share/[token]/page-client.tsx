@@ -9,13 +9,7 @@ import { format } from "date-fns";
 import Image from "next/image";
 import Prose from "@/components/share/prose";
 import { LinkExpired, LinkNotFound } from "@/components/share/screens";
-import type { ShareData } from "@/types/share";
-
-type SharePageClientProps = {
-  token?: string;
-  data?: ShareData;
-  status?: "expired" | "not-found";
-};
+import type { SharePageClientProps } from "@/types/share";
 
 function SharePageClient({ data, status }: SharePageClientProps) {
   if (status === "expired") {
@@ -30,14 +24,13 @@ function SharePageClient({ data, status }: SharePageClientProps) {
 
   return (
     <div className="relative min-h-screen bg-background">
-      {/* Header */}
       <header className="border-b">
         <div className="container mx-auto flex items-center justify-between px-4 py-4">
           <div className="flex items-center gap-2">
             <Avatar className="size-8 border border-dashed">
               <AvatarImage src={post.workspace.logo || undefined} />
               <AvatarFallback>
-                {post.workspace.name.charAt(0).toUpperCase()}
+                {(post.workspace.name.charAt(0) || "W").toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <span className="font-medium text-sm">{post.workspace.name}</span>
@@ -58,7 +51,7 @@ function SharePageClient({ data, status }: SharePageClientProps) {
                   <Avatar className="size-9">
                     <AvatarImage src={post.authors[0].image || undefined} />
                     <AvatarFallback>
-                      {post.authors[0].name.charAt(0).toUpperCase()}
+                      {(post.authors[0].name.charAt(0) || "A").toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col">
