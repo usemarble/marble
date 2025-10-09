@@ -274,6 +274,9 @@ importers:
       sharp:
         specifier: ^0.33.5
         version: 0.33.5
+      shiki:
+        specifier: ^3.12.2
+        version: 3.12.2
       sonner:
         specifier: ^1.7.1
         version: 1.7.1(react-dom@19.1.1(react@19.1.1))(react@19.1.1)

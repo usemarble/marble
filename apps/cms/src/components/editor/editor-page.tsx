@@ -37,6 +37,7 @@ import { useUnsavedChanges } from "@/providers/unsaved-changes";
 import { generateSlug } from "@/utils/string";
 import { BubbleMenu } from "./bubble-menu";
 import { defaultExtensions } from "./extensions";
+import { ShareModal } from "./share-modal";
 import { slashCommand } from "./slash-command-items";
 import { SlashCommandMenu } from "./slash-command-menu";
 import { TextareaAutosize } from "./textarea-autosize";
@@ -214,7 +215,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                 <Link
                   className={cn(
                     buttonVariants({ variant: "ghost", size: "icon" }),
-                    "group cursor-default rounded-full"
+                    "group cursor-default"
                   )}
                   href={`/${params.workspace}/posts`}
                 >
@@ -227,10 +228,11 @@ function EditorPage({ initialData, id }: EditorPageProps) {
             </Tooltip>
           </div>
 
-          <div>
+          <div className="flex items-center gap-2">
+            {id && <ShareModal postId={id} />}
             <Tooltip delayDuration={400}>
               <TooltipTrigger asChild>
-                <SidebarTrigger className="size-8 rounded-full text-muted-foreground">
+                <SidebarTrigger className="size-8 text-muted-foreground">
                   <SidebarSimpleIcon className="size-4" />
                 </SidebarTrigger>
               </TooltipTrigger>

@@ -14,7 +14,7 @@ import {
 } from "@marble/ui/components/tooltip";
 import { PlusIcon, TrashIcon, UploadIcon, XIcon } from "@phosphor-icons/react";
 import type { MediaFilterType, MediaSort } from "@/types/media";
-import { isMediaFilterType, isMediaSort } from "@/types/media";
+import { isMediaFilterType, isMediaSort } from "@/utils/media";
 
 export function MediaControls({
   type,

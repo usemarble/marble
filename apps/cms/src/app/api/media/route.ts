@@ -106,10 +106,8 @@ export async function GET(request: Request) {
       }
     }
 
-    return NextResponse.json(
-      { media, nextCursor, hasAnyMedia },
-      { status: 200 }
-    );
+    const response = { media, nextCursor, hasAnyMedia };
+    return NextResponse.json(response, { status: 200 });
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Failed to fetch media";

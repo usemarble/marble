@@ -52,6 +52,7 @@ model Organization {
   tags              Tag[]
   webhooks          Webhook[]
   editorPreferences EditorPreferences?
+  ShareLink         ShareLink[]
 
   @@map("workspace")
 }
@@ -96,9 +97,10 @@ model Post {
   primaryAuthor   Author?  @relation("PrimaryAuthor", fields: [primaryAuthorId], references: [id], onDelete: SetNull)
   authors         Author[] @relation("PostToAuthor")
 
-  category  Category     @relation(fields: [categoryId], references: [id])
-  workspace Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  tags      Tag[]        @relation("PostToTag")
+  category   Category     @relation(fields: [categoryId], references: [id])
+  workspace  Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  tags       Tag[]        @relation("PostToTag")
+  shareLinks ShareLink[]
 
   @@unique([workspaceId, slug])
   @@index([workspaceId, status])
@@ -106,6 +108,26 @@ model Post {
   @@index([workspaceId, status, publishedAt])
   @@index([categoryId])
   @@map("post")
+}
+
+model ShareLink {
+  id          String   @id @default(cuid())
+  token       String   @unique
+  postId      String
+  workspaceId String
+  password    String?
+  expiresAt   DateTime
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  post      Post         @relation(fields: [postId], references: [id], onDelete: Cascade)
+  workspace Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@index([workspaceId])
+  @@index([expiresAt])
+  @@index([isActive])
 }
 
 model Tag {
