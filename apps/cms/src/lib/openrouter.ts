@@ -7,8 +7,8 @@ if (!apiKey) {
 }
 
 const headers = {
-  "HTTP-Referer": "https://marblecms.com",
-  "X-Title": "Marble",
+  "HTTP-Referer": "https://marblecms.com/",
+  "X-Title": "Marble CMS",
 };
 
 export const openrouter = createOpenRouter({
