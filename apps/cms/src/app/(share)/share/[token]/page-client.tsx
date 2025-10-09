@@ -53,24 +53,24 @@ function SharePageClient({ data, status }: SharePageClientProps) {
             </h1>
 
             <div className="mb-6 border-y py-4">
-              <div className="flex items-center gap-2">
-                {post.authors[0] && (
+              {post.authors[0] && (
+                <div className="flex items-center gap-2">
                   <Avatar className="size-9">
                     <AvatarImage src={post.authors[0].image || undefined} />
                     <AvatarFallback>
                       {post.authors[0].name.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                )}
-                <div className="flex flex-col">
-                  <span className="text-muted-foreground text-xs">
-                    {post.authors[0]?.name}
-                  </span>
-                  <span className="text-muted-foreground text-xs">
-                    {format(post.publishedAt, "MMM d, yyyy")}
-                  </span>
+                  <div className="flex flex-col">
+                    <span className="text-muted-foreground text-xs">
+                      {post.authors[0].name}
+                    </span>
+                    <span className="text-muted-foreground text-xs">
+                      {format(post.publishedAt, "MMM d, yyyy")}
+                    </span>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {post.coverImage && (
