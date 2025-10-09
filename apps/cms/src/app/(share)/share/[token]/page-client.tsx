@@ -40,80 +40,69 @@ function SharePageClient({ data, status }: SharePageClientProps) {
   return (
     <div className="relative min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur-sm supports-[backdrop-filter]:bg-background/60">
+      <header className="border-b">
         <div className="container mx-auto flex items-center justify-between px-4 py-4">
           <div className="flex items-center gap-2">
-            {/* <Avatar>
-              <AvatarImage
-                src={theme === "dark" ? "/icon-light.svg" : "/icon.svg"}
-              />
+            <Avatar className="size-8 border border-dashed">
+              <AvatarImage src={post.workspace.logo || undefined} />
               <AvatarFallback>
                 {post.workspace.name.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <span className="text-muted-foreground text-sm">/</span> */}
-            <div className="flex items-center gap-2">
-              <Avatar className="size-8 border border-dashed">
-                <AvatarImage src={post.workspace.logo || undefined} />
-                <AvatarFallback>
-                  {post.workspace.name.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <span className="font-medium text-sm">{post.workspace.name}</span>
-            </div>
-            <span className="text-muted-foreground text-sm">/</span>
-            <p className="text-muted-foreground text-sm">{post.title}</p>
+            <span className="font-medium text-sm">{post.workspace.name}</span>
           </div>
         </div>
       </header>
 
-      <div className="relative grid grid-cols-[500px_1fr]">
-        <aside className="sticky top-0">
-          <div className="container mx-auto px-4 py-8">
-            <p className="text-muted-foreground text-sm">
-              This is a shared draft from {post.workspace.name}
-            </p>
+      <main className="mx-auto max-w-screen-md py-14 lg:py-20">
+        <div className="mx-auto max-w-screen-md">
+          <header className="mb-8">
+            <h1 className="mb-4 font-semibold text-4xl leading-tight">
+              {post.title}
+            </h1>
+
+            <div className="mb-6 border-y py-4">
+              <div className="flex items-center gap-2">
+                <Avatar className="size-9">
+                  <AvatarImage src={post.authors[0]?.image || undefined} />
+                  <AvatarFallback>
+                    {post.authors[0]?.name.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col">
+                  <span className="text-muted-foreground text-xs">
+                    {post.authors[0]?.name}
+                  </span>
+                  <span className="text-muted-foreground text-xs">
+                    {format(post.publishedAt, "MMM d, yyyy")}
+                  </span>
+                </div>
+              </div>
+            </div>
+            {/* <p className="mb-6 text-muted-foreground text-sm">
+              {post.description}
+            </p> */}
+
+            {/* Cover Image */}
             {post.coverImage && (
               <div className="mb-8">
                 <Image
                   alt={post.title}
-                  className="w-full rounded-lg object-cover"
+                  className="w-full object-cover"
                   height={400}
                   src={post.coverImage}
                   width={800}
                 />
               </div>
             )}
-          </div>
-        </aside>
-        <main className="container mx-auto px-4 py-8">
-          <div className="mx-auto max-w-4xl">
-            <header className="mb-8">
-              <h1 className="mb-4 font-bold text-4xl leading-tight">
-                {post.title}
-              </h1>
-              <p className="mb-6 text-muted-foreground text-xl">
-                {post.description}
-              </p>
+          </header>
 
-              {/* Cover Image */}
-              {post.coverImage && (
-                <div className="mb-8">
-                  <Image
-                    alt={post.title}
-                    className="w-full rounded-lg object-cover"
-                    height={400}
-                    src={post.coverImage}
-                    width={800}
-                  />
-                </div>
-              )}
-            </header>
-
-            <Prose html={post.content} />
-          </div>
-        </main>
-      </div>
+          <Prose
+            className="prose-iframe prose-img:rounded-none"
+            html={post.content}
+          />
+        </div>
+      </main>
 
       <footer className="border-t bg-muted/30">
         <div className="container mx-auto p-4">
