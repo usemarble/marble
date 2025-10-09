@@ -52,6 +52,7 @@ model Organization {
   tags              Tag[]
   webhooks          Webhook[]
   editorPreferences EditorPreferences?
+  customComponents  CustomComponent[]
 
   @@map("workspace")
 }
@@ -96,9 +97,10 @@ model Post {
   primaryAuthor   Author?  @relation("PrimaryAuthor", fields: [primaryAuthorId], references: [id], onDelete: SetNull)
   authors         Author[] @relation("PostToAuthor")
 
-  category  Category     @relation(fields: [categoryId], references: [id])
-  workspace Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  tags      Tag[]        @relation("PostToTag")
+  category           Category            @relation(fields: [categoryId], references: [id])
+  workspace          Organization        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  tags               Tag[]               @relation("PostToTag")
+  componentInstances ComponentInstance[]
 
   @@unique([workspaceId, slug])
   @@index([workspaceId, status])
@@ -359,4 +361,62 @@ enum MediaType {
   video
   audio
   document
+}
+
+model CustomComponent {
+  id            String              @id @default(cuid())
+  name          String
+  technicalName String
+  description   String?
+  workspaceId   String
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  workspace     Organization        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  properties    ComponentProperty[]
+  instances     ComponentInstance[]
+
+  @@unique([workspaceId, name])
+  @@map("custom_component")
+}
+
+model ComponentProperty {
+  id                String          @id @default(cuid())
+  name              String
+  type              PropertyType
+  required          Boolean         @default(false)
+  defaultValue      String?
+  options           Json?
+  customComponentId String
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  customComponent   CustomComponent @relation(fields: [customComponentId], references: [id], onDelete: Cascade)
+
+  @@unique([customComponentId, name])
+  @@map("component_property")
+}
+
+enum PropertyType {
+  string
+  number
+  boolean
+  date
+  email
+  url
+  textarea
+  select
+}
+
+model ComponentInstance {
+  id                String          @id @default(cuid())
+  postId            String
+  customComponentId String
+  data              Json
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  post              Post            @relation(fields: [postId], references: [id], onDelete: Cascade)
+  customComponent   CustomComponent @relation(fields: [customComponentId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@index([customComponentId])
+  @@map("component_instance")
 }

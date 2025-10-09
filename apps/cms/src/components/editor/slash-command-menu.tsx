@@ -3,8 +3,10 @@ import {
   EditorCommandEmpty,
   EditorCommandItem,
   EditorCommandList,
+  type EditorInstance,
 } from "novel";
 import { useState } from "react";
+import { ComponentSelectorModal } from "./component-selector-modal";
 import { ImageUploadModal } from "./image-upload-modal";
 import { suggestionItems } from "./slash-command-items";
 import { YoutubeEmbedModal } from "./youtube-embed-modal";
@@ -12,6 +14,10 @@ import { YoutubeEmbedModal } from "./youtube-embed-modal";
 export function SlashCommandMenu() {
   const [showImageModal, setShowImageModal] = useState(false);
   const [showYoutubeModal, setShowYoutubeModal] = useState(false);
+  const [showComponentModal, setShowComponentModal] = useState(false);
+  const [editorInstance, setEditorInstance] = useState<
+    EditorInstance | undefined
+  >(undefined);
 
   return (
     <>
@@ -35,6 +41,12 @@ export function SlashCommandMenu() {
                     val.editor.chain().focus().deleteRange(val.range).run();
                   }
                   setShowYoutubeModal(true);
+                } else if (item.title === "Component") {
+                  if (val.editor && val.range) {
+                    val.editor.chain().focus().deleteRange(val.range).run();
+                  }
+                  setEditorInstance(val.editor);
+                  setShowComponentModal(true);
                 } else {
                   item.command?.(val);
                 }
@@ -55,6 +67,11 @@ export function SlashCommandMenu() {
       <YoutubeEmbedModal
         isOpen={showYoutubeModal}
         setIsOpen={setShowYoutubeModal}
+      />
+      <ComponentSelectorModal
+        editor={editorInstance}
+        isOpen={showComponentModal}
+        setIsOpen={setShowComponentModal}
       />
     </>
   );

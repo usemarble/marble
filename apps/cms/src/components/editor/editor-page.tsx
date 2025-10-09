@@ -25,7 +25,7 @@ import {
   type JSONContent,
 } from "novel";
 import { CharacterCount, handleCommandNavigation } from "novel/extensions";
-import { SetStateAction, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { EditorSidebar } from "@/components/editor/editor-sidebar";
 import { HiddenScrollbar } from "@/components/editor/hidden-scrollbar";
@@ -36,6 +36,7 @@ import { type PostValues, postSchema } from "@/lib/validations/post";
 import { useUnsavedChanges } from "@/providers/unsaved-changes";
 import { generateSlug } from "@/utils/string";
 import { BubbleMenu } from "./bubble-menu";
+import { ComponentSelectorModal } from "./component-selector-modal";
 import { defaultExtensions } from "./extensions";
 import { slashCommand } from "./slash-command-items";
 import { SlashCommandMenu } from "./slash-command-menu";
@@ -67,6 +68,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
     null
   );
   const [showSettings, setShowSettings] = useState(false);
+  const [showComponentSelector, setShowComponentSelector] = useState(false);
   const { setHasUnsavedChanges } = useUnsavedChanges();
   const initialDataRef = useRef<PostValues>(initialData);
   const queryClient = useQueryClient();
@@ -140,7 +142,6 @@ function EditorPage({ initialData, id }: EditorPageProps) {
   });
 
   useEffect(() => {
-    // Reset form if initialData changes (e.g., navigating between posts or from new to edit)
     form.reset({ ...initialData });
     initialDataRef.current = initialData;
   }, [initialData, form.reset]);
@@ -148,7 +149,6 @@ function EditorPage({ initialData, id }: EditorPageProps) {
   useEffect(() => {
     const subscription = watch((currentValues) => {
       const initial = initialDataRef.current;
-      // Ensure all relevant fields are stringified for comparison
       const hasChanged =
         JSON.stringify({
           ...currentValues,
@@ -169,6 +169,24 @@ function EditorPage({ initialData, id }: EditorPageProps) {
 
     return () => subscription.unsubscribe();
   }, [watch, setHasUnsavedChanges]);
+
+  useEffect(() => {
+    const handleOpenComponentSelector = () => {
+      setShowComponentSelector(true);
+    };
+
+    window.addEventListener(
+      "openComponentSelector",
+      handleOpenComponentSelector
+    );
+
+    return () => {
+      window.removeEventListener(
+        "openComponentSelector",
+        handleOpenComponentSelector
+      );
+    };
+  }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter") {
@@ -286,6 +304,9 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                   onCreate={({ editor }) => {
                     editorRef.current = editor;
                     setEditorInstance(editor);
+                    if (id) {
+                      editor.storage.postId = id;
+                    }
                   }}
                   onUpdate={({ editor }) => {
                     editorRef.current = editor;
@@ -326,6 +347,13 @@ function EditorPage({ initialData, id }: EditorPageProps) {
         mode={isUpdateMode ? "update" : "create"}
         setIsOpen={setShowSettings}
         watch={watch}
+      />
+
+      <ComponentSelectorModal
+        editor={editorRef.current ?? undefined}
+        isOpen={showComponentSelector}
+        postId={id}
+        setIsOpen={setShowComponentSelector}
       />
     </EditorRoot>
   );

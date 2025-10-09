@@ -4,7 +4,7 @@ import { getServerSession } from "@/lib/auth/session";
 import { type Attribution, postSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";
 import { getWebhooks, WebhookClient } from "@/lib/webhooks/webhook-client";
-import { sanitizeHtml } from "@/utils/editor";
+import { processCustomComponents, sanitizeHtml } from "@/utils/editor";
 
 export async function GET(
   _request: Request,
@@ -92,6 +92,12 @@ export async function PATCH(
     : undefined;
   const cleanContent = sanitizeHtml(values.data.content);
 
+  const processedContentJson = await processCustomComponents(
+    contentJson,
+    id,
+    workspaceId
+  );
+
   const tagValidation = await validateWorkspaceTags(
     values.data.tags,
     workspaceId
@@ -142,7 +148,7 @@ export async function PATCH(
     const postUpdated = await db.post.update({
       where: { id },
       data: {
-        contentJson,
+        contentJson: processedContentJson,
         slug: values.data.slug,
         title: values.data.title,
         status: values.data.status,
