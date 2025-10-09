@@ -35,7 +35,7 @@ import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { uploadFile } from "@/lib/media/upload";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { PostValues } from "@/lib/validations/post";
-import type { Media } from "@/types/media";
+import type { Media, MediaListResponse } from "@/types/media";
 import { FieldInfo } from "./field-info";
 
 // URL schema
@@ -90,9 +90,14 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
     queryKey: QUERY_KEYS.MEDIA(workspaceId!),
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
-      const res = await fetch("/api/media");
-      const data: Media[] = await res.json();
-      return data;
+      try {
+        const res = await fetch("/api/media");
+        const data: MediaListResponse = await res.json();
+        return data.media;
+      } catch (error) {
+        console.error(error);
+        return [];
+      }
     },
     enabled: !!workspaceId,
   });
@@ -159,7 +164,7 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
 
     return (
       <Tabs className="w-full" defaultValue="upload">
-        <TabsList className="mb-4 flex justify-start" variant="line">
+        <TabsList className="mb-4 grid grid-cols-3" variant="line">
           <TabsTrigger value="upload">Upload</TabsTrigger>
           <TabsTrigger value="embed">Embed</TabsTrigger>
           <TabsTrigger value="media">Media</TabsTrigger>
@@ -272,8 +277,8 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
               image.
             </DrawerDescription>
           </DrawerHeader>
-          <div className="flex-1 overflow-y-auto">
-            {media && media.length > 0 ? (
+          {media && media.length > 0 ? (
+            <div className="flex-1 overflow-y-auto">
               <ScrollArea className="h-full">
                 <ul className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-4 p-4">
                   {media
@@ -284,7 +289,7 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
                         key={item.id}
                       >
                         <button
-                          className="h-full w-full"
+                          className="h-full w-full cursor-pointer"
                           onClick={() => handleImageSelect(item.url)}
                           type="button"
                         >
@@ -299,17 +304,17 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
                     ))}
                 </ul>
               </ScrollArea>
-            ) : (
-              <div className="grid h-full place-items-center p-4">
-                <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                  <ImagesIcon className="size-8" />
-                  <p className="font-medium text-sm">
-                    Your gallery is empty. Upload some media to get started.
-                  </p>
-                </div>
+            </div>
+          ) : (
+            <div className="grid h-full flex-1 place-items-center p-4">
+              <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                <ImagesIcon className="size-8" />
+                <p className="font-medium text-sm">
+                  Your gallery is empty. Upload some media to get started.
+                </p>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </DrawerContent>
       </Drawer>
     </div>

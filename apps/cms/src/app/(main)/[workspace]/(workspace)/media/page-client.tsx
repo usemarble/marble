@@ -13,13 +13,13 @@ import { useMediaActions } from "@/hooks/use-media-actions";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { MEDIA_FILTER_TYPES, MEDIA_LIMIT, MEDIA_SORTS } from "@/lib/constants";
 import { QUERY_KEYS } from "@/lib/queries/keys";
-import {
-  type Media,
-  type MediaFilterType,
-  type MediaQueryKey,
-  type MediaSort,
-  toMediaType,
+import type {
+  MediaFilterType,
+  MediaListResponse,
+  MediaQueryKey,
+  MediaSort,
 } from "@/types/media";
+import { toMediaType } from "@/utils/media";
 
 const MediaUploadModal = dynamic(() =>
   import("@/components/media/upload-modal").then((mod) => mod.MediaUploadModal)
@@ -69,11 +69,7 @@ function PageClient() {
             `Failed to fetch media: ${res.status} ${res.statusText}`
           );
         }
-        const data: {
-          media: Media[];
-          nextCursor?: string;
-          hasAnyMedia: boolean;
-        } = await res.json();
+        const data: MediaListResponse = await res.json();
         return data;
       } catch (error) {
         toast.error(
@@ -90,7 +86,7 @@ function PageClient() {
   });
 
   const mediaItems = data?.pages.flatMap((page) => page.media) ?? [];
-  const hasAnyMedia = data?.pages.some((page) => page.hasAnyMedia) ?? false;
+  const hasAnyMedia = data?.pages.at(0)?.hasAnyMedia ?? mediaItems.length > 0;
 
   const mediaQueryKey: MediaQueryKey = [
     // biome-ignore lint/style/noNonNullAssertion: <>

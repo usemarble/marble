@@ -100,7 +100,7 @@ export function ShareModal({ postId }: ShareModalProps) {
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Share link</DialogTitle>
+          <DialogTitle>Share Draft link</DialogTitle>
           <DialogDescription>
             Anyone with this link will be able to view your draft.
           </DialogDescription>

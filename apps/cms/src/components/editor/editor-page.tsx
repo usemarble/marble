@@ -215,7 +215,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                 <Link
                   className={cn(
                     buttonVariants({ variant: "ghost", size: "icon" }),
-                    "group cursor-default rounded-full"
+                    "group cursor-default"
                   )}
                   href={`/${params.workspace}/posts`}
                 >
@@ -232,7 +232,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
             {id && <ShareModal postId={id} />}
             <Tooltip delayDuration={400}>
               <TooltipTrigger asChild>
-                <SidebarTrigger className="size-8 rounded-full text-muted-foreground">
+                <SidebarTrigger className="size-8 text-muted-foreground">
                   <SidebarSimpleIcon className="size-4" />
                 </SidebarTrigger>
               </TooltipTrigger>

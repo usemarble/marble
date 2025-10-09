@@ -1,6 +1,6 @@
 import type { QueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/lib/queries/keys";
-import type { MediaQueryKey, MediaType } from "@/types/media";
+import type { MediaFilterType, MediaQueryKey, MediaType } from "@/types/media";
 
 export function getMediaType(mimeType: string): MediaType {
   if (mimeType.startsWith("image/")) {
@@ -67,4 +67,21 @@ export function getEmptyStateMessage(type?: MediaType, hasAnyMedia?: boolean) {
     default:
       return "No media found. Try adjusting your filters or upload some media.";
   }
+}
+
+export function isMediaSort(value: string) {
+  // defer to constants list at call sites where needed; this keeps util generic
+  return ["createdAt_desc", "createdAt_asc", "name_asc", "name_desc"].includes(
+    value
+  );
+}
+
+export function isMediaFilterType(
+  value: MediaFilterType
+): value is MediaFilterType {
+  return ["all", "image", "video"].includes(value as string);
+}
+
+export function toMediaType(value: MediaFilterType): MediaType | undefined {
+  return value === "all" ? undefined : value;
 }

@@ -1,32 +1,32 @@
 // Share page types
 
-export interface ShareAuthor {
+export type ShareAuthor = {
   id: string;
   name: string;
   image: string | null;
   bio: string | null;
-}
+};
 
-export interface ShareCategory {
+export type ShareCategory = {
   id: string;
   name: string;
   slug: string;
-}
+};
 
-export interface ShareTag {
+export type ShareTag = {
   id: string;
   name: string;
   slug: string;
-}
+};
 
-export interface ShareWorkspace {
+export type ShareWorkspace = {
   id: string;
   name: string;
   logo: string | null;
   slug: string;
-}
+};
 
-export interface SharePost {
+export type SharePost = {
   id: string;
   title: string;
   content: string;
@@ -42,27 +42,27 @@ export interface SharePost {
   category: ShareCategory;
   tags: ShareTag[];
   workspace: ShareWorkspace;
-}
+};
 
-export interface ShareData {
+export type ShareData = {
   post: SharePost;
   expiresAt: string;
-}
+};
 
-export interface SharePageClientProps {
+export type SharePageClientProps = {
   token?: string;
   data?: ShareData;
   status?: "expired" | "not-found";
-}
+};
 
 export type ShareStatus = "expired" | "not-found";
 
 // API response types
-export interface ShareLinkResponse {
+export type ShareLinkResponse = {
   shareLink: string;
   expiresAt: string;
-}
+};
 
-export interface ShareErrorResponse {
+export type ShareErrorResponse = {
   error: string;
-}
+};

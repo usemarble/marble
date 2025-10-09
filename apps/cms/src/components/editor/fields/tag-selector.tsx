@@ -146,7 +146,10 @@ export const TagSelector = ({
                 )}
                 {selected.map((item) => (
                   <li key={item.id}>
-                    <Badge className="font-normal" variant="outline">
+                    <Badge
+                      className="bg-background font-normal"
+                      variant="outline"
+                    >
                       {item.name}
                       <button
                         className="ml-1 h-auto p-0 hover:bg-transparent"
