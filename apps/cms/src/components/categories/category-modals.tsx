@@ -11,15 +11,19 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@marble/ui/components/alert-dialog";
+import { Button } from "@marble/ui/components/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@marble/ui/components/dialog";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
+import { Textarea } from "@marble/ui/components/textarea";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -62,6 +66,7 @@ export const CategoryModal = ({
     setValue,
     watch,
     setError,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<CreateCategoryValues>({
     resolver: zodResolver(categorySchema),
@@ -121,6 +126,7 @@ export const CategoryModal = ({
           queryKey: QUERY_KEYS.CATEGORIES(workspaceId),
         });
       }
+      reset();
     },
     onError: (error) => {
       toast.error(error.message);
@@ -151,7 +157,7 @@ export const CategoryModal = ({
         : await checkCategorySlugForUpdateAction(
             data.slug,
             workspaceId,
-            categoryData.id as string // Safe to assert after guard check
+            categoryData.id as string
           );
 
     if (isTaken) {
@@ -181,26 +187,43 @@ export const CategoryModal = ({
           onSubmit={handleSubmit(onSubmit)}
         >
           <div className="grid flex-1 gap-2">
-            <Label className="sr-only" htmlFor="name">
-              Name
-            </Label>
-            <Input id="name" {...register("name")} placeholder="Name" />
+            <Label htmlFor="name">Name</Label>
+            <Input
+              id="name"
+              {...register("name")}
+              placeholder="The name of the category"
+            />
             {errors.name && <ErrorMessage>{errors.name.message}</ErrorMessage>}
           </div>
           <div className="grid flex-1 gap-2">
-            <Label className="sr-only" htmlFor="slug">
-              Slug
-            </Label>
-            <Input id="slug" {...register("slug")} placeholder="slug" />
+            <Label htmlFor="slug">Slug</Label>
+            <Input
+              id="slug"
+              {...register("slug")}
+              placeholder="unique-identifier"
+            />
             {errors.slug && <ErrorMessage>{errors.slug.message}</ErrorMessage>}
           </div>
-          <AsyncButton
-            className="mt-4 flex w-full gap-2"
-            isLoading={isSubmitting}
-            type="submit"
-          >
-            {mode === "create" ? "Create Category" : "Update Category"}
-          </AsyncButton>
+          <div className="grid flex-1 gap-2">
+            <Label htmlFor="description">Description (optional)</Label>
+            <Textarea
+              id="description"
+              {...register("description")}
+              placeholder="A short description of the category"
+            />
+          </div>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <AsyncButton
+              className="gap-2"
+              isLoading={isSubmitting}
+              type="submit"
+            >
+              {mode === "create" ? "Create" : "Update"}
+            </AsyncButton>
+          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>

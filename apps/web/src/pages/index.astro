@@ -1,4 +1,8 @@
 ---
+import { Image } from "astro:assets";
+import editorImage from "@/assets/images/editor.png";
+import galleryImage from "@/assets/images/gallery.png";
+import postImage from "@/assets/images/posts.png";
 import Container from "@/components/Container.astro";
 import AccordionItem from "@/components/ui/AccordionItem.astro";
 import Layout from "@/layouts/Layout.astro";
@@ -11,12 +15,12 @@ import { APP, FAQs, PRICING, SITE, USERS } from "@/lib/constants";
 >
   <div class="divide-y divide-dashed">
     <!-- Hero section -->
-    <section class="border-t border-dashed h-[calc(100vh-120px)]">
+    <section class="border-t border-dashed">
       <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] grid place-content-center h-full mx-auto">
           <Container class="py-24 md:py-28 lg:py-40">
             <div class="relative mx-auto text-center space-y-6">
               <h1 class="relative text-4xl md:text-5xl max-w-[25ch] mx-auto lg:text-6xl">
-                Simple content management for modern sites
+                Simple content management for modern apps
               </h1>
               <p class="mx-auto max-w-[50ch] md:text-lg text-muted-foreground">
                 A clean, collaborative way to publish articles, changelogs, and product updates to your site
@@ -24,13 +28,18 @@ import { APP, FAQs, PRICING, SITE, USERS } from "@/lib/constants";
             <div class="mt-8 flex w-full items-center justify-center">
               <div>
                 <a href={`${APP.URL}`}
-                target="_blank"
-                class="flex gap-2 justify-center group w-48 bg-primary text-primary-foreground items-center py-3 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary focus-visible:ring-2 transition-all duration-300 ease-out px-4 group rounded"
-                >
-                <span>Get started</span>
-              </a>
+                  target="_blank"
+                  class="flex gap-2 justify-center font-medium group w-48 bg-primary text-primary-foreground items-center py-3 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary focus-visible:ring-2 transition-all duration-300 ease-out px-4 group rounded"
+                  >
+                  <span>Publish your first post</span>
+                </a>
+              </div>
             </div>
-          </div>
+            <div class="bg-gray-50/80 p-1 rounded-xl backdrop-blur-md border mt-14 md:mt-24 lg:mt-28">
+              <div class="border overflow-hidden rounded-[8px]">
+                <Image src={editorImage} alt="An preview of the Marble editor featuring a post in the editor and metadata in the sidebar" loading="eager" inferSize class="object-cover"/>
+              </div>
+            </div>
         </Container>
       </div>
     </section>

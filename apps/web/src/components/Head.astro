@@ -1,5 +1,6 @@
 ---
 import "@/styles/globals.css";
+import { Font } from "astro:assets";
 import { ClientRouter } from "astro:transitions";
 
 type Props = {
@@ -67,6 +68,10 @@ const { title, description, image = "/og.jpg" } = Astro.props;
   crossorigin="anonymous"
   async
 />
+
+<!-- Fonts -->
+<Font cssVariable="--font-geist" preload />
+<Font cssVariable="--font-literata" />
 
 <!-- Client Router -->
 <ClientRouter />

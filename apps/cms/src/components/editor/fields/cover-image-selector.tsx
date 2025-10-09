@@ -25,6 +25,7 @@ import {
   TrashIcon,
 } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import NextImage from "next/image";
 import { useState } from "react";
 import { type Control, useController } from "react-hook-form";
 import { z } from "zod";
@@ -135,16 +136,17 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
   const renderContent = () => {
     if (coverImage) {
       return (
-        <div className="group relative h-48 w-full overflow-hidden rounded-md border border-dashed">
-          {/* biome-ignore lint/performance/noImgElement: <> */}
-          <img
+        <div className="group/cover relative isolate h-48 w-full">
+          <NextImage
             alt="cover"
-            className="h-full w-full object-cover"
+            className="rounded-md object-cover"
+            fill
             src={coverImage}
+            unoptimized
           />
-          <div className="absolute inset-0 bg-black/50 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+          <div className="absolute inset-0 rounded-md bg-black/50 opacity-0 transition-opacity duration-300 group-hover/cover:opacity-100" />
           <button
-            className="absolute top-2 right-2 rounded-full bg-white p-2 text-black opacity-0 transition hover:text-destructive group-hover:opacity-100"
+            className="absolute top-2 right-2 rounded-full bg-white p-2 text-black opacity-0 transition hover:text-destructive group-hover/cover:opacity-100"
             onClick={() => onChange(null)}
             type="button"
           >
@@ -261,9 +263,8 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
       </div>
       {renderContent()}
 
-      {/* Media Gallery Drawer */}
       <Drawer onOpenChange={setIsGalleryOpen} open={isGalleryOpen}>
-        <DrawerContent className="mt-4 min-h-[95vh]">
+        <DrawerContent className="mt-4 flex min-h-[95vh] flex-col">
           <DrawerHeader className="sr-only">
             <DrawerTitle>Gallery</DrawerTitle>
             <DrawerDescription>
@@ -275,7 +276,6 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
             {media && media.length > 0 ? (
               <ScrollArea className="h-full">
                 <ul className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-4 p-4">
-                  {/* We will filter via query params once endpoint is updated */}
                   {media
                     .filter((item) => item.type === "image")
                     .map((item) => (
@@ -300,7 +300,7 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
                 </ul>
               </ScrollArea>
             ) : (
-              <div className="flex h-full items-center justify-center">
+              <div className="grid h-full place-items-center p-4">
                 <div className="flex flex-col items-center gap-2 text-muted-foreground">
                   <ImagesIcon className="size-8" />
                   <p className="font-medium text-sm">

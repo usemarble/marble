@@ -14,7 +14,8 @@ import {
 } from "@phosphor-icons/react";
 import { useState } from "react";
 import type { Author } from "@/types/author";
-import { AuthorModal, DeleteAuthorModal } from "./author-modals";
+import { DeleteAuthorModal } from "./author-modals";
+import { AuthorSheet } from "./author-sheet";
 
 type AuthorTableActionsProps = {
   author: Author;
@@ -59,7 +60,7 @@ export function AuthorTableActions({ author }: AuthorTableActionsProps) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <AuthorModal
+      <AuthorSheet
         authorData={author}
         mode="update"
         open={showEditModal}

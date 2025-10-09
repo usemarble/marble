@@ -90,6 +90,15 @@ export async function getInitialWorkspaceData() {
         logo: true,
         timezone: true,
         createdAt: true,
+        editorPreferences: {
+          select: {
+            ai: {
+              select: {
+                enabled: true,
+              },
+            },
+          },
+        },
         members: {
           select: {
             id: true,
@@ -138,6 +147,7 @@ export async function getInitialWorkspaceData() {
 
     return {
       ...workspace,
+      ai: workspace.editorPreferences?.ai ?? { enabled: false },
       currentUserRole: currentUserMember?.role || null,
     } as Workspace;
   } catch (error) {

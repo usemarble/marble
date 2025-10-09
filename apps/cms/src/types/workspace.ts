@@ -37,6 +37,9 @@ export type Workspace = {
     cancelAtPeriodEnd?: boolean;
     canceledAt?: string | Date | null;
   } | null;
+  ai: {
+    enabled: boolean;
+  } | null;
 };
 
 export type WorkspaceContextType = {

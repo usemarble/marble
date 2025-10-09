@@ -27,7 +27,7 @@ export const PageHeader = () => {
           general: "General",
           members: "Members",
           billing: "Billing",
-          schemas: "Schemas",
+          "editor-preferences": "Editor Preferences",
         };
 
         return subsectionMap[subsection] || subsection;

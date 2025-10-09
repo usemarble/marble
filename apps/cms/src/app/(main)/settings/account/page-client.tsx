@@ -28,6 +28,7 @@ import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
 import { DeleteAccountModal } from "@/components/settings/delete-account-modal";
 import { ThemeSwitch } from "@/components/settings/theme";
+import PageLoader from "@/components/shared/page-loader";
 import { AsyncButton } from "@/components/ui/async-button";
 import { CopyButton } from "@/components/ui/copy-button";
 import { uploadFile } from "@/lib/media/upload";
@@ -37,7 +38,7 @@ import { useUser } from "@/providers/user";
 
 function PageClient() {
   const queryClient = useQueryClient();
-  const { user, updateUser, isUpdatingUser } = useUser();
+  const { user, updateUser, isUpdatingUser, isFetchingUser } = useUser();
   const [isChanged, setIsChanged] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | undefined>(
     user?.image ?? undefined
@@ -114,6 +115,10 @@ function PageClient() {
     }
   }, [file, handleAvatarUpload]);
 
+  if (isFetchingUser) {
+    return <PageLoader />;
+  }
+
   return (
     <div className="mx-auto flex w-full max-w-(--breakpoint-md) flex-col gap-8 py-12">
       <div className="py-4">
@@ -127,8 +132,8 @@ function PageClient() {
       <div className="flex flex-col gap-8 py-12">
         <Card className="flex justify-between">
           <CardHeader>
-            <CardTitle className="font-medium text-lg">Theme.</CardTitle>
-            <CardDescription>Chose your preferred theme.</CardDescription>
+            <CardTitle className="font-medium text-lg">Theme</CardTitle>
+            <CardDescription>Choose your preferred theme.</CardDescription>
           </CardHeader>
           <CardContent className="center flex items-center">
             <ThemeSwitch />
@@ -141,7 +146,7 @@ function PageClient() {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle className="font-medium text-lg">Avatar.</CardTitle>
+            <CardTitle className="font-medium text-lg">Avatar</CardTitle>
             <CardDescription>Change your profile picture.</CardDescription>
           </CardHeader>
           <CardContent className="justify-end">
@@ -244,7 +249,7 @@ function PageClient() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="font-medium text-lg">Email.</CardTitle>
+            <CardTitle className="font-medium text-lg">Email</CardTitle>
             <CardDescription>
               Email associated with your account.
             </CardDescription>

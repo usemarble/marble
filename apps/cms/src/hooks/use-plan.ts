@@ -10,6 +10,7 @@ import {
   type PlanLimits,
   type PlanType,
 } from "@/lib/plans";
+import { QUERY_KEYS } from "@/lib/queries/keys";
 import { useWorkspace } from "@/providers/workspace";
 
 type BillingUsage = {
@@ -48,7 +49,8 @@ export function usePlan() {
   };
 
   const { data } = useQuery({
-    queryKey: ["billing-usage", activeWorkspace?.id],
+    // biome-ignore lint/style/noNonNullAssertion: <>
+    queryKey: QUERY_KEYS.BILLING_USAGE(activeWorkspace!.id),
     staleTime: 1000 * 60 * 5,
     queryFn: async (): Promise<BillingUsage> => {
       const res = await fetch("/api/billing/usage");

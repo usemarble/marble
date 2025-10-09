@@ -22,6 +22,7 @@ export const PostsQuerySchema = z.object({
     .default("1"),
   order: OrderSchema,
   category: z.string().optional(),
+  author: z.string().optional(),
   exclude: z
     .string()
     .transform((val) =>
@@ -36,21 +37,25 @@ export const PostsQuerySchema = z.object({
     .transform((val) => val.split(",").filter(Boolean))
     .optional(),
   query: z.string().optional(),
+  include: z
+    .string()
+    .transform((val) =>
+      val
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+    )
+    .optional(),
 });
 
-export const BasicPaginationSchema = z.object({
-  limit: z
+export const PostQuerySchema = z.object({
+  include: z
     .string()
-    .transform((val) => {
-      const num = Number.parseInt(val, 10);
-      return Number.isNaN(num) ? 10 : Math.max(1, Math.min(100, num));
-    })
-    .default("10"),
-  page: z
-    .string()
-    .transform((val) => {
-      const num = Number.parseInt(val, 10);
-      return Number.isNaN(num) ? 1 : Math.max(1, num);
-    })
-    .default("1"),
+    .transform((val) =>
+      val
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+    )
+    .optional(),
 });

@@ -12,6 +12,7 @@ Ultracite enforces strict type safety, accessibility standards, and consistent c
 - Subsecond performance
 - Maximum type safety
 - AI-friendly code generation
+- Always use pnpm as the package manager
 
 ## Before Writing Code
 1. Analyze existing patterns in the codebase
@@ -301,6 +302,10 @@ Ultracite enforces strict type safety, accessibility standards, and consistent c
 - Don't use `<head>` elements in Next.js projects.
 - Don't import next/document outside of pages/_document.jsx in Next.js projects.
 - Don't use the next/head module in pages/_document.js on Next.js projects.
+
+### Phosphor Icons
+- Always use the Phosphor Icons package.
+- Always use icon as the suffix for the icon component e.g. `UploadSimpleIcon` instead of `UploadSimple`.
 
 ### Testing Best Practices
 - Don't use export or module.exports in test files.

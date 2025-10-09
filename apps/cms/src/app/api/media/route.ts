@@ -3,10 +3,10 @@ import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { R2_BUCKET_NAME, r2 } from "@/lib/r2";
-import { DeleteSchema } from "@/lib/validations/upload";
+import { DeleteSchema, GetSchema } from "@/lib/validations/upload";
 import { getWebhooks, WebhookClient } from "@/lib/webhooks/webhook-client";
 
-export async function GET() {
+export async function GET(request: Request) {
   const sessionData = await getServerSession();
 
   if (!sessionData) {
@@ -22,20 +22,99 @@ export async function GET() {
     );
   }
 
-  const media = await db.media.findMany({
-    where: { workspaceId: orgId },
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      name: true,
-      url: true,
-      createdAt: true,
-      type: true,
-      size: true,
-    },
-  });
+  const { searchParams } = new URL(request.url);
+  const parsed = GetSchema.safeParse(Object.fromEntries(searchParams));
 
-  return NextResponse.json(media, { status: 200 });
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.message }, { status: 400 });
+  }
+
+  const { limit, cursor, type, sort } = parsed.data;
+
+  // Break sort option into field + direction (e.g. "createdAt_desc")
+  const [field, direction] = sort.split("_") as [
+    "createdAt" | "name",
+    "asc" | "desc",
+  ];
+  const orderBy = [{ [field]: direction }, { id: direction }];
+
+  try {
+    const hasAnyMedia =
+      (await db.media.count({
+        where: { workspaceId: orgId },
+      })) > 0;
+
+    // Parse the validated cursor (format: `${id}_${encodedValue}`)
+    let cursorId: string | null = null;
+    let parsedCursorValue: string | Date | null = null;
+    if (cursor) {
+      const [idPart, ...rest] = cursor.split("_");
+      const encodedValue = rest.join("_");
+      const valuePart = decodeURIComponent(encodedValue);
+      cursorId = idPart || null;
+      if (valuePart) {
+        parsedCursorValue =
+          field === "createdAt" ? new Date(valuePart) : valuePart;
+      }
+    }
+
+    // Fetch one more than the requested limit to detect "hasNextPage"
+    const media = await db.media.findMany({
+      where: {
+        workspaceId: orgId,
+        ...(type && { type }),
+        ...(cursorId &&
+          parsedCursorValue !== null && {
+            OR: [
+              {
+                [field]: {
+                  [direction === "asc" ? "gt" : "lt"]: parsedCursorValue,
+                },
+              },
+              {
+                [field]: parsedCursorValue,
+                id: { [direction === "asc" ? "gt" : "lt"]: cursorId },
+              },
+            ],
+          }),
+      },
+      take: limit + 1,
+      orderBy,
+      select: {
+        id: true,
+        name: true,
+        url: true,
+        createdAt: true,
+        type: true,
+        size: true,
+      },
+    });
+
+    let nextCursor: typeof cursor | undefined;
+
+    // If more than "limit" items, drop the extra and set next cursor
+    if (media.length > limit) {
+      media.pop();
+      const lastItem = media.at(-1);
+
+      if (lastItem) {
+        const value =
+          field === "createdAt"
+            ? lastItem.createdAt.toISOString()
+            : lastItem.name;
+        nextCursor = `${lastItem.id}_${encodeURIComponent(value)}`;
+      }
+    }
+
+    return NextResponse.json(
+      { media, nextCursor, hasAnyMedia },
+      { status: 200 }
+    );
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Failed to fetch media";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }
 
 export async function DELETE(request: Request) {

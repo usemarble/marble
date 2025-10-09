@@ -43,9 +43,6 @@ export function MediaUploadModal({
     onSuccess: (data: Media) => {
       if (workspaceId) {
         queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.MEDIA(workspaceId),
-        });
-        queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.BILLING_USAGE(workspaceId),
         });
       }

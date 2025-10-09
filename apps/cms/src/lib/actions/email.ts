@@ -6,9 +6,12 @@ import { InviteUserEmail } from "@/components/emails/invite";
 import { ResetPasswordEmail } from "@/components/emails/reset";
 import { VerifyUserEmail } from "@/components/emails/verify";
 import { WelcomeEmail } from "@/components/emails/welcome";
+import { sendDevEmail } from "@/lib/devEmail";
 import { getServerSession } from "../auth/session";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resendApiKey = process.env.RESEND_API_KEY;
+const isDevelopment = process.env.NODE_ENV === "development";
+const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
 type SendInviteEmailProps = {
   inviteeEmail: string;
@@ -28,10 +31,26 @@ export async function sendInviteEmailAction({
   inviteLink,
   teamLogo,
 }: SendInviteEmailProps) {
-  if (!process.env.RESEND_API_KEY) {
-    console.error("RESEND_API_KEY is not set");
-    return { error: "Email configuration missing" };
+  if (!resend && isDevelopment) {
+    return sendDevEmail({
+      from: "Marble <emails@marblecms.com>",
+      to: inviteeEmail,
+      subject: `Join ${workspaceName} on Marble`,
+      text: "This is a mock invite email",
+      _mockContext: {
+        type: "invite",
+        data: {
+          inviteeEmail,
+          inviterName,
+          inviterEmail,
+          workspaceName,
+          inviteLink,
+          teamLogo: teamLogo || "default",
+        },
+      },
+    });
   }
+
   const session = await getServerSession();
 
   if (!session) {
@@ -39,6 +58,10 @@ export async function sendInviteEmailAction({
       { error: "Failed to send email" },
       { status: 401 }
     );
+  }
+
+  if (!resend) {
+    throw new Error("Resend API key not set");
   }
 
   try {
@@ -82,14 +105,27 @@ export async function sendVerificationEmailAction({
   otp: string;
   type: "sign-in" | "email-verification" | "forget-password";
 }) {
-  if (!process.env.RESEND_API_KEY) {
-    console.error("RESEND_API_KEY is not set");
-    return { error: "Email configuration missing" };
+  console.log("called verification email");
+
+  if (!resend && isDevelopment) {
+    return sendDevEmail({
+      from: "Verification <emails@marblecms.com>",
+      to: userEmail,
+      text: "This is a mock verification email",
+      subject: "Verify your email address",
+      _mockContext: {
+        type: "verification",
+        data: { userEmail, otp, verificationType: type },
+      },
+    });
   }
 
-  console.log("called verification email");
+  if (!resend) {
+    throw new Error("Resend API key not set");
+  }
+
   try {
-    const response = await resend.emails.send({
+    await resend.emails.send({
       from: "Verification <emails@marblecms.com>",
       to: userEmail,
       subject: "Verify your email address",
@@ -120,12 +156,20 @@ export async function sendResetPasswordAction({
   userEmail: string;
   resetLink: string;
 }) {
-  if (!process.env.RESEND_API_KEY) {
-    console.error("RESEND_API_KEY is not set");
-    return { error: "Email configuration missing" };
+  if (!resend && isDevelopment) {
+    return sendDevEmail({
+      from: "MarbleCMS <emails@marblecms.com>",
+      to: userEmail,
+      text: "This is a mock reset password email",
+      subject: "Reset Your Password",
+      _mockContext: { type: "reset", data: { userEmail, resetLink } },
+    });
   }
 
-  console.log("called verification email");
+  if (!resend) {
+    throw new Error("Resend API key not set");
+  }
+
   try {
     const response = await resend.emails.send({
       from: "MarbleCMS <emails@marblecms.com>",
@@ -156,9 +200,18 @@ export async function sendWelcomeEmailAction({
 }: {
   userEmail: string;
 }) {
-  if (!process.env.RESEND_API_KEY) {
-    console.error("RESEND_API_KEY is not set");
-    return { error: "Email configuration missing" };
+  if (!resend && isDevelopment) {
+    return sendDevEmail({
+      from: "MarbleCMS <emails@marblecms.com>",
+      to: userEmail,
+      text: "This is a mock welcome email",
+      subject: "Welcome to Marble!",
+      _mockContext: { type: "welcome", data: { userEmail } },
+    });
+  }
+
+  if (!resend) {
+    throw new Error("Resend API key not set");
   }
 
   try {
@@ -170,6 +223,7 @@ export async function sendWelcomeEmailAction({
         userEmail,
       }),
     });
+
     return { message: "Email sent successfully" };
   } catch (error) {
     console.error("Detailed error sending email:", error);

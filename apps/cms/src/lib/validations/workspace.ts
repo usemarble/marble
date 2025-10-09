@@ -1,10 +1,15 @@
 import { z } from "zod";
-import { timezones } from "@/lib/constants";
+import {
+  SOCIAL_PLATFORMS,
+  type SocialPlatform,
+  timezones,
+} from "@/lib/constants";
 
 // Tag Schema
 export const tagSchema = z.object({
   name: z.string().trim().min(1, { message: "Name cannot be empty" }),
   slug: z.string().trim().min(1, { message: "Slug cannot be empty" }),
+  description: z.string().trim().optional(),
 });
 export type CreateTagValues = z.infer<typeof tagSchema>;
 
@@ -12,6 +17,7 @@ export type CreateTagValues = z.infer<typeof tagSchema>;
 export const categorySchema = z.object({
   name: z.string().trim().min(1, { message: "Name cannot be empty" }),
   slug: z.string().trim().min(1, { message: "Slug cannot be empty" }),
+  description: z.string().trim().optional(),
 });
 export type CreateCategoryValues = z.infer<typeof categorySchema>;
 
@@ -23,7 +29,7 @@ export const workspaceSchema = z.object({
     .max(32, { message: "Name cannot be more than 32 characters" }),
   slug: z
     .string()
-    .min(4, { message: "Slug cannot be empty" })
+    .min(4, { message: "Slug must be at least 4 characters long" })
     .max(32, { message: "Slug cannot be more than 32 characters" })
     .regex(/^[a-z0-9]+([a-z0-9-]*[a-z0-9])?$/, {
       message:
@@ -51,7 +57,7 @@ export type NameValues = z.infer<typeof nameSchema>;
 export const slugSchema = z.object({
   slug: z
     .string()
-    .min(4, { message: "Slug cannot be empty" })
+    .min(4, { message: "Slug must be at least 4 characters long" })
     .max(32, { message: "Slug cannot be more than 32 characters" })
     .regex(/^[a-z0-9]+([a-z0-9-]*[a-z0-9])?$/, {
       message:
@@ -66,33 +72,10 @@ export const timezoneSchema = z.object({
 });
 export type TimezoneValues = z.infer<typeof timezoneSchema>;
 
-// Author Schema
-export const authorSchema = z.object({
-  name: z.string().trim().min(1, { message: "Name cannot be empty" }),
-  role: z
-    .string()
-    .trim()
-    .transform((v) => (v === "" ? undefined : v))
-    .optional(),
-  bio: z
-    .string()
-    .trim()
-    .transform((v) => (v === "" ? undefined : v))
-    .optional(),
-  image: z.string().nullable().optional(),
-  userId: z.string().nullable().optional(),
-  email: z
-    .string()
-    .email({ message: "Please enter a valid email address" })
-    .optional()
-    .or(z.literal("")),
-  slug: z
-    .string()
-    .min(4, { message: "Slug cannot be empty" })
-    .max(32, { message: "Slug cannot be more than 32 characters" })
-    .regex(/^[a-z0-9]+([a-z0-9-]*[a-z0-9])?$/, {
-      message:
-        "Slug must start and end with letters or digits, and only contain lowercase letters, digits, and hyphens",
-    }),
+// AI Integration Enable Schema
+export const aiEnableSchema = z.object({
+  ai: z.object({
+    enabled: z.boolean(),
+  }),
 });
-export type CreateAuthorValues = z.infer<typeof authorSchema>;
+export type AiEnableValues = z.infer<typeof aiEnableSchema>;
