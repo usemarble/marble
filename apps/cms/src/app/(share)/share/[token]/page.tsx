@@ -8,34 +8,43 @@ type SharePageProps = {
 };
 
 async function fetchShareData(token: string) {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_APP_URL}/api/share/${token}`,
-    {
-      cache: "force-cache",
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_APP_URL}/api/share/${token}`,
+      {
+        cache: "force-cache",
+      }
+    );
+
+    if (response.status === 404) {
+      notFound();
     }
-  );
 
-  if (response.status === 404) {
-    notFound();
+    if (response.status === 410) {
+      return { status: "expired" as ShareStatus };
+    }
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch share data: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+
+    const highlightedContent = await highlightContent(data.post.content);
+
+    return {
+      data: {
+        ...data,
+        post: {
+          ...data.post,
+          content: highlightedContent,
+        },
+      } as ShareData,
+    };
+  } catch (error) {
+    console.error("Error fetching share data:", error);
+    throw error;
   }
-
-  if (response.status === 410) {
-    return { status: "expired" as ShareStatus };
-  }
-
-  const data = await response.json();
-
-  const highlightedContent = await highlightContent(data.post.content);
-
-  return {
-    data: {
-      ...data,
-      post: {
-        ...data.post,
-        content: highlightedContent,
-      },
-    } as ShareData,
-  };
 }
 
 async function SharePage(props: SharePageProps) {
