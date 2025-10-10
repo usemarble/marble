@@ -1,7 +1,7 @@
-import {
+import type {
   MEDIA_FILTER_TYPES,
   MEDIA_SORTS,
-  type MEDIA_TYPES,
+  MEDIA_TYPES,
 } from "@/lib/constants";
 
 export type MediaType = (typeof MEDIA_TYPES)[number];
@@ -21,18 +21,10 @@ export type Media = {
 
 export type MediaSort = (typeof MEDIA_SORTS)[number];
 
-export function isMediaSort(value: string): value is MediaSort {
-  return MEDIA_SORTS.includes(value);
-}
-
-export function isMediaFilterType(
-  value: MediaFilterType
-): value is MediaFilterType {
-  return MEDIA_FILTER_TYPES.includes(value);
-}
-
-export function toMediaType(value: MediaFilterType): MediaType | undefined {
-  return value === "all" ? undefined : value;
-}
-
 export type MediaQueryKey = [string[], { type?: string; sort: MediaSort }];
+
+export type MediaListResponse = {
+  media: Media[];
+  nextCursor?: string;
+  hasAnyMedia: boolean;
+};

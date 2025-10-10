@@ -16,7 +16,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@marble/ui/components/tabs";
-import { SpinnerIcon } from "@phosphor-icons/react";
+import { ImagesIcon, SpinnerIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEditor } from "novel";
 import { useState } from "react";
@@ -25,7 +25,7 @@ import { AsyncButton } from "@/components/ui/async-button";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { uploadFile } from "@/lib/media/upload";
 import { QUERY_KEYS } from "@/lib/queries/keys";
-import type { Media } from "@/types/media";
+import type { Media, MediaListResponse } from "@/types/media";
 
 type ImageUploadModalProps = {
   isOpen: boolean;
@@ -105,9 +105,13 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
     queryKey: QUERY_KEYS.MEDIA(workspaceId!),
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
-      const res = await fetch("/api/media");
-      const data: Media[] = await res.json();
-      return data;
+      try {
+        const res = await fetch("/api/media");
+        const data: MediaListResponse = await res.json();
+        return data.media;
+      } catch (_error) {
+        return [];
+      }
     },
     enabled: !!workspaceId,
   });
@@ -120,8 +124,8 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
           Upload an image from your computer or embed an image from the web.
         </DialogDescription>
       </DialogHeader>
-      <DialogContent className="max-h-96 max-w-xl">
-        <Tabs className="w-full" defaultValue="upload">
+      <DialogContent className="w-full sm:min-h-[580px] sm:max-w-4xl">
+        <Tabs className="h-full w-full" defaultValue="upload">
           <TabsList className="mb-4 flex justify-start" variant="line">
             <TabsTrigger value="upload">Upload</TabsTrigger>
             <TabsTrigger value="embed">Embed</TabsTrigger>
@@ -129,53 +133,51 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
           </TabsList>
           {/*  */}
           <TabsContent value="upload">
-            <section className="space-y-4">
-              <div className="min-h-52">
-                {file ? (
-                  <div className="flex flex-col gap-4">
-                    <div className="relative h-full w-full">
-                      {/* biome-ignore lint/performance/noImgElement: <> */}
-                      <img
-                        alt="cover"
-                        className="h-full max-h-52 w-full rounded-md object-cover"
-                        src={URL.createObjectURL(file)}
-                      />
-                      {isUploading && (
-                        <div className="absolute inset-0 grid size-full place-content-center rounded-md bg-black/50 p-2 backdrop-blur-xs">
-                          <div className="flex flex-col items-center gap-2">
-                            <SpinnerIcon className="size-5 animate-spin text-white" />
-                            <p className="text-sm text-white">Uploading...</p>
-                          </div>
+            <section className="flex h-full space-y-4">
+              {file ? (
+                <div className="flex flex-col gap-4">
+                  <div className="relative h-full w-full">
+                    {/* biome-ignore lint/performance/noImgElement: <> */}
+                    <img
+                      alt="cover"
+                      className="h-full w-full rounded-md object-cover"
+                      src={URL.createObjectURL(file)}
+                    />
+                    {isUploading && (
+                      <div className="absolute inset-0 grid size-full place-content-center rounded-md bg-black/50 p-2 backdrop-blur-xs">
+                        <div className="flex flex-col items-center gap-2">
+                          <SpinnerIcon className="size-5 animate-spin text-white" />
+                          <p className="text-sm text-white">Uploading...</p>
                         </div>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
-                ) : (
-                  <ImageDropzone
-                    className="flex h-64 w-full cursor-pointer items-center justify-center rounded-md border border-dashed bg-background"
-                    multiple={false}
-                    onFilesAccepted={(files: File[]) => {
-                      if (files[0]) {
-                        setFile(files[0]);
-                        uploadImage(files[0]);
-                      }
-                    }}
-                  />
-                )}
-              </div>
+                </div>
+              ) : (
+                <ImageDropzone
+                  className="flex h-full w-full cursor-pointer items-center justify-center rounded-md border border-dashed bg-editor-field"
+                  multiple={false}
+                  onFilesAccepted={(files: File[]) => {
+                    if (files[0]) {
+                      setFile(files[0]);
+                      uploadImage(files[0]);
+                    }
+                  }}
+                />
+              )}
             </section>
           </TabsContent>
           <TabsContent value="embed">
-            <section className="space-y-8">
-              <div className="flex flex-col gap-6">
+            <section className="flex h-full flex-col items-center justify-center gap-6 space-y-4 rounded-md bg-editor-field-background p-6">
+              <div className="flex w-full justify-center gap-4">
                 <Input
+                  className="w-2/3 bg-editor-content-background"
                   disabled={isValidatingUrl}
                   onChange={({ target }) => setEmbedUrl(target.value)}
                   placeholder="Paste your image link"
                   value={embedUrl}
                 />
                 <AsyncButton
-                  className="mx-auto w-52"
                   disabled={isValidatingUrl || !embedUrl}
                   onClick={() => handleEmbed(embedUrl)}
                 >
@@ -185,41 +187,42 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
             </section>
           </TabsContent>
           <TabsContent value="media">
-            <ScrollArea className="h-72">
-              <section className="flex flex-col gap-4 p-4">
-                {media && media.length > 0 ? (
-                  <ul className="grid max-h-[400px] grid-cols-3 gap-2 overflow-y-auto">
-                    {/* ONCE video extension is added, we need to filter out videos */}
+            {media && media.length > 0 ? (
+              <ScrollArea className="max-h-[580px] overflow-y-auto">
+                <section className="flex flex-col gap-4 p-4">
+                  <ul className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-4 p-4">
                     {media
                       .filter((item) => item.type === "image")
                       .map((item) => (
-                        <li className="border" key={item.id}>
+                        <li
+                          className="group relative h-42 overflow-hidden rounded-[4px]"
+                          key={item.id}
+                        >
                           <button
+                            className="h-full w-full cursor-pointer"
                             onClick={() => handleEmbed(item.url)}
                             type="button"
                           >
                             {/* biome-ignore lint/performance/noImgElement: <> */}
                             <img
                               alt={item.name}
-                              className="h-24 object-cover"
+                              className="h-full w-full object-cover"
                               src={item.url}
                             />
                           </button>
-                          <p className="line-clamp-1 px-1 py-0.5 text-muted-foreground text-xs">
-                            {item.name}
-                          </p>
                         </li>
                       ))}
                   </ul>
-                ) : (
-                  <div className="grid h-full place-content-center">
-                    <div className="flex flex-col items-center gap-4">
-                      <p>Your previously uploaded media will show up here </p>
-                    </div>
-                  </div>
-                )}
-              </section>
-            </ScrollArea>
+                </section>
+              </ScrollArea>
+            ) : (
+              <div className="flex h-full flex-col items-center justify-center gap-2 text-muted-foreground">
+                <ImagesIcon className="size-8" />
+                <p className="font-medium text-sm">
+                  Your gallery is empty. Upload some media to get started.
+                </p>
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </DialogContent>

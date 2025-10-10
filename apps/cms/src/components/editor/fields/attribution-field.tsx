@@ -49,6 +49,7 @@ export function AttributionField({ control, errors }: AttributionFieldProps) {
         <div className="mt-2 space-y-4">
           <div className="space-y-2">
             <Input
+              className="col-span-3 bg-editor-field"
               onChange={(e) => {
                 onChange({
                   author: e.target.value,
@@ -67,6 +68,7 @@ export function AttributionField({ control, errors }: AttributionFieldProps) {
 
           <div className="space-y-2">
             <Input
+              className="col-span-3 bg-editor-field"
               onChange={(e) => {
                 onChange({
                   author: value?.author || "",

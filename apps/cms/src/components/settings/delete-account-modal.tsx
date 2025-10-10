@@ -13,6 +13,7 @@ import { Button } from "@marble/ui/components/button";
 import { toast } from "@marble/ui/components/sonner";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { authClient } from "@/lib/auth/client";
 import { useUser } from "@/providers/user";
 import { AsyncButton } from "../ui/async-button";
 
@@ -20,16 +21,9 @@ export function DeleteAccountModal() {
   const router = useRouter();
   const { signOut } = useUser();
 
-  const accountId: string | null = null;
-
   const { mutate: deleteAccount, isPending } = useMutation({
-    mutationFn: () => {
-      if (!accountId) {
-        throw new Error("Account ID is missing");
-      }
-      return fetch(`/api/accounts/${accountId}`, {
-        method: "DELETE",
-      });
+    mutationFn: async () => {
+      await authClient.deleteUser();
     },
     onSuccess: async () => {
       toast.success("Account deleted successfully.");
@@ -54,9 +48,6 @@ export function DeleteAccountModal() {
             account, your workspaces and all associated data within.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        {/* <form>
-          todo: show confirmation inputs
-       </form> */}
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
           <AlertDialogAction asChild>

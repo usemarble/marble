@@ -19,13 +19,16 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import {
+  CharacterCount,
   EditorContent,
   type EditorInstance,
   EditorRoot,
+  handleCommandNavigation,
+  handleImageDrop,
+  handleImagePaste,
   type JSONContent,
 } from "novel";
-import { CharacterCount, handleCommandNavigation } from "novel/extensions";
-import { SetStateAction, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { EditorSidebar } from "@/components/editor/editor-sidebar";
 import { HiddenScrollbar } from "@/components/editor/hidden-scrollbar";
@@ -37,6 +40,8 @@ import { useUnsavedChanges } from "@/providers/unsaved-changes";
 import { generateSlug } from "@/utils/string";
 import { BubbleMenu } from "./bubble-menu";
 import { defaultExtensions } from "./extensions";
+import { uploadFn } from "./image-upload";
+import { ShareModal } from "./share-modal";
 import { slashCommand } from "./slash-command-items";
 import { SlashCommandMenu } from "./slash-command-menu";
 import { TextareaAutosize } from "./textarea-autosize";
@@ -214,7 +219,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                 <Link
                   className={cn(
                     buttonVariants({ variant: "ghost", size: "icon" }),
-                    "group cursor-default rounded-full"
+                    "group cursor-default"
                   )}
                   href={`/${params.workspace}/posts`}
                 >
@@ -227,10 +232,11 @@ function EditorPage({ initialData, id }: EditorPageProps) {
             </Tooltip>
           </div>
 
-          <div>
+          <div className="flex items-center gap-2">
+            {id && <ShareModal postId={id} />}
             <Tooltip delayDuration={400}>
               <TooltipTrigger asChild>
-                <SidebarTrigger className="size-8 rounded-full text-muted-foreground">
+                <SidebarTrigger className="size-8 text-muted-foreground">
                   <SidebarSimpleIcon className="size-4" />
                 </SidebarTrigger>
               </TooltipTrigger>
@@ -271,6 +277,10 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                     handleDOMEvents: {
                       keydown: (_view, event) => handleCommandNavigation(event),
                     },
+                    handlePaste: (view, event) =>
+                      handleImagePaste(view, event, uploadFn),
+                    handleDrop: (view, event, _slice, moved) =>
+                      handleImageDrop(view, event, moved, uploadFn),
                     attributes: {
                       class:
                         "prose dark:prose-invert min-h-96 h-full sm:px-4 focus:outline-hidden max-w-full prose-blockquote:border-border",

@@ -133,7 +133,7 @@ export function AuthorSelector({
       isNewPost
     ) {
       onChange([derivedPrimaryAuthor.id]);
-      console.log("auto selected primary author", derivedPrimaryAuthor);
+      // console.log("auto selected primary author", derivedPrimaryAuthor);
     }
   }, [authors, derivedPrimaryAuthor, onChange, isLoading, value, isNewPost]);
 
