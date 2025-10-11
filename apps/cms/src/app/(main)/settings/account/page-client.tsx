@@ -124,7 +124,13 @@ function PageClient() {
       <div className="py-4">
         <div className="flex items-center justify-between gap-2">
           <h1 className="font-medium text-lg">Account Settings</h1>
-          <Link className={cn(buttonVariants({ variant: "outline" }))} href="/">
+          <Link
+            className={cn(
+              "shadow-none",
+              buttonVariants({ variant: "outline" })
+            )}
+            href="/"
+          >
             Dashboard
           </Link>
         </div>

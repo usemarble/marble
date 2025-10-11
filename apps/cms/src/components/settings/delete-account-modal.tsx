@@ -45,23 +45,23 @@ export function DeleteAccountModal() {
           <AlertDialogTitle>Delete account?</AlertDialogTitle>
           <AlertDialogDescription>
             This action cannot be undone. This will permanently delete your
-            account, your workspaces and all associated data within.
+            account, your workspaces and all associated data.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
-          <AlertDialogAction asChild>
-            <AsyncButton
-              isLoading={isPending}
-              onClick={(e) => {
-                e.preventDefault();
-                deleteAccount();
-              }}
-              variant="destructive"
-            >
-              Delete
-            </AsyncButton>
-          </AlertDialogAction>
+          <AlertDialogCancel className="shadow-none" disabled={isPending}>
+            Cancel
+          </AlertDialogCancel>
+          <AsyncButton
+            isLoading={isPending}
+            onClick={(e) => {
+              e.preventDefault();
+              deleteAccount();
+            }}
+            variant="destructive"
+          >
+            Delete
+          </AsyncButton>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
