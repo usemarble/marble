@@ -6,7 +6,7 @@ import { InviteUserEmail } from "@/components/emails/invite";
 import { ResetPasswordEmail } from "@/components/emails/reset";
 import { VerifyUserEmail } from "@/components/emails/verify";
 import { WelcomeEmail } from "@/components/emails/welcome";
-import { sendDevEmail } from "@/lib/devEmail";
+import { sendDevEmail } from "@/lib/email";
 import { getServerSession } from "../auth/session";
 
 const resendApiKey = process.env.RESEND_API_KEY;

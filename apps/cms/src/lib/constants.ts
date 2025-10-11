@@ -1,4 +1,5 @@
 export type PricingPlan = {
+  id: string;
   title: string;
   description: string;
   price: {
@@ -22,19 +23,41 @@ export const VALID_SLACK_DOMAINS = ["hooks.slack.com"];
 
 export const PRICING_PLANS: PricingPlan[] = [
   {
+    id: "free",
+    title: "Hobby",
+    description: "For Hobbyists",
+    price: {
+      monthly: "$0",
+      yearly: "$0",
+    },
+    features: [
+      "Unlimited posts",
+      "1GB media storage",
+      "2 team members",
+      "AI Readability insights",
+      "10k API requests per month",
+      "100 webhook events per month",
+    ],
+    button: {
+      href: "https://app.marblecms.com",
+      label: "Start for free",
+    },
+  },
+  {
+    id: "pro",
     title: "Pro",
     description: "For Small Teams",
     price: {
-      monthly: "$10",
-      yearly: "$100",
+      monthly: "$20",
+      yearly: "$180",
     },
     features: [
-      "Everything in Hobby",
-      "2 GB media storage",
-      "Up to 10 team members",
+      "Unlimited posts",
+      "10GB media storage",
+      "10 team members",
+      "AI Readability insights",
       "50k API requests per month",
-      "Readability insights",
-      //"Keyword optimization suggestions",
+      "1k webhook events per month",
     ],
     button: {
       href: "https://app.marblecms.com",
