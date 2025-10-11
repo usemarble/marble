@@ -1,6 +1,5 @@
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -45,7 +44,7 @@ export function DeleteAccountModal() {
           <AlertDialogTitle>Delete account?</AlertDialogTitle>
           <AlertDialogDescription>
             This action cannot be undone. This will permanently delete your
-            account, your workspaces and all associated data.
+            account, your workspaces and all associated data within.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

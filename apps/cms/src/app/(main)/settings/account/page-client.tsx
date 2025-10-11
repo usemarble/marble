@@ -26,7 +26,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
-import { DeleteAccountModal } from "@/components/settings/delete-account-modal";
+import { DeleteAccountModal } from "@/components/settings/delete-account";
 import { ThemeSwitch } from "@/components/settings/theme";
 import PageLoader from "@/components/shared/page-loader";
 import { AsyncButton } from "@/components/ui/async-button";
