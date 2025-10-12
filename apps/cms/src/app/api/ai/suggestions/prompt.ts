@@ -25,7 +25,7 @@ export const systemPrompt = ({ metrics }: SystemPromptParams) => {
         - Clarity and ambiguity issues
 
         ## HEADING-STRUCTURE-RULES
-        - Maximum 1 # heading (should be the main title, so 0 in body text)
+        - No main heading (#) should be used.
         - Proper hierarchy: ## follows #, ### follows ##, etc.
         - No skipping levels (don't go from # to ####)
         - Check Markdown (#, ##) syntax
