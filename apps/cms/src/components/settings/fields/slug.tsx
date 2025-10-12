@@ -42,7 +42,6 @@ export function Slug() {
       organizationId: string;
       payload: SlugValues;
     }) => {
-      console.log(payload.slug);
       const { data, error } = await organization.checkSlug({
         slug: payload.slug,
       });
