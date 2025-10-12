@@ -26,9 +26,9 @@ export const systemPrompt = ({ metrics }: SystemPromptParams) => {
 
         ## HEADING-STRUCTURE-RULES
         - No main heading (#) should be used.
-        - Proper hierarchy: ## follows #, ### follows ##, etc.
-        - No skipping levels (don't go from # to ####)
-        - Check Markdown (#, ##) syntax
+        - Proper hierarchy: ### follows ##, #### follows ###, etc.
+        - No skipping levels (don't go from ## to ####)
+        - Check Markdown (##, ###) syntax
         - Don't mention this syntax to the user use "heading 2/3/4" etc.
 
         ## TEXT-METRICS-INPUT

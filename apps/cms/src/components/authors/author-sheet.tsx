@@ -22,13 +22,13 @@ import { toast } from "@marble/ui/components/sonner";
 import { Textarea } from "@marble/ui/components/textarea";
 import { cn } from "@marble/ui/lib/utils";
 import {
+  CircleNotchIcon,
   ImageIcon,
   PlusIcon,
   UploadSimpleIcon,
   XIcon,
 } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
@@ -315,7 +315,7 @@ export const AuthorSheet = ({
                       )}
                     >
                       {isUploading ? (
-                        <Loader2 className="size-4 animate-spin text-white" />
+                        <CircleNotchIcon className="size-4 animate-spin text-white" />
                       ) : (
                         <UploadSimpleIcon className="size-4 text-white" />
                       )}

@@ -19,9 +19,12 @@ import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
-import { ImageIcon, UploadSimpleIcon } from "@phosphor-icons/react";
+import {
+  CircleNotchIcon,
+  ImageIcon,
+  UploadSimpleIcon,
+} from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -194,7 +197,7 @@ function PageClient() {
                     )}
                   >
                     {isUploading ? (
-                      <Loader2 className="size-4 animate-spin" />
+                      <CircleNotchIcon className="size-4 animate-spin" />
                     ) : (
                       <UploadSimpleIcon className="size-4" />
                     )}

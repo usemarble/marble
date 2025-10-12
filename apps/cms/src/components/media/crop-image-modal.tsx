@@ -64,6 +64,7 @@ export function CropImageModal({
           className="absolute top-4 right-4 z-50"
           onClick={() => handleClose(false)}
           size="icon"
+          type="button"
           variant="ghost"
         >
           <XIcon className="h-4 w-4" />
@@ -106,14 +107,23 @@ export function CropImageModal({
   );
 }
 
+const DATA_URL_REGEX = /^data:(.+?);base64,(.*)$/;
+
 function dataUrlToFile(dataUrl: string, filename: string): File {
-  const arr = dataUrl.split(",");
-  const mime = arr[0]?.match(/:(.*?);/)?.[1] || "image/png";
-  const bstr = atob(arr[1] || "");
-  const n = bstr.length;
-  const u8arr = new Uint8Array(n);
-  for (let i = 0; i < n; i++) {
-    u8arr[i] = bstr.charCodeAt(i);
+  const match = dataUrl.match(DATA_URL_REGEX);
+  const mime = match?.[1] ?? "image/png";
+
+  const base64 = match?.[2] ?? "";
+  if (!base64) {
+    return new File([], filename, { type: mime });
   }
-  return new File([u8arr], filename, { type: mime });
+  const bin = atob(base64);
+  const len = bin.length;
+  const buf = new Uint8Array(len);
+
+  for (let i = 0; i < len; i++) {
+    buf[i] = bin.charCodeAt(i);
+  }
+
+  return new File([buf], filename, { type: mime });
 }
