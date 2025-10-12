@@ -19,18 +19,23 @@ import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
-import { ImageIcon, UploadSimpleIcon } from "@phosphor-icons/react";
+import {
+  CircleNotchIcon,
+  ImageIcon,
+  UploadSimpleIcon,
+} from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
+import { CropImageModal } from "@/components/media/crop-image-modal";
 import { DeleteAccountModal } from "@/components/settings/delete-account";
 import { ThemeSwitch } from "@/components/settings/theme";
 import PageLoader from "@/components/shared/page-loader";
 import { AsyncButton } from "@/components/ui/async-button";
 import { CopyButton } from "@/components/ui/copy-button";
+import { MAX_AVATAR_FILE_SIZE } from "@/lib/constants";
 import { uploadFile } from "@/lib/media/upload";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { type ProfileData, profileSchema } from "@/lib/validations/settings";
@@ -44,6 +49,7 @@ function PageClient() {
     user?.image ?? undefined
   );
   const [file, setFile] = useState<File | null>(null);
+  const [cropOpen, setCropOpen] = useState(false);
 
   const { mutate: uploadAvatar, isPending: isUploading } = useMutation({
     mutationFn: (file: File) => {
@@ -102,18 +108,15 @@ function PageClient() {
     handleUpdateUser({ name: data.name });
   };
 
-  const handleAvatarUpload = useCallback(() => {
-    if (!file) {
-      return;
-    }
-    uploadAvatar(file);
-  }, [file, uploadAvatar]);
+  const handleReset = () => {
+    setFile(null);
+  };
 
   useEffect(() => {
     if (file) {
-      handleAvatarUpload();
+      setCropOpen(true);
     }
-  }, [file, handleAvatarUpload]);
+  }, [file]);
 
   if (isFetchingUser) {
     return <PageLoader />;
@@ -180,7 +183,6 @@ function PageClient() {
                       const file = e.target.files?.[0];
                       if (file && !isUploading) {
                         setFile(file);
-                        handleAvatarUpload();
                       }
                     }}
                     title="Upload avatar"
@@ -195,7 +197,7 @@ function PageClient() {
                     )}
                   >
                     {isUploading ? (
-                      <Loader2 className="size-4 animate-spin" />
+                      <CircleNotchIcon className="size-4 animate-spin" />
                     ) : (
                       <UploadSimpleIcon className="size-4" />
                     )}
@@ -217,6 +219,25 @@ function PageClient() {
             </p>
           </CardFooter>
         </Card>
+        <CropImageModal
+          aspect={1}
+          file={file}
+          maxImageSize={MAX_AVATAR_FILE_SIZE}
+          onCropped={(cropped) => {
+            setCropOpen(false);
+            uploadAvatar(cropped);
+          }}
+          onOpenChange={(open) => {
+            setCropOpen(open);
+            if (!open) {
+              setFile(null);
+            }
+          }}
+          open={cropOpen}
+          reset={() => {
+            handleReset();
+          }}
+        />
 
         <Card className="pb-4">
           <form
