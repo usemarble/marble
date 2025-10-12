@@ -10,6 +10,7 @@ export type Site = {
   DESCRIPTION: string;
   EMAIL: string;
   URL: string;
+  APP_URL: string;
 };
 
 export type Link = {
@@ -19,9 +20,11 @@ export type Link = {
 
 export const SITE: Site = {
   TITLE: "Marble",
-  DESCRIPTION: "A smarter way to manage your blog.",
+  DESCRIPTION:
+    "A simple, collaborative CMS for publishing articles, changelogs, and product updates.",
   EMAIL: "support@marblecms.com",
   URL: "https://marblecms.com",
+  APP_URL: "https://app.marblecms.com",
 };
 
 export const SOCIAL_LINKS: Link[] = [
@@ -31,13 +34,6 @@ export const SOCIAL_LINKS: Link[] = [
   { href: "support@marblecms.com", label: "Email" },
   { href: "/rss.xml", label: "RSS" },
 ];
-
-export const APP: Site = {
-  TITLE: "Marble",
-  DESCRIPTION: "The smarter way to manage your blog.",
-  URL: "https://app.marblecms.com",
-  EMAIL: "support@marblecms.com",
-};
 
 export const FAQs: {
   question: string;
