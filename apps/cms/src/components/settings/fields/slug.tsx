@@ -42,6 +42,7 @@ export function Slug() {
       organizationId: string;
       payload: SlugValues;
     }) => {
+      console.log(payload.slug);
       const { data, error } = await organization.checkSlug({
         slug: payload.slug,
       });
@@ -55,12 +56,16 @@ export function Slug() {
         throw new Error("Slug is already taken");
       }
 
-      return await organization.update({
+      const res = await organization.update({
         organizationId,
         data: {
           slug: payload.slug,
         },
       });
+      if (res?.error) {
+        throw new Error(res.error.message);
+      }
+      return res;
     },
     onSuccess: (data, variables) => {
       if (!data) {

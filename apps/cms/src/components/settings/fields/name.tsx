@@ -42,12 +42,16 @@ export function Name() {
       organizationId: string;
       data: NameValues;
     }) => {
-      return await organization.update({
+      const res = await organization.update({
         organizationId,
         data: {
           name: data.name,
         },
       });
+      if (res?.error) {
+        throw new Error(res.error.message);
+      }
+      return res;
     },
     onSuccess: (_, variables) => {
       toast.success("Workspace name updated");
