@@ -59,8 +59,8 @@ export async function createAuthor(user: User, organization: Organization) {
 }
 
 export async function validateWorkspaceSlug(slug: string | undefined) {
- const { success } = await slugSchema.safeParse({ slug });
- if (!success) {
+  const { success } = await slugSchema.safeParse({ slug });
+  if (!success) {
     throw new APIError("BAD_REQUEST", {
       message: "Invalid slug",
     });
