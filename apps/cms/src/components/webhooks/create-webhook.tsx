@@ -22,9 +22,8 @@ import {
   SheetTrigger,
 } from "@marble/ui/components/sheet";
 import { toast } from "@marble/ui/components/sonner";
-import { BracketsCurlyIcon } from "@phosphor-icons/react";
+import { BracketsCurlyIcon, PlusIcon } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { PlusIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useId, useState } from "react";
 import { useForm } from "react-hook-form";

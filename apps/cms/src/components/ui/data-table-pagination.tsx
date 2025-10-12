@@ -6,13 +6,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@marble/ui/components/select";
-import type { Table } from "@tanstack/react-table";
 import {
-  CaretLeftIcon,
-  CaretRightIcon,
   CaretDoubleLeftIcon,
   CaretDoubleRightIcon,
+  CaretLeftIcon,
+  CaretRightIcon,
 } from "@phosphor-icons/react";
+import type { Table } from "@tanstack/react-table";
 
 type DataTablePaginationProps<TData> = {
   table: Table<TData>;
