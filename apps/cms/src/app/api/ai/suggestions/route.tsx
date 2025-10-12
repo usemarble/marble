@@ -26,7 +26,7 @@ export async function POST(request: Request) {
 
   if (!success) {
     return NextResponse.json(
-      { error: "Too many requests", remaining },
+      { error: "Too Many Requests", remaining },
       { status: 429, headers: rateLimitHeaders(limit, remaining, reset) }
     );
   }

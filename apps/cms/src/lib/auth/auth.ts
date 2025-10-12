@@ -25,7 +25,13 @@ import { handleSubscriptionCreated } from "@/lib/polar/subscription.created";
 import { handleSubscriptionRevoked } from "@/lib/polar/subscription.revoked";
 import { handleSubscriptionUpdated } from "@/lib/polar/subscription.updated";
 import { getLastActiveWorkspaceOrNewOneToSetAsActive } from "@/lib/queries/workspace";
-import { createAuthor } from "../actions/workspace";
+import {
+  createAuthor,
+  validateWorkspaceName,
+  validateWorkspaceSchema,
+  validateWorkspaceSlug,
+  validateWorkspaceTimezone,
+} from "../actions/workspace";
 import { redis } from "../redis";
 
 const polarClient = new Polar({
@@ -165,6 +171,24 @@ export const auth = betterAuth({
         },
         afterAcceptInvitation: async ({ user, organization }) => {
           await createAuthor(user, organization);
+        },
+        beforeCreateOrganization: async ({ organization }) => {
+          await validateWorkspaceSchema({
+            slug: organization.slug,
+            name: organization.name,
+            timezone: organization.timezone,
+          });
+        },
+        beforeUpdateOrganization: async ({ organization }) => {
+          if (organization.slug) {
+            await validateWorkspaceSlug(organization.slug);
+          }
+          if (organization.name) {
+            await validateWorkspaceName(organization.name);
+          }
+          if (organization.timezone) {
+            await validateWorkspaceTimezone(organization.timezone);
+          }
         },
       },
     }),
