@@ -18,9 +18,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@marble/ui/components/card";
+import { Input } from "@marble/ui/components/input";
+import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
+import { cn } from "@marble/ui/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { AsyncButton } from "@/components/ui/async-button";
 import { organization } from "@/lib/auth/client";
 import { QUERY_KEYS } from "@/lib/queries/keys";
@@ -31,6 +35,10 @@ export function Delete() {
   const { updateActiveWorkspace } = useWorkspace();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const [confirmationText, setConfirmationText] = useState("");
+
+  const CONFIRMATION_PHRASE = "delete my workspace";
+  const isConfirmationValid = confirmationText === CONFIRMATION_PHRASE;
 
   const { mutate: deleteWorkspace, isPending } = useMutation({
     mutationFn: async ({ organizationId }: { organizationId: string }) => {
@@ -97,17 +105,42 @@ export function Delete() {
                 workspace and all associated data within.
               </AlertDialogDescription>
             </AlertDialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="confirmation-input">
+                  To confirm, type{" "}
+                  <span className="font-mono font-semibold">
+                    "{CONFIRMATION_PHRASE}"
+                  </span>{" "}
+                  below
+                </Label>
+                <Input
+                  className={cn(
+                    !isConfirmationValid &&
+                      "border-destructive focus-visible:border-destructive focus-visible:ring-destructive/50"
+                  )}
+                  id="confirmation-input"
+                  onChange={(e) => setConfirmationText(e.target.value)}
+                  placeholder={CONFIRMATION_PHRASE}
+                  value={confirmationText}
+                />
+              </div>
+            </div>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel onClick={() => setConfirmationText("")}>
+                Cancel
+              </AlertDialogCancel>
               <AsyncButton
+                disabled={!isConfirmationValid}
                 isLoading={isPending || !activeWorkspace?.id}
-                onClick={() =>
-                  activeWorkspace?.id &&
-                  deleteWorkspace({ organizationId: activeWorkspace.id })
-                }
+                onClick={() => {
+                  if (isConfirmationValid && activeWorkspace?.id) {
+                    deleteWorkspace({ organizationId: activeWorkspace.id });
+                  }
+                }}
                 variant="destructive"
               >
-                Delete
+                Delete Workspace
               </AsyncButton>
             </AlertDialogFooter>
           </AlertDialogContent>

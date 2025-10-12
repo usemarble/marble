@@ -26,7 +26,7 @@ export function CopyButton({
 
   return (
     <Button
-      className={cn("size-9", className)}
+      className={cn("size-9 shadow-none", className)}
       size="icon"
       variant="outline"
       {...props}

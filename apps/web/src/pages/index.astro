@@ -6,7 +6,7 @@ import postImage from "@/assets/images/posts.png";
 import Container from "@/components/Container.astro";
 import AccordionItem from "@/components/ui/AccordionItem.astro";
 import Layout from "@/layouts/Layout.astro";
-import { APP, FAQs, PRICING, SITE, USERS } from "@/lib/constants";
+import { FAQs, PRICING, SITE, USERS } from "@/lib/constants";
 ---
 
 <Layout 
@@ -27,7 +27,7 @@ import { APP, FAQs, PRICING, SITE, USERS } from "@/lib/constants";
             </div>
             <div class="mt-8 flex w-full items-center justify-center">
               <div>
-                <a href={`${APP.URL}`}
+                <a href={SITE.APP_URL}
                   target="_blank"
                   class="flex gap-2 justify-center font-medium group w-48 bg-primary text-primary-foreground items-center py-3 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary focus-visible:ring-2 transition-all duration-300 ease-out px-4 group rounded"
                   >
@@ -309,7 +309,7 @@ import { APP, FAQs, PRICING, SITE, USERS } from "@/lib/constants";
               </p>
             </div>
             <div class="flex flex-col gap-3 items-center mt-8">
-              <a href={`${APP.URL}/register`}
+              <a href={`${SITE.APP_URL}/register`}
                 class="flex gap-2 justify-center group w-48 bg-primary text-primary-foreground items-center py-3 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary focus-visible:ring-2 transition-all duration-300 ease-out px-6 group rounded font-medium"
               >
                 <span>Start for free</span>

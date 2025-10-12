@@ -1,6 +1,5 @@
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -49,19 +48,19 @@ export function DeleteAccountModal() {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
-          <AlertDialogAction asChild>
-            <AsyncButton
-              isLoading={isPending}
-              onClick={(e) => {
-                e.preventDefault();
-                deleteAccount();
-              }}
-              variant="destructive"
-            >
-              Delete
-            </AsyncButton>
-          </AlertDialogAction>
+          <AlertDialogCancel className="shadow-none" disabled={isPending}>
+            Cancel
+          </AlertDialogCancel>
+          <AsyncButton
+            isLoading={isPending}
+            onClick={(e) => {
+              e.preventDefault();
+              deleteAccount();
+            }}
+            variant="destructive"
+          >
+            Delete
+          </AsyncButton>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

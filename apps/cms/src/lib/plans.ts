@@ -16,7 +16,7 @@ export type PlanLimits = {
 export const PLAN_LIMITS: Record<PlanType, PlanLimits> = {
   free: {
     maxMembers: 2,
-    maxMediaStorage: 500,
+    maxMediaStorage: 1024,
     maxApiRequests: 10_000,
     maxWebhookEvents: 0,
     features: {

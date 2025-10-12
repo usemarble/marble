@@ -55,12 +55,16 @@ export function Slug() {
         throw new Error("Slug is already taken");
       }
 
-      return await organization.update({
+      const res = await organization.update({
         organizationId,
         data: {
           slug: payload.slug,
         },
       });
+      if (res?.error) {
+        throw new Error(res.error.message);
+      }
+      return res;
     },
     onSuccess: (data, variables) => {
       if (!data) {

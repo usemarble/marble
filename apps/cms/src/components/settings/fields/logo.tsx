@@ -41,12 +41,16 @@ export function Logo() {
       organizationId: string;
       logoUrl: string;
     }) => {
-      return await organization.update({
+      const res = await organization.update({
         organizationId,
         data: {
           logo: logoUrl,
         },
       });
+      if (res?.error) {
+        throw new Error(res.error.message);
+      }
+      return res;
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({

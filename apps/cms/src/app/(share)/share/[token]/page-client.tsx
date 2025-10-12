@@ -38,7 +38,7 @@ function SharePageClient({ data, status }: SharePageClientProps) {
         </div>
       </header>
 
-      <main className="mx-auto max-w-screen-md py-14 lg:py-20">
+      <main className="mx-auto max-w-screen-md py-14 max-sm:px-4 lg:py-20">
         <div className="mx-auto max-w-screen-md">
           <header className="mb-8">
             <h1 className="mb-4 font-semibold text-4xl leading-tight">

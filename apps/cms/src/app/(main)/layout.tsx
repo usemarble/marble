@@ -5,5 +5,9 @@ export default async function MainLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <UserProvider initialUser={null}>{children}</UserProvider>;
+  return (
+    <UserProvider initialUser={null}>
+      <div>{children}</div>
+    </UserProvider>
+  );
 }

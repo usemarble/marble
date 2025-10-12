@@ -45,12 +45,16 @@ export function Timezone() {
       organizationId: string;
       data: z.infer<typeof timezoneSchema>;
     }) => {
-      return await organization.update({
+      const res = await organization.update({
         organizationId,
         data: {
           timezone: data.timezone,
         },
       });
+      if (res?.error) {
+        throw new Error(res.error.message);
+      }
+      return res;
     },
     onSuccess: (_, variables) => {
       toast.success("Updated timezone");

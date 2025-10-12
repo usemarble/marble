@@ -19,3 +19,10 @@ export const aiSuggestionsRateLimiter = new Ratelimit({
   ephemeralCache: new Map(),
   prefix: "ai-suggestions-rate-limit",
 });
+
+export const userAvatarUploadRateLimiter = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(5, "30 m"),
+  ephemeralCache: new Map(),
+  prefix: "user-avatar-upload-rate-limit",
+});

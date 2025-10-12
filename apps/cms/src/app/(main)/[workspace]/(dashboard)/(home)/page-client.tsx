@@ -1,12 +1,12 @@
 "use client";
 
 import { Suspense } from "react";
+import { ApiUsageStats } from "@/components/home/ApiUsageStats";
+import { PublishingActivityGraph } from "@/components/home/PublishingActivityGraph";
+import { QuickStats } from "@/components/home/QuickStats";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
 import { useUser } from "@/providers/user";
-import { ApiUsageStats } from "./components/ApiUsageStats";
-import { PublishingActivityGraph } from "./components/PublishingActivityGraph";
-import { QuickStats } from "./components/QuickStats";
 
 export default function PageClient() {
   const { user, isFetchingUser } = useUser();
