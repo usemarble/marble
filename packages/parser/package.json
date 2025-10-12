@@ -1,0 +1,20 @@
+{
+  "name": "@marble/parser",
+  "version": "0.0.0",
+  "exports": {
+    "./tiptap": "./src/tiptap.ts"
+  },
+  "scripts": {
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@marble/tsconfig": "workspace:*",
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "@tiptap/core": "^2.26.3",
+    "marked": "^16.4.0",
+    "prosemirror-model": "^1.25.3"
+  }
+}

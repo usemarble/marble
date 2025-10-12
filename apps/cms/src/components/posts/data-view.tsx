@@ -162,12 +162,9 @@ export function PostDataView<TData, TValue>({
             </Tooltip>
           </div>
 
-          <div className="flex">
+          <div className="flex gap-2">
             <Link
-              className={cn(
-                buttonVariants({ variant: "default" }),
-                "rounded-r-none"
-              )}
+              className={buttonVariants({ variant: "default" })}
               href={`/${activeWorkspace?.slug}/editor/p/new`}
             >
               <PlusIcon size={16} />
@@ -177,9 +174,8 @@ export function PostDataView<TData, TValue>({
               <TooltipTrigger asChild>
                 <Button
                   aria-label="Upload"
-                  className="rounded-l-none"
                   onClick={() => setImportOpen(true)}
-                  variant="outline"
+                  variant="default"
                 >
                   <UploadSimpleIcon className="size-4" />
                 </Button>

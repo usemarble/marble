@@ -48,6 +48,12 @@
     "//#format-lint:fix": {
       "cache": false
     },
+    "test": {
+      "dependsOn": ["transit"]
+    },
+    "transit": {
+      "dependsOn": ["^transit"]
+    },
     "db:generate": {
       "cache": false
     }
