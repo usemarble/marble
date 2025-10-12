@@ -59,8 +59,8 @@ export async function createAuthor(user: User, organization: Organization) {
 }
 
 export async function validateWorkspaceSlug(slug: string | undefined) {
-  const { error } = await slugSchema.safeParse({ slug });
-  if (error) {
+ const { success } = await slugSchema.safeParse({ slug });
+ if (!success) {
     throw new APIError("BAD_REQUEST", {
       message: "Invalid slug",
     });
@@ -68,8 +68,8 @@ export async function validateWorkspaceSlug(slug: string | undefined) {
 }
 
 export async function validateWorkspaceName(name: string | undefined) {
-  const { error } = await nameSchema.safeParse({ name });
-  if (error) {
+  const { success } = await nameSchema.safeParse({ name });
+  if (!success) {
     throw new APIError("BAD_REQUEST", {
       message: "Invalid name",
     });
@@ -77,8 +77,8 @@ export async function validateWorkspaceName(name: string | undefined) {
 }
 
 export async function validateWorkspaceTimezone(timezone: string | undefined) {
-  const { error } = await timezoneSchema.safeParse({ timezone });
-  if (error) {
+  const { success } = await timezoneSchema.safeParse({ timezone });
+  if (!success) {
     throw new APIError("BAD_REQUEST", {
       message: "Invalid timezone",
     });
