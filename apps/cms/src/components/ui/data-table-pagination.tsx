@@ -8,11 +8,11 @@ import {
 } from "@marble/ui/components/select";
 import type { Table } from "@tanstack/react-table";
 import {
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-} from "lucide-react";
+  CaretLeftIcon,
+  CaretRightIcon,
+  CaretDoubleLeftIcon,
+  CaretDoubleRightIcon,
+} from "@phosphor-icons/react";
 
 type DataTablePaginationProps<TData> = {
   table: Table<TData>;
@@ -60,7 +60,7 @@ export function DataTablePagination<TData>({
             variant="outline"
           >
             <span className="sr-only">Go to first page</span>
-            <ChevronsLeft />
+            <CaretDoubleLeftIcon />
           </Button>
           <Button
             className="h-8 w-8 p-0"
@@ -69,7 +69,7 @@ export function DataTablePagination<TData>({
             variant="outline"
           >
             <span className="sr-only">Go to previous page</span>
-            <ChevronLeft />
+            <CaretLeftIcon />
           </Button>
           <Button
             className="h-8 w-8 p-0"
@@ -78,7 +78,7 @@ export function DataTablePagination<TData>({
             variant="outline"
           >
             <span className="sr-only">Go to next page</span>
-            <ChevronRight />
+            <CaretRightIcon />
           </Button>
           <Button
             className="hidden h-8 w-8 p-0 lg:flex"
@@ -87,7 +87,7 @@ export function DataTablePagination<TData>({
             variant="outline"
           >
             <span className="sr-only">Go to last page</span>
-            <ChevronsRight />
+            <CaretDoubleRightIcon />
           </Button>
         </div>
       </div>
