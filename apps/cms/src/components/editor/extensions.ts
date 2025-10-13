@@ -116,7 +116,6 @@ export const defaultExtensions: Extension[] = [
   placeholder,
   textAlign,
   CodeBlockLowlightEx as unknown as Extension,
-  // UpdatedImage as unknown as Extension,
   youtube as unknown as Extension,
   tiptapLink as unknown as Extension,
   taskList as unknown as Extension,

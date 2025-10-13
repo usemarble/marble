@@ -94,17 +94,13 @@ export function WorkspaceProvider({
     mutationFn: async (workspace: Partial<Workspace>) => {
       setIsSwitchingWorkspace(true);
 
-      // Store previous workspace for rollback
       const previousWorkspace = activeWorkspace;
 
-      // Set pending workspace ID to signal that we're switching
       setPendingWorkspaceId(workspace.id || null);
 
-      // Immediately cancel and remove all workspace-scoped queries to prevent stale data
       queryClient.cancelQueries({
         predicate: (query) => {
           const key = query.queryKey;
-          // Cancel all workspace-scoped queries
           return (
             Array.isArray(key) &&
             key.length >= 2 &&
@@ -116,11 +112,9 @@ export function WorkspaceProvider({
         },
       });
 
-      // Remove old workspace queries immediately
       queryClient.removeQueries({
         predicate: (query) => {
           const key = query.queryKey;
-          // Remove workspace-scoped queries for the old workspace
           return (
             Array.isArray(key) &&
             key.length >= 2 &&
@@ -134,7 +128,6 @@ export function WorkspaceProvider({
         },
       });
 
-      // Optimistically set the new workspace immediately
       setActiveWorkspace(
         (prev) =>
           ({
@@ -156,7 +149,6 @@ export function WorkspaceProvider({
       });
 
       if (error) {
-        // Rollback to previous workspace on error
         setActiveWorkspace(previousWorkspace);
         setPendingWorkspaceId(null);
         toast.error(error.message);
@@ -167,14 +159,11 @@ export function WorkspaceProvider({
     },
     onSuccess: (data) => {
       if (data) {
-        // Clear pending workspace ID
         setPendingWorkspaceId(null);
 
-        // Invalidate any remaining queries from all workspaces to ensure fresh data
         queryClient.removeQueries({
           predicate: (query) => {
             const key = query.queryKey;
-            // Remove all workspace-scoped queries
             return (
               Array.isArray(key) &&
               key.length >= 2 &&
@@ -185,7 +174,6 @@ export function WorkspaceProvider({
             );
           },
         });
-        // Set new workspace data
         queryClient.setQueryData(["workspace_by_slug", data.slug], data);
         queryClient.setQueryData(QUERY_KEYS.WORKSPACE(data.id), data);
         router.push(`/${data.slug}`);
@@ -194,7 +182,6 @@ export function WorkspaceProvider({
     },
     onError: (error: AxiosError, variables, context) => {
       console.error("Failed to switch workspace:", error);
-      // Error handling is done in mutationFn with rollback
       setPendingWorkspaceId(null);
       setIsSwitchingWorkspace(false);
     },
@@ -228,7 +215,6 @@ export function WorkspaceProvider({
   const isMember = activeWorkspace?.currentUserRole === "member";
   const currentUserRole = activeWorkspace?.currentUserRole || null;
 
-  // Use pending workspace ID during switch to prevent stale queries
   const currentWorkspaceId = pendingWorkspaceId || activeWorkspace?.id || null;
 
   return (

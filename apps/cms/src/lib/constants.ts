@@ -34,7 +34,6 @@ export const PRICING_PLANS: PricingPlan[] = [
       "Up to 10 team members",
       "50k API requests per month",
       "Readability insights",
-      //"Keyword optimization suggestions",
     ],
     button: {
       href: "https://app.marblecms.com",
