@@ -1,14 +1,5 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "@marble/ui/components/input";
-import { Label } from "@marble/ui/components/label";
-import { Separator } from "@marble/ui/components/separator";
-import { CheckIcon } from "@phosphor-icons/react";
-import matter from "gray-matter";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { z } from "zod";
 import { CategorySelector } from "@/components/editor/fields/category-selector";
 import { DescriptionField } from "@/components/editor/fields/description-field";
 import { PublishDateField } from "@/components/editor/fields/publish-date-field";
@@ -20,17 +11,23 @@ import {
   type PostValues,
   postSchema,
 } from "@/lib/validations/post";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@marble/ui/components/button";
+import { DialogClose } from "@marble/ui/components/dialog";
+import { Input } from "@marble/ui/components/input";
+import { Label } from "@marble/ui/components/label";
+import { CheckIcon } from "@phosphor-icons/react";
+import matter from "gray-matter";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 type ImportItemFormProps = {
   file: File;
   name: string;
   ext: string;
   initialData: Partial<PostValues>;
-  onUpload: (payload: PostImportValues) => Promise<unknown>;
-  onStatusChange: (
-    status: "ready" | "uploading" | "done" | "error",
-    error?: string
-  ) => void;
+  onImport: (payload: PostImportValues) => void;
+  isImporting: boolean;
 };
 
 function isFormValid(values: Partial<PostValues>): boolean {
@@ -48,8 +45,8 @@ export function ImportItemForm({
   file,
   name,
   initialData,
-  onUpload,
-  onStatusChange,
+  onImport,
+  isImporting,
 }: ImportItemFormProps) {
   const form = useForm<PostValues>({
     resolver: zodResolver(postSchema),
@@ -81,7 +78,6 @@ export function ImportItemForm({
 
   async function onSubmit(values: PostValues) {
     try {
-      onStatusChange("uploading");
       const raw = await file.text();
       const parsed = matter(raw);
       const markdown = parsed.content || "";
@@ -103,19 +99,18 @@ export function ImportItemForm({
         attribution: undefined,
       };
 
-      await onUpload(payload);
-      onStatusChange("done");
-      toast.success(`${name} imported`);
+      onImport(payload);
     } catch (e) {
       const message = e instanceof Error ? e.message : "Failed to upload";
-      onStatusChange("error", message);
       toast.error(message);
     }
   }
 
   return (
-    <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
-      <Separator />
+    <form
+      className="mx-auto flex w-full max-w-96 flex-col gap-4"
+      onSubmit={handleSubmit(onSubmit)}
+    >
       <div className="grid gap-4">
         <StatusField control={control} />
         <div className="flex flex-col gap-1.5">
@@ -125,7 +120,7 @@ export function ImportItemForm({
           <Input
             id={`title-${name}`}
             {...register("title")}
-            className="bg-background"
+            className="bg-editor-field"
             placeholder="Title"
           />
           {errors.title && (
@@ -141,16 +136,20 @@ export function ImportItemForm({
         <PublishDateField control={control} />
       </div>
 
-      <div className="flex justify-end gap-2">
+      <div className="mt-6 flex justify-end gap-2">
+        <DialogClose asChild>
+          <Button className="shadow-none" variant="outline">
+            Cancel
+          </Button>
+        </DialogClose>
         <AsyncButton
-          disabled={isSubmitting || !isValid}
-          isLoading={isSubmitting}
-          loadingText="Importing..."
+          disabled={isSubmitting || isImporting || !isValid}
+          isLoading={isSubmitting || isImporting}
           size="sm"
           type="submit"
         >
-          <CheckIcon className="mr-2 size-4" />
-          Confirm Import
+          <CheckIcon className="size-4" />
+          Confirm
         </AsyncButton>
       </div>
     </form>

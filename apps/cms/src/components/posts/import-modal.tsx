@@ -3,15 +3,16 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@marble/ui/components/dialog";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import matter from "gray-matter";
 import { type Dispatch, type SetStateAction, useState } from "react";
+import { toast } from "sonner";
 import { z } from "zod";
 import { Dropzone } from "@/components/shared/dropzone";
-import { LoadingSpinner } from "@/components/ui/async-button";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { checkPostSlugAvailable } from "@/lib/actions/checks";
 import { QUERY_KEYS } from "@/lib/queries/keys";
@@ -29,7 +30,7 @@ const parseSchema = z.object({
 
 type ImportState = {
   file: File | null;
-  status: "idle" | "parsing" | "ready" | "uploading" | "done" | "error";
+  status: "idle" | "parsing" | "ready" | "error";
   error?: string;
   parsedData?: Partial<PostImportValues>;
 };
@@ -48,27 +49,41 @@ export function PostsImportModal({
   const workspaceId = useWorkspaceId();
   const queryClient = useQueryClient();
 
-  async function uploadSingleFile(payload: PostImportValues) {
-    const isSlugAvailable = await checkPostSlugAvailable(
-      payload.slug,
-      workspaceId
-    );
-    if (!isSlugAvailable) {
-      console.log("Slug is already taken");
-      updateImportState({ status: "error", error: "Slug is already taken" });
-      return;
-    }
-    const res = await fetch("/api/posts/import", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || "Failed to import post");
-    }
-    return await res.json();
-  }
+  const { mutate: importPost, isPending: isImporting } = useMutation({
+    mutationFn: async (payload: PostImportValues) => {
+      const isSlugAvailable = await checkPostSlugAvailable(
+        payload.slug,
+        workspaceId
+      );
+      if (!isSlugAvailable) {
+        throw new Error("Slug is already taken");
+      }
+      const res = await fetch("/api/posts/import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Failed to import post");
+      }
+      return res.json();
+    },
+    onSuccess: async () => {
+      toast.success(`${importState.file?.name} imported successfully`);
+      if (workspaceId) {
+        await queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.POSTS(workspaceId),
+        });
+      }
+      setOpen(false);
+      setImportState({ file: null, status: "idle" });
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+      updateImportState({ status: "error", error: error.message });
+    },
+  });
 
   function updateImportState(patch: Partial<ImportState>) {
     setImportState((prev) => ({ ...prev, ...patch }));
@@ -146,102 +161,73 @@ export function PostsImportModal({
     }
   }
 
-  async function handleImportSuccess() {
-    if (workspaceId) {
-      await queryClient
-        .invalidateQueries({ queryKey: QUERY_KEYS.POSTS(workspaceId) })
-        .then(() => {
-          setOpen(false);
-          setImportState({ file: null, status: "idle" });
-        })
-        .catch(() => {
-          setOpen(false);
-          setImportState({ file: null, status: "idle" });
-        });
-      await queryClient.refetchQueries({
-        queryKey: QUERY_KEYS.POSTS(workspaceId),
-      });
-    } else {
-      setOpen(false);
-      setImportState({ file: null, status: "idle" });
-    }
-  }
-
   return (
     <Dialog onOpenChange={setOpen} open={open}>
-      <DialogContent className="flex max-h-[90vh] max-w-2xl flex-col">
-        <DialogHeader className="shrink-0">
-          <DialogTitle>Import Content</DialogTitle>
+      <DialogContent className="grid grid-rows-[auto_1fr] sm:h-[580px] sm:max-w-4xl">
+        <DialogHeader className="h-fit">
+          <DialogTitle className="text-center">Import Content</DialogTitle>
+          <DialogDescription className="sr-only">
+            Import content into your workspace. You can import a .md/.mdx/.json
+            file.
+          </DialogDescription>
         </DialogHeader>
-        <div className="scrollbar-custom flex min-h-0 flex-col gap-4 overflow-y-auto">
-          {importState.status === "idle" && (
-            <Dropzone
-              accept={{
-                "text/markdown": [".md", ".mdx"],
-                "application/json": [".json"],
-              }}
-              onFilesAccepted={(accepted) => {
-                if (accepted.length > 0) {
-                  const file = accepted[0];
-                  if (file) {
-                    updateImportState({ file, status: "parsing" });
-                    parseFile(file);
-                  }
+        {importState.status === "idle" && (
+          <Dropzone
+            accept={{
+              "text/markdown": [".md", ".mdx"],
+              "application/json": [".json"],
+            }}
+            className="flex h-full w-full flex-1 cursor-pointer items-center justify-center rounded-md border border-dashed bg-editor-field"
+            onFilesAccepted={(accepted) => {
+              if (accepted.length > 0) {
+                const file = accepted[0];
+                if (file) {
+                  updateImportState({ file, status: "parsing" });
+                  parseFile(file);
                 }
-              }}
-              placeholder={{
-                idle: "Drag & drop a .md/.mdx/.json file, or click to select",
-                active: "Drop the file here...",
-                subtitle: "We will parse frontmatter and content",
-              }}
-            />
-          )}
-
-          {importState.status === "parsing" && (
-            <div className="flex items-center justify-center py-8">
-              <div className="text-muted-foreground text-sm">
-                Parsing file...
+              }
+            }}
+            placeholder={{
+              idle: "Drag & drop a .md/.mdx/.json file, or click to select",
+              active: "Drop the file here...",
+              subtitle: "We will parse frontmatter and content",
+            }}
+          />
+        )}
+        {importState.status !== "idle" && (
+          <div className="scrollbar-custom flex flex-col gap-4 overflow-y-auto">
+            {importState.status === "parsing" && (
+              <div className="flex items-center justify-center py-8">
+                <div className="text-muted-foreground text-sm">
+                  Parsing file...
+                </div>
               </div>
-            </div>
-          )}
-
-          {importState.status === "uploading" && (
-            <div className="flex items-center justify-center py-8">
-              <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                <LoadingSpinner />
-                <span>Importing...</span>
-              </div>
-            </div>
-          )}
-
-          {importState.status === "error" && (
-            <div className="flex items-center justify-center py-8">
-              <div className="text-destructive text-sm">
-                {importState.error ?? "Error processing file"}
-              </div>
-            </div>
-          )}
-
-          {importState.status === "ready" &&
-            importState.parsedData &&
-            importState.file && (
-              <ImportItemForm
-                ext={(
-                  importState.file.name.split(".").pop() || ""
-                ).toLowerCase()}
-                file={importState.file}
-                initialData={importState.parsedData}
-                name={importState.file.name}
-                onStatusChange={(status, error) => {
-                  updateImportState({ status, error });
-                  if (status === "done") {
-                    handleImportSuccess();
-                  }
-                }}
-                onUpload={uploadSingleFile}
-              />
             )}
-        </div>
+
+            {importState.status === "error" && (
+              <div className="flex items-center justify-center py-8">
+                <div className="text-destructive text-sm">
+                  {importState.error ?? "Error processing file"}
+                </div>
+              </div>
+            )}
+
+            {importState.status === "ready" &&
+              importState.parsedData &&
+              importState.file && (
+                <ImportItemForm
+                  ext={(
+                    importState.file.name.split(".").pop() || ""
+                  ).toLowerCase()}
+                  file={importState.file}
+                  initialData={importState.parsedData}
+                  isImporting={isImporting}
+                  name={importState.file.name}
+                  onImport={importPost}
+                />
+              )}
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
