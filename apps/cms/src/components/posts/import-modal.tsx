@@ -23,7 +23,10 @@ const parseSchema = z.object({
   title: z.string().optional(),
   slug: z.string().optional(),
   description: z.string().optional(),
-  status: z.enum(["published", "draft"]).optional(),
+  status: z.preprocess(
+    (val) => (val === "published" ? "published" : "draft"),
+    z.enum(["published", "draft"])
+  ),
   publishedAt: z.union([z.string(), z.number(), z.date()]).optional(),
   category: z.string().optional(),
 });
