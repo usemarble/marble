@@ -1,0 +1,29 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+type Props = {
+  categories: CollectionEntry<"categories">[];
+};
+
+const { categories } = Astro.props as Props;
+const categoriesToShow = categories.filter(
+  (category) => category.data.slug !== "legal"
+);
+---
+
+ <ul class="flex items-center gap-2 justify-center mt-8">
+     <li>
+            <a href="/blog" class={`inline-block border rounded-full px-4 py-2 ${Astro.url.pathname === "/blog" ? "bg-primary text-white border-transparent" : "bg-transparent text-foreground border-border"}`}>All</a>
+        </li>
+    {
+        categoriesToShow.map((category) => {
+        const isChangelog = category.data.slug === "changelog";
+        const link = isChangelog ? "/updates" : `/category/${category.data.slug}`;
+        const isActive = Astro.url.pathname === `/category/${category.data.slug}`;
+        return (
+        <li>
+            <a href={link} class={`inline-block text-sm border rounded-full px-4 py-1.5 ${isActive ? "bg-primary text-white border-transparent" : "bg-transparent text-foreground border-border"}`}>{category.data.name}</a>
+        </li>
+        )})
+    }
+</ul>

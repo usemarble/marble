@@ -1,0 +1,46 @@
+---
+import { Image } from "astro:assets";
+import type { CategoryPost } from "@/lib/schemas";
+
+type Props = {
+  entry: CategoryPost;
+};
+
+const { entry } = Astro.props as Props;
+const { title, description, coverImage, publishedAt, authors, slug } = entry;
+
+const formattedDate = new Date(publishedAt).toLocaleDateString("en-US", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+});
+---
+
+<li>
+  <a
+    href={`/blog/${slug}`}
+    class='space-y-1 p-4 border bg-white flex gap-4 flex-col rounded-2xl hover:shadow-xs transition-all duration-300 h-full'
+  >
+    <div class="w-full border rounded-md overflow-hidden group">
+      <Image
+        src={coverImage || "/og-blog.jpg"}
+        alt={title}
+        loading="eager"
+        inferSize
+        class='w-full object-cover group-hover:scale-102 transition-all duration-500'
+      />
+    </div>
+    <div class="flex flex-col gap-4 justify-between md:gap-6 flex-1">
+      <div class="space-y-2">
+        <h2 class='md:text-lg font-medium'>{title}</h2>
+        <p class='text-muted-foreground text-sm line-clamp-2'>{description}</p>
+      </div>
+      <div class="flex items-center gap-2 justify-between">
+        <p class="text-muted-foreground text-sm">
+          {authors[0].name}
+        </p>
+        <time datetime={publishedAt.toString()} class="text-muted-foreground text-sm">{formattedDate}</time>
+      </div>
+    </div>
+  </a>
+</li>
