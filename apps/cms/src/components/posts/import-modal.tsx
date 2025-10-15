@@ -168,10 +168,19 @@ export function PostsImportModal({
     <Dialog onOpenChange={setOpen} open={open}>
       <DialogContent className="grid grid-rows-[auto_1fr] sm:h-[580px] sm:max-w-4xl">
         <DialogHeader className="h-fit">
-          <DialogTitle className="text-center">Import Content</DialogTitle>
-          <DialogDescription className="sr-only">
-            Import content into your workspace. You can import a .md/.mdx/.json
-            file.
+          <DialogTitle className="text-center">
+            {importState.status === "ready"
+              ? "Review Metadata"
+              : "Import Content"}
+          </DialogTitle>
+          <DialogDescription
+            className={
+              importState.status === "ready" ? "text-center" : "sr-only"
+            }
+          >
+            {importState.status === "ready" && importState.file
+              ? `We've parsed metadata from your file. Please review and complete the details.`
+              : "Import content into your workspace. You can import a .md/.mdx/.json file."}
           </DialogDescription>
         </DialogHeader>
         {importState.status === "idle" && (
@@ -198,7 +207,7 @@ export function PostsImportModal({
           />
         )}
         {importState.status !== "idle" && (
-          <div className="scrollbar-custom flex flex-col gap-4 overflow-y-auto">
+          <div className="scrollbar-custom flex flex-col gap-4 overflow-y-auto pt-4">
             {importState.status === "parsing" && (
               <div className="flex items-center justify-center py-8">
                 <div className="text-muted-foreground text-sm">
