@@ -13,7 +13,7 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "@tiptap/core": "^2.26.3",
+    "@tiptap/core": "^2.11.2",
     "marked": "^16.4.0",
     "prosemirror-model": "^1.25.3"
   }
