@@ -18,10 +18,11 @@ import { SidebarSimpleIcon, XIcon } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { EditorContent, useEditor as useTiptapEditor } from "@tiptap/react";
+import { EditorContent, EditorContext, useEditor } from "@tiptap/react";
 import type { Editor, JSONContent } from "@tiptap/core";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import { BubbleMenu } from "@/components/editor/bubble-menu";
 import { EditorSidebar } from "@/components/editor/editor-sidebar";
 import { HiddenScrollbar } from "@/components/editor/hidden-scrollbar";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -55,8 +56,6 @@ function EditorPage({ initialData, id }: EditorPageProps) {
   const workspaceId = useWorkspaceId();
   const { open, isMobile } = useSidebar();
   const formRef = useRef<HTMLFormElement>(null);
-  const editorRef = useRef<Editor | null>(null);
-  const [editorInstance, setEditorInstance] = useState<Editor | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const { setHasUnsavedChanges } = useUnsavedChanges();
   const initialDataRef = useRef<PostValues>(initialData);
@@ -161,19 +160,33 @@ function EditorPage({ initialData, id }: EditorPageProps) {
     return () => subscription.unsubscribe();
   }, [watch, setHasUnsavedChanges]);
 
+  const editor = useEditor({
+    extensions: defaultExtensions,
+    content: JSON.parse(watch("contentJson") || "{}"),
+    editorProps: {
+      attributes: {
+        class:
+          "prose dark:prose-invert min-h-96 h-full sm:px-4 focus:outline-hidden max-w-full prose-blockquote:border-border",
+      },
+    },
+    onUpdate: ({ editor }) => {
+      const html = editor.getHTML();
+      const json = editor.getJSON();
+      if (html.length > 0) {
+        clearErrors("content");
+      }
+      setValue("content", html);
+      setValue("contentJson", JSON.stringify(json));
+    },
+    immediatelyRender: false,
+    shouldRerenderOnTransaction: true,
+  });
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      editorRef.current?.commands.focus();
+      editor?.commands.focus();
     }
-  };
-
-  const handleEditorChange = (html: string, json: JSONContent) => {
-    if (html.length > 0) {
-      clearErrors("content");
-    }
-    setValue("content", html);
-    setValue("contentJson", JSON.stringify(json));
   };
 
   function onSubmit(values: PostValues) {
@@ -195,33 +208,11 @@ function EditorPage({ initialData, id }: EditorPageProps) {
     }
   }, [debouncedTitle, setValue, clearErrors, isUpdateMode]);
 
-  // Initialize Tiptap editor
-  const editor = useTiptapEditor({
-    extensions: defaultExtensions,
-    content: JSON.parse(watch("contentJson") || "{}"),
-    immediatelyRender: false,
-    shouldRerenderOnTransaction: true,
-    editorProps: {
-      attributes: {
-        class:
-          "prose dark:prose-invert min-h-96 h-full sm:px-4 focus:outline-hidden max-w-full prose-blockquote:border-border",
-      },
-    },
-    onCreate: ({ editor: editorInstance }) => {
-      editorRef.current = editorInstance;
-      setEditorInstance(editorInstance);
-    },
-    onUpdate: ({ editor: editorInstance }) => {
-      editorRef.current = editorInstance;
-      setEditorInstance(editorInstance);
-      const html = editorInstance.getHTML();
-      const json = editorInstance.getJSON();
-      handleEditorChange(html, json);
-    },
-  });
+  const editorContextValue = useMemo(() => ({ editor }), [editor]);
 
   return (
-    <>
+    <EditorContext.Provider value={editorContextValue}>
+      <BubbleMenu />
       <SidebarInset className="h-[calc(100vh-1rem)] min-h-[calc(100vh-1rem)] rounded-xl border bg-editor-content-background shadow-xs">
         <header className="sticky top-0 z-50 flex justify-between p-3">
           <div className="flex items-center gap-4">
@@ -304,7 +295,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
       )}
       <EditorSidebar
         control={control}
-        editor={editorInstance}
+        editor={editor}
         errors={errors}
         formRef={formRef}
         isOpen={showSettings}
@@ -313,7 +304,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
         setIsOpen={setShowSettings}
         watch={watch}
       />
-    </>
+    </EditorContext.Provider>
   );
 }
 export default EditorPage;

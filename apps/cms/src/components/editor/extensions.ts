@@ -9,9 +9,14 @@ import { CharacterCount, Placeholder } from "@tiptap/extensions";
 import { StarterKit } from "@tiptap/starter-kit";
 import { cx } from "class-variance-authority";
 import { common, createLowlight } from "lowlight";
+import { SlashCommand } from "./slash-command";
 
 // You can overwrite the placeholder with your own configuration
-const placeholder = Placeholder;
+const placeholder = Placeholder.configure({
+  placeholder: "Press '/' for commands",
+  showOnlyWhenEditable: true,
+  showOnlyCurrent: true,
+});
 
 const tiptapImage = Image.configure({
   allowBase64: true,
@@ -95,4 +100,5 @@ export const defaultExtensions: Extension[] = [
   taskItem as unknown as Extension,
   horizontalRule as unknown as Extension,
   CharacterCount as unknown as Extension,
+  SlashCommand as unknown as Extension,
 ];

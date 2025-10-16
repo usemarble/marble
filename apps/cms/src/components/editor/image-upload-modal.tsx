@@ -18,7 +18,7 @@ import {
 } from "@marble/ui/components/tabs";
 import { ImagesIcon, SpinnerIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEditor } from "novel";
+import { useCurrentEditor } from "@tiptap/react";
 import { useState } from "react";
 import { ImageDropzone } from "@/components/shared/dropzone";
 import { AsyncButton } from "@/components/ui/async-button";
@@ -37,14 +37,14 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
   const [file, setFile] = useState<File | undefined>();
   const [isValidatingUrl, setIsValidatingUrl] = useState(false);
   const workspaceId = useWorkspaceId();
-  const editorInstance = useEditor();
+  const { editor } = useCurrentEditor();
   const queryClient = useQueryClient();
 
   const { mutate: uploadImage, isPending: isUploading } = useMutation({
     mutationFn: (file: File) => uploadFile({ file, type: "media" }),
     onSuccess: (data: Media) => {
       if (data?.url) {
-        editorInstance.editor
+        editor
           ?.chain()
           .focus()
           .setImage({ src: data.url })
@@ -68,7 +68,7 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
   });
 
   const handleEmbed = async (url: string) => {
-    if (!url || !editorInstance.editor) {
+    if (!url || !editor) {
       return;
     }
 
@@ -76,8 +76,8 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
       setIsValidatingUrl(true);
       const img = new Image();
       img.onload = () => {
-        if (editorInstance.editor) {
-          editorInstance.editor
+        if (editor) {
+          editor
             .chain()
             .focus()
             .setImage({ src: url })
