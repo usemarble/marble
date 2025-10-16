@@ -9,8 +9,6 @@ import {
 	useState,
 	type ReactNode,
 } from "react";
-import { ImageUploadModal } from "../image-upload-modal";
-import { YoutubeEmbedModal } from "../youtube-embed-modal";
 
 export type SlashCommandItem = {
 	title: string;
@@ -29,8 +27,6 @@ export const SlashCommandMenu = forwardRef<
 	MenuListProps
 >((props, ref) => {
 	const [selectedIndex, setSelectedIndex] = useState(0);
-	const [showImageModal, setShowImageModal] = useState(false);
-	const [showYoutubeModal, setShowYoutubeModal] = useState(false);
 
 	const items = props.items || [];
 
@@ -41,13 +37,7 @@ export const SlashCommandMenu = forwardRef<
 			return;
 		}
 
-		if (item.title === "Image") {
-			props.editor.chain().focus().deleteRange(props.range).run();
-			setShowImageModal(true);
-		} else if (item.title === "YouTube") {
-			props.editor.chain().focus().deleteRange(props.range).run();
-			setShowYoutubeModal(true);
-		} else if (item.command) {
+		if (item.command) {
 			item.command({ editor: props.editor, range: props.range });
 		}
 	};
@@ -121,11 +111,6 @@ export const SlashCommandMenu = forwardRef<
 					<div className="px-2 text-muted-foreground text-sm">No results</div>
 				)}
 			</div>
-			<ImageUploadModal isOpen={showImageModal} setIsOpen={setShowImageModal} />
-			<YoutubeEmbedModal
-				isOpen={showYoutubeModal}
-				setIsOpen={setShowYoutubeModal}
-			/>
 		</>
 	);
 });

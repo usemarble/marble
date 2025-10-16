@@ -124,14 +124,18 @@ export const slashCommandItems: SlashCommandItem[] = [
 		description: "Upload an image from your device.",
 		searchTerms: ["photo", "picture", "media", "img"],
 		icon: <ImageIcon size={16} />,
-		// Command handled in menu.tsx
+		command: ({ editor, range }) => {
+			editor.chain().focus().deleteRange(range).setImageUpload().run();
+		},
 	},
 	{
 		title: "YouTube",
 		description: "Embed a YouTube video",
 		searchTerms: ["video", "embed", "yt"],
 		icon: <YoutubeLogoIcon size={16} />,
-		// Command handled in menu.tsx
+		command: ({ editor, range }) => {
+			editor.chain().focus().deleteRange(range).setYoutubeUpload().run();
+		},
 	},
 ];
 

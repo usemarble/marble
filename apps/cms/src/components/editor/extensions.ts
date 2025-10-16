@@ -10,6 +10,8 @@ import { StarterKit } from "@tiptap/starter-kit";
 import { cx } from "class-variance-authority";
 import { common, createLowlight } from "lowlight";
 import { SlashCommand } from "./slash-command";
+import { ImageUpload } from "./extensions/image-upload";
+import { YouTubeUpload } from "./extensions/youtube-upload";
 
 // You can overwrite the placeholder with your own configuration
 const placeholder = Placeholder.configure({
@@ -95,7 +97,9 @@ export const defaultExtensions: Extension[] = [
   textAlign,
   CodeBlockLowlightEx as unknown as Extension,
   tiptapImage as unknown as Extension,
+  ImageUpload as unknown as Extension,
   youtube as unknown as Extension,
+  YouTubeUpload as unknown as Extension,
   taskList as unknown as Extension,
   taskItem as unknown as Extension,
   horizontalRule as unknown as Extension,

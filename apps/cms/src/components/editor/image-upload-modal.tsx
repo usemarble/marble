@@ -19,6 +19,7 @@ import {
 import { ImagesIcon, SpinnerIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCurrentEditor } from "@tiptap/react";
+import type { Editor } from "@tiptap/core";
 import { useState } from "react";
 import { ImageDropzone } from "@/components/shared/dropzone";
 import { AsyncButton } from "@/components/ui/async-button";
@@ -30,14 +31,16 @@ import type { Media, MediaListResponse } from "@/types/media";
 type ImageUploadModalProps = {
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  editor?: Editor | null;
 };
 
-export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
+export function ImageUploadModal({ isOpen, setIsOpen, editor: editorProp }: ImageUploadModalProps) {
   const [embedUrl, setEmbedUrl] = useState("");
   const [file, setFile] = useState<File | undefined>();
   const [isValidatingUrl, setIsValidatingUrl] = useState(false);
   const workspaceId = useWorkspaceId();
-  const { editor } = useCurrentEditor();
+  const { editor: editorFromContext } = useCurrentEditor();
+  const editor = editorProp || editorFromContext;
   const queryClient = useQueryClient();
 
   const { mutate: uploadImage, isPending: isUploading } = useMutation({
