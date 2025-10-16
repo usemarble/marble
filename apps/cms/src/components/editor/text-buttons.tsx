@@ -11,21 +11,18 @@ import {
   TextAlignRightIcon,
   TextUnderlineIcon as UnderlineIcon,
 } from "@phosphor-icons/react";
-import { useEditor } from "novel";
+import type { Editor } from "@tiptap/core";
+import { useCurrentEditor } from "@tiptap/react";
 
 export type SelectorItem = {
   name: string;
   icon: Icon;
-  command: (
-    editor: NonNullable<ReturnType<typeof useEditor>["editor"]>
-  ) => void;
-  isActive: (
-    editor: NonNullable<ReturnType<typeof useEditor>["editor"]>
-  ) => boolean;
+  command: (editor: Editor) => void;
+  isActive: (editor: Editor) => boolean;
 };
 
 export const TextButtons = () => {
-  const { editor } = useEditor();
+  const { editor } = useCurrentEditor();
   if (!editor) {
     return null;
   }

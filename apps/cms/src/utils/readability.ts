@@ -1,6 +1,6 @@
-import type { EditorInstance } from "novel";
+import type { Editor } from "@tiptap/core";
 
-export function calculateReadabilityScore(editor: EditorInstance): number {
+export function calculateReadabilityScore(editor: Editor): number {
   const text = editor?.getText();
   if (!text || text.trim().length === 0) {
     return 0;

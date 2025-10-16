@@ -1,53 +1,24 @@
 import type { Extension } from "@tiptap/core";
+import { CodeBlockLowlight } from "@tiptap/extension-code-block-lowlight";
+import { HorizontalRule } from "@tiptap/extension-horizontal-rule";
+import { Image } from "@tiptap/extension-image";
+import { TaskItem, TaskList } from "@tiptap/extension-list";
 import TextAlign from "@tiptap/extension-text-align";
+import { Youtube } from "@tiptap/extension-youtube";
+import { CharacterCount, Placeholder } from "@tiptap/extensions";
+import { StarterKit } from "@tiptap/starter-kit";
 import { cx } from "class-variance-authority";
 import { common, createLowlight } from "lowlight";
-import {
-  CodeBlockLowlight,
-  HorizontalRule,
-  Placeholder,
-  StarterKit,
-  TaskItem,
-  TaskList,
-  TiptapImage,
-  TiptapLink,
-  TiptapUnderline,
-  UpdatedImage,
-  UploadImagesPlugin,
-  Youtube,
-} from "novel";
 
 // You can overwrite the placeholder with your own configuration
 const placeholder = Placeholder;
 
-const tiptapLink = TiptapLink.configure({
-  HTMLAttributes: {
-    class: cx(
-      "text-muted-foreground underline underline-offset-[3px] hover:text-primary transition-colors cursor-pointer"
-    ),
-  },
-});
-
-const tiptapImage = TiptapImage.extend({
-  addProseMirrorPlugins() {
-    return [
-      UploadImagesPlugin({
-        imageClass: cx("opacity-40 rounded-lg border border-stone-200"),
-      }),
-    ];
-  },
-}).configure({
+const tiptapImage = Image.configure({
   allowBase64: true,
   HTMLAttributes: {
     class: cx("rounded-md border border-muted"),
   },
 });
-
-// const updatedImage = UpdatedImage.configure({
-//   HTMLAttributes: {
-//     class: cx("rounded-lg border border-muted"),
-//   },
-// });
 
 const taskList = TaskList.configure({
   HTMLAttributes: {
@@ -64,12 +35,6 @@ const taskItem = TaskItem.configure({
 const horizontalRule = HorizontalRule.configure({
   HTMLAttributes: {
     class: cx("mt-4 mb-6 border-t border-muted-foreground"),
-  },
-});
-
-const underline = TiptapUnderline.configure({
-  HTMLAttributes: {
-    class: cx("underline"),
   },
 });
 
@@ -125,11 +90,9 @@ export const defaultExtensions: Extension[] = [
   textAlign,
   CodeBlockLowlightEx as unknown as Extension,
   tiptapImage as unknown as Extension,
-  // updatedImage as unknown as Extension,
   youtube as unknown as Extension,
-  tiptapLink as unknown as Extension,
   taskList as unknown as Extension,
   taskItem as unknown as Extension,
   horizontalRule as unknown as Extension,
-  underline as unknown as Extension,
+  CharacterCount as unknown as Extension,
 ];

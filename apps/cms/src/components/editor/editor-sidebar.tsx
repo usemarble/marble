@@ -17,7 +17,7 @@ import {
 import { cn } from "@marble/ui/lib/utils";
 import { SpinnerIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import type { EditorInstance } from "novel";
+import type { Editor } from "@tiptap/core";
 import { parseAsStringLiteral, useQueryState } from "nuqs";
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import type { Control, FieldErrors, UseFormWatch } from "react-hook-form";
@@ -58,7 +58,7 @@ type EditorSidebarProps = React.ComponentProps<typeof Sidebar> & {
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   mode?: "create" | "update";
-  editor?: EditorInstance | null;
+  editor?: Editor | null;
 };
 
 export function EditorSidebar({

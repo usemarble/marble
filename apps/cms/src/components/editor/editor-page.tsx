@@ -18,16 +18,8 @@ import { SidebarSimpleIcon, XIcon } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import {
-  CharacterCount,
-  EditorContent,
-  type EditorInstance,
-  EditorRoot,
-  handleCommandNavigation,
-  handleImageDrop,
-  handleImagePaste,
-  type JSONContent,
-} from "novel";
+import { EditorContent, useEditor as useTiptapEditor } from "@tiptap/react";
+import type { Editor, JSONContent } from "@tiptap/core";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { EditorSidebar } from "@/components/editor/editor-sidebar";
@@ -38,12 +30,8 @@ import { QUERY_KEYS } from "@/lib/queries/keys";
 import { type PostValues, postSchema } from "@/lib/validations/post";
 import { useUnsavedChanges } from "@/providers/unsaved-changes";
 import { generateSlug } from "@/utils/string";
-import { BubbleMenu } from "./bubble-menu";
 import { defaultExtensions } from "./extensions";
-import { uploadFn } from "./image-upload";
 import { ShareModal } from "./share-modal";
-import { slashCommand } from "./slash-command-items";
-import { SlashCommandMenu } from "./slash-command-menu";
 import { TextareaAutosize } from "./textarea-autosize";
 
 const getToggleSidebarShortcut = () => {
@@ -67,10 +55,8 @@ function EditorPage({ initialData, id }: EditorPageProps) {
   const workspaceId = useWorkspaceId();
   const { open, isMobile } = useSidebar();
   const formRef = useRef<HTMLFormElement>(null);
-  const editorRef = useRef<EditorInstance | null>(null);
-  const [editorInstance, setEditorInstance] = useState<EditorInstance | null>(
-    null
-  );
+  const editorRef = useRef<Editor | null>(null);
+  const [editorInstance, setEditorInstance] = useState<Editor | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const { setHasUnsavedChanges } = useUnsavedChanges();
   const initialDataRef = useRef<PostValues>(initialData);
@@ -209,8 +195,33 @@ function EditorPage({ initialData, id }: EditorPageProps) {
     }
   }, [debouncedTitle, setValue, clearErrors, isUpdateMode]);
 
+  // Initialize Tiptap editor
+  const editor = useTiptapEditor({
+    extensions: defaultExtensions,
+    content: JSON.parse(watch("contentJson") || "{}"),
+    immediatelyRender: false,
+    shouldRerenderOnTransaction: true,
+    editorProps: {
+      attributes: {
+        class:
+          "prose dark:prose-invert min-h-96 h-full sm:px-4 focus:outline-hidden max-w-full prose-blockquote:border-border",
+      },
+    },
+    onCreate: ({ editor: editorInstance }) => {
+      editorRef.current = editorInstance;
+      setEditorInstance(editorInstance);
+    },
+    onUpdate: ({ editor: editorInstance }) => {
+      editorRef.current = editorInstance;
+      setEditorInstance(editorInstance);
+      const html = editorInstance.getHTML();
+      const json = editorInstance.getJSON();
+      handleEditorChange(html, json);
+    },
+  });
+
   return (
-    <EditorRoot>
+    <>
       <SidebarInset className="h-[calc(100vh-1rem)] min-h-[calc(100vh-1rem)] rounded-xl border bg-editor-content-background shadow-xs">
         <header className="sticky top-0 z-50 flex justify-between p-3">
           <div className="flex items-center gap-4">
@@ -272,42 +283,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                 )}
               </div>
               <div className="flex flex-col">
-                <EditorContent
-                  editorProps={{
-                    handleDOMEvents: {
-                      keydown: (_view, event) => handleCommandNavigation(event),
-                    },
-                    handlePaste: (view, event) =>
-                      handleImagePaste(view, event, uploadFn),
-                    handleDrop: (view, event, _slice, moved) =>
-                      handleImageDrop(view, event, moved, uploadFn),
-                    attributes: {
-                      class:
-                        "prose dark:prose-invert min-h-96 h-full sm:px-4 focus:outline-hidden max-w-full prose-blockquote:border-border",
-                    },
-                  }}
-                  extensions={[
-                    ...defaultExtensions,
-                    slashCommand,
-                    CharacterCount,
-                  ]}
-                  immediatelyRender={false}
-                  initialContent={JSON.parse(watch("contentJson") || "{}")}
-                  onCreate={({ editor }) => {
-                    editorRef.current = editor;
-                    setEditorInstance(editor);
-                  }}
-                  onUpdate={({ editor }) => {
-                    editorRef.current = editor;
-                    setEditorInstance(editor);
-                    const html = editor.getHTML();
-                    const json = editor.getJSON();
-                    handleEditorChange(html, json);
-                  }}
-                >
-                  <BubbleMenu />
-                  <SlashCommandMenu />
-                </EditorContent>
+                <EditorContent editor={editor} />
                 {errors.content && (
                   <p className="px-1 font-medium text-destructive text-sm">
                     {errors.content.message}
@@ -337,7 +313,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
         setIsOpen={setShowSettings}
         watch={watch}
       />
-    </EditorRoot>
+    </>
   );
 }
 export default EditorPage;
