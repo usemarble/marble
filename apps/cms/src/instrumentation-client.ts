@@ -7,15 +7,22 @@ import {
   init as SentryInit,
 } from "@sentry/nextjs";
 
-SentryInit({
-  dsn: process.env.SENTRY_DSN_URL,
-  // Enable logs to be sent to Sentry
-  enableLogs: true,
+if (process.env.NEXT_PUBLIC_SENTRY_DSN_URL) {
+  SentryInit({
+    dsn: process.env.NEXT_PUBLIC_SENTRY_DSN_URL,
 
-  tracesSampleRate: process.env.NODE_ENV === "production" ? 0.3 : 0,
+    // Enable logs to be sent to Sentry
+    enableLogs: true,
 
-  // Setting this option to true will print useful information to the console while you're setting up Sentry.
-  debug: false,
-});
+    tracesSampleRate: process.env.NODE_ENV === "production" ? 0.5 : 0,
+
+    // Setting this option to true will print useful information to the console while you're setting up Sentry.
+    debug: false,
+  });
+} else {
+  console.warn(
+    "NEXT_PUBLIC_SENTRY_DSN_URL is not set. Sentry will not be initialized for server runtime."
+  );
+}
 
 export const onRouterTransitionStart = captureRouterTransitionStart;
