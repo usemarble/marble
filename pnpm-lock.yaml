@@ -184,6 +184,12 @@ importers:
       '@tiptap/extension-code-block-lowlight':
         specifier: ^3.7.1
         version: 3.7.1(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/extension-code-block@3.7.1(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2)(highlight.js@11.11.1)(lowlight@3.3.0)
+      '@tiptap/extension-color':
+        specifier: ^3.7.2
+        version: 3.7.2(@tiptap/extension-text-style@3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2)))
+      '@tiptap/extension-highlight':
+        specifier: ^3.7.2
+        version: 3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))
       '@tiptap/extension-horizontal-rule':
         specifier: ^3.7.1
         version: 3.7.1(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2)
@@ -193,9 +199,18 @@ importers:
       '@tiptap/extension-list':
         specifier: ^3.7.1
         version: 3.7.1(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2)
+      '@tiptap/extension-subscript':
+        specifier: ^3.7.2
+        version: 3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2)
+      '@tiptap/extension-superscript':
+        specifier: ^3.7.2
+        version: 3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2)
       '@tiptap/extension-text-align':
         specifier: ^3.7.1
         version: 3.7.1(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))
+      '@tiptap/extension-text-style':
+        specifier: ^3.7.2
+        version: 3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))
       '@tiptap/extension-underline':
         specifier: ^3.7.1
         version: 3.7.1(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))
@@ -280,6 +295,9 @@ importers:
       react:
         specifier: ^19.1.1
         version: 19.1.1
+      react-colorful:
+        specifier: ^5.6.1
+        version: 5.6.1(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       react-dom:
         specifier: ^19.1.1
         version: 19.1.1(react@19.1.1)
@@ -4254,6 +4272,11 @@ packages:
     peerDependencies:
       '@tiptap/core': ^3.7.1
 
+  '@tiptap/extension-color@3.7.2':
+    resolution: {integrity: sha512-fMSPjWWsztAAtEgXY+g8ldXRuiI3My9C7TefdirSsBdP8sRx3dCS3QaUe3ZJro0nr3wYbhntJNaokcxVC7HHyA==}
+    peerDependencies:
+      '@tiptap/extension-text-style': ^3.7.2
+
   '@tiptap/extension-document@3.7.1':
     resolution: {integrity: sha512-b7NHWseJSvhhbsiSWjQgiJcs6FUJiEJocfhazDiWAOk5ELQ6+oiIe7ecEgDqBmafk9oziV9r7u9OAgyeyP3JBA==}
     peerDependencies:
@@ -4285,6 +4308,11 @@ packages:
     resolution: {integrity: sha512-rOUou6b0+5E+DAmEMTC/mlKTLiOr4D0LKzBfqBLQ3zUyZPZabOKzN0L+4MaLNR2CkXy/Ae4du5ucHGrGOWzVrQ==}
     peerDependencies:
       '@tiptap/core': ^3.7.1
+
+  '@tiptap/extension-highlight@3.7.2':
+    resolution: {integrity: sha512-+R10j0BaN3J8XeZM/RHIiYNpEHBetTtZQVDsEwmG5QBPzOTItvCc4qNaJjpoCPhkwTd5EQdmW7feUDPsTW+bgw==}
+    peerDependencies:
+      '@tiptap/core': ^3.7.2
 
   '@tiptap/extension-horizontal-rule@3.7.1':
     resolution: {integrity: sha512-f4lXW/LHuJBF11PIrWdNAzTmlapV4fVujJ5eCsLAkpzhx3izVrDW/WlKRrkGUCy/qQT4v7BbHNa5JYlKDzDo0Q==}
@@ -4339,10 +4367,27 @@ packages:
     peerDependencies:
       '@tiptap/core': ^3.7.1
 
+  '@tiptap/extension-subscript@3.7.2':
+    resolution: {integrity: sha512-t06VC4nNDu91mwqkEKpqflW5ilFL+UFYp0s1m+WfKj+1N4Pdbm+hiYN2Ks5rMtnPNwU1eQrE180to6zekVCL6A==}
+    peerDependencies:
+      '@tiptap/core': ^3.7.2
+      '@tiptap/pm': ^3.7.2
+
+  '@tiptap/extension-superscript@3.7.2':
+    resolution: {integrity: sha512-mAcdfQScs9FT+j76M5wE9hWxgMjjr/ScGfYAvTqrfC6SKq9SNdAQiKL5ezdAIDbJB20xhqq3KN5qk79eO4FItQ==}
+    peerDependencies:
+      '@tiptap/core': ^3.7.2
+      '@tiptap/pm': ^3.7.2
+
   '@tiptap/extension-text-align@3.7.1':
     resolution: {integrity: sha512-oZQiK9WZrykQhxVoMLo4oZTCfX4PXF2uPijO0U5TeoP2fIS9R57cfgU2Zx52QjP8XqXGGzITPEzEDRUQLU7UWg==}
     peerDependencies:
       '@tiptap/core': ^3.7.1
+
+  '@tiptap/extension-text-style@3.7.2':
+    resolution: {integrity: sha512-afbEnk+Cf9tOfnM+dcKRtyAVb99JZRzUd2qTGqqoEJuySRk5KckVBZSkwGAt6TiIKpPlmwHHB5YTdMx9Fg+tbQ==}
+    peerDependencies:
+      '@tiptap/core': ^3.7.2
 
   '@tiptap/extension-text@3.7.1':
     resolution: {integrity: sha512-m+8FJrFAllJYuzLbEXJ9AztobxmWBTjWorkHcMHBLAbY2ytmAhIM1u3ExtOn9DjvnIT6MffCaq0i/KjhSBYJlA==}
@@ -6769,6 +6814,12 @@ packages:
 
   rc9@2.1.2:
     resolution: {integrity: sha512-btXCnMmRIBINM2LDZoEmOogIZU7Qe7zn4BpomSKZ/ykbLObuBdvG+mFq11DL6fjH1DRwHhrlgtYWG96bJiC7Cg==}
+
+  react-colorful@5.6.1:
+    resolution: {integrity: sha512-1exovf0uGTGyq5mXQT0zgQ80uvj2PCwvF8zY1RN9/vbJVSjSo3fsB/4L3ObbF7u70NduSiK4xu4Y6q1MHoUGEw==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
 
   react-day-picker@9.9.0:
     resolution: {integrity: sha512-NtkJbuX6cl/VaGNb3sVVhmMA6LSMnL5G3xNL+61IyoZj0mUZFWTg4hmj7PHjIQ8MXN9dHWhUHFoJWG6y60DKSg==}
@@ -12592,6 +12643,10 @@ snapshots:
     dependencies:
       '@tiptap/core': 3.7.2(@tiptap/pm@3.7.2)
 
+  '@tiptap/extension-color@3.7.2(@tiptap/extension-text-style@3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2)))':
+    dependencies:
+      '@tiptap/extension-text-style': 3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))
+
   '@tiptap/extension-document@3.7.1(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))':
     dependencies:
       '@tiptap/core': 3.7.2(@tiptap/pm@3.7.2)
@@ -12616,6 +12671,10 @@ snapshots:
       '@tiptap/core': 3.7.2(@tiptap/pm@3.7.2)
 
   '@tiptap/extension-heading@3.7.1(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))':
+    dependencies:
+      '@tiptap/core': 3.7.2(@tiptap/pm@3.7.2)
+
+  '@tiptap/extension-highlight@3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))':
     dependencies:
       '@tiptap/core': 3.7.2(@tiptap/pm@3.7.2)
 
@@ -12663,7 +12722,21 @@ snapshots:
     dependencies:
       '@tiptap/core': 3.7.2(@tiptap/pm@3.7.2)
 
+  '@tiptap/extension-subscript@3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2)':
+    dependencies:
+      '@tiptap/core': 3.7.2(@tiptap/pm@3.7.2)
+      '@tiptap/pm': 3.7.2
+
+  '@tiptap/extension-superscript@3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2)':
+    dependencies:
+      '@tiptap/core': 3.7.2(@tiptap/pm@3.7.2)
+      '@tiptap/pm': 3.7.2
+
   '@tiptap/extension-text-align@3.7.1(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))':
+    dependencies:
+      '@tiptap/core': 3.7.2(@tiptap/pm@3.7.2)
+
+  '@tiptap/extension-text-style@3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))':
     dependencies:
       '@tiptap/core': 3.7.2(@tiptap/pm@3.7.2)
 
@@ -15714,6 +15787,11 @@ snapshots:
     dependencies:
       defu: 6.1.4
       destr: 2.0.5
+
+  react-colorful@5.6.1(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
+    dependencies:
+      react: 19.1.1
+      react-dom: 19.1.1(react@19.1.1)
 
   react-day-picker@9.9.0(react@19.0.0):
     dependencies:

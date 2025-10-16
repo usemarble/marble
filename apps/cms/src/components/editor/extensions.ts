@@ -1,9 +1,14 @@
 import type { Extension } from "@tiptap/core";
 import { CodeBlockLowlight } from "@tiptap/extension-code-block-lowlight";
+import { Color } from "@tiptap/extension-color";
+import { Highlight } from "@tiptap/extension-highlight";
 import { HorizontalRule } from "@tiptap/extension-horizontal-rule";
 import { Image } from "@tiptap/extension-image";
 import { TaskItem, TaskList } from "@tiptap/extension-list";
+import { Subscript } from "@tiptap/extension-subscript";
+import { Superscript } from "@tiptap/extension-superscript";
 import TextAlign from "@tiptap/extension-text-align";
+import { TextStyle } from "@tiptap/extension-text-style";
 import { Youtube } from "@tiptap/extension-youtube";
 import { CharacterCount, Placeholder } from "@tiptap/extensions";
 import { StarterKit } from "@tiptap/starter-kit";
@@ -95,6 +100,11 @@ export const defaultExtensions: Extension[] = [
   starterKit,
   placeholder,
   textAlign,
+  TextStyle as unknown as Extension,
+  Color as unknown as Extension,
+  Highlight.configure({ multicolor: true }) as unknown as Extension,
+  Subscript as unknown as Extension,
+  Superscript as unknown as Extension,
   CodeBlockLowlightEx as unknown as Extension,
   tiptapImage as unknown as Extension,
   ImageUpload as unknown as Extension,
