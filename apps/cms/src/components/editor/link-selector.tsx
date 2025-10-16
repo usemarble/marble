@@ -5,6 +5,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@marble/ui/components/popover";
+import { Separator } from "@marble/ui/components/separator";
 import { Switch } from "@marble/ui/components/switch";
 import { cn } from "@marble/ui/lib/utils";
 import { CheckIcon, LinkSimpleIcon, TrashIcon } from "@phosphor-icons/react";
@@ -21,7 +22,9 @@ export function isValidUrl(url: string) {
 }
 
 export function getUrlFromString(str: string) {
-  if (isValidUrl(str)) return str;
+  if (isValidUrl(str)) {
+    return str;
+  }
   try {
     if (str.includes(".") && !str.includes(" ")) {
       return new URL(`https://${str}`).toString();
@@ -31,10 +34,10 @@ export function getUrlFromString(str: string) {
   }
 }
 
-interface LinkSelectorProps {
+type LinkSelectorProps = {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-}
+};
 
 export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -45,24 +48,28 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
-  if (!editor) return null;
+  if (!editor) {
+    return null;
+  }
 
   return (
-    <Popover modal={true} open={open} onOpenChange={onOpenChange}>
+    <Popover modal={true} onOpenChange={onOpenChange} open={open}>
       <PopoverTrigger asChild>
         <Button
-          variant="ghost"
-          size="icon"
           className={cn("gap-2 border-none", {
             "text-emerald-500": editor.isActive("link"),
           })}
+          size="icon"
+          variant="ghost"
         >
           <LinkSimpleIcon className="size-4" />
         </Button>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-60 p-0" sideOffset={10}>
-        {/* biome-ignore lint/a11y/noStaticElementInteractions: <> */}
+        {/** biome-ignore lint/a11y/noNoninteractiveElementInteractions: It's acting as a button */}
+        {/** biome-ignore lint/a11y/noStaticElementInteractions: It's acting as a button */}
         <div
+          className="flex flex-col p-1"
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
@@ -78,35 +85,31 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
                   .run();
             }
           }}
-          className="flex flex-col p-1 divide-y"
         >
-          <div className="flex mb-1">
+          <div className="mb-3 flex">
             <input
-              ref={inputRef}
-              type="text"
-              onChange={({ target }) => setInputValue(target.value)}
-              placeholder="Paste or type link"
               className="flex-1 bg-background p-1 text-sm outline-hidden"
               defaultValue={editor.getAttributes("link").href || ""}
+              onChange={({ target }) => setInputValue(target.value)}
+              placeholder="Paste or type link"
+              ref={inputRef}
+              type="text"
             />
             {editor.getAttributes("link").href ? (
               <Button
-                size="icon"
-                variant="outline"
-                type="button"
                 className="flex items-center rounded-sm text-destructive transition-all hover:bg-destructive hover:text-white"
                 onClick={() => {
                   editor.chain().focus().unsetLink().run();
                 }}
+                size="icon"
+                type="button"
+                variant="outline"
               >
                 <TrashIcon className="size-4" />
               </Button>
             ) : (
               <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                className="shrink-0 size-8"
+                className="size-8 shrink-0"
                 onClick={() => {
                   const url = getUrlFromString(inputRef.current?.value || "");
                   if (url) {
@@ -120,18 +123,23 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
                       .run();
                   }
                 }}
+                size="icon"
+                type="button"
+                variant="outline"
               >
                 <CheckIcon className="size-4" />
               </Button>
             )}
           </div>
+          <Separator className="mb-3" />
           <div className="flex items-center space-x-2 p-2">
             <Switch
-              id="new-tab"
+              aria-labelledby="new-tab"
               checked={openInNewTab}
+              id="new-tab"
               onCheckedChange={setOpenInNewTab}
             />
-            <Label htmlFor="new-tab" className="text-muted-foreground text-xs">
+            <Label className="text-muted-foreground text-xs" htmlFor="new-tab">
               Open in new tab
             </Label>
           </div>

@@ -1,3 +1,2 @@
-import app from "./app";
-
-export default app;
+/** biome-ignore-all lint/performance/noBarrelFile: "required" */
+export { default } from "./app";

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { R2_PUBLIC_URL } from "@/lib/r2";
 import { completeSchema } from "@/lib/validations/upload";
+import type { MediaType } from "@/types/media";
 import { getMediaType } from "@/utils/media";
 
 export async function POST(request: Request) {
@@ -18,7 +19,7 @@ export async function POST(request: Request) {
   if (!parsedBody.success) {
     return NextResponse.json(
       { error: "Invalid request body" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -35,8 +36,11 @@ export async function POST(request: Request) {
         });
         return NextResponse.json({ avatarUrl: url });
       }
+      case "author-avatar": {
+        return NextResponse.json({ avatarUrl: url });
+      }
       case "logo": {
-        const workspaceId = sessionData.session.activeOrganizationId as string;
+        const workspaceId = sessionData.session.activeOrganizationId;
         await db.organization.update({
           where: { id: workspaceId },
           data: { logo: url },
@@ -45,13 +49,14 @@ export async function POST(request: Request) {
       }
       case "media": {
         const mediaName = parsedBody.data.name;
-        const workspaceId = sessionData.session.activeOrganizationId as string;
+        const workspaceId = sessionData.session.activeOrganizationId;
+        const mediaType = getMediaType(fileType);
         const media = await db.media.create({
           data: {
             name: mediaName,
             url,
             size: fileSize,
-            type: getMediaType(fileType),
+            type: mediaType,
             workspaceId,
           },
         });
@@ -69,7 +74,7 @@ export async function POST(request: Request) {
       default:
         return NextResponse.json(
           { error: "Invalid upload type" },
-          { status: 400 },
+          { status: 400 }
         );
     }
   } catch (error) {

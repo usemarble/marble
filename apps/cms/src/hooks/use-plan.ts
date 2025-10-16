@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import {
   canInviteMoreMembers,
@@ -9,7 +10,12 @@ import {
   type PlanLimits,
   type PlanType,
 } from "@/lib/plans";
+import { QUERY_KEYS } from "@/lib/queries/keys";
 import { useWorkspace } from "@/providers/workspace";
+
+type BillingUsage = {
+  media: number;
+};
 
 export function usePlan() {
   const { activeWorkspace } = useWorkspace();
@@ -42,6 +48,20 @@ export function usePlan() {
     return isOverLimit(currentPlan, usage);
   };
 
+  const { data } = useQuery({
+    // biome-ignore lint/style/noNonNullAssertion: <>
+    queryKey: QUERY_KEYS.BILLING_USAGE(activeWorkspace!.id),
+    staleTime: 1000 * 60 * 5,
+    queryFn: async (): Promise<BillingUsage> => {
+      const res = await fetch("/api/billing/usage");
+      if (!res.ok) {
+        throw new Error("Failed to fetch billing usage");
+      }
+      return res.json();
+    },
+    enabled: !!activeWorkspace?.id,
+  });
+
   const isFreePlan = currentPlan === "free";
   const isProPlan = currentPlan === "pro";
   const isTeamPlan = currentPlan === "team";
@@ -57,5 +77,6 @@ export function usePlan() {
     isFreePlan,
     isProPlan,
     isTeamPlan,
+    currentMediaUsage: data?.media ?? 0,
   };
 }

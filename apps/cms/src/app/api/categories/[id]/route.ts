@@ -6,27 +6,35 @@ import { getWebhooks, WebhookClient } from "@/lib/webhooks/webhook-client";
 
 export async function PATCH(
   req: Request,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const sessionData = await getServerSession();
+  const workspaceId = sessionData?.session.activeOrganizationId;
 
-  if (!sessionData || !sessionData.session.activeOrganizationId) {
+  if (!sessionData || !workspaceId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { id } = await params;
 
   const json = await req.json();
-  const body = categorySchema.parse(json);
+  const body = categorySchema.safeParse(json);
+
+  if (!body.success) {
+    return NextResponse.json(
+      { error: "Invalid request body", details: body.error.issues },
+      { status: 400 }
+    );
+  }
 
   const categoryUpdated = await db.category.update({
     where: {
-      id: id,
-      workspaceId: sessionData.session.activeOrganizationId,
+      id,
+      workspaceId,
     },
     data: {
-      name: body.name,
-      slug: body.slug,
+      name: body.data.name,
+      slug: body.data.slug,
     },
   });
 
@@ -51,18 +59,19 @@ export async function PATCH(
 
 export async function DELETE(
   _req: Request,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const sessionData = await getServerSession();
+  const workspaceId = sessionData?.session.activeOrganizationId;
 
-  if (!sessionData || !sessionData.session.activeOrganizationId) {
+  if (!sessionData || !workspaceId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { id } = await params;
 
   const category = await db.category.findFirst({
-    where: { id, workspaceId: sessionData.session.activeOrganizationId },
+    where: { id, workspaceId },
     select: { slug: true },
   });
 
@@ -73,7 +82,7 @@ export async function DELETE(
   const postsWithCategory = await db.post.findFirst({
     where: {
       categoryId: id,
-      workspaceId: sessionData.session.activeOrganizationId,
+      workspaceId,
     },
     select: { id: true },
   });
@@ -81,15 +90,15 @@ export async function DELETE(
   if (postsWithCategory) {
     return NextResponse.json(
       { error: "Category is associated with existing posts" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
   try {
     await db.category.delete({
       where: {
-        id: id,
-        workspaceId: sessionData.session.activeOrganizationId,
+        id,
+        workspaceId,
       },
     });
 
@@ -100,7 +109,7 @@ export async function DELETE(
       await webhookClient.send({
         url: webhook.endpoint,
         event: "category.deleted",
-        data: { id: id, slug: category.slug, userId: sessionData.user.id },
+        data: { id, slug: category.slug, userId: sessionData.user.id },
         format: webhook.format,
       });
     }
@@ -109,7 +118,7 @@ export async function DELETE(
   } catch (_e) {
     return NextResponse.json(
       { error: "Failed to delete category" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

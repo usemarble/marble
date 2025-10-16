@@ -6,17 +6,19 @@ import { getWebhooks, WebhookClient } from "@/lib/webhooks/webhook-client";
 
 export async function GET() {
   const sessionData = await getServerSession();
+  const workspaceId = sessionData?.session.activeOrganizationId;
 
-  if (!sessionData) {
+  if (!sessionData || !workspaceId) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
   const tags = await db.tag.findMany({
-    where: { workspaceId: sessionData.session?.activeOrganizationId as string },
+    where: { workspaceId },
     select: {
       id: true,
       name: true,
       slug: true,
+      description: true,
     },
   });
 
@@ -24,10 +26,10 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const session = await getServerSession();
-  const user = session?.user;
+  const sessionData = await getServerSession();
+  const workspaceId = sessionData?.session.activeOrganizationId;
 
-  if (!user || !session?.session.activeOrganizationId) {
+  if (!sessionData || !workspaceId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -38,11 +40,12 @@ export async function POST(req: Request) {
     data: {
       name: body.name,
       slug: body.slug,
-      workspaceId: session.session.activeOrganizationId,
+      description: body.description,
+      workspaceId,
     },
   });
 
-  const webhooks = getWebhooks(session.session, "tag_created");
+  const webhooks = getWebhooks(sessionData.session, "tag_created");
 
   for (const webhook of await webhooks) {
     const webhookClient = new WebhookClient({ secret: webhook.secret });
@@ -52,7 +55,7 @@ export async function POST(req: Request) {
       data: {
         id: tagCreated.id,
         slug: tagCreated.slug,
-        userId: session.user.id,
+        userId: sessionData.user.id,
       },
       format: webhook.format,
     });

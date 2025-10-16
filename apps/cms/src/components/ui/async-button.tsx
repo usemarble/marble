@@ -4,7 +4,7 @@
 import { Button, buttonVariants } from "@marble/ui/components/button";
 import { cn } from "@marble/ui/lib/utils";
 import type { VariantProps } from "class-variance-authority";
-import * as React from "react";
+import { type ComponentProps, forwardRef, type ReactNode } from "react";
 
 // Spinner component with proper variant-based styling
 function LoadingSpinner({
@@ -25,10 +25,10 @@ function LoadingSpinner({
         variant === "secondary" && "text-secondary-foreground",
         variant === "ghost" && "text-foreground",
         variant === "link" && "text-primary",
-        className,
+        className
       )}
-      viewBox="0 0 100 101"
       fill="none"
+      viewBox="0 0 100 101"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
@@ -44,7 +44,7 @@ function LoadingSpinner({
   );
 }
 
-interface AsyncButtonProps extends React.ComponentProps<typeof Button> {
+interface AsyncButtonProps extends ComponentProps<typeof Button> {
   /**
    * Whether the button is in a loading state
    */
@@ -52,7 +52,7 @@ interface AsyncButtonProps extends React.ComponentProps<typeof Button> {
   /**
    * Text to display when not loading
    */
-  children: React.ReactNode;
+  children: ReactNode;
   /**
    * Optional loading text to display when loading (takes priority over children)
    */
@@ -66,7 +66,7 @@ interface AsyncButtonProps extends React.ComponentProps<typeof Button> {
   keepTextWhileLoading?: boolean;
 }
 
-const AsyncButton = React.forwardRef<HTMLButtonElement, AsyncButtonProps>(
+const AsyncButton = forwardRef<HTMLButtonElement, AsyncButtonProps>(
   (
     {
       children,
@@ -78,14 +78,14 @@ const AsyncButton = React.forwardRef<HTMLButtonElement, AsyncButtonProps>(
       className,
       ...props
     },
-    ref,
+    ref
   ) => {
     const renderLoadingContent = () => {
       // Priority: loadingText > keepTextWhileLoading > spinner only
       if (loadingText) {
         return (
           <>
-            <LoadingSpinner variant={variant} className="mr-2" />
+            <LoadingSpinner className="mr-2" variant={variant} />
             {loadingText}
           </>
         );
@@ -94,7 +94,7 @@ const AsyncButton = React.forwardRef<HTMLButtonElement, AsyncButtonProps>(
       if (keepTextWhileLoading) {
         return (
           <>
-            <LoadingSpinner variant={variant} className="mr-2" />
+            <LoadingSpinner className="mr-2" variant={variant} />
             {children}
           </>
         );
@@ -106,16 +106,16 @@ const AsyncButton = React.forwardRef<HTMLButtonElement, AsyncButtonProps>(
 
     return (
       <Button
-        ref={ref}
-        disabled={disabled || isLoading}
-        variant={variant}
         className={className}
+        disabled={disabled || isLoading}
+        ref={ref}
+        variant={variant}
         {...props}
       >
         {isLoading ? renderLoadingContent() : children}
       </Button>
     );
-  },
+  }
 );
 
 AsyncButton.displayName = "AsyncButton";

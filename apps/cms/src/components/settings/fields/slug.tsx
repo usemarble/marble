@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@marble/ui/components/button";
 import {
   Card,
   CardContent,
@@ -56,15 +55,21 @@ export function Slug() {
         throw new Error("Slug is already taken");
       }
 
-      return await organization.update({
+      const res = await organization.update({
         organizationId,
         data: {
           slug: payload.slug,
         },
       });
+      if (res?.error) {
+        throw new Error(res.error.message);
+      }
+      return res;
     },
     onSuccess: (data, variables) => {
-      if (!data) return;
+      if (!data) {
+        return;
+      }
 
       toast.success("Workspace slug updated");
       slugForm.reset({ slug: data.data?.slug });
@@ -87,7 +92,9 @@ export function Slug() {
   });
 
   const onSlugSubmit = (payload: SlugValues) => {
-    if (!isOwner || !activeWorkspace?.id) return;
+    if (!isOwner || !activeWorkspace?.id) {
+      return;
+    }
     const cleanSlug = generateSlug(payload.slug);
     updateSlug({
       organizationId: activeWorkspace.id,
@@ -98,43 +105,43 @@ export function Slug() {
   return (
     <Card className="pb-4">
       <CardHeader>
-        <CardTitle className="text-lg font-medium">Workspace Slug</CardTitle>
+        <CardTitle className="font-medium text-lg">Workspace Slug</CardTitle>
         <CardDescription>Your unique workspace slug.</CardDescription>
       </CardHeader>
       <form
-        onSubmit={slugForm.handleSubmit(onSlugSubmit)}
         className="flex flex-col gap-6"
+        onSubmit={slugForm.handleSubmit(onSlugSubmit)}
       >
         <CardContent>
-          <div className="flex flex-col gap-2 w-full">
-            <div className="flex gap-2 items-center">
-              <div className="flex flex-col gap-2 flex-1">
-                <Label htmlFor={slugId} className="sr-only">
+          <div className="flex w-full flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <div className="flex flex-1 flex-col gap-2">
+                <Label className="sr-only" htmlFor={slugId}>
                   Slug
                 </Label>
                 <Input
                   id={slugId}
                   {...slugForm.register("slug")}
-                  placeholder="workspace"
                   disabled={!isOwner}
+                  placeholder="workspace"
                 />
               </div>
             </div>
             {slugForm.formState.errors.slug && (
-              <p className="text-xs text-destructive">
+              <p className="text-destructive text-xs">
                 {slugForm.formState.errors.slug.message}
               </p>
             )}
           </div>
         </CardContent>
-        <CardFooter className="border-t pt-4 flex justify-between">
-          <p className="text-sm text-muted-foreground">
+        <CardFooter className="flex justify-between border-t pt-4">
+          <p className="text-muted-foreground text-sm">
             Used in your workspace URL
           </p>
           <AsyncButton
-            isLoading={isPending}
+            className={cn("flex w-20 items-center gap-2 self-end")}
             disabled={!isOwner || !slugForm.formState.isDirty}
-            className={cn("w-20 self-end flex gap-2 items-center")}
+            isLoading={isPending}
           >
             Save
           </AsyncButton>

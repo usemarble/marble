@@ -16,7 +16,7 @@ function getPlanType(productName: string): PlanType | null {
 }
 
 function getSubscriptionStatus(
-  polarStatus: WebhookSubscriptionCreatedPayload["data"]["status"],
+  polarStatus: WebhookSubscriptionCreatedPayload["data"]["status"]
 ): SubscriptionStatus | null {
   switch (polarStatus) {
     case "active":
@@ -37,7 +37,7 @@ function getSubscriptionStatus(
 }
 
 export async function handleSubscriptionCreated(
-  payload: WebhookSubscriptionCreatedPayload,
+  payload: WebhookSubscriptionCreatedPayload
 ) {
   const { data: subscription } = payload;
   const workspaceId = subscription.metadata?.referenceId;
@@ -45,28 +45,28 @@ export async function handleSubscriptionCreated(
 
   if (typeof workspaceId !== "string") {
     console.error(
-      "subscription.created webhook received without a string workspaceId in metadata.referenceId",
+      "subscription.created webhook received without a string workspaceId in metadata.referenceId"
     );
     return;
   }
 
   if (typeof userId !== "string") {
     console.error(
-      "subscription.created webhook received without a string userId in customer.externalId",
+      "subscription.created webhook received without a string userId in customer.externalId"
     );
     return;
   }
 
   if (!subscription.currentPeriodStart) {
     console.error(
-      "subscription.created webhook received without a currentPeriodStart",
+      "subscription.created webhook received without a currentPeriodStart"
     );
     return;
   }
 
   if (!subscription.currentPeriodEnd) {
     console.error(
-      "subscription.created webhook received without a currentPeriodEnd",
+      "subscription.created webhook received without a currentPeriodEnd"
     );
     return;
   }
@@ -94,7 +94,7 @@ export async function handleSubscriptionCreated(
   const status = getSubscriptionStatus(subscription.status);
   if (!status) {
     console.error(
-      `Unknown subscription status from Polar: ${subscription.status}`,
+      `Unknown subscription status from Polar: ${subscription.status}`
     );
     return;
   }
@@ -107,13 +107,13 @@ export async function handleSubscriptionCreated(
         status,
         currentPeriodStart: new Date(subscription.currentPeriodStart),
         currentPeriodEnd: new Date(subscription.currentPeriodEnd),
-        userId: userId,
-        workspaceId: workspaceId,
+        userId,
+        workspaceId,
       },
     });
 
     console.log(
-      `Successfully created subscription for workspace ${workspaceId}`,
+      `Successfully created subscription for workspace ${workspaceId}`
     );
   } catch (error) {
     console.error("Error creating subscription in DB:", error);

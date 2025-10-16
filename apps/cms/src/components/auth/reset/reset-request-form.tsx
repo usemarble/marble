@@ -52,27 +52,27 @@ export default function ResetRequestForm() {
   return (
     <section className="flex w-full max-w-sm flex-col items-center gap-6">
       <div className="flex flex-col items-center gap-2 text-center">
-        <h1 className="text-lg font-semibold">Forgot your password?</h1>
+        <h1 className="font-semibold text-lg">Forgot your password?</h1>
         <p className="text-muted-foreground text-sm">
           Enter your email address and we&apos;ll send you a reset link.
         </p>
       </div>
 
       <Input
-        type="email"
-        placeholder="you@example.com"
-        value={email}
         onChange={(e) => setEmail(e.target.value)}
+        placeholder="you@example.com"
+        type="email"
+        value={email}
       />
 
       <AsyncButton
-        onClick={handleRequest}
-        disabled={!email || isLoading || waitingSeconds > 0}
         className={cn(
-          "flex items-center justify-center min-w-48",
-          isLoading || (waitingSeconds > 0 && "cursor-not-allowed"),
+          "flex min-w-48 items-center justify-center",
+          isLoading || (waitingSeconds > 0 && "cursor-not-allowed")
         )}
+        disabled={!email || isLoading || waitingSeconds > 0}
         isLoading={isLoading}
+        onClick={handleRequest}
       >
         <div>
           Send reset link{" "}

@@ -17,9 +17,12 @@ import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
-import { ImageIcon, UploadSimpleIcon } from "@phosphor-icons/react";
+import {
+  CircleNotchIcon,
+  ImageIcon,
+  UploadSimpleIcon,
+} from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
 import { useId, useState } from "react";
 import { CopyButton } from "@/components/ui/copy-button";
 import { organization } from "@/lib/auth/client";
@@ -41,12 +44,16 @@ export function Logo() {
       organizationId: string;
       logoUrl: string;
     }) => {
-      return await organization.update({
+      const res = await organization.update({
         organizationId,
         data: {
           logo: logoUrl,
         },
       });
+      if (res?.error) {
+        throw new Error(res.error.message);
+      }
+      return res;
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
@@ -70,7 +77,9 @@ export function Logo() {
     },
     onSuccess: (data) => {
       const { logoUrl } = data;
-      if (!logoUrl || !activeWorkspace?.id) return;
+      if (!logoUrl || !activeWorkspace?.id) {
+        return;
+      }
 
       setLogoUrl(logoUrl);
       toast.success("Upload complete");
@@ -92,7 +101,7 @@ export function Logo() {
   return (
     <Card>
       <CardHeader className="px-6">
-        <CardTitle className="text-lg font-medium">Workspace Logo.</CardTitle>
+        <CardTitle className="font-medium text-lg">Workspace Logo.</CardTitle>
         <CardDescription>
           Upload a logo for your workspace. (Accepted file types are .png, .jpg,
           .jpeg, .webp)
@@ -102,12 +111,12 @@ export function Logo() {
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-5">
             <Label
-              htmlFor={fileId}
               className={cn(
-                "cursor-pointer relative overflow-hidden rounded-full size-16 group",
+                "group relative size-16 cursor-pointer overflow-hidden rounded-full",
                 (isUpdatingLogo || !isOwner) && "pointer-events-none",
-                !isOwner && "opacity-50",
+                !isOwner && "opacity-50"
               )}
+              htmlFor={fileId}
             >
               <Avatar className="size-16">
                 <AvatarImage src={logoUrl || undefined} />
@@ -116,37 +125,37 @@ export function Logo() {
                 </AvatarFallback>
               </Avatar>
               <input
-                title="Upload logo"
-                type="file"
-                id={fileId}
                 accept="image/*"
+                className="sr-only"
                 disabled={!isOwner}
+                id={fileId}
                 onChange={(e) => {
                   const file = e.target.files?.[0];
                   if (file && !isUpdatingLogo && isOwner) {
                     uploadLogo(file);
                   }
                 }}
-                className="sr-only"
+                title="Upload logo"
+                type="file"
               />
               <div
                 className={cn(
-                  "absolute inset-0 flex items-center justify-center transition-opacity duration-300 bg-background/50 backdrop-blur-xs size-full",
+                  "absolute inset-0 flex size-full items-center justify-center bg-background/50 backdrop-blur-xs transition-opacity duration-300",
                   isUpdatingLogo
                     ? "opacity-100"
-                    : "opacity-0 group-hover:opacity-100",
+                    : "opacity-0 group-hover:opacity-100"
                 )}
               >
                 {isUpdatingLogo ? (
-                  <Loader2 className="size-4 animate-spin" />
+                  <CircleNotchIcon className="size-4 animate-spin" />
                 ) : (
                   <UploadSimpleIcon className="size-4" />
                 )}
               </div>
             </Label>
           </div>
-          <div className="flex items-center gap-2 w-full">
-            <Input value={logoUrl || ""} readOnly />
+          <div className="flex w-full items-center gap-2">
+            <Input readOnly value={logoUrl || ""} />
             <CopyButton
               textToCopy={logoUrl || ""}
               toastMessage="Logo URL copied to clipboard."
@@ -155,7 +164,7 @@ export function Logo() {
         </div>
       </CardContent>
       <CardFooter className="border-t">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Square images work best for logos
         </p>
       </CardFooter>

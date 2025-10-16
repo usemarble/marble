@@ -2,61 +2,88 @@
 title: Privacy Policy
 published: 2024-12-12
 description: Marble's Privacy Policy.
-lastUpdated: 2025-02-13
+lastUpdated: 2025-09-18
 ---
 
-Marble ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy outlines how we collect, use, and safeguard your information when you use our app ("the App").
+Marble ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your information when you use our service ("the Service").
 
 ## 1. Information We Collect
 
-We only collect minimal information to provide and improve our service. Specifically:
+We collect only the information necessary to provide and improve our service:
 
-### a. Analytics Data
+### a. Account Information
 
-- **What we collect:** Non-identifiable information about page visits, such as page views, timestamps, and browser type. No personally identifiable information (PII) is collected.
+- **What we collect:** Basic details such as your name, email address, and OAuth provider IDs (e.g., Google, GitHub) when you sign up.
+- **Why we collect it:** To create and manage your account, authenticate you, and provide access to your workspaces.
+
+### b. Workspace Data
+
+- **What we collect:** Content you create within the Service (e.g., posts, tags, workspace metadata).
+- **Why we collect it:** To deliver the core functionality of the CMS and allow collaboration.
+
+### c. AI Features (Optional)
+
+- **What we process:** When you use our AI-powered features, your workspace data (e.g., “posts tagged ‘design’”) may be temporarily processed to generate responses.
+- **What we don’t do:** We do not use your data to train external AI models without your consent.
+
+### d. Analytics Data
+
+- **What we collect:** Non-identifiable usage data such as page views, timestamps, and browser type.
+- **Provider:** We use Databuddy.cc, a GDPR-compliant analytics provider that does not track individuals.
+- **Why we collect it:** To monitor performance and improve the Service.
 
 ## 2. How We Use Your Information
 
-We use the information collected for the following purposes:
+We use the collected information to:
 
-- To monitor and analyze app performance and usage trends.
-- To improve our app and user experience.
+- Provide and operate the Service.
+- Enable authentication and account management.
+- Deliver AI-powered features at your request.
+- Monitor performance and usage trends.
+- Comply with legal obligations.
 
-We do not sell, rent, or share your information with third parties for marketing or any other purpose.
+We do not sell or rent your information to third parties.
 
 ## 3. Data Sharing
 
-We do not share your data with any third parties, except as required by law or to comply with legal obligations.
+We may share your information with trusted service providers (e.g., hosting providers, analytics, payment processors, AI infrastructure) who help us operate the Service. These providers are bound by strict confidentiality and data protection obligations.
+
+We may also share data if required by law.
 
 ## 4. Data Retention
 
-We retain analytics data for as long as necessary to fulfill the purposes outlined in this policy. If you would like us to delete any collected data, please contact us at [support@marblecms.com](mailto:support@marblecms.com).
+- Account data is retained for as long as your account is active.
+- Workspace data is retained until you delete it or request deletion.
+- Analytics data is retained only as long as necessary for performance monitoring.
 
-## 5. Your Privacy Rights
+You may request deletion of your data at any time by contacting us at [support@marblecms.com](mailto:support@marblecms.com).
 
-Depending on your jurisdiction, you may have the following rights:
+## 5. Your Rights
 
-- **Access and Correction:** Request access to or correction of the data we have collected.
-- **Deletion:** Request deletion of your data (where applicable).
-- **Opt-out:** Opt-out of data collection, including analytics (if applicable).
+Depending on your jurisdiction (e.g., GDPR, CCPA), you may have the right to:
+
+- Access and receive a copy of your data.
+- Request correction or deletion of your data.
+- Restrict or object to certain processing.
+- Export your data in a portable format.
 
 To exercise these rights, contact us at [support@marblecms.com](mailto:support@marblecms.com).
 
 ## 6. Cookies and Tracking
 
-We do not use cookies or other tracking technologies. The only data collected is through our analytics service, which does not track individual users.
+We do not use cookies for tracking. Analytics is handled by Databuddy, which does not identify individual users.
 
 ## 7. Security Measures
 
-We take the security of your data seriously and implement industry-standard measures to protect it. However, no method of transmission over the Internet or electronic storage is completely secure, and we cannot guarantee absolute security.
+We use industry-standard measures, including encryption in transit and at rest, to protect your data. However, no system is 100% secure, and we cannot guarantee absolute protection.
 
-## 8. Changes to This Privacy Policy
+## 8. Changes to This Policy
 
-We may update this Privacy Policy from time to time. Any changes will be posted here, and we will notify users via the app or email (if applicable). Please review this Privacy Policy periodically for updates.
+We may update this Privacy Policy from time to time. If significant changes are made, we will notify you via the Service or email.
 
 ## 9. Contact Us
 
-If you have any questions or concerns about this Privacy Policy, please contact us at [support@marblecms.com](mailto:support@marblecms.com)
+If you have any questions or concerns, please contact us at: [support@marblecms.com](mailto:support@marblecms.com)
 
 ---
-*By using the App, you acknowledge that you have read and understood this Privacy Policy.*
+By using the Service, you acknowledge that you have read and understood this Privacy Policy.

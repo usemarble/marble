@@ -20,21 +20,21 @@ const formattedDate = new Date(publishedAt).toLocaleDateString("en-US", {
 <li>
   <a
     href={`/blog/${slug}`}
-    class='space-y-1 p-4 border bg-white flex gap-4 flex-col rounded-2xl hover:shadow-xs transition-all duration-300'
+    class='space-y-1 p-4 border bg-white flex gap-4 flex-col rounded-2xl hover:shadow-xs transition-all duration-300 h-full'
   >
-    <div class="w-full border border-dashed rounded-md overflow-hidden group">
+    <div class="w-full border rounded-md overflow-hidden group">
       <Image
-        src={coverImage}
+        src={coverImage || "/og-blog.jpg"}
         alt={title}
         loading="eager"
         inferSize
-        class='w-full object-cover group-hover:scale-105 transition-all duration-500'
+        class='w-full object-cover group-hover:scale-102 transition-all duration-500'
       />
     </div>
-    <div class="flex flex-col gap-4 md:gap-6">
+    <div class="flex flex-col gap-4 justify-between md:gap-6 flex-1">
       <div class="space-y-2">
-        <h2 class='md:text-lg font-medium font-serif'>{title}</h2>
-        <p class='text-muted-foreground text-sm'>{description}</p>
+        <h2 class='md:text-lg font-medium'>{title}</h2>
+        <p class='text-muted-foreground text-sm line-clamp-2'>{description}</p>
       </div>
       <div class="flex items-center gap-2 justify-between">
         <p class="text-muted-foreground text-sm">

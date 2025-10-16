@@ -25,8 +25,14 @@ import { handleSubscriptionCreated } from "@/lib/polar/subscription.created";
 import { handleSubscriptionRevoked } from "@/lib/polar/subscription.revoked";
 import { handleSubscriptionUpdated } from "@/lib/polar/subscription.updated";
 import { getLastActiveWorkspaceOrNewOneToSetAsActive } from "@/lib/queries/workspace";
-
-// import { createAuthor } from "../actions/workspace";
+import {
+  createAuthor,
+  validateWorkspaceName,
+  validateWorkspaceSchema,
+  validateWorkspaceSlug,
+  validateWorkspaceTimezone,
+} from "../actions/workspace";
+import { redis } from "../redis";
 
 const polarClient = new Polar({
   accessToken: process.env.POLAR_ACCESS_TOKEN,
@@ -37,6 +43,25 @@ export const auth = betterAuth({
   database: prismaAdapter(db, {
     provider: "postgresql",
   }),
+  secondaryStorage: {
+    get: async (key) => {
+      return await redis.get(key);
+    },
+    set: async (key, value, ttl) => {
+      if (ttl) {
+        await redis.set(key, value, { ex: ttl });
+      } else {
+        await redis.set(key, value);
+      }
+    },
+    delete: async (key) => {
+      await redis.del(key);
+    },
+  },
+  session: {
+    storeSessionInDatabase: true,
+    preserveSessionInDatabase: true,
+  },
   emailAndPassword: {
     enabled: true,
     sendResetPassword: async ({ user, url }, _request) => {
@@ -73,7 +98,7 @@ export const auth = betterAuth({
   plugins: [
     polar({
       client: polarClient,
-      createCustomerOnSignUp: true,
+      createCustomerOnSignUp: process.env.NODE_ENV === "production",
       authenticatedUsersOnly: true,
       use: [
         portal(),
@@ -129,11 +154,6 @@ export const auth = betterAuth({
           },
         },
       },
-      // organizationCreation: {
-      //   afterCreate: async ({ organization, user }, _request) => {
-      //     await createAuthor(user, organization);
-      //   },
-      // },
       async sendInvitationEmail(data) {
         const inviteLink = `${process.env.NEXT_PUBLIC_APP_URL}/join/${data.id}`;
         await sendInviteEmailAction({
@@ -145,13 +165,39 @@ export const auth = betterAuth({
           inviteLink,
         });
       },
+      organizationHooks: {
+        afterCreateOrganization: async ({ organization, user }) => {
+          await createAuthor(user, organization);
+        },
+        afterAcceptInvitation: async ({ user, organization }) => {
+          await createAuthor(user, organization);
+        },
+        beforeCreateOrganization: async ({ organization }) => {
+          await validateWorkspaceSchema({
+            slug: organization.slug,
+            name: organization.name,
+            timezone: organization.timezone,
+          });
+        },
+        beforeUpdateOrganization: async ({ organization }) => {
+          if (organization.slug) {
+            await validateWorkspaceSlug(organization.slug);
+          }
+          if (organization.name) {
+            await validateWorkspaceName(organization.name);
+          }
+          if (organization.timezone) {
+            await validateWorkspaceTimezone(organization.timezone);
+          }
+        },
+      },
     }),
     emailOTP({
       async sendVerificationOTP({ email, otp, type }) {
         await sendVerificationEmailAction({
           userEmail: email,
-          otp: otp,
-          type: type,
+          otp,
+          type,
         });
       },
     }),
@@ -203,6 +249,11 @@ export const auth = betterAuth({
           await storeUserImageAction(user);
         },
       },
+    },
+  },
+  user: {
+    deleteUser: {
+      enabled: true,
     },
   },
 });

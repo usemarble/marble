@@ -2,12 +2,19 @@ import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  reactStrictMode: true,
   transpilePackages: ["@marble/db", "@marble/ui"],
-  rewrites: async () => {
+  async redirects() {
     return [
       {
-        source: "/:workspace",
-        destination: "/:workspace/posts",
+        source: "/settings",
+        destination: "/settings/general",
+        permanent: true,
+      },
+      {
+        source: "/settings/",
+        destination: "/settings/general",
+        permanent: true,
       },
     ];
   },
@@ -30,6 +37,7 @@ const nextConfig: NextConfig = {
         hostname: "images.marblecms.com",
       },
     ],
+    qualities: [20, 40, 60, 80, 100],
   },
 };
 

@@ -22,7 +22,7 @@
 - Image optimisation / compression for Pro users
 - Video uploads & streaming support
 - Extensible post schema (add custom fields)
-- ...and much more coming soon!
+- and much more coming soon!
 
 ## 🛠 Local Development & Contributing
 

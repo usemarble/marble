@@ -17,7 +17,7 @@ export function SidebarFooterContent() {
   }
 
   return (
-    <section className="flex items-center gap-2 justify-between p-2">
+    <section className="flex items-center justify-between gap-2 p-2">
       <NavUser />
       <NavExtra />
     </section>

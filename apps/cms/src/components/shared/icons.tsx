@@ -4,6 +4,7 @@ export type Icon = LucideIcon;
 
 export const AcmeLogo = ({ ...props }: LucideProps) => (
   <svg fill="none" height="36" viewBox="0 0 32 32" width="36" {...props}>
+    <title>Acme Logo</title>
     <path
       clipRule="evenodd"
       d="M17.6482 10.1305L15.8785 7.02583L7.02979 22.5499H10.5278L17.6482 10.1305ZM19.8798 14.0457L18.11 17.1983L19.394 19.4511H16.8453L15.1056 22.5499H24.7272L19.8798 14.0457Z"
@@ -15,10 +16,10 @@ export const AcmeLogo = ({ ...props }: LucideProps) => (
 
 export const Github = ({ ...props }: LucideProps) => (
   <svg
+    fill="currentColor"
     role="img"
     viewBox="0 0 24 24"
     xmlns="http://www.w3.org/2000/svg"
-    fill="currentColor"
     {...props}
   >
     <title>GitHub</title>
@@ -28,10 +29,10 @@ export const Github = ({ ...props }: LucideProps) => (
 
 export const Discord = ({ ...props }: LucideProps) => (
   <svg
+    fill="currentColor"
     role="img"
     viewBox="0 0 24 24"
     xmlns="http://www.w3.org/2000/svg"
-    fill="currentColor"
     {...props}
   >
     <title>Discord</title>
@@ -39,12 +40,41 @@ export const Discord = ({ ...props }: LucideProps) => (
   </svg>
 );
 
+export const Slack = ({ ...props }: LucideProps) => (
+  <svg
+    fill="currentColor"
+    role="img"
+    viewBox="0 0 24 24.048"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+  >
+    <title>Slack</title>
+    <g clipRule="evenodd" fillRule="evenodd">
+      <path
+        d="M8.799 0A2.4 2.4 0 0 0 6.4 2.404a2.4 2.4 0 0 0 2.4 2.404h2.4V2.405A2.403 2.403 0 0 0 8.799 0q.001 0 0 0m0 6.413H2.4A2.4 2.4 0 0 0 0 8.817a2.4 2.4 0 0 0 2.399 2.405h6.4a2.4 2.4 0 0 0 2.4-2.404 2.4 2.4 0 0 0-2.4-2.405"
+        fill="#36c5f0"
+      />
+      <path
+        d="M24 8.817a2.4 2.4 0 0 0-2.4-2.404 2.4 2.4 0 0 0-2.4 2.404v2.405h2.4A2.4 2.4 0 0 0 24 8.817m-6.4 0V2.404A2.403 2.403 0 0 0 15.201 0a2.4 2.4 0 0 0-2.4 2.404v6.413a2.4 2.4 0 0 0 2.399 2.405 2.4 2.4 0 0 0 2.4-2.405"
+        fill="#2eb67d"
+      />
+      <path
+        d="M15.2 24.048a2.4 2.4 0 0 0 2.4-2.404 2.4 2.4 0 0 0-2.4-2.404h-2.4v2.404a2.403 2.403 0 0 0 2.4 2.404m0-6.414h6.4A2.4 2.4 0 0 0 24 15.23a2.4 2.4 0 0 0-2.399-2.405h-6.4a2.4 2.4 0 0 0-2.4 2.404 2.4 2.4 0 0 0 2.399 2.405"
+        fill="#ecb22e"
+      />
+      <path
+        d="M0 15.23a2.4 2.4 0 0 0 2.4 2.404 2.4 2.4 0 0 0 2.4-2.404v-2.404H2.4A2.4 2.4 0 0 0 0 15.23m6.4 0v6.413a2.4 2.4 0 0 0 2.399 2.405 2.4 2.4 0 0 0 2.4-2.404v-6.412A2.4 2.4 0 1 0 6.4 15.23"
+        fill="#e01e5a"
+      />
+    </g>
+  </svg>
+);
 export const Google = ({ ...props }: LucideProps) => (
   <svg
+    fill="currentColor"
     role="img"
     viewBox="0 0 24 24"
     xmlns="http://www.w3.org/2000/svg"
-    fill="currentColor"
     {...props}
   >
     <title>Google</title>
@@ -54,10 +84,10 @@ export const Google = ({ ...props }: LucideProps) => (
 
 export const X = ({ ...props }: LucideProps) => (
   <svg
+    fill="currentColor"
     role="img"
     viewBox="0 0 24 24"
     xmlns="http://www.w3.org/2000/svg"
-    fill="currentColor"
     {...props}
   >
     <title>X</title>

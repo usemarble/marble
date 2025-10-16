@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "@/styles/globals.css";
 import "@/styles/editor.css";
+import { Databuddy } from "@databuddy/sdk/react";
 import { Geist } from "next/font/google";
 import { SITE_CONFIG } from "@/utils/site";
 import Providers from "./providers";
@@ -9,7 +10,6 @@ export const metadata: Metadata = {
   title: SITE_CONFIG.title,
   metadataBase: new URL(SITE_CONFIG.url),
   description: SITE_CONFIG.description,
-  keywords: SITE_CONFIG.keywords,
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -46,6 +46,19 @@ const fontSans = Geist({
   variable: "--font-sans",
 });
 
+function DatabuddyAnalytics() {
+  return (
+    <>
+      {process.env.NEXT_PUBLIC_DATABUDDY_CLIENT_ID && (
+        <Databuddy
+          clientId={process.env.NEXT_PUBLIC_DATABUDDY_CLIENT_ID}
+          enableBatching={true}
+        />
+      )}
+    </>
+  );
+}
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -53,14 +66,15 @@ export default async function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      {process.env.NODE_ENV === "development" && (
-        <head>
+      <head>
+        {process.env.NODE_ENV === "development" && (
           <script
             crossOrigin="anonymous"
             src="//unpkg.com/react-scan/dist/auto.global.js"
           />
-        </head>
-      )}
+        )}
+      </head>
+      <DatabuddyAnalytics />
       <body className={`${fontSans.className} font-sans antialiased`}>
         <Providers>{children}</Providers>
       </body>

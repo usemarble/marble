@@ -10,6 +10,7 @@ export type Site = {
   DESCRIPTION: string;
   EMAIL: string;
   URL: string;
+  APP_URL: string;
 };
 
 export type Link = {
@@ -19,9 +20,11 @@ export type Link = {
 
 export const SITE: Site = {
   TITLE: "Marble",
-  DESCRIPTION: "A smarter way to manage your blog.",
+  DESCRIPTION:
+    "A simple, collaborative CMS for publishing articles, changelogs, and product updates.",
   EMAIL: "support@marblecms.com",
   URL: "https://marblecms.com",
+  APP_URL: "https://app.marblecms.com",
 };
 
 export const SOCIAL_LINKS: Link[] = [
@@ -31,13 +34,6 @@ export const SOCIAL_LINKS: Link[] = [
   { href: "support@marblecms.com", label: "Email" },
   { href: "/rss.xml", label: "RSS" },
 ];
-
-export const APP: Site = {
-  TITLE: "Marble",
-  DESCRIPTION: "The smarter way to manage your blog.",
-  URL: "https://app.marblecms.com",
-  EMAIL: "support@marblecms.com",
-};
 
 export const FAQs: {
   question: string;
@@ -61,7 +57,7 @@ export const FAQs: {
   {
     question: "Do I need technical knowledge to use Marble?",
     answer:
-      "No technical knowledge is required to use our content management dashboard. However, to integrate the API with your website or app, basic development experience is helpful. We provide detailed <a href='https://docs.marblecms.com'>documentation</a> and templates to make integration easy.",
+      "No technical knowledge is required to use our content management dashboard. However, to integrate the API with your website or app, basic development experience is helpful. We provide detailed documentation and templates to make integration easy.",
   },
   {
     question: "What kind of content can I manage?",
@@ -104,10 +100,11 @@ export const PRICING: Pricing[] = [
     },
     features: [
       "Unlimited posts",
-      "500 MB media storage",
-      "Single member",
+      "1GB media storage",
+      "2 member seats",
+      "AI Readability insights",
       "10k API requests per month",
-      "Webhooks",
+      "100 webhook events per month",
     ],
     button: {
       href: "https://app.marblecms.com",
@@ -118,42 +115,22 @@ export const PRICING: Pricing[] = [
     title: "Pro",
     description: "For Small Teams",
     price: {
-      monthly: "$10",
-      yearly: "$100",
+      monthly: "$20",
+      yearly: "$180",
     },
     features: [
       "Unlimited posts",
-      "2 GB media storage",
-      "Up to 10 team members",
-      "Unlimited API requests per month",
-      "Readability insights",
-      "Keyword optimization suggestions",
+      "10GB media storage",
+      "10 member seats",
+      "AI Readability insights",
+      "50k API requests per month",
+      "1k webhook events per month",
     ],
     button: {
       href: "https://app.marblecms.com",
       label: "Get Started",
     },
   },
-  // {
-  //   title: "Team",
-  //   description: "For Growing Teams",
-  //   price: {
-  //     monthly: "$15",
-  //     yearly: "$150",
-  //   },
-  //   features: [
-  //     "Unlimited posts",
-  //     "5 GB media storage",
-  //     "Up to 10 team members",
-  //     "Unlimited API requests per month",
-  //     "Advanced readability insights",
-  //     "Keyword optimization suggestions",
-  //   ],
-  //   button: {
-  //     href: "https://app.marblecms.com",
-  //     label: "Get Started",
-  //   },
-  // },
 ];
 
 export const PRICING_FAQS: {

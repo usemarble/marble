@@ -17,11 +17,11 @@ import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { Media } from "@/types/media";
 import { AsyncButton } from "../ui/async-button";
 
-interface MediaUploadModalProps {
+type MediaUploadModalProps = {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   onUploadComplete?: (media: Media) => void;
-}
+};
 
 export function MediaUploadModal({
   isOpen,
@@ -43,10 +43,10 @@ export function MediaUploadModal({
     onSuccess: (data: Media) => {
       if (workspaceId) {
         queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.MEDIA(workspaceId),
+          queryKey: QUERY_KEYS.BILLING_USAGE(workspaceId),
         });
       }
-      toast.success("Uploaded successfully!");
+      toast.success("Media uploaded successfully!");
       if (onUploadComplete && data) {
         onUploadComplete(data);
       }
@@ -66,54 +66,56 @@ export function MediaUploadModal({
 
   return (
     <Dialog
-      open={isOpen}
       onOpenChange={(open) => {
         setIsOpen(open);
-        if (!open) setFile(undefined);
+        if (!open) {
+          setFile(undefined);
+        }
       }}
+      open={isOpen}
     >
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Upload Media</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col gap-4 py-4">
           {file ? (
             <div className="flex flex-col gap-4">
-              <div className="relative w-full h-[400px] flex items-center justify-center rounded-md overflow-hidden">
+              <div className="relative flex h-[400px] w-full items-center justify-center overflow-hidden rounded-md">
                 {file.type.startsWith("image/") ? (
                   // biome-ignore lint/performance/noImgElement: <>
                   <img
-                    src={URL.createObjectURL(file)}
                     alt="cover preview"
-                    className="w-full h-full object-contain rounded-md"
+                    className="h-full w-full rounded-md object-contain"
+                    src={URL.createObjectURL(file)}
                   />
                 ) : (
                   // biome-ignore lint/a11y/useMediaCaption: <>
                   <video
-                    src={URL.createObjectURL(file)}
-                    className="w-full h-full object-contain rounded-md"
+                    className="h-full w-full rounded-md object-contain"
                     controls
+                    src={URL.createObjectURL(file)}
                   />
                 )}
               </div>
               <div className="flex items-center justify-end gap-2">
                 <Button
-                  variant="outline"
-                  onClick={() => setFile(undefined)}
                   disabled={isUploading}
+                  onClick={() => setFile(undefined)}
+                  variant="outline"
                 >
                   Cancel
                 </Button>
-                <AsyncButton onClick={handleUpload} isLoading={isUploading}>
+                <AsyncButton isLoading={isUploading} onClick={handleUpload}>
                   Upload
                 </AsyncButton>
               </div>
             </div>
           ) : (
             <MediaDropzone
-              onFilesAccepted={(files: File[]) => setFile(files[0])}
-              className="w-full h-64 rounded-md border border-dashed bg-background flex items-center justify-center cursor-pointer"
+              className="flex h-64 w-full cursor-pointer items-center justify-center rounded-md border border-dashed bg-background"
               multiple={false}
+              onFilesAccepted={(files: File[]) => setFile(files[0])}
             />
           )}
         </div>

@@ -12,7 +12,7 @@ export async function middleware(request: NextRequest) {
       headers: {
         cookie: request.headers.get("cookie") || "",
       },
-    },
+    }
   );
 
   const isVerified = session?.user?.emailVerified;
@@ -21,6 +21,7 @@ export async function middleware(request: NextRequest) {
   const isInvitePage = path.startsWith("/invite");
   const isOnboardingPage = path.startsWith("/new");
   const isVerifyPage = path.startsWith("/verify");
+  const isSharePage = path.startsWith("/share");
   const isAuthPage =
     path.startsWith("/login") ||
     path.startsWith("/register") ||
@@ -28,6 +29,10 @@ export async function middleware(request: NextRequest) {
 
   // Allow invite flows to proceed normally
   if (isInvitePage) {
+    return NextResponse.next();
+  }
+
+  if (isSharePage) {
     return NextResponse.next();
   }
 
@@ -41,7 +46,7 @@ export async function middleware(request: NextRequest) {
     // Redirect to login for protected routes
     const callbackUrl = encodeURIComponent(request.nextUrl.pathname);
     return NextResponse.redirect(
-      new URL(`/login?from=${callbackUrl}`, request.url),
+      new URL(`/login?from=${callbackUrl}`, request.url)
     );
   }
 
@@ -53,9 +58,15 @@ export async function middleware(request: NextRequest) {
     }
 
     const callbackUrl = encodeURIComponent(request.nextUrl.pathname);
+
+    const email = session.user.email;
+
     // Redirect unverified users to verify page
     return NextResponse.redirect(
-      new URL(`/verify?from=${callbackUrl}`, request.url),
+      new URL(
+        `/verify?email=${encodeURIComponent(email)}&from=${callbackUrl}`,
+        request.url
+      )
     );
   }
 
@@ -70,11 +81,11 @@ export async function middleware(request: NextRequest) {
     if (isAuthPage || isRootPage || isVerifyPage) {
       const workspace = await getLastActiveWorkspaceOrNewOneToSetAsActive(
         session.user.id,
-        request.cookies,
+        request.cookies
       );
       if (workspace) {
         return NextResponse.redirect(
-          new URL(`/${workspace.slug}`, request.url),
+          new URL(`/${workspace.slug}`, request.url)
         );
       }
       return NextResponse.redirect(new URL("/new", request.url));
@@ -86,4 +97,5 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: ["/((?!api|static|.*\\..*|_next/static|_next/image|favicon.ico).*)"],
+  runtime: "nodejs",
 };

@@ -12,12 +12,21 @@ import {
   TiptapImage,
   TiptapLink,
   TiptapUnderline,
+  UpdatedImage,
+  UploadImagesPlugin,
   Youtube,
-} from "novel/extensions";
-import { UploadImagesPlugin } from "novel/plugins";
+} from "novel";
 
 // You can overwrite the placeholder with your own configuration
 const placeholder = Placeholder;
+
+const tiptapLink = TiptapLink.configure({
+  HTMLAttributes: {
+    class: cx(
+      "text-muted-foreground underline underline-offset-[3px] hover:text-primary transition-colors cursor-pointer"
+    ),
+  },
+});
 
 const tiptapImage = TiptapImage.extend({
   addProseMirrorPlugins() {
@@ -33,13 +42,12 @@ const tiptapImage = TiptapImage.extend({
     class: cx("rounded-md border border-muted"),
   },
 });
-const tiptapLink = TiptapLink.configure({
-  HTMLAttributes: {
-    class: cx(
-      "text-muted-foreground underline underline-offset-[3px] hover:text-primary transition-colors cursor-pointer",
-    ),
-  },
-});
+
+// const updatedImage = UpdatedImage.configure({
+//   HTMLAttributes: {
+//     class: cx("rounded-lg border border-muted"),
+//   },
+// });
 
 const taskList = TaskList.configure({
   HTMLAttributes: {
@@ -116,12 +124,12 @@ export const defaultExtensions: Extension[] = [
   placeholder,
   textAlign,
   CodeBlockLowlightEx as unknown as Extension,
-  // UpdatedImage as unknown as Extension,
+  tiptapImage as unknown as Extension,
+  // updatedImage as unknown as Extension,
   youtube as unknown as Extension,
   tiptapLink as unknown as Extension,
   taskList as unknown as Extension,
   taskItem as unknown as Extension,
   horizontalRule as unknown as Extension,
   underline as unknown as Extension,
-  tiptapImage as unknown as Extension,
 ];

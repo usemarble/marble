@@ -2,7 +2,7 @@ import { createClient } from "@marble/db";
 import { Hono } from "hono";
 import { NodeHtmlMarkdown } from "node-html-markdown";
 import type { Env } from "../types/env";
-import { PostsQuerySchema } from "../validations";
+import { PostsQuerySchema } from "../validations/posts";
 
 const posts = new Hono<{ Bindings: Env }>();
 
@@ -19,6 +19,7 @@ posts.get("/", async (c) => {
       page: c.req.query("page"),
       order: c.req.query("order"),
       category: c.req.query("category"),
+      exclude: c.req.query("exclude"),
       tags: c.req.query("tags"),
       query: c.req.query("query"),
     });
@@ -32,7 +33,7 @@ posts.get("/", async (c) => {
             message: err.message,
           })),
         },
-        400,
+        400
       );
     }
 
@@ -41,6 +42,7 @@ posts.get("/", async (c) => {
       page,
       order,
       category,
+      exclude = [],
       tags = [],
       query,
     } = queryValidation.data;
@@ -49,7 +51,15 @@ posts.get("/", async (c) => {
     const where = {
       workspaceId,
       status: "published" as const,
-      ...(category && { category: { slug: category } }),
+      ...(() => {
+        if (category) {
+          return { category: { slug: category } };
+        }
+        if (exclude.length > 0) {
+          return { category: { slug: { notIn: exclude } } };
+        }
+        return {};
+      })(),
       ...(tags.length > 0 && {
         tags: {
           some: {
@@ -82,7 +92,7 @@ posts.get("/", async (c) => {
             requestedPage: page,
           },
         },
-        400,
+        400
       );
     }
 
@@ -113,6 +123,15 @@ posts.get("/", async (c) => {
             id: true,
             name: true,
             image: true,
+            bio: true,
+            role: true,
+            slug: true,
+            socials: {
+              select: {
+                url: true,
+                platform: true,
+              },
+            },
           },
         },
         category: {
@@ -132,8 +151,7 @@ posts.get("/", async (c) => {
       },
     });
 
-    // Check if a format query was provided
-    // Convert html -> markdown
+    // Format posts based on requested format
     const formattedPosts =
       format === "markdown"
         ? posts.map((post) => ({
@@ -146,9 +164,9 @@ posts.get("/", async (c) => {
       ? {
           limit,
           currentPage: page,
-          nextPage: nextPage,
+          nextPage,
           previousPage: prevPage,
-          totalPages: totalPages,
+          totalPages,
           totalItems: totalPosts,
         }
       : {
@@ -163,14 +181,6 @@ posts.get("/", async (c) => {
     return c.json({
       posts: formattedPosts,
       pagination: paginationInfo,
-      // meta: {
-      //   filters: {
-      //     category: category || undefined,
-      //     tags: tags.length > 0 ? tags : undefined,
-      //     query: query || undefined,
-      //     order,
-      //   },
-      // },
     });
   } catch (error) {
     console.error("Error fetching posts:", error);
@@ -179,7 +189,7 @@ posts.get("/", async (c) => {
         error: "Failed to fetch posts",
         message: error instanceof Error ? error.message : "Unknown error",
       },
-      500,
+      500
     );
   }
 });
@@ -213,6 +223,15 @@ posts.get("/:identifier", async (c) => {
             id: true,
             name: true,
             image: true,
+            bio: true,
+            role: true,
+            slug: true,
+            socials: {
+              select: {
+                url: true,
+                platform: true,
+              },
+            },
           },
         },
         category: {
@@ -236,9 +255,7 @@ posts.get("/:identifier", async (c) => {
       return c.json({ error: "Post not found" }, 404);
     }
 
-    // Check if format needs to be markdown
-    // Convert to html -> markdown
-    // If not provided go with the html
+    // Format post based on requested format
     const formattedPost =
       format === "markdown"
         ? { ...post, content: NodeHtmlMarkdown.translate(post.content || "") }

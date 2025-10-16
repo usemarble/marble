@@ -16,12 +16,12 @@ import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { Media } from "@/types/media";
 import { AsyncButton } from "../ui/async-button";
 
-interface DeleteMediaProps {
+type DeleteMediaProps = {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   mediaToDelete: Media | null;
   onDeleteComplete?: (deletedMediaId: string) => void;
-}
+};
 
 export function DeleteMediaModal({
   isOpen,
@@ -50,6 +50,14 @@ export function DeleteMediaModal({
       return response.json();
     },
     onSuccess: (data) => {
+      if (workspaceId) {
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.MEDIA(workspaceId),
+        });
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.BILLING_USAGE(workspaceId),
+        });
+      }
       toast.success("Media deleted successfully");
       if (workspaceId) {
         queryClient.invalidateQueries({
@@ -74,7 +82,7 @@ export function DeleteMediaModal({
 
   return (
     <div>
-      <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
+      <AlertDialog onOpenChange={setIsOpen} open={isOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
@@ -90,9 +98,9 @@ export function DeleteMediaModal({
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             {/* <AlertDialogAction asChild> */}
             <AsyncButton
+              isLoading={isPending}
               onClick={handleDelete}
               variant="destructive"
-              isLoading={isPending}
             >
               Delete
             </AsyncButton>

@@ -39,9 +39,9 @@ export function ThemeSwitch() {
       <DropdownMenuContent align="end">
         {themes.map((item) => (
           <DropdownMenuItem
+            className="cursor-pointer"
             key={item.name.toLowerCase()}
             onClick={() => setTheme(item.name.toLowerCase())}
-            className="cursor-pointer"
           >
             {item.label}
           </DropdownMenuItem>

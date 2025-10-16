@@ -21,7 +21,6 @@ export const analytics = (): MiddlewareHandler => {
     if (!workspaceId || method === "OPTIONS" || status >= 400) {
       return;
     }
-    console.log(workspaceId);
 
     const task = async () => {
       const p = redisClient.pipeline();
@@ -32,7 +31,7 @@ export const analytics = (): MiddlewareHandler => {
     c.executionCtx?.waitUntil(
       task().catch((err) => {
         console.error("analytics error:", err);
-      }),
+      })
     );
   };
 };

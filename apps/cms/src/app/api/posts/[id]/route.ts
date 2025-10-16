@@ -8,18 +8,18 @@ import { sanitizeHtml } from "@/utils/editor";
 
 export async function GET(
   _request: Request,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const sessionData = await getServerSession();
+  const activeWorkspaceId = sessionData?.session.activeOrganizationId;
+  const { id } = await params;
 
-  if (!sessionData) {
+  if (!sessionData || !activeWorkspaceId) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const { id } = await params;
-
-  const post = await db.post.findUnique({
-    where: { id: id },
+  const post = await db.post.findFirst({
+    where: { id, workspaceId: activeWorkspaceId },
     select: {
       id: true,
       slug: true,
@@ -65,26 +65,36 @@ export async function GET(
 
 export async function PATCH(
   request: Request,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const sessionData = await getServerSession();
-  const user = sessionData?.user;
-
-  if (!user || !sessionData?.session.activeOrganizationId)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
+  const workspaceId = sessionData?.session.activeOrganizationId;
   const { id } = await params;
+
+  if (!sessionData || !workspaceId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const body = await request.json();
 
-  const values = postSchema.parse(body);
+  const values = postSchema.safeParse(body);
 
-  const contentJson = JSON.parse(values.contentJson);
-  const validAttribution = values.attribution ? values.attribution : undefined;
-  const cleanContent = sanitizeHtml(values.content);
+  if (!values.success) {
+    return NextResponse.json(
+      { error: "Invalid request body", details: values.error.issues },
+      { status: 400 }
+    );
+  }
+
+  const contentJson = JSON.parse(values.data.contentJson);
+  const validAttribution = values.data.attribution
+    ? values.data.attribution
+    : undefined;
+  const cleanContent = sanitizeHtml(values.data.content);
 
   const tagValidation = await validateWorkspaceTags(
-    values.tags,
-    sessionData.session.activeOrganizationId,
+    values.data.tags,
+    workspaceId
   );
 
   if (!tagValidation.success) {
@@ -93,8 +103,34 @@ export async function PATCH(
 
   const { uniqueTagIds } = tagValidation;
 
+  // Find all authors for the provided author IDs
+  const validAuthors = await db.author.findMany({
+    where: {
+      id: { in: values.data.authors },
+      workspaceId,
+    },
+  });
+
+  if (validAuthors.length === 0) {
+    return NextResponse.json(
+      { error: "No valid authors found" },
+      { status: 400 }
+    );
+  }
+
+  // Use the first valid author as primary
+  const primaryAuthor = validAuthors[0];
+
+  if (!primaryAuthor) {
+    // This should never happen since validAuthors.length > 0
+    return NextResponse.json(
+      { error: "Unable to determine primary author" },
+      { status: 500 }
+    );
+  }
+
   const post = await db.post.findFirst({
-    where: { id, workspaceId: sessionData.session.activeOrganizationId },
+    where: { id, workspaceId },
     select: { status: true },
   });
 
@@ -107,22 +143,22 @@ export async function PATCH(
       where: { id },
       data: {
         contentJson,
-        slug: values.slug,
-        title: values.title,
-        status: values.status,
+        slug: values.data.slug,
+        title: values.data.title,
+        status: values.data.status,
         content: cleanContent,
-        categoryId: values.category,
-        coverImage: values.coverImage,
-        description: values.description,
-        publishedAt: values.publishedAt,
+        categoryId: values.data.category,
+        coverImage: values.data.coverImage,
+        description: values.data.description,
+        publishedAt: values.data.publishedAt,
         attribution: validAttribution,
-        workspaceId: sessionData?.session.activeOrganizationId,
-        tags: values.tags
+        workspaceId,
+        tags: values.data.tags
           ? { set: uniqueTagIds.map((id) => ({ id })) }
           : undefined,
+        primaryAuthorId: primaryAuthor.id,
         authors: {
-          set: [],
-          connect: values.authors.map((id: string) => ({ id })),
+          set: validAuthors.map((author) => ({ id: author.id })),
         },
       },
     });
@@ -134,10 +170,10 @@ export async function PATCH(
       userId: sessionData.user.id,
     };
 
-    if (values.status === "published" && post.status === "draft") {
+    if (values.data.status === "published" && post.status === "draft") {
       const webhooksPublished = getWebhooks(
         sessionData.session,
-        "post_published",
+        "post_published"
       );
 
       for (const webhook of await webhooksPublished) {
@@ -167,14 +203,14 @@ export async function PATCH(
   } catch (_e) {
     return NextResponse.json(
       { error: "Failed to update post" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
 
 export async function DELETE(
   _request: Request,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const sessionData = await getServerSession();
 
@@ -183,45 +219,34 @@ export async function DELETE(
   }
 
   const { id } = await params;
-
-  const post = await db.post.findFirst({
-    where: { id, workspaceId: sessionData.session.activeOrganizationId },
-    select: { slug: true },
-  });
-
-  if (!post) {
-    return NextResponse.json({ error: "Post not found" }, { status: 404 });
-  }
+  const activeWorkspaceId = sessionData.session.activeOrganizationId;
 
   try {
-    await db.post
-      .delete({
-        where: { id },
-      })
-      .catch((_e) => {
-        return NextResponse.json(
-          { error: "Failed to delete post" },
-          { status: 500 },
-        );
-      });
+    const deletedPost = await db.post.delete({
+      where: { id, workspaceId: activeWorkspaceId },
+    });
 
-    const webhooks = getWebhooks(sessionData.session, "post_deleted");
+    if (!deletedPost) {
+      return NextResponse.json({ error: "Post not found" }, { status: 404 });
+    }
 
-    for (const webhook of await webhooks) {
+    const webhooksDeleted = getWebhooks(sessionData.session, "post_deleted");
+
+    for (const webhook of await webhooksDeleted) {
       const webhookClient = new WebhookClient({ secret: webhook.secret });
       await webhookClient.send({
         url: webhook.endpoint,
         event: "post.deleted",
-        data: { id: id, slug: post.slug, userId: sessionData.user.id },
+        data: { id, slug: deletedPost.slug, userId: sessionData.user.id },
         format: webhook.format,
       });
     }
 
-    return new NextResponse(null, { status: 204 });
+    return NextResponse.json({ id: deletedPost.id }, { status: 200 });
   } catch (_e) {
     return NextResponse.json(
       { error: "Failed to delete post" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

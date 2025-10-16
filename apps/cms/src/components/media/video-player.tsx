@@ -56,7 +56,7 @@ export const VideoPlayer = ({ className, ...props }: VideoPlayerProps) => {
         "absolute inset-0 size-full object-cover",
         "transition-opacity duration-200",
         "group-hover:opacity-90",
-        className,
+        className
       )}
       loop
       muted

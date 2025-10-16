@@ -6,7 +6,7 @@ import { getServerSession } from "../auth/session";
 
 export async function getLastActiveWorkspaceOrNewOneToSetAsActive(
   userId: string,
-  cookies?: RequestCookies,
+  cookies?: RequestCookies
 ) {
   if (cookies) {
     const lastVisitedWorkspaceSlug = getLastVisitedWorkspace(cookies);
@@ -17,7 +17,7 @@ export async function getLastActiveWorkspaceOrNewOneToSetAsActive(
           slug: lastVisitedWorkspaceSlug,
           members: {
             some: {
-              userId: userId,
+              userId,
             },
           },
         },
@@ -38,7 +38,7 @@ export async function getLastActiveWorkspaceOrNewOneToSetAsActive(
     where: {
       members: {
         some: {
-          userId: userId,
+          userId,
           role: "owner",
         },
       },
@@ -58,7 +58,7 @@ export async function getLastActiveWorkspaceOrNewOneToSetAsActive(
     where: {
       members: {
         some: {
-          userId: userId,
+          userId,
         },
       },
     },
@@ -90,6 +90,15 @@ export async function getInitialWorkspaceData() {
         logo: true,
         timezone: true,
         createdAt: true,
+        editorPreferences: {
+          select: {
+            ai: {
+              select: {
+                enabled: true,
+              },
+            },
+          },
+        },
         members: {
           select: {
             id: true,
@@ -133,11 +142,12 @@ export async function getInitialWorkspaceData() {
 
     // Find current user's role in this workspace
     const currentUserMember = workspace.members.find(
-      (member) => member.userId === session.user.id,
+      (member) => member.userId === session.user.id
     );
 
     return {
       ...workspace,
+      ai: workspace.editorPreferences?.ai ?? { enabled: false },
       currentUserRole: currentUserMember?.role || null,
     } as Workspace;
   } catch (error) {

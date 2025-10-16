@@ -18,27 +18,31 @@ import {
   SelectValue,
 } from "@marble/ui/components/select";
 import { toast } from "@marble/ui/components/sonner";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
 import { organization } from "@/lib/auth/client";
+import { QUERY_KEYS } from "@/lib/queries/keys";
 import { type InviteData, inviteSchema } from "@/lib/validations/auth";
-import type { Workspace } from "@/types/workspace";
+import { useWorkspace } from "@/providers/workspace";
 import { AsyncButton } from "../ui/async-button";
 
 export const InviteModal = ({
   open,
   setOpen,
-  setOptimisticOrg,
 }: {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setOptimisticOrg: React.Dispatch<React.SetStateAction<Workspace | null>>;
 }) => {
+  const { activeWorkspace } = useWorkspace();
+  const queryClient = useQueryClient();
+
   const {
     register,
     handleSubmit,
     setValue,
-    formState: { errors, isSubmitting },
+    formState: { errors },
+    reset,
   } = useForm<InviteData>({
     resolver: zodResolver(inviteSchema),
     defaultValues: {
@@ -46,45 +50,43 @@ export const InviteModal = ({
     },
   });
 
-  const onSubmit = async (data: InviteData) => {
-    try {
-      const res = await organization.inviteMember({
+  const inviteMutation = useMutation({
+    mutationFn: async (data: InviteData) => {
+      const { data: result, error } = await organization.inviteMember({
         email: data.email,
         role: data.role,
       });
-      if (res.data) {
-        setOpen(false);
-        toast.success("Invitation sent successfully");
-        setOptimisticOrg((prev) =>
-          prev
-            ? {
-                ...prev,
-                invitations: [
-                  ...(prev.invitations || []),
-                  {
-                    id: res.data.id,
-                    email: res.data.email,
-                    role: res.data.role,
-                    status: res.data.status,
-                    organizationId: res.data.organizationId,
-                    inviterId: res.data.inviterId,
-                    expiresAt: res.data.expiresAt,
-                  },
-                ],
-              }
-            : null,
-        );
+
+      if (error) {
+        throw new Error(error.message);
       }
-    } catch (error) {
+
+      return result;
+    },
+    onSuccess: () => {
+      toast.success("Invitation sent successfully");
+      setOpen(false);
+      reset();
+      if (activeWorkspace?.id) {
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.WORKSPACE(activeWorkspace.id),
+        });
+      }
+    },
+    onError: (error) => {
       toast.error(
-        error instanceof Error ? error.message : "Failed to send invite",
+        error instanceof Error ? error.message : "Failed to send invitation"
       );
-    }
+    },
+  });
+
+  const onSubmit = (data: InviteData) => {
+    inviteMutation.mutate(data);
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-md p-8">
+    <Dialog onOpenChange={setOpen} open={open}>
+      <DialogContent className="p-8 sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-center font-medium">
             Invite Member
@@ -93,11 +95,12 @@ export const InviteModal = ({
             Invite a team member to your workspace.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+        <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)}>
           <div className="grid flex-1 gap-2">
-            <Label htmlFor="email" className="sr-only">
+            <Label className="sr-only" htmlFor="email">
               Email
             </Label>
+
             <Input
               id="email"
               {...register("email")}
@@ -110,14 +113,14 @@ export const InviteModal = ({
           </div>
 
           <div className="grid flex-1 gap-2">
-            <Label htmlFor="role" className="sr-only">
+            <Label className="sr-only" htmlFor="role">
               Role
             </Label>
             <Select
+              defaultValue="member"
               onValueChange={(value: "member" | "admin") =>
                 setValue("role", value)
               }
-              defaultValue="member"
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select a role" />
@@ -131,9 +134,9 @@ export const InviteModal = ({
           </div>
 
           <AsyncButton
+            className="mt-4 flex w-full gap-2"
+            isLoading={inviteMutation.isPending}
             type="submit"
-            isLoading={isSubmitting}
-            className="flex w-full gap-2 mt-4"
           >
             Invite
           </AsyncButton>

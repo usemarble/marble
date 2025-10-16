@@ -29,9 +29,8 @@ export const postSchema = z.object({
 
 export type PostValues = z.infer<typeof postSchema>;
 
-const signInSchema = z.object({
-  email: z.string().email().min(3).max(50),
-  password: z.string().min(8).max(30),
+export const shareLinkSchema = z.object({
+  postId: z.string().min(1, { message: "Post ID is required" }),
 });
 
-export type SignInValues = z.infer<typeof signInSchema>;
+export type ShareLinkValues = z.infer<typeof shareLinkSchema>;

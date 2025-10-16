@@ -26,28 +26,31 @@ import {
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { cn } from "@marble/ui/lib/utils";
-import { CaretUpDown, Check } from "@phosphor-icons/react";
+import { CaretUpDownIcon, CheckIcon } from "@phosphor-icons/react";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { type Control, useController } from "react-hook-form";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { PostValues } from "@/lib/validations/post";
 import { useUser } from "@/providers/user";
-import { useWorkspace } from "@/providers/workspace";
 import { ErrorMessage } from "../../auth/error-message";
 import { FieldInfo } from "./field-info";
 
-interface AuthorOptions {
+type AuthorOptions = {
   id: string;
   name: string;
-  image: string;
-}
+  image: string | null;
+  userId: string | null;
+};
 
-interface AuthorSelectorProps {
+type AuthorSelectorProps = {
   control: Control<PostValues>;
   placeholder?: string;
   isOpen?: boolean;
   setIsOpen?: (open: boolean) => void;
   defaultAuthors?: string[];
-}
+};
 
 export function AuthorSelector({
   control,
@@ -67,35 +70,72 @@ export function AuthorSelector({
 
   const [selected, setSelected] = useState<AuthorOptions[]>([]);
   const { user } = useUser();
-  const { activeWorkspace } = useWorkspace();
+  const workspaceId = useWorkspaceId();
+  const isNewPost = defaultAuthors.length === 0;
 
-  // Transform workspace members into author options
-  const authors = useMemo(() => {
-    if (!activeWorkspace?.members) return [];
-
-    return activeWorkspace.members.map((member) => ({
-      id: member.userId,
-      name: member.user.name || member.user.email,
-      image: member.user.image || "",
-    }));
-  }, [activeWorkspace?.members]);
-
-  const derivedPrimaryAuthor: AuthorOptions | undefined = user
-    ? {
-        id: user.id,
-        name: user.name,
-        image: user.image || "",
+  const { data: authors = [], isLoading } = useQuery<AuthorOptions[]>({
+    // biome-ignore lint/style/noNonNullAssertion: <>
+    queryKey: QUERY_KEYS.AUTHORS(workspaceId!),
+    queryFn: async () => {
+      try {
+        const response = await fetch("/api/authors");
+        if (!response.ok) {
+          throw new Error("Failed to fetch authors");
+        }
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error("Failed to fetch authors:", error);
+        return [];
       }
-    : undefined;
+    },
+    enabled: !!workspaceId,
+  });
 
+  // Memoize the primary author to avoid recalculation
+  const derivedPrimaryAuthor = useMemo(() => {
+    if (!user || authors.length === 0) {
+      return;
+    }
+    return authors.find((author) => author.userId === user.id) || authors[0];
+  }, [user, authors]);
+
+  // Handle selected authors based on form value
+  // This is just to show the selected users in the UI
   useEffect(() => {
-    if (authors && authors.length > 0 && value?.length > 0) {
-      const selectedAuthors = authors.filter((opt) => value.includes(opt.id));
-      setSelected(selectedAuthors);
+    if (isLoading || authors.length === 0) {
+      return;
+    }
+
+    if (value.length > 0) {
+      const authorsThatWerePreviouslySelected = authors.filter((opt) =>
+        value.includes(opt.id)
+      );
+      setSelected(authorsThatWerePreviouslySelected);
     } else {
       setSelected([]);
     }
-  }, [value, authors]);
+  }, [value, authors, isLoading]);
+
+  // Auto-select current user's author profile on initial load for better UX
+  // This makes it obvious who is creating the content and saves them from
+  // having to manually select themselves for original content.
+  // The user can always remove themselves from the list if they want to.
+  // In a case where they are publishing on behalf of another author, they can select them from the list.
+  // This auto select is only for new posts, not when editing.
+  // Check the post creation route to see how this is handled.
+  useEffect(() => {
+    if (
+      authors.length > 0 &&
+      derivedPrimaryAuthor &&
+      (!value || value.length === 0) &&
+      !isLoading &&
+      isNewPost
+    ) {
+      onChange([derivedPrimaryAuthor.id]);
+      // console.log("auto selected primary author", derivedPrimaryAuthor);
+    }
+  }, [authors, derivedPrimaryAuthor, onChange, isLoading, value, isNewPost]);
 
   const addOrRemoveAuthor = (authorToAdd: string) => {
     const currentValues = value || [];
@@ -119,18 +159,16 @@ export function AuthorSelector({
     onChange(newValue);
   };
 
-  const isLoading = !activeWorkspace || !authors.length;
-
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-1">
         <Label htmlFor="authors">Authors</Label>
         <FieldInfo text="List of authors who contributed to the article." />
       </div>
-      <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <Popover onOpenChange={setIsOpen} open={isOpen}>
         <PopoverTrigger>
-          <div className="flex items-center justify-between gap-2 relative w-full cursor-pointer rounded-md border px-3 py-1.5 text-sm h-auto min-h-9 bg-editor-field">
-            <ul className="flex flex-wrap -space-x-2">
+          <div className="relative flex h-auto min-h-9 w-full cursor-pointer items-center justify-between gap-2 rounded-md border bg-editor-field px-3 py-1.5 text-sm">
+            <ul className="-space-x-2 flex flex-wrap">
               {selected.length === 0 && (
                 <li className="text-muted-foreground">
                   {placeholder || "Select authors"}
@@ -139,71 +177,69 @@ export function AuthorSelector({
               {selected.length === 1 && (
                 <li className="flex items-center gap-2">
                   <Avatar className="size-6">
-                    <AvatarImage src={selected[0]?.image} />
+                    <AvatarImage src={selected[0]?.image || undefined} />
                     <AvatarFallback>
                       {selected[0]?.name.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
-                  <p className="text-sm max-w-64">{selected[0]?.name}</p>
+                  <p className="max-w-64 text-sm">{selected[0]?.name}</p>
                 </li>
               )}
               {selected.length > 1 &&
                 selected.map((author) => (
-                  <li key={author.id} className="flex items-center">
+                  <li className="flex items-center" key={author.id}>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Avatar className="size-6">
-                          <AvatarImage src={author.image} />
+                          <AvatarImage src={author.image || undefined} />
                           <AvatarFallback>
                             {author.name.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p className="text-muted-foreground text-xs max-w-64">
-                          {author.name}
-                        </p>
+                        <p className="max-w-64 text-xs">{author.name}</p>
                       </TooltipContent>
                     </Tooltip>
                   </li>
                 ))}
             </ul>
-            <CaretUpDown className="size-4 shrink-0 opacity-50" />
+            <CaretUpDownIcon className="size-4 shrink-0 opacity-50" />
           </div>
         </PopoverTrigger>
         {error && <ErrorMessage>{error.message}</ErrorMessage>}
-        <PopoverContent className="min-w-[350.67px] p-0" align="start">
+        <PopoverContent align="start" className="min-w-[350.67px] p-0">
           <Command className="w-full">
-            <CommandInput placeholder="Search team members..." />
+            <CommandInput placeholder="Search authors..." />
             <CommandList>
               <CommandEmpty>
-                {isLoading ? "Loading authors..." : "No results found."}
+                {isLoading ? "Loading authors..." : "No authors found."}
               </CommandEmpty>
               {authors && authors.length > 0 && (
                 <CommandGroup>
                   {authors.map((option) => (
                     <CommandItem
-                      key={option.id}
                       id={option.id}
+                      key={option.id}
                       onSelect={() => {
                         addOrRemoveAuthor(option.id);
                       }}
                     >
                       <div className="flex items-center gap-2">
                         <Avatar className="size-6">
-                          <AvatarImage src={option.image} />
+                          <AvatarImage src={option.image || undefined} />
                           <AvatarFallback>
                             {option.name.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
                         <p className="max-w-64">{option.name}</p>
                       </div>
-                      <Check
+                      <CheckIcon
                         className={cn(
                           "ml-auto h-4 w-4",
                           selected.some((item) => item.id === option.id)
                             ? "opacity-100"
-                            : "opacity-0",
+                            : "opacity-0"
                         )}
                       />
                     </CommandItem>

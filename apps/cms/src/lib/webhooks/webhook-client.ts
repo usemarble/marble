@@ -6,7 +6,11 @@ import type {
   PayloadFormat,
   WebhookEvent as WebhookValidationEvent,
 } from "../validations/webhook";
-import { handleWebhookDiscord, handleWebhookJSON } from "./util";
+import {
+  handleWebhookDiscord,
+  handleWebhookJSON,
+  handleWebhookSlack,
+} from "./util";
 import { WebhookVerificationError } from "./webhook-errors";
 
 const eventSchema = z.object({
@@ -76,7 +80,7 @@ export type WebhookBody = {
 };
 
 export class WebhookClient {
-  private secret: string;
+  private readonly secret: string;
 
   constructor({ secret }: { secret: string }) {
     this.secret = secret;
@@ -128,6 +132,9 @@ export class WebhookClient {
       case "discord":
         await handleWebhookDiscord({ url, body, retries });
         break;
+      case "slack":
+        await handleWebhookSlack({ url, body, retries });
+        break;
       default:
         throw new Error(`Unknown format: ${format}`);
     }
@@ -174,7 +181,7 @@ export class WebhookClient {
       }
 
       throw new WebhookVerificationError(
-        `Failed to parse webhook payload: ${JSON.stringify(err, null, 2)}`,
+        `Failed to parse webhook payload: ${JSON.stringify(err, null, 2)}`
       );
     }
   }
@@ -187,7 +194,7 @@ export function getWebhooks(
   session: Session["session"],
   event: WebhookValidationEvent,
   where?: DatabaseFields,
-  select?: DatabaseFields,
+  select?: DatabaseFields
 ) {
   if (!session.activeOrganizationId) {
     throw new Error("No active organization");

@@ -20,6 +20,7 @@ import { cn } from "@marble/ui/lib/utils";
 import {
   FadersIcon,
   ImagesIcon,
+  LayoutIcon,
   NoteIcon,
   PackageIcon,
   TagIcon,
@@ -51,8 +52,8 @@ const items = [
     icon: ImagesIcon,
   },
   {
-    name: "Team",
-    url: "team",
+    name: "Authors",
+    url: "authors",
     icon: UsersThreeIcon,
   },
 ];
@@ -63,12 +64,16 @@ const settingsItems = [
     url: "settings/general",
   },
   {
+    title: "Members",
+    url: "settings/members",
+  },
+  {
     title: "Billing",
     url: "settings/billing",
   },
   {
-    title: "Schemas",
-    url: "settings/schemas",
+    title: "Editor Preferences",
+    url: "settings/editor-preferences",
   },
 ];
 
@@ -81,35 +86,35 @@ export function NavMain() {
     return pathname === `/${params.workspace}/${url}`;
   };
 
-  const _isOverviewActive = pathname === `/${params.workspace}`;
+  const isOverviewActive = pathname === `/${params.workspace}`;
   const isSettingsActive = pathname.startsWith(`/${params.workspace}/settings`);
 
   return (
     <SidebarGroup className={cn(open ? "px-4" : "px-2")}>
       <SidebarGroupLabel>Workspace</SidebarGroupLabel>
       <SidebarMenu>
-        {/* <SidebarMenuButton
+        <SidebarMenuButton
           asChild
           className={`border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
             isOverviewActive
-              ? "bg-sidebar-accent border-border text-foreground shadow-xs"
+              ? "border-border bg-sidebar-accent text-foreground shadow-xs"
               : "hover:text-accent-foreground"
           }`}
         >
           <Link href={`/${params.workspace}`}>
-            <Layout />
+            <LayoutIcon />
             <span>Overview</span>
           </Link>
-        </SidebarMenuButton> */}
+        </SidebarMenuButton>
         {items.map((item) => (
           <SidebarMenuButton
             asChild
-            key={item.name}
             className={`border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
               isActive(item.url)
-                ? "bg-sidebar-accent border-border text-foreground shadow-xs hover"
+                ? "hover border-border bg-sidebar-accent text-foreground shadow-xs"
                 : "hover:text-accent-foreground"
             }`}
+            key={item.name}
           >
             <Link href={`/${params.workspace}/${item.url}`}>
               <item.icon />
@@ -119,19 +124,19 @@ export function NavMain() {
         ))}
         <Collapsible
           asChild
-          open={isSettingsActive}
           className="group/collapsible"
+          open={isSettingsActive}
         >
           <SidebarMenuItem>
             <Link href={`/${params.workspace}/settings/general`}>
               <CollapsibleTrigger asChild>
                 <SidebarMenuButton
-                  tooltip="Settings"
-                  className={`border cursor-pointer border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
+                  className={`cursor-pointer border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
                     isSettingsActive
-                      ? "bg-sidebar-accent border-border text-foreground shadow-xs"
+                      ? "border-border bg-sidebar-accent text-foreground shadow-xs"
                       : "hover:text-accent-foreground"
                   }`}
+                  tooltip="Settings"
                 >
                   <FadersIcon />
                   <span>Settings</span>

@@ -5,7 +5,7 @@ import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { Separator } from "@marble/ui/components/separator";
 import { toast } from "@marble/ui/components/sonner";
-import { Loader2 } from "lucide-react";
+import { CircleNotchIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -13,10 +13,10 @@ import { type ProfileData, profileSchema } from "@/lib/validations/settings";
 import { useUser } from "@/providers/user";
 import { ErrorMessage } from "../auth/error-message";
 
-interface AccountFormProps {
+type AccountFormProps = {
   email: string;
   name: string;
-}
+};
 
 function AccountForm({ name, email }: AccountFormProps) {
   const {
@@ -55,8 +55,8 @@ function AccountForm({ name, email }: AccountFormProps) {
   }, [watch, name]);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-      <section className="grid gap-6 grid-cols-2 mt-5">
+    <form className="space-y-8" onSubmit={handleSubmit(onSubmit)}>
+      <section className="mt-5 grid grid-cols-2 gap-6">
         <div className="flex flex-col gap-2">
           <Label>Name</Label>
           <Input {...register("name")} />
@@ -66,8 +66,8 @@ function AccountForm({ name, email }: AccountFormProps) {
           <Label>Email</Label>
           <Input
             {...register("email")}
-            readOnly
             className="cursor-not-allowed"
+            readOnly
           />
           {errors.email && <ErrorMessage>{errors.email.message}</ErrorMessage>}
         </div>
@@ -75,7 +75,7 @@ function AccountForm({ name, email }: AccountFormProps) {
       <Separator />
       <section className="space-y-8">
         <div>
-          <h1 className="text-lg font-semibold">Notifications</h1>
+          <h1 className="font-semibold text-lg">Notifications</h1>
           <p className="text-muted-foreground text-sm">
             Manage your personal notification settings for this workspace. Read
             the governance documentation to learn more.
@@ -83,7 +83,7 @@ function AccountForm({ name, email }: AccountFormProps) {
         </div>
         <ul className="flex flex-col gap-6">
           <li className="flex gap-4">
-            <Checkbox id="newsletter" checked disabled />{" "}
+            <Checkbox checked disabled id="newsletter" />{" "}
             <div className="flex flex-col gap-2">
               <Label htmlFor="newsletter">Receive newsletter</Label>
               <p className="text-muted-foreground text-sm">
@@ -113,12 +113,12 @@ function AccountForm({ name, email }: AccountFormProps) {
         </ul>
       </section>
       <Separator />
-      <section className="flex gap-4 justify-end w-full">
+      <section className="flex w-full justify-end gap-4">
         <Button
+          className="flex w-20 items-center gap-2 self-end"
           disabled={!dataChanged || isSubmitting}
-          className="w-20 self-end flex gap-2 items-center"
         >
-          {isSubmitting ? <Loader2 className="animate-spin" /> : "Save"}
+          {isSubmitting ? <CircleNotchIcon className="animate-spin" /> : "Save"}
         </Button>
       </section>
     </form>

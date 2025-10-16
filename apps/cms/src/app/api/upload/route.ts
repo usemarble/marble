@@ -4,6 +4,7 @@ import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { R2_BUCKET_NAME, r2 } from "@/lib/r2";
+import { rateLimitHeaders, userAvatarUploadRateLimiter } from "@/lib/ratelimit";
 import { uploadSchema, validateUpload } from "@/lib/validations/upload";
 
 export async function POST(request: Request) {
@@ -19,11 +20,23 @@ export async function POST(request: Request) {
   if (!parsedBody.success) {
     return NextResponse.json(
       { error: "Invalid request body" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
   const { type, fileType, fileSize } = parsedBody.data;
+
+  if (type === "avatar") {
+    const { success, limit, remaining, reset } =
+      await userAvatarUploadRateLimiter.limit(sessionData.user.id);
+
+    if (!success) {
+      return NextResponse.json(
+        { error: "Too Many Requests", remaining },
+        { status: 429, headers: rateLimitHeaders(limit, remaining, reset) }
+      );
+    }
+  }
 
   try {
     validateUpload({ type, fileType, fileSize });
@@ -41,6 +54,9 @@ export async function POST(request: Request) {
     case "avatar":
       key = `avatars/${id}.${extension}`;
       break;
+    case "author-avatar":
+      key = `avatars/${id}.${extension}`;
+      break;
     case "logo":
       key = `logos/${id}.${extension}`;
       break;
@@ -50,7 +66,7 @@ export async function POST(request: Request) {
     default:
       return NextResponse.json(
         { error: "Invalid upload type" },
-        { status: 400 },
+        { status: 400 }
       );
   }
 
@@ -62,7 +78,7 @@ export async function POST(request: Request) {
       ContentType: fileType,
       ContentLength: fileSize,
     }),
-    { expiresIn: 3600 },
+    { expiresIn: 3600 }
   );
 
   return NextResponse.json({ url: presignedUrl, key });
