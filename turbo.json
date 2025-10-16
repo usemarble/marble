@@ -9,7 +9,6 @@
       "env": [
         "NODE_ENV",
         "DATABASE_URL",
-        "NEXT_PUBLIC_APP_URL",
         "BETTER_AUTH_URL",
         "BETTER_AUTH_SECRET",
         "GOOGLE_CLIENT_ID",
@@ -34,7 +33,8 @@
         "QSTASH_TOKEN",
         "REDIS_URL",
         "REDIS_TOKEN",
-        "OPENROUTER_API_KEY"
+        "OPENROUTER_API_KEY",
+        "SENTRY_AUTH_TOKEN"
       ]
     },
     "lint": {
