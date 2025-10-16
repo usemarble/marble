@@ -79,9 +79,17 @@ export class MarkdownToTiptapParser {
   }
 
   static parseList(token: Tokens.List): JSONContent {
-    const type = token.ordered ? "orderedList" : "bulletList";
+    const isTaskList = token.items.some((item) => item.task);
+
+    const type = isTaskList
+      ? "taskList"
+      : token.ordered
+        ? "orderedList"
+        : "bulletList";
     const items = token.items.map((item) =>
-      MarkdownToTiptapParser.parseListItem(item)
+      isTaskList
+        ? MarkdownToTiptapParser.parseTaskListItem(item)
+        : MarkdownToTiptapParser.parseListItem(item)
     );
 
     const result: JSONContent = {
@@ -89,11 +97,26 @@ export class MarkdownToTiptapParser {
       content: items,
     };
 
-    if (token.ordered && typeof token.start === "number" && token.start !== 1) {
+    if (
+      !isTaskList &&
+      token.ordered &&
+      typeof token.start === "number" &&
+      token.start !== 1
+    ) {
       result.attrs = { start: token.start };
     }
 
     return result;
+  }
+
+  static parseTaskListItem(item: Tokens.ListItem): JSONContent {
+    const base = MarkdownToTiptapParser.parseListItem(item);
+
+    return {
+      type: "taskItem",
+      attrs: { checked: !!item.checked },
+      content: base.content,
+    };
   }
 
   static parseListItem(item: Tokens.ListItem): JSONContent {
@@ -129,13 +152,6 @@ export class MarkdownToTiptapParser {
       }
     }
 
-    if (item.task) {
-      return {
-        type: "taskItem",
-        attrs: { checked: item.checked || false },
-        content,
-      };
-    }
     return {
       type: "listItem",
       content,

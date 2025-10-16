@@ -26,6 +26,17 @@ export async function POST(request: Request) {
     );
   }
 
+  const existingPost = await db.post.findFirst({
+    where: {
+      slug: values.data.slug,
+      workspaceId: activeWorkspaceId,
+    },
+  });
+
+  if (existingPost) {
+    return NextResponse.json({ error: "Slug already in use" }, { status: 409 });
+  }
+
   const baseSlug = generateSlug(sessionData.user.name);
   const uniqueSlug = `${baseSlug}-${nanoid(6)}`;
 
@@ -66,6 +77,22 @@ export async function POST(request: Request) {
   }
 
   const { uniqueTagIds } = tagValidation;
+
+  if (values.data.category) {
+    const category = await db.category.findFirst({
+      where: {
+        id: values.data.category,
+        workspaceId: activeWorkspaceId,
+      },
+    });
+
+    if (!category) {
+      return NextResponse.json(
+        { error: "Invalid category provided" },
+        { status: 400 }
+      );
+    }
+  }
 
   const authorIds = values.data.authors?.length
     ? values.data.authors

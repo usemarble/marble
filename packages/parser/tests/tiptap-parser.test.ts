@@ -331,34 +331,6 @@ describe("MarkdownToTiptapParser static block-level parsers", () => {
     });
   });
 
-  it("parseListItem returns taskItem when task is true and preserves checked", () => {
-    const item: Tokens.ListItem = {
-      type: "list_item",
-      raw: "- [x] task",
-      task: true,
-      checked: true,
-      loose: false,
-      text: "task",
-      tokens: [
-        {
-          type: "paragraph",
-          raw: "task",
-          text: "task",
-          tokens: [{ type: "text", raw: "task", text: "task" }],
-        } as unknown as Tokens.Paragraph,
-      ],
-    };
-
-    const result = MarkdownToTiptapParser.parseListItem(item);
-    expect(result).toEqual({
-      type: "taskItem",
-      attrs: { checked: true },
-      content: [
-        { type: "paragraph", content: [{ type: "text", text: "task" }] },
-      ],
-    });
-  });
-
   it("parseListItem returns listItem for non-task items", () => {
     const item: Tokens.ListItem = {
       type: "list_item",
@@ -678,5 +650,40 @@ describe("MarkdownToTiptapParser integration tests", () => {
     expect(result.content?.[1]?.type).toEqual("paragraph");
     expect(result.content?.[2]?.type).toEqual("bulletList");
     expect(result.content?.[3]?.type).toEqual("orderedList");
+  });
+
+  it("parses task list with checked and unchecked items", () => {
+    const markdown = "- [x] Done\n- [ ] Not done";
+    const result = markdownToTiptap(markdown);
+    expect(result).toEqual({
+      type: "doc",
+      content: [
+        {
+          type: "taskList",
+          content: [
+            {
+              type: "taskItem",
+              attrs: { checked: true },
+              content: [
+                {
+                  type: "paragraph",
+                  content: [{ type: "text", text: "Done" }],
+                },
+              ],
+            },
+            {
+              type: "taskItem",
+              attrs: { checked: false },
+              content: [
+                {
+                  type: "paragraph",
+                  content: [{ type: "text", text: "Not done" }],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
   });
 });

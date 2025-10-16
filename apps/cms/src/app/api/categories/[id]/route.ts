@@ -27,6 +27,18 @@ export async function PATCH(
     );
   }
 
+  const existingCategoryWithSlug = await db.category.findFirst({
+    where: {
+      slug: body.data.slug,
+      workspaceId,
+      id: { not: id },
+    },
+  });
+
+  if (existingCategoryWithSlug) {
+    return NextResponse.json({ error: "Slug already in use" }, { status: 409 });
+  }
+
   const categoryUpdated = await db.category.update({
     where: {
       id,

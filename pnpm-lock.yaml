@@ -176,14 +176,14 @@ importers:
         specifier: ^2.11.2
         version: 2.26.3(@tiptap/pm@3.6.6)
       '@tiptap/extension-text-align':
-        specifier: ^2.11.5
-        version: 2.11.5(@tiptap/core@2.26.3(@tiptap/pm@3.6.6))
+        specifier: ^2.11.2
+        version: 2.26.3(@tiptap/core@2.26.3(@tiptap/pm@3.6.6))
       '@tiptap/extension-underline':
         specifier: ^2.11.2
-        version: 2.11.2(@tiptap/core@2.26.3(@tiptap/pm@3.6.6))
+        version: 2.26.3(@tiptap/core@2.26.3(@tiptap/pm@3.6.6))
       '@tiptap/react':
-        specifier: ^2.8.0
-        version: 2.8.0(@tiptap/core@2.26.3(@tiptap/pm@3.6.6))(@tiptap/pm@3.6.6)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+        specifier: ^2.11.2
+        version: 2.26.3(@tiptap/core@2.26.3(@tiptap/pm@3.6.6))(@tiptap/pm@3.6.6)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@upstash/qstash':
         specifier: ^2.8.2
         version: 2.8.2
@@ -408,7 +408,7 @@ importers:
     dependencies:
       '@tiptap/core':
         specifier: ^2.11.2
-        version: 2.11.2(@tiptap/pm@3.6.6)
+        version: 2.26.3(@tiptap/pm@3.6.6)
       marked:
         specifier: ^16.4.0
         version: 16.4.0
@@ -4284,11 +4284,6 @@ packages:
   '@tanstack/virtual-core@3.13.12':
     resolution: {integrity: sha512-1YBOJfRHV4sXUmWsFSf5rQor4Ss82G8dQWLRbnk3GA4jeP8hQt1hxXh0tmflpC0dz3VgEv/1+qwPyLeWkQuPFA==}
 
-  '@tiptap/core@2.11.2':
-    resolution: {integrity: sha512-Z437c/sQg31yrRVgLJVkQuih+7Og5tjRx6FE/zE47QgEayqQ9yXH0LrTAbPiY6IfY1X+f2A0h3e5Y/WGD6rC3Q==}
-    peerDependencies:
-      '@tiptap/pm': ^2.7.0
-
   '@tiptap/core@2.26.3':
     resolution: {integrity: sha512-TaOJzu2v5ufsOx+yu94NqXE504zmupVdFCxH1g3hk5fzZ3gT57Lh9R/27OjwM4e6o+Z3DXDl8yfFMHIcR3zUkg==}
     peerDependencies:
@@ -4306,12 +4301,6 @@ packages:
 
   '@tiptap/extension-bubble-menu@2.26.3':
     resolution: {integrity: sha512-vliC5bv/md4qkguqqL8w7LW8jnXBD1FLdSMDavHRVwdRaRnEfLRAIY7Oxtc1Voy3+762tfn912TuwDlCOPsNSQ==}
-    peerDependencies:
-      '@tiptap/core': ^2.7.0
-      '@tiptap/pm': ^2.7.0
-
-  '@tiptap/extension-bubble-menu@2.8.0':
-    resolution: {integrity: sha512-swg+myJPN60LduQvLMF4hVBqP5LOIN01INZBzBI8egz8QufqtSyRCgXl7Xcma0RT5xIXnZSG9XOqNFf2rtkjKA==}
     peerDependencies:
       '@tiptap/core': ^2.7.0
       '@tiptap/pm': ^2.7.0
@@ -4372,12 +4361,6 @@ packages:
 
   '@tiptap/extension-floating-menu@2.26.3':
     resolution: {integrity: sha512-i2dsIMa0L6vjCPnTiXjPZXZqUu3sIIIAI+E1T4p0FsGYjjPTmN+AgkJqeO3bbe5XHmWcWKtgQevNCMF0kmU5rQ==}
-    peerDependencies:
-      '@tiptap/core': ^2.7.0
-      '@tiptap/pm': ^2.7.0
-
-  '@tiptap/extension-floating-menu@2.8.0':
-    resolution: {integrity: sha512-H4QT61CrkLqisnGGC7zgiYmsl2jXPHl89yQCbdlkQN7aw11H7PltcJS2PJguL0OrRVJS/Mv/VTTUiMslmsEV5g==}
     peerDependencies:
       '@tiptap/core': ^2.7.0
       '@tiptap/pm': ^2.7.0
@@ -4468,8 +4451,8 @@ packages:
     peerDependencies:
       '@tiptap/core': ^2.7.0
 
-  '@tiptap/extension-text-align@2.11.5':
-    resolution: {integrity: sha512-Ei0zDpH5N9EV59ogydK4HTKa4lCPicCsQllM5n/Nf2tUJPir3aiYxzJ73FzhComD4Hpo1ANYnmssBhy8QeoPZA==}
+  '@tiptap/extension-text-align@2.26.3':
+    resolution: {integrity: sha512-5PU2vMUKt53EVdxFqiuPockKKGeZxipwEq6fT5OZeqz3TUWiF61bO/xkwlXzfWSNm1ZkEmrkebtaeKrH4Wu22g==}
     peerDependencies:
       '@tiptap/core': ^2.7.0
 
@@ -4483,8 +4466,8 @@ packages:
     peerDependencies:
       '@tiptap/core': ^2.7.0
 
-  '@tiptap/extension-underline@2.11.2':
-    resolution: {integrity: sha512-Gq7hfV3D/3E1zoE6JXSYZ3boKfbjebFu7IuQZ6w6QSS/IkGN8c6kW+WtkhOKN3jV7Z5uF5KIVp3XCqNIwChWNQ==}
+  '@tiptap/extension-underline@2.26.3':
+    resolution: {integrity: sha512-FXQUiHjvKDIpU9Bg+fV7UqQnEjhGvVQUnrf9VOI1/9hm+GWWxAfV2asRiZgV6jeBvNJWYzUGzvQUN6vFzmVbdw==}
     peerDependencies:
       '@tiptap/core': ^2.7.0
 
@@ -4506,14 +4489,6 @@ packages:
       '@tiptap/pm': ^2.7.0
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^17.0.0 || ^18.0.0 || ^19.0.0
-
-  '@tiptap/react@2.8.0':
-    resolution: {integrity: sha512-o/aSCjO5Nu4MsNpTF+N1SzYzVQvvBiclmTOZX2E6usZ8jre5zmKfXHDSZnjGSRTK6z6kw5KW8wpjRQha03f9mg==}
-    peerDependencies:
-      '@tiptap/core': ^2.7.0
-      '@tiptap/pm': ^2.7.0
-      react: ^17.0.0 || ^18.0.0
-      react-dom: ^17.0.0 || ^18.0.0
 
   '@tiptap/starter-kit@2.26.3':
     resolution: {integrity: sha512-hznj/j+mFIuKfNB0ToaZVcVjdtpSOHoBoX3ocSz9BaYCtK+nX1c0gTlfbJ1BcpYUZNtqG+tpUeIfvXifRkq/OQ==}
@@ -13039,10 +13014,6 @@ snapshots:
 
   '@tanstack/virtual-core@3.13.12': {}
 
-  '@tiptap/core@2.11.2(@tiptap/pm@3.6.6)':
-    dependencies:
-      '@tiptap/pm': 3.6.6
-
   '@tiptap/core@2.26.3(@tiptap/pm@2.26.3)':
     dependencies:
       '@tiptap/pm': 2.26.3
@@ -13065,7 +13036,7 @@ snapshots:
       '@tiptap/pm': 2.26.3
       tippy.js: 6.3.7
 
-  '@tiptap/extension-bubble-menu@2.8.0(@tiptap/core@2.26.3(@tiptap/pm@3.6.6))(@tiptap/pm@3.6.6)':
+  '@tiptap/extension-bubble-menu@2.26.3(@tiptap/core@2.26.3(@tiptap/pm@3.6.6))(@tiptap/pm@3.6.6)':
     dependencies:
       '@tiptap/core': 2.26.3(@tiptap/pm@3.6.6)
       '@tiptap/pm': 3.6.6
@@ -13122,7 +13093,7 @@ snapshots:
       '@tiptap/pm': 2.26.3
       tippy.js: 6.3.7
 
-  '@tiptap/extension-floating-menu@2.8.0(@tiptap/core@2.26.3(@tiptap/pm@3.6.6))(@tiptap/pm@3.6.6)':
+  '@tiptap/extension-floating-menu@2.26.3(@tiptap/core@2.26.3(@tiptap/pm@3.6.6))(@tiptap/pm@3.6.6)':
     dependencies:
       '@tiptap/core': 2.26.3(@tiptap/pm@3.6.6)
       '@tiptap/pm': 3.6.6
@@ -13199,7 +13170,7 @@ snapshots:
     dependencies:
       '@tiptap/core': 2.26.3(@tiptap/pm@3.6.6)
 
-  '@tiptap/extension-text-align@2.11.5(@tiptap/core@2.26.3(@tiptap/pm@3.6.6))':
+  '@tiptap/extension-text-align@2.26.3(@tiptap/core@2.26.3(@tiptap/pm@3.6.6))':
     dependencies:
       '@tiptap/core': 2.26.3(@tiptap/pm@3.6.6)
 
@@ -13211,7 +13182,7 @@ snapshots:
     dependencies:
       '@tiptap/core': 2.26.3(@tiptap/pm@3.6.6)
 
-  '@tiptap/extension-underline@2.11.2(@tiptap/core@2.26.3(@tiptap/pm@3.6.6))':
+  '@tiptap/extension-underline@2.26.3(@tiptap/core@2.26.3(@tiptap/pm@3.6.6))':
     dependencies:
       '@tiptap/core': 2.26.3(@tiptap/pm@3.6.6)
 
@@ -13271,19 +13242,19 @@ snapshots:
       fast-deep-equal: 3.1.3
       react: 19.1.1
       react-dom: 19.1.1(react@19.1.1)
-      use-sync-external-store: 1.2.2(react@19.1.1)
+      use-sync-external-store: 1.6.0(react@19.1.1)
 
-  '@tiptap/react@2.8.0(@tiptap/core@2.26.3(@tiptap/pm@3.6.6))(@tiptap/pm@3.6.6)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
+  '@tiptap/react@2.26.3(@tiptap/core@2.26.3(@tiptap/pm@3.6.6))(@tiptap/pm@3.6.6)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
     dependencies:
       '@tiptap/core': 2.26.3(@tiptap/pm@3.6.6)
-      '@tiptap/extension-bubble-menu': 2.8.0(@tiptap/core@2.26.3(@tiptap/pm@3.6.6))(@tiptap/pm@3.6.6)
-      '@tiptap/extension-floating-menu': 2.8.0(@tiptap/core@2.26.3(@tiptap/pm@3.6.6))(@tiptap/pm@3.6.6)
+      '@tiptap/extension-bubble-menu': 2.26.3(@tiptap/core@2.26.3(@tiptap/pm@3.6.6))(@tiptap/pm@3.6.6)
+      '@tiptap/extension-floating-menu': 2.26.3(@tiptap/core@2.26.3(@tiptap/pm@3.6.6))(@tiptap/pm@3.6.6)
       '@tiptap/pm': 3.6.6
       '@types/use-sync-external-store': 0.0.6
       fast-deep-equal: 3.1.3
       react: 19.1.1
       react-dom: 19.1.1(react@19.1.1)
-      use-sync-external-store: 1.2.2(react@19.1.1)
+      use-sync-external-store: 1.6.0(react@19.1.1)
 
   '@tiptap/starter-kit@2.26.3':
     dependencies:
@@ -15970,7 +15941,7 @@ snapshots:
       '@tiptap/extension-task-item': 2.26.3(@tiptap/core@2.26.3(@tiptap/pm@3.6.6))(@tiptap/pm@2.26.3)
       '@tiptap/extension-task-list': 2.26.3(@tiptap/core@2.26.3(@tiptap/pm@3.6.6))
       '@tiptap/extension-text-style': 2.26.3(@tiptap/core@2.26.3(@tiptap/pm@3.6.6))
-      '@tiptap/extension-underline': 2.11.2(@tiptap/core@2.26.3(@tiptap/pm@3.6.6))
+      '@tiptap/extension-underline': 2.26.3(@tiptap/core@2.26.3(@tiptap/pm@3.6.6))
       '@tiptap/extension-youtube': 2.26.3(@tiptap/core@2.26.3(@tiptap/pm@3.6.6))
       '@tiptap/pm': 2.26.3
       '@tiptap/react': 2.26.3(@tiptap/core@2.26.3(@tiptap/pm@3.6.6))(@tiptap/pm@2.26.3)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -17589,6 +17560,10 @@ snapshots:
   use-sync-external-store@1.6.0(react@19.0.0):
     dependencies:
       react: 19.0.0
+
+  use-sync-external-store@1.6.0(react@19.1.1):
+    dependencies:
+      react: 19.1.1
 
   util-deprecate@1.0.2: {}
 

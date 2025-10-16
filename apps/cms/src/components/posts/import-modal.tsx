@@ -14,7 +14,6 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { Dropzone } from "@/components/shared/dropzone";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { checkPostSlugAvailable } from "@/lib/actions/checks";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { PostImportValues } from "@/lib/validations/post";
 import { ImportItemForm } from "./import-item-form";
@@ -54,23 +53,25 @@ export function PostsImportModal({
 
   const { mutate: importPost, isPending: isImporting } = useMutation({
     mutationFn: async (payload: PostImportValues) => {
-      const isSlugAvailable = await checkPostSlugAvailable(
-        payload.slug,
-        workspaceId
-      );
-      if (!isSlugAvailable) {
-        throw new Error("Slug is already taken");
+      try {
+        const res = await fetch("/api/posts/import", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || "Failed to import post");
+        }
+
+        const responseData = await res.json();
+        return responseData;
+      } catch (error) {
+        throw new Error(
+          error instanceof Error ? error.message : "Failed to import post"
+        );
       }
-      const res = await fetch("/api/posts/import", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || "Failed to import post");
-      }
-      return res.json();
     },
     onSuccess: async () => {
       toast.success(`${importState.file?.name} imported successfully`);
