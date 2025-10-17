@@ -107,7 +107,7 @@ export function AuthorSelector({
       return;
     }
 
-    if (value.length > 0) {
+    if (value && value.length > 0) {
       const authorsThatWerePreviouslySelected = authors.filter((opt) =>
         value.includes(opt.id)
       );

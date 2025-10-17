@@ -86,6 +86,18 @@ export async function PATCH(
     );
   }
 
+  const existingPostWithSlug = await db.post.findFirst({
+    where: {
+      slug: values.data.slug,
+      workspaceId,
+      id: { not: id },
+    },
+  });
+
+  if (existingPostWithSlug) {
+    return NextResponse.json({ error: "Slug already in use" }, { status: 409 });
+  }
+
   const contentJson = JSON.parse(values.data.contentJson);
   const validAttribution = values.data.attribution
     ? values.data.attribution
@@ -102,6 +114,22 @@ export async function PATCH(
   }
 
   const { uniqueTagIds } = tagValidation;
+
+  if (values.data.category) {
+    const category = await db.category.findFirst({
+      where: {
+        id: values.data.category,
+        workspaceId,
+      },
+    });
+
+    if (!category) {
+      return NextResponse.json(
+        { error: "Invalid category provided" },
+        { status: 400 }
+      );
+    }
+  }
 
   // Find all authors for the provided author IDs
   const validAuthors = await db.author.findMany({
@@ -156,7 +184,6 @@ export async function PATCH(
         tags: values.data.tags
           ? { set: uniqueTagIds.map((id) => ({ id })) }
           : undefined,
-        primaryAuthorId: primaryAuthor.id,
         authors: {
           set: validAuthors.map((author) => ({ id: author.id })),
         },

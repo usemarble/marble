@@ -21,6 +21,7 @@
     "cms:dev": "turbo dev --filter=cms",
     "api:dev": "turbo dev --filter=api",
     "docs:dev": "turbo dev --filter=docs",
+    "test": "turbo test",
     "prepare": "husky"
   },
   "devDependencies": {

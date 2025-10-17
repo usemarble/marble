@@ -1,0 +1,8 @@
+{
+  "extends": "@marble/tsconfig/base.json",
+  "compilerOptions": {
+    "baseUrl": "."
+  },
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
+}

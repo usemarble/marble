@@ -25,14 +25,10 @@ import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { Textarea } from "@marble/ui/components/textarea";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useId } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import {
-  checkTagSlugAction,
-  checkTagSlugForUpdateAction,
-} from "@/lib/actions/checks";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { type CreateTagValues, tagSchema } from "@/lib/validations/workspace";
 import { generateSlug } from "@/utils/string";
@@ -58,7 +54,6 @@ export function TagModal({
     handleSubmit,
     setValue,
     watch,
-    setError,
     reset,
     formState: { errors, isSubmitting },
   } = useForm<CreateTagValues>({
@@ -69,17 +64,27 @@ export function TagModal({
   const { name } = watch();
   const workspaceId = useWorkspaceId();
 
-  const { mutate: createTag } = useMutation({
-    mutationFn: (data: CreateTagValues) =>
-      fetch("/api/tags", {
-        method: "POST",
-        body: JSON.stringify(data),
-      }).then((res) => {
+  const { mutate: createTag, isPending: isCreating } = useMutation({
+    mutationFn: async (data: CreateTagValues) => {
+      try {
+        const res = await fetch("/api/tags", {
+          method: "POST",
+          body: JSON.stringify(data),
+        });
+
         if (!res.ok) {
-          throw new Error("Failed to create tag");
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || "Failed to create tag");
         }
-        return res.json();
-      }),
+
+        const responseData = await res.json();
+        return responseData;
+      } catch (error) {
+        throw new Error(
+          error instanceof Error ? error.message : "Failed to create tag"
+        );
+      }
+    },
     onSuccess: (data) => {
       onTagCreated?.(data);
       setOpen(false);
@@ -96,17 +101,27 @@ export function TagModal({
     },
   });
 
-  const { mutate: updateTag } = useMutation({
-    mutationFn: (data: CreateTagValues) =>
-      fetch(`/api/tags/${tagData.id}`, {
-        method: "PATCH",
-        body: JSON.stringify(data),
-      }).then((res) => {
+  const { mutate: updateTag, isPending: isUpdating } = useMutation({
+    mutationFn: async (data: CreateTagValues) => {
+      try {
+        const res = await fetch(`/api/tags/${tagData.id}`, {
+          method: "PATCH",
+          body: JSON.stringify(data),
+        });
+
         if (!res.ok) {
-          throw new Error("Failed to update tag");
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || "Failed to update tag");
         }
-        return res.json();
-      }),
+
+        const responseData = await res.json();
+        return responseData;
+      } catch (error) {
+        throw new Error(
+          error instanceof Error ? error.message : "Failed to update tag"
+        );
+      }
+    },
     onSuccess: () => {
       setOpen(false);
       toast.success("Tag updated successfully");
@@ -135,20 +150,6 @@ export function TagModal({
 
     if (mode === "update" && !tagData.id) {
       toast.error("Tag ID is missing - cannot update tag");
-      return;
-    }
-
-    const isTaken =
-      mode === "create"
-        ? await checkTagSlugAction(data.slug, workspaceId)
-        : await checkTagSlugForUpdateAction(
-            data.slug,
-            workspaceId,
-            tagData.id as string
-          );
-
-    if (isTaken) {
-      setError("slug", { message: "You already have a tag with that slug" });
       return;
     }
 
@@ -203,7 +204,7 @@ export function TagModal({
             </DialogClose>
             <AsyncButton
               className="gap-2"
-              isLoading={isSubmitting}
+              isLoading={isSubmitting || isCreating || isUpdating}
               type="submit"
             >
               {mode === "create" ? "Create" : "Update"}
