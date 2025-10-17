@@ -7,7 +7,9 @@ import { useCallback, useState } from "react";
 
 // Extract YouTube video ID from various URL formats
 function extractYouTubeVideoId(url: string): string | null {
-  if (!url) return null;
+  if (!url) {
+    return null;
+  }
 
   const patterns = [
     /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,

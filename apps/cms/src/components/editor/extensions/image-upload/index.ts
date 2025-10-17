@@ -4,6 +4,7 @@ import { ReactNodeViewRenderer } from "@tiptap/react";
 import { ImageUploadView } from "./image-upload-view";
 
 declare module "@tiptap/core" {
+  // biome-ignore lint/nursery/useConsistentTypeDefinitions: Required for TypeScript module augmentation
   interface Commands<ReturnType> {
     imageUpload: {
       setImageUpload: () => ReturnType;

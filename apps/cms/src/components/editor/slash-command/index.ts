@@ -73,7 +73,9 @@ export const SlashCommand = Extension.create({
 
               // Use Floating UI for positioning
               const updatePosition = () => {
-                if (!popup) return;
+                if (!popup) {
+                  return;
+                }
 
                 computePosition(virtualElement, popup, {
                   placement: "bottom-start",

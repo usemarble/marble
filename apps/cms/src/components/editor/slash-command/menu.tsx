@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@marble/ui/lib/utils";
+import type { Editor, Range } from "@tiptap/core";
 import type { SuggestionProps } from "@tiptap/suggestion";
 import {
   forwardRef,
@@ -15,7 +16,7 @@ export type SlashCommandItem = {
   description?: string;
   searchTerms?: string[];
   icon: ReactNode;
-  command?: (props: { editor: any; range: any }) => void;
+  command?: (props: { editor: Editor; range: Range }) => void;
 };
 
 type MenuListProps = SuggestionProps & {
@@ -54,7 +55,7 @@ export const SlashCommandMenu = forwardRef<
     selectItem(selectedIndex);
   };
 
-  useEffect(() => setSelectedIndex(0), [items]);
+  useEffect(() => setSelectedIndex(0), []);
 
   useImperativeHandle(ref, () => ({
     onKeyDown: ({ event }: { event: KeyboardEvent }) => {
@@ -78,40 +79,38 @@ export const SlashCommandMenu = forwardRef<
   }));
 
   return (
-    <>
-      <div className="z-50 h-auto max-h-80 w-60 overflow-y-auto rounded-sm border bg-background px-1 py-2 shadow-xs transition-all">
-        {items.length > 0 ? (
-          <div className="space-y-0.5">
-            {items.map((item, index) => (
-              <button
-                className={cn(
-                  "flex w-full cursor-pointer items-center space-x-2 rounded-[6px] px-2 py-1 text-left text-sm hover:bg-accent",
-                  index === selectedIndex && "bg-accent"
+    <div className="z-50 h-auto max-h-80 w-60 overflow-y-auto rounded-sm border bg-background px-1 py-2 shadow-xs transition-all">
+      {items.length > 0 ? (
+        <div className="space-y-0.5">
+          {items.map((item, index) => (
+            <button
+              className={cn(
+                "flex w-full cursor-pointer items-center space-x-2 rounded-[6px] px-2 py-1 text-left text-sm hover:bg-accent",
+                index === selectedIndex && "bg-accent"
+              )}
+              key={item.title}
+              onClick={() => selectItem(index)}
+              onMouseEnter={() => setSelectedIndex(index)}
+              type="button"
+            >
+              <div className="flex items-center justify-center border border-muted bg-background p-1">
+                {item.icon}
+              </div>
+              <div>
+                <p className="font-medium">{item.title}</p>
+                {item.description && (
+                  <p className="text-muted-foreground text-xs">
+                    {item.description}
+                  </p>
                 )}
-                key={item.title}
-                onClick={() => selectItem(index)}
-                onMouseEnter={() => setSelectedIndex(index)}
-                type="button"
-              >
-                <div className="flex items-center justify-center border border-muted bg-background p-1">
-                  {item.icon}
-                </div>
-                <div>
-                  <p className="font-medium">{item.title}</p>
-                  {item.description && (
-                    <p className="text-muted-foreground text-xs">
-                      {item.description}
-                    </p>
-                  )}
-                </div>
-              </button>
-            ))}
-          </div>
-        ) : (
-          <div className="px-2 text-muted-foreground text-sm">No results</div>
-        )}
-      </div>
-    </>
+              </div>
+            </button>
+          ))}
+        </div>
+      ) : (
+        <div className="px-2 text-muted-foreground text-sm">No results</div>
+      )}
+    </div>
   );
 });
 

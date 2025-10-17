@@ -4,6 +4,7 @@ import { ReactNodeViewRenderer } from "@tiptap/react";
 import { YouTubeUploadView } from "./youtube-upload-view";
 
 declare module "@tiptap/core" {
+  // biome-ignore lint/nursery/useConsistentTypeDefinitions: Required for TypeScript module augmentation
   interface Commands<ReturnType> {
     youtubeUpload: {
       setYoutubeUpload: () => ReturnType;

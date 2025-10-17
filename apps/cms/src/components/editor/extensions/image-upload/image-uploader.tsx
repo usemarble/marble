@@ -43,6 +43,7 @@ export const ImageUploader = ({
   }
 
   return (
+    // biome-ignore lint/a11y/useSemanticElements: Drag-and-drop zone requires div element for proper event handling
     <div
       className={cn(
         "flex flex-col items-center justify-center gap-4 rounded-md border border-dashed p-12 transition-colors",
@@ -54,6 +55,8 @@ export const ImageUploader = ({
       onDragLeave={onDragLeave}
       onDragOver={onDragOver}
       onDrop={onDrop}
+      role="button"
+      tabIndex={0}
     >
       <ImageIcon
         className={cn(
