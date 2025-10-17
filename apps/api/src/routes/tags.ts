@@ -153,6 +153,7 @@ tags.get("/:identifier", async (c) => {
     if (!tag) {
       return c.json({ error: "Tag not found" }, 404);
     }
+
     const totalPosts = await db.post.count({
       where: {
         workspaceId,
@@ -184,6 +185,13 @@ tags.get("/:identifier", async (c) => {
       );
     }
 
+    // Transform _count to count
+    const { _count, ...rest } = tag;
+    const transformedTag = {
+      ...rest,
+      count: _count,
+    };
+
     if (include.includes("posts")) {
       const posts = await db.post.findMany({
         where: {
@@ -209,9 +217,8 @@ tags.get("/:identifier", async (c) => {
         take: limit,
         skip: postsToSkip,
       });
-
       return c.json({
-        ...tag,
+        ...transformedTag,
         posts: {
           data: posts,
           pagination: {
@@ -226,7 +233,7 @@ tags.get("/:identifier", async (c) => {
       });
     }
 
-    return c.json(tag);
+    return c.json(transformedTag);
   } catch (error) {
     console.error("Error fetching tag:", error);
     return c.json({ error: "Failed to fetch tag" }, 500);
