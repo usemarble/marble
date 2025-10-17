@@ -13,7 +13,7 @@ function BubbleMenuComponent() {
 
   return (
     <TiptapBubbleMenu
-      className="flex h-fit w-fit overflow-hidden rounded-md border bg-background p-1 shadow-sm"
+      className="flex h-fit w-fit gap-0.5 overflow-hidden rounded-lg border bg-background p-1 shadow-sm"
       editor={editor}
     >
       <TextButtons />

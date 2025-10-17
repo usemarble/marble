@@ -7,9 +7,14 @@ import {
 } from "@marble/ui/components/popover";
 import { Separator } from "@marble/ui/components/separator";
 import { Switch } from "@marble/ui/components/switch";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@marble/ui/components/tooltip";
 import { cn } from "@marble/ui/lib/utils";
-import { CheckIcon, LinkSimpleIcon, TrashIcon } from "@phosphor-icons/react";
 import { useCurrentEditor } from "@tiptap/react";
+import { Check, Link as LinkIcon, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 export function isValidUrl(url: string) {
@@ -55,15 +60,23 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
   return (
     <Popover modal={true} onOpenChange={onOpenChange} open={open}>
       <PopoverTrigger asChild>
-        <Button
-          className={cn("gap-2 border-none", {
-            "text-emerald-500": editor.isActive("link"),
-          })}
-          size="icon"
-          variant="ghost"
-        >
-          <LinkSimpleIcon className="size-4" />
-        </Button>
+        <Tooltip delayDuration={400}>
+          <TooltipTrigger asChild>
+            <Button
+              className={cn(
+                "gap-2 border-none",
+                editor.isActive("link") && "bg-emerald-500/10 text-emerald-500"
+              )}
+              size="icon"
+              variant="ghost"
+            >
+              <LinkIcon className="size-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Set link</p>
+          </TooltipContent>
+        </Tooltip>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-60 p-0" sideOffset={10}>
         {/** biome-ignore lint/a11y/noNoninteractiveElementInteractions: It's acting as a button */}
@@ -105,7 +118,7 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
                 type="button"
                 variant="outline"
               >
-                <TrashIcon className="size-4" />
+                <Trash2 className="size-4" />
               </Button>
             ) : (
               <Button
@@ -127,7 +140,7 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
                 type="button"
                 variant="outline"
               >
-                <CheckIcon className="size-4" />
+                <Check className="size-4" />
               </Button>
             )}
           </div>

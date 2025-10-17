@@ -213,6 +213,9 @@
   body {
     @apply bg-background text-foreground;
   }
+  button {
+    @apply cursor-pointer;
+  }
   .darkbackground {
     background-color: hsl(150, 4%, 9%);
   }
