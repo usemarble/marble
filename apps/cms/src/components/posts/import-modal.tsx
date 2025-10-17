@@ -74,7 +74,7 @@ export function PostsImportModal({
       }
     },
     onSuccess: async () => {
-      toast.success(`${importState.file?.name} imported successfully`);
+      toast.success("Post created");
       if (workspaceId) {
         await queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.POSTS(workspaceId),
@@ -105,31 +105,7 @@ export function PostsImportModal({
         publishedAt: new Date(),
       };
 
-      if (ext === "json") {
-        const parsed = JSON.parse(raw);
-        const obj = Array.isArray(parsed) ? parsed[0] : parsed;
-
-        const validated = parseSchema.safeParse(obj);
-        if (!validated.success) {
-          updateImportState({
-            status: "error",
-            error: `Invalid JSON structure: ${validated.error.errors[0]?.message}`,
-          });
-          return;
-        }
-
-        const data = validated.data;
-        parsedData = {
-          title: data.title || "",
-          slug: data.slug || "",
-          description: data.description || "",
-          status: data.status || "draft",
-          publishedAt: data.publishedAt
-            ? new Date(data.publishedAt)
-            : new Date(),
-          category: data.category || "",
-        };
-      } else if (ext === "md" || ext === "mdx") {
+      if (ext === "md" || ext === "mdx") {
         const parsed = matter(raw);
         const fm = parsed.data ?? {};
 
@@ -147,6 +123,7 @@ export function PostsImportModal({
           title: data.title || "",
           slug: data.slug || "",
           description: data.description || "",
+          content: parsed.content || "",
           status: data.status || "draft",
           publishedAt: data.publishedAt
             ? new Date(data.publishedAt)
@@ -181,14 +158,13 @@ export function PostsImportModal({
           >
             {importState.status === "ready" && importState.file
               ? `We've parsed metadata from your file. Please review and complete the details.`
-              : "Import content into your workspace. You can import a .md/.mdx/.json file."}
+              : "Import content into your workspace. You can import a .md/.mdx file."}
           </DialogDescription>
         </DialogHeader>
         {importState.status === "idle" && (
           <Dropzone
             accept={{
               "text/markdown": [".md", ".mdx"],
-              "application/json": [".json"],
             }}
             className="flex h-full w-full flex-1 cursor-pointer items-center justify-center rounded-md border border-dashed bg-editor-field"
             onFilesAccepted={(accepted) => {
@@ -201,7 +177,7 @@ export function PostsImportModal({
               }
             }}
             placeholder={{
-              idle: "Drag & drop a .md/.mdx/.json file, or click to select",
+              idle: "Drag & drop a .md/.mdx file, or click to select",
               active: "Drop the file here...",
               subtitle: "We will parse frontmatter and content",
             }}
@@ -229,10 +205,6 @@ export function PostsImportModal({
               importState.parsedData &&
               importState.file && (
                 <ImportItemForm
-                  ext={(
-                    importState.file.name.split(".").pop() || ""
-                  ).toLowerCase()}
-                  file={importState.file}
                   initialData={importState.parsedData}
                   isImporting={isImporting}
                   name={importState.file.name}

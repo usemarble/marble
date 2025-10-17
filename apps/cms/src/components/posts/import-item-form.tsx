@@ -6,7 +6,6 @@ import { DialogClose } from "@marble/ui/components/dialog";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { CheckIcon } from "@phosphor-icons/react";
-import matter from "gray-matter";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { CategorySelector } from "@/components/editor/fields/category-selector";
@@ -22,9 +21,7 @@ import {
 } from "@/lib/validations/post";
 
 type ImportItemFormProps = {
-  file: File;
   name: string;
-  ext: string;
   initialData: Partial<PostValues>;
   onImport: (payload: PostImportValues) => void;
   isImporting: boolean;
@@ -42,7 +39,6 @@ function isFormValid(values: Partial<PostValues>): boolean {
 }
 
 export function ImportItemForm({
-  file,
   name,
   initialData,
   onImport,
@@ -58,8 +54,8 @@ export function ImportItemForm({
       publishedAt: initialData.publishedAt || new Date(),
       category: initialData.category || "",
       // Provide placeholders to satisfy schema-only fields not shown in this import form
-      authors: [],
-      content: "placeholder",
+      authors: ["placeholder"],
+      content: initialData.content || "",
       contentJson: "placeholder content json",
     },
     mode: "onChange",
@@ -78,9 +74,7 @@ export function ImportItemForm({
 
   async function onSubmit(values: PostValues) {
     try {
-      const raw = await file.text();
-      const parsed = matter(raw);
-      const markdown = parsed.content || "";
+      const markdown = values.content;
 
       if (!markdown || markdown.trim().length === 0) {
         throw new Error("No content found to import");
