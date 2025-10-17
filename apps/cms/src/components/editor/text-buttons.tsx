@@ -1,30 +1,31 @@
 import { Button } from "@marble/ui/components/button";
 import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
 } from "@marble/ui/components/popover";
 import { Separator } from "@marble/ui/components/separator";
 import { cn } from "@marble/ui/lib/utils";
 import {
-	TextBIcon as Bold,
-	type Icon,
-	TextItalicIcon as Italic,
-	TextStrikethroughIcon as StrikethroughIcon,
-	TextAlignCenterIcon,
-	TextAlignJustifyIcon,
-	TextAlignLeftIcon,
-	TextAlignRightIcon,
-	TextUnderlineIcon as UnderlineIcon,
-	CodeIcon,
-	FileCodeIcon,
-	TextSubscriptIcon,
-	TextSuperscriptIcon,
-	HighlighterIcon,
-	PaletteIcon,
+  TextBIcon as Bold,
+  CodeIcon,
+  FileCodeIcon,
+  HighlighterIcon,
+  type Icon,
+  TextItalicIcon as Italic,
+  PaletteIcon,
+  TextStrikethroughIcon as StrikethroughIcon,
+  TextAlignCenterIcon,
+  TextAlignJustifyIcon,
+  TextAlignLeftIcon,
+  TextAlignRightIcon,
+  TextSubscriptIcon,
+  TextSuperscriptIcon,
+  TextUnderlineIcon as UnderlineIcon,
 } from "@phosphor-icons/react";
 import type { Editor } from "@tiptap/core";
 import { useCurrentEditor } from "@tiptap/react";
+import { memo, useMemo } from "react";
 import { ColorPicker } from "./color-picker";
 
 export type SelectorItem = {
@@ -34,90 +35,91 @@ export type SelectorItem = {
   isActive: (editor: Editor) => boolean;
 };
 
-export const TextButtons = () => {
+// Define items array outside component to avoid recreation on every render
+const FORMATTING_ITEMS: SelectorItem[] = [
+  {
+    name: "bold",
+    isActive: (editor) => editor.isActive("bold"),
+    command: (editor) => editor.chain().focus().toggleBold().run(),
+    icon: Bold,
+  },
+  {
+    name: "italic",
+    isActive: (editor) => editor.isActive("italic"),
+    command: (editor) => editor.chain().focus().toggleItalic().run(),
+    icon: Italic,
+  },
+  {
+    name: "underline",
+    isActive: (editor) => editor.isActive("underline"),
+    command: (editor) => editor.chain().focus().toggleUnderline().run(),
+    icon: UnderlineIcon,
+  },
+  {
+    name: "strike",
+    isActive: (editor) => editor.isActive("strike"),
+    command: (editor) => editor.chain().focus().toggleStrike().run(),
+    icon: StrikethroughIcon,
+  },
+  {
+    name: "code",
+    isActive: (editor) => editor.isActive("code"),
+    command: (editor) => editor.chain().focus().toggleCode().run(),
+    icon: CodeIcon,
+  },
+  {
+    name: "codeBlock",
+    isActive: (editor) => editor.isActive("codeBlock"),
+    command: (editor) => editor.chain().focus().toggleCodeBlock().run(),
+    icon: FileCodeIcon,
+  },
+  {
+    name: "subscript",
+    isActive: (editor) => editor.isActive("subscript"),
+    command: (editor) => editor.chain().focus().toggleSubscript().run(),
+    icon: TextSubscriptIcon,
+  },
+  {
+    name: "superscript",
+    isActive: (editor) => editor.isActive("superscript"),
+    command: (editor) => editor.chain().focus().toggleSuperscript().run(),
+    icon: TextSuperscriptIcon,
+  },
+  {
+    name: "alignLeft",
+    isActive: (editor) => editor.isActive({ textAlign: "left" }),
+    command: (editor) => editor.chain().focus().setTextAlign("left").run(),
+    icon: TextAlignLeftIcon,
+  },
+  {
+    name: "alignRight",
+    isActive: (editor) => editor.isActive({ textAlign: "right" }),
+    command: (editor) => editor.chain().focus().setTextAlign("right").run(),
+    icon: TextAlignRightIcon,
+  },
+  {
+    name: "alignCenter",
+    isActive: (editor) => editor.isActive({ textAlign: "center" }),
+    command: (editor) => editor.chain().focus().setTextAlign("center").run(),
+    icon: TextAlignCenterIcon,
+  },
+  {
+    name: "justify",
+    isActive: (editor) => editor.isActive({ textAlign: "justify" }),
+    command: (editor) => editor.chain().focus().setTextAlign("justify").run(),
+    icon: TextAlignJustifyIcon,
+  },
+];
+
+const TextButtonsComponent = () => {
   const { editor } = useCurrentEditor();
   if (!editor) {
     return null;
   }
 
-  const items: SelectorItem[] = [
-    {
-      name: "bold",
-      isActive: (editor) => editor.isActive("bold"),
-      command: (editor) => editor.chain().focus().toggleBold().run(),
-      icon: Bold,
-    },
-    {
-      name: "italic",
-      isActive: (editor) => editor.isActive("italic"),
-      command: (editor) => editor.chain().focus().toggleItalic().run(),
-      icon: Italic,
-    },
-    {
-      name: "underline",
-      isActive: (editor) => editor.isActive("underline"),
-      command: (editor) => editor.chain().focus().toggleUnderline().run(),
-      icon: UnderlineIcon,
-    },
-    {
-      name: "strike",
-      isActive: (editor) => editor.isActive("strike"),
-      command: (editor) => editor.chain().focus().toggleStrike().run(),
-      icon: StrikethroughIcon,
-    },
-    {
-      name: "code",
-      isActive: (editor) => editor.isActive("code"),
-      command: (editor) => editor.chain().focus().toggleCode().run(),
-      icon: CodeIcon,
-    },
-    {
-      name: "codeBlock",
-      isActive: (editor) => editor.isActive("codeBlock"),
-      command: (editor) => editor.chain().focus().toggleCodeBlock().run(),
-      icon: FileCodeIcon,
-    },
-    {
-      name: "subscript",
-      isActive: (editor) => editor.isActive("subscript"),
-      command: (editor) => editor.chain().focus().toggleSubscript().run(),
-      icon: TextSubscriptIcon,
-    },
-    {
-      name: "superscript",
-      isActive: (editor) => editor.isActive("superscript"),
-      command: (editor) => editor.chain().focus().toggleSuperscript().run(),
-      icon: TextSuperscriptIcon,
-    },
-    {
-      name: "alignLeft",
-      isActive: (editor) => editor.isActive({ textAlign: "left" }),
-      command: (editor) => editor.chain().focus().setTextAlign("left").run(),
-      icon: TextAlignLeftIcon,
-    },
-    {
-      name: "alignRight",
-      isActive: (editor) => editor.isActive({ textAlign: "right" }),
-      command: (editor) => editor.chain().focus().setTextAlign("right").run(),
-      icon: TextAlignRightIcon,
-    },
-    {
-      name: "alignCenter",
-      isActive: (editor) => editor.isActive({ textAlign: "center" }),
-      command: (editor) => editor.chain().focus().setTextAlign("center").run(),
-      icon: TextAlignCenterIcon,
-    },
-    {
-      name: "justify",
-      isActive: (editor) => editor.isActive({ textAlign: "justify" }),
-      command: (editor) => editor.chain().focus().setTextAlign("justify").run(),
-      icon: TextAlignJustifyIcon,
-    },
-  ];
-
   return (
     <div className="flex flex-wrap items-center gap-0.5">
-      {items.slice(0, 6).map((item) => (
+      {FORMATTING_ITEMS.slice(0, 6).map((item) => (
         <Button
           key={item.name}
           onClick={() => item.command(editor)}
@@ -133,18 +135,18 @@ export const TextButtons = () => {
         </Button>
       ))}
 
-      <Separator orientation="vertical" className="mx-1 h-6" />
+      <Separator className="mx-1 h-6" orientation="vertical" />
 
       {/* Text Color */}
       <Popover>
         <PopoverTrigger asChild>
           <Button
-            size="icon"
-            type="button"
-            variant="ghost"
             className={cn({
               "text-emerald-500": editor.getAttributes("textStyle").color,
             })}
+            size="icon"
+            type="button"
+            variant="ghost"
           >
             <PaletteIcon className="size-4" />
           </Button>
@@ -162,12 +164,12 @@ export const TextButtons = () => {
       <Popover>
         <PopoverTrigger asChild>
           <Button
-            size="icon"
-            type="button"
-            variant="ghost"
             className={cn({
               "text-emerald-500": editor.isActive("highlight"),
             })}
+            size="icon"
+            type="button"
+            variant="ghost"
           >
             <HighlighterIcon className="size-4" />
           </Button>
@@ -183,10 +185,10 @@ export const TextButtons = () => {
         </PopoverContent>
       </Popover>
 
-      <Separator orientation="vertical" className="mx-1 h-6" />
+      <Separator className="mx-1 h-6" orientation="vertical" />
 
       {/* Subscript & Superscript */}
-      {items.slice(6, 8).map((item) => (
+      {FORMATTING_ITEMS.slice(6, 8).map((item) => (
         <Button
           key={item.name}
           onClick={() => item.command(editor)}
@@ -202,10 +204,10 @@ export const TextButtons = () => {
         </Button>
       ))}
 
-      <Separator orientation="vertical" className="mx-1 h-6" />
+      <Separator className="mx-1 h-6" orientation="vertical" />
 
       {/* Alignment buttons */}
-      {items.slice(8).map((item) => (
+      {FORMATTING_ITEMS.slice(8).map((item) => (
         <Button
           key={item.name}
           onClick={() => item.command(editor)}
@@ -223,3 +225,6 @@ export const TextButtons = () => {
     </div>
   );
 };
+
+// Memoize component to prevent unnecessary rerenders
+export const TextButtons = memo(TextButtonsComponent);

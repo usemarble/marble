@@ -14,9 +14,9 @@ import { CharacterCount, Placeholder } from "@tiptap/extensions";
 import { StarterKit } from "@tiptap/starter-kit";
 import { cx } from "class-variance-authority";
 import { common, createLowlight } from "lowlight";
-import { SlashCommand } from "./slash-command";
 import { ImageUpload } from "./extensions/image-upload";
 import { YouTubeUpload } from "./extensions/youtube-upload";
+import { SlashCommand } from "./slash-command";
 
 // You can overwrite the placeholder with your own configuration
 const placeholder = Placeholder.configure({

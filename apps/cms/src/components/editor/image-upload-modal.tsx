@@ -18,8 +18,8 @@ import {
 } from "@marble/ui/components/tabs";
 import { ImagesIcon, SpinnerIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCurrentEditor } from "@tiptap/react";
 import type { Editor } from "@tiptap/core";
+import { useCurrentEditor } from "@tiptap/react";
 import { useState } from "react";
 import { ImageDropzone } from "@/components/shared/dropzone";
 import { AsyncButton } from "@/components/ui/async-button";
@@ -34,7 +34,11 @@ type ImageUploadModalProps = {
   editor?: Editor | null;
 };
 
-export function ImageUploadModal({ isOpen, setIsOpen, editor: editorProp }: ImageUploadModalProps) {
+export function ImageUploadModal({
+  isOpen,
+  setIsOpen,
+  editor: editorProp,
+}: ImageUploadModalProps) {
   const [embedUrl, setEmbedUrl] = useState("");
   const [file, setFile] = useState<File | undefined>();
   const [isValidatingUrl, setIsValidatingUrl] = useState(false);

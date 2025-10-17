@@ -19,7 +19,7 @@ import { SpinnerIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import type { Editor } from "@tiptap/core";
 import { parseAsStringLiteral, useQueryState } from "nuqs";
-import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { lazy, memo, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import type { Control, FieldErrors, UseFormWatch } from "react-hook-form";
 import { useDebounce } from "@/hooks/use-debounce";
 import { fetchAiReadabilitySuggestionsObject } from "@/lib/ai/readability";
@@ -61,7 +61,7 @@ type EditorSidebarProps = React.ComponentProps<typeof Sidebar> & {
   editor?: Editor | null;
 };
 
-export function EditorSidebar({
+function EditorSidebarComponent({
   control,
   errors,
   formRef,
@@ -81,23 +81,53 @@ export function EditorSidebar({
   const [editorText, setEditorText] = useState("");
   const [editorHTML, setEditorHTML] = useState("");
 
+  // Track content changes and idle callback for performance
+  const contentChangedRef = useRef(false);
+  const idleCallbackId = useRef<number | null>(null);
+
   useEffect(() => {
     if (!editor) {
       return;
     }
+
+    // Initial content
     setEditorText(editor.getText());
     setEditorHTML(editor.getHTML());
+
     const handler = () => {
-      const nextText = editor.getText();
-      const nextHTML = editor.getHTML();
-      setEditorText((prev) => (prev === nextText ? prev : nextText));
-      setEditorHTML((prev) => (prev === nextHTML ? prev : nextHTML));
+      // CRITICAL OPTIMIZATION: Don't serialize on every keystroke!
+      // Just mark that content changed and schedule update for idle time
+      contentChangedRef.current = true;
+
+      // Cancel previous idle callback if exists
+      if (idleCallbackId.current !== null) {
+        cancelIdleCallback(idleCallbackId.current);
+      }
+
+      // Schedule update when browser is idle
+      idleCallbackId.current = requestIdleCallback(
+        () => {
+          if (contentChangedRef.current && editor) {
+            const nextText = editor.getText();
+            const nextHTML = editor.getHTML();
+            setEditorText((prev) => (prev === nextText ? prev : nextText));
+            setEditorHTML((prev) => (prev === nextHTML ? prev : nextHTML));
+            contentChangedRef.current = false;
+          }
+        },
+        { timeout: 500 } // Longer timeout for sidebar (lower priority than main editor)
+      );
     };
+
     editor.on("update", handler);
     editor.on("create", handler);
+
     return () => {
       editor.off("update", handler);
       editor.off("create", handler);
+      if (idleCallbackId.current !== null) {
+        cancelIdleCallback(idleCallbackId.current);
+      }
     };
   }, [editor]);
 
@@ -313,3 +343,6 @@ export function EditorSidebar({
     </div>
   );
 }
+
+// Memoize to prevent context cascade rerenders
+export const EditorSidebar = memo(EditorSidebarComponent);

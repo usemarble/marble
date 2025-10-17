@@ -16,11 +16,11 @@ import {
 import { cn } from "@marble/ui/lib/utils";
 import { SidebarSimpleIcon, XIcon } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { Editor, JSONContent } from "@tiptap/core";
+import { EditorContent, EditorContext, useEditor } from "@tiptap/react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { EditorContent, EditorContext, useEditor } from "@tiptap/react";
-import type { Editor, JSONContent } from "@tiptap/core";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { BubbleMenu } from "@/components/editor/bubble-menu";
 import { EditorSidebar } from "@/components/editor/editor-sidebar";
@@ -135,30 +135,41 @@ function EditorPage({ initialData, id }: EditorPageProps) {
     initialDataRef.current = initialData;
   }, [initialData, form.reset]);
 
-  useEffect(() => {
-    const subscription = watch((currentValues) => {
-      const initial = initialDataRef.current;
-      // Ensure all relevant fields are stringified for comparison
-      const hasChanged =
-        JSON.stringify({
-          ...currentValues,
-          contentJson: currentValues.contentJson
-            ? JSON.parse(currentValues.contentJson)
-            : {},
-        }) !==
-        JSON.stringify({
-          ...initial,
-          contentJson: initial.contentJson
-            ? JSON.parse(initial.contentJson)
-            : {},
-        });
-      if (hasChanged) {
-        setHasUnsavedChanges(true);
+  // Debounced form update to reduce React Hook Form rerenders
+  const updateFormValues = useCallback(
+    (html: string, json: JSONContent) => {
+      if (html.length > 0) {
+        clearErrors("content");
       }
-    });
+      setValue("content", html);
+      setValue("contentJson", JSON.stringify(json));
+    },
+    [setValue, clearErrors]
+  );
 
-    return () => subscription.unsubscribe();
-  }, [watch, setHasUnsavedChanges]);
+  const debouncedUpdateFormValues = useMemo(() => {
+    let timeoutId: NodeJS.Timeout;
+    return (html: string, json: JSONContent) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        updateFormValues(html, json);
+      }, 150);
+    };
+  }, [updateFormValues]);
+
+  // Create stable onUpdate callback ref to avoid recreating editor
+  const onUpdateRef = useRef<
+    ((html: string, json: JSONContent) => void) | null
+  >(null);
+
+  useEffect(() => {
+    onUpdateRef.current = debouncedUpdateFormValues;
+  }, [debouncedUpdateFormValues]);
+
+  // Track content changes and idle callback for performance
+  const contentChangedRef = useRef(false);
+  const idleCallbackId = useRef<number | null>(null);
+  const editorRef = useRef<Editor | null>(null);
 
   const editor = useEditor({
     extensions: defaultExtensions,
@@ -170,17 +181,75 @@ function EditorPage({ initialData, id }: EditorPageProps) {
       },
     },
     onUpdate: ({ editor }) => {
-      const html = editor.getHTML();
-      const json = editor.getJSON();
-      if (html.length > 0) {
-        clearErrors("content");
+      // CRITICAL OPTIMIZATION: Don't serialize on every keystroke!
+      // Just mark that content changed and schedule serialization for idle time
+      contentChangedRef.current = true;
+      editorRef.current = editor;
+
+      // Cancel previous idle callback if exists
+      if (idleCallbackId.current !== null) {
+        cancelIdleCallback(idleCallbackId.current);
       }
-      setValue("content", html);
-      setValue("contentJson", JSON.stringify(json));
+
+      // Schedule serialization when browser is idle
+      idleCallbackId.current = requestIdleCallback(
+        () => {
+          if (contentChangedRef.current && editorRef.current) {
+            const html = editorRef.current.getHTML();
+            const json = editorRef.current.getJSON();
+            onUpdateRef.current?.(html, json);
+            contentChangedRef.current = false;
+          }
+        },
+        { timeout: 100 }
+      );
     },
     immediatelyRender: false,
-    shouldRerenderOnTransaction: true,
+    shouldRerenderOnTransaction: false,
   });
+
+  // Cleanup idle callback on unmount
+  useEffect(() => {
+    return () => {
+      if (idleCallbackId.current !== null) {
+        cancelIdleCallback(idleCallbackId.current);
+      }
+    };
+  }, []);
+
+  // Debounce unsaved changes check to reduce overhead
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    const subscription = watch((currentValues) => {
+      // Debounce the check to avoid running on every keystroke
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        const initial = initialDataRef.current;
+        // Simple field comparison first (faster than JSON operations)
+        const simpleFieldsChanged =
+          currentValues.title !== initial.title ||
+          currentValues.slug !== initial.slug ||
+          currentValues.status !== initial.status ||
+          currentValues.description !== initial.description;
+
+        if (simpleFieldsChanged) {
+          setHasUnsavedChanges(true);
+          return;
+        }
+
+        // Only do expensive content comparison if simple fields haven't changed
+        const contentChanged = currentValues.content !== initial.content;
+        if (contentChanged) {
+          setHasUnsavedChanges(true);
+        }
+      }, 300);
+    });
+
+    return () => {
+      clearTimeout(timeoutId);
+      subscription.unsubscribe();
+    };
+  }, [watch, setHasUnsavedChanges]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter") {
@@ -208,7 +277,16 @@ function EditorPage({ initialData, id }: EditorPageProps) {
     }
   }, [debouncedTitle, setValue, clearErrors, isUpdateMode]);
 
-  const editorContextValue = useMemo(() => ({ editor }), [editor]);
+  // CRITICAL: Store editor in ref that's already tracking it
+  // Create stable context value with getter pattern to prevent rerenders
+  const editorContextValue = useMemo(
+    () => ({
+      get editor() {
+        return editorRef.current;
+      },
+    }),
+    [] // Empty deps - never recreates, preventing context cascade
+  );
 
   return (
     <EditorContext.Provider value={editorContextValue}>
