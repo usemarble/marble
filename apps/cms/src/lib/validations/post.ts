@@ -18,9 +18,7 @@ export const postSchema = z.object({
   content: z.string(),
   contentJson: z.string().min(10),
   tags: z.array(z.string().min(1)).optional(),
-  authors: z
-    .array(z.string().min(1))
-    .min(1, { message: "An author is required" }),
+  authors: z.array(z.string().min(1)).optional(),
   category: z.string().min(1, { message: "Category is required" }),
   status: z.enum(["published", "draft"]),
   publishedAt: z.coerce.date(),

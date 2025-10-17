@@ -184,7 +184,6 @@ export async function PATCH(
         tags: values.data.tags
           ? { set: uniqueTagIds.map((id) => ({ id })) }
           : undefined,
-        primaryAuthorId: primaryAuthor.id,
         authors: {
           set: validAuthors.map((author) => ({ id: author.id })),
         },

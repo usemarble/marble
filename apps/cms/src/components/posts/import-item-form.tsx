@@ -54,7 +54,7 @@ export function ImportItemForm({
       publishedAt: initialData.publishedAt || new Date(),
       category: initialData.category || "",
       // Provide placeholders to satisfy schema-only fields not shown in this import form
-      authors: ["placeholder"],
+      authors: [],
       content: initialData.content || "",
       contentJson: "placeholder content json",
     },
