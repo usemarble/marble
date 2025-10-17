@@ -139,6 +139,7 @@ posts.get("/", async (c) => {
             id: true,
             name: true,
             slug: true,
+            description: true,
           },
         },
         tags: {
@@ -146,6 +147,7 @@ posts.get("/", async (c) => {
             id: true,
             name: true,
             slug: true,
+            description: true,
           },
         },
       },
@@ -239,6 +241,7 @@ posts.get("/:identifier", async (c) => {
             id: true,
             name: true,
             slug: true,
+            description: true,
           },
         },
         tags: {
@@ -246,6 +249,7 @@ posts.get("/:identifier", async (c) => {
             id: true,
             name: true,
             slug: true,
+            description: true,
           },
         },
       },
