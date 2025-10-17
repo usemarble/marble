@@ -34,12 +34,10 @@ const page = defineCollection({
 
 const changelog = defineCollection({
   loader: async () => {
-    const posts = await fetchPosts("?category=updates");
+    const posts = await fetchPosts("?category=changelog");
 
     return posts.map((post) => ({
       ...post,
-      // Astro uses the id as a key to get the entry
-      // We can't know the id of the post so we use the slug
       id: post.slug,
     }));
   },
@@ -52,8 +50,6 @@ const categories = defineCollection({
 
     return categories.map((category) => ({
       ...category,
-      // Astro uses the id as a key to get the entry
-      // We can't know the id of the post so we use the slug
       id: category.slug,
     }));
   },

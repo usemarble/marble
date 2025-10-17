@@ -1,5 +1,14 @@
 import { z } from "astro:content";
 
+export const paginationSchema = z.object({
+  limit: z.number(),
+  currentPage: z.number(),
+  nextPage: z.number().nullable(),
+  previousPage: z.number().nullable(),
+  totalPages: z.number(),
+  totalItems: z.number(),
+});
+
 // Main Post schema for single post retrieval (full data)
 export const postSchema = z.object({
   id: z.string(),
@@ -83,18 +92,19 @@ export const categorySchema = z.object({
   name: z.string(),
   slug: z.string(),
   description: z.string().nullable(),
-  posts: z
-    .object({
-      data: z.array(categoryPostSchema),
-      pagination: z.object({
-        limit: z.number(),
-        currentPage: z.number(),
-        nextPage: z.number().nullable(),
-        previousPage: z.number().nullable(),
-        totalPages: z.number(),
-        totalItems: z.number(),
-      }),
-    })
-    .optional(),
+  count: z.number(),
 });
 export type Category = z.infer<typeof categorySchema>;
+
+export const categoryDetailSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  slug: z.string(),
+  description: z.string().nullable(),
+  count: z.number(),
+  posts: z.object({
+    data: z.array(postSchema),
+    pagination: paginationSchema,
+  }),
+});
+export type CategoryDetails = z.infer<typeof categoryDetailSchema>;
