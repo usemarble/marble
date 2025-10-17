@@ -38,7 +38,7 @@ export function PublishDateField({ control }: PublishDateFieldProps) {
         <PopoverTrigger asChild>
           <Button
             className={cn(
-              "justify-between bg-editor-field text-left font-normal shadow-none",
+              "justify-between bg-editor-field text-left font-normal shadow-none active:scale-100",
               !value && "text-muted-foreground"
             )}
             variant="outline"

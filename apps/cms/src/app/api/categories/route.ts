@@ -42,6 +42,17 @@ export async function POST(req: Request) {
     );
   }
 
+  const existingCategory = await db.category.findFirst({
+    where: {
+      slug: body.data.slug,
+      workspaceId,
+    },
+  });
+
+  if (existingCategory) {
+    return NextResponse.json({ error: "Slug already in use" }, { status: 409 });
+  }
+
   const categoryCreated = await db.category.create({
     data: {
       name: body.data.name,

@@ -36,6 +36,17 @@ export async function POST(req: Request) {
   const json = await req.json();
   const body = tagSchema.parse(json);
 
+  const existingTag = await db.tag.findFirst({
+    where: {
+      slug: body.slug,
+      workspaceId,
+    },
+  });
+
+  if (existingTag) {
+    return NextResponse.json({ error: "Slug already in use" }, { status: 409 });
+  }
+
   const tagCreated = await db.tag.create({
     data: {
       name: body.name,

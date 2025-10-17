@@ -29,6 +29,18 @@ export async function PATCH(
     return NextResponse.json({ error: "Tag not found" }, { status: 404 });
   }
 
+  const existingTagWithSlug = await db.tag.findFirst({
+    where: {
+      slug: body.slug,
+      workspaceId,
+      id: { not: id },
+    },
+  });
+
+  if (existingTagWithSlug) {
+    return NextResponse.json({ error: "Slug already in use" }, { status: 409 });
+  }
+
   const tagUpdated = await db.tag.update({
     where: { id },
     data: {

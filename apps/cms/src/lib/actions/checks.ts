@@ -170,3 +170,22 @@ export async function checkWorkspaceSlug(
 
   return !!workspace; // Return true if slug is in use (workspace found)
 }
+
+export async function checkPostSlugAvailable(
+  slug: string,
+  workspaceId: string | null
+) {
+  const session = await getServerSession();
+  if (!session?.user) {
+    throw new Error("Unauthorized");
+  }
+  if (!workspaceId) {
+    throw new Error("Workspace ID is required");
+  }
+  const post = await db.post.findFirst({
+    where: { workspaceId, slug: { equals: slug, mode: "insensitive" } },
+    select: { id: true },
+  });
+
+  return !post;
+}

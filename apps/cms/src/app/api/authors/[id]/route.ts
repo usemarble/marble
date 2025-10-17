@@ -91,6 +91,21 @@ export async function PATCH(
       return NextResponse.json({ error: "Author not found" }, { status: 404 });
     }
 
+    const existingAuthorWithSlug = await db.author.findFirst({
+      where: {
+        slug,
+        workspaceId,
+        id: { not: id },
+      },
+    });
+
+    if (existingAuthorWithSlug) {
+      return NextResponse.json(
+        { error: "Slug already in use" },
+        { status: 409 }
+      );
+    }
+
     const updatedAuthor = await db.author.update({
       where: {
         id,

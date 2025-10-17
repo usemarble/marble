@@ -76,7 +76,12 @@ export const suggestionItems = createSuggestionItems([
     searchTerms: ["unordered", "point"],
     icon: <ListIcon size={16} />,
     command: ({ editor, range }) => {
-      editor.chain().focus().deleteRange(range).toggleBulletList().run();
+      editor
+        .chain()
+        .focus()
+        .deleteRange(range)
+        .toggleList("bulletList", "listItem")
+        .run();
     },
   },
   {
@@ -85,7 +90,12 @@ export const suggestionItems = createSuggestionItems([
     searchTerms: ["ordered"],
     icon: <ListNumbersIcon size={16} />,
     command: ({ editor, range }) => {
-      editor.chain().focus().deleteRange(range).toggleOrderedList().run();
+      editor
+        .chain()
+        .focus()
+        .deleteRange(range)
+        .toggleList("orderedList", "listItem")
+        .run();
     },
   },
   {
@@ -99,7 +109,7 @@ export const suggestionItems = createSuggestionItems([
         .focus()
         .deleteRange(range)
         .toggleNode("paragraph", "paragraph")
-        .toggleBlockquote()
+        .toggleNode("blockquote", "blockquote")
         .run(),
   },
   {
@@ -121,7 +131,12 @@ export const suggestionItems = createSuggestionItems([
     searchTerms: ["todo", "task", "list", "check", "checkbox"],
     icon: <CheckSquareIcon size={16} />,
     command: ({ editor, range }) => {
-      editor.chain().focus().deleteRange(range).toggleTaskList().run();
+      editor
+        .chain()
+        .focus()
+        .deleteRange(range)
+        .toggleList("taskList", "listItem")
+        .run();
     },
   },
   {

@@ -97,11 +97,12 @@ function EditorPage({ initialData, id }: EditorPageProps) {
       fetch("/api/posts", {
         method: "POST",
         body: JSON.stringify(values),
-      }).then((res) => {
+      }).then(async (res) => {
         if (!res.ok) {
-          throw new Error("Failed to create post");
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || "Failed to create post");
         }
-        return res.json();
+        return await res.json();
       }),
     onSuccess: (data) => {
       toast.success("Post created");
@@ -113,8 +114,8 @@ function EditorPage({ initialData, id }: EditorPageProps) {
       }
       setHasUnsavedChanges(false);
     },
-    onError: () => {
-      toast.error("Something went wrong.");
+    onError: (error) => {
+      toast.error(error.message);
     },
   });
 
@@ -123,6 +124,12 @@ function EditorPage({ initialData, id }: EditorPageProps) {
       fetch(`/api/posts/${id}`, {
         method: "PATCH",
         body: JSON.stringify(values),
+      }).then(async (res) => {
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || "Failed to update post");
+        }
+        return res;
       }),
     onSuccess: async (_data, variables) => {
       toast.success("Post updated");
@@ -139,8 +146,8 @@ function EditorPage({ initialData, id }: EditorPageProps) {
       form.reset({ ...variables });
       setHasUnsavedChanges(false);
     },
-    onError: () => {
-      toast.error("Something went wrong.");
+    onError: (error) => {
+      toast.error(error.message);
     },
   });
 
@@ -287,18 +294,25 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                     },
                   }}
                   extensions={[
+                    // @ts-expect-error
                     ...defaultExtensions,
+                    // @ts-expect-error
                     slashCommand,
+                    // @ts-expect-error
                     CharacterCount,
                   ]}
                   immediatelyRender={false}
                   initialContent={JSON.parse(watch("contentJson") || "{}")}
                   onCreate={({ editor }) => {
+                    // @ts-expect-error
                     editorRef.current = editor;
+                    // @ts-expect-error
                     setEditorInstance(editor);
                   }}
                   onUpdate={({ editor }) => {
+                    // @ts-expect-error
                     editorRef.current = editor;
+                    // @ts-expect-error
                     setEditorInstance(editor);
                     const html = editor.getHTML();
                     const json = editor.getJSON();
