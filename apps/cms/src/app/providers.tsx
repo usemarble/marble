@@ -13,17 +13,14 @@ import { useSession } from "@/lib/auth/client";
 export default function Providers({ children }: { children: React.ReactNode }) {
   const { data, isPending } = useSession();
 
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            staleTime: 60 * 1000,
-            gcTime: 1000 * 60 * 60, // 1 hour
-          },
-        },
-      })
-  );
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 60 * 1000,
+        gcTime: 1000 * 60 * 60, // 1 hour
+      },
+    },
+  });
 
   return (
     <QueryClientProvider client={queryClient}>
