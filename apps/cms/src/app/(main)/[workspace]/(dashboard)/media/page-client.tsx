@@ -48,8 +48,11 @@ function PageClient() {
     fetchNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery({
-    // biome-ignore lint/style/noNonNullAssertion: <>
-    queryKey: [QUERY_KEYS.MEDIA(workspaceId!), { type: normalizedType, sort }],
+    queryKey: [
+      // biome-ignore lint/style/noNonNullAssertion: <>
+      ...QUERY_KEYS.MEDIA(workspaceId!),
+      { type: normalizedType, sort },
+    ],
     queryFn: async ({ pageParam }: { pageParam?: string }) => {
       try {
         const params = new URLSearchParams();
@@ -90,7 +93,7 @@ function PageClient() {
 
   const mediaQueryKey: MediaQueryKey = [
     // biome-ignore lint/style/noNonNullAssertion: <>
-    QUERY_KEYS.MEDIA(workspaceId!),
+    ...QUERY_KEYS.MEDIA(workspaceId!),
     { type: normalizedType, sort },
   ];
 
