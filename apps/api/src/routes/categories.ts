@@ -146,6 +146,15 @@ categories.get("/:identifier", async (c) => {
         name: true,
         slug: true,
         description: true,
+        _count: {
+          select: {
+            posts: {
+              where: {
+                status: "published",
+              },
+            },
+          },
+        },
       },
     });
 
