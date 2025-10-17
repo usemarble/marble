@@ -146,6 +146,15 @@ categories.get("/:identifier", async (c) => {
         name: true,
         slug: true,
         description: true,
+        _count: {
+          select: {
+            posts: {
+              where: {
+                status: "published",
+              },
+            },
+          },
+        },
       },
     });
 
@@ -179,6 +188,13 @@ categories.get("/:identifier", async (c) => {
         400
       );
     }
+
+    // Transform _count to count
+    const { _count, ...rest } = category;
+    const transformedCategory = {
+      ...rest,
+      count: _count,
+    };
 
     if (include.includes("posts")) {
       const posts = await db.post.findMany({
@@ -226,7 +242,7 @@ categories.get("/:identifier", async (c) => {
       });
 
       return c.json({
-        ...category,
+        ...transformedCategory,
         posts: {
           data: posts,
           pagination: {
@@ -241,7 +257,7 @@ categories.get("/:identifier", async (c) => {
       });
     }
 
-    return c.json(category);
+    return c.json(transformedCategory);
   } catch (error) {
     console.error("Error fetching category:", error);
     return c.json({ error: "Failed to fetch category" }, 500);

@@ -9,11 +9,15 @@
     "baseColor": "zinc",
     "cssVariables": true
   },
+  "iconLibrary": "phosphor",
   "aliases": {
     "components": "@marble/ui/components",
     "utils": "@marble/ui/lib/utils",
     "ui": "@marble/ui/components",
-    "hooks": "@marble/ui/hooks",
-    "lib": "@marble/ui/lib"
+    "lib": "@marble/ui/lib",
+    "hooks": "@marble/ui/hooks"
+  },
+  "registries": {
+    "@kibo-ui": "https://www.kibo-ui.com/r/{name}.json"
   }
 }

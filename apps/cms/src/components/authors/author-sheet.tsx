@@ -22,21 +22,17 @@ import { toast } from "@marble/ui/components/sonner";
 import { Textarea } from "@marble/ui/components/textarea";
 import { cn } from "@marble/ui/lib/utils";
 import {
+  CircleNotchIcon,
   ImageIcon,
   PlusIcon,
   UploadSimpleIcon,
   XIcon,
 } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import {
-  checkAuthorSlugAction,
-  checkAuthorSlugForUpdateAction,
-} from "@/lib/actions/checks";
 import { uploadFile } from "@/lib/media/upload";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import {
@@ -81,7 +77,6 @@ export const AuthorSheet = ({
     setValue,
     watch,
     control,
-    setError,
     reset,
     clearErrors,
     formState: { errors, isSubmitting, isDirty },
@@ -136,17 +131,27 @@ export const AuthorSheet = ({
     },
   });
 
-  const { mutate: createAuthor } = useMutation({
-    mutationFn: (data: CreateAuthorValues) =>
-      fetch("/api/authors", {
-        method: "POST",
-        body: JSON.stringify(data),
-      }).then((res) => {
+  const { mutate: createAuthor, isPending: isCreating } = useMutation({
+    mutationFn: async (data: CreateAuthorValues) => {
+      try {
+        const res = await fetch("/api/authors", {
+          method: "POST",
+          body: JSON.stringify(data),
+        });
+
         if (!res.ok) {
-          throw new Error("Failed to create author");
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || "Failed to create author");
         }
-        return res.json();
-      }),
+
+        const responseData = await res.json();
+        return responseData;
+      } catch (error) {
+        throw new Error(
+          error instanceof Error ? error.message : "Failed to create author"
+        );
+      }
+    },
     onSuccess: (data) => {
       setOpen(false);
       toast.success("Author created successfully");
@@ -165,17 +170,27 @@ export const AuthorSheet = ({
     },
   });
 
-  const { mutate: updateAuthor } = useMutation({
-    mutationFn: (data: CreateAuthorValues) =>
-      fetch(`/api/authors/${authorData.id}`, {
-        method: "PATCH",
-        body: JSON.stringify(data),
-      }).then((res) => {
+  const { mutate: updateAuthor, isPending: isUpdating } = useMutation({
+    mutationFn: async (data: CreateAuthorValues) => {
+      try {
+        const res = await fetch(`/api/authors/${authorData.id}`, {
+          method: "PATCH",
+          body: JSON.stringify(data),
+        });
+
         if (!res.ok) {
-          throw new Error("Failed to update author");
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || "Failed to update author");
         }
-        return res.json();
-      }),
+
+        const responseData = await res.json();
+        return responseData;
+      } catch (error) {
+        throw new Error(
+          error instanceof Error ? error.message : "Failed to update author"
+        );
+      }
+    },
     onSuccess: () => {
       setOpen(false);
       toast.success("Author updated successfully");
@@ -225,22 +240,6 @@ export const AuthorSheet = ({
 
     if (mode === "update" && !authorData.id) {
       toast.error("Author ID is missing - cannot update author");
-      return;
-    }
-
-    const isTaken =
-      mode === "create"
-        ? await checkAuthorSlugAction(data.slug, workspaceId)
-        : await checkAuthorSlugForUpdateAction(
-            data.slug,
-            workspaceId,
-            authorData.id as string
-          );
-
-    if (isTaken) {
-      setError("slug", {
-        message: "You already have an author with that slug",
-      });
       return;
     }
 
@@ -315,7 +314,7 @@ export const AuthorSheet = ({
                       )}
                     >
                       {isUploading ? (
-                        <Loader2 className="size-4 animate-spin text-white" />
+                        <CircleNotchIcon className="size-4 animate-spin text-white" />
                       ) : (
                         <UploadSimpleIcon className="size-4 text-white" />
                       )}
@@ -468,7 +467,7 @@ export const AuthorSheet = ({
             <AsyncButton
               className="flex w-full gap-2"
               disabled={(mode === "update" && !isDirty) || isUploading}
-              isLoading={isSubmitting}
+              isLoading={isSubmitting || isCreating || isUpdating}
               type="submit"
             >
               {mode === "create" ? "Create Author" : "Update Author"}

@@ -15,7 +15,12 @@ import {
   CardTitle,
 } from "@marble/ui/components/card";
 import { cn } from "@marble/ui/lib/utils";
-import { CheckIcon, Loader2, Undo, XIcon } from "lucide-react";
+import {
+  ArrowArcLeftIcon,
+  CheckIcon,
+  CircleNotchIcon,
+  XIcon,
+} from "@phosphor-icons/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -194,7 +199,7 @@ function PageClient({ id, user }: PageClientProps) {
                     })}
                     href="/"
                   >
-                    <Undo className="size-4" />
+                    <ArrowArcLeftIcon className="size-4" />
                     <span>Back home</span>
                   </Link>
                 </div>
@@ -254,7 +259,7 @@ function InviteError() {
             })}
             href="/"
           >
-            <Undo className="size-4 text-muted-foreground" />
+            <ArrowArcLeftIcon className="size-4 text-muted-foreground" />
             <span>Back home</span>
           </Link>
         </div>
@@ -274,7 +279,7 @@ function InviteLoading() {
       </CardHeader>
       <CardContent>
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="size-5 animate-spin transition" />
+          <CircleNotchIcon className="size-5 animate-spin transition" />
           <p className="max-w-prose text-center text-muted-foreground">
             We're verifying your invite link. This might take a few seconds...
           </p>

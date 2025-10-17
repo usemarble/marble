@@ -56,6 +56,17 @@ export async function POST(request: Request) {
     );
   }
 
+  const existingPost = await db.post.findFirst({
+    where: {
+      slug: values.data.slug,
+      workspaceId: activeWorkspaceId,
+    },
+  });
+
+  if (existingPost) {
+    return NextResponse.json({ error: "Slug already in use" }, { status: 409 });
+  }
+
   const baseSlug = generateSlug(sessionData.user.name);
   const uniqueSlug = `${baseSlug}-${nanoid(6)}`;
   // Ensure there is an author profile for this user; create if missing using upsert
@@ -101,6 +112,22 @@ export async function POST(request: Request) {
   }
 
   const { uniqueTagIds } = tagValidation;
+
+  if (values.data.category) {
+    const category = await db.category.findFirst({
+      where: {
+        id: values.data.category,
+        workspaceId: activeWorkspaceId,
+      },
+    });
+
+    if (!category) {
+      return NextResponse.json(
+        { error: "Invalid category provided" },
+        { status: 400 }
+      );
+    }
+  }
 
   // Find all authors for the provided author IDs, this may or may not include the primary author
   // if the list of authors selected by the user doesnt include their own author profile

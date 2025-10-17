@@ -8,6 +8,7 @@
     "./tailwind.config": "./tailwind.config.ts",
     "./lib/*": "./src/lib/*.ts",
     "./components/*": "./src/components/*.tsx",
+    "./components/kibo-ui/*": "./src/components/kibo-ui/*/index.tsx",
     "./hooks/*": "./src/hooks/*.ts"
   },
   "scripts": {
@@ -43,8 +44,10 @@
     "input-otp": "^1.4.2",
     "lucide-react": "^0.452.0",
     "next-themes": "^0.4.4",
+    "radix-ui": "^1.4.3",
     "react": "19.0.0",
     "react-day-picker": "9.9.0",
+    "react-image-crop": "^11.0.10",
     "react-medium-image-zoom": "^5.3.0",
     "recharts": "2.15.4",
     "sonner": "^1.7.1",

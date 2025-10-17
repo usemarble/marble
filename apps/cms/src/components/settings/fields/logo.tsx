@@ -17,9 +17,12 @@ import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
-import { ImageIcon, UploadSimpleIcon } from "@phosphor-icons/react";
+import {
+  CircleNotchIcon,
+  ImageIcon,
+  UploadSimpleIcon,
+} from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
 import { useId, useState } from "react";
 import { CopyButton } from "@/components/ui/copy-button";
 import { organization } from "@/lib/auth/client";
@@ -144,7 +147,7 @@ export function Logo() {
                 )}
               >
                 {isUpdatingLogo ? (
-                  <Loader2 className="size-4 animate-spin" />
+                  <CircleNotchIcon className="size-4 animate-spin" />
                 ) : (
                   <UploadSimpleIcon className="size-4" />
                 )}

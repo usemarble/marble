@@ -5,7 +5,7 @@ import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { Separator } from "@marble/ui/components/separator";
 import { toast } from "@marble/ui/components/sonner";
-import { Loader2 } from "lucide-react";
+import { CircleNotchIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -118,7 +118,7 @@ function AccountForm({ name, email }: AccountFormProps) {
           className="flex w-20 items-center gap-2 self-end"
           disabled={!dataChanged || isSubmitting}
         >
-          {isSubmitting ? <Loader2 className="animate-spin" /> : "Save"}
+          {isSubmitting ? <CircleNotchIcon className="animate-spin" /> : "Save"}
         </Button>
       </section>
     </form>

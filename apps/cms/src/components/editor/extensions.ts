@@ -12,7 +12,7 @@ import {
   TiptapImage,
   TiptapLink,
   TiptapUnderline,
-  UpdatedImage,
+  // UpdatedImage,
   UploadImagesPlugin,
   Youtube,
 } from "novel";
@@ -120,8 +120,8 @@ const starterKit = StarterKit.configure({
 });
 
 export const defaultExtensions: Extension[] = [
-  starterKit,
-  placeholder,
+  starterKit as unknown as Extension,
+  placeholder as unknown as Extension,
   textAlign,
   CodeBlockLowlightEx as unknown as Extension,
   tiptapImage as unknown as Extension,

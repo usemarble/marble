@@ -22,9 +22,8 @@ import {
   SheetTrigger,
 } from "@marble/ui/components/sheet";
 import { toast } from "@marble/ui/components/sonner";
-import { BracketsCurlyIcon } from "@phosphor-icons/react";
+import { BracketsCurlyIcon, PlusIcon } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useId, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -173,7 +172,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
       <SheetTrigger asChild>
         {children || (
           <Button>
-            <Plus className="mr-2 size-4" />
+            <PlusIcon className="mr-2 size-4" />
             New Webhook
           </Button>
         )}

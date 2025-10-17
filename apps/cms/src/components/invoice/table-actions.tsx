@@ -5,8 +5,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
-import { Copy, DownloadSimple } from "@phosphor-icons/react";
-import { MoreHorizontal } from "lucide-react";
+import {
+  CopyIcon,
+  DotsThreeIcon,
+  DownloadSimpleIcon,
+} from "@phosphor-icons/react";
 import { toast } from "sonner";
 import type { Invoice } from "./columns";
 
@@ -21,7 +24,7 @@ export default function TableActions(props: Invoice) {
       <DropdownMenuTrigger asChild>
         <Button className="h-8 w-8 p-0" variant="ghost">
           <span className="sr-only">Open menu</span>
-          <MoreHorizontal className="h-4 w-4" />
+          <DotsThreeIcon className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="text-muted-foreground">
@@ -31,7 +34,7 @@ export default function TableActions(props: Invoice) {
             onClick={() => console.log("download invoice")}
             type="button"
           >
-            <DownloadSimple size={16} /> <span>Download Invoice</span>
+            <DownloadSimpleIcon size={16} /> <span>Download Invoice</span>
           </button>
         </DropdownMenuItem>
         <DropdownMenuItem>
@@ -40,7 +43,7 @@ export default function TableActions(props: Invoice) {
             onClick={() => handleCopyInvoiceId()}
             type="button"
           >
-            <Copy size={16} /> <span>Copy Invoice ID</span>
+            <CopyIcon size={16} /> <span>Copy Invoice ID</span>
           </button>
         </DropdownMenuItem>
       </DropdownMenuContent>
