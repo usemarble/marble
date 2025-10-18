@@ -21,6 +21,7 @@ export const postSchema = z.object({
   authors: z.array(z.string().min(1)).optional(),
   category: z.string().min(1, { message: "Category is required" }),
   status: z.enum(["published", "draft"]),
+  featured: z.boolean().default(false).optional(),
   publishedAt: z.coerce.date(),
   attribution: attributionSchema.nullable().optional(),
 });
@@ -50,6 +51,7 @@ export const postImportSchema = z.object({
   authors: z.array(z.string().min(1)).optional(),
   category: z.string().min(1, { message: "Category is required" }),
   status: z.enum(["published", "draft"]),
+  featured: z.boolean().default(false),
   publishedAt: z.coerce.date(),
   attribution: attributionSchema.nullable().optional(),
 });

@@ -11,6 +11,7 @@ export type Post = {
   id: string;
   title: string;
   status: "published" | "unpublished";
+  featured: boolean;
   publishedAt: Date;
   updatedAt: Date;
   authors: Array<{
@@ -44,6 +45,21 @@ export const columns: ColumnDef<Post>[] = [
           variant={status === "published" ? "positive" : "pending"}
         >
           {status === "published" ? "Published" : "Draft"}
+        </Badge>
+      );
+    },
+  },
+  {
+    accessorKey: "featured",
+    header: "Featured",
+    cell: ({ row }) => {
+      const featured = row.original.featured;
+      return (
+        <Badge
+          className="rounded-[6px]"
+          variant={featured ? "positive" : "neutral"}
+        >
+          {featured ? "Yes" : "No"}
         </Badge>
       );
     },
