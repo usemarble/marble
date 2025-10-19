@@ -11,6 +11,7 @@ export type Post = {
   id: string;
   title: string;
   status: "published" | "unpublished";
+  featured: boolean;
   publishedAt: Date;
   updatedAt: Date;
   authors: Array<{
