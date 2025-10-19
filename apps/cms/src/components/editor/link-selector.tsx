@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@marble/ui/components/button";
 import { Label } from "@marble/ui/components/label";
 import {
@@ -16,6 +18,7 @@ import { cn } from "@marble/ui/lib/utils";
 import { useCurrentEditor } from "@tiptap/react";
 import { Check, Link as LinkIcon, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useFloatingPortalContainer } from "@/components/editor/floating-portal-context";
 
 export function isValidUrl(url: string) {
   try {
@@ -49,6 +52,7 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
   const { editor } = useCurrentEditor();
   const [openInNewTab, setOpenInNewTab] = useState(true);
   const [inputValue, setInputValue] = useState("");
+  const portalContainer = useFloatingPortalContainer();
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -78,7 +82,12 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
           </TooltipContent>
         </Tooltip>
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-60 p-0" sideOffset={10}>
+      <PopoverContent
+        align="start"
+        className="w-60 p-0"
+        container={portalContainer}
+        sideOffset={10}
+      >
         {/** biome-ignore lint/a11y/noNoninteractiveElementInteractions: It's acting as a button */}
         {/** biome-ignore lint/a11y/noStaticElementInteractions: It's acting as a button */}
         <div

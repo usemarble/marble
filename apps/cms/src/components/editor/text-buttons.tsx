@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@marble/ui/components/button";
 import {
   Popover,
@@ -31,7 +33,9 @@ import {
   Underline,
 } from "lucide-react";
 import { memo } from "react";
+import { useFloatingPortalContainer } from "@/components/editor/floating-portal-context";
 import { ColorPicker } from "./color-picker";
+import { ContentTypePicker } from "./content-type-picker";
 
 export type SelectorItem = {
   name: string;
@@ -137,12 +141,21 @@ const ALIGNMENT: SelectorItem[] = [
 
 function TextButtonsComponent() {
   const { editor } = useCurrentEditor();
+  const portalContainer = useFloatingPortalContainer();
   if (!editor) {
     return null;
   }
 
   return (
     <div className="flex items-center gap-0.5">
+      {/* Content Type Picker */}
+      <ContentTypePicker />
+
+      <Separator
+        className="mx-1 h-full min-h-[1.5rem] w-[1px]"
+        orientation="vertical"
+      />
+
       {/* Basic formatting buttons */}
       {BASIC_FORMATTING.map((item) => (
         <Tooltip delayDuration={400} key={item.name}>
@@ -192,7 +205,11 @@ function TextButtonsComponent() {
             <p>Highlight text</p>
           </TooltipContent>
         </Tooltip>
-        <PopoverContent align="start" className="w-auto p-0">
+        <PopoverContent
+          align="start"
+          className="w-64 p-0"
+          container={portalContainer}
+        >
           <ColorPicker
             color={editor.getAttributes("highlight").color}
             onChange={(color) =>
@@ -225,7 +242,11 @@ function TextButtonsComponent() {
             <p>Text color</p>
           </TooltipContent>
         </Tooltip>
-        <PopoverContent align="start" className="w-auto p-0">
+        <PopoverContent
+          align="start"
+          className="w-64 p-0"
+          container={portalContainer}
+        >
           <ColorPicker
             color={editor.getAttributes("textStyle").color}
             onChange={(color) => editor.chain().focus().setColor(color).run()}
@@ -240,7 +261,7 @@ function TextButtonsComponent() {
       />
 
       {/* More Options */}
-      <Popover>
+      <Popover modal={false}>
         <Tooltip delayDuration={400}>
           <PopoverTrigger asChild>
             <TooltipTrigger asChild>
@@ -254,7 +275,8 @@ function TextButtonsComponent() {
           </TooltipContent>
         </Tooltip>
         <PopoverContent
-          className="inline-flex gap-0.5 rounded-lg border bg-background p-1 shadow-sm"
+          className="inline-flex w-fit items-center gap-0.5 rounded-lg border bg-background p-1 shadow-sm"
+          container={portalContainer}
           side="top"
         >
           {/* Subscript & Superscript */}

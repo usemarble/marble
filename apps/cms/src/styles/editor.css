@@ -1,3 +1,44 @@
+/* Color picker full width */
+.react-colorful {
+  width: 100% !important;
+}
+
+/* Slash command menu theme */
+[data-theme="slash-command"] {
+  width: 1000vw;
+}
+
+/* Slash command menu scrollbar - thin grey aesthetic */
+.slash-command-scrollbar::-webkit-scrollbar {
+  width: 4px !important;
+}
+
+.slash-command-scrollbar::-webkit-scrollbar-track {
+  background: hsl(var(--muted) / 0.3) !important;
+  border-radius: 2px !important;
+}
+
+.slash-command-scrollbar::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.5) !important;
+  border-radius: 2px !important;
+}
+
+.slash-command-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.7) !important;
+}
+
+.slash-command-scrollbar::-webkit-scrollbar-button {
+  display: none !important;
+  height: 0 !important;
+  width: 0 !important;
+}
+
+/* Firefox scrollbar */
+.slash-command-scrollbar {
+  scrollbar-width: thin !important;
+  scrollbar-color: hsl(var(--muted-foreground) / 0.5) hsl(var(--muted) / 0.3) !important;
+}
+
 .ProseMirror .is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   float: left;

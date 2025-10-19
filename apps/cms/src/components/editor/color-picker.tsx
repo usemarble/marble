@@ -56,19 +56,9 @@ export const ColorPicker = ({
           placeholder="#000000"
           value={hexInput}
         />
-        <Button
-          className="size-8 shrink-0"
-          onClick={onClear}
-          size="icon"
-          title="Reset color"
-          type="button"
-          variant="ghost"
-        >
-          <ArrowCounterClockwiseIcon className="size-4" />
-        </Button>
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex items-center gap-2">
         {PRESET_COLORS.map((presetColor) => (
           <button
             className="size-6 rounded border border-border transition-transform hover:scale-110"
@@ -79,6 +69,16 @@ export const ColorPicker = ({
             type="button"
           />
         ))}
+        <Button
+          className="size-8 shrink-0"
+          onClick={onClear}
+          size="icon"
+          title="Reset color"
+          type="button"
+          variant="ghost"
+        >
+          <ArrowCounterClockwiseIcon className="size-4" />
+        </Button>
       </div>
     </div>
   );

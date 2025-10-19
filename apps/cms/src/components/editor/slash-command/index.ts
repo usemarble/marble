@@ -13,8 +13,8 @@ import Suggestion, {
   type SuggestionKeyDownProps,
   type SuggestionProps,
 } from "@tiptap/suggestion";
-import { filterItems, slashCommandItems } from "./items";
-import { SlashCommandMenu } from "./menu";
+import { GROUPS } from "./groups";
+import { MenuList } from "./menu-list";
 
 const extensionName = "slashCommand";
 
@@ -33,11 +33,61 @@ export const SlashCommand = Extension.create({
         allowSpaces: true,
         startOfLine: false,
         pluginKey: new PluginKey(extensionName),
-        command: ({ editor, range, props }) => {
-          props.command({ editor, range });
+        command: ({ editor, props }) => {
+          const { view, state } = editor;
+          const { $head, $from } = view.state.selection;
+
+          const end = $from.pos;
+          const from = $head?.nodeBefore
+            ? end -
+              ($head.nodeBefore.text?.substring(
+                $head.nodeBefore.text?.indexOf("/")
+              ).length ?? 0)
+            : $from.start();
+
+          const tr = state.tr.deleteRange(from, end);
+          view.dispatch(tr);
+
+          props.action(editor);
+          view.focus();
         },
-        items: ({ query }) => {
-          return filterItems(slashCommandItems, query);
+        items: ({ query }: { query: string }) => {
+          const withFilteredCommands = GROUPS.map((group) => ({
+            ...group,
+            commands: group.commands
+              .filter((item) => {
+                const labelNormalized = item.label.toLowerCase().trim();
+                const queryNormalized = query.toLowerCase().trim();
+
+                if (item.aliases) {
+                  const aliases = item.aliases.map((alias) =>
+                    alias.toLowerCase().trim()
+                  );
+
+                  return (
+                    labelNormalized.includes(queryNormalized) ||
+                    aliases.includes(queryNormalized)
+                  );
+                }
+
+                return labelNormalized.includes(queryNormalized);
+              })
+              .filter((command) =>
+                command.shouldBeHidden
+                  ? !command.shouldBeHidden(this.editor)
+                  : true
+              ),
+          }));
+
+          const withoutEmptyGroups = withFilteredCommands.filter((group) => {
+            if (group.commands.length > 0) {
+              return true;
+            }
+
+            return false;
+          });
+
+          return withoutEmptyGroups;
         },
         render: () => {
           let component: ReactRenderer<
@@ -48,7 +98,7 @@ export const SlashCommand = Extension.create({
 
           return {
             onStart: (props: SuggestionProps) => {
-              component = new ReactRenderer(SlashCommandMenu, {
+              component = new ReactRenderer(MenuList, {
                 props,
                 editor: props.editor,
               });
