@@ -50,21 +50,6 @@ export const columns: ColumnDef<Post>[] = [
     },
   },
   {
-    accessorKey: "featured",
-    header: "Featured",
-    cell: ({ row }) => {
-      const featured = row.original.featured;
-      return (
-        <Badge
-          className="rounded-[6px]"
-          variant={featured ? "positive" : "neutral"}
-        >
-          {featured ? "Yes" : "No"}
-        </Badge>
-      );
-    },
-  },
-  {
     accessorKey: "publishedAt",
     header: ({ column }) => {
       return (
