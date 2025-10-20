@@ -201,4 +201,4 @@ export const MEDIA_TYPES = ["image", "video", "audio", "document"] as const;
 
 export const MEDIA_FILTER_TYPES = ["all", ...MEDIA_TYPES] as const;
 
-export const MEDIA_LIMIT = 12;
+export const MEDIA_LIMIT = 20;
