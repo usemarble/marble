@@ -12,9 +12,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
-import { PlusIcon, TrashIcon, UploadIcon, XIcon } from "@phosphor-icons/react";
+import { PlusIcon, TrashIcon, XIcon } from "@phosphor-icons/react";
 import type { MediaFilterType, MediaSort } from "@/types/media";
 import { isMediaFilterType, isMediaSort } from "@/utils/media";
+import { FileUploadInput } from "./file-upload-input";
 
 export function MediaControls({
   type,
@@ -22,6 +23,7 @@ export function MediaControls({
   sort,
   setSort,
   onUpload,
+  isUploading,
   selectedItems,
   onSelectAll,
   onDeselectAll,
@@ -32,7 +34,8 @@ export function MediaControls({
   setType: (value: MediaFilterType) => void;
   sort: MediaSort;
   setSort: (value: MediaSort) => void;
-  onUpload: () => void;
+  onUpload: (files: FileList) => void;
+  isUploading: boolean;
   selectedItems: Set<string>;
   onSelectAll: () => void;
   onDeselectAll: () => void;
@@ -124,10 +127,15 @@ export function MediaControls({
         </div>
       </div>
       <div className="flex justify-end">
-        <Button className="w-full sm:w-auto" onClick={onUpload} type="button">
+        <FileUploadInput
+          className="w-full sm:w-auto"
+          isUploading={isUploading}
+          onUpload={onUpload}
+          variant="icon"
+        >
           <PlusIcon className="size-4" />
-          <span>Upload</span>
-        </Button>
+          <span>{isUploading ? "Uploading..." : "Upload"}</span>
+        </FileUploadInput>
       </div>
     </section>
   );

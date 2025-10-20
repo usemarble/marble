@@ -22,7 +22,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       <ThemeProvider attribute="class" disableTransitionOnChange enableSystem>
         <TooltipProvider>
           <NuqsAdapter>{children}</NuqsAdapter>
-          <Toaster position="top-center" />
+          <Toaster position="top-center" richColors />
         </TooltipProvider>
       </ThemeProvider>
       <ReactQueryDevtools buttonPosition="top-right" initialIsOpen={false} />

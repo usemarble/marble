@@ -1,19 +1,17 @@
 "use client";
 
-import { Button } from "@marble/ui/components/button";
 import { Skeleton } from "@marble/ui/components/skeleton";
-import { ImagesIcon, UploadIcon } from "@phosphor-icons/react";
+import { ImagesIcon } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
-
 import { BulkDeleteMediaModal } from "@/components/media/bulk-delete-modal";
 import { DeleteMediaModal } from "@/components/media/delete-modal";
 import { MediaCard } from "@/components/media/media-card";
-import { MediaUploadModal } from "@/components/media/upload-modal";
 import PageLoader from "@/components/shared/page-loader";
 import { useMediaActions } from "@/hooks/use-media-actions";
 import type { MediaQueryKey, MediaType } from "@/types/media";
 import { getEmptyStateMessage } from "@/utils/media";
+import { FileUploadInput } from "./file-upload-input";
 import { containerVariants, itemVariants } from "./media-gallery.variants";
 
 type Media = {
@@ -38,6 +36,8 @@ type MediaGalleryProps = {
   showBulkDeleteModal: boolean;
   setShowBulkDeleteModal: (show: boolean) => void;
   mediaQueryKey: MediaQueryKey;
+  onUpload?: (files: FileList) => void;
+  isUploading?: boolean;
 };
 
 export function MediaGallery({
@@ -53,15 +53,13 @@ export function MediaGallery({
   showBulkDeleteModal,
   setShowBulkDeleteModal,
   mediaQueryKey,
+  onUpload,
+  isUploading = false,
 }: MediaGalleryProps) {
-  const [showUploadModal, setShowUploadModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [mediaToDelete, setMediaToDelete] = useState<Media | null>(null);
-  const {
-    handleUploadComplete,
-    handleDeleteComplete,
-    handleBulkDeleteComplete,
-  } = useMediaActions(mediaQueryKey);
+  const { handleDeleteComplete, handleBulkDeleteComplete } =
+    useMediaActions(mediaQueryKey);
 
   const onDelete = (id: string) => {
     handleDeleteComplete(id);
@@ -134,10 +132,12 @@ export function MediaGallery({
                 <p className="text-muted-foreground text-sm">
                   {getEmptyStateMessage(type, hasAnyMedia)}
                 </p>
-                <Button onClick={() => setShowUploadModal(true)} type="button">
-                  <UploadIcon size={16} />
-                  <span>Upload Media</span>
-                </Button>
+                {onUpload && (
+                  <FileUploadInput
+                    isUploading={isUploading}
+                    onUpload={onUpload}
+                  />
+                )}
               </motion.div>
             </div>
           </motion.div>
@@ -214,11 +214,6 @@ export function MediaGallery({
         />
       )}
 
-      <MediaUploadModal
-        isOpen={showUploadModal}
-        onUploadComplete={handleUploadComplete}
-        setIsOpen={setShowUploadModal}
-      />
       {mediaToDelete && (
         <DeleteMediaModal
           isOpen={showDeleteModal}
