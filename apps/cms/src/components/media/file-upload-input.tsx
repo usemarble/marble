@@ -2,11 +2,9 @@
 
 import { Button } from "@marble/ui/components/button";
 import { PlusIcon, UploadIcon } from "@phosphor-icons/react";
-import { useMutation } from "@tanstack/react-query";
 import { useId } from "react";
 import { toast } from "sonner";
 import { ALLOWED_MIME_TYPES, MAX_MEDIA_FILE_SIZE } from "@/lib/constants";
-import { uploadFile } from "@/lib/media/upload";
 
 type FileUploadInputProps = {
   onUpload?: (files: FileList) => void;
@@ -31,17 +29,6 @@ export function FileUploadInput({
 }: FileUploadInputProps) {
   const id = useId();
 
-  const { mutate: uploadMedia, isPending: isUploadingMutation } = useMutation({
-    mutationFn: (file: File) => uploadFile({ file, type: "media" }),
-    onSuccess: (data) => {
-      onUpload?.(data);
-    },
-    // biome-ignore lint/suspicious/noExplicitAny: <>
-    onError: (err: any) => {
-      toast.error(err.message ?? "Upload failed");
-    },
-  });
-
   function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
     if (!files || files.length === 0) {
@@ -65,9 +52,9 @@ export function FileUploadInput({
     <>
       <input
         accept={accept}
-        aria-label="Upload files"
+        aria-label="Upload File(s)"
         className="hidden"
-        disabled={isUploadingProp || isUploadingMutation}
+        disabled={isUploadingProp}
         id={id}
         multiple={multiple}
         onChange={handleFileUpload}
@@ -76,10 +63,15 @@ export function FileUploadInput({
       <Button
         asChild
         className={className}
-        disabled={isUploadingProp || isUploadingMutation}
+        disabled={isUploadingProp}
         type="button"
       >
-        <label className="flex cursor-pointer items-center gap-2" htmlFor={id}>
+        <label
+          aria-busy={isUploadingProp ? "true" : "false"}
+          aria-disabled={isUploadingProp ? "true" : "false"}
+          className="flex cursor-pointer items-center gap-2"
+          htmlFor={id}
+        >
           {children || (
             <>
               {variant === "icon" ? (

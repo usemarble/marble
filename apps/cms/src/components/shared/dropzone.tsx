@@ -146,7 +146,6 @@ export function ImageDropzone({
   return (
     <Dropzone
       accept={{ "image/*": IMAGE_DROPZONE_ACCEPT }}
-      multiple
       placeholder={{
         idle:
           placeholder.idle || "Drag & drop an image here, or click to select",

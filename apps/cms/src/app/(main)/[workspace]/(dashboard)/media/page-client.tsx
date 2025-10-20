@@ -39,6 +39,7 @@ function PageClient() {
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("");
 
   const {
     data,
@@ -135,7 +136,7 @@ function PageClient() {
         });
       }
     }
-  }, [workspaceId, queryClient.prefetchInfiniteQuery, sort, type]);
+  }, [workspaceId, queryClient, sort, type]);
 
   const mediaItems = data?.pages.flatMap((page) => page.media) ?? [];
   const hasAnyMedia = data?.pages.at(0)?.hasAnyMedia ?? mediaItems.length > 0;
@@ -176,8 +177,8 @@ function PageClient() {
     let uploaded = 0;
     let failed = 0;
 
-    // 1️⃣  Create the initial loading toast
     const toastId = toast.loading(`Uploading ${uploaded}/${total} files...`);
+    setStatusMessage(`Uploading 0 of ${total} files...`);
 
     try {
       for (const file of Array.from(files)) {
@@ -188,29 +189,25 @@ function PageClient() {
           failed++;
         }
 
-        // 2️⃣  Update the same toast text each iteration
-        toast.loading(`Uploading ${uploaded}/${total} files...`, {
-          id: toastId,
-        });
+        const message = `Uploading ${uploaded} of ${total} files...`;
+        toast.loading(message, { id: toastId });
+        setStatusMessage(message);
       }
 
       handleUploadComplete();
 
-      // 3️⃣  Replace with success or warning when done
       if (failed === 0) {
-        toast.success(
-          `Uploaded all ${uploaded} file${uploaded > 1 ? "s" : ""}!`,
-          {
-            id: toastId,
-          }
-        );
+        const successMsg = `Uploaded all ${uploaded} file${uploaded > 1 ? "s" : ""}!`;
+        toast.success(successMsg, { id: toastId });
+        setStatusMessage(successMsg);
       } else {
-        toast.warning(`Uploaded ${uploaded}, ${failed} failed.`, {
-          id: toastId,
-        });
+        const warnMsg = `Uploaded ${uploaded} file${uploaded > 1 ? "s" : ""}, ${failed} failed.`;
+        toast.warning(warnMsg, { id: toastId });
+        setStatusMessage(warnMsg);
       }
     } catch (err) {
       toast.error("Unexpected upload error", { id: toastId });
+      setStatusMessage("Unexpected upload error");
     } finally {
       setIsUploading(false);
     }
@@ -222,6 +219,9 @@ function PageClient() {
 
   return (
     <WorkspacePageWrapper className="flex flex-col gap-8 pt-10 pb-16">
+      <div aria-atomic="true" aria-live="polite" className="sr-only">
+        {statusMessage}
+      </div>
       {hasAnyMedia && (
         <MediaControls
           isUploading={isUploading}
