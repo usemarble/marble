@@ -2,7 +2,6 @@
 
 import { toast } from "@marble/ui/components/sonner";
 import {
-  keepPreviousData,
   useInfiniteQuery,
   useQueryClient,
 } from "@tanstack/react-query";
