@@ -178,11 +178,17 @@ function PageClient() {
     setStatusMessage(`Uploading 0 of ${total} files...`);
 
     try {
+      const errors: Array<{ file: string; error: string }> = [];
       for (const file of Array.from(files)) {
         try {
           await uploadFile({ file, type: "media" });
           uploaded++;
-        } catch {
+        } catch (error) {
+          console.error(`Failed to upload ${file.name}:`, error);
+          errors.push({
+            file: file.name,
+            error: error instanceof Error ? error.message : "Unknown error",
+          });
           failed++;
         }
 
