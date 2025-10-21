@@ -1,10 +1,7 @@
 "use client";
 
 import { toast } from "@marble/ui/components/sonner";
-import {
-  useInfiniteQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { parseAsStringLiteral, useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
@@ -90,6 +87,7 @@ function PageClient() {
   });
 
   const queryClient = useQueryClient();
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <prevent multiple prefetches, only prefetch on workspaceId change>
   useEffect(() => {
     if (!workspaceId) {
       return;
@@ -135,7 +133,7 @@ function PageClient() {
         });
       }
     }
-  }, [workspaceId, queryClient, sort, type]);
+  }, [workspaceId, queryClient]);
 
   const mediaItems = data?.pages.flatMap((page) => page.media) ?? [];
   const hasAnyMedia = data?.pages.at(0)?.hasAnyMedia ?? mediaItems.length > 0;
