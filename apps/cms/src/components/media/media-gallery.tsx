@@ -87,7 +87,7 @@ export function MediaGallery({
 
   return (
     <>
-      <div className="relative min-h-[50vh]">
+      <div className="relative h-full min-h-[50vh]">
         <AnimatePresence>
           {isFetching && !isFetchingNextPage && (
             <motion.div
