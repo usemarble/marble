@@ -33,6 +33,17 @@ export const SlashCommand = Extension.create({
         allowSpaces: true,
         startOfLine: false,
         pluginKey: new PluginKey(extensionName),
+        allow: ({ state }) => {
+          // Check if cursor is inside a table cell
+          const $from = state.selection.$from;
+          for (let d = $from.depth; d > 0; d--) {
+            const nodeName = $from.node(d).type.name;
+            if (nodeName === "tableCell" || nodeName === "tableHeader") {
+              return false; // Disable slash command inside tables
+            }
+          }
+          return true; // Allow slash command everywhere else
+        },
         command: ({ editor, props }) => {
           const { view, state } = editor;
           const { $head, $from } = view.state.selection;

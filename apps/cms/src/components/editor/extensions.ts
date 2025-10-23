@@ -22,7 +22,17 @@ import { SlashCommand } from "./slash-command";
 
 // You can overwrite the placeholder with your own configuration
 const placeholder = Placeholder.configure({
-  placeholder: "Press '/' for commands",
+  placeholder: ({ editor }) => {
+    // Check if currently in a table using isActive
+    if (
+      editor.isActive("table") ||
+      editor.isActive("tableCell") ||
+      editor.isActive("tableHeader")
+    ) {
+      return ""; // Hide placeholder inside tables
+    }
+    return "Press '/' for commands";
+  },
   showOnlyWhenEditable: true,
   showOnlyCurrent: true,
 });

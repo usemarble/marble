@@ -1,6 +1,5 @@
 "use client";
 
-import { flip, offset as floatingOffset } from "@floating-ui/dom";
 import { Button } from "@marble/ui/components/button";
 import {
   ArrowLineDownIcon,
