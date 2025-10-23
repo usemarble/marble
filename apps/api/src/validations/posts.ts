@@ -21,7 +21,6 @@ export const PostsQuerySchema = z.object({
     })
     .default("1"),
   order: OrderSchema,
-  category: z.string().optional(),
   author: z.string().optional(),
   categories: z
     .string()

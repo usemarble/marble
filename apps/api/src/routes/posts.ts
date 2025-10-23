@@ -18,7 +18,6 @@ posts.get("/", async (c) => {
       limit: c.req.query("limit"),
       page: c.req.query("page"),
       order: c.req.query("order"),
-      category: c.req.query("category"),
       categories: c.req.query("categories"),
       excludeCategories: c.req.query("excludeCategories"),
       tags: c.req.query("tags"),
@@ -43,7 +42,6 @@ posts.get("/", async (c) => {
       limit: rawLimit,
       page,
       order,
-      category,
       categories = [],
       excludeCategories = [],
       tags = [],
@@ -56,9 +54,6 @@ posts.get("/", async (c) => {
       workspaceId,
       status: "published" as const,
       ...(() => {
-        if (category) {
-          return { category: { slug: category } };
-        }
         const categoryFilter: Record<string, string[]> = {};
         if (categories.length > 0) {
           categoryFilter.in = categories;

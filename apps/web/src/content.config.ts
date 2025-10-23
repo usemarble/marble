@@ -81,7 +81,7 @@ const articleCollection = defineCollection({
 
 const page = defineCollection({
   loader: async () => {
-    const posts = await fetchPosts("?category=legal");
+    const posts = await fetchPosts("?categories=legal");
 
     return posts.map((post) => ({
       ...post,
