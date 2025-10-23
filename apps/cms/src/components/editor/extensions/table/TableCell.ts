@@ -86,21 +86,23 @@ export const TableCell = Node.create<TableCellOptions>({
             const cells = getCellsInColumn(0)(selection);
 
             if (cells) {
-              for (const [index, { pos }] of cells.entries()) {
+              let index = 0;
+              for (const { pos } of cells) {
+                const currentIndex = index;
                 decorations.push(
                   Decoration.widget(pos + 1, () => {
-                    const rowSelected = isRowSelected(index)(selection);
+                    const rowSelected = isRowSelected(currentIndex)(selection);
                     let className = "grip-row";
 
                     if (rowSelected) {
                       className += " selected";
                     }
 
-                    if (index === 0) {
+                    if (currentIndex === 0) {
                       className += " first";
                     }
 
-                    if (index === cells.length - 1) {
+                    if (currentIndex === cells.length - 1) {
                       className += " last";
                     }
 
@@ -112,13 +114,14 @@ export const TableCell = Node.create<TableCellOptions>({
                       event.stopImmediatePropagation();
 
                       this.editor.view.dispatch(
-                        selectRow(index)(this.editor.state.tr)
+                        selectRow(currentIndex)(this.editor.state.tr)
                       );
                     });
 
                     return grip;
                   })
                 );
+                index++;
               }
             }
 

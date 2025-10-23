@@ -18,7 +18,9 @@ export const TableHeader = TiptapTableHeader.extend({
         parseHTML: (element: HTMLElement) => {
           const colwidth = element.getAttribute("colwidth");
           const value = colwidth
-            ? colwidth.split(",").map((item: string) => Number.parseInt(item, 10))
+            ? colwidth
+                .split(",")
+                .map((item: string) => Number.parseInt(item, 10))
             : null;
 
           return value;
@@ -46,23 +48,24 @@ export const TableHeader = TiptapTableHeader.extend({
             const cells = getCellsInRow(0)(selection);
 
             if (cells) {
+              let index = 0;
               for (const { pos } of cells) {
+                const currentIndex = index;
                 decorations.push(
                   Decoration.widget(pos + 1, () => {
-                    const colSelected = isColumnSelected(
-                      cells.indexOf({ pos } as never)
-                    )(selection);
+                    const colSelected =
+                      isColumnSelected(currentIndex)(selection);
                     let className = "grip-column";
 
                     if (colSelected) {
                       className += " selected";
                     }
 
-                    if (cells.indexOf({ pos } as never) === 0) {
+                    if (currentIndex === 0) {
                       className += " first";
                     }
 
-                    if (cells.indexOf({ pos } as never) === cells.length - 1) {
+                    if (currentIndex === cells.length - 1) {
                       className += " last";
                     }
 
@@ -74,15 +77,14 @@ export const TableHeader = TiptapTableHeader.extend({
                       event.stopImmediatePropagation();
 
                       this.editor.view.dispatch(
-                        selectColumn(cells.indexOf({ pos } as never))(
-                          this.editor.state.tr
-                        )
+                        selectColumn(currentIndex)(this.editor.state.tr)
                       );
                     });
 
                     return grip;
                   })
                 );
+                index++;
               }
             }
 

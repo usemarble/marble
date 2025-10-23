@@ -24,6 +24,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { BubbleMenu } from "@/components/editor/bubble-menu";
 import { EditorSidebar } from "@/components/editor/editor-sidebar";
+import {
+  TableColumnMenu,
+  TableRowMenu,
+} from "@/components/editor/extensions/table/menus";
 import { HiddenScrollbar } from "@/components/editor/hidden-scrollbar";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
@@ -278,14 +282,13 @@ function EditorPage({ initialData, id }: EditorPageProps) {
   }, [debouncedTitle, setValue, clearErrors, isUpdateMode]);
 
   // Create context value that updates when editor initializes
-  const editorContextValue = useMemo(
-    () => ({ editor }),
-    [editor]
-  );
+  const editorContextValue = useMemo(() => ({ editor }), [editor]);
 
   return (
     <EditorContext.Provider value={editorContextValue}>
       <BubbleMenu />
+      {editor && <TableRowMenu editor={editor} />}
+      {editor && <TableColumnMenu editor={editor} />}
       <SidebarInset className="h-[calc(100vh-1rem)] min-h-[calc(100vh-1rem)] rounded-xl border bg-editor-content-background shadow-xs">
         <header className="sticky top-0 z-50 flex justify-between p-3">
           <div className="flex items-center gap-4">

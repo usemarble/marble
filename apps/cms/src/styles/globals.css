@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./table.css";
 
 /* UI component utilities */
 @source '../../../../packages/ui/src/components/**/*.{ts,tsx}';
