@@ -66,7 +66,7 @@ type Post = z.infer<typeof postSchema>;
 
 const articleCollection = defineCollection({
   loader: async () => {
-    const posts = await fetchPosts("?exclude=legal");
+    const posts = await fetchPosts("?excludeCategories=legal,changelog");
     // Must return an array of entries with an id property
     // or an object with IDs as keys and entries as values
     return Promise.all(

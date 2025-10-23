@@ -23,7 +23,16 @@ export const PostsQuerySchema = z.object({
   order: OrderSchema,
   category: z.string().optional(),
   author: z.string().optional(),
-  exclude: z
+  categories: z
+    .string()
+    .transform((val) =>
+      val
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+    )
+    .optional(),
+  excludeCategories: z
     .string()
     .transform((val) =>
       val
@@ -34,10 +43,14 @@ export const PostsQuerySchema = z.object({
     .optional(),
   tags: z
     .string()
-    .transform((val) => val.split(",").filter(Boolean))
+    .transform((val) =>
+      val
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+    )
     .optional(),
-  query: z.string().optional(),
-  include: z
+  excludeTags: z
     .string()
     .transform((val) =>
       val
@@ -46,6 +59,7 @@ export const PostsQuerySchema = z.object({
         .filter(Boolean)
     )
     .optional(),
+  query: z.string().optional(),
 });
 
 export const PostQuerySchema = z.object({
