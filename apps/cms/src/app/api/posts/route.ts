@@ -22,6 +22,7 @@ export async function GET() {
       id: true,
       title: true,
       status: true,
+      featured: true,
       publishedAt: true,
       updatedAt: true,
       authors: {
@@ -155,6 +156,7 @@ export async function POST(request: Request) {
       slug: values.data.slug,
       title: values.data.title,
       status: values.data.status,
+      featured: values.data.featured,
       content: cleanContent,
       categoryId: values.data.category,
       coverImage: values.data.coverImage,

@@ -85,6 +85,7 @@ export function ImportItemForm({
         slug: values.slug,
         description: values.description,
         status: values.status,
+        featured: values.featured || false,
         publishedAt: values.publishedAt,
         category: values.category,
         content: markdown,

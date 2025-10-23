@@ -118,6 +118,7 @@ export async function POST(request: Request) {
       slug: values.data.slug,
       title: values.data.title,
       status: values.data.status,
+      featured: values.data.featured,
       content: cleanContent,
       categoryId: values.data.category,
       coverImage: values.data.coverImage,

@@ -8,6 +8,7 @@ import { AuthorSelector } from "../fields/author-selector";
 import { CategorySelector } from "../fields/category-selector";
 import { CoverImageSelector } from "../fields/cover-image-selector";
 import { DescriptionField } from "../fields/description-field";
+import { FeaturedField } from "../fields/featured-field";
 import { PublishDateField } from "../fields/publish-date-field";
 import { SlugField } from "../fields/slug-field";
 import { StatusField } from "../fields/status-field";
@@ -31,6 +32,8 @@ export function MetadataTab({
     <HiddenScrollbar className="h-full px-6">
       <section className="grid gap-6 pt-4 pb-5">
         <StatusField control={control} />
+
+        <FeaturedField control={control} />
 
         <Separator className="flex" orientation="horizontal" />
 
