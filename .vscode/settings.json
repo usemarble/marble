@@ -1,4 +1,5 @@
 {
+  "biome.lsp.bin": "./node_modules/.bin/biome",
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "[javascript]": {
     "editor.defaultFormatter": "biomejs.biome"
@@ -10,6 +11,7 @@
     "editor.defaultFormatter": "biomejs.biome"
   },
   "editor.codeActionsOnSave": {
+    "source.organizeImports": "never",
     "source.organizeImports.biome": "explicit",
     "source.fixAll.biome": "explicit"
   },
