@@ -173,7 +173,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
 
   const editor = useEditor({
     extensions: defaultExtensions,
-    content: JSON.parse(watch("contentJson") || "{}"),
+    content: watch("content") || "<p>Start Typing...</p>",
     editorProps: {
       attributes: {
         class:
@@ -277,15 +277,10 @@ function EditorPage({ initialData, id }: EditorPageProps) {
     }
   }, [debouncedTitle, setValue, clearErrors, isUpdateMode]);
 
-  // CRITICAL: Store editor in ref that's already tracking it
-  // Create stable context value with getter pattern to prevent rerenders
+  // Create context value that updates when editor initializes
   const editorContextValue = useMemo(
-    () => ({
-      get editor() {
-        return editorRef.current;
-      },
-    }),
-    [] // Empty deps - never recreates, preventing context cascade
+    () => ({ editor }),
+    [editor]
   );
 
   return (

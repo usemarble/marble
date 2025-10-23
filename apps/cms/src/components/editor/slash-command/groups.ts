@@ -1,6 +1,7 @@
 import {
   BookOpen,
   Code,
+  Columns as ColumnsIcon,
   Heading1,
   Heading2,
   Heading3,
@@ -10,7 +11,7 @@ import {
   ListTodo,
   Minus,
   Quote,
-  Table,
+  Table as TableIcon,
   Type,
   Youtube,
 } from "lucide-react";
@@ -117,20 +118,30 @@ export const GROUPS: Group[] = [
     name: "insert",
     title: "Insert",
     commands: [
-      // Table extension not yet configured
-      // {
-      //   name: "table",
-      //   label: "Table",
-      //   description: "Insert a table",
-      //   icon: Table,
-      //   action: (editor) => {
-      //     editor
-      //       .chain()
-      //       .focus()
-      //       .insertTable({ rows: 3, cols: 3, withHeaderRow: false })
-      //       .run();
-      //   },
-      // },
+      {
+        name: "table",
+        label: "Table",
+        description: "Insert a table",
+        aliases: ["table"],
+        icon: TableIcon,
+        action: (editor) => {
+          editor
+            .chain()
+            .focus()
+            .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+            .run();
+        },
+      },
+      {
+        name: "columns",
+        label: "2 Columns",
+        description: "Add two column layout",
+        aliases: ["columns", "col", "2col"],
+        icon: ColumnsIcon,
+        action: (editor) => {
+          editor.chain().focus().setColumns().run();
+        },
+      },
       {
         name: "image",
         label: "Image",

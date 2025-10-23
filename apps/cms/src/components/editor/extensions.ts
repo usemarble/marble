@@ -15,6 +15,8 @@ import { StarterKit } from "@tiptap/starter-kit";
 import { cx } from "class-variance-authority";
 import { common, createLowlight } from "lowlight";
 import { ImageUpload } from "./extensions/image-upload";
+import { Column, Columns } from "./extensions/multi-column";
+import { Table, TableCell, TableHeader, TableRow } from "./extensions/table";
 import { YouTubeUpload } from "./extensions/youtube-upload";
 import { SlashCommand } from "./slash-command";
 
@@ -113,6 +115,12 @@ export const defaultExtensions: Extension[] = [
   taskList as unknown as Extension,
   taskItem as unknown as Extension,
   horizontalRule as unknown as Extension,
+  Table as unknown as Extension,
+  TableRow as unknown as Extension,
+  TableCell as unknown as Extension,
+  TableHeader as unknown as Extension,
+  Columns as unknown as Extension,
+  Column as unknown as Extension,
   CharacterCount as unknown as Extension,
   SlashCommand as unknown as Extension,
 ];
