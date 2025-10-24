@@ -20,7 +20,6 @@
     "@marble/db": "workspace:*",
     "@marble/parser": "workspace:*",
     "@marble/ui": "workspace:*",
-    "@openrouter/ai-sdk-provider": "^1.2.0",
     "@phosphor-icons/react": "^2.1.10",
     "@polar-sh/better-auth": "^1.1.0",
     "@polar-sh/sdk": "^0.34.13",
