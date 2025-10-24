@@ -2,7 +2,6 @@ import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { NodeHtmlMarkdown } from "node-html-markdown";
 import { getServerSession } from "@/lib/auth/session";
-import { openrouter } from "@/lib/openrouter";
 import { aiSuggestionsRateLimiter, rateLimitHeaders } from "@/lib/ratelimit";
 import {
   aiReadabilityBodySchema,
@@ -59,7 +58,7 @@ export async function POST(request: Request) {
   const { streamObject } = await import("ai");
 
   const result = streamObject({
-    model: openrouter.chat("google/gemini-2.5-flash"),
+    model: "google/gemini-2.5-flash",
     messages: [
       {
         role: "system",
