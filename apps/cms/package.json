@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "next build --turbopack",
     "start": "next start",
     "lint": "next lint"
   },
@@ -93,6 +93,7 @@
     "@types/react": "19.1.11",
     "@types/react-dom": "19.1.7",
     "@types/sanitize-html": "^2.16.0",
+    "babel-plugin-react-compiler": "^1.0.0",
     "discord-api-types": "^0.38.22",
     "postcss": "^8",
     "tailwindcss": "^4.1.12",
