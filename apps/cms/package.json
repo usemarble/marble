@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "next build --turbopack",
     "start": "next start",
     "lint": "next lint"
   },
@@ -52,6 +52,7 @@
     "@vvo/tzdb": "^6.176.0",
     "ai": "^5.0.47",
     "axios": "^1.12.0",
+    "babel-plugin-react-compiler": "^1.0.0",
     "better-auth": "1.3.8",
     "canvas-confetti": "^1.9.3",
     "class-variance-authority": "^0.7.0",
