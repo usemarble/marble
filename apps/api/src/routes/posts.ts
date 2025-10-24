@@ -18,9 +18,10 @@ posts.get("/", async (c) => {
       limit: c.req.query("limit"),
       page: c.req.query("page"),
       order: c.req.query("order"),
-      category: c.req.query("category"),
-      exclude: c.req.query("exclude"),
+      categories: c.req.query("categories"),
+      excludeCategories: c.req.query("excludeCategories"),
       tags: c.req.query("tags"),
+      excludeTags: c.req.query("excludeTags"),
       query: c.req.query("query"),
     });
 
@@ -41,9 +42,10 @@ posts.get("/", async (c) => {
       limit: rawLimit,
       page,
       order,
-      category,
-      exclude = [],
+      categories = [],
+      excludeCategories = [],
       tags = [],
+      excludeTags = [],
       query,
     } = queryValidation.data;
 
@@ -52,23 +54,31 @@ posts.get("/", async (c) => {
       workspaceId,
       status: "published" as const,
       ...(() => {
-        if (category) {
-          return { category: { slug: category } };
+        const categoryFilter: Record<string, string[]> = {};
+        if (categories.length > 0) {
+          categoryFilter.in = categories;
         }
-        if (exclude.length > 0) {
-          return { category: { slug: { notIn: exclude } } };
+        if (excludeCategories.length > 0) {
+          categoryFilter.notIn = excludeCategories;
+        }
+        if (Object.keys(categoryFilter).length > 0) {
+          return { category: { slug: categoryFilter } };
         }
         return {};
       })(),
-      ...(tags.length > 0 && {
-        tags: {
-          some: {
-            slug: {
-              in: tags,
-            },
-          },
-        },
-      }),
+      ...(() => {
+        const tagFilter: Record<string, unknown> = {};
+        if (tags.length > 0) {
+          tagFilter.some = { slug: { in: tags } };
+        }
+        if (excludeTags.length > 0) {
+          tagFilter.none = { slug: { in: excludeTags } };
+        }
+        if (Object.keys(tagFilter).length > 0) {
+          return { tags: tagFilter };
+        }
+        return {};
+      })(),
       ...(query && {
         OR: [{ title: { contains: query } }, { content: { contains: query } }],
       }),
