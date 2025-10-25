@@ -5,13 +5,14 @@ import CategoryFilter from "@/components/CategoryFilter.astro";
 import Container from "@/components/Container.astro";
 import Layout from "@/layouts/Layout.astro";
 import { SITE } from "@/lib/constants";
+import { fetchPosts } from "@/lib/queries";
 
 export const prerender = true;
 
 export async function getStaticPaths() {
   const blogEntries = await getCollection("categories");
   return blogEntries
-    .filter((entry) => entry.data.slug !== "legal")
+    .filter((entry) => entry.data.slug !== "legal" && entry.data.slug !== "changelog")
     .map((entry) => ({
       params: { slug: entry.data.slug },
       props: { entry },
@@ -21,6 +22,7 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 
 const categoriesEntries = await getCollection("categories");
+const postsResponse = await fetchPosts(`?categories=${entry.data.slug}`);
 ---
 
 <Layout
@@ -32,22 +34,22 @@ const categoriesEntries = await getCollection("categories");
       <Container class='pt-20 lg:pt-24 pb-32 h-full'>
         <div class='max-w-2xl mx-auto mb-16 space-y-2'>
           <h1 class='text-2xl leading-[1.1] sm:text-3xl md:text-4xl text-center'>
-            {entry.data.name}
+            Blog
           </h1>
           <p class='text-muted-foreground text-center text-sm md:text-base'>{entry.data.description || "Updates, news, and guides from the team."}</p>
           <CategoryFilter categories={categoriesEntries} />
         </div>
-        <!-- {posts ? (
+        {postsResponse.posts.length > 0 ? (
           <ul class='grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 auto-rows-fr'>
             {
-              posts.data.map((post) => (
+              postsResponse.posts.map((post) => (
                 <CategoryCard entry={post} />
               ))
             }
           </ul>
         ) : (
           <p class='text-muted-foreground text-center text-sm md:text-base'>No posts found</p>
-        )} -->
+        )}
       </Container>
     </div>
   </section>

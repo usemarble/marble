@@ -21,7 +21,6 @@ const posts = defineCollection({
 const page = defineCollection({
   loader: async () => {
     const response = await fetchPosts("?categories=legal");
-    console.log(response);
 
     return response.posts.map((post) => ({
       ...post,
@@ -35,7 +34,7 @@ const page = defineCollection({
 
 const changelog = defineCollection({
   loader: async () => {
-    const response = await fetchPosts("?category=changelog");
+    const response = await fetchPosts("?categories=changelog");
 
     return response.posts.map((post) => ({
       ...post,

@@ -13,7 +13,7 @@ const categoriesToShow = categories.filter(
 
  <ul class="flex items-center gap-2 justify-center mt-8">
      <li>
-        <a href="/blog" class={`inline-block border text-sm rounded-full px-5 py-1.5 ${Astro.url.pathname === "/blog" ? "bg-primary text-white border-transparent" : "bg-transparent text-foreground border-border"}`}>All</a>
+        <a href="/blog" class={`inline-block border text-sm rounded-full px-5 py-1.5 ${Astro.url.pathname === "/blog" ? "bg-primary text-white border-transparent" : "bg-transparent text-foreground border-border"}`}>All Posts</a>
       </li>
     {
         categoriesToShow.map((category) => {

@@ -27,7 +27,9 @@ export async function fetchPosts(queryParams = ""): Promise<PostsResponse> {
   const fullUrl = `${url}/${key}/posts${queryParams}`;
 
   try {
-    const response = await fetch(fullUrl);
+    const response = await fetch(fullUrl, {
+      cache: "force-cache",
+    });
 
     if (!response.ok) {
       console.error(`Failed to fetch posts from ${fullUrl}:`, {
