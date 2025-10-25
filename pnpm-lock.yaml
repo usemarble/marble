@@ -199,6 +199,9 @@ importers:
       '@tiptap/extension-drag-handle-react':
         specifier: ^3.7.2
         version: 3.7.2(@tiptap/extension-drag-handle@3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/extension-collaboration@3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2)(@tiptap/y-tiptap@3.0.0(prosemirror-model@1.25.3)(prosemirror-state@1.4.3)(prosemirror-view@1.41.3)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27))(yjs@13.6.27))(@tiptap/extension-node-range@3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2)(@tiptap/y-tiptap@3.0.0(prosemirror-model@1.25.3)(prosemirror-state@1.4.3)(prosemirror-view@1.41.3)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27)))(@tiptap/pm@3.7.2)(@tiptap/react@3.7.2(@floating-ui/dom@1.6.11)(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2)(@types/react-dom@19.0.2(@types/react@19.0.2))(@types/react@19.0.2)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      '@tiptap/extension-file-handler':
+        specifier: ^3.8.0
+        version: 3.8.0(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/extension-text-style@3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2)))(@tiptap/pm@3.7.2)
       '@tiptap/extension-highlight':
         specifier: ^3.7.2
         version: 3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))
@@ -4345,6 +4348,13 @@ packages:
     resolution: {integrity: sha512-wZT3bPeNJAasOvNr6tUZAwXFeKlQEToSnVAjFiBzJwLDonuK8ZaAiBCDQgqEQSlP3HsEE4/qkERBNrdyAT26CQ==}
     peerDependencies:
       '@tiptap/extensions': ^3.7.1
+
+  '@tiptap/extension-file-handler@3.8.0':
+    resolution: {integrity: sha512-+H/SgVaiSzLMQOfRU2CaLP/vOBK66ZdMhUVfmb5dvfmAIWyIXv3Cy/04qLEH31C7n8mENsANZZMgZ1bflshHFw==}
+    peerDependencies:
+      '@tiptap/core': ^3.8.0
+      '@tiptap/extension-text-style': ^3.8.0
+      '@tiptap/pm': ^3.8.0
 
   '@tiptap/extension-floating-menu@3.7.2':
     resolution: {integrity: sha512-g19ratrXlplYDS29VLQa1y/IM/ro0UFhSS4fQokiQKkazwnA1ZVnebjw8ERYg5lkMm/hiImqstpgdO0LtoivvQ==}
@@ -12925,6 +12935,12 @@ snapshots:
   '@tiptap/extension-dropcursor@3.7.1(@tiptap/extensions@3.7.1(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2))':
     dependencies:
       '@tiptap/extensions': 3.7.1(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2)
+
+  '@tiptap/extension-file-handler@3.8.0(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/extension-text-style@3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2)))(@tiptap/pm@3.7.2)':
+    dependencies:
+      '@tiptap/core': 3.7.2(@tiptap/pm@3.7.2)
+      '@tiptap/extension-text-style': 3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))
+      '@tiptap/pm': 3.7.2
 
   '@tiptap/extension-floating-menu@3.7.2(@floating-ui/dom@1.6.11)(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2)':
     dependencies:

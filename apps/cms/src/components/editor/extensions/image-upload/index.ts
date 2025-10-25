@@ -7,10 +7,13 @@ declare module "@tiptap/core" {
   // biome-ignore lint/nursery/useConsistentTypeDefinitions: Required for TypeScript module augmentation
   interface Commands<ReturnType> {
     imageUpload: {
-      setImageUpload: () => ReturnType;
+      setImageUpload: (options?: { file?: File }) => ReturnType;
     };
   }
 }
+
+// Storage for pending file uploads
+export const pendingUploads = new Map<string, File>();
 
 export const ImageUpload = Node.create({
   name: "imageUpload",
@@ -21,6 +24,23 @@ export const ImageUpload = Node.create({
   selectable: true,
   inline: false,
 
+  addAttributes() {
+    return {
+      fileId: {
+        default: null,
+        parseHTML: (element) => element.getAttribute("data-file-id"),
+        renderHTML: (attributes) => {
+          if (!attributes.fileId) {
+            return {};
+          }
+          return {
+            "data-file-id": attributes.fileId,
+          };
+        },
+      },
+    };
+  },
+
   parseHTML() {
     return [
       {
@@ -29,20 +49,45 @@ export const ImageUpload = Node.create({
     ];
   },
 
-  renderHTML() {
-    return ["div", { "data-type": this.name }];
+  renderHTML({ HTMLAttributes }) {
+    return ["div", { "data-type": this.name, ...HTMLAttributes }];
   },
 
   addCommands() {
     return {
       setImageUpload:
-        () =>
-        ({ commands }: CommandProps) =>
-          commands.insertContent(`<div data-type="${this.name}"></div>`),
+        (options) =>
+        ({ commands }: CommandProps) => {
+          const { file } = options || {};
+
+          if (file) {
+            // Generate unique ID and store file
+            const fileId = `upload-${Date.now()}-${Math.random()}`;
+            pendingUploads.set(fileId, file);
+
+            return commands.insertContent({
+              type: this.name,
+              attrs: { fileId },
+            });
+          }
+
+          return commands.insertContent({
+            type: this.name,
+          });
+        },
     };
   },
 
   addNodeView() {
-    return ReactNodeViewRenderer(ImageUploadView);
+    return ReactNodeViewRenderer(ImageUploadView, {
+      // Pass pendingUploads map through context
+      as: "div",
+    });
+  },
+
+  addStorage() {
+    return {
+      pendingUploads,
+    };
   },
 });

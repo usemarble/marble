@@ -1,6 +1,7 @@
 import type { Extension } from "@tiptap/core";
 import { CodeBlockLowlight } from "@tiptap/extension-code-block-lowlight";
 import { Color } from "@tiptap/extension-color";
+import { FileHandler } from "@tiptap/extension-file-handler";
 import { Highlight } from "@tiptap/extension-highlight";
 import { HorizontalRule } from "@tiptap/extension-horizontal-rule";
 import { Image } from "@tiptap/extension-image";
@@ -11,7 +12,7 @@ import { Superscript } from "@tiptap/extension-superscript";
 import TextAlign from "@tiptap/extension-text-align";
 import { TextStyle } from "@tiptap/extension-text-style";
 import { Youtube } from "@tiptap/extension-youtube";
-import { CharacterCount, Placeholder } from "@tiptap/extensions";
+import { CharacterCount, Dropcursor, Placeholder } from "@tiptap/extensions";
 import { StarterKit } from "@tiptap/starter-kit";
 import { cx } from "class-variance-authority";
 import { common, createLowlight } from "lowlight";
@@ -109,6 +110,22 @@ const starterKit = StarterKit.configure({
   codeBlock: false,
 });
 
+const fileHandler = FileHandler.configure({
+  allowedMimeTypes: ["image/png", "image/jpeg", "image/gif", "image/webp"],
+  onDrop: (currentEditor, files, _pos) => {
+    for (const file of files) {
+      // Insert imageUpload node at drop position with the file
+      currentEditor.chain().focus().setImageUpload({ file }).run();
+    }
+  },
+  onPaste: (currentEditor, files) => {
+    for (const file of files) {
+      // Insert imageUpload node at cursor with the file
+      currentEditor.chain().focus().setImageUpload({ file }).run();
+    }
+  },
+});
+
 export const defaultExtensions: Extension[] = [
   starterKit,
   placeholder,
@@ -119,8 +136,10 @@ export const defaultExtensions: Extension[] = [
   Subscript as unknown as Extension,
   Superscript as unknown as Extension,
   CodeBlockLowlightEx as unknown as Extension,
+  Dropcursor as unknown as Extension,
   tiptapImage as unknown as Extension,
   ImageUpload as unknown as Extension,
+  fileHandler as unknown as Extension,
   youtube as unknown as Extension,
   YouTubeUpload as unknown as Extension,
   taskList as unknown as Extension,
@@ -136,4 +155,5 @@ export const defaultExtensions: Extension[] = [
   SlashCommand as unknown as Extension,
   // DragHandle as unknown as Extension,
   NodeRange as unknown as Extension,
+  Dropcursor as unknown as Extension,
 ];

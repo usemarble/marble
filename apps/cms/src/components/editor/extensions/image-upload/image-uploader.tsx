@@ -6,12 +6,14 @@ import {
   UploadSimpleIcon,
 } from "@phosphor-icons/react";
 import type { ChangeEvent } from "react";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { useDropZone, useFileUpload, useUploader } from "./hooks";
 
 export const ImageUploader = ({
+  initialFile,
   onUpload,
 }: {
+  initialFile?: File;
   onUpload: (url: string) => void;
 }) => {
   const { loading, uploadImage } = useUploader({ onUpload });
@@ -20,6 +22,13 @@ export const ImageUploader = ({
     useDropZone({
       uploader: uploadImage,
     });
+
+  // Auto-upload if initialFile is provided
+  useEffect(() => {
+    if (initialFile) {
+      uploadImage(initialFile);
+    }
+  }, [initialFile, uploadImage]);
 
   const onFileChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {

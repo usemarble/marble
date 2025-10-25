@@ -269,9 +269,7 @@ function TextButtonsComponent() {
         >
           <ColorPicker
             color={editor.getAttributes("highlight").color}
-            onChange={(color) =>
-              editor.chain().focus().setHighlight({ color }).run()
-            }
+            onChange={(color) => editor.chain().setHighlight({ color }).run()}
             onClear={() => editor.chain().focus().unsetHighlight().run()}
           />
         </PopoverContent>
@@ -304,7 +302,7 @@ function TextButtonsComponent() {
         >
           <ColorPicker
             color={editor.getAttributes("textStyle").color}
-            onChange={(color) => editor.chain().focus().setColor(color).run()}
+            onChange={(color) => editor.chain().setColor(color).run()}
             onClear={() => editor.chain().focus().unsetColor().run()}
           />
         </PopoverContent>
