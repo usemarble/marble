@@ -109,9 +109,6 @@ importers:
       '@marble/ui':
         specifier: workspace:*
         version: link:../../packages/ui
-      '@openrouter/ai-sdk-provider':
-        specifier: ^1.2.0
-        version: 1.2.0(ai@5.0.47(zod@3.25.76))(zod@3.25.76)
       '@phosphor-icons/react':
         specifier: ^2.1.10
         version: 2.1.10(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -2003,13 +2000,6 @@ packages:
 
   '@one-ini/wasm@0.1.1':
     resolution: {integrity: sha512-XuySG1E38YScSJoMlqovLru4KTUNSjgVTIjyh7qMX6aNN5HY5Ct5LhRJdxO79JtTzKfzV/bnWpz+zquYrISsvw==}
-
-  '@openrouter/ai-sdk-provider@1.2.0':
-    resolution: {integrity: sha512-stuIwq7Yb7DNmk3GuCtz+oS3nZOY4TXEV3V5KsknDGQN7Fpu3KRMQVWRc1J073xKdf0FC9EHOctSyzsACmp5Ag==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      ai: ^5.0.0
-      zod: ^3.24.1 || ^v4
 
   '@opentelemetry/api-logs@0.204.0':
     resolution: {integrity: sha512-DqxY8yoAaiBPivoJD4UtgrMS8gEmzZ5lnaxzPojzLVHBGqPxgWm4zcuvcUHZiqQ6kRX2Klel2r9y8cA2HAtqpw==}
@@ -10690,11 +10680,6 @@ snapshots:
       fastq: 1.17.1
 
   '@one-ini/wasm@0.1.1': {}
-
-  '@openrouter/ai-sdk-provider@1.2.0(ai@5.0.47(zod@3.25.76))(zod@3.25.76)':
-    dependencies:
-      ai: 5.0.47(zod@3.25.76)
-      zod: 3.25.76
 
   '@opentelemetry/api-logs@0.204.0':
     dependencies:
