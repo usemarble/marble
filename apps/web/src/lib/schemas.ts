@@ -103,16 +103,3 @@ export const categorySchema = z.object({
   }),
 });
 export type Category = z.infer<typeof categorySchema>;
-
-export const categoryDetailSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  slug: z.string(),
-  description: z.string().nullable(),
-  count: z.number(),
-  posts: z.object({
-    data: z.array(postSchema),
-    pagination: paginationSchema,
-  }),
-});
-export type CategoryDetails = z.infer<typeof categoryDetailSchema>;

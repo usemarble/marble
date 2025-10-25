@@ -11,14 +11,14 @@ export async function GET(context: APIContext) {
     title: post.data.title,
     description: post.data.description,
     pubDate: new Date(post.data.publishedAt),
-    link: `/blog/${post.data.slug}/`,
+    link: `/blog/${post.data.slug}`,
   }));
 
   const changelogItems = changelog.map((entry) => ({
     title: entry.data.title,
     description: entry.data.description,
     pubDate: new Date(entry.data.publishedAt),
-    link: `/changelog/${entry.data.slug}/`,
+    link: `/changelog/${entry.data.slug}`,
   }));
 
   const allItems = [...blogItems, ...changelogItems].sort(
