@@ -99,57 +99,24 @@ export async function getLastActiveWorkspaceOrNewOneToSetAsActive(
  * @param {string} [workspaceSlug] - Optional slug of the workspace to fetch.
  * @returns {Promise<Workspace|null>} The workspace data or null if not found.
  */
-export async function getInitialWorkspaceData(
-  workspaceSlug?: string,
-  { strict = false } = {}
-): Promise<Workspace | null> {
+export async function getInitialWorkspaceData() {
   try {
     const session = await getServerSession();
 
-    if (!session?.user) {
+    if (!session?.user || !session.session?.activeOrganizationId) {
       return null;
     }
 
-    // biome-ignore lint/suspicious/noEvolvingTypes: <>
-    let workspace = null;
-
-    if (workspaceSlug) {
-      workspace = await db.organization.findUnique({
-        where: {
-          slug: workspaceSlug,
-          members: { some: { userId: session.user.id } },
-        },
-        select: workspaceSelect,
-      });
-
-      if (!workspace) {
-        return null;
-      }
-
-      const currentUserMember = workspace.members.find(
-        (member) => member.userId === session.user.id
-      );
-
-      if (strict) {
-        return {
-          ...workspace,
-          ai: workspace?.editorPreferences?.ai ?? { enabled: false },
-          currentUserRole: currentUserMember?.role || null,
-        } as Workspace;
-      }
-    }
-
-    if (!workspace && session.session?.activeOrganizationId) {
-      workspace = await db.organization.findUnique({
-        where: { id: session.session.activeOrganizationId },
-        select: workspaceSelect,
-      });
-    }
+    const workspace = await db.organization.findUnique({
+      where: { id: session.session.activeOrganizationId },
+      select: workspaceSelect,
+    });
 
     if (!workspace) {
       return null;
     }
 
+    // Find current user's role in this workspace
     const currentUserMember = workspace.members.find(
       (member) => member.userId === session.user.id
     );
