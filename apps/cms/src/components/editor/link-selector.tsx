@@ -15,7 +15,8 @@ import {
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { cn } from "@marble/ui/lib/utils";
-import { useCurrentEditor } from "@tiptap/react";
+import type { Editor } from "@tiptap/core";
+import { useCurrentEditor, useEditorState } from "@tiptap/react";
 import { Check, Link as LinkIcon, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useFloatingPortalContainer } from "@/components/editor/floating-portal-context";
@@ -54,6 +55,12 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
   const [inputValue, setInputValue] = useState("");
   const portalContainer = useFloatingPortalContainer();
 
+  // Track link active state reactively for proper re-rendering
+  const isLinkActive = useEditorState({
+    editor: editor as Editor,
+    selector: (ctx) => ctx.editor.isActive("link"),
+  });
+
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
@@ -67,10 +74,8 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
         <Tooltip delayDuration={400}>
           <TooltipTrigger asChild>
             <Button
-              className={cn(
-                "!rounded-sm gap-2 border-none",
-                editor.isActive("link") && "bg-primary text-primary-foreground"
-              )}
+              className="!rounded-sm gap-2 border-none data-[active=true]:bg-primary/20 data-[active=true]:text-primary"
+              data-active={isLinkActive}
               size="icon"
               variant="ghost"
             >

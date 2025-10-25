@@ -10,7 +10,6 @@ export function useDragData() {
 
   const handleNodeChange = useCallback(
     (data: { node: Node | null; editor: Editor; pos: number }) => {
-
       if (data.node) {
         setCurrentNode(data.node);
       }

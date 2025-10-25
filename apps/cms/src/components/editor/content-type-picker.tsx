@@ -175,10 +175,8 @@ function ContentTypePickerComponent() {
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <Button
-          className={cn(
-            "!rounded-sm gap-1",
-            isActive && "bg-primary text-primary-foreground"
-          )}
+          className="!rounded-sm gap-1 data-[active=true]:bg-primary/20 data-[active=true]:text-primary"
+          data-active={isActive}
           size="icon"
           type="button"
           variant="ghost"
@@ -210,10 +208,8 @@ function ContentTypePickerComponent() {
 
           return (
             <DropdownMenuItem
-              className={cn(
-                "flex cursor-pointer items-center gap-2",
-                isOptionActive && "bg-primary text-primary-foreground"
-              )}
+              className="flex cursor-pointer items-center gap-2 data-[active=true]:bg-primary/20 data-[active=true]:text-primary"
+              data-active={isOptionActive}
               disabled={isDisabled}
               key={option.id}
               onClick={() => option.onClick(editor)}

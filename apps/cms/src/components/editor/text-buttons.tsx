@@ -13,8 +13,9 @@ import {
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { cn } from "@marble/ui/lib/utils";
+import { ArrowUpIcon } from "@phosphor-icons/react";
 import type { Editor } from "@tiptap/core";
-import { useCurrentEditor } from "@tiptap/react";
+import { useCurrentEditor, useEditorState } from "@tiptap/react";
 import {
   AlignCenter,
   AlignJustify,
@@ -36,6 +37,8 @@ import { memo } from "react";
 import { useFloatingPortalContainer } from "@/components/editor/floating-portal-context";
 import { ColorPicker } from "./color-picker";
 import { ContentTypePicker } from "./content-type-picker";
+import { KeyboardKey } from "./keyboard-key";
+import { getModifierKey } from "./utils/platform";
 
 export type SelectorItem = {
   name: string;
@@ -43,6 +46,7 @@ export type SelectorItem = {
   command: (editor: Editor) => void;
   isActive: (editor: Editor) => boolean;
   tooltip: string;
+  shortcut?: string[];
 };
 
 // Define items array outside component to avoid recreation on every render
@@ -53,6 +57,7 @@ const BASIC_FORMATTING: SelectorItem[] = [
     command: (editor) => editor.chain().focus().toggleBold().run(),
     icon: Bold,
     tooltip: "Bold",
+    shortcut: ["Mod", "B"],
   },
   {
     name: "italic",
@@ -60,6 +65,7 @@ const BASIC_FORMATTING: SelectorItem[] = [
     command: (editor) => editor.chain().focus().toggleItalic().run(),
     icon: Italic,
     tooltip: "Italic",
+    shortcut: ["Mod", "I"],
   },
   {
     name: "underline",
@@ -67,6 +73,7 @@ const BASIC_FORMATTING: SelectorItem[] = [
     command: (editor) => editor.chain().focus().toggleUnderline().run(),
     icon: Underline,
     tooltip: "Underline",
+    shortcut: ["Mod", "U"],
   },
   {
     name: "strike",
@@ -74,6 +81,7 @@ const BASIC_FORMATTING: SelectorItem[] = [
     command: (editor) => editor.chain().focus().toggleStrike().run(),
     icon: Strikethrough,
     tooltip: "Strikethrough",
+    shortcut: ["Mod", "Shift", "X"],
   },
   {
     name: "code",
@@ -81,6 +89,7 @@ const BASIC_FORMATTING: SelectorItem[] = [
     command: (editor) => editor.chain().focus().toggleCode().run(),
     icon: Code,
     tooltip: "Code",
+    shortcut: ["Mod", "E"],
   },
   {
     name: "codeBlock",
@@ -88,6 +97,7 @@ const BASIC_FORMATTING: SelectorItem[] = [
     command: (editor) => editor.chain().focus().toggleCodeBlock().run(),
     icon: FileCode,
     tooltip: "Code block",
+    shortcut: ["Mod", "Alt", "C"],
   },
 ];
 
@@ -98,6 +108,7 @@ const SUBSCRIPT_SUPERSCRIPT: SelectorItem[] = [
     command: (editor) => editor.chain().focus().toggleSubscript().run(),
     icon: Subscript,
     tooltip: "Subscript",
+    shortcut: ["Mod", ","],
   },
   {
     name: "superscript",
@@ -105,6 +116,7 @@ const SUBSCRIPT_SUPERSCRIPT: SelectorItem[] = [
     command: (editor) => editor.chain().focus().toggleSuperscript().run(),
     icon: Superscript,
     tooltip: "Superscript",
+    shortcut: ["Mod", "."],
   },
 ];
 
@@ -139,9 +151,50 @@ const ALIGNMENT: SelectorItem[] = [
   },
 ];
 
+// Helper function to render keyboard shortcuts
+function renderShortcut(shortcut: string[]) {
+  return shortcut.map((key) => {
+    let displayKey = key;
+
+    // Replace "Mod" with platform-specific modifier
+    if (key === "Mod") {
+      displayKey = getModifierKey();
+    }
+
+    // Render Shift as icon, others as text
+    if (key === "Shift") {
+      return <KeyboardKey icon={ArrowUpIcon} key={key} />;
+    }
+
+    return <KeyboardKey key={key}>{displayKey}</KeyboardKey>;
+  });
+}
+
 function TextButtonsComponent() {
   const { editor } = useCurrentEditor();
   const portalContainer = useFloatingPortalContainer();
+
+  // Track all active states reactively for proper re-rendering
+  const activeStates = useEditorState({
+    editor: editor as Editor,
+    selector: (ctx) => ({
+      bold: ctx.editor.isActive("bold"),
+      italic: ctx.editor.isActive("italic"),
+      underline: ctx.editor.isActive("underline"),
+      strike: ctx.editor.isActive("strike"),
+      code: ctx.editor.isActive("code"),
+      codeBlock: ctx.editor.isActive("codeBlock"),
+      highlight: ctx.editor.isActive("highlight"),
+      textColor: !!ctx.editor.getAttributes("textStyle").color,
+      subscript: ctx.editor.isActive("subscript"),
+      superscript: ctx.editor.isActive("superscript"),
+      alignLeft: ctx.editor.isActive({ textAlign: "left" }),
+      alignCenter: ctx.editor.isActive({ textAlign: "center" }),
+      alignRight: ctx.editor.isActive({ textAlign: "right" }),
+      justify: ctx.editor.isActive({ textAlign: "justify" }),
+    }),
+  });
+
   if (!editor) {
     return null;
   }
@@ -161,10 +214,8 @@ function TextButtonsComponent() {
         <Tooltip delayDuration={400} key={item.name}>
           <TooltipTrigger asChild>
             <Button
-              className={cn(
-                "!rounded-sm",
-                item.isActive(editor) && "!bg-primary !text-primary-foreground"
-              )}
+              className="!rounded-sm data-[active=true]:bg-primary/20 data-[active=true]:text-primary"
+              data-active={activeStates[item.name as keyof typeof activeStates]}
               onClick={() => item.command(editor)}
               size="icon"
               type="button"
@@ -174,7 +225,14 @@ function TextButtonsComponent() {
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>{item.tooltip}</p>
+            <div className="flex items-center gap-1.5">
+              <span>{item.tooltip}</span>
+              {item.shortcut && (
+                <span className="flex items-center gap-0.5">
+                  {renderShortcut(item.shortcut)}
+                </span>
+              )}
+            </div>
           </TooltipContent>
         </Tooltip>
       ))}
@@ -190,11 +248,8 @@ function TextButtonsComponent() {
           <PopoverTrigger asChild>
             <TooltipTrigger asChild>
               <Button
-                className={cn(
-                  "!rounded-sm",
-                  editor.isActive("highlight") &&
-                    "bg-primary text-primary-foreground"
-                )}
+                className="!rounded-sm data-[active=true]:bg-primary/20 data-[active=true]:text-primary"
+                data-active={activeStates.highlight}
                 size="icon"
                 type="button"
                 variant="ghost"
@@ -228,11 +283,8 @@ function TextButtonsComponent() {
           <PopoverTrigger asChild>
             <TooltipTrigger asChild>
               <Button
-                className={cn(
-                  "!rounded-sm",
-                  editor.getAttributes("textStyle").color &&
-                    "bg-primary text-primary-foreground"
-                )}
+                className="!rounded-sm data-[active=true]:bg-primary/20 data-[active=true]:text-primary"
+                data-active={activeStates.textColor}
                 size="icon"
                 type="button"
                 variant="ghost"
@@ -292,11 +344,10 @@ function TextButtonsComponent() {
             <Tooltip delayDuration={400} key={item.name}>
               <TooltipTrigger asChild>
                 <Button
-                  className={cn(
-                    "!rounded-sm",
-                    item.isActive(editor) &&
-                      "bg-primary text-primary-foreground"
-                  )}
+                  className="!rounded-sm data-[active=true]:bg-primary/20 data-[active=true]:text-primary"
+                  data-active={
+                    activeStates[item.name as keyof typeof activeStates]
+                  }
                   onClick={() => item.command(editor)}
                   size="icon"
                   type="button"
@@ -306,7 +357,14 @@ function TextButtonsComponent() {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>{item.tooltip}</p>
+                <div className="flex items-center gap-1.5">
+                  <span>{item.tooltip}</span>
+                  {item.shortcut && (
+                    <span className="flex items-center gap-0.5">
+                      {renderShortcut(item.shortcut)}
+                    </span>
+                  )}
+                </div>
               </TooltipContent>
             </Tooltip>
           ))}
@@ -321,11 +379,10 @@ function TextButtonsComponent() {
             <Tooltip delayDuration={400} key={item.name}>
               <TooltipTrigger asChild>
                 <Button
-                  className={cn(
-                    "!rounded-sm",
-                    item.isActive(editor) &&
-                      "bg-primary text-primary-foreground"
-                  )}
+                  className="!rounded-sm data-[active=true]:bg-primary/20 data-[active=true]:text-primary"
+                  data-active={
+                    activeStates[item.name as keyof typeof activeStates]
+                  }
                   onClick={() => item.command(editor)}
                   size="icon"
                   type="button"
@@ -335,7 +392,14 @@ function TextButtonsComponent() {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>{item.tooltip}</p>
+                <div className="flex items-center gap-1.5">
+                  <span>{item.tooltip}</span>
+                  {item.shortcut && (
+                    <span className="flex items-center gap-0.5">
+                      {renderShortcut(item.shortcut)}
+                    </span>
+                  )}
+                </div>
               </TooltipContent>
             </Tooltip>
           ))}

@@ -148,6 +148,9 @@ export const SlashCommand = Extension.create({
               });
 
               // Mount the React component inside the container
+              if (!component) {
+                return;
+              }
               popup = component.element;
               popupContainer.appendChild(popup);
               document.body.appendChild(popupContainer);

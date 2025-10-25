@@ -38,8 +38,7 @@ function DragHandleComponent({ editor }: DragHandleProps) {
     } else {
       editor.commands.setMeta("lockDragHandle", false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [menuOpen]);
+  }, [menuOpen, editor]);
 
   // Don't render until editor view is fully initialized
   if (!editor?.view?.dom) {
