@@ -1,8 +1,16 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-  "extends": ["ultracite"],
+  "extends": [
+    "ultracite",
+    "ultracite/core",
+    "ultracite/astro"
+  ],
   "files": {
-    "includes": ["**", "!packages/ui/src", "!apps/cms/src/hooks/use-mobile.tsx"]
+    "includes": [
+      "**",
+      "!packages/ui/src",
+      "!apps/cms/src/hooks/use-mobile.tsx"
+    ]
   },
   "linter": {
     "rules": {
