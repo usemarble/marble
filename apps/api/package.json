@@ -11,7 +11,7 @@
     "@marble/db": "workspace:*",
     "@upstash/ratelimit": "^2.0.5",
     "@upstash/redis": "^1.34.4",
-    "hono": "^4.9.7",
+    "hono": "^4.10.3",
     "node-html-markdown": "^1.3.0",
     "zod": "^3.25.76"
   },
