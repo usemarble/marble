@@ -25,6 +25,7 @@ export async function GET(
       slug: true,
       title: true,
       status: true,
+      featured: true,
       content: true,
       coverImage: true,
       description: true,
@@ -49,6 +50,7 @@ export async function GET(
     slug: post.slug,
     title: post.title,
     status: post.status,
+    featured: post.featured,
     content: post.content,
     coverImage: post.coverImage,
     description: post.description,
@@ -86,6 +88,18 @@ export async function PATCH(
     );
   }
 
+  const existingPostWithSlug = await db.post.findFirst({
+    where: {
+      slug: values.data.slug,
+      workspaceId,
+      id: { not: id },
+    },
+  });
+
+  if (existingPostWithSlug) {
+    return NextResponse.json({ error: "Slug already in use" }, { status: 409 });
+  }
+
   const contentJson = JSON.parse(values.data.contentJson);
   const validAttribution = values.data.attribution
     ? values.data.attribution
@@ -102,6 +116,22 @@ export async function PATCH(
   }
 
   const { uniqueTagIds } = tagValidation;
+
+  if (values.data.category) {
+    const category = await db.category.findFirst({
+      where: {
+        id: values.data.category,
+        workspaceId,
+      },
+    });
+
+    if (!category) {
+      return NextResponse.json(
+        { error: "Invalid category provided" },
+        { status: 400 }
+      );
+    }
+  }
 
   // Find all authors for the provided author IDs
   const validAuthors = await db.author.findMany({
@@ -146,6 +176,7 @@ export async function PATCH(
         slug: values.data.slug,
         title: values.data.title,
         status: values.data.status,
+        featured: values.data.featured,
         content: cleanContent,
         categoryId: values.data.category,
         coverImage: values.data.coverImage,
@@ -156,7 +187,6 @@ export async function PATCH(
         tags: values.data.tags
           ? { set: uniqueTagIds.map((id) => ({ id })) }
           : undefined,
-        primaryAuthorId: primaryAuthor.id,
         authors: {
           set: validAuthors.map((author) => ({ id: author.id })),
         },

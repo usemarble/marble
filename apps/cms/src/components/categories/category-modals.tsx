@@ -29,10 +29,6 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import {
-  checkCategorySlugAction,
-  checkCategorySlugForUpdateAction,
-} from "@/lib/actions/checks";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import {
   type CreateCategoryValues,
@@ -65,7 +61,6 @@ export const CategoryModal = ({
     handleSubmit,
     setValue,
     watch,
-    setError,
     reset,
     formState: { errors, isSubmitting },
   } = useForm<CreateCategoryValues>({
@@ -79,17 +74,27 @@ export const CategoryModal = ({
   const { name } = watch();
   const workspaceId = useWorkspaceId();
 
-  const { mutate: createCategory } = useMutation({
-    mutationFn: (data: CreateCategoryValues) =>
-      fetch("/api/categories", {
-        method: "POST",
-        body: JSON.stringify(data),
-      }).then((res) => {
+  const { mutate: createCategory, isPending: isCreating } = useMutation({
+    mutationFn: async (data: CreateCategoryValues) => {
+      try {
+        const res = await fetch("/api/categories", {
+          method: "POST",
+          body: JSON.stringify(data),
+        });
+
         if (!res.ok) {
-          throw new Error("Failed to create category");
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || "Failed to create category");
         }
-        return res.json();
-      }),
+
+        const responseData = await res.json();
+        return responseData;
+      } catch (error) {
+        throw new Error(
+          error instanceof Error ? error.message : "Failed to create category"
+        );
+      }
+    },
     onSuccess: (data) => {
       setOpen(false);
       toast.success("Category created successfully");
@@ -107,17 +112,27 @@ export const CategoryModal = ({
     },
   });
 
-  const { mutate: updateCategory } = useMutation({
-    mutationFn: (data: CreateCategoryValues) =>
-      fetch(`/api/categories/${categoryData.id}`, {
-        method: "PATCH",
-        body: JSON.stringify(data),
-      }).then((res) => {
+  const { mutate: updateCategory, isPending: isUpdating } = useMutation({
+    mutationFn: async (data: CreateCategoryValues) => {
+      try {
+        const res = await fetch(`/api/categories/${categoryData.id}`, {
+          method: "PATCH",
+          body: JSON.stringify(data),
+        });
+
         if (!res.ok) {
-          throw new Error("Failed to update category");
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || "Failed to update category");
         }
-        return res.json();
-      }),
+
+        const responseData = await res.json();
+        return responseData;
+      } catch (error) {
+        throw new Error(
+          error instanceof Error ? error.message : "Failed to update category"
+        );
+      }
+    },
     onSuccess: () => {
       setOpen(false);
       toast.success("Category updated successfully");
@@ -148,22 +163,6 @@ export const CategoryModal = ({
     // Guard against missing category ID in update mode
     if (mode === "update" && !categoryData.id) {
       toast.error("Category ID is missing - cannot update category");
-      return;
-    }
-
-    const isTaken =
-      mode === "create"
-        ? await checkCategorySlugAction(data.slug, workspaceId)
-        : await checkCategorySlugForUpdateAction(
-            data.slug,
-            workspaceId,
-            categoryData.id as string
-          );
-
-    if (isTaken) {
-      setError("slug", {
-        message: "You already have a category with that slug",
-      });
       return;
     }
 
@@ -218,7 +217,7 @@ export const CategoryModal = ({
             </DialogClose>
             <AsyncButton
               className="gap-2"
-              isLoading={isSubmitting}
+              isLoading={isSubmitting || isCreating || isUpdating}
               type="submit"
             >
               {mode === "create" ? "Create" : "Update"}

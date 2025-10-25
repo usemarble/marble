@@ -127,8 +127,8 @@ const fileHandler = FileHandler.configure({
 });
 
 export const defaultExtensions: Extension[] = [
-  starterKit,
-  placeholder,
+  starterKit as unknown as Extension,
+  placeholder as unknown as Extension,
   textAlign,
   TextStyle as unknown as Extension,
   Color as unknown as Extension,

@@ -1,32 +1,28 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { MediaQueryKey } from "@/types/media";
-import { invalidateOtherMediaQueries } from "@/utils/media";
 
 export function useMediaActions(mediaQueryKey: MediaQueryKey) {
   const queryClient = useQueryClient();
   const workspaceId = useWorkspaceId();
 
-  const handleUploadComplete = () => {
-    if (workspaceId) {
-      queryClient.invalidateQueries({ queryKey: mediaQueryKey, exact: true });
-      invalidateOtherMediaQueries(queryClient, workspaceId, mediaQueryKey);
+  const handleActionComplete = () => {
+    if (!workspaceId) {
+      return;
     }
+    queryClient.invalidateQueries({ queryKey: mediaQueryKey, exact: true });
+
+    const allMediaPrefixKey = QUERY_KEYS.MEDIA(workspaceId);
+    queryClient.invalidateQueries({
+      queryKey: allMediaPrefixKey,
+      exact: false,
+    });
   };
 
-  const handleDeleteComplete = (_id: string) => {
-    if (workspaceId) {
-      queryClient.invalidateQueries({ queryKey: mediaQueryKey, exact: true });
-      invalidateOtherMediaQueries(queryClient, workspaceId, mediaQueryKey);
-    }
-  };
-
-  const handleBulkDeleteComplete = (_ids: string[]) => {
-    if (workspaceId) {
-      queryClient.invalidateQueries({ queryKey: mediaQueryKey, exact: true });
-      invalidateOtherMediaQueries(queryClient, workspaceId, mediaQueryKey);
-    }
-  };
+  const handleUploadComplete = () => handleActionComplete();
+  const handleDeleteComplete = (_id: string) => handleActionComplete();
+  const handleBulkDeleteComplete = (_ids: string[]) => handleActionComplete();
 
   return {
     handleUploadComplete,

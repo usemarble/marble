@@ -87,11 +87,12 @@ function EditorPage({ initialData, id }: EditorPageProps) {
       fetch("/api/posts", {
         method: "POST",
         body: JSON.stringify(values),
-      }).then((res) => {
+      }).then(async (res) => {
         if (!res.ok) {
-          throw new Error("Failed to create post");
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || "Failed to create post");
         }
-        return res.json();
+        return await res.json();
       }),
     onSuccess: (data) => {
       toast.success("Post created");
@@ -103,8 +104,8 @@ function EditorPage({ initialData, id }: EditorPageProps) {
       }
       setHasUnsavedChanges(false);
     },
-    onError: () => {
-      toast.error("Something went wrong.");
+    onError: (error) => {
+      toast.error(error.message);
     },
   });
 
@@ -113,6 +114,12 @@ function EditorPage({ initialData, id }: EditorPageProps) {
       fetch(`/api/posts/${id}`, {
         method: "PATCH",
         body: JSON.stringify(values),
+      }).then(async (res) => {
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || "Failed to update post");
+        }
+        return res;
       }),
     onSuccess: async (_data, variables) => {
       toast.success("Post updated");
@@ -129,8 +136,8 @@ function EditorPage({ initialData, id }: EditorPageProps) {
       form.reset({ ...variables });
       setHasUnsavedChanges(false);
     },
-    onError: () => {
-      toast.error("Something went wrong.");
+    onError: (error) => {
+      toast.error(error.message);
     },
   });
 

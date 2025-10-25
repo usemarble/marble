@@ -1,45 +1,13 @@
 import { db } from "@marble/db";
+import { markdownToHtml, markdownToTiptap } from "@marble/parser/tiptap";
 import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
-import { postSchema } from "@/lib/validations/post";
+import { postImportSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";
 import { getWebhooks, WebhookClient } from "@/lib/webhooks/webhook-client";
 import { sanitizeHtml } from "@/utils/editor";
 import { generateSlug } from "@/utils/string";
-
-export async function GET() {
-  const sessionData = await getServerSession();
-  const activeWorkspaceId = sessionData?.session.activeOrganizationId;
-
-  if (!sessionData || !activeWorkspaceId) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  }
-
-  const posts = await db.post.findMany({
-    where: { workspaceId: activeWorkspaceId },
-    select: {
-      id: true,
-      title: true,
-      status: true,
-      featured: true,
-      publishedAt: true,
-      updatedAt: true,
-      authors: {
-        select: {
-          id: true,
-          name: true,
-          image: true,
-        },
-      },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
-
-  return NextResponse.json(posts);
-}
 
 export async function POST(request: Request) {
   const sessionData = await getServerSession();
@@ -49,7 +17,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const values = postSchema.safeParse(await request.json());
+  const body = await request.json();
+  const values = postImportSchema.safeParse(body);
   if (!values.success) {
     return NextResponse.json(
       { error: "Invalid request body", details: values.error.issues },
@@ -70,14 +39,7 @@ export async function POST(request: Request) {
 
   const baseSlug = generateSlug(sessionData.user.name);
   const uniqueSlug = `${baseSlug}-${nanoid(6)}`;
-  // Ensure there is an author profile for this user; create if missing using upsert
-  // since its possible for a user to have no author profile, We can take several directions
-  // 1. create an author profile for the user
-  // 2. use the first author in the workspace
-  // 3. reject the request
 
-  // since primary author is not required and is really only a way for us to track the original creator of the post,
-  // We'll go with the first option and create an author profile for the user (for now)
   const primaryAuthor = await db.author.upsert({
     where: {
       workspaceId_userId: {
@@ -97,11 +59,13 @@ export async function POST(request: Request) {
     },
   });
 
-  const contentJson = JSON.parse(values.data.contentJson);
   const validAttribution = values.data.attribution
     ? values.data.attribution
     : undefined;
-  const cleanContent = sanitizeHtml(values.data.content);
+
+  const contentJson = markdownToTiptap(values.data.content);
+  const htmlContent = await markdownToHtml(values.data.content || "");
+  const cleanContent = sanitizeHtml(htmlContent);
 
   const tagValidation = await validateWorkspaceTags(
     values.data.tags,
@@ -130,11 +94,9 @@ export async function POST(request: Request) {
     }
   }
 
-  // Find all authors for the provided author IDs, this may or may not include the primary author
-  // if the list of authors selected by the user doesnt include their own author profile
-  // it will not be added to the list as this is what is returned to users via the public api
-  // however for internal tracking they will be saved as the primary author
-  const authorIds = values.data.authors || [primaryAuthor.id];
+  const authorIds = values.data.authors?.length
+    ? values.data.authors
+    : [primaryAuthor.id];
   const validAuthors = await db.author.findMany({
     where: {
       id: { in: authorIds },
