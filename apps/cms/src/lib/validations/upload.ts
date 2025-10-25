@@ -7,7 +7,6 @@ import {
   MAX_AVATAR_FILE_SIZE,
   MAX_LOGO_FILE_SIZE,
   MAX_MEDIA_FILE_SIZE,
-  MEDIA_LIMIT,
 } from "@/lib/constants";
 import type { UploadType } from "@/types/media";
 
@@ -138,15 +137,6 @@ export const completeSchema = z.union([
   completeLogoSchema,
   completeMediaSchema,
 ]);
-
-export const GetSchema = z.object({
-  limit: z.coerce.number().int().min(1).max(100).default(MEDIA_LIMIT),
-  cursor: z.string().min(1).optional(),
-  type: z.enum(["image", "video", "audio", "document"]).optional(),
-  sort: z
-    .enum(["createdAt_desc", "createdAt_asc", "name_asc", "name_desc"])
-    .default("createdAt_desc"),
-});
 
 export const DeleteSchema = z
   .object({
