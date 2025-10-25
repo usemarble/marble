@@ -68,8 +68,8 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
           <TooltipTrigger asChild>
             <Button
               className={cn(
-                "gap-2 border-none",
-                editor.isActive("link") && "bg-emerald-500/10 text-emerald-500"
+                "!rounded-sm gap-2 border-none",
+                editor.isActive("link") && "bg-primary text-primary-foreground"
               )}
               size="icon"
               variant="ghost"

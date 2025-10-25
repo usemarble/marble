@@ -162,7 +162,8 @@ function TextButtonsComponent() {
           <TooltipTrigger asChild>
             <Button
               className={cn(
-                item.isActive(editor) && "bg-emerald-500/10 text-emerald-500"
+                "!rounded-sm",
+                item.isActive(editor) && "!bg-primary !text-primary-foreground"
               )}
               onClick={() => item.command(editor)}
               size="icon"
@@ -190,8 +191,9 @@ function TextButtonsComponent() {
             <TooltipTrigger asChild>
               <Button
                 className={cn(
+                  "!rounded-sm",
                   editor.isActive("highlight") &&
-                    "bg-emerald-500/10 text-emerald-500"
+                    "bg-primary text-primary-foreground"
                 )}
                 size="icon"
                 type="button"
@@ -227,8 +229,9 @@ function TextButtonsComponent() {
             <TooltipTrigger asChild>
               <Button
                 className={cn(
+                  "!rounded-sm",
                   editor.getAttributes("textStyle").color &&
-                    "bg-emerald-500/10 text-emerald-500"
+                    "bg-primary text-primary-foreground"
                 )}
                 size="icon"
                 type="button"
@@ -265,7 +268,12 @@ function TextButtonsComponent() {
         <Tooltip delayDuration={400}>
           <PopoverTrigger asChild>
             <TooltipTrigger asChild>
-              <Button size="icon" type="button" variant="ghost">
+              <Button
+                className="!rounded-sm"
+                size="icon"
+                type="button"
+                variant="ghost"
+              >
                 <EllipsisVertical className="size-4" />
               </Button>
             </TooltipTrigger>
@@ -275,7 +283,7 @@ function TextButtonsComponent() {
           </TooltipContent>
         </Tooltip>
         <PopoverContent
-          className="inline-flex w-fit items-center gap-0.5 rounded-lg border bg-background p-1 shadow-sm"
+          className="!rounded-sm inline-flex w-fit items-center gap-0.5 border bg-background p-1 shadow-sm"
           container={portalContainer}
           side="top"
         >
@@ -285,8 +293,9 @@ function TextButtonsComponent() {
               <TooltipTrigger asChild>
                 <Button
                   className={cn(
+                    "!rounded-sm",
                     item.isActive(editor) &&
-                      "bg-emerald-500/10 text-emerald-500"
+                      "bg-primary text-primary-foreground"
                   )}
                   onClick={() => item.command(editor)}
                   size="icon"
@@ -313,8 +322,9 @@ function TextButtonsComponent() {
               <TooltipTrigger asChild>
                 <Button
                   className={cn(
+                    "!rounded-sm",
                     item.isActive(editor) &&
-                      "bg-emerald-500/10 text-emerald-500"
+                      "bg-primary text-primary-foreground"
                   )}
                   onClick={() => item.command(editor)}
                   size="icon"

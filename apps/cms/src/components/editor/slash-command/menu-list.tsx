@@ -121,10 +121,6 @@ export const MenuList = forwardRef<
     [selectItem]
   );
 
-  if (!props.items.length) {
-    return null;
-  }
-
   return (
     <Surface
       className="slash-command-scrollbar z-50 h-auto max-h-80 w-60 overflow-y-auto px-1 py-2 transition-all"
@@ -133,8 +129,13 @@ export const MenuList = forwardRef<
         scrollbarWidth: "thin",
       }}
     >
-      <div className="space-y-1">
-        {props.items.map((group, groupIndex) => (
+      {!props.items.length ? (
+        <div className="px-2 py-1 text-center text-muted-foreground text-sm">
+          No results
+        </div>
+      ) : (
+        <div className="space-y-1">
+          {props.items.map((group, groupIndex) => (
           <div className="mb-4 last:mb-0" key={`${group.title}-wrapper`}>
             <div
               className="mx-2 mt-4 select-none font-semibold text-[0.65rem] text-muted-foreground uppercase tracking-wider first:mt-0.5"
@@ -167,7 +168,8 @@ export const MenuList = forwardRef<
             </div>
           </div>
         ))}
-      </div>
+        </div>
+      )}
     </Surface>
   );
 });

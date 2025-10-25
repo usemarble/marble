@@ -176,8 +176,8 @@ function ContentTypePickerComponent() {
       <DropdownMenuTrigger asChild>
         <Button
           className={cn(
-            "gap-1",
-            isActive && "bg-emerald-500/10 text-emerald-500"
+            "!rounded-sm gap-1",
+            isActive && "bg-primary text-primary-foreground"
           )}
           size="icon"
           type="button"
@@ -212,7 +212,7 @@ function ContentTypePickerComponent() {
             <DropdownMenuItem
               className={cn(
                 "flex cursor-pointer items-center gap-2",
-                isOptionActive && "bg-emerald-500/10 text-emerald-500"
+                isOptionActive && "bg-primary text-primary-foreground"
               )}
               disabled={isDisabled}
               key={option.id}

@@ -12,8 +12,6 @@ import { MenuList } from "./menu-list";
 
 const extensionName = "slashCommand";
 
-let cleanup: (() => void) | null = null;
-
 export const SlashCommand = Extension.create({
   name: extensionName,
 
@@ -111,9 +109,14 @@ export const SlashCommand = Extension.create({
             SuggestionProps
           > | null = null;
           let popup: HTMLElement | null = null;
+          let popupContainer: HTMLDivElement | null = null;
+          let isDestroyed = false;
 
           return {
             onStart: (props: SuggestionProps) => {
+              // Reset destroyed flag for new menu session
+              isDestroyed = false;
+
               component = new ReactRenderer(MenuList, {
                 props,
                 editor: props.editor,
@@ -128,9 +131,26 @@ export const SlashCommand = Extension.create({
                 return;
               }
 
-              // Create popup element
+              // Create a dedicated container div for stability
+              popupContainer = document.createElement("div");
+              popupContainer.setAttribute("contenteditable", "false");
+              popupContainer.style.position = "absolute";
+              popupContainer.style.top = "0";
+              popupContainer.style.left = "0";
+              popupContainer.style.zIndex = "50";
+              popupContainer.style.opacity = "0";
+              popupContainer.style.transition = "opacity 0.1s";
+
+              // Prevent mousedown from causing editor to lose focus
+              popupContainer.addEventListener("mousedown", (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              });
+
+              // Mount the React component inside the container
               popup = component.element;
-              document.body.appendChild(popup);
+              popupContainer.appendChild(popup);
+              document.body.appendChild(popupContainer);
 
               // Create virtual element for Floating UI
               const virtualElement = {
@@ -138,37 +158,32 @@ export const SlashCommand = Extension.create({
               };
 
               // Use Floating UI for positioning
-              const updatePosition = () => {
-                if (!popup) {
-                  return;
+              computePosition(virtualElement, popupContainer, {
+                placement: "bottom-start",
+                middleware: [
+                  offset({ mainAxis: 8, crossAxis: 0 }),
+                  flip(),
+                  shift({ padding: 8 }),
+                ],
+              }).then(({ x, y }) => {
+                if (popupContainer && !isDestroyed) {
+                  Object.assign(popupContainer.style, {
+                    left: `${x}px`,
+                    top: `${y}px`,
+                    opacity: "1",
+                  });
                 }
-
-                computePosition(virtualElement, popup, {
-                  placement: "bottom-start",
-                  middleware: [
-                    offset({ mainAxis: 8, crossAxis: 0 }),
-                    flip(),
-                    shift({ padding: 8 }),
-                  ],
-                }).then(({ x, y }) => {
-                  if (popup) {
-                    Object.assign(popup.style, {
-                      left: `${x}px`,
-                      top: `${y}px`,
-                      position: "absolute",
-                      zIndex: "50",
-                    });
-                  }
-                });
-              };
-
-              updatePosition();
+              });
             },
 
             onUpdate(props: SuggestionProps) {
-              component?.updateProps(props);
+              if (isDestroyed || !component || !popupContainer) {
+                return;
+              }
 
-              if (!props.clientRect || !popup) {
+              component.updateProps(props);
+
+              if (!props.clientRect || !popupContainer) {
                 return;
               }
 
@@ -181,7 +196,7 @@ export const SlashCommand = Extension.create({
                 getBoundingClientRect: () => rect,
               };
 
-              computePosition(virtualElement, popup, {
+              computePosition(virtualElement, popupContainer, {
                 placement: "bottom-start",
                 middleware: [
                   offset({ mainAxis: 8, crossAxis: 0 }),
@@ -189,8 +204,8 @@ export const SlashCommand = Extension.create({
                   shift({ padding: 8 }),
                 ],
               }).then(({ x, y }) => {
-                if (popup) {
-                  Object.assign(popup.style, {
+                if (popupContainer && !isDestroyed) {
+                  Object.assign(popupContainer.style, {
                     left: `${x}px`,
                     top: `${y}px`,
                   });
@@ -200,14 +215,16 @@ export const SlashCommand = Extension.create({
 
             onKeyDown(props: SuggestionKeyDownProps) {
               if (props.event.key === "Escape") {
-                if (cleanup) {
-                  cleanup();
-                  cleanup = null;
+                if (!isDestroyed && popupContainer) {
+                  popupContainer.remove();
+                  popupContainer = null;
                 }
-                if (popup) {
-                  popup.remove();
+                if (!isDestroyed) {
+                  component?.destroy();
+                  component = null;
+                  popup = null;
+                  isDestroyed = true;
                 }
-                component?.destroy();
                 return true;
               }
 
@@ -215,16 +232,18 @@ export const SlashCommand = Extension.create({
             },
 
             onExit() {
-              if (cleanup) {
-                cleanup();
-                cleanup = null;
+              if (isDestroyed) {
+                return;
               }
-              if (popup) {
-                popup.remove();
+
+              if (popupContainer) {
+                popupContainer.remove();
+                popupContainer = null;
               }
               component?.destroy();
               component = null;
               popup = null;
+              isDestroyed = true;
             },
           };
         },

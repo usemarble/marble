@@ -19,7 +19,7 @@ import {
   RemoveFormatting,
   Trash2,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { useDragActions } from "./hooks/use-drag-actions";
 import { useDragData } from "./hooks/use-drag-data";
 
@@ -27,7 +27,7 @@ export type DragHandleProps = {
   editor: Editor;
 };
 
-export function DragHandle({ editor }: DragHandleProps) {
+function DragHandleComponent({ editor }: DragHandleProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const data = useDragData();
   const actions = useDragActions(editor, data.currentNode, data.currentNodePos);
@@ -38,7 +38,8 @@ export function DragHandle({ editor }: DragHandleProps) {
     } else {
       editor.commands.setMeta("lockDragHandle", false);
     }
-  }, [editor, menuOpen]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [menuOpen]);
 
   // Don't render until editor view is fully initialized
   if (!editor?.view?.dom) {
@@ -150,3 +151,6 @@ export function DragHandle({ editor }: DragHandleProps) {
     </TiptapDragHandle>
   );
 }
+
+// Memoize to prevent unnecessary re-renders that cause plugin unregister/register cycles
+export const DragHandle = memo(DragHandleComponent);
