@@ -1,12 +1,25 @@
+import { notFound, redirect } from "next/navigation";
+import { setActiveWorkspace } from "@/lib/auth/workspace";
 import { getInitialWorkspaceData } from "@/lib/queries/workspace";
 import { WorkspaceProvider } from "@/providers/workspace";
 
 export default async function WorkspaceLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: { workspace: string };
 }) {
-  const initialWorkspace = await getInitialWorkspaceData();
+  const workspaceSlug = (await params).workspace;
+  const initialWorkspace = await getInitialWorkspaceData(workspaceSlug, {
+    strict: true,
+  });
+
+  if (!initialWorkspace) {
+    notFound();
+  }
+
+  await setActiveWorkspace(workspaceSlug);
 
   return (
     <WorkspaceProvider initialWorkspace={initialWorkspace}>

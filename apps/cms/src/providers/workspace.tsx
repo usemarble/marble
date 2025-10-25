@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import {
   createContext,
   useCallback,
@@ -35,6 +35,7 @@ export function WorkspaceProvider({
 }: WorkspaceProviderProps) {
   const params = useParams<{ workspace: string }>();
   const router = useRouter();
+  const pathname = usePathname();
   const queryClient = useQueryClient();
   const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(
     initialWorkspace
@@ -138,7 +139,16 @@ export function WorkspaceProvider({
         // Set new workspace data
         queryClient.setQueryData(["workspace_by_slug", data.slug], data);
         queryClient.setQueryData(QUERY_KEYS.WORKSPACE(data.id), data);
-        router.push(`/${data.slug}`);
+
+        // Preserve the path after the workspace slug
+        // e.g., /oldworkspace/posts/123 → /newworkspace/posts/123
+        const pathSegments = pathname.split("/").filter(Boolean);
+        const pathAfterWorkspace = pathSegments.slice(1).join("/");
+        const newPath = pathAfterWorkspace
+          ? `/${data.slug}/${pathAfterWorkspace}`
+          : `/${data.slug}`;
+
+        router.push(newPath);
       }
       setIsSwitchingWorkspace(false);
     },

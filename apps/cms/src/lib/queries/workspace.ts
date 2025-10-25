@@ -1,9 +1,25 @@
 import { db } from "@marble/db";
 import type { RequestCookies } from "next/dist/compiled/@edge-runtime/cookies";
+import { getServerSession } from "@/lib/auth/session";
+import { workspaceSelect } from "@/lib/db/select";
 import type { Workspace } from "@/types/workspace";
 import { getLastVisitedWorkspace } from "@/utils/workspace";
-import { getServerSession } from "../auth/session";
 
+/**
+ * Determines which workspace should be activated for a given user.
+ *
+ * The function checks, in order:
+ *  1. The user's **last visited workspace** (stored in cookies),
+ *     verifying they still have access to it.
+ *  2. If not found or access was lost, the first workspace where the user is an **owner**.
+ *  3. If still none, the first workspace where the user is a **member**.
+ *
+ * Returns the workspace's `slug` and `id`, or `undefined` if the user has no accessible workspaces.
+ *
+ * @param userId - The ID of the user to look up workspaces for.
+ * @param cookies - Optional Next.js `RequestCookies` object, used to read the last visited workspace.
+ * @returns An object containing `{ slug, id }` for the selected workspace, or `undefined` if none found.
+ */
 export async function getLastActiveWorkspaceOrNewOneToSetAsActive(
   userId: string,
   cookies?: RequestCookies
@@ -73,74 +89,67 @@ export async function getLastActiveWorkspaceOrNewOneToSetAsActive(
   }
 }
 
-export async function getInitialWorkspaceData() {
+/**
+ * Fetches the initial workspace data for the active user.
+ *
+ * If a workspace slug is provided, the function attempts to fetch
+ * that workspace (checking membership). Otherwise, it falls back
+ * to the user's currently active session workspace.
+ *
+ * @param {string} [workspaceSlug] - Optional slug of the workspace to fetch.
+ * @returns {Promise<Workspace|null>} The workspace data or null if not found.
+ */
+export async function getInitialWorkspaceData(
+  workspaceSlug?: string,
+  { strict = false } = {}
+): Promise<Workspace | null> {
   try {
     const session = await getServerSession();
 
-    if (!session?.user || !session.session?.activeOrganizationId) {
+    if (!session?.user) {
       return null;
     }
 
-    const workspace = await db.organization.findUnique({
-      where: { id: session.session.activeOrganizationId },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        logo: true,
-        timezone: true,
-        createdAt: true,
-        editorPreferences: {
-          select: {
-            ai: {
-              select: {
-                enabled: true,
-              },
-            },
-          },
+    // biome-ignore lint/suspicious/noEvolvingTypes: <>
+    let workspace = null;
+
+    if (workspaceSlug) {
+      workspace = await db.organization.findUnique({
+        where: {
+          slug: workspaceSlug,
+          members: { some: { userId: session.user.id } },
         },
-        members: {
-          select: {
-            id: true,
-            role: true,
-            organizationId: true,
-            createdAt: true,
-            userId: true,
-            user: {
-              select: { id: true, name: true, email: true, image: true },
-            },
-          },
-        },
-        invitations: {
-          select: {
-            id: true,
-            email: true,
-            role: true,
-            status: true,
-            organizationId: true,
-            inviterId: true,
-            expiresAt: true,
-          },
-        },
-        subscription: {
-          select: {
-            id: true,
-            status: true,
-            plan: true,
-            currentPeriodStart: true,
-            currentPeriodEnd: true,
-            cancelAtPeriodEnd: true,
-            canceledAt: true,
-          },
-        },
-      },
-    });
+        select: workspaceSelect,
+      });
+
+      if (!workspace) {
+        return null;
+      }
+
+      const currentUserMember = workspace.members.find(
+        (member) => member.userId === session.user.id
+      );
+
+      if (strict) {
+        return {
+          ...workspace,
+          ai: workspace?.editorPreferences?.ai ?? { enabled: false },
+          currentUserRole: currentUserMember?.role || null,
+        } as Workspace;
+      }
+    }
+
+    if (!workspace && session.session?.activeOrganizationId) {
+      workspace = await db.organization.findUnique({
+        where: { id: session.session.activeOrganizationId },
+        select: workspaceSelect,
+      });
+    }
 
     if (!workspace) {
       return null;
     }
 
-    // Find current user's role in this workspace
     const currentUserMember = workspace.members.find(
       (member) => member.userId === session.user.id
     );
