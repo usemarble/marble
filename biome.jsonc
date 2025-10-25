@@ -1,9 +1,7 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "extends": [
-    "ultracite",
-    "ultracite/core",
-    "ultracite/astro"
+    "ultracite"
   ],
   "files": {
     "includes": [
@@ -44,9 +42,6 @@
       "nursery": {
         /* Needs more work to fix */
         "noShadow": "off",
-
-        /* Too Next.js-specific */
-        "useImageSize": "off",
 
         /* Has false positives */
         "noUnnecessaryConditions": "off"
