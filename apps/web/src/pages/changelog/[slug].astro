@@ -10,8 +10,8 @@ import { calculateReadTime } from "@/lib/utils";
 export const prerender = true;
 
 export async function getStaticPaths() {
-  const blogEntries = await getCollection("posts");
-  return blogEntries.map((entry) => ({
+  const changelogEntries = await getCollection("changelog");
+  return changelogEntries.map((entry) => ({
     params: { slug: entry.data.slug },
     props: { entry },
   }));
@@ -63,10 +63,10 @@ const readTime = calculateReadTime(entry.data.content);
                 <span class="h-4 w-0.5 bg-gray-300 shrink-0"></span>
                 <time datetime={entry.data.publishedAt.toISOString()} class="text-muted-foreground text-sm sm:text-base">{formattedDate}</time>
               </div>
-              <div class="flex items-center gap-2">
+              <!-- <div class="flex items-center gap-2">
                 <span class="h-4 w-0.5 bg-gray-300 shrink-0"></span>
                 <p class="text-muted-foreground text-sm sm:text-base">{readTime} minute read</p>
-              </div>
+              </div> -->
             </div>
             <!-- <div class="flex items-center gap-2">
               {entry.data.authors[0].image ? (

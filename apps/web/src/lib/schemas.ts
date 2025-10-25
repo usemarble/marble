@@ -56,6 +56,12 @@ export const postSchema = z.object({
 });
 export type Post = z.infer<typeof postSchema>;
 
+export const postsSchema = z.object({
+  posts: z.array(postSchema),
+  pagination: paginationSchema,
+});
+export type Posts = z.infer<typeof postsSchema>;
+
 export const categoryPostSchema = z.object({
   id: z.string(),
   title: z.string(),
@@ -92,7 +98,9 @@ export const categorySchema = z.object({
   name: z.string(),
   slug: z.string(),
   description: z.string().nullable(),
-  count: z.number(),
+  count: z.object({
+    posts: z.number(),
+  }),
 });
 export type Category = z.infer<typeof categorySchema>;
 

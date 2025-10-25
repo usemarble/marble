@@ -5,11 +5,11 @@ import { categorySchema, postSchema } from "./lib/schemas";
 
 const posts = defineCollection({
   loader: async () => {
-    const posts = await fetchPosts("?exclude=legal");
+    const response = await fetchPosts("?excludeCategories=legal,changelog");
     // Must return an array of entries with an id property
     // or an object with IDs as keys and entries as values
     return Promise.all(
-      posts.map(async (post) => ({
+      response.posts.map(async (post) => ({
         ...post,
         content: await highlightContent(post.content),
       }))
@@ -20,9 +20,10 @@ const posts = defineCollection({
 
 const page = defineCollection({
   loader: async () => {
-    const posts = await fetchPosts("?category=legal");
+    const response = await fetchPosts("?categories=legal");
+    console.log(response);
 
-    return posts.map((post) => ({
+    return response.posts.map((post) => ({
       ...post,
       // Astro uses the id as a key to get the entry
       // We can't know the id of the post so we use the slug
@@ -34,9 +35,9 @@ const page = defineCollection({
 
 const changelog = defineCollection({
   loader: async () => {
-    const posts = await fetchPosts("?category=changelog");
+    const response = await fetchPosts("?category=changelog");
 
-    return posts.map((post) => ({
+    return response.posts.map((post) => ({
       ...post,
       id: post.slug,
     }));
@@ -46,9 +47,9 @@ const changelog = defineCollection({
 
 const categories = defineCollection({
   loader: async () => {
-    const categories = await fetchCategories("?include=posts");
+    const response = await fetchCategories();
 
-    return categories.map((category) => ({
+    return response.categories.map((category) => ({
       ...category,
       id: category.slug,
     }));

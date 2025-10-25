@@ -1,9 +1,29 @@
-import type { Category, CategoryDetails, Post } from "./schemas";
+import type { Category, CategoryDetails, Post, Posts } from "./schemas";
 
 const key = import.meta.env.MARBLE_WORKSPACE_KEY;
 const url = import.meta.env.MARBLE_API_URL;
 
-export async function fetchPosts(queryParams = ""): Promise<Post[]> {
+type PostsResponse = {
+  posts: Post[];
+  pagination: {
+    limit: number;
+    currentPage: number;
+    nextPage: number | null;
+    previousPage: number | null;
+    totalPages: number;
+    totalItems: number;
+  };
+};
+
+type CategoriesResponse = {
+  categories: Category[];
+};
+
+type CategoryResponse = {
+  category: CategoryDetails;
+};
+
+export async function fetchPosts(queryParams = ""): Promise<PostsResponse> {
   const fullUrl = `${url}/${key}/posts${queryParams}`;
 
   try {
@@ -15,18 +35,40 @@ export async function fetchPosts(queryParams = ""): Promise<Post[]> {
         statusText: response.statusText,
         url: fullUrl,
       });
-      return [];
+      return {
+        posts: [],
+        pagination: {
+          limit: 0,
+          currentPage: 1,
+          nextPage: null,
+          previousPage: null,
+          totalPages: 0,
+          totalItems: 0,
+        },
+      };
     }
 
     const data = await response.json();
-    return data.posts as Post[];
+    return data as PostsResponse;
   } catch (error) {
     console.error(`Error fetching posts from ${fullUrl}:`, error);
-    return [];
+    return {
+      posts: [],
+      pagination: {
+        limit: 0,
+        currentPage: 1,
+        nextPage: null,
+        previousPage: null,
+        totalPages: 0,
+        totalItems: 0,
+      },
+    };
   }
 }
 
-export async function fetchCategories(queryParams = ""): Promise<Category[]> {
+export async function fetchCategories(
+  queryParams = ""
+): Promise<CategoriesResponse> {
   const fullUrl = `${url}/${key}/categories${queryParams}`;
 
   try {
@@ -38,21 +80,21 @@ export async function fetchCategories(queryParams = ""): Promise<Category[]> {
         statusText: response.statusText,
         url: fullUrl,
       });
-      return [];
+      return { categories: [] };
     }
 
     const data = await response.json();
-    return data.categories as Category[];
+    return data as CategoriesResponse;
   } catch (error) {
     console.error(`Error fetching categories from ${fullUrl}:`, error);
-    return [];
+    return { categories: [] };
   }
 }
 
 export async function fetchCategory(
   identifier: string,
   queryParams = ""
-): Promise<CategoryDetails | null> {
+): Promise<CategoryResponse | null> {
   const fullUrl = `${url}/${key}/categories/${identifier}${queryParams}`;
 
   try {
@@ -68,7 +110,7 @@ export async function fetchCategory(
     }
 
     const data = await response.json();
-    return data.category as CategoryDetails;
+    return data as CategoryResponse;
   } catch (error) {
     console.error(`Error fetching categories from ${fullUrl}:`, error);
     return null;

@@ -18,8 +18,8 @@ const categoriesToShow = categories.filter(
     {
         categoriesToShow.map((category) => {
         const isChangelog = category.data.slug === "changelog";
-        const link = isChangelog ? "/changelog" : `/category/${category.data.slug}`;
-        const isActive = Astro.url.pathname === `/category/${category.data.slug}`;
+        const link = isChangelog ? "/changelog" : `/blog/category/${category.data.slug}`;
+        const isActive = Astro.url.pathname === `/blog/category/${category.data.slug}`;
         return (
         <li>
             <a href={link} class={`inline-block text-sm border rounded-full px-4 py-1.5 ${isActive ? "bg-primary text-white border-transparent" : "bg-transparent text-foreground border-border"}`}>{category.data.name}</a>
