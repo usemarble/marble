@@ -27,6 +27,11 @@ function BubbleMenuComponent() {
         return false;
       }
 
+      // Hide bubble menu if image or imageUpload is selected
+      if (editor.isActive("image") || editor.isActive("imageUpload")) {
+        return false;
+      }
+
       // Hide bubble menu if table row or column grip is selected
       const isRowGrip = isRowGripSelected({
         editor,

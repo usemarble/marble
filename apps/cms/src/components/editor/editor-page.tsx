@@ -178,7 +178,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
 
   const editor = useEditor({
     extensions: defaultExtensions,
-    content: watch("content") || "<p>Start Typing...</p>",
+    content: watch("content") || "",
     editorProps: {
       attributes: {
         class:
