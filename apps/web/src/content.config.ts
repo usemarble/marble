@@ -1,4 +1,4 @@
-import { defineCollection, z } from "astro:content";
+import { defineCollection } from "astro:content";
 import { highlightContent } from "./lib/highlight";
 import { fetchCategories, fetchPosts } from "./lib/queries";
 import { categorySchema, postSchema } from "./lib/schemas";
