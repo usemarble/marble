@@ -1,8 +1,14 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-  "extends": ["ultracite"],
+  "extends": [
+    "ultracite"
+  ],
   "files": {
-    "includes": ["**", "!packages/ui/src", "!apps/cms/src/hooks/use-mobile.tsx"]
+    "includes": [
+      "**",
+      "!packages/ui/src",
+      "!apps/cms/src/hooks/use-mobile.tsx"
+    ]
   },
   "linter": {
     "rules": {
@@ -36,9 +42,6 @@
       "nursery": {
         /* Needs more work to fix */
         "noShadow": "off",
-
-        /* Too Next.js-specific */
-        "useImageSize": "off",
 
         /* Has false positives */
         "noUnnecessaryConditions": "off"
