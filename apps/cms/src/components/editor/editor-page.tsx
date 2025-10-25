@@ -23,6 +23,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { BubbleMenu } from "@/components/editor/bubble-menu";
+import { DragHandle } from "@/components/editor/drag-handle";
 import { EditorSidebar } from "@/components/editor/editor-sidebar";
 import {
   TableColumnMenu,
@@ -289,6 +290,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
       <BubbleMenu />
       {editor && <TableRowMenu editor={editor} />}
       {editor && <TableColumnMenu editor={editor} />}
+      {editor && <DragHandle editor={editor} />}
       <SidebarInset className="h-[calc(100vh-1rem)] min-h-[calc(100vh-1rem)] rounded-xl border bg-editor-content-background shadow-xs">
         <header className="sticky top-0 z-50 flex justify-between p-3">
           <div className="flex items-center gap-4">

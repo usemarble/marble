@@ -5,6 +5,7 @@ import { Highlight } from "@tiptap/extension-highlight";
 import { HorizontalRule } from "@tiptap/extension-horizontal-rule";
 import { Image } from "@tiptap/extension-image";
 import { TaskItem, TaskList } from "@tiptap/extension-list";
+import { NodeRange } from "@tiptap/extension-node-range";
 import { Subscript } from "@tiptap/extension-subscript";
 import { Superscript } from "@tiptap/extension-superscript";
 import TextAlign from "@tiptap/extension-text-align";
@@ -133,4 +134,6 @@ export const defaultExtensions: Extension[] = [
   Column as unknown as Extension,
   CharacterCount as unknown as Extension,
   SlashCommand as unknown as Extension,
+  // DragHandle as unknown as Extension,
+  NodeRange as unknown as Extension,
 ];

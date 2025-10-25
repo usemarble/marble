@@ -1,11 +1,5 @@
-import {
-  autoUpdate,
-  computePosition,
-  flip,
-  offset,
-  shift,
-} from "@floating-ui/dom";
-import type { Editor } from "@tiptap/core";
+import { computePosition, flip, offset, shift } from "@floating-ui/dom";
+// import type { Editor } from "@tiptap/core";
 import { Extension } from "@tiptap/core";
 import { PluginKey } from "@tiptap/pm/state";
 import { ReactRenderer } from "@tiptap/react";
@@ -34,14 +28,25 @@ export const SlashCommand = Extension.create({
         startOfLine: false,
         pluginKey: new PluginKey(extensionName),
         allow: ({ state }) => {
-          // Check if cursor is inside a table cell
+          // Check if cursor is inside a table by examining the document structure
           const $from = state.selection.$from;
+
+          // Check the parent node directly
+          if (
+            $from.parent.type.name === "tableCell" ||
+            $from.parent.type.name === "tableHeader"
+          ) {
+            return false; // Disable slash command inside tables
+          }
+
+          // Also check ancestors in case we're nested deeper
           for (let d = $from.depth; d > 0; d--) {
             const nodeName = $from.node(d).type.name;
             if (nodeName === "tableCell" || nodeName === "tableHeader") {
               return false; // Disable slash command inside tables
             }
           }
+
           return true; // Allow slash command everywhere else
         },
         command: ({ editor, props }) => {
@@ -158,9 +163,6 @@ export const SlashCommand = Extension.create({
               };
 
               updatePosition();
-
-              // Auto-update position on scroll/resize
-              cleanup = autoUpdate(virtualElement, popup, updatePosition);
             },
 
             onUpdate(props: SuggestionProps) {
