@@ -1,5 +1,6 @@
 ---
 import type { CollectionEntry } from "astro:content";
+import { cn } from "@/lib/utils";
 
 type Props = {
   categories: CollectionEntry<"categories">[];
@@ -9,21 +10,23 @@ const { categories } = Astro.props as Props;
 const categoriesToShow = categories.filter(
   (category) => category.data.slug !== "legal"
 );
+
+const currentPath = Astro.url.pathname.replace(/\/$/, "");
 ---
 
  <ul class="flex flex-wrap items-center gap-2 justify-center mt-8">
-     <li>
-        <a href="/blog" class={`inline-block border text-sm rounded-full px-5 py-1.5 ${Astro.url.pathname === "/blog" ? "bg-primary text-white border-transparent" : "bg-transparent text-foreground border-border"}`}>All Posts</a>
-      </li>
+    <li>
+      <a href="/blog" class={cn("inline-block border text-sm rounded-full px-5 py-1.5", currentPath === "/blog" ? "bg-primary text-white border-transparent" : "bg-transparent text-foreground border-border")}>All Posts</a>
+    </li>
     {
-        categoriesToShow.map((category) => {
-        const isChangelog = category.data.slug === "changelog";
-        const link = isChangelog ? "/changelog" : `/blog/category/${category.data.slug}`;
-        const isActive = Astro.url.pathname === `/blog/category/${category.data.slug}`;
+      categoriesToShow.map((category) => {
+      const link = `/blog/category/${category.data.slug}`;
+      const isActive = currentPath === `/blog/category/${category.data.slug}`;
         return (
-        <li>
-            <a href={link} class={`inline-block text-sm border rounded-full px-4 py-1.5 ${isActive ? "bg-primary text-white border-transparent" : "bg-transparent text-foreground border-border"}`}>{category.data.name}</a>
-        </li>
-        )})
+          <li>
+            <a href={link} class={cn("inline-block text-sm border rounded-full px-4 py-1.5", isActive ? "bg-primary text-white border-transparent" : "bg-transparent text-foreground border-border")}>{category.data.name}</a>
+          </li>
+        )
+      })
     }
 </ul>
