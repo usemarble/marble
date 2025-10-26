@@ -18,6 +18,7 @@ import {
 } from "@marble/ui/components/tabs";
 import { ImagesIcon, SpinnerIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import Image from "next/image";
 import { useEditor } from "novel";
 import { useState } from "react";
 import { ImageDropzone } from "@/components/shared/dropzone";
@@ -74,7 +75,7 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
 
     try {
       setIsValidatingUrl(true);
-      const img = new Image();
+      const img = new window.Image();
       img.onload = () => {
         if (editorInstance.editor) {
           editorInstance.editor
@@ -137,11 +138,11 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
               {file ? (
                 <div className="flex flex-col gap-4">
                   <div className="relative h-full w-full">
-                    {/* biome-ignore lint/performance/noImgElement: <> */}
-                    <img
+                    <Image
                       alt="cover"
                       className="h-full w-full rounded-md object-cover"
                       src={URL.createObjectURL(file)}
+                      unoptimized
                     />
                     {isUploading && (
                       <div className="absolute inset-0 grid size-full place-content-center rounded-md bg-black/50 p-2 backdrop-blur-xs">
@@ -203,11 +204,11 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
                             onClick={() => handleEmbed(item.url)}
                             type="button"
                           >
-                            {/* biome-ignore lint/performance/noImgElement: <> */}
-                            <img
+                            <Image
                               alt={item.name}
                               className="h-full w-full object-cover"
                               src={item.url}
+                              unoptimized
                             />
                           </button>
                         </li>

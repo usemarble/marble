@@ -20,33 +20,36 @@ type BillingUsage = {
 export function usePlan() {
   const { activeWorkspace } = useWorkspace();
 
-  const currentPlan: PlanType = useMemo(() => {
-    return getWorkspacePlan(activeWorkspace?.subscription);
-  }, [activeWorkspace?.subscription]);
+  const currentPlan: PlanType = useMemo(
+    () => getWorkspacePlan(activeWorkspace?.subscription),
+    [activeWorkspace?.subscription]
+  );
 
-  const currentMemberCount = useMemo(() => {
-    return activeWorkspace?.members?.length || 0;
-  }, [activeWorkspace?.members]);
+  const currentMemberCount = useMemo(
+    () => activeWorkspace?.members?.length || 0,
+    [activeWorkspace?.members]
+  );
 
-  const planLimits: PlanLimits = useMemo(() => {
-    return getPlanLimits(currentPlan);
-  }, [currentPlan]);
+  const planLimits: PlanLimits = useMemo(
+    () => getPlanLimits(currentPlan),
+    [currentPlan]
+  );
 
-  const canInvite = useMemo(() => {
-    return canInviteMoreMembers(currentPlan, currentMemberCount);
-  }, [currentPlan, currentMemberCount]);
+  const canInvite = useMemo(
+    () => canInviteMoreMembers(currentPlan, currentMemberCount),
+    [currentPlan, currentMemberCount]
+  );
 
-  const remainingSlots = useMemo(() => {
-    return getRemainingMemberSlots(currentPlan, currentMemberCount);
-  }, [currentPlan, currentMemberCount]);
+  const remainingSlots = useMemo(
+    () => getRemainingMemberSlots(currentPlan, currentMemberCount),
+    [currentPlan, currentMemberCount]
+  );
 
-  const canUseFeature = (feature: keyof PlanLimits["features"]) => {
-    return canPerformAction(currentPlan, feature);
-  };
+  const canUseFeature = (feature: keyof PlanLimits["features"]) =>
+    canPerformAction(currentPlan, feature);
 
-  const checkLimits = (usage: Parameters<typeof isOverLimit>[1]) => {
-    return isOverLimit(currentPlan, usage);
-  };
+  const checkLimits = (usage: Parameters<typeof isOverLimit>[1]) =>
+    isOverLimit(currentPlan, usage);
 
   const { data } = useQuery({
     // biome-ignore lint/style/noNonNullAssertion: <>

@@ -116,9 +116,8 @@ export const TagSelector = ({
     // Optimistically update React Query cache
     queryClient.setQueryData(
       QUERY_KEYS.TAGS(workspaceId),
-      (oldData: TagResponse[] | undefined) => {
-        return oldData ? [...oldData, newTag] : [newTag];
-      }
+      (oldData: TagResponse[] | undefined) =>
+        oldData ? [...oldData, newTag] : [newTag]
     );
 
     // Also invalidate to refetch from server

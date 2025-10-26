@@ -141,19 +141,21 @@ export function EditorSidebar({
 
   const [hasFetchedAiOnce, setHasFetchedAiOnce] = useState(false);
 
-  const localSuggestions = useMemo(() => {
-    return generateLocalSuggestions({
-      wordCount: metrics.wordCount,
-      sentenceCount: metrics.sentenceCount,
-      wordsPerSentence: metrics.wordsPerSentence,
-      readabilityScore: metrics.readabilityScore,
-    });
-  }, [
-    metrics.wordCount,
-    metrics.sentenceCount,
-    metrics.wordsPerSentence,
-    metrics.readabilityScore,
-  ]);
+  const localSuggestions = useMemo(
+    () =>
+      generateLocalSuggestions({
+        wordCount: metrics.wordCount,
+        sentenceCount: metrics.sentenceCount,
+        wordsPerSentence: metrics.wordsPerSentence,
+        readabilityScore: metrics.readabilityScore,
+      }),
+    [
+      metrics.wordCount,
+      metrics.sentenceCount,
+      metrics.wordsPerSentence,
+      metrics.readabilityScore,
+    ]
+  );
 
   // biome-ignore lint/style/noNonNullAssertion: <>
   const workspaceId = activeWorkspace!.id;

@@ -25,7 +25,7 @@ export function UnsavedChangesProvider({
 
     const beforeUnload = (e: BeforeUnloadEvent) => {
       e.preventDefault();
-      window.alert("You have unsaved changes. Are you sure you want to leave?");
+      e.returnValue = "";
     };
 
     window.addEventListener("beforeunload", beforeUnload);

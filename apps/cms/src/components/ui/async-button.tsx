@@ -4,7 +4,7 @@
 import { Button, buttonVariants } from "@marble/ui/components/button";
 import { cn } from "@marble/ui/lib/utils";
 import type { VariantProps } from "class-variance-authority";
-import { type ComponentProps, forwardRef, type ReactNode } from "react";
+import type { ComponentProps, ReactNode, RefObject } from "react";
 
 // Spinner component with proper variant-based styling
 function LoadingSpinner({
@@ -64,59 +64,59 @@ interface AsyncButtonProps extends ComponentProps<typeof Button> {
    * Note: loadingText takes priority over this prop
    */
   keepTextWhileLoading?: boolean;
+  /**
+   * Optional ref for the underlying button element
+   */
+  ref?: RefObject<HTMLButtonElement | null>;
 }
 
-const AsyncButton = forwardRef<HTMLButtonElement, AsyncButtonProps>(
-  (
-    {
-      children,
-      isLoading = false,
-      loadingText,
-      keepTextWhileLoading = false,
-      disabled,
-      variant = "default",
-      className,
-      ...props
-    },
-    ref
-  ) => {
-    const renderLoadingContent = () => {
-      // Priority: loadingText > keepTextWhileLoading > spinner only
-      if (loadingText) {
-        return (
-          <>
-            <LoadingSpinner className="mr-2" variant={variant} />
-            {loadingText}
-          </>
-        );
-      }
+const AsyncButton = ({
+  children,
+  isLoading = false,
+  loadingText,
+  keepTextWhileLoading = false,
+  disabled,
+  variant = "default",
+  className,
+  ref,
+  ...props
+}: AsyncButtonProps) => {
+  const renderLoadingContent = () => {
+    // Priority: loadingText > keepTextWhileLoading > spinner only
+    if (loadingText) {
+      return (
+        <>
+          <LoadingSpinner className="mr-2" variant={variant} />
+          {loadingText}
+        </>
+      );
+    }
 
-      if (keepTextWhileLoading) {
-        return (
-          <>
-            <LoadingSpinner className="mr-2" variant={variant} />
-            {children}
-          </>
-        );
-      }
+    if (keepTextWhileLoading) {
+      return (
+        <>
+          <LoadingSpinner className="mr-2" variant={variant} />
+          {children}
+        </>
+      );
+    }
 
-      // Default: spinner only
-      return <LoadingSpinner variant={variant} />;
-    };
+    // Default: spinner only
+    return <LoadingSpinner variant={variant} />;
+  };
 
-    return (
-      <Button
-        className={className}
-        disabled={disabled || isLoading}
-        ref={ref}
-        variant={variant}
-        {...props}
-      >
-        {isLoading ? renderLoadingContent() : children}
-      </Button>
-    );
-  }
-);
+  return (
+    <Button
+      className={className}
+      disabled={disabled || isLoading}
+      ref={ref}
+      variant={variant}
+      {...props}
+    >
+      {isLoading ? renderLoadingContent() : children}
+    </Button>
+  );
+};
 
 AsyncButton.displayName = "AsyncButton";
 
