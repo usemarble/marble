@@ -4,144 +4,144 @@ import { getServerSession } from "@/lib/auth/session";
 import { authorSchema } from "@/lib/validations/authors";
 
 export async function DELETE(
-	_request: Request,
-	{ params }: { params: Promise<{ id: string }> },
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
-	const sessionData = await getServerSession();
+  const sessionData = await getServerSession();
 
-	if (!sessionData?.user || !sessionData?.session.activeOrganizationId) {
-		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-	}
+  if (!sessionData?.user || !sessionData?.session.activeOrganizationId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
-	const { id } = await params;
+  const { id } = await params;
 
-	if (!id) {
-		return NextResponse.json(
-			{ error: "Author ID is required" },
-			{ status: 400 },
-		);
-	}
+  if (!id) {
+    return NextResponse.json(
+      { error: "Author ID is required" },
+      { status: 400 }
+    );
+  }
 
-	try {
-		const author = await db.author.findFirst({
-			where: {
-				id,
-				workspaceId: sessionData.session.activeOrganizationId,
-			},
-		});
+  try {
+    const author = await db.author.findFirst({
+      where: {
+        id,
+        workspaceId: sessionData.session.activeOrganizationId,
+      },
+    });
 
-		if (!author) {
-			return NextResponse.json({ error: "Author not found" }, { status: 404 });
-		}
+    if (!author) {
+      return NextResponse.json({ error: "Author not found" }, { status: 404 });
+    }
 
-		const deletedAuthor = await db.author.delete({
-			where: {
-				id,
-				workspaceId: sessionData.session.activeOrganizationId,
-			},
-		});
+    const deletedAuthor = await db.author.delete({
+      where: {
+        id,
+        workspaceId: sessionData.session.activeOrganizationId,
+      },
+    });
 
-		return NextResponse.json(deletedAuthor.id, { status: 200 });
-	} catch (error) {
-		console.error("Failed to delete author:", error);
-		return NextResponse.json(
-			{ error: "Failed to delete author" },
-			{ status: 500 },
-		);
-	}
+    return NextResponse.json(deletedAuthor.id, { status: 200 });
+  } catch (error) {
+    console.error("Failed to delete author:", error);
+    return NextResponse.json(
+      { error: "Failed to delete author" },
+      { status: 500 }
+    );
+  }
 }
 
 export async function PATCH(
-	request: Request,
-	{ params }: { params: Promise<{ id: string }> },
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
-	const sessionData = await getServerSession();
-	const workspaceId = sessionData?.session.activeOrganizationId;
-	const { id } = await params;
+  const sessionData = await getServerSession();
+  const workspaceId = sessionData?.session.activeOrganizationId;
+  const { id } = await params;
 
-	if (!sessionData || !workspaceId) {
-		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-	}
+  if (!sessionData || !workspaceId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
-	try {
-		const body = await request.json();
-		const parsedBody = authorSchema.safeParse(body);
+  try {
+    const body = await request.json();
+    const parsedBody = authorSchema.safeParse(body);
 
-		if (!parsedBody.success) {
-			return NextResponse.json(
-				{ error: "Invalid request body", details: parsedBody.error.issues },
-				{ status: 400 },
-			);
-		}
+    if (!parsedBody.success) {
+      return NextResponse.json(
+        { error: "Invalid request body", details: parsedBody.error.issues },
+        { status: 400 }
+      );
+    }
 
-		const { name, bio, role, email, image, userId, slug, socials } =
-			parsedBody.data;
+    const { name, bio, role, email, image, userId, slug, socials } =
+      parsedBody.data;
 
-		const validEmail = email === "" ? null : email;
-		const validUserId = userId ? userId : null;
+    const validEmail = email === "" ? null : email;
+    const validUserId = userId ? userId : null;
 
-		const author = await db.author.findFirst({
-			where: {
-				id,
-				workspaceId,
-			},
-		});
+    const author = await db.author.findFirst({
+      where: {
+        id,
+        workspaceId,
+      },
+    });
 
-		if (!author) {
-			return NextResponse.json({ error: "Author not found" }, { status: 404 });
-		}
+    if (!author) {
+      return NextResponse.json({ error: "Author not found" }, { status: 404 });
+    }
 
-		const existingAuthorWithSlug = await db.author.findFirst({
-			where: {
-				slug,
-				workspaceId,
-				id: { not: id },
-			},
-		});
+    const existingAuthorWithSlug = await db.author.findFirst({
+      where: {
+        slug,
+        workspaceId,
+        id: { not: id },
+      },
+    });
 
-		if (existingAuthorWithSlug) {
-			return NextResponse.json(
-				{ error: "Slug already in use" },
-				{ status: 409 },
-			);
-		}
+    if (existingAuthorWithSlug) {
+      return NextResponse.json(
+        { error: "Slug already in use" },
+        { status: 409 }
+      );
+    }
 
-		const updatedAuthor = await db.author.update({
-			where: {
-				id,
-				workspaceId,
-			},
-			data: {
-				name,
-				bio,
-				role,
-				email: validEmail,
-				image,
-				slug,
-				userId: validUserId,
-				...(typeof socials !== "undefined" && {
-					socials: {
-						deleteMany: {},
-						...(socials.length > 0 && {
-							create: socials.map((social) => ({
-								url: social.url,
-								platform: social.platform,
-							})),
-						}),
-					},
-				}),
-			},
-			include: {
-				socials: true,
-			},
-		});
+    const updatedAuthor = await db.author.update({
+      where: {
+        id,
+        workspaceId,
+      },
+      data: {
+        name,
+        bio,
+        role,
+        email: validEmail,
+        image,
+        slug,
+        userId: validUserId,
+        ...(typeof socials !== "undefined" && {
+          socials: {
+            deleteMany: {},
+            ...(socials.length > 0 && {
+              create: socials.map((social) => ({
+                url: social.url,
+                platform: social.platform,
+              })),
+            }),
+          },
+        }),
+      },
+      include: {
+        socials: true,
+      },
+    });
 
-		return NextResponse.json(updatedAuthor, { status: 200 });
-	} catch (error) {
-		console.error("Failed to update author:", error);
-		return NextResponse.json(
-			{ error: "Failed to update author" },
-			{ status: 500 },
-		);
-	}
+    return NextResponse.json(updatedAuthor, { status: 200 });
+  } catch (error) {
+    console.error("Failed to update author:", error);
+    return NextResponse.json(
+      { error: "Failed to update author" },
+      { status: 500 }
+    );
+  }
 }

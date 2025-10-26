@@ -11,14 +11,14 @@ import { getServerSession } from "@/lib/auth/session";
  * @returns True if the slug is taken, false otherwise
  */
 export async function checkCategorySlugAction(
-	slug: string,
-	workspaceId: string,
+  slug: string,
+  workspaceId: string
 ) {
-	const result = await db.category.findFirst({
-		where: { workspaceId, slug },
-	});
+  const result = await db.category.findFirst({
+    where: { workspaceId, slug },
+  });
 
-	return !!result;
+  return !!result;
 }
 
 /**
@@ -29,47 +29,47 @@ export async function checkCategorySlugAction(
  * @returns True if the slug is taken, false otherwise
  */
 export async function checkCategorySlugForUpdateAction(
-	slug: string,
-	workspaceId: string,
-	currentCategoryId: string,
+  slug: string,
+  workspaceId: string,
+  currentCategoryId: string
 ) {
-	const result = await db.category.findFirst({
-		where: {
-			workspaceId,
-			slug,
-			NOT: {
-				id: currentCategoryId,
-			},
-		},
-	});
+  const result = await db.category.findFirst({
+    where: {
+      workspaceId,
+      slug,
+      NOT: {
+        id: currentCategoryId,
+      },
+    },
+  });
 
-	return !!result;
+  return !!result;
 }
 
 export async function checkTagSlugAction(slug: string, workspaceId: string) {
-	const result = await db.tag.findFirst({
-		where: { workspaceId, slug },
-	});
+  const result = await db.tag.findFirst({
+    where: { workspaceId, slug },
+  });
 
-	return !!result;
+  return !!result;
 }
 
 export async function checkTagSlugForUpdateAction(
-	slug: string,
-	workspaceId: string,
-	currentTagId: string,
+  slug: string,
+  workspaceId: string,
+  currentTagId: string
 ) {
-	const result = await db.tag.findFirst({
-		where: {
-			workspaceId,
-			slug,
-			NOT: {
-				id: currentTagId,
-			},
-		},
-	});
+  const result = await db.tag.findFirst({
+    where: {
+      workspaceId,
+      slug,
+      NOT: {
+        id: currentTagId,
+      },
+    },
+  });
 
-	return !!result;
+  return !!result;
 }
 
 /**
@@ -79,11 +79,11 @@ export async function checkTagSlugForUpdateAction(
  * @returns True if the slug is taken, false otherwise
  */
 export async function checkAuthorSlugAction(slug: string, workspaceId: string) {
-	const result = await db.author.findFirst({
-		where: { workspaceId, slug },
-	});
+  const result = await db.author.findFirst({
+    where: { workspaceId, slug },
+  });
 
-	return !!result;
+  return !!result;
 }
 
 /**
@@ -94,21 +94,21 @@ export async function checkAuthorSlugAction(slug: string, workspaceId: string) {
  * @returns True if the slug is taken, false otherwise
  */
 export async function checkAuthorSlugForUpdateAction(
-	slug: string,
-	workspaceId: string,
-	currentAuthorId: string,
+  slug: string,
+  workspaceId: string,
+  currentAuthorId: string
 ) {
-	const result = await db.author.findFirst({
-		where: {
-			workspaceId,
-			slug,
-			NOT: {
-				id: currentAuthorId,
-			},
-		},
-	});
+  const result = await db.author.findFirst({
+    where: {
+      workspaceId,
+      slug,
+      NOT: {
+        id: currentAuthorId,
+      },
+    },
+  });
 
-	return !!result;
+  return !!result;
 }
 
 /**
@@ -117,25 +117,25 @@ export async function checkAuthorSlugForUpdateAction(
  * @returns The invite email
  */
 export async function verifyInvite(inviteId: string) {
-	const session = await getServerSession();
-	const invite = await db.invitation.findUnique({
-		where: { id: inviteId, email: session?.user.email },
-		select: { email: true, status: true, expiresAt: true },
-	});
+  const session = await getServerSession();
+  const invite = await db.invitation.findUnique({
+    where: { id: inviteId, email: session?.user.email },
+    select: { email: true, status: true, expiresAt: true },
+  });
 
-	if (!invite) {
-		throw new Error("Invite not found");
-	}
+  if (!invite) {
+    throw new Error("Invite not found");
+  }
 
-	if (invite.status !== "pending") {
-		throw new Error("Invite is no longer valid");
-	}
+  if (invite.status !== "pending") {
+    throw new Error("Invite is no longer valid");
+  }
 
-	if (invite.expiresAt < new Date()) {
-		throw new Error("Invite has expired");
-	}
+  if (invite.expiresAt < new Date()) {
+    throw new Error("Invite has expired");
+  }
 
-	return invite.email;
+  return invite.email;
 }
 
 /**
@@ -143,49 +143,49 @@ export async function verifyInvite(inviteId: string) {
  * @returns The webhook secret
  */
 export const generateWebhookSecretAction = async () => {
-	try {
-		const secret = randomBytes(32).toString("hex");
-		return { success: true, secret };
-	} catch (error) {
-		console.error("Failed to generate webhook secret:", error);
-		return { success: false, secret: null };
-	}
+  try {
+    const secret = randomBytes(32).toString("hex");
+    return { success: true, secret };
+  } catch (error) {
+    console.error("Failed to generate webhook secret:", error);
+    return { success: false, secret: null };
+  }
 };
 
 export async function checkWorkspaceSlug(
-	slug: string,
-	currentWorkspaceId?: string,
+  slug: string,
+  currentWorkspaceId?: string
 ) {
-	const session = await getServerSession();
-	if (!session?.user) {
-		throw new Error("Unauthorized");
-	}
+  const session = await getServerSession();
+  if (!session?.user) {
+    throw new Error("Unauthorized");
+  }
 
-	const workspace = await db.organization.findFirst({
-		where: {
-			slug,
-			NOT: currentWorkspaceId ? { id: currentWorkspaceId } : undefined,
-		},
-	});
+  const workspace = await db.organization.findFirst({
+    where: {
+      slug,
+      NOT: currentWorkspaceId ? { id: currentWorkspaceId } : undefined,
+    },
+  });
 
-	return !!workspace; // Return true if slug is in use (workspace found)
+  return !!workspace; // Return true if slug is in use (workspace found)
 }
 
 export async function checkPostSlugAvailable(
-	slug: string,
-	workspaceId: string | null,
+  slug: string,
+  workspaceId: string | null
 ) {
-	const session = await getServerSession();
-	if (!session?.user) {
-		throw new Error("Unauthorized");
-	}
-	if (!workspaceId) {
-		throw new Error("Workspace ID is required");
-	}
-	const post = await db.post.findFirst({
-		where: { workspaceId, slug: { equals: slug, mode: "insensitive" } },
-		select: { id: true },
-	});
+  const session = await getServerSession();
+  if (!session?.user) {
+    throw new Error("Unauthorized");
+  }
+  if (!workspaceId) {
+    throw new Error("Workspace ID is required");
+  }
+  const post = await db.post.findFirst({
+    where: { workspaceId, slug: { equals: slug, mode: "insensitive" } },
+    select: { id: true },
+  });
 
-	return !post;
+  return !post;
 }

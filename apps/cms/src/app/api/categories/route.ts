@@ -5,77 +5,77 @@ import { categorySchema } from "@/lib/validations/workspace";
 import { getWebhooks, WebhookClient } from "@/lib/webhooks/webhook-client";
 
 export async function GET() {
-	const sessionData = await getServerSession();
-	const workspaceId = sessionData?.session.activeOrganizationId;
+  const sessionData = await getServerSession();
+  const workspaceId = sessionData?.session.activeOrganizationId;
 
-	if (!sessionData || !workspaceId) {
-		return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-	}
+  if (!sessionData || !workspaceId) {
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  }
 
-	const categories = await db.category.findMany({
-		where: { workspaceId },
-		select: {
-			id: true,
-			name: true,
-			slug: true,
-		},
-	});
+  const categories = await db.category.findMany({
+    where: { workspaceId },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+    },
+  });
 
-	return NextResponse.json(categories, { status: 200 });
+  return NextResponse.json(categories, { status: 200 });
 }
 
 export async function POST(req: Request) {
-	const sessionData = await getServerSession();
-	const workspaceId = sessionData?.session.activeOrganizationId;
+  const sessionData = await getServerSession();
+  const workspaceId = sessionData?.session.activeOrganizationId;
 
-	if (!sessionData || !workspaceId) {
-		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-	}
+  if (!sessionData || !workspaceId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
-	const json = await req.json();
-	const body = categorySchema.safeParse(json);
+  const json = await req.json();
+  const body = categorySchema.safeParse(json);
 
-	if (!body.success) {
-		return NextResponse.json(
-			{ error: "Invalid request body", details: body.error.issues },
-			{ status: 400 },
-		);
-	}
+  if (!body.success) {
+    return NextResponse.json(
+      { error: "Invalid request body", details: body.error.issues },
+      { status: 400 }
+    );
+  }
 
-	const existingCategory = await db.category.findFirst({
-		where: {
-			slug: body.data.slug,
-			workspaceId,
-		},
-	});
+  const existingCategory = await db.category.findFirst({
+    where: {
+      slug: body.data.slug,
+      workspaceId,
+    },
+  });
 
-	if (existingCategory) {
-		return NextResponse.json({ error: "Slug already in use" }, { status: 409 });
-	}
+  if (existingCategory) {
+    return NextResponse.json({ error: "Slug already in use" }, { status: 409 });
+  }
 
-	const categoryCreated = await db.category.create({
-		data: {
-			name: body.data.name,
-			slug: body.data.slug,
-			workspaceId,
-		},
-	});
+  const categoryCreated = await db.category.create({
+    data: {
+      name: body.data.name,
+      slug: body.data.slug,
+      workspaceId,
+    },
+  });
 
-	const webhooks = getWebhooks(sessionData.session, "category_created");
+  const webhooks = getWebhooks(sessionData.session, "category_created");
 
-	for (const webhook of await webhooks) {
-		const webhookClient = new WebhookClient({ secret: webhook.secret });
-		await webhookClient.send({
-			url: webhook.endpoint,
-			event: "category.created",
-			data: {
-				id: categoryCreated.id,
-				slug: categoryCreated.slug,
-				userId: sessionData.user.id,
-			},
-			format: webhook.format,
-		});
-	}
+  for (const webhook of await webhooks) {
+    const webhookClient = new WebhookClient({ secret: webhook.secret });
+    await webhookClient.send({
+      url: webhook.endpoint,
+      event: "category.created",
+      data: {
+        id: categoryCreated.id,
+        slug: categoryCreated.slug,
+        userId: sessionData.user.id,
+      },
+      format: webhook.format,
+    });
+  }
 
-	return NextResponse.json(categoryCreated, { status: 201 });
+  return NextResponse.json(categoryCreated, { status: 201 });
 }

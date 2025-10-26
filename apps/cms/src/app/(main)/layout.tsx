@@ -1,13 +1,13 @@
 import { UserProvider } from "@/providers/user";
 
 export default async function MainLayout({
-	children,
+  children,
 }: {
-	children: React.ReactNode;
+  children: React.ReactNode;
 }) {
-	return (
-		<UserProvider initialUser={null}>
-			<div>{children}</div>
-		</UserProvider>
-	);
+  return (
+    <UserProvider initialUser={null}>
+      <div>{children}</div>
+    </UserProvider>
+  );
 }

@@ -7,29 +7,29 @@ import type { PostValues } from "@/lib/validations/post";
 import { FieldInfo } from "./field-info";
 
 type FeaturedFieldProps = {
-	control: Control<PostValues>;
+  control: Control<PostValues>;
 };
 
 export function FeaturedField({ control }: FeaturedFieldProps) {
-	const {
-		field: { onChange, value },
-	} = useController({
-		name: "featured",
-		control,
-	});
+  const {
+    field: { onChange, value },
+  } = useController({
+    name: "featured",
+    control,
+  });
 
-	return (
-		<div className="flex items-center justify-between gap-2">
-			<div className="flex items-center gap-1">
-				<Label htmlFor="featured">Featured</Label>
-				<FieldInfo text="Whether your post is featured or not." />
-			</div>
+  return (
+    <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center gap-1">
+        <Label htmlFor="featured">Featured</Label>
+        <FieldInfo text="Whether your post is featured or not." />
+      </div>
 
-			<Switch
-				checked={value === true}
-				id="featured"
-				onCheckedChange={() => onChange(!value)}
-			/>
-		</div>
-	);
+      <Switch
+        checked={value === true}
+        id="featured"
+        onCheckedChange={() => onChange(!value)}
+      />
+    </div>
+  );
 }

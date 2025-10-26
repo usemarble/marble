@@ -1,20 +1,20 @@
 {
-	"$schema": "https://ui.shadcn.com/schema.json",
-	"style": "default",
-	"rsc": true,
-	"tsx": true,
-	"tailwind": {
-		"config": "",
-		"css": "../../packages/ui/src/styles/globals.css",
-		"baseColor": "zinc",
-		"cssVariables": true
-	},
-	"iconLibrary": "lucide",
-	"aliases": {
-		"components": "@/components",
-		"hooks": "@/hooks",
-		"lib": "@/lib",
-		"utils": "@marble/ui/lib/utils",
-		"ui": "@marble/ui/components"
-	}
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "default",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "../../packages/ui/src/styles/globals.css",
+    "baseColor": "zinc",
+    "cssVariables": true
+  },
+  "iconLibrary": "lucide",
+  "aliases": {
+    "components": "@/components",
+    "hooks": "@/hooks",
+    "lib": "@/lib",
+    "utils": "@marble/ui/lib/utils",
+    "ui": "@marble/ui/components"
+  }
 }

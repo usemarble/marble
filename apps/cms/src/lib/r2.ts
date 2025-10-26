@@ -8,22 +8,22 @@ const ENDPOINT = process.env.CLOUDFLARE_S3_ENDPOINT;
 const PUBLIC_URL = process.env.CLOUDFLARE_PUBLIC_URL;
 
 if (
-	!ACCESS_KEY_ID ||
-	!SECRET_ACCESS_KEY ||
-	!BUCKET_NAME ||
-	!ENDPOINT ||
-	!PUBLIC_URL
+  !ACCESS_KEY_ID ||
+  !SECRET_ACCESS_KEY ||
+  !BUCKET_NAME ||
+  !ENDPOINT ||
+  !PUBLIC_URL
 ) {
-	throw new Error("Missing Cloudflare R2 environment variables");
+  throw new Error("Missing Cloudflare R2 environment variables");
 }
 
 export const r2 = new S3Client({
-	region: "auto",
-	endpoint: ENDPOINT,
-	credentials: {
-		accessKeyId: ACCESS_KEY_ID,
-		secretAccessKey: SECRET_ACCESS_KEY,
-	},
+  region: "auto",
+  endpoint: ENDPOINT,
+  credentials: {
+    accessKeyId: ACCESS_KEY_ID,
+    secretAccessKey: SECRET_ACCESS_KEY,
+  },
 });
 
 export const R2_BUCKET_NAME = BUCKET_NAME;

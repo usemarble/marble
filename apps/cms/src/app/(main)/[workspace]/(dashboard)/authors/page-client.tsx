@@ -11,38 +11,38 @@ import { useWorkspace } from "@/providers/workspace";
 import type { Author } from "@/types/author";
 
 function PageClient() {
-	const { activeWorkspace } = useWorkspace();
+  const { activeWorkspace } = useWorkspace();
 
-	const { data: authors, isLoading } = useQuery({
-		queryKey: QUERY_KEYS.AUTHORS(activeWorkspace?.id ?? ""),
-		queryFn: async () => {
-			try {
-				const response = await fetch("/api/authors");
-				if (!response.ok) {
-					throw new Error("Failed to fetch authors");
-				}
-				const data: Author[] = await response.json();
-				return data;
-			} catch (error) {
-				toast.error(
-					error instanceof Error ? error.message : "Failed to fetch authors",
-				);
-			}
-		},
-		enabled: !!activeWorkspace?.id,
-	});
+  const { data: authors, isLoading } = useQuery({
+    queryKey: QUERY_KEYS.AUTHORS(activeWorkspace?.id ?? ""),
+    queryFn: async () => {
+      try {
+        const response = await fetch("/api/authors");
+        if (!response.ok) {
+          throw new Error("Failed to fetch authors");
+        }
+        const data: Author[] = await response.json();
+        return data;
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : "Failed to fetch authors"
+        );
+      }
+    },
+    enabled: !!activeWorkspace?.id,
+  });
 
-	if (isLoading) {
-		return <PageLoader />;
-	}
+  if (isLoading) {
+    return <PageLoader />;
+  }
 
-	return (
-		<WorkspacePageWrapper>
-			<div className="space-y-6">
-				<AuthorDataTable columns={columns} data={authors || []} />
-			</div>
-		</WorkspacePageWrapper>
-	);
+  return (
+    <WorkspacePageWrapper>
+      <div className="space-y-6">
+        <AuthorDataTable columns={columns} data={authors || []} />
+      </div>
+    </WorkspacePageWrapper>
+  );
 }
 
 export default PageClient;

@@ -1,49 +1,49 @@
 {
-	"name": "marblecms",
-	"private": true,
-	"scripts": {
-		"docker:up": "docker compose up -d",
-		"docker:down": "docker compose down",
-		"docker:clean": "docker compose down -v",
-		"docker:logs": "docker compose logs -f",
-		"docker:ps": "docker compose ps",
-		"docker:restart": "docker compose restart",
-		"db:migrate": "pnpm --filter @marble/db db:migrate",
-		"db:deploy": "pnpm --filter @marble/db db:deploy",
-		"db:generate": "pnpm --filter @marble/db db:generate",
-		"db:studio": "pnpm --filter @marble/db db:studio",
-		"db:push": "pnpm --filter @marble/db db:push",
-		"build": "turbo build",
-		"dev": "turbo dev",
-		"lint": "npx ultracite@latest check",
-		"format": "npx ultracite@latest fix",
-		"web:dev": "turbo dev --filter=web",
-		"cms:dev": "turbo dev --filter=cms",
-		"api:dev": "turbo dev --filter=api",
-		"docs:dev": "turbo dev --filter=docs",
-		"test": "turbo test",
-		"prepare": "husky"
-	},
-	"devDependencies": {
-		"@biomejs/biome": "2.3.0",
-		"@commitlint/cli": "^19.8.1",
-		"@commitlint/config-conventional": "^19.8.1",
-		"@marble/tsconfig": "workspace:*",
-		"husky": "^9.1.7",
-		"prettier": "^3.3.3",
-		"prettier-plugin-tailwindcss": "^0.6.8",
-		"turbo": "^2.5.8",
-		"typescript": "^5.4.5",
-		"ultracite": "6.0.1"
-	},
-	"engines": {
-		"node": ">=20"
-	},
-	"pnpm": {
-		"overrides": {
-			"@types/react": "19.0.2",
-			"@types/react-dom": "19.0.2"
-		}
-	},
-	"packageManager": "pnpm@10.15.0"
+  "name": "marblecms",
+  "private": true,
+  "scripts": {
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:clean": "docker compose down -v",
+    "docker:logs": "docker compose logs -f",
+    "docker:ps": "docker compose ps",
+    "docker:restart": "docker compose restart",
+    "db:migrate": "pnpm --filter @marble/db db:migrate",
+    "db:deploy": "pnpm --filter @marble/db db:deploy",
+    "db:generate": "pnpm --filter @marble/db db:generate",
+    "db:studio": "pnpm --filter @marble/db db:studio",
+    "db:push": "pnpm --filter @marble/db db:push",
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "npx ultracite@latest check",
+    "format": "npx ultracite@latest fix",
+    "web:dev": "turbo dev --filter=web",
+    "cms:dev": "turbo dev --filter=cms",
+    "api:dev": "turbo dev --filter=api",
+    "docs:dev": "turbo dev --filter=docs",
+    "test": "turbo test",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.3.0",
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "@marble/tsconfig": "workspace:*",
+    "husky": "^9.1.7",
+    "prettier": "^3.3.3",
+    "prettier-plugin-tailwindcss": "^0.6.8",
+    "turbo": "^2.5.8",
+    "typescript": "^5.4.5",
+    "ultracite": "6.0.1"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "pnpm": {
+    "overrides": {
+      "@types/react": "19.0.2",
+      "@types/react-dom": "19.0.2"
+    }
+  },
+  "packageManager": "pnpm@10.15.0"
 }

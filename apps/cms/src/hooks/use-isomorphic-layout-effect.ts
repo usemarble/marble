@@ -6,4 +6,4 @@ import { useEffect, useLayoutEffect } from "react";
  * @param {Array<any>} [dependencies] - An array of dependencies for the effect (optional).
  */
 export const useIsomorphicLayoutEffect =
-	typeof window !== "undefined" ? useLayoutEffect : useEffect;
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;

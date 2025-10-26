@@ -3,17 +3,17 @@ import { Image } from "astro:assets";
 import type { CollectionEntry } from "astro:content";
 
 type Props = {
-	entry: CollectionEntry<"posts">;
+  entry: CollectionEntry<"posts">;
 };
 
 const { entry } = Astro.props as Props;
 const { title, description, coverImage, publishedAt, authors, slug } =
-	entry.data;
+  entry.data;
 
 const formattedDate = new Date(publishedAt).toLocaleDateString("en-US", {
-	day: "2-digit",
-	month: "2-digit",
-	year: "numeric",
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
 });
 ---
 

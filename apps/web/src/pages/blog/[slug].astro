@@ -10,22 +10,22 @@ import { calculateReadTime } from "@/lib/utils";
 export const prerender = true;
 
 export async function getStaticPaths() {
-	const blogEntries = await getCollection("posts");
-	return blogEntries.map((entry) => ({
-		params: { slug: entry.data.slug },
-		props: { entry },
-	}));
+  const blogEntries = await getCollection("posts");
+  return blogEntries.map((entry) => ({
+    params: { slug: entry.data.slug },
+    props: { entry },
+  }));
 }
 
 const { entry } = Astro.props;
 
 const formattedDate = new Date(entry.data.publishedAt).toLocaleDateString(
-	"en-US",
-	{
-		year: "numeric",
-		month: "long",
-		day: "numeric",
-	},
+  "en-US",
+  {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  }
 );
 
 const readTime = calculateReadTime(entry.data.content);

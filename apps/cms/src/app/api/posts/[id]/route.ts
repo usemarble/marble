@@ -7,276 +7,276 @@ import { getWebhooks, WebhookClient } from "@/lib/webhooks/webhook-client";
 import { sanitizeHtml } from "@/utils/editor";
 
 export async function GET(
-	_request: Request,
-	{ params }: { params: Promise<{ id: string }> },
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
-	const sessionData = await getServerSession();
-	const activeWorkspaceId = sessionData?.session.activeOrganizationId;
-	const { id } = await params;
+  const sessionData = await getServerSession();
+  const activeWorkspaceId = sessionData?.session.activeOrganizationId;
+  const { id } = await params;
 
-	if (!sessionData || !activeWorkspaceId) {
-		return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-	}
+  if (!sessionData || !activeWorkspaceId) {
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  }
 
-	const post = await db.post.findFirst({
-		where: { id, workspaceId: activeWorkspaceId },
-		select: {
-			id: true,
-			slug: true,
-			title: true,
-			status: true,
-			featured: true,
-			content: true,
-			coverImage: true,
-			description: true,
-			publishedAt: true,
-			contentJson: true,
-			categoryId: true,
-			attribution: true,
-			tags: {
-				select: { id: true },
-			},
-			authors: {
-				select: { id: true },
-			},
-		},
-	});
+  const post = await db.post.findFirst({
+    where: { id, workspaceId: activeWorkspaceId },
+    select: {
+      id: true,
+      slug: true,
+      title: true,
+      status: true,
+      featured: true,
+      content: true,
+      coverImage: true,
+      description: true,
+      publishedAt: true,
+      contentJson: true,
+      categoryId: true,
+      attribution: true,
+      tags: {
+        select: { id: true },
+      },
+      authors: {
+        select: { id: true },
+      },
+    },
+  });
 
-	if (!post) {
-		return NextResponse.json({ error: "Post not found" }, { status: 404 });
-	}
+  if (!post) {
+    return NextResponse.json({ error: "Post not found" }, { status: 404 });
+  }
 
-	const structuredData = {
-		slug: post.slug,
-		title: post.title,
-		status: post.status,
-		featured: post.featured,
-		content: post.content,
-		coverImage: post.coverImage,
-		description: post.description,
-		publishedAt: post.publishedAt,
-		attribution: post.attribution as Attribution,
-		contentJson: JSON.stringify(post.contentJson),
-		tags: post.tags.map((tag) => tag.id),
-		category: post.categoryId,
-		authors: post.authors.map((author) => author.id),
-	};
+  const structuredData = {
+    slug: post.slug,
+    title: post.title,
+    status: post.status,
+    featured: post.featured,
+    content: post.content,
+    coverImage: post.coverImage,
+    description: post.description,
+    publishedAt: post.publishedAt,
+    attribution: post.attribution as Attribution,
+    contentJson: JSON.stringify(post.contentJson),
+    tags: post.tags.map((tag) => tag.id),
+    category: post.categoryId,
+    authors: post.authors.map((author) => author.id),
+  };
 
-	return NextResponse.json(structuredData, { status: 200 });
+  return NextResponse.json(structuredData, { status: 200 });
 }
 
 export async function PATCH(
-	request: Request,
-	{ params }: { params: Promise<{ id: string }> },
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
-	const sessionData = await getServerSession();
-	const workspaceId = sessionData?.session.activeOrganizationId;
-	const { id } = await params;
+  const sessionData = await getServerSession();
+  const workspaceId = sessionData?.session.activeOrganizationId;
+  const { id } = await params;
 
-	if (!sessionData || !workspaceId) {
-		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-	}
+  if (!sessionData || !workspaceId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
-	const body = await request.json();
+  const body = await request.json();
 
-	const values = postSchema.safeParse(body);
+  const values = postSchema.safeParse(body);
 
-	if (!values.success) {
-		return NextResponse.json(
-			{ error: "Invalid request body", details: values.error.issues },
-			{ status: 400 },
-		);
-	}
+  if (!values.success) {
+    return NextResponse.json(
+      { error: "Invalid request body", details: values.error.issues },
+      { status: 400 }
+    );
+  }
 
-	const existingPostWithSlug = await db.post.findFirst({
-		where: {
-			slug: values.data.slug,
-			workspaceId,
-			id: { not: id },
-		},
-	});
+  const existingPostWithSlug = await db.post.findFirst({
+    where: {
+      slug: values.data.slug,
+      workspaceId,
+      id: { not: id },
+    },
+  });
 
-	if (existingPostWithSlug) {
-		return NextResponse.json({ error: "Slug already in use" }, { status: 409 });
-	}
+  if (existingPostWithSlug) {
+    return NextResponse.json({ error: "Slug already in use" }, { status: 409 });
+  }
 
-	const contentJson = JSON.parse(values.data.contentJson);
-	const validAttribution = values.data.attribution
-		? values.data.attribution
-		: undefined;
-	const cleanContent = sanitizeHtml(values.data.content);
+  const contentJson = JSON.parse(values.data.contentJson);
+  const validAttribution = values.data.attribution
+    ? values.data.attribution
+    : undefined;
+  const cleanContent = sanitizeHtml(values.data.content);
 
-	const tagValidation = await validateWorkspaceTags(
-		values.data.tags,
-		workspaceId,
-	);
+  const tagValidation = await validateWorkspaceTags(
+    values.data.tags,
+    workspaceId
+  );
 
-	if (!tagValidation.success) {
-		return tagValidation.response;
-	}
+  if (!tagValidation.success) {
+    return tagValidation.response;
+  }
 
-	const { uniqueTagIds } = tagValidation;
+  const { uniqueTagIds } = tagValidation;
 
-	if (values.data.category) {
-		const category = await db.category.findFirst({
-			where: {
-				id: values.data.category,
-				workspaceId,
-			},
-		});
+  if (values.data.category) {
+    const category = await db.category.findFirst({
+      where: {
+        id: values.data.category,
+        workspaceId,
+      },
+    });
 
-		if (!category) {
-			return NextResponse.json(
-				{ error: "Invalid category provided" },
-				{ status: 400 },
-			);
-		}
-	}
+    if (!category) {
+      return NextResponse.json(
+        { error: "Invalid category provided" },
+        { status: 400 }
+      );
+    }
+  }
 
-	// Find all authors for the provided author IDs
-	const validAuthors = await db.author.findMany({
-		where: {
-			id: { in: values.data.authors },
-			workspaceId,
-		},
-	});
+  // Find all authors for the provided author IDs
+  const validAuthors = await db.author.findMany({
+    where: {
+      id: { in: values.data.authors },
+      workspaceId,
+    },
+  });
 
-	if (validAuthors.length === 0) {
-		return NextResponse.json(
-			{ error: "No valid authors found" },
-			{ status: 400 },
-		);
-	}
+  if (validAuthors.length === 0) {
+    return NextResponse.json(
+      { error: "No valid authors found" },
+      { status: 400 }
+    );
+  }
 
-	// Use the first valid author as primary
-	const primaryAuthor = validAuthors[0];
+  // Use the first valid author as primary
+  const primaryAuthor = validAuthors[0];
 
-	if (!primaryAuthor) {
-		// This should never happen since validAuthors.length > 0
-		return NextResponse.json(
-			{ error: "Unable to determine primary author" },
-			{ status: 500 },
-		);
-	}
+  if (!primaryAuthor) {
+    // This should never happen since validAuthors.length > 0
+    return NextResponse.json(
+      { error: "Unable to determine primary author" },
+      { status: 500 }
+    );
+  }
 
-	const post = await db.post.findFirst({
-		where: { id, workspaceId },
-		select: { status: true },
-	});
+  const post = await db.post.findFirst({
+    where: { id, workspaceId },
+    select: { status: true },
+  });
 
-	if (!post) {
-		return NextResponse.json({ error: "Post not found" }, { status: 404 });
-	}
+  if (!post) {
+    return NextResponse.json({ error: "Post not found" }, { status: 404 });
+  }
 
-	try {
-		const postUpdated = await db.post.update({
-			where: { id },
-			data: {
-				contentJson,
-				slug: values.data.slug,
-				title: values.data.title,
-				status: values.data.status,
-				featured: values.data.featured,
-				content: cleanContent,
-				categoryId: values.data.category,
-				coverImage: values.data.coverImage,
-				description: values.data.description,
-				publishedAt: values.data.publishedAt,
-				attribution: validAttribution,
-				workspaceId,
-				tags: values.data.tags
-					? { set: uniqueTagIds.map((id) => ({ id })) }
-					: undefined,
-				authors: {
-					set: validAuthors.map((author) => ({ id: author.id })),
-				},
-			},
-		});
+  try {
+    const postUpdated = await db.post.update({
+      where: { id },
+      data: {
+        contentJson,
+        slug: values.data.slug,
+        title: values.data.title,
+        status: values.data.status,
+        featured: values.data.featured,
+        content: cleanContent,
+        categoryId: values.data.category,
+        coverImage: values.data.coverImage,
+        description: values.data.description,
+        publishedAt: values.data.publishedAt,
+        attribution: validAttribution,
+        workspaceId,
+        tags: values.data.tags
+          ? { set: uniqueTagIds.map((id) => ({ id })) }
+          : undefined,
+        authors: {
+          set: validAuthors.map((author) => ({ id: author.id })),
+        },
+      },
+    });
 
-		const data = {
-			id: postUpdated.id,
-			title: postUpdated.title,
-			slug: postUpdated.slug,
-			userId: sessionData.user.id,
-		};
+    const data = {
+      id: postUpdated.id,
+      title: postUpdated.title,
+      slug: postUpdated.slug,
+      userId: sessionData.user.id,
+    };
 
-		if (values.data.status === "published" && post.status === "draft") {
-			const webhooksPublished = getWebhooks(
-				sessionData.session,
-				"post_published",
-			);
+    if (values.data.status === "published" && post.status === "draft") {
+      const webhooksPublished = getWebhooks(
+        sessionData.session,
+        "post_published"
+      );
 
-			for (const webhook of await webhooksPublished) {
-				const webhookClient = new WebhookClient({ secret: webhook.secret });
-				await webhookClient.send({
-					url: webhook.endpoint,
-					event: "post.published",
-					data,
-					format: webhook.format,
-				});
-			}
-		}
+      for (const webhook of await webhooksPublished) {
+        const webhookClient = new WebhookClient({ secret: webhook.secret });
+        await webhookClient.send({
+          url: webhook.endpoint,
+          event: "post.published",
+          data,
+          format: webhook.format,
+        });
+      }
+    }
 
-		const webhooksUpdated = getWebhooks(sessionData.session, "post_updated");
+    const webhooksUpdated = getWebhooks(sessionData.session, "post_updated");
 
-		for (const webhook of await webhooksUpdated) {
-			const webhookClient = new WebhookClient({ secret: webhook.secret });
-			await webhookClient.send({
-				url: webhook.endpoint,
-				event: "post.updated",
-				data,
-				format: webhook.format,
-			});
-		}
+    for (const webhook of await webhooksUpdated) {
+      const webhookClient = new WebhookClient({ secret: webhook.secret });
+      await webhookClient.send({
+        url: webhook.endpoint,
+        event: "post.updated",
+        data,
+        format: webhook.format,
+      });
+    }
 
-		return NextResponse.json({ id: postUpdated.id }, { status: 200 });
-	} catch (_e) {
-		return NextResponse.json(
-			{ error: "Failed to update post" },
-			{ status: 500 },
-		);
-	}
+    return NextResponse.json({ id: postUpdated.id }, { status: 200 });
+  } catch (_e) {
+    return NextResponse.json(
+      { error: "Failed to update post" },
+      { status: 500 }
+    );
+  }
 }
 
 export async function DELETE(
-	_request: Request,
-	{ params }: { params: Promise<{ id: string }> },
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
-	const sessionData = await getServerSession();
+  const sessionData = await getServerSession();
 
-	if (!sessionData?.user || !sessionData.session.activeOrganizationId) {
-		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-	}
+  if (!sessionData?.user || !sessionData.session.activeOrganizationId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
-	const { id } = await params;
-	const activeWorkspaceId = sessionData.session.activeOrganizationId;
+  const { id } = await params;
+  const activeWorkspaceId = sessionData.session.activeOrganizationId;
 
-	try {
-		const deletedPost = await db.post.delete({
-			where: { id, workspaceId: activeWorkspaceId },
-		});
+  try {
+    const deletedPost = await db.post.delete({
+      where: { id, workspaceId: activeWorkspaceId },
+    });
 
-		if (!deletedPost) {
-			return NextResponse.json({ error: "Post not found" }, { status: 404 });
-		}
+    if (!deletedPost) {
+      return NextResponse.json({ error: "Post not found" }, { status: 404 });
+    }
 
-		const webhooksDeleted = getWebhooks(sessionData.session, "post_deleted");
+    const webhooksDeleted = getWebhooks(sessionData.session, "post_deleted");
 
-		for (const webhook of await webhooksDeleted) {
-			const webhookClient = new WebhookClient({ secret: webhook.secret });
-			await webhookClient.send({
-				url: webhook.endpoint,
-				event: "post.deleted",
-				data: { id, slug: deletedPost.slug, userId: sessionData.user.id },
-				format: webhook.format,
-			});
-		}
+    for (const webhook of await webhooksDeleted) {
+      const webhookClient = new WebhookClient({ secret: webhook.secret });
+      await webhookClient.send({
+        url: webhook.endpoint,
+        event: "post.deleted",
+        data: { id, slug: deletedPost.slug, userId: sessionData.user.id },
+        format: webhook.format,
+      });
+    }
 
-		return NextResponse.json({ id: deletedPost.id }, { status: 200 });
-	} catch (_e) {
-		return NextResponse.json(
-			{ error: "Failed to delete post" },
-			{ status: 500 },
-		);
-	}
+    return NextResponse.json({ id: deletedPost.id }, { status: 200 });
+  } catch (_e) {
+    return NextResponse.json(
+      { error: "Failed to delete post" },
+      { status: 500 }
+    );
+  }
 }

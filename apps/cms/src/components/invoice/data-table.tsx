@@ -1,53 +1,53 @@
 "use client";
 
 import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@marble/ui/components/table";
 import {
-	type ColumnDef,
-	type ColumnFiltersState,
-	flexRender,
-	getCoreRowModel,
-	getFilteredRowModel,
-	type SortingState,
-	useReactTable,
+  type ColumnDef,
+  type ColumnFiltersState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  type SortingState,
+  useReactTable,
 } from "@tanstack/react-table";
 import { useState } from "react";
 
 type DataTableProps<TData, TValue> = {
-	columns: ColumnDef<TData, TValue>[];
-	data: TData[];
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
 };
 
 export function InvoiceDataTable<TData, TValue>({
-	columns,
-	data,
+  columns,
+  data,
 }: DataTableProps<TData, TValue>) {
-	const [sorting, _setSorting] = useState<SortingState>([]);
+  const [sorting, _setSorting] = useState<SortingState>([]);
 
-	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
-	const table = useReactTable({
-		data,
-		columns,
-		getCoreRowModel: getCoreRowModel(),
-		onColumnFiltersChange: setColumnFilters,
-		getFilteredRowModel: getFilteredRowModel(),
-		state: {
-			sorting,
-			columnFilters,
-		},
-	});
+  const table = useReactTable({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    onColumnFiltersChange: setColumnFilters,
+    getFilteredRowModel: getFilteredRowModel(),
+    state: {
+      sorting,
+      columnFilters,
+    },
+  });
 
-	return (
-		<div>
-			<div className="flex items-center justify-between border-x py-4">
-				{/* <div className="relative">
+  return (
+    <div>
+      <div className="flex items-center justify-between border-x py-4">
+        {/* <div className="relative">
           <SearchIcon
             size={16}
             className="text-muted-foreground size-4 absolute top-3 left-3"
@@ -72,59 +72,59 @@ export function InvoiceDataTable<TData, TValue>({
           )}
         </div> */}
 
-				{/* TODO: Add filter by date */}
-			</div>
+        {/* TODO: Add filter by date */}
+      </div>
 
-			<div className="border-x border-y">
-				<Table>
-					<TableHeader>
-						{table.getHeaderGroups().map((headerGroup) => (
-							<TableRow key={headerGroup.id}>
-								{headerGroup.headers.map((header) => {
-									return (
-										<TableHead key={header.id}>
-											{header.isPlaceholder
-												? null
-												: flexRender(
-														header.column.columnDef.header,
-														header.getContext(),
-													)}
-										</TableHead>
-									);
-								})}
-							</TableRow>
-						))}
-					</TableHeader>
-					<TableBody>
-						{table.getRowModel().rows?.length ? (
-							table.getRowModel().rows.map((row) => (
-								<TableRow
-									data-state={row.getIsSelected() && "selected"}
-									key={row.id}
-								>
-									{row.getVisibleCells().map((cell) => (
-										<TableCell key={cell.id}>
-											{flexRender(
-												cell.column.columnDef.cell,
-												cell.getContext(),
-											)}
-										</TableCell>
-									))}
-								</TableRow>
-							))
-						) : (
-							<TableRow>
-								<TableCell
-									className="h-96 text-center"
-									colSpan={columns.length}
-								>
-									No invoices found.
-								</TableCell>
-							</TableRow>
-						)}
-					</TableBody>
-				</Table>
-			</div>
-		</div>
-	);
+      <div className="border-x border-y">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  data-state={row.getIsSelected() && "selected"}
+                  key={row.id}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  className="h-96 text-center"
+                  colSpan={columns.length}
+                >
+                  No invoices found.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
 }

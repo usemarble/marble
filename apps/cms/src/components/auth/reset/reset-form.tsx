@@ -9,76 +9,76 @@ import Container from "../../shared/container";
 import { AsyncButton } from "../../ui/async-button";
 
 type ResetFormProps = {
-	callbackUrl: string;
-	token: string;
+  callbackUrl: string;
+  token: string;
 };
 
 export function ResetForm({ callbackUrl, token }: ResetFormProps) {
-	const [password, setPassword] = useState("");
-	const [confirmPassword, setConfirmPassword] = useState("");
-	const [isLoading, setIsLoading] = useState(false);
-	const router = useRouter();
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
-	const handleResetPassword = async () => {
-		if (password.length < 8) {
-			toast.error("Password must be at least 8 characters");
-			return;
-		}
-		if (password !== confirmPassword) {
-			toast.error("Passwords do not match");
-			return;
-		}
+  const handleResetPassword = async () => {
+    if (password.length < 8) {
+      toast.error("Password must be at least 8 characters");
+      return;
+    }
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
 
-		setIsLoading(true);
-		try {
-			await authClient.resetPassword({
-				token,
-				newPassword: password,
-			});
+    setIsLoading(true);
+    try {
+      await authClient.resetPassword({
+        token,
+        newPassword: password,
+      });
 
-			toast.success("Password has been reset");
-			router.push(callbackUrl);
-		} catch (error) {
-			console.error("Password reset failed:", error);
-			toast.error("Password reset failed");
-		} finally {
-			setIsLoading(false);
-		}
-	};
+      toast.success("Password has been reset");
+      router.push(callbackUrl);
+    } catch (error) {
+      console.error("Password reset failed:", error);
+      toast.error("Password reset failed");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-	return (
-		<Container className="flex flex-col items-center justify-between py-24">
-			<section className="flex w-full flex-col items-center gap-8">
-				<div className="flex flex-col items-center gap-4 text-center">
-					<h1 className="font-semibold text-lg leading-7">
-						Reset your password
-					</h1>
-				</div>
+  return (
+    <Container className="flex flex-col items-center justify-between py-24">
+      <section className="flex w-full flex-col items-center gap-8">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <h1 className="font-semibold text-lg leading-7">
+            Reset your password
+          </h1>
+        </div>
 
-				<div className="flex w-full max-w-sm flex-col gap-4">
-					<Input
-						onChange={(e) => setPassword(e.target.value)}
-						placeholder="New password"
-						type="password"
-						value={password}
-					/>
-					<Input
-						onChange={(e) => setConfirmPassword(e.target.value)}
-						placeholder="Confirm new password"
-						type="password"
-						value={confirmPassword}
-					/>
-				</div>
+        <div className="flex w-full max-w-sm flex-col gap-4">
+          <Input
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="New password"
+            type="password"
+            value={password}
+          />
+          <Input
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="Confirm new password"
+            type="password"
+            value={confirmPassword}
+          />
+        </div>
 
-				<AsyncButton
-					className="flex min-w-48 items-center justify-center"
-					disabled={!password || !confirmPassword}
-					isLoading={isLoading}
-					onClick={handleResetPassword}
-				>
-					Reset password
-				</AsyncButton>
-			</section>
-		</Container>
-	);
+        <AsyncButton
+          className="flex min-w-48 items-center justify-center"
+          disabled={!password || !confirmPassword}
+          isLoading={isLoading}
+          onClick={handleResetPassword}
+        >
+          Reset password
+        </AsyncButton>
+      </section>
+    </Container>
+  );
 }

@@ -1,9 +1,9 @@
 "use client";
 
 import {
-	InputOTP,
-	InputOTPGroup,
-	InputOTPSlot,
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
 } from "@marble/ui/components/input-otp";
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
@@ -16,129 +16,129 @@ import { authClient } from "@/lib/auth/client";
 import Container from "../shared/container";
 
 type VerifyFormProps = {
-	email: string;
-	callbackUrl: string;
+  email: string;
+  callbackUrl: string;
 };
 
 export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
-	const [otp, setOtp] = useState("");
-	const [isLoading, setIsLoading] = useState(false);
-	const [isResendLoading, setIsResendLoading] = useState(false);
-	const [isResendSuccess, setIsResendSuccess] = useState(false);
-	const [waitingSeconds, setWaitingSeconds] = useState(30);
-	const router = useRouter();
+  const [otp, setOtp] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isResendLoading, setIsResendLoading] = useState(false);
+  const [isResendSuccess, setIsResendSuccess] = useState(false);
+  const [waitingSeconds, setWaitingSeconds] = useState(30);
+  const router = useRouter();
 
-	useEffect(() => {
-		if (waitingSeconds > 0) {
-			const timeout = setTimeout(() => {
-				setWaitingSeconds(waitingSeconds - 1);
-			}, 1000);
-			return () => clearTimeout(timeout);
-		}
-		if (waitingSeconds === 0 && isResendSuccess) {
-			// Reset success state when countdown ends
-			setIsResendSuccess(false);
-		}
-	}, [waitingSeconds, isResendSuccess]);
+  useEffect(() => {
+    if (waitingSeconds > 0) {
+      const timeout = setTimeout(() => {
+        setWaitingSeconds(waitingSeconds - 1);
+      }, 1000);
+      return () => clearTimeout(timeout);
+    }
+    if (waitingSeconds === 0 && isResendSuccess) {
+      // Reset success state when countdown ends
+      setIsResendSuccess(false);
+    }
+  }, [waitingSeconds, isResendSuccess]);
 
-	const handleResendCode = async () => {
-		setIsResendLoading(true);
-		try {
-			await authClient.emailOtp.sendVerificationOtp({
-				email,
-				type: "email-verification",
-			});
-			toast.success("Verification code sent!");
-		} catch {
-			toast.error("Failed to resend code. Please try again.");
-		} finally {
-			setWaitingSeconds(30);
-			setIsResendLoading(false);
-			setIsResendSuccess(true);
-		}
-	};
+  const handleResendCode = async () => {
+    setIsResendLoading(true);
+    try {
+      await authClient.emailOtp.sendVerificationOtp({
+        email,
+        type: "email-verification",
+      });
+      toast.success("Verification code sent!");
+    } catch {
+      toast.error("Failed to resend code. Please try again.");
+    } finally {
+      setWaitingSeconds(30);
+      setIsResendLoading(false);
+      setIsResendSuccess(true);
+    }
+  };
 
-	const handleVerifyOtp = async () => {
-		setIsLoading(true);
-		try {
-			const result = await authClient.emailOtp.verifyEmail({
-				email,
-				otp,
-			});
+  const handleVerifyOtp = async () => {
+    setIsLoading(true);
+    try {
+      const result = await authClient.emailOtp.verifyEmail({
+        email,
+        otp,
+      });
 
-			if (result.data) {
-				toast.success("Email verified successfully!");
-				router.push(callbackUrl);
-			} else {
-				toast.error("Invalid verification code");
-			}
-		} catch {
-			toast.error("Invalid verification code. Please try again.");
-		} finally {
-			setIsLoading(false);
-		}
-	};
+      if (result.data) {
+        toast.success("Email verified successfully!");
+        router.push(callbackUrl);
+      } else {
+        toast.error("Invalid verification code");
+      }
+    } catch {
+      toast.error("Invalid verification code. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-	return (
-		<Container className="flex min-h-screen items-center justify-center py-12">
-			<div className="flex w-full max-w-sm flex-col items-center gap-8">
-				<div className="flex flex-col items-center gap-4 text-center">
-					<h1 className="font-semibold text-lg leading-7">Verify your email</h1>
-					<p className="text-muted-foreground leading-6">
-						We sent a verification code to
-						<span className="block font-medium text-foreground">{email}</span>
-					</p>
-				</div>
+  return (
+    <Container className="flex min-h-screen items-center justify-center py-12">
+      <div className="flex w-full max-w-sm flex-col items-center gap-8">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <h1 className="font-semibold text-lg leading-7">Verify your email</h1>
+          <p className="text-muted-foreground leading-6">
+            We sent a verification code to
+            <span className="block font-medium text-foreground">{email}</span>
+          </p>
+        </div>
 
-				<InputOTP
-					maxLength={6}
-					onChange={(value: string) => setOtp(value)}
-					pattern={REGEXP_ONLY_DIGITS}
-					value={otp}
-				>
-					<InputOTPGroup className="flex items-center gap-3">
-						{Array.from({ length: 6 }).map((_, index) => (
-							<InputOTPSlot index={index} key={crypto.randomUUID()} />
-						))}
-					</InputOTPGroup>
-				</InputOTP>
+        <InputOTP
+          maxLength={6}
+          onChange={(value: string) => setOtp(value)}
+          pattern={REGEXP_ONLY_DIGITS}
+          value={otp}
+        >
+          <InputOTPGroup className="flex items-center gap-3">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <InputOTPSlot index={index} key={crypto.randomUUID()} />
+            ))}
+          </InputOTPGroup>
+        </InputOTP>
 
-				<div className="flex w-full flex-col items-center gap-4">
-					<AsyncButton
-						className={cn(
-							"flex w-full items-center justify-center",
-							otp.length !== 6 && "cursor-not-allowed",
-						)}
-						disabled={otp.length !== 6}
-						isLoading={isLoading}
-						onClick={handleVerifyOtp}
-					>
-						Verify email
-					</AsyncButton>
+        <div className="flex w-full flex-col items-center gap-4">
+          <AsyncButton
+            className={cn(
+              "flex w-full items-center justify-center",
+              otp.length !== 6 && "cursor-not-allowed"
+            )}
+            disabled={otp.length !== 6}
+            isLoading={isLoading}
+            onClick={handleVerifyOtp}
+          >
+            Verify email
+          </AsyncButton>
 
-					<div className="flex flex-col items-center gap-3">
-						<p className="text-muted-foreground text-sm">
-							Didn&apos;t receive the code?
-						</p>
-						<AsyncButton
-							className={cn(
-								"text-muted-foreground",
-								isResendLoading || (waitingSeconds > 0 && "cursor-not-allowed"),
-							)}
-							disabled={waitingSeconds > 0}
-							isLoading={isResendLoading}
-							onClick={handleResendCode}
-							variant="outline"
-						>
-							{isResendLoading
-								? "Sending..."
-								: waitingSeconds > 0
-									? `Resend code (${waitingSeconds}s)`
-									: "Resend code"}
-						</AsyncButton>
-					</div>
-				</div>
-			</div>
-		</Container>
-	);
+          <div className="flex flex-col items-center gap-3">
+            <p className="text-muted-foreground text-sm">
+              Didn&apos;t receive the code?
+            </p>
+            <AsyncButton
+              className={cn(
+                "text-muted-foreground",
+                isResendLoading || (waitingSeconds > 0 && "cursor-not-allowed")
+              )}
+              disabled={waitingSeconds > 0}
+              isLoading={isResendLoading}
+              onClick={handleResendCode}
+              variant="outline"
+            >
+              {isResendLoading
+                ? "Sending..."
+                : waitingSeconds > 0
+                  ? `Resend code (${waitingSeconds}s)`
+                  : "Resend code"}
+            </AsyncButton>
+          </div>
+        </div>
+      </div>
+    </Container>
+  );
 }

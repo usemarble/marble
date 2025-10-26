@@ -5,6 +5,6 @@ import { useWorkspace } from "@/providers/workspace";
  * Returns null if no active workspace is available.
  */
 export function useWorkspaceId(): string | null {
-	const { activeWorkspace } = useWorkspace();
-	return activeWorkspace?.id || null;
+  const { activeWorkspace } = useWorkspace();
+  return activeWorkspace?.id || null;
 }

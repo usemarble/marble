@@ -8,78 +8,78 @@ import { rateLimitHeaders, userAvatarUploadRateLimiter } from "@/lib/ratelimit";
 import { uploadSchema, validateUpload } from "@/lib/validations/upload";
 
 export async function POST(request: Request) {
-	const sessionData = await getServerSession();
+  const sessionData = await getServerSession();
 
-	if (!sessionData || !sessionData.session.activeOrganizationId) {
-		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-	}
+  if (!sessionData || !sessionData.session.activeOrganizationId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
-	const body = await request.json();
-	const parsedBody = uploadSchema.safeParse(body);
+  const body = await request.json();
+  const parsedBody = uploadSchema.safeParse(body);
 
-	if (!parsedBody.success) {
-		return NextResponse.json(
-			{ error: "Invalid request body" },
-			{ status: 400 },
-		);
-	}
+  if (!parsedBody.success) {
+    return NextResponse.json(
+      { error: "Invalid request body" },
+      { status: 400 }
+    );
+  }
 
-	const { type, fileType, fileSize } = parsedBody.data;
+  const { type, fileType, fileSize } = parsedBody.data;
 
-	if (type === "avatar") {
-		const { success, limit, remaining, reset } =
-			await userAvatarUploadRateLimiter.limit(sessionData.user.id);
+  if (type === "avatar") {
+    const { success, limit, remaining, reset } =
+      await userAvatarUploadRateLimiter.limit(sessionData.user.id);
 
-		if (!success) {
-			return NextResponse.json(
-				{ error: "Too Many Requests", remaining },
-				{ status: 429, headers: rateLimitHeaders(limit, remaining, reset) },
-			);
-		}
-	}
+    if (!success) {
+      return NextResponse.json(
+        { error: "Too Many Requests", remaining },
+        { status: 429, headers: rateLimitHeaders(limit, remaining, reset) }
+      );
+    }
+  }
 
-	try {
-		validateUpload({ type, fileType, fileSize });
-	} catch (error) {
-		const message =
-			error instanceof Error ? error.message : "Invalid file type";
-		return NextResponse.json({ error: message }, { status: 400 });
-	}
+  try {
+    validateUpload({ type, fileType, fileSize });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Invalid file type";
+    return NextResponse.json({ error: message }, { status: 400 });
+  }
 
-	const id = nanoid();
-	const extension = fileType.split("/")[1];
-	let key: string;
+  const id = nanoid();
+  const extension = fileType.split("/")[1];
+  let key: string;
 
-	switch (type) {
-		case "avatar":
-			key = `avatars/${id}.${extension}`;
-			break;
-		case "author-avatar":
-			key = `avatars/${id}.${extension}`;
-			break;
-		case "logo":
-			key = `logos/${id}.${extension}`;
-			break;
-		case "media":
-			key = `media/${id}.${extension}`;
-			break;
-		default:
-			return NextResponse.json(
-				{ error: "Invalid upload type" },
-				{ status: 400 },
-			);
-	}
+  switch (type) {
+    case "avatar":
+      key = `avatars/${id}.${extension}`;
+      break;
+    case "author-avatar":
+      key = `avatars/${id}.${extension}`;
+      break;
+    case "logo":
+      key = `logos/${id}.${extension}`;
+      break;
+    case "media":
+      key = `media/${id}.${extension}`;
+      break;
+    default:
+      return NextResponse.json(
+        { error: "Invalid upload type" },
+        { status: 400 }
+      );
+  }
 
-	const presignedUrl = await getSignedUrl(
-		r2,
-		new PutObjectCommand({
-			Bucket: R2_BUCKET_NAME,
-			Key: key,
-			ContentType: fileType,
-			ContentLength: fileSize,
-		}),
-		{ expiresIn: 3600 },
-	);
+  const presignedUrl = await getSignedUrl(
+    r2,
+    new PutObjectCommand({
+      Bucket: R2_BUCKET_NAME,
+      Key: key,
+      ContentType: fileType,
+      ContentLength: fileSize,
+    }),
+    { expiresIn: 3600 }
+  );
 
-	return NextResponse.json({ url: presignedUrl, key });
+  return NextResponse.json({ url: presignedUrl, key });
 }

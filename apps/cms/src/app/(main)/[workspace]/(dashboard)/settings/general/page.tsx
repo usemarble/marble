@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import PageClient from "./page-client";
 
 export const metadata: Metadata = {
-	title: "General",
-	description: "Manage your workspace general settings",
+  title: "General",
+  description: "Manage your workspace general settings",
 };
 
 async function Page() {
-	return <PageClient />;
+  return <PageClient />;
 }
 
 export default Page;

@@ -1,56 +1,62 @@
 {
-	"$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-	"extends": ["ultracite"],
-	"files": {
-		"includes": ["**", "!packages/ui/src", "!apps/cms/src/hooks/use-mobile.tsx"]
-	},
-	"linter": {
-		"rules": {
-			"suspicious": {
-				/* Needs more work to fix */
-				"noConsole": "off",
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "extends": [
+    "ultracite"
+  ],
+  "files": {
+    "includes": [
+      "**",
+      "!packages/ui/src",
+      "!apps/cms/src/hooks/use-mobile.tsx"
+    ]
+  },
+  "linter": {
+    "rules": {
+      "suspicious": {
+        /* Needs more work to fix */
+        "noConsole": "off",
 
-				/* Needs more work to fix */
-				"useAwait": "off",
+        /* Needs more work to fix */
+        "useAwait": "off",
 
-				/* Allowed for Tailwind */
-				"noUnknownAtRules": "off"
-			},
-			"style": {
-				/* Needs more work to fix */
-				"noMagicNumbers": "off",
+        /* Allowed for Tailwind */
+        "noUnknownAtRules": "off"
+      },
+      "style": {
+        /* Needs more work to fix */
+        "noMagicNumbers": "off",
 
-				/* Needs more work to fix */
-				"noNestedTernary": "off",
+        /* Needs more work to fix */
+        "noNestedTernary": "off",
 
-				/* Doesn't work with Astro */
-				"useFilenamingConvention": "off"
-			},
-			"complexity": {
-				/* Has false positives */
-				"useSimplifiedLogicExpression": "off",
+        /* Doesn't work with Astro */
+        "useFilenamingConvention": "off"
+      },
+      "complexity": {
+        /* Has false positives */
+        "useSimplifiedLogicExpression": "off",
 
-				/* Needs more work to fix */
-				"noExcessiveCognitiveComplexity": "off"
-			},
-			"nursery": {
-				/* Needs more work to fix */
-				"noShadow": "off",
+        /* Needs more work to fix */
+        "noExcessiveCognitiveComplexity": "off"
+      },
+      "nursery": {
+        /* Needs more work to fix */
+        "noShadow": "off",
 
-				/* Has false positives */
-				"noUnnecessaryConditions": "off"
-			},
-			"performance": {
-				/* Needs more work to fix */
-				"useTopLevelRegex": "off"
-			},
-			"correctness": {
-				/* Doesn't work with Astro */
-				"noUnusedImports": "off",
+        /* Has false positives */
+        "noUnnecessaryConditions": "off"
+      },
+      "performance": {
+        /* Needs more work to fix */
+        "useTopLevelRegex": "off"
+      },
+      "correctness": {
+        /* Doesn't work with Astro */
+        "noUnusedImports": "off",
 
-				/* Needs more work to fix */
-				"noUnusedVariables": "off"
-			}
-		}
-	}
+        /* Needs more work to fix */
+        "noUnusedVariables": "off"
+      }
+    }
+  }
 }
