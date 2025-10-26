@@ -4,204 +4,204 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
 import { useParams, useRouter } from "next/navigation";
 import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
+	createContext,
+	useCallback,
+	useContext,
+	useEffect,
+	useState,
 } from "react";
 import { toast } from "sonner";
 import { organization } from "@/lib/auth/client";
 import {
-  WORKSPACE_SCOPED_PREFIXES,
-  type WorkspaceScopedPrefix,
+	WORKSPACE_SCOPED_PREFIXES,
+	type WorkspaceScopedPrefix,
 } from "@/lib/constants";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import type {
-  Workspace,
-  WorkspaceContextType,
-  WorkspaceProviderProps,
+	Workspace,
+	WorkspaceContextType,
+	WorkspaceProviderProps,
 } from "@/types/workspace";
 import { request } from "@/utils/fetch/client";
 import { setLastVisitedWorkspace } from "@/utils/workspace";
 
 const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
-  undefined
+	undefined,
 );
 
 export function WorkspaceProvider({
-  children,
-  initialWorkspace,
+	children,
+	initialWorkspace,
 }: WorkspaceProviderProps) {
-  const params = useParams<{ workspace: string }>();
-  const router = useRouter();
-  const queryClient = useQueryClient();
-  const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(
-    initialWorkspace
-  );
-  const [isSwitchingWorkspace, setIsSwitchingWorkspace] = useState(false);
+	const params = useParams<{ workspace: string }>();
+	const router = useRouter();
+	const queryClient = useQueryClient();
+	const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(
+		initialWorkspace,
+	);
+	const [isSwitchingWorkspace, setIsSwitchingWorkspace] = useState(false);
 
-  const workspaceSlug = Array.isArray(params.workspace)
-    ? params.workspace[0]
-    : params.workspace;
+	const workspaceSlug = Array.isArray(params.workspace)
+		? params.workspace[0]
+		: params.workspace;
 
-  const shouldFetchWorkspace =
-    !!workspaceSlug &&
-    (!activeWorkspace || activeWorkspace.slug !== workspaceSlug);
+	const shouldFetchWorkspace =
+		!!workspaceSlug &&
+		(!activeWorkspace || activeWorkspace.slug !== workspaceSlug);
 
-  const { data: usersWorkspaces } = useQuery({
-    queryKey: QUERY_KEYS.WORKSPACE_LIST,
-    queryFn: async () => {
-      const response = await request<Workspace[]>("workspaces");
-      return response.data;
-    },
-  });
+	const { data: usersWorkspaces } = useQuery({
+		queryKey: QUERY_KEYS.WORKSPACE_LIST,
+		queryFn: async () => {
+			const response = await request<Workspace[]>("workspaces");
+			return response.data;
+		},
+	});
 
-  const fetchWorkspaceData = async (slug: string) => {
-    try {
-      const response = await request<Workspace>(`workspaces/${slug}`);
-      if (response.status === 200) {
-        setActiveWorkspace(response.data);
-        return response.data;
-      }
-      if (response.status === 404) {
-        console.error("Workspace not found");
-        return null;
-      }
-      console.error(`Unexpected status code: ${response.status}`);
-      return null;
-    } catch (error) {
-      console.error("Failed to fetch workspace data:", error);
-      return null;
-    }
-  };
+	const fetchWorkspaceData = async (slug: string) => {
+		try {
+			const response = await request<Workspace>(`workspaces/${slug}`);
+			if (response.status === 200) {
+				setActiveWorkspace(response.data);
+				return response.data;
+			}
+			if (response.status === 404) {
+				console.error("Workspace not found");
+				return null;
+			}
+			console.error(`Unexpected status code: ${response.status}`);
+			return null;
+		} catch (error) {
+			console.error("Failed to fetch workspace data:", error);
+			return null;
+		}
+	};
 
-  const { data: fetchedActiveWorkspace, isLoading: isFetchingActiveWorkspace } =
-    useQuery({
-      queryKey: ["workspace_by_slug", workspaceSlug],
-      queryFn: () => fetchWorkspaceData(workspaceSlug),
-      enabled: shouldFetchWorkspace,
-      initialData:
-        initialWorkspace && initialWorkspace.slug === workspaceSlug
-          ? initialWorkspace
-          : undefined,
-      staleTime: 5 * 60 * 1000,
-      gcTime: 10 * 60 * 1000,
-    });
+	const { data: fetchedActiveWorkspace, isLoading: isFetchingActiveWorkspace } =
+		useQuery({
+			queryKey: ["workspace_by_slug", workspaceSlug],
+			queryFn: () => fetchWorkspaceData(workspaceSlug),
+			enabled: shouldFetchWorkspace,
+			initialData:
+				initialWorkspace && initialWorkspace.slug === workspaceSlug
+					? initialWorkspace
+					: undefined,
+			staleTime: 5 * 60 * 1000,
+			gcTime: 10 * 60 * 1000,
+		});
 
-  const { mutateAsync: updateActiveWorkspaceMutation } = useMutation({
-    mutationFn: async (workspace: Partial<Workspace>) => {
-      setIsSwitchingWorkspace(true);
-      setActiveWorkspace(
-        (prev) =>
-          ({
-            ...prev,
-            ...workspace,
-          }) as Workspace
-      );
+	const { mutateAsync: updateActiveWorkspaceMutation } = useMutation({
+		mutationFn: async (workspace: Partial<Workspace>) => {
+			setIsSwitchingWorkspace(true);
+			setActiveWorkspace(
+				(prev) =>
+					({
+						...prev,
+						...workspace,
+					}) as Workspace,
+			);
 
-      if (workspace.slug) {
-        setLastVisitedWorkspace(workspace.slug);
-      }
+			if (workspace.slug) {
+				setLastVisitedWorkspace(workspace.slug);
+			}
 
-      if (!workspace.id) {
-        throw new Error("Workspace ID is required for switching");
-      }
+			if (!workspace.id) {
+				throw new Error("Workspace ID is required for switching");
+			}
 
-      const { data, error } = await organization.setActive({
-        organizationId: workspace.id,
-      });
+			const { data, error } = await organization.setActive({
+				organizationId: workspace.id,
+			});
 
-      if (error) {
-        toast.error(error.message);
-        throw new Error(error.message);
-      }
+			if (error) {
+				toast.error(error.message);
+				throw new Error(error.message);
+			}
 
-      return data;
-    },
-    onSuccess: (data) => {
-      if (data) {
-        queryClient.removeQueries({
-          predicate: (query) => {
-            const key = query.queryKey;
-            // Remove workspace-scoped queries
-            return (
-              Array.isArray(key) &&
-              key.length >= 2 &&
-              typeof key[1] === "string" &&
-              WORKSPACE_SCOPED_PREFIXES.includes(
-                key[0] as WorkspaceScopedPrefix
-              )
-            );
-          },
-        });
-        // Set new workspace data
-        queryClient.setQueryData(["workspace_by_slug", data.slug], data);
-        queryClient.setQueryData(QUERY_KEYS.WORKSPACE(data.id), data);
-        router.push(`/${data.slug}`);
-      }
-      setIsSwitchingWorkspace(false);
-    },
-    onError: (error: AxiosError) => {
-      console.error("Failed to switch workspace:", error);
-      if (initialWorkspace) {
-        setActiveWorkspace(initialWorkspace);
-        setLastVisitedWorkspace(initialWorkspace.slug);
-      }
-      setIsSwitchingWorkspace(false);
-    },
-  });
+			return data;
+		},
+		onSuccess: (data) => {
+			if (data) {
+				queryClient.removeQueries({
+					predicate: (query) => {
+						const key = query.queryKey;
+						// Remove workspace-scoped queries
+						return (
+							Array.isArray(key) &&
+							key.length >= 2 &&
+							typeof key[1] === "string" &&
+							WORKSPACE_SCOPED_PREFIXES.includes(
+								key[0] as WorkspaceScopedPrefix,
+							)
+						);
+					},
+				});
+				// Set new workspace data
+				queryClient.setQueryData(["workspace_by_slug", data.slug], data);
+				queryClient.setQueryData(QUERY_KEYS.WORKSPACE(data.id), data);
+				router.push(`/${data.slug}`);
+			}
+			setIsSwitchingWorkspace(false);
+		},
+		onError: (error: AxiosError) => {
+			console.error("Failed to switch workspace:", error);
+			if (initialWorkspace) {
+				setActiveWorkspace(initialWorkspace);
+				setLastVisitedWorkspace(initialWorkspace.slug);
+			}
+			setIsSwitchingWorkspace(false);
+		},
+	});
 
-  const updateActiveWorkspace = useCallback(
-    async (workspace: Partial<Workspace>) => {
-      await updateActiveWorkspaceMutation(workspace);
-    },
-    [updateActiveWorkspaceMutation]
-  );
+	const updateActiveWorkspace = useCallback(
+		async (workspace: Partial<Workspace>) => {
+			await updateActiveWorkspaceMutation(workspace);
+		},
+		[updateActiveWorkspaceMutation],
+	);
 
-  useEffect(() => {
-    if (
-      fetchedActiveWorkspace &&
-      workspaceSlug !== fetchedActiveWorkspace.slug &&
-      !isSwitchingWorkspace
-    ) {
-      updateActiveWorkspace(fetchedActiveWorkspace);
-    }
-  }, [
-    fetchedActiveWorkspace,
-    workspaceSlug,
-    isSwitchingWorkspace,
-    updateActiveWorkspace,
-  ]);
+	useEffect(() => {
+		if (
+			fetchedActiveWorkspace &&
+			workspaceSlug !== fetchedActiveWorkspace.slug &&
+			!isSwitchingWorkspace
+		) {
+			updateActiveWorkspace(fetchedActiveWorkspace);
+		}
+	}, [
+		fetchedActiveWorkspace,
+		workspaceSlug,
+		isSwitchingWorkspace,
+		updateActiveWorkspace,
+	]);
 
-  const isFetchingWorkspace = isFetchingActiveWorkspace || isSwitchingWorkspace;
-  const isOwner = activeWorkspace?.currentUserRole === "owner";
-  const isAdmin = activeWorkspace?.currentUserRole === "admin";
-  const isMember = activeWorkspace?.currentUserRole === "member";
-  const currentUserRole = activeWorkspace?.currentUserRole || null;
+	const isFetchingWorkspace = isFetchingActiveWorkspace || isSwitchingWorkspace;
+	const isOwner = activeWorkspace?.currentUserRole === "owner";
+	const isAdmin = activeWorkspace?.currentUserRole === "admin";
+	const isMember = activeWorkspace?.currentUserRole === "member";
+	const currentUserRole = activeWorkspace?.currentUserRole || null;
 
-  return (
-    <WorkspaceContext.Provider
-      value={{
-        activeWorkspace,
-        updateActiveWorkspace,
-        isFetchingWorkspace,
-        workspaceList: usersWorkspaces ?? null,
-        isOwner,
-        isAdmin,
-        isMember,
-        currentUserRole,
-      }}
-    >
-      {children}
-    </WorkspaceContext.Provider>
-  );
+	return (
+		<WorkspaceContext.Provider
+			value={{
+				activeWorkspace,
+				updateActiveWorkspace,
+				isFetchingWorkspace,
+				workspaceList: usersWorkspaces ?? null,
+				isOwner,
+				isAdmin,
+				isMember,
+				currentUserRole,
+			}}
+		>
+			{children}
+		</WorkspaceContext.Provider>
+	);
 }
 
 export function useWorkspace() {
-  const context = useContext(WorkspaceContext);
-  if (context === undefined) {
-    throw new Error("useWorkspace must be used within a WorkspaceProvider");
-  }
-  return context;
+	const context = useContext(WorkspaceContext);
+	if (context === undefined) {
+		throw new Error("useWorkspace must be used within a WorkspaceProvider");
+	}
+	return context;
 }

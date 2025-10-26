@@ -9,16 +9,16 @@ import { Slug } from "@/components/settings/fields/slug";
 import { Timezone } from "@/components/settings/fields/timezone";
 
 function PageClient() {
-  return (
-    <WorkspacePageWrapper className="flex flex-col gap-8 py-12">
-      <Name />
-      <Slug />
-      <Logo />
-      <Timezone />
-      <Id />
-      <Delete />
-    </WorkspacePageWrapper>
-  );
+	return (
+		<WorkspacePageWrapper className="flex flex-col gap-8 py-12">
+			<Name />
+			<Slug />
+			<Logo />
+			<Timezone />
+			<Id />
+			<Delete />
+		</WorkspacePageWrapper>
+	);
 }
 
 export default PageClient;

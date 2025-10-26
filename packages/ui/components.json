@@ -1,23 +1,23 @@
 {
-  "$schema": "https://ui.shadcn.com/schema.json",
-  "style": "default",
-  "rsc": true,
-  "tsx": true,
-  "tailwind": {
-    "config": "",
-    "css": "src/styles/globals.css",
-    "baseColor": "zinc",
-    "cssVariables": true
-  },
-  "iconLibrary": "phosphor",
-  "aliases": {
-    "components": "@marble/ui/components",
-    "utils": "@marble/ui/lib/utils",
-    "ui": "@marble/ui/components",
-    "lib": "@marble/ui/lib",
-    "hooks": "@marble/ui/hooks"
-  },
-  "registries": {
-    "@kibo-ui": "https://www.kibo-ui.com/r/{name}.json"
-  }
+	"$schema": "https://ui.shadcn.com/schema.json",
+	"style": "default",
+	"rsc": true,
+	"tsx": true,
+	"tailwind": {
+		"config": "",
+		"css": "src/styles/globals.css",
+		"baseColor": "zinc",
+		"cssVariables": true
+	},
+	"iconLibrary": "phosphor",
+	"aliases": {
+		"components": "@marble/ui/components",
+		"utils": "@marble/ui/lib/utils",
+		"ui": "@marble/ui/components",
+		"lib": "@marble/ui/lib",
+		"hooks": "@marble/ui/hooks"
+	},
+	"registries": {
+		"@kibo-ui": "https://www.kibo-ui.com/r/{name}.json"
+	}
 }

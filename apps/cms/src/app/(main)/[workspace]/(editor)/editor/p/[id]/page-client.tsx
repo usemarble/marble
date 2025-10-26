@@ -7,35 +7,35 @@ import PageLoader from "@/components/shared/page-loader";
 import type { PostValues } from "@/lib/validations/post";
 
 function PageClient() {
-  const params = useParams<{ id: string }>();
+	const params = useParams<{ id: string }>();
 
-  const { data: postData, isLoading } = useQuery({
-    queryKey: ["post", params.id],
-    staleTime: 1000 * 60 * 5,
-    queryFn: async () => {
-      const res = await fetch(`/api/posts/${params.id}`);
-      if (!res.ok) {
-        throw new Error("Failed to fetch post");
-      }
-      const data: PostValues = await res.json();
-      return data;
-    },
-  });
+	const { data: postData, isLoading } = useQuery({
+		queryKey: ["post", params.id],
+		staleTime: 1000 * 60 * 5,
+		queryFn: async () => {
+			const res = await fetch(`/api/posts/${params.id}`);
+			if (!res.ok) {
+				throw new Error("Failed to fetch post");
+			}
+			const data: PostValues = await res.json();
+			return data;
+		},
+	});
 
-  if (isLoading) {
-    return <PageLoader />;
-  }
+	if (isLoading) {
+		return <PageLoader />;
+	}
 
-  if (!postData) {
-    return notFound();
-  }
+	if (!postData) {
+		return notFound();
+	}
 
-  const postDataWithDate = {
-    ...postData,
-    publishedAt: new Date(postData.publishedAt),
-  };
+	const postDataWithDate = {
+		...postData,
+		publishedAt: new Date(postData.publishedAt),
+	};
 
-  return <EditorPage id={params.id} initialData={postDataWithDate} />;
+	return <EditorPage id={params.id} initialData={postDataWithDate} />;
 }
 
 export default PageClient;

@@ -9,7 +9,7 @@ import { useCallback, useEffect, useState } from "react";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 
 const UpgradeModal = dynamic(() =>
-  import("@/components/billing/upgrade-modal").then((mod) => mod.UpgradeModal)
+	import("@/components/billing/upgrade-modal").then((mod) => mod.UpgradeModal),
 );
 
 import { toast } from "sonner";
@@ -19,221 +19,221 @@ import { useWorkspace } from "@/providers/workspace";
 import { formatBytes } from "@/utils/string";
 
 function PageClient() {
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  const { activeWorkspace, isOwner } = useWorkspace();
-  const { planLimits, currentMemberCount, currentPlan, currentMediaUsage } =
-    usePlan();
+	const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+	const { activeWorkspace, isOwner } = useWorkspace();
+	const { planLimits, currentMemberCount, currentPlan, currentMediaUsage } =
+		usePlan();
 
-  const subscription = activeWorkspace?.subscription;
+	const subscription = activeWorkspace?.subscription;
 
-  const formatDate = useCallback(
-    async (dateValue: string | Date | null | undefined) => {
-      if (!dateValue) {
-        return null;
-      }
+	const formatDate = useCallback(
+		async (dateValue: string | Date | null | undefined) => {
+			if (!dateValue) {
+				return null;
+			}
 
-      // Dynamically import date-fns only when formatting is needed
-      const { format, isValid, parseISO } = await import("date-fns");
+			// Dynamically import date-fns only when formatting is needed
+			const { format, isValid, parseISO } = await import("date-fns");
 
-      let date: Date;
-      if (typeof dateValue === "string") {
-        date = parseISO(dateValue);
-      } else {
-        date = dateValue;
-      }
+			let date: Date;
+			if (typeof dateValue === "string") {
+				date = parseISO(dateValue);
+			} else {
+				date = dateValue;
+			}
 
-      if (!isValid(date)) {
-        return null;
-      }
+			if (!isValid(date)) {
+				return null;
+			}
 
-      return format(date, "MMM d, yyyy");
-    },
-    []
-  );
+			return format(date, "MMM d, yyyy");
+		},
+		[],
+	);
 
-  const getPlanDisplayName = () => {
-    switch (currentPlan) {
-      case "pro":
-        return "Pro Plan";
-      case "team":
-        return "Team Plan";
-      default:
-        return "Free Plan";
-    }
-  };
+	const getPlanDisplayName = () => {
+		switch (currentPlan) {
+			case "pro":
+				return "Pro Plan";
+			case "team":
+				return "Team Plan";
+			default:
+				return "Free Plan";
+		}
+	};
 
-  const formatApiRequestLimit = (limit: number) => {
-    if (limit === -1) {
-      return "Unlimited";
-    }
-    return limit.toLocaleString();
-  };
+	const formatApiRequestLimit = (limit: number) => {
+		if (limit === -1) {
+			return "Unlimited";
+		}
+		return limit.toLocaleString();
+	};
 
-  const formatStorageLimit = (limitMB: number) => {
-    if (limitMB >= 1024) {
-      return `${(limitMB / 1024).toFixed(0)} GB`;
-    }
-    return `${limitMB} MB`;
-  };
+	const formatStorageLimit = (limitMB: number) => {
+		if (limitMB >= 1024) {
+			return `${(limitMB / 1024).toFixed(0)} GB`;
+		}
+		return `${limitMB} MB`;
+	};
 
-  const [billingCycleText, setBillingCycleText] = useState<string>(
-    "Loading billing cycle..."
-  );
+	const [billingCycleText, setBillingCycleText] = useState<string>(
+		"Loading billing cycle...",
+	);
 
-  const updateBillingCycleText = useCallback(async () => {
-    if (!subscription?.currentPeriodStart || !subscription?.currentPeriodEnd) {
-      setBillingCycleText("No billing cycle");
-      return;
-    }
+	const updateBillingCycleText = useCallback(async () => {
+		if (!subscription?.currentPeriodStart || !subscription?.currentPeriodEnd) {
+			setBillingCycleText("No billing cycle");
+			return;
+		}
 
-    const startDate = await formatDate(subscription.currentPeriodStart);
-    const endDate = await formatDate(subscription.currentPeriodEnd);
+		const startDate = await formatDate(subscription.currentPeriodStart);
+		const endDate = await formatDate(subscription.currentPeriodEnd);
 
-    if (!startDate || !endDate) {
-      setBillingCycleText("No billing cycle");
-      return;
-    }
+		if (!startDate || !endDate) {
+			setBillingCycleText("No billing cycle");
+			return;
+		}
 
-    setBillingCycleText(`Current billing cycle: ${startDate} - ${endDate}`);
-  }, [
-    subscription?.currentPeriodStart,
-    subscription?.currentPeriodEnd,
-    formatDate,
-  ]);
+		setBillingCycleText(`Current billing cycle: ${startDate} - ${endDate}`);
+	}, [
+		subscription?.currentPeriodStart,
+		subscription?.currentPeriodEnd,
+		formatDate,
+	]);
 
-  // Update billing cycle text when subscription changes
-  useEffect(() => {
-    updateBillingCycleText();
-  }, [updateBillingCycleText]);
+	// Update billing cycle text when subscription changes
+	useEffect(() => {
+		updateBillingCycleText();
+	}, [updateBillingCycleText]);
 
-  const maxMediaBytes = planLimits.maxMediaStorage * 1024 * 1024;
-  const mediaUsedBytes = currentMediaUsage;
-  const mediaRemainingMB = Math.max(
-    0,
-    Math.ceil(Math.max(0, maxMediaBytes - mediaUsedBytes) / (1024 * 1024))
-  );
-  const mediaPercent = maxMediaBytes
-    ? Math.min(100, Math.round((mediaUsedBytes / maxMediaBytes) * 100))
-    : 0;
+	const maxMediaBytes = planLimits.maxMediaStorage * 1024 * 1024;
+	const mediaUsedBytes = currentMediaUsage;
+	const mediaRemainingMB = Math.max(
+		0,
+		Math.ceil(Math.max(0, maxMediaBytes - mediaUsedBytes) / (1024 * 1024)),
+	);
+	const mediaPercent = maxMediaBytes
+		? Math.min(100, Math.round((mediaUsedBytes / maxMediaBytes) * 100))
+		: 0;
 
-  const memberMax = planLimits.maxMembers;
-  const memberPercent = memberMax
-    ? Math.min(100, Math.round((currentMemberCount / memberMax) * 100))
-    : 0;
+	const memberMax = planLimits.maxMembers;
+	const memberPercent = memberMax
+		? Math.min(100, Math.round((currentMemberCount / memberMax) * 100))
+		: 0;
 
-  const redirectCustomerPortal = async () => {
-    try {
-      await authClient.customer.portal();
-    } catch (_e) {
-      toast.error("Failed to redirect to customer portal");
-    }
-  };
+	const redirectCustomerPortal = async () => {
+		try {
+			await authClient.customer.portal();
+		} catch (_e) {
+			toast.error("Failed to redirect to customer portal");
+		}
+	};
 
-  return (
-    <WorkspacePageWrapper>
-      <div className="flex flex-col gap-6">
-        <Card>
-          <CardContent className="px-6 py-10">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="font-semibold text-2xl">
-                  {getPlanDisplayName()}
-                </h1>
-                <p className="text-muted-foreground text-sm">
-                  {billingCycleText}
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                {isOwner && (
-                  <>
-                    <Button onClick={() => setShowUpgradeModal(true)}>
-                      {subscription?.plan ? "Change Plan" : "Upgrade"}
-                    </Button>
-                    {subscription?.plan && (
-                      <Button
-                        onClick={() => redirectCustomerPortal()}
-                        variant="outline"
-                      >
-                        Manage Subscription
-                      </Button>
-                    )}
-                  </>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+	return (
+		<WorkspacePageWrapper>
+			<div className="flex flex-col gap-6">
+				<Card>
+					<CardContent className="px-6 py-10">
+						<div className="flex items-center justify-between">
+							<div>
+								<h1 className="font-semibold text-2xl">
+									{getPlanDisplayName()}
+								</h1>
+								<p className="text-muted-foreground text-sm">
+									{billingCycleText}
+								</p>
+							</div>
+							<div className="flex items-center gap-3">
+								{isOwner && (
+									<>
+										<Button onClick={() => setShowUpgradeModal(true)}>
+											{subscription?.plan ? "Change Plan" : "Upgrade"}
+										</Button>
+										{subscription?.plan && (
+											<Button
+												onClick={() => redirectCustomerPortal()}
+												variant="outline"
+											>
+												Manage Subscription
+											</Button>
+										)}
+									</>
+								)}
+							</div>
+						</div>
+					</CardContent>
+				</Card>
 
-        {/* Usage Cards */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <Card>
-            <CardContent className="p-6">
-              <div className="mb-4 flex items-center gap-3">
-                <div className="flex size-8 items-center justify-center rounded-lg bg-muted">
-                  <PlugsIcon className="text-muted-foreground" size={16} />
-                </div>
-                <h3 className="font-medium">API Requests</h3>
-              </div>
-              <div className="space-y-3">
-                <div className="font-bold text-3xl">0</div>
-                <Progress value={planLimits.maxApiRequests === -1 ? 100 : 0} />
-                <p className="text-muted-foreground text-sm">
-                  {planLimits.maxApiRequests === -1
-                    ? "Unlimited requests"
-                    : `${formatApiRequestLimit(planLimits.maxApiRequests)} remaining of ${formatApiRequestLimit(planLimits.maxApiRequests)}`}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+				{/* Usage Cards */}
+				<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+					<Card>
+						<CardContent className="p-6">
+							<div className="mb-4 flex items-center gap-3">
+								<div className="flex size-8 items-center justify-center rounded-lg bg-muted">
+									<PlugsIcon className="text-muted-foreground" size={16} />
+								</div>
+								<h3 className="font-medium">API Requests</h3>
+							</div>
+							<div className="space-y-3">
+								<div className="font-bold text-3xl">0</div>
+								<Progress value={planLimits.maxApiRequests === -1 ? 100 : 0} />
+								<p className="text-muted-foreground text-sm">
+									{planLimits.maxApiRequests === -1
+										? "Unlimited requests"
+										: `${formatApiRequestLimit(planLimits.maxApiRequests)} remaining of ${formatApiRequestLimit(planLimits.maxApiRequests)}`}
+								</p>
+							</div>
+						</CardContent>
+					</Card>
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="mb-4 flex items-center gap-3">
-                <div className="flex size-8 items-center justify-center rounded-lg bg-muted">
-                  <ImagesIcon className="text-muted-foreground" />
-                </div>
-                <h3 className="font-medium">Media</h3>
-              </div>
-              <div className="space-y-3">
-                <div className="font-bold text-3xl">
-                  {formatBytes(currentMediaUsage)}
-                </div>
-                <Progress value={mediaPercent} />
-                <p className="text-muted-foreground text-sm">
-                  {formatStorageLimit(mediaRemainingMB)} remaining of{" "}
-                  {formatStorageLimit(planLimits.maxMediaStorage)}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+					<Card>
+						<CardContent className="p-6">
+							<div className="mb-4 flex items-center gap-3">
+								<div className="flex size-8 items-center justify-center rounded-lg bg-muted">
+									<ImagesIcon className="text-muted-foreground" />
+								</div>
+								<h3 className="font-medium">Media</h3>
+							</div>
+							<div className="space-y-3">
+								<div className="font-bold text-3xl">
+									{formatBytes(currentMediaUsage)}
+								</div>
+								<Progress value={mediaPercent} />
+								<p className="text-muted-foreground text-sm">
+									{formatStorageLimit(mediaRemainingMB)} remaining of{" "}
+									{formatStorageLimit(planLimits.maxMediaStorage)}
+								</p>
+							</div>
+						</CardContent>
+					</Card>
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="mb-4 flex items-center gap-3">
-                <div className="flex size-8 items-center justify-center rounded-lg bg-muted">
-                  <UsersIcon className="text-muted-foreground" size={16} />
-                </div>
-                <h3 className="font-medium">Members</h3>
-              </div>
-              <div className="space-y-3">
-                <div className="font-bold text-3xl">{currentMemberCount}</div>
-                <Progress value={memberPercent} />
-                <p className="text-muted-foreground text-sm">
-                  {Math.max(0, planLimits.maxMembers - currentMemberCount)}{" "}
-                  remaining of {planLimits.maxMembers}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+					<Card>
+						<CardContent className="p-6">
+							<div className="mb-4 flex items-center gap-3">
+								<div className="flex size-8 items-center justify-center rounded-lg bg-muted">
+									<UsersIcon className="text-muted-foreground" size={16} />
+								</div>
+								<h3 className="font-medium">Members</h3>
+							</div>
+							<div className="space-y-3">
+								<div className="font-bold text-3xl">{currentMemberCount}</div>
+								<Progress value={memberPercent} />
+								<p className="text-muted-foreground text-sm">
+									{Math.max(0, planLimits.maxMembers - currentMemberCount)}{" "}
+									remaining of {planLimits.maxMembers}
+								</p>
+							</div>
+						</CardContent>
+					</Card>
+				</div>
 
-        <UpgradeModal
-          isOpen={showUpgradeModal}
-          onClose={() => setShowUpgradeModal(false)}
-        />
-      </div>
-    </WorkspacePageWrapper>
-  );
+				<UpgradeModal
+					isOpen={showUpgradeModal}
+					onClose={() => setShowUpgradeModal(false)}
+				/>
+			</div>
+		</WorkspacePageWrapper>
+	);
 }
 
 export default PageClient;

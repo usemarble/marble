@@ -4,15 +4,15 @@ import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension
 const lastVisitedWorkspace = "last-visited-workspace";
 
 export const setLastVisitedWorkspace = (
-  workspace: string,
-  maxAge: number = 30 * 86_400
+	workspace: string,
+	maxAge: number = 30 * 86_400,
 ) => {
-  // biome-ignore lint/suspicious/noDocumentCookie: <>
-  document.cookie = `${lastVisitedWorkspace}=${workspace}; max-age=${maxAge}; path=/`;
+	// biome-ignore lint/suspicious/noDocumentCookie: <>
+	document.cookie = `${lastVisitedWorkspace}=${workspace}; max-age=${maxAge}; path=/`;
 };
 
 export const getLastVisitedWorkspace = (
-  cookies: RequestCookies | ReadonlyRequestCookies
+	cookies: RequestCookies | ReadonlyRequestCookies,
 ): string | undefined => {
-  return cookies.get(lastVisitedWorkspace)?.value;
+	return cookies.get(lastVisitedWorkspace)?.value;
 };

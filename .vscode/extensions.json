@@ -1,7 +1,7 @@
 {
-  "recommendations": [
-    "biomejs.biome",
-    "astro-build.astro-vscode",
-    "Prisma.prisma"
-  ]
+	"recommendations": [
+		"biomejs.biome",
+		"astro-build.astro-vscode",
+		"Prisma.prisma"
+	]
 }

@@ -1,12 +1,12 @@
 import PageClient from "./page-client";
 
 export const metadata = {
-  title: "Categories",
-  description: "Manage your categories",
+	title: "Categories",
+	description: "Manage your categories",
 };
 
 function Page() {
-  return <PageClient />;
+	return <PageClient />;
 }
 
 export default Page;

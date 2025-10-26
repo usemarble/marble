@@ -5,36 +5,36 @@ import type { WebhookSubscriptionRevokedPayload } from "@polar-sh/sdk/models/com
 import { SubscriptionStatus } from "@prisma/client";
 
 export async function handleSubscriptionRevoked(
-  payload: WebhookSubscriptionRevokedPayload
+	payload: WebhookSubscriptionRevokedPayload,
 ) {
-  const { data: subscription } = payload;
+	const { data: subscription } = payload;
 
-  const existingSubscription = await db.subscription.findUnique({
-    where: { polarId: subscription.id },
-  });
+	const existingSubscription = await db.subscription.findUnique({
+		where: { polarId: subscription.id },
+	});
 
-  if (!existingSubscription) {
-    console.error(
-      `subscription.revoked webhook received for a subscription that does not exist: ${subscription.id}`
-    );
-    return;
-  }
+	if (!existingSubscription) {
+		console.error(
+			`subscription.revoked webhook received for a subscription that does not exist: ${subscription.id}`,
+		);
+		return;
+	}
 
-  try {
-    await db.subscription.update({
-      where: { polarId: subscription.id },
-      data: {
-        status: SubscriptionStatus.expired,
-        endedAt: subscription.endedAt
-          ? new Date(subscription.endedAt)
-          : new Date(),
-      },
-    });
+	try {
+		await db.subscription.update({
+			where: { polarId: subscription.id },
+			data: {
+				status: SubscriptionStatus.expired,
+				endedAt: subscription.endedAt
+					? new Date(subscription.endedAt)
+					: new Date(),
+			},
+		});
 
-    console.log(
-      `Successfully marked subscription ${subscription.id} as revoked/expired for workspace ${existingSubscription.workspaceId}`
-    );
-  } catch (error) {
-    console.error("Error updating subscription to revoked in DB:", error);
-  }
+		console.log(
+			`Successfully marked subscription ${subscription.id} as revoked/expired for workspace ${existingSubscription.workspaceId}`,
+		);
+	} catch (error) {
+		console.error("Error updating subscription to revoked in DB:", error);
+	}
 }

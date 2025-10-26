@@ -5,116 +5,116 @@ import { tagSchema } from "@/lib/validations/workspace";
 import { getWebhooks, WebhookClient } from "@/lib/webhooks/webhook-client";
 
 export async function PATCH(
-  req: Request,
-  { params }: { params: Promise<{ id: string }> }
+	req: Request,
+	{ params }: { params: Promise<{ id: string }> },
 ) {
-  const sessionData = await getServerSession();
-  const workspaceId = sessionData?.session.activeOrganizationId;
+	const sessionData = await getServerSession();
+	const workspaceId = sessionData?.session.activeOrganizationId;
 
-  if (!sessionData || !workspaceId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+	if (!sessionData || !workspaceId) {
+		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+	}
 
-  const { id } = await params;
+	const { id } = await params;
 
-  const json = await req.json();
-  const body = tagSchema.parse(json);
+	const json = await req.json();
+	const body = tagSchema.parse(json);
 
-  const existing = await db.tag.findFirst({
-    where: { id, workspaceId },
-    select: { id: true },
-  });
+	const existing = await db.tag.findFirst({
+		where: { id, workspaceId },
+		select: { id: true },
+	});
 
-  if (!existing) {
-    return NextResponse.json({ error: "Tag not found" }, { status: 404 });
-  }
+	if (!existing) {
+		return NextResponse.json({ error: "Tag not found" }, { status: 404 });
+	}
 
-  const existingTagWithSlug = await db.tag.findFirst({
-    where: {
-      slug: body.slug,
-      workspaceId,
-      id: { not: id },
-    },
-  });
+	const existingTagWithSlug = await db.tag.findFirst({
+		where: {
+			slug: body.slug,
+			workspaceId,
+			id: { not: id },
+		},
+	});
 
-  if (existingTagWithSlug) {
-    return NextResponse.json({ error: "Slug already in use" }, { status: 409 });
-  }
+	if (existingTagWithSlug) {
+		return NextResponse.json({ error: "Slug already in use" }, { status: 409 });
+	}
 
-  const tagUpdated = await db.tag.update({
-    where: { id },
-    data: {
-      name: body.name,
-      slug: body.slug,
-      description: body.description,
-    },
-  });
+	const tagUpdated = await db.tag.update({
+		where: { id },
+		data: {
+			name: body.name,
+			slug: body.slug,
+			description: body.description,
+		},
+	});
 
-  const webhooks = getWebhooks(sessionData.session, "tag_updated");
+	const webhooks = getWebhooks(sessionData.session, "tag_updated");
 
-  for (const webhook of await webhooks) {
-    const webhookClient = new WebhookClient({ secret: webhook.secret });
-    await webhookClient.send({
-      url: webhook.endpoint,
-      event: "tag.updated",
-      data: {
-        id: tagUpdated.id,
-        slug: tagUpdated.slug,
-        userId: sessionData.user.id,
-      },
-      format: webhook.format,
-    });
-  }
+	for (const webhook of await webhooks) {
+		const webhookClient = new WebhookClient({ secret: webhook.secret });
+		await webhookClient.send({
+			url: webhook.endpoint,
+			event: "tag.updated",
+			data: {
+				id: tagUpdated.id,
+				slug: tagUpdated.slug,
+				userId: sessionData.user.id,
+			},
+			format: webhook.format,
+		});
+	}
 
-  return NextResponse.json(tagUpdated, { status: 200 });
+	return NextResponse.json(tagUpdated, { status: 200 });
 }
 
 export async function DELETE(
-  _req: Request,
-  { params }: { params: Promise<{ id: string }> }
+	_req: Request,
+	{ params }: { params: Promise<{ id: string }> },
 ) {
-  const sessionData = await getServerSession();
+	const sessionData = await getServerSession();
 
-  if (!sessionData || !sessionData.session.activeOrganizationId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+	if (!sessionData || !sessionData.session.activeOrganizationId) {
+		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+	}
 
-  const { id } = await params;
+	const { id } = await params;
 
-  const tag = await db.tag.findFirst({
-    where: { id, workspaceId: sessionData.session.activeOrganizationId },
-    select: { slug: true },
-  });
+	const tag = await db.tag.findFirst({
+		where: { id, workspaceId: sessionData.session.activeOrganizationId },
+		select: { slug: true },
+	});
 
-  if (!tag) {
-    return NextResponse.json({ error: "Tag not found" }, { status: 404 });
-  }
+	if (!tag) {
+		return NextResponse.json({ error: "Tag not found" }, { status: 404 });
+	}
 
-  try {
-    await db.tag.delete({
-      where: {
-        id,
-        workspaceId: sessionData.session.activeOrganizationId,
-      },
-    });
+	try {
+		await db.tag.delete({
+			where: {
+				id,
+				workspaceId: sessionData.session.activeOrganizationId,
+			},
+		});
 
-    const webhooks = getWebhooks(sessionData.session, "tag_deleted");
+		const webhooks = getWebhooks(sessionData.session, "tag_deleted");
 
-    for (const webhook of await webhooks) {
-      const webhookClient = new WebhookClient({ secret: webhook.secret });
-      await webhookClient.send({
-        url: webhook.endpoint,
-        event: "tag.deleted",
-        data: { id, slug: tag.slug, userId: sessionData.user.id },
-        format: webhook.format,
-      });
-    }
+		for (const webhook of await webhooks) {
+			const webhookClient = new WebhookClient({ secret: webhook.secret });
+			await webhookClient.send({
+				url: webhook.endpoint,
+				event: "tag.deleted",
+				data: { id, slug: tag.slug, userId: sessionData.user.id },
+				format: webhook.format,
+			});
+		}
 
-    return new NextResponse(null, { status: 204 });
-  } catch (_e) {
-    return NextResponse.json(
-      { error: "Failed to delete post" },
-      { status: 500 }
-    );
-  }
+		return new NextResponse(null, { status: 204 });
+	} catch (_e) {
+		return NextResponse.json(
+			{ error: "Failed to delete post" },
+			{ status: 500 },
+		);
+	}
 }

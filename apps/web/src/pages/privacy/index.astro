@@ -8,16 +8,16 @@ import { SITE } from "@/lib/constants";
 const entry = await getEntry("page", "privacy");
 
 if (!entry) {
-  throw new Error("Page not found");
+	throw new Error("Page not found");
 }
 
 const formattedDate = new Date(entry.data.updatedAt).toLocaleDateString(
-  "en-US",
-  {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  }
+	"en-US",
+	{
+		year: "numeric",
+		month: "long",
+		day: "numeric",
+	},
 );
 ---
 

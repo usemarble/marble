@@ -1,12 +1,12 @@
 import PageClient from "./page-client";
 
 export const metadata = {
-  title: "Media",
-  description: "Manage your media",
+	title: "Media",
+	description: "Manage your media",
 };
 
 function Page() {
-  return <PageClient />;
+	return <PageClient />;
 }
 
 export default Page;

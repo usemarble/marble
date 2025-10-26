@@ -1,11 +1,11 @@
 "use client";
 
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
 } from "@marble/ui/components/card";
 import { WarningCircleIcon } from "@phosphor-icons/react";
 import PageLoader from "@/components/shared/page-loader";
@@ -13,51 +13,51 @@ import { useApiAnalytics } from "@/hooks/use-analytics";
 import { AnalyticsChart } from "./AnalyticsChart";
 
 export function ApiUsageStats() {
-  const { data, isPending, error } = useApiAnalytics();
+	const { data, isPending, error } = useApiAnalytics();
 
-  if (error) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <WarningCircleIcon className="h-5 w-5 text-red-500" />
-            API Analytics Error
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground text-sm">
-            Failed to load API analytics data. Please try again later.
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
+	if (error) {
+		return (
+			<Card>
+				<CardHeader>
+					<CardTitle className="flex items-center gap-2">
+						<WarningCircleIcon className="h-5 w-5 text-red-500" />
+						API Analytics Error
+					</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<p className="text-muted-foreground text-sm">
+						Failed to load API analytics data. Please try again later.
+					</p>
+				</CardContent>
+			</Card>
+		);
+	}
 
-  return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>API Requests over Time</CardTitle>{" "}
-          <CardDescription>
-            Track your API usage over the last 12 months
-          </CardDescription>
-        </CardHeader>
+	return (
+		<div className="space-y-6">
+			<Card>
+				<CardHeader>
+					<CardTitle>API Requests over Time</CardTitle>{" "}
+					<CardDescription>
+						Track your API usage over the last 12 months
+					</CardDescription>
+				</CardHeader>
 
-        <CardContent>
-          {isPending ? (
-            <div className="h-80">
-              <PageLoader />
-            </div>
-          ) : data?.chartData && data.chartData.length > 0 ? (
-            <AnalyticsChart data={data.chartData} />
-          ) : (
-            <div className="flex h-80 items-center justify-center text-muted-foreground text-sm">
-              No analytics data available yet. Start making API requests to see
-              your usage statistics.
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  );
+				<CardContent>
+					{isPending ? (
+						<div className="h-80">
+							<PageLoader />
+						</div>
+					) : data?.chartData && data.chartData.length > 0 ? (
+						<AnalyticsChart data={data.chartData} />
+					) : (
+						<div className="flex h-80 items-center justify-center text-muted-foreground text-sm">
+							No analytics data available yet. Start making API requests to see
+							your usage statistics.
+						</div>
+					)}
+				</CardContent>
+			</Card>
+		</div>
+	);
 }

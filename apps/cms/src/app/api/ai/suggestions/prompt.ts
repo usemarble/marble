@@ -1,15 +1,15 @@
 export type SystemPromptParams = {
-  metrics: {
-    wordCount: number;
-    sentenceCount: number;
-    wordsPerSentence: number;
-    readingTime: number;
-    readabilityScore: number;
-  };
+	metrics: {
+		wordCount: number;
+		sentenceCount: number;
+		wordsPerSentence: number;
+		readingTime: number;
+		readabilityScore: number;
+	};
 };
 
 export const systemPrompt = ({ metrics }: SystemPromptParams) => {
-  return `You are a professional writing coach specializing in readability improvement. Analyze the provided text and generate specific, actionable suggestions to improve its readability and clarity. Be extremely concise. Sacrifice grammar for the sake of concision. Decide on a type of the post e.g. blog post, article, changelog, etc. If you can't decide go with the default blog post. Make sure you use this type to generate the suggestions e.g. a changelog will include a list of changes rather than text. Determine the main tone of the post and use it to generate the suggestions e.g. not every tone needs a professional writing style.
+	return `You are a professional writing coach specializing in readability improvement. Analyze the provided text and generate specific, actionable suggestions to improve its readability and clarity. Be extremely concise. Sacrifice grammar for the sake of concision. Decide on a type of the post e.g. blog post, article, changelog, etc. If you can't decide go with the default blog post. Make sure you use this type to generate the suggestions e.g. a changelog will include a list of changes rather than text. Determine the main tone of the post and use it to generate the suggestions e.g. not every tone needs a professional writing style.
 
     <PROMPT>
         ## ANALYSIS-CRITERIA
