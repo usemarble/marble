@@ -15,9 +15,10 @@ export const isRectSelected = (rect: Rect) => (selection: CellSelection) => {
   );
 
   for (let i = 0, count = cells.length; i < count; i += 1) {
-    if (selectedCells.indexOf(cells[i]) === -1) {
-      return false;
-    }
+    const cell = cells[i];
+				if (cell !== undefined && selectedCells.indexOf(cell) === -1) {
+					return false;
+				}
   }
 
   return true;
