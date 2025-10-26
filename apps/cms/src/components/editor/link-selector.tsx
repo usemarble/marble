@@ -74,7 +74,7 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
             if (e.key === "Enter") {
               e.preventDefault();
               const url = getUrlFromString(inputValue);
-              url &&
+              if (url) {
                 editor
                   .chain()
                   .focus()
@@ -83,6 +83,7 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
                     target: openInNewTab ? "_blank" : "_self",
                   })
                   .run();
+              }
             }
           }}
         >

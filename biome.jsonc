@@ -1,14 +1,8 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-  "extends": [
-    "ultracite"
-  ],
+  "extends": ["ultracite/core", "ultracite/react", "ultracite/next"],
   "files": {
-    "includes": [
-      "**",
-      "!packages/ui/src",
-      "!apps/cms/src/hooks/use-mobile.tsx"
-    ]
+    "includes": ["**", "!packages/ui/src", "!apps/cms/src/hooks/use-mobile.tsx"]
   },
   "linter": {
     "rules": {
@@ -57,6 +51,11 @@
         /* Needs more work to fix */
         "noUnusedVariables": "off"
       }
+    }
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
     }
   }
 }

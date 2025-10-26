@@ -52,12 +52,10 @@ export const columns: ColumnDef<Author>[] = [
   {
     id: "actions",
     header: () => <div className="flex justify-end pr-10">Actions</div>,
-    cell: ({ row }) => {
-      return (
-        <div className="flex justify-end pr-10">
-          <AuthorTableActions author={row.original} />
-        </div>
-      );
-    },
+    cell: ({ row }) => (
+      <div className="flex justify-end pr-10">
+        <AuthorTableActions author={row.original} />
+      </div>
+    ),
   },
 ];

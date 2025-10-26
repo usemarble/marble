@@ -60,9 +60,8 @@ export const handleResize = (callback: () => void) => {
   };
 };
 
-export const isTouchDevice = () => {
-  return window.matchMedia("(pointer: coarse)").matches;
-};
+export const isTouchDevice = () =>
+  window.matchMedia("(pointer: coarse)").matches;
 
 let lastWidth: number;
 

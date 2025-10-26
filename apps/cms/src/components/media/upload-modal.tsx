@@ -9,6 +9,7 @@ import {
 } from "@marble/ui/components/dialog";
 import { toast } from "@marble/ui/components/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import Image from "next/image";
 import { useState } from "react";
 import { MediaDropzone } from "@/components/shared/dropzone";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
@@ -83,11 +84,11 @@ export function MediaUploadModal({
             <div className="flex flex-col gap-4">
               <div className="relative flex h-[400px] w-full items-center justify-center overflow-hidden rounded-md">
                 {file.type.startsWith("image/") ? (
-                  // biome-ignore lint/performance/noImgElement: <>
-                  <img
+                  <Image
                     alt="cover preview"
                     className="h-full w-full rounded-md object-contain"
                     src={URL.createObjectURL(file)}
+                    unoptimized
                   />
                 ) : (
                   // biome-ignore lint/a11y/useMediaCaption: <>

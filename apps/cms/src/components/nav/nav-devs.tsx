@@ -31,9 +31,7 @@ export function NavDevs() {
   const pathname = usePathname();
   const params = useParams<{ workspace: string }>();
   const { open } = useSidebar();
-  const isActive = (url: string) => {
-    return pathname === `/${params.workspace}/${url}`;
-  };
+  const isActive = (url: string) => pathname === `/${params.workspace}/${url}`;
 
   return (
     <SidebarGroup className={cn(open ? "px-4" : "px-2")}>

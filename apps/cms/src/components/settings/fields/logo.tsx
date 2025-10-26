@@ -72,9 +72,7 @@ export function Logo() {
   });
 
   const { mutate: uploadLogo, isPending: isUpdatingLogo } = useMutation({
-    mutationFn: (file: File) => {
-      return uploadFile({ file, type: "logo" });
-    },
+    mutationFn: (file: File) => uploadFile({ file, type: "logo" }),
     onSuccess: (data) => {
       const { logoUrl } = data;
       if (!logoUrl || !activeWorkspace?.id) {
