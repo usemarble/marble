@@ -2,7 +2,7 @@ import { db } from "@marble/db";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
-import { getLastVisitedWorkspace } from "@/utils/workspace";
+import { getLastVisitedWorkspace } from "@/utils/workspace/client";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);

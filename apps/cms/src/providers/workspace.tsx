@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
-import { useParams, usePathname, useRouter } from "next/navigation";
+import { notFound, useParams, usePathname, useRouter } from "next/navigation";
 import {
   createContext,
   useCallback,
@@ -17,13 +17,14 @@ import {
   type WorkspaceScopedPrefix,
 } from "@/lib/constants";
 import { QUERY_KEYS } from "@/lib/queries/keys";
+import { getLastActiveWorkspaceOrNewOneToSetAsActive } from "@/lib/queries/workspace";
 import type {
   Workspace,
   WorkspaceContextType,
   WorkspaceProviderProps,
 } from "@/types/workspace";
 import { request } from "@/utils/fetch/client";
-import { setLastVisitedWorkspace } from "@/utils/workspace";
+import { setLastVisitedWorkspace } from "@/utils/workspace/client";
 
 const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
   undefined
@@ -32,8 +33,8 @@ const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
 export function WorkspaceProvider({
   children,
   initialWorkspace,
+  workspaceSlug,
 }: WorkspaceProviderProps) {
-  const params = useParams<{ workspace: string }>();
   const router = useRouter();
   const pathname = usePathname();
   const queryClient = useQueryClient();
@@ -41,10 +42,6 @@ export function WorkspaceProvider({
     initialWorkspace
   );
   const [isSwitchingWorkspace, setIsSwitchingWorkspace] = useState(false);
-
-  const workspaceSlug = Array.isArray(params.workspace)
-    ? params.workspace[0]
-    : params.workspace;
 
   const shouldFetchWorkspace =
     !!workspaceSlug &&
@@ -67,7 +64,7 @@ export function WorkspaceProvider({
       }
       if (response.status === 404) {
         console.error("Workspace not found");
-        return null;
+        return notFound();
       }
       console.error(`Unexpected status code: ${response.status}`);
       return null;

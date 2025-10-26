@@ -3,7 +3,7 @@ import type { RequestCookies } from "next/dist/compiled/@edge-runtime/cookies";
 import { getServerSession } from "@/lib/auth/session";
 import { workspaceSelect } from "@/lib/db/select";
 import type { Workspace } from "@/types/workspace";
-import { getLastVisitedWorkspace } from "@/utils/workspace";
+import { getLastVisitedWorkspace } from "@/utils/workspace/client";
 
 /**
  * Determines which workspace should be activated for a given user.
@@ -99,7 +99,7 @@ export async function getLastActiveWorkspaceOrNewOneToSetAsActive(
  * @param {string} [workspaceSlug] - Optional slug of the workspace to fetch.
  * @returns {Promise<Workspace|null>} The workspace data or null if not found.
  */
-export async function getInitialWorkspaceData() {
+export async function getInitialWorkspaceData(): Promise<Workspace | null> {
   try {
     const session = await getServerSession();
 
@@ -116,7 +116,6 @@ export async function getInitialWorkspaceData() {
       return null;
     }
 
-    // Find current user's role in this workspace
     const currentUserMember = workspace.members.find(
       (member) => member.userId === session.user.id
     );
@@ -130,4 +129,27 @@ export async function getInitialWorkspaceData() {
     console.error("Error fetching initial workspace data:", error);
     return null;
   }
+}
+
+/**
+ * Validates whether the given workspace slug exists and the active user has access to it.
+ *
+ * @param slug - The workspace slug to validate.
+ * @returns {Promise<boolean>} True if the workspace exists and the user is a member.
+ */
+export async function validateWorkspaceAccess(slug: string): Promise<boolean> {
+  const session = await getServerSession();
+  if (!session?.user) {
+    return false;
+  }
+
+  const workspace = await db.organization.findFirst({
+    where: {
+      slug,
+      members: { some: { userId: session.user.id } },
+    },
+    select: { id: true },
+  });
+
+  return Boolean(workspace);
 }

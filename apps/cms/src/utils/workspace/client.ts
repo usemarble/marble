@@ -1,7 +1,6 @@
 import type { RequestCookies } from "next/dist/compiled/@edge-runtime/cookies";
 import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
-
-const lastVisitedWorkspace = "last-visited-workspace";
+import { lastVisitedWorkspace } from "./constants";
 
 export const setLastVisitedWorkspace = (
   workspace: string,
