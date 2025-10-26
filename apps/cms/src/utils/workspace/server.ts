@@ -22,7 +22,8 @@ export const setServerLastVisitedWorkspace = async (
     path: "/",
     maxAge,
     sameSite: "lax",
-    // httpOnly: true, // optional if not needed by client JS
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
   });
 };
 

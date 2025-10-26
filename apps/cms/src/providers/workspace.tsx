@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
-import { notFound, useParams, usePathname, useRouter } from "next/navigation";
+import { notFound, usePathname, useRouter } from "next/navigation";
 import {
   createContext,
   useCallback,
@@ -17,7 +17,6 @@ import {
   type WorkspaceScopedPrefix,
 } from "@/lib/constants";
 import { QUERY_KEYS } from "@/lib/queries/keys";
-import { getLastActiveWorkspaceOrNewOneToSetAsActive } from "@/lib/queries/workspace";
 import type {
   Workspace,
   WorkspaceContextType,
