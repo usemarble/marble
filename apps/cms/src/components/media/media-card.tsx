@@ -20,6 +20,7 @@ import {
   TrashIcon,
 } from "@phosphor-icons/react";
 import { format } from "date-fns";
+import Image from "next/image";
 import type { Media, MediaType } from "@/types/media";
 import { formatBytes } from "@/utils/string";
 import { VideoPlayer } from "./video-player";
@@ -83,14 +84,12 @@ export function MediaCard({
             </div>
           </div>
           {media.type === "image" && (
-            <>
-              {/** biome-ignore lint/performance/noImgElement: <> */}
-              <img
-                alt={media.name}
-                className="absolute inset-0 size-full object-cover"
-                src={media.url}
-              />
-            </>
+            <Image
+              alt={media.name}
+              className="absolute inset-0 size-full object-cover"
+              src={media.url}
+              unoptimized
+            />
           )}
           {media.type === "video" && <VideoPlayer src={media.url} />}
           {(media.type === "audio" || media.type === "document") && (

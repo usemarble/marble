@@ -81,7 +81,7 @@ export function ImageUploadModal({
 
     try {
       setIsValidatingUrl(true);
-      const img = new Image();
+      const img = new window.Image();
       img.onload = () => {
         if (editor) {
           editor
@@ -144,11 +144,11 @@ export function ImageUploadModal({
               {file ? (
                 <div className="flex flex-col gap-4">
                   <div className="relative h-full w-full">
-                    {/* biome-ignore lint/performance/noImgElement: <> */}
-                    <img
+                    <Image
                       alt="cover"
                       className="h-full w-full rounded-md object-cover"
                       src={URL.createObjectURL(file)}
+                      unoptimized
                     />
                     {isUploading && (
                       <div className="absolute inset-0 grid size-full place-content-center rounded-md bg-black/50 p-2 backdrop-blur-xs">
@@ -210,11 +210,11 @@ export function ImageUploadModal({
                             onClick={() => handleEmbed(item.url)}
                             type="button"
                           >
-                            {/* biome-ignore lint/performance/noImgElement: <> */}
-                            <img
+                            <Image
                               alt={item.name}
                               className="h-full w-full object-cover"
                               src={item.url}
+                              unoptimized
                             />
                           </button>
                         </li>
