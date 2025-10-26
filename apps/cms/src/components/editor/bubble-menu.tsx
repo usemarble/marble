@@ -29,6 +29,7 @@ function BubbleMenuComponent() {
 
 			// Hide bubble menu if image, imageUpload, youtube, or youtubeUpload is selected
 			if (
+				editor.isActive("figure") ||
 				editor.isActive("image") ||
 				editor.isActive("imageUpload") ||
 				editor.isActive("youtube") ||

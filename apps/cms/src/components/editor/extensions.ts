@@ -17,6 +17,7 @@ import { StarterKit } from "@tiptap/starter-kit";
 import { cx } from "class-variance-authority";
 import { common, createLowlight } from "lowlight";
 import { Document } from "./extensions/document/Document";
+import { Figure } from "./extensions/figure";
 import { ImageUpload } from "./extensions/image-upload";
 import { Column, Columns } from "./extensions/multi-column";
 import { Table, TableCell, TableHeader, TableRow } from "./extensions/table";
@@ -144,6 +145,7 @@ export const defaultExtensions: Extension[] = [
 	CodeBlockLowlightEx as unknown as Extension,
 	Dropcursor as unknown as Extension,
 	tiptapImage as unknown as Extension,
+	Figure as unknown as Extension,
 	ImageUpload as unknown as Extension,
 	fileHandler as unknown as Extension,
 	youtube as unknown as Extension,

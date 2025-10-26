@@ -70,6 +70,26 @@
   }
 }
 
+/* Figure and caption styles */
+.ProseMirror figure {
+  margin: 1.5rem 0;
+  display: block;
+}
+
+.ProseMirror figure img {
+  display: block;
+  width: 100%;
+  margin: 0;
+}
+
+.ProseMirror figure figcaption {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
+  font-style: italic;
+  text-align: center;
+}
+
 .img-placeholder {
   position: relative;
 
