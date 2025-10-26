@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* UI component utilities */
-@source '../../../../packages/ui/src/components/**/*.{ts,tsx}';
+@source "../../../../packages/ui/src/components/**/*.{ts,tsx}";
 
 /* Custom variant for dark mode */
 @custom-variant dark (&:is(.dark *));

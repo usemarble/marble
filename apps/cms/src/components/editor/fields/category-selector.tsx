@@ -63,9 +63,8 @@ export function CategorySelector({ control }: CategorySelectorProps) {
 
     queryClient.setQueryData(
       QUERY_KEYS.CATEGORIES(workspaceId),
-      (oldData: CategoryResponse[] | undefined) => {
-        return oldData ? [...oldData, newCategory] : [newCategory];
-      }
+      (oldData: CategoryResponse[] | undefined) =>
+        oldData ? [...oldData, newCategory] : [newCategory]
     );
 
     queryClient.invalidateQueries({

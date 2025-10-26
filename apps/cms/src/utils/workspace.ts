@@ -13,6 +13,4 @@ export const setLastVisitedWorkspace = (
 
 export const getLastVisitedWorkspace = (
   cookies: RequestCookies | ReadonlyRequestCookies
-): string | undefined => {
-  return cookies.get(lastVisitedWorkspace)?.value;
-};
+): string | undefined => cookies.get(lastVisitedWorkspace)?.value;

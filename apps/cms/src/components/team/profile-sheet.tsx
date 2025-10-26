@@ -36,9 +36,10 @@ export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
   const [role, setRole] = useState(member.role);
   const [loading, setLoading] = useState(false);
 
-  const settingsChanges = useMemo(() => {
-    return role !== member.role;
-  }, [role, member.role]);
+  const settingsChanges = useMemo(
+    () => role !== member.role,
+    [role, member.role]
+  );
 
   async function handleSave() {
     setLoading(true);

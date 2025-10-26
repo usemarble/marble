@@ -82,9 +82,7 @@ export function NavMain() {
   const params = useParams<{ workspace: string }>();
   const { open } = useSidebar();
 
-  const isActive = (url: string) => {
-    return pathname === `/${params.workspace}/${url}`;
-  };
+  const isActive = (url: string) => pathname === `/${params.workspace}/${url}`;
 
   const isOverviewActive = pathname === `/${params.workspace}`;
   const isSettingsActive = pathname.startsWith(`/${params.workspace}/settings`);
