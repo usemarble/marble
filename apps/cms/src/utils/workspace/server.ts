@@ -15,6 +15,13 @@ export const setServerLastVisitedWorkspace = async (
   workspace: string,
   maxAge: number = 30 * 86_400
 ) => {
+  if (!workspace || typeof workspace !== 'string' || workspace.trim().length === 0) {
+    throw new Error('Invalid workspace: must be a non-empty string');
+  }
+  if (workspace.length > 255) {
+    throw new Error('Invalid workspace: exceeds maximum length');
+  }
+
   const cookieStore = await cookies();
   cookieStore.set({
     name: lastVisitedWorkspace,
