@@ -45,5 +45,9 @@
       "@types/react-dom": "19.0.2"
     }
   },
-  "packageManager": "pnpm@10.15.0"
+  "packageManager": "pnpm@10.15.0",
+  "dependencies": {
+    "import-in-the-middle": "^2.0.0",
+    "require-in-the-middle": "^8.0.1"
+  }
 }

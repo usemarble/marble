@@ -139,8 +139,14 @@ export const GROUPS: Group[] = [
         aliases: ["columns", "col", "2col"],
         icon: ColumnsIcon,
         action: (editor) => {
-          editor.chain().focus().setColumns().run();
+          editor
+            .chain()
+            .focus()
+            .setColumns()
+            .focus(editor.state.selection.head - 1)
+            .run();
         },
+        shouldBeHidden: (editor) => editor.isActive("columns"),
       },
       {
         name: "image",

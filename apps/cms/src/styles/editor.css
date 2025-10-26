@@ -42,7 +42,7 @@
 .ProseMirror .is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   float: left;
-  color: hsl(var(--muted-foreground));
+  color: hsl(from var(--muted-foreground) h s l / 0.5);
   pointer-events: none;
   height: 0;
   font-size: 16px;
@@ -50,7 +50,7 @@
 .ProseMirror .is-empty::before {
   content: attr(data-placeholder);
   float: left;
-  color: hsl(var(--muted-foreground));
+  color: hsl(from var(--muted-foreground) h s l / 0.5);
   pointer-events: none;
   height: 0;
 }
@@ -206,9 +206,104 @@ mark[style] > strong {
   color: inherit;
 }
 
-/* codeblocks */
+/* Columns */
+[data-type="columns"] {
+  display: grid;
+  gap: 1rem;
+  margin-top: 3.5rem;
+  margin-bottom: 3rem;
 
-pre {
+  &.layout-sidebar-left {
+    grid-template-columns: 40fr 60fr;
+  }
+
+  &.layout-sidebar-right {
+    grid-template-columns: 60fr 40fr;
+  }
+
+  &.layout-two-column {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  &.has-focus [data-type="column"],
+  &:hover [data-type="column"] {
+    border-color: rgb(212 212 212); /* neutral-300 */
+  }
+
+  [data-type="column"].has-focus {
+    border-color: rgb(163 163 163); /* neutral-400 */
+  }
+
+  /* Hide placeholder on the columns container itself */
+  &.is-empty::before,
+  &.is-editor-empty::before {
+    display: none !important;
+  }
+
+  /* Hide placeholders that are direct children of columns (they shouldn't exist) */
+  & > .is-empty::before,
+  & > .is-editor-empty::before,
+  & > p.is-empty::before,
+  & > p.is-editor-empty::before {
+    display: none !important;
+  }
+
+  /* Completely hide any paragraph that's a direct child of columns */
+  & > p {
+    display: none !important;
+  }
+}
+
+[data-type="column"] {
+	overflow: auto;
+	border-radius: 0.25rem;
+	border-width: 2px;
+	border-style: dotted;
+	border-color: rgb(64 64 64); /* neutral-700 */
+	padding: 0.25rem;
+	transition: border 160ms cubic-bezier(0.45, 0.05, 0.55, 0.95);
+
+	&:hover {
+		border-color: rgb(245 245 245); /* neutral-100 */
+	}
+
+	&:has(.is-active),
+	&.has-focus {
+		border-color: rgb(163 163 163); /* neutral-400 */
+	}
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-type="columns"] {
+    &.has-focus [data-type="column"],
+    &:hover [data-type="column"] {
+      border-color: rgb(64 64 64); /* neutral-700 */
+    }
+
+    [data-type="column"].has-focus {
+      border-color: rgb(82 82 82); /* neutral-600 */
+    }
+  }
+
+  [data-type="column"] {
+    &:hover {
+      border-color: rgb(23 23 23); /* neutral-900 */
+    }
+
+    &:has(.is-active),
+    &.has-focus {
+      border-color: rgb(82 82 82); /* neutral-600 */
+    }
+  }
+}
+
+.prose
+	:where(p):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+    margin: 0 !important;
+  }
+	/* codeblocks */
+
+	pre {
   background: #0d0d0d;
   color: #fff;
   font-family: "JetBrainsMono", monospace;

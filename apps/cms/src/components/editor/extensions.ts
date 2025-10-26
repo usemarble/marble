@@ -16,6 +16,7 @@ import { CharacterCount, Dropcursor, Placeholder } from "@tiptap/extensions";
 import { StarterKit } from "@tiptap/starter-kit";
 import { cx } from "class-variance-authority";
 import { common, createLowlight } from "lowlight";
+import { Document } from "./extensions/document/Document";
 import { ImageUpload } from "./extensions/image-upload";
 import { Column, Columns } from "./extensions/multi-column";
 import { Table, TableCell, TableHeader, TableRow } from "./extensions/table";
@@ -108,6 +109,7 @@ const starterKit = StarterKit.configure({
   },
   gapcursor: false,
   codeBlock: false,
+  document: false,
 });
 
 const fileHandler = FileHandler.configure({
@@ -127,6 +129,7 @@ const fileHandler = FileHandler.configure({
 });
 
 export const defaultExtensions: Extension[] = [
+  Document as unknown as Extension,
   starterKit as unknown as Extension,
   placeholder as unknown as Extension,
   textAlign,
