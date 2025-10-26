@@ -44,9 +44,7 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
   secondaryStorage: {
-    get: async (key) => {
-      return await redis.get(key);
-    },
+    get: async (key) => await redis.get(key),
     set: async (key, value, ttl) => {
       if (ttl) {
         await redis.set(key, value, { ex: ttl });

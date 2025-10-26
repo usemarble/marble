@@ -173,6 +173,7 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
             <div className="flex flex-col gap-4">
               <div className="relative h-48 w-full">
                 {/* biome-ignore lint/performance/noImgElement: <> */}
+                {/** biome-ignore lint/correctness/useImageSize: <> */}
                 <img
                   alt="cover preview"
                   className="h-full w-full rounded-md object-cover"
@@ -293,6 +294,7 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
                           type="button"
                         >
                           {/* biome-ignore lint/performance/noImgElement: <> */}
+                          {/** biome-ignore lint/correctness/useImageSize: <> */}
                           <img
                             alt={item.name}
                             className="h-full w-full object-cover"
