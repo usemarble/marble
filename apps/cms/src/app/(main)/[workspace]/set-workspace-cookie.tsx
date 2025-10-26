@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { setWorkspaceCookieAction } from "./actions";
+import { setServerLastVisitedWorkspace } from "@/utils/workspace/server";
 
 export function SetWorkspaceCookie({
   workspaceSlug,
@@ -9,7 +9,7 @@ export function SetWorkspaceCookie({
   workspaceSlug: string;
 }) {
   useEffect(() => {
-    setWorkspaceCookieAction(workspaceSlug);
+    setServerLastVisitedWorkspace(workspaceSlug);
   }, [workspaceSlug]);
 
   return null;
