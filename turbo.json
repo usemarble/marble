@@ -33,8 +33,7 @@
         "QSTASH_TOKEN",
         "REDIS_URL",
         "REDIS_TOKEN",
-        "AI_GATEWAY_API_KEY",
-        "SENTRY_AUTH_TOKEN"
+        "AI_GATEWAY_API_KEY"
       ]
     },
     "lint": {
