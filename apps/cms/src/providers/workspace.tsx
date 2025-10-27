@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
-import { useParams, useRouter } from "next/navigation";
+import { notFound, usePathname, useRouter } from "next/navigation";
 import {
   createContext,
   useCallback,
@@ -23,7 +23,7 @@ import type {
   WorkspaceProviderProps,
 } from "@/types/workspace";
 import { request } from "@/utils/fetch/client";
-import { setLastVisitedWorkspace } from "@/utils/workspace";
+import { setLastVisitedWorkspace } from "@/utils/workspace/client";
 
 const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
   undefined
@@ -32,18 +32,15 @@ const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
 export function WorkspaceProvider({
   children,
   initialWorkspace,
+  workspaceSlug,
 }: WorkspaceProviderProps) {
-  const params = useParams<{ workspace: string }>();
   const router = useRouter();
+  const pathname = usePathname();
   const queryClient = useQueryClient();
   const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(
     initialWorkspace
   );
   const [isSwitchingWorkspace, setIsSwitchingWorkspace] = useState(false);
-
-  const workspaceSlug = Array.isArray(params.workspace)
-    ? params.workspace[0]
-    : params.workspace;
 
   const shouldFetchWorkspace =
     !!workspaceSlug &&
@@ -66,7 +63,7 @@ export function WorkspaceProvider({
       }
       if (response.status === 404) {
         console.error("Workspace not found");
-        return null;
+        return notFound();
       }
       console.error(`Unexpected status code: ${response.status}`);
       return null;
@@ -138,7 +135,16 @@ export function WorkspaceProvider({
         // Set new workspace data
         queryClient.setQueryData(["workspace_by_slug", data.slug], data);
         queryClient.setQueryData(QUERY_KEYS.WORKSPACE(data.id), data);
-        router.push(`/${data.slug}`);
+
+        // Preserve the path after the workspace slug
+        // e.g., /oldworkspace/posts/123 → /newworkspace/posts/123
+        const pathSegments = pathname.split("/").filter(Boolean);
+        const pathAfterWorkspace = pathSegments.slice(1).join("/");
+        const newPath = pathAfterWorkspace
+          ? `/${data.slug}/${pathAfterWorkspace}`
+          : `/${data.slug}`;
+
+        router.push(newPath);
       }
       setIsSwitchingWorkspace(false);
     },
