@@ -8,15 +8,14 @@ export function useDragData() {
   const [currentNode, setCurrentNode] = useState<Node | null>(null);
   const [currentNodePos, setCurrentNodePos] = useState<number>(-1);
 
-  const handleNodeChange = useCallback(  
-    (data: { node: Node | null; editor: Editor; pos: number }) => {  
-      setCurrentNode(data.node);  
+  const handleNodeChange = useCallback(
+    (data: { node: Node | null; editor: Editor; pos: number }) => {
+      setCurrentNode(data.node);
 
-      setCurrentNodePos(data.pos);  
-    },  
-    []  
-  );  
-
+      setCurrentNodePos(data.pos);
+    },
+    []
+  );
 
   return {
     currentNode,

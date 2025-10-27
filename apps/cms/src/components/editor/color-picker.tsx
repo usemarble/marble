@@ -22,11 +22,11 @@ export const ColorPicker = ({
   onChange: (color: string) => void;
   onClear: () => void;
 }) => {
-  const [hexInput, setHexInput] = useState(color || "");  
+  const [hexInput, setHexInput] = useState(color || "");
 
-  useEffect(() => {  
-    setHexInput(color || "");  
-  }, [color]);  
+  useEffect(() => {
+    setHexInput(color || "");
+  }, [color]);
 
   const handleHexInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
