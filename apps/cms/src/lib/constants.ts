@@ -202,3 +202,60 @@ export const MEDIA_TYPES = ["image", "video", "audio", "document"] as const;
 export const MEDIA_FILTER_TYPES = ["all", ...MEDIA_TYPES] as const;
 
 export const MEDIA_LIMIT = 20;
+
+/**
+ * Reserved workspace slugs that cannot be used for workspace creation
+ * to prevent conflicts with system routes and Next.js internals
+ */
+export const RESERVED_WORKSPACE_SLUGS = [
+  // Auth routes
+  "login",
+  "register",
+  "reset",
+  "verify",
+  "join",
+  "invite",
+  "auth",
+  // System routes
+  "api",
+  "new",
+  "share",
+  "settings",
+  // Workspace-level pages (dashboard routes)
+  "posts",
+  "post",
+  "categories",
+  "category",
+  "tags",
+  "tag",
+  "authors",
+  "author",
+  "media",
+  "webhooks",
+  "webhook",
+  "hooks",
+  "hook",
+  "keys",
+  "key",
+  "editor",
+  // Next.js internals
+  "_next",
+  "static",
+  "favicon",
+  "robots",
+  "sitemap",
+  // Future-proofing common patterns
+  "admin",
+  "dashboard",
+  "app",
+  "www",
+  "blog",
+  "docs",
+  "help",
+  "support",
+  "about",
+  "contact",
+  "pricing",
+  "terms",
+  "privacy",
+] as const;
