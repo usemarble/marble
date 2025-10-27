@@ -20,6 +20,7 @@ import { ImagesIcon, SpinnerIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Editor } from "@tiptap/core";
 import { useCurrentEditor } from "@tiptap/react";
+import Image from "next/image";
 import { useState } from "react";
 import { ImageDropzone } from "@/components/shared/dropzone";
 import { AsyncButton } from "@/components/ui/async-button";
@@ -27,7 +28,6 @@ import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { uploadFile } from "@/lib/media/upload";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { Media, MediaListResponse } from "@/types/media";
-import Image from "next/image";
 
 type ImageUploadModalProps = {
   isOpen: boolean;

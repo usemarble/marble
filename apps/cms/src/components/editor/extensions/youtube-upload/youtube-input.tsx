@@ -69,7 +69,7 @@ export const YouTubeInput = ({
   const isValidUrl = extractYouTubeVideoId(url) !== null;
 
   return (
-    <div className="flex flex-col gap-4 rounded-md border border-muted bg-muted/50 p-6 my-6">
+    <div className="my-6 flex flex-col gap-4 rounded-md border border-muted bg-muted/50 p-6">
       <div className="flex items-center gap-3">
         <YoutubeLogoIcon className="size-8 text-red-500" />
         <div>

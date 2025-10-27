@@ -157,11 +157,10 @@ function ContentTypePickerComponent() {
 
   const activeItem = useEditorState({
     editor: editor as Editor,
-    selector: (ctx) => {
-      return CONTENT_TYPES.find(
+    selector: (ctx) =>
+      CONTENT_TYPES.find(
         (option) => option.type === "option" && option.isActive(ctx.editor)
-      ) as ContentTypeOption | undefined;
-    },
+      ) as ContentTypeOption | undefined,
   });
 
   if (!editor) {

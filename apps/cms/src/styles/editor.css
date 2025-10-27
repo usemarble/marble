@@ -275,22 +275,22 @@ mark[style] > strong {
 }
 
 [data-type="column"] {
-	overflow: auto;
-	border-radius: 0.25rem;
-	border-width: 2px;
-	border-style: dotted;
-	border-color: rgb(64 64 64); /* neutral-700 */
-	padding: 0.25rem;
-	transition: border 160ms cubic-bezier(0.45, 0.05, 0.55, 0.95);
+  overflow: auto;
+  border-radius: 0.25rem;
+  border-width: 2px;
+  border-style: dotted;
+  border-color: rgb(64 64 64); /* neutral-700 */
+  padding: 0.25rem;
+  transition: border 160ms cubic-bezier(0.45, 0.05, 0.55, 0.95);
 
-	&:hover {
-		border-color: rgb(245 245 245); /* neutral-100 */
-	}
+  &:hover {
+    border-color: rgb(245 245 245); /* neutral-100 */
+  }
 
-	&:has(.is-active),
-	&.has-focus {
-		border-color: rgb(163 163 163); /* neutral-400 */
-	}
+  &:has(.is-active),
+  &.has-focus {
+    border-color: rgb(163 163 163); /* neutral-400 */
+  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -317,13 +317,12 @@ mark[style] > strong {
   }
 }
 
-.prose
-	:where(p):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
-    margin: 0 !important;
-  }
-	/* codeblocks */
+.prose :where(p):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  margin: 0 !important;
+}
+/* codeblocks */
 
-	pre {
+pre {
   background: #0d0d0d;
   color: #fff;
   font-family: "JetBrainsMono", monospace;

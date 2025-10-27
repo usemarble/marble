@@ -26,142 +26,142 @@ import { SlashCommand } from "./slash-command";
 
 // You can overwrite the placeholder with your own configuration
 const placeholder = Placeholder.configure({
-	placeholder: ({ editor }) => {
-		// Check if currently in a table using isActive
-		if (
-			editor.isActive("table") ||
-			editor.isActive("tableCell") ||
-			editor.isActive("tableHeader")
-		) {
-			return ""; // Hide placeholder inside tables
-		}
-		return "Press '/' for commands";
-	},
-	showOnlyWhenEditable: true,
-	showOnlyCurrent: true,
+  placeholder: ({ editor }) => {
+    // Check if currently in a table using isActive
+    if (
+      editor.isActive("table") ||
+      editor.isActive("tableCell") ||
+      editor.isActive("tableHeader")
+    ) {
+      return ""; // Hide placeholder inside tables
+    }
+    return "Press '/' for commands";
+  },
+  showOnlyWhenEditable: true,
+  showOnlyCurrent: true,
 });
 
 const tiptapImage = Image.configure({
-	allowBase64: true,
-	HTMLAttributes: {
-		class: cx("rounded-md border border-muted"),
-	},
+  allowBase64: true,
+  HTMLAttributes: {
+    class: cx("rounded-md border border-muted"),
+  },
 });
 
 const taskList = TaskList.configure({
-	HTMLAttributes: {
-		class: cx("not-prose pl-2"),
-	},
+  HTMLAttributes: {
+    class: cx("not-prose pl-2"),
+  },
 });
 const taskItem = TaskItem.configure({
-	HTMLAttributes: {
-		class: cx("flex items-start my-4"),
-	},
-	nested: true,
+  HTMLAttributes: {
+    class: cx("flex items-start my-4"),
+  },
+  nested: true,
 });
 
 const horizontalRule = HorizontalRule.configure({
-	HTMLAttributes: {
-		class: cx("mt-4 mb-6 border-t border-muted-foreground"),
-	},
+  HTMLAttributes: {
+    class: cx("mt-4 mb-6 border-t border-muted-foreground"),
+  },
 });
 
 const youtube = Youtube.configure({
-	HTMLAttributes: {
-		class: cx("w-full aspect-video"),
-		controls: false,
-		nocookie: true,
-	},
+  HTMLAttributes: {
+    class: cx("w-full aspect-video"),
+    controls: false,
+    nocookie: true,
+  },
 });
 
 const textAlign = TextAlign.configure({
-	types: ["heading", "paragraph"],
+  types: ["heading", "paragraph"],
 });
 
 const CodeBlockLowlightEx = CodeBlockLowlight.configure({
-	lowlight: createLowlight(common),
+  lowlight: createLowlight(common),
 });
 
 const starterKit = StarterKit.configure({
-	link: {
-		openOnClick: false,
-	},
-	bulletList: {
-		HTMLAttributes: {
-			class: cx("list-disc list-outside leading-3 -mt-2"),
-		},
-	},
-	orderedList: {
-		HTMLAttributes: {
-			class: cx("list-decimal list-outside leading-3 -mt-2"),
-		},
-	},
-	listItem: {
-		HTMLAttributes: {
-			class: cx("leading-normal -mb-2"),
-		},
-	},
-	blockquote: {
-		HTMLAttributes: {
-			class: cx("border-l-4 border-primary"),
-		},
-	},
-	horizontalRule: false,
-	dropcursor: {
-		color: "#DBEAFE",
-		width: 4,
-	},
-	gapcursor: false,
-	codeBlock: false,
-	document: false,
+  link: {
+    openOnClick: false,
+  },
+  bulletList: {
+    HTMLAttributes: {
+      class: cx("list-disc list-outside leading-3 -mt-2"),
+    },
+  },
+  orderedList: {
+    HTMLAttributes: {
+      class: cx("list-decimal list-outside leading-3 -mt-2"),
+    },
+  },
+  listItem: {
+    HTMLAttributes: {
+      class: cx("leading-normal -mb-2"),
+    },
+  },
+  blockquote: {
+    HTMLAttributes: {
+      class: cx("border-l-4 border-primary"),
+    },
+  },
+  horizontalRule: false,
+  dropcursor: {
+    color: "#DBEAFE",
+    width: 4,
+  },
+  gapcursor: false,
+  codeBlock: false,
+  document: false,
 });
 
 const fileHandler = FileHandler.configure({
-	allowedMimeTypes: ["image/png", "image/jpeg", "image/gif", "image/webp"],
-	onDrop: (currentEditor, files, _pos) => {
-		for (const file of files) {
-			// Insert imageUpload node at drop position with the file
-			currentEditor.chain().focus().setImageUpload({ file }).run();
-		}
-	},
-	onPaste: (currentEditor, files) => {
-		for (const file of files) {
-			// Insert imageUpload node at cursor with the file
-			currentEditor.chain().focus().setImageUpload({ file }).run();
-		}
-	},
+  allowedMimeTypes: ["image/png", "image/jpeg", "image/gif", "image/webp"],
+  onDrop: (currentEditor, files, _pos) => {
+    for (const file of files) {
+      // Insert imageUpload node at drop position with the file
+      currentEditor.chain().focus().setImageUpload({ file }).run();
+    }
+  },
+  onPaste: (currentEditor, files) => {
+    for (const file of files) {
+      // Insert imageUpload node at cursor with the file
+      currentEditor.chain().focus().setImageUpload({ file }).run();
+    }
+  },
 });
 
 export const defaultExtensions: Extension[] = [
-	Document as unknown as Extension,
-	starterKit as unknown as Extension,
-	placeholder as unknown as Extension,
-	textAlign,
-	TextStyle as unknown as Extension,
-	Color as unknown as Extension,
-	Highlight.configure({ multicolor: true }) as unknown as Extension,
-	Subscript as unknown as Extension,
-	Superscript as unknown as Extension,
-	CodeBlockLowlightEx as unknown as Extension,
-	Dropcursor as unknown as Extension,
-	tiptapImage as unknown as Extension,
-	Figure as unknown as Extension,
-	ImageUpload as unknown as Extension,
-	fileHandler as unknown as Extension,
-	youtube as unknown as Extension,
-	YouTubeUpload as unknown as Extension,
-	taskList as unknown as Extension,
-	taskItem as unknown as Extension,
-	horizontalRule as unknown as Extension,
-	Table as unknown as Extension,
-	TableRow as unknown as Extension,
-	TableCell as unknown as Extension,
-	TableHeader as unknown as Extension,
-	Columns as unknown as Extension,
-	Column as unknown as Extension,
-	CharacterCount as unknown as Extension,
-	SlashCommand as unknown as Extension,
-	// DragHandle as unknown as Extension,
-	NodeRange as unknown as Extension,
-	Dropcursor as unknown as Extension,
+  Document as unknown as Extension,
+  starterKit as unknown as Extension,
+  placeholder as unknown as Extension,
+  textAlign,
+  TextStyle as unknown as Extension,
+  Color as unknown as Extension,
+  Highlight.configure({ multicolor: true }) as unknown as Extension,
+  Subscript as unknown as Extension,
+  Superscript as unknown as Extension,
+  CodeBlockLowlightEx as unknown as Extension,
+  Dropcursor as unknown as Extension,
+  tiptapImage as unknown as Extension,
+  Figure as unknown as Extension,
+  ImageUpload as unknown as Extension,
+  fileHandler as unknown as Extension,
+  youtube as unknown as Extension,
+  YouTubeUpload as unknown as Extension,
+  taskList as unknown as Extension,
+  taskItem as unknown as Extension,
+  horizontalRule as unknown as Extension,
+  Table as unknown as Extension,
+  TableRow as unknown as Extension,
+  TableCell as unknown as Extension,
+  TableHeader as unknown as Extension,
+  Columns as unknown as Extension,
+  Column as unknown as Extension,
+  CharacterCount as unknown as Extension,
+  SlashCommand as unknown as Extension,
+  // DragHandle as unknown as Extension,
+  NodeRange as unknown as Extension,
+  Dropcursor as unknown as Extension,
 ];

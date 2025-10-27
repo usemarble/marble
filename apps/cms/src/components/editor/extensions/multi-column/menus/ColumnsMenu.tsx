@@ -7,10 +7,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
-import { Columns2, PanelLeft, PanelRight } from "lucide-react";
 import type { Editor } from "@tiptap/react";
-import { BubbleMenu as TiptapBubbleMenu } from "@tiptap/react/menus";
 import { useEditorState } from "@tiptap/react";
+import { BubbleMenu as TiptapBubbleMenu } from "@tiptap/react/menus";
+import { Columns2, PanelLeft, PanelRight } from "lucide-react";
 import { type JSX, memo, useCallback } from "react";
 import { ColumnLayout } from "../Columns";
 
@@ -51,19 +51,17 @@ function ColumnsMenuComponent({ editor, appendTo }: MenuProps): JSX.Element {
 
   const { isColumnLeft, isColumnRight, isColumnTwo } = useEditorState({
     editor,
-    selector: (ctx) => {
-      return {
-        isColumnLeft: ctx.editor.isActive("columns", {
-          layout: ColumnLayout.SidebarLeft,
-        }),
-        isColumnRight: ctx.editor.isActive("columns", {
-          layout: ColumnLayout.SidebarRight,
-        }),
-        isColumnTwo: ctx.editor.isActive("columns", {
-          layout: ColumnLayout.TwoColumn,
-        }),
-      };
-    },
+    selector: (ctx) => ({
+      isColumnLeft: ctx.editor.isActive("columns", {
+        layout: ColumnLayout.SidebarLeft,
+      }),
+      isColumnRight: ctx.editor.isActive("columns", {
+        layout: ColumnLayout.SidebarRight,
+      }),
+      isColumnTwo: ctx.editor.isActive("columns", {
+        layout: ColumnLayout.TwoColumn,
+      }),
+    }),
   });
 
   return (

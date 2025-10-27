@@ -10,78 +10,78 @@ import { LinkSelector } from "./link-selector";
 import { TextButtons } from "./text-buttons";
 
 function BubbleMenuComponent() {
-	const { editor } = useCurrentEditor();
-	const containerRef = useRef<HTMLDivElement>(null);
+  const { editor } = useCurrentEditor();
+  const containerRef = useRef<HTMLDivElement>(null);
 
-	const shouldShow = useCallback(
-		({
-			view,
-			state,
-			from,
-		}: {
-			view: unknown;
-			state: unknown;
-			from: number;
-		}) => {
-			if (!editor || !state) {
-				return false;
-			}
+  const shouldShow = useCallback(
+    ({
+      view,
+      state,
+      from,
+    }: {
+      view: unknown;
+      state: unknown;
+      from: number;
+    }) => {
+      if (!editor || !state) {
+        return false;
+      }
 
-			// Hide bubble menu if image, imageUpload, youtube, or youtubeUpload is selected
-			if (
-				editor.isActive("figure") ||
-				editor.isActive("image") ||
-				editor.isActive("imageUpload") ||
-				editor.isActive("youtube") ||
-				editor.isActive("youtubeUpload")
-			) {
-				return false;
-			}
+      // Hide bubble menu if image, imageUpload, youtube, or youtubeUpload is selected
+      if (
+        editor.isActive("figure") ||
+        editor.isActive("image") ||
+        editor.isActive("imageUpload") ||
+        editor.isActive("youtube") ||
+        editor.isActive("youtubeUpload")
+      ) {
+        return false;
+      }
 
-			// Hide bubble menu if table row or column grip is selected
-			const isRowGrip = isRowGripSelected({
-				editor,
-				view,
-				state,
-				from,
-			} as Parameters<typeof isRowGripSelected>[0]);
+      // Hide bubble menu if table row or column grip is selected
+      const isRowGrip = isRowGripSelected({
+        editor,
+        view,
+        state,
+        from,
+      } as Parameters<typeof isRowGripSelected>[0]);
 
-			const isColumnGrip = isColumnGripSelected({
-				editor,
-				view,
-				state,
-				from: from || 0,
-			} as Parameters<typeof isColumnGripSelected>[0]);
+      const isColumnGrip = isColumnGripSelected({
+        editor,
+        view,
+        state,
+        from: from || 0,
+      } as Parameters<typeof isColumnGripSelected>[0]);
 
-			if (isRowGrip || isColumnGrip) {
-				return false;
-			}
+      if (isRowGrip || isColumnGrip) {
+        return false;
+      }
 
-			// Show for normal text selection
-			return !editor.state.selection.empty;
-		},
-		[editor],
-	);
+      // Show for normal text selection
+      return !editor.state.selection.empty;
+    },
+    [editor]
+  );
 
-	if (!editor) {
-		return null;
-	}
+  if (!editor) {
+    return null;
+  }
 
-	return (
-		<div className="contents" ref={containerRef}>
-			<FloatingPortalProvider container={containerRef.current}>
-				<TiptapBubbleMenu
-					appendTo={() => document.body}
-					className="z-50 flex h-fit w-fit gap-0.5 overflow-hidden rounded-lg border bg-background p-1 shadow-sm"
-					editor={editor}
-					shouldShow={shouldShow}
-				>
-					<TextButtons />
-					<LinkSelector />
-				</TiptapBubbleMenu>
-			</FloatingPortalProvider>
-		</div>
-	);
+  return (
+    <div className="contents" ref={containerRef}>
+      <FloatingPortalProvider container={containerRef.current}>
+        <TiptapBubbleMenu
+          appendTo={() => document.body}
+          className="z-50 flex h-fit w-fit gap-0.5 overflow-hidden rounded-lg border bg-background p-1 shadow-sm"
+          editor={editor}
+          shouldShow={shouldShow}
+        >
+          <TextButtons />
+          <LinkSelector />
+        </TiptapBubbleMenu>
+      </FloatingPortalProvider>
+    </div>
+  );
 }
 
 // Memoize to prevent context cascade rerenders
