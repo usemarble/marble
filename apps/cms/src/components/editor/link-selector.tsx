@@ -61,7 +61,7 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
   // Track link active state reactively for proper re-rendering
   const isLinkActive = useEditorState({
     editor: editor as Editor,
-    selector: (ctx) => ctx.editor.isActive("link"),
+    selector: (ctx) => ctx.editor?.isActive("link") ?? false,
   });
 
   // Sync input value when popover opens
@@ -125,6 +125,7 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
           }}
         >
           <input
+            aria-label="Link URL"
             className="flex-1 bg-background px-2 py-1 text-sm outline-hidden"
             onChange={({ target }) => setInputValue(target.value)}
             placeholder="Paste or type link"

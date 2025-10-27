@@ -184,9 +184,10 @@ function EditorPage({ initialData, id }: EditorPageProps) {
   const idleCallbackId = useRef<number | null>(null);
   const editorRef = useRef<Editor | null>(null);
 
+  const initialContentRef = useRef<string>(initialData?.content ?? "");
   const editor = useEditor({
     extensions: defaultExtensions,
-    content: watch("content") || "",
+    content: initialContentRef.current,
     editorProps: {
       attributes: {
         class:

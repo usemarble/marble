@@ -21,7 +21,7 @@ export const MenuList = forwardRef<
   const [selectedCommandIndex, setSelectedCommandIndex] = useState(0);
 
   // Reset selection whenever menu items change
-  // biome-ignore lint/correctness/useExhaustiveDependencies: props is stable reference
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally reset only when items change
   useEffect(() => {
     setSelectedGroupIndex(0);
     setSelectedCommandIndex(0);

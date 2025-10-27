@@ -129,6 +129,16 @@ export const ImageUploader = ({
     [onUpload]
   );
 
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        handleUploadClick();
+      }
+    },
+    [handleUploadClick]
+  );
+
   if (loading) {
     return (
       <div className="flex items-center justify-center rounded-md border border-muted bg-muted/50 p-12">
@@ -154,6 +164,7 @@ export const ImageUploader = ({
         onDragLeave={onDragLeave}
         onDragOver={onDragOver}
         onDrop={onDrop}
+        onKeyDown={handleKeyDown}
         role="button"
         tabIndex={0}
       >

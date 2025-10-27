@@ -5,7 +5,8 @@
 
 /* Slash command menu theme */
 [data-theme="slash-command"] {
-  width: 1000vw;
+  width: max(16rem, min(100%, 48rem));
+  max-width: 90vw;
 }
 
 /* Slash command menu scrollbar - thin grey aesthetic */

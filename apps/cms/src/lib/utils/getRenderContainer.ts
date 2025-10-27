@@ -21,10 +21,12 @@ export const getRenderContainer = (editor: Editor, nodeType: string) => {
     return element;
   }
 
-  const node = view.domAtPos(from).node as HTMLElement;
-  let container: HTMLElement | null = node;
+  const node = view.domAtPos(from).node;
+  let container: HTMLElement | null = null;
 
-  if (!container.tagName) {
+  if (node instanceof HTMLElement) {
+    container = node;
+  } else {
     container = node.parentElement;
   }
 
