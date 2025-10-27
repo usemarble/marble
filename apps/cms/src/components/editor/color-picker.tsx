@@ -1,7 +1,7 @@
 import { Button } from "@marble/ui/components/button";
 import { Input } from "@marble/ui/components/input";
 import { ArrowCounterClockwiseIcon } from "@phosphor-icons/react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { HexColorPicker } from "react-colorful";
 
 const PRESET_COLORS = [
@@ -22,7 +22,11 @@ export const ColorPicker = ({
   onChange: (color: string) => void;
   onClear: () => void;
 }) => {
-  const [hexInput, setHexInput] = useState(color || "");
+  const [hexInput, setHexInput] = useState(color || "");  
+
+  useEffect(() => {  
+    setHexInput(color || "");  
+  }, [color]);  
 
   const handleHexInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {

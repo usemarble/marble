@@ -27,13 +27,12 @@ export const isColumnGripSelected = ({
     return false;
   }
 
-  let container = node;
+  // Find the owning table cell (TD/TH)  
+  let element: Element | null =  
+  node.nodeType === Node.ELEMENT_NODE ? (node as Element) : (node.parentElement);  
+  const cell = element?.closest?.("td, th") ?? null;  
 
-  while (container && !["TD", "TH"].includes(container.tagName)) {
-    container = container.parentElement ?? container;
-  }
-
-  const gripColumn = container?.querySelector?.("a.grip-column.selected");
+  const gripColumn = cell?.querySelector?.("a.grip-column.selected");  
 
   return !!gripColumn;
 };

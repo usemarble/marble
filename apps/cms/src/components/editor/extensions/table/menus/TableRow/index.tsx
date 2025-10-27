@@ -10,6 +10,8 @@ import type { Editor } from "@tiptap/react";
 import { BubbleMenu as TiptapBubbleMenu } from "@tiptap/react/menus";
 import { type JSX, memo, useCallback } from "react";
 import { isRowGripSelected } from "./utils";
+import type { EditorState } from "@tiptap/pm/state";  
+import type { EditorView } from "@tiptap/pm/view";
 
 type MenuProps = {
   editor: Editor;
@@ -17,8 +19,8 @@ type MenuProps = {
 };
 
 type ShouldShowProps = {
-  view: unknown;
-  state: unknown;
+  view: EditorView;
+  state: EditorState;
   from: number;
 };
 
