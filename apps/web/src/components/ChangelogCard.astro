@@ -7,8 +7,7 @@ type Props = {
 };
 
 const { entry } = Astro.props as Props;
-const { title, coverImage, publishedAt, authors, slug, tags} =
-  entry.data;
+const { title, coverImage, publishedAt, authors, slug, tags } = entry.data;
 
 const formattedDate = new Date(publishedAt).toLocaleDateString("en-US", {
   day: "2-digit",
