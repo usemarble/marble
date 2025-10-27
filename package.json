@@ -15,8 +15,8 @@
     "db:push": "pnpm --filter @marble/db db:push",
     "build": "turbo build",
     "dev": "turbo dev",
-    "lint": "npx ultracite@latest check",
-    "format": "npx ultracite@latest fix",
+    "lint": "pnpx ultracite@latest check",
+    "format": "pnpx ultracite@latest fix",
     "web:dev": "turbo dev --filter=web",
     "cms:dev": "turbo dev --filter=cms",
     "api:dev": "turbo dev --filter=api",
@@ -25,7 +25,7 @@
     "prepare": "husky"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.3.0",
+    "@biomejs/biome": "2.3.1",
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "@marble/tsconfig": "workspace:*",
@@ -34,7 +34,7 @@
     "prettier-plugin-tailwindcss": "^0.6.8",
     "turbo": "^2.5.8",
     "typescript": "^5.4.5",
-    "ultracite": "6.0.1"
+    "ultracite": "6.0.3"
   },
   "engines": {
     "node": ">=20"
@@ -45,5 +45,5 @@
       "@types/react-dom": "19.0.2"
     }
   },
-  "packageManager": "pnpm@10.15.0"
+  "packageManager": "pnpm@10.19.0"
 }

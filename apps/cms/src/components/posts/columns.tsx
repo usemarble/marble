@@ -51,34 +51,30 @@ export const columns: ColumnDef<Post>[] = [
   },
   {
     accessorKey: "publishedAt",
-    header: ({ column }) => {
-      return (
-        <Button
-          className="h-auto p-0 font-medium hover:bg-transparent"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          variant="ghost"
-        >
-          Published
-          <CaretUpDownIcon className="h-4 w-4" />
-        </Button>
-      );
-    },
+    header: ({ column }) => (
+      <Button
+        className="h-auto p-0 font-medium hover:bg-transparent"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        variant="ghost"
+      >
+        Published
+        <CaretUpDownIcon className="h-4 w-4" />
+      </Button>
+    ),
     cell: ({ row }) => format(row.original.publishedAt, "MMM dd, yyyy"),
   },
   {
     accessorKey: "updatedAt",
-    header: ({ column }) => {
-      return (
-        <Button
-          className="h-auto p-0 font-medium hover:bg-transparent"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          variant="ghost"
-        >
-          Last Updated
-          <CaretUpDownIcon className="h-4 w-4" />
-        </Button>
-      );
-    },
+    header: ({ column }) => (
+      <Button
+        className="h-auto p-0 font-medium hover:bg-transparent"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        variant="ghost"
+      >
+        Last Updated
+        <CaretUpDownIcon className="h-4 w-4" />
+      </Button>
+    ),
     cell: ({ row }) => format(row.original.updatedAt, "MMM dd, yyyy"),
   },
   {
