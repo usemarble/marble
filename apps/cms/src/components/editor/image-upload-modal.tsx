@@ -27,6 +27,7 @@ import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { uploadFile } from "@/lib/media/upload";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { Media, MediaListResponse } from "@/types/media";
+import Image from "next/image";
 
 type ImageUploadModalProps = {
   isOpen: boolean;
