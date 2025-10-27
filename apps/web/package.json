@@ -9,15 +9,17 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/mdx": "^4.3.6",
+    "@astrojs/mdx": "^4.3.8",
     "@astrojs/rss": "^4.0.12",
     "@astrojs/sitemap": "^3.6.0",
-    "@astrojs/vercel": "^8.2.8",
+    "@astrojs/vercel": "^9.0.0",
     "@tailwindcss/vite": "^4.1.12",
-    "astro": "^5.14.1",
+    "astro": "^5.15.0",
+    "clsx": "^2.1.1",
     "free-astro-components": "^1.2.0",
     "sharp": "^0.34.3",
     "shiki": "^3.12.2",
+    "tailwind-merge": "^2.5.4",
     "tailwindcss": "^4.1.12"
   },
   "devDependencies": {

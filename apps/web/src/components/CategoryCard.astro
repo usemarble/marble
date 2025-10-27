@@ -1,14 +1,13 @@
 ---
 import { Image } from "astro:assets";
-import type { CollectionEntry } from "astro:content";
+import type { CategoryPost } from "@/lib/schemas";
 
 type Props = {
-  entry: CollectionEntry<"posts">;
+  entry: CategoryPost;
 };
 
 const { entry } = Astro.props as Props;
-const { title, description, coverImage, publishedAt, authors, slug } =
-  entry.data;
+const { title, description, coverImage, publishedAt, authors, slug } = entry;
 
 const formattedDate = new Date(publishedAt).toLocaleDateString("en-US", {
   day: "2-digit",
@@ -40,7 +39,7 @@ const formattedDate = new Date(publishedAt).toLocaleDateString("en-US", {
         <p class="text-muted-foreground text-sm">
           {authors[0].name}
         </p>
-        <time datetime={publishedAt.toISOString()} class="text-muted-foreground text-sm">{formattedDate}</time>
+        <time datetime={publishedAt.toString()} class="text-muted-foreground text-sm">{formattedDate}</time>
       </div>
     </div>
   </a>

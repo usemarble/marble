@@ -1,0 +1,92 @@
+---
+import { Image } from "astro:assets";
+import { getCollection } from "astro:content";
+import Container from "@/components/Container.astro";
+import Prose from "@/components/Prose.astro";
+import Layout from "@/layouts/Layout.astro";
+import { SITE } from "@/lib/constants";
+import { calculateReadTime } from "@/lib/utils";
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+  const changelogEntries = await getCollection("changelog");
+  return changelogEntries.map((entry) => ({
+    params: { slug: entry.data.slug },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+
+const formattedDate = new Date(entry.data.publishedAt).toLocaleDateString(
+  "en-US",
+  {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  }
+);
+
+const readTime = calculateReadTime(entry.data.content);
+---
+
+<Layout
+  title={`${entry.data.title} - ${SITE.TITLE}`}
+  description={entry.data.description}
+  image={entry.data.coverImage}
+>
+  <section
+    class='min-h-[calc(100vh-88px)] sm:min-h-[calc(100vh-103px)] lg:min-h-[calc(100vh-120px)] border-y border-dashed'
+  >
+    <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto h-full">
+      <Container class="md:py-20 py-10 md:pb-24">
+        <section class='max-w-3xl mx-auto mb-6 md:mb-10 space-y-6'>
+          <!-- <div>
+            <a href="/blog" class="group w-fit flex items-center gap-2 relative hover:bg-muted p-2 transition duration-300 rounded">
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                viewBox="0 0 24 24"
+                class="size-5 stroke-2 fill-none stroke-current">
+                <line x1="5" y1="12" x2="19" y2="12" class="scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300 ease-in-out" />
+                <polyline points="12 5 5 12 12 19" class="translate-x-1 group-hover:translate-x-0 transition-transform duration-300 ease-in-out" />
+              </svg>
+              <span>Back</span>
+            </a>
+          </div> -->
+          <div class='flex flex-col gap-4 max-w-2xl mx-auto'>
+            <h1 class='text-3xl lg:text-4xl text-balance leading-[1.2] mb-2'>
+              {entry.data.title}
+            </h1>
+            <div class="flex items-center gap-6 justify-btween">
+              <div class="flex items-center gap-2">
+                <span class="h-4 w-0.5 bg-gray-300 shrink-0"></span>
+                <time datetime={entry.data.publishedAt.toISOString()} class="text-muted-foreground text-sm sm:text-base">{formattedDate}</time>
+              </div>
+              <!-- <div class="flex items-center gap-2">
+                <span class="h-4 w-0.5 bg-gray-300 shrink-0"></span>
+                <p class="text-muted-foreground text-sm sm:text-base">{readTime} minute read</p>
+              </div> -->
+            </div>
+            <!-- <div class="flex items-center gap-2">
+              {entry.data.authors[0].image ? (
+                <Image src={entry.data.authors[0].image} alt={entry.data.authors[0].name} class="size-7 rounded-full" inferSize />
+              ) : (
+                <span class="h-4 w-0.5 bg-gray-300 shrink-0"></span>
+              )}
+              <p class="text-muted-foreground text-sm sm:text-base">{entry.data.authors[0].name}</p>
+            </div> -->
+          </div>
+        </section>
+        <!-- <div>
+          {entry.data.coverImage && (
+            <Image src={entry.data.coverImage} alt={entry.data.title} class="w-full max-w-3xl mx-auto mb-8" inferSize />
+          )}
+        </div> -->
+        <Prose>
+          <div set:html={entry.data.content} />
+        </Prose>
+      </Container>
+    </div>
+  </section>
+</Layout>
