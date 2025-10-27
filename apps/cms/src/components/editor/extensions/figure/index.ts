@@ -4,6 +4,7 @@ import { ReactNodeViewRenderer } from "@tiptap/react";
 import { FigureView } from "./figure-view";
 
 declare module "@tiptap/core" {
+  // biome-ignore lint/style/useConsistentTypeDefinitions: Extending tiptap commands
   interface Commands<ReturnType> {
     figure: {
       setFigure: (options: {
@@ -15,8 +16,6 @@ declare module "@tiptap/core" {
     };
   }
 }
-
-
 
 export const Figure = Node.create({
   name: "figure",
@@ -65,7 +64,9 @@ export const Figure = Node.create({
       {
         tag: "figure",
         getAttrs: (element) => {
-          if (typeof element === "string") return false;
+          if (typeof element === "string") {
+            return false;
+          }
           const img = element.querySelector("img");
           return img ? {} : false;
         },

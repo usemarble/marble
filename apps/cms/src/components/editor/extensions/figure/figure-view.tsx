@@ -51,7 +51,7 @@ export const FigureView = ({
           selected && "outline outline-2 outline-primary outline-offset-2"
         )}
       >
-        {/* biome-ignore lint/performance/noImgElement: Tiptap NodeView requires standard img element */}
+        {/* biome-ignore lint: Tiptap NodeView requires standard img element */}
         <img
           alt={altValue}
           className="w-full rounded-md border border-muted"

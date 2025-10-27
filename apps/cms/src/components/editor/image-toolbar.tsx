@@ -14,7 +14,9 @@ function ImageToolbarComponent() {
 
   // Update local state when selection changes
   useEffect(() => {
-    if (!editor) return;
+    if (!editor) {
+      return;
+    }
 
     const updateState = () => {
       const { selection } = editor.state;
@@ -54,7 +56,9 @@ function ImageToolbarComponent() {
 
   const shouldShow = useCallback(
     ({ editor: ed }: { editor: typeof editor }) => {
-      if (!ed) return false;
+      if (!ed) {
+        return false;
+      }
 
       const { selection } = ed.state;
       const node = ed.state.doc.nodeAt(selection.from);

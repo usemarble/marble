@@ -352,7 +352,6 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                   Enter post your title
                 </label>
 
-                {/** biome-ignore lint/correctness/useUniqueElementIds: <title is valid> */}
                 <TextareaAutosize
                   id="title"
                   placeholder="Title"

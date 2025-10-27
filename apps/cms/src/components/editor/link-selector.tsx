@@ -102,7 +102,7 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
         container={portalContainer}
         sideOffset={10}
       >
-        {/** biome-ignore lint/a11y/noStaticElementInteractions: Handles Enter key for setting link */}
+        {/** biome-ignore lint: Handles Enter key for setting link */}
         <div
           className="flex items-center gap-0.5 p-1"
           onKeyDown={(e) => {

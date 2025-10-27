@@ -1,6 +1,7 @@
 import { cn } from "@marble/ui/lib/utils";
 import { forwardRef } from "react";
 
+/* biome-ignore lint/nursery/noReactForwardRef: forwardRef is used intentionally for ref forwarding */
 export const DropdownButton = forwardRef<
   HTMLButtonElement,
   {

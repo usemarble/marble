@@ -10,6 +10,7 @@ import { DropdownButton } from "./dropdown-button";
 import { Surface } from "./surface";
 import type { MenuListProps } from "./types";
 
+/* biome-ignore lint/nursery/noReactForwardRef: forwardRef is used intentionally for ref forwarding */
 export const MenuList = forwardRef<
   { onKeyDown: (props: { event: KeyboardEvent }) => boolean },
   MenuListProps

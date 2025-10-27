@@ -272,7 +272,7 @@ export const ImageUploader = ({
                           onClick={() => handleMediaSelect(item.url)}
                           type="button"
                         >
-                          {/* biome-ignore lint/performance/noImgElement: Preview image in drawer */}
+                          {/* biome-ignore lint: Preview image in drawer */}
                           <img
                             alt={item.name}
                             className="h-full w-full object-cover"

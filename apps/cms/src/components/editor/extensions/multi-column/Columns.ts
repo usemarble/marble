@@ -10,6 +10,7 @@ export const ColumnLayout = {
 export type ColumnLayout = (typeof ColumnLayout)[keyof typeof ColumnLayout];
 
 declare module "@tiptap/core" {
+  // biome-ignore lint/style/useConsistentTypeDefinitions: Required for TypeScript module augmentation
   interface Commands<ReturnType> {
     columns: {
       setColumns: () => ReturnType;

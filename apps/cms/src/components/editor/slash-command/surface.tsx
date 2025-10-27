@@ -7,6 +7,7 @@ export type SurfaceProps = HTMLProps<HTMLDivElement> & {
   withBorder?: boolean;
 };
 
+/* biome-ignore lint/nursery/noReactForwardRef: forwardRef is used intentionally for ref forwarding */
 export const Surface = forwardRef<HTMLDivElement, SurfaceProps>(
   (
     { children, className, withShadow = true, withBorder = true, ...props },

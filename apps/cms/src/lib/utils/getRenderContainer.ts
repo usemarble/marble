@@ -14,10 +14,9 @@ export const getRenderContainer = (editor: Editor, nodeType: string) => {
   const element = innermostNode;
 
   if (
-    (element &&
-      element.getAttribute("data-type") &&
+    (element?.getAttribute("data-type") &&
       element.getAttribute("data-type") === nodeType) ||
-    (element && element.classList && element.classList.contains(nodeType))
+    element?.classList?.contains(nodeType)
   ) {
     return element;
   }
