@@ -1,9 +1,5 @@
 import { z } from "zod";
-import {
-  SOCIAL_PLATFORMS,
-  type SocialPlatform,
-  timezones,
-} from "@/lib/constants";
+import { RESERVED_WORKSPACE_SLUGS, timezones } from "@/lib/constants";
 
 // Tag Schema
 export const tagSchema = z.object({
@@ -34,7 +30,13 @@ export const workspaceSchema = z.object({
     .regex(/^[a-z0-9]+([a-z0-9-]*[a-z0-9])?$/, {
       message:
         "Slug must start and end with letters or digits, and only contain lowercase letters, digits, and hyphens",
-    }),
+    })
+    .refine(
+      (slug) => !(RESERVED_WORKSPACE_SLUGS as readonly string[]).includes(slug),
+      {
+        message: "This slug is not available",
+      }
+    ),
   timezone: z
     .enum(timezones as [string, ...string[]], {
       errorMap: () => ({ message: "Please select a valid timezone" }),
@@ -62,7 +64,13 @@ export const slugSchema = z.object({
     .regex(/^[a-z0-9]+([a-z0-9-]*[a-z0-9])?$/, {
       message:
         "Slug must start and end with letters or digits, and only contain lowercase letters, digits, and hyphens",
-    }),
+    })
+    .refine(
+      (slug) => !(RESERVED_WORKSPACE_SLUGS as readonly string[]).includes(slug),
+      {
+        message: "This slug is not available",
+      }
+    ),
 });
 export type SlugValues = z.infer<typeof slugSchema>;
 

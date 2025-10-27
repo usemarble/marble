@@ -1,11 +1,13 @@
 ---
 import { getCollection } from "astro:content";
+import CategoryFilter from "@/components/CategoryFilter.astro";
 import Container from "@/components/Container.astro";
 import PostCard from "@/components/PostCard.astro";
 import Layout from "@/layouts/Layout.astro";
 import { SITE } from "@/lib/constants";
 
 const posts = await getCollection("posts");
+const categories = await getCollection("categories");
 ---
 
 <Layout title={`Blog - ${SITE.TITLE}`} image="/og-blog.jpg" description="Bits and pieces about SEO and content writing.">
@@ -17,6 +19,7 @@ const posts = await getCollection("posts");
             Blog
           </h1>
           <p class='text-muted-foreground text-center text-sm md:text-base'>Updates, news, and guides from the team.</p>
+          <CategoryFilter categories={categories} />
         </div>
         <ul class='grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 auto-rows-fr'>
           {

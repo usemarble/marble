@@ -56,4 +56,5 @@ export type WorkspaceContextType = {
 export type WorkspaceProviderProps = {
   children: React.ReactNode;
   initialWorkspace: Workspace | null;
+  workspaceSlug: string;
 };

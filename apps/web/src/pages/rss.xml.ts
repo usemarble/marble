@@ -4,23 +4,31 @@ import type { APIContext } from "astro";
 import { SITE } from "@/lib/constants";
 
 export async function GET(context: APIContext) {
-  const blog = await getCollection("posts");
+  const posts = await getCollection("posts");
+  const changelog = await getCollection("changelog");
 
-  const posts = [...blog].sort(
-    (a, b) =>
-      new Date(b.data.publishedAt).valueOf() -
-      new Date(a.data.publishedAt).valueOf()
+  const blogItems = posts.map((post) => ({
+    title: post.data.title,
+    description: post.data.description,
+    pubDate: new Date(post.data.publishedAt),
+    link: `/blog/${post.data.slug}`,
+  }));
+
+  const changelogItems = changelog.map((entry) => ({
+    title: entry.data.title,
+    description: entry.data.description,
+    pubDate: new Date(entry.data.publishedAt),
+    link: `/changelog/${entry.data.slug}`,
+  }));
+
+  const allItems = [...blogItems, ...changelogItems].sort(
+    (a, b) => b.pubDate.valueOf() - a.pubDate.valueOf()
   );
 
   return rss({
     title: SITE.TITLE,
     description: SITE.DESCRIPTION,
     site: context.site ?? SITE.URL,
-    items: posts.map((post) => ({
-      title: post.data.title,
-      description: post.data.description,
-      pubDate: new Date(post.data.publishedAt),
-      link: `/blog/${post.data.slug}/`,
-    })),
+    items: allItems,
   });
 }

@@ -15,8 +15,8 @@
     "db:push": "pnpm --filter @marble/db db:push",
     "build": "turbo build",
     "dev": "turbo dev",
-    "lint": "npx ultracite@latest check",
-    "format": "npx ultracite@latest fix",
+    "lint": "pnpx ultracite@latest check",
+    "format": "pnpx ultracite@latest fix",
     "web:dev": "turbo dev --filter=web",
     "cms:dev": "turbo dev --filter=cms",
     "api:dev": "turbo dev --filter=api",
@@ -45,9 +45,5 @@
       "@types/react-dom": "19.0.2"
     }
   },
-  "packageManager": "pnpm@10.15.0",
-  "dependencies": {
-    "import-in-the-middle": "^2.0.0",
-    "require-in-the-middle": "^8.0.1"
-  }
+  "packageManager": "pnpm@10.19.0"
 }

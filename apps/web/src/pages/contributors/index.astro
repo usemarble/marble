@@ -4,6 +4,7 @@ export const prerender = false;
 import Container from "@/components/Container.astro";
 import Layout from "@/layouts/Layout.astro";
 import { SITE } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 
 type GitHubUser = {
   login: string;
@@ -280,7 +281,7 @@ Astro.response.headers.set(
                           />
                           <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2 mb-2">
-                              <span class={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${issueType.color}`}>
+                              <span class={cn("inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium", issueType.color)}>
                                 {issueType.type}
                               </span>
                               <span class="text-xs text-muted-foreground">
@@ -337,7 +338,7 @@ Astro.response.headers.set(
                         />
                         <div class="flex-1 min-w-0">
                           <div class="flex items-center gap-2 mb-2">
-                            <span class={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${pr.draft ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>
+                            <span class={cn("inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium", pr.draft ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800')}>
                               {pr.draft ? 'Draft' : 'Ready'}
                             </span>
                             <span class="text-xs text-muted-foreground">
