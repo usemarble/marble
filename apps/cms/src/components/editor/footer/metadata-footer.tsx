@@ -17,7 +17,7 @@ export function MetadataFooter({
   errors,
   formRef,
 }: MetadataFooterProps) {
-  "use no memo";
+  "use no memo"; // TODO: React Compiler issue - hasErrors becomes stale during validation
   const { hasUnsavedChanges } = useUnsavedChanges();
 
   const triggerSubmit = async () => {
