@@ -83,7 +83,11 @@ export function RegisterForm() {
   }
 
   const handleSocialSignIn = async (provider: "google" | "github") => {
-    provider === "google" ? setIsGoogleLoading(true) : setIsGithubLoading(true);
+    if (provider === "google") {
+      setIsGoogleLoading(true);
+    } else {
+      setIsGithubLoading(true);
+    }
 
     try {
       await authClient.signIn.social({
@@ -94,9 +98,11 @@ export function RegisterForm() {
       return toast("Your sign in request failed. Please try again.");
     } finally {
       setLastUsedAuthMethod(provider);
-      provider === "google"
-        ? setIsGoogleLoading(false)
-        : setIsGithubLoading(false);
+      if (provider === "google") {
+        setIsGoogleLoading(false);
+      } else {
+        setIsGithubLoading(false);
+      }
     }
   };
 

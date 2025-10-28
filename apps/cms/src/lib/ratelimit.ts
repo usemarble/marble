@@ -5,13 +5,12 @@ export const rateLimitHeaders = (
   limit: number,
   remaining: number,
   reset: number
-): Headers => {
-  return new Headers({
+): Headers =>
+  new Headers({
     "X-RateLimit-Limit": limit.toString(),
     "X-RateLimit-Remaining": remaining.toString(),
     "X-RateLimit-Reset": reset.toString(),
   });
-};
 
 export const aiSuggestionsRateLimiter = new Ratelimit({
   redis,

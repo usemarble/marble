@@ -1,7 +1,7 @@
 ---
 title: Privacy Policy
 published: 2024-12-12
-description: Marble's Privacy Policy.
+description: Marble's Privacy Policy. 
 lastUpdated: 2025-09-18
 ---
 
