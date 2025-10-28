@@ -28,6 +28,7 @@ export function MetadataTab({
   initialAuthors,
   tags,
 }: MetadataTabProps) {
+  "use no memo";
   return (
     <HiddenScrollbar className="h-full px-6">
       <section className="grid gap-6 pt-4 pb-5">
