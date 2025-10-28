@@ -42,7 +42,7 @@ export async function GET() {
           : 0;
 
     const last12MonthsData: { month: string; requests: number }[] = [];
-    for (let i = 11; i >= 0; i--) {
+    for (let i = 11; i >= 0; i -= 1) {
       const date = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth() - i,

@@ -1,53 +1,60 @@
 ---
-import type { SvgComponent } from "astro/types";
-import Container from "@/components/Container.astro";
-import Neon from "@/components/icons/sponsors/Neon.astro";
-import Upstash from "@/components/icons/sponsors/Upstash.astro";
-import Layout from "@/layouts/Layout.astro";
-import { SITE } from "@/lib/constants";
+  import type { SvgComponent } from "astro/types";
+  import Container from "@/components/Container.astro";
+  import Neon from "@/components/icons/sponsors/Neon.astro";
+  import Upstash from "@/components/icons/sponsors/Upstash.astro";
+  import Layout from "@/layouts/Layout.astro";
+  import { SITE } from "@/lib/constants";
 
-type Sponsor = {
-  url: string;
-  name: string;
-  description: string;
-  icon: SvgComponent;
-};
+  type Sponsor = {
+    url: string;
+    name: string;
+    description: string;
+    icon: SvgComponent;
+  };
 
-const sponsorsData: Sponsor[] = [
-  {
-    name: "Upstash",
-    url: "https://upstash.com?utm_source=marble",
-    icon: Upstash,
-    description:
-      "Powers our caching, webhooks and rate limiting infrastructure",
-  },
-  {
-    name: "Neon",
-    url: "https://neon.com?utm_source=marble",
-    icon: Neon,
-    description: "Powers our entire database, literally",
-  },
-];
+  const sponsorsData: Sponsor[] = [
+    {
+      name: "Upstash",
+      url: "https://upstash.com?utm_source=marble",
+      icon: Upstash,
+      description:
+        "Powers our caching, webhooks and rate limiting infrastructure",
+    },
+    {
+      name: "Neon",
+      url: "https://neon.com?utm_source=marble",
+      icon: Neon,
+      description: "Powers our entire database, literally",
+    },
+  ];
 ---
-
-<Layout 
-  title={`Our Sponsors & Supporters - ${SITE.TITLE}`} 
+<Layout
+  title={`Our Sponsors & Supporters - ${SITE.TITLE}`}
   description="Meet the amazing companies and individuals that support the development of Marble."
 >
   <div class="divide-y divide-dashed">
     <section class="border-t border-dashed">
       <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
         <Container class="space-y-10 lg:space-y-16 pt-12 pb-20 lg:py-24">
-          <div class="relative flex flex-col items-center space-y-6 text-center">
-            <h1 class="relative text-2xl sm:text-3xl md:text-4xl max-w-[25ch] mx-auto">
+          <div
+            class="relative flex flex-col items-center space-y-6 text-center"
+          >
+            <h1
+              class="relative text-2xl sm:text-3xl md:text-4xl max-w-[25ch] mx-auto"
+            >
               Our Sponsors & Supporters
             </h1>
             <p class="mx-auto max-w-[60ch] md:text-lg text-muted-foreground">
-              We're grateful to the amazing companies and organizations that support the development of Marble and help us build better content management tools for everyone.
+              We're grateful to the amazing companies and organizations that
+              support the development of Marble and help us build better content
+              management tools for everyone.
             </p>
           </div>
 
-          <ul class="grid gap-8 md:gap-10 grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto">
+          <ul
+            class="grid gap-8 md:gap-10 grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto"
+          >
             {sponsorsData.map((sponsor) => (
               <li class="border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl min-h-64">
                 <div class="border flex flex-col justify-between rounded-[8px] bg-white h-full w-full p-8 text-center">
@@ -87,9 +94,19 @@ const sponsorsData: Sponsor[] = [
           </ul>
 
           <div class="max-w-2xl mx-auto text-center space-y-4">
-            <h2 class="text-xl md:text-2xl font-medium">Want to support Marble?</h2>
+            <h2 class="text-xl md:text-2xl font-medium">
+              Want to support Marble?
+            </h2>
             <p class="text-muted-foreground">
-              If your brand would like to support our project, feel free to reach out to us on <a href="https://twitter.com/usemarblecms" target="_blank" rel="noopener noreferrer" class="text-primary hover:text-primary-dark transition-colors">Twitter</a>! 
+              If your brand would like to support our project, feel free to
+              reach out to us on
+              <a
+                href="https://twitter.com/usemarblecms"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-primary hover:text-primary-dark transition-colors"
+                >Twitter</a
+              >!
             </p>
           </div>
         </Container>

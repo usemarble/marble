@@ -1,45 +1,45 @@
 ---
-import { getEntry } from "astro:content";
-import Container from "@/components/Container.astro";
-import Prose from "@/components/Prose.astro";
-import Layout from "@/layouts/Layout.astro";
-import { SITE } from "@/lib/constants";
+  import { getEntry } from "astro:content";
+  import Container from "@/components/Container.astro";
+  import Prose from "@/components/Prose.astro";
+  import Layout from "@/layouts/Layout.astro";
+  import { SITE } from "@/lib/constants";
 
-const entry = await getEntry("page", "terms");
+  const entry = await getEntry("page", "terms");
 
-if (!entry) {
-  throw new Error("Page not found");
-}
-
-const formattedDate = new Date(entry.data.updatedAt).toLocaleDateString(
-  "en-US",
-  {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
+  if (!entry) {
+    throw new Error("Page not found");
   }
-);
+
+  const formattedDate = new Date(entry.data.updatedAt).toLocaleDateString(
+    "en-US",
+    {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }
+  );
 ---
-
-
 <Layout
   title={`Terms of Service - ${SITE.TITLE}`}
   description="Marble's terms of service."
 >
-<div class="border-y border-dashed">
-  <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto"> 
-    <Container class="pt-14 pb-32">
-    <div class='max-w-2xl mx-auto mb-10 space-y-2'>
-      <h1 class='text-2xl sm:text-3xl md:text-4xl text-center'>
-        Terms of service
-      </h1>
-      <p class="text-center text-muted-foreground">Last updated: {formattedDate}</p>
-    </div>
+  <div class="border-y border-dashed">
+    <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
+      <Container class="pt-14 pb-32">
+        <div class="max-w-2xl mx-auto mb-10 space-y-2">
+          <h1 class="text-2xl sm:text-3xl md:text-4xl text-center">
+            Terms of service
+          </h1>
+          <p class="text-center text-muted-foreground">
+            Last updated: {formattedDate}
+          </p>
+        </div>
 
-    <Prose>
-      <div set:html={entry.data.content} />
-    </Prose>
-    </Container>
+        <Prose>
+          <div set:html={entry.data.content}/>
+        </Prose>
+      </Container>
+    </div>
   </div>
-</div>
 </Layout>

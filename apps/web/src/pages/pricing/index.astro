@@ -1,19 +1,22 @@
 ---
-import Container from "@/components/Container.astro";
-import AccordionItem from "@/components/ui/AccordionItem.astro";
-import Layout from "@/layouts/Layout.astro";
-import { PRICING, PRICING_FAQS, SITE } from "@/lib/constants";
-import { cn } from "@/lib/utils";
+  import Container from "@/components/Container.astro";
+  import AccordionItem from "@/components/ui/AccordionItem.astro";
+  import Layout from "@/layouts/Layout.astro";
+  import { PRICING, PRICING_FAQS, SITE } from "@/lib/constants";
+  import { cn } from "@/lib/utils";
 ---
-
-
-<Layout title={`Pricing - ${SITE.TITLE}`} description="Pricing plans for marble.">
+<Layout
+  title={`Pricing - ${SITE.TITLE}`}
+  description="Pricing plans for marble."
+>
   <div class="divide-y divide-dashed">
     <section class="border-t border-dashed">
       <div class="md:w-[calc(100%-140px)] mx-auto lg:border-x border-dashed">
         <Container class="space-y-10 lg:space-y-16 pt-12 pb-20 lg:py-24 ">
           <div class="relative flex flex-col items-center space-y-4">
-            <h1 class="relative text-center text-balance text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
+            <h1
+              class="relative text-center text-balance text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl"
+            >
               Pricing
             </h1>
             <p class="max-w-prose Md:text-lg text-muted-foreground text-center">
@@ -21,8 +24,10 @@ import { cn } from "@/lib/utils";
             </p>
           </div>
           <!-- <ul class="grid gap-5 lg:gap-10 sm:grid-cols-2 lg:grid-cols-3"> -->
-              <ul class="flex flex-col items-center md:items-stretch justify-center gap-5 md:flex-row">
-                {PRICING.map((plan, index) => (
+          <ul
+            class="flex flex-col items-center md:items-stretch justify-center gap-5 md:flex-row"
+          >
+            {PRICING.map((plan, index) => (
                   <li class={cn("border min-w-[300px] w-full max-w-[350px] bg-gray-50/80 backdrop-blur-md p-1 rounded-xl", index === 2 && 'sm:col-span-2 lg:col-span-1 sm:h-fit')}>
                     <div class={cn("border flex flex-col gap-5 rounded-[8px] bg-white w-full px-4 py-6", index === 2 ? 'sm:flex-row sm:px-14 sm:py-10 lg:py-6 sm:justify-center sm:gap-20 lg:gap-4 lg:px-4 lg:flex-col min-h-96 sm:min-h-fit lg:min-h-96' : 'min-h-96 h-full')}>
                       {index === 2 ? (
@@ -89,7 +94,7 @@ import { cn } from "@/lib/utils";
                     </div>
                   </li>
                 ))}
-            </ul>
+          </ul>
         </Container>
       </div>
     </section>
@@ -99,15 +104,19 @@ import { cn } from "@/lib/utils";
       <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
         <Container class="space-y-10 lg:space-y-14 pt-12 pb-20">
           <div class="relative flex flex-col items-center space-y-4">
-            <h2 class="relative text-center text-balance text-2xl sm:text-xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl">
+            <h2
+              class="relative text-center text-balance text-2xl sm:text-xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl"
+            >
               Frequently Asked Questions
             </h2>
             <p class="max-w-prose md:text-lg text-muted-foreground text-center">
               Answers to common questions about pricing and billing.
             </p>
           </div>
-          
-          <div class="mx-auto max-w-3xl bg-white rounded-md relative border py-2 px-6 divide-y">
+
+          <div
+            class="mx-auto max-w-3xl bg-white rounded-md relative border py-2 px-6 divide-y"
+          >
             {PRICING_FAQS.map((faq) => (
               <AccordionItem name="details" title={faq.question}>
                 <p class="text-sm [&>a]:text-foreground hover:[&>a]:text-primary [&>a]:underline [&>a]:font-medium" set:html={faq.answer} />

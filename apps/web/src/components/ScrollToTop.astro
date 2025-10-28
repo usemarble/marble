@@ -1,33 +1,43 @@
 ---
-const { class: classNames } = Astro.props;
+  const { class: classNames } = Astro.props;
 ---
-
 <button
-  id='scroll-to-top'
-  class='group fixed bottom-16 right-8 lg:bottom-20 lg:right-20 z-50 hidden w-fit hover:text-primary rounded-md border hover:bg-muted p-2 bg-white transition duration-300 text-muted-foreground'
+  id="scroll-to-top"
+  class="group fixed bottom-16 right-8 lg:bottom-20 lg:right-20 z-50 hidden w-fit hover:text-primary rounded-md border hover:bg-muted p-2 bg-white transition duration-300 text-muted-foreground"
 >
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
-    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18" />
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke-width="1.5"
+    stroke="currentColor"
+    class="size-4"
+  >
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18"
+    />
   </svg>
-  <span class='sr-only'>Scroll to top</span>
+  <span class="sr-only">Scroll to top</span>
 </button>
 
 <script>
-  document.addEventListener('astro:page-load', () => {
-    const scrollToTopButton = document.getElementById('scroll-to-top');
-    const footer = document.querySelector('footer');
+  document.addEventListener("astro:page-load", () => {
+    const scrollToTopButton = document.getElementById("scroll-to-top");
+    const footer = document.querySelector("footer");
 
     if (scrollToTopButton && footer) {
-      scrollToTopButton.addEventListener('click', () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+      scrollToTopButton.addEventListener("click", () => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
       });
 
-      window.addEventListener('scroll', () => {
+      window.addEventListener("scroll", () => {
         const footerRect = footer.getBoundingClientRect();
         const isFooterVisible = footerRect.top <= window.innerHeight;
 
         scrollToTopButton.classList.toggle(
-          'hidden',
+          "hidden",
           window.scrollY <= 300 || isFooterVisible
         );
       });

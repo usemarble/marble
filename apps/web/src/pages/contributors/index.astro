@@ -1,231 +1,252 @@
 ---
-export const prerender = false;
+  export const prerender = false;
 
-import Container from "@/components/Container.astro";
-import Layout from "@/layouts/Layout.astro";
-import { SITE } from "@/lib/constants";
-import { cn } from "@/lib/utils";
+  import Container from "@/components/Container.astro";
+  import Layout from "@/layouts/Layout.astro";
+  import { SITE } from "@/lib/constants";
+  import { cn } from "@/lib/utils";
 
-type GitHubUser = {
-  login: string;
-  id: number;
-  avatar_url: string;
-  html_url: string;
-  contributions: number;
-  type: string;
-};
-
-type GitHubIssue = {
-  id: number;
-  number: number;
-  title: string;
-  html_url: string;
-  state: string;
-  user: {
+  type GitHubUser = {
     login: string;
+    id: number;
     avatar_url: string;
     html_url: string;
+    contributions: number;
+    type: string;
   };
-  created_at: string;
-  labels: Array<{
+
+  type GitHubIssue = {
+    id: number;
+    number: number;
+    title: string;
+    html_url: string;
+    state: string;
+    user: {
+      login: string;
+      avatar_url: string;
+      html_url: string;
+    };
+    created_at: string;
+    labels: Array<{
+      name: string;
+      color: string;
+    }>;
+    pull_request?: {
+      url: string;
+    };
+  };
+
+  type GitHubPR = {
+    id: number;
+    number: number;
+    title: string;
+    html_url: string;
+    state: string;
+    user: {
+      login: string;
+      avatar_url: string;
+      html_url: string;
+    };
+    created_at: string;
+    draft: boolean;
+  };
+
+  type GitHubRepo = {
     name: string;
-    color: string;
-  }>;
-  pull_request?: {
-    url: string;
-  };
-};
-
-type GitHubPR = {
-  id: number;
-  number: number;
-  title: string;
-  html_url: string;
-  state: string;
-  user: {
-    login: string;
-    avatar_url: string;
+    full_name: string;
     html_url: string;
-  };
-  created_at: string;
-  draft: boolean;
-};
-
-type GitHubRepo = {
-  name: string;
-  full_name: string;
-  html_url: string;
-  stargazers_count: number;
-  forks_count: number;
-  open_issues_count: number;
-  language: string;
-  description: string;
-  private: boolean;
-};
-
-async function fetchGitHubData() {
-  const baseUrl = "https://api.github.com";
-  const org = "usemarble";
-  const headers: Record<string, string> = {
-    Accept: "application/vnd.github+json",
+    stargazers_count: number;
+    forks_count: number;
+    open_issues_count: number;
+    language: string;
+    description: string;
+    private: boolean;
   };
 
-  try {
-    const [repoResponse, contributorsResponse, issuesResponse, prsResponse] =
-      await Promise.all([
-        fetch(`${baseUrl}/repos/${org}/marble`, { headers }),
-        fetch(`${baseUrl}/repos/${org}/marble/contributors?per_page=100`, {
-          headers,
-        }),
-        fetch(
-          `${baseUrl}/repos/${org}/marble/issues?state=open&per_page=20&sort=created`,
-          { headers }
-        ),
-        fetch(
-          `${baseUrl}/repos/${org}/marble/pulls?state=open&per_page=5&sort=created`,
-          { headers }
-        ),
-      ]);
-
-    const repo: GitHubRepo | null = repoResponse.ok
-      ? await repoResponse.json()
-      : null;
-    const contributors: GitHubUser[] = contributorsResponse.ok
-      ? (await contributorsResponse.json()).filter(
-          (c: GitHubUser) => c.login !== "turbobot-temp"
-        )
-      : [];
-    const allIssues: GitHubIssue[] = issuesResponse.ok
-      ? await issuesResponse.json()
-      : [];
-    const issues: GitHubIssue[] = allIssues
-      .filter((issue) => !issue.pull_request)
-      .slice(0, 5);
-    const prs: GitHubPR[] = prsResponse.ok
-      ? (await prsResponse.json()).slice(0, 5)
-      : [];
-
-    const totalStars = repo?.stargazers_count || 0;
-    const totalForks = repo?.forks_count || 0;
-    const totalIssues = repo?.open_issues_count || 0;
-
-    return {
-      repo,
-      contributors: contributors.filter((c) => c.type === "User").slice(0, 24),
-      issues,
-      prs,
-      stats: {
-        totalStars,
-        totalForks,
-        totalIssues,
-        totalContributors: contributors.filter((c) => c.type === "User").length,
-      },
+  async function fetchGitHubData() {
+    const baseUrl = "https://api.github.com";
+    const org = "usemarble";
+    const headers: Record<string, string> = {
+      Accept: "application/vnd.github+json",
     };
-  } catch (error) {
-    console.error("Error fetching GitHub data:", error);
-    return {
-      repo: null,
-      contributors: [],
-      issues: [],
-      prs: [],
-      stats: {
-        totalStars: 0,
-        totalForks: 0,
-        totalIssues: 0,
-        totalContributors: 0,
-      },
-    };
+
+    try {
+      const [repoResponse, contributorsResponse, issuesResponse, prsResponse] =
+        await Promise.all([
+          fetch(`${baseUrl}/repos/${org}/marble`, { headers }),
+          fetch(`${baseUrl}/repos/${org}/marble/contributors?per_page=100`, {
+            headers,
+          }),
+          fetch(
+            `${baseUrl}/repos/${org}/marble/issues?state=open&per_page=20&sort=created`,
+            { headers }
+          ),
+          fetch(
+            `${baseUrl}/repos/${org}/marble/pulls?state=open&per_page=5&sort=created`,
+            { headers }
+          ),
+        ]);
+
+      const repo: GitHubRepo | null = repoResponse.ok
+        ? await repoResponse.json()
+        : null;
+      const contributors: GitHubUser[] = contributorsResponse.ok
+        ? (await contributorsResponse.json()).filter(
+            (c: GitHubUser) => c.login !== "turbobot-temp"
+          )
+        : [];
+      const allIssues: GitHubIssue[] = issuesResponse.ok
+        ? await issuesResponse.json()
+        : [];
+      const issues: GitHubIssue[] = allIssues
+        .filter((issue) => !issue.pull_request)
+        .slice(0, 5);
+      const prs: GitHubPR[] = prsResponse.ok
+        ? (await prsResponse.json()).slice(0, 5)
+        : [];
+
+      const totalStars = repo?.stargazers_count || 0;
+      const totalForks = repo?.forks_count || 0;
+      const totalIssues = repo?.open_issues_count || 0;
+
+      return {
+        repo,
+        contributors: contributors
+          .filter((c) => c.type === "User")
+          .slice(0, 24),
+        issues,
+        prs,
+        stats: {
+          totalStars,
+          totalForks,
+          totalIssues,
+          totalContributors: contributors.filter((c) => c.type === "User")
+            .length,
+        },
+      };
+    } catch (error) {
+      console.error("Error fetching GitHub data:", error);
+      return {
+        repo: null,
+        contributors: [],
+        issues: [],
+        prs: [],
+        stats: {
+          totalStars: 0,
+          totalForks: 0,
+          totalIssues: 0,
+          totalContributors: 0,
+        },
+      };
+    }
   }
-}
 
-const githubData = await fetchGitHubData();
+  const githubData = await fetchGitHubData();
 
-function formatDate(dateString: string) {
-  return new Date(dateString).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
+  function formatDate(dateString: string) {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  }
 
-function getIssueTypeFromLabels(
-  labels: Array<{ name: string; color: string }>
-) {
-  const bugLabel = labels.find((label) =>
-    label.name.toLowerCase().includes("bug")
+  function getIssueTypeFromLabels(
+    labels: Array<{ name: string; color: string }>
+  ) {
+    const bugLabel = labels.find((label) =>
+      label.name.toLowerCase().includes("bug")
+    );
+    const featureLabel = labels.find(
+      (label) =>
+        label.name.toLowerCase().includes("feature") ||
+        label.name.toLowerCase().includes("enhancement")
+    );
+    const docLabel = labels.find((label) =>
+      label.name.toLowerCase().includes("doc")
+    );
+
+    if (bugLabel) {
+      return { type: "Bug", color: "bg-red-100 text-red-800" };
+    }
+    if (featureLabel) {
+      return { type: "Feature", color: "bg-blue-100 text-blue-800" };
+    }
+    if (docLabel) {
+      return { type: "Docs", color: "bg-green-100 text-green-800" };
+    }
+    return { type: "Issue", color: "bg-yellow-100 text-yellow-800" };
+  }
+
+  Astro.response.headers.set(
+    "Cache-Control",
+    "public, s-maxage=3600, stale-while-revalidate=60"
   );
-  const featureLabel = labels.find(
-    (label) =>
-      label.name.toLowerCase().includes("feature") ||
-      label.name.toLowerCase().includes("enhancement")
-  );
-  const docLabel = labels.find((label) =>
-    label.name.toLowerCase().includes("doc")
-  );
-
-  if (bugLabel) {
-    return { type: "Bug", color: "bg-red-100 text-red-800" };
-  }
-  if (featureLabel) {
-    return { type: "Feature", color: "bg-blue-100 text-blue-800" };
-  }
-  if (docLabel) {
-    return { type: "Docs", color: "bg-green-100 text-green-800" };
-  }
-  return { type: "Issue", color: "bg-yellow-100 text-yellow-800" };
-}
-
-Astro.response.headers.set(
-  "Cache-Control",
-  "public, s-maxage=3600, stale-while-revalidate=60"
-);
 ---
-
-<Layout 
-  title={`Contributors & Community - ${SITE.TITLE}`} 
+<Layout
+  title={`Contributors & Community - ${SITE.TITLE}`}
   description="Meet the amazing developers and contributors who help build Marble. Explore our open source projects, contribute to issues, and join our growing community."
 >
   <div class="divide-y divide-dashed">
     <section class="border-t border-dashed">
       <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
         <Container class="space-y-12 lg:space-y-20 pt-12 pb-20 lg:py-24">
-          <div class="relative flex flex-col items-center space-y-6 text-center">
-            <h1 class="relative text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-[25ch] mx-auto">
+          <div
+            class="relative flex flex-col items-center space-y-6 text-center"
+          >
+            <h1
+              class="relative text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-[25ch] mx-auto"
+            >
               Contributors & Community
             </h1>
             <p class="mx-auto max-w-[60ch] md:text-lg text-muted-foreground">
-              Meet the amazing developers and contributors who help build Marble. Join our open source community and help shape the future of content management.
+              Meet the amazing developers and contributors who help build
+              Marble. Join our open source community and help shape the future
+              of content management.
             </p>
           </div>
 
           <div class="grid gap-6 grid-cols-2 md:grid-cols-4 text-center">
             <div class="space-y-2">
-              <div class="text-3xl md:text-4xl font-bold text-primary">{githubData.stats.totalContributors}</div>
+              <div class="text-3xl md:text-4xl font-bold text-primary">
+                {githubData.stats.totalContributors}
+              </div>
               <div class="text-sm text-muted-foreground">Contributors</div>
             </div>
             <div class="space-y-2">
-              <div class="text-3xl md:text-4xl font-bold text-primary">{githubData.stats.totalStars}</div>
+              <div class="text-3xl md:text-4xl font-bold text-primary">
+                {githubData.stats.totalStars}
+              </div>
               <div class="text-sm text-muted-foreground">Stars</div>
             </div>
             <div class="space-y-2">
-              <div class="text-3xl md:text-4xl font-bold text-primary">{githubData.stats.totalForks}</div>
+              <div class="text-3xl md:text-4xl font-bold text-primary">
+                {githubData.stats.totalForks}
+              </div>
               <div class="text-sm text-muted-foreground">Forks</div>
             </div>
             <div class="space-y-2">
-              <div class="text-3xl md:text-4xl font-bold text-primary">{githubData.stats.totalIssues}</div>
+              <div class="text-3xl md:text-4xl font-bold text-primary">
+                {githubData.stats.totalIssues}
+              </div>
               <div class="text-sm text-muted-foreground">Open Issues</div>
             </div>
           </div>
 
           <div class="space-y-8">
             <div class="text-center">
-              <h2 class="text-2xl md:text-3xl mb-4">Our Contributors<span class="text-accent">.</span></h2>
+              <h2 class="text-2xl md:text-3xl mb-4">
+                Our Contributors<span class="text-accent">.</span>
+              </h2>
               <p class="text-muted-foreground max-w-[50ch] mx-auto">
-                Thank you to all the amazing people who have contributed to Marble!
+                Thank you to all the amazing people who have contributed to
+                Marble!
               </p>
             </div>
-            
-            <div class="grid gap-4 grid-cols-3 md:grid-cols-6 lg:grid-cols-8 max-w-4xl mx-auto">
+
+            <div
+              class="grid gap-4 grid-cols-3 md:grid-cols-6 lg:grid-cols-8 max-w-4xl mx-auto"
+            >
               {githubData.contributors.map((contributor) => (
                 <a
                   href={contributor.html_url}
@@ -261,7 +282,7 @@ Astro.response.headers.set(
                   View all →
                 </a>
               </div>
-              
+
               <div class="space-y-3">
                 {githubData.issues.length === 0 ? (
                   <div class="text-center py-8 text-muted-foreground">
@@ -320,7 +341,7 @@ Astro.response.headers.set(
                   View all →
                 </a>
               </div>
-              
+
               <div class="space-y-3">
                 {githubData.prs.length === 0 ? (
                   <div class="text-center py-8 text-muted-foreground">
@@ -365,12 +386,24 @@ Astro.response.headers.set(
             </div>
           </div>
 
-
-
           <div class="max-w-2xl mx-auto text-center space-y-4">
             <h2 class="text-xl md:text-2xl">Want to contribute?</h2>
             <p class="text-muted-foreground">
-              We welcome contributions from developers of all skill levels. Check out our <a href="https://github.com/usemarble/marble" target="_blank" rel="noopener noreferrer" class="text-primary hover:text-primary-dark transition-colors">GitHub repository</a> to get started, or reach out to us on <a href="https://x.com/usemarblecms" target="_blank" rel="noopener noreferrer" class="text-primary hover:text-primary-dark transition-colors">Twitter</a>!
+              We welcome contributions from developers of all skill levels.
+              Check out our
+              <a
+                href="https://github.com/usemarble/marble"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-primary hover:text-primary-dark transition-colors"
+                >GitHub repository</a
+              >to get started, or reach out to us on <a
+                href="https://x.com/usemarblecms"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-primary hover:text-primary-dark transition-colors"
+                >Twitter</a
+              >!
             </p>
             <div class="flex items-center justify-center gap-4 pt-4">
               <a
@@ -396,7 +429,7 @@ Astro.response.headers.set(
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
-  
+
   .line-clamp-3 {
     display: -webkit-box;
     -webkit-line-clamp: 3;
