@@ -13,12 +13,15 @@ import TextAlign from "@tiptap/extension-text-align";
 import { TextStyle } from "@tiptap/extension-text-style";
 import { Youtube } from "@tiptap/extension-youtube";
 import { CharacterCount, Dropcursor, Placeholder } from "@tiptap/extensions";
+import { Markdown } from "@tiptap/markdown";
 import { StarterKit } from "@tiptap/starter-kit";
 import { cx } from "class-variance-authority";
 import { common, createLowlight } from "lowlight";
 import { Document } from "./extensions/document/Document";
 import { Figure } from "./extensions/figure";
 import { ImageUpload } from "./extensions/image-upload";
+import { MarkdownFileDrop } from "./extensions/markdown-file-drop";
+import { MarkdownPaste } from "./extensions/markdown-paste";
 import { Column, Columns } from "./extensions/multi-column";
 import { Table, TableCell, TableHeader, TableRow } from "./extensions/table";
 import { YouTubeUpload } from "./extensions/youtube-upload";
@@ -82,6 +85,13 @@ const CodeBlockLowlightEx = CodeBlockLowlight.configure({
   lowlight: createLowlight(common),
 });
 
+const markdown = Markdown.configure({
+  markedOptions: {
+    gfm: true, // GitHub-flavored markdown
+    breaks: true, // Newlines become <br>
+  },
+});
+
 const starterKit = StarterKit.configure({
   link: {
     openOnClick: false,
@@ -134,6 +144,8 @@ const fileHandler = FileHandler.configure({
 
 export const defaultExtensions: Extension[] = [
   Document as unknown as Extension,
+  markdown as unknown as Extension,
+  MarkdownPaste as unknown as Extension,
   starterKit as unknown as Extension,
   placeholder as unknown as Extension,
   textAlign,
@@ -147,6 +159,7 @@ export const defaultExtensions: Extension[] = [
   tiptapImage as unknown as Extension,
   Figure as unknown as Extension,
   ImageUpload as unknown as Extension,
+  MarkdownFileDrop as unknown as Extension,
   fileHandler as unknown as Extension,
   youtube as unknown as Extension,
   YouTubeUpload as unknown as Extension,

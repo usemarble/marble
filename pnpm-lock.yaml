@@ -244,6 +244,9 @@ importers:
       '@tiptap/extensions':
         specifier: ^3.7.1
         version: 3.7.1(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2)
+      '@tiptap/markdown':
+        specifier: ^3.9.0
+        version: 3.9.0(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2)
       '@tiptap/pm':
         specifier: ^3.7.2
         version: 3.7.2
@@ -4562,6 +4565,12 @@ packages:
     peerDependencies:
       '@tiptap/core': ^3.7.1
       '@tiptap/pm': ^3.7.1
+
+  '@tiptap/markdown@3.9.0':
+    resolution: {integrity: sha512-7rQQnkoZBRnwRjSzIQukFQRarm755g5OBOOuMTxqNa5yDBtPzDer7kThbqFqJPklNFX7ClKiFm/TyhkXh24Ltg==}
+    peerDependencies:
+      '@tiptap/core': ^3.9.0
+      '@tiptap/pm': ^3.9.0
 
   '@tiptap/pm@3.7.2':
     resolution: {integrity: sha512-i2fvXDapwo/TWfHM6STYEbkYyF3qyfN6KEBKPrleX/Z80G5bLxom0gB79TsjLNxTLi6mdf0vTHgAcXMG1avc2g==}
@@ -12471,6 +12480,12 @@ snapshots:
     dependencies:
       '@tiptap/core': 3.7.2(@tiptap/pm@3.7.2)
       '@tiptap/pm': 3.7.2
+
+  '@tiptap/markdown@3.9.0(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2)':
+    dependencies:
+      '@tiptap/core': 3.7.2(@tiptap/pm@3.7.2)
+      '@tiptap/pm': 3.7.2
+      marked: 16.4.1
 
   '@tiptap/pm@3.7.2':
     dependencies:
