@@ -182,14 +182,14 @@ function PageClient() {
       for (const file of Array.from(files)) {
         try {
           await uploadFile({ file, type: "media" });
-          uploaded++;
+          uploaded += 1;
         } catch (error) {
           console.error(`Failed to upload ${file.name}:`, error);
           errors.push({
             file: file.name,
             error: error instanceof Error ? error.message : "Unknown error",
           });
-          failed++;
+          failed += 1;
         }
 
         const message = `Uploading ${uploaded} of ${total} files...`;

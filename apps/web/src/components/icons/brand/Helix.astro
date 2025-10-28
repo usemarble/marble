@@ -1,13 +1,23 @@
 ---
-import type { HTMLAttributes } from "astro/types";
+  import type { HTMLAttributes } from "astro/types";
 
-interface Props extends HTMLAttributes<"svg"> {}
-const { class: classNames, ...attrs } = Astro.props;
+  interface Props extends HTMLAttributes<"svg"> {}
+  const { class: classNames, ...attrs } = Astro.props;
 ---
-
-<svg width="28" height="46" viewBox="0 0 28 46" fill="none" xmlns="http://www.w3.org/2000/svg" class={classNames} {...attrs}>
+<svg
+  width="28"
+  height="46"
+  viewBox="0 0 28 46"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+  class={classNames}
+  {...attrs}
+>
   <g clip-path="url(#clip0_2150_402)">
-    <path d="M0.769531 0.759277H8.32876V15.662L13.9899 18.8784L19.6676 15.662V0.759277H27.2268V19.9639L21.5546 23.1764L27.1497 26.3401V45.2411H19.5905L19.6059 30.6669L13.9766 27.4682L8.32876 30.6669V45.1652H0.769531V26.416L6.41304 23.1706L0.769531 19.9639V0.759277Z" fill="black"/>
+    <path
+      d="M0.769531 0.759277H8.32876V15.662L13.9899 18.8784L19.6676 15.662V0.759277H27.2268V19.9639L21.5546 23.1764L27.1497 26.3401V45.2411H19.5905L19.6059 30.6669L13.9766 27.4682L8.32876 30.6669V45.1652H0.769531V26.416L6.41304 23.1706L0.769531 19.9639V0.759277Z"
+      fill="black"
+    />
   </g>
   <defs>
     <clipPath id="clip0_2150_402">

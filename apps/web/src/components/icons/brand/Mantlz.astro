@@ -1,11 +1,21 @@
 ---
-import type { HTMLAttributes } from "astro/types";
+  import type { HTMLAttributes } from "astro/types";
 
-interface Props extends HTMLAttributes<"svg"> {}
-const { class: classNames, ...attrs } = Astro.props;
+  interface Props extends HTMLAttributes<"svg"> {}
+  const { class: classNames, ...attrs } = Astro.props;
 ---
-
-<svg xmlns="http://www.w3.org/2000/svg" width="46" height="46" viewBox="0 0 500 500" fill="none" class={classNames} {...attrs}>
-    <title>Mantlz Logo</title>
-    <path d="M194 119h-89v262h109v-71h-38V202l75 101 75-101v108h-38v71h108V119h-88l-57 78z" fill="#FF6900"/>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="46"
+  height="46"
+  viewBox="0 0 500 500"
+  fill="none"
+  class={classNames}
+  {...attrs}
+>
+  <title>Mantlz Logo</title>
+  <path
+    d="M194 119h-89v262h109v-71h-38V202l75 101 75-101v108h-38v71h108V119h-88l-57 78z"
+    fill="#FF6900"
+  />
 </svg>

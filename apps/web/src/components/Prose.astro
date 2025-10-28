@@ -1,10 +1,13 @@
 ---
-import type { HTMLAttributes } from "astro/types";
-import { cn } from "@/lib/utils";
+  import type { HTMLAttributes } from "astro/types";
+  import { cn } from "@/lib/utils";
 
-interface Props extends HTMLAttributes<"article"> {}
-const { class: classNames, ...attrs } = Astro.props;
+  interface Props extends HTMLAttributes<"article"> {}
+  const { class: classNames, ...attrs } = Astro.props;
 ---
-<article {...attrs} class={cn("prose prose-marble max-w-2xl prose-headings:font-sans prose-headings:font-medium prose-headings:text-balance prose-code:before:content-none prose-code:after:content-none my-6 font-serif mx-auto", classNames)}>
-  <slot />
+<article
+  {...attrs}
+  class={cn("prose prose-marble max-w-2xl prose-headings:font-sans prose-headings:font-medium prose-headings:text-balance prose-code:before:content-none prose-code:after:content-none my-6 font-serif mx-auto", classNames)}
+>
+  <slot/>
 </article>
