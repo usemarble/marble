@@ -11,6 +11,7 @@ type FeaturedFieldProps = {
 };
 
 export function FeaturedField({ control }: FeaturedFieldProps) {
+  "use no memo";
   const {
     field: { onChange, value },
   } = useController({
