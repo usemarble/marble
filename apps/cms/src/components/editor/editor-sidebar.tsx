@@ -74,7 +74,6 @@ export function EditorSidebar({
   ...props
 }: EditorSidebarProps) {
   "use no memo";
-  
   const { open } = useSidebar();
   const hasErrors = Object.keys(errors).length > 0;
   const { tags, authors: initialAuthors } = watch();
