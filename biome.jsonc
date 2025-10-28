@@ -3,8 +3,7 @@
   "extends": [
     "ultracite/core",
     "ultracite/react",
-    "ultracite/next",
-    "ultracite/astro"
+    "ultracite/next"
   ],
   "files": {
     "includes": ["**", "!packages/ui/src", "!apps/cms/src/hooks/use-mobile.tsx"]
