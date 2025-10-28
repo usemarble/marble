@@ -34,14 +34,14 @@ export function looksLikeMarkdown(text: string): boolean {
  * Check if a node type is an inline context where block-level figures can't exist
  */
 function isInlineContext(nodeType?: string): boolean {
-	const inlineTypes = ["link", "text", "strong", "em", "code", "strike", "underline"];
+	const inlineTypes = ["text", "strong", "em", "code", "strike", "underline"];
 	return nodeType ? inlineTypes.includes(nodeType) : false;
 }
 
 /**
  * Recursively transforms Image nodes to Figure nodes in parsed JSON
  * Converts markdown image syntax ![caption](url) to Figure nodes with captions
- * Only transforms images that are not in inline contexts (e.g., not inside links)
+ * Handles linked images [![alt](img)](href) by extracting the href
  */
 export function transformImageToFigure(
 	content: JSONContent,
@@ -51,21 +51,46 @@ export function transformImageToFigure(
 		return content;
 	}
 
+	// Handle link nodes that contain a single image (linked images)
+	// Transform: link > image -> figure with href
+	if (content.type === "link") {
+		const hasOnlyImage =
+			content.content &&
+			content.content.length === 1 &&
+			content.content[0].type === "image";
+
+		if (hasOnlyImage) {
+			const image = content.content[0];
+			const href = content.attrs?.href;
+
+			// Transform to figure with href
+			return {
+				type: "figure",
+				attrs: {
+					src: image.attrs?.src || "",
+					alt: image.attrs?.alt || "",
+					caption: image.attrs?.alt || "",
+					href: href || null,
+				},
+			};
+		}
+	}
+
 	// Transform the current node if it's an image
 	if (content.type === "image") {
-		// Don't transform images in inline contexts (e.g., inside links)
-		// This prevents schema violations like: paragraph > link > figure (invalid)
+		// Don't transform images in inline contexts (e.g., inside text, strong, etc.)
 		if (isInlineContext(parentType)) {
 			return content; // Keep as image
 		}
 
-		// Transform to figure
+		// Transform to figure (without href)
 		return {
 			type: "figure",
 			attrs: {
 				src: content.attrs?.src || "",
 				alt: content.attrs?.alt || "",
 				caption: content.attrs?.alt || "", // Use alt text as caption
+				href: null,
 			},
 		};
 	}

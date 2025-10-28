@@ -10,20 +10,23 @@ export const FigureView = ({
   updateAttributes,
   selected,
 }: NodeViewProps) => {
-  const { src, alt, caption } = node.attrs as {
+  const { src, alt, caption, href } = node.attrs as {
     src: string;
     alt: string;
     caption: string;
+    href: string | null;
   };
 
   const [altValue, setAltValue] = useState(alt || "");
   const [captionValue, setCaptionValue] = useState(caption || "");
+  const [hrefValue, setHrefValue] = useState(href || "");
 
   // Sync local state with node attributes when they change externally
   useEffect(() => {
     setAltValue(alt || "");
     setCaptionValue(caption || "");
-  }, [alt, caption]);
+    setHrefValue(href || "");
+  }, [alt, caption, href]);
 
   const handleAltChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,6 +46,15 @@ export const FigureView = ({
     [updateAttributes]
   );
 
+  const handleHrefChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newHref = e.target.value;
+      setHrefValue(newHref);
+      updateAttributes({ href: newHref || null });
+    },
+    [updateAttributes]
+  );
+
   return (
     <NodeViewWrapper data-drag-handle>
       <figure
@@ -51,12 +63,24 @@ export const FigureView = ({
           selected && "outline outline-2 outline-primary outline-offset-2"
         )}
       >
-        {/* biome-ignore lint: Tiptap NodeView requires standard img element */}
-        <img
-          alt={altValue}
-          className="w-full rounded-md border border-muted"
-          src={src}
-        />
+        {/* Render image wrapped in anchor if href exists */}
+        {href ? (
+          <a href={href} rel="noopener noreferrer" target="_blank">
+            {/* biome-ignore lint: Tiptap NodeView requires standard img element */}
+            <img
+              alt={altValue}
+              className="w-full rounded-md border border-muted"
+              src={src}
+            />
+          </a>
+        ) : (
+          /* biome-ignore lint: Tiptap NodeView requires standard img element */
+          <img
+            alt={altValue}
+            className="w-full rounded-md border border-muted"
+            src={src}
+          />
+        )}
 
         {/* Toolbar overlay - only shown when selected */}
         {selected && (
@@ -85,6 +109,19 @@ export const FigureView = ({
                 placeholder="Add a caption..."
                 type="text"
                 value={captionValue}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="font-medium text-xs" htmlFor="href">
+                Link URL (optional)
+              </Label>
+              <Input
+                className="h-8 text-sm"
+                id="href"
+                onChange={handleHrefChange}
+                placeholder="https://example.com"
+                type="url"
+                value={hrefValue}
               />
             </div>
           </div>

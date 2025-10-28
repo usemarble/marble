@@ -11,8 +11,9 @@ declare module "@tiptap/core" {
         src: string;
         alt?: string;
         caption?: string;
+        href?: string;
       }) => ReturnType;
-      updateFigure: (attrs: { alt?: string; caption?: string }) => ReturnType;
+      updateFigure: (attrs: { alt?: string; caption?: string; href?: string }) => ReturnType;
     };
   }
 }
@@ -30,7 +31,8 @@ export const Figure = Node.create({
       src: {
         default: null,
         parseHTML: (element) =>
-          element.querySelector("img")?.getAttribute("src"),
+          element.querySelector("img")?.getAttribute("src") ||
+          element.querySelector("a img")?.getAttribute("src"),
         renderHTML: (attributes) => {
           if (!attributes.src) {
             return {};
@@ -43,7 +45,9 @@ export const Figure = Node.create({
       alt: {
         default: "",
         parseHTML: (element) =>
-          element.querySelector("img")?.getAttribute("alt") || "",
+          element.querySelector("img")?.getAttribute("alt") ||
+          element.querySelector("a img")?.getAttribute("alt") ||
+          "",
         renderHTML: (attributes) => ({
           alt: attributes.alt,
         }),
@@ -54,6 +58,14 @@ export const Figure = Node.create({
           element.querySelector("figcaption")?.textContent || "",
         renderHTML: (attributes) => ({
           caption: attributes.caption,
+        }),
+      },
+      href: {
+        default: null,
+        parseHTML: (element) =>
+          element.querySelector("a")?.getAttribute("href") || null,
+        renderHTML: (attributes) => ({
+          href: attributes.href,
         }),
       },
     };
@@ -75,7 +87,20 @@ export const Figure = Node.create({
   },
 
   renderHTML({ HTMLAttributes }) {
-    return ["figure", mergeAttributes(HTMLAttributes), ["img"], ["figcaption"]];
+    const { href, ...attrs } = HTMLAttributes;
+
+    // If href exists, wrap img in anchor tag
+    if (href) {
+      return [
+        "figure",
+        mergeAttributes(attrs),
+        ["a", { href }, ["img"]],
+        ["figcaption"],
+      ];
+    }
+
+    // Otherwise, render img directly
+    return ["figure", mergeAttributes(attrs), ["img"], ["figcaption"]];
   },
 
   addCommands() {
