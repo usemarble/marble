@@ -1,4 +1,5 @@
 ---
+import { SITE } from "@/lib/constants";
 import Container from "./Container.astro";
 import Discord from "./icons/Discord.astro";
 import Github from "./icons/Github.astro";
@@ -21,23 +22,29 @@ import X from "./icons/X.astro";
             </p>
           </div>
     
-          <div class="grid grid-cols-1 gap-8 md:grid-cols-3 lg:gap-20">
+          <div class="grid grid-cols-1 gap-8 md:grid-cols-4 lg:gap-14">
             <div class="flex flex-col gap-4 text-sm">
-              <p class="font-medium mb-2">Legal</p>
+              <p class="font-medium mb-2">Product</p>
               <a
-                href="/terms"
+                href={SITE.APP_URL}
                 class="text-muted-foreground underline-offset-2 hover:underline"
               >
-                Terms
+                Get Started
               </a>
               <a
-                href="/privacy"
+                href="/pricing"
                 class="text-muted-foreground underline-offset-2 hover:underline"
               >
-                Privacy
+                Pricing
+              </a>
+              <a
+                href="/changelog"
+                class="text-muted-foreground underline-offset-2 hover:underline"
+              >
+                Changelog
               </a>
             </div>
-    
+
             <div class="flex flex-col gap-4 text-sm">
               <p class="font-medium mb-2">Resources</p>
               <a
@@ -46,25 +53,13 @@ import X from "./icons/X.astro";
               >
                 Blog
               </a>
-              <!-- <a
-                href="/templates"
-                class="text-muted-foreground underline-offset-2 hover:underline"
-              >
-                Templates
-              </a> -->
               <a
-                href="/pricing"
+                href="/rss.xml"
                 class="text-muted-foreground underline-offset-2 hover:underline"
               >
-                Pricing
+                Feed
               </a>
               <a
-                href="/sponsors"
-                class="text-muted-foreground underline-offset-2 hover:underline"
-              >
-                Sponsors
-              </a>
-                            <a
                 href="/contributors"
                 class="text-muted-foreground underline-offset-2 hover:underline"
               >
@@ -100,7 +95,35 @@ import X from "./icons/X.astro";
                 target="_blank"
                 class="text-muted-foreground underline-offset-2 hover:underline"
               >
-                TanStack Start Example
+                TanStack Example
+              </a>
+            </div>
+
+            <div class="flex flex-col gap-4 text-sm">
+              <p class="font-medium mb-2">Company</p>
+              <a
+                href="mailto:support@marblecms.com"
+                class="text-muted-foreground underline-offset-2 hover:underline"
+              >
+                Contact
+              </a>
+              <a
+                href="/terms"
+                class="text-muted-foreground underline-offset-2 hover:underline"
+              >
+                Terms
+              </a>
+              <a
+                href="/privacy"
+                class="text-muted-foreground underline-offset-2 hover:underline"
+              >
+                Privacy
+              </a>
+              <a
+                href="/sponsors"
+                class="text-muted-foreground underline-offset-2 hover:underline"
+              >
+                Sponsors
               </a>
             </div>
           </div>

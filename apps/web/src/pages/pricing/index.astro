@@ -3,6 +3,7 @@ import Container from "@/components/Container.astro";
 import AccordionItem from "@/components/ui/AccordionItem.astro";
 import Layout from "@/layouts/Layout.astro";
 import { PRICING, PRICING_FAQS, SITE } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 ---
 
 
@@ -22,8 +23,8 @@ import { PRICING, PRICING_FAQS, SITE } from "@/lib/constants";
           <!-- <ul class="grid gap-5 lg:gap-10 sm:grid-cols-2 lg:grid-cols-3"> -->
               <ul class="flex flex-col items-center md:items-stretch justify-center gap-5 md:flex-row">
                 {PRICING.map((plan, index) => (
-                  <li class={`border min-w-[300px] w-full max-w-[350px] bg-gray-50/80 backdrop-blur-md p-1 rounded-xl ${index === 2 ? 'sm:col-span-2 lg:col-span-1 sm:h-fit' : ''}`}>
-                    <div class={`border flex flex-col gap-5 rounded-[8px] bg-white w-full px-4 py-6 ${index === 2 ? 'sm:flex-row sm:px-14 sm:py-10 lg:py-6 sm:justify-center sm:gap-20 lg:gap-4 lg:px-4 lg:flex-col min-h-96 sm:min-h-fit lg:min-h-96' : 'min-h-96 h-full'}`}>
+                  <li class={cn("border min-w-[300px] w-full max-w-[350px] bg-gray-50/80 backdrop-blur-md p-1 rounded-xl", index === 2 && 'sm:col-span-2 lg:col-span-1 sm:h-fit')}>
+                    <div class={cn("border flex flex-col gap-5 rounded-[8px] bg-white w-full px-4 py-6", index === 2 ? 'sm:flex-row sm:px-14 sm:py-10 lg:py-6 sm:justify-center sm:gap-20 lg:gap-4 lg:px-4 lg:flex-col min-h-96 sm:min-h-fit lg:min-h-96' : 'min-h-96 h-full')}>
                       {index === 2 ? (
                         <>
                           <div class="flex flex-col gap-5 sm:min-w-60 lg:min-w-0">

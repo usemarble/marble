@@ -1,0 +1,31 @@
+---
+import { getCollection } from "astro:content";
+import ChangelogCard from "@/components/ChangelogCard.astro";
+import Container from "@/components/Container.astro";
+import Layout from "@/layouts/Layout.astro";
+import { SITE } from "@/lib/constants";
+
+const entries = await getCollection("changelog");
+---
+
+<Layout title={`Changelog - ${SITE.TITLE}`} image="/og-blog.jpg" description="Product improvements and updates.">
+  <section class='lg:border-y border-dashed min-h-[calc(100vh-140px)]'>
+    <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto h-full">
+      <Container class='pt-20 lg:pt-24 pb-32 h-full'>
+        <div class='max-w-2xl mx-auto mb-16 space-y-2'>
+          <h1 class='text-2xl leading-[1.1] sm:text-3xl md:text-4xl text-center'>
+            Changelog
+          </h1>
+          <p class='text-muted-foreground text-center text-sm md:text-base'>Product improvements and updates.</p>
+        </div>
+        <ul class='grid gap-6 md:gap-8 auto-rows-fr max-w-lg mx-auto'>
+          {
+            entries.map((entry) => (
+              <ChangelogCard entry={entry} />
+            ))
+          }
+        </ul>
+      </Container>
+    </div>
+  </section>
+</Layout>

@@ -210,6 +210,29 @@ categories.get("/:identifier", async (c) => {
           description: true,
           coverImage: true,
           publishedAt: true,
+          updatedAt: true,
+          content: true,
+          authors: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+            },
+          },
+          tags: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+            },
+          },
+          category: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+            },
+          },
         },
         orderBy: {
           publishedAt: "desc",
