@@ -11,7 +11,6 @@ type StatusFieldProps = {
 };
 
 export function StatusField({ control }: StatusFieldProps) {
-  "use no memo";
   const {
     field: { onChange, value },
   } = useController({
