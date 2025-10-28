@@ -7,7 +7,6 @@ import {
   SidebarHeader,
   useSidebar,
 } from "@marble/ui/components/sidebar";
-import { toast } from "@marble/ui/components/sonner";
 import {
   Tabs,
   TabsContent,
@@ -74,7 +73,6 @@ export function EditorSidebar({
   ...props
 }: EditorSidebarProps) {
   const { open } = useSidebar();
-  const hasErrors = Object.keys(errors).length > 0;
   const { tags, authors: initialAuthors } = watch();
   const { activeWorkspace } = useWorkspace();
 
@@ -218,20 +216,6 @@ export function EditorSidebar({
     refetchAi();
   };
 
-  const triggerSubmit = async () => {
-    if (hasErrors) {
-      console.log("hasErrors", errors);
-      return toast.error("Please fill in all required fields", {
-        position: "top-right",
-      });
-    }
-    if (formRef.current) {
-      formRef.current.dispatchEvent(
-        new Event("submit", { cancelable: true, bubbles: true })
-      );
-    }
-  };
-
   return (
     <div>
       <Sidebar
@@ -305,9 +289,10 @@ export function EditorSidebar({
         <SidebarFooter className="shrink-0 bg-transparent px-6 py-6">
           {activeTab === "metadata" && (
             <MetadataFooter
+              errors={errors}
+              formRef={formRef}
               isSubmitting={isSubmitting}
               mode={mode}
-              triggerSubmit={triggerSubmit}
             />
           )}
         </SidebarFooter>
