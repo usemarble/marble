@@ -146,7 +146,7 @@ export function ShareModal({ postId }: ShareModalProps) {
                 id="expire"
                 onCheckedChange={() => setShowExpiry((prev) => !prev)}
               />
-              <Label className="" htmlFor="expire">
+              <Label htmlFor="expire">
                 Set expiry
               </Label>
             </div>
@@ -197,7 +197,7 @@ export function ShareModal({ postId }: ShareModalProps) {
             </div>
           )} */}
         </div>
-        <DialogFooter className="">
+        <DialogFooter>
           <DialogClose asChild>
             <Button type="button" variant="secondary">
               Close
