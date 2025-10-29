@@ -1,11 +1,11 @@
 ---
-  import { getCollection } from "astro:content";
-  import ChangelogCard from "@/components/ChangelogCard.astro";
-  import Container from "@/components/Container.astro";
-  import Layout from "@/layouts/Layout.astro";
-  import { SITE } from "@/lib/constants";
+import { getCollection } from "astro:content";
+import ChangelogCard from "@/components/ChangelogCard.astro";
+import Container from "@/components/Container.astro";
+import Layout from "@/layouts/Layout.astro";
+import { SITE } from "@/lib/constants";
 
-  const entries = await getCollection("changelog");
+const entries = await getCollection("changelog");
 ---
 <Layout
   title={`Changelog - ${SITE.TITLE}`}
