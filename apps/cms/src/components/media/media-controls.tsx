@@ -13,15 +13,12 @@ import {
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { PlusIcon, TrashIcon, XIcon } from "@phosphor-icons/react";
-import type { MediaFilterType, MediaSort } from "@/types/media";
+import { useMediaPageFilters } from "@/lib/search-params";
+import type { MediaFilterType } from "@/types/media";
 import { isMediaFilterType, isMediaSort } from "@/utils/media";
 import { FileUploadInput } from "./file-upload-input";
 
 export function MediaControls({
-  type,
-  setType,
-  sort,
-  setSort,
   onUpload,
   isUploading,
   selectedItems,
@@ -30,10 +27,6 @@ export function MediaControls({
   onBulkDelete,
   mediaLength,
 }: {
-  type: MediaFilterType;
-  setType: (value: MediaFilterType) => void;
-  sort: MediaSort;
-  setSort: (value: MediaSort) => void;
   onUpload: (files: FileList) => void;
   isUploading: boolean;
   selectedItems: Set<string>;
@@ -42,13 +35,14 @@ export function MediaControls({
   onBulkDelete: () => void;
   mediaLength: number;
 }) {
+  const [{ type, sort }, setSearchParams] = useMediaPageFilters();
   return (
     <section className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
       <div className="flex flex-wrap items-center gap-1 sm:gap-4">
         <Select
           onValueChange={(val: MediaFilterType) => {
             if (isMediaFilterType(val)) {
-              setType(val);
+              setSearchParams({ type: val });
             }
           }}
           value={type}
@@ -65,7 +59,7 @@ export function MediaControls({
         <Select
           onValueChange={(val: string) => {
             if (isMediaSort(val)) {
-              setSort(val);
+              setSearchParams({ sort: val });
             }
           }}
           value={sort}

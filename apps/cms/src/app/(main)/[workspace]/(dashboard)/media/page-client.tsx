@@ -2,7 +2,6 @@
 
 import { toast } from "@marble/ui/components/sonner";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
-import { parseAsStringLiteral, useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import { MediaControls } from "@/components/media/media-controls";
@@ -10,27 +9,16 @@ import { MediaGallery } from "@/components/media/media-gallery";
 import PageLoader from "@/components/shared/page-loader";
 import { useMediaActions } from "@/hooks/use-media-actions";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { MEDIA_FILTER_TYPES, MEDIA_LIMIT, MEDIA_SORTS } from "@/lib/constants";
+import { MEDIA_FILTER_TYPES, MEDIA_SORTS } from "@/lib/constants";
 import { uploadFile } from "@/lib/media/upload";
 import { QUERY_KEYS } from "@/lib/queries/keys";
-import type {
-  MediaFilterType,
-  MediaListResponse,
-  MediaQueryKey,
-  MediaSort,
-} from "@/types/media";
+import { getMediaApiUrl, useMediaPageFilters } from "@/lib/search-params";
+import type { MediaListResponse, MediaQueryKey } from "@/types/media";
 import { toMediaType } from "@/utils/media";
 
 function PageClient() {
   const workspaceId = useWorkspaceId();
-  const [type, setType] = useQueryState<MediaFilterType>(
-    "type",
-    parseAsStringLiteral(MEDIA_FILTER_TYPES).withDefault("all")
-  );
-  const [sort, setSort] = useQueryState<MediaSort>(
-    "sort",
-    parseAsStringLiteral(MEDIA_SORTS).withDefault("createdAt_desc")
-  );
+  const [{ type, sort }] = useMediaPageFilters();
   const normalizedType = toMediaType(type);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
@@ -52,18 +40,13 @@ function PageClient() {
     ],
     queryFn: async ({ pageParam }: { pageParam?: string }) => {
       try {
-        const params = new URLSearchParams();
-        params.set("limit", String(MEDIA_LIMIT));
-        params.set("sort", sort);
+        const url = getMediaApiUrl("/api/media", {
+          sort,
+          type: normalizedType,
+          cursor: pageParam,
+        });
 
-        if (normalizedType) {
-          params.set("type", normalizedType);
-        }
-        if (pageParam) {
-          params.set("cursor", pageParam);
-        }
-
-        const res = await fetch(`/api/media?${params}`);
+        const res = await fetch(url);
         if (!res.ok) {
           throw new Error(
             `Failed to fetch media: ${res.status} ${res.statusText}`
@@ -109,17 +92,13 @@ function PageClient() {
             { type: normalizedType, sort: sortOption },
           ],
           queryFn: async ({ pageParam }: { pageParam?: string }) => {
-            const params = new URLSearchParams();
-            params.set("limit", String(MEDIA_LIMIT));
-            params.set("sort", sortOption);
-            if (normalizedType) {
-              params.set("type", normalizedType);
-            }
-            if (pageParam) {
-              params.set("cursor", pageParam);
-            }
+            const url = getMediaApiUrl("/api/media", {
+              sort: sortOption,
+              type: normalizedType,
+              cursor: pageParam,
+            });
 
-            const res = await fetch(`/api/media?${params}`);
+            const res = await fetch(url);
             if (!res.ok) {
               throw new Error(
                 `Failed to prefetch media: ${res.status} ${res.statusText}`
@@ -234,10 +213,6 @@ function PageClient() {
           onSelectAll={handleSelectAll}
           onUpload={handleFileUpload}
           selectedItems={selectedItems}
-          setSort={setSort}
-          setType={setType}
-          sort={sort}
-          type={type}
         />
       )}
       <MediaGallery
