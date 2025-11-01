@@ -29,25 +29,32 @@ const sponsorsData: Sponsor[] = [
   },
 ];
 ---
-
-<Layout 
-  title={`Our Sponsors & Supporters - ${SITE.TITLE}`} 
+<Layout
+  title={`Our Sponsors & Supporters - ${SITE.TITLE}`}
   description="Meet the amazing companies and individuals that support the development of Marble."
 >
   <div class="divide-y divide-dashed">
     <section class="border-t border-dashed">
       <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
         <Container class="space-y-10 lg:space-y-16 pt-12 pb-20 lg:py-24">
-          <div class="relative flex flex-col items-center space-y-6 text-center">
-            <h1 class="relative text-2xl sm:text-3xl md:text-4xl max-w-[25ch] mx-auto">
+          <div
+            class="relative flex flex-col items-center space-y-6 text-center"
+          >
+            <h1
+              class="relative text-2xl sm:text-3xl md:text-4xl max-w-[25ch] mx-auto"
+            >
               Our Sponsors & Supporters
             </h1>
             <p class="mx-auto max-w-[60ch] md:text-lg text-muted-foreground">
-              We're grateful to the amazing companies and organizations that support the development of Marble and help us build better content management tools for everyone.
+              We're grateful to the amazing companies and organizations that
+              support the development of Marble and help us build better content
+              management tools for everyone.
             </p>
           </div>
 
-          <ul class="grid gap-8 md:gap-10 grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto">
+          <ul
+            class="grid gap-8 md:gap-10 grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto"
+          >
             {sponsorsData.map((sponsor) => (
               <li class="border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl min-h-64">
                 <div class="border flex flex-col justify-between rounded-[8px] bg-white h-full w-full p-8 text-center">
@@ -87,9 +94,19 @@ const sponsorsData: Sponsor[] = [
           </ul>
 
           <div class="max-w-2xl mx-auto text-center space-y-4">
-            <h2 class="text-xl md:text-2xl font-medium">Want to support Marble?</h2>
+            <h2 class="text-xl md:text-2xl font-medium">
+              Want to support Marble?
+            </h2>
             <p class="text-muted-foreground">
-              If your brand would like to support our project, feel free to reach out to us on <a href="https://twitter.com/usemarblecms" target="_blank" rel="noopener noreferrer" class="text-primary hover:text-primary-dark transition-colors">Twitter</a>! 
+              If your brand would like to support our project, feel free to
+              reach out to us on
+              <a
+                href="https://twitter.com/usemarblecms"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-primary hover:text-primary-dark transition-colors"
+                >Twitter</a
+              >!
             </p>
           </div>
         </Container>

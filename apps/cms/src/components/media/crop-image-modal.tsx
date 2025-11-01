@@ -121,7 +121,7 @@ function dataUrlToFile(dataUrl: string, filename: string): File {
   const len = bin.length;
   const buf = new Uint8Array(len);
 
-  for (let i = 0; i < len; i++) {
+  for (let i = 0; i < len; i += 1) {
     buf[i] = bin.charCodeAt(i);
   }
 

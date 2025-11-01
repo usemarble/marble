@@ -3,13 +3,18 @@ import { SITE } from "@/lib/constants";
 import Container from "./Container.astro";
 import WordMark from "./icons/WordMark.astro";
 ---
-
-<header id="header" class="bg-background/90 z-50 relative max-lg:py-4 backdrop-blur-md">
+<header
+  id="header"
+  class="bg-background/90 z-50 relative max-lg:py-4 backdrop-blur-md"
+>
   <div class="lg:border-x border-dashed sm:w-[calc(100%-140px)] mx-auto">
     <Container class="lg:py-4">
-      <nav id="nav" class="group grid grid-cols-2 md:grid-cols-3 transition items-center sticky top-96">
+      <nav
+        id="nav"
+        class="group grid grid-cols-2 md:grid-cols-3 transition items-center sticky top-96"
+      >
         <!-- mobile nav -->
-        <div 
+        <div
           id="mobile-nav"
           class="hidden data-expanded:block data-expanded:fixed data-expanded:inset-0 z-50 pt-20 px-6 h-screen bg-white/95 backdrop-blur-xl md:hidden"
         >
@@ -46,32 +51,39 @@ import WordMark from "./icons/WordMark.astro";
         </div>
         <!-- desktop nav -->
         <div class="flex items-center gap-4 justify-start z-100">
-          <a
-            href="/"
-            class="text-lg tracking-wider flex items-center gap-2"
-            >
-            <WordMark />
+          <a href="/" class="text-lg tracking-wider flex items-center gap-2">
+            <WordMark/>
             <span class="sr-only">marblecms</span>
           </a>
         </div>
-          <ul class="items-center gap-10 text-sm justify-center hidden md:flex">
-            <li>
-              <a href="https://docs.marblecms.com" target="_blank" class="hover:bg-muted p-2 transition duration-300 rounded">
-                <span>Docs</span>
-              </a>
-            </li>
-            <li>
-              <a href="/pricing" class="hover:bg-muted p-2 transition duration-300 rounded">
-                <span>Pricing</span>
-              </a>
-            </li>
-            <li>
-              <a href="/blog" class="hover:bg-muted p-2 transition duration-300 rounded">
-                <span>Blog</span>
-              </a>
-            </li>
-          </ul>
-          <div class="hidden md:flex items-center justify-end">
+        <ul class="items-center gap-10 text-sm justify-center hidden md:flex">
+          <li>
+            <a
+              href="https://docs.marblecms.com"
+              target="_blank"
+              class="hover:bg-muted p-2 transition duration-300 rounded"
+            >
+              <span>Docs</span>
+            </a>
+          </li>
+          <li>
+            <a
+              href="/pricing"
+              class="hover:bg-muted p-2 transition duration-300 rounded"
+            >
+              <span>Pricing</span>
+            </a>
+          </li>
+          <li>
+            <a
+              href="/blog"
+              class="hover:bg-muted p-2 transition duration-300 rounded"
+            >
+              <span>Blog</span>
+            </a>
+          </li>
+        </ul>
+        <div class="hidden md:flex items-center justify-end">
           <a
             href={`${SITE.APP_URL}/login`}
             class="font-medium hover:bg-primary hover:text-white p-2 w-24 flex items-center justify-center transition duration-300 text-sm border border-primary bg-white rounded"
@@ -81,10 +93,23 @@ import WordMark from "./icons/WordMark.astro";
         </div>
         <!-- mobile nav toggle -->
         <div class="flex items-center justify-end md:hidden z-100">
-          <button id="toggle" aria-label="Toggle mobile navigation" class="flex flex-col justify-center gap-1.5 size-6 focus-visible:outline-dashed focus-visible:outline-offset-1">
-            <span id="bar" class="h-0.5 self-start bg-foreground w-1/2 data-expanded:w-[calc(50%-3px)] data-expanded:rotate-45 data-expanded:translate-y-[2px] data-expanded:translate-x-[2px] transition duration-300"></span>
-            <span id="bar" class="h-0.5 w-full bg-foreground data-expanded:-rotate-45 transition duration-300"></span>
-            <span id="bar" class="h-0.5 self-end bg-foreground w-1/2 data-expanded:w-[calc(50%-3px)] data-expanded:rotate-45 data-expanded:-translate-y-[3px] data-expanded:-translate-x-0.5 transition duration-300"></span>
+          <button
+            id="toggle"
+            aria-label="Toggle mobile navigation"
+            class="flex flex-col justify-center gap-1.5 size-6 focus-visible:outline-dashed focus-visible:outline-offset-1"
+          >
+            <span
+              id="bar"
+              class="h-0.5 self-start bg-foreground w-1/2 data-expanded:w-[calc(50%-3px)] data-expanded:rotate-45 data-expanded:translate-y-[2px] data-expanded:translate-x-[2px] transition duration-300"
+            ></span>
+            <span
+              id="bar"
+              class="h-0.5 w-full bg-foreground data-expanded:-rotate-45 transition duration-300"
+            ></span>
+            <span
+              id="bar"
+              class="h-0.5 self-end bg-foreground w-1/2 data-expanded:w-[calc(50%-3px)] data-expanded:rotate-45 data-expanded:-translate-y-[3px] data-expanded:-translate-x-0.5 transition duration-300"
+            ></span>
           </button>
         </div>
       </nav>
@@ -94,19 +119,22 @@ import WordMark from "./icons/WordMark.astro";
 
 <script>
   function initMobileNav() {
-    const toggle = document.getElementById('toggle');
-    const nav = document.getElementById('mobile-nav');
+    const toggle = document.getElementById("toggle");
+    const nav = document.getElementById("mobile-nav");
 
     const toggleNav = () => {
-      nav?.toggleAttribute("data-expanded")
-      document.body.classList.toggle('overflow-hidden');
-      document.body.classList.toggle('fixed');
-      document.body.classList.toggle('w-full');
-      document.querySelectorAll('#bar').forEach(el => el.toggleAttribute("data-expanded"));
+      nav?.toggleAttribute("data-expanded");
+      document.body.classList.toggle("overflow-hidden");
+      document.body.classList.toggle("fixed");
+      document.body.classList.toggle("w-full");
+      const barElements = document.querySelectorAll("#bar");
+      for (const el of barElements) {
+        el.toggleAttribute("data-expanded");
+      }
     };
-    
+
     if (toggle) {
-      toggle.addEventListener('click', toggleNav);
+      toggle.addEventListener("click", toggleNav);
     }
   }
 
@@ -114,5 +142,5 @@ import WordMark from "./icons/WordMark.astro";
   initMobileNav();
 
   // Re-initialize after page transitions
-  document.addEventListener('astro:after-swap', initMobileNav);
+  document.addEventListener("astro:after-swap", initMobileNav);
 </script>

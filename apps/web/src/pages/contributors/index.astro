@@ -180,52 +180,70 @@ Astro.response.headers.set(
   "public, s-maxage=3600, stale-while-revalidate=60"
 );
 ---
-
-<Layout 
-  title={`Contributors & Community - ${SITE.TITLE}`} 
+<Layout
+  title={`Contributors & Community - ${SITE.TITLE}`}
   description="Meet the amazing developers and contributors who help build Marble. Explore our open source projects, contribute to issues, and join our growing community."
 >
   <div class="divide-y divide-dashed">
     <section class="border-t border-dashed">
       <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
         <Container class="space-y-12 lg:space-y-20 pt-12 pb-20 lg:py-24">
-          <div class="relative flex flex-col items-center space-y-6 text-center">
-            <h1 class="relative text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-[25ch] mx-auto">
+          <div
+            class="relative flex flex-col items-center space-y-6 text-center"
+          >
+            <h1
+              class="relative text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-[25ch] mx-auto"
+            >
               Contributors & Community
             </h1>
             <p class="mx-auto max-w-[60ch] md:text-lg text-muted-foreground">
-              Meet the amazing developers and contributors who help build Marble. Join our open source community and help shape the future of content management.
+              Meet the amazing developers and contributors who help build
+              Marble. Join our open source community and help shape the future
+              of content management.
             </p>
           </div>
 
           <div class="grid gap-6 grid-cols-2 md:grid-cols-4 text-center">
             <div class="space-y-2">
-              <div class="text-3xl md:text-4xl font-bold text-primary">{githubData.stats.totalContributors}</div>
+              <div class="text-3xl md:text-4xl font-bold text-primary">
+                {githubData.stats.totalContributors}
+              </div>
               <div class="text-sm text-muted-foreground">Contributors</div>
             </div>
             <div class="space-y-2">
-              <div class="text-3xl md:text-4xl font-bold text-primary">{githubData.stats.totalStars}</div>
+              <div class="text-3xl md:text-4xl font-bold text-primary">
+                {githubData.stats.totalStars}
+              </div>
               <div class="text-sm text-muted-foreground">Stars</div>
             </div>
             <div class="space-y-2">
-              <div class="text-3xl md:text-4xl font-bold text-primary">{githubData.stats.totalForks}</div>
+              <div class="text-3xl md:text-4xl font-bold text-primary">
+                {githubData.stats.totalForks}
+              </div>
               <div class="text-sm text-muted-foreground">Forks</div>
             </div>
             <div class="space-y-2">
-              <div class="text-3xl md:text-4xl font-bold text-primary">{githubData.stats.totalIssues}</div>
+              <div class="text-3xl md:text-4xl font-bold text-primary">
+                {githubData.stats.totalIssues}
+              </div>
               <div class="text-sm text-muted-foreground">Open Issues</div>
             </div>
           </div>
 
           <div class="space-y-8">
             <div class="text-center">
-              <h2 class="text-2xl md:text-3xl mb-4">Our Contributors<span class="text-accent">.</span></h2>
+              <h2 class="text-2xl md:text-3xl mb-4">
+                Our Contributors<span class="text-accent">.</span>
+              </h2>
               <p class="text-muted-foreground max-w-[50ch] mx-auto">
-                Thank you to all the amazing people who have contributed to Marble!
+                Thank you to all the amazing people who have contributed to
+                Marble!
               </p>
             </div>
-            
-            <div class="grid gap-4 grid-cols-3 md:grid-cols-6 lg:grid-cols-8 max-w-4xl mx-auto">
+
+            <div
+              class="grid gap-4 grid-cols-3 md:grid-cols-6 lg:grid-cols-8 max-w-4xl mx-auto"
+            >
               {githubData.contributors.map((contributor) => (
                 <a
                   href={contributor.html_url}
@@ -261,7 +279,7 @@ Astro.response.headers.set(
                   View all →
                 </a>
               </div>
-              
+
               <div class="space-y-3">
                 {githubData.issues.length === 0 ? (
                   <div class="text-center py-8 text-muted-foreground">
@@ -320,7 +338,7 @@ Astro.response.headers.set(
                   View all →
                 </a>
               </div>
-              
+
               <div class="space-y-3">
                 {githubData.prs.length === 0 ? (
                   <div class="text-center py-8 text-muted-foreground">
@@ -365,12 +383,24 @@ Astro.response.headers.set(
             </div>
           </div>
 
-
-
           <div class="max-w-2xl mx-auto text-center space-y-4">
             <h2 class="text-xl md:text-2xl">Want to contribute?</h2>
             <p class="text-muted-foreground">
-              We welcome contributions from developers of all skill levels. Check out our <a href="https://github.com/usemarble/marble" target="_blank" rel="noopener noreferrer" class="text-primary hover:text-primary-dark transition-colors">GitHub repository</a> to get started, or reach out to us on <a href="https://x.com/usemarblecms" target="_blank" rel="noopener noreferrer" class="text-primary hover:text-primary-dark transition-colors">Twitter</a>!
+              We welcome contributions from developers of all skill levels.
+              Check out our
+              <a
+                href="https://github.com/usemarble/marble"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-primary hover:text-primary-dark transition-colors"
+                >GitHub repository</a
+              >to get started, or reach out to us on <a
+                href="https://x.com/usemarblecms"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-primary hover:text-primary-dark transition-colors"
+                >Twitter</a
+              >!
             </p>
             <div class="flex items-center justify-center gap-4 pt-4">
               <a
@@ -396,7 +426,7 @@ Astro.response.headers.set(
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
-  
+
   .line-clamp-3 {
     display: -webkit-box;
     -webkit-line-clamp: 3;

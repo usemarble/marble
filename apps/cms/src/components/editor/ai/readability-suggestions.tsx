@@ -124,7 +124,7 @@ export const ReadabilitySuggestions = React.memo(
     if (prev.suggestions.length !== next.suggestions.length) {
       return false;
     }
-    for (let i = 0; i < prev.suggestions.length; i++) {
+    for (let i = 0; i < prev.suggestions.length; i += 1) {
       const a = prev.suggestions[i];
       const b = next.suggestions[i];
       if (!a || !b) {

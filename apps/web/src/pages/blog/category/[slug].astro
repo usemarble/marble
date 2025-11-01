@@ -26,20 +26,25 @@ const { entry } = Astro.props;
 const categoriesEntries = await getCollection("categories");
 const postsResponse = await fetchPosts(`?categories=${entry.data.slug}`);
 ---
-
 <Layout
   title={`${entry.data.name} - ${SITE.TITLE}`}
   description={entry.data.description}
 >
- <section class='lg:border-y border-dashed min-h-[calc(100vh-140px)]'>
-    <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto h-full">
-      <Container class='pt-20 lg:pt-24 pb-32 h-full'>
-        <div class='max-w-2xl mx-auto mb-16 space-y-2'>
-          <h1 class='text-2xl leading-[1.1] sm:text-3xl md:text-4xl text-center'>
+  <section class="lg:border-y border-dashed min-h-[calc(100vh-140px)]">
+    <div
+      class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto h-full"
+    >
+      <Container class="pt-20 lg:pt-24 pb-32 h-full">
+        <div class="max-w-2xl mx-auto mb-16 space-y-2">
+          <h1
+            class="text-2xl leading-[1.1] sm:text-3xl md:text-4xl text-center"
+          >
             Blog
           </h1>
-          <p class='text-muted-foreground text-center text-sm md:text-base'>{entry.data.description || "Updates, news, and guides from the team."}</p>
-          <CategoryFilter categories={categoriesEntries} />
+          <p class="text-muted-foreground text-center text-sm md:text-base">
+            {entry.data.description || "Updates, news, and guides from the team."}
+          </p>
+          <CategoryFilter categories={categoriesEntries}/>
         </div>
         {postsResponse.posts.length > 0 ? (
           <ul class='grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 auto-rows-fr'>
