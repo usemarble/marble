@@ -8,28 +8,28 @@ import {
   DialogTitle,
 } from "@marble/ui/components/dialog";
 import { Input } from "@marble/ui/components/input";
-import { useEditor } from "novel";
+import type { Editor } from "@tiptap/core";
+import { useCurrentEditor } from "@tiptap/react";
 import { useState } from "react";
 
 type YoutubeEmbedModalProps = {
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  editor?: Editor | null;
 };
 
 export function YoutubeEmbedModal({
   isOpen,
   setIsOpen,
+  editor: editorProp,
 }: YoutubeEmbedModalProps) {
   const [url, setUrl] = useState("");
-  const editorInstance = useEditor();
+  const { editor: editorFromContext } = useCurrentEditor();
+  const editor = editorProp || editorFromContext;
 
   const handleEmbed = (url: string) => {
-    if (editorInstance) {
-      editorInstance.editor
-        ?.chain()
-        .focus()
-        .setYoutubeVideo({ src: url })
-        .run();
+    if (editor) {
+      editor.chain().focus().setYoutubeVideo({ src: url }).run();
       setIsOpen(false);
       setUrl("");
     }

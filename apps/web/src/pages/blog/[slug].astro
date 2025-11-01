@@ -1,34 +1,34 @@
 ---
-  import { Image } from "astro:assets";
-  import { getCollection } from "astro:content";
-  import Container from "@/components/Container.astro";
-  import Prose from "@/components/Prose.astro";
-  import Layout from "@/layouts/Layout.astro";
-  import { SITE } from "@/lib/constants";
-  import { calculateReadTime } from "@/lib/utils";
+import { Image } from "astro:assets";
+import { getCollection } from "astro:content";
+import Container from "@/components/Container.astro";
+import Prose from "@/components/Prose.astro";
+import Layout from "@/layouts/Layout.astro";
+import { SITE } from "@/lib/constants";
+import { calculateReadTime } from "@/lib/utils";
 
-  export const prerender = true;
+export const prerender = true;
 
-  export async function getStaticPaths() {
-    const blogEntries = await getCollection("posts");
-    return blogEntries.map((entry) => ({
-      params: { slug: entry.data.slug },
-      props: { entry },
-    }));
+export async function getStaticPaths() {
+  const blogEntries = await getCollection("posts");
+  return blogEntries.map((entry) => ({
+    params: { slug: entry.data.slug },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+
+const formattedDate = new Date(entry.data.publishedAt).toLocaleDateString(
+  "en-US",
+  {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   }
+);
 
-  const { entry } = Astro.props;
-
-  const formattedDate = new Date(entry.data.publishedAt).toLocaleDateString(
-    "en-US",
-    {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    }
-  );
-
-  const readTime = calculateReadTime(entry.data.content);
+const readTime = calculateReadTime(entry.data.content);
 ---
 <Layout
   title={`${entry.data.title} - ${SITE.TITLE}`}

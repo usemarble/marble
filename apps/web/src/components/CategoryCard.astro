@@ -1,19 +1,19 @@
 ---
-  import { Image } from "astro:assets";
-  import type { CategoryPost } from "@/lib/schemas";
+import { Image } from "astro:assets";
+import type { CategoryPost } from "@/lib/schemas";
 
-  type Props = {
-    entry: CategoryPost;
-  };
+type Props = {
+  entry: CategoryPost;
+};
 
-  const { entry } = Astro.props as Props;
-  const { title, description, coverImage, publishedAt, authors, slug } = entry;
+const { entry } = Astro.props as Props;
+const { title, description, coverImage, publishedAt, authors, slug } = entry;
 
-  const formattedDate = new Date(publishedAt).toLocaleDateString("en-US", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
+const formattedDate = new Date(publishedAt).toLocaleDateString("en-US", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+});
 ---
 <li>
   <a

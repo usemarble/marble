@@ -1,6 +1,7 @@
 {
   "extends": "@marble/tsconfig/react-library.json",
   "compilerOptions": {
+    "ignoreDeprecations": "6.0",
     "outDir": "dist",
     "baseUrl": ".",
     "paths": {

@@ -1,187 +1,184 @@
 ---
-  export const prerender = false;
+export const prerender = false;
 
-  import Container from "@/components/Container.astro";
-  import Layout from "@/layouts/Layout.astro";
-  import { SITE } from "@/lib/constants";
-  import { cn } from "@/lib/utils";
+import Container from "@/components/Container.astro";
+import Layout from "@/layouts/Layout.astro";
+import { SITE } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 
-  type GitHubUser = {
+type GitHubUser = {
+  login: string;
+  id: number;
+  avatar_url: string;
+  html_url: string;
+  contributions: number;
+  type: string;
+};
+
+type GitHubIssue = {
+  id: number;
+  number: number;
+  title: string;
+  html_url: string;
+  state: string;
+  user: {
     login: string;
-    id: number;
     avatar_url: string;
     html_url: string;
-    contributions: number;
-    type: string;
   };
-
-  type GitHubIssue = {
-    id: number;
-    number: number;
-    title: string;
-    html_url: string;
-    state: string;
-    user: {
-      login: string;
-      avatar_url: string;
-      html_url: string;
-    };
-    created_at: string;
-    labels: Array<{
-      name: string;
-      color: string;
-    }>;
-    pull_request?: {
-      url: string;
-    };
-  };
-
-  type GitHubPR = {
-    id: number;
-    number: number;
-    title: string;
-    html_url: string;
-    state: string;
-    user: {
-      login: string;
-      avatar_url: string;
-      html_url: string;
-    };
-    created_at: string;
-    draft: boolean;
-  };
-
-  type GitHubRepo = {
+  created_at: string;
+  labels: Array<{
     name: string;
-    full_name: string;
+    color: string;
+  }>;
+  pull_request?: {
+    url: string;
+  };
+};
+
+type GitHubPR = {
+  id: number;
+  number: number;
+  title: string;
+  html_url: string;
+  state: string;
+  user: {
+    login: string;
+    avatar_url: string;
     html_url: string;
-    stargazers_count: number;
-    forks_count: number;
-    open_issues_count: number;
-    language: string;
-    description: string;
-    private: boolean;
+  };
+  created_at: string;
+  draft: boolean;
+};
+
+type GitHubRepo = {
+  name: string;
+  full_name: string;
+  html_url: string;
+  stargazers_count: number;
+  forks_count: number;
+  open_issues_count: number;
+  language: string;
+  description: string;
+  private: boolean;
+};
+
+async function fetchGitHubData() {
+  const baseUrl = "https://api.github.com";
+  const org = "usemarble";
+  const headers: Record<string, string> = {
+    Accept: "application/vnd.github+json",
   };
 
-  async function fetchGitHubData() {
-    const baseUrl = "https://api.github.com";
-    const org = "usemarble";
-    const headers: Record<string, string> = {
-      Accept: "application/vnd.github+json",
+  try {
+    const [repoResponse, contributorsResponse, issuesResponse, prsResponse] =
+      await Promise.all([
+        fetch(`${baseUrl}/repos/${org}/marble`, { headers }),
+        fetch(`${baseUrl}/repos/${org}/marble/contributors?per_page=100`, {
+          headers,
+        }),
+        fetch(
+          `${baseUrl}/repos/${org}/marble/issues?state=open&per_page=20&sort=created`,
+          { headers }
+        ),
+        fetch(
+          `${baseUrl}/repos/${org}/marble/pulls?state=open&per_page=5&sort=created`,
+          { headers }
+        ),
+      ]);
+
+    const repo: GitHubRepo | null = repoResponse.ok
+      ? await repoResponse.json()
+      : null;
+    const contributors: GitHubUser[] = contributorsResponse.ok
+      ? (await contributorsResponse.json()).filter(
+          (c: GitHubUser) => c.login !== "turbobot-temp"
+        )
+      : [];
+    const allIssues: GitHubIssue[] = issuesResponse.ok
+      ? await issuesResponse.json()
+      : [];
+    const issues: GitHubIssue[] = allIssues
+      .filter((issue) => !issue.pull_request)
+      .slice(0, 5);
+    const prs: GitHubPR[] = prsResponse.ok
+      ? (await prsResponse.json()).slice(0, 5)
+      : [];
+
+    const totalStars = repo?.stargazers_count || 0;
+    const totalForks = repo?.forks_count || 0;
+    const totalIssues = repo?.open_issues_count || 0;
+
+    return {
+      repo,
+      contributors: contributors.filter((c) => c.type === "User").slice(0, 24),
+      issues,
+      prs,
+      stats: {
+        totalStars,
+        totalForks,
+        totalIssues,
+        totalContributors: contributors.filter((c) => c.type === "User").length,
+      },
     };
-
-    try {
-      const [repoResponse, contributorsResponse, issuesResponse, prsResponse] =
-        await Promise.all([
-          fetch(`${baseUrl}/repos/${org}/marble`, { headers }),
-          fetch(`${baseUrl}/repos/${org}/marble/contributors?per_page=100`, {
-            headers,
-          }),
-          fetch(
-            `${baseUrl}/repos/${org}/marble/issues?state=open&per_page=20&sort=created`,
-            { headers }
-          ),
-          fetch(
-            `${baseUrl}/repos/${org}/marble/pulls?state=open&per_page=5&sort=created`,
-            { headers }
-          ),
-        ]);
-
-      const repo: GitHubRepo | null = repoResponse.ok
-        ? await repoResponse.json()
-        : null;
-      const contributors: GitHubUser[] = contributorsResponse.ok
-        ? (await contributorsResponse.json()).filter(
-            (c: GitHubUser) => c.login !== "turbobot-temp"
-          )
-        : [];
-      const allIssues: GitHubIssue[] = issuesResponse.ok
-        ? await issuesResponse.json()
-        : [];
-      const issues: GitHubIssue[] = allIssues
-        .filter((issue) => !issue.pull_request)
-        .slice(0, 5);
-      const prs: GitHubPR[] = prsResponse.ok
-        ? (await prsResponse.json()).slice(0, 5)
-        : [];
-
-      const totalStars = repo?.stargazers_count || 0;
-      const totalForks = repo?.forks_count || 0;
-      const totalIssues = repo?.open_issues_count || 0;
-
-      return {
-        repo,
-        contributors: contributors
-          .filter((c) => c.type === "User")
-          .slice(0, 24),
-        issues,
-        prs,
-        stats: {
-          totalStars,
-          totalForks,
-          totalIssues,
-          totalContributors: contributors.filter((c) => c.type === "User")
-            .length,
-        },
-      };
-    } catch (error) {
-      console.error("Error fetching GitHub data:", error);
-      return {
-        repo: null,
-        contributors: [],
-        issues: [],
-        prs: [],
-        stats: {
-          totalStars: 0,
-          totalForks: 0,
-          totalIssues: 0,
-          totalContributors: 0,
-        },
-      };
-    }
+  } catch (error) {
+    console.error("Error fetching GitHub data:", error);
+    return {
+      repo: null,
+      contributors: [],
+      issues: [],
+      prs: [],
+      stats: {
+        totalStars: 0,
+        totalForks: 0,
+        totalIssues: 0,
+        totalContributors: 0,
+      },
+    };
   }
+}
 
-  const githubData = await fetchGitHubData();
+const githubData = await fetchGitHubData();
 
-  function formatDate(dateString: string) {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  }
+function formatDate(dateString: string) {
+  return new Date(dateString).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
 
-  function getIssueTypeFromLabels(
-    labels: Array<{ name: string; color: string }>
-  ) {
-    const bugLabel = labels.find((label) =>
-      label.name.toLowerCase().includes("bug")
-    );
-    const featureLabel = labels.find(
-      (label) =>
-        label.name.toLowerCase().includes("feature") ||
-        label.name.toLowerCase().includes("enhancement")
-    );
-    const docLabel = labels.find((label) =>
-      label.name.toLowerCase().includes("doc")
-    );
-
-    if (bugLabel) {
-      return { type: "Bug", color: "bg-red-100 text-red-800" };
-    }
-    if (featureLabel) {
-      return { type: "Feature", color: "bg-blue-100 text-blue-800" };
-    }
-    if (docLabel) {
-      return { type: "Docs", color: "bg-green-100 text-green-800" };
-    }
-    return { type: "Issue", color: "bg-yellow-100 text-yellow-800" };
-  }
-
-  Astro.response.headers.set(
-    "Cache-Control",
-    "public, s-maxage=3600, stale-while-revalidate=60"
+function getIssueTypeFromLabels(
+  labels: Array<{ name: string; color: string }>
+) {
+  const bugLabel = labels.find((label) =>
+    label.name.toLowerCase().includes("bug")
   );
+  const featureLabel = labels.find(
+    (label) =>
+      label.name.toLowerCase().includes("feature") ||
+      label.name.toLowerCase().includes("enhancement")
+  );
+  const docLabel = labels.find((label) =>
+    label.name.toLowerCase().includes("doc")
+  );
+
+  if (bugLabel) {
+    return { type: "Bug", color: "bg-red-100 text-red-800" };
+  }
+  if (featureLabel) {
+    return { type: "Feature", color: "bg-blue-100 text-blue-800" };
+  }
+  if (docLabel) {
+    return { type: "Docs", color: "bg-green-100 text-green-800" };
+  }
+  return { type: "Issue", color: "bg-yellow-100 text-yellow-800" };
+}
+
+Astro.response.headers.set(
+  "Cache-Control",
+  "public, s-maxage=3600, stale-while-revalidate=60"
+);
 ---
 <Layout
   title={`Contributors & Community - ${SITE.TITLE}`}

@@ -1,12 +1,12 @@
 ---
-  type Props = {
-    open?: boolean;
-    title: string;
-    name?: string;
-    class?: string;
-  };
+type Props = {
+  open?: boolean;
+  title: string;
+  name?: string;
+  class?: string;
+};
 
-  const { open, title, name, class: className } = Astro.props;
+const { open, title, name, class: className } = Astro.props;
 ---
 <details
   data-accordion-item

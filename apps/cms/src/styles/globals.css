@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./table.css";
 
 /* UI component utilities */
 @source "../../../../packages/ui/src/components/**/*.{ts,tsx}";
@@ -236,6 +237,9 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  button {
+    @apply cursor-pointer;
   }
   .darkbackground {
     background-color: hsl(150, 4%, 9%);

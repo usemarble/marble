@@ -1,22 +1,22 @@
 ---
-  import BlogHeader from "@/components/BlogHeader.astro";
-  import Footer from "@/components/Footer.astro";
-  import Head from "@/components/Head.astro";
-  import ScrollToTop from "@/components/ScrollToTop.astro";
+import BlogHeader from "@/components/BlogHeader.astro";
+import FooterComponent from "@/components/Footer.astro";
+import HeadComponent from "@/components/Head.astro";
+import ScrollToTop from "@/components/ScrollToTop.astro";
 
-  const { title, description, image } = Astro.props;
+const { title, description, image } = Astro.props;
 ---
 <!doctype html>
 <html lang="en">
   <head>
-    <head title={title} description={description} image={image}/>
+    <HeadComponent title={title} description={description} image={image}/>
   </head>
   <body>
-    <BlogHeader/>
+    <BlogHeader />
     <main>
       <slot/>
     </main>
-    <footer/>
-    <ScrollToTop/>
+    <FooterComponent />
+    <ScrollToTop />
   </body>
 </html>
