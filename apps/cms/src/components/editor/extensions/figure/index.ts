@@ -82,16 +82,14 @@ export const Figure = Node.create({
       },
       width: {
         default: "100",
-        parseHTML: (element) =>
-          element.getAttribute("data-width") || "100",
+        parseHTML: (element) => element.getAttribute("data-width") || "100",
         renderHTML: (attributes) => ({
           "data-width": attributes.width,
         }),
       },
       height: {
         default: null,
-        parseHTML: (element) =>
-          element.getAttribute("data-height") || null,
+        parseHTML: (element) => element.getAttribute("data-height") || null,
         renderHTML: (attributes) => ({
           "data-height": attributes.height,
         }),
@@ -106,8 +104,7 @@ export const Figure = Node.create({
       },
       align: {
         default: "center",
-        parseHTML: (element) =>
-          element.getAttribute("data-align") || "center",
+        parseHTML: (element) => element.getAttribute("data-align") || "center",
         renderHTML: (attributes) => ({
           "data-align": attributes.align,
         }),
