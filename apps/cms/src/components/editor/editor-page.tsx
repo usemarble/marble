@@ -97,7 +97,8 @@ function EditorPage({ initialData, id }: EditorPageProps) {
       }),
     onSuccess: (data) => {
       toast.success("Post created");
-      router.push(`/${params.workspace}/editor/p/${data.id}`);
+      window.location.href = `/${params.workspace}/editor/p/${data.id}`;
+      // router.push(`/${params.workspace}/editor/p/${data.id}`);
       if (workspaceId) {
         queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.POSTS(workspaceId),

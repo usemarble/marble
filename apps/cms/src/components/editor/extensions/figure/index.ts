@@ -12,8 +12,20 @@ declare module "@tiptap/core" {
         alt?: string;
         caption?: string;
         href?: string;
+        width?: string;
+        height?: string;
+        widthUnit?: "percent" | "pixel";
+        align?: "left" | "center" | "right";
       }) => ReturnType;
-      updateFigure: (attrs: { alt?: string; caption?: string; href?: string }) => ReturnType;
+      updateFigure: (attrs: {
+        alt?: string;
+        caption?: string;
+        href?: string;
+        width?: string;
+        height?: string;
+        widthUnit?: "percent" | "pixel";
+        align?: "left" | "center" | "right";
+      }) => ReturnType;
     };
   }
 }
@@ -66,6 +78,38 @@ export const Figure = Node.create({
           element.querySelector("a")?.getAttribute("href") || null,
         renderHTML: (attributes) => ({
           href: attributes.href,
+        }),
+      },
+      width: {
+        default: "100",
+        parseHTML: (element) =>
+          element.getAttribute("data-width") || "100",
+        renderHTML: (attributes) => ({
+          "data-width": attributes.width,
+        }),
+      },
+      height: {
+        default: null,
+        parseHTML: (element) =>
+          element.getAttribute("data-height") || null,
+        renderHTML: (attributes) => ({
+          "data-height": attributes.height,
+        }),
+      },
+      widthUnit: {
+        default: "percent",
+        parseHTML: (element) =>
+          element.getAttribute("data-width-unit") || "percent",
+        renderHTML: (attributes) => ({
+          "data-width-unit": attributes.widthUnit,
+        }),
+      },
+      align: {
+        default: "center",
+        parseHTML: (element) =>
+          element.getAttribute("data-align") || "center",
+        renderHTML: (attributes) => ({
+          "data-align": attributes.align,
         }),
       },
     };

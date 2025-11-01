@@ -251,6 +251,7 @@ export const ImageUploader = ({
         </div>
         <input
           accept="image/*"
+          aria-label="Upload image"
           className="size-0 overflow-hidden opacity-0"
           onChange={onFileChange}
           ref={ref}
