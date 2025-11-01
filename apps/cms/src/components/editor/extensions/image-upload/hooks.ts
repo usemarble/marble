@@ -59,7 +59,7 @@ export const useDropZone = ({
       const fileList = e.dataTransfer.files;
       const files: File[] = [];
 
-      for (let i = 0; i < fileList.length; i++) {
+      for (let i = 0; i < fileList.length; i += 1) {
         const item = fileList.item(i);
         if (item) {
           files.push(item);

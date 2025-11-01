@@ -121,7 +121,7 @@ export const TableCell = Node.create<TableCellOptions>({
                     return grip;
                   })
                 );
-                index++;
+                index += 1;
               }
             }
 

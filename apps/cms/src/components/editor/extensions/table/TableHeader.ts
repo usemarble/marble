@@ -84,7 +84,7 @@ export const TableHeader = TiptapTableHeader.extend({
                     return grip;
                   })
                 );
-                index++;
+                index += 1;
               }
             }
 

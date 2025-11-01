@@ -38,7 +38,7 @@ export const SlashCommand = Extension.create({
           }
 
           // Also check ancestors in case we're nested deeper
-          for (let d = $from.depth; d > 0; d--) {
+          for (let d = $from.depth; d > 0; d -= 1) {
             const nodeName = $from.node(d).type.name;
             if (nodeName === "tableCell" || nodeName === "tableHeader") {
               return false; // Disable slash command inside tables

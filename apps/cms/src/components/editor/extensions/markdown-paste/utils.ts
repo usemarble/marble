@@ -56,12 +56,12 @@ export function transformImageToFigure(
   // Handle link nodes that contain a single image (linked images)
   // Transform: link > image -> figure with href
   if (content.type === "link") {
-    const hasOnlyImage =
+      const hasOnlyImage =
       content.content &&
       content.content.length === 1 &&
-      content.content[0].type === "image";
+      content.content[0]?.type === "image";
 
-    if (hasOnlyImage) {
+    if (hasOnlyImage && content.content) {
       const image = content.content[0];
       const href = content.attrs?.href;
 
@@ -69,9 +69,9 @@ export function transformImageToFigure(
       return {
         type: "figure",
         attrs: {
-          src: image.attrs?.src || "",
-          alt: image.attrs?.alt || "",
-          caption: image.attrs?.alt || "",
+          src: image?.attrs?.src || "",
+          alt: image?.attrs?.alt || "",
+          caption: image?.attrs?.alt || "",
           href: href || null,
         },
       };
@@ -125,7 +125,7 @@ function liftFiguresFromParagraphs(content: JSONContent): JSONContent {
     content.type === "paragraph" &&
     content.content &&
     content.content.length === 1 &&
-    content.content[0].type === "figure"
+    content.content[0]?.type === "figure"
   ) {
     return content.content[0]; // Replace paragraph with the figure
   }
