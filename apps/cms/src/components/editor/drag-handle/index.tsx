@@ -48,7 +48,7 @@ function DragHandleComponent({ editor }: DragHandleProps) {
   return (
     <TiptapDragHandle
       computePositionConfig={{
-        placement: "left",
+        placement: "left-start",
         strategy: "absolute",
         middleware: [
           offset({
