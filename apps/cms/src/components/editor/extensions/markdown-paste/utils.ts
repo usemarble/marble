@@ -56,7 +56,7 @@ export function transformImageToFigure(
   // Handle link nodes that contain a single image (linked images)
   // Transform: link > image -> figure with href
   if (content.type === "link") {
-      const hasOnlyImage =
+    const hasOnlyImage =
       content.content &&
       content.content.length === 1 &&
       content.content[0]?.type === "image";
