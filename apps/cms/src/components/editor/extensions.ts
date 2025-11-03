@@ -1,53 +1,55 @@
 import type { Extension } from "@tiptap/core";
+import { CodeBlockLowlight } from "@tiptap/extension-code-block-lowlight";
+import { Color } from "@tiptap/extension-color";
+import { FileHandler } from "@tiptap/extension-file-handler";
+import { Highlight } from "@tiptap/extension-highlight";
+import { HorizontalRule } from "@tiptap/extension-horizontal-rule";
+import { Image } from "@tiptap/extension-image";
+import { TaskItem, TaskList } from "@tiptap/extension-list";
+import { NodeRange } from "@tiptap/extension-node-range";
+import { Subscript } from "@tiptap/extension-subscript";
+import { Superscript } from "@tiptap/extension-superscript";
 import TextAlign from "@tiptap/extension-text-align";
+import { TextStyle } from "@tiptap/extension-text-style";
+import { Youtube } from "@tiptap/extension-youtube";
+import { CharacterCount, Dropcursor, Placeholder } from "@tiptap/extensions";
+import { Markdown } from "@tiptap/markdown";
+import { StarterKit } from "@tiptap/starter-kit";
 import { cx } from "class-variance-authority";
 import { common, createLowlight } from "lowlight";
-import {
-  CodeBlockLowlight,
-  HorizontalRule,
-  Placeholder,
-  StarterKit,
-  TaskItem,
-  TaskList,
-  TiptapImage,
-  TiptapLink,
-  TiptapUnderline,
-  // UpdatedImage,
-  UploadImagesPlugin,
-  Youtube,
-} from "novel";
+import { Document } from "./extensions/document/Document";
+import { Figure } from "./extensions/figure";
+import { ImageUpload } from "./extensions/image-upload";
+import { MarkdownFileDrop } from "./extensions/markdown-file-drop";
+import { MarkdownPaste } from "./extensions/markdown-paste";
+import { Column, Columns } from "./extensions/multi-column";
+import { Table, TableCell, TableHeader, TableRow } from "./extensions/table";
+import { YouTubeUpload } from "./extensions/youtube-upload";
+import { SlashCommand } from "./slash-command";
 
 // You can overwrite the placeholder with your own configuration
-const placeholder = Placeholder;
-
-const tiptapLink = TiptapLink.configure({
-  HTMLAttributes: {
-    class: cx(
-      "text-muted-foreground underline underline-offset-[3px] hover:text-primary transition-colors cursor-pointer"
-    ),
+const placeholder = Placeholder.configure({
+  placeholder: ({ editor }) => {
+    // Check if currently in a table using isActive
+    if (
+      editor.isActive("table") ||
+      editor.isActive("tableCell") ||
+      editor.isActive("tableHeader")
+    ) {
+      return ""; // Hide placeholder inside tables
+    }
+    return "Press '/' for commands";
   },
+  showOnlyWhenEditable: true,
+  showOnlyCurrent: true,
 });
 
-const tiptapImage = TiptapImage.extend({
-  addProseMirrorPlugins() {
-    return [
-      UploadImagesPlugin({
-        imageClass: cx("opacity-40 rounded-lg border border-stone-200"),
-      }),
-    ];
-  },
-}).configure({
+const tiptapImage = Image.configure({
   allowBase64: true,
   HTMLAttributes: {
     class: cx("rounded-md border border-muted"),
   },
 });
-
-// const updatedImage = UpdatedImage.configure({
-//   HTMLAttributes: {
-//     class: cx("rounded-lg border border-muted"),
-//   },
-// });
 
 const taskList = TaskList.configure({
   HTMLAttributes: {
@@ -67,12 +69,6 @@ const horizontalRule = HorizontalRule.configure({
   },
 });
 
-const underline = TiptapUnderline.configure({
-  HTMLAttributes: {
-    class: cx("underline"),
-  },
-});
-
 const youtube = Youtube.configure({
   HTMLAttributes: {
     class: cx("w-full aspect-video"),
@@ -89,7 +85,17 @@ const CodeBlockLowlightEx = CodeBlockLowlight.configure({
   lowlight: createLowlight(common),
 });
 
+const markdown = Markdown.configure({
+  markedOptions: {
+    gfm: true, // GitHub-flavored markdown
+    breaks: true, // Newlines become <br>
+  },
+});
+
 const starterKit = StarterKit.configure({
+  link: {
+    openOnClick: false,
+  },
   bulletList: {
     HTMLAttributes: {
       class: cx("list-disc list-outside leading-3 -mt-2"),
@@ -117,19 +123,58 @@ const starterKit = StarterKit.configure({
   },
   gapcursor: false,
   codeBlock: false,
+  document: false,
+});
+
+const fileHandler = FileHandler.configure({
+  allowedMimeTypes: ["image/png", "image/jpeg", "image/gif", "image/webp"],
+  onDrop: (currentEditor, files, _pos) => {
+    for (const file of files) {
+      // Insert imageUpload node at drop position with the file
+      currentEditor.chain().focus().setImageUpload({ file }).run();
+    }
+  },
+  onPaste: (currentEditor, files) => {
+    for (const file of files) {
+      // Insert imageUpload node at cursor with the file
+      currentEditor.chain().focus().setImageUpload({ file }).run();
+    }
+  },
 });
 
 export const defaultExtensions: Extension[] = [
+  Document as unknown as Extension,
+  markdown as unknown as Extension,
+  MarkdownPaste as unknown as Extension,
   starterKit as unknown as Extension,
   placeholder as unknown as Extension,
   textAlign,
+  TextStyle as unknown as Extension,
+  Color as unknown as Extension,
+  Highlight.configure({ multicolor: true }) as unknown as Extension,
+  Subscript as unknown as Extension,
+  Superscript as unknown as Extension,
   CodeBlockLowlightEx as unknown as Extension,
+  Dropcursor as unknown as Extension,
   tiptapImage as unknown as Extension,
-  // updatedImage as unknown as Extension,
+  Figure as unknown as Extension,
+  ImageUpload as unknown as Extension,
+  MarkdownFileDrop as unknown as Extension,
+  fileHandler as unknown as Extension,
   youtube as unknown as Extension,
-  tiptapLink as unknown as Extension,
+  YouTubeUpload as unknown as Extension,
   taskList as unknown as Extension,
   taskItem as unknown as Extension,
   horizontalRule as unknown as Extension,
-  underline as unknown as Extension,
+  Table as unknown as Extension,
+  TableRow as unknown as Extension,
+  TableCell as unknown as Extension,
+  TableHeader as unknown as Extension,
+  Columns as unknown as Extension,
+  Column as unknown as Extension,
+  CharacterCount as unknown as Extension,
+  SlashCommand as unknown as Extension,
+  // DragHandle as unknown as Extension,
+  NodeRange as unknown as Extension,
+  Dropcursor as unknown as Extension,
 ];

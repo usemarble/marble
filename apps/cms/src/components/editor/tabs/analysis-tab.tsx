@@ -8,7 +8,7 @@ import {
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { ArrowClockwiseIcon, InfoIcon } from "@phosphor-icons/react";
-import type { EditorInstance } from "novel";
+import type { Editor } from "@tiptap/core";
 import { useEffect, useState } from "react";
 import { useReadability } from "@/hooks/use-readability";
 import { useUnsavedChanges } from "@/providers/unsaved-changes";
@@ -18,7 +18,7 @@ import { ReadabilitySuggestions } from "../ai/readability-suggestions";
 import { HiddenScrollbar } from "../hidden-scrollbar";
 
 type AnalysisTabProps = {
-  editor?: EditorInstance | null;
+  editor?: Editor | null;
   aiSuggestions?: ReadabilitySuggestion[];
   aiLoading?: boolean;
   onRefreshAi?: () => void;

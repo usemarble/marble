@@ -1,31 +1,30 @@
 ---
-  import { getCollection } from "astro:content";
-  import CategoryCard from "@/components/CategoryCard.astro";
-  import CategoryFilter from "@/components/CategoryFilter.astro";
-  import Container from "@/components/Container.astro";
-  import Layout from "@/layouts/Layout.astro";
-  import { SITE } from "@/lib/constants";
-  import { fetchPosts } from "@/lib/queries";
+import { getCollection } from "astro:content";
+import CategoryCard from "@/components/CategoryCard.astro";
+import CategoryFilter from "@/components/CategoryFilter.astro";
+import Container from "@/components/Container.astro";
+import Layout from "@/layouts/Layout.astro";
+import { SITE } from "@/lib/constants";
+import { fetchPosts } from "@/lib/queries";
 
-  export const prerender = true;
+export const prerender = true;
 
-  export async function getStaticPaths() {
-    const blogEntries = await getCollection("categories");
-    return blogEntries
-      .filter(
-        (entry) =>
-          entry.data.slug !== "legal" && entry.data.slug !== "changelog"
-      )
-      .map((entry) => ({
-        params: { slug: entry.data.slug },
-        props: { entry },
-      }));
-  }
+export async function getStaticPaths() {
+  const blogEntries = await getCollection("categories");
+  return blogEntries
+    .filter(
+      (entry) => entry.data.slug !== "legal" && entry.data.slug !== "changelog"
+    )
+    .map((entry) => ({
+      params: { slug: entry.data.slug },
+      props: { entry },
+    }));
+}
 
-  const { entry } = Astro.props;
+const { entry } = Astro.props;
 
-  const categoriesEntries = await getCollection("categories");
-  const postsResponse = await fetchPosts(`?categories=${entry.data.slug}`);
+const categoriesEntries = await getCollection("categories");
+const postsResponse = await fetchPosts(`?categories=${entry.data.slug}`);
 ---
 <Layout
   title={`${entry.data.name} - ${SITE.TITLE}`}

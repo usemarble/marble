@@ -1,24 +1,24 @@
 ---
-  import { getEntry } from "astro:content";
-  import Container from "@/components/Container.astro";
-  import Prose from "@/components/Prose.astro";
-  import Layout from "@/layouts/Layout.astro";
-  import { SITE } from "@/lib/constants";
+import { getEntry } from "astro:content";
+import Container from "@/components/Container.astro";
+import Prose from "@/components/Prose.astro";
+import Layout from "@/layouts/Layout.astro";
+import { SITE } from "@/lib/constants";
 
-  const entry = await getEntry("page", "terms");
+const entry = await getEntry("page", "terms");
 
-  if (!entry) {
-    throw new Error("Page not found");
+if (!entry) {
+  throw new Error("Page not found");
+}
+
+const formattedDate = new Date(entry.data.updatedAt).toLocaleDateString(
+  "en-US",
+  {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   }
-
-  const formattedDate = new Date(entry.data.updatedAt).toLocaleDateString(
-    "en-US",
-    {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    }
-  );
+);
 ---
 <Layout
   title={`Terms of Service - ${SITE.TITLE}`}

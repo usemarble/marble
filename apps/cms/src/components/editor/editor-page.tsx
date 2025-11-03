@@ -16,21 +16,20 @@ import {
 import { cn } from "@marble/ui/lib/utils";
 import { SidebarSimpleIcon, XIcon } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { Editor, JSONContent } from "@tiptap/core";
+import { EditorContent, EditorContext, useEditor } from "@tiptap/react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import {
-  CharacterCount,
-  EditorContent,
-  type EditorInstance,
-  EditorRoot,
-  handleCommandNavigation,
-  handleImageDrop,
-  handleImagePaste,
-  type JSONContent,
-} from "novel";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import { BubbleMenu } from "@/components/editor/bubble-menu";
+import { DragHandle } from "@/components/editor/drag-handle";
 import { EditorSidebar } from "@/components/editor/editor-sidebar";
+import { ColumnsMenu } from "@/components/editor/extensions/multi-column/menus";
+import {
+  TableColumnMenu,
+  TableRowMenu,
+} from "@/components/editor/extensions/table/menus";
 import { HiddenScrollbar } from "@/components/editor/hidden-scrollbar";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
@@ -38,12 +37,8 @@ import { QUERY_KEYS } from "@/lib/queries/keys";
 import { type PostValues, postSchema } from "@/lib/validations/post";
 import { useUnsavedChanges } from "@/providers/unsaved-changes";
 import { generateSlug } from "@/utils/string";
-import { BubbleMenu } from "./bubble-menu";
 import { defaultExtensions } from "./extensions";
-import { uploadFn } from "./image-upload";
 import { ShareModal } from "./share-modal";
-import { slashCommand } from "./slash-command-items";
-import { SlashCommandMenu } from "./slash-command-menu";
 import { TextareaAutosize } from "./textarea-autosize";
 
 const getToggleSidebarShortcut = () => {
@@ -67,10 +62,6 @@ function EditorPage({ initialData, id }: EditorPageProps) {
   const workspaceId = useWorkspaceId();
   const { open, isMobile } = useSidebar();
   const formRef = useRef<HTMLFormElement>(null);
-  const editorRef = useRef<EditorInstance | null>(null);
-  const [editorInstance, setEditorInstance] = useState<EditorInstance | null>(
-    null
-  );
   const [showSettings, setShowSettings] = useState(false);
   const { setHasUnsavedChanges } = useUnsavedChanges();
   const initialDataRef = useRef<PostValues>(initialData);
@@ -106,7 +97,8 @@ function EditorPage({ initialData, id }: EditorPageProps) {
       }),
     onSuccess: (data) => {
       toast.success("Post created");
-      router.push(`/${params.workspace}/editor/p/${data.id}`);
+      window.location.href = `/${params.workspace}/editor/p/${data.id}`;
+      // router.push(`/${params.workspace}/editor/p/${data.id}`);
       if (workspaceId) {
         queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.POSTS(workspaceId),
@@ -157,44 +149,127 @@ function EditorPage({ initialData, id }: EditorPageProps) {
     initialDataRef.current = initialData;
   }, [initialData, form.reset]);
 
-  useEffect(() => {
-    const subscription = watch((currentValues) => {
-      const initial = initialDataRef.current;
-      // Ensure all relevant fields are stringified for comparison
-      const hasChanged =
-        JSON.stringify({
-          ...currentValues,
-          contentJson: currentValues.contentJson
-            ? JSON.parse(currentValues.contentJson)
-            : {},
-        }) !==
-        JSON.stringify({
-          ...initial,
-          contentJson: initial.contentJson
-            ? JSON.parse(initial.contentJson)
-            : {},
-        });
-      if (hasChanged) {
-        setHasUnsavedChanges(true);
+  // Debounced form update to reduce React Hook Form rerenders
+  const updateFormValues = useCallback(
+    (html: string, json: JSONContent) => {
+      if (html.length > 0) {
+        clearErrors("content");
       }
+      setValue("content", html);
+      setValue("contentJson", JSON.stringify(json));
+    },
+    [setValue, clearErrors]
+  );
+
+  const debouncedUpdateFormValues = useMemo(() => {
+    let timeoutId: NodeJS.Timeout;
+    return (html: string, json: JSONContent) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        updateFormValues(html, json);
+      }, 150);
+    };
+  }, [updateFormValues]);
+
+  // Create stable onUpdate callback ref to avoid recreating editor
+  const onUpdateRef = useRef<
+    ((html: string, json: JSONContent) => void) | null
+  >(null);
+
+  useEffect(() => {
+    onUpdateRef.current = debouncedUpdateFormValues;
+  }, [debouncedUpdateFormValues]);
+
+  // Track content changes and idle callback for performance
+  const contentChangedRef = useRef(false);
+  const idleCallbackId = useRef<number | null>(null);
+  const editorRef = useRef<Editor | null>(null);
+
+  const initialContentRef = useRef<string>(initialData?.content ?? "");
+  const editor = useEditor({
+    extensions: defaultExtensions,
+    content: initialContentRef.current,
+    editorProps: {
+      attributes: {
+        class:
+          "prose dark:prose-invert min-h-96 h-full sm:px-4 focus:outline-hidden max-w-full prose-blockquote:border-border",
+      },
+    },
+    onUpdate: ({ editor }) => {
+      contentChangedRef.current = true;
+      editorRef.current = editor;
+
+      // Cancel previous idle callback if exists
+      if (idleCallbackId.current !== null) {
+        cancelIdleCallback(idleCallbackId.current);
+      }
+
+      // Schedule serialization when browser is idle
+      idleCallbackId.current = requestIdleCallback(
+        () => {
+          if (contentChangedRef.current && editorRef.current) {
+            const html = editorRef.current.getHTML();
+            const json = editorRef.current.getJSON();
+            onUpdateRef.current?.(html, json);
+            contentChangedRef.current = false;
+          }
+        },
+        { timeout: 100 }
+      );
+    },
+    immediatelyRender: false,
+    shouldRerenderOnTransaction: false,
+  });
+
+  // Cleanup idle callback on unmount
+  useEffect(
+    () => () => {
+      if (idleCallbackId.current !== null) {
+        cancelIdleCallback(idleCallbackId.current);
+      }
+    },
+    []
+  );
+
+  // Debounce unsaved changes check to reduce overhead
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    const subscription = watch((currentValues) => {
+      // Debounce the check to avoid running on every keystroke
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        const initial = initialDataRef.current;
+        // Simple field comparison first (faster than JSON operations)
+        const simpleFieldsChanged =
+          currentValues.title !== initial.title ||
+          currentValues.slug !== initial.slug ||
+          currentValues.status !== initial.status ||
+          currentValues.description !== initial.description;
+
+        if (simpleFieldsChanged) {
+          setHasUnsavedChanges(true);
+          return;
+        }
+
+        // Only do expensive content comparison if simple fields haven't changed
+        const contentChanged = currentValues.content !== initial.content;
+        if (contentChanged) {
+          setHasUnsavedChanges(true);
+        }
+      }, 300);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      clearTimeout(timeoutId);
+      subscription.unsubscribe();
+    };
   }, [watch, setHasUnsavedChanges]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      editorRef.current?.commands.focus();
+      editor?.commands.focus();
     }
-  };
-
-  const handleEditorChange = (html: string, json: JSONContent) => {
-    if (html.length > 0) {
-      clearErrors("content");
-    }
-    setValue("content", html);
-    setValue("contentJson", JSON.stringify(json));
   };
 
   function onSubmit(values: PostValues) {
@@ -216,8 +291,22 @@ function EditorPage({ initialData, id }: EditorPageProps) {
     }
   }, [debouncedTitle, setValue, clearErrors, isUpdateMode]);
 
+  // Create context value that updates when editor initializes
+  const editorContextValue = useMemo(() => ({ editor }), [editor]);
+
+  // Memoize DragHandle to prevent plugin unregister/register cycles
+  const dragHandle = useMemo(
+    () => (editor ? <DragHandle editor={editor} /> : null),
+    [editor]
+  );
+
   return (
-    <EditorRoot>
+    <EditorContext.Provider value={editorContextValue}>
+      <BubbleMenu />
+      {editor && <TableRowMenu editor={editor} />}
+      {editor && <TableColumnMenu editor={editor} />}
+      {editor && <ColumnsMenu editor={editor} />}
+      {dragHandle}
       <SidebarInset className="h-[calc(100vh-1rem)] min-h-[calc(100vh-1rem)] rounded-xl border bg-editor-content-background shadow-xs">
         <header className="sticky top-0 z-50 flex justify-between p-3">
           <div className="flex items-center gap-4">
@@ -279,49 +368,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                 )}
               </div>
               <div className="flex flex-col">
-                <EditorContent
-                  editorProps={{
-                    handleDOMEvents: {
-                      keydown: (_view, event) => handleCommandNavigation(event),
-                    },
-                    handlePaste: (view, event) =>
-                      handleImagePaste(view, event, uploadFn),
-                    handleDrop: (view, event, _slice, moved) =>
-                      handleImageDrop(view, event, moved, uploadFn),
-                    attributes: {
-                      class:
-                        "prose dark:prose-invert min-h-96 h-full sm:px-4 focus:outline-hidden max-w-full prose-blockquote:border-border",
-                    },
-                  }}
-                  extensions={[
-                    // @ts-expect-error
-                    ...defaultExtensions,
-                    // @ts-expect-error
-                    slashCommand,
-                    // @ts-expect-error
-                    CharacterCount,
-                  ]}
-                  immediatelyRender={false}
-                  initialContent={JSON.parse(watch("contentJson") || "{}")}
-                  onCreate={({ editor }) => {
-                    // @ts-expect-error
-                    editorRef.current = editor;
-                    // @ts-expect-error
-                    setEditorInstance(editor);
-                  }}
-                  onUpdate={({ editor }) => {
-                    // @ts-expect-error
-                    editorRef.current = editor;
-                    // @ts-expect-error
-                    setEditorInstance(editor);
-                    const html = editor.getHTML();
-                    const json = editor.getJSON();
-                    handleEditorChange(html, json);
-                  }}
-                >
-                  <BubbleMenu />
-                  <SlashCommandMenu />
-                </EditorContent>
+                <EditorContent editor={editor} />
                 {errors.content && (
                   <p className="px-1 font-medium text-destructive text-sm">
                     {errors.content.message}
@@ -342,7 +389,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
       )}
       <EditorSidebar
         control={control}
-        editor={editorInstance}
+        editor={editor}
         errors={errors}
         formRef={formRef}
         isOpen={showSettings}
@@ -351,7 +398,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
         setIsOpen={setShowSettings}
         watch={watch}
       />
-    </EditorRoot>
+    </EditorContext.Provider>
   );
 }
 export default EditorPage;
