@@ -135,8 +135,12 @@ export const Figure = Node.create({
 
     // Prepare img attributes
     const imgAttrs: Record<string, string> = {};
-    if (src) imgAttrs.src = src;
-    if (alt) imgAttrs.alt = alt;
+    if (src) {
+      imgAttrs.src = src;
+    }
+    if (alt) {
+      imgAttrs.alt = alt;
+    }
 
     // Prepare figcaption content
     const figcaptionContent = caption || "";

@@ -4,13 +4,16 @@ import { useQuery } from "@tanstack/react-query";
 import { notFound, useParams } from "next/navigation";
 import EditorPage from "@/components/editor/editor-page";
 import PageLoader from "@/components/shared/page-loader";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { PostValues } from "@/lib/validations/post";
 
 function PageClient() {
   const params = useParams<{ id: string }>();
+  const workspaceId = useWorkspaceId();
 
   const { data: postData, isLoading } = useQuery({
-    queryKey: ["post", params.id],
+    queryKey: workspaceId ? QUERY_KEYS.POST(workspaceId, params.id) : ["post", params.id],
     staleTime: 1000 * 60 * 5,
     queryFn: async () => {
       const res = await fetch(`/api/posts/${params.id}`);
@@ -34,8 +37,6 @@ function PageClient() {
     ...postData,
     publishedAt: new Date(postData.publishedAt),
   };
-
-  console.log("Rendering EditorPage with postData:", postDataWithDate);
 
   return <EditorPage id={params.id} initialData={postDataWithDate} />;
 }
