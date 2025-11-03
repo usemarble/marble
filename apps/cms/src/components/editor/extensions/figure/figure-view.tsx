@@ -303,7 +303,7 @@ export const FigureView = ({
             {/* Caption - only shown when it has content */}
             {caption && (
               <figcaption className="mt-2 text-center text-muted-foreground text-sm italic">
-                {caption}
+                <p>{caption}</p>
               </figcaption>
             )}
           </figure>
@@ -360,36 +360,36 @@ export const FigureView = ({
           {/* Alignment Controls */}
           <div className="space-y-1.5">
             <Label className="font-medium text-xs">Alignment</Label>
-            <div className="flex gap-0.5">
+            <div className="grid grid-cols-3 gap-1.5">
               <Button
-                className="!rounded-sm data-[active=true]:bg-primary/20 data-[active=true]:text-primary"
+                className="!rounded-sm w-full data-[active=true]:bg-primary/20 data-[active=true]:text-primary"
                 data-active={alignValue === "left"}
                 onClick={() => handleAlignChange("left")}
-                size="icon"
                 type="button"
-                variant="ghost"
+                variant="outline"
               >
-                <AlignLeft className="size-4" />
+                {/* <AlignLeft className="size-4" /> */}
+                Left
               </Button>
               <Button
-                className="!rounded-sm data-[active=true]:bg-primary/20 data-[active=true]:text-primary"
+                className="!rounded-sm w-full data-[active=true]:bg-primary/20 data-[active=true]:text-primary"
                 data-active={alignValue === "center"}
                 onClick={() => handleAlignChange("center")}
-                size="icon"
                 type="button"
-                variant="ghost"
+                variant="outline"
               >
-                <AlignCenter className="size-4" />
+                {/* <AlignCenter className="size-4" /> */}
+                Center
               </Button>
               <Button
-                className="!rounded-sm data-[active=true]:bg-primary/20 data-[active=true]:text-primary"
+                className="!rounded-sm w-full data-[active=true]:bg-primary/20 data-[active=true]:text-primary"
                 data-active={alignValue === "right"}
                 onClick={() => handleAlignChange("right")}
-                size="icon"
                 type="button"
-                variant="ghost"
+                variant="outline"
               >
-                <AlignRight className="size-4" />
+                {/* <AlignRight className="size-4" /> */}
+                Right
               </Button>
             </div>
           </div>

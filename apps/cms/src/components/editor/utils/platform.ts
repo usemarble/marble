@@ -13,5 +13,5 @@ export function isMac(): boolean {
  * "Cmd" for Mac, "Ctrl" for other platforms
  */
 export function getModifierKey(): string {
-  return isMac() ? "Cmd" : "Ctrl";
+  return isMac() ? "⌘" : "Ctrl";
 }

@@ -34,6 +34,8 @@ export const sanitizeHtml = (content: string) => {
       "iframe",
       "input",
       "label",
+      "figure",
+      "figcaption",
     ],
     allowedAttributes: {
       ...defaults.allowedAttributes,
@@ -42,6 +44,7 @@ export const sanitizeHtml = (content: string) => {
       a: ["href", "target"],
       iframe: ["src", "allowfullscreen", "style"],
       input: ["type", "checked"],
+      figure: ["src", "alt", "data-height", "data-width", "caption", "data-width-unit", "data-align"],
     },
     allowedSchemes: ["http", "https", "ftp", "mailto"],
     allowedSchemesByTag: {

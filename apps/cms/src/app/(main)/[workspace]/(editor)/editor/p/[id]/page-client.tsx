@@ -35,6 +35,8 @@ function PageClient() {
     publishedAt: new Date(postData.publishedAt),
   };
 
+  console.log("Rendering EditorPage with postData:", postDataWithDate);
+
   return <EditorPage id={params.id} initialData={postDataWithDate} />;
 }
 

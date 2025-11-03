@@ -273,6 +273,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
   };
 
   function onSubmit(values: PostValues) {
+    // return console.log(values)
     if (isUpdateMode && id) {
       updatePost(values);
     } else {

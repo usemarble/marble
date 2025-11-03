@@ -15,7 +15,7 @@ export function KeyboardKey({
   return (
     <kbd
       className={cn(
-        "inline-flex items-center justify-center rounded border border-border bg-muted px-1.5 py-0.5 font-medium font-mono text-[10px] shadow-sm",
+        "inline-flex items-center justify-center rounded border border-border bg-muted px-1.5 py-0.5 font-medium font-mono text-[10px] text-foreground shadow-sm",
         className
       )}
     >
