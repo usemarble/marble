@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@marble/ui/components/button";
-import { Separator } from "@marble/ui/components/separator";
 import {
   ArrowLineLeftIcon,
   ArrowLineRightIcon,
@@ -58,7 +57,7 @@ function TableColumnMenuComponent({
   return (
     <TiptapBubbleMenu
       appendTo={() => appendTo?.current ?? document.body}
-      className="flex flex-row items-center gap-0.5 overflow-hidden rounded-lg border bg-background p-1 shadow-sm"
+      className="flex flex-col items-center gap-0.5 overflow-hidden rounded-lg border bg-background p-1 shadow-sm"
       editor={editor}
       options={{
         placement: "top",
@@ -69,7 +68,7 @@ function TableColumnMenuComponent({
       updateDelay={0}
     >
       <Button
-        className="gap-2"
+        className="w-full justify-start gap-2"
         onClick={onAddColumnBefore}
         size="sm"
         type="button"
@@ -79,14 +78,8 @@ function TableColumnMenuComponent({
         <span>Add column before</span>
       </Button>
 
-      {/* <Separator className="mx-1 h-6 w-[1px]" orientation="vertical" /> */}
-      <Separator
-        className="mx-1 h-full min-h-[1.5rem] w-[1px]"
-        orientation="vertical"
-      />
-
       <Button
-        className="gap-2"
+        className="w-full justify-start gap-2"
         onClick={onAddColumnAfter}
         size="sm"
         type="button"
@@ -96,13 +89,8 @@ function TableColumnMenuComponent({
         <span>Add column after</span>
       </Button>
 
-      <Separator
-        className="mx-1 h-full min-h-[1.5rem] w-[1px]"
-        orientation="vertical"
-      />
-
       <Button
-        className="gap-2"
+        className="w-full justify-start gap-2"
         onClick={onDeleteColumn}
         size="sm"
         type="button"

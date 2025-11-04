@@ -91,14 +91,6 @@ const BASIC_FORMATTING: SelectorItem[] = [
     tooltip: "Code",
     shortcut: ["Mod", "E"],
   },
-  {
-    name: "codeBlock",
-    isActive: (editor) => editor.isActive("codeBlock"),
-    command: (editor) => editor.chain().focus().toggleCodeBlock().run(),
-    icon: FileCode,
-    tooltip: "Code block",
-    shortcut: ["Mod", "Alt", "C"],
-  },
 ];
 
 const SUBSCRIPT_SUPERSCRIPT: SelectorItem[] = [

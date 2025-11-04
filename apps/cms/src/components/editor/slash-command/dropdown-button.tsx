@@ -1,19 +1,23 @@
 import { cn } from "@marble/ui/lib/utils";
-import { forwardRef } from "react";
+import type { Ref } from "react";
 
-/* biome-ignore lint/nursery/noReactForwardRef: forwardRef is used intentionally for ref forwarding */
-export const DropdownButton = forwardRef<
-  HTMLButtonElement,
-  {
-    children: React.ReactNode;
-    isActive?: boolean;
-    onClick?: () => void;
-    disabled?: boolean;
-    className?: string;
-  }
->((props, ref) => {
-  const { children, isActive, onClick, disabled, className } = props;
+type DropdownButtonProps = {
+  children: React.ReactNode;
+  isActive?: boolean;
+  onClick?: () => void;
+  disabled?: boolean;
+  className?: string;
+  ref?: Ref<HTMLButtonElement>;
+};
 
+export const DropdownButton = ({
+  children,
+  isActive,
+  onClick,
+  disabled,
+  className,
+  ref,
+}: DropdownButtonProps) => {
   const buttonClass = cn(
     "flex w-full items-center gap-2 rounded-[6px] bg-transparent px-2 py-1 text-left font-medium text-sm",
     !isActive && !disabled && "hover:bg-accent",
@@ -33,6 +37,6 @@ export const DropdownButton = forwardRef<
       {children}
     </button>
   );
-});
+};
 
 DropdownButton.displayName = "DropdownButton";

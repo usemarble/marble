@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
 import { cn } from "@marble/ui/lib/utils";
+import { CaretDownIcon } from "@phosphor-icons/react";
 import type { Editor } from "@tiptap/core";
 import { useCurrentEditor, useEditorState } from "@tiptap/react";
 import {
@@ -176,12 +177,11 @@ function ContentTypePickerComponent() {
         <Button
           className="!rounded-sm gap-1 data-[active=true]:bg-primary/20 data-[active=true]:text-primary"
           data-active={isActive}
-          size="icon"
           type="button"
           variant="ghost"
         >
-          <ActiveIcon className="size-4" />
-          <ChevronDown className="size-2" />
+          <span>Text</span>
+          <CaretDownIcon />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent

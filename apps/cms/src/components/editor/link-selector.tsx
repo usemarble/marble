@@ -13,9 +13,10 @@ import {
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { cn } from "@marble/ui/lib/utils";
+import { LinkIcon } from "@phosphor-icons/react";
 import type { Editor } from "@tiptap/core";
 import { useCurrentEditor, useEditorState } from "@tiptap/react";
-import { Check, ExternalLink, Link, Maximize2, Trash2 } from "lucide-react";
+import { Check, ExternalLink, Maximize2, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useFloatingPortalContainer } from "@/components/editor/floating-portal-context";
 
@@ -83,12 +84,12 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
         <PopoverTrigger asChild>
           <TooltipTrigger asChild>
             <Button
-              className="!rounded-sm gap-2 border-none data-[active=true]:bg-primary/20 data-[active=true]:text-primary"
+              className="!rounded-sm border-none data-[active=true]:bg-primary/20 data-[active=true]:text-primary"
               data-active={isLinkActive}
               size="icon"
               variant="ghost"
             >
-              <Link className="size-4" />
+              <LinkIcon className="" />
             </Button>
           </TooltipTrigger>
         </PopoverTrigger>
@@ -98,7 +99,7 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
       </Tooltip>
       <PopoverContent
         align="start"
-        className="w-fit p-0 pt-1"
+        className="w-fit p-0"
         container={portalContainer}
         sideOffset={10}
       >
