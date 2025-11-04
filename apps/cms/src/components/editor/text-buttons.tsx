@@ -269,9 +269,7 @@ function TextButtonsComponent() {
         >
           <ColorPicker
             color={editor.getAttributes("highlight").color}
-            onChange={(color) =>
-              editor.chain().focus().setHighlight({ color }).run()
-            }
+            onChange={(color) => editor.chain().setHighlight({ color }).run()}
             onClear={() => editor.chain().focus().unsetHighlight().run()}
           />
         </PopoverContent>

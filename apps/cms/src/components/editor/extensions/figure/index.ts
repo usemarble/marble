@@ -46,12 +46,9 @@ export const Figure = Node.create({
           element.querySelector("img")?.getAttribute("src") ||
           element.querySelector("a img")?.getAttribute("src"),
         renderHTML: (attributes) => {
-          if (!attributes.src) {
-            return {};
-          }
-          return {
-            src: attributes.src,
-          };
+          // Return attribute to make it available in HTMLAttributes
+          // Main renderHTML will apply it to img element
+          return { src: attributes.src };
         },
       },
       alt: {
@@ -60,25 +57,31 @@ export const Figure = Node.create({
           element.querySelector("img")?.getAttribute("alt") ||
           element.querySelector("a img")?.getAttribute("alt") ||
           "",
-        renderHTML: (attributes) => ({
-          alt: attributes.alt,
-        }),
+        renderHTML: (attributes) => {
+          // Return attribute to make it available in HTMLAttributes
+          // Main renderHTML will apply it to img element
+          return { alt: attributes.alt };
+        },
       },
       caption: {
         default: "",
         parseHTML: (element) =>
           element.querySelector("figcaption")?.textContent || "",
-        renderHTML: (attributes) => ({
-          caption: attributes.caption,
-        }),
+        renderHTML: (attributes) => {
+          // Return attribute to make it available in HTMLAttributes
+          // Main renderHTML will use it for figcaption content
+          return { caption: attributes.caption };
+        },
       },
       href: {
         default: null,
         parseHTML: (element) =>
           element.querySelector("a")?.getAttribute("href") || null,
-        renderHTML: (attributes) => ({
-          href: attributes.href,
-        }),
+        renderHTML: (attributes) => {
+          // Return attribute to make it available in HTMLAttributes
+          // Main renderHTML will apply it to anchor element
+          return { href: attributes.href };
+        },
       },
       width: {
         default: "100",
@@ -128,20 +131,37 @@ export const Figure = Node.create({
   },
 
   renderHTML({ HTMLAttributes }) {
-    const { href, ...attrs } = HTMLAttributes;
+    const { src, alt, href, caption, ...figureAttrs } = HTMLAttributes;
+
+    // Prepare img attributes
+    const imgAttrs: Record<string, string> = {};
+    if (src) {
+      imgAttrs.src = src;
+    }
+    if (alt) {
+      imgAttrs.alt = alt;
+    }
+
+    // Prepare figcaption content
+    const figcaptionContent = caption || "";
 
     // If href exists, wrap img in anchor tag
     if (href) {
       return [
         "figure",
-        mergeAttributes(attrs),
-        ["a", { href }, ["img"]],
-        ["figcaption"],
+        mergeAttributes(figureAttrs),
+        ["a", { href }, ["img", imgAttrs]],
+        ["figcaption", {}, figcaptionContent],
       ];
     }
 
     // Otherwise, render img directly
-    return ["figure", mergeAttributes(attrs), ["img"], ["figcaption"]];
+    return [
+      "figure",
+      mergeAttributes(figureAttrs),
+      ["img", imgAttrs],
+      ["figcaption", {}, figcaptionContent],
+    ];
   },
 
   addCommands() {
