@@ -44,6 +44,8 @@ function PageClient() {
     userId: member.userId,
   }));
 
+  console.log("invitations", activeWorkspace.invitations);
+
   return (
     <WorkspacePageWrapper>
       <div className="space-y-6">
