@@ -9,7 +9,6 @@ import type { Organization } from "../auth/types";
 import {
   nameSchema,
   slugSchema,
-  timezoneSchema,
 } from "../validations/workspace";
 
 export async function createAuthor(user: User, organization: Organization) {
@@ -83,27 +82,15 @@ export async function validateWorkspaceName(name: string | undefined) {
   }
 }
 
-export async function validateWorkspaceTimezone(timezone: string | undefined) {
-  const { success } = timezoneSchema.safeParse({ timezone });
-  if (!success) {
-    throw new APIError("BAD_REQUEST", {
-      message: "Invalid timezone",
-    });
-  }
-}
-
 type ValidateWorkspace = {
   slug: string | undefined;
   name: string | undefined;
-  timezone: string | undefined;
 };
 
 export async function validateWorkspaceSchema({
   slug,
   name,
-  timezone,
 }: ValidateWorkspace) {
   await validateWorkspaceSlug(slug);
   await validateWorkspaceName(name);
-  await validateWorkspaceTimezone(timezone);
 }

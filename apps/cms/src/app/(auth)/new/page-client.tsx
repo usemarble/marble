@@ -16,12 +16,10 @@ import { cn } from "@marble/ui/lib/utils";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
 import { AsyncButton } from "@/components/ui/async-button";
-import { TimezoneSelector } from "@/components/ui/timezone-selector";
 import { organization } from "@/lib/auth/client";
-import { timezones } from "@/lib/constants";
 import {
   type CreateWorkspaceValues,
   workspaceSchema,
@@ -34,13 +32,11 @@ function PageClient() {
     handleSubmit,
     watch,
     setValue,
-    control,
     formState: { errors, isSubmitting },
   } = useForm<CreateWorkspaceValues>({
     resolver: zodResolver(workspaceSchema),
     defaultValues: {
       name: "",
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     },
   });
 
@@ -73,7 +69,6 @@ function PageClient() {
       const { data, error } = await organization.create({
         name: payload.name,
         slug: payload.slug,
-        timezone: payload.timezone,
         logo: `https://api.dicebear.com/9.x/glass/svg?seed=${payload.name}`,
       });
       if (error) {
@@ -140,26 +135,6 @@ function PageClient() {
                 </div>
                 {errors.slug && (
                   <ErrorMessage>{errors.slug.message}</ErrorMessage>
-                )}
-              </div>
-              <div className="flex flex-col gap-2">
-                <Label className="sr-only" htmlFor="timezone">
-                  Timezone
-                </Label>
-                <Controller
-                  control={control}
-                  name="timezone"
-                  render={({ field }) => (
-                    <TimezoneSelector
-                      onValueChange={field.onChange}
-                      placeholder="Select timezone..."
-                      timezones={timezones}
-                      value={field.value}
-                    />
-                  )}
-                />
-                {errors.timezone && (
-                  <ErrorMessage>{errors.timezone.message}</ErrorMessage>
                 )}
               </div>
             </div>

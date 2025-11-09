@@ -3,7 +3,6 @@ export type Workspace = {
   name: string;
   slug: string;
   logo: string | null;
-  timezone: string | null;
   createdAt: Date | string;
   currentUserRole: string | null;
   members: Array<{

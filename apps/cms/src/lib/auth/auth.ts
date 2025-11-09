@@ -30,7 +30,6 @@ import {
   validateWorkspaceName,
   validateWorkspaceSchema,
   validateWorkspaceSlug,
-  validateWorkspaceTimezone,
 } from "../actions/workspace";
 import { redis } from "../redis";
 
@@ -174,7 +173,6 @@ export const auth = betterAuth({
           await validateWorkspaceSchema({
             slug: organization.slug,
             name: organization.name,
-            timezone: organization.timezone,
           });
         },
         beforeUpdateOrganization: async ({ organization }) => {
@@ -183,9 +181,6 @@ export const auth = betterAuth({
           }
           if (organization.name) {
             await validateWorkspaceName(organization.name);
-          }
-          if (organization.timezone) {
-            await validateWorkspaceTimezone(organization.timezone);
           }
         },
       },

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { RESERVED_WORKSPACE_SLUGS, timezones } from "@/lib/constants";
+import { RESERVED_WORKSPACE_SLUGS } from "@/lib/constants";
 
 // Tag Schema
 export const tagSchema = z.object({
@@ -37,11 +37,6 @@ export const workspaceSchema = z.object({
         message: "This slug is not available",
       }
     ),
-  timezone: z
-    .enum(timezones as [string, ...string[]], {
-      errorMap: () => ({ message: "Please select a valid timezone" }),
-    })
-    .optional(),
 });
 export type CreateWorkspaceValues = z.infer<typeof workspaceSchema>;
 
@@ -73,12 +68,6 @@ export const slugSchema = z.object({
     ),
 });
 export type SlugValues = z.infer<typeof slugSchema>;
-
-// Workspace Timezone Update Schema
-export const timezoneSchema = z.object({
-  timezone: z.enum(timezones as [string, ...string[]]),
-});
-export type TimezoneValues = z.infer<typeof timezoneSchema>;
 
 // AI Integration Enable Schema
 export const aiEnableSchema = z.object({

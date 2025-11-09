@@ -6,7 +6,6 @@ import { Id } from "@/components/settings/fields/id";
 import { Logo } from "@/components/settings/fields/logo";
 import { Name } from "@/components/settings/fields/name";
 import { Slug } from "@/components/settings/fields/slug";
-import { Timezone } from "@/components/settings/fields/timezone";
 
 function PageClient() {
   return (
@@ -14,7 +13,6 @@ function PageClient() {
       <Name />
       <Slug />
       <Logo />
-      <Timezone />
       <Id />
       <Delete />
     </WorkspacePageWrapper>

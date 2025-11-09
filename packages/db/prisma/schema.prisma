@@ -41,7 +41,6 @@ model Organization {
   subdomain         String?            @unique
   updatedAt         DateTime           @updatedAt
   createdAt         DateTime           @default(now())
-  timezone          String             @default("Europe/London")
   authors           Author[]
   categories        Category[]
   invitations       Invitation[]
