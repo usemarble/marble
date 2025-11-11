@@ -1,19 +1,20 @@
 ---
-import { SITE } from "@/lib/constants";
+import { FOOTER_SECTIONS, FOOTER_SOCIAL_LINKS } from "@/lib/constants";
 import Container from "./Container.astro";
-import Discord from "./icons/Discord.astro";
-import Github from "./icons/Github.astro";
 import Logo from "./icons/Logo.astro";
-import X from "./icons/X.astro";
 ---
-
 <footer>
   <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
     <Container class="py-12 sm:py-20 md:py-36">
-      <section class="rounded-xl border bg-white p-10 lg:p-12 md:min-h-[420px] flex flex-col justify-between gap-5">
+      <section
+        class="rounded-xl border bg-white p-10 lg:p-12 md:min-h-[420px] flex flex-col justify-between gap-5"
+      >
         <div class="flex flex-col justify-between gap-10 md:flex-row">
           <div class="sm:col-span-3">
-            <a href="/" class="mb-2 flex items-center gap-2 tracking-widest w-fit font-medium">
+            <a
+              href="/"
+              class="mb-2 flex items-center gap-2 tracking-widest w-fit font-medium"
+            >
               <Logo />
               <span class="sr-only">marblecms</span>
             </a>
@@ -21,152 +22,46 @@ import X from "./icons/X.astro";
               Content simplified.
             </p>
           </div>
-    
+
           <div class="grid grid-cols-1 gap-8 md:grid-cols-4 lg:gap-14">
-            <div class="flex flex-col gap-4 text-sm">
-              <p class="font-medium mb-2">Product</p>
-              <a
-                href={SITE.APP_URL}
-                class="text-muted-foreground underline-offset-2 hover:underline"
-              >
-                Get Started
-              </a>
-              <a
-                href="/pricing"
-                class="text-muted-foreground underline-offset-2 hover:underline"
-              >
-                Pricing
-              </a>
-              <a
-                href="/changelog"
-                class="text-muted-foreground underline-offset-2 hover:underline"
-              >
-                Changelog
-              </a>
-            </div>
-
-            <div class="flex flex-col gap-4 text-sm">
-              <p class="font-medium mb-2">Resources</p>
-              <a
-                href="/blog"
-                class="text-muted-foreground underline-offset-2 hover:underline"
-              >
-                Blog
-              </a>
-              <a
-                href="/rss.xml"
-                class="text-muted-foreground underline-offset-2 hover:underline"
-              >
-                Feed
-              </a>
-              <a
-                href="/contributors"
-                class="text-muted-foreground underline-offset-2 hover:underline"
-              >
-                Contributors
-              </a>
-            </div>
-    
-            <div class="flex flex-col gap-4 text-sm">
-              <p class="font-medium mb-2">Developers</p>
-              <a
-                href="https://docs.marblecms.com"
-                target="_blank"
-                class="text-muted-foreground underline-offset-2 hover:underline"
-              >
-                Documentation
-              </a>
-              <a
-                href="https://github.com/taqh/astro-example"
-                target="_blank"
-                class="text-muted-foreground underline-offset-2 hover:underline"
-              >
-                Astro Example
-              </a>
-              <a
-                href="https://github.com/taqh/nextjs-example"
-                target="_blank"
-                class="text-muted-foreground underline-offset-2 hover:underline"
-              >
-                Next.js Example
-              </a>
-              <a
-                href="https://github.com/usemarble/tanstack-start-example"
-                target="_blank"
-                class="text-muted-foreground underline-offset-2 hover:underline"
-              >
-                TanStack Example
-              </a>
-            </div>
-
-            <div class="flex flex-col gap-4 text-sm">
-              <p class="font-medium mb-2">Company</p>
-              <a
-                href="mailto:support@marblecms.com"
-                class="text-muted-foreground underline-offset-2 hover:underline"
-              >
-                Contact
-              </a>
-              <a
-                href="/terms"
-                class="text-muted-foreground underline-offset-2 hover:underline"
-              >
-                Terms
-              </a>
-              <a
-                href="/privacy"
-                class="text-muted-foreground underline-offset-2 hover:underline"
-              >
-                Privacy
-              </a>
-              <a
-                href="/sponsors"
-                class="text-muted-foreground underline-offset-2 hover:underline"
-              >
-                Sponsors
-              </a>
-            </div>
+            {FOOTER_SECTIONS.map((section) => (
+              <div class="flex flex-col gap-4 text-sm">
+                <p class="font-medium mb-2">{section.title}</p>
+                {section.links.map((link) => (
+                  <a
+                    href={link.href}
+                    target={link.target}
+                    rel={link.rel}
+                    class="text-muted-foreground underline-offset-2 hover:underline"
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            ))}
           </div>
         </div>
-        <div class="flex gap-6 flex-col items-center justify-center md:flex-row lg:items-end lg:justify-between mt-10 lg:mt-20">
+        <div
+          class="flex gap-6 flex-col items-center justify-center md:flex-row lg:items-end lg:justify-between mt-10 lg:mt-20"
+        >
           <ul class="flex gap-6">
-            <li>
-              <a
-                href="https://x.com/usemarblecms"
-                target="_blank"
-                aria-label="Twitter link to Marble"
-                class="text-muted-foreground hover:text-primary transition duration-300"
-              >
-              <span class="sr-only">
-                Twitter
-              </span>
-                <X />
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://github.com/usemarble"
-                target="_blank"
-                class="text-muted-foreground hover:text-primary transition duration-300"
-              >
-                <span class="sr-only">
-                  Github
-                </span>
-                <Github />
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://discord.marblecms.com"
-                target="_blank"
-                class="text-muted-foreground hover:text-primary transition duration-300"
-              >
-              <span class="sr-only">
-                Discord
-              </span>
-              <Discord />
-              </a>
-            </li>
+            {FOOTER_SOCIAL_LINKS.map((link) => {
+              const IconComponent = link.icon;
+              return (
+                <li>
+                  <a
+                    href={link.href}
+                    target={link.target}
+                    rel={link.rel}
+                    aria-label={`${link.label} link to Marble`}
+                    class="text-muted-foreground hover:text-primary transition duration-300"
+                  >
+                    <span class="sr-only">{link.label}</span>
+                    {IconComponent && <IconComponent />}
+                  </a>
+                </li>
+              );
+            })}
           </ul>
           <p class="text-xs text-muted-foreground">
             &copy; {new Date().getFullYear()} all rights reserved
@@ -176,6 +71,8 @@ import X from "./icons/X.astro";
     </Container>
   </div>
   <div aria-hidden={true} class="h-16 border-t border-dashed">
-    <div class="mx-auto sm:w-[calc(100%-140px)] px-8 md:px-12 lg:px-16 lg:border-x border-dashed h-full"></div>
+    <div
+      class="mx-auto sm:w-[calc(100%-140px)] px-8 md:px-12 lg:px-16 lg:border-x border-dashed h-full"
+    ></div>
   </div>
 </footer>

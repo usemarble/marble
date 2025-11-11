@@ -8,21 +8,36 @@ type Props = {
 
 const { open, title, name, class: className } = Astro.props;
 ---
-
 <details
   data-accordion-item
   class:list={['accordion-item group', className]}
   name={name}
   open={open}
 >
-  <summary class="group accordion-item-title py-4 flex items-center justify-between gap-3 cursor-pointer text-lg font-medium leading-normal list-none transition-colors duration-300 ease-in-out m-0">
-    <span class="group-hover:text-muted-foreground group-focus-visible:text-muted-foreground text-base font-medium transition-colors duration-300 ease-in-out">{title}</span>
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 transition-transform duration-300 ease-in-out group-open:-rotate-45 shrink-0">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+  <summary
+    class="group accordion-item-title py-4 flex items-center justify-between gap-3 cursor-pointer text-lg font-medium leading-normal list-none transition-colors duration-300 ease-in-out m-0"
+  >
+    <span
+      class="group-hover:text-muted-foreground group-focus-visible:text-muted-foreground text-base font-medium transition-colors duration-300 ease-in-out"
+      >{title}</span
+    >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke-width="1.5"
+      stroke="currentColor"
+      class="size-4 transition-transform duration-300 ease-in-out group-open:-rotate-45 shrink-0"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        d="M12 4.5v15m7.5-7.5h-15"
+      />
     </svg>
   </summary>
   <div class="pb-4">
-    <slot />
+    <slot/>
   </div>
 </details>
 
@@ -49,22 +64,22 @@ const { open, title, name, class: className } = Astro.props;
 </style>
 
 <script>
-  import { setAccordionHeight, handleResize, hasViewportWidthChanged } from '@/lib/accordion'
+  import {
+    handleResize,
+    hasViewportWidthChanged,
+    setAccordionHeight,
+  } from "@/lib/accordion";
 
-  document.addEventListener('astro:page-load', () => {
+  document.addEventListener("astro:page-load", () => {
     const accordions = document.querySelectorAll<HTMLDetailsElement>(
-      '[data-accordion-item]'
-    )
-    setAccordionHeight(accordions)
-
+      "[data-accordion-item]"
+    );
+    setAccordionHeight(accordions);
 
     handleResize(() => {
       if (hasViewportWidthChanged()) {
-        setAccordionHeight(accordions)
+        setAccordionHeight(accordions);
       }
-    })
-  })
-  
+    });
+  });
 </script>
-
-

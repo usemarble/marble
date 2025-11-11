@@ -3,6 +3,7 @@
 import { db } from "@marble/db";
 import type { User } from "better-auth";
 import { APIError } from "better-auth/api";
+import { nanoid } from "nanoid";
 import { generateSlug } from "@/utils/string";
 import type { Organization } from "../auth/types";
 import {
@@ -32,12 +33,16 @@ export async function createAuthor(user: User, organization: Organization) {
       return existingAuthor;
     }
 
+    // Generate slug with nanoid suffix to ensure uniqueness
+    const baseSlug = generateSlug(user.name || user.email || "user");
+    const uniqueSlug = `${baseSlug}-${nanoid(6)}`;
+
     // Create new author profile from user data
     const author = await db.author.create({
       data: {
         name: user.name,
         email: user.email,
-        slug: generateSlug(user.name),
+        slug: uniqueSlug,
         image: user.image,
         workspaceId: organization.id,
         userId: user.id,
@@ -54,7 +59,9 @@ export async function createAuthor(user: User, organization: Organization) {
     return author;
   } catch (error) {
     console.error("Failed to create author:", error);
-    throw error;
+    throw new APIError("INTERNAL_SERVER_ERROR", {
+      message: "Failed to create author profile",
+    });
   }
 }
 

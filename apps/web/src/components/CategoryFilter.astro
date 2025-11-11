@@ -13,12 +13,15 @@ const categoriesToShow = categories.filter(
 
 const currentPath = Astro.url.pathname.replace(/\/$/, "");
 ---
-
- <ul class="flex flex-wrap items-center gap-2 justify-center mt-8">
-    <li>
-      <a href="/blog" class={cn("inline-block border text-sm rounded-full px-5 py-1.5", currentPath === "/blog" ? "bg-primary text-white border-transparent" : "bg-transparent text-foreground border-border")}>All Posts</a>
-    </li>
-    {
+<ul class="flex flex-wrap items-center gap-2 justify-center mt-8">
+  <li>
+    <a
+      href="/blog"
+      class={cn("inline-block border text-sm rounded-full px-5 py-1.5", currentPath === "/blog" ? "bg-primary text-white border-transparent" : "bg-transparent text-foreground border-border")}
+      >All Posts</a
+    >
+  </li>
+  {
       categoriesToShow.map((category) => {
         const isChangelog = category.data.slug === "changelog";
         const link = isChangelog ? "/changelog" : `/blog/category/${category.data.slug}`;

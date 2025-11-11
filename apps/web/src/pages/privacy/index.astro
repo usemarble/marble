@@ -20,26 +20,26 @@ const formattedDate = new Date(entry.data.updatedAt).toLocaleDateString(
   }
 );
 ---
-
-
-<Layout 
+<Layout
   title={`Privacy policy - ${SITE.TITLE}`}
   description="Privacy policy for marble."
 >
-<div class="border-y border-dashed">
-  <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto"> 
-    <Container class="pt-14 pb-32">
-    <div class='max-w-2xl mx-auto mb-10 space-y-2'>
-      <h1 class='text-2xl sm:text-3xl md:text-4xl text-center'>
-        Privacy Policy.
-      </h1>
-      <p class="text-center text-muted-foreground">Last updated: {formattedDate}</p>
-    </div>
+  <div class="border-y border-dashed">
+    <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
+      <Container class="pt-14 pb-32">
+        <div class="max-w-2xl mx-auto mb-10 space-y-2">
+          <h1 class="text-2xl sm:text-3xl md:text-4xl text-center">
+            Privacy Policy.
+          </h1>
+          <p class="text-center text-muted-foreground">
+            Last updated: {formattedDate}
+          </p>
+        </div>
 
-    <Prose>
-      <div set:html={entry.data.content} />
-    </Prose>
-  </Container>
+        <Prose>
+          <div set:html={entry.data.content}/>
+        </Prose>
+      </Container>
+    </div>
   </div>
-</div>
 </Layout>

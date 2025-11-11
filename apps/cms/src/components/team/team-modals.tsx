@@ -30,7 +30,6 @@ export function RemoveMemberModal({
   const [loading, setLoading] = useState(false);
   const { activeWorkspace } = useWorkspace();
   async function removeMember() {
-    // Guard against missing workspace before setting loading state
     if (!activeWorkspace?.id) {
       toast.error("No active workspace found");
       return;
@@ -42,23 +41,14 @@ export function RemoveMemberModal({
         memberIdOrEmail: member.id,
         organizationId: activeWorkspace.id,
         fetchOptions: {
-          onRequest: () => {
-            toast.loading("Removing member...", {
-              id: "remove-member",
-            });
-          },
           onSuccess: () => {
-            toast.success("Member removed successfully", {
-              id: "remove-member",
-            });
+            toast.success("Member removed successfully");
             setOpen(false);
           },
         },
       });
     } catch (_error) {
-      toast.error("Failed to remove member", {
-        id: "remove-member",
-      });
+      toast.error("Failed to remove member");
     } finally {
       setLoading(false);
     }

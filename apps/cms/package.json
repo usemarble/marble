@@ -22,7 +22,7 @@
     "@marble/ui": "workspace:*",
     "@phosphor-icons/react": "^2.1.10",
     "@polar-sh/better-auth": "^1.1.0",
-    "@polar-sh/sdk": "^0.34.13",
+    "@polar-sh/sdk": "^0.41.1",
     "@radix-ui/react-avatar": "^1.1.1",
     "@radix-ui/react-checkbox": "^1.1.2",
     "@radix-ui/react-dialog": "^1.1.4",

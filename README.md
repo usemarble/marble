@@ -1,11 +1,14 @@
 <h1 align="center">Marble</h1>
+
+<p align="center">
+  <a href="https://vercel.com/oss">
+    <img alt="Vercel OSS Program" src="https://vercel.com/oss/program-badge.svg" />
+  </a>
+</p>
+
 <p align="center"><em>Super simple way to publish articles, product updates and changelogs to your site</em></p>
 
 ---
-
-<p align="center">
-  <img src="https://img.shields.io/badge/license-AGPL--3.0-blue" alt="License: AGPL v3" />
-</p>
 
 ## ✨ Features (MVP)
 
@@ -42,13 +45,3 @@ Feel free to open an issue for bugs or feature requests.
 ## License
 
 Marble is released under the [GNU Affero General Public License v3.0](./LICENSE.md).
-
-## Star History
-
-<a href="https://www.star-history.com/#usemarble/marble&Date">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=usemarble/marble&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=usemarble/marble&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=usemarble/marble&type=Date" />
- </picture>
-</a>

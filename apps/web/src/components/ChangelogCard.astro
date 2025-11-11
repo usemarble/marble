@@ -15,11 +15,10 @@ const formattedDate = new Date(publishedAt).toLocaleDateString("en-US", {
   year: "numeric",
 });
 ---
-
 <li>
   <a
     href={`/changelog/${slug}`}
-    class='space-y-1 p-4 border bg-white flex gap-4 flex-col rounded-2xl hover:shadow-xs transition-all duration-300 h-full'
+    class="space-y-1 p-4 border bg-white flex gap-4 flex-col rounded-2xl hover:shadow-xs transition-all duration-300 h-full"
   >
     <div class="w-full border rounded-md overflow-hidden group">
       {coverImage && (
@@ -34,19 +33,27 @@ const formattedDate = new Date(publishedAt).toLocaleDateString("en-US", {
     </div>
     <div class="flex flex-col gap-4 justify-between flex-1">
       <div class="space-y-2">
-        <h2 class='md:text-lg font-medium'>{title}</h2>
+        <h2 class="md:text-lg font-medium">{title}</h2>
         <!-- <p class='text-muted-foreground text-sm line-clamp-2'>{description}</p> -->
       </div>
       <div class="flex items-center flex-wrap gap-3 justify-between">
         <div class="flex items-center gap-2">
           <div class="flex items-center gap-2">
-            <Image src={authors[0].image || "/og-blog.jpg"} alt={authors[0].name} class="size-7 rounded-full" inferSize />
-            <p class="text-muted-foreground text-sm">
-              {authors[0].name}
-            </p>
+            <Image
+              src={authors[0].image || "/og-blog.jpg"}
+              alt={authors[0].name}
+              class="size-7 rounded-full"
+              inferSize
+            />
+            <p class="text-muted-foreground text-sm">{authors[0].name}</p>
           </div>
           <span class="h-4 w-px bg-gray-300 shrink-0"></span>
-          <time datetime={publishedAt.toString()} class="text-muted-foreground text-sm">{formattedDate}</time>
+          <time
+            datetime={publishedAt.toString()}
+            class="text-muted-foreground text-sm"
+          >
+            {formattedDate}
+          </time>
         </div>
 
         <div class="flex items-center gap-2">

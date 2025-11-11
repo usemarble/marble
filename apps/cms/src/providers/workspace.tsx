@@ -75,7 +75,7 @@ export function WorkspaceProvider({
 
   const { data: fetchedActiveWorkspace, isLoading: isFetchingActiveWorkspace } =
     useQuery({
-      queryKey: ["workspace_by_slug", workspaceSlug],
+      queryKey: QUERY_KEYS.WORKSPACE_BY_SLUG(workspaceSlug),
       queryFn: () => fetchWorkspaceData(workspaceSlug),
       enabled: shouldFetchWorkspace,
       initialData:
@@ -133,7 +133,7 @@ export function WorkspaceProvider({
           },
         });
         // Set new workspace data
-        queryClient.setQueryData(["workspace_by_slug", data.slug], data);
+        queryClient.setQueryData(QUERY_KEYS.WORKSPACE_BY_SLUG(data.slug), data);
         queryClient.setQueryData(QUERY_KEYS.WORKSPACE(data.id), data);
 
         // Preserve the path after the workspace slug
