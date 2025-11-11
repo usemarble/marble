@@ -24,7 +24,6 @@ export async function GET(
       slug: true,
       logo: true,
       createdAt: true,
-      timezone: true,
       members: {
         select: {
           id: true,

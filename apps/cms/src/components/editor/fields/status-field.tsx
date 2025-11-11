@@ -40,10 +40,10 @@ export function StatusField({ control }: StatusFieldProps) {
         <FieldInfo text="Choose whether to publish now, schedule for later, or save as a draft. Scheduled posts will be marked as draft until the publish date." />
       </div>
 
-      <Select value={value} onValueChange={onChange}>
+      <Select onValueChange={onChange} value={value}>
         <SelectTrigger
-          id="status"
           className="bg-editor-field shadow-none active:scale-100"
+          id="status"
         >
           <SelectValue />
         </SelectTrigger>

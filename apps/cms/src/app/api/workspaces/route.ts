@@ -22,7 +22,6 @@ export async function GET() {
       name: true,
       slug: true,
       logo: true,
-      timezone: true,
       createdAt: true,
       members: {
         select: {

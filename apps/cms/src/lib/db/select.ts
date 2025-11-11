@@ -4,7 +4,6 @@ export const workspaceSelect = {
   name: true,
   slug: true,
   logo: true,
-  timezone: true,
   createdAt: true,
   editorPreferences: {
     select: { ai: { select: { enabled: true } } },

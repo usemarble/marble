@@ -6,10 +6,7 @@ import { APIError } from "better-auth/api";
 import { nanoid } from "nanoid";
 import { generateSlug } from "@/utils/string";
 import type { Organization } from "../auth/types";
-import {
-  nameSchema,
-  slugSchema,
-} from "../validations/workspace";
+import { nameSchema, slugSchema } from "../validations/workspace";
 
 export async function createAuthor(user: User, organization: Organization) {
   try {

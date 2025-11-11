@@ -77,7 +77,7 @@ export function PublishDateField({ control }: PublishDateFieldProps) {
         <Label htmlFor="publishedAt">Published On</Label>
         <FieldInfo text="The date and time your post will be published. Set a future date to schedule the post." />
       </div>
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover onOpenChange={setOpen} open={open}>
         <PopoverTrigger asChild>
           <Button
             className={cn(
@@ -98,7 +98,7 @@ export function PublishDateField({ control }: PublishDateFieldProps) {
             <CalendarDotsIcon className="text-muted-foreground" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent align="start" className="w-auto p-0">
           <div className="flex flex-col">
             <Calendar
               autoFocus
@@ -112,10 +112,10 @@ export function PublishDateField({ control }: PublishDateFieldProps) {
               <div className="flex items-center gap-2">
                 <ClockIcon className="text-muted-foreground" size={16} />
                 <Input
+                  className="h-8 bg-editor-field"
+                  onChange={handleTimeChange}
                   type="time"
                   value={timeValue}
-                  onChange={handleTimeChange}
-                  className="h-8 bg-editor-field"
                 />
               </div>
               <div className="flex items-center justify-between text-muted-foreground text-xs">
