@@ -1,10 +1,13 @@
 import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { getServerSession } from "@/lib/auth/session";
 import { R2_BUCKET_NAME, r2 } from "@/lib/r2";
-import { DeleteSchema, GetSchema } from "@/lib/validations/upload";
+import { loadMediaApiFilters } from "@/lib/search-params";
+import { DeleteSchema } from "@/lib/validations/upload";
 import { getWebhooks, WebhookClient } from "@/lib/webhooks/webhook-client";
+import { splitMediaSort } from "@/utils/media";
 
 export async function GET(request: Request) {
   const sessionData = await getServerSession();
@@ -22,20 +25,12 @@ export async function GET(request: Request) {
     );
   }
 
-  const { searchParams } = new URL(request.url);
-  const parsed = GetSchema.safeParse(Object.fromEntries(searchParams));
-
-  if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.message }, { status: 400 });
+  const filters = loadMediaApiFilters(request, { strict: true });
+  if (!z.number().int().min(1).max(100).safeParse(filters.limit).success) {
+    return NextResponse.json({ error: "Invalid limit" }, { status: 400 });
   }
-
-  const { limit, cursor, type, sort } = parsed.data;
-
-  // Break sort option into field + direction (e.g. "createdAt_desc")
-  const [field, direction] = sort.split("_") as [
-    "createdAt" | "name",
-    "asc" | "desc",
-  ];
+  const { field, direction } = splitMediaSort(filters.sort);
+  const { limit, cursor, type } = filters;
   const orderBy = [{ [field]: direction }, { id: direction }];
 
   try {

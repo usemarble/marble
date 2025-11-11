@@ -190,12 +190,12 @@ export const PLATFORM_DOMAINS = {
   bluesky: ["bsky.app"],
 } as const;
 
-export const MEDIA_SORTS = [
-  "createdAt_desc",
-  "createdAt_asc",
-  "name_asc",
-  "name_desc",
-];
+export const MEDIA_SORT_BY = ["createdAt", "name"] as const;
+export const SORT_DIRECTIONS = ["asc", "desc"] as const;
+
+export const MEDIA_SORTS = MEDIA_SORT_BY.flatMap((field) =>
+  SORT_DIRECTIONS.map((direction) => `${field}_${direction}` as const)
+);
 
 export const MEDIA_TYPES = ["image", "video", "audio", "document"] as const;
 
