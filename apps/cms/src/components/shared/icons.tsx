@@ -1,8 +1,6 @@
-import type { LucideIcon, LucideProps } from "lucide-react";
+import type { IconProps } from "@/types/icons";
 
-export type Icon = LucideIcon;
-
-export const AcmeLogo = ({ ...props }: LucideProps) => (
+export const AcmeLogo = ({ ...props }: IconProps) => (
   <svg fill="none" height="36" viewBox="0 0 32 32" width="36" {...props}>
     <title>Acme Logo</title>
     <path
@@ -14,7 +12,7 @@ export const AcmeLogo = ({ ...props }: LucideProps) => (
   </svg>
 );
 
-export const Github = ({ ...props }: LucideProps) => (
+export const Github = ({ ...props }: IconProps) => (
   <svg
     fill="currentColor"
     role="img"
@@ -27,7 +25,7 @@ export const Github = ({ ...props }: LucideProps) => (
   </svg>
 );
 
-export const Discord = ({ ...props }: LucideProps) => (
+export const Discord = ({ ...props }: IconProps) => (
   <svg
     fill="currentColor"
     role="img"
@@ -40,7 +38,7 @@ export const Discord = ({ ...props }: LucideProps) => (
   </svg>
 );
 
-export const Slack = ({ ...props }: LucideProps) => (
+export const Slack = ({ ...props }: IconProps) => (
   <svg
     fill="currentColor"
     role="img"
@@ -69,7 +67,7 @@ export const Slack = ({ ...props }: LucideProps) => (
     </g>
   </svg>
 );
-export const Google = ({ ...props }: LucideProps) => (
+export const Google = ({ ...props }: IconProps) => (
   <svg
     fill="currentColor"
     role="img"
@@ -82,7 +80,7 @@ export const Google = ({ ...props }: LucideProps) => (
   </svg>
 );
 
-export const X = ({ ...props }: LucideProps) => (
+export const X = ({ ...props }: IconProps) => (
   <svg
     fill="currentColor"
     role="img"
