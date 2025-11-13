@@ -58,7 +58,7 @@ export async function POST(request: Request) {
   const { streamObject } = await import("ai");
 
   const result = streamObject({
-    model: "openai/gpt-5-mini",
+    model: "google/gemini-2.5-flash",
     messages: [
       {
         role: "system",
