@@ -1,4 +1,5 @@
 import { db } from "@marble/db";
+import { Polar } from "@polar-sh/sdk";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { R2_PUBLIC_URL } from "@/lib/r2";
@@ -59,6 +60,56 @@ export async function POST(request: Request) {
             type: mediaType,
             workspaceId,
           },
+        });
+
+        const trackMediaUpload = async () => {
+          try {
+            await db.usageEvent.create({
+              data: {
+                type: "media_upload",
+                workspaceId,
+                size: fileSize,
+              },
+            });
+
+            if (process.env.POLAR_ACCESS_TOKEN) {
+              const polar = new Polar({
+                accessToken: process.env.POLAR_ACCESS_TOKEN,
+                server:
+                  process.env.NODE_ENV === "production"
+                    ? "production"
+                    : "sandbox",
+              });
+
+              try {
+                await polar.events.ingest({
+                  events: [
+                    {
+                      name: "media_upload",
+                      externalCustomerId: workspaceId,
+                      metadata: {
+                        size: fileSize,
+                        type: mediaType,
+                      },
+                    },
+                  ],
+                });
+              } catch (polarError) {
+                // Polar sometimes returns 500 but still processes events (in dev)
+                console.error(
+                  "[Media Upload] Polar ingestion error (events may still be processed):",
+                  polarError instanceof Error ? polarError.message : polarError
+                );
+              }
+            }
+          } catch (err) {
+            console.error("[Media Upload] Error tracking upload:", err);
+          }
+        };
+
+        // Run tracking asynchronously to not block response)
+        trackMediaUpload().catch((err) => {
+          console.error("[Media Upload] Failed to track upload:", err);
         });
 
         const mediaResponse = {

@@ -1,5 +1,7 @@
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+
 }
 
 datasource db {
@@ -343,6 +345,7 @@ model UsageEvent {
   type        UsageEventType
   workspaceId String
   endpoint    String?
+  size        Int?
   createdAt   DateTime       @default(now())
   workspace   Organization   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
