@@ -1,6 +1,5 @@
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -53,6 +52,7 @@ model Organization {
   webhooks          Webhook[]
   editorPreferences EditorPreferences?
   ShareLink         ShareLink[]
+  usageEvents       UsageEvent[]
 
   @@map("workspace")
 }
@@ -338,6 +338,19 @@ model Invitation {
   @@map("invitation")
 }
 
+model UsageEvent {
+  id          String         @id @default(cuid())
+  type        UsageEventType
+  workspaceId String
+  endpoint    String?
+  createdAt   DateTime       @default(now())
+  workspace   Organization   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, type, createdAt])
+  @@index([workspaceId, createdAt])
+  @@map("usage_event")
+}
+
 enum PostStatus {
   published
   draft
@@ -381,4 +394,10 @@ enum MediaType {
   video
   audio
   document
+}
+
+enum UsageEventType {
+  api_request
+  media_upload
+  webhook_delivery
 }
