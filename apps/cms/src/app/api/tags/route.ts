@@ -19,10 +19,23 @@ export async function GET() {
       name: true,
       slug: true,
       description: true,
+      _count: {
+        select: {
+          posts: true,
+        },
+      },
     },
   });
 
-  return NextResponse.json(tags, { status: 200 });
+  const transformedTags = tags.map((tag) => {
+    const { _count, ...rest } = tag;
+    return {
+      ...rest,
+      postsCount: _count.posts,
+    };
+  });
+
+  return NextResponse.json(transformedTags, { status: 200 });
 }
 
 export async function POST(req: Request) {

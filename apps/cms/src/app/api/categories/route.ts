@@ -18,10 +18,23 @@ export async function GET() {
       id: true,
       name: true,
       slug: true,
+      _count: {
+        select: {
+          posts: true,
+        },
+      },
     },
   });
 
-  return NextResponse.json(categories, { status: 200 });
+  const transformedCategories = categories.map((category) => {
+    const { _count, ...rest } = category;
+    return {
+      ...rest,
+      postsCount: _count.posts,
+    };
+  });
+
+  return NextResponse.json(transformedCategories, { status: 200 });
 }
 
 export async function POST(req: Request) {
