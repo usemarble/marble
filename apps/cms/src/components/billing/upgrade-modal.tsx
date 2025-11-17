@@ -1,9 +1,5 @@
 "use client";
 
-import { AsyncButton } from "@/components/ui/async-button";
-import { checkout } from "@/lib/auth/client";
-import { PRICING_PLANS } from "@/lib/constants";
-import { useWorkspace } from "@/providers/workspace";
 import { Badge } from "@marble/ui/components/badge";
 import { Button } from "@marble/ui/components/button";
 import {
@@ -11,7 +7,7 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle
+  CardTitle,
 } from "@marble/ui/components/card";
 import {
   Dialog,
@@ -23,6 +19,10 @@ import {
 import { cn } from "@marble/ui/lib/utils";
 import { CheckIcon } from "@phosphor-icons/react";
 import { useState } from "react";
+import { AsyncButton } from "@/components/ui/async-button";
+import { checkout } from "@/lib/auth/client";
+import { PRICING_PLANS } from "@/lib/constants";
+import { useWorkspace } from "@/providers/workspace";
 
 type UpgradeModalProps = {
   isOpen: boolean;
