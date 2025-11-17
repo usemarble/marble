@@ -63,7 +63,7 @@ export function DataGrid({ data }: DataGridProps) {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="flex- flexcol mt-auto flex items-center justify-between px-0 pt-0">
+              <CardContent className="mt-auto flex items-center justify-between px-0 pt-0">
                 <div className="space-y-3">
                   <Badge
                     variant={

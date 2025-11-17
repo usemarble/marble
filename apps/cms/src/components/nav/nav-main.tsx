@@ -19,6 +19,7 @@ import {
 import { cn } from "@marble/ui/lib/utils";
 import {
   FadersIcon,
+  HouseIcon,
   ImagesIcon,
   LayoutIcon,
   NoteIcon,
@@ -89,7 +90,7 @@ export function NavMain() {
 
   return (
     <SidebarGroup className={cn(open ? "px-4" : "px-2")}>
-      <SidebarGroupLabel>Workspace</SidebarGroupLabel>
+      <SidebarGroupLabel className="sr-only">Workspace</SidebarGroupLabel>
       <SidebarMenu>
         <SidebarMenuButton
           asChild
@@ -100,8 +101,8 @@ export function NavMain() {
           }`}
         >
           <Link href={`/${params.workspace}`}>
-            <LayoutIcon />
-            <span>Overview</span>
+            <HouseIcon />
+            <span>Home</span>
           </Link>
         </SidebarMenuButton>
         {items.map((item) => (

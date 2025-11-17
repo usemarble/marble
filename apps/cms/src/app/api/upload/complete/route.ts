@@ -1,10 +1,10 @@
 import { db } from "@marble/db";
-import { Polar } from "@polar-sh/sdk";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
+import { createPolarClient } from "@/lib/polar/client";
 import { R2_PUBLIC_URL } from "@/lib/r2";
 import { completeSchema } from "@/lib/validations/upload";
-import type { MediaType } from "@/types/media";
+import { dispatchWebhooks } from "@/lib/webhooks/dispatcher";
 import { getMediaType } from "@/utils/media";
 
 export async function POST(request: Request) {
@@ -72,21 +72,41 @@ export async function POST(request: Request) {
               },
             });
 
-            if (process.env.POLAR_ACCESS_TOKEN) {
-              const polar = new Polar({
-                accessToken: process.env.POLAR_ACCESS_TOKEN,
-                server:
-                  process.env.NODE_ENV === "production"
-                    ? "production"
-                    : "sandbox",
-              });
+            let customerId = workspaceId;
+            try {
+              if (sessionData.session.activeOrganizationId) {
+                const organization = await db.organization.findFirst({
+                  where: {
+                    id: sessionData.session.activeOrganizationId,
+                  },
+                  select: {
+                    id: true,
+                    members: {
+                      where: {
+                        role: "owner",
+                      },
+                      select: {
+                        userId: true,
+                      },
+                    },
+                  },
+                });
+                if (organization?.members[0]?.userId) {
+                  customerId = organization.members[0].userId;
+                }
+              }
+            } catch (error) {
+              console.error("[Media Upload] Failed to get customer ID:", error);
+            }
 
+            const polarClient = createPolarClient();
+            if (polarClient) {
               try {
-                await polar.events.ingest({
+                await polarClient.events.ingest({
                   events: [
                     {
                       name: "media_upload",
-                      externalCustomerId: workspaceId,
+                      externalCustomerId: customerId,
                       metadata: {
                         size: fileSize,
                         type: mediaType,
@@ -95,7 +115,6 @@ export async function POST(request: Request) {
                   ],
                 });
               } catch (polarError) {
-                // Polar sometimes returns 500 but still processes events (in dev)
                 console.error(
                   "[Media Upload] Polar ingestion error (events may still be processed):",
                   polarError instanceof Error ? polarError.message : polarError
@@ -107,9 +126,26 @@ export async function POST(request: Request) {
           }
         };
 
-        // Run tracking asynchronously to not block response)
         trackMediaUpload().catch((err) => {
           console.error("[Media Upload] Failed to track upload:", err);
+        });
+
+        dispatchWebhooks({
+          workspaceId,
+          validationEvent: "media_uploaded",
+          deliveryEvent: "media.uploaded",
+          payload: {
+            id: media.id,
+            name: media.name,
+            userId: sessionData.user.id,
+            size: media.size,
+            type: media.type,
+          },
+        }).catch((error) => {
+          console.error(
+            `[MediaUpload] Failed to dispatch webhooks: mediaId=${media.id}`,
+            error
+          );
         });
 
         const mediaResponse = {

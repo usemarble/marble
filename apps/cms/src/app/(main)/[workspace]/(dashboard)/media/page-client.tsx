@@ -208,7 +208,10 @@ function PageClient() {
   }
 
   return (
-    <WorkspacePageWrapper className="flex flex-col gap-8 pt-10 pb-16">
+    <WorkspacePageWrapper
+      className="flex flex-col gap-8 pt-10 pb-16"
+      size="compact"
+    >
       <div aria-atomic="true" aria-live="polite" className="sr-only">
         {statusMessage}
       </div>

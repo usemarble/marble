@@ -11,7 +11,7 @@ export const webhookEventEnum = z.enum([
   "tag_created",
   "tag_updated",
   "tag_deleted",
-  //"media_uploaded",
+  "media_uploaded",
   "media_deleted",
 ]);
 
@@ -129,11 +129,11 @@ export const webhookEvents: Array<{
     label: "tag.deleted",
     description: "When a tag is deleted",
   },
-  //{
-  //  id: "media_uploaded",
-  //  label: "media.uploaded",
-  //  description: "When media is uploaded",
-  //},
+  {
+    id: "media_uploaded",
+    label: "media.uploaded",
+    description: "When media is uploaded",
+  },
   {
     id: "media_deleted",
     label: "media.deleted",

@@ -56,6 +56,29 @@ export const analytics = (): MiddlewareHandler => {
         });
         console.log("[Analytics] Usage event stored successfully");
 
+        let customerId = workspaceId;
+
+        const organization = await db.organization.findFirst({
+          where: {
+            id: workspaceId,
+          },
+          select: {
+            id: true,
+            members: {
+              where: {
+                role: "owner",
+              },
+              select: {
+                userId: true,
+              },
+            },
+          },
+        });
+
+        if (organization?.members[0]?.userId) {
+          customerId = organization.members[0].userId;
+        }
+
         if (POLAR_ACCESS_TOKEN) {
           console.log("[Analytics] Ingesting event to Polar...");
           const isProduction = ENVIRONMENT === "production";
@@ -65,7 +88,7 @@ export const analytics = (): MiddlewareHandler => {
               events: [
                 {
                   name: "api_request",
-                  externalCustomerId: workspaceId,
+                  externalCustomerId: customerId,
                   metadata: {
                     ...(endpoint && { endpoint }),
                     method,

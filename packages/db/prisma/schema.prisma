@@ -1,7 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["driverAdapters"]
-
 }
 
 datasource db {
@@ -153,6 +152,7 @@ model Media {
   name        String
   url         String
   size        Int
+  alt         String?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   workspaceId String
@@ -383,6 +383,7 @@ enum WebhookEvent {
   tag_updated
   tag_deleted
   media_uploaded
+  media_updated
   media_deleted
 }
 
