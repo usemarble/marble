@@ -53,6 +53,7 @@ model Organization {
   webhooks          Webhook[]
   editorPreferences EditorPreferences?
   ShareLink         ShareLink[]
+  brandKnowledge    BrandKnowledge[]
 
   @@map("workspace")
 }
@@ -160,6 +161,20 @@ model Media {
   @@index([workspaceId, createdAt])
   @@index([workspaceId, type])
   @@map("media")
+}
+
+model BrandKnowledge {
+  id          String       @id @default(cuid())
+  url         String
+  description Json
+  workspaceId String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, url])
+  @@index([workspaceId])
+  @@map("brand_knowledge_website")
 }
 
 model Category {

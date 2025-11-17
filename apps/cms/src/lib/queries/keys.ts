@@ -43,6 +43,8 @@ export const QUERY_KEYS = {
     workspaceId,
   ],
 
+  BRAND_KNOWLEDGE: (workspaceId: string) => ["brand-knowledge", workspaceId],
+
   AI_READABILITY_SUGGESTIONS: (workspaceId: string, contentKey: string) => [
     "ai-readability-suggestions",
     workspaceId,

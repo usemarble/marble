@@ -6,6 +6,7 @@ import {
 } from "@marble/ui/components/sidebar";
 import { NavDevs } from "./nav-devs";
 import { NavMain } from "./nav-main";
+import { NavSeo } from "./nav-seo";
 import { SidebarFooterContent } from "./sidebar-footer-content";
 import { WorkspaceSwitcher } from "./workspace-switcher";
 
@@ -19,6 +20,7 @@ export async function AppSidebar({
       </SidebarHeader>
       <SidebarContent>
         <NavMain />
+        <NavSeo />
         <NavDevs />
       </SidebarContent>
       <SidebarFooter>

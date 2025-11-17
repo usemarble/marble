@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { Suspense } from "react";
 import { toast } from "sonner";
 import { columns } from "@/components/authors/columns";
 import { AuthorDataTable } from "@/components/authors/data-table";
@@ -39,7 +40,15 @@ function PageClient() {
   return (
     <WorkspacePageWrapper>
       <div className="space-y-6">
-        <AuthorDataTable columns={columns} data={authors || []} />
+        <Suspense
+          fallback={
+            <div className="h-20">
+              <PageLoader />
+            </div>
+          }
+        >
+          <AuthorDataTable columns={columns} data={authors || []} />
+        </Suspense>
       </div>
     </WorkspacePageWrapper>
   );
