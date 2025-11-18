@@ -3,6 +3,7 @@
 import { Separator } from "@marble/ui/components/separator";
 import type { Control, FieldErrors } from "react-hook-form";
 import type { PostValues } from "@/lib/validations/post";
+import { HiddenScrollbar } from "../../ui/hidden-scrollbar";
 import { AttributionField } from "../fields/attribution-field";
 import { AuthorSelector } from "../fields/author-selector";
 import { CategorySelector } from "../fields/category-selector";
@@ -13,7 +14,6 @@ import { PublishDateField } from "../fields/publish-date-field";
 import { SlugField } from "../fields/slug-field";
 import { StatusField } from "../fields/status-field";
 import { TagSelector } from "../fields/tag-selector";
-import { HiddenScrollbar } from "../../ui/hidden-scrollbar";
 
 type MetadataTabProps = {
   control: Control<PostValues>;
