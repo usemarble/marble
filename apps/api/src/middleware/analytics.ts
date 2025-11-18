@@ -4,14 +4,11 @@ import { createPolarClient } from "../lib/polar";
 
 export const analytics = (): MiddlewareHandler => {
   return async (c: Context, next: Next) => {
-    const startTime = Date.now();
     const path = c.req.path;
     const method = c.req.method;
 
-    // Proceed to the next middleware or route handler to avoid delaying the response
     await next();
 
-    const requestDuration = Date.now() - startTime;
 
     const { DATABASE_URL, POLAR_ACCESS_TOKEN, ENVIRONMENT } = c.env;
     if (!DATABASE_URL) {
@@ -31,7 +28,6 @@ export const analytics = (): MiddlewareHandler => {
 
     const task = async () => {
       try {
-        // Store usage event in database
         const db = createClient(DATABASE_URL);
         await db.usageEvent.create({
           data: {
@@ -82,7 +78,7 @@ export const analytics = (): MiddlewareHandler => {
               ],
             });
           } catch (polarError) {
-            // Polar sometimes returns 500 but still processes events
+            // Polar sometimes returns 500 (in dev) but still processes events
             if (polarError instanceof Error) {
               const errorDetails: Record<string, unknown> = {
                 message: polarError.message,
