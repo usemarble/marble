@@ -1,16 +1,11 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { db } from "@marble/db";
 import { z } from "zod";
-import type { Session } from "../auth/types";
-import type {
-  PayloadFormat,
-  WebhookEvent as WebhookValidationEvent,
-} from "../validations/webhook";
+import type { PayloadFormat } from "../validations/webhook";
 import {
   handleWebhookDiscord,
   handleWebhookJSON,
   handleWebhookSlack,
-} from "./util";
+} from "./utils";
 import { WebhookVerificationError } from "./webhook-errors";
 
 const eventSchema = z.object({
@@ -65,6 +60,8 @@ const eventSchema = z.object({
     id: z.string(),
     name: z.string(),
     userId: z.string(),
+    size: z.number(),
+    type: z.enum(["image", "video", "audio", "document"]),
   }),
   "media.deleted": z.object({
     id: z.string(),
@@ -101,8 +98,11 @@ export class WebhookClient {
   }
 
   private verifySignature(expected: string, computed: string): boolean {
-    const expectedBuffer = Buffer.from(expected, "hex");
-    const computedBuffer = Buffer.from(computed, "hex");
+    const toUint8Array = (value: string) =>
+      Uint8Array.from(Buffer.from(value, "hex"));
+
+    const expectedBuffer = toUint8Array(expected);
+    const computedBuffer = toUint8Array(computed);
 
     if (expectedBuffer.length !== computedBuffer.length) {
       return false;
@@ -185,27 +185,4 @@ export class WebhookClient {
       );
     }
   }
-}
-
-// biome-ignore lint/suspicious/noExplicitAny: can literally be anything
-type DatabaseFields = Record<string, any>;
-
-export function getWebhooks(
-  session: Session["session"],
-  event: WebhookValidationEvent,
-  where?: DatabaseFields,
-  select?: DatabaseFields
-) {
-  if (!session.activeOrganizationId) {
-    throw new Error("No active organization");
-  }
-  return db.webhook.findMany({
-    where: {
-      enabled: true,
-      workspaceId: session.activeOrganizationId,
-      events: { has: event },
-      ...where,
-    },
-    select: { secret: true, endpoint: true, format: true, ...select },
-  });
 }

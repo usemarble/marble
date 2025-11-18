@@ -130,7 +130,7 @@ function PageClient() {
   };
 
   return (
-    <WorkspacePageWrapper>
+    <WorkspacePageWrapper size="compact">
       <div className="flex flex-col gap-6">
         <Card>
           <CardContent className="px-6 py-10">

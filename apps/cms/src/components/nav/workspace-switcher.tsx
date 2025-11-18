@@ -70,7 +70,7 @@ export function WorkspaceSwitcher() {
             <DropdownMenuTrigger asChild>
               <SidebarMenuButton
                 className={cn(
-                  "border border-transparent transition hover:border-border hover:bg-sidebar-accent hover:shadow-xs data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground",
+                  "border border-transparent transition hover:bg-sidebar-accent data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground",
                   isCollapsed &&
                     "size-10 min-w-0 justify-center rounded-full p-1"
                 )}

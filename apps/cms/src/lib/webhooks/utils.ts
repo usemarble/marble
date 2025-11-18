@@ -1,4 +1,6 @@
+import { db } from "@marble/db";
 import { getServerSession } from "../auth/session";
+import type { WebhookEvent as WebhookValidationEvent } from "../validations/webhook";
 import { getDiscordEmbed, getSlackMessage } from "./embed";
 import { qstash } from "./qstash";
 import type { WebhookBody } from "./webhook-client";
@@ -67,5 +69,28 @@ export async function handleWebhookSlack({
       username,
     }),
     retries,
+  });
+}
+
+// biome-ignore lint/suspicious/noExplicitAny: can literally be anything
+type DatabaseFields = Record<string, any>;
+
+export function getWebhooks(
+  workspaceId: string | null,
+  event: WebhookValidationEvent,
+  where?: DatabaseFields,
+  select?: DatabaseFields
+) {
+  if (!workspaceId) {
+    throw new Error("No active organization");
+  }
+  return db.webhook.findMany({
+    where: {
+      enabled: true,
+      workspaceId,
+      events: { has: event },
+      ...where,
+    },
+    select: { secret: true, endpoint: true, format: true, ...select },
   });
 }

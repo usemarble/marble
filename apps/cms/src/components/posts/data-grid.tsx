@@ -50,7 +50,7 @@ export function DataGrid({ data }: DataGridProps) {
         <li className="h-full" key={post.id}>
           <Card className="h-full gap-0 rounded-[20px] border-none bg-sidebar p-2 pb-0">
             <Link
-              className="flex h-full min-h-[170px] flex-col rounded-[12px] bg-background p-5 shadow-sm outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+              className="flex h-full min-h-[170px] flex-col rounded-[12px] bg-background p-5 shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
               href={`/${activeWorkspace?.slug}/editor/p/${post.id}`}
             >
               <CardHeader className="gap-y-0 px-0 pb-3">
@@ -63,7 +63,7 @@ export function DataGrid({ data }: DataGridProps) {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="flex- flexcol mt-auto flex items-center justify-between px-0 pt-0">
+              <CardContent className="mt-auto flex items-center justify-between px-0 pt-0">
                 <div className="space-y-3">
                   <Badge
                     variant={

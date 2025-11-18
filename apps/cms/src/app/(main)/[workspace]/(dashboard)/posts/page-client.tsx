@@ -40,7 +40,10 @@ function PageClient() {
   }
 
   return (
-    <WorkspacePageWrapper className="flex flex-col gap-8 pt-10 pb-16">
+    <WorkspacePageWrapper
+      className="flex flex-col gap-8 pt-10 pb-16"
+      size="compact"
+    >
       {posts && posts.length > 0 ? (
         <PostDataView columns={columns} data={posts} />
       ) : (

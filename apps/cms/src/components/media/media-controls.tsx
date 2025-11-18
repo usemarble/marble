@@ -128,7 +128,7 @@ export function MediaControls({
           variant="icon"
         >
           <PlusIcon className="size-4" />
-          <span>{isUploading ? "Uploading..." : "Upload"}</span>
+          <span>Upload</span>
         </FileUploadInput>
       </div>
     </section>

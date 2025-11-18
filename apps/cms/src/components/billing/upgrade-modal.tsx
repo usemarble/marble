@@ -4,10 +4,8 @@ import { Badge } from "@marble/ui/components/badge";
 import { Button } from "@marble/ui/components/button";
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@marble/ui/components/card";
