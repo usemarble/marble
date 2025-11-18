@@ -58,7 +58,7 @@ export async function POST(request: Request) {
   const { streamObject } = await import("ai");
 
   const result = streamObject({
-    model: "google/gemini-2.5-flash",
+    model: "openai/gpt-5.1-instant",
     messages: [
       {
         role: "system",
@@ -74,16 +74,6 @@ export async function POST(request: Request) {
       },
     ],
     schema: aiReadabilityResponseSchema,
-    providerOptions: {
-      google: {
-        safetySettings: [
-          {
-            category: "HARM_CATEGORY_UNSPECIFIED",
-            threshold: "BLOCK_LOW_AND_ABOVE",
-          },
-        ],
-      },
-    },
   });
 
   return result.toTextStreamResponse();
