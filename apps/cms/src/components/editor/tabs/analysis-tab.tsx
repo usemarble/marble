@@ -15,7 +15,7 @@ import { useUnsavedChanges } from "@/providers/unsaved-changes";
 import { Gauge } from "../../ui/gauge";
 import type { ReadabilitySuggestion } from "../ai/readability-suggestions";
 import { ReadabilitySuggestions } from "../ai/readability-suggestions";
-import { HiddenScrollbar } from "../hidden-scrollbar";
+import { HiddenScrollbar } from "../../ui/hidden-scrollbar";
 
 type AnalysisTabProps = {
   editor?: EditorInstance | null;

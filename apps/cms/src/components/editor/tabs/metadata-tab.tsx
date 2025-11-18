@@ -13,7 +13,7 @@ import { PublishDateField } from "../fields/publish-date-field";
 import { SlugField } from "../fields/slug-field";
 import { StatusField } from "../fields/status-field";
 import { TagSelector } from "../fields/tag-selector";
-import { HiddenScrollbar } from "../hidden-scrollbar";
+import { HiddenScrollbar } from "../../ui/hidden-scrollbar";
 
 type MetadataTabProps = {
   control: Control<PostValues>;

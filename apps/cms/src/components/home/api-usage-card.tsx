@@ -1,9 +1,9 @@
 "use client";
 
+import { Badge } from "@marble/ui/components/badge";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@marble/ui/components/card";
@@ -55,25 +55,40 @@ export function ApiUsageCard({ data, isLoading }: ApiUsageCardProps) {
     });
   };
 
+  const startDate = chartData[0]?.date
+    ? new Date(chartData[0].date).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      })
+    : null;
+  const lastItem = chartData.at(-1);
+  const endDate = lastItem?.date
+    ? new Date(lastItem.date).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      })
+    : null;
+
   return (
     <Card className="col-span-full gap-4 rounded-[20px] border-none bg-sidebar p-2.5">
-      <CardHeader className="gap-2 px-4 pt-4">
+      <CardHeader className="gap-0 px-4 pt-4">
         <div className="flex items-center justify-between gap-4">
-          <div>
+          <div className="flex flex-col gap-1">
             <CardTitle className="text-xl">API Requests</CardTitle>
-            <CardDescription className="sr-only">
-              {" "}
-              API requests for thelast 30 days
-            </CardDescription>
+            <p className="font-semibold text-2xl leading-none tracking-tight">
+              {numberFormatter.format(data?.totals.lastPeriod ?? 0)}
+            </p>
           </div>
           <div className="text-right">
-            <p className="font-semibold text-xl leading-none tracking-tight">
-              {numberFormatter.format(data?.totals.lastPeriod ?? 0)}
+            <p className="rounded-full px-3 py-1 text-muted-foreground text-xs">
+              {startDate && endDate
+                ? `${startDate} - ${endDate}`
+                : "Last 30 Days"}
             </p>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="h-84 rounded-[12px] bg-background p-4 pt-8 shadow-sm">
+      <CardContent className="h-84 rounded-[12px] bg-background p-4 pt-8 shadow-xs">
         {isLoading ? (
           <div className="flex h-full items-center justify-center">
             <LoadingSpinner />

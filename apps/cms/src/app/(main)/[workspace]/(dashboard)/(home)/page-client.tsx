@@ -41,10 +41,13 @@ export default function PageClient() {
   }
 
   return (
-    <WorkspacePageWrapper className="flex flex-col gap-8 pt-10 pb-16">
+    <WorkspacePageWrapper
+      className="flex flex-col gap-8 pt-10 pb-16"
+      size="compact"
+    >
       <div className="grid gap-x-10 gap-y-8">
         <ApiUsageCard data={data?.api} isLoading={isPending} />
-        <div className="grid gap-10 md:grid-cols-2">
+        <div className="grid gap-8 md:grid-cols-2">
           <WebhookUsageCard data={data?.webhooks} isLoading={isPending} />
           <MediaUsageCard data={data?.media} isLoading={isPending} />
         </div>

@@ -31,7 +31,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { EditorSidebar } from "@/components/editor/editor-sidebar";
-import { HiddenScrollbar } from "@/components/editor/hidden-scrollbar";
+import { HiddenScrollbar } from "@/components/ui/hidden-scrollbar";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
