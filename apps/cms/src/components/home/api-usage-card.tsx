@@ -1,6 +1,5 @@
 "use client";
 
-import { Badge } from "@marble/ui/components/badge";
 import {
   Card,
   CardContent,
