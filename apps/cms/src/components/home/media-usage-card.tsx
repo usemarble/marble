@@ -17,10 +17,10 @@ import {
   FileVideoIcon,
 } from "@phosphor-icons/react";
 import { formatDistanceToNow } from "date-fns";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import type { UsageDashboardData } from "@/types/usage-dashboard";
 import { formatBytes } from "@/utils/string";
 import { HiddenScrollbar } from "../ui/hidden-scrollbar";
-import { LoadingSpinner } from "../ui/loading-spinner";
 
 type MediaUsageCardProps = {
   data?: UsageDashboardData["media"];

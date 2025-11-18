@@ -13,8 +13,8 @@ import {
   ChartTooltipContent,
 } from "@marble/ui/components/chart";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import type { UsageDashboardData } from "@/types/usage-dashboard";
-import { LoadingSpinner } from "../ui/loading-spinner";
 
 type WebhookUsageCardProps = {
   data?: UsageDashboardData["webhooks"];

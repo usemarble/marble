@@ -10,12 +10,13 @@ import { EyeIcon, EyeSlashIcon, SpinnerIcon } from "@phosphor-icons/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
+import { ButtonLoadingSpinner } from "@/components/ui/loading-spinner";
 import { useLocalStorage } from "@/hooks/use-localstorage";
 import { authClient } from "@/lib/auth/client";
 import { type CredentialData, credentialSchema } from "@/lib/validations/auth";
 import type { AuthMethod } from "@/types/misc";
 import { Github, Google } from "../icons/social";
-import { AsyncButton, LoadingSpinner } from "../ui/async-button";
+import { AsyncButton } from "../ui/async-button";
 import { LastUsedBadge } from "../ui/last-used-badge";
 
 export function RegisterForm() {
@@ -143,7 +144,7 @@ export function RegisterForm() {
             variant="info"
           />
           {isGithubLoading ? (
-            <LoadingSpinner variant="outline" />
+            <ButtonLoadingSpinner />
           ) : (
             <Github className="size-4" />
           )}{" "}
