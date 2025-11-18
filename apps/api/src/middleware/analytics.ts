@@ -9,7 +9,6 @@ export const analytics = (): MiddlewareHandler => {
 
     await next();
 
-
     const { DATABASE_URL, POLAR_ACCESS_TOKEN, ENVIRONMENT } = c.env;
     if (!DATABASE_URL) {
       return;
