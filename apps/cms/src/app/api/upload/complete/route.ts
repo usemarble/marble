@@ -1,11 +1,11 @@
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
-import { createPolarClient } from "@/lib/polar/client";
 import { R2_PUBLIC_URL } from "@/lib/r2";
 import { completeSchema } from "@/lib/validations/upload";
 import { dispatchWebhooks } from "@/lib/webhooks/dispatcher";
 import { getMediaType } from "@/utils/media";
+import { trackMediaUpload } from "@/utils/usage/media";
 
 export async function POST(request: Request) {
   const sessionData = await getServerSession();
@@ -14,6 +14,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const workspaceId = sessionData.session.activeOrganizationId;
   const body = await request.json();
   const parsedBody = completeSchema.safeParse(body);
 
@@ -41,7 +42,6 @@ export async function POST(request: Request) {
         return NextResponse.json({ avatarUrl: url });
       }
       case "logo": {
-        const workspaceId = sessionData.session.activeOrganizationId;
         await db.organization.update({
           where: { id: workspaceId },
           data: { logo: url },
@@ -50,7 +50,6 @@ export async function POST(request: Request) {
       }
       case "media": {
         const mediaName = parsedBody.data.name;
-        const workspaceId = sessionData.session.activeOrganizationId;
         const mediaType = getMediaType(fileType);
         const media = await db.media.create({
           data: {
@@ -62,71 +61,7 @@ export async function POST(request: Request) {
           },
         });
 
-        const trackMediaUpload = async () => {
-          try {
-            await db.usageEvent.create({
-              data: {
-                type: "media_upload",
-                workspaceId,
-                size: fileSize,
-              },
-            });
-
-            let customerId = workspaceId;
-            try {
-              if (sessionData.session.activeOrganizationId) {
-                const organization = await db.organization.findFirst({
-                  where: {
-                    id: sessionData.session.activeOrganizationId,
-                  },
-                  select: {
-                    id: true,
-                    members: {
-                      where: {
-                        role: "owner",
-                      },
-                      select: {
-                        userId: true,
-                      },
-                    },
-                  },
-                });
-                if (organization?.members[0]?.userId) {
-                  customerId = organization.members[0].userId;
-                }
-              }
-            } catch (error) {
-              console.error("[Media Upload] Failed to get customer ID:", error);
-            }
-
-            const polarClient = createPolarClient();
-            if (polarClient) {
-              try {
-                await polarClient.events.ingest({
-                  events: [
-                    {
-                      name: "media_upload",
-                      externalCustomerId: customerId,
-                      metadata: {
-                        size: fileSize,
-                        type: mediaType,
-                      },
-                    },
-                  ],
-                });
-              } catch (polarError) {
-                console.error(
-                  "[Media Upload] Polar ingestion error (events may still be processed):",
-                  polarError instanceof Error ? polarError.message : polarError
-                );
-              }
-            }
-          } catch (err) {
-            console.error("[Media Upload] Error tracking upload:", err);
-          }
-        };
-
-        trackMediaUpload().catch((err) => {
+        trackMediaUpload(workspaceId, fileSize, mediaType).catch((err) => {
           console.error("[Media Upload] Failed to track upload:", err);
         });
 

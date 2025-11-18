@@ -96,7 +96,7 @@ export function NavMain() {
           asChild
           className={`border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
             isOverviewActive
-              ? "border-border bg-sidebar-accent text-foreground shadow-xs"
+              ? "bg-sidebar-accent text-foreground"
               : "hover:text-accent-foreground"
           }`}
         >
@@ -110,7 +110,7 @@ export function NavMain() {
             asChild
             className={`border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
               isActive(item.url)
-                ? "hover border-border bg-sidebar-accent text-foreground shadow-xs"
+                ? "hover bg-sidebar-accent text-foreground"
                 : "hover:text-accent-foreground"
             }`}
             key={item.name}
@@ -132,7 +132,7 @@ export function NavMain() {
                 <SidebarMenuButton
                   className={`cursor-pointer border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
                     isSettingsActive
-                      ? "border-border bg-sidebar-accent text-foreground shadow-xs"
+                      ? "bg-sidebar-accent text-foreground"
                       : "hover:text-accent-foreground"
                   }`}
                   tooltip="Settings"
