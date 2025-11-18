@@ -76,7 +76,7 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
             </div>
           ) : (
             <div className="flex flex-col gap-2">
-              {recentUploads.slice(0, 5).map((upload) => {
+              {recentUploads.map((upload) => {
                 const Icon = getMediaTypeIcon(upload.type);
                 return (
                   <div
@@ -85,7 +85,7 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
                   >
                     <div className="flex w-full justify-between gap-4">
                       <div className="flex items-center gap-4">
-                        <div className="grid size-20 place-items-center rounded-[8px] border border-dashed bg-[length:8px_8px] bg-[linear-gradient(45deg,transparent_25%,rgba(0,0,0,0.05)_25%,rgba(0,0,0,0.05)_50%,transparent_50%,transparent_75%,rgba(0,0,0,0.05)_75%,rgba(0,0,0,0.05))] dark:bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.05)_25%,rgba(255,255,255,0.05)_50%,transparent_50%,transparent_75%,rgba(255,255,255,0.05)_75%,rgba(255,255,255,0.05))]">
+                        <div className="grid size-20 shrink-0 place-items-center rounded-[8px] border border-dashed bg-[length:8px_8px] bg-[linear-gradient(45deg,transparent_25%,rgba(0,0,0,0.05)_25%,rgba(0,0,0,0.05)_50%,transparent_50%,transparent_75%,rgba(0,0,0,0.05)_75%,rgba(0,0,0,0.05))] dark:bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.05)_25%,rgba(255,255,255,0.05)_50%,transparent_50%,transparent_75%,rgba(255,255,255,0.05)_75%,rgba(255,255,255,0.05))]">
                           <Icon className="size-6 text-primary" />
                         </div>
                         <div className="flex flex-col justify-between gap-2">

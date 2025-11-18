@@ -92,7 +92,6 @@ export async function GET() {
     webhookEvents,
     mediaTotals,
     mediaLast30,
-    mediaSizeSum,
     mediaLastUpload,
     recentMediaUploads,
   ] = await Promise.all([
@@ -145,10 +144,6 @@ export async function GET() {
         type: UsageEventType.media_upload,
         createdAt: { gte: subDays(now, 29) },
       },
-    }),
-    db.usageEvent.aggregate({
-      where: { workspaceId, type: UsageEventType.media_upload },
-      _sum: { size: true },
     }),
     db.usageEvent.findFirst({
       where: { workspaceId, type: UsageEventType.media_upload },
@@ -209,7 +204,7 @@ export async function GET() {
     media: {
       total: mediaTotals,
       last30Days: mediaLast30,
-      totalSize: mediaSizeSum._sum.size ?? 0,
+      totalSize: recentMediaUploads.reduce((sum, media) => sum + media.size, 0),
       lastUploadAt: mediaLastUpload?.createdAt.toISOString() ?? null,
       recentUploads: recentMediaUploads.map((media) => ({
         id: media.id,
