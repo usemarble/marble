@@ -105,7 +105,7 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
               }
 
               return (
-                <div className="flex h-full min-h-96 w-full flex-col gap-5 rounded-xl bg-background px-4 pt-6 pb-10 shadow-sm">
+                <div className="flex h-full min-h-96 w-full flex-col gap-5 rounded-xl bg-background px-4 pt-6 pb-10 shadow-xs">
                   <div className="flex flex-col gap-4">
                     <h4 className="text-2xl text-medium">{plan.title}</h4>
                     <div>
@@ -149,7 +149,7 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
                 >
                   <Card
                     className={cn(
-                      "flex-row items-center justify-start border-transparent bg-background px-6 shadow-sm transition-[color,box-shadow]",
+                      "flex-row items-center justify-start border-transparent bg-background px-6 shadow-xs transition-[color,box-shadow]",
                       selectedPlan === plan.id &&
                         "border-ring ring-[3px] ring-ring/50"
                     )}
