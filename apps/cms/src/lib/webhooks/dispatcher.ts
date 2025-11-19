@@ -59,6 +59,8 @@ export async function dispatchWebhooks<K extends keyof WebhookEventMap>({
     for (const data of payloads) {
       deliveries.push(
         (async () => {
+          const body = { event: deliveryEvent, data };
+
           try {
             await client.send({
               url: webhook.endpoint,
@@ -69,6 +71,9 @@ export async function dispatchWebhooks<K extends keyof WebhookEventMap>({
             await trackWebhookUsage({
               workspaceId,
               endpoint: webhook.endpoint,
+              event: deliveryEvent,
+              webhookId: webhook.id,
+              format: webhook.format,
             });
           } catch (error) {
             console.error(

@@ -3,12 +3,19 @@ import { createPolarClient } from "../polar/client";
 
 type TrackWebhookUsageArgs = {
   workspaceId: string | null | undefined;
-  endpoint?: string | null;
+  endpoint: string;
+  event: string;
+  webhookId: string;
+  format: string;
+  status?: "success" | "failure";
 };
 
 export async function trackWebhookUsage({
   workspaceId,
   endpoint,
+  event,
+  webhookId,
+  format,
 }: TrackWebhookUsageArgs) {
   if (!workspaceId) {
     return;
@@ -21,7 +28,7 @@ export async function trackWebhookUsage({
       data: {
         type: "webhook_delivery",
         workspaceId,
-        endpoint: endpoint ?? undefined,
+        endpoint,
       },
     });
   } catch (error) {
@@ -60,7 +67,13 @@ export async function trackWebhookUsage({
           {
             name: "webhook_delivery",
             externalCustomerId: customerId,
-            metadata: endpoint ? { endpoint } : undefined,
+            metadata: {
+              workspaceId,
+              endpoint,
+              event,
+              webhookId,
+              format,
+            },
           },
         ],
       });

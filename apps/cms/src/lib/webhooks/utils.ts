@@ -91,6 +91,6 @@ export function getWebhooks(
       events: { has: event },
       ...where,
     },
-    select: { secret: true, endpoint: true, format: true, ...select },
+    select: { id: true, secret: true, endpoint: true, format: true, ...select },
   });
 }
