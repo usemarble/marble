@@ -116,8 +116,8 @@ importers:
         specifier: ^2.1.10
         version: 2.1.10(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@polar-sh/better-auth':
-        specifier: ^1.4.0
-        version: 1.4.0(@polar-sh/sdk@0.41.1)(@stripe/react-stripe-js@4.0.2(@stripe/stripe-js@7.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(@stripe/stripe-js@7.9.0)(@types/react-dom@19.0.2(@types/react@19.0.2))(@types/react@19.0.2)(better-auth@1.3.34(next@16.0.3(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react-is@18.3.1)(react@19.2.0)(redux@5.0.1)(zod@3.25.76)
+        specifier: ^1.3.0
+        version: 1.3.0(@polar-sh/sdk@0.41.1)(@stripe/react-stripe-js@4.0.2(@stripe/stripe-js@7.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(@stripe/stripe-js@7.9.0)(@types/react-dom@19.0.2(@types/react@19.0.2))(@types/react@19.0.2)(better-auth@1.3.34(next@16.0.3(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react-is@18.3.1)(react@19.2.0)(redux@5.0.1)(zod@3.25.76)
       '@polar-sh/sdk':
         specifier: ^0.41.1
         version: 0.41.1
@@ -2126,8 +2126,8 @@ packages:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
 
-  '@polar-sh/better-auth@1.4.0':
-    resolution: {integrity: sha512-uj+k/jh4zrMQpeXr7xy1/YXCVgx9ODbgabpPVDs8f3VP8DqNf7kn3mbHKxqBV981Mcu0dGSZnSrDDnIWQyFCEg==}
+  '@polar-sh/better-auth@1.3.0':
+    resolution: {integrity: sha512-SUxeNmmFPexOMXQdpCMIbg5Em/S0TL+znmXuYDg97IkNl+4YeGOik6f90lJI9AMGrLlhFBeUbt5qYRRdfJns/g==}
     engines: {node: '>=16'}
     peerDependencies:
       '@polar-sh/sdk': ^0.40.2
@@ -11302,7 +11302,7 @@ snapshots:
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
-  '@polar-sh/better-auth@1.4.0(@polar-sh/sdk@0.41.1)(@stripe/react-stripe-js@4.0.2(@stripe/stripe-js@7.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(@stripe/stripe-js@7.9.0)(@types/react-dom@19.0.2(@types/react@19.0.2))(@types/react@19.0.2)(better-auth@1.3.34(next@16.0.3(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react-is@18.3.1)(react@19.2.0)(redux@5.0.1)(zod@3.25.76)':
+  '@polar-sh/better-auth@1.3.0(@polar-sh/sdk@0.41.1)(@stripe/react-stripe-js@4.0.2(@stripe/stripe-js@7.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(@stripe/stripe-js@7.9.0)(@types/react-dom@19.0.2(@types/react@19.0.2))(@types/react@19.0.2)(better-auth@1.3.34(next@16.0.3(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react-is@18.3.1)(react@19.2.0)(redux@5.0.1)(zod@3.25.76)':
     dependencies:
       '@polar-sh/checkout': 0.1.14(@stripe/react-stripe-js@4.0.2(@stripe/stripe-js@7.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(@stripe/stripe-js@7.9.0)(@types/react-dom@19.0.2(@types/react@19.0.2))(@types/react@19.0.2)(react-dom@19.2.0(react@19.2.0))(react-is@18.3.1)(react@19.2.0)(redux@5.0.1)
       '@polar-sh/sdk': 0.41.1
