@@ -11,6 +11,29 @@ export type BrandKnowledgeWebsiteValues = z.infer<
   typeof brandKnowledgeWebsiteSchema
 >;
 
+export const brandKnowledgeResponseSchema = z.object({
+  tone: z
+    .enum([
+      "Professional",
+      "Humorous",
+      "Academic",
+      "Persuasive",
+      "Conversational",
+      "Technical",
+    ])
+    .describe("The communication tone that best matches the company's style"),
+  companyDescription: z
+    .string()
+    .describe("A concise overview of the company (1-5 sentences)"),
+  audience: z
+    .string()
+    .describe("A description of the core audience the company is targeting (1-2 sentences)"),
+});
+
+export type BrandKnowledgeResponseValues = z.infer<
+  typeof brandKnowledgeResponseSchema
+>;
+
 
 
 

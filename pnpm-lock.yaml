@@ -109,6 +109,9 @@ importers:
       '@marble/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@mendable/firecrawl-js':
+        specifier: ^4.5.0
+        version: 4.5.0
       '@phosphor-icons/react':
         specifier: ^2.1.10
         version: 2.1.10(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -1985,6 +1988,10 @@ packages:
 
   '@mdx-js/mdx@3.1.1':
     resolution: {integrity: sha512-f6ZO2ifpwAQIpzGWaBQT2TXxPv6z3RBzQKpVftEWN78Vl/YweF1uwussDx8ECAXVtr3Rs89fKyG9YlzUs9DyGQ==}
+
+  '@mendable/firecrawl-js@4.5.0':
+    resolution: {integrity: sha512-H/rmR2uuqhaRy1Z3giNa2M6BfLHfAPz7oiXw2F/R5fl4+31VuL/iBc0vFOMkiCJGEjDzAhtuhRkZ0gqB6K1dyg==}
+    engines: {node: '>=22.0.0'}
 
   '@napi-rs/wasm-runtime@0.2.12':
     resolution: {integrity: sha512-ZVWUcfwY4E/yPitQJl481FjFo3K22D6qF0DuFH6Y/nbnE11GY5uguDxZMGXPQ8WQ0128MXQD7TnfHyK4oWoIJQ==}
@@ -5206,6 +5213,9 @@ packages:
 
   axios@1.12.0:
     resolution: {integrity: sha512-oXTDccv8PcfjZmPGlWsPSwtOJCZ/b6W5jAMCNcfwJbCzDckwG0jrYJFaWH1yvivfCXjVzV/SPDEhMB3Q+DSurg==}
+
+  axios@1.13.2:
+    resolution: {integrity: sha512-VPk9ebNqPcy5lRGuSlKx752IlDatOjT9paPlm8A7yOuW2Fbvp4X3JznJtT4f0GzGLLiWE9W8onz51SqLYwzGaA==}
 
   axobject-query@4.1.0:
     resolution: {integrity: sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ==}
@@ -8670,6 +8680,9 @@ packages:
       eslint: ^8.57.0 || ^9.0.0
       typescript: '>=4.8.4 <6.0.0'
 
+  typescript-event-target@1.1.1:
+    resolution: {integrity: sha512-dFSOFBKV6uwaloBCCUhxlD3Pr/P1a/tJdcmPrTXCHlEFD3faj0mztjcGn6VBAhQ0/Bdy8K3VWrrqwbt/ffsYsg==}
+
   typescript@5.6.2:
     resolution: {integrity: sha512-NW8ByodCSNCwZeghjN3o+JX5OFH0Ojg6sadjEKY4huZ52TqbJTJnDo5+Tw98lSy63NZvi4n+ez5m2u5d4PkZyw==}
     engines: {node: '>=14.17'}
@@ -11000,6 +11013,15 @@ snapshots:
       vfile: 6.0.3
     transitivePeerDependencies:
       - supports-color
+
+  '@mendable/firecrawl-js@4.5.0':
+    dependencies:
+      axios: 1.13.2
+      typescript-event-target: 1.1.1
+      zod: 3.25.76
+      zod-to-json-schema: 3.24.6(zod@3.25.76)
+    transitivePeerDependencies:
+      - debug
 
   '@napi-rs/wasm-runtime@0.2.12':
     dependencies:
@@ -14552,6 +14574,14 @@ snapshots:
   axe-core@4.11.0: {}
 
   axios@1.12.0:
+    dependencies:
+      follow-redirects: 1.15.11
+      form-data: 4.0.4
+      proxy-from-env: 1.1.0
+    transitivePeerDependencies:
+      - debug
+
+  axios@1.13.2:
     dependencies:
       follow-redirects: 1.15.11
       form-data: 4.0.4
@@ -18835,6 +18865,8 @@ snapshots:
       typescript: 5.6.2
     transitivePeerDependencies:
       - supports-color
+
+  typescript-event-target@1.1.1: {}
 
   typescript@5.6.2: {}
 
