@@ -74,7 +74,7 @@ export function WebhookUsageCard({ data, isLoading }: WebhookUsageCardProps) {
         <div className="flex items-center justify-between gap-4">
           <div className="flex flex-col gap-1">
             <CardTitle className="text-xl">Webhook Deliveries</CardTitle>
-            <p className="font-semibold text-xl leading-none tracking-tight">
+            <p className="font-medium text-muted-foreground text-xl leading-none tracking-tight">
               {numberFormatter.format(data?.total ?? 0)}
             </p>
           </div>

@@ -47,7 +47,7 @@ export default function PageClient() {
     >
       <div className="grid gap-x-10 gap-y-8">
         <ApiUsageCard data={data?.api} isLoading={isPending} />
-        <div className="grid gap-8 md:grid-cols-2">
+        <div className="grid gap-8 lg:grid-cols-2">
           <WebhookUsageCard data={data?.webhooks} isLoading={isPending} />
           <MediaUsageCard data={data?.media} isLoading={isPending} />
         </div>

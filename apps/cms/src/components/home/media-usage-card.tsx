@@ -51,7 +51,7 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
         <div className="flex items-center justify-between gap-4">
           <div className="flex flex-col gap-1">
             <CardTitle className="text-xl">Media Storage</CardTitle>
-            <p className="font-semibold text-xl leading-none tracking-tight">
+            <p className="font-medium text-muted-foreground text-xl leading-none tracking-tight">
               {formatBytes(data?.totalSize ?? 0)}
             </p>
           </div>
