@@ -1,0 +1,9 @@
+---
+import type { HTMLAttributes } from "astro/types";
+
+interface Props extends HTMLAttributes<"svg"> {}
+const { class: classNames, ...attrs } = Astro.props;
+---
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 222" preserveAspectRatio="xMidYMid" class={classNames} {...attrs}>
+    <path fill="#000000" d="m128 0 128 221.705H0z"/>
+</svg>

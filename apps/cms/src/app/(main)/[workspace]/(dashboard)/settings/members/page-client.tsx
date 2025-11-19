@@ -47,7 +47,7 @@ function PageClient() {
   console.log("invitations", activeWorkspace.invitations);
 
   return (
-    <WorkspacePageWrapper>
+    <WorkspacePageWrapper size="compact">
       <div className="space-y-6">
         <TeamDataTable
           columns={columns}

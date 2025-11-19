@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { type Attribution, postSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";
-import { getWebhooks, WebhookClient } from "@/lib/webhooks/webhook-client";
+import { dispatchWebhooks } from "@/lib/webhooks/dispatcher";
 import { sanitizeHtml } from "@/utils/editor";
 
 export async function GET(
@@ -200,34 +200,32 @@ export async function PATCH(
       userId: sessionData.user.id,
     };
 
+    // Fire and forget - don't block response
     if (values.data.status === "published" && post.status === "draft") {
-      const webhooksPublished = getWebhooks(
-        sessionData.session,
-        "post_published"
-      );
-
-      for (const webhook of await webhooksPublished) {
-        const webhookClient = new WebhookClient({ secret: webhook.secret });
-        await webhookClient.send({
-          url: webhook.endpoint,
-          event: "post.published",
-          data,
-          format: webhook.format,
-        });
-      }
-    }
-
-    const webhooksUpdated = getWebhooks(sessionData.session, "post_updated");
-
-    for (const webhook of await webhooksUpdated) {
-      const webhookClient = new WebhookClient({ secret: webhook.secret });
-      await webhookClient.send({
-        url: webhook.endpoint,
-        event: "post.updated",
-        data,
-        format: webhook.format,
+      dispatchWebhooks({
+        workspaceId,
+        validationEvent: "post_published",
+        deliveryEvent: "post.published",
+        payload: data,
+      }).catch((error) => {
+        console.error(
+          `[PostPublish] Failed to dispatch webhooks: postId=${postUpdated.id}`,
+          error
+        );
       });
     }
+
+    dispatchWebhooks({
+      workspaceId,
+      validationEvent: "post_updated",
+      deliveryEvent: "post.updated",
+      payload: data,
+    }).catch((error) => {
+      console.error(
+        `[PostUpdate] Failed to dispatch webhooks: postId=${postUpdated.id}`,
+        error
+      );
+    });
 
     return NextResponse.json({ id: postUpdated.id }, { status: 200 });
   } catch (_e) {
@@ -244,7 +242,8 @@ export async function DELETE(
 ) {
   const sessionData = await getServerSession();
 
-  if (!sessionData?.user || !sessionData.session.activeOrganizationId) {
+  const workspaceId = sessionData?.session.activeOrganizationId;
+  if (!sessionData || !workspaceId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -253,24 +252,25 @@ export async function DELETE(
 
   try {
     const deletedPost = await db.post.delete({
-      where: { id, workspaceId: activeWorkspaceId },
+      where: { id, workspaceId },
     });
 
     if (!deletedPost) {
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
-    const webhooksDeleted = getWebhooks(sessionData.session, "post_deleted");
-
-    for (const webhook of await webhooksDeleted) {
-      const webhookClient = new WebhookClient({ secret: webhook.secret });
-      await webhookClient.send({
-        url: webhook.endpoint,
-        event: "post.deleted",
-        data: { id, slug: deletedPost.slug, userId: sessionData.user.id },
-        format: webhook.format,
-      });
-    }
+    // Fire and forget - don't block response
+    dispatchWebhooks({
+      workspaceId,
+      validationEvent: "post_deleted",
+      deliveryEvent: "post.deleted",
+      payload: { id, slug: deletedPost.slug, userId: sessionData.user.id },
+    }).catch((error) => {
+      console.error(
+        `[PostDelete] Failed to dispatch webhooks: postId=${id}`,
+        error
+      );
+    });
 
     return NextResponse.json({ id: deletedPost.id }, { status: 200 });
   } catch (_e) {

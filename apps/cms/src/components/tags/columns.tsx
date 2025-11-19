@@ -7,6 +7,7 @@ export type Tag = {
   id: string;
   name: string;
   slug: string;
+  postsCount: number;
 };
 
 export const columns: ColumnDef<Tag>[] = [
@@ -17,6 +18,13 @@ export const columns: ColumnDef<Tag>[] = [
   {
     accessorKey: "slug",
     header: "Slug",
+  },
+  {
+    accessorKey: "postsCount",
+    header: () => <div className="text-center">Posts</div>,
+    cell: ({ row }) => (
+      <p className="text-center">{row.getValue("postsCount")}</p>
+    ),
   },
   {
     id: "actions",

@@ -153,8 +153,16 @@ function PageClient() {
     let uploaded = 0;
     let failed = 0;
 
-    const toastId = toast.loading(`Uploading ${uploaded}/${total} files...`);
-    setStatusMessage(`Uploading 0 of ${total} files...`);
+    // For single file, show simple message; for multiple, show count
+    const getUploadMessage = (current: number, totalFiles: number) => {
+      if (totalFiles === 1) {
+        return "Uploading image...";
+      }
+      return `Uploading ${current} of ${totalFiles} files...`;
+    };
+
+    const toastId = toast.loading(getUploadMessage(0, total));
+    setStatusMessage(getUploadMessage(0, total));
 
     try {
       const errors: Array<{ file: string; error: string }> = [];
@@ -171,7 +179,7 @@ function PageClient() {
           failed += 1;
         }
 
-        const message = `Uploading ${uploaded} of ${total} files...`;
+        const message = getUploadMessage(uploaded, total);
         toast.loading(message, { id: toastId });
         setStatusMessage(message);
       }
@@ -200,7 +208,10 @@ function PageClient() {
   }
 
   return (
-    <WorkspacePageWrapper className="flex flex-col gap-8 pt-10 pb-16">
+    <WorkspacePageWrapper
+      className="flex flex-col gap-8 pt-10 pb-16"
+      size="compact"
+    >
       <div aria-atomic="true" aria-live="polite" className="sr-only">
         {statusMessage}
       </div>

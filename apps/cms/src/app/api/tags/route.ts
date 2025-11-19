@@ -2,7 +2,8 @@ import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { tagSchema } from "@/lib/validations/workspace";
-import { getWebhooks, WebhookClient } from "@/lib/webhooks/webhook-client";
+import { getWebhooks } from "@/lib/webhooks/utils";
+import { WebhookClient } from "@/lib/webhooks/webhook-client";
 
 export async function GET() {
   const sessionData = await getServerSession();
@@ -19,10 +20,23 @@ export async function GET() {
       name: true,
       slug: true,
       description: true,
+      _count: {
+        select: {
+          posts: true,
+        },
+      },
     },
   });
 
-  return NextResponse.json(tags, { status: 200 });
+  const transformedTags = tags.map((tag) => {
+    const { _count, ...rest } = tag;
+    return {
+      ...rest,
+      postsCount: _count.posts,
+    };
+  });
+
+  return NextResponse.json(transformedTags, { status: 200 });
 }
 
 export async function POST(req: Request) {
@@ -56,7 +70,7 @@ export async function POST(req: Request) {
     },
   });
 
-  const webhooks = getWebhooks(sessionData.session, "tag_created");
+  const webhooks = getWebhooks(workspaceId, "tag_created");
 
   for (const webhook of await webhooks) {
     const webhookClient = new WebhookClient({ secret: webhook.secret });

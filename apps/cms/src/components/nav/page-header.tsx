@@ -3,11 +3,9 @@
 import { Separator } from "@marble/ui/components/separator";
 import { SidebarTrigger } from "@marble/ui/components/sidebar";
 import { usePathname } from "next/navigation";
-import { useWorkspace } from "@/providers/workspace";
 
 export const PageHeader = () => {
   const pathname = usePathname();
-  const { activeWorkspace } = useWorkspace();
 
   const getHeading = () => {
     const parts = pathname.split("/").filter(Boolean);
@@ -39,7 +37,7 @@ export const PageHeader = () => {
       }
     }
 
-    return activeWorkspace?.name ?? "Home";
+    return "Home";
   };
 
   return (

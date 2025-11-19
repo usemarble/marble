@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import { useState } from "react";
 import { toast } from "sonner";
-import { columns } from "@/components/categories/columns";
+import { type Category, columns } from "@/components/categories/columns";
 import { DataTable } from "@/components/categories/data-table";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
@@ -18,12 +18,6 @@ const CategoryModal = dynamic(() =>
     (mod) => mod.CategoryModal
   )
 );
-
-type Category = {
-  id: string;
-  name: string;
-  slug: string;
-};
 
 function PageClient() {
   const workspaceId = useWorkspaceId();
@@ -59,11 +53,17 @@ function PageClient() {
   return (
     <>
       {categories && categories.length > 0 ? (
-        <WorkspacePageWrapper className="flex flex-col gap-8 pt-10 pb-16">
+        <WorkspacePageWrapper
+          className="flex flex-col gap-8 pt-10 pb-16"
+          size="compact"
+        >
           <DataTable columns={columns} data={categories} />
         </WorkspacePageWrapper>
       ) : (
-        <WorkspacePageWrapper className="grid h-full place-content-center">
+        <WorkspacePageWrapper
+          className="grid h-full place-content-center"
+          size="compact"
+        >
           <div className="flex max-w-80 flex-col items-center gap-4">
             <div>
               <PackageIcon className="size-16" />

@@ -8,7 +8,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
-import { columns } from "@/components/tags/columns";
+import { columns, type Tag } from "@/components/tags/columns";
 import { DataTable } from "@/components/tags/data-table";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
@@ -16,12 +16,6 @@ import { QUERY_KEYS } from "@/lib/queries/keys";
 const TagModal = dynamic(() =>
   import("@/components/tags/tag-modals").then((mod) => mod.TagModal)
 );
-
-type TagType = {
-  id: string;
-  name: string;
-  slug: string;
-};
 
 function PageClient() {
   const workspaceId = useWorkspaceId();
@@ -37,7 +31,7 @@ function PageClient() {
         if (!res.ok) {
           throw new Error("Failed to fetch tags");
         }
-        const data: TagType[] = await res.json();
+        const data: Tag[] = await res.json();
         return data;
       } catch (error) {
         toast.error(
@@ -55,11 +49,17 @@ function PageClient() {
   return (
     <>
       {tags && tags.length > 0 ? (
-        <WorkspacePageWrapper className="flex flex-col gap-8 pt-10 pb-16">
+        <WorkspacePageWrapper
+          className="flex flex-col gap-8 pt-10 pb-16"
+          size="compact"
+        >
           <DataTable columns={columns} data={tags} />
         </WorkspacePageWrapper>
       ) : (
-        <WorkspacePageWrapper className="grid h-full place-content-center">
+        <WorkspacePageWrapper
+          className="grid h-full place-content-center"
+          size="compact"
+        >
           <div className="flex max-w-80 flex-col items-center gap-4">
             <div className="p-2">
               <TagIcon className="size-16" />
