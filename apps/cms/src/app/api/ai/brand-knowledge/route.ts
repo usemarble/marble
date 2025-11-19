@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
   const { streamText, stepCountIs, Output } = await import("ai");
 
   const result = streamText({
-    model: "google/gemini-2.5-flash-lite",
+    model: "anthropic/claude-4-5-haiku",
     tools: {
       scrapeWebsite: scrapeWebsiteTool,
     },
@@ -48,6 +48,10 @@ export async function POST(req: NextRequest) {
     prompt: brandKnowledgePrompt({ websiteUrl }),
     stopWhen: stepCountIs(6),
   });
+
+  for await (const textPart of result.textStream) {
+    console.log(textPart);
+  }
 
   return result.toTextStreamResponse();
 }
