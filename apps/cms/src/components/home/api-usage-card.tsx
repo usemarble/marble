@@ -35,7 +35,7 @@ export function ApiUsageCard({ data, isLoading }: ApiUsageCardProps) {
 
   const chartConfig = {
     requests: {
-      label: "API Requests",
+      label: "Requests",
       color: "var(--primary)",
     },
   } satisfies ChartConfig;
