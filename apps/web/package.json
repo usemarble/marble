@@ -9,12 +9,12 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/mdx": "^4.3.8",
-    "@astrojs/rss": "^4.0.12",
+    "@astrojs/mdx": "^4.3.12",
+    "@astrojs/rss": "^4.0.14",
     "@astrojs/sitemap": "^3.6.0",
-    "@astrojs/vercel": "^9.0.0",
+    "@astrojs/vercel": "^9.0.1",
     "@tailwindcss/vite": "^4.1.12",
-    "astro": "^5.15.9",
+    "astro": "^5.16.0",
     "clsx": "^2.1.1",
     "free-astro-components": "^1.2.0",
     "sharp": "^0.34.3",

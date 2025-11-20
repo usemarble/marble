@@ -45,5 +45,6 @@ export default defineConfig({
         subsets: ["latin"],
       },
     ],
+    svgo: true,
   },
 });
