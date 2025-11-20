@@ -38,3 +38,13 @@ export type UsageDashboardData = {
     }>;
   };
 };
+
+export type PublishingMetricsData = {
+  graph: {
+    activity: Array<{
+      date: string;
+      count: number;
+      level: number;
+    }>;
+  };
+};

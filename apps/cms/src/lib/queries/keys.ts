@@ -35,6 +35,11 @@ export const QUERY_KEYS = {
     contentKey,
   ],
 
+  PUBLISHING_METRICS: (workspaceId: string) => [
+    "publishing-metrics",
+    workspaceId,
+  ],
+
   // Globally scoped
   USER: ["user"],
 };

@@ -340,4 +340,9 @@
       max-width: 56rem;
     }
   }
+  @media (width >= 96rem) {
+    .workspace-container-compact {
+      max-width: 60rem;
+    }
+  }
 }

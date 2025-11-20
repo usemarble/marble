@@ -16,7 +16,7 @@ import {
 } from "@phosphor-icons/react";
 import { formatDistanceToNow } from "date-fns";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
-import type { UsageDashboardData } from "@/types/usage-dashboard";
+import type { UsageDashboardData } from "@/types/dashboard";
 import { formatBytes } from "@/utils/string";
 import { HiddenScrollbar } from "../ui/hidden-scrollbar";
 
@@ -103,7 +103,7 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
                         </div>
                       </div>
                       <Button
-                        className="rounded-full bg-sidebar hover:bg-primary/10 hover:text-primary dark:bg-accent/50 dark:hover:text-accent-foreground"
+                        className="rounded-full bg-sidebar hover:bg-primary/10 hover:text-primary dark:bg-accent/50 dark:hover:bg-sidebar-accent dark:hover:text-accent-foreground"
                         onClick={(e) => {
                           e.stopPropagation();
                           openMediaFile(upload.url);

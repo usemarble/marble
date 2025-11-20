@@ -3,12 +3,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { ApiUsageCard } from "@/components/home/api-usage-card";
 import { MediaUsageCard } from "@/components/home/media-usage-card";
+import { PublishingActivityCard } from "@/components/home/publishing-activity-card";
 import { WebhookUsageCard } from "@/components/home/webhook-usage-card";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
-import type { UsageDashboardData } from "@/types/usage-dashboard";
+import type { UsageDashboardData } from "@/types/dashboard";
 
 export default function PageClient() {
   const workspaceId = useWorkspaceId();
@@ -51,6 +52,7 @@ export default function PageClient() {
           <WebhookUsageCard data={data?.webhooks} isLoading={isPending} />
           <MediaUsageCard data={data?.media} isLoading={isPending} />
         </div>
+        <PublishingActivityCard />
       </div>
     </WorkspacePageWrapper>
   );
