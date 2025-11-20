@@ -109,7 +109,7 @@ export async function sendVerificationEmailAction({
 
   if (!resend && isDevelopment) {
     return sendDevEmail({
-      from: "Verification <emails@marblecms.com>",
+      from: "Marble <emails@marblecms.com>",
       to: userEmail,
       text: "This is a mock verification email",
       subject: "Verify your email address",
@@ -126,7 +126,7 @@ export async function sendVerificationEmailAction({
 
   try {
     await resend.emails.send({
-      from: "Verification <emails@marblecms.com>",
+      from: "Marble <emails@marblecms.com>",
       to: userEmail,
       subject: "Verify your email address",
       react: VerifyUserEmail({
@@ -158,7 +158,7 @@ export async function sendResetPasswordAction({
 }) {
   if (!resend && isDevelopment) {
     return sendDevEmail({
-      from: "MarbleCMS <emails@marblecms.com>",
+      from: "Marble <emails@marblecms.com>",
       to: userEmail,
       text: "This is a mock reset password email",
       subject: "Reset Your Password",
@@ -172,7 +172,7 @@ export async function sendResetPasswordAction({
 
   try {
     const response = await resend.emails.send({
-      from: "MarbleCMS <emails@marblecms.com>",
+      from: "Marble <emails@marblecms.com>",
       to: userEmail,
       subject: "Reset Your Password",
       react: ResetPasswordEmail({
@@ -202,7 +202,7 @@ export async function sendWelcomeEmailAction({
 }) {
   if (!resend && isDevelopment) {
     return sendDevEmail({
-      from: "MarbleCMS <emails@marblecms.com>",
+      from: "Marble <emails@marblecms.com>",
       to: userEmail,
       text: "This is a mock welcome email",
       subject: "Welcome to Marble!",
@@ -216,7 +216,7 @@ export async function sendWelcomeEmailAction({
 
   try {
     await resend.emails.send({
-      from: "MarbleCMS <emails@marblecms.com>",
+      from: "Marble <emails@marblecms.com>",
       to: userEmail,
       subject: "Welcome to Marble!",
       react: WelcomeEmail({
