@@ -32,3 +32,25 @@ export function formatBytes(
     sizeType === "accurate" ? accurateSizes[i] : sizes[i]
   }`;
 }
+
+import { nanoid } from "nanoid";
+
+type ApiKeyType = "public" | "private";
+
+/**
+ * Generates an API key with prefix and preview
+ * @param type - The type of API key (public or private)
+ * @returns Object containing the full key, prefix, and preview
+ */
+export function generateApiKey(type: ApiKeyType = "private") {
+  const prefix = type === "public" ? "mbl_pk_" : "mbl_sk_";
+  const randomSuffix = nanoid(32);
+  const fullKey = `${prefix}${randomSuffix}`;
+  const preview = `${prefix}${randomSuffix.slice(0, 8)}...`;
+
+  return {
+    key: fullKey,
+    prefix,
+    preview,
+  };
+}

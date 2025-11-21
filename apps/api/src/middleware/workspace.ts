@@ -1,4 +1,4 @@
-import { createClient } from "@marble/db";
+import { createClient } from "@marble/db/workers";
 import type { Context, MiddlewareHandler, Next } from "hono";
 
 export const validateWorkspace =

@@ -1,4 +1,4 @@
-import { createClient } from "@marble/db";
+import { createClient } from "@marble/db/workers";
 import { Hono } from "hono";
 import type { Env } from "../types/env";
 import { AuthorQuerySchema, AuthorsQuerySchema } from "../validations/authors";

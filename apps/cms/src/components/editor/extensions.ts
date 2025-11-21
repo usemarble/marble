@@ -29,6 +29,7 @@ const tiptapLink = TiptapLink.configure({
 });
 
 const tiptapImage = TiptapImage.extend({
+  // @ts-expect-error
   addProseMirrorPlugins() {
     return [
       UploadImagesPlugin({

@@ -1,11 +1,10 @@
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
+  provider = "prisma-client"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model Subscription {
@@ -54,6 +53,7 @@ model Organization {
   editorPreferences EditorPreferences?
   ShareLink         ShareLink[]
   usageEvents       UsageEvent[]
+  ApiKey            ApiKey[]
 
   @@map("workspace")
 }
@@ -354,6 +354,25 @@ model UsageEvent {
   @@map("usage_event")
 }
 
+model ApiKey {
+  id          String     @id @default(cuid())
+  workspaceId String
+  name        String
+  prefix      String?
+  key         String     @unique
+  preview     String
+  type        ApiKeyType @default(public)
+  permissions String?
+  usageCount  Int        @default(0)
+  enabled     Boolean    @default(true)
+  lastUsed    DateTime?
+  expiresAt   DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  workspace Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
 enum PostStatus {
   published
   draft
@@ -404,4 +423,9 @@ enum UsageEventType {
   api_request
   media_upload
   webhook_delivery
+}
+
+enum ApiKeyType {
+  public
+  private
 }
