@@ -174,7 +174,13 @@ authors.get("/:identifier", async (c) => {
     });
 
     if (!author) {
-      return c.json({ error: "Author not found" }, 404);
+      return c.json(
+        {
+          error: "Author not found",
+          message: "The requested author does not exist or is not active",
+        },
+        404
+      );
     }
 
     const totalPosts = await db.post.count({

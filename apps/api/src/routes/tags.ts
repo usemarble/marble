@@ -151,7 +151,13 @@ tags.get("/:identifier", async (c) => {
     });
 
     if (!tag) {
-      return c.json({ error: "Tag not found" }, 404);
+      return c.json(
+        {
+          error: "Tag not found",
+          message: "The requested tag does not exist",
+        },
+        404
+      );
     }
 
     const totalPosts = await db.post.count({

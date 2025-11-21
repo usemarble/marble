@@ -159,7 +159,13 @@ categories.get("/:identifier", async (c) => {
     });
 
     if (!category) {
-      return c.json({ error: "Category not found" }, 404);
+      return c.json(
+        {
+          error: "Category not found",
+          message: "The requested category does not exist",
+        },
+        404
+      );
     }
 
     const totalPosts = await db.post.count({
