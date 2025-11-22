@@ -19,8 +19,8 @@ import { cn } from "@/lib/utils";
             >
               Pricing
             </h1>
-            <p class="max-w-prose Md:text-lg text-muted-foreground text-center">
-              Simple pricing, cancel anytime. Start with a 7 day free trial.
+            <p class="max-w-prose md:text-lg text-muted-foreground text-center">
+              Simple pricing, cancel anytime.{(() => { const planWithTrial = PRICING.find((p) => p.trial); return planWithTrial ? ` ${planWithTrial.title} plan includes a 7-day free trial.` : ""; })()}
             </p>
           </div>
           <!-- <ul class="grid gap-5 lg:gap-10 sm:grid-cols-2 lg:grid-cols-3"> -->
