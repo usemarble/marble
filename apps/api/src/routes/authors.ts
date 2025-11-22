@@ -1,7 +1,10 @@
 import { createClient } from "@marble/db";
 import { Hono } from "hono";
 import type { Env } from "../types/env";
-import { AuthorQuerySchema, AuthorsQuerySchema } from "../validations/authors";
+import {
+  AuthorQuerySchema,
+  AuthorsQuerySchema,
+} from "../validations/authors";
 
 const authors = new Hono<{ Bindings: Env }>();
 
