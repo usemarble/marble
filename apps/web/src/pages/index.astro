@@ -118,14 +118,14 @@ import { cn } from "@/lib/utils";
                 class="border flex flex-col justify-between rounded-[8px] bg-white h-full w-full p-6"
               >
                 <div
-                  class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center"
+                  class="w-12 h-12 bg-blue-50 border border-dashed border-blue-200 rounded-md flex items-center justify-center"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
-                    class="w-6 h-6 text-blue-600"
+                    class="w-6 h-6 text-blue-700"
                   >
                     <path
                       stroke-linecap="round"
@@ -154,14 +154,14 @@ import { cn } from "@/lib/utils";
                 class="border flex flex-col justify-between rounded-[8px] bg-white h-full w-full p-6"
               >
                 <div
-                  class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center"
+                  class="w-12 h-12 bg-green-50 border border-dashed border-green-200 rounded-md flex items-center justify-center"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
-                    class="w-6 h-6 text-green-600"
+                    class="w-6 h-6 text-green-700"
                   >
                     <path
                       stroke-linecap="round"
@@ -187,14 +187,14 @@ import { cn } from "@/lib/utils";
                 class="border flex flex-col justify-between rounded-[8px] bg-white h-full w-full p-6"
               >
                 <div
-                  class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center"
+                  class="w-12 h-12 bg-purple-50 border border-dashed border-purple-200 rounded-md flex items-center justify-center"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
-                    class="w-6 h-6 text-purple-600"
+                    class="w-6 h-6 text-purple-700"
                   >
                     <path
                       stroke-linecap="round"
@@ -220,14 +220,14 @@ import { cn } from "@/lib/utils";
                 class="border flex flex-col justify-between rounded-[8px] bg-white h-full w-full p-6"
               >
                 <div
-                  class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center"
+                  class="w-12 h-12 bg-emerald-50 border border-dashed border-emerald-200 rounded-md flex items-center justify-center"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
-                    class="w-6 h-6 text-emerald-600"
+                    class="w-6 h-6 text-emerald-700"
                   >
                     <path
                       stroke-linecap="round"
@@ -255,14 +255,14 @@ import { cn } from "@/lib/utils";
                 class="border flex flex-col justify-between rounded-[8px] bg-white h-full w-full p-6"
               >
                 <div
-                  class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center"
+                  class="w-12 h-12 bg-orange-50 border border-dashed border-orange-200 rounded-md flex items-center justify-center"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
-                    class="w-6 h-6 text-orange-600"
+                    class="w-6 h-6 text-orange-700"
                   >
                     <path
                       stroke-linecap="round"
@@ -298,7 +298,7 @@ import { cn } from "@/lib/utils";
               Simple Pricing
             </h2>
             <p class="max-w-prose md:text-lg text-muted-foreground text-center">
-              Choose a plan that fits your needs.
+              Choose a plan that fits your needs. Start with a 7 day free trial.
             </p>
           </div>
           <!-- <ul class="grid gap-5 lg:gap-10 sm:grid-cols-2 lg:grid-cols-3"> -->
@@ -312,7 +312,14 @@ import { cn } from "@/lib/utils";
                       <>
                         <div class="flex flex-col gap-5 sm:min-w-60 lg:min-w-0">
                           <div class="flex flex-col gap-4">
-                            <h3 class="text-medium text-xl">{plan.title}</h3>
+                            <div class="flex items-center justify-between">
+                              <h3 class="text-medium text-xl">{plan.title}</h3>
+                              {plan.trial && (
+                                <span class="text-xs font-medium text-emerald-700 bg-emerald-50 border border-dashed border-emerald-200 px-2 py-1 rounded-md">
+                                  {plan.trial}
+                                </span>
+                              )}
+                            </div>
                             <div>
                               <p><span class="font-bold text-2xl">{plan.price.monthly}</span>{' '}<span>per month.</span></p>
                               <p class="text-muted-foreground text-sm">{plan.description}</p>
@@ -342,7 +349,14 @@ import { cn } from "@/lib/utils";
                     ) : (
                       <>
                         <div class="flex flex-col gap-4">
-                          <h3 class="text-medium text-2xl">{plan.title}</h3>
+                          <div class="flex items-center justify-between">
+                            <h3 class="text-medium text-2xl">{plan.title}</h3>
+                            {plan.trial && (
+                              <span class="text-xs font-medium text-emerald-700 bg-emerald-50 border border-dashed border-emerald-200 px-2 py-1 rounded-md">
+                                {plan.trial}
+                              </span>
+                            )}
+                          </div>
                           <div>
                             <p><span class="font-bold text-2xl">{plan.price.monthly}</span>{' '}<span>per month.</span></p>
                             <p class="text-muted-foreground text-sm">{plan.description}</p>
