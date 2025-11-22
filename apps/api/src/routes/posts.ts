@@ -268,7 +268,13 @@ posts.get("/:identifier", async (c) => {
     });
 
     if (!post) {
-      return c.json({ error: "Post not found" }, 404);
+      return c.json(
+        {
+          error: "Post not found",
+          message: "The requested post does not exist or is not published",
+        },
+        404
+      );
     }
 
     // Format post based on requested format

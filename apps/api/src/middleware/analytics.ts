@@ -11,6 +11,7 @@ export const analytics = (): MiddlewareHandler => {
 
     const { DATABASE_URL, POLAR_ACCESS_TOKEN, ENVIRONMENT } = c.env;
     if (!DATABASE_URL) {
+      console.error("[Analytics] Database configuration error");
       return;
     }
 
@@ -43,7 +44,6 @@ export const analytics = (): MiddlewareHandler => {
             id: workspaceId,
           },
           select: {
-            id: true,
             members: {
               where: {
                 role: "owner",

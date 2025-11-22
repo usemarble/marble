@@ -107,7 +107,17 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
               return (
                 <div className="flex h-full min-h-96 w-full flex-col gap-5 rounded-xl bg-background px-4 pt-6 pb-10 shadow-xs">
                   <div className="flex flex-col gap-4">
-                    <h4 className="text-2xl text-medium">{plan.title}</h4>
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-2xl text-medium">{plan.title}</h4>
+                      {plan.trial && (
+                        <Badge
+                          className="border border-emerald-500/30 border-dashed dark:border-emerald-400/30"
+                          variant="positive"
+                        >
+                          {plan.trial}
+                        </Badge>
+                      )}
+                    </div>
                     <div>
                       <p>
                         <span className="font-bold text-3xl">
@@ -166,9 +176,19 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
                     <CardHeader className="flex w-full flex-col gap-2 px-0 text-start">
                       <div className="flex w-full items-center justify-between">
                         <CardTitle>{plan.title}</CardTitle>
-                        {plan.id === currentPlan && (
-                          <Badge variant="free">Current Plan</Badge>
-                        )}
+                        <div className="flex items-center gap-2">
+                          {plan.trial && (
+                            <Badge
+                              className="border border-emerald-500/30 border-dashed dark:border-emerald-400/30"
+                              variant="positive"
+                            >
+                              {plan.trial}
+                            </Badge>
+                          )}
+                          {plan.id === currentPlan && (
+                            <Badge variant="free">Current Plan</Badge>
+                          )}
+                        </div>
                       </div>
                       <CardDescription>{plan.description}</CardDescription>
                     </CardHeader>
