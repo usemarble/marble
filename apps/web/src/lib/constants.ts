@@ -87,6 +87,7 @@ export type Pricing = {
     monthly: string;
     yearly: string;
   };
+  trial?: string;
   features: string[];
   button: {
     href: string;
@@ -122,6 +123,7 @@ export const PRICING: Pricing[] = [
       monthly: "$20",
       yearly: "$180",
     },
+    trial: "7 day free trial",
     features: [
       "Unlimited posts",
       "10GB media storage",

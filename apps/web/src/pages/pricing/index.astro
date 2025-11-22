@@ -20,7 +20,7 @@ import { cn } from "@/lib/utils";
               Pricing
             </h1>
             <p class="max-w-prose Md:text-lg text-muted-foreground text-center">
-              Simple pricing, cancel anytime.
+              Simple pricing, cancel anytime. Start with a 7 day free trial.
             </p>
           </div>
           <!-- <ul class="grid gap-5 lg:gap-10 sm:grid-cols-2 lg:grid-cols-3"> -->
@@ -34,7 +34,14 @@ import { cn } from "@/lib/utils";
                         <>
                           <div class="flex flex-col gap-5 sm:min-w-60 lg:min-w-0">
                             <div class="flex flex-col gap-4">
-                              <h3 class="text-medium text-xl">{plan.title}</h3>
+                              <div class="flex items-center justify-between">
+                                <h3 class="text-medium text-xl">{plan.title}</h3>
+                                {plan.trial && (
+                                  <span class="text-xs font-medium text-emerald-700 bg-emerald-50 border border-dashed border-emerald-200 px-2 py-1 rounded-md">
+                                    {plan.trial}
+                                  </span>
+                                )}
+                              </div>
                               <div>
                                 <p><span class="font-bold text-2xl">{plan.price.monthly}</span>{' '}<span>per month.</span></p>
                                 <p class="text-muted-foreground text-sm">{plan.description}</p>
@@ -64,7 +71,14 @@ import { cn } from "@/lib/utils";
                       ) : (
                         <>
                           <div class="flex flex-col gap-4">
-                            <h4 class="text-medium text-2xl">{plan.title}</h4>
+                            <div class="flex items-center justify-between">
+                              <h4 class="text-medium text-2xl">{plan.title}</h4>
+                              {plan.trial && (
+                                <span class="text-xs font-medium text-emerald-700 bg-emerald-50 border border-dashed border-emerald-200 px-2 py-1 rounded-md">
+                                  {plan.trial}
+                                </span>
+                              )}
+                            </div>
                             <div>
                               <p><span class="font-bold text-2xl">{plan.price.monthly}</span>{' '}<span>per month.</span></p>
                               <p class="text-muted-foreground text-sm">{plan.description}</p>
