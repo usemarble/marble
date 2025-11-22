@@ -151,7 +151,7 @@ export const PRICING_FAQS: {
   {
     question: "Do you offer a free trial?",
     answer:
-      "Yes! The Pro plan includes a 7-day free trial. You can try all Pro features risk-free for 7 days. No credit card is required to start your trial, and you can cancel anytime during the trial period without being charged.",
+      "Yes! The Pro plan includes a 7-day free trial. You can try all Pro features risk-free for 7 days. If you don't cancel during the trial period, your subscription will automatically renew at the full price. You can cancel anytime during the trial period without being charged.",
   },
   {
     question: "How do I get a refund?",
