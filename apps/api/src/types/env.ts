@@ -3,5 +3,4 @@ export type Env = {
   REDIS_URL: string;
   REDIS_TOKEN: string;
   POLAR_ACCESS_TOKEN: string;
-  ENVIRONMENT?: string;
 };
