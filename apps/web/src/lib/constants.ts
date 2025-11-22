@@ -149,6 +149,11 @@ export const PRICING_FAQS: {
       "Our plans are billed per workspace, not per user. This means you can invite as many team members as your plan allows to a workspace without any extra charges per member. Each workspace requires its own subscription if you wish to upgrade it.",
   },
   {
+    question: "Do you offer a free trial?",
+    answer:
+      "Yes! The Pro plan includes a 7-day free trial. You can try all Pro features risk-free for 7 days. No credit card is required to start your trial, and you can cancel anytime during the trial period without being charged.",
+  },
+  {
     question: "How do I get a refund?",
     answer:
       "To request a refund, please contact us at <a href='mailto:support@marblecms.com'>support@marblecms.com</a> within 7 days of your purchase. We're also available on X at <a href='https://x.com/usemarblecms'>usemarblecms</a> and on our <a href='https://discord.gg/gU44Pmwqkx'>Discord</a> channel.",
