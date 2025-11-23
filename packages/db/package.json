@@ -1,6 +1,5 @@
 {
   "name": "@marble/db",
-  "type": "module",
   "version": "0.0.0",
   "exports": {
     ".": "./src/index.ts",
@@ -17,8 +16,8 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.1",
-    "@prisma/adapter-neon": "^7.0.0",
-    "@prisma/client": "^7.0.0",
+    "@prisma/adapter-neon": "^6.15.0",
+    "@prisma/client": "^6.15.0",
     "ws": "^8.18.0"
   },
   "devDependencies": {
@@ -27,7 +26,7 @@
     "@types/ws": "^8.5.13",
     "bufferutil": "^4.0.9",
     "dotenv": "^16.4.7",
-    "prisma": "7.0.0",
+    "prisma": "6.15.0",
     "typescript": "^5.6.3"
   }
 }

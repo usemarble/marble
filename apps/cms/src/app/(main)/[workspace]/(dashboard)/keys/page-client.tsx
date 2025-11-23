@@ -1,9 +1,11 @@
 "use client";
 
-import { Button } from "@marble/ui/components/button";
+import { Button, buttonVariants } from "@marble/ui/components/button";
+import { cn } from "@marble/ui/lib/utils";
 import { KeyIcon, PlusIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import { type APIKey, columns } from "@/components/keys/columns";
@@ -67,16 +69,32 @@ function PageClient() {
               <KeyIcon className="size-16" />
             </div>
             <div className="flex flex-col items-center gap-4 text-center">
-              <p className="text-muted-foreground text-sm">
-                API keys let you interact with your workspace using our API.
-              </p>
-              <Button
-                className="w-fit"
-                onClick={() => setShowCreateModal(true)}
-              >
-                <PlusIcon className="size-4" />
-                <span>New API Key</span>
-              </Button>
+              <div className="flex flex-col items-center gap-2">
+                <p className="font-medium">No API keys yet</p>
+                <p className="text-muted-foreground text-sm">
+                  API keys let you interact with your workspace via the API.
+                </p>
+              </div>
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                <Button
+                  className="col-span-1"
+                  onClick={() => setShowCreateModal(true)}
+                >
+                  Create API Key
+                </Button>
+                <Link
+                  className={cn(
+                    buttonVariants({
+                      variant: "ghost",
+                      className: "col-span-1 w-full",
+                    })
+                  )}
+                  href="https://docs.marblecms.com"
+                  target="_blank"
+                >
+                  Learn more
+                </Link>
+              </div>
             </div>
           </div>
         </WorkspacePageWrapper>

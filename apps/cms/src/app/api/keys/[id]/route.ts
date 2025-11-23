@@ -2,6 +2,7 @@ import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { updateApiKeySchema } from "@/lib/validations/keys";
+import type { ApiScope } from "@/utils/keys";
 
 export async function GET(
   _request: Request,
@@ -23,8 +24,8 @@ export async function GET(
       prefix: true,
       preview: true,
       type: true,
-      permissions: true,
-      usageCount: true,
+      scopes: true,
+      requestCount: true,
       enabled: true,
       lastUsed: true,
       expiresAt: true,
@@ -73,7 +74,7 @@ export async function PATCH(
 
   const updateData: {
     name?: string;
-    permissions?: string | null;
+    scopes?: ApiScope[];
     expiresAt?: Date | null;
     enabled?: boolean;
   } = {};
@@ -81,8 +82,8 @@ export async function PATCH(
   if (body.data.name !== undefined) {
     updateData.name = body.data.name;
   }
-  if (body.data.permissions !== undefined) {
-    updateData.permissions = body.data.permissions;
+  if (body.data.scopes !== undefined) {
+    updateData.scopes = body.data.scopes;
   }
   if (body.data.expiresAt !== undefined) {
     updateData.expiresAt = body.data.expiresAt;
@@ -103,8 +104,8 @@ export async function PATCH(
       prefix: true,
       preview: true,
       type: true,
-      permissions: true,
-      usageCount: true,
+      scopes: true,
+      requestCount: true,
       enabled: true,
       lastUsed: true,
       expiresAt: true,

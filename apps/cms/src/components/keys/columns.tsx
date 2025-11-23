@@ -2,6 +2,7 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
+import type { ApiScope } from "@/utils/keys";
 import TableActions from "./table-actions";
 
 export type APIKey = {
@@ -9,8 +10,8 @@ export type APIKey = {
   name: string;
   preview: string;
   type: "public" | "private";
-  permissions: string | null;
-  usageCount: number;
+  scopes: ApiScope[];
+  requestCount: number;
   enabled: boolean;
   lastUsed: Date | null;
   expiresAt: Date | null;

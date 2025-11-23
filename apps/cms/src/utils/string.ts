@@ -1,3 +1,6 @@
+import { customAlphabet, nanoid } from "nanoid";
+import { API_KEY_PREFIXES } from "./keys";
+
 export function generateSlug(text: string) {
   const slug = text
     .trim()
@@ -33,8 +36,6 @@ export function formatBytes(
   }`;
 }
 
-import { nanoid } from "nanoid";
-
 type ApiKeyType = "public" | "private";
 
 /**
@@ -42,11 +43,16 @@ type ApiKeyType = "public" | "private";
  * @param type - The type of API key (public or private)
  * @returns Object containing the full key, prefix, and preview
  */
-export function generateApiKey(type: ApiKeyType = "private") {
-  const prefix = type === "public" ? "mbl_pk_" : "mbl_sk_";
-  const randomSuffix = nanoid(32);
-  const fullKey = `${prefix}${randomSuffix}`;
-  const preview = `${prefix}${randomSuffix.slice(0, 8)}...`;
+export function generateApiKey(type: ApiKeyType) {
+  const prefix =
+    type === "public" ? API_KEY_PREFIXES.public : API_KEY_PREFIXES.private;
+  const nanoid = customAlphabet(
+    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
+    24
+  );
+  const randomSuffix = nanoid();
+  const fullKey = `${prefix}_${randomSuffix}`;
+  const preview = `${prefix}...${randomSuffix.slice(-4)}`;
 
   return {
     key: fullKey,

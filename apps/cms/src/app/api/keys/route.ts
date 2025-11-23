@@ -2,6 +2,7 @@ import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { createApiKeySchema } from "@/lib/validations/keys";
+import { DEFAULT_PRIVATE_SCOPES, DEFAULT_PUBLIC_SCOPES } from "@/utils/keys";
 import { generateApiKey } from "@/utils/string";
 
 export async function GET() {
@@ -20,8 +21,8 @@ export async function GET() {
       prefix: true,
       preview: true,
       type: true,
-      permissions: true,
-      usageCount: true,
+      scopes: true,
+      requestCount: true,
       enabled: true,
       lastUsed: true,
       expiresAt: true,
@@ -55,10 +56,12 @@ export async function POST(request: Request) {
 
   const { key, prefix, preview } = generateApiKey(body.data.type);
 
-  // Set default permissions based on type if not provided
-  const permissions =
-    body.data.permissions ??
-    (body.data.type === "public" ? "read" : "read,write");
+  // Set default scopes based on type if not provided
+  const scopesToSet =
+    body.data.scopes ??
+    (body.data.type === "public"
+      ? [...DEFAULT_PUBLIC_SCOPES]
+      : [...DEFAULT_PRIVATE_SCOPES]);
 
   const apiKey = await db.apiKey.create({
     data: {
@@ -68,17 +71,18 @@ export async function POST(request: Request) {
       prefix,
       preview,
       type: body.data.type,
-      permissions,
+      scopes: scopesToSet,
       expiresAt: body.data.expiresAt ?? null,
     },
     select: {
       id: true,
       name: true,
+      key: true,
       prefix: true,
       preview: true,
       type: true,
-      permissions: true,
-      usageCount: true,
+      scopes: true,
+      requestCount: true,
       enabled: true,
       lastUsed: true,
       expiresAt: true,
