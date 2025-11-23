@@ -1,8 +1,9 @@
 {
   "name": "api",
-  "version": "0.1.1",
+  "version": "dev",
   "scripts": {
     "dev": "vc dev --listen 8787",
+    "build": "vc build",
     "deploy": "vc deploy"
   },
   "dependencies": {
@@ -19,6 +20,6 @@
     "@types/node": "^20.11.17",
     "tsx": "^4.7.1",
     "typescript": "^5.8.3",
-    "vc": "^0.1.4"
+    "vercel": "^48.10.10"
   }
 }
