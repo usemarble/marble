@@ -5,6 +5,7 @@
 
 /* Plugins */
 @plugin "tailwindcss-animate";
+@plugin "@toolwind/corner-shape";
 
 :root {
   --background: hsl(0 0% 100%);
