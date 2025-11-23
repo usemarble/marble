@@ -3,7 +3,6 @@
   "version": "0.1.1",
   "scripts": {
     "dev": "vc dev --listen 8787",
-    "build": "vc build",
     "deploy": "vc deploy"
   },
   "dependencies": {
