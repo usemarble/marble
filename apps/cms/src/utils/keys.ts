@@ -11,35 +11,6 @@ export type ApiKeyPrefix =
   (typeof API_KEY_PREFIXES)[keyof typeof API_KEY_PREFIXES];
 
 /**
- * Available API Scopes
- * Defines all resources and their available actions
- */
-export const API_SCOPES = {
-  authors: ["read", "write"],
-  posts: ["read", "write"],
-  categories: ["read", "write"],
-  tags: ["read", "write"],
-  media: ["read", "write"],
-} as const;
-
-export type ApiResource = keyof typeof API_SCOPES;
-export type ApiAction = "read" | "write";
-
-/**
- * Generate all possible scope strings
- * Format: "resource_action" (e.g., "posts_read", "authors_write")
- */
-export function getAllScopes(): string[] {
-  const scopes: string[] = [];
-  for (const [resource, actions] of Object.entries(API_SCOPES)) {
-    for (const action of actions) {
-      scopes.push(`${resource}_${action}`);
-    }
-  }
-  return scopes;
-}
-
-/**
  * Default scopes for public API keys (read-only access)
  */
 export const DEFAULT_PUBLIC_SCOPES = [
