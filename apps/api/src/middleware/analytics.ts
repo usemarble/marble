@@ -1,5 +1,4 @@
-import { createClient } from "@marble/db";
-import { env } from "hono/adapter";
+import { createClient } from "@marble/db/workers";
 import type { Context, MiddlewareHandler, Next } from "hono";
 import { createPolarClient } from "../lib/polar";
 
@@ -10,12 +9,7 @@ export const analytics = (): MiddlewareHandler => {
 
     await next();
 
-    const { DATABASE_URL, POLAR_ACCESS_TOKEN, ENVIRONMENT } = env<{
-      DATABASE_URL: string;
-      POLAR_ACCESS_TOKEN: string;
-      ENVIRONMENT?: string;
-    }>(c);
-    if (!DATABASE_URL) {
+    if (!process.env.DATABASE_URL) {
       console.error("[Analytics] Database configuration error");
       return;
     }
@@ -33,7 +27,10 @@ export const analytics = (): MiddlewareHandler => {
 
     const task = async () => {
       try {
-        const db = createClient(DATABASE_URL);
+        if (!process.env.DATABASE_URL) {
+          return;
+        }
+        const db = createClient(process.env.DATABASE_URL);
         await db.usageEvent.create({
           data: {
             type: "api_request",
@@ -64,9 +61,12 @@ export const analytics = (): MiddlewareHandler => {
           customerId = organization.members[0].userId;
         }
 
-        if (POLAR_ACCESS_TOKEN) {
-          const isProduction = ENVIRONMENT === "production";
-          const polar = createPolarClient(POLAR_ACCESS_TOKEN, isProduction);
+        if (process.env.POLAR_ACCESS_TOKEN) {
+          const isProduction = process.env.ENVIRONMENT === "production";
+          const polar = createPolarClient(
+            process.env.POLAR_ACCESS_TOKEN,
+            isProduction
+          );
           try {
             await polar.events.ingest({
               events: [
