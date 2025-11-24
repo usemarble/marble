@@ -87,6 +87,7 @@ export type Pricing = {
     monthly: string;
     yearly: string;
   };
+  trial?: string;
   features: string[];
   button: {
     href: string;
@@ -122,6 +123,7 @@ export const PRICING: Pricing[] = [
       monthly: "$20",
       yearly: "$180",
     },
+    trial: "7 day free trial",
     features: [
       "Unlimited posts",
       "10GB media storage",
@@ -145,6 +147,11 @@ export const PRICING_FAQS: {
     question: "How are plans billed?",
     answer:
       "Our plans are billed per workspace, not per user. This means you can invite as many team members as your plan allows to a workspace without any extra charges per member. Each workspace requires its own subscription if you wish to upgrade it.",
+  },
+  {
+    question: "Do you offer a free trial?",
+    answer:
+      "Yes! The Pro plan includes a 7-day free trial. You can try all Pro features risk-free for 7 days. If you don't cancel during the trial period, your subscription will automatically renew at the full price. You can cancel anytime during the trial period without being charged.",
   },
   {
     question: "How do I get a refund?",

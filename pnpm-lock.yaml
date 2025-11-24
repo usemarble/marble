@@ -502,6 +502,9 @@ importers:
       '@tanstack/react-table':
         specifier: ^8.20.5
         version: 8.20.5(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@toolwind/corner-shape':
+        specifier: 0.0.8-3
+        version: 0.0.8-3
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.0
@@ -4632,6 +4635,9 @@ packages:
     peerDependencies:
       '@tiptap/core': ^2.7.0
       '@tiptap/pm': ^2.7.0
+
+  '@toolwind/corner-shape@0.0.8-3':
+    resolution: {integrity: sha512-MPIF81F2bhtXbzEeXF0vnL+PKpnopCHOzBspOkK8osMzWQvPUujZn2XZOMdsu4DF6wsVbbRYQtdsJr486HmIPQ==}
 
   '@trpc/server@11.7.0':
     resolution: {integrity: sha512-BPpr3roKWpZnS92fWCg29e6hEwn1kzH8m65yXRkJfFqemgwckiyJ15NgR8zTe7RcMAeBEPpvqyAfL71rwaSJJw==}
@@ -13951,6 +13957,10 @@ snapshots:
       '@tiptap/core': 2.26.3(@tiptap/pm@3.6.6)
       '@tiptap/pm': 2.26.3
 
+  '@toolwind/corner-shape@0.0.8-3':
+    dependencies:
+      '@types/node': 20.16.5
+
   '@trpc/server@11.7.0(typescript@5.6.2)':
     dependencies:
       typescript: 5.6.2
@@ -15501,7 +15511,7 @@ snapshots:
       eslint: 9.39.1(jiti@2.5.1)
       eslint-import-resolver-node: 0.3.9
       eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.46.4(eslint@9.39.1(jiti@2.5.1))(typescript@5.6.2))(eslint@9.39.1(jiti@2.5.1)))(eslint@9.39.1(jiti@2.5.1))
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.46.4(eslint@9.39.1(jiti@2.5.1))(typescript@5.6.2))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.1(jiti@2.5.1))
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.46.4(eslint@9.39.1(jiti@2.5.1))(typescript@5.6.2))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.46.4(eslint@9.39.1(jiti@2.5.1))(typescript@5.6.2))(eslint@9.39.1(jiti@2.5.1)))(eslint@9.39.1(jiti@2.5.1)))(eslint@9.39.1(jiti@2.5.1))
       eslint-plugin-jsx-a11y: 6.10.2(eslint@9.39.1(jiti@2.5.1))
       eslint-plugin-react: 7.37.5(eslint@9.39.1(jiti@2.5.1))
       eslint-plugin-react-hooks: 7.0.1(eslint@9.39.1(jiti@2.5.1))
@@ -15534,7 +15544,7 @@ snapshots:
       tinyglobby: 0.2.15
       unrs-resolver: 1.11.1
     optionalDependencies:
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.46.4(eslint@9.39.1(jiti@2.5.1))(typescript@5.6.2))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.1(jiti@2.5.1))
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.46.4(eslint@9.39.1(jiti@2.5.1))(typescript@5.6.2))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.46.4(eslint@9.39.1(jiti@2.5.1))(typescript@5.6.2))(eslint@9.39.1(jiti@2.5.1)))(eslint@9.39.1(jiti@2.5.1)))(eslint@9.39.1(jiti@2.5.1))
     transitivePeerDependencies:
       - supports-color
 
@@ -15549,7 +15559,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.46.4(eslint@9.39.1(jiti@2.5.1))(typescript@5.6.2))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.1(jiti@2.5.1)):
+  eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.46.4(eslint@9.39.1(jiti@2.5.1))(typescript@5.6.2))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.46.4(eslint@9.39.1(jiti@2.5.1))(typescript@5.6.2))(eslint@9.39.1(jiti@2.5.1)))(eslint@9.39.1(jiti@2.5.1)))(eslint@9.39.1(jiti@2.5.1)):
     dependencies:
       '@rtsao/scc': 1.1.0
       array-includes: 3.1.9
