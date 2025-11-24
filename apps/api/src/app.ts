@@ -1,8 +1,8 @@
 import { Hono } from "hono";
 import { trimTrailingSlash } from "hono/trailing-slash";
 import { analytics } from "./middleware/analytics";
+import { authorization } from "./middleware/authorization";
 import { ratelimit } from "./middleware/ratelimit";
-import { validateWorkspace } from "./middleware/workspace";
 import authorsRoutes from "./routes/authors";
 import categoriesRoutes from "./routes/categories";
 import postsRoutes from "./routes/posts";
@@ -38,7 +38,7 @@ app.use("*", async (c, next) => {
 });
 
 app.use("/v1/:workspaceId/*", ratelimit());
-app.use("/v1/:workspaceId/*", validateWorkspace());
+app.use("/v1/:workspaceId/*", authorization());
 app.use("/v1/:workspaceId/*", analytics());
 app.use(trimTrailingSlash());
 
