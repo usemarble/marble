@@ -34,7 +34,6 @@ export const PRICING_PLANS: PricingPlan[] = [
     features: [
       "Unlimited posts",
       "1GB media storage",
-      "2 team members",
       "AI Readability insights",
       "10k API requests per month",
       "100 webhook events per month",
