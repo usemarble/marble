@@ -1,4 +1,4 @@
-import { createClient } from "@marble/db/workers";
+import { createClient } from "@marble/db";
 import type { Context, MiddlewareHandler, Next } from "hono";
 import { createPolarClient } from "../lib/polar";
 

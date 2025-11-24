@@ -1,4 +1,4 @@
-import { createClient } from "@marble/db/workers";
+import { createClient } from "@marble/db";
 import { Hono } from "hono";
 import { NodeHtmlMarkdown } from "node-html-markdown";
 import type { Env } from "../types/env";
