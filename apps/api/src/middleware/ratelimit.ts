@@ -1,6 +1,6 @@
 import { Ratelimit } from "@upstash/ratelimit";
-import { Redis } from "@upstash/redis/cloudflare";
 import type { Context, MiddlewareHandler, Next } from "hono";
+import { createRedisClient } from "../lib/redis";
 
 export type RateLimit = {
   limit: number;
@@ -14,10 +14,7 @@ const cache = new Map();
 export const ratelimit =
   (): MiddlewareHandler => async (c: Context, next: Next) => {
     try {
-      const redisClient = new Redis({
-        url: c.env.REDIS_URL,
-        token: c.env.REDIS_TOKEN,
-      });
+      const redisClient = createRedisClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
 
       const clientIp =
         c.req.header("x-forwarded-for") ||
@@ -39,6 +36,7 @@ export const ratelimit =
       });
 
       const result = await rateLimiter.limit(identifier);
+      c.executionCtx.waitUntil(result.pending);
 
       c.header("X-RateLimit-Limit", String(result.limit));
       c.header("X-RateLimit-Remaining", String(result.remaining));
