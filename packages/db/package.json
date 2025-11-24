@@ -2,11 +2,21 @@
   "name": "@marble/db",
   "version": "0.0.0",
   "exports": {
-    ".": "./src/index.ts",
-    "./client": "./src/client.ts",
-    "./workers": "./src/workers.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./client": {
+      "types": "./dist/client.d.ts",
+      "default": "./dist/client.js"
+    },
+    "./workers": {
+      "types": "./dist/workers.d.ts",
+      "default": "./dist/workers.js"
+    }
   },
   "scripts": {
+    "build": "tsc",
     "db:generate": "prisma generate",
     "db:push": "prisma db push --skip-generate",
     "db:studio": "prisma studio",
