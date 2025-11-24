@@ -1,9 +1,10 @@
 import { createClient } from "@marble/db";
+import { env } from "hono/adapter";
 import type { Context, MiddlewareHandler, Next } from "hono";
 
 export const validateWorkspace =
   (): MiddlewareHandler => async (c: Context, next: Next) => {
-    const { DATABASE_URL } = c.env;
+    const { DATABASE_URL } = env<{ DATABASE_URL: string }>(c);
     if (!DATABASE_URL) {
       console.error("[Workspace] Database configuration error");
       return c.json({ error: "Internal server error" }, 500);

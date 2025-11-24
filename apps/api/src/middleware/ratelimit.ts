@@ -1,5 +1,6 @@
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis/node";
+import { env } from "hono/adapter";
 import type { Context, MiddlewareHandler, Next } from "hono";
 
 export type RateLimit = {
@@ -14,9 +15,13 @@ const cache = new Map();
 export const ratelimit =
   (): MiddlewareHandler => async (c: Context, next: Next) => {
     try {
+      const { REDIS_URL, REDIS_TOKEN } = env<{
+        REDIS_URL: string;
+        REDIS_TOKEN: string;
+      }>(c);
       const redisClient = new Redis({
-        url: c.env.REDIS_URL,
-        token: c.env.REDIS_TOKEN,
+        url: REDIS_URL,
+        token: REDIS_TOKEN,
       });
 
       const clientIp =

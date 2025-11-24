@@ -1,5 +1,6 @@
 import { createClient } from "@marble/db";
 import { Hono } from "hono";
+import { env } from "hono/adapter";
 import { NodeHtmlMarkdown } from "node-html-markdown";
 import type { Env } from "../types/env";
 import { PostsQuerySchema } from "../validations/posts";
@@ -8,10 +9,10 @@ const posts = new Hono<{ Bindings: Env }>();
 
 posts.get("/", async (c) => {
   try {
-    const url = c.env.DATABASE_URL;
+    const { DATABASE_URL } = env<{ DATABASE_URL: string }>(c);
     const workspaceId = c.req.param("workspaceId");
     const format = c.req.query("format");
-    const db = createClient(url);
+    const db = createClient(DATABASE_URL);
 
     // Validate query parameters
     const queryValidation = PostsQuerySchema.safeParse({
@@ -209,11 +210,11 @@ posts.get("/", async (c) => {
 
 posts.get("/:identifier", async (c) => {
   try {
-    const url = c.env.DATABASE_URL;
+    const { DATABASE_URL } = env<{ DATABASE_URL: string }>(c);
     const workspaceId = c.req.param("workspaceId");
     const identifier = c.req.param("identifier");
     const format = c.req.query("format");
-    const db = createClient(url);
+    const db = createClient(DATABASE_URL);
 
     const post = await db.post.findFirst({
       where: {

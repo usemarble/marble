@@ -1,4 +1,5 @@
 import { createClient } from "@marble/db";
+import { env } from "hono/adapter";
 import type { Context, MiddlewareHandler, Next } from "hono";
 import { createPolarClient } from "../lib/polar";
 
@@ -9,7 +10,11 @@ export const analytics = (): MiddlewareHandler => {
 
     await next();
 
-    const { DATABASE_URL, POLAR_ACCESS_TOKEN, ENVIRONMENT } = c.env;
+    const { DATABASE_URL, POLAR_ACCESS_TOKEN, ENVIRONMENT } = env<{
+      DATABASE_URL: string;
+      POLAR_ACCESS_TOKEN: string;
+      ENVIRONMENT?: string;
+    }>(c);
     if (!DATABASE_URL) {
       console.error("[Analytics] Database configuration error");
       return;
