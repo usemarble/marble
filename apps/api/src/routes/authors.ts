@@ -1,15 +1,16 @@
 import { createClient } from "@marble/db/workers";
 import { Hono } from "hono";
-import { env } from "hono/adapter";
 import type { Env } from "../types/env";
 import { AuthorQuerySchema, AuthorsQuerySchema } from "../validations/authors";
 
 const authors = new Hono<{ Bindings: Env }>();
 
 authors.get("/", async (c) => {
-  const { DATABASE_URL } = env<{ DATABASE_URL: string }>(c);
+  if (!process.env.DATABASE_URL) {
+    return c.json({ error: "Internal server error" }, 500);
+  }
   const workspaceId = c.req.param("workspaceId");
-  const db = createClient(DATABASE_URL);
+  const db = createClient(process.env.DATABASE_URL);
 
   // Validate query parameters
   const queryValidation = AuthorsQuerySchema.safeParse({
@@ -125,10 +126,12 @@ authors.get("/", async (c) => {
 });
 
 authors.get("/:identifier", async (c) => {
-  const { DATABASE_URL } = env<{ DATABASE_URL: string }>(c);
+  if (!process.env.DATABASE_URL) {
+    return c.json({ error: "Internal server error" }, 500);
+  }
   const workspaceId = c.req.param("workspaceId");
   const identifier = c.req.param("identifier");
-  const db = createClient(DATABASE_URL);
+  const db = createClient(process.env.DATABASE_URL);
 
   const queryValidation = AuthorQuerySchema.safeParse({
     limit: c.req.query("limit"),

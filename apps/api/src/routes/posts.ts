@@ -1,6 +1,5 @@
 import { createClient } from "@marble/db/workers";
 import { Hono } from "hono";
-import { env } from "hono/adapter";
 import { NodeHtmlMarkdown } from "node-html-markdown";
 import type { Env } from "../types/env";
 import { PostsQuerySchema } from "../validations/posts";
@@ -9,10 +8,12 @@ const posts = new Hono<{ Bindings: Env }>();
 
 posts.get("/", async (c) => {
   try {
-    const { DATABASE_URL } = env<{ DATABASE_URL: string }>(c);
+    if (!process.env.DATABASE_URL) {
+      return c.json({ error: "Internal server error" }, 500);
+    }
     const workspaceId = c.req.param("workspaceId");
     const format = c.req.query("format");
-    const db = createClient(DATABASE_URL);
+    const db = createClient(process.env.DATABASE_URL);
 
     // Validate query parameters
     const queryValidation = PostsQuerySchema.safeParse({
@@ -210,11 +211,13 @@ posts.get("/", async (c) => {
 
 posts.get("/:identifier", async (c) => {
   try {
-    const { DATABASE_URL } = env<{ DATABASE_URL: string }>(c);
+    if (!process.env.DATABASE_URL) {
+      return c.json({ error: "Internal server error" }, 500);
+    }
     const workspaceId = c.req.param("workspaceId");
     const identifier = c.req.param("identifier");
     const format = c.req.query("format");
-    const db = createClient(DATABASE_URL);
+    const db = createClient(process.env.DATABASE_URL);
 
     const post = await db.post.findFirst({
       where: {
