@@ -48,18 +48,16 @@ export const PublishingActivityCard = () => {
     return (
       <Card className="rounded-[20px] border-none bg-sidebar p-2.5">
         <CardHeader className="gap-0 px-4 pt-4">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center justify-between gap-4">
               <CardTitle className="text-xl">Publishing Activity</CardTitle>
-              <p className="font-medium text-muted-foreground text-xl leading-none tracking-tight">
-                {new Date().getFullYear()}
-              </p>
-            </div>
-            <div className="text-right">
               <p className="rounded-full px-3 py-1 text-muted-foreground text-xs">
                 This Year
               </p>
             </div>
+            <p className="font-medium text-muted-foreground text-xl leading-none tracking-tight">
+              {new Date().getFullYear()}
+            </p>
           </div>
         </CardHeader>
         <CardContent className="h-[191px] rounded-[12px] bg-background p-4 shadow-xs">
@@ -74,18 +72,16 @@ export const PublishingActivityCard = () => {
   return (
     <Card className="rounded-[20px] border-none bg-sidebar p-2.5">
       <CardHeader className="gap-0 px-4 pt-4">
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center justify-between gap-4">
             <CardTitle className="text-xl">Publishing Activity</CardTitle>
-            <p className="font-medium text-muted-foreground text-xl leading-none tracking-tight">
-              {new Date().getFullYear()}
-            </p>
-          </div>
-          <div className="text-right">
             <p className="rounded-full px-3 py-1 text-muted-foreground text-xs">
               This Year
             </p>
           </div>
+          <p className="font-medium text-muted-foreground text-xl leading-none tracking-tight">
+            {new Date().getFullYear()}
+          </p>
         </div>
       </CardHeader>
       <CardContent className="rounded-[12px] bg-background p-4 shadow-xs">
