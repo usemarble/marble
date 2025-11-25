@@ -1,5 +1,6 @@
 import type { SvgComponent } from "astro/types";
 import Bounty from "@/components/icons/brand/Bounty.astro";
+import Candle from "@/components/icons/brand/Candle.astro";
 import Databuddy from "@/components/icons/brand/Databuddy.astro";
 import Helix from "@/components/icons/brand/Helix.astro";
 import Ia from "@/components/icons/brand/Ia.astro";
@@ -211,6 +212,12 @@ export const USERS = [
     url: "https://databuddy.cc",
     component: Databuddy,
     showWordmark: true,
+  },
+  {
+    name: "Candle",
+    url: "https://www.trycandle.app/",
+    component: Candle,
+    showWordmark: false,
   },
 ];
 
