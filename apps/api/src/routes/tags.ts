@@ -1,4 +1,4 @@
-import { createClient } from "@marble/db/workers";
+import { createClient } from "@marble/db";
 import { Hono } from "hono";
 import type { Env } from "../types/env";
 import { TagQuerySchema, TagsQuerySchema } from "../validations/tags";
@@ -6,7 +6,10 @@ import { TagQuerySchema, TagsQuerySchema } from "../validations/tags";
 const tags = new Hono<{ Bindings: Env }>();
 
 tags.get("/", async (c) => {
-  const db = createClient(c.env.DATABASE_URL);
+  if (!process.env.DATABASE_URL) {
+    return c.json({ error: "Internal server error" }, 500);
+  }
+  const db = createClient(process.env.DATABASE_URL);
   const workspaceId = c.req.param("workspaceId");
 
   const queryValidation = TagsQuerySchema.safeParse({
@@ -102,7 +105,10 @@ tags.get("/", async (c) => {
 
 tags.get("/:identifier", async (c) => {
   try {
-    const db = createClient(c.env.DATABASE_URL);
+    if (!process.env.DATABASE_URL) {
+      return c.json({ error: "Internal server error" }, 500);
+    }
+    const db = createClient(process.env.DATABASE_URL);
     const workspaceId = c.req.param("workspaceId");
     const identifier = c.req.param("identifier");
 

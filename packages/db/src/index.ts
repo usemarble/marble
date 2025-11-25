@@ -5,9 +5,12 @@ import ws from "ws";
 
 neonConfig.webSocketConstructor = ws;
 
-const createClient = () => {
-  const connectionString = process.env.DATABASE_URL;
-  const adapter = new PrismaNeon({ connectionString });
+export const createClient = (connectionString?: string) => {
+  const dbUrl = connectionString ?? process.env.DATABASE_URL;
+  if (!dbUrl) {
+    throw new Error("DATABASE_URL is required");
+  }
+  const adapter = new PrismaNeon({ connectionString: dbUrl });
   return new PrismaClient({ adapter });
 };
 

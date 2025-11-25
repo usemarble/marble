@@ -1,4 +1,4 @@
-import { createClient } from "@marble/db/workers";
+import { createClient } from "@marble/db";
 import { Hono } from "hono";
 import type { Env } from "../types/env";
 import {
@@ -10,9 +10,11 @@ const categories = new Hono<{ Bindings: Env }>();
 
 categories.get("/", async (c) => {
   try {
-    const url = c.env.DATABASE_URL;
+    if (!process.env.DATABASE_URL) {
+      return c.json({ error: "Internal server error" }, 500);
+    }
     const workspaceId = c.req.param("workspaceId");
-    const db = createClient(url);
+    const db = createClient(process.env.DATABASE_URL);
 
     const queryValidation = CategoriesQuerySchema.safeParse({
       limit: c.req.query("limit"),
@@ -110,10 +112,12 @@ categories.get("/", async (c) => {
 
 categories.get("/:identifier", async (c) => {
   try {
-    const url = c.env.DATABASE_URL;
+    if (!process.env.DATABASE_URL) {
+      return c.json({ error: "Internal server error" }, 500);
+    }
     const workspaceId = c.req.param("workspaceId");
     const identifier = c.req.param("identifier");
-    const db = createClient(url);
+    const db = createClient(process.env.DATABASE_URL);
 
     const queryValidation = CategoryQuerySchema.safeParse({
       limit: c.req.query("limit"),

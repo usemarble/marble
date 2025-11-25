@@ -1,4 +1,4 @@
-import { createClient } from "@marble/db/workers";
+import { createClient } from "@marble/db";
 import { Hono } from "hono";
 import { NodeHtmlMarkdown } from "node-html-markdown";
 import type { Env } from "../types/env";
@@ -8,10 +8,12 @@ const posts = new Hono<{ Bindings: Env }>();
 
 posts.get("/", async (c) => {
   try {
-    const url = c.env.DATABASE_URL;
+    if (!process.env.DATABASE_URL) {
+      return c.json({ error: "Internal server error" }, 500);
+    }
     const workspaceId = c.req.param("workspaceId");
     const format = c.req.query("format");
-    const db = createClient(url);
+    const db = createClient(process.env.DATABASE_URL);
 
     // Validate query parameters
     const queryValidation = PostsQuerySchema.safeParse({
@@ -209,11 +211,13 @@ posts.get("/", async (c) => {
 
 posts.get("/:identifier", async (c) => {
   try {
-    const url = c.env.DATABASE_URL;
+    if (!process.env.DATABASE_URL) {
+      return c.json({ error: "Internal server error" }, 500);
+    }
     const workspaceId = c.req.param("workspaceId");
     const identifier = c.req.param("identifier");
     const format = c.req.query("format");
-    const db = createClient(url);
+    const db = createClient(process.env.DATABASE_URL);
 
     const post = await db.post.findFirst({
       where: {

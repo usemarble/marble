@@ -14,7 +14,14 @@ const cache = new Map();
 export const ratelimit =
   (): MiddlewareHandler => async (c: Context, next: Next) => {
     try {
-      const redisClient = createRedisClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
+      if (!process.env.REDIS_URL || !process.env.REDIS_TOKEN) {
+        console.error("Redis configuration error");
+        return c.json({ error: "Internal server error" }, 500);
+      }
+      const redisClient = createRedisClient(
+        process.env.REDIS_URL,
+        process.env.REDIS_TOKEN
+      );
 
       const clientIp =
         c.req.header("x-forwarded-for") ||
