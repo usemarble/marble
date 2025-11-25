@@ -195,12 +195,12 @@ export const auth = betterAuth({
             "Upgrade to Pro to invite team members"
           );
         },
-        beforeAddMember: async ({ organization }) => {
-          await guardWorkspaceSubscriptionAction(
-            organization.id,
-            "Upgrade to Pro to add team members"
-          );
-        },
+        // beforeAddMember: async ({ organization }) => {
+        //   await guardWorkspaceSubscriptionAction(
+        //     organization.id,
+        //     "Upgrade to Pro to add team members"
+        //   );
+        // },
       },
     }),
     emailOTP({
