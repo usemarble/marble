@@ -55,10 +55,11 @@ export const PRICING_PLANS: PricingPlan[] = [
     features: [
       "Unlimited posts",
       "10GB media storage",
-      "10 team members",
       "AI Readability insights",
       "50k API requests per month",
       "1k webhook events per month",
+      "5 team members",
+      "Share drafts to users",
     ],
     button: {
       href: "https://app.marblecms.com",
