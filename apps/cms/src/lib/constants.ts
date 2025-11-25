@@ -59,7 +59,7 @@ export const PRICING_PLANS: PricingPlan[] = [
       "50k API requests per month",
       "1k webhook events per month",
       "5 team members",
-      "Share drafts to users",
+      "Share post drafts",
     ],
     button: {
       href: "https://app.marblecms.com",
