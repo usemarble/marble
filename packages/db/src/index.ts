@@ -7,6 +7,10 @@ neonConfig.webSocketConstructor = ws;
 
 const createClient = () => {
   const connectionString = process.env.DATABASE_URL;
+  if (!connectionString || typeof connectionString !== "string") {
+    throw new Error("DATABASE_URL is not set");
+  }
+
   const adapter = new PrismaNeon({ connectionString });
   return new PrismaClient({ adapter });
 };
