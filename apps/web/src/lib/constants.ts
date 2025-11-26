@@ -1,5 +1,6 @@
 import type { SvgComponent } from "astro/types";
 import Bounty from "@/components/icons/brand/Bounty.astro";
+import Candle from "@/components/icons/brand/Candle.astro";
 import Databuddy from "@/components/icons/brand/Databuddy.astro";
 import Helix from "@/components/icons/brand/Helix.astro";
 import Ia from "@/components/icons/brand/Ia.astro";
@@ -106,7 +107,6 @@ export const PRICING: Pricing[] = [
     features: [
       "Unlimited posts",
       "1GB media storage",
-      "2 member seats",
       "AI Readability insights",
       "10k API requests per month",
       "100 webhook events per month",
@@ -127,10 +127,11 @@ export const PRICING: Pricing[] = [
     features: [
       "Unlimited posts",
       "10GB media storage",
-      "10 member seats",
       "AI Readability insights",
       "50k API requests per month",
       "1k webhook events per month",
+      "5 team member seats",
+      "Share post drafts",
     ],
     button: {
       href: "https://app.marblecms.com",
@@ -211,6 +212,12 @@ export const USERS = [
     url: "https://databuddy.cc",
     component: Databuddy,
     showWordmark: true,
+  },
+  {
+    name: "Candle",
+    url: "https://www.trycandle.app/",
+    component: Candle,
+    showWordmark: false,
   },
 ];
 

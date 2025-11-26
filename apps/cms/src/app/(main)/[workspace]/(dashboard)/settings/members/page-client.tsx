@@ -1,7 +1,10 @@
 "use client";
 
+import { Button } from "@marble/ui/components/button";
+import { UsersIcon } from "@phosphor-icons/react";
 import dynamic from "next/dynamic";
 import { useState } from "react";
+import { UpgradeModal } from "@/components/billing/upgrade-modal";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
 import { columns, type TeamMemberRow } from "@/components/team/columns";
@@ -27,6 +30,7 @@ function PageClient() {
 
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showLeaveWorkspaceModal, setShowLeaveWorkspaceModal] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   if (isFetchingWorkspace || !activeWorkspace || !user) {
     return <PageLoader />;
@@ -46,22 +50,57 @@ function PageClient() {
 
   console.log("invitations", activeWorkspace.invitations);
 
+  const isFreePlan =
+    !activeWorkspace.subscription ||
+    activeWorkspace.subscription.plan === "free";
+
   return (
     <WorkspacePageWrapper size="compact">
-      <div className="space-y-6">
-        <TeamDataTable
-          columns={columns}
-          currentUserId={user.id}
-          currentUserRole={
-            currentUserRole as "owner" | "admin" | "member" | undefined
-          }
-          data={data}
-          setShowInviteModal={setShowInviteModal}
-          setShowLeaveWorkspaceModal={setShowLeaveWorkspaceModal}
-        />
+      {isFreePlan ? (
+        <div className="grid h-full place-content-center">
+          <div className="flex max-w-84 flex-col items-center gap-4">
+            <div className="p-2">
+              <UsersIcon className="size-16" />
+            </div>
+            <div className="flex flex-col items-center gap-4 text-center">
+              <div className="flex flex-col items-center gap-2">
+                <p className="font-medium">
+                  To add team members upgrade to a pro plan
+                </p>
+                <p className="text-muted-foreground text-sm">
+                  You can try it free for 7 days.
+                </p>
+              </div>
+              <Button
+                className="w-fit"
+                onClick={() => setShowUpgradeModal(true)}
+              >
+                <span>Upgrade</span>
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          <TeamDataTable
+            columns={columns}
+            currentUserId={user.id}
+            currentUserRole={
+              currentUserRole as "owner" | "admin" | "member" | undefined
+            }
+            data={data}
+            setShowInviteModal={setShowInviteModal}
+            setShowLeaveWorkspaceModal={setShowLeaveWorkspaceModal}
+          />
 
-        <InviteSection invitations={activeWorkspace.invitations || []} />
-      </div>
+          <InviteSection invitations={activeWorkspace.invitations || []} />
+        </div>
+      )}
+
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+      />
 
       <InviteModal open={showInviteModal} setOpen={setShowInviteModal} />
       <LeaveWorkspaceModal

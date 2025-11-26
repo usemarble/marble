@@ -48,18 +48,16 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
   return (
     <Card className="gap-4 rounded-[20px] border-none bg-sidebar p-2.5">
       <CardHeader className="gap-0 px-4 pt-4">
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center justify-between gap-4">
             <CardTitle className="text-xl">Media Storage</CardTitle>
-            <p className="font-medium text-muted-foreground text-xl leading-none tracking-tight">
-              {formatBytes(data?.totalSize ?? 0)}
-            </p>
-          </div>
-          <div className="text-right">
             <p className="rounded-full px-3 py-1 text-muted-foreground text-xs">
               Recent Uploads
             </p>
           </div>
+          <p className="font-medium text-muted-foreground text-xl leading-none tracking-tight">
+            {formatBytes(data?.totalSize ?? 0)}
+          </p>
         </div>
       </CardHeader>
       <CardContent className="p-0">

@@ -71,7 +71,7 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
 
     return (
       <AsyncButton
-        className="w-full"
+        className="w-full cursor-pointer"
         isLoading={!!checkoutLoading}
         onClick={() => handleCheckout(plan)}
       >
