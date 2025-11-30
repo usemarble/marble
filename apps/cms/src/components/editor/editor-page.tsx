@@ -294,25 +294,18 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                     },
                   }}
                   extensions={[
-                    // @ts-expect-error
                     ...defaultExtensions,
-                    // @ts-expect-error
                     slashCommand,
-                    // @ts-expect-error
                     CharacterCount,
                   ]}
                   immediatelyRender={false}
                   initialContent={JSON.parse(watch("contentJson") || "{}")}
                   onCreate={({ editor }) => {
-                    // @ts-expect-error
                     editorRef.current = editor;
-                    // @ts-expect-error
                     setEditorInstance(editor);
                   }}
                   onUpdate={({ editor }) => {
-                    // @ts-expect-error
                     editorRef.current = editor;
-                    // @ts-expect-error
                     setEditorInstance(editor);
                     const html = editor.getHTML();
                     const json = editor.getJSON();
