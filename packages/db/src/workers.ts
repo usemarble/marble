@@ -6,9 +6,7 @@ const createClient = (url: string) => {
     typeof url === "string" ? url.trim() : String(url || "").trim();
 
   if (!connectionString) {
-    throw new Error(
-      "DATABASE_URL is required for Cloudflare Workers client and must be a non-empty string"
-    );
+    throw new Error("DATABASE_URL is required and must be a non-empty string");
   }
 
   const adapter = new PrismaNeon({ connectionString });

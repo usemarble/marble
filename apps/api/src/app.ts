@@ -1,10 +1,12 @@
 import { Hono } from "hono";
 import { trimTrailingSlash } from "hono/trailing-slash";
 import { analytics } from "./middleware/analytics";
+import { apiKeyAuth } from "./middleware/apiKeyAuth";
 import { authorization } from "./middleware/authorization";
 import { ratelimit } from "./middleware/ratelimit";
 import authorsRoutes from "./routes/authors";
 import categoriesRoutes from "./routes/categories";
+import demoRoutes from "./routes/demo";
 import postsRoutes from "./routes/posts";
 import tagsRoutes from "./routes/tags";
 import type { Env } from "./types/env";
@@ -42,6 +44,9 @@ app.use("/v1/:workspaceId/*", authorization());
 app.use("/v1/:workspaceId/*", analytics());
 app.use(trimTrailingSlash());
 
+// Demo route with API key authentication (no workspace ID required)
+app.use("/post", apiKeyAuth());
+
 // Workspace redirect logic
 app.use("/:workspaceId/*", async (c, next) => {
   const path = c.req.path;
@@ -68,6 +73,9 @@ app.use("/:workspaceId/*", async (c, next) => {
 // Health
 app.get("/", (c) => c.text("Hello from marble"));
 app.get("/status", (c) => c.json({ status: "ok" }));
+
+// Demo route
+app.route("/post", demoRoutes);
 
 // Mount routes
 v1.route("/:workspaceId/tags", tagsRoutes);
