@@ -55,6 +55,9 @@ importers:
       '@marble/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@marble/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
       '@polar-sh/sdk':
         specifier: ^0.41.1
         version: 0.41.1
@@ -116,6 +119,9 @@ importers:
       '@marble/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@marble/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
       '@phosphor-icons/react':
         specifier: ^2.1.10
         version: 2.1.10(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -588,6 +594,22 @@ importers:
       typescript:
         specifier: ^5.3.3
         version: 5.6.2
+
+  packages/utils:
+    dependencies:
+      nanoid:
+        specifier: ^5.0.9
+        version: 5.0.9
+    devDependencies:
+      '@marble/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
+      '@types/node':
+        specifier: 22.9.0
+        version: 22.9.0
+      typescript:
+        specifier: ^5.6.3
+        version: 5.8.2
 
 packages:
 

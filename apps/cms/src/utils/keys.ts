@@ -1,14 +1,9 @@
-/**
- * API Key Prefixes
- * Used to identify and validate API key types
- */
-export const API_KEY_PREFIXES = {
-  public: "mpk",
-  private: "msk",
-} as const;
+import { API_KEY_PREFIXES as PREFIXES } from "@marble/utils";
 
-export type ApiKeyPrefix =
-  (typeof API_KEY_PREFIXES)[keyof typeof API_KEY_PREFIXES];
+// biome-ignore lint/performance/noBarrelFile: <>
+export { API_KEY_PREFIXES } from "@marble/utils";
+
+export type ApiKeyPrefix = (typeof PREFIXES)[keyof typeof PREFIXES];
 
 /**
  * Default scopes for public API keys (read-only access)
@@ -43,10 +38,10 @@ export const DEFAULT_PRIVATE_SCOPES = [
  * @returns The key type if valid, null otherwise
  */
 export function getApiKeyType(key: string): "public" | "private" | null {
-  if (key.startsWith(API_KEY_PREFIXES.public)) {
+  if (key.startsWith(PREFIXES.public)) {
     return "public";
   }
-  if (key.startsWith(API_KEY_PREFIXES.private)) {
+  if (key.startsWith(PREFIXES.private)) {
     return "private";
   }
   return null;

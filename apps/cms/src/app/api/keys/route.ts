@@ -1,9 +1,9 @@
 import { db } from "@marble/db";
+import { generateApiKey } from "@marble/utils";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { createApiKeySchema } from "@/lib/validations/keys";
 import { DEFAULT_PRIVATE_SCOPES, DEFAULT_PUBLIC_SCOPES } from "@/utils/keys";
-import { generateApiKey } from "@/utils/string";
 
 export async function GET() {
   const sessionData = await getServerSession();
@@ -18,11 +18,9 @@ export async function GET() {
     select: {
       id: true,
       name: true,
-      prefix: true,
       preview: true,
       type: true,
       scopes: true,
-      requestCount: true,
       enabled: true,
       lastUsed: true,
       expiresAt: true,
@@ -54,7 +52,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const { key, prefix, preview } = generateApiKey(body.data.type);
+  const { key, hash, prefix, preview } = generateApiKey(body.data.type);
 
   // Set default scopes based on type if not provided
   const scopesToSet =
@@ -67,17 +65,19 @@ export async function POST(request: Request) {
     data: {
       name: body.data.name,
       workspaceId,
-      key,
+      key: hash,
       prefix,
       preview,
       type: body.data.type,
       scopes: scopesToSet,
       expiresAt: body.data.expiresAt ?? null,
+      // Default rate limits: 1000 requests per 24 hours
+      rateLimitTimeWindow: body.data.rateLimitTimeWindow ?? 86_400_000, // 24 hours in ms
+      rateLimitMax: body.data.rateLimitMax ?? 1000,
     },
     select: {
       id: true,
       name: true,
-      key: true,
       prefix: true,
       preview: true,
       type: true,
@@ -90,5 +90,6 @@ export async function POST(request: Request) {
     },
   });
 
-  return NextResponse.json(apiKey, { status: 201 });
+  // Return with plaintext key (only time it's visible)
+  return NextResponse.json({ ...apiKey, key }, { status: 201 });
 }

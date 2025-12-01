@@ -1,0 +1,16 @@
+{
+  "name": "@marble/utils",
+  "version": "0.0.0",
+  "exports": {
+    ".": "./src/index.ts",
+    "./api-key": "./src/api-key.ts"
+  },
+  "dependencies": {
+    "nanoid": "^5.0.9"
+  },
+  "devDependencies": {
+    "@marble/tsconfig": "workspace:*",
+    "@types/node": "22.9.0",
+    "typescript": "^5.6.3"
+  }
+}

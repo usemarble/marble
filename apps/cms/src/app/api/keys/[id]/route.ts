@@ -31,6 +31,10 @@ export async function GET(
       expiresAt: true,
       createdAt: true,
       updatedAt: true,
+      rateLimitTimeWindow: true,
+      rateLimitMax: true,
+      lastRequest: true,
+      // Never return 'key' field - it's hashed
     },
   });
 
@@ -111,6 +115,10 @@ export async function PATCH(
       expiresAt: true,
       createdAt: true,
       updatedAt: true,
+      rateLimitTimeWindow: true,
+      rateLimitMax: true,
+      lastRequest: true,
+      // Never return 'key' field - it's hashed
     },
   });
 

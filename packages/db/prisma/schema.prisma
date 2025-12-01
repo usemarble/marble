@@ -54,7 +54,7 @@ model Organization {
   editorPreferences EditorPreferences?
   ShareLink         ShareLink[]
   usageEvents       UsageEvent[]
-  ApiKey            ApiKey[]
+  ApiToken          ApiKey[]
 
   @@map("workspace")
 }
@@ -362,16 +362,22 @@ model ApiKey {
   userId       String?
   name         String
   prefix       String?
-  key          String     @unique // plaintext for public keys (we don't expose an admin api yet)
+  key          String     @unique // SHA-256 hash of the API key
   preview      String
   type         ApiKeyType @default(public)
   scopes       ApiScope[] @default([])
   requestCount Int        @default(0)
   enabled      Boolean    @default(true)
-  lastUsed     DateTime?
-  expiresAt    DateTime?
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+
+  // Rate limiting fields
+  rateLimitTimeWindow Int? // milliseconds (e.g., 86400000 for 24 hours)
+  rateLimitMax        Int? // max requests per window
+  lastRequest         DateTime? // for rate limit window tracking
+
+  lastUsed  DateTime?
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   workspace Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   user      User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
@@ -379,6 +385,8 @@ model ApiKey {
   @@index([workspaceId])
   @@index([workspaceId, createdAt])
   @@index([workspaceId, enabled])
+  @@index([workspaceId, type])
+  @@index([key])
   @@map("api_key")
 }
 

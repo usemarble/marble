@@ -1,6 +1,3 @@
-import { customAlphabet, nanoid } from "nanoid";
-import { API_KEY_PREFIXES } from "./keys";
-
 export function generateSlug(text: string) {
   const slug = text
     .trim()
@@ -34,29 +31,4 @@ export function formatBytes(
   return `${Number.parseFloat((bytes / 1024 ** i).toFixed(decimals))} ${
     sizeType === "accurate" ? accurateSizes[i] : sizes[i]
   }`;
-}
-
-type ApiKeyType = "public" | "private";
-
-/**
- * Generates an API key with prefix and preview
- * @param type - The type of API key (public or private)
- * @returns Object containing the full key, prefix, and preview
- */
-export function generateApiKey(type: ApiKeyType) {
-  const prefix =
-    type === "public" ? API_KEY_PREFIXES.public : API_KEY_PREFIXES.private;
-  const nanoid = customAlphabet(
-    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
-    24
-  );
-  const randomSuffix = nanoid();
-  const fullKey = `${prefix}_${randomSuffix}`;
-  const preview = `${prefix}...${randomSuffix.slice(-4)}`;
-
-  return {
-    key: fullKey,
-    prefix,
-    preview,
-  };
 }

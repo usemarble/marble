@@ -15,6 +15,8 @@ export const createApiKeySchema = z.object({
   type: apiKeyTypeEnum,
   scopes: z.array(apiScopeEnum).optional(),
   expiresAt: z.coerce.date().optional().nullable(),
+  rateLimitTimeWindow: z.number().int().positive().optional(),
+  rateLimitMax: z.number().int().positive().optional(),
 });
 
 export type CreateApiKeyValues = z.infer<typeof createApiKeySchema>;
