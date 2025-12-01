@@ -11,7 +11,7 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { createAuthMiddleware } from "better-auth/api";
 import { nextCookies } from "better-auth/next-js";
-import { apiKey, emailOTP, organization } from "better-auth/plugins";
+import { emailOTP, organization } from "better-auth/plugins";
 import {
   sendInviteEmailAction,
   sendResetPasswordAction,
@@ -139,7 +139,6 @@ export const auth = betterAuth({
         }),
       ],
     }),
-    apiKey({}),
     organization({
       // membershipLimit: 10,
       // check plan limits and set membershipLimit

@@ -71,9 +71,9 @@ export async function POST(request: Request) {
       type: body.data.type,
       scopes: scopesToSet,
       expiresAt: body.data.expiresAt ?? null,
-      // Default rate limits: 1000 requests per 24 hours
-      rateLimitTimeWindow: body.data.rateLimitTimeWindow ?? 86_400_000, // 24 hours in ms
-      rateLimitMax: body.data.rateLimitMax ?? 1000,
+      // Automatically set default rate limits: 1000 requests per 24 hours
+      rateLimitTimeWindow: 86_400_000, // 24 hours in ms
+      rateLimitMax: 1000,
     },
     select: {
       id: true,
