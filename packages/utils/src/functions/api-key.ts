@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, timingSafeEqual } from "node:crypto";
 import { customAlphabet } from "nanoid";
 import { API_KEY_PREFIXES } from "../constants/api-key";
 import type { ApiKeyType } from "../types/api-key";
@@ -13,13 +13,27 @@ export function hashApiKey(key: string): string {
 }
 
 /**
- * Verify a plaintext API key against its hash
+ * Verify a plaintext API key against its hash using constant-time comparison
+ * to prevent timing attacks
  * @param plainKey - The plaintext API key to verify
  * @param hashedKey - The hashed API key to compare against
  * @returns True if the plaintext key matches the hash
  */
 export function verifyApiKey(plainKey: string, hashedKey: string): boolean {
-  return hashApiKey(plainKey) === hashedKey;
+  const candidateHash = hashApiKey(plainKey);
+
+  // Convert hashes to buffers for constant-time comparison
+  // SHA-256 produces hex output, so use 'hex' encoding
+  const expectedBuffer = Buffer.from(hashedKey, "hex");
+  const candidateBuffer = Buffer.from(candidateHash, "hex");
+
+  // Check lengths first - if different, keys don't match
+  if (expectedBuffer.length !== candidateBuffer.length) {
+    return false;
+  }
+
+  // Use constant-time comparison to prevent timing attacks
+  return timingSafeEqual(expectedBuffer, candidateBuffer);
 }
 
 /**
