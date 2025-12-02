@@ -10,7 +10,7 @@ import { Timezone } from "@/components/settings/fields/timezone";
 
 function PageClient() {
   return (
-    <WorkspacePageWrapper className="flex flex-col gap-8 py-12">
+    <WorkspacePageWrapper className="flex flex-col gap-8 py-12" size="compact">
       <Name />
       <Slug />
       <Logo />

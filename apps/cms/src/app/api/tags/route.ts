@@ -2,7 +2,8 @@ import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { tagSchema } from "@/lib/validations/workspace";
-import { getWebhooks, WebhookClient } from "@/lib/webhooks/webhook-client";
+import { getWebhooks } from "@/lib/webhooks/utils";
+import { WebhookClient } from "@/lib/webhooks/webhook-client";
 
 export async function GET() {
   const sessionData = await getServerSession();
@@ -69,7 +70,7 @@ export async function POST(req: Request) {
     },
   });
 
-  const webhooks = getWebhooks(sessionData.session, "tag_created");
+  const webhooks = getWebhooks(workspaceId, "tag_created");
 
   for (const webhook of await webhooks) {
     const webhookClient = new WebhookClient({ secret: webhook.secret });

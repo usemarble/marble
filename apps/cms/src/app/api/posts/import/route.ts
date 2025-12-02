@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { postImportSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";
-import { getWebhooks, WebhookClient } from "@/lib/webhooks/webhook-client";
+import { dispatchWebhooks } from "@/lib/webhooks/dispatcher";
 import { sanitizeHtml } from "@/utils/editor";
 import { generateSlug } from "@/utils/string";
 
@@ -138,23 +138,23 @@ export async function POST(request: Request) {
     },
   });
 
-  const webhooks = getWebhooks(sessionData.session, "post_published");
-
   if (postCreated.status === "published") {
-    for (const webhook of await webhooks) {
-      const webhookClient = new WebhookClient({ secret: webhook.secret });
-      await webhookClient.send({
-        url: webhook.endpoint,
-        event: "post.published",
-        data: {
-          id: postCreated.id,
-          title: postCreated.title,
-          slug: postCreated.slug,
-          userId: sessionData.user.id,
-        },
-        format: webhook.format,
-      });
-    }
+    dispatchWebhooks({
+      workspaceId: activeWorkspaceId,
+      validationEvent: "post_published",
+      deliveryEvent: "post.published",
+      payload: {
+        id: postCreated.id,
+        title: postCreated.title,
+        slug: postCreated.slug,
+        userId: sessionData.user.id,
+      },
+    }).catch((error) => {
+      console.error(
+        `[PostImport] Failed to dispatch webhooks: postId=${postCreated.id}`,
+        error
+      );
+    });
   }
 
   return NextResponse.json({ id: postCreated.id });

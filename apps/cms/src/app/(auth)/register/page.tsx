@@ -34,7 +34,6 @@ export default async function RegisterPage(props: PageProps) {
           loading="lazy"
           quality={100}
           src="/textures/marble-light.avif"
-          unoptimized
         />
         <Image
           alt="Dark marble texture background"
@@ -43,7 +42,6 @@ export default async function RegisterPage(props: PageProps) {
           loading="lazy"
           quality={100}
           src="/textures/marble-dark.avif"
-          unoptimized
         />
         <div className="relative z-10">
           <MarbleIcon />

@@ -25,23 +25,11 @@ export const QUERY_KEYS = {
 
   WEBHOOKS: (workspaceId: string) => ["webhooks", workspaceId],
 
+  KEYS: (workspaceId: string) => ["keys", workspaceId],
+
   BILLING_USAGE: (workspaceId: string) => ["billing-usage", workspaceId],
 
-  PUBLISHING_METRICS: (workspaceId: string) => [
-    "publishing-metrics",
-    workspaceId,
-  ],
-
-  API_ANALYTICS: (workspaceId: string) => [
-    "analytics",
-    "api-usage",
-    workspaceId,
-  ],
-
-  WORKSPACE_METRICS: (workspaceId: string) => [
-    "workspace-metrics",
-    workspaceId,
-  ],
+  USAGE_DASHBOARD: (workspaceId: string) => ["usage-dashboard", workspaceId],
 
   BRAND_KNOWLEDGE: (workspaceId: string) => ["brand-knowledge", workspaceId],
 
@@ -49,6 +37,11 @@ export const QUERY_KEYS = {
     "ai-readability-suggestions",
     workspaceId,
     contentKey,
+  ],
+
+  PUBLISHING_METRICS: (workspaceId: string) => [
+    "publishing-metrics",
+    workspaceId,
   ],
 
   // Globally scoped

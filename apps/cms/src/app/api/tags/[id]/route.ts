@@ -2,7 +2,7 @@ import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { tagSchema } from "@/lib/validations/workspace";
-import { getWebhooks, WebhookClient } from "@/lib/webhooks/webhook-client";
+import { dispatchWebhooks } from "@/lib/webhooks/dispatcher";
 
 export async function PATCH(
   req: Request,
@@ -41,7 +41,7 @@ export async function PATCH(
     return NextResponse.json({ error: "Slug already in use" }, { status: 409 });
   }
 
-  const tagUpdated = await db.tag.update({
+  const updatedTag = await db.tag.update({
     where: { id },
     data: {
       name: body.name,
@@ -50,23 +50,23 @@ export async function PATCH(
     },
   });
 
-  const webhooks = getWebhooks(sessionData.session, "tag_updated");
+  dispatchWebhooks({
+    workspaceId,
+    validationEvent: "tag_updated",
+    deliveryEvent: "tag.updated",
+    payload: {
+      id: updatedTag.id,
+      slug: updatedTag.slug,
+      userId: sessionData.user.id,
+    },
+  }).catch((error) => {
+    console.error(
+      `[TagUpdate] Failed to dispatch webhooks: tagId=${updatedTag.id}`,
+      error
+    );
+  });
 
-  for (const webhook of await webhooks) {
-    const webhookClient = new WebhookClient({ secret: webhook.secret });
-    await webhookClient.send({
-      url: webhook.endpoint,
-      event: "tag.updated",
-      data: {
-        id: tagUpdated.id,
-        slug: tagUpdated.slug,
-        userId: sessionData.user.id,
-      },
-      format: webhook.format,
-    });
-  }
-
-  return NextResponse.json(tagUpdated, { status: 200 });
+  return NextResponse.json(updatedTag, { status: 200 });
 }
 
 export async function DELETE(
@@ -74,15 +74,15 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const sessionData = await getServerSession();
-
-  if (!sessionData || !sessionData.session.activeOrganizationId) {
+  const workspaceId = sessionData?.session.activeOrganizationId;
+  if (!sessionData || !workspaceId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { id } = await params;
 
   const tag = await db.tag.findFirst({
-    where: { id, workspaceId: sessionData.session.activeOrganizationId },
+    where: { id, workspaceId },
     select: { slug: true },
   });
 
@@ -94,21 +94,22 @@ export async function DELETE(
     await db.tag.delete({
       where: {
         id,
-        workspaceId: sessionData.session.activeOrganizationId,
+        workspaceId,
       },
     });
 
-    const webhooks = getWebhooks(sessionData.session, "tag_deleted");
-
-    for (const webhook of await webhooks) {
-      const webhookClient = new WebhookClient({ secret: webhook.secret });
-      await webhookClient.send({
-        url: webhook.endpoint,
-        event: "tag.deleted",
-        data: { id, slug: tag.slug, userId: sessionData.user.id },
-        format: webhook.format,
-      });
-    }
+    // Fire and forget - don't block response
+    dispatchWebhooks({
+      workspaceId,
+      validationEvent: "tag_deleted",
+      deliveryEvent: "tag.deleted",
+      payload: { id, slug: tag.slug, userId: sessionData.user.id },
+    }).catch((error) => {
+      console.error(
+        `[TagDelete] Failed to dispatch webhooks: tagId=${id}`,
+        error
+      );
+    });
 
     return new NextResponse(null, { status: 204 });
   } catch (_e) {

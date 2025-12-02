@@ -49,11 +49,17 @@ function PageClient() {
   return (
     <>
       {tags && tags.length > 0 ? (
-        <WorkspacePageWrapper className="flex flex-col gap-8 pt-10 pb-16">
+        <WorkspacePageWrapper
+          className="flex flex-col gap-8 pt-10 pb-16"
+          size="compact"
+        >
           <DataTable columns={columns} data={tags} />
         </WorkspacePageWrapper>
       ) : (
-        <WorkspacePageWrapper className="grid h-full place-content-center">
+        <WorkspacePageWrapper
+          className="grid h-full place-content-center"
+          size="compact"
+        >
           <div className="flex max-w-80 flex-col items-center gap-4">
             <div className="p-2">
               <TagIcon className="size-16" />

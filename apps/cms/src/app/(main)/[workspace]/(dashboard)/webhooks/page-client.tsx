@@ -104,7 +104,10 @@ export function PageClient() {
 
   if (webhooks?.length === 0) {
     return (
-      <WorkspacePageWrapper className="grid h-full place-content-center">
+      <WorkspacePageWrapper
+        className="grid h-full place-content-center"
+        size="compact"
+      >
         <div className="flex max-w-80 flex-col items-center gap-4">
           <div className="p-2">
             <WebhooksLogoIcon className="size-16" />
@@ -127,7 +130,10 @@ export function PageClient() {
   }
 
   return (
-    <WorkspacePageWrapper>
+    <WorkspacePageWrapper
+      className="flex flex-col gap-8 pt-10 pb-16"
+      size="compact"
+    >
       <div className="flex flex-col gap-6">
         <div className="flex items-center justify-between">
           <div />

@@ -1,5 +1,6 @@
 import type { SvgComponent } from "astro/types";
 import Bounty from "@/components/icons/brand/Bounty.astro";
+import Candle from "@/components/icons/brand/Candle.astro";
 import Databuddy from "@/components/icons/brand/Databuddy.astro";
 import Helix from "@/components/icons/brand/Helix.astro";
 import Ia from "@/components/icons/brand/Ia.astro";
@@ -87,6 +88,7 @@ export type Pricing = {
     monthly: string;
     yearly: string;
   };
+  trial?: string;
   features: string[];
   button: {
     href: string;
@@ -105,7 +107,6 @@ export const PRICING: Pricing[] = [
     features: [
       "Unlimited posts",
       "1GB media storage",
-      "2 member seats",
       "AI Readability insights",
       "10k API requests per month",
       "100 webhook events per month",
@@ -122,13 +123,15 @@ export const PRICING: Pricing[] = [
       monthly: "$20",
       yearly: "$180",
     },
+    trial: "7 day free trial",
     features: [
       "Unlimited posts",
       "10GB media storage",
-      "10 member seats",
       "AI Readability insights",
       "50k API requests per month",
       "1k webhook events per month",
+      "5 team member seats",
+      "Share post drafts",
     ],
     button: {
       href: "https://app.marblecms.com",
@@ -145,6 +148,11 @@ export const PRICING_FAQS: {
     question: "How are plans billed?",
     answer:
       "Our plans are billed per workspace, not per user. This means you can invite as many team members as your plan allows to a workspace without any extra charges per member. Each workspace requires its own subscription if you wish to upgrade it.",
+  },
+  {
+    question: "Do you offer a free trial?",
+    answer:
+      "Yes! The Pro plan includes a 7-day free trial. You can try all Pro features risk-free for 7 days. If you don't cancel during the trial period, your subscription will automatically renew at the full price. You can cancel anytime during the trial period without being charged.",
   },
   {
     question: "How do I get a refund?",
@@ -204,6 +212,12 @@ export const USERS = [
     url: "https://databuddy.cc",
     component: Databuddy,
     showWordmark: true,
+  },
+  {
+    name: "Candle",
+    url: "https://www.trycandle.app/",
+    component: Candle,
+    showWordmark: false,
   },
 ];
 

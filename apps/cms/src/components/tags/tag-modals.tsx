@@ -3,7 +3,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -276,18 +275,16 @@ export const DeleteTagModal = ({
           >
             Cancel
           </AlertDialogCancel>
-          <AlertDialogAction asChild>
-            <AsyncButton
-              isLoading={isPending}
-              onClick={(e) => {
-                e.preventDefault();
-                deleteTag();
-              }}
-              variant="destructive"
-            >
-              Delete
-            </AsyncButton>
-          </AlertDialogAction>
+          <AsyncButton
+            isLoading={isPending}
+            onClick={(e) => {
+              e.preventDefault();
+              deleteTag();
+            }}
+            variant="destructive"
+          >
+            Delete
+          </AsyncButton>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

@@ -50,7 +50,11 @@ export function NavExtra() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button className="rounded-lg" size="icon" variant="ghost">
+        <Button
+          className="cursor-pointer rounded-lg"
+          size="icon"
+          variant="ghost"
+        >
           <QuestionIcon className="size-4" />
         </Button>
       </PopoverTrigger>

@@ -13,9 +13,9 @@ import { useEffect, useState } from "react";
 import { useReadability } from "@/hooks/use-readability";
 import { useUnsavedChanges } from "@/providers/unsaved-changes";
 import { Gauge } from "../../ui/gauge";
+import { HiddenScrollbar } from "../../ui/hidden-scrollbar";
 import type { ReadabilitySuggestion } from "../ai/readability-suggestions";
 import { ReadabilitySuggestions } from "../ai/readability-suggestions";
-import { HiddenScrollbar } from "../hidden-scrollbar";
 
 type AnalysisTabProps = {
   editor?: EditorInstance | null;

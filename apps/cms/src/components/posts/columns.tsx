@@ -53,7 +53,7 @@ export const columns: ColumnDef<Post>[] = [
     accessorKey: "publishedAt",
     header: ({ column }) => (
       <Button
-        className="h-auto p-0 font-medium hover:bg-transparent"
+        className="h-auto font-medium hover:bg-transparent has-[>svg]:px-0"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         variant="ghost"
       >
@@ -67,7 +67,7 @@ export const columns: ColumnDef<Post>[] = [
     accessorKey: "updatedAt",
     header: ({ column }) => (
       <Button
-        className="h-auto p-0 font-medium hover:bg-transparent"
+        className="h-auto font-medium hover:bg-transparent has-[>svg]:px-0"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         variant="ghost"
       >

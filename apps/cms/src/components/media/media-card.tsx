@@ -87,8 +87,10 @@ export function MediaCard({
             <Image
               alt={media.name}
               className="absolute inset-0 size-full object-cover"
+              height={160}
               src={media.url}
               unoptimized
+              width={250}
             />
           )}
           {media.type === "video" && <VideoPlayer src={media.url} />}

@@ -1,4 +1,4 @@
-import { createClient } from "@marble/db";
+import { createClient } from "@marble/db/workers";
 import { Hono } from "hono";
 import type { Env } from "../types/env";
 import { TagQuerySchema, TagsQuerySchema } from "../validations/tags";
@@ -151,7 +151,13 @@ tags.get("/:identifier", async (c) => {
     });
 
     if (!tag) {
-      return c.json({ error: "Tag not found" }, 404);
+      return c.json(
+        {
+          error: "Tag not found",
+          message: "The requested tag does not exist",
+        },
+        404
+      );
     }
 
     const totalPosts = await db.post.count({

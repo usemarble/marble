@@ -54,6 +54,8 @@ model Organization {
   editorPreferences EditorPreferences?
   ShareLink         ShareLink[]
   brandKnowledge    BrandKnowledge[]
+  usageEvents       UsageEvent[]
+  ApiToken          ApiKey[]
 
   @@map("workspace")
 }
@@ -152,6 +154,7 @@ model Media {
   name        String
   url         String
   size        Int
+  alt         String?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   workspaceId String
@@ -225,6 +228,7 @@ model User {
   members       Member[]
   sessions      Session[]
   subscriptions Subscription[]
+  ApiKey        ApiKey[]
 
   @@map("user")
 }
@@ -353,6 +357,54 @@ model Invitation {
   @@map("invitation")
 }
 
+model UsageEvent {
+  id          String         @id @default(cuid())
+  type        UsageEventType
+  workspaceId String
+  endpoint    String?
+  size        Int?
+  createdAt   DateTime       @default(now())
+  workspace   Organization   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, type, createdAt])
+  @@index([workspaceId, createdAt])
+  @@map("usage_event")
+}
+
+model ApiKey {
+  id           String     @id @default(cuid())
+  workspaceId  String
+  userId       String?
+  name         String
+  prefix       String?
+  key          String     @unique // SHA-256 hash of the API key
+  preview      String
+  type         ApiKeyType @default(public)
+  scopes       ApiScope[] @default([])
+  requestCount Int        @default(0)
+  enabled      Boolean    @default(true)
+
+  // Rate limiting fields
+  rateLimitTimeWindow Int? // milliseconds (e.g., 86400000 for 24 hours)
+  rateLimitMax        Int? // max requests per window
+  lastRequest         DateTime? // for rate limit window tracking
+
+  lastUsed  DateTime?
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  workspace Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([workspaceId])
+  @@index([workspaceId, createdAt])
+  @@index([workspaceId, enabled])
+  @@index([workspaceId, type])
+  @@index([key])
+  @@map("api_key")
+}
+
 enum PostStatus {
   published
   draft
@@ -382,6 +434,7 @@ enum WebhookEvent {
   tag_updated
   tag_deleted
   media_uploaded
+  media_updated
   media_deleted
 }
 
@@ -396,4 +449,28 @@ enum MediaType {
   video
   audio
   document
+}
+
+enum UsageEventType {
+  api_request
+  media_upload
+  webhook_delivery
+}
+
+enum ApiKeyType {
+  public
+  private
+}
+
+enum ApiScope {
+  posts_read
+  posts_write
+  authors_read
+  authors_write
+  categories_read
+  categories_write
+  tags_read
+  tags_write
+  media_read
+  media_write
 }

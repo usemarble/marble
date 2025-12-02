@@ -207,6 +207,7 @@ export function ImageUploadModal({ isOpen, setIsOpen }: ImageUploadModalProps) {
                             <Image
                               alt={item.name}
                               className="h-full w-full object-cover"
+                              fill
                               src={item.url}
                               unoptimized
                             />

@@ -19,6 +19,7 @@ import {
 import { cn } from "@marble/ui/lib/utils";
 import {
   FadersIcon,
+  HouseIcon,
   ImagesIcon,
   LayoutIcon,
   NoteIcon,
@@ -89,19 +90,19 @@ export function NavMain() {
 
   return (
     <SidebarGroup className={cn(open ? "px-4" : "px-2")}>
-      <SidebarGroupLabel>Workspace</SidebarGroupLabel>
+      <SidebarGroupLabel className="sr-only">Workspace</SidebarGroupLabel>
       <SidebarMenu>
         <SidebarMenuButton
           asChild
           className={`border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
             isOverviewActive
-              ? "border-border bg-sidebar-accent text-foreground shadow-xs"
+              ? "bg-sidebar-accent text-foreground"
               : "hover:text-accent-foreground"
           }`}
         >
           <Link href={`/${params.workspace}`}>
-            <LayoutIcon />
-            <span>Overview</span>
+            <HouseIcon />
+            <span>Home</span>
           </Link>
         </SidebarMenuButton>
         {items.map((item) => (
@@ -109,7 +110,7 @@ export function NavMain() {
             asChild
             className={`border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
               isActive(item.url)
-                ? "hover border-border bg-sidebar-accent text-foreground shadow-xs"
+                ? "hover bg-sidebar-accent text-foreground"
                 : "hover:text-accent-foreground"
             }`}
             key={item.name}
@@ -131,7 +132,7 @@ export function NavMain() {
                 <SidebarMenuButton
                   className={`cursor-pointer border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
                     isSettingsActive
-                      ? "border-border bg-sidebar-accent text-foreground shadow-xs"
+                      ? "bg-sidebar-accent text-foreground"
                       : "hover:text-accent-foreground"
                   }`}
                   tooltip="Settings"

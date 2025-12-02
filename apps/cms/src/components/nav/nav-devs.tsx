@@ -43,7 +43,7 @@ export function NavDevs() {
               asChild
               className={`border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
                 isActive(item.url)
-                  ? "border-border bg-sidebar-accent text-foreground shadow-xs"
+                  ? "border bg-sidebar-accent text-foreground"
                   : "hover:text-accent-foreground"
               }`}
             >

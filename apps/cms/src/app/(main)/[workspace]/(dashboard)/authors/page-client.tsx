@@ -38,7 +38,10 @@ function PageClient() {
   }
 
   return (
-    <WorkspacePageWrapper>
+    <WorkspacePageWrapper
+      className="flex flex-col gap-8 pt-10 pb-16"
+      size="compact"
+    >
       <div className="space-y-6">
         <Suspense
           fallback={

@@ -6,6 +6,7 @@ export type PricingPlan = {
     monthly: string;
     yearly: string;
   };
+  trial?: string;
   features: string[];
   button: {
     href: string;
@@ -33,7 +34,6 @@ export const PRICING_PLANS: PricingPlan[] = [
     features: [
       "Unlimited posts",
       "1GB media storage",
-      "2 team members",
       "AI Readability insights",
       "10k API requests per month",
       "100 webhook events per month",
@@ -51,13 +51,15 @@ export const PRICING_PLANS: PricingPlan[] = [
       monthly: "$20",
       yearly: "$180",
     },
+    trial: "7 day free trial",
     features: [
       "Unlimited posts",
       "10GB media storage",
-      "10 team members",
       "AI Readability insights",
       "50k API requests per month",
       "1k webhook events per month",
+      "5 team members",
+      "Share post drafts",
     ],
     button: {
       href: "https://app.marblecms.com",

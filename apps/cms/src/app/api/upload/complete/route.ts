@@ -3,8 +3,9 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { R2_PUBLIC_URL } from "@/lib/r2";
 import { completeSchema } from "@/lib/validations/upload";
-import type { MediaType } from "@/types/media";
+import { dispatchWebhooks } from "@/lib/webhooks/dispatcher";
 import { getMediaType } from "@/utils/media";
+import { trackMediaUpload } from "@/utils/usage/media";
 
 export async function POST(request: Request) {
   const sessionData = await getServerSession();
@@ -13,6 +14,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const workspaceId = sessionData.session.activeOrganizationId;
   const body = await request.json();
   const parsedBody = completeSchema.safeParse(body);
 
@@ -40,7 +42,6 @@ export async function POST(request: Request) {
         return NextResponse.json({ avatarUrl: url });
       }
       case "logo": {
-        const workspaceId = sessionData.session.activeOrganizationId;
         await db.organization.update({
           where: { id: workspaceId },
           data: { logo: url },
@@ -49,7 +50,6 @@ export async function POST(request: Request) {
       }
       case "media": {
         const mediaName = parsedBody.data.name;
-        const workspaceId = sessionData.session.activeOrganizationId;
         const mediaType = getMediaType(fileType);
         const media = await db.media.create({
           data: {
@@ -59,6 +59,28 @@ export async function POST(request: Request) {
             type: mediaType,
             workspaceId,
           },
+        });
+
+        trackMediaUpload(workspaceId, fileSize, mediaType).catch((err) => {
+          console.error("[Media Upload] Failed to track upload:", err);
+        });
+
+        dispatchWebhooks({
+          workspaceId,
+          validationEvent: "media_uploaded",
+          deliveryEvent: "media.uploaded",
+          payload: {
+            id: media.id,
+            name: media.name,
+            userId: sessionData.user.id,
+            size: media.size,
+            type: media.type,
+          },
+        }).catch((error) => {
+          console.error(
+            `[MediaUpload] Failed to dispatch webhooks: mediaId=${media.id}`,
+            error
+          );
         });
 
         const mediaResponse = {

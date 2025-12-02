@@ -1,6 +1,7 @@
 import { db } from "@marble/db";
 import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
+import { checkWorkspaceSubscriptionAction } from "@/lib/actions/checks";
 import { getServerSession } from "@/lib/auth/session";
 import { shareLinkSchema } from "@/lib/validations/post";
 
@@ -10,6 +11,16 @@ export async function POST(request: Request) {
 
   if (!sessionData || !activeWorkspaceId) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  }
+
+  const hasValidSubscription =
+    await checkWorkspaceSubscriptionAction(activeWorkspaceId);
+
+  if (!hasValidSubscription) {
+    return NextResponse.json(
+      { error: "Upgrade to Pro to share drafts" },
+      { status: 403 }
+    );
   }
 
   const values = shareLinkSchema.safeParse(await request.json());

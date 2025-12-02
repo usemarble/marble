@@ -5,8 +5,12 @@ import ws from "ws";
 
 neonConfig.webSocketConstructor = ws;
 
-const createClient = (url?: string) => {
-  const connectionString = url || process.env.DATABASE_URL;
+const createClient = () => {
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString || typeof connectionString !== "string") {
+    throw new Error("DATABASE_URL is not set");
+  }
+
   const adapter = new PrismaNeon({ connectionString });
   return new PrismaClient({ adapter });
 };
@@ -26,29 +30,4 @@ if (process.env.NODE_ENV === "production") {
   db = global.prisma;
 }
 
-export { createClient, db };
-
-export async function backfillEditorPreferencesForAllWorkspaces() {
-  const prisma = db;
-  const workspaces = await prisma.organization.findMany({
-    select: { id: true },
-  });
-
-  for (const ws of workspaces) {
-    await prisma.editorPreferences.upsert({
-      where: { workspaceId: ws.id },
-      create: {
-        workspaceId: ws.id,
-        ai: { create: { enabled: false } },
-      },
-      update: {
-        ai: {
-          upsert: {
-            create: { enabled: false },
-            update: {},
-          },
-        },
-      },
-    });
-  }
-}
+export { db };

@@ -253,11 +253,11 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
             </div>
 
             <div className="grid gap-3">
-              <div className="flex items-end">
+              <div className="mb-2 flex items-end justify-between">
                 <Label>Events</Label>
                 <a
                   className="ml-2 flex cursor-pointer items-center text-primary text-xs hover:underline"
-                  href="https://docs.marblecms.com/content/guides/webhooks"
+                  href="https://docs.marblecms.com/guides/features/webhooks"
                   rel="noopener noreferrer"
                   target="_blank"
                 >
@@ -265,7 +265,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                 </a>
               </div>
               <div className="grid gap-1">
-                <div className="flex items-center space-x-3 border-border border-b pb-2">
+                <div className="flex items-center space-x-3">
                   <Checkbox
                     checked={getMasterCheckboxState()}
                     id={masterCheckboxId}
