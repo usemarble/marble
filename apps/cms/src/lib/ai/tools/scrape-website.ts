@@ -13,8 +13,8 @@ export const scrapeWebsiteTool = tool({
   execute: async ({ url }) => {
     const scrape = await firecrawl.scrape(url, {
       formats: ["markdown"],
+      onlyMainContent: false,
     });
-    console.log(scrape);
 
     return {
       content: scrape.markdown,
