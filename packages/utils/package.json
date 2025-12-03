@@ -5,7 +5,8 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "nanoid": "^5.0.9"
+    "nanoid": "^5.0.9",
+    "shiki": "^3.12.2"
   },
   "devDependencies": {
     "@marble/tsconfig": "workspace:*",
