@@ -1,8 +1,8 @@
 "use client";
 
+import type { Editor } from "@marble/editor";
 import { cn } from "@marble/ui/lib/utils";
 import { CursorClickIcon } from "@phosphor-icons/react";
-import type { EditorInstance } from "novel";
 import React from "react";
 
 export type ReadabilitySuggestion = {
@@ -12,13 +12,13 @@ export type ReadabilitySuggestion = {
 };
 
 type ReadabilitySuggestionsProps = {
-  editor?: EditorInstance | null;
+  editor?: Editor | null;
   suggestions: ReadabilitySuggestion[];
   isLoading?: boolean;
   onRefresh?: () => void;
 };
 
-function highlightTextInEditor(editor: EditorInstance, textReference: string) {
+function highlightTextInEditor(editor: Editor, textReference: string) {
   const trimmed = textReference.trim();
   if (!trimmed) {
     return;

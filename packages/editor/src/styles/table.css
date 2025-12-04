@@ -1,0 +1,219 @@
+.ProseMirror {
+  .tableWrapper {
+    margin-top: 3rem;
+    margin-bottom: 3rem;
+  }
+
+  table {
+    border-collapse: collapse;
+    border-color: rgba(0, 0, 0, 0.1);
+    border-radius: 0.25rem;
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  .dark table {
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  table td,
+  table th {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    min-width: 100px;
+    padding: 0.5rem;
+    position: relative;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .dark table td,
+  .dark table th {
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  table td:first-of-type:not(a),
+  table th:first-of-type:not(a) {
+    margin-top: 0;
+  }
+
+  table td p,
+  table th p {
+    margin: 0;
+  }
+
+  table td p + p,
+  table th p + p {
+    margin-top: 0.75rem;
+  }
+
+  table th {
+    font-weight: 700;
+  }
+
+  table .column-resize-handle {
+    bottom: -2px;
+    display: flex;
+    pointer-events: none;
+    position: absolute;
+    right: -0.25rem;
+    top: 0;
+    width: 0.5rem;
+  }
+
+  table .column-resize-handle::before {
+    background-color: rgba(0, 0, 0, 0.2);
+    height: 100%;
+    width: 1px;
+    margin-left: 0.5rem;
+    content: "";
+  }
+
+  .dark table .column-resize-handle::before {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+
+  table .selectedCell {
+    background-color: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.2);
+    border-style: double;
+  }
+
+  .dark table .selectedCell {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  table .grip-column,
+  table .grip-row {
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    position: absolute;
+    z-index: 10;
+  }
+
+  .dark table .grip-column,
+  .dark table .grip-row {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  table .grip-column {
+    width: calc(100% + 1px);
+    border-left: 1px solid rgba(0, 0, 0, 0.2);
+    height: 0.75rem;
+    left: 0;
+    margin-left: -1px;
+    top: -0.75rem;
+  }
+
+  .dark table .grip-column {
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  table .grip-column:hover::before,
+  table .grip-column.selected::before {
+    content: "";
+    width: 0.625rem;
+  }
+
+  table .grip-column:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .dark table .grip-column:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+
+  table .grip-column:hover::before {
+    border-bottom: 2px dotted rgba(0, 0, 0, 0.6);
+  }
+
+  .dark table .grip-column:hover::before {
+    border-color: rgba(255, 255, 255, 0.6);
+  }
+
+  table .grip-column.first {
+    border-color: transparent;
+    border-top-left-radius: 0.125rem;
+  }
+
+  table .grip-column.last {
+    border-top-right-radius: 0.125rem;
+  }
+
+  table .grip-column.selected {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-color: rgba(0, 0, 0, 0.3);
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  }
+
+  .dark table .grip-column.selected {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  table .grip-column.selected::before {
+    border-bottom: 2px dotted;
+  }
+
+  table .grip-row {
+    height: calc(100% + 1px);
+    border-top: 1px solid rgba(0, 0, 0, 0.2);
+    left: -0.75rem;
+    width: 0.75rem;
+    top: 0;
+    margin-top: -1px;
+  }
+
+  .dark table .grip-row {
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  table .grip-row:hover::before,
+  table .grip-row.selected::before {
+    height: 0.625rem;
+    content: "";
+  }
+
+  table .grip-row:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .dark table .grip-row:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+
+  table .grip-row:hover::before {
+    border-left: 2px dotted rgba(0, 0, 0, 0.6);
+  }
+
+  .dark table .grip-row:hover::before {
+    border-color: rgba(255, 255, 255, 0.6);
+  }
+
+  table .grip-row.first {
+    border-color: transparent;
+    border-top-left-radius: 0.125rem;
+  }
+
+  table .grip-row.last {
+    border-bottom-left-radius: 0.125rem;
+  }
+
+  table .grip-row.selected {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-color: rgba(0, 0, 0, 0.3);
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  }
+
+  .dark table .grip-row.selected {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  table .grip-row.selected::before {
+    border-left: 2px dotted;
+  }
+}
