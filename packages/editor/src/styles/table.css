@@ -33,7 +33,7 @@
     top: 0;
     right: -0.5rem;
     bottom: 0;
-    width: 0.5rem;
+    width: 1rem;
     cursor: col-resize;
     z-index: 1;
   }
