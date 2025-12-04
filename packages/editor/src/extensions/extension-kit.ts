@@ -113,6 +113,8 @@ export const ExtensionKit = ({
     },
     emptyEditorClass:
       "before:text-muted-foreground before:content-[attr(data-placeholder)] before:float-left before:h-0 before:pointer-events-none",
+    emptyNodeClass:
+      "before:text-muted-foreground before:content-[attr(data-placeholder)] before:float-left before:h-0 before:pointer-events-none",
   }),
 
   // Character count
