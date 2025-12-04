@@ -4,28 +4,18 @@ import {
   CommandItem,
   CommandList,
 } from "@marble/ui/components/command";
-import { useEffect, useRef, useState } from "react";
 import type { EditorSlashMenuProps } from "../../types";
 
 /**
  * Menu list component for slash commands
  * Displays available commands in a dropdown menu
+ * Uses cmdk's built-in keyboard navigation (ArrowUp, ArrowDown, Enter)
  */
 export const EditorSlashMenu = ({
   items,
   editor,
   range,
 }: EditorSlashMenuProps) => {
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const prevItemsLengthRef = useRef(items.length);
-
-  useEffect(() => {
-    if (prevItemsLengthRef.current !== items.length) {
-      setSelectedIndex(0);
-      prevItemsLengthRef.current = items.length;
-    }
-  });
-
   const selectItem = (index: number) => {
     const item = items.at(index);
     if (item) {
@@ -34,28 +24,7 @@ export const EditorSlashMenu = ({
   };
 
   return (
-    <Command
-      className="border shadow"
-      id="slash-command"
-      onKeyDown={(e) => {
-        if (e.key === "ArrowUp") {
-          e.preventDefault();
-          setSelectedIndex((prev) => (prev - 1 + items.length) % items.length);
-          return;
-        }
-        if (e.key === "ArrowDown") {
-          e.preventDefault();
-          setSelectedIndex((prev) => (prev + 1) % items.length);
-          return;
-        }
-        if (e.key === "Enter") {
-          e.preventDefault();
-          selectItem(selectedIndex);
-          return;
-        }
-      }}
-      shouldFilter={false}
-    >
+    <Command className="border shadow" id="slash-command" shouldFilter={false}>
       <CommandEmpty className="flex w-full items-center justify-center p-4 text-muted-foreground text-sm">
         <p>No results</p>
       </CommandEmpty>
@@ -63,9 +32,9 @@ export const EditorSlashMenu = ({
         {items.map((item, index) => (
           <CommandItem
             className="flex items-center gap-3 pr-3"
-            data-selected={index === selectedIndex}
             key={item.title}
             onSelect={() => selectItem(index)}
+            value={item.title}
           >
             <div className="flex size-9 shrink-0 items-center justify-center rounded border bg-secondary">
               <item.icon className="text-muted-foreground" size={16} />
