@@ -1,9 +1,16 @@
 "use client";
 
-import { buttonVariants } from "@marble/ui/components/button";
-import { NoteIcon, PlusIcon } from "@phosphor-icons/react";
+import { Button, buttonVariants } from "@marble/ui/components/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@marble/ui/components/tooltip";
+import { NoteIcon, PlusIcon, UploadSimpleIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
+import dynamic from "next/dynamic";
 import Link from "next/link";
+import { useState } from "react";
 import { toast } from "sonner";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import { columns, type Post } from "@/components/posts/columns";
@@ -12,8 +19,16 @@ import PageLoader from "@/components/shared/page-loader";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { useWorkspace } from "@/providers/workspace";
 
+const PostsImportModal = dynamic(
+  () =>
+    import("@/components/posts/import-modal").then((m) => m.PostsImportModal),
+  { ssr: false }
+);
+
 function PageClient() {
   const { activeWorkspace } = useWorkspace();
+
+  const [importOpen, setImportOpen] = useState(false);
 
   const { data: posts, isLoading } = useQuery({
     queryKey: QUERY_KEYS.POSTS(activeWorkspace?.id ?? ""),
@@ -47,25 +62,42 @@ function PageClient() {
       {posts && posts.length > 0 ? (
         <PostDataView columns={columns} data={posts} />
       ) : (
-        <WorkspacePageWrapper className="grid h-full place-content-center">
-          <div className="flex max-w-80 flex-col items-center gap-4">
-            <div className="p-2">
-              <NoteIcon className="size-16" />
+        <>
+          <WorkspacePageWrapper className="grid h-full place-content-center">
+            <div className="flex max-w-80 flex-col items-center gap-4">
+              <div className="p-2">
+                <NoteIcon className="size-16" />
+              </div>
+              <div className="flex flex-col items-center gap-4 text-center">
+                <p className="text-muted-foreground text-sm">
+                  No posts yet. Click the button below to start writing.
+                </p>
+                <div className="flex gap-2">
+                  <Link
+                    className={buttonVariants({ variant: "default" })}
+                    href={`/${activeWorkspace?.slug}/editor/p/new`}
+                  >
+                    <PlusIcon size={16} />
+                    <span>New Post</span>
+                  </Link>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        aria-label="Upload"
+                        onClick={() => setImportOpen(true)}
+                        variant="default"
+                      >
+                        <UploadSimpleIcon className="size-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">Upload</TooltipContent>
+                  </Tooltip>
+                </div>
+              </div>
             </div>
-            <div className="flex flex-col items-center gap-4 text-center">
-              <p className="text-muted-foreground text-sm">
-                No posts yet. Click the button below to start writing.
-              </p>
-              <Link
-                className={buttonVariants({ variant: "default" })}
-                href={`/${activeWorkspace?.slug}/editor/p/new`}
-              >
-                <PlusIcon size={16} />
-                <span>New Post</span>
-              </Link>
-            </div>
-          </div>
-        </WorkspacePageWrapper>
+          </WorkspacePageWrapper>
+          <PostsImportModal open={importOpen} setOpen={setImportOpen} />
+        </>
       )}
     </WorkspacePageWrapper>
   );
