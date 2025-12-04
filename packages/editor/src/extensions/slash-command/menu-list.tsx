@@ -4,7 +4,7 @@ import {
   CommandItem,
   CommandList,
 } from "@marble/ui/components/command";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { EditorSlashMenuProps } from "../../types";
 
 /**
@@ -17,10 +17,14 @@ export const EditorSlashMenu = ({
   range,
 }: EditorSlashMenuProps) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const prevItemsLengthRef = useRef(items.length);
 
   useEffect(() => {
-    setSelectedIndex(0);
-  }, [items]);
+    if (prevItemsLengthRef.current !== items.length) {
+      setSelectedIndex(0);
+      prevItemsLengthRef.current = items.length;
+    }
+  });
 
   const selectItem = (index: number) => {
     const item = items.at(index);
@@ -33,7 +37,6 @@ export const EditorSlashMenu = ({
     <Command
       className="border shadow"
       id="slash-command"
-      shouldFilter={false}
       onKeyDown={(e) => {
         if (e.key === "ArrowUp") {
           e.preventDefault();
@@ -51,6 +54,7 @@ export const EditorSlashMenu = ({
           return;
         }
       }}
+      shouldFilter={false}
     >
       <CommandEmpty className="flex w-full items-center justify-center p-4 text-muted-foreground text-sm">
         <p>No results</p>
@@ -59,8 +63,8 @@ export const EditorSlashMenu = ({
         {items.map((item, index) => (
           <CommandItem
             className="flex items-center gap-3 pr-3"
-            key={item.title}
             data-selected={index === selectedIndex}
+            key={item.title}
             onSelect={() => selectItem(index)}
           >
             <div className="flex size-9 shrink-0 items-center justify-center rounded border bg-secondary">

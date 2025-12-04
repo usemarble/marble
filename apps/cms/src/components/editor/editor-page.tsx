@@ -266,6 +266,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                   id="title"
                   placeholder="Title"
                   {...register("title")}
+                  className="scrollbar-hide mb-2 w-full resize-none bg-transparent font-semibold prose-headings:font-semibold text-4xl focus:outline-hidden focus:ring-0 sm:px-4"
                   onEnterPress={() => {
                     editor
                       ?.chain()
@@ -274,7 +275,6 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                       .focus("start")
                       .run();
                   }}
-                  className="scrollbar-hide mb-2 w-full resize-none bg-transparent font-semibold prose-headings:font-semibold text-4xl focus:outline-hidden focus:ring-0 sm:px-4"
                 />
                 {errors.title && (
                   <p className="px-1 font-medium text-destructive text-sm">
