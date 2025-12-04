@@ -113,6 +113,15 @@ export const Twitter = Node.create<TwitterOptions>({
     return {
       src: {
         default: null,
+        parseHTML: (element) => element.getAttribute("data-src"),
+        renderHTML: (attributes) => {
+          if (!attributes.src) {
+            return {};
+          }
+          return {
+            "data-src": attributes.src,
+          };
+        },
       },
     };
   },

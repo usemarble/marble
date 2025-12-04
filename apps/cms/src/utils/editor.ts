@@ -53,7 +53,7 @@ export const sanitizeHtml = (content: string) => {
         "data-width-unit",
         "data-align",
       ],
-      div: ["data-twitter"],
+      div: ["data-twitter", "data-src"],
     },
     allowedSchemes: ["http", "https", "ftp", "mailto"],
     allowedSchemesByTag: {
