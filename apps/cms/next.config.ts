@@ -39,6 +39,11 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "media.marblecms.com",
       },
+      {
+        protocol: "https",
+        hostname: "icons.duckduckgo.com",
+        pathname: "/ip3/**",
+      },
     ],
     qualities: [20, 40, 60, 80, 100],
   },

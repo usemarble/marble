@@ -2,6 +2,7 @@ import { redis } from "@/lib/redis";
 
 export type WorkflowStep =
   | "pending"
+  | "scraping"
   | "crawling"
   | "validating"
   | "summarizing"
@@ -92,10 +93,10 @@ export async function clearWorkflowState(workspaceId: string): Promise<void> {
 }
 
 export const WORKFLOW_STEPS: { step: WorkflowStep; label: string }[] = [
-  { step: "crawling", label: "Crawling website" },
-  { step: "validating", label: "Validating content" },
-  { step: "summarizing", label: "Summarizing brand" },
-  { step: "saving", label: "Saving results" },
+  { step: "scraping", label: "Scraping" },
+  { step: "crawling", label: "Crawling" },
+  { step: "summarizing", label: "Analyzing" },
+  { step: "saving", label: "Saving" },
 ];
 
 export function getStepIndex(step: WorkflowStep): number {

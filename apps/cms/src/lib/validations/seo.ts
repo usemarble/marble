@@ -5,6 +5,10 @@ export const brandKnowledgeWebsiteSchema = z.object({
     .string()
     .trim()
     .url({ message: "Please enter a valid URL" }),
+  additionalUrls: z
+    .array(z.string().trim().url({ message: "Please enter a valid URL" }))
+    .optional()
+    .default([]),
 });
 
 export type BrandKnowledgeWebsiteValues = z.infer<

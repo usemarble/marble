@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { websiteUrl } = parsedBody.data;
+  const { websiteUrl, additionalUrls } = parsedBody.data;
 
   const existingWorkflow = await getWorkflowState(workspaceId);
   if (
@@ -43,7 +43,9 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const run = await start(brandKnowledgeWorkflow, [{ workspaceId, websiteUrl }]);
+  const run = await start(brandKnowledgeWorkflow, [
+    { workspaceId, websiteUrl, additionalUrls },
+  ]);
 
   await setWorkflowState({
     runId: run.runId,

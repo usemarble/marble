@@ -21,28 +21,35 @@ import {
 } from "@marble/ui/components/select";
 import { Textarea } from "@marble/ui/components/textarea";
 import { toast } from "@marble/ui/components/sonner";
+import { cn } from "@marble/ui/lib/utils";
 import {
   ArrowClockwiseIcon,
+  ArrowRightIcon,
   BugIcon,
   CaretDownIcon,
   CaretUpIcon,
+  CheckCircleIcon,
   CheckIcon,
   GearIcon,
+  GlobeIcon,
   LinkSimpleIcon,
   PencilSimpleIcon,
+  PlusIcon,
+  TrashIcon,
   WarningCircleIcon,
   XIcon,
 } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, formatDistanceToNow } from "date-fns";
+import Image from "next/image";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
 import {
-  WorkflowStepper,
-  type WorkflowStepItem,
-} from "@/components/shared/workflow-stepper";
+  HorizontalStepper,
+  type HorizontalStepItem,
+} from "@/components/shared/horizontal-stepper";
 import { AsyncButton } from "@/components/ui/async-button";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
@@ -54,6 +61,7 @@ import type {
   WorkflowStep,
   WorkflowLogEntry,
 } from "@/lib/workflows/brand-knowledge-state";
+import { getDomain, getFaviconUrl } from "@/utils/favicon";
 
 const TONE_OPTIONS = [
   "Professional",
@@ -66,6 +74,7 @@ const TONE_OPTIONS = [
 
 type BrandKnowledgeDescription =
   | { status: "pending" }
+  | { status: "scraping" }
   | { status: "crawling" }
   | { status: "validating" }
   | { status: "summarizing" }
@@ -99,17 +108,17 @@ type WorkflowStatusResponse = {
 };
 
 const WORKFLOW_STEPS: { step: WorkflowStep; label: string }[] = [
-  { step: "crawling", label: "Crawling website" },
-  { step: "validating", label: "Validating content" },
-  { step: "summarizing", label: "Analyzing brand" },
-  { step: "saving", label: "Saving results" },
+  { step: "scraping", label: "Scraping" },
+  { step: "crawling", label: "Crawling" },
+  { step: "summarizing", label: "Analyzing" },
+  { step: "saving", label: "Saving" },
 ];
 
-function getStepperItems(currentStep: WorkflowStep): WorkflowStepItem[] {
+function getStepperItems(currentStep: WorkflowStep): HorizontalStepItem[] {
   const currentIndex = WORKFLOW_STEPS.findIndex((s) => s.step === currentStep);
 
   return WORKFLOW_STEPS.map((step, index) => {
-    let status: WorkflowStepItem["status"] = "pending";
+    let status: HorizontalStepItem["status"] = "pending";
 
     if (currentStep === "error") {
       status = index <= currentIndex ? "error" : "pending";
@@ -129,27 +138,92 @@ function getStepperItems(currentStep: WorkflowStep): WorkflowStepItem[] {
   });
 }
 
-export function BrandKnowledgeWebsiteSheet({
+type ModalStep = "url" | "progress" | "complete";
+
+function WebsiteFavicon({
+  url,
+  size = 32,
+  className,
+}: {
+  url: string;
+  size?: 16 | 32 | 64 | 128;
+  className?: string;
+}) {
+  const [error, setError] = useState(false);
+  const faviconUrl = getFaviconUrl(url, size);
+
+  if (error) {
+    return (
+      <div
+        className={cn(
+          "flex items-center justify-center rounded-lg bg-muted",
+          className
+        )}
+        style={{ width: size, height: size }}
+      >
+        <GlobeIcon className="size-4 text-muted-foreground" />
+      </div>
+    );
+  }
+
+  return (
+    <Image
+      alt={`${getDomain(url)} favicon`}
+      className={cn("rounded-lg", className)}
+      height={size}
+      onError={() => setError(true)}
+      src={faviconUrl}
+      width={size}
+    />
+  );
+}
+
+export function BrandKnowledgeWebsiteModal({
   onSuccess,
 }: {
   onSuccess?: () => void;
 }) {
   const [open, setOpen] = useState(false);
+  const [modalStep, setModalStep] = useState<ModalStep>("url");
+  const [isPolling, setIsPolling] = useState(false);
+  const [submittedUrl, setSubmittedUrl] = useState<string>("");
 
   const workspaceId = useWorkspaceId();
   const queryClient = useQueryClient();
 
   const {
     register,
+    control,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm<BrandKnowledgeWebsiteValues>({
     resolver: zodResolver(brandKnowledgeWebsiteSchema),
     defaultValues: {
       websiteUrl: "",
+      additionalUrls: [],
     },
   });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "additionalUrls" as never,
+  });
+
+  const { data: statusData, refetch: refetchStatus } =
+    useQuery<WorkflowStatusResponse>({
+      queryKey: [...QUERY_KEYS.BRAND_KNOWLEDGE(workspaceId ?? ""), "status"],
+      enabled: !!workspaceId && isPolling,
+      refetchInterval: isPolling ? 2000 : false,
+      queryFn: async () => {
+        const res = await fetch("/api/ai/brand-knowledge/status");
+        if (!res.ok) {
+          return { status: "idle" as const, logs: [] };
+        }
+        return res.json();
+      },
+    });
 
   const { mutate: saveWebsite, isPending } = useMutation({
     mutationFn: async (data: BrandKnowledgeWebsiteValues) => {
@@ -168,16 +242,10 @@ export function BrandKnowledgeWebsiteSheet({
 
       return (await res.json()) as { runId: string; status: string };
     },
-    onSuccess: () => {
-      toast.success("Workflow started");
-      reset();
-      setOpen(false);
-      onSuccess?.();
-      if (workspaceId) {
-        queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.BRAND_KNOWLEDGE(workspaceId),
-        });
-      }
+    onSuccess: (_result, variables) => {
+      setSubmittedUrl(variables.websiteUrl);
+      setModalStep("progress");
+      setIsPolling(true);
     },
     onError: (error: unknown) => {
       const message =
@@ -186,9 +254,55 @@ export function BrandKnowledgeWebsiteSheet({
     },
   });
 
+  const currentStep = statusData?.status ?? "pending";
+  const workflowLogs = statusData?.logs ?? [];
+  const workflowError = statusData?.error;
+
+  useEffect(() => {
+    if (currentStep === "completed") {
+      setIsPolling(false);
+      setModalStep("complete");
+    } else if (currentStep === "error") {
+      setIsPolling(false);
+    }
+  }, [currentStep]);
+
   const onSubmit = (data: BrandKnowledgeWebsiteValues) => {
-    saveWebsite(data);
+    const filteredUrls = (data.additionalUrls ?? []).filter(
+      (url) => url.trim() !== ""
+    );
+    saveWebsite({
+      ...data,
+      additionalUrls: filteredUrls,
+    });
   };
+
+  const handleClose = () => {
+    setOpen(false);
+    setModalStep("url");
+    setIsPolling(false);
+    reset();
+    if (currentStep === "completed") {
+      onSuccess?.();
+      if (workspaceId) {
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.BRAND_KNOWLEDGE(workspaceId),
+        });
+      }
+    }
+  };
+
+  const handleFinish = () => {
+    handleClose();
+    onSuccess?.();
+    if (workspaceId) {
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.BRAND_KNOWLEDGE(workspaceId),
+      });
+    }
+  };
+
+  const watchedUrl = watch("websiteUrl");
 
   return (
     <>
@@ -196,43 +310,186 @@ export function BrandKnowledgeWebsiteSheet({
         <LinkSimpleIcon className="size-4" />
         Link website
       </Button>
-      <Dialog onOpenChange={setOpen} open={open}>
-        <DialogContent className="p-8 sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center font-medium">
-              Link your website
-            </DialogTitle>
-            <DialogDescription className="sr-only">
-              Add your website URL so Marble can learn about your brand.
-            </DialogDescription>
-          </DialogHeader>
-          <form
-            className="mt-2 flex flex-col gap-5"
-            onSubmit={handleSubmit(onSubmit)}
-          >
-            <div className="grid flex-1 gap-2">
-              <Label htmlFor="websiteUrl">Website URL</Label>
-              <Input
-                id="websiteUrl"
-                placeholder="https://your-website.com"
-                {...register("websiteUrl")}
-              />
-              {errors.websiteUrl && (
-                <p className="text-destructive text-sm">
-                  {errors.websiteUrl.message}
-                </p>
+      <Dialog onOpenChange={handleClose} open={open}>
+        <DialogContent className="overflow-hidden p-0 sm:max-w-lg">
+          {modalStep === "url" && (
+            <>
+              <DialogHeader className="px-6 pt-6">
+                <DialogTitle className="text-center font-medium text-lg">
+                  Link your website
+                </DialogTitle>
+                <DialogDescription className="text-center text-muted-foreground">
+                  We&apos;ll analyze your website to understand your brand.
+                </DialogDescription>
+              </DialogHeader>
+              <form
+                className="flex flex-col gap-6 px-6 pb-6"
+                onSubmit={handleSubmit(onSubmit)}
+              >
+                <div className="flex flex-col gap-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="websiteUrl">Main website URL</Label>
+                    <div className="relative">
+                      {watchedUrl && (
+                        <div className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2">
+                          <WebsiteFavicon size={16} url={watchedUrl} />
+                        </div>
+                      )}
+                      <Input
+                        className={cn(watchedUrl && "pl-10")}
+                        id="websiteUrl"
+                        placeholder="https://your-website.com"
+                        {...register("websiteUrl")}
+                      />
+                    </div>
+                    {errors.websiteUrl && (
+                      <p className="text-destructive text-sm">
+                        {errors.websiteUrl.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {fields.length > 0 && (
+                    <div className="flex flex-col gap-3">
+                      <Label>Additional pages to crawl</Label>
+                      {fields.map((field, index) => (
+                        <div key={field.id} className="flex gap-2">
+                          <Input
+                            placeholder="https://your-website.com/about"
+                            {...register(`additionalUrls.${index}` as const)}
+                          />
+                          <Button
+                            onClick={() => remove(index)}
+                            size="icon"
+                            type="button"
+                            variant="ghost"
+                          >
+                            <TrashIcon className="size-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <Button
+                    className="w-full gap-2"
+                    onClick={() => append("" as never)}
+                    size="sm"
+                    type="button"
+                    variant="outline"
+                  >
+                    <PlusIcon className="size-4" />
+                    Add additional page
+                  </Button>
+                  <p className="text-center text-muted-foreground text-xs">
+                    Add pages like /about, /pricing, or /team for better
+                    analysis
+                  </p>
+                </div>
+
+                <DialogFooter>
+                  <AsyncButton
+                    className="w-full gap-2"
+                    isLoading={isPending}
+                    type="submit"
+                  >
+                    Start analysis
+                    <ArrowRightIcon className="size-4" />
+                  </AsyncButton>
+                </DialogFooter>
+              </form>
+            </>
+          )}
+
+          {modalStep === "progress" && (
+            <div className="flex flex-col">
+              <DialogHeader className="px-6 pt-6">
+                <DialogTitle className="sr-only">
+                  Analyzing your website
+                </DialogTitle>
+                <DialogDescription className="sr-only">
+                  Please wait while we analyze your website.
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="px-6 py-8">
+                <div className="mb-8 flex flex-col items-center gap-3">
+                  <WebsiteFavicon
+                    className="shadow-lg"
+                    size={64}
+                    url={submittedUrl}
+                  />
+                  <div className="flex flex-col items-center gap-1">
+                    <p className="font-medium">{getDomain(submittedUrl)}</p>
+                    <p className="text-muted-foreground text-xs">
+                      {currentStep === "error"
+                        ? "Analysis failed"
+                        : "Analyzing..."}
+                    </p>
+                  </div>
+                </div>
+
+                <HorizontalStepper
+                  className="mb-6"
+                  steps={getStepperItems(currentStep as WorkflowStep)}
+                />
+
+                {workflowError && (
+                  <div className="mb-4 rounded-lg border border-destructive/20 bg-destructive/10 p-3">
+                    <p className="text-destructive text-sm">{workflowError}</p>
+                  </div>
+                )}
+
+                <DebugPanel logs={workflowLogs} />
+              </div>
+
+              {currentStep === "error" && (
+                <div className="border-t bg-muted/30 px-6 py-4">
+                  <Button
+                    className="w-full"
+                    onClick={() => setModalStep("url")}
+                    type="button"
+                    variant="outline"
+                  >
+                    Try again
+                  </Button>
+                </div>
               )}
             </div>
-            <DialogFooter>
-              <AsyncButton
-                className="w-full"
-                isLoading={isPending}
-                type="submit"
-              >
-                Analyze website
-              </AsyncButton>
-            </DialogFooter>
-          </form>
+          )}
+
+          {modalStep === "complete" && (
+            <div className="flex flex-col">
+              <DialogHeader className="sr-only">
+                <DialogTitle>Analysis complete</DialogTitle>
+                <DialogDescription>
+                  Your brand knowledge has been saved.
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="flex flex-col items-center gap-4 px-6 py-10">
+                <div className="flex size-16 items-center justify-center rounded-full bg-emerald-500/10">
+                  <CheckCircleIcon
+                    className="size-8 text-emerald-500"
+                    weight="fill"
+                  />
+                </div>
+                <div className="flex flex-col items-center gap-1 text-center">
+                  <p className="font-medium text-lg">Analysis complete!</p>
+                  <p className="max-w-xs text-muted-foreground text-sm">
+                    We&apos;ve analyzed your website and saved the brand
+                    knowledge to your workspace.
+                  </p>
+                </div>
+              </div>
+
+              <div className="border-t bg-muted/30 px-6 py-4">
+                <Button className="w-full" onClick={handleFinish} type="button">
+                  View results
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </>
@@ -247,13 +504,13 @@ function DebugPanel({ logs }: { logs: WorkflowLogEntry[] }) {
   }
 
   return (
-    <div className="mt-4 rounded-lg border border-dashed bg-muted/30">
+    <div className="rounded-lg border border-dashed bg-muted/30">
       <button
         className="flex w-full items-center justify-between px-4 py-3 text-left"
         onClick={() => setIsExpanded(!isExpanded)}
         type="button"
       >
-        <span className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+        <span className="flex items-center gap-2 text-muted-foreground text-xs font-medium">
           <BugIcon className="size-4" />
           Debug Logs ({logs.length})
         </span>
@@ -264,7 +521,7 @@ function DebugPanel({ logs }: { logs: WorkflowLogEntry[] }) {
         )}
       </button>
       {isExpanded && (
-        <div className="max-h-64 overflow-y-auto border-t px-4 py-3">
+        <div className="max-h-48 overflow-y-auto border-t px-4 py-3">
           <div className="space-y-2 font-mono text-xs">
             {logs.map((log, index) => (
               <div
@@ -275,18 +532,16 @@ function DebugPanel({ logs }: { logs: WorkflowLogEntry[] }) {
                   {format(new Date(log.timestamp), "HH:mm:ss")}
                 </span>
                 <span
-                  className={
-                    log.level === "error"
-                      ? "text-destructive"
-                      : log.level === "warn"
-                        ? "text-amber-500"
-                        : "text-foreground"
-                  }
+                  className={cn(
+                    log.level === "error" && "text-destructive",
+                    log.level === "warn" && "text-amber-500",
+                    log.level === "info" && "text-foreground"
+                  )}
                 >
                   {log.level === "error" && (
                     <WarningCircleIcon className="mr-1 inline size-3" />
                   )}
-                  [{log.step}] {log.message}
+                  {log.message}
                 </span>
               </div>
             ))}
@@ -311,20 +566,25 @@ function WorkflowProgress({
   const steps = getStepperItems(currentStep);
 
   return (
-    <div className="flex w-full max-w-md flex-col gap-6">
+    <div className="flex w-full max-w-lg flex-col gap-6">
       <div className="rounded-xl border bg-card p-6">
-        <div className="mb-6 flex flex-col gap-1">
-          <p className="text-xs font-medium uppercase text-muted-foreground">
-            {currentStep === "error" ? "Failed" : "Analyzing"}
-          </p>
-          <p className="truncate text-sm font-medium">{websiteUrl}</p>
+        <div className="mb-8 flex items-center gap-4">
+          <WebsiteFavicon className="shadow-md" size={48} url={websiteUrl} />
+          <div className="flex flex-col gap-0.5">
+            <p className="font-medium">{getDomain(websiteUrl)}</p>
+            <p className="text-muted-foreground text-xs">
+              {currentStep === "error" ? "Analysis failed" : "Analyzing..."}
+            </p>
+          </div>
         </div>
+
         {error && (
-          <div className="mb-4 rounded-lg border border-destructive/20 bg-destructive/10 p-3">
-            <p className="text-sm text-destructive">{error}</p>
+          <div className="mb-6 rounded-lg border border-destructive/20 bg-destructive/10 p-3">
+            <p className="text-destructive text-sm">{error}</p>
           </div>
         )}
-        <WorkflowStepper steps={steps} />
+
+        <HorizontalStepper className="mb-6" steps={steps} />
         <DebugPanel logs={logs} />
       </div>
     </div>
@@ -396,19 +656,15 @@ function EditableKnowledge({
   return (
     <div className="flex w-full max-w-2xl flex-col gap-6">
       <div className="flex items-center justify-between gap-4">
-        <div className="flex flex-col gap-1">
-          <p className="text-xs font-medium uppercase text-muted-foreground">
-            Website
-          </p>
-          <p className="text-sm font-medium">{website.url}</p>
+        <div className="flex items-center gap-3">
+          <WebsiteFavicon size={32} url={website.url} />
+          <div className="flex flex-col gap-0.5">
+            <p className="font-medium text-sm">{getDomain(website.url)}</p>
+            <p className="text-muted-foreground text-xs">Editing</p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            onClick={onCancel}
-            size="sm"
-            type="button"
-            variant="outline"
-          >
+          <Button onClick={onCancel} size="sm" type="button" variant="outline">
             <XIcon className="size-4" />
             Cancel
           </Button>
@@ -528,14 +784,14 @@ function CompletedKnowledge({ website }: { website: BrandKnowledgeWebsite }) {
   return (
     <div className="flex w-full max-w-2xl flex-col gap-6">
       <div className="flex items-center justify-between gap-4">
-        <div className="flex flex-col gap-1">
-          <p className="text-xs font-medium uppercase text-muted-foreground">
-            Website
-          </p>
-          <p className="text-sm font-medium">{website.url}</p>
+        <div className="flex items-center gap-3">
+          <WebsiteFavicon size={32} url={website.url} />
+          <div className="flex flex-col gap-0.5">
+            <p className="font-medium text-sm">{getDomain(website.url)}</p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground">
+          <span className="text-muted-foreground text-xs">
             Updated {lastUpdated}
           </span>
           <AsyncButton
@@ -562,7 +818,7 @@ function CompletedKnowledge({ website }: { website: BrandKnowledgeWebsite }) {
 
       <div className="flex flex-col gap-4 rounded-lg border bg-card p-4">
         <div>
-          <p className="mb-1 text-xs font-medium uppercase text-muted-foreground">
+          <p className="mb-1 text-muted-foreground text-xs font-medium uppercase">
             Tone
           </p>
           <span className="inline-flex rounded-full border bg-muted px-3 py-1 text-xs font-medium">
@@ -571,19 +827,19 @@ function CompletedKnowledge({ website }: { website: BrandKnowledgeWebsite }) {
         </div>
 
         <div>
-          <p className="mb-2 text-xs font-medium uppercase text-muted-foreground">
+          <p className="mb-2 text-muted-foreground text-xs font-medium uppercase">
             Company Description
           </p>
-          <p className="whitespace-pre-line text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm whitespace-pre-line">
             {description.summary}
           </p>
         </div>
 
         <div>
-          <p className="mb-2 text-xs font-medium uppercase text-muted-foreground">
+          <p className="mb-2 text-muted-foreground text-xs font-medium uppercase">
             Target Audience
           </p>
-          <p className="whitespace-pre-line text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm whitespace-pre-line">
             {description.audience}
           </p>
         </div>
@@ -704,7 +960,7 @@ function PageClient() {
             logs={logs}
             websiteUrl={website.url}
           />
-          <BrandKnowledgeWebsiteSheet onSuccess={() => refetch()} />
+          <BrandKnowledgeWebsiteModal onSuccess={() => refetch()} />
         </div>
       </WorkspacePageWrapper>
     );
@@ -721,7 +977,7 @@ function PageClient() {
             Configure your brand knowledge settings to improve SEO and content
             quality.
           </p>
-          <BrandKnowledgeWebsiteSheet onSuccess={() => refetch()} />
+          <BrandKnowledgeWebsiteModal onSuccess={() => refetch()} />
         </div>
       </div>
     </WorkspacePageWrapper>

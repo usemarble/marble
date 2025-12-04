@@ -7,14 +7,15 @@ import {
 } from "@/lib/workflows/brand-knowledge-state";
 
 export type BrandKnowledgeResult = {
-  tone: string;
   companyDescription: string;
+  tone: string;
   audience: string;
 };
 
 export type BrandKnowledgeWorkflowInput = {
   workspaceId: string;
   websiteUrl: string;
+  additionalUrls?: string[];
 };
 
 function extractErrorMessage(error: unknown): string {
@@ -36,11 +37,11 @@ function extractErrorMessage(error: unknown): string {
   return String(error);
 }
 
-async function crawlWebsite(websiteUrl: string, workspaceId: string) {
+async function scrapeMainPage(websiteUrl: string, workspaceId: string) {
   "use step";
 
-  await updateWorkflowStep(workspaceId, "crawling");
-  await addWorkflowLog(workspaceId, `Starting to crawl: ${websiteUrl}`);
+  await updateWorkflowStep(workspaceId, "scraping");
+  await addWorkflowLog(workspaceId, `Scraping main page: ${websiteUrl}`);
 
   try {
     const scrape = await firecrawl.scrape(websiteUrl, {
@@ -60,31 +61,124 @@ async function crawlWebsite(websiteUrl: string, workspaceId: string) {
 
     await addWorkflowLog(
       workspaceId,
-      `Successfully crawled website (${scrape.markdown.length} chars)`
+      `Main page scraped (${scrape.markdown.length} chars)`
     );
     return scrape.markdown;
   } catch (error) {
     const errorMessage = extractErrorMessage(error);
-    await addWorkflowLog(workspaceId, `Crawl failed: ${errorMessage}`, "error");
+    await addWorkflowLog(
+      workspaceId,
+      `Scrape failed: ${errorMessage}`,
+      "error"
+    );
     await updateWorkflowStep(workspaceId, "error", errorMessage);
     throw new FatalError(errorMessage);
   }
 }
 
-async function validateContent(content: string, workspaceId: string) {
+async function crawlAdditionalPages(
+  websiteUrl: string,
+  workspaceId: string,
+  additionalUrls?: string[]
+) {
   "use step";
 
-  await updateWorkflowStep(workspaceId, "validating");
+  await updateWorkflowStep(workspaceId, "crawling");
+
+  if (!additionalUrls?.length) {
+    await addWorkflowLog(
+      workspaceId,
+      "No additional pages to crawl, using discovery crawl"
+    );
+
+    try {
+      const crawlResult = await firecrawl.crawl(websiteUrl, {
+        limit: 5,
+        scrapeOptions: {
+          formats: ["markdown"],
+        },
+        includePaths: ["about*", "pricing*", "team*", "services*", "product*"],
+      });
+
+      if (crawlResult.data && crawlResult.data.length > 0) {
+        const additionalContent = crawlResult.data
+          .filter((page) => page.markdown && page.markdown.length > 100)
+          .map((page) => page.markdown)
+          .join("\n\n---\n\n");
+
+        await addWorkflowLog(
+          workspaceId,
+          `Crawled ${crawlResult.data.length} additional pages`
+        );
+        return additionalContent;
+      }
+
+      await addWorkflowLog(workspaceId, "No additional pages found");
+      return "";
+    } catch (error) {
+      await addWorkflowLog(
+        workspaceId,
+        `Crawl failed (non-fatal): ${extractErrorMessage(error)}`,
+        "warn"
+      );
+      return "";
+    }
+  }
+
+  await addWorkflowLog(
+    workspaceId,
+    `Crawling ${additionalUrls.length} additional URLs`
+  );
+
+  const additionalContent: string[] = [];
+
+  for (const url of additionalUrls) {
+    try {
+      await addWorkflowLog(workspaceId, `Scraping: ${url}`);
+      const scrape = await firecrawl.scrape(url, {
+        formats: ["markdown"],
+      });
+
+      if (scrape.markdown && scrape.markdown.length > 100) {
+        additionalContent.push(scrape.markdown);
+        await addWorkflowLog(
+          workspaceId,
+          `Scraped ${url} (${scrape.markdown.length} chars)`
+        );
+      }
+    } catch (error) {
+      await addWorkflowLog(
+        workspaceId,
+        `Failed to scrape ${url}: ${extractErrorMessage(error)}`,
+        "warn"
+      );
+    }
+  }
+
+  return additionalContent.join("\n\n---\n\n");
+}
+
+async function validateContent(
+  mainContent: string,
+  additionalContent: string,
+  workspaceId: string
+) {
+  "use step";
+
   await addWorkflowLog(workspaceId, "Validating scraped content...");
 
-  if (!content || content.length < 100) {
+  const combinedContent = [mainContent, additionalContent]
+    .filter(Boolean)
+    .join("\n\n---\n\n");
+
+  if (!combinedContent || combinedContent.length < 100) {
     const errorMsg = "Website content is too short or empty to analyze";
     await addWorkflowLog(workspaceId, errorMsg, "error");
     await updateWorkflowStep(workspaceId, "error", errorMsg);
     throw new FatalError(errorMsg);
   }
 
-  const cleanedContent = content
+  const cleanedContent = combinedContent
     .replace(/\[.*?\]\(.*?\)/g, "")
     .replace(/#{1,6}\s/g, "")
     .replace(/\n{3,}/g, "\n\n")
@@ -99,7 +193,7 @@ async function validateContent(content: string, workspaceId: string) {
 
   await addWorkflowLog(
     workspaceId,
-    `Content validated (${cleanedContent.length} chars after cleaning)`
+    `Content validated (${cleanedContent.length} chars total)`
   );
   return cleanedContent;
 }
@@ -116,19 +210,35 @@ async function summarizeContent(
 
   const { generateObject } = await import("ai");
 
-  const prompt = `Analyze the following website content from ${websiteUrl} and generate a structured brand knowledge summary.
+  const prompt = `Analyze the following website content from ${websiteUrl} and generate a comprehensive brand knowledge summary.
 
 <CONTENT>
-${content.slice(0, 15_000)}
+${content.slice(0, 20_000)}
 </CONTENT>
 
 <TASK>
-Based on the website content above, provide:
-1. The communication tone that best matches the company's style (choose from: Professional, Humorous, Academic, Persuasive, Conversational, Technical)
-2. A concise company description (1-5 sentences) including what they do, key offerings, and unique value proposition
-3. A description of their target audience (1-2 sentences)
+Based on the website content above, extract and synthesize the following brand information:
 
-Only include information actually found in the content. Do not fabricate details.
+1. **Company Description**: Write a compelling 2-4 sentence description that includes:
+   - What the company does and their core offerings
+   - Their unique value proposition or what sets them apart
+   - Key achievements, notable clients, or trust signals (if mentioned)
+   - The overall brand personality and positioning
+   
+2. **Tone Profile**: Select the communication tone that best matches the brand's voice:
+   - Professional: Formal, expert, authoritative
+   - Humorous: Playful, witty, entertaining
+   - Academic: Scholarly, research-focused, educational
+   - Persuasive: Sales-oriented, benefit-focused, compelling
+   - Conversational: Friendly, approachable, relatable
+   - Technical: Detailed, specification-focused, precise
+
+3. **Target Audience**: Write a 1-2 sentence description of who the company serves, including:
+   - Primary customer segments or user personas
+   - Key needs or problems the audience has
+   - How the company positions itself to serve them
+
+IMPORTANT: Only include information actually present in the content. Do not fabricate or assume details not found in the source material. If certain information is not available, provide your best inference based on context clues.
 </TASK>`;
 
   const { z } = await import("zod");
@@ -137,6 +247,9 @@ Only include information actually found in the content. Do not fabricate details
     const result = await generateObject({
       model: "anthropic/claude-4-5-haiku",
       schema: z.object({
+        companyDescription: z
+          .string()
+          .describe("A compelling 2-4 sentence company description"),
         tone: z.enum([
           "Professional",
           "Humorous",
@@ -145,8 +258,9 @@ Only include information actually found in the content. Do not fabricate details
           "Conversational",
           "Technical",
         ]),
-        companyDescription: z.string(),
-        audience: z.string(),
+        audience: z
+          .string()
+          .describe("1-2 sentence target audience description"),
       }),
       prompt,
     });
@@ -231,10 +345,19 @@ export async function brandKnowledgeWorkflow(
 ): Promise<BrandKnowledgeResult> {
   "use workflow";
 
-  const { workspaceId, websiteUrl } = input;
+  const { workspaceId, websiteUrl, additionalUrls } = input;
 
-  const rawContent = await crawlWebsite(websiteUrl, workspaceId);
-  const validatedContent = await validateContent(rawContent, workspaceId);
+  const mainContent = await scrapeMainPage(websiteUrl, workspaceId);
+  const additionalContent = await crawlAdditionalPages(
+    websiteUrl,
+    workspaceId,
+    additionalUrls
+  );
+  const validatedContent = await validateContent(
+    mainContent,
+    additionalContent,
+    workspaceId
+  );
   const result = await summarizeContent(
     validatedContent,
     websiteUrl,
