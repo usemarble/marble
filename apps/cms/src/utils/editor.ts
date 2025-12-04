@@ -36,6 +36,13 @@ export const sanitizeHtml = (content: string) => {
       "label",
       "figure",
       "figcaption",
+      "span",
+      "mark",
+      "s",
+      "u",
+      "sub",
+      "sup",
+      "hr",
     ],
     allowedAttributes: {
       ...defaults.allowedAttributes,
@@ -54,6 +61,25 @@ export const sanitizeHtml = (content: string) => {
         "data-align",
       ],
       div: ["data-twitter", "data-src"],
+      span: ["style", "data-color"],
+      mark: ["style", "data-color"],
+    },
+    allowedStyles: {
+      "*": {
+        color: [
+          /^#[\da-fA-F]{3,6}$/,
+          /^rgb\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*\)$/,
+          /^rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*[\d.]+\s*\)$/,
+          /^[a-zA-Z]+$/,
+        ],
+        "background-color": [
+          /^#[\da-fA-F]{3,6}$/,
+          /^rgb\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*\)$/,
+          /^rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*[\d.]+\s*\)$/,
+          /^[a-zA-Z]+$/,
+        ],
+        "text-decoration": [/^line-through$/, /^underline$/, /^none$/],
+      },
     },
     allowedSchemes: ["http", "https", "ftp", "mailto"],
     allowedSchemesByTag: {
@@ -63,11 +89,9 @@ export const sanitizeHtml = (content: string) => {
     },
     allowedIframeHostnames: ["www.youtube.com", "www.youtube-nocookie.com"],
     exclusiveFilter: (frame) => {
-      // Remove script tags entirely
       if (frame.tag === "script") {
         return true;
       }
-      // Remove any element with event handler attributes
       if (frame.attribs) {
         for (const attr in frame.attribs) {
           if (/^on/i.test(attr)) {

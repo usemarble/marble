@@ -266,6 +266,14 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                   id="title"
                   placeholder="Title"
                   {...register("title")}
+                  onEnterPress={() => {
+                    editor
+                      ?.chain()
+                      .focus()
+                      .insertContentAt(0, { type: "paragraph" })
+                      .focus("start")
+                      .run();
+                  }}
                   className="scrollbar-hide mb-2 w-full resize-none bg-transparent font-semibold prose-headings:font-semibold text-4xl focus:outline-hidden focus:ring-0 sm:px-4"
                 />
                 {errors.title && (
