@@ -168,11 +168,27 @@ export class MarkdownToTiptapParser {
 
   static parseTable(token: Tokens.Table): JSONContent {
     const rows: JSONContent[] = [];
+    const alignments = token.align || [];
+
     const headerRow: JSONContent = {
       type: "tableRow",
-      content: token.header.map((cell: Tokens.TableCell) => ({
+      content: token.header.map((cell: Tokens.TableCell, index: number) => ({
         type: "tableHeader",
-        content: MarkdownToTiptapParser.parseInlineTokens(cell.tokens || []),
+        attrs: {
+          style: null,
+          colspan: 1,
+          rowspan: 1,
+          colwidth: null,
+        },
+        content: [
+          {
+            type: "paragraph",
+            attrs: { textAlign: alignments[index] || null },
+            content: MarkdownToTiptapParser.parseInlineTokens(
+              cell.tokens || []
+            ),
+          },
+        ],
       })),
     };
     rows.push(headerRow);
@@ -180,9 +196,23 @@ export class MarkdownToTiptapParser {
     for (const row of token.rows) {
       rows.push({
         type: "tableRow",
-        content: row.map((cell: Tokens.TableCell) => ({
+        content: row.map((cell: Tokens.TableCell, index: number) => ({
           type: "tableCell",
-          content: MarkdownToTiptapParser.parseInlineTokens(cell.tokens || []),
+          attrs: {
+            style: null,
+            colspan: 1,
+            rowspan: 1,
+            colwidth: null,
+          },
+          content: [
+            {
+              type: "paragraph",
+              attrs: { textAlign: alignments[index] || null },
+              content: MarkdownToTiptapParser.parseInlineTokens(
+                cell.tokens || []
+              ),
+            },
+          ],
         })),
       });
     }

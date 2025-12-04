@@ -17,11 +17,11 @@ import {
   DialogTitle,
 } from "@marble/ui/components/dialog";
 import { cn } from "@marble/ui/lib/utils";
+import { PRICING_PLANS } from "@marble/utils";
 import { CheckIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import { AsyncButton } from "@/components/ui/async-button";
 import { checkout } from "@/lib/auth/client";
-import { PRICING_PLANS } from "@/lib/constants";
 import { useWorkspace } from "@/providers/workspace";
 
 type UpgradeModalProps = {

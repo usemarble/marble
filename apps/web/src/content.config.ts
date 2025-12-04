@@ -1,5 +1,5 @@
 import { defineCollection } from "astro:content";
-import { highlightContent } from "./lib/highlight";
+import { highlightContent } from "@marble/utils";
 import { fetchCategories, fetchPosts } from "./lib/queries";
 import { categorySchema, postSchema } from "./lib/schemas";
 

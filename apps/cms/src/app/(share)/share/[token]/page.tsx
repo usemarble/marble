@@ -1,6 +1,6 @@
+import { highlightContent } from "@marble/utils";
 import { notFound } from "next/navigation";
 import type { ShareData, ShareStatus } from "@/types/share";
-import { highlightContent } from "@/utils/highlight";
 import SharePageClient from "./page-client";
 
 type SharePageProps = {
