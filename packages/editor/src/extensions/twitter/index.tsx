@@ -26,7 +26,7 @@ const TweetComponent = ({
   }
 
   return (
-    <NodeViewWrapper>
+    <NodeViewWrapper className="my-5">
       <div data-twitter="">
         <Tweet id={tweetId} />
       </div>

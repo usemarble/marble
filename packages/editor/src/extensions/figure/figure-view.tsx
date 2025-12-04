@@ -224,14 +224,14 @@ export const FigureView = ({
   };
 
   return (
-    <NodeViewWrapper data-drag-handle>
+    <NodeViewWrapper className="my-5" data-drag-handle>
       <Popover onOpenChange={setIsPopoverOpen} open={isPopoverOpen}>
         <PopoverTrigger asChild>
           {/* biome-ignore lint: PopoverTrigger with asChild handles interactivity, figure is semantically correct for image with caption */}
           <figure
             aria-label="Image settings"
             className={cn(
-              "relative my-4 cursor-pointer",
+              "relative cursor-pointer",
               selected && "outline-2 outline-primary outline-offset-2"
             )}
             onClick={handleImageClick}

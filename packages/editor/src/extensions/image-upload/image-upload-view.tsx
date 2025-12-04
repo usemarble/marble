@@ -62,7 +62,7 @@ export const ImageUploadView = ({
   // Only render if upload handler is configured
   if (!options.upload) {
     return (
-      <NodeViewWrapper>
+      <NodeViewWrapper className="my-5">
         <div className="flex items-center justify-center rounded-md border border-muted bg-muted/50 p-8">
           <p className="text-muted-foreground text-sm">
             Image upload is not configured. Please configure the ImageUpload
@@ -74,8 +74,7 @@ export const ImageUploadView = ({
   }
 
   return (
-    <NodeViewWrapper>
-      {/* tho no drag handle for now */}
+    <NodeViewWrapper className="my-5">
       <div className="m-0 p-0" data-drag-handle>
         <ImageUploadComp
           fetchMedia={options.fetchMedia}

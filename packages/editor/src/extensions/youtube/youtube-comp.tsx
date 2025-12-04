@@ -78,8 +78,6 @@ export const YouTubeComp = ({
 
   const isValidUrl = extractYouTubeVideoId(url) !== null;
 
-  // TODO: need to make sure two consecutive embeds have a 20px margin beterrn them
-
   return (
     <Card className="col-span-full gap-4 rounded-[20px] border-none bg-sidebar p-2.5">
       <CardHeader className="gap-0 px-4 pt-2">

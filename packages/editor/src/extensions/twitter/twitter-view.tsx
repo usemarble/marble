@@ -37,7 +37,7 @@ export const TwitterUploadView = ({ getPos, editor }: NodeViewProps) => {
   }, [getPos, editor]);
 
   return (
-    <NodeViewWrapper>
+    <NodeViewWrapper className="my-5">
       <div className="m-0 p-0" data-drag-handle>
         <TwitterComp onCancel={onCancel} onSubmit={onSubmit} />
       </div>
