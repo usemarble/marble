@@ -374,7 +374,7 @@ describe("MarkdownToTiptapParser static block-level parsers", () => {
     });
   });
 
-  it("parseTable returns table with header and rows", () => {
+  it("parseTable returns table with header and rows with proper attrs", () => {
     const token: Tokens.Table = {
       type: "table",
       raw: "| H1 | H2 |\n| --- | --- |\n| A | B |",
@@ -418,15 +418,55 @@ describe("MarkdownToTiptapParser static block-level parsers", () => {
         {
           type: "tableRow",
           content: [
-            { type: "tableHeader", content: [{ type: "text", text: "H1" }] },
-            { type: "tableHeader", content: [{ type: "text", text: "H2" }] },
+            {
+              type: "tableHeader",
+              attrs: { style: null, colspan: 1, rowspan: 1, colwidth: null },
+              content: [
+                {
+                  type: "paragraph",
+                  attrs: { textAlign: null },
+                  content: [{ type: "text", text: "H1" }],
+                },
+              ],
+            },
+            {
+              type: "tableHeader",
+              attrs: { style: null, colspan: 1, rowspan: 1, colwidth: null },
+              content: [
+                {
+                  type: "paragraph",
+                  attrs: { textAlign: null },
+                  content: [{ type: "text", text: "H2" }],
+                },
+              ],
+            },
           ],
         },
         {
           type: "tableRow",
           content: [
-            { type: "tableCell", content: [{ type: "text", text: "A" }] },
-            { type: "tableCell", content: [{ type: "text", text: "B" }] },
+            {
+              type: "tableCell",
+              attrs: { style: null, colspan: 1, rowspan: 1, colwidth: null },
+              content: [
+                {
+                  type: "paragraph",
+                  attrs: { textAlign: null },
+                  content: [{ type: "text", text: "A" }],
+                },
+              ],
+            },
+            {
+              type: "tableCell",
+              attrs: { style: null, colspan: 1, rowspan: 1, colwidth: null },
+              content: [
+                {
+                  type: "paragraph",
+                  attrs: { textAlign: null },
+                  content: [{ type: "text", text: "B" }],
+                },
+              ],
+            },
           ],
         },
       ],
@@ -685,5 +725,188 @@ describe("MarkdownToTiptapParser integration tests", () => {
         },
       ],
     });
+  });
+
+  it("parses table with headers and cells correctly from markdown", () => {
+    const markdown =
+      "| Title 1 | Title 2 |\n| --- | --- |\n| Field 1 | Field 2 |\n| Field 3 | Field 4 |";
+    const result = markdownToTiptap(markdown);
+    expect(result).toEqual({
+      type: "doc",
+      content: [
+        {
+          type: "table",
+          content: [
+            {
+              type: "tableRow",
+              content: [
+                {
+                  type: "tableHeader",
+                  attrs: {
+                    style: null,
+                    colspan: 1,
+                    rowspan: 1,
+                    colwidth: null,
+                  },
+                  content: [
+                    {
+                      type: "paragraph",
+                      attrs: { textAlign: null },
+                      content: [{ type: "text", text: "Title 1" }],
+                    },
+                  ],
+                },
+                {
+                  type: "tableHeader",
+                  attrs: {
+                    style: null,
+                    colspan: 1,
+                    rowspan: 1,
+                    colwidth: null,
+                  },
+                  content: [
+                    {
+                      type: "paragraph",
+                      attrs: { textAlign: null },
+                      content: [{ type: "text", text: "Title 2" }],
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              type: "tableRow",
+              content: [
+                {
+                  type: "tableCell",
+                  attrs: {
+                    style: null,
+                    colspan: 1,
+                    rowspan: 1,
+                    colwidth: null,
+                  },
+                  content: [
+                    {
+                      type: "paragraph",
+                      attrs: { textAlign: null },
+                      content: [{ type: "text", text: "Field 1" }],
+                    },
+                  ],
+                },
+                {
+                  type: "tableCell",
+                  attrs: {
+                    style: null,
+                    colspan: 1,
+                    rowspan: 1,
+                    colwidth: null,
+                  },
+                  content: [
+                    {
+                      type: "paragraph",
+                      attrs: { textAlign: null },
+                      content: [{ type: "text", text: "Field 2" }],
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              type: "tableRow",
+              content: [
+                {
+                  type: "tableCell",
+                  attrs: {
+                    style: null,
+                    colspan: 1,
+                    rowspan: 1,
+                    colwidth: null,
+                  },
+                  content: [
+                    {
+                      type: "paragraph",
+                      attrs: { textAlign: null },
+                      content: [{ type: "text", text: "Field 3" }],
+                    },
+                  ],
+                },
+                {
+                  type: "tableCell",
+                  attrs: {
+                    style: null,
+                    colspan: 1,
+                    rowspan: 1,
+                    colwidth: null,
+                  },
+                  content: [
+                    {
+                      type: "paragraph",
+                      attrs: { textAlign: null },
+                      content: [{ type: "text", text: "Field 4" }],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+  });
+
+  it("parses table with mixed alignment (left, center, right)", () => {
+    const markdown = `| Syntax | Description | Test Text |
+| :--- | :----: | ---: |
+| Header | Title | Here's this |
+| Paragraph | Text | And more |`;
+
+    const result = markdownToTiptap(markdown);
+
+    expect(result.type).toBe("doc");
+    expect(result.content).toHaveLength(1);
+
+    const table = result.content?.[0];
+    expect(table?.type).toBe("table");
+    expect(table?.content).toHaveLength(3);
+
+    const headerRow = table?.content?.[0];
+    expect(headerRow?.content?.[0]?.content?.[0]?.attrs?.textAlign).toBe(
+      "left"
+    );
+    expect(headerRow?.content?.[1]?.content?.[0]?.attrs?.textAlign).toBe(
+      "center"
+    );
+    expect(headerRow?.content?.[2]?.content?.[0]?.attrs?.textAlign).toBe(
+      "right"
+    );
+
+    const dataRow1 = table?.content?.[1];
+    expect(dataRow1?.content?.[0]?.content?.[0]?.attrs?.textAlign).toBe("left");
+    expect(dataRow1?.content?.[0]?.content?.[0]?.content?.[0]?.text).toBe(
+      "Header"
+    );
+    expect(dataRow1?.content?.[1]?.content?.[0]?.attrs?.textAlign).toBe(
+      "center"
+    );
+    expect(dataRow1?.content?.[1]?.content?.[0]?.content?.[0]?.text).toBe(
+      "Title"
+    );
+    expect(dataRow1?.content?.[2]?.content?.[0]?.attrs?.textAlign).toBe(
+      "right"
+    );
+    expect(dataRow1?.content?.[2]?.content?.[0]?.content?.[0]?.text).toBe(
+      "Here's this"
+    );
+
+    const dataRow2 = table?.content?.[2];
+    expect(dataRow2?.content?.[0]?.content?.[0]?.content?.[0]?.text).toBe(
+      "Paragraph"
+    );
+    expect(dataRow2?.content?.[1]?.content?.[0]?.content?.[0]?.text).toBe(
+      "Text"
+    );
+    expect(dataRow2?.content?.[2]?.content?.[0]?.content?.[0]?.text).toBe(
+      "And more"
+    );
   });
 });
