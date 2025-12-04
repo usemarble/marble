@@ -26,6 +26,18 @@
     vertical-align: top;
   }
 
+  table td:not(:last-child)::after,
+  table th:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: -0.5rem;
+    bottom: 0;
+    width: 0.5rem;
+    cursor: col-resize;
+    z-index: 1;
+  }
+
   .dark table td,
   .dark table th {
     border-color: rgba(255, 255, 255, 0.2);
