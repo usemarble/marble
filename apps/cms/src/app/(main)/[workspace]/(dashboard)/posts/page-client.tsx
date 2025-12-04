@@ -19,15 +19,16 @@ import PageLoader from "@/components/shared/page-loader";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { useWorkspace } from "@/providers/workspace";
 
+const PostsImportModal = dynamic(
+  () =>
+    import("@/components/posts/import-modal").then((m) => m.PostsImportModal),
+  { ssr: false }
+);
+
 function PageClient() {
   const { activeWorkspace } = useWorkspace();
 
   const [importOpen, setImportOpen] = useState(false);
-  const PostsImportModal = dynamic(
-    () =>
-      import("@/components/posts/import-modal").then((m) => m.PostsImportModal),
-    { ssr: false }
-  );
 
   const { data: posts, isLoading } = useQuery({
     queryKey: QUERY_KEYS.POSTS(activeWorkspace?.id ?? ""),
@@ -61,40 +62,42 @@ function PageClient() {
       {posts && posts.length > 0 ? (
         <PostDataView columns={columns} data={posts} />
       ) : (
-        <WorkspacePageWrapper className="grid h-full place-content-center">
-          <div className="flex max-w-80 flex-col items-center gap-4">
-            <div className="p-2">
-              <NoteIcon className="size-16" />
-            </div>
-            <div className="flex flex-col items-center gap-4 text-center">
-              <p className="text-muted-foreground text-sm">
-                No posts yet. Click the button below to start writing.
-              </p>
-              <div className="flex gap-2">
-                <Link
-                  className={buttonVariants({ variant: "default" })}
-                  href={`/${activeWorkspace?.slug}/editor/p/new`}
-                >
-                  <PlusIcon size={16} />
-                  <span>New Post</span>
-                </Link>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      aria-label="Upload"
-                      onClick={() => setImportOpen(true)}
-                      variant="default"
-                    >
-                      <UploadSimpleIcon className="size-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top">Upload</TooltipContent>
-                </Tooltip>
+        <>
+          <WorkspacePageWrapper className="grid h-full place-content-center">
+            <div className="flex max-w-80 flex-col items-center gap-4">
+              <div className="p-2">
+                <NoteIcon className="size-16" />
+              </div>
+              <div className="flex flex-col items-center gap-4 text-center">
+                <p className="text-muted-foreground text-sm">
+                  No posts yet. Click the button below to start writing.
+                </p>
+                <div className="flex gap-2">
+                  <Link
+                    className={buttonVariants({ variant: "default" })}
+                    href={`/${activeWorkspace?.slug}/editor/p/new`}
+                  >
+                    <PlusIcon size={16} />
+                    <span>New Post</span>
+                  </Link>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        aria-label="Upload"
+                        onClick={() => setImportOpen(true)}
+                        variant="default"
+                      >
+                        <UploadSimpleIcon className="size-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">Upload</TooltipContent>
+                  </Tooltip>
+                </div>
               </div>
             </div>
-            <PostsImportModal open={importOpen} setOpen={setImportOpen} />
-          </div>
-        </WorkspacePageWrapper>
+          </WorkspacePageWrapper>
+          <PostsImportModal open={importOpen} setOpen={setImportOpen} />
+        </>
       )}
     </WorkspacePageWrapper>
   );

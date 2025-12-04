@@ -49,6 +49,12 @@ const DataTable = dynamic(
   columns: ColumnDef<TData, TValue>[];
 }) => JSX.Element;
 
+const PostsImportModal = dynamic(
+  () =>
+    import("@/components/posts/import-modal").then((m) => m.PostsImportModal),
+  { ssr: false }
+);
+
 type DataViewProps<TData, TValue> = {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
@@ -69,12 +75,6 @@ export function PostDataView<TData, TValue>({
 
   const { activeWorkspace } = useWorkspace();
   const [importOpen, setImportOpen] = useState(false);
-  const PostsImportModal = dynamic(
-    () =>
-      import("@/components/posts/import-modal").then((m) => m.PostsImportModal),
-    { ssr: false }
-  );
-
   const table = useReactTable({
     data,
     columns,
