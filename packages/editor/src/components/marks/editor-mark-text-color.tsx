@@ -68,7 +68,7 @@ export const EditorMarkTextColor = ({
   }
 
   return (
-    <Popover>
+    <Popover modal>
       <PopoverTrigger asChild>
         <Button
           className={cn(
@@ -90,7 +90,12 @@ export const EditorMarkTextColor = ({
           {!hideName && <span className="flex-1 text-left">Text Color</span>}
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-auto p-0" side="top">
+      <PopoverContent
+        align="start"
+        className="w-auto p-0"
+        onOpenAutoFocus={(event) => event.preventDefault()}
+        side="top"
+      >
         <ColorPicker
           color={currentColor}
           onChange={handleColorChange}
