@@ -32,7 +32,6 @@ export const FigureView = ({
   );
   const [isResizing, setIsResizing] = useState(false);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-  const manuallyToggledRef = useRef(false);
   const figureRef = useRef<HTMLElement>(null);
   const startXRef = useRef(0);
   const startWidthRef = useRef(0);
@@ -45,25 +44,19 @@ export const FigureView = ({
     setAlignValue(align || "center");
   }, [alt, caption, width, align]);
 
-  // Sync popover open state with selected prop - open when selected, but respect manual toggles
+  // Close popover when node is deselected
   useEffect(() => {
-    if (!manuallyToggledRef.current) {
-      if (selected) {
-        setIsPopoverOpen(true);
-      } else {
-        setIsPopoverOpen(false);
-      }
+    if (!selected) {
+      setIsPopoverOpen(false);
     }
-    manuallyToggledRef.current = false;
   }, [selected]);
 
-  // Handle image click to toggle popover when already selected
+  // Handle image click to toggle popover
   const handleImageClick = useCallback(
     (e: React.MouseEvent) => {
       if (selected) {
         e.preventDefault();
         e.stopPropagation();
-        manuallyToggledRef.current = true;
         setIsPopoverOpen((prev) => !prev);
       }
     },
@@ -76,7 +69,6 @@ export const FigureView = ({
       if (selected && (e.key === "Enter" || e.key === " ")) {
         e.preventDefault();
         e.stopPropagation();
-        manuallyToggledRef.current = true;
         setIsPopoverOpen((prev) => !prev);
       }
     },
@@ -123,7 +115,7 @@ export const FigureView = ({
   const handleWidthBlur = useCallback(() => {
     // Validate and clamp on blur - only percent for now
     const numValue = Number.parseInt(widthValue, 10) || 100;
-    const minValue = 10;
+    const minValue = 1;
     const maxValue = 100;
 
     const clampedValue = Math.max(minValue, Math.min(maxValue, numValue));
@@ -194,7 +186,7 @@ export const FigureView = ({
       // Only percent for now
       const deltaPercent = (deltaX / containerWidth) * 100;
       const newWidth = Math.max(
-        10,
+        1,
         Math.min(100, startWidthRef.current + deltaPercent)
       );
 
@@ -225,7 +217,7 @@ export const FigureView = ({
 
   return (
     <NodeViewWrapper className="my-5" data-drag-handle>
-      <Popover onOpenChange={setIsPopoverOpen} open={isPopoverOpen}>
+      <Popover modal onOpenChange={setIsPopoverOpen} open={isPopoverOpen}>
         <PopoverTrigger asChild>
           {/* biome-ignore lint: PopoverTrigger with asChild handles interactivity, figure is semantically correct for image with caption */}
           <figure
@@ -280,6 +272,7 @@ export const FigureView = ({
         <PopoverContent
           align="start"
           className="flex w-80 flex-col gap-3 p-3"
+          onOpenAutoFocus={(event) => event.preventDefault()}
           side="right"
           sideOffset={18}
         >
