@@ -9,7 +9,7 @@ import {
 import { cn } from "@marble/ui/lib/utils";
 import type { NodeViewProps } from "@tiptap/core";
 import { NodeViewWrapper } from "@tiptap/react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 export const FigureView = ({
   node,
@@ -35,6 +35,11 @@ export const FigureView = ({
   const figureRef = useRef<HTMLElement>(null);
   const startXRef = useRef(0);
   const startWidthRef = useRef(0);
+
+  // Use useId to generate unique ids for the width, alt, and caption inputs
+  const widthId = useId();
+  const altId = useId();
+  const captionId = useId();
 
   // Sync local state with node attributes when they change externally
   useEffect(() => {
@@ -260,9 +265,9 @@ export const FigureView = ({
             )}
 
             {/* Caption - only shown when it has content */}
-            {caption && (
+            {captionValue && (
               <figcaption className="mt-2 text-center text-muted-foreground text-sm italic">
-                <p>{caption}</p>
+                <p>{captionValue}</p>
               </figcaption>
             )}
           </figure>
@@ -278,12 +283,12 @@ export const FigureView = ({
         >
           {/* Width Controls - Only percent for now */}
           <div className="space-y-2">
-            <Label className="font-medium text-xs" htmlFor="image-width">
+            <Label className="font-medium text-xs" htmlFor={widthId}>
               Width (%)
             </Label>
             <Input
               className="h-8 text-sm"
-              id="image-width"
+              id={widthId}
               onBlur={handleWidthBlur}
               onChange={handleWidthChange}
               placeholder="100"
@@ -330,12 +335,12 @@ export const FigureView = ({
           </div>
 
           <div className="space-y-2">
-            <Label className="font-medium text-xs" htmlFor="alt-text">
+            <Label className="font-medium text-xs" htmlFor={altId}>
               Alt Text
             </Label>
             <Input
               className="h-8 text-sm"
-              id="alt-text"
+              id={altId}
               onChange={handleAltChange}
               placeholder="Describe the image..."
               type="text"
@@ -343,7 +348,7 @@ export const FigureView = ({
             />
           </div>
           <div className="space-y-2">
-            <Label className="font-medium text-xs" htmlFor="caption">
+            <Label className="font-medium text-xs" htmlFor={captionId}>
               Caption
             </Label>
             <Input
