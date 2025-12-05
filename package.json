@@ -42,11 +42,7 @@
   "pnpm": {
     "overrides": {
       "@types/react": "19.0.2",
-      "@types/react-dom": "19.0.2",
-      "prosemirror-model": "^1.23.0",
-      "prosemirror-state": "^1.4.3",
-      "prosemirror-view": "^1.37.0",
-      "prosemirror-transform": "^1.10.0"
+      "@types/react-dom": "19.0.2"
     }
   },
   "packageManager": "pnpm@10.19.0"
