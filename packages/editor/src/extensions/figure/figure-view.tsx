@@ -104,9 +104,11 @@ export const FigureView = ({
       // Allow any valid number input during typing
       setWidthValue(newWidth);
 
-      // Only update attributes if we have a valid number
+      // Only update attributes if we have a valid number, clamped to 1-100
       if (newWidth && Number.parseInt(newWidth, 10) > 0) {
-        updateAttributes({ width: newWidth });
+        const numValue = Number.parseInt(newWidth, 10);
+        const clampedValue = Math.max(1, Math.min(100, numValue));
+        updateAttributes({ width: String(clampedValue) });
       }
     },
     [updateAttributes]
@@ -115,7 +117,7 @@ export const FigureView = ({
   const handleWidthBlur = useCallback(() => {
     // Validate and clamp on blur - only percent for now
     const numValue = Number.parseInt(widthValue, 10) || 100;
-    const minValue = 1;
+    const minValue = 10;
     const maxValue = 100;
 
     const clampedValue = Math.max(minValue, Math.min(maxValue, numValue));
@@ -186,7 +188,7 @@ export const FigureView = ({
       // Only percent for now
       const deltaPercent = (deltaX / containerWidth) * 100;
       const newWidth = Math.max(
-        1,
+        10,
         Math.min(100, startWidthRef.current + deltaPercent)
       );
 
