@@ -43,6 +43,7 @@ export function isCustomNodeSelected(
     "horizontalRule",
     "imageUpload",
     "figure",
+    "image",
   ];
 
   const isCustomNodeActive = customNodes.some((type) => editor.isActive(type));
