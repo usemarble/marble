@@ -104,11 +104,9 @@ export const FigureView = ({
       // Allow any valid number input during typing
       setWidthValue(newWidth);
 
-      // Only update attributes if we have a valid number, clamped to 1-100
+      // Only update attributes if we have a valid number
       if (newWidth && Number.parseInt(newWidth, 10) > 0) {
-        const numValue = Number.parseInt(newWidth, 10);
-        const clampedValue = Math.max(1, Math.min(100, numValue));
-        updateAttributes({ width: String(clampedValue) });
+        updateAttributes({ width: newWidth });
       }
     },
     [updateAttributes]
