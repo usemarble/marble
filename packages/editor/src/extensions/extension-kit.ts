@@ -2,6 +2,7 @@ import { cn } from "@marble/ui/lib/utils";
 import { Color } from "@tiptap/extension-color";
 import { FileHandler } from "@tiptap/extension-file-handler";
 import { Highlight } from "@tiptap/extension-highlight";
+import { Image } from "@tiptap/extension-image";
 import { TaskItem, TaskList } from "@tiptap/extension-list";
 import { Subscript } from "@tiptap/extension-subscript";
 import { Superscript } from "@tiptap/extension-superscript";
@@ -155,6 +156,12 @@ export const ExtensionKit = ({
 
   // Twitter Upload (placeholder node for Twitter upload component)
   TwitterUpload,
+
+  // Image extension for backward compatibility with older posts
+  Image.configure({
+    inline: false,
+    allowBase64: true,
+  }),
 
   // Figure (image with caption support)
   Figure,
