@@ -4,6 +4,7 @@ import {
   CommandItem,
   CommandList,
 } from "@marble/ui/components/command";
+import { useEffect, useRef } from "react";
 import type { EditorSlashMenuProps } from "../../types";
 
 /**
@@ -16,6 +17,8 @@ export const EditorSlashMenu = ({
   editor,
   range,
 }: EditorSlashMenuProps) => {
+  const commandRef = useRef<HTMLDivElement>(null);
+
   const selectItem = (index: number) => {
     const item = items.at(index);
     if (item) {
@@ -23,8 +26,40 @@ export const EditorSlashMenu = ({
     }
   };
 
+  // Auto-select the first item when items change
+  useEffect(() => {
+    if (items.length > 0 && commandRef.current) {
+      // Small delay to ensure DOM is updated
+      const timeoutId = setTimeout(() => {
+        const commandElement = commandRef.current;
+        if (commandElement) {
+          // Simulate ArrowDown keypress to properly select first item via cmdk's internal logic
+          const arrowDownEvent = new KeyboardEvent("keydown", {
+            key: "ArrowDown",
+            code: "ArrowDown",
+            keyCode: 40,
+            which: 40,
+            bubbles: true,
+            cancelable: true,
+          });
+
+          commandElement.dispatchEvent(arrowDownEvent);
+        }
+      }, 10);
+
+      return () => {
+        clearTimeout(timeoutId);
+      };
+    }
+  }, [items]);
+
   return (
-    <Command className="border shadow" id="slash-command" shouldFilter={false}>
+    <Command
+      className="border shadow"
+      id="slash-command"
+      ref={commandRef}
+      shouldFilter={false}
+    >
       <CommandEmpty className="flex w-full items-center justify-center p-4 text-muted-foreground text-sm">
         <p>No results</p>
       </CommandEmpty>
@@ -60,6 +95,31 @@ export const handleCommandNavigation = (event: KeyboardEvent) => {
     const slashCommand = document.querySelector<HTMLElement>("#slash-command");
 
     if (slashCommand) {
+      // For Enter key, find and trigger the selected item directly
+      if (event.key === "Enter") {
+        const selectedItem = slashCommand.querySelector<HTMLElement>(
+          '[data-selected="true"], [cmdk-item][aria-selected="true"], [cmdk-item][data-state="selected"]'
+        );
+
+        if (selectedItem) {
+          event.preventDefault();
+          event.stopPropagation();
+          selectedItem.click();
+          return true;
+        }
+
+        // If no item is selected, select the first item
+        const firstItem =
+          slashCommand.querySelector<HTMLElement>("[cmdk-item]");
+        if (firstItem) {
+          event.preventDefault();
+          event.stopPropagation();
+          firstItem.click();
+          return true;
+        }
+      }
+
+      // For ArrowUp/ArrowDown, dispatch the event to cmdk
       const keyboardEvent = new KeyboardEvent("keydown", {
         key: event.key,
         cancelable: true,
@@ -67,6 +127,8 @@ export const handleCommandNavigation = (event: KeyboardEvent) => {
       });
 
       slashCommand.dispatchEvent(keyboardEvent);
+      event.preventDefault();
+      event.stopPropagation();
 
       return true;
     }
