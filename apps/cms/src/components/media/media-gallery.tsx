@@ -103,32 +103,12 @@ export function MediaGallery({
         </AnimatePresence>
 
         {media.length === 0 && !hasAnyMedia ? (
-          <motion.div
-            animate={{ opacity: 1, y: 0 }}
-            className="grid h-full place-content-center"
-            initial={{ opacity: 0, y: 20 }}
-            transition={{ duration: 0.5 }}
-          >
+          <div className="grid h-full place-content-center">
             <div className="flex max-w-80 flex-col items-center gap-4">
-              <motion.div
-                animate={{ scale: 1 }}
-                className="p-2"
-                initial={{ scale: 0 }}
-                transition={{
-                  delay: 0.2,
-                  type: "spring",
-                  stiffness: 300,
-                  damping: 25,
-                }}
-              >
+              <div className="p-2">
                 <ImagesIcon className="size-16" />
-              </motion.div>
-              <motion.div
-                animate={{ opacity: 1, y: 0 }}
-                className="flex flex-col items-center gap-4 text-center"
-                initial={{ opacity: 0, y: 10 }}
-                transition={{ delay: 0.4, duration: 0.3 }}
-              >
+              </div>
+              <div className="flex flex-col items-center gap-4 text-center">
                 <p className="text-muted-foreground text-sm">
                   {getEmptyStateMessage(type, hasAnyMedia)}
                 </p>
@@ -138,9 +118,9 @@ export function MediaGallery({
                     onUpload={onUpload}
                   />
                 )}
-              </motion.div>
+              </div>
             </div>
-          </motion.div>
+          </div>
         ) : media.length === 0 ? (
           <motion.div
             animate={{ opacity: 1 }}

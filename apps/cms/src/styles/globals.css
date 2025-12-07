@@ -349,3 +349,7 @@
     }
   }
 }
+
+@utility scrollbar-stable {
+  scrollbar-gutter: stable;
+}
