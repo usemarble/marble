@@ -33,7 +33,7 @@ export function EditorHeader({ postId, workspace }: EditorHeaderProps) {
             <Link
               className={cn(
                 buttonVariants({ variant: "ghost", size: "icon" }),
-                "group cursor-default"
+                "group"
               )}
               href={`/${workspace}/posts`}
             >
@@ -41,7 +41,7 @@ export function EditorHeader({ postId, workspace }: EditorHeaderProps) {
             </Link>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Close editor</p>
+            <p>Close Editor</p>
           </TooltipContent>
         </Tooltip>
       </div>
@@ -55,7 +55,7 @@ export function EditorHeader({ postId, workspace }: EditorHeaderProps) {
             </SidebarTrigger>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Toggle sidebar ({getToggleSidebarShortcut()})</p>
+            <p>Toggle Sidebar ({getToggleSidebarShortcut()})</p>
           </TooltipContent>
         </Tooltip>
       </div>

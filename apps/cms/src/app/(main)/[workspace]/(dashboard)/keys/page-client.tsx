@@ -85,7 +85,7 @@ function PageClient() {
                 <Link
                   className={cn(
                     buttonVariants({
-                      variant: "ghost",
+                      variant: "secondary",
                       className: "col-span-1 w-full",
                     })
                   )}

@@ -21,7 +21,7 @@ import { formatBytes } from "@/utils/string";
 function PageClient() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const { activeWorkspace, isOwner } = useWorkspace();
-  const { planLimits, currentMemberCount, currentPlan, currentMediaUsage } =
+  const { planLimits, currentMemberCount, currentPlan, currentMediaUsage, currentApiRequests } =
     usePlan();
 
   const subscription = activeWorkspace?.subscription;
@@ -164,7 +164,6 @@ function PageClient() {
           </CardContent>
         </Card>
 
-        {/* Usage Cards */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <Card>
             <CardContent className="p-6">
@@ -175,7 +174,7 @@ function PageClient() {
                 <h3 className="font-medium">API Requests</h3>
               </div>
               <div className="space-y-3">
-                <div className="font-bold text-3xl">0</div>
+                <div className="font-bold text-3xl">{currentApiRequests}</div>
                 <Progress value={planLimits.maxApiRequests === -1 ? 100 : 0} />
                 <p className="text-muted-foreground text-sm">
                   {planLimits.maxApiRequests === -1
