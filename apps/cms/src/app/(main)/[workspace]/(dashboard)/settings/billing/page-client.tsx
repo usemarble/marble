@@ -21,8 +21,13 @@ import { formatBytes } from "@/utils/string";
 function PageClient() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const { activeWorkspace, isOwner } = useWorkspace();
-  const { planLimits, currentMemberCount, currentPlan, currentMediaUsage, currentApiRequests } =
-    usePlan();
+  const {
+    planLimits,
+    currentMemberCount,
+    currentPlan,
+    currentMediaUsage,
+    currentApiRequests,
+  } = usePlan();
 
   const subscription = activeWorkspace?.subscription;
 
