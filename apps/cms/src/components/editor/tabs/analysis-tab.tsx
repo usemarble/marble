@@ -122,7 +122,7 @@ export function AnalysisTab({
                     <TooltipTrigger asChild>
                       <InfoIcon
                         aria-label="AI generated"
-                        className="h-3.5 w-3.5 text-muted-foreground"
+                        className="h-3.5 w-3.5 cursor-help text-muted-foreground"
                       />
                     </TooltipTrigger>
                     <TooltipContent>
