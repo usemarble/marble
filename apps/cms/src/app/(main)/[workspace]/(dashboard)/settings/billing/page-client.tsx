@@ -122,9 +122,12 @@ function PageClient() {
     : 0;
 
   const apiRequestsUsed = currentApiRequests;
-  const apiRequestsRemaining = planLimits.maxApiRequests - currentApiRequests;
+  const apiRequestsRemaining = planLimits.maxApiRequests - apiRequestsUsed;
   const apiRequestsPercent = planLimits.maxApiRequests
-    ? Math.min(100, Math.round((currentApiRequests / planLimits.maxApiRequests) * 100))
+    ? Math.min(
+        100,
+        Math.round((apiRequestsUsed / planLimits.maxApiRequests) * 100)
+      )
     : 0;
 
   const memberMax = planLimits.maxMembers;
