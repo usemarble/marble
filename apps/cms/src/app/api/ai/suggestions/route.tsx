@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { NodeHtmlMarkdown } from "node-html-markdown";
@@ -11,6 +12,35 @@ import {
 import { systemPrompt } from "./prompt";
 
 export const maxDuration = 30;
+
+function createContentHash(
+  content: string,
+  metrics: {
+    wordCount: number;
+    sentenceCount: number;
+    wordsPerSentence: number;
+    readabilityScore: number;
+    readingTime: number;
+  }
+): string {
+  const contentHash = createHash("sha256")
+    .update(content)
+    .digest("hex")
+    .slice(0, 16);
+  const metricsHash = createHash("sha256")
+    .update(
+      JSON.stringify({
+        w: metrics.wordCount,
+        s: metrics.sentenceCount,
+        wps: metrics.wordsPerSentence,
+        rs: metrics.readabilityScore,
+        rt: metrics.readingTime,
+      })
+    )
+    .digest("hex")
+    .slice(0, 16);
+  return `${contentHash}:${metricsHash}`;
+}
 
 export async function POST(request: Request) {
   const sessionData = await getServerSession();
@@ -48,7 +78,30 @@ export async function POST(request: Request) {
     );
   }
 
-  const cacheKey = `ai:suggestions:${workspaceId}`;
+  const postId = parsedBody.data.postId;
+
+  if (postId) {
+    const post = await db.post.findFirst({
+      where: {
+        id: postId,
+        workspaceId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!post) {
+      return NextResponse.json(
+        { error: "Post not found or does not belong to this workspace" },
+        { status: 404 }
+      );
+    }
+  }
+
+  const cacheKey = postId
+    ? `ai:suggestions:${workspaceId}:${postId}`
+    : `ai:suggestions:${workspaceId}:${createContentHash(parsedBody.data.content, parsedBody.data.metrics)}`;
 
   if (!bypassCache) {
     const cached = await redis.get<string>(cacheKey);

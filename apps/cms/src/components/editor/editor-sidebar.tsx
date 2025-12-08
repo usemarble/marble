@@ -57,6 +57,7 @@ type EditorSidebarProps = React.ComponentProps<typeof Sidebar> & {
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   mode?: "create" | "update";
+  postId?: string;
 };
 
 export function EditorSidebar({
@@ -68,6 +69,7 @@ export function EditorSidebar({
   isOpen,
   setIsOpen,
   mode = "create",
+  postId,
   ...props
 }: EditorSidebarProps) {
   const { open } = useSidebar();
@@ -165,7 +167,7 @@ export function EditorSidebar({
   } = useQuery({
     queryKey: QUERY_KEYS.AI_READABILITY_SUGGESTIONS(
       workspaceId,
-      "current-document"
+      postId ?? "draft"
     ),
     enabled: aiEnabled && editorHTML.trim().length > 0,
     staleTime: 5 * 60 * 1000,
@@ -182,6 +184,7 @@ export function EditorSidebar({
           readabilityScore: metrics.readabilityScore,
           readingTime: metrics.readingTime,
         },
+        postId,
         bypassCache: bypassCacheRef.current,
       });
       bypassCacheRef.current = false;

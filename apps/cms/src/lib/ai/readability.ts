@@ -11,9 +11,10 @@ export type ReadabilityMetrics = {
 export async function fetchAiReadabilityRaw(params: {
   content: string;
   metrics: ReadabilityMetrics;
+  postId?: string;
   bypassCache?: boolean;
 }): Promise<string> {
-  const { content, metrics, bypassCache } = params;
+  const { content, metrics, postId, bypassCache } = params;
   const headers: HeadersInit = { "Content-Type": "application/json" };
   if (bypassCache) {
     headers["x-bypass-cache"] = "true";
@@ -21,7 +22,7 @@ export async function fetchAiReadabilityRaw(params: {
   const response = await fetch("/api/ai/suggestions", {
     method: "POST",
     headers,
-    body: JSON.stringify({ content, metrics }),
+    body: JSON.stringify({ content, metrics, postId }),
   });
 
   if (!response.ok) {
@@ -62,11 +63,13 @@ export function parseStringArrayFromText(textBody: string): string[] {
 export async function fetchAiReadabilitySuggestionsStrings(params: {
   content: string;
   metrics: ReadabilityMetrics;
+  postId?: string;
   bypassCache?: boolean;
 }): Promise<string[]> {
   const text = await fetchAiReadabilityRaw({
     content: params.content,
     metrics: params.metrics,
+    postId: params.postId,
     bypassCache: params.bypassCache,
   });
   return parseStringArrayFromText(text);
@@ -75,6 +78,7 @@ export async function fetchAiReadabilitySuggestionsStrings(params: {
 export async function fetchAiReadabilitySuggestionsObject(params: {
   content: string;
   metrics: ReadabilityMetrics;
+  postId?: string;
   bypassCache?: boolean;
 }): Promise<{
   suggestions: { text: string; explanation?: string; textReference?: string }[];
@@ -82,6 +86,7 @@ export async function fetchAiReadabilitySuggestionsObject(params: {
   const text = await fetchAiReadabilityRaw({
     content: params.content,
     metrics: params.metrics,
+    postId: params.postId,
     bypassCache: params.bypassCache,
   });
 
