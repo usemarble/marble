@@ -1,9 +1,8 @@
 ---
 import { Image } from "astro:assets";
+import { PRICING_PLANS, YOUTUBE_EMBED_URL } from "@marble/utils";
 import ApiIcon from "@/assets/images/api.svg";
 import editorBubble from "@/assets/images/bubble.png";
-import { PRICING_PLANS } from "@marble/utils";
-import editorImage from "@/assets/images/editor.png";
 import intelImage from "@/assets/images/readability.png";
 import Container from "@/components/Container.astro";
 import CollabIcon from "@/components/icons/Collab.astro";
@@ -49,13 +48,13 @@ import { cn } from "@/lib/utils";
           <div
             class="bg-gray-50/80 p-1 rounded-xl backdrop-blur-md border mt-14 md:mt-24 lg:mt-28"
           >
-            <div class="border overflow-hidden rounded-[8px]">
-              <Image
-                src={editorImage}
-                alt="An preview of the Marble editor featuring a post in the editor and metadata in the sidebar"
-                loading="eager"
-                inferSize
-                class="object-cover"
+            <div class="border overflow-hidden rounded-[8px] aspect-video">
+              <iframe
+                src={YOUTUBE_EMBED_URL}
+                title="Marble CMS - Super Simple Headless CMS"
+                allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+                class="w-full h-full"
               />
             </div>
           </div>
@@ -129,7 +128,7 @@ import { cn } from "@/lib/utils";
                     Upload, organize, and manage all your images and files in one place.
                   </p>
                 </div>
-                <div class="w-[300px] max-w-[50%] h-fit -mr-6 absolute right-0">
+                <div class="w-[300px] max-w-[50%] h-fit -mr-6 absolute right-0 user-select-none">
                   <MediaManagement />
                 </div>
               </div>
@@ -146,7 +145,7 @@ import { cn } from "@/lib/utils";
                   <Image
                     src={editorBubble}
                     alt=""
-                    class="w-full h-full object-cover"
+                    class="w-full h-full object-cover user-select-none"
                   />
                 </div>
                 
@@ -166,7 +165,7 @@ import { cn } from "@/lib/utils";
               <div
                 class="border flex flex-col justify-between rounded-[8px] bg-white h-full w-full p-6"
               >
-                <div>
+                <div class="user-select-none">
                   <Image
                     src={intelImage}
                     alt=""
@@ -198,7 +197,7 @@ import { cn } from "@/lib/utils";
                     Work together efficiently with shared workspaces.
                   </p>
                 </div>
-                <div class="w-[250px] max-w-[40%] shrink-0">
+                <div class="w-[250px] max-w-[40%] shrink-0 user-select-none">
                   <CollabIcon />
                 </div>
               </div>
@@ -212,7 +211,7 @@ import { cn } from "@/lib/utils";
               <div
                 class="border flex justify-between rounded-[8px] bg-white h-full w-full p-6 relative"
               >
-                <div class="w-[250px] max-w-[40%] h-fit -mr-6 absolute right-6 border-t border-l">
+                <div class="w-[250px] max-w-[40%] h-fit -mr-6 absolute right-6 border-t border-l user-select-none">
                   <ApiIcon />
                 </div>
                 <div class="space-y-2 self-end max-w-[60%]">
