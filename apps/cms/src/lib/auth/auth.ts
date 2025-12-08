@@ -1,5 +1,4 @@
 import { db } from "@marble/db";
-import { customAlphabet } from "nanoid";
 import {
   checkout,
   polar,
@@ -13,6 +12,7 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { createAuthMiddleware } from "better-auth/api";
 import { nextCookies } from "better-auth/next-js";
 import { emailOTP, organization } from "better-auth/plugins";
+import { customAlphabet } from "nanoid";
 import {
   sendInviteEmailAction,
   sendResetPasswordAction,
@@ -264,7 +264,10 @@ export const auth = betterAuth({
 
           const email = user.email || "";
           const raw = email.split("@")[0] || "";
-          const base = raw.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 20);
+          const base = raw
+            .toLowerCase()
+            .replace(/[^a-z0-9]/g, "")
+            .slice(0, 20);
 
           const slug = `${base || "marble"}-${nanoid()}`;
 
