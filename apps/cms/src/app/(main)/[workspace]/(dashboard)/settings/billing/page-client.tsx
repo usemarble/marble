@@ -191,7 +191,8 @@ function PageClient() {
                 <div className="font-bold text-3xl">{apiRequestsUsed}</div>
                 <Progress value={apiRequestsPercent} />
                 <p className="text-muted-foreground text-sm">
-                  {apiRequestsRemaining.toLocaleString()} remaining of {planLimits.maxApiRequests.toLocaleString()}
+                  {apiRequestsRemaining.toLocaleString()} remaining of{" "}
+                  {planLimits.maxApiRequests.toLocaleString()}
                 </p>
               </div>
             </CardContent>
