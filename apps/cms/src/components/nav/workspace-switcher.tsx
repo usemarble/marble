@@ -24,9 +24,10 @@ import {
 import { Skeleton } from "@marble/ui/components/skeleton";
 import { cn } from "@marble/ui/lib/utils";
 import { CaretDownIcon, CheckIcon, PlusIcon } from "@phosphor-icons/react";
-import Link from "next/link";
+import { useState } from "react";
 import type { Workspace } from "@/types/workspace";
 import { useWorkspace } from "../../providers/workspace";
+import { CreateWorkspaceDialog } from "./create-workspace-dialog";
 
 export function WorkspaceSwitcher() {
   const { isMobile, state } = useSidebar();
@@ -37,6 +38,8 @@ export function WorkspaceSwitcher() {
     workspaceList,
     isFetchingWorkspace,
   } = useWorkspace();
+
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const ownedWorkspaces =
     workspaceList?.filter(
@@ -195,9 +198,10 @@ export function WorkspaceSwitcher() {
 
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <Link
+              <button
                 className="flex w-full items-center gap-2"
-                href={`/new?workspaces=${workspaceList && workspaceList.length > 0}`}
+                onClick={() => setDialogOpen(true)}
+                type="button"
               >
                 <div className="flex size-6 items-center justify-center rounded-md border bg-background">
                   <PlusIcon className="size-4" />
@@ -205,10 +209,11 @@ export function WorkspaceSwitcher() {
                 <div className="font-medium text-muted-foreground">
                   Create Workspace
                 </div>
-              </Link>
+              </button>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        <CreateWorkspaceDialog open={dialogOpen} setOpen={setDialogOpen} />
       </SidebarMenuItem>
     </SidebarMenu>
   );
