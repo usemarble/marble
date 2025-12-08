@@ -1,12 +1,14 @@
-import type { EditorInstance } from "novel";
+import type { Editor } from "@marble/editor";
 
-export function calculateReadabilityScore(editor: EditorInstance): number {
+export function calculateReadabilityScore(editor: Editor): number {
   const text = editor?.getText();
   if (!text || text.trim().length === 0) {
     return 0;
   }
 
-  const wordCountResult = editor.storage.characterCount.words();
+  const wordCountResult = editor.storage.characterCount?.words
+    ? editor.storage.characterCount.words()
+    : 0;
   const sentences = text
     .split(/[.!?]+/)
     .filter((sentence) => sentence.trim().length > 0);

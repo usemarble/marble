@@ -13,12 +13,12 @@
     "@astrojs/rss": "^4.0.14",
     "@astrojs/sitemap": "^3.6.0",
     "@astrojs/vercel": "^9.0.1",
+    "@marble/utils": "workspace:*",
     "@tailwindcss/vite": "^4.1.12",
     "astro": "^5.16.0",
     "clsx": "^2.1.1",
     "free-astro-components": "^1.2.0",
     "sharp": "^0.34.3",
-    "shiki": "^3.12.2",
     "tailwind-merge": "^2.5.4",
     "tailwindcss": "^4.1.12"
   },

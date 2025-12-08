@@ -1,12 +1,13 @@
 "use server";
 
-import { NextResponse } from "next/server";
+import {
+  sendDevEmail,
+  sendInviteEmail,
+  sendResetPassword,
+  sendVerificationEmail,
+  sendWelcomeEmail,
+} from "@marble/email";
 import { Resend } from "resend";
-import { InviteUserEmail } from "@/components/emails/invite";
-import { ResetPasswordEmail } from "@/components/emails/reset";
-import { VerifyUserEmail } from "@/components/emails/verify";
-import { WelcomeEmail } from "@/components/emails/welcome";
-import { sendDevEmail } from "@/lib/email";
 import { getServerSession } from "../auth/session";
 
 const resendApiKey = process.env.RESEND_API_KEY;
@@ -54,10 +55,7 @@ export async function sendInviteEmailAction({
   const session = await getServerSession();
 
   if (!session) {
-    return NextResponse.json(
-      { error: "Failed to send email" },
-      { status: 401 }
-    );
+    return { success: false, error: "Unauthorized" };
   }
 
   if (!resend) {
@@ -65,34 +63,20 @@ export async function sendInviteEmailAction({
   }
 
   try {
-    const response = await resend.emails.send({
-      from: "Marble <emails@marblecms.com>",
-      to: inviteeEmail,
-      subject: `Join ${workspaceName} on Marble`,
-      react: InviteUserEmail({
-        inviteeEmail,
-        invitedByUsername: inviterName,
-        invitedByEmail: inviterEmail,
-        teamName: workspaceName,
-        inviteLink,
-        userImage: `https://api.dicebear.com/9.x/notionists-neutral/svg?seed=${inviteeEmail}`,
-        teamImage:
-          teamLogo ||
-          `https://api.dicebear.com/9.x/glass/svg?seed=${workspaceName}`,
-      }),
+    const response = await sendInviteEmail(resend, {
+      inviteeEmail,
+      inviterName,
+      inviterEmail,
+      workspaceName,
+      inviteLink,
+      teamLogo,
     });
 
     console.log("Email sent successfully:", response);
-    return NextResponse.json(
-      { message: "Email sent successfully" },
-      { status: 200 }
-    );
+    return { success: true, message: "Email sent successfully" };
   } catch (error) {
     console.error("Detailed error sending email:", error);
-    return NextResponse.json(
-      { error: "Failed to send email", details: error },
-      { status: 500 }
-    );
+    return { success: false, error: "Failed to send email" };
   }
 }
 
@@ -125,27 +109,16 @@ export async function sendVerificationEmailAction({
   }
 
   try {
-    await resend.emails.send({
-      from: "Marble <emails@marblecms.com>",
-      to: userEmail,
-      subject: "Verify your email address",
-      react: VerifyUserEmail({
-        userEmail,
-        otp,
-        type,
-      }),
+    await sendVerificationEmail(resend, {
+      userEmail,
+      otp,
+      type,
     });
 
-    return NextResponse.json(
-      { message: "Email sent successfully" },
-      { status: 200 }
-    );
+    return { success: true, message: "Email sent successfully" };
   } catch (error) {
     console.error("Detailed error sending email:", error);
-    return NextResponse.json(
-      { error: "Failed to send email", details: error },
-      { status: 500 }
-    );
+    return { success: false, error: "Failed to send email" };
   }
 }
 
@@ -171,27 +144,16 @@ export async function sendResetPasswordAction({
   }
 
   try {
-    const response = await resend.emails.send({
-      from: "Marble <emails@marblecms.com>",
-      to: userEmail,
-      subject: "Reset Your Password",
-      react: ResetPasswordEmail({
-        userEmail,
-        resetLink,
-      }),
+    const response = await sendResetPassword(resend, {
+      userEmail,
+      resetLink,
     });
 
     console.log("Email sent successfully:", response);
-    return NextResponse.json(
-      { message: "Email sent successfully" },
-      { status: 200 }
-    );
+    return { success: true, message: "Email sent successfully" };
   } catch (error) {
     console.error("Detailed error sending email:", error);
-    return NextResponse.json(
-      { error: "Failed to send email", details: error },
-      { status: 500 }
-    );
+    return { success: false, error: "Failed to send email" };
   }
 }
 
@@ -215,18 +177,13 @@ export async function sendWelcomeEmailAction({
   }
 
   try {
-    await resend.emails.send({
-      from: "Marble <emails@marblecms.com>",
-      to: userEmail,
-      subject: "Welcome to Marble!",
-      react: WelcomeEmail({
-        userEmail,
-      }),
+    await sendWelcomeEmail(resend, {
+      userEmail,
     });
 
-    return { message: "Email sent successfully" };
+    return { success: true, message: "Email sent successfully" };
   } catch (error) {
     console.error("Detailed error sending email:", error);
-    return { error: "Failed to send email", details: error };
+    return { success: false, error: "Failed to send email" };
   }
 }

@@ -32,11 +32,11 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "avatar.vercel.sh",
+        hostname: "images.marblecms.com",
       },
       {
         protocol: "https",
-        hostname: "images.marblecms.com",
+        hostname: "media.marblecms.com",
       },
     ],
     qualities: [20, 40, 60, 80, 100],

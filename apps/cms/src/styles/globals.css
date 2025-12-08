@@ -3,6 +3,9 @@
 /* UI component utilities */
 @source "../../../../packages/ui/src/components/**/*.{ts,tsx}";
 
+/* Editor package utilities */
+@source "../../../../packages/editor/src/**/*.{ts,tsx}";
+
 /* Custom variant for dark mode */
 @custom-variant dark (&:is(.dark *));
 
@@ -345,4 +348,8 @@
       max-width: 60rem;
     }
   }
+}
+
+@utility scrollbar-stable {
+  scrollbar-gutter: stable;
 }

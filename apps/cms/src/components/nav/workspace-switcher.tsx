@@ -70,7 +70,7 @@ export function WorkspaceSwitcher() {
             <DropdownMenuTrigger asChild>
               <SidebarMenuButton
                 className={cn(
-                  "border border-transparent transition hover:bg-sidebar-accent data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground",
+                  "cursor-pointer border border-transparent transition hover:bg-sidebar-accent data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground",
                   isCollapsed &&
                     "size-10 min-w-0 justify-center rounded-full p-1"
                 )}
@@ -141,12 +141,12 @@ export function WorkspaceSwitcher() {
             {ownedWorkspaces.length > 0 && (
               <DropdownMenuGroup>
                 <DropdownMenuLabel className="text-muted-foreground text-xs">
-                  Your workspaces
+                  Your Workspaces
                 </DropdownMenuLabel>
                 {ownedWorkspaces.map((org) => (
                   <DropdownMenuItem key={org.id}>
                     <button
-                      className="relative flex w-full items-center gap-4 disabled:opacity-50"
+                      className="relative flex w-full cursor-pointer items-center gap-4 disabled:opacity-50"
                       disabled={isFetchingWorkspace}
                       onClick={() => switchWorkspace(org)}
                       type="button"
@@ -174,7 +174,7 @@ export function WorkspaceSwitcher() {
                 {sharedWorkspaces.map((org) => (
                   <DropdownMenuItem key={org.id}>
                     <button
-                      className="relative flex w-full items-center gap-4 disabled:opacity-50"
+                      className="relative flex w-full cursor-pointer items-center gap-4 disabled:opacity-50"
                       disabled={isFetchingWorkspace}
                       onClick={() => switchWorkspace(org)}
                       type="button"
@@ -203,7 +203,7 @@ export function WorkspaceSwitcher() {
                   <PlusIcon className="size-4" />
                 </div>
                 <div className="font-medium text-muted-foreground">
-                  Add workspace
+                  Create Workspace
                 </div>
               </Link>
             </DropdownMenuItem>

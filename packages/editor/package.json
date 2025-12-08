@@ -1,0 +1,54 @@
+{
+  "name": "@marble/editor",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./components/*": "./src/components/*.tsx",
+    "./extensions/*": "./src/extensions/*"
+  },
+  "scripts": {
+    "lint": "biome check .",
+    "format": "biome --write ."
+  },
+  "dependencies": {
+    "@floating-ui/dom": "^1.6.0",
+    "@marble/ui": "workspace:*",
+    "@phosphor-icons/react": "^2.1.10",
+    "@tiptap/core": "^3.13.0",
+    "@tiptap/extension-code-block-lowlight": "^3.13.0",
+    "@tiptap/extension-color": "^3.13.0",
+    "@tiptap/extension-document": "^3.13.0",
+    "@tiptap/extension-file-handler": "^3.13.0",
+    "@tiptap/extension-highlight": "^3.13.0",
+    "@tiptap/extension-image": "^3.13.0",
+    "@tiptap/extension-list": "^3.13.0",
+    "@tiptap/extension-subscript": "^3.13.0",
+    "@tiptap/extension-superscript": "^3.13.0",
+    "@tiptap/extension-table": "^3.13.0",
+    "@tiptap/extension-text-style": "^3.13.0",
+    "@tiptap/extension-typography": "^3.13.0",
+    "@tiptap/extension-youtube": "^3.13.0",
+    "@tiptap/extensions": "^3.13.0",
+    "@tiptap/markdown": "^3.13.0",
+    "@tiptap/pm": "^3.13.0",
+    "@tiptap/react": "^3.13.0",
+    "@tiptap/starter-kit": "^3.13.0",
+    "@tiptap/suggestion": "^3.13.0",
+    "fuse.js": "^7.0.0",
+    "lowlight": "^3.3.0",
+    "lucide-react": "^0.452.0",
+    "react-colorful": "^5.6.1",
+    "react-tweet": "^3.2.2",
+    "tippy.js": "^6.3.7"
+  },
+  "devDependencies": {
+    "@marble/tsconfig": "workspace:*",
+    "@types/node": "^20",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "typescript": "^5"
+  }
+}
