@@ -121,6 +121,12 @@ function PageClient() {
     ? Math.min(100, Math.round((mediaUsedBytes / maxMediaBytes) * 100))
     : 0;
 
+  const apiRequestsUsed = currentApiRequests;
+  const apiRequestsRemaining = planLimits.maxApiRequests - currentApiRequests;
+  const apiRequestsPercent = planLimits.maxApiRequests
+    ? Math.min(100, Math.round((currentApiRequests / planLimits.maxApiRequests) * 100))
+    : 0;
+
   const memberMax = planLimits.maxMembers;
   const memberPercent = memberMax
     ? Math.min(100, Math.round((currentMemberCount / memberMax) * 100))
@@ -179,12 +185,10 @@ function PageClient() {
                 <h3 className="font-medium">API Requests</h3>
               </div>
               <div className="space-y-3">
-                <div className="font-bold text-3xl">{currentApiRequests}</div>
-                <Progress value={planLimits.maxApiRequests === -1 ? 100 : 0} />
+                <div className="font-bold text-3xl">{apiRequestsUsed}</div>
+                <Progress value={apiRequestsPercent} />
                 <p className="text-muted-foreground text-sm">
-                  {planLimits.maxApiRequests === -1
-                    ? "Unlimited requests"
-                    : `${formatApiRequestLimit(planLimits.maxApiRequests)} remaining of ${formatApiRequestLimit(planLimits.maxApiRequests)}`}
+                  {apiRequestsRemaining.toLocaleString()} remaining of {planLimits.maxApiRequests.toLocaleString()}
                 </p>
               </div>
             </CardContent>
