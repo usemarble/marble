@@ -163,7 +163,10 @@ export function EditorSidebar({
     isFetching: aiLoading,
     refetch: refetchAi,
   } = useQuery({
-    queryKey: QUERY_KEYS.AI_READABILITY_SUGGESTIONS(workspaceId, "current-document"),
+    queryKey: QUERY_KEYS.AI_READABILITY_SUGGESTIONS(
+      workspaceId,
+      "current-document"
+    ),
     enabled: aiEnabled && editorHTML.trim().length > 0,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
