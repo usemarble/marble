@@ -11,11 +11,16 @@ export type ReadabilityMetrics = {
 export async function fetchAiReadabilityRaw(params: {
   content: string;
   metrics: ReadabilityMetrics;
+  bypassCache?: boolean;
 }): Promise<string> {
-  const { content, metrics } = params;
+  const { content, metrics, bypassCache } = params;
+  const headers: HeadersInit = { "Content-Type": "application/json" };
+  if (bypassCache) {
+    headers["x-bypass-cache"] = "true";
+  }
   const response = await fetch("/api/ai/suggestions", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify({ content, metrics }),
   });
 
@@ -57,10 +62,12 @@ export function parseStringArrayFromText(textBody: string): string[] {
 export async function fetchAiReadabilitySuggestionsStrings(params: {
   content: string;
   metrics: ReadabilityMetrics;
+  bypassCache?: boolean;
 }): Promise<string[]> {
   const text = await fetchAiReadabilityRaw({
     content: params.content,
     metrics: params.metrics,
+    bypassCache: params.bypassCache,
   });
   return parseStringArrayFromText(text);
 }
@@ -68,12 +75,14 @@ export async function fetchAiReadabilitySuggestionsStrings(params: {
 export async function fetchAiReadabilitySuggestionsObject(params: {
   content: string;
   metrics: ReadabilityMetrics;
+  bypassCache?: boolean;
 }): Promise<{
   suggestions: { text: string; explanation?: string; textReference?: string }[];
 }> {
   const text = await fetchAiReadabilityRaw({
     content: params.content,
     metrics: params.metrics,
+    bypassCache: params.bypassCache,
   });
 
   let json: unknown = null;

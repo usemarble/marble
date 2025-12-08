@@ -18,7 +18,7 @@ import { cn } from "@marble/ui/lib/utils";
 import { SpinnerIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { parseAsStringLiteral, useQueryState } from "nuqs";
-import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import type { Control, FieldErrors, UseFormWatch } from "react-hook-form";
 import { useDebounce } from "@/hooks/use-debounce";
 import { fetchAiReadabilitySuggestionsObject } from "@/lib/ai/readability";
@@ -156,25 +156,21 @@ export function EditorSidebar({
 
   // biome-ignore lint/style/noNonNullAssertion: <>
   const workspaceId = activeWorkspace!.id;
+  const bypassCacheRef = useRef(false);
 
   const {
     data: aiData,
     isFetching: aiLoading,
     refetch: refetchAi,
   } = useQuery({
-    // Use a stable key so content changes don't auto-trigger refetches
-    queryKey: QUERY_KEYS.AI_READABILITY_SUGGESTIONS(
-      workspaceId,
-      "current-document"
-    ),
-    // Disabled by default; we'll manually refetch on initial open and button click
-    enabled: false,
+    queryKey: QUERY_KEYS.AI_READABILITY_SUGGESTIONS(workspaceId, "current-document"),
+    enabled: aiEnabled && editorHTML.trim().length > 0,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     retry: 0,
-    queryFn: async () =>
-      fetchAiReadabilitySuggestionsObject({
+    queryFn: async () => {
+      const result = await fetchAiReadabilitySuggestionsObject({
         content: editorHTML,
         metrics: {
           wordCount: metrics.wordCount,
@@ -183,7 +179,11 @@ export function EditorSidebar({
           readabilityScore: metrics.readabilityScore,
           readingTime: metrics.readingTime,
         },
-      }),
+        bypassCache: bypassCacheRef.current,
+      });
+      bypassCacheRef.current = false;
+      return result;
+    },
   });
 
   const [activeTab, setActiveTab] = useQueryState(
@@ -212,6 +212,7 @@ export function EditorSidebar({
   ]);
 
   const handleRefreshAi = () => {
+    bypassCacheRef.current = true;
     refetchAi();
   };
 

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { NodeHtmlMarkdown } from "node-html-markdown";
 import { getServerSession } from "@/lib/auth/session";
 import { aiSuggestionsRateLimiter, rateLimitHeaders } from "@/lib/ratelimit";
+import { redis } from "@/lib/redis";
 import {
   aiReadabilityBodySchema,
   aiReadabilityResponseSchema,
@@ -18,20 +19,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { success, limit, remaining, reset } =
-    await aiSuggestionsRateLimiter.limit(
-      sessionData.session.activeOrganizationId
-    );
+  const workspaceId = sessionData.session.activeOrganizationId;
 
-  if (!success) {
-    return NextResponse.json(
-      { error: "Too Many Requests", remaining },
-      { status: 429, headers: rateLimitHeaders(limit, remaining, reset) }
-    );
-  }
+  const bypassCache = request.headers.get("x-bypass-cache") === "true";
 
   const workspace = await db.organization.findUnique({
-    where: { id: sessionData.session.activeOrganizationId },
+    where: { id: workspaceId },
     select: {
       editorPreferences: {
         select: {
@@ -55,9 +48,32 @@ export async function POST(request: Request) {
     );
   }
 
-  const { streamObject } = await import("ai");
+  const cacheKey = `ai:suggestions:${workspaceId}`;
 
-  const result = streamObject({
+  if (!bypassCache) {
+    const cached = await redis.get<string>(cacheKey);
+    if (cached) {
+      const cachedJson =
+        typeof cached === "string" ? cached : JSON.stringify(cached);
+      return new NextResponse(cachedJson, {
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  }
+
+  const { success, limit, remaining, reset } =
+    await aiSuggestionsRateLimiter.limit(workspaceId);
+
+  if (!success) {
+    return NextResponse.json(
+      { error: "Too Many Requests", remaining },
+      { status: 429, headers: rateLimitHeaders(limit, remaining, reset) }
+    );
+  }
+
+  const { generateObject } = await import("ai");
+
+  const result = await generateObject({
     model: "openai/gpt-5.1-instant",
     messages: [
       {
@@ -76,5 +92,11 @@ export async function POST(request: Request) {
     schema: aiReadabilityResponseSchema,
   });
 
-  return result.toTextStreamResponse();
+  const resultJson = JSON.stringify(result.object);
+
+  await redis.set(cacheKey, resultJson, { ex: 1200 });
+
+  return new NextResponse(resultJson, {
+    headers: { "Content-Type": "application/json" },
+  });
 }
