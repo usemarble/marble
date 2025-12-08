@@ -1,4 +1,5 @@
 import { db } from "@marble/db";
+import { customAlphabet } from "nanoid";
 import {
   checkout,
   polar,
@@ -34,6 +35,8 @@ import {
   validateWorkspaceTimezone,
 } from "../actions/workspace";
 import { redis } from "../redis";
+
+const nanoid = customAlphabet("abcdefghijklmnopqrstuvwxyz0123456789", 6);
 
 const polarClient = new Polar({
   accessToken: process.env.POLAR_ACCESS_TOKEN,
@@ -258,6 +261,21 @@ export const auth = betterAuth({
       create: {
         after: async (user) => {
           await storeUserImageAction(user);
+
+          const email = user.email || "";
+          const raw = email.split("@")[0] || "";
+          const base = raw.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 20);
+
+          const slug = `${base || "marble"}-${nanoid()}`;
+
+          await auth.api.createOrganization({
+            body: {
+              name: "Personal",
+              slug,
+              timezone: "Europe/London",
+              userId: user.id,
+            },
+          });
         },
       },
     },
