@@ -277,6 +277,7 @@ export const auth = betterAuth({
               slug,
               timezone: "Europe/London",
               userId: user.id,
+              logo: `https://api.dicebear.com/9.x/glass/svg?seed=${slug}`,
             },
           });
         },
