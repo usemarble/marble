@@ -5,7 +5,7 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@marble/ui/components/input-otp";
-import { toast } from "@marble/ui/components/sonner";
+import { toast } from "@marble/ui/hooks/use-toast";
 import { cn } from "@marble/ui/lib/utils";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 

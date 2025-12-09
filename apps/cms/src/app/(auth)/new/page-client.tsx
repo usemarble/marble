@@ -11,7 +11,7 @@ import {
 } from "@marble/ui/components/card";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
-import { toast } from "@marble/ui/components/sonner";
+import { toast } from "@marble/ui/hooks/use-toast";
 import { cn } from "@marble/ui/lib/utils";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -64,7 +64,7 @@ function PageClient() {
     });
 
     if (error) {
-      toast.error(error.message);
+      toast.error(error.message ?? "Failed to check slug");
       console.log("check slug error", error);
       return;
     }
@@ -77,7 +77,7 @@ function PageClient() {
         logo: `https://api.dicebear.com/9.x/glass/svg?seed=${payload.name}`,
       });
       if (error) {
-        toast.error(error.message);
+        toast.error(error.message ?? "Failed to create workspace");
         return;
       }
       if (data) {

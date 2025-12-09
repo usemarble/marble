@@ -1,7 +1,7 @@
 "use client";
 
 import { Input } from "@marble/ui/components/input";
-import { toast } from "@marble/ui/components/sonner";
+import { toast } from "@marble/ui/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { authClient } from "@/lib/auth/client";
