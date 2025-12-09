@@ -142,8 +142,6 @@ export function DeleteMediaModal({
     ? `Delete this ${singleItem?.type || "media"}?`
     : `Delete ${count} media items?`;
 
-  console.log("singleItem", singleItem);
-
   const description = isSingleItem
     ? `Deleting this ${singleItem?.type || "media"} will break posts where it is being used. Please make sure to update all posts using this ${singleItem?.type || "media"}.`
     : "Deleting these media items will break posts where they are being used. Please make sure to update all posts using these items.";

@@ -79,16 +79,20 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
             />
             <div className="pointer-events-none fixed inset-0 z-50 grid place-items-center">
               <motion.div
+                aria-labelledby={`file-name-${selectedFile.id}`}
+                aria-modal="true"
                 className="pointer-events-auto z-50 h-fit w-[600px] max-w-[calc(100vw-20rem)] rounded-[20px] bg-background p-3 shadow-sm"
                 key={selectedFile.id}
                 layoutId={`file-${selectedFile.id}`}
                 ref={dialogRef}
+                role="dialog"
               >
                 <div className="flex flex-col gap-4">
                   <div className="flex justify-between">
                     <div>
                       <motion.p
                         className="line-clamp-1 max-w-[400px] font-medium text-sm"
+                        id={`file-name-${selectedFile.id}`}
                         layoutId={`name-${selectedFile.id}`}
                       >
                         {selectedFile.name}
@@ -125,7 +129,7 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
                       type="button"
                     >
                       <motion.svg
-                        aria-hidden="true"
+                        aria-labelledby={`title-${selectedFile.id}`}
                         className="size-4"
                         fill="#000000"
                         height="32"
@@ -134,6 +138,9 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
                         width="32"
                         xmlns="http://www.w3.org/2000/svg"
                       >
+                        <title id={`title-${selectedFile.id}`}>
+                          Close icon
+                        </title>
                         <motion.path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z" />
                       </motion.svg>
                     </motion.button>
@@ -145,6 +152,7 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
                   >
                     {selectedFile.type === "image" ? (
                       <motion.img
+                        alt={selectedFile.name}
                         animate={{ opacity: 1 }}
                         className="h-full w-full object-cover"
                         exit={{ opacity: 0 }}

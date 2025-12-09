@@ -62,6 +62,7 @@ export function MediaCard({
       )}
     >
       <button
+        aria-label={`Select ${media?.name ?? "media"}`}
         className="cursor-pointer rounded-[12px] outline-none transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
         onClick={onSelect}
         type="button"
