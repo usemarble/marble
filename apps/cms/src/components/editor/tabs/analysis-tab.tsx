@@ -119,11 +119,10 @@ export function AnalysisTab({
                 </h4>
                 {aiEnabled && textMetrics.wordCount > 0 ? (
                   <Tooltip>
-                    <TooltipTrigger asChild>
-                      <InfoIcon
+                    <TooltipTrigger render={<InfoIcon
                         aria-label="AI generated"
                         className="h-3.5 w-3.5 cursor-help text-muted-foreground"
-                      />
+                      />}>
                     </TooltipTrigger>
                     <TooltipContent>
                       <p className="text-xs">

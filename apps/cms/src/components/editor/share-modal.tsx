@@ -12,7 +12,7 @@ import {
 } from "@marble/ui/components/dialog";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
-import { toast } from "@marble/ui/components/sonner";
+import { toast } from "@marble/ui/hooks/use-toast";
 import { LinkSimpleIcon, TimerIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import { differenceInHours, differenceInMinutes, isBefore } from "date-fns";
@@ -90,10 +90,8 @@ export function ShareModal({ postId }: ShareModalProps) {
   return (
     <>
       <Dialog>
-        <DialogTrigger asChild>
-          <Button size="icon" type="button" variant="ghost">
-            <LinkSimpleIcon className="size-4" />
-          </Button>
+        <DialogTrigger render={<Button size="icon" type="button" variant="ghost" />}>
+          <LinkSimpleIcon className="size-4" />
         </DialogTrigger>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -111,10 +109,8 @@ export function ShareModal({ postId }: ShareModalProps) {
                 </p>
               </div>
               <DialogFooter>
-                <DialogClose asChild>
-                  <Button type="button" variant="secondary">
-                    Close
-                  </Button>
+                <DialogClose render={<Button type="button" variant="secondary" />}>
+                  Close
                 </DialogClose>
                 <Button onClick={() => setShowUpgradeModal(true)}>
                   Upgrade
@@ -181,20 +177,18 @@ export function ShareModal({ postId }: ShareModalProps) {
                   Date
                 </Label>
                 <Popover onOpenChange={setOpen} open={open}>
-                  <PopoverTrigger asChild>
-                    <Button
+                  <PopoverTrigger render={<Button
                       className="justify-between font-normal shadow-none"
                       id="date-picker"
                       variant="outline"
-                    >
-                      <div className="flex items-center gap-2">
-                        <CalendarDotsIcon className="size-4" />
-                        <span>
-                          {date ? format(date, "MMM d, yyyy") : "Select date"}
-                        </span>
-                      </div>
-                      <CaretDownIcon className="size-4" />
-                    </Button>
+                    />}>
+                    <div className="flex items-center gap-2">
+                      <CalendarDotsIcon className="size-4" />
+                      <span>
+                        {date ? format(date, "MMM d, yyyy") : "Select date"}
+                      </span>
+                    </div>
+                    <CaretDownIcon className="size-4" />
                   </PopoverTrigger>
                   <PopoverContent
                     align="start"
@@ -217,10 +211,8 @@ export function ShareModal({ postId }: ShareModalProps) {
           )} */}
               </div>
               <DialogFooter>
-                <DialogClose asChild>
-                  <Button type="button" variant="secondary">
-                    Close
-                  </Button>
+                <DialogClose render={<Button type="button" variant="secondary" />}>
+                  Close
                 </DialogClose>
                 <AsyncButton
                   disabled={isPending}

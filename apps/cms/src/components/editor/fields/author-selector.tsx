@@ -189,13 +189,11 @@ export function AuthorSelector({
                 selected.map((author) => (
                   <li className="flex items-center" key={author.id}>
                     <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Avatar className="size-6">
-                          <AvatarImage src={author.image || undefined} />
-                          <AvatarFallback>
-                            {author.name.charAt(0)}
-                          </AvatarFallback>
-                        </Avatar>
+                      <TooltipTrigger render={<Avatar className="size-6" />}>
+                        <AvatarImage src={author.image || undefined} />
+                        <AvatarFallback>
+                          {author.name.charAt(0)}
+                        </AvatarFallback>
                       </TooltipTrigger>
                       <TooltipContent>
                         <p className="max-w-64 text-xs">{author.name}</p>

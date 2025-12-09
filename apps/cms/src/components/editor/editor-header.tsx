@@ -26,19 +26,21 @@ type EditorHeaderProps = {
 
 export function EditorHeader({ postId, workspace }: EditorHeaderProps) {
   return (
-    <header className="sticky top-0 z-50 flex justify-between p-3">
+    <header className="sticky top-0 flex justify-between p-3">
       <div className="flex items-center gap-4">
         <Tooltip delayDuration={400}>
-          <TooltipTrigger asChild>
-            <Link
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "icon" }),
-                "group"
-              )}
-              href={`/${workspace}/posts`}
-            >
-              <XIcon className="size-4 text-muted-foreground group-hover:text-foreground" />
-            </Link>
+          <TooltipTrigger
+            render={
+              <Link
+                className={cn(
+                  buttonVariants({ variant: "ghost", size: "icon" }),
+                  "group"
+                )}
+                href={`/${workspace}/posts`}
+              />
+            }
+          >
+            <XIcon className="size-4 text-muted-foreground group-hover:text-foreground" />
           </TooltipTrigger>
           <TooltipContent>
             <p>Close Editor</p>
@@ -49,10 +51,8 @@ export function EditorHeader({ postId, workspace }: EditorHeaderProps) {
       <div className="flex items-center gap-2">
         {postId && <ShareModal postId={postId} />}
         <Tooltip delayDuration={400}>
-          <TooltipTrigger asChild>
-            <SidebarTrigger className="size-8 text-muted-foreground">
-              <SidebarSimpleIcon className="size-4" />
-            </SidebarTrigger>
+          <TooltipTrigger render={<SidebarTrigger className="size-8 text-muted-foreground" />}>
+            <SidebarSimpleIcon className="size-4" />
           </TooltipTrigger>
           <TooltipContent>
             <p>Toggle Sidebar ({getToggleSidebarShortcut()})</p>

@@ -134,38 +134,36 @@ export const TagSelector = ({
         <FieldInfo text="Your articles can have multiple tags, we will use this to determine related articles." />
       </div>
       <Popover onOpenChange={setIsOpen} open={isOpen}>
-        <PopoverTrigger asChild>
-          <div className="relative h-auto min-h-9 w-full cursor-pointer rounded-md border bg-editor-field px-3 py-2 text-sm">
-            <div className="flex items-center justify-between gap-2">
-              <ul className="flex flex-wrap gap-1">
-                {selected.length === 0 && (
-                  <li className="text-muted-foreground">
-                    {placeholder || "Select some tags"}
-                  </li>
-                )}
-                {selected.map((item) => (
-                  <li key={item.id}>
-                    <Badge
-                      className="bg-background font-normal"
-                      variant="outline"
+        <PopoverTrigger render={<div className="relative h-auto min-h-9 w-full cursor-pointer rounded-md border bg-editor-field px-3 py-2 text-sm" />}>
+          <div className="flex items-center justify-between gap-2">
+            <ul className="flex flex-wrap gap-1">
+              {selected.length === 0 && (
+                <li className="text-muted-foreground">
+                  {placeholder || "Select some tags"}
+                </li>
+              )}
+              {selected.map((item) => (
+                <li key={item.id}>
+                  <Badge
+                    className="bg-background font-normal"
+                    variant="outline"
+                  >
+                    {item.name}
+                    <button
+                      className="ml-1 h-auto p-0 hover:bg-transparent"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveTag(item.id);
+                      }}
+                      type="button"
                     >
-                      {item.name}
-                      <button
-                        className="ml-1 h-auto p-0 hover:bg-transparent"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleRemoveTag(item.id);
-                        }}
-                        type="button"
-                      >
-                        <XIcon className="size-2.5 p-0" />
-                      </button>
-                    </Badge>
-                  </li>
-                ))}
-              </ul>
-              <CaretUpDownIcon className="size-4 shrink-0 opacity-50" />
-            </div>
+                      <XIcon className="size-2.5 p-0" />
+                    </button>
+                  </Badge>
+                </li>
+              ))}
+            </ul>
+            <CaretUpDownIcon className="size-4 shrink-0 opacity-50" />
           </div>
         </PopoverTrigger>
         {error && <ErrorMessage>{error.message}</ErrorMessage>}

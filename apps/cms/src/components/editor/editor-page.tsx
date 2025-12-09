@@ -10,7 +10,7 @@ import {
   useMarbleEditor,
 } from "@marble/editor";
 import { SidebarInset, useSidebar } from "@marble/ui/components/sidebar";
-import { toast } from "@marble/ui/components/sonner";
+import { toast } from "@marble/ui/hooks/use-toast";
 import { cn } from "@marble/ui/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
