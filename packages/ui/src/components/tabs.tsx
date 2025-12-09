@@ -49,9 +49,9 @@ const TabsList = (props: React.ComponentProps<typeof BaseTabs.List>) => {
     <BaseTabs.List
       data-slot="tabs-list"
       className={cn(
-        "text-muted-foreground relative z-0 inline-flex h-9 w-fit items-center justify-center gap-x-1 p-[3px]",
-        variant === "default" && "bg-muted rounded-lg",
-        variant === "line" && "h-10 border-b border-border",
+        "text-muted-foreground relative z-0 inline-flex items-center justify-center",
+        variant === "default" && "bg-muted h-9 w-fit gap-x-1 rounded-lg p-[3px]",
+        variant === "line" && "h-10 w-full border-b border-border",
         className
       )}
       {...rest}
@@ -70,8 +70,8 @@ const TabsTrigger = (props: React.ComponentProps<typeof BaseTabs.Tab>) => {
     <BaseTabs.Tab
       data-slot="tabs-trigger"
       className={cn(
-        "text-muted-foreground data-[selected]:text-foreground focus-visible:ring-ring/50 z-[1] flex-1 items-center justify-center gap-1.5 rounded-md px-2 py-1 text-sm text-nowrap whitespace-nowrap outline-none focus-visible:ring-[3px] data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-        variant === "line" && "px-4 py-2 -mb-px hover:bg-muted data-[selected]:text-primary",
+        "text-muted-foreground data-[selected]:text-foreground focus-visible:ring-ring/50 focus-visible:border-ring z-[1] inline-flex flex-1 items-center justify-center gap-1.5 rounded-md px-2 py-1 text-sm font-medium text-nowrap whitespace-nowrap transition-all outline-none focus-visible:ring-[3px] focus-visible:outline-1 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        variant === "line" && "rounded-none px-4 py-2 hover:bg-muted data-[selected]:text-primary",
         className
       )}
       {...rest}
@@ -87,10 +87,10 @@ const TabIndicator = (props: React.ComponentProps<typeof BaseTabs.Indicator>) =>
     <BaseTabs.Indicator
       data-slot="tab-indicator"
       className={cn(
-        "absolute left-0 w-[var(--active-tab-width)] translate-x-[var(--active-tab-left)] -translate-y-1/2 transition-all duration-300 ease-in-out",
+        "absolute left-0 w-[var(--active-tab-width)] translate-x-[var(--active-tab-left)] transition-all duration-300 ease-in-out",
         variant === "line"
-          ? "bg-primary top-full z-10 h-px"
-          : "bg-accent border-ring/70 top-1/2 -z-[1] h-[var(--active-tab-height)] rounded-md border shadow-sm",
+          ? "bg-primary bottom-0 z-10 h-0.5"
+          : "bg-background dark:bg-input/30 dark:border-input top-1/2 -translate-y-1/2 -z-[1] h-[var(--active-tab-height)] rounded-md border shadow-sm",
         className
       )}
       {...rest}

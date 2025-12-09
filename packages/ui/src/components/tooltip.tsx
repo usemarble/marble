@@ -49,7 +49,7 @@ const TooltipContent = (props: TooltipContentProps) => {
 
   return (
     <TooltipPortal>
-      <TooltipPositioner sideOffset={sideOffset} align={align} side={side}>
+      <TooltipPositioner className="z-50" sideOffset={sideOffset} align={align} side={side}>
         <BaseTooltip.Popup
           data-slot="tooltip-content"
           className={cn(

@@ -38,28 +38,28 @@ const ToastList = () => {
   return (
     <Toast.Portal data-slot="toast-portal">
       <Toast.Viewport
-        className="fixed top-auto right-4 bottom-4 z-[51] mx-auto flex w-[calc(100%_-_2rem)] sm:right-8 sm:bottom-8 sm:w-[356px]"
+        className="fixed top-4 left-1/2 -translate-x-1/2 z-[51] flex w-[calc(100%_-_2rem)] sm:top-8 sm:w-[356px]"
         data-slot="toast-viewport"
       >
         {toasts.map((toast) => (
           <Toast.Root
             key={toast.id}
             toast={toast}
-            swipeDirection={["right", "down"]}
+            swipeDirection={["right", "up"]}
             data-slot="toast"
             className={cn(
-              "bg-popover text-popover-foreground absolute right-0 bottom-0 left-auto z-[calc(1000-var(--toast-index))] mr-0 flex w-full items-center justify-between gap-1.5 rounded-lg border bg-clip-padding p-4 shadow-lg transition-all [transition-property:opacity,transform] duration-200 ease-out select-none",
-              "after:absolute after:bottom-full after:left-0 after:h-[calc(var(--gap)+1px)] after:w-full after:content-['']",
-              "[transform:translateX(var(--toast-swipe-movement-x))_translateY(calc(var(--toast-swipe-movement-y)+calc(min(var(--toast-index),10)*-1*var(--gap))))_scale(calc(max(0,1-(var(--toast-index)*0.1))))]",
-              "data-[expanded]:[transform:translateX(var(--toast-swipe-movement-x))_translateY(calc(var(--toast-offset-y)*-1+calc(var(--toast-index)*var(--gap)*-1)+var(--toast-swipe-movement-y)))]",
-              "data-[ending-style]:opacity-0 data-[limited]:opacity-0 data-[starting-style]:[transform:translateY(150%)] data-[starting-style]:opacity-0 data-[ending-style]:[&:not([data-limited])]:[transform:translateY(150%)]",
+              "bg-popover text-popover-foreground absolute top-0 left-0 right-0 z-[calc(1000-var(--toast-index))] flex w-full items-center justify-between gap-1.5 rounded-lg border bg-clip-padding p-4 shadow-lg transition-all [transition-property:opacity,transform] duration-200 ease-out select-none",
+              "after:absolute after:top-full after:left-0 after:h-[calc(var(--gap)+1px)] after:w-full after:content-['']",
+              "[transform:translateX(var(--toast-swipe-movement-x))_translateY(calc(var(--toast-swipe-movement-y)+calc(min(var(--toast-index),10)*var(--gap))))_scale(calc(max(0,1-(var(--toast-index)*0.1))))]",
+              "data-[expanded]:[transform:translateX(var(--toast-swipe-movement-x))_translateY(calc(var(--toast-offset-y)+calc(var(--toast-index)*var(--gap))+var(--toast-swipe-movement-y)))]",
+              "data-[ending-style]:opacity-0 data-[limited]:opacity-0 data-[starting-style]:[transform:translateY(-150%)] data-[starting-style]:opacity-0 data-[ending-style]:[&:not([data-limited])]:[transform:translateY(-150%)]",
               "data-[ending-style]:data-[swipe-direction=right]:[transform:translateX(calc(var(--toast-swipe-movement-x)+150%))_translateY(var(--offset-y))] data-[expanded]:data-[ending-style]:data-[swipe-direction=right]:[transform:translateX(calc(var(--toast-swipe-movement-x)+150%))_translateY(var(--offset-y))]",
-              "data-[ending-style]:data-[swipe-direction=down]:[transform:translateY(calc(var(--toast-swipe-movement-y)+150%))] data-[expanded]:data-[ending-style]:data-[swipe-direction=down]:[transform:translateY(calc(var(--toast-swipe-movement-y)+150%))]"
+              "data-[ending-style]:data-[swipe-direction=up]:[transform:translateY(calc(var(--toast-swipe-movement-y)-150%))] data-[expanded]:data-[ending-style]:data-[swipe-direction=up]:[transform:translateY(calc(var(--toast-swipe-movement-y)-150%))]"
             )}
             style={{
               ["--gap" as string]: "0.8rem",
               ["--offset-y" as string]:
-                "calc(var(--toast-offset-y) * -1 + (var(--toast-index) * var(--gap) * -1) + var(--toast-swipe-movement-y))",
+                "calc(var(--toast-offset-y) + (var(--toast-index) * var(--gap)) + var(--toast-swipe-movement-y))",
             }}
           >
             <div className="flex items-center gap-2">
