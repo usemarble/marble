@@ -119,15 +119,13 @@ export function MediaCard({
           </div>
         </div>
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
+          <DropdownMenuTrigger render={<Button
               className="size-8 shrink-0"
               onClick={(e) => e.stopPropagation()}
               size="icon"
               variant="ghost"
-            >
-              <DotsThreeVerticalIcon size={16} />
-            </Button>
+            />}>
+            <DotsThreeVerticalIcon size={16} />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem

@@ -7,7 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@marble/ui/components/dialog";
-import { toast } from "@marble/ui/components/sonner";
+import { toast } from "@marble/ui/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import { useState } from "react";
