@@ -30,11 +30,9 @@ export function ThemeSwitch() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline">
-          <span className="capitalize">{theme}</span>
-          <CaretDownIcon className="ml-2 size-4 text-muted-foreground" />
-        </Button>
+      <DropdownMenuTrigger render={<Button variant="outline" />}>
+        <span className="capitalize">{theme}</span>
+        <CaretDownIcon className="ml-2 size-4 text-muted-foreground" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         {themes.map((item) => (

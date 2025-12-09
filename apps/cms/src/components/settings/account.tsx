@@ -4,7 +4,7 @@ import { Checkbox } from "@marble/ui/components/checkbox";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { Separator } from "@marble/ui/components/separator";
-import { toast } from "@marble/ui/components/sonner";
+import { toast } from "@marble/ui/hooks/use-toast";
 import { CircleNotchIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";

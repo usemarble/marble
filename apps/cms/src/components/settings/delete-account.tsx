@@ -9,7 +9,7 @@ import {
   AlertDialogTrigger,
 } from "@marble/ui/components/alert-dialog";
 import { Button } from "@marble/ui/components/button";
-import { toast } from "@marble/ui/components/sonner";
+import { toast } from "@marble/ui/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth/client";
@@ -36,8 +36,8 @@ export function DeleteAccountModal() {
 
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button variant="destructive">Delete Account</Button>
+      <AlertDialogTrigger render={<Button variant="destructive" />}>
+        Delete Account
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>

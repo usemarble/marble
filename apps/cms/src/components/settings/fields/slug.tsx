@@ -11,7 +11,7 @@ import {
 } from "@marble/ui/components/card";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
-import { toast } from "@marble/ui/components/sonner";
+import { toast } from "@marble/ui/hooks/use-toast";
 import { cn } from "@marble/ui/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
