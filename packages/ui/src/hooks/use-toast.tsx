@@ -8,12 +8,25 @@ export const useToast = Toast.useToastManager
 
 type ToastType = "success" | "error" | "info" | "warning" | "loading" | "default"
 
+export type ToastPosition =
+  | "top-left"
+  | "top-center"
+  | "top-right"
+  | "bottom-left"
+  | "bottom-center"
+  | "bottom-right"
+
+export type ToastData = {
+  position?: ToastPosition
+}
+
 type ToastOptions = {
   id?: string
   title?: string
   description?: string
   type?: ToastType
   duration?: number
+  position?: ToastPosition
   actionProps?: {
     label: string
     onClick: () => void
@@ -41,6 +54,7 @@ export const toast: ToastApi = {
       actionProps: options.actionProps
         ? { children: options.actionProps.label, onClick: options.actionProps.onClick }
         : undefined,
+      data: options.position ? ({ position: options.position } satisfies ToastData) : undefined,
     })
   },
   success: (message, options) => {
@@ -48,7 +62,7 @@ export const toast: ToastApi = {
       title: message,
       type: "success",
       timeout: options?.duration,
-      ...options,
+      data: options?.position ? { position: options.position } : undefined,
     })
   },
   error: (message, options) => {
@@ -56,7 +70,7 @@ export const toast: ToastApi = {
       title: message,
       type: "error",
       timeout: options?.duration,
-      ...options,
+      data: options?.position ? { position: options.position } : undefined,
     })
   },
   info: (message, options) => {
@@ -64,7 +78,7 @@ export const toast: ToastApi = {
       title: message,
       type: "info",
       timeout: options?.duration,
-      ...options,
+      data: options?.position ? { position: options.position } : undefined,
     })
   },
   warning: (message, options) => {
@@ -72,7 +86,7 @@ export const toast: ToastApi = {
       title: message,
       type: "warning",
       timeout: options?.duration,
-      ...options,
+      data: options?.position ? { position: options.position } : undefined,
     })
   },
   loading: (message, options) => {
@@ -80,7 +94,7 @@ export const toast: ToastApi = {
       title: message,
       type: "loading",
       timeout: 0,
-      ...options,
+      data: options?.position ? { position: options.position } : undefined,
     })
   },
   dismiss: (id) => {

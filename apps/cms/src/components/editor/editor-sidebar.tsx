@@ -235,7 +235,9 @@ export function EditorSidebar({
         <SidebarHeader className="sticky top-0 z-10 shrink-0 bg-transparent px-6 py-4">
           <Tabs
             className="w-full"
-            onValueChange={setActiveTab}
+            onValueChange={(value) => {
+              setActiveTab(value);
+            }}
             value={activeTab}
             variant="line"
           >
@@ -257,7 +259,9 @@ export function EditorSidebar({
         <SidebarContent className="min-h-0 flex-1 overflow-hidden bg-transparent">
           <Tabs
             className="flex h-full flex-col"
-            onValueChange={setActiveTab}
+            onValueChange={(value) => {
+              setActiveTab(value);
+            }}
             value={activeTab}
             variant="line"
           >
