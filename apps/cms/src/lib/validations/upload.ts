@@ -138,14 +138,9 @@ export const completeSchema = z.union([
   completeMediaSchema,
 ]);
 
-export const DeleteSchema = z
-  .object({
-    mediaId: z.string().optional(),
-    mediaIds: z.array(z.string()).min(1).max(100).optional(),
-  })
-  .refine((d) => d.mediaId || d.mediaIds?.length, {
-    message: "mediaId or mediaIds is required",
-  });
+export const DeleteSchema = z.object({
+  mediaIds: z.array(z.string()).min(1).max(100),
+});
 
 export function validateUpload({
   type,

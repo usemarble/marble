@@ -126,16 +126,7 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: parsed.error.message }, { status: 400 });
   }
 
-  const { mediaId, mediaIds } = await parsed.data;
-
-  const idsToDelete = mediaIds || (mediaId ? [mediaId] : []);
-
-  if (idsToDelete.length === 0) {
-    return NextResponse.json(
-      { error: "mediaId or mediaIds is required" },
-      { status: 400 }
-    );
-  }
+  const { mediaIds } = parsed.data;
 
   try {
     const deletedIds: string[] = [];
@@ -143,13 +134,13 @@ export async function DELETE(request: Request) {
 
     const existingMedia = await db.media.findMany({
       where: {
-        id: { in: idsToDelete },
+        id: { in: mediaIds },
         workspaceId,
       },
     });
 
     const existingIds = existingMedia.map((media) => media.id);
-    for (const id of idsToDelete) {
+    for (const id of mediaIds) {
       if (!existingIds.includes(id)) {
         failedIds.push(id);
       }

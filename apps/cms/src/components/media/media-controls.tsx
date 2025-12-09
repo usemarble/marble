@@ -26,6 +26,7 @@ export function MediaControls({
   onDeselectAll,
   onBulkDelete,
   mediaLength,
+  disabled = false,
 }: {
   onUpload: (files: FileList) => void;
   isUploading: boolean;
@@ -34,12 +35,16 @@ export function MediaControls({
   onDeselectAll: () => void;
   onBulkDelete: () => void;
   mediaLength: number;
+  disabled?: boolean;
 }) {
   const [{ type, sort }, setSearchParams] = useMediaPageFilters();
+
+  const isDisabled = disabled || isUploading;
   return (
     <section className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
       <div className="flex flex-wrap items-center gap-1 sm:gap-4">
         <Select
+          disabled={isDisabled}
           onValueChange={(val: MediaFilterType) => {
             if (isMediaFilterType(val)) {
               setSearchParams({ type: val });
@@ -47,7 +52,7 @@ export function MediaControls({
           }}
           value={type}
         >
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[100px]">
             <SelectValue placeholder="Filter by type" />
           </SelectTrigger>
           <SelectContent>
@@ -57,6 +62,7 @@ export function MediaControls({
           </SelectContent>
         </Select>
         <Select
+          disabled={isDisabled}
           onValueChange={(val: string) => {
             if (isMediaSort(val)) {
               setSearchParams({ sort: val });
@@ -64,7 +70,7 @@ export function MediaControls({
           }}
           value={sort}
         >
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[150px]">
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
           <SelectContent>
@@ -78,6 +84,7 @@ export function MediaControls({
           {selectedItems.size > 0 && (
             <Button
               aria-label="Deselect all"
+              disabled={isDisabled}
               onClick={onDeselectAll}
               size="icon"
               type="button"
@@ -89,6 +96,7 @@ export function MediaControls({
           {mediaLength > 0 && (
             <Button
               className="shadow-none"
+              disabled={isDisabled}
               onClick={onSelectAll}
               type="button"
               variant="outline"
@@ -104,6 +112,7 @@ export function MediaControls({
                 <TooltipTrigger asChild>
                   <Button
                     aria-label={`Delete selected (${selectedItems.size})`}
+                    disabled={isDisabled}
                     onClick={onBulkDelete}
                     size="icon"
                     type="button"
