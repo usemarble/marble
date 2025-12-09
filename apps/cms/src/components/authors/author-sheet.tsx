@@ -18,7 +18,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@marble/ui/components/sheet";
-import { toast } from "@marble/ui/components/sonner";
+import { toast } from "@marble/ui/hooks/use-toast";
 import { Textarea } from "@marble/ui/components/textarea";
 import { cn } from "@marble/ui/lib/utils";
 import {

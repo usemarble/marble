@@ -21,11 +21,9 @@ export default function TableActions(props: Category) {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button className="h-8 w-8 p-0" variant="ghost">
-            <span className="sr-only">Open menu</span>
-            <DotsThreeVerticalIcon />
-          </Button>
+        <DropdownMenuTrigger render={<Button className="h-8 w-8 p-0" variant="ghost" />}>
+          <span className="sr-only">Open menu</span>
+          <DotsThreeVerticalIcon />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="text-muted-foreground">
           <DropdownMenuItem onClick={() => setShowUpdateModal(true)}>

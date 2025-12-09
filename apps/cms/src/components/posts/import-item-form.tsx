@@ -7,7 +7,7 @@ import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { CheckIcon } from "@phosphor-icons/react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
+import { toast } from "@marble/ui/hooks/use-toast";
 import { CategorySelector } from "@/components/editor/fields/category-selector";
 import { DescriptionField } from "@/components/editor/fields/description-field";
 import { PublishDateField } from "@/components/editor/fields/publish-date-field";
@@ -132,10 +132,8 @@ export function ImportItemForm({
       </div>
 
       <div className="mt-6 flex justify-end gap-2">
-        <DialogClose asChild>
-          <Button className="shadow-none" variant="outline">
-            Cancel
-          </Button>
+        <DialogClose render={<Button className="shadow-none" variant="outline" />}>
+          Cancel
         </DialogClose>
         <AsyncButton
           disabled={isSubmitting || isImporting || !isValid}

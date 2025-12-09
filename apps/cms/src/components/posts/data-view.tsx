@@ -119,8 +119,7 @@ export function PostDataView<TData, TValue>({
         <div className="flex items-center gap-2">
           <div className="flex gap-1 rounded-xl bg-sidebar p-1 dark:bg-accent/50">
             <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
+              <TooltipTrigger render={<Button
                   className={cn(
                     "size-7 rounded-r-none rounded-l-[8px] px-3 transition duration-300",
                     viewType === "grid" &&
@@ -129,18 +128,16 @@ export function PostDataView<TData, TValue>({
                   onClick={() => setViewType("grid")}
                   size="sm"
                   variant="ghost"
-                >
-                  <SquaresFourIcon size={16} />
-                  <span className="sr-only">Grid View</span>
-                </Button>
+                />}>
+                <SquaresFourIcon size={16} />
+                <span className="sr-only">Grid View</span>
               </TooltipTrigger>
               <TooltipContent>
                 <p>Grid View</p>
               </TooltipContent>
             </Tooltip>
             <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
+              <TooltipTrigger render={<Button
                   className={cn(
                     "size-7 rounded-r-[8px] rounded-l-none px-3 transition duration-300",
                     viewType === "table" &&
@@ -149,10 +146,9 @@ export function PostDataView<TData, TValue>({
                   onClick={() => setViewType("table")}
                   size="sm"
                   variant="ghost"
-                >
-                  <RowsIcon size={16} />
-                  <span className="sr-only">Table View</span>
-                </Button>
+                />}>
+                <RowsIcon size={16} />
+                <span className="sr-only">Table View</span>
               </TooltipTrigger>
               <TooltipContent>
                 <p>Table View</p>
@@ -169,14 +165,12 @@ export function PostDataView<TData, TValue>({
               <span>New Post</span>
             </Link>
             <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
+              <TooltipTrigger render={<Button
                   aria-label="Upload"
                   onClick={() => setImportOpen(true)}
                   variant="default"
-                >
-                  <UploadSimpleIcon className="size-4" />
-                </Button>
+                />}>
+                <UploadSimpleIcon className="size-4" />
               </TooltipTrigger>
               <TooltipContent side="top">Upload</TooltipContent>
             </Tooltip>
