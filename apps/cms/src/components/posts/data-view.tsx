@@ -2,11 +2,7 @@
 
 import { Button, buttonVariants } from "@marble/ui/components/button";
 import { Input } from "@marble/ui/components/input";
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-} from "@marble/ui/components/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@marble/ui/components/tabs";
 import {
   Tooltip,
   TooltipContent,
@@ -121,14 +117,17 @@ export function PostDataView<TData, TValue>({
           )}
         </div>
         <div className="flex items-center gap-2">
-          <Tabs value={viewType ?? "table"} onValueChange={(v) => setViewType(v as ViewType)}>
+          <Tabs
+            onValueChange={(v) => setViewType(v as ViewType)}
+            value={viewType ?? "table"}
+          >
             <TabsList className="flex h-auto gap-1 rounded-xl bg-sidebar p-1 dark:bg-accent/50">
               <Tooltip>
                 <TooltipTrigger
                   render={
                     <TabsTrigger
+                      className="flex size-7 items-center justify-center px-0 transition duration-300 hover:text-accent-foreground data-[active]:text-accent-foreground"
                       value="grid"
-                      className="size-7 flex items-center justify-center px-0 transition duration-300 hover:text-accent-foreground data-[active]:text-accent-foreground"
                     />
                   }
                 >
@@ -141,8 +140,8 @@ export function PostDataView<TData, TValue>({
                 <TooltipTrigger
                   render={
                     <TabsTrigger
+                      className="flex size-7 items-center justify-center px-0 transition duration-300 hover:text-accent-foreground data-[active]:text-accent-foreground"
                       value="table"
-                      className="size-7 flex items-center justify-center px-0 transition duration-300 hover:text-accent-foreground data-[active]:text-accent-foreground"
                     />
                   }
                 >
@@ -163,11 +162,15 @@ export function PostDataView<TData, TValue>({
               <span>New Post</span>
             </Link>
             <Tooltip>
-              <TooltipTrigger render={<Button
-                  aria-label="Upload"
-                  onClick={() => setImportOpen(true)}
-                  variant="default"
-                />}>
+              <TooltipTrigger
+                render={
+                  <Button
+                    aria-label="Upload"
+                    onClick={() => setImportOpen(true)}
+                    variant="default"
+                  />
+                }
+              >
                 <UploadSimpleIcon className="size-4" />
               </TooltipTrigger>
               <TooltipContent side="top">Upload</TooltipContent>

@@ -1,7 +1,7 @@
 import { Badge, type badgeVariants } from "@marble/ui/components/badge";
 import { cn } from "@marble/ui/lib/utils";
-import type { HTMLAttributes } from "react";
 import type { VariantProps } from "class-variance-authority";
+import type { HTMLAttributes } from "react";
 
 const lastUsedBadgePositions = {
   "top-right": "-top-2 -right-2",

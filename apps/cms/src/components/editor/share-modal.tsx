@@ -90,7 +90,9 @@ export function ShareModal({ postId }: ShareModalProps) {
   return (
     <>
       <Dialog>
-        <DialogTrigger render={<Button size="icon" type="button" variant="ghost" />}>
+        <DialogTrigger
+          render={<Button size="icon" type="button" variant="ghost" />}
+        >
           <LinkSimpleIcon className="size-4" />
         </DialogTrigger>
         <DialogContent className="sm:max-w-md">
@@ -109,7 +111,9 @@ export function ShareModal({ postId }: ShareModalProps) {
                 </p>
               </div>
               <DialogFooter>
-                <DialogClose render={<Button type="button" variant="secondary" />}>
+                <DialogClose
+                  render={<Button type="button" variant="secondary" />}
+                >
                   Close
                 </DialogClose>
                 <Button onClick={() => setShowUpgradeModal(true)}>
@@ -211,7 +215,9 @@ export function ShareModal({ postId }: ShareModalProps) {
           )} */}
               </div>
               <DialogFooter>
-                <DialogClose render={<Button type="button" variant="secondary" />}>
+                <DialogClose
+                  render={<Button type="button" variant="secondary" />}
+                >
                   Close
                 </DialogClose>
                 <AsyncButton

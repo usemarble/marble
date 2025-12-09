@@ -1,9 +1,9 @@
 "use client";
 
 import { Button } from "@marble/ui/components/button";
+import { toast } from "@marble/ui/hooks/use-toast";
 import { PlusIcon, UploadIcon } from "@phosphor-icons/react";
 import { useId } from "react";
-import { toast } from "@marble/ui/hooks/use-toast";
 import { ALLOWED_MIME_TYPES, MAX_MEDIA_FILE_SIZE } from "@/lib/constants";
 
 type FileUploadInputProps = {
@@ -61,14 +61,17 @@ export function FileUploadInput({
         type="file"
       />
       <Button
-        render={<label
-          aria-busy={isUploadingProp ? "true" : "false"}
-          aria-disabled={isUploadingProp ? "true" : "false"}
-          className="flex cursor-pointer items-center gap-2"
-          htmlFor={id}
-        />}
         className={className}
         disabled={isUploadingProp}
+        render={
+          <label
+            aria-busy={isUploadingProp ? "true" : "false"}
+            aria-disabled={isUploadingProp ? "true" : "false"}
+            aria-label="Upload File(s)"
+            className="flex cursor-pointer items-center gap-2"
+            htmlFor={id}
+          />
+        }
         type="button"
       >
         {children || (

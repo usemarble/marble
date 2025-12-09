@@ -6,12 +6,12 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
+import { toast } from "@marble/ui/hooks/use-toast";
 import { NoteIcon, PlusIcon, UploadSimpleIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useState } from "react";
-import { toast } from "@marble/ui/hooks/use-toast";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import { columns, type Post } from "@/components/posts/columns";
 import { PostDataView } from "@/components/posts/data-view";
@@ -81,11 +81,15 @@ function PageClient() {
                     <span>New Post</span>
                   </Link>
                   <Tooltip>
-                    <TooltipTrigger render={<Button
-                        aria-label="Upload"
-                        onClick={() => setImportOpen(true)}
-                        variant="default"
-                      />}>
+                    <TooltipTrigger
+                      render={
+                        <Button
+                          aria-label="Upload"
+                          onClick={() => setImportOpen(true)}
+                          variant="default"
+                        />
+                      }
+                    >
                       <UploadSimpleIcon className="size-4" />
                     </TooltipTrigger>
                     <TooltipContent side="top">Upload</TooltipContent>

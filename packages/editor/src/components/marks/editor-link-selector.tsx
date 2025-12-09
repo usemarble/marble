@@ -109,11 +109,15 @@ export const EditorLinkSelector = ({
 
   return (
     <Popover modal onOpenChange={onOpenChange} open={open}>
-      <PopoverTrigger render={<Button
-          className="gap-2 rounded-none border-none"
-          size="sm"
-          variant="ghost"
-        />}>
+      <PopoverTrigger
+        render={
+          <Button
+            className="gap-2 rounded-none border-none"
+            size="sm"
+            variant="ghost"
+          />
+        }
+      >
         <Link size={12} />
         <p
           className={cn(
@@ -203,17 +207,21 @@ export const EditorLinkSelector = ({
             orientation="vertical"
           />
           <Tooltip delayDuration={400}>
-            <TooltipTrigger render={<Button
-                className={cn(
-                  "h-8 rounded-sm",
-                  openInNewTab &&
-                    "bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary"
-                )}
-                onClick={() => setOpenInNewTab(!openInNewTab)}
-                size="icon"
-                type="button"
-                variant="ghost"
-              />}>
+            <TooltipTrigger
+              render={
+                <Button
+                  className={cn(
+                    "h-8 rounded-sm",
+                    openInNewTab &&
+                      "bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary"
+                  )}
+                  onClick={() => setOpenInNewTab(!openInNewTab)}
+                  size="icon"
+                  type="button"
+                  variant="ghost"
+                />
+              }
+            >
               <Maximize2 size={12} />
             </TooltipTrigger>
             <TooltipContent>
@@ -221,20 +229,25 @@ export const EditorLinkSelector = ({
             </TooltipContent>
           </Tooltip>
           <Tooltip delayDuration={400}>
-            <TooltipTrigger render={<Button
-                className="h-8 rounded-sm"
-                disabled={!url || !getUrlFromString(url)}
-                onClick={() => {
-                  const href =
-                    getUrlFromString(url) || editor.getAttributes("link").href;
-                  if (href) {
-                    window.open(href, "_blank", "noopener,noreferrer");
-                  }
-                }}
-                size="icon"
-                type="button"
-                variant="ghost"
-              />}>
+            <TooltipTrigger
+              render={
+                <Button
+                  className="h-8 rounded-sm"
+                  disabled={!url || !getUrlFromString(url)}
+                  onClick={() => {
+                    const href =
+                      getUrlFromString(url) ||
+                      editor.getAttributes("link").href;
+                    if (href) {
+                      window.open(href, "_blank", "noopener,noreferrer");
+                    }
+                  }}
+                  size="icon"
+                  type="button"
+                  variant="ghost"
+                />
+              }
+            >
               <ExternalLinkIcon size={12} />
             </TooltipTrigger>
             <TooltipContent>

@@ -70,15 +70,19 @@ export function WorkspaceSwitcher() {
       <SidebarMenuItem>
         <DropdownMenu>
           {activeWorkspace && !showSkeleton ? (
-            <DropdownMenuTrigger render={<SidebarMenuButton
-                className={cn(
-                  "cursor-pointer border border-transparent transition hover:bg-sidebar-accent data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground",
-                  isCollapsed &&
-                    "size-10 min-w-0 justify-center rounded-full p-1"
-                )}
-                disabled={isFetchingWorkspace}
-                size="lg"
-              />}>
+            <DropdownMenuTrigger
+              render={
+                <SidebarMenuButton
+                  className={cn(
+                    "cursor-pointer border border-transparent transition hover:bg-sidebar-accent data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground",
+                    isCollapsed &&
+                      "size-10 min-w-0 justify-center rounded-full p-1"
+                  )}
+                  disabled={isFetchingWorkspace}
+                  size="lg"
+                />
+              }
+            >
               <Avatar className={cn("size-8", isCollapsed && "size-6.5")}>
                 <AvatarImage
                   className="rounded-[4px]"

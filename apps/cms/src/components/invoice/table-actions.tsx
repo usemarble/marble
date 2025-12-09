@@ -5,12 +5,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
+import { toast } from "@marble/ui/hooks/use-toast";
 import {
   CopyIcon,
   DotsThreeIcon,
   DownloadSimpleIcon,
 } from "@phosphor-icons/react";
-import { toast } from "@marble/ui/hooks/use-toast";
 import type { Invoice } from "./columns";
 
 export default function TableActions(props: Invoice) {
@@ -21,7 +21,9 @@ export default function TableActions(props: Invoice) {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger render={<Button className="h-8 w-8 p-0" variant="ghost" />}>
+      <DropdownMenuTrigger
+        render={<Button className="h-8 w-8 p-0" variant="ghost" />}
+      >
         <span className="sr-only">Open menu</span>
         <DotsThreeIcon className="h-4 w-4" />
       </DropdownMenuTrigger>

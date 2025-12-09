@@ -137,8 +137,8 @@ export const TagSelector = ({
         <PopoverTrigger
           render={
             <div
+              className="relative h-auto min-h-9 w-full cursor-pointer rounded-md border bg-editor-field px-3 py-2 text-left text-sm"
               id="tags"
-              className="relative h-auto min-h-9 w-full cursor-pointer rounded-md border bg-editor-field px-3 py-2 text-sm text-left"
             />
           }
         >
@@ -156,11 +156,9 @@ export const TagSelector = ({
                     variant="outline"
                   >
                     {item.name}
-                    <span
-                      role="button"
-                      tabIndex={0}
-                      className="ml-1 h-auto p-0 hover:bg-transparent cursor-pointer"
+                    <button
                       aria-label={`Remove tag ${item.name}`}
+                      className="ml-1 h-auto cursor-pointer p-0 hover:bg-transparent"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleRemoveTag(item.id);
@@ -172,9 +170,10 @@ export const TagSelector = ({
                           handleRemoveTag(item.id);
                         }
                       }}
+                      type="button"
                     >
                       <XIcon aria-hidden="true" className="size-2.5 p-0" />
-                    </span>
+                    </button>
                   </Badge>
                 </li>
               ))}
@@ -204,7 +203,9 @@ export const TagSelector = ({
               </button>
             </div>
             <CommandList>
-              {tags.length > 0 && <CommandEmpty>No results found.</CommandEmpty>}
+              {tags.length > 0 && (
+                <CommandEmpty>No results found.</CommandEmpty>
+              )}
               {tags.length > 0 && (
                 <CommandGroup>
                   {tags.map((option) => (

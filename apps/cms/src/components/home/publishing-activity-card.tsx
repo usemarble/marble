@@ -121,7 +121,10 @@ export const PublishingActivityCard = () => {
                         />
                       }
                     />
-                    <TooltipContent className="whitespace-nowrap" sideOffset={8}>
+                    <TooltipContent
+                      className="whitespace-nowrap"
+                      sideOffset={8}
+                    >
                       <div className="flex flex-col">
                         <span className="font-semibold">
                           {format(parseISO(activity.date), "MMM d, yyyy")}
@@ -135,45 +138,45 @@ export const PublishingActivityCard = () => {
                   </Tooltip>
                 )}
               </ContributionGraphCalendar>
-            {/* @ts-ignore - ContributionGraphFooter types seem incomplete but it renders children */}
-            <ContributionGraphFooter>
-              <ContributionGraphTotalCount>
-                {/* @ts-ignore - same issue with props type */}
-                {({ totalCount }) => (
-                  <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground text-sm">
-                      Total:
-                    </span>
-                    <span className="font-medium text-sm">
-                      {totalCount.toLocaleString()} posts
-                    </span>
-                  </div>
-                )}
-              </ContributionGraphTotalCount>
-              <ContributionGraphLegend>
-                {/* @ts-ignore - same issue with props type */}
-                {({ level }) => (
-                  <div
-                    className="group relative flex h-3 w-3 items-center justify-center"
-                    data-level={level}
-                  >
+              {/* @ts-ignore - ContributionGraphFooter types seem incomplete but it renders children */}
+              <ContributionGraphFooter>
+                <ContributionGraphTotalCount>
+                  {/* @ts-ignore - same issue with props type */}
+                  {({ totalCount }) => (
+                    <div className="flex items-center gap-2">
+                      <span className="text-muted-foreground text-sm">
+                        Total:
+                      </span>
+                      <span className="font-medium text-sm">
+                        {totalCount.toLocaleString()} posts
+                      </span>
+                    </div>
+                  )}
+                </ContributionGraphTotalCount>
+                <ContributionGraphLegend>
+                  {/* @ts-ignore - same issue with props type */}
+                  {({ level }) => (
                     <div
-                      className={cn(
-                        "h-full w-full rounded-sm border border-border",
-                        level === 0 && "bg-muted dark:bg-white/5",
-                        level === 1 && "bg-primary/20 dark:bg-primary/30",
-                        level === 2 && "bg-primary/40 dark:bg-primary/50",
-                        level === 3 && "bg-primary/60 dark:bg-primary/70",
-                        level === 4 && "bg-primary/80 dark:bg-primary/90"
-                      )}
-                    />
-                    <span className="-top-8 absolute hidden rounded bg-popover px-2 py-1 text-popover-foreground text-xs shadow-md group-hover:block">
-                      Level {level}
-                    </span>
-                  </div>
-                )}
-              </ContributionGraphLegend>
-            </ContributionGraphFooter>
+                      className="group relative flex h-3 w-3 items-center justify-center"
+                      data-level={level}
+                    >
+                      <div
+                        className={cn(
+                          "h-full w-full rounded-sm border border-border",
+                          level === 0 && "bg-muted dark:bg-white/5",
+                          level === 1 && "bg-primary/20 dark:bg-primary/30",
+                          level === 2 && "bg-primary/40 dark:bg-primary/50",
+                          level === 3 && "bg-primary/60 dark:bg-primary/70",
+                          level === 4 && "bg-primary/80 dark:bg-primary/90"
+                        )}
+                      />
+                      <span className="-top-8 absolute hidden rounded bg-popover px-2 py-1 text-popover-foreground text-xs shadow-md group-hover:block">
+                        Level {level}
+                      </span>
+                    </div>
+                  )}
+                </ContributionGraphLegend>
+              </ContributionGraphFooter>
             </ContributionGraph>
           </TooltipProvider>
         ) : (

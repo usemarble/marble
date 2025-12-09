@@ -69,16 +69,20 @@ export const EditorMarkHighlight = ({
 
   return (
     <Popover modal>
-      <PopoverTrigger render={<Button
-          className={cn(
-            hideName ? "" : "w-full",
-            isActive &&
-              "bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary"
-          )}
-          size="sm"
-          type="button"
-          variant="ghost"
-        />}>
+      <PopoverTrigger
+        render={
+          <Button
+            className={cn(
+              hideName ? "" : "w-full",
+              isActive &&
+                "bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary"
+            )}
+            size="sm"
+            type="button"
+            variant="ghost"
+          />
+        }
+      >
         <Highlighter
           className={cn(
             "shrink-0",

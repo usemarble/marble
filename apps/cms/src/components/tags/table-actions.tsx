@@ -21,7 +21,9 @@ export default function TableActions(props: Tag) {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger render={<Button className="h-8 w-8 p-0" variant="ghost" />}>
+        <DropdownMenuTrigger
+          render={<Button className="h-8 w-8 p-0" variant="ghost" />}
+        >
           <span className="sr-only">Open menu</span>
           <DotsThreeVerticalIcon />
         </DropdownMenuTrigger>

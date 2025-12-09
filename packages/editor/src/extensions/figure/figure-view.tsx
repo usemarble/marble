@@ -225,10 +225,10 @@ export const FigureView = ({
       <Popover modal onOpenChange={setIsPopoverOpen} open={isPopoverOpen}>
         <PopoverTrigger
           render={
-            <figure
+            <button
               aria-label="Image settings"
               className={cn(
-                "relative cursor-pointer",
+                "relative w-full cursor-pointer",
                 selected && "outline-2 outline-primary outline-offset-2"
               )}
               onClick={handleImageClick}
@@ -236,42 +236,45 @@ export const FigureView = ({
               ref={figureRef}
               style={alignmentStyles}
               tabIndex={selected ? 0 : -1}
+              type="button"
             />
           }
         >
-          {/* biome-ignore lint: Tiptap NodeView requires standard img element */}
-          <img
-            alt={altValue}
-            className="h-auto w-full rounded-md border border-muted"
-            src={src}
-          />
+          <figure className="w-full">
+            {/* biome-ignore lint: Tiptap NodeView requires standard img element */}
+            <img
+              alt={altValue}
+              className="h-auto w-full rounded-md border border-muted"
+              src={src}
+            />
 
-          {/* Resize handles - only shown when selected */}
-          {selected && (
-            <>
-              {/* Left handle */}
-              <button
-                className="-translate-x-1/2 -translate-y-1/2 absolute top-1/2 left-0 z-20 h-16 w-2 cursor-ew-resize rounded-sm bg-primary opacity-0 transition-opacity hover:opacity-100"
-                onMouseDown={handleResizeStart}
-                title="Drag to resize"
-                type="button"
-              />
-              {/* Right handle */}
-              <button
-                className="-translate-y-1/2 absolute top-1/2 right-0 z-20 h-16 w-2 translate-x-1/2 cursor-ew-resize rounded-sm bg-primary opacity-0 transition-opacity hover:opacity-100"
-                onMouseDown={handleResizeStart}
-                title="Drag to resize"
-                type="button"
-              />
-            </>
-          )}
+            {/* Resize handles - only shown when selected */}
+            {selected && (
+              <>
+                {/* Left handle */}
+                <button
+                  className="-translate-x-1/2 -translate-y-1/2 absolute top-1/2 left-0 z-20 h-16 w-2 cursor-ew-resize rounded-sm bg-primary opacity-0 transition-opacity hover:opacity-100"
+                  onMouseDown={handleResizeStart}
+                  title="Drag to resize"
+                  type="button"
+                />
+                {/* Right handle */}
+                <button
+                  className="-translate-y-1/2 absolute top-1/2 right-0 z-20 h-16 w-2 translate-x-1/2 cursor-ew-resize rounded-sm bg-primary opacity-0 transition-opacity hover:opacity-100"
+                  onMouseDown={handleResizeStart}
+                  title="Drag to resize"
+                  type="button"
+                />
+              </>
+            )}
 
-          {/* Caption - only shown when it has content */}
-          {captionValue && (
-            <figcaption className="mt-2 text-center text-muted-foreground text-sm italic">
-              <p>{captionValue}</p>
-            </figcaption>
-          )}
+            {/* Caption - only shown when it has content */}
+            {captionValue && (
+              <figcaption className="mt-2 text-center text-muted-foreground text-sm italic">
+                <p>{captionValue}</p>
+              </figcaption>
+            )}
+          </figure>
         </PopoverTrigger>
 
         {/* Toolbar in Popover - only shown when selected */}

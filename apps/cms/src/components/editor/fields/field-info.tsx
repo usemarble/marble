@@ -17,7 +17,7 @@ type FieldInfoProps = {
 };
 
 export function FieldInfo(props: FieldInfoProps) {
-  const { text, className = "size-4 text-gray-400" } = props
+  const { text, className = "size-4 text-gray-400" } = props;
 
   return (
     <Tooltip>
@@ -28,5 +28,5 @@ export function FieldInfo(props: FieldInfoProps) {
         <p className="max-w-64 text-balance text-xs">{text}</p>
       </TooltipContent>
     </Tooltip>
-  )
+  );
 }

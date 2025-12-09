@@ -42,10 +42,14 @@ export default function TableActions(props: TableActionsProps) {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger render={<Button
-            className="size-8 p-0 data-[state=open]:bg-muted"
-            variant="ghost"
-          />}>
+        <DropdownMenuTrigger
+          render={
+            <Button
+              className="size-8 p-0 data-[state=open]:bg-muted"
+              variant="ghost"
+            />
+          }
+        >
           <span className="sr-only">Open menu</span>
           <DotsThreeVerticalIcon className="size-4" />
         </DropdownMenuTrigger>

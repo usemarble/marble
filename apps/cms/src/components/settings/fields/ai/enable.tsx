@@ -10,8 +10,8 @@ import {
   CardTitle,
 } from "@marble/ui/components/card";
 import { Label } from "@marble/ui/components/label";
-import { toast } from "@marble/ui/hooks/use-toast";
 import { Switch } from "@marble/ui/components/switch";
+import { toast } from "@marble/ui/hooks/use-toast";
 import { cn } from "@marble/ui/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";

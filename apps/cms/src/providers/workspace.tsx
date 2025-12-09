@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "@marble/ui/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
 import { notFound, usePathname, useRouter } from "next/navigation";
@@ -10,7 +11,6 @@ import {
   useEffect,
   useState,
 } from "react";
-import { toast } from "@marble/ui/hooks/use-toast";
 import { organization } from "@/lib/auth/client";
 import {
   WORKSPACE_SCOPED_PREFIXES,

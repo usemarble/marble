@@ -16,11 +16,7 @@ import {
   PopoverTrigger,
 } from "@marble/ui/components/popover";
 import { cn } from "@marble/ui/lib/utils";
-import {
-  CaretUpDownIcon,
-  CheckIcon,
-  PlusIcon,
-} from "@phosphor-icons/react";
+import { CaretUpDownIcon, CheckIcon, PlusIcon } from "@phosphor-icons/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { type Control, useController } from "react-hook-form";
@@ -81,7 +77,7 @@ export function CategorySelector({
     if (categories.length > 0 && value) {
       return categories.find((cat) => cat.id === value);
     }
-    return undefined;
+    return;
   }, [categories, value]);
 
   const handleSelect = (categoryId: string) => {
@@ -122,8 +118,8 @@ export function CategorySelector({
         <PopoverTrigger
           render={
             <div
+              className="relative h-auto min-h-9 w-full cursor-pointer rounded-md border bg-editor-field px-3 py-2 text-left text-sm"
               id="category"
-              className="relative h-auto min-h-9 w-full cursor-pointer rounded-md border bg-editor-field px-3 py-2 text-sm text-left"
             />
           }
         >
@@ -156,7 +152,9 @@ export function CategorySelector({
               </button>
             </div>
             <CommandList>
-              {categories.length > 0 && <CommandEmpty>No results found.</CommandEmpty>}
+              {categories.length > 0 && (
+                <CommandEmpty>No results found.</CommandEmpty>
+              )}
               {categories.length > 0 && (
                 <CommandGroup>
                   {categories.map((category) => (

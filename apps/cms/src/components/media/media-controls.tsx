@@ -101,13 +101,17 @@ export function MediaControls({
           {selectedItems.size > 0 && (
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger render={<Button
-                    aria-label={`Delete selected (${selectedItems.size})`}
-                    onClick={onBulkDelete}
-                    size="icon"
-                    type="button"
-                    variant="destructive"
-                  />}>
+                <TooltipTrigger
+                  render={
+                    <Button
+                      aria-label={`Delete selected (${selectedItems.size})`}
+                      onClick={onBulkDelete}
+                      size="icon"
+                      type="button"
+                      variant="destructive"
+                    />
+                  }
+                >
                   <TrashIcon aria-hidden="true" size={16} />
                 </TooltipTrigger>
                 <TooltipContent>

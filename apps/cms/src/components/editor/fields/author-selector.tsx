@@ -191,9 +191,7 @@ export function AuthorSelector({
                     <Tooltip>
                       <TooltipTrigger render={<Avatar className="size-6" />}>
                         <AvatarImage src={author.image || undefined} />
-                        <AvatarFallback>
-                          {author.name.charAt(0)}
-                        </AvatarFallback>
+                        <AvatarFallback>{author.name.charAt(0)}</AvatarFallback>
                       </TooltipTrigger>
                       <TooltipContent>
                         <p className="max-w-64 text-xs">{author.name}</p>

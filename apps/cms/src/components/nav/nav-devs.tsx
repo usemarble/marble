@@ -40,12 +40,12 @@ export function NavDevs() {
         {items.map((item) => (
           <SidebarMenuItem key={item.name}>
             <SidebarMenuButton
-              render={<Link href={`/${params.workspace}/${item.url}`} />}
               className={`border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
                 isActive(item.url)
                   ? "border bg-sidebar-accent text-foreground"
                   : "hover:text-accent-foreground"
               }`}
+              render={<Link href={`/${params.workspace}/${item.url}`} />}
             >
               <item.icon />
               <span>{item.name}</span>

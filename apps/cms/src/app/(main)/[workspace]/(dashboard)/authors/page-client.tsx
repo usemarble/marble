@@ -1,7 +1,7 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import { toast } from "@marble/ui/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
 import { columns } from "@/components/authors/columns";
 import { AuthorDataTable } from "@/components/authors/data-table";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";

@@ -38,11 +38,11 @@ export function PublishDateField({ control }: PublishDateFieldProps) {
         <PopoverTrigger
           render={
             <Button
-              id="publishedAt"
               className={cn(
                 "justify-between bg-editor-field text-left font-normal shadow-none active:scale-100",
                 !value && "text-muted-foreground"
               )}
+              id="publishedAt"
               variant="outline"
             />
           }

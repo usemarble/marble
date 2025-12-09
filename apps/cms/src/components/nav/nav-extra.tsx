@@ -55,16 +55,23 @@ export function NavExtra() {
   return (
     <Popover>
       <Tooltip delayDuration={300}>
-        <TooltipTrigger render={<PopoverTrigger render={<Button
-              aria-label="Get in touch"
-              className="cursor-help rounded-lg"
-              size="icon"
-              type="button"
-              variant="ghost"
-            />}>
-          <QuestionIcon className="size-4" />
-        </PopoverTrigger>}>
-        </TooltipTrigger>
+        <TooltipTrigger
+          render={
+            <PopoverTrigger
+              render={
+                <Button
+                  aria-label="Get in touch"
+                  className="cursor-help rounded-lg"
+                  size="icon"
+                  type="button"
+                  variant="ghost"
+                />
+              }
+            >
+              <QuestionIcon className="size-4" />
+            </PopoverTrigger>
+          }
+        />
         <TooltipContent>
           <p>Contact Us</p>
         </TooltipContent>

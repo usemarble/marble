@@ -1,11 +1,11 @@
 "use client";
 
 import { Button } from "@marble/ui/components/button";
+import { toast } from "@marble/ui/hooks/use-toast";
 import { PackageIcon, PlusIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import { useState } from "react";
-import { toast } from "@marble/ui/hooks/use-toast";
 import { type Category, columns } from "@/components/categories/columns";
 import { DataTable } from "@/components/categories/data-table";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";

@@ -202,7 +202,10 @@ export function InviteSection({ invitations }: InviteSectionProps) {
                     />
                   }
                 >
-                  <DotsThreeVerticalIcon aria-hidden="true" className="size-4" />
+                  <DotsThreeVerticalIcon
+                    aria-hidden="true"
+                    className="size-4"
+                  />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem

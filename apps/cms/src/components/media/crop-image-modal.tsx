@@ -85,10 +85,18 @@ export function CropImageModal({
                   <ImageCropContent className="max-w-full" />
                   <div className="pointer-events-none absolute inset-0 flex items-end justify-center bg-gradient-to-t from-black/40 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100">
                     <div className="pointer-events-auto mb-3 flex items-center gap-2">
-                      <ImageCropReset render={<Button size="sm" type="button" variant="secondary" />}>
+                      <ImageCropReset
+                        render={
+                          <Button size="sm" type="button" variant="secondary" />
+                        }
+                      >
                         Reset
                       </ImageCropReset>
-                      <ImageCropApply render={<Button size="sm" type="button" variant="default" />}>
+                      <ImageCropApply
+                        render={
+                          <Button size="sm" type="button" variant="default" />
+                        }
+                      >
                         Apply
                       </ImageCropApply>
                     </div>

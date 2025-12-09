@@ -48,11 +48,15 @@ export const EditorSelector = ({
 
   return (
     <Popover onOpenChange={onOpenChange} open={open}>
-      <PopoverTrigger render={<Button
-          className="gap-2 rounded-none border-none"
-          size="sm"
-          variant="ghost"
-        />}>
+      <PopoverTrigger
+        render={
+          <Button
+            className="gap-2 rounded-none border-none"
+            size="sm"
+            variant="ghost"
+          />
+        }
+      >
         <span className="whitespace-nowrap text-xs">{title}</span>
         <ChevronDownIcon size={12} />
       </PopoverTrigger>

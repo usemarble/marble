@@ -67,7 +67,9 @@ export function WebhookCard({
             </Badge>
           </div>
           <DropdownMenu>
-            <DropdownMenuTrigger render={<Button size="icon" variant="ghost" />}>
+            <DropdownMenuTrigger
+              render={<Button size="icon" variant="ghost" />}
+            >
               <DotsThreeVerticalIcon size={16} />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">

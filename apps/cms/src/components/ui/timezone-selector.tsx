@@ -144,13 +144,17 @@ export function TimezoneSelector({
 
   return (
     <Popover onOpenChange={setIsOpen} open={isOpen}>
-      <PopoverTrigger render={<Button
-          className="w-full items-center justify-between gap-2 shadow-none"
-          disabled={disabled}
-          onClick={() => !disabled && setIsOpen(!isOpen)}
-          type="button"
-          variant="outline"
-        />}>
+      <PopoverTrigger
+        render={
+          <Button
+            className="w-full items-center justify-between gap-2 shadow-none"
+            disabled={disabled}
+            onClick={() => !disabled && setIsOpen(!isOpen)}
+            type="button"
+            variant="outline"
+          />
+        }
+      >
         <div
           className={cn(
             "flex flex-col items-start",

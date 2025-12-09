@@ -31,7 +31,9 @@ export function ThemeSwitch() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger render={<Button variant="outline" />}>
-        <span className="capitalize" suppressHydrationWarning>{theme}</span>
+        <span className="capitalize" suppressHydrationWarning>
+          {theme}
+        </span>
         <CaretDownIcon className="ml-2 size-4 text-muted-foreground" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

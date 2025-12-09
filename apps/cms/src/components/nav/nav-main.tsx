@@ -93,44 +93,48 @@ export function NavMain() {
       <SidebarGroupLabel className="sr-only">Workspace</SidebarGroupLabel>
       <SidebarMenu>
         <SidebarMenuButton
-          render={<Link href={`/${params.workspace}`} />}
           className={`border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
             isOverviewActive
               ? "bg-sidebar-accent text-foreground"
               : "hover:text-accent-foreground"
           }`}
+          render={<Link href={`/${params.workspace}`} />}
         >
           <HouseIcon />
           <span>Home</span>
         </SidebarMenuButton>
         {items.map((item) => (
           <SidebarMenuButton
-            render={<Link href={`/${params.workspace}/${item.url}`} />}
             className={`border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
               isActive(item.url)
                 ? "hover bg-sidebar-accent text-foreground"
                 : "hover:text-accent-foreground"
             }`}
             key={item.name}
+            render={<Link href={`/${params.workspace}/${item.url}`} />}
           >
             <item.icon />
             <span>{item.name}</span>
           </SidebarMenuButton>
         ))}
         <Collapsible
-          render={<SidebarMenuItem />}
           className="group/collapsible"
           open={isSettingsActive}
+          render={<SidebarMenuItem />}
         >
           <Link href={`/${params.workspace}/settings/general`}>
-            <CollapsibleTrigger render={<SidebarMenuButton
+            <CollapsibleTrigger
+              render={
+                <SidebarMenuButton
                   className={`cursor-pointer border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
                     isSettingsActive
                       ? "bg-sidebar-accent text-foreground"
                       : "hover:text-accent-foreground"
                   }`}
                   tooltip="Settings"
-                />}>
+                />
+              }
+            >
               <FadersIcon />
               <span>Settings</span>
             </CollapsibleTrigger>
@@ -140,11 +144,13 @@ export function NavMain() {
               {settingsItems.map((subItem) => (
                 <SidebarMenuSubItem key={subItem.title}>
                   <SidebarMenuSubButton
-                    render={<Link href={`/${params.workspace}/${subItem.url}`} />}
                     className={
                       isActive(subItem.url)
                         ? "text-foreground"
                         : "text-muted-foreground"
+                    }
+                    render={
+                      <Link href={`/${params.workspace}/${subItem.url}`} />
                     }
                   >
                     <span>{subItem.title}</span>
