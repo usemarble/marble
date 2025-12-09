@@ -28,8 +28,9 @@ export function EditorHeader({ postId, workspace }: EditorHeaderProps) {
   return (
     <header className="sticky top-0 flex justify-between p-3">
       <div className="flex items-center gap-4">
-        <Tooltip delay={400}>
+        <Tooltip>
           <TooltipTrigger
+            delay={400}
             render={
               <Link
                 className={cn(
@@ -50,8 +51,9 @@ export function EditorHeader({ postId, workspace }: EditorHeaderProps) {
 
       <div className="flex items-center gap-2">
         {postId && <ShareModal postId={postId} />}
-        <Tooltip delay={400}>
+        <Tooltip>
           <TooltipTrigger
+            delay={400}
             render={<SidebarTrigger className="size-8 text-muted-foreground" />}
           >
             <SidebarSimpleIcon className="size-4" />

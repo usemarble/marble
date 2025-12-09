@@ -54,8 +54,9 @@ const resourceLinks = [
 export function NavExtra() {
   return (
     <Popover>
-      <Tooltip delay={300}>
+      <Tooltip>
         <TooltipTrigger
+          delay={300}
           render={
             <PopoverTrigger
               render={
@@ -76,7 +77,7 @@ export function NavExtra() {
           <p>Contact Us</p>
         </TooltipContent>
       </Tooltip>
-      <PopoverContent className="w-60 divide-y p-0" side="right" sideOffset={6}>
+      <PopoverContent align="end" className="w-60 divide-y p-0" sideOffset={6}>
         <div className="p-2">
           <h3 className="px-2 py-1.5 font-medium text-foreground/90 text-sm">
             Get in touch
