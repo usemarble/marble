@@ -9,7 +9,7 @@ import {
 import { Polar } from "@polar-sh/sdk";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { createAuthMiddleware } from "better-auth/api";
-import { betterAuth } from "better-auth/minimal";
+import { type BetterAuthOptions, betterAuth } from "better-auth/minimal";
 import { nextCookies } from "better-auth/next-js";
 import { emailOTP, organization } from "better-auth/plugins";
 import { customAlphabet } from "nanoid";
@@ -48,7 +48,7 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
   experimental: {
-    joins: true
+    joins: true,
   },
   secondaryStorage: {
     get: async (key) => await redis.get(key),
