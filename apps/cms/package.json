@@ -35,7 +35,7 @@
     "@vvo/tzdb": "^6.176.0",
     "ai": "^5.0.108",
     "axios": "^1.12.0",
-    "better-auth": "1.4.6",
+    "better-auth": "1.4.5",
     "canvas-confetti": "^1.9.3",
     "class-variance-authority": "^0.7.0",
     "croner": "^9.1.0",
