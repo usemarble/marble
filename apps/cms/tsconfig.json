@@ -1,6 +1,7 @@
 {
   "extends": "@marble/tsconfig/nextjs.json",
   "compilerOptions": {
+    "strict": true,
     "plugins": [
       {
         "name": "next"
