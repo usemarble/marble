@@ -47,6 +47,7 @@ const Button = (props: ButtonProps) => {
   const defaultProps = {
     "data-slot": "button",
     className: cn(buttonVariants({ variant, size, className })),
+    type: "button",
   } as const
 
   const element = useRender({

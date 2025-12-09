@@ -49,6 +49,7 @@ const BreadcrumbLink = (props: BreadcrumbLinkProps) => {
   } as const
 
   const element = useRender({
+    defaultTagName: "a",
     render,
     props: mergeProps<"a">(defaultProps, rest),
   })
@@ -62,8 +63,6 @@ const BreadcrumbPage = (props: React.ComponentProps<"span">) => {
   return (
     <span
       data-slot="breadcrumb-page"
-      role="link"
-      aria-disabled="true"
       aria-current="page"
       className={cn("text-foreground font-normal", className)}
       {...rest}
