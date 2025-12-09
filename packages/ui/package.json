@@ -9,14 +9,17 @@
     "./lib/*": "./src/lib/*.ts",
     "./components/*": "./src/components/*.tsx",
     "./components/kibo-ui/*": "./src/components/kibo-ui/*/index.tsx",
-    "./hooks/*": ["./src/hooks/*.ts", "./src/hooks/*.tsx"]
+    "./hooks/*": [
+      "./src/hooks/*.ts",
+      "./src/hooks/*.tsx"
+    ]
   },
   "scripts": {
     "lint": "biome check .",
     "format": "biome --write ."
   },
   "dependencies": {
-    "@base-ui-components/react": "^1.0.0-rc.0",
+    "@base-ui-components/react": "https://pkg.pr.new/@base-ui-components/react@3443",
     "@heroicons/react": "^2.2.0",
     "@tanstack/react-table": "^8.20.5",
     "@toolwind/corner-shape": "0.0.8-3",
