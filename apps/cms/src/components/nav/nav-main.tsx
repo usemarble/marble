@@ -93,21 +93,19 @@ export function NavMain() {
       <SidebarGroupLabel className="sr-only">Workspace</SidebarGroupLabel>
       <SidebarMenu>
         <SidebarMenuButton
-          asChild
+          render={<Link href={`/${params.workspace}`} />}
           className={`border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
             isOverviewActive
               ? "bg-sidebar-accent text-foreground"
               : "hover:text-accent-foreground"
           }`}
         >
-          <Link href={`/${params.workspace}`}>
-            <HouseIcon />
-            <span>Home</span>
-          </Link>
+          <HouseIcon />
+          <span>Home</span>
         </SidebarMenuButton>
         {items.map((item) => (
           <SidebarMenuButton
-            asChild
+            render={<Link href={`/${params.workspace}/${item.url}`} />}
             className={`border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
               isActive(item.url)
                 ? "hover bg-sidebar-accent text-foreground"
@@ -115,54 +113,46 @@ export function NavMain() {
             }`}
             key={item.name}
           >
-            <Link href={`/${params.workspace}/${item.url}`}>
-              <item.icon />
-              <span>{item.name}</span>
-            </Link>
+            <item.icon />
+            <span>{item.name}</span>
           </SidebarMenuButton>
         ))}
         <Collapsible
-          asChild
+          render={<SidebarMenuItem />}
           className="group/collapsible"
           open={isSettingsActive}
         >
-          <SidebarMenuItem>
-            <Link href={`/${params.workspace}/settings/general`}>
-              <CollapsibleTrigger asChild>
-                <SidebarMenuButton
+          <Link href={`/${params.workspace}/settings/general`}>
+            <CollapsibleTrigger render={<SidebarMenuButton
                   className={`cursor-pointer border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
                     isSettingsActive
                       ? "bg-sidebar-accent text-foreground"
                       : "hover:text-accent-foreground"
                   }`}
                   tooltip="Settings"
-                >
-                  <FadersIcon />
-                  <span>Settings</span>
-                </SidebarMenuButton>
-              </CollapsibleTrigger>
-            </Link>
-            <CollapsibleContent>
-              <SidebarMenuSub>
-                {settingsItems.map((subItem) => (
-                  <SidebarMenuSubItem key={subItem.title}>
-                    <SidebarMenuSubButton
-                      asChild
-                      className={
-                        isActive(subItem.url)
-                          ? "text-foreground"
-                          : "text-muted-foreground"
-                      }
-                    >
-                      <Link href={`/${params.workspace}/${subItem.url}`}>
-                        <span>{subItem.title}</span>
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                ))}
-              </SidebarMenuSub>
-            </CollapsibleContent>
-          </SidebarMenuItem>
+                />}>
+              <FadersIcon />
+              <span>Settings</span>
+            </CollapsibleTrigger>
+          </Link>
+          <CollapsibleContent>
+            <SidebarMenuSub>
+              {settingsItems.map((subItem) => (
+                <SidebarMenuSubItem key={subItem.title}>
+                  <SidebarMenuSubButton
+                    render={<Link href={`/${params.workspace}/${subItem.url}`} />}
+                    className={
+                      isActive(subItem.url)
+                        ? "text-foreground"
+                        : "text-muted-foreground"
+                    }
+                  >
+                    <span>{subItem.title}</span>
+                  </SidebarMenuSubButton>
+                </SidebarMenuSubItem>
+              ))}
+            </SidebarMenuSub>
+          </CollapsibleContent>
         </Collapsible>
       </SidebarMenu>
     </SidebarGroup>

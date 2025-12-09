@@ -11,10 +11,8 @@ import { BellRinging } from "@phosphor-icons/react";
 export function Announcements() {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button className="size-4" size="icon" variant="ghost">
-          <BellRinging />
-        </Button>
+      <DropdownMenuTrigger render={<Button className="size-4" size="icon" variant="ghost" />}>
+        <BellRinging />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <div className="grid min-h-28 place-content-center">

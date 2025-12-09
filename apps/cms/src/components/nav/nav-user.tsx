@@ -43,29 +43,31 @@ export function NavUser() {
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="start"
-        className="w-(--radix-dropdown-menu-trigger-width) min-w-52 rounded-lg text-sidebar-foreground"
+        className="min-w-[var(--anchor-width)] rounded-lg text-sidebar-foreground"
         side={isMobile ? "bottom" : "top"}
         sideOffset={5}
       >
-        <DropdownMenuLabel className="p-0 font-normal">
-          <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-            <Avatar className="size-7">
-              <AvatarImage
-                alt={user?.name || "users profile image"}
-                src={user?.image || undefined}
-              />
-              <AvatarFallback className="rounded-lg">
-                {user?.name?.charAt(0)}
-              </AvatarFallback>
-            </Avatar>
-            <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-medium text-sm">{user?.name}</span>
-              <span className="truncate text-muted-foreground text-xs">
-                {user?.email}
-              </span>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className="p-0 font-normal">
+            <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+              <Avatar className="size-7">
+                <AvatarImage
+                  alt={user?.name || "users profile image"}
+                  src={user?.image || undefined}
+                />
+                <AvatarFallback className="rounded-lg">
+                  {user?.name?.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="grid flex-1 text-left text-sm leading-tight">
+                <span className="truncate font-medium text-sm">{user?.name}</span>
+                <span className="truncate text-muted-foreground text-xs">
+                  {user?.email}
+                </span>
+              </div>
             </div>
-          </div>
-        </DropdownMenuLabel>
+          </DropdownMenuLabel>
+        </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem>

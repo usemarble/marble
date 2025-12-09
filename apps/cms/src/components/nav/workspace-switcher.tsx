@@ -70,8 +70,7 @@ export function WorkspaceSwitcher() {
       <SidebarMenuItem>
         <DropdownMenu>
           {activeWorkspace && !showSkeleton ? (
-            <DropdownMenuTrigger asChild>
-              <SidebarMenuButton
+            <DropdownMenuTrigger render={<SidebarMenuButton
                 className={cn(
                   "cursor-pointer border border-transparent transition hover:bg-sidebar-accent data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground",
                   isCollapsed &&
@@ -79,37 +78,36 @@ export function WorkspaceSwitcher() {
                 )}
                 disabled={isFetchingWorkspace}
                 size="lg"
-              >
-                <Avatar className={cn("size-8", isCollapsed && "size-6.5")}>
-                  <AvatarImage
-                    className="rounded-[4px]"
-                    src={activeWorkspace.logo || undefined}
-                  />
-                  <AvatarFallback className="border bg-sidebar-accent">
-                    {activeWorkspace.name.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-                {!isCollapsed && (
-                  <>
-                    <div className="flex flex-1 gap-2 text-left text-sm leading-tight">
-                      <span className="truncate text-ellipsis font-medium text-sm">
-                        {activeWorkspace?.name}
-                      </span>
-                      <Badge
-                        className="px-1.5 py-0 text-[11px] capitalize"
-                        variant={
-                          activeWorkspace.subscription?.plan === "pro"
-                            ? "premium"
-                            : "free"
-                        }
-                      >
-                        {activeWorkspace.subscription?.plan || "free"}
-                      </Badge>
-                    </div>
-                    <CaretDownIcon className="ml-auto" />
-                  </>
-                )}
-              </SidebarMenuButton>
+              />}>
+              <Avatar className={cn("size-8", isCollapsed && "size-6.5")}>
+                <AvatarImage
+                  className="rounded-[4px]"
+                  src={activeWorkspace.logo || undefined}
+                />
+                <AvatarFallback className="border bg-sidebar-accent">
+                  {activeWorkspace.name.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+              {!isCollapsed && (
+                <>
+                  <div className="flex flex-1 gap-2 text-left text-sm leading-tight">
+                    <span className="truncate text-ellipsis font-medium text-sm">
+                      {activeWorkspace?.name}
+                    </span>
+                    <Badge
+                      className="px-1.5 py-0 text-[11px] capitalize"
+                      variant={
+                        activeWorkspace.subscription?.plan === "pro"
+                          ? "premium"
+                          : "free"
+                      }
+                    >
+                      {activeWorkspace.subscription?.plan || "free"}
+                    </Badge>
+                  </div>
+                  <CaretDownIcon className="ml-auto" />
+                </>
+              )}
             </DropdownMenuTrigger>
           ) : (
             <div
@@ -137,7 +135,7 @@ export function WorkspaceSwitcher() {
           )}
           <DropdownMenuContent
             align="start"
-            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+            className="min-w-[var(--anchor-width)] rounded-lg"
             side={isMobile ? "bottom" : "right"}
             sideOffset={4}
           >
