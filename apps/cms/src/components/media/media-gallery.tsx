@@ -3,16 +3,12 @@
 import { Skeleton } from "@marble/ui/components/skeleton";
 import { ImagesIcon } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "motion/react";
-import { useState } from "react";
-import { BulkDeleteMediaModal } from "@/components/media/bulk-delete-modal";
 import { DeleteMediaModal } from "@/components/media/delete-modal";
 import { MediaCard } from "@/components/media/media-card";
-import PageLoader from "@/components/shared/page-loader";
 import { useMediaActions } from "@/hooks/use-media-actions";
 import type { MediaQueryKey, MediaType } from "@/types/media";
 import { getEmptyStateMessage } from "@/utils/media";
 import { FileUploadInput } from "./file-upload-input";
-import { containerVariants, itemVariants } from "./media-gallery.variants";
 
 type Media = {
   id: string;
@@ -33,8 +29,10 @@ type MediaGalleryProps = {
   selectedItems: Set<string>;
   onSelectItem: (items: Set<string>) => void;
   hasAnyMedia: boolean;
-  showBulkDeleteModal: boolean;
-  setShowBulkDeleteModal: (show: boolean) => void;
+  showDeleteModal: boolean;
+  setShowDeleteModal: (show: boolean) => void;
+  mediaToDelete: Media[];
+  setMediaToDelete: (items: Media[]) => void;
   mediaQueryKey: MediaQueryKey;
   onUpload?: (files: FileList) => void;
   isUploading?: boolean;
@@ -50,29 +48,29 @@ export function MediaGallery({
   selectedItems,
   onSelectItem,
   hasAnyMedia,
-  showBulkDeleteModal,
-  setShowBulkDeleteModal,
+  showDeleteModal,
+  setShowDeleteModal,
+  mediaToDelete,
+  setMediaToDelete,
   mediaQueryKey,
   onUpload,
   isUploading = false,
 }: MediaGalleryProps) {
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [mediaToDelete, setMediaToDelete] = useState<Media | null>(null);
   const { handleDeleteComplete, handleBulkDeleteComplete } =
     useMediaActions(mediaQueryKey);
 
-  const onDelete = (id: string) => {
-    handleDeleteComplete(id);
-    if (selectedItems.has(id)) {
-      const newSelectedItems = new Set(selectedItems);
-      newSelectedItems.delete(id);
-      onSelectItem(newSelectedItems);
+  const onDeleteComplete = (ids: string[]) => {
+    if (ids.length === 1 && ids[0]) {
+      handleDeleteComplete(ids[0]);
+    } else {
+      handleBulkDeleteComplete(ids);
     }
-  };
-
-  const onBulkDelete = (ids: string[]) => {
-    handleBulkDeleteComplete(ids);
-    onSelectItem(new Set());
+    // Remove deleted items from selection
+    const newSelectedItems = new Set(selectedItems);
+    for (const id of ids) {
+      newSelectedItems.delete(id);
+    }
+    onSelectItem(newSelectedItems);
   };
 
   const handleSelectItem = (id: string) => {
@@ -85,24 +83,44 @@ export function MediaGallery({
     onSelectItem(newSet);
   };
 
+  // Open delete modal for single item (from card dropdown)
+  const handleDeleteSingle = (item: Media) => {
+    setMediaToDelete([item]);
+    setShowDeleteModal(true);
+  };
+
+  // Open delete modal for selected items (from bulk action)
+  const handleDeleteSelected = () => {
+    const itemsToDelete = media.filter((item) => selectedItems.has(item.id));
+    setMediaToDelete(itemsToDelete);
+    setShowDeleteModal(true);
+  };
+
+  const isRefetching = isFetching && !isFetchingNextPage && media.length > 0;
+
+  const renderSkeletonCard = (index: number, keyPrefix: string) => (
+    <li className="space-y-2.5 rounded-[20px]" key={`${keyPrefix}-${index}`}>
+      <Skeleton className="aspect-video w-full rounded-[12px]" />
+      <div className="flex items-start gap-3">
+        <Skeleton className="size-6 shrink-0 rounded" />
+        <div className="flex flex-1 flex-col gap-1">
+          <Skeleton className="h-4 w-3/4" />
+          <Skeleton className="h-3 w-1/2" />
+        </div>
+      </div>
+    </li>
+  );
+
   return (
     <>
       <div className="relative h-full min-h-[50vh]">
-        <AnimatePresence>
-          {isFetching && !isFetchingNextPage && (
-            <motion.div
-              animate={{ opacity: 1 }}
-              className="absolute inset-0 z-10 flex items-center justify-center bg-background/80"
-              exit={{ opacity: 0 }}
-              initial={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <PageLoader />
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {media.length === 0 && !hasAnyMedia ? (
+        {isRefetching ? (
+          <ul className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4">
+            {Array.from({ length: 10 }).map((_, index) =>
+              renderSkeletonCard(index, "refetch-skeleton")
+            )}
+          </ul>
+        ) : media.length === 0 && !hasAnyMedia ? (
           <div className="grid h-full place-content-center">
             <div className="flex max-w-80 flex-col items-center gap-4">
               <div className="p-2">
@@ -135,7 +153,7 @@ export function MediaGallery({
         ) : (
           <motion.ul
             animate="visible"
-            className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-4"
+            className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4"
             initial="hidden"
             variants={containerVariants}
           >
@@ -153,31 +171,15 @@ export function MediaGallery({
                   <MediaCard
                     isSelected={selectedItems.has(item.id)}
                     media={item}
-                    onDelete={() => {
-                      setMediaToDelete(item);
-                      setShowDeleteModal(true);
-                    }}
+                    onDelete={() => handleDeleteSingle(item)}
                     onSelect={() => handleSelectItem(item.id)}
                   />
                 </motion.li>
               ))}
               {isFetchingNextPage &&
-                Array.from({ length: 10 }).map((_, index) => (
-                  <li
-                    className="space-y-2"
-                    // biome-ignore lint/suspicious/noArrayIndexKey: <>
-                    key={`skeleton-${index}`}
-                  >
-                    <Skeleton className="h-40 w-full" />
-                    <div className="flex items-center gap-2">
-                      <Skeleton className="size-10 shrink-0 rounded-md" />
-                      <div className="flex w-full flex-col gap-1">
-                        <Skeleton className="h-4 w-3/4" />
-                        <Skeleton className="h-4 w-1/2" />
-                      </div>
-                    </div>
-                  </li>
-                ))}
+                Array.from({ length: 10 }).map((_, index) =>
+                  renderSkeletonCard(index, "pagination-skeleton")
+                )}
             </AnimatePresence>
           </motion.ul>
         )}
@@ -194,20 +196,39 @@ export function MediaGallery({
         />
       )}
 
-      {mediaToDelete && (
-        <DeleteMediaModal
-          isOpen={showDeleteModal}
-          mediaToDelete={mediaToDelete}
-          onDeleteComplete={onDelete}
-          setIsOpen={setShowDeleteModal}
-        />
-      )}
-      <BulkDeleteMediaModal
-        isOpen={showBulkDeleteModal}
-        onDeleteComplete={onBulkDelete}
-        selectedItems={Array.from(selectedItems)}
-        setIsOpen={setShowBulkDeleteModal}
+      <DeleteMediaModal
+        isOpen={showDeleteModal}
+        mediaToDelete={mediaToDelete}
+        onDeleteComplete={onDeleteComplete}
+        setIsOpen={setShowDeleteModal}
       />
     </>
   );
 }
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 10, filter: "blur(4px)" },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: { duration: 0.3, ease: "easeIn" },
+  },
+  exit: {
+    opacity: 0,
+    y: -10,
+    filter: "blur(4px)",
+    transition: { duration: 0.2 },
+  },
+};

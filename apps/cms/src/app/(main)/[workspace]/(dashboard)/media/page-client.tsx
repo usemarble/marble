@@ -21,7 +21,8 @@ function PageClient() {
   const [{ type, sort }] = useMediaPageFilters();
   const normalizedType = toMediaType(type);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
-  const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [mediaToDelete, setMediaToDelete] = useState<typeof mediaItems>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
 
@@ -217,9 +218,16 @@ function PageClient() {
       </div>
       {hasAnyMedia && (
         <MediaControls
+          disabled={isFetching || isUploading}
           isUploading={isUploading}
           mediaLength={mediaItems.length}
-          onBulkDelete={() => setShowBulkDeleteModal(true)}
+          onBulkDelete={() => {
+            const itemsToDelete = mediaItems.filter((item) =>
+              selectedItems.has(item.id)
+            );
+            setMediaToDelete(itemsToDelete);
+            setShowDeleteModal(true);
+          }}
           onDeselectAll={handleDeselectAll}
           onSelectAll={handleSelectAll}
           onUpload={handleFileUpload}
@@ -234,12 +242,14 @@ function PageClient() {
         isUploading={isUploading}
         media={mediaItems}
         mediaQueryKey={mediaQueryKey}
+        mediaToDelete={mediaToDelete}
         onLoadMore={fetchNextPage}
         onSelectItem={setSelectedItems}
         onUpload={handleFileUpload}
         selectedItems={selectedItems}
-        setShowBulkDeleteModal={setShowBulkDeleteModal}
-        showBulkDeleteModal={showBulkDeleteModal}
+        setMediaToDelete={setMediaToDelete}
+        setShowDeleteModal={setShowDeleteModal}
+        showDeleteModal={showDeleteModal}
         type={normalizedType}
       />
     </WorkspacePageWrapper>

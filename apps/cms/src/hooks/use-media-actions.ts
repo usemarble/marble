@@ -21,8 +21,14 @@ export function useMediaActions(mediaQueryKey: MediaQueryKey) {
   };
 
   const handleUploadComplete = () => handleActionComplete();
-  const handleDeleteComplete = (_id: string) => handleActionComplete();
-  const handleBulkDeleteComplete = (_ids: string[]) => handleActionComplete();
+  // Delete handlers don't need to invalidate - the delete modal already
+  // does optimistic updates directly to the cache via setQueriesData
+  const handleDeleteComplete = (_id: string) => {
+    return;
+  };
+  const handleBulkDeleteComplete = (_ids: string[]) => {
+    return;
+  };
 
   return {
     handleUploadComplete,

@@ -1,3 +1,5 @@
+import type { MediaType } from "./media";
+
 export type UsageDashboardData = {
   api: {
     totals: {
@@ -33,7 +35,7 @@ export type UsageDashboardData = {
       name: string;
       size: number;
       createdAt: string;
-      type: string;
+      type: MediaType;
       url: string;
     }>;
   };
