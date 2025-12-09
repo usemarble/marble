@@ -310,6 +310,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
         isOpen={showSettings}
         isSubmitting={isCreating || isUpdating}
         mode={isUpdateMode ? "update" : "create"}
+        postId={id}
         setIsOpen={setShowSettings}
         watch={watch}
       />
