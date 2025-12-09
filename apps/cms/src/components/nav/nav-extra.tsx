@@ -54,7 +54,7 @@ const resourceLinks = [
 export function NavExtra() {
   return (
     <Popover>
-      <Tooltip delayDuration={300}>
+      <Tooltip delay={300}>
         <TooltipTrigger
           render={
             <PopoverTrigger

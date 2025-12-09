@@ -96,7 +96,7 @@ export function TeamDataTable<TData, TValue>({
           <InviteButton onInvite={() => setShowInviteModal(true)} />
           {currentUserRole === "owner" ? (
             <TooltipProvider>
-              <Tooltip delayDuration={0}>
+              <Tooltip delay={0}>
                 <TooltipTrigger
                   render={
                     <Button

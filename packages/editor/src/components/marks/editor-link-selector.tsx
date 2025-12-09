@@ -206,7 +206,7 @@ export const EditorLinkSelector = ({
             className="mx-1 h-full min-h-[1.5rem] w-[1px]"
             orientation="vertical"
           />
-          <Tooltip delayDuration={400}>
+          <Tooltip delay={400}>
             <TooltipTrigger
               render={
                 <Button
@@ -228,7 +228,7 @@ export const EditorLinkSelector = ({
               <p>{openInNewTab ? "Opens in new tab" : "Opens in same tab"}</p>
             </TooltipContent>
           </Tooltip>
-          <Tooltip delayDuration={400}>
+          <Tooltip delay={400}>
             <TooltipTrigger
               render={
                 <Button
