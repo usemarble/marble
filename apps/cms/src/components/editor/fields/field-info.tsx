@@ -16,17 +16,17 @@ type FieldInfoProps = {
   className?: string;
 };
 
-export function FieldInfo({
-  text,
-  className = "size-4 text-gray-400",
-}: FieldInfoProps) {
+export function FieldInfo(props: FieldInfoProps) {
+  const { text, className = "size-4 text-gray-400" } = props
+
   return (
     <Tooltip>
-      <TooltipTrigger render={<InfoIcon className={className} />}>
+      <TooltipTrigger className="cursor-help">
+        <InfoIcon className={className} />
       </TooltipTrigger>
       <TooltipContent>
         <p className="max-w-64 text-balance text-xs">{text}</p>
       </TooltipContent>
     </Tooltip>
-  );
+  )
 }

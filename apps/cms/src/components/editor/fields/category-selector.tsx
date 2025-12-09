@@ -83,7 +83,12 @@ export function CategorySelector({ control }: CategorySelectorProps) {
         </div>
         <Select onValueChange={onChange} value={value}>
           <SelectTrigger className="w-full bg-editor-field">
-            <SelectValue placeholder="Choose a category" />
+            <SelectValue placeholder="Choose a category">
+              {(selectedValue) => {
+                const category = categories.find((c) => c.id === selectedValue)
+                return category?.name ?? selectedValue
+              }}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>

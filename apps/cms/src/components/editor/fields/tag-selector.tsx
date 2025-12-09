@@ -170,25 +170,25 @@ export const TagSelector = ({
         <PopoverContent align="start" className="min-w-[350.67px] p-0">
           <Command className="w-full">
             <CommandInput placeholder="Search tags..." />
+            <div className="flex items-center justify-between gap-1 bg-background px-2 pt-2 pb-1 font-normal text-xs">
+              <span className="text-muted-foreground text-xs">
+                {isLoadingTags
+                  ? "Loading tags..."
+                  : tags.length === 0
+                    ? "No tags"
+                    : "Tags"}
+              </span>
+              <button
+                className="flex items-center gap-1 p-1 hover:bg-accent"
+                onClick={() => setOpenTagModal(true)}
+                type="button"
+              >
+                <PlusIcon className="size-4 text-muted-foreground" />
+                <span className="sr-only">Add a new tag</span>
+              </button>
+            </div>
             <CommandList>
-              <CommandEmpty>No results found.</CommandEmpty>
-              <div className="flex items-center justify-between gap-1 bg-background px-2 pt-2 pb-1 font-normal text-xs">
-                <span className="text-muted-foreground text-xs">
-                  {isLoadingTags
-                    ? "Loading tags..."
-                    : tags.length === 0
-                      ? "No tags"
-                      : "Tags"}
-                </span>
-                <button
-                  className="flex items-center gap-1 p-1 hover:bg-accent"
-                  onClick={() => setOpenTagModal(true)}
-                  type="button"
-                >
-                  <PlusIcon className="size-4 text-muted-foreground" />
-                  <span className="sr-only">Add a new tag</span>
-                </button>
-              </div>
+              {tags.length > 0 && <CommandEmpty>No results found.</CommandEmpty>}
               {tags.length > 0 && (
                 <CommandGroup>
                   {tags.map((option) => (

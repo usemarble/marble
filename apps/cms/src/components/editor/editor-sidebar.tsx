@@ -237,13 +237,13 @@ export function EditorSidebar({
             className="w-full"
             onValueChange={setActiveTab}
             value={activeTab}
+            variant="line"
           >
             <TabsList
               className="grid"
               style={{
                 gridTemplateColumns: `repeat(${Object.keys(tabs).length}, 1fr)`,
               }}
-              variant="line"
             >
               {Object.entries(tabs).map(([value, label]) => (
                 <TabsTrigger className="px-2" key={value} value={value}>
@@ -259,6 +259,7 @@ export function EditorSidebar({
             className="flex h-full flex-col"
             onValueChange={setActiveTab}
             value={activeTab}
+            variant="line"
           >
             <TabsContent
               className="min-h-0 flex-1 data-[state=inactive]:hidden"

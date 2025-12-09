@@ -158,8 +158,8 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
     }
 
     return (
-      <Tabs className="w-full" defaultValue="upload">
-        <TabsList className="mb-4 grid grid-cols-3" variant="line">
+      <Tabs className="w-full" defaultValue="upload" variant="line">
+        <TabsList className="mb-4 grid grid-cols-3">
           <TabsTrigger value="upload">Upload</TabsTrigger>
           <TabsTrigger value="embed">Embed</TabsTrigger>
           <TabsTrigger value="media">Media</TabsTrigger>
