@@ -67,12 +67,12 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* {process.env.NODE_ENV === "development" && (
+        {process.env.NODE_ENV === "development" && (
           <script
             crossOrigin="anonymous"
             src="//unpkg.com/react-scan/dist/auto.global.js"
           />
-        )} */}
+        )}
       </head>
       <DatabuddyAnalytics />
       <body className={`${fontSans.className} font-sans antialiased`}>
