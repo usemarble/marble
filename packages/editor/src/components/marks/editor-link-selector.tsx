@@ -109,24 +109,22 @@ export const EditorLinkSelector = ({
 
   return (
     <Popover modal onOpenChange={onOpenChange} open={open}>
-      <PopoverTrigger asChild>
-        <Button
+      <PopoverTrigger render={<Button
           className="gap-2 rounded-none border-none"
           size="sm"
           variant="ghost"
+        />}>
+        <Link size={12} />
+        <p
+          className={cn(
+            "text-xs underline decoration-text-muted underline-offset-4",
+            {
+              "text-primary": editor.isActive("link"),
+            }
+          )}
         >
-          <Link size={12} />
-          <p
-            className={cn(
-              "text-xs underline decoration-text-muted underline-offset-4",
-              {
-                "text-primary": editor.isActive("link"),
-              }
-            )}
-          >
-            Link
-          </p>
-        </Button>
+          Link
+        </p>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-fit p-0" sideOffset={10}>
         <form className="flex items-center gap-0.5 p-1" onSubmit={handleSubmit}>
@@ -205,8 +203,7 @@ export const EditorLinkSelector = ({
             orientation="vertical"
           />
           <Tooltip delayDuration={400}>
-            <TooltipTrigger asChild>
-              <Button
+            <TooltipTrigger render={<Button
                 className={cn(
                   "h-8 rounded-sm",
                   openInNewTab &&
@@ -216,17 +213,15 @@ export const EditorLinkSelector = ({
                 size="icon"
                 type="button"
                 variant="ghost"
-              >
-                <Maximize2 size={12} />
-              </Button>
+              />}>
+              <Maximize2 size={12} />
             </TooltipTrigger>
             <TooltipContent>
               <p>{openInNewTab ? "Opens in new tab" : "Opens in same tab"}</p>
             </TooltipContent>
           </Tooltip>
           <Tooltip delayDuration={400}>
-            <TooltipTrigger asChild>
-              <Button
+            <TooltipTrigger render={<Button
                 className="h-8 rounded-sm"
                 disabled={!url || !getUrlFromString(url)}
                 onClick={() => {
@@ -239,9 +234,8 @@ export const EditorLinkSelector = ({
                 size="icon"
                 type="button"
                 variant="ghost"
-              >
-                <ExternalLinkIcon size={12} />
-              </Button>
+              />}>
+              <ExternalLinkIcon size={12} />
             </TooltipTrigger>
             <TooltipContent>
               <p>Open link</p>

@@ -69,8 +69,7 @@ export const EditorMarkTextColor = ({
 
   return (
     <Popover modal>
-      <PopoverTrigger asChild>
-        <Button
+      <PopoverTrigger render={<Button
           className={cn(
             hideName ? "" : "w-full",
             isActive &&
@@ -79,16 +78,15 @@ export const EditorMarkTextColor = ({
           size="sm"
           type="button"
           variant="ghost"
-        >
-          <Palette
-            className={cn(
-              "shrink-0",
-              isActive ? "text-primary" : "text-muted-foreground"
-            )}
-            size={12}
-          />
-          {!hideName && <span className="flex-1 text-left">Text Color</span>}
-        </Button>
+        />}>
+        <Palette
+          className={cn(
+            "shrink-0",
+            isActive ? "text-primary" : "text-muted-foreground"
+          )}
+          size={12}
+        />
+        {!hideName && <span className="flex-1 text-left">Text Color</span>}
       </PopoverTrigger>
       <PopoverContent
         align="start"

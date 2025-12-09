@@ -69,8 +69,7 @@ export const EditorMarkHighlight = ({
 
   return (
     <Popover modal>
-      <PopoverTrigger asChild>
-        <Button
+      <PopoverTrigger render={<Button
           className={cn(
             hideName ? "" : "w-full",
             isActive &&
@@ -79,16 +78,15 @@ export const EditorMarkHighlight = ({
           size="sm"
           type="button"
           variant="ghost"
-        >
-          <Highlighter
-            className={cn(
-              "shrink-0",
-              isActive ? "text-primary" : "text-muted-foreground"
-            )}
-            size={12}
-          />
-          {!hideName && <span className="flex-1 text-left">Highlight</span>}
-        </Button>
+        />}>
+        <Highlighter
+          className={cn(
+            "shrink-0",
+            isActive ? "text-primary" : "text-muted-foreground"
+          )}
+          size={12}
+        />
+        {!hideName && <span className="flex-1 text-left">Highlight</span>}
       </PopoverTrigger>
       <PopoverContent
         align="start"

@@ -1,4 +1,4 @@
-import { toast } from "@marble/ui/components/sonner";
+import { toast } from "@marble/ui/hooks/use-toast";
 import type { DragEvent } from "react";
 import { useCallback, useRef, useState } from "react";
 
