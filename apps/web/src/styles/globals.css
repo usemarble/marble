@@ -85,4 +85,7 @@
   body {
     @apply bg-background text-foreground antialiased;
   }
+  .faq-answer a {
+    @apply text-foreground hover:text-primary underline font-medium;
+  }
 }

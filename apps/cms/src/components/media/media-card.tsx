@@ -29,7 +29,7 @@ type MediaCardProps = {
   media: Media;
   onDelete: (media: Media) => void;
   isSelected?: boolean;
-  onSelect?: () => void;
+  onSelect: () => void;
 };
 
 const mediaTypeIcons: Record<
@@ -58,57 +58,64 @@ export function MediaCard({
   return (
     <Card
       className={cn(
-        "group gap-0 overflow-hidden py-0",
-        isSelected &&
-          "ring-2 ring-primary ring-offset-2 ring-offset-background",
-        "cursor-pointer"
+        "gap-2.5 overflow-hidden rounded-[20px] border-none bg-sidebar p-2.5"
       )}
-      onClick={onSelect}
     >
-      <CardContent className="p-0">
-        <div className="relative aspect-video overflow-hidden">
-          <div className="absolute rounded-md" />
-          <div
-            className={`absolute inset-0 z-10 flex items-center justify-center transition-opacity duration-300 ${
-              isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-            }`}
-          >
+      <button
+        aria-label={`Select ${media?.name ?? "media"}`}
+        className="cursor-pointer rounded-[12px] outline-none transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+        onClick={onSelect}
+        type="button"
+      >
+        <CardContent className="group overflow-hidden rounded-[12px] border-0 bg-background p-0 shadow-xs">
+          <div className="relative aspect-video overflow-hidden">
             <div
-              className={cn(
-                "pointer-events-none absolute inset-0 z-10 bg-black/50 opacity-0 transition-opacity duration-300 group-hover:opacity-100",
-                isSelected && "opacity-100 backdrop-blur-xs"
-              )}
-            />
-            <div className="relative z-20 rounded-full bg-white p-2 shadow-lg">
-              <CheckIcon className="size-5 text-black" weight="bold" />
-            </div>
-          </div>
-          {media.type === "image" && (
-            <Image
-              alt={media.name}
-              className="absolute inset-0 size-full object-cover"
-              height={160}
-              src={media.url}
-              unoptimized
-              width={250}
-            />
-          )}
-          {media.type === "video" && <VideoPlayer src={media.url} />}
-          {(media.type === "audio" || media.type === "document") && (
-            <div className="flex h-full w-full items-center justify-center bg-muted">
-              <Icon
-                className="size-16 text-muted-foreground"
-                weight="duotone"
+              className={`absolute inset-0 z-10 flex items-center justify-center rounded-[12px] transition-opacity duration-300 ${
+                isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+              }`}
+            >
+              <div
+                className={cn(
+                  "pointer-events-none absolute inset-0 z-10 bg-black/50 opacity-0 transition-opacity duration-300 group-hover:opacity-100",
+                  isSelected && "opacity-100"
+                )}
               />
+              <div className="relative z-20 rounded-full bg-white p-2 shadow-lg">
+                <CheckIcon className="size-5 text-black" weight="bold" />
+              </div>
             </div>
-          )}
-        </div>
-      </CardContent>
-      <CardFooter className="grid w-full grid-cols-[1fr_auto] gap-4 border-t p-4">
+            {media.type === "image" && (
+              <div className="h-full w-full bg-background">
+                <Image
+                  alt={media.name}
+                  className="size-full object-cover"
+                  height={160}
+                  src={media.url}
+                  unoptimized
+                  width={250}
+                />
+              </div>
+            )}
+            {media.type === "video" && <VideoPlayer src={media.url} />}
+            {(media.type === "audio" || media.type === "document") && (
+              <div className="flex h-full w-full items-center justify-center bg-muted">
+                <Icon
+                  className="size-16 text-muted-foreground"
+                  weight="duotone"
+                />
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </button>
+      <CardFooter className="grid w-full grid-cols-[1fr_auto] gap-4 p-0">
         <div className="flex items-start gap-3">
-          <Icon className={`size-6 shrink-0 ${color}`} weight="duotone" />
+          <Icon
+            className={"size-6 shrink-0 text-muted-foreground"}
+            weight="duotone"
+          />
           <div className="flex flex-col">
-            <p className="line-clamp-1 text-wrap font-medium text-sm">
+            <p className="line-clamp-1 max-w-[180px] text-wrap font-medium text-sm">
               {media.name}
             </p>
             <div className="flex items-center gap-1 text-muted-foreground text-xs">
@@ -120,14 +127,13 @@ export function MediaCard({
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button
-              className="size-8 shrink-0"
+            <button
+              className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full bg-background shadow-xs outline-none transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
               onClick={(e) => e.stopPropagation()}
-              size="icon"
-              variant="ghost"
+              type="button"
             >
               <DotsThreeVerticalIcon size={16} />
-            </Button>
+            </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem

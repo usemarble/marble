@@ -2,6 +2,7 @@
 
 import { randomBytes } from "node:crypto";
 import { db } from "@marble/db";
+import { APIError } from "better-auth/api";
 import { getServerSession } from "@/lib/auth/session";
 
 /**
@@ -188,4 +189,29 @@ export async function checkPostSlugAvailable(
   });
 
   return !post;
+}
+
+export async function checkWorkspaceSubscriptionAction(workspaceId: string) {
+  const subscription = await db.subscription.findUnique({
+    where: { workspaceId },
+  });
+
+  return (
+    subscription &&
+    (subscription.status === "active" || subscription.status === "trialing")
+  );
+}
+
+export async function guardWorkspaceSubscriptionAction(
+  workspaceId: string,
+  message: string
+) {
+  const hasValidSubscription =
+    await checkWorkspaceSubscriptionAction(workspaceId);
+
+  if (!hasValidSubscription) {
+    throw new APIError("FORBIDDEN", {
+      message,
+    });
+  }
 }

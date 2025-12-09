@@ -1,5 +1,6 @@
 import type { SvgComponent } from "astro/types";
 import Bounty from "@/components/icons/brand/Bounty.astro";
+import Candle from "@/components/icons/brand/Candle.astro";
 import Databuddy from "@/components/icons/brand/Databuddy.astro";
 import Helix from "@/components/icons/brand/Helix.astro";
 import Ia from "@/components/icons/brand/Ia.astro";
@@ -80,65 +81,6 @@ export const FAQs: {
   },
 ];
 
-export type Pricing = {
-  title: string;
-  description: string;
-  price: {
-    monthly: string;
-    yearly: string;
-  };
-  trial?: string;
-  features: string[];
-  button: {
-    href: string;
-    label: string;
-  };
-};
-
-export const PRICING: Pricing[] = [
-  {
-    title: "Hobby",
-    description: "For Hobbyists",
-    price: {
-      monthly: "$0",
-      yearly: "$0",
-    },
-    features: [
-      "Unlimited posts",
-      "1GB media storage",
-      "2 member seats",
-      "AI Readability insights",
-      "10k API requests per month",
-      "100 webhook events per month",
-    ],
-    button: {
-      href: "https://app.marblecms.com",
-      label: "Start for free",
-    },
-  },
-  {
-    title: "Pro",
-    description: "For Small Teams",
-    price: {
-      monthly: "$20",
-      yearly: "$180",
-    },
-    trial: "7 day free trial",
-    features: [
-      "Unlimited posts",
-      "10GB media storage",
-      "10 member seats",
-      "AI Readability insights",
-      "50k API requests per month",
-      "1k webhook events per month",
-    ],
-    button: {
-      href: "https://app.marblecms.com",
-      label: "Get Started",
-    },
-  },
-];
-
 export const PRICING_FAQS: {
   question: string;
   answer: string;
@@ -211,6 +153,12 @@ export const USERS = [
     url: "https://databuddy.cc",
     component: Databuddy,
     showWordmark: true,
+  },
+  {
+    name: "Candle",
+    url: "https://www.trycandle.app/",
+    component: Candle,
+    showWordmark: false,
   },
 ];
 
