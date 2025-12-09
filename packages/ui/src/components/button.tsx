@@ -58,4 +58,4 @@ const Button = (props: ButtonProps) => {
   return element
 }
 
-export { Button, buttonVariants }
+export { Button, buttonVariants, type ButtonProps }

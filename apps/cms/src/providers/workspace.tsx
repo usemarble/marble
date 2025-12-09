@@ -110,8 +110,8 @@ export function WorkspaceProvider({
       });
 
       if (error) {
-        toast.error(error.message);
-        throw new Error(error.message);
+        toast.error(error.message ?? "Failed to switch workspace");
+        throw new Error(error.message ?? "Failed to switch workspace");
       }
 
       return data;

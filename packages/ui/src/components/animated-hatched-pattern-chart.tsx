@@ -8,14 +8,14 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@marble/components/ui/card";
+} from "@marble/ui/components/card";
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@marble/components/ui/chart";
-import { Badge } from "@marble/components/ui/badge";
+} from "@marble/ui/components/chart";
+import { Badge } from "@marble/ui/components/badge";
 import { TrendingUp } from "lucide-react";
 import React from "react";
 
@@ -158,7 +158,7 @@ export function AnimatedHatchedPatternAreaChart() {
 
 const HatchedBackgroundPattern = ({ config }: { config: ChartConfig }) => {
   const items = Object.fromEntries(
-    Object.entries(config).map(([key, value]) => [key, value.color])
+    Object.entries(config).map(([key, value]) => [key, (value as { color?: string }).color])
   );
   return (
     <>

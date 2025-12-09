@@ -177,8 +177,6 @@ const DropdownMenuRadioItem = (props: React.ComponentProps<typeof BaseMenu.Radio
 const DropdownMenuSub = (props: React.ComponentProps<typeof BaseMenu.SubmenuRoot>) => {
   return (
     <BaseMenu.SubmenuRoot
-      closeDelay={0}
-      delay={0}
       data-slot="dropdown-menu-sub"
       {...props}
     />

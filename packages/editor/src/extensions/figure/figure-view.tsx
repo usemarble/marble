@@ -32,7 +32,7 @@ export const FigureView = ({
   );
   const [isResizing, setIsResizing] = useState(false);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-  const figureRef = useRef<HTMLElement>(null);
+  const figureRef = useRef<HTMLButtonElement>(null);
   const startXRef = useRef(0);
   const startWidthRef = useRef(0);
 
@@ -281,8 +281,6 @@ export const FigureView = ({
         <PopoverContent
           align="start"
           className="flex w-80 flex-col gap-3 p-3"
-          onOpenAutoFocus={(event) => event.preventDefault()}
-          side="right"
           sideOffset={18}
         >
           {/* Width Controls - Only percent for now */}

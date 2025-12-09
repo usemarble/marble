@@ -64,7 +64,7 @@ export const CreateWorkspaceDialog = (props: CreateWorkspaceDialogProps) => {
     });
 
     if (error) {
-      toast.error(error.message);
+      toast.error(error.message ?? "Failed to check slug");
       return;
     }
 
@@ -77,7 +77,7 @@ export const CreateWorkspaceDialog = (props: CreateWorkspaceDialogProps) => {
       });
 
       if (error) {
-        toast.error(error.message);
+        toast.error(error.message ?? "Failed to create workspace");
         return;
       }
 

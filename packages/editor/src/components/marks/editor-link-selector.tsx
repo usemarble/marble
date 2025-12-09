@@ -8,6 +8,7 @@ import { Separator } from "@marble/ui/components/separator";
 import {
   Tooltip,
   TooltipContent,
+  TooltipProvider,
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { cn } from "@marble/ui/lib/utils";
@@ -206,54 +207,58 @@ export const EditorLinkSelector = ({
             className="mx-1 h-full min-h-[1.5rem] w-[1px]"
             orientation="vertical"
           />
-          <Tooltip delay={400}>
-            <TooltipTrigger
-              render={
-                <Button
-                  className={cn(
-                    "h-8 rounded-sm",
-                    openInNewTab &&
-                      "bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary"
-                  )}
-                  onClick={() => setOpenInNewTab(!openInNewTab)}
-                  size="icon"
-                  type="button"
-                  variant="ghost"
-                />
-              }
-            >
-              <Maximize2 size={12} />
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{openInNewTab ? "Opens in new tab" : "Opens in same tab"}</p>
-            </TooltipContent>
-          </Tooltip>
-          <Tooltip delay={400}>
-            <TooltipTrigger
-              render={
-                <Button
-                  className="h-8 rounded-sm"
-                  disabled={!url || !getUrlFromString(url)}
-                  onClick={() => {
-                    const href =
-                      getUrlFromString(url) ||
-                      editor.getAttributes("link").href;
-                    if (href) {
-                      window.open(href, "_blank", "noopener,noreferrer");
-                    }
-                  }}
-                  size="icon"
-                  type="button"
-                  variant="ghost"
-                />
-              }
-            >
-              <ExternalLinkIcon size={12} />
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Open link</p>
-            </TooltipContent>
-          </Tooltip>
+          <TooltipProvider delay={400}>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button
+                    className={cn(
+                      "h-8 rounded-sm",
+                      openInNewTab &&
+                        "bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary"
+                    )}
+                    onClick={() => setOpenInNewTab(!openInNewTab)}
+                    size="icon"
+                    type="button"
+                    variant="ghost"
+                  />
+                }
+              >
+                <Maximize2 size={12} />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{openInNewTab ? "Opens in new tab" : "Opens in same tab"}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <TooltipProvider delay={400}>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button
+                    className="h-8 rounded-sm"
+                    disabled={!url || !getUrlFromString(url)}
+                    onClick={() => {
+                      const href =
+                        getUrlFromString(url) ||
+                        editor.getAttributes("link").href;
+                      if (href) {
+                        window.open(href, "_blank", "noopener,noreferrer");
+                      }
+                    }}
+                    size="icon"
+                    type="button"
+                    variant="ghost"
+                  />
+                }
+              >
+                <ExternalLinkIcon size={12} />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Open link</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </form>
       </PopoverContent>
     </Popover>

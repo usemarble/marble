@@ -40,15 +40,21 @@ export function MediaControls({
     <section className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
       <div className="flex flex-wrap items-center gap-1 sm:gap-4">
         <Select
-          onValueChange={(val: MediaFilterType) => {
-            if (isMediaFilterType(val)) {
-              setSearchParams({ type: val });
+          onValueChange={(val) => {
+            const v = val as MediaFilterType;
+            if (isMediaFilterType(v)) {
+              setSearchParams({ type: v });
             }
           }}
           value={type}
         >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Filter by type" />
+            <SelectValue>
+              {(value) => {
+                const labels: Record<string, string> = { all: "All", image: "Image", video: "Video" };
+                return labels[value as string] || "Filter by type";
+              }}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All</SelectItem>
@@ -57,15 +63,26 @@ export function MediaControls({
           </SelectContent>
         </Select>
         <Select
-          onValueChange={(val: string) => {
-            if (isMediaSort(val)) {
-              setSearchParams({ sort: val });
+          onValueChange={(val) => {
+            const v = val as string;
+            if (isMediaSort(v)) {
+              setSearchParams({ sort: v as typeof sort });
             }
           }}
           value={sort}
         >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Sort by" />
+            <SelectValue>
+              {(value) => {
+                const labels: Record<string, string> = {
+                  createdAt_desc: "Newest first",
+                  createdAt_asc: "Oldest first",
+                  name_asc: "Name A-Z",
+                  name_desc: "Name Z-A",
+                };
+                return labels[value as string] || "Sort by";
+              }}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="createdAt_desc">Newest first</SelectItem>

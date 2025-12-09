@@ -169,6 +169,9 @@ importers:
       canvas-confetti:
         specifier: ^1.9.3
         version: 1.9.3
+      class-variance-authority:
+        specifier: ^0.7.0
+        version: 0.7.0
       croner:
         specifier: ^9.1.0
         version: 9.1.0

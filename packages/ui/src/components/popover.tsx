@@ -21,10 +21,6 @@ const PopoverClose = (props: React.ComponentProps<typeof BasePopover.Close>) => 
   return <BasePopover.Close data-slot="popover-close" {...props} />
 }
 
-const PopoverAnchor = (props: React.ComponentProps<typeof BasePopover.Anchor>) => {
-  return <BasePopover.Anchor data-slot="popover-anchor" {...props} />
-}
-
 const PopoverPositioner = (props: React.ComponentProps<typeof BasePopover.Positioner>) => {
   return <BasePopover.Positioner data-slot="popover-positioner" {...props} />
 }
@@ -59,7 +55,6 @@ export {
   Popover,
   PopoverTrigger,
   PopoverContent,
-  PopoverAnchor,
   PopoverClose,
   PopoverPortal,
   PopoverPositioner,

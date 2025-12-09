@@ -207,13 +207,13 @@ export function ApiKeyModal({ data, mode, open, setOpen }: ApiKeyModalProps) {
                 <Label htmlFor="type">Type</Label>
                 <Select
                   disabled
-                  onValueChange={(value: "public" | "private") =>
-                    setValue("type", value)
+                  onValueChange={(value) =>
+                    setValue("type", value as "public" | "private")
                   }
                   value={type}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select type" />
+                    <SelectValue>{(value) => (value as string) || "Select type"}</SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="public">Public</SelectItem>

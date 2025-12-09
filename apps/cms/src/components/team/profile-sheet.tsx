@@ -103,7 +103,12 @@ export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
                   value={role}
                 >
                   <SelectTrigger className="w-[220px]">
-                    <SelectValue placeholder="Role" />
+                    <SelectValue>
+                      {(value) => {
+                        const labels: Record<string, string> = { admin: "Admin", member: "Member" };
+                        return labels[value as string] || "Role";
+                      }}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="admin">Admin</SelectItem>

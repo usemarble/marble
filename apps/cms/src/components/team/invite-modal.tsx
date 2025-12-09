@@ -121,12 +121,17 @@ export const InviteModal = ({
             </Label>
             <Select
               defaultValue="member"
-              onValueChange={(value: "member" | "admin") =>
-                setValue("role", value)
+              onValueChange={(value) =>
+                setValue("role", value as "member" | "admin")
               }
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a role" />
+                <SelectValue>
+                  {(value) => {
+                    const labels: Record<string, string> = { member: "Member", admin: "Admin" };
+                    return labels[value as string] || "Select a role";
+                  }}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="member">Member</SelectItem>
