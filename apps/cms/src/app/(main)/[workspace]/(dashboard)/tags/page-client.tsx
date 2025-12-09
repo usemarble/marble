@@ -5,7 +5,7 @@ import { PlusIcon, TagIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import { useState } from "react";
-import { toast } from "sonner";
+import { toast } from "@marble/ui/hooks/use-toast";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
 import { columns, type Tag } from "@/components/tags/columns";

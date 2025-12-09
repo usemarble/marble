@@ -17,6 +17,7 @@ import {
 import {
   Tooltip,
   TooltipContent,
+  TooltipProvider,
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { cn } from "@marble/ui/lib/utils";
@@ -94,43 +95,46 @@ export const PublishingActivityCard = () => {
       </CardHeader>
       <CardContent className="rounded-[12px] bg-background p-4 shadow-xs">
         {metrics?.graph?.activity ? (
-          <ContributionGraph
-            blockMargin={3}
-            blockSize={13}
-            data={metrics.graph.activity}
-            fontSize={12}
-          >
-            <ContributionGraphCalendar>
-              {({ activity, dayIndex, weekIndex }) => (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <g>
-                      <ContributionGraphBlock
-                        activity={activity}
-                        className={cn(
-                          'data-[level="0"]:fill-muted dark:data-[level="0"]:fill-white/5',
-                          'data-[level="1"]:fill-primary/20 dark:data-[level="1"]:fill-primary/30',
-                          'data-[level="2"]:fill-primary/40 dark:data-[level="2"]:fill-primary/50',
-                          'data-[level="3"]:fill-primary/60 dark:data-[level="3"]:fill-primary/70',
-                          'data-[level="4"]:fill-primary/80 dark:data-[level="4"]:fill-primary/90'
-                        )}
-                        dayIndex={dayIndex}
-                        weekIndex={weekIndex}
-                      />
-                    </g>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="font-semibold">
-                      {format(parseISO(activity.date), "MMMM d, yyyy")}
-                    </p>
-                    <p>
-                      {activity.count} {activity.count === 1 ? "post" : "posts"}{" "}
-                      published
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              )}
-            </ContributionGraphCalendar>
+          <TooltipProvider delay={0}>
+            <ContributionGraph
+              blockMargin={3}
+              blockSize={13}
+              data={metrics.graph.activity}
+              fontSize={12}
+            >
+              <ContributionGraphCalendar>
+                {({ activity, dayIndex, weekIndex }) => (
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <ContributionGraphBlock
+                          activity={activity}
+                          className={cn(
+                            'data-[level="0"]:fill-muted dark:data-[level="0"]:fill-white/5',
+                            'data-[level="1"]:fill-primary/20 dark:data-[level="1"]:fill-primary/30',
+                            'data-[level="2"]:fill-primary/40 dark:data-[level="2"]:fill-primary/50',
+                            'data-[level="3"]:fill-primary/60 dark:data-[level="3"]:fill-primary/70',
+                            'data-[level="4"]:fill-primary/80 dark:data-[level="4"]:fill-primary/90'
+                          )}
+                          dayIndex={dayIndex}
+                          weekIndex={weekIndex}
+                        />
+                      }
+                    />
+                    <TooltipContent className="whitespace-nowrap" sideOffset={8}>
+                      <div className="flex flex-col">
+                        <span className="font-semibold">
+                          {format(parseISO(activity.date), "MMM d, yyyy")}
+                        </span>
+                        <span>
+                          {activity.count}{" "}
+                          {activity.count === 1 ? "post" : "posts"} published
+                        </span>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
+              </ContributionGraphCalendar>
             {/* @ts-ignore - ContributionGraphFooter types seem incomplete but it renders children */}
             <ContributionGraphFooter>
               <ContributionGraphTotalCount>
@@ -170,7 +174,8 @@ export const PublishingActivityCard = () => {
                 )}
               </ContributionGraphLegend>
             </ContributionGraphFooter>
-          </ContributionGraph>
+            </ContributionGraph>
+          </TooltipProvider>
         ) : (
           <div className="flex h-32 items-center justify-center text-muted-foreground text-sm">
             No publishing activity data available

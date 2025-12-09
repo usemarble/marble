@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@marble/ui/components/button";
-import { toast } from "@marble/ui/components/sonner";
+import { toast } from "@marble/ui/hooks/use-toast";
 import { PlusIcon, WebhooksLogoIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import dynamic from "next/dynamic";

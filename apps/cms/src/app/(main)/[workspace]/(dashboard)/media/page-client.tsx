@@ -1,6 +1,6 @@
 "use client";
 
-import { toast } from "@marble/ui/components/sonner";
+import { toast } from "@marble/ui/hooks/use-toast";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";

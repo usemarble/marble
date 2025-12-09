@@ -11,7 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useState } from "react";
-import { toast } from "sonner";
+import { toast } from "@marble/ui/hooks/use-toast";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import { columns, type Post } from "@/components/posts/columns";
 import { PostDataView } from "@/components/posts/data-view";
@@ -81,14 +81,12 @@ function PageClient() {
                     <span>New Post</span>
                   </Link>
                   <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
+                    <TooltipTrigger render={<Button
                         aria-label="Upload"
                         onClick={() => setImportOpen(true)}
                         variant="default"
-                      >
-                        <UploadSimpleIcon className="size-4" />
-                      </Button>
+                      />}>
+                      <UploadSimpleIcon className="size-4" />
                     </TooltipTrigger>
                     <TooltipContent side="top">Upload</TooltipContent>
                   </Tooltip>

@@ -12,7 +12,7 @@ const UpgradeModal = dynamic(() =>
   import("@/components/billing/upgrade-modal").then((mod) => mod.UpgradeModal)
 );
 
-import { toast } from "sonner";
+import { toast } from "@marble/ui/hooks/use-toast";
 import { usePlan } from "@/hooks/use-plan";
 import { authClient } from "@/lib/auth/client";
 import { useWorkspace } from "@/providers/workspace";
