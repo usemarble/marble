@@ -189,15 +189,20 @@ export function InviteSection({ invitations }: InviteSectionProps) {
               </div>
 
               <DropdownMenu>
-                <DropdownMenuTrigger render={<Button
-                    disabled={
-                      resendInviteMutation.isPending ||
-                      cancelInviteMutation.isPending
-                    }
-                    size="sm"
-                    variant="ghost"
-                  />}>
-                  <DotsThreeVerticalIcon className="size-4" />
+                <DropdownMenuTrigger
+                  render={
+                    <Button
+                      aria-label="Invitation actions"
+                      disabled={
+                        resendInviteMutation.isPending ||
+                        cancelInviteMutation.isPending
+                      }
+                      size="sm"
+                      variant="ghost"
+                    />
+                  }
+                >
+                  <DotsThreeVerticalIcon aria-hidden="true" className="size-4" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem

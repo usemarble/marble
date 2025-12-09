@@ -134,7 +134,14 @@ export const TagSelector = ({
         <FieldInfo text="Your articles can have multiple tags, we will use this to determine related articles." />
       </div>
       <Popover onOpenChange={setIsOpen} open={isOpen}>
-        <PopoverTrigger render={<div className="relative h-auto min-h-9 w-full cursor-pointer rounded-md border bg-editor-field px-3 py-2 text-sm" />}>
+        <PopoverTrigger
+          render={
+            <div
+              id="tags"
+              className="relative h-auto min-h-9 w-full cursor-pointer rounded-md border bg-editor-field px-3 py-2 text-sm text-left"
+            />
+          }
+        >
           <div className="flex items-center justify-between gap-2">
             <ul className="flex flex-wrap gap-1">
               {selected.length === 0 && (
@@ -149,16 +156,25 @@ export const TagSelector = ({
                     variant="outline"
                   >
                     {item.name}
-                    <button
-                      className="ml-1 h-auto p-0 hover:bg-transparent"
+                    <span
+                      role="button"
+                      tabIndex={0}
+                      className="ml-1 h-auto p-0 hover:bg-transparent cursor-pointer"
+                      aria-label={`Remove tag ${item.name}`}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleRemoveTag(item.id);
                       }}
-                      type="button"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleRemoveTag(item.id);
+                        }
+                      }}
                     >
-                      <XIcon className="size-2.5 p-0" />
-                    </button>
+                      <XIcon aria-hidden="true" className="size-2.5 p-0" />
+                    </span>
                   </Badge>
                 </li>
               ))}
