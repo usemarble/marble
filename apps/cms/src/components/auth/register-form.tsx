@@ -96,7 +96,7 @@ export function RegisterForm() {
         callbackURL,
       });
     } catch (_error) {
-      return toast("Your sign in request failed. Please try again.");
+      return toast.error("Your sign in request failed. Please try again.");
     } finally {
       setLastUsedAuthMethod(provider);
       if (provider === "google") {

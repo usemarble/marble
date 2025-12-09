@@ -63,7 +63,7 @@ export function LoginForm() {
         }
       );
     } catch (_error) {
-      return toast("Login failed. Please try again.");
+      return toast.error("Login failed. Please try again.");
     } finally {
       setIsCredentialsLoading(false);
     }
@@ -82,7 +82,7 @@ export function LoginForm() {
         callbackURL,
       });
     } catch (_error) {
-      return toast("Sign in failed. Please try again.");
+      return toast.error("Sign in failed. Please try again.");
     } finally {
       setLastUsedAuthMethod(provider);
       if (provider === "google") {
