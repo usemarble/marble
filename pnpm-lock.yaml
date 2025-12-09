@@ -11,13 +11,6 @@ overrides:
 importers:
 
   .:
-    dependencies:
-      '@polar-sh/better-auth':
-        specifier: ^1.6.0
-        version: 1.6.0(@polar-sh/sdk@0.41.5)(@stripe/react-stripe-js@4.0.2(@stripe/stripe-js@7.9.0)(react-dom@19.2.0(react@19.2.1))(react@19.2.1))(@stripe/stripe-js@7.9.0)(@types/react-dom@19.0.2(@types/react@19.0.2))(@types/react@19.0.2)(better-auth@1.4.6(next@16.0.8(@opentelemetry/api@1.9.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.1))(react@19.2.1)(sass@1.94.2))(react-dom@19.2.0(react@19.2.1))(react@19.2.1))(react-dom@19.2.0(react@19.2.1))(react-is@18.3.1)(react@19.2.1)(redux@5.0.1)(zod@4.1.12)
-      better-auth:
-        specifier: ^1.4.6
-        version: 1.4.6(next@16.0.8(@opentelemetry/api@1.9.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.1))(react@19.2.1)(sass@1.94.2))(react-dom@19.2.0(react@19.2.1))(react@19.2.1)
     devDependencies:
       '@biomejs/biome':
         specifier: 2.3.2
@@ -136,7 +129,7 @@ importers:
         version: 2.1.10(react-dom@19.2.0(react@19.2.1))(react@19.2.1)
       '@polar-sh/better-auth':
         specifier: ^1.6.0
-        version: 1.6.0(@polar-sh/sdk@0.41.5)(@stripe/react-stripe-js@4.0.2(@stripe/stripe-js@7.9.0)(react-dom@19.2.0(react@19.2.1))(react@19.2.1))(@stripe/stripe-js@7.9.0)(@types/react-dom@19.0.2(@types/react@19.0.2))(@types/react@19.0.2)(better-auth@1.4.6(next@16.0.8(@opentelemetry/api@1.9.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.1))(react@19.2.1)(sass@1.94.2))(react-dom@19.2.0(react@19.2.1))(react@19.2.1))(react-dom@19.2.0(react@19.2.1))(react-is@18.3.1)(react@19.2.1)(redux@5.0.1)(zod@4.1.12)
+        version: 1.6.0(@polar-sh/sdk@0.41.5)(@stripe/react-stripe-js@4.0.2(@stripe/stripe-js@7.9.0)(react-dom@19.2.0(react@19.2.1))(react@19.2.1))(@stripe/stripe-js@7.9.0)(@types/react-dom@19.0.2(@types/react@19.0.2))(@types/react@19.0.2)(better-auth@1.4.6(next@16.0.8(@opentelemetry/api@1.9.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.1))(react@19.2.1)(sass@1.94.2))(react-dom@19.2.0(react@19.2.1))(react@19.2.1))(react-dom@19.2.0(react@19.2.1))(react-is@18.3.1)(react@19.2.1)(redux@5.0.1)(zod@3.25.76)
       '@polar-sh/sdk':
         specifier: ^0.41.5
         version: 0.41.5
@@ -171,7 +164,7 @@ importers:
         specifier: ^1.12.0
         version: 1.12.0
       better-auth:
-        specifier: 1.4.0
+        specifier: 1.4.6
         version: 1.4.6(next@16.0.8(@opentelemetry/api@1.9.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.1))(react@19.2.1)(sass@1.94.2))(react-dom@19.2.0(react@19.2.1))(react@19.2.1)
       canvas-confetti:
         specifier: ^1.9.3
@@ -259,7 +252,7 @@ importers:
         version: 1.1.2(@types/react-dom@19.0.2(@types/react@19.0.2))(@types/react@19.0.2)(react-dom@19.2.0(react@19.2.1))(react@19.2.1)
       zod:
         specifier: ^3.25.76
-        version: 4.1.12
+        version: 3.25.76
     devDependencies:
       '@marble/tsconfig':
         specifier: workspace:*
@@ -9350,19 +9343,20 @@ snapshots:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.28.5
 
-  '@better-auth/core@1.4.6(@better-auth/utils@0.3.0)(better-call@1.1.5(zod@4.1.12))(jose@6.1.2)(kysely@0.28.5)(nanostores@1.1.0)':
+  '@better-auth/core@1.4.6(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.18)(better-call@1.1.5(zod@4.1.12))(jose@6.1.2)(kysely@0.28.5)(nanostores@1.1.0)':
     dependencies:
       '@better-auth/utils': 0.3.0
+      '@better-fetch/fetch': 1.1.18
       '@standard-schema/spec': 1.0.0
-      better-call: 1.1.5(zod@4.1.12)
+      better-call: 1.1.5(zod@3.25.76)
       jose: 6.1.2
       kysely: 0.28.5
       nanostores: 1.1.0
       zod: 4.1.12
 
-  '@better-auth/telemetry@1.4.6(@better-auth/core@1.4.6(@better-auth/utils@0.3.0)(better-call@1.1.5(zod@4.1.12))(jose@6.1.2)(kysely@0.28.5)(nanostores@1.1.0))':
+  '@better-auth/telemetry@1.4.6(@better-auth/core@1.4.6(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.18)(better-call@1.1.5(zod@4.1.12))(jose@6.1.2)(kysely@0.28.5)(nanostores@1.1.0))':
     dependencies:
-      '@better-auth/core': 1.4.6(@better-auth/utils@0.3.0)(better-call@1.1.5(zod@4.1.12))(jose@6.1.2)(kysely@0.28.5)(nanostores@1.1.0)
+      '@better-auth/core': 1.4.6(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.18)(better-call@1.1.5(zod@4.1.12))(jose@6.1.2)(kysely@0.28.5)(nanostores@1.1.0)
       '@better-auth/utils': 0.3.0
       '@better-fetch/fetch': 1.1.18
 
@@ -10306,12 +10300,12 @@ snapshots:
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
-  '@polar-sh/better-auth@1.6.0(@polar-sh/sdk@0.41.5)(@stripe/react-stripe-js@4.0.2(@stripe/stripe-js@7.9.0)(react-dom@19.2.0(react@19.2.1))(react@19.2.1))(@stripe/stripe-js@7.9.0)(@types/react-dom@19.0.2(@types/react@19.0.2))(@types/react@19.0.2)(better-auth@1.4.6(next@16.0.8(@opentelemetry/api@1.9.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.1))(react@19.2.1)(sass@1.94.2))(react-dom@19.2.0(react@19.2.1))(react@19.2.1))(react-dom@19.2.0(react@19.2.1))(react-is@18.3.1)(react@19.2.1)(redux@5.0.1)(zod@4.1.12)':
+  '@polar-sh/better-auth@1.6.0(@polar-sh/sdk@0.41.5)(@stripe/react-stripe-js@4.0.2(@stripe/stripe-js@7.9.0)(react-dom@19.2.0(react@19.2.1))(react@19.2.1))(@stripe/stripe-js@7.9.0)(@types/react-dom@19.0.2(@types/react@19.0.2))(@types/react@19.0.2)(better-auth@1.4.6(next@16.0.8(@opentelemetry/api@1.9.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.1))(react@19.2.1)(sass@1.94.2))(react-dom@19.2.0(react@19.2.1))(react@19.2.1))(react-dom@19.2.0(react@19.2.1))(react-is@18.3.1)(react@19.2.1)(redux@5.0.1)(zod@3.25.76)':
     dependencies:
       '@polar-sh/checkout': 0.1.14(@stripe/react-stripe-js@4.0.2(@stripe/stripe-js@7.9.0)(react-dom@19.2.0(react@19.2.1))(react@19.2.1))(@stripe/stripe-js@7.9.0)(@types/react-dom@19.0.2(@types/react@19.0.2))(@types/react@19.0.2)(react-dom@19.2.0(react@19.2.1))(react-is@18.3.1)(react@19.2.1)(redux@5.0.1)
       '@polar-sh/sdk': 0.41.5
       better-auth: 1.4.6(next@16.0.8(@opentelemetry/api@1.9.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.1))(react@19.2.1)(sass@1.94.2))(react-dom@19.2.0(react@19.2.1))(react@19.2.1)
-      zod: 4.1.12
+      zod: 3.25.76
     transitivePeerDependencies:
       - '@stripe/react-stripe-js'
       - '@stripe/stripe-js'
@@ -14220,13 +14214,13 @@ snapshots:
 
   better-auth@1.4.6(next@16.0.8(@opentelemetry/api@1.9.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.1))(react@19.2.1)(sass@1.94.2))(react-dom@19.2.0(react@19.2.1))(react@19.2.1):
     dependencies:
-      '@better-auth/core': 1.4.6(@better-auth/utils@0.3.0)(better-call@1.1.5(zod@4.1.12))(jose@6.1.2)(kysely@0.28.5)(nanostores@1.1.0)
-      '@better-auth/telemetry': 1.4.6(@better-auth/core@1.4.6(@better-auth/utils@0.3.0)(better-call@1.1.5(zod@4.1.12))(jose@6.1.2)(kysely@0.28.5)(nanostores@1.1.0))
+      '@better-auth/core': 1.4.6(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.18)(better-call@1.1.5(zod@4.1.12))(jose@6.1.2)(kysely@0.28.5)(nanostores@1.1.0)
+      '@better-auth/telemetry': 1.4.6(@better-auth/core@1.4.6(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.18)(better-call@1.1.5(zod@4.1.12))(jose@6.1.2)(kysely@0.28.5)(nanostores@1.1.0))
       '@better-auth/utils': 0.3.0
       '@better-fetch/fetch': 1.1.18
       '@noble/ciphers': 2.0.1
       '@noble/hashes': 2.0.1
-      better-call: 1.1.5(zod@4.1.12)
+      better-call: 1.1.5(zod@3.25.76)
       defu: 6.1.4
       jose: 6.1.2
       kysely: 0.28.5
@@ -14238,14 +14232,14 @@ snapshots:
       react: 19.2.1
       react-dom: 19.2.0(react@19.2.1)
 
-  better-call@1.1.5(zod@4.1.12):
+  better-call@1.1.5(zod@3.25.76):
     dependencies:
       '@better-auth/utils': 0.3.0
       '@better-fetch/fetch': 1.1.18
       rou3: 0.7.10
       set-cookie-parser: 2.7.1
     optionalDependencies:
-      zod: 4.1.12
+      zod: 3.25.76
 
   bindings@1.5.0:
     dependencies:
