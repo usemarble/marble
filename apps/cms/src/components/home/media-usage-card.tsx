@@ -8,6 +8,7 @@ import {
   FileIcon,
   FileImageIcon,
   FileVideoIcon,
+  XIcon,
 } from "@phosphor-icons/react";
 import { formatDistanceToNow } from "date-fns";
 import { AnimatePresence, motion } from "motion/react";
@@ -128,21 +129,7 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
                       }}
                       type="button"
                     >
-                      <motion.svg
-                        aria-labelledby={`title-${selectedFile.id}`}
-                        className="size-4"
-                        fill="#000000"
-                        height="32"
-                        layoutId={`icon-${selectedFile.id}`}
-                        viewBox="0 0 256 256"
-                        width="32"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <title id={`title-${selectedFile.id}`}>
-                          Close icon
-                        </title>
-                        <motion.path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z" />
-                      </motion.svg>
+                      <XIcon className="size-4" />
                     </motion.button>
                   </div>
 
@@ -213,14 +200,14 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
           </div>
         ) : (
           <ul className="flex flex-col gap-2.5">
-            {recentUploads.map((upload) => {
-              const Icon = getMediaTypeIcon(upload.type);
+            {recentUploads.map((file) => {
+              const Icon = getMediaTypeIcon(file.type);
               return (
-                <motion.li key={upload.id} layoutId={`file-${upload.id}`}>
+                <motion.li key={file.id} layoutId={`file-${file.id}`}>
                   <button
                     className="flex w-full cursor-pointer rounded-[18px] border-transparent bg-background p-2.5 shadow-none shadow-s outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
                     onClick={() => {
-                      setSelectedFile(upload);
+                      setSelectedFile(file);
                     }}
                     type="button"
                   >
@@ -228,7 +215,7 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
                       <div className="flex items-center gap-4">
                         <motion.div
                           className="grid size-20 shrink-0 place-items-center rounded-[8px] border border-dashed bg-[length:8px_8px] bg-[linear-gradient(45deg,transparent_25%,rgba(0,0,0,0.05)_25%,rgba(0,0,0,0.05)_50%,transparent_50%,transparent_75%,rgba(0,0,0,0.05)_75%,rgba(0,0,0,0.05))] dark:bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.05)_25%,rgba(255,255,255,0.05)_50%,transparent_50%,transparent_75%,rgba(255,255,255,0.05)_75%,rgba(255,255,255,0.05))]"
-                          layoutId={`image-${upload.id}`}
+                          layoutId={`image-${file.id}`}
                         >
                           <Icon className="size-6 text-primary" />
                         </motion.div>
@@ -236,22 +223,22 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
                           <div>
                             <motion.p
                               className="line-clamp-1 max-w-[200px] font-medium text-sm"
-                              layoutId={`name-${upload.id}`}
+                              layoutId={`name-${file.id}`}
                             >
-                              {upload.name}
+                              {file.name}
                             </motion.p>
                             <motion.p
                               className="text-muted-foreground text-xs"
-                              layoutId={`size-${upload.id}`}
+                              layoutId={`size-${file.id}`}
                             >
-                              {formatBytes(upload.size)}
+                              {formatBytes(file.size)}
                             </motion.p>
                           </div>
                           <motion.p
                             className="mt-auto text-muted-foreground text-xs"
-                            layoutId={`date-${upload.id}`}
+                            layoutId={`date-${file.id}`}
                           >
-                            {formatDistanceToNow(new Date(upload.createdAt), {
+                            {formatDistanceToNow(new Date(file.createdAt), {
                               addSuffix: true,
                             })}
                           </motion.p>
@@ -259,7 +246,7 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
                       </div>
                       <motion.div
                         className="flex size-8 items-center justify-center rounded-full bg-sidebar hover:bg-primary/10 hover:text-primary dark:bg-accent/50 dark:hover:bg-sidebar-accent dark:hover:text-accent-foreground"
-                        layoutId={`button-${upload.id}`}
+                        layoutId={`button-${file.id}`}
                       >
                         <ArrowsOutSimpleIcon size={16} />
                       </motion.div>
