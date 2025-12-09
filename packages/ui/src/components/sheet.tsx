@@ -1,150 +1,145 @@
-"use client";
+"use client"
 
-import { cn } from "@marble/ui/lib/utils";
-import * as SheetPrimitive from "@radix-ui/react-dialog";
-import { XIcon } from "lucide-react";
-import type * as React from "react";
+import * as React from "react"
+import { Dialog as BaseSheet } from "@base-ui-components/react/dialog"
+import { XIcon } from "lucide-react"
 
-function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
-  return <SheetPrimitive.Root data-slot="sheet" {...props} />;
+import { cn } from "@marble/ui/lib/utils"
+
+const Sheet = (props: React.ComponentProps<typeof BaseSheet.Root>) => {
+  return <BaseSheet.Root data-slot="sheet" {...props} />
 }
 
-function SheetTrigger({
-  ...props
-}: React.ComponentProps<typeof SheetPrimitive.Trigger>) {
-  return <SheetPrimitive.Trigger data-slot="sheet-trigger" {...props} />;
+const SheetTrigger = (props: React.ComponentProps<typeof BaseSheet.Trigger>) => {
+  return <BaseSheet.Trigger data-slot="sheet-trigger" {...props} />
 }
 
-function SheetClose({
-  ...props
-}: React.ComponentProps<typeof SheetPrimitive.Close>) {
-  return <SheetPrimitive.Close data-slot="sheet-close" {...props} />;
+const SheetClose = (props: React.ComponentProps<typeof BaseSheet.Close>) => {
+  return <BaseSheet.Close data-slot="sheet-close" {...props} />
 }
 
-function SheetPortal({
-  ...props
-}: React.ComponentProps<typeof SheetPrimitive.Portal>) {
-  return <SheetPrimitive.Portal data-slot="sheet-portal" {...props} />;
+const SheetPortal = (props: React.ComponentProps<typeof BaseSheet.Portal>) => {
+  return <BaseSheet.Portal data-slot="sheet-portal" {...props} />
 }
 
-function SheetOverlay({
-  className,
-  ...props
-}: React.ComponentProps<typeof SheetPrimitive.Overlay>) {
+const SheetOverlay = (props: React.ComponentProps<typeof BaseSheet.Backdrop>) => {
+  const { className, ...rest } = props
+
   return (
-    <SheetPrimitive.Overlay
+    <BaseSheet.Backdrop
+      data-slot="sheet-overlay"
       className={cn(
-        "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50 backdrop-blur-sm data-[state=closed]:animate-out data-[state=open]:animate-in",
+        "fixed inset-0 z-50 bg-black/50 backdrop-blur-sm transition-all duration-200 [&[data-ending-style]]:opacity-0 [&[data-starting-style]]:opacity-0",
         className
       )}
-      data-slot="sheet-overlay"
-      {...props}
+      {...rest}
     />
-  );
+  )
 }
 
-function SheetContent({
-  className,
-  children,
-  showCloseButton = false,
-  side = "right",
-  ...props
-}: React.ComponentProps<typeof SheetPrimitive.Content> & {
-  showCloseButton?: boolean;
-  side?: "top" | "right" | "bottom" | "left";
-}) {
+type SheetContentProps = React.ComponentProps<typeof BaseSheet.Popup> & {
+  showCloseButton?: boolean
+  side?: "top" | "right" | "bottom" | "left"
+}
+
+const SheetContent = (props: SheetContentProps) => {
+  const { className, children, showCloseButton = false, side = "right", ...rest } = props
+
   return (
     <SheetPortal>
       <SheetOverlay />
-      <SheetPrimitive.Content
+      <BaseSheet.Popup
+        data-slot="sheet-content"
         className={cn(
-          "fixed z-50 flex flex-col gap-4 rounded-3xl bg-background shadow-lg transition ease-in-out data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:duration-300 data-[state=open]:duration-500",
+          "bg-background text-foreground fixed z-50 flex flex-col gap-4 rounded-3xl shadow-lg outline-hidden transition ease-in-out data-[closed]:duration-300 data-[open]:duration-500",
           "top-[15px] bottom-[15px]",
           side === "right" &&
-            "data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right right-[15px] w-3/4 sm:max-w-md",
+            "right-[15px] w-3/4 sm:max-w-md [&[data-ending-style]]:translate-x-full [&[data-starting-style]]:translate-x-full",
           side === "left" &&
-            "data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left left-[15px] w-3/4 sm:max-w-md",
+            "left-[15px] w-3/4 sm:max-w-md [&[data-ending-style]]:-translate-x-full [&[data-starting-style]]:-translate-x-full",
           side === "top" &&
-            "data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top top-[15px] right-[15px] bottom-auto left-[15px] h-auto",
+            "top-[15px] right-[15px] bottom-auto left-[15px] h-auto [&[data-ending-style]]:-translate-y-full [&[data-starting-style]]:-translate-y-full",
           side === "bottom" &&
-            "data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom top-auto right-[15px] bottom-[15px] left-[15px] h-auto",
+            "top-auto right-[15px] bottom-[15px] left-[15px] h-auto [&[data-ending-style]]:translate-y-full [&[data-starting-style]]:translate-y-full",
           className
         )}
-        data-slot="sheet-content"
-        {...props}
+        {...rest}
       >
         {children}
         {showCloseButton && <SheetX />}
-      </SheetPrimitive.Content>
+      </BaseSheet.Popup>
     </SheetPortal>
-  );
+  )
 }
 
-function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
+const SheetHeader = (props: React.ComponentProps<"div">) => {
+  const { className, ...rest } = props
+
   return (
     <div
-      className={cn("flex flex-col gap-1.5 p-4", className)}
       data-slot="sheet-header"
-      {...props}
+      className={cn("flex flex-col gap-1.5 p-4", className)}
+      {...rest}
     />
-  );
+  )
 }
 
-function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
+const SheetFooter = (props: React.ComponentProps<"div">) => {
+  const { className, ...rest } = props
+
   return (
     <div
-      className={cn("mt-auto flex flex-col gap-2 p-4", className)}
       data-slot="sheet-footer"
-      {...props}
+      className={cn("mt-auto flex flex-col gap-2 p-4", className)}
+      {...rest}
     />
-  );
+  )
 }
 
-function SheetTitle({
-  className,
-  ...props
-}: React.ComponentProps<typeof SheetPrimitive.Title>) {
+const SheetTitle = (props: React.ComponentProps<typeof BaseSheet.Title>) => {
+  const { className, ...rest } = props
+
   return (
-    <SheetPrimitive.Title
-      className={cn("font-semibold text-foreground", className)}
+    <BaseSheet.Title
       data-slot="sheet-title"
-      {...props}
+      className={cn("font-semibold text-foreground", className)}
+      {...rest}
     />
-  );
+  )
 }
 
-function SheetDescription({
-  className,
-  ...props
-}: React.ComponentProps<typeof SheetPrimitive.Description>) {
+const SheetDescription = (props: React.ComponentProps<typeof BaseSheet.Description>) => {
+  const { className, ...rest } = props
+
   return (
-    <SheetPrimitive.Description
-      className={cn("text-muted-foreground text-sm", className)}
+    <BaseSheet.Description
       data-slot="sheet-description"
-      {...props}
+      className={cn("text-muted-foreground text-sm", className)}
+      {...rest}
     />
-  );
+  )
 }
 
-function SheetX({
-  className,
-  icon,
-  ...props
-}: React.ComponentProps<typeof SheetPrimitive.Close> & {
-  icon?: React.ReactNode;
-}) {
+type SheetXProps = React.ComponentProps<typeof BaseSheet.Close> & {
+  icon?: React.ReactNode
+}
+
+const SheetX = (props: SheetXProps) => {
+  const { className, icon, ...rest } = props
+
   return (
-    <SheetPrimitive.Close
+    <BaseSheet.Close
       className={cn(
-        "rounded-xs opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary",
+        "ring-offset-background focus:ring-ring absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-[3px] focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className
       )}
-      {...props}
+      data-slot="sheet-close"
+      {...rest}
     >
       {icon || <XIcon className="size-4" />}
       <span className="sr-only">Close</span>
-    </SheetPrimitive.Close>
-  );
+    </BaseSheet.Close>
+  )
 }
 
 export {
@@ -157,4 +152,4 @@ export {
   SheetTitle,
   SheetDescription,
   SheetX,
-};
+}

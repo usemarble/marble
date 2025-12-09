@@ -1,9 +1,10 @@
 "use client";
 
+import { mergeProps } from "@base-ui-components/react";
+import { useRender } from "@base-ui-components/react/use-render";
 import { Button } from "@marble/ui/components/button";
 import { cn } from "@marble/ui/lib/utils";
 import { CropIcon, RotateCcwIcon } from "lucide-react";
-import { Slot } from "radix-ui";
 import {
   type ComponentProps,
   type CSSProperties,
@@ -273,12 +274,11 @@ export const ImageCropContent = ({
   );
 };
 
-export type ImageCropApplyProps = ComponentProps<"button"> & {
-  asChild?: boolean;
-};
+export type ImageCropApplyProps = ComponentProps<"button"> &
+  useRender.ComponentProps<"button">;
 
 export const ImageCropApply = ({
-  asChild = false,
+  render,
   children,
   onClick,
   ...props
@@ -290,12 +290,12 @@ export const ImageCropApply = ({
     onClick?.(e);
   };
 
-  if (asChild) {
-    return (
-      <Slot.Root onClick={handleClick} {...props}>
-        {children}
-      </Slot.Root>
-    );
+  if (render) {
+    const element = useRender({
+      render,
+      props: mergeProps<"button">({ onClick: handleClick, ...props }, { children }),
+    });
+    return element;
   }
 
   return (
@@ -305,12 +305,11 @@ export const ImageCropApply = ({
   );
 };
 
-export type ImageCropResetProps = ComponentProps<"button"> & {
-  asChild?: boolean;
-};
+export type ImageCropResetProps = ComponentProps<"button"> &
+  useRender.ComponentProps<"button">;
 
 export const ImageCropReset = ({
-  asChild = false,
+  render,
   children,
   onClick,
   ...props
@@ -322,12 +321,12 @@ export const ImageCropReset = ({
     onClick?.(e);
   };
 
-  if (asChild) {
-    return (
-      <Slot.Root onClick={handleClick} {...props}>
-        {children}
-      </Slot.Root>
-    );
+  if (render) {
+    const element = useRender({
+      render,
+      props: mergeProps<"button">({ onClick: handleClick, ...props }, { children }),
+    });
+    return element;
   }
 
   return (

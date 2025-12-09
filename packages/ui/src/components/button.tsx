@@ -1,7 +1,10 @@
-import { cn } from "@marble/ui/lib/utils";
-import { Slot } from "@radix-ui/react-slot";
-import { cva, type VariantProps } from "class-variance-authority";
-import type * as React from "react";
+"use client"
+
+import { mergeProps } from "@base-ui-components/react"
+import { useRender } from "@base-ui-components/react/use-render"
+import { cva, type VariantProps } from "class-variance-authority"
+
+import { cn } from "@marble/ui/lib/utils"
 
 const buttonVariants = cva(
   "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl corner-squircle supports-[corner-shape:squircle]:rounded-lg font-medium text-sm outline-none transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 active:scale-97 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0 cursor-pointer disabled:cursor-not-allowed",
@@ -32,27 +35,26 @@ const buttonVariants = cva(
       size: "default",
     },
   }
-);
+)
 
-function Button({
-  className,
-  variant,
-  size,
-  asChild = false,
-  ...props
-}: React.ComponentProps<"button"> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean;
-  }) {
-  const Comp = asChild ? Slot : "button";
+type ButtonProps = VariantProps<typeof buttonVariants> &
+  React.ButtonHTMLAttributes<HTMLButtonElement> &
+  useRender.ComponentProps<"button">
 
-  return (
-    <Comp
-      className={cn(buttonVariants({ variant, size, className }))}
-      data-slot="button"
-      {...props}
-    />
-  );
+const Button = (props: ButtonProps) => {
+  const { className, variant, size, render = <button />, ...rest } = props
+
+  const defaultProps = {
+    "data-slot": "button",
+    className: cn(buttonVariants({ variant, size, className })),
+  } as const
+
+  const element = useRender({
+    render,
+    props: mergeProps<"button">(defaultProps, rest),
+  })
+
+  return element
 }
 
-export { Button, buttonVariants };
+export { Button, buttonVariants }

@@ -1,7 +1,10 @@
-import { cn } from "@marble/ui/lib/utils";
-import { Slot } from "@radix-ui/react-slot";
-import { cva, type VariantProps } from "class-variance-authority";
-import type * as React from "react";
+"use client"
+
+import { mergeProps } from "@base-ui-components/react"
+import { useRender } from "@base-ui-components/react/use-render"
+import { cva, type VariantProps } from "class-variance-authority"
+
+import { cn } from "@marble/ui/lib/utils"
 
 const badgeVariants = cva(
   "inline-flex w-fit shrink-0 items-center justify-center gap-1 overflow-hidden whitespace-nowrap rounded-md border px-2 py-0.5 font-medium text-xs transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&>svg]:pointer-events-none [&>svg]:size-3",
@@ -34,24 +37,26 @@ const badgeVariants = cva(
       variant: "default",
     },
   }
-);
+)
 
-function Badge({
-  className,
-  variant,
-  asChild = false,
-  ...props
-}: React.ComponentProps<"span"> &
-  VariantProps<typeof badgeVariants> & { asChild?: boolean }) {
-  const Comp = asChild ? Slot : "span";
+type BadgeProps = VariantProps<typeof badgeVariants> &
+  React.HTMLAttributes<HTMLSpanElement> &
+  useRender.ComponentProps<"span">
 
-  return (
-    <Comp
-      className={cn(badgeVariants({ variant }), className)}
-      data-slot="badge"
-      {...props}
-    />
-  );
+const Badge = (props: BadgeProps) => {
+  const { className, variant, render = <span />, ...rest } = props
+
+  const defaultProps = {
+    "data-slot": "badge",
+    className: cn(badgeVariants({ variant }), className),
+  } as const
+
+  const element = useRender({
+    render,
+    props: mergeProps<"span">(defaultProps, rest),
+  })
+
+  return element
 }
 
-export { Badge, badgeVariants };
+export { Badge, badgeVariants }

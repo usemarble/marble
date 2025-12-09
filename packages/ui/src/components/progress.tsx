@@ -1,31 +1,45 @@
 "use client"
 
 import * as React from "react"
-import * as ProgressPrimitive from "@radix-ui/react-progress"
+import { Progress as BaseProgress } from "@base-ui-components/react/progress"
 
 import { cn } from "@marble/ui/lib/utils"
 
-function Progress({
-  className,
-  value,
-  ...props
-}: React.ComponentProps<typeof ProgressPrimitive.Root>) {
+const Progress = (props: React.ComponentProps<typeof BaseProgress.Root>) => {
+  const { className, children, ...rest } = props
+
   return (
-    <ProgressPrimitive.Root
-      data-slot="progress"
-      className={cn(
-        "bg-primary/20 relative h-2 w-full overflow-hidden rounded-full",
-        className
-      )}
-      {...props}
-    >
-      <ProgressPrimitive.Indicator
-        data-slot="progress-indicator"
-        className="bg-primary h-full w-full flex-1 transition-all"
-        style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
-      />
-    </ProgressPrimitive.Root>
+    <BaseProgress.Root data-slot="progress" className="relative" {...rest}>
+      <BaseProgress.Track
+        data-slot="progress-track"
+        className={cn(
+          "bg-primary/20 relative h-2 w-full overflow-hidden rounded-full",
+          className
+        )}
+      >
+        <BaseProgress.Indicator
+          data-slot="progress-indicator"
+          className="bg-primary h-full w-full flex-1 transition-all"
+        />
+      </BaseProgress.Track>
+      {children}
+    </BaseProgress.Root>
   )
 }
 
-export { Progress }
+const ProgressValue = (props: React.ComponentProps<typeof BaseProgress.Value>) => {
+  const { className, ...rest } = props
+
+  return (
+    <BaseProgress.Value
+      data-slot="progress-value"
+      className={cn(
+        "text-foreground mt-2 flex justify-end text-sm font-medium",
+        className
+      )}
+      {...rest}
+    />
+  )
+}
+
+export { Progress, ProgressValue }
