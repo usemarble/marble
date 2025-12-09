@@ -1,6 +1,6 @@
 "use client";
 
-import { Toaster } from "@marble/ui/components/sonner";
+import { ToastProvider } from "@marble/ui/components/toast";
 import { TooltipProvider } from "@marble/ui/components/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
@@ -20,10 +20,11 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider attribute="class" disableTransitionOnChange enableSystem>
-        <TooltipProvider>
-          <NuqsAdapter>{children}</NuqsAdapter>
-          <Toaster position="top-center" />
-        </TooltipProvider>
+        <ToastProvider>
+          <TooltipProvider>
+            <NuqsAdapter>{children}</NuqsAdapter>
+          </TooltipProvider>
+        </ToastProvider>
       </ThemeProvider>
       <ReactQueryDevtools buttonPosition="top-right" initialIsOpen={false} />
     </QueryClientProvider>

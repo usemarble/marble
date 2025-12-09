@@ -1,4 +1,4 @@
-import { toast } from "@marble/ui/components/sonner";
+import { toast } from "@marble/ui/hooks/use-toast";
 import { polarClient } from "@polar-sh/better-auth";
 import {
   emailOTPClient,

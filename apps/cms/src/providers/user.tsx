@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import type React from "react";
 import { createContext, useContext, useState } from "react";
-import { toast } from "sonner";
+import { toast } from "@marble/ui/hooks/use-toast";
 import { authClient, useSession } from "@/lib/auth/client";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { UserContextType, UserProfile } from "@/types/user";

@@ -10,7 +10,7 @@ import {
   useEffect,
   useState,
 } from "react";
-import { toast } from "sonner";
+import { toast } from "@marble/ui/hooks/use-toast";
 import { organization } from "@/lib/auth/client";
 import {
   WORKSPACE_SCOPED_PREFIXES,
