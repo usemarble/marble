@@ -2,7 +2,7 @@
 
 // biome-ignore lint/style/useImportType: buttonVariants needed for typeof in type definition
 import { Button, buttonVariants } from "@marble/ui/components/button";
-import { toast } from "@marble/ui/components/sonner";
+import { toast } from "@marble/ui/hooks/use-toast";
 import { cn } from "@marble/ui/lib/utils";
 import { CheckIcon, CopyIcon } from "@phosphor-icons/react";
 import type { VariantProps } from "class-variance-authority";

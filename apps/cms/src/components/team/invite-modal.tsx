@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@marble/ui/components/select";
-import { toast } from "@marble/ui/components/sonner";
+import { toast } from "@marble/ui/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";

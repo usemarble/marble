@@ -19,7 +19,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@marble/ui/components/sheet";
-import { toast } from "@marble/ui/components/sonner";
+import { toast } from "@marble/ui/hooks/use-toast";
 import { CalendarIcon } from "@phosphor-icons/react";
 import { useMemo, useState } from "react";
 import { organization } from "@/lib/auth/client";

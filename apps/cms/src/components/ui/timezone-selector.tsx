@@ -144,33 +144,31 @@ export function TimezoneSelector({
 
   return (
     <Popover onOpenChange={setIsOpen} open={isOpen}>
-      <PopoverTrigger asChild>
-        <Button
+      <PopoverTrigger render={<Button
           className="w-full items-center justify-between gap-2 shadow-none"
           disabled={disabled}
           onClick={() => !disabled && setIsOpen(!isOpen)}
           type="button"
           variant="outline"
+        />}>
+        <div
+          className={cn(
+            "flex flex-col items-start",
+            !selectedTimezone && "text-muted-foreground"
+          )}
         >
-          <div
-            className={cn(
-              "flex flex-col items-start",
-              !selectedTimezone && "text-muted-foreground"
-            )}
-          >
-            {selectedTimezone ? (
-              <div className="flex gap-2">
-                <span>{selectedTimezone.label}</span>
-                <Badge className="bg-muted font-light" variant="outline">
-                  {selectedTimezone.currentTime}
-                </Badge>
-              </div>
-            ) : (
-              <span>{placeholder}</span>
-            )}
-          </div>
-          <CaretUpDownIcon className="size-4 shrink-0 opacity-50" />
-        </Button>
+          {selectedTimezone ? (
+            <div className="flex gap-2">
+              <span>{selectedTimezone.label}</span>
+              <Badge className="bg-muted font-light" variant="outline">
+                {selectedTimezone.currentTime}
+              </Badge>
+            </div>
+          ) : (
+            <span>{placeholder}</span>
+          )}
+        </div>
+        <CaretUpDownIcon className="size-4 shrink-0 opacity-50" />
       </PopoverTrigger>
       <PopoverContent align="center" className="w-[370px] p-0">
         <Command shouldFilter={false}>

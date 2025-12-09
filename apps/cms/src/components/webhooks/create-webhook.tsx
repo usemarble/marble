@@ -21,7 +21,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@marble/ui/components/sheet";
-import { toast } from "@marble/ui/components/sonner";
+import { toast } from "@marble/ui/hooks/use-toast";
 import { BracketsCurlyIcon, PlusIcon } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
@@ -169,12 +169,12 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
 
   return (
     <Sheet onOpenChange={setIsOpen} open={isOpen}>
-      <SheetTrigger asChild>
-        {children || (
-          <Button>
+      <SheetTrigger render={children || <Button />}>
+        {children ? undefined : (
+          <>
             <PlusIcon className="mr-2 size-4" />
             New Webhook
-          </Button>
+          </>
         )}
       </SheetTrigger>
       <SheetContent className="overflow-y-auto">

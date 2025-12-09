@@ -14,7 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
-import { toast } from "@marble/ui/components/sonner";
+import { toast } from "@marble/ui/hooks/use-toast";
 import {
   CopyIcon,
   DotsThreeVerticalIcon,
@@ -67,10 +67,8 @@ export function WebhookCard({
             </Badge>
           </div>
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button size="icon" variant="ghost">
-                <DotsThreeVerticalIcon size={16} />
-              </Button>
+            <DropdownMenuTrigger render={<Button size="icon" variant="ghost" />}>
+              <DotsThreeVerticalIcon size={16} />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem

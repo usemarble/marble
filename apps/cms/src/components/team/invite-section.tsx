@@ -15,7 +15,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
-import { toast } from "@marble/ui/components/sonner";
+import { toast } from "@marble/ui/hooks/use-toast";
 import {
   ArrowsClockwiseIcon,
   DotsThreeVerticalIcon,
@@ -189,17 +189,15 @@ export function InviteSection({ invitations }: InviteSectionProps) {
               </div>
 
               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
+                <DropdownMenuTrigger render={<Button
                     disabled={
                       resendInviteMutation.isPending ||
                       cancelInviteMutation.isPending
                     }
                     size="sm"
                     variant="ghost"
-                  >
-                    <DotsThreeVerticalIcon className="size-4" />
-                  </Button>
+                  />}>
+                  <DotsThreeVerticalIcon className="size-4" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem

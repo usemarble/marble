@@ -97,13 +97,11 @@ export function TeamDataTable<TData, TValue>({
           {currentUserRole === "owner" ? (
             <TooltipProvider>
               <Tooltip delayDuration={0}>
-                <TooltipTrigger asChild>
-                  <Button
+                <TooltipTrigger render={<Button
                     className="cursor-not-allowed opacity-50"
                     variant="outline"
-                  >
-                    <span>Leave Team</span>
-                  </Button>
+                  />}>
+                  <span>Leave Team</span>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p className="text-xs">

@@ -39,15 +39,17 @@ export function InviteButton({ onInvite }: InviteButtonProps) {
     return (
       <>
         <Tooltip delayDuration={0}>
-          <TooltipTrigger asChild>
-            <Button
-              className={isFreePlan ? "" : "opacity-50"}
-              onClick={handleInviteClick}
-              variant={isFreePlan ? "default" : "outline"}
-            >
-              <PlusIcon className="size-4" />
-              Invite
-            </Button>
+          <TooltipTrigger
+            render={
+              <Button
+                className={isFreePlan ? "" : "opacity-50"}
+                onClick={handleInviteClick}
+                variant={isFreePlan ? "default" : "outline"}
+              />
+            }
+          >
+            <PlusIcon className="size-4" />
+            Invite
           </TooltipTrigger>
           <TooltipContent>
             <p className="text-xs">{getTooltipContent()}</p>
@@ -65,11 +67,9 @@ export function InviteButton({ onInvite }: InviteButtonProps) {
   return (
     <TooltipProvider>
       <Tooltip delayDuration={0}>
-        <TooltipTrigger asChild>
-          <Button onClick={onInvite}>
-            <PlusIcon className="size-4" />
-            <span>Invite</span>
-          </Button>
+        <TooltipTrigger render={<Button onClick={onInvite} />}>
+          <PlusIcon className="size-4" />
+          <span>Invite</span>
         </TooltipTrigger>
         <TooltipContent>
           <p className="text-xs">{getTooltipContent()}</p>

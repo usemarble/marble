@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@marble/ui/components/select";
-import { toast } from "@marble/ui/components/sonner";
+import { toast } from "@marble/ui/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -227,8 +227,8 @@ export function ApiKeyModal({ data, mode, open, setOpen }: ApiKeyModalProps) {
             )}
 
             <DialogFooter>
-              <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
+              <DialogClose render={<Button variant="outline" />}>
+                Cancel
               </DialogClose>
               <AsyncButton
                 className="gap-2"
