@@ -75,7 +75,8 @@ export function DataGrid({ data }: DataGridProps) {
                 </div>
                 <div className="flex items-center gap-3 text-muted-foreground">
                   <Tooltip>
-                    <TooltipTrigger render={<CalendarIcon className="size-5 cursor-default" />}>
+                    <TooltipTrigger className="cursor-default">
+                      <CalendarIcon className="size-5" />
                     </TooltipTrigger>
                     <TooltipContent>
                       Published: {format(post.publishedAt, "MMM dd, yyyy")}
@@ -83,7 +84,8 @@ export function DataGrid({ data }: DataGridProps) {
                   </Tooltip>
 
                   <Tooltip>
-                    <TooltipTrigger render={<ClockClockwiseIcon className="size-5 cursor-default" />}>
+                    <TooltipTrigger className="cursor-default">
+                      <ClockClockwiseIcon className="size-5" />
                     </TooltipTrigger>
                     <TooltipContent>
                       Last Updated: {format(post.updatedAt, "MMM dd, yyyy")}

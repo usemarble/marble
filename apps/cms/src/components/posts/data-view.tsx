@@ -3,11 +3,15 @@
 import { Button, buttonVariants } from "@marble/ui/components/button";
 import { Input } from "@marble/ui/components/input";
 import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+} from "@marble/ui/components/tabs";
+import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
-import { cn } from "@marble/ui/lib/utils";
 import {
   MagnifyingGlassIcon,
   PlusIcon,
@@ -117,44 +121,38 @@ export function PostDataView<TData, TValue>({
           )}
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex gap-1 rounded-xl bg-sidebar p-1 dark:bg-accent/50">
-            <Tooltip>
-              <TooltipTrigger render={<Button
-                  className={cn(
-                    "size-7 rounded-r-none rounded-l-[8px] px-3 transition duration-300",
-                    viewType === "grid" &&
-                      "bg-background text-accent-foreground shadow-sm hover:bg-background dark:hover:bg-background"
-                  )}
-                  onClick={() => setViewType("grid")}
-                  size="sm"
-                  variant="ghost"
-                />}>
-                <SquaresFourIcon size={16} />
-                <span className="sr-only">Grid View</span>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Grid View</p>
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger render={<Button
-                  className={cn(
-                    "size-7 rounded-r-[8px] rounded-l-none px-3 transition duration-300",
-                    viewType === "table" &&
-                      "bg-background text-accent-foreground shadow-sm hover:bg-background dark:hover:bg-background"
-                  )}
-                  onClick={() => setViewType("table")}
-                  size="sm"
-                  variant="ghost"
-                />}>
-                <RowsIcon size={16} />
-                <span className="sr-only">Table View</span>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Table View</p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
+          <Tabs value={viewType ?? "table"} onValueChange={(v) => setViewType(v as ViewType)}>
+            <TabsList className="flex h-auto gap-1 rounded-xl bg-sidebar p-1 dark:bg-accent/50">
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <TabsTrigger
+                      value="grid"
+                      className="size-7 flex items-center justify-center px-0 transition duration-300 hover:text-accent-foreground data-[active]:text-accent-foreground"
+                    />
+                  }
+                >
+                  <SquaresFourIcon className="size-4" />
+                  <span className="sr-only">Grid View</span>
+                </TooltipTrigger>
+                <TooltipContent>Grid View</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <TabsTrigger
+                      value="table"
+                      className="size-7 flex items-center justify-center px-0 transition duration-300 hover:text-accent-foreground data-[active]:text-accent-foreground"
+                    />
+                  }
+                >
+                  <RowsIcon className="size-4" />
+                  <span className="sr-only">Table View</span>
+                </TooltipTrigger>
+                <TooltipContent>Table View</TooltipContent>
+              </Tooltip>
+            </TabsList>
+          </Tabs>
 
           <div className="flex gap-2">
             <Link
