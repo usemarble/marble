@@ -267,6 +267,9 @@
   body {
     @apply bg-background text-foreground;
   }
+  html {
+    scrollbar-gutter: stable;
+  }
   .darkbackground {
     background-color: hsl(150, 4%, 9%);
   }
@@ -348,8 +351,4 @@
       max-width: 60rem;
     }
   }
-}
-
-@utility scrollbar-stable {
-  scrollbar-gutter: stable;
 }

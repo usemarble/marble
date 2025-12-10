@@ -336,6 +336,8 @@ model Invitation {
   user           User         @relation(fields: [inviterId], references: [id], onDelete: Cascade)
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
+  createdAt DateTime @default(now())
+
   @@index([organizationId])
   @@index([email])
   @@index([inviterId])
