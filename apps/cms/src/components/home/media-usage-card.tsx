@@ -1,5 +1,3 @@
-/** biome-ignore-all lint/performance/noImgElement: <> */
-/** biome-ignore-all lint/correctness/useImageSize: <> */
 "use client";
 
 import {
@@ -12,6 +10,7 @@ import {
 } from "@phosphor-icons/react";
 import { formatDistanceToNow } from "date-fns";
 import { AnimatePresence, motion } from "motion/react";
+import Image from "next/image";
 import { type RefObject, useEffect, useRef, useState } from "react";
 import { useOnClickOutside } from "usehooks-ts";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
@@ -69,7 +68,7 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
   }, [selectedFile]);
 
   return (
-    <div className="flex flex-col gap-4 rounded-[20px] border border-none bg-sidebar p-2.5 text-card-foreground">
+    <div className="flex flex-col gap-4 rounded-[20px] border border-none bg-sidebar/95 p-2.5 text-card-foreground">
       <AnimatePresence key={mountKeyRef.current} mode="wait">
         {selectedFile ? (
           <>
@@ -82,7 +81,7 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
               <motion.div
                 aria-labelledby={`file-name-${selectedFile.id}`}
                 aria-modal="true"
-                className="pointer-events-auto z-50 h-fit w-[600px] max-w-[calc(100vw-20rem)] rounded-[20px] bg-background p-3 shadow-sm"
+                className="pointer-events-auto z-50 h-fit w-[90vw] max-w-5xl rounded-[20px] bg-background/98 p-4 shadow-sm"
                 key={selectedFile.id}
                 layoutId={`file-${selectedFile.id}`}
                 ref={dialogRef}
@@ -134,34 +133,40 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
                   </div>
 
                   <motion.div
-                    className="aspect-video h-[350px] w-full overflow-hidden rounded-[12px] bg-background"
+                    className="relative max-h-[80vh] w-full overflow-hidden rounded-[12px] bg-background/95"
                     layoutId={`image-${selectedFile.id}`}
                   >
                     {selectedFile.type === "image" ? (
                       <motion.div
                         animate={{ opacity: 1 }}
-                        className="h-full w-full"
+                        className="relative flex w-full items-center justify-center"
                         exit={{ opacity: 0 }}
                         initial={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
                       >
-                        <img
+                        <Image
                           alt={selectedFile.name}
-                          className="h-full w-full object-cover"
-                          height={350}
+                          className="object-contain"
+                          height={800}
                           src={selectedFile.url}
-                          width={600}
+                          style={{
+                            height: "auto",
+                            maxHeight: "80svh",
+                            width: "100%",
+                          }}
+                          unoptimized
+                          width={800}
                         />
                       </motion.div>
                     ) : selectedFile.type === "video" ? (
-                      <div className="relative h-full w-full">
+                      <div className="relative aspect-video w-full">
                         <VideoPlayer
-                          className="h-full w-full object-cover"
+                          className="h-full w-full object-contain"
                           src={selectedFile.url}
                         />
                       </div>
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-muted">
+                      <div className="flex aspect-video w-full items-center justify-center bg-muted">
                         {(() => {
                           const Icon = getMediaTypeIcon(selectedFile.type);
                           return (
@@ -201,7 +206,7 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
             <LoadingSpinner />
           </div>
         ) : recentUploads.length === 0 ? (
-          <div className="flex h-full items-center justify-center bg-background text-muted-foreground text-sm shadow-xs">
+          <div className="flex h-full items-center justify-center bg-background/90 text-muted-foreground text-sm shadow-xs">
             No uploads yet.
           </div>
         ) : (
@@ -211,7 +216,7 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
               return (
                 <motion.li key={file.id} layoutId={`file-${file.id}`}>
                   <button
-                    className="flex w-full cursor-pointer rounded-[18px] border-transparent bg-background p-2.5 shadow-none shadow-s outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                    className="flex w-full cursor-pointer rounded-[18px] border-transparent bg-background/90 p-2.5 shadow-none shadow-s outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
                     onClick={() => {
                       setSelectedFile(file);
                     }}
@@ -251,7 +256,7 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
                         </div>
                       </div>
                       <motion.div
-                        className="flex size-8 items-center justify-center rounded-full bg-sidebar hover:bg-primary/10 hover:text-primary dark:bg-accent/50 dark:hover:bg-sidebar-accent dark:hover:text-accent-foreground"
+                        className="flex size-8 items-center justify-center rounded-full bg-sidebar/80 hover:bg-primary/10 hover:text-primary dark:bg-accent/40 dark:hover:bg-sidebar-accent/80 dark:hover:text-accent-foreground"
                         layoutId={`button-${file.id}`}
                       >
                         <ArrowsOutSimpleIcon size={16} />
