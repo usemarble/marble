@@ -1,4 +1,4 @@
-export type PlanType = "free" | "pro" | "team";
+export type PlanType = "pro" | "hobby";
 
 export type PlanLimits = {
   maxMembers: number;
@@ -14,8 +14,8 @@ export type PlanLimits = {
 };
 
 export const PLAN_LIMITS: Record<PlanType, PlanLimits> = {
-  free: {
-    maxMembers: 2,
+  hobby: {
+    maxMembers: 1,
     maxMediaStorage: 1024,
     maxApiRequests: 10_000,
     maxWebhookEvents: 0,
@@ -38,39 +38,66 @@ export const PLAN_LIMITS: Record<PlanType, PlanLimits> = {
       unlimitedPosts: true,
     },
   },
-  team: {
-    maxMembers: 10,
-    maxMediaStorage: 5120, // 5GB
-    maxApiRequests: -1, // unlimited
-    maxWebhookEvents: 100,
-    features: {
-      inviteMembers: true,
-      advancedReadability: true,
-      keywordOptimization: true,
-      unlimitedPosts: true,
-    },
-  },
 };
 
 /**
+ * Check if a subscription is currently active
+ */
+function isSubscriptionActive(
+  subscription?: {
+    status?: string;
+    cancelAtPeriodEnd?: boolean;
+    currentPeriodEnd?: string | Date;
+  } | null
+): boolean {
+  if (!subscription) {
+    return false;
+  }
+
+  // Active or trialing subscriptions are always active
+  if (subscription.status === "active" || subscription.status === "trialing") {
+    return true;
+  }
+
+  // Canceled subscriptions are active until period end
+  if (
+    subscription.status === "canceled" &&
+    subscription.cancelAtPeriodEnd &&
+    subscription.currentPeriodEnd
+  ) {
+    const now = new Date();
+    const periodEnd =
+      subscription.currentPeriodEnd instanceof Date
+        ? subscription.currentPeriodEnd
+        : new Date(subscription.currentPeriodEnd);
+    return periodEnd > now;
+  }
+
+  return false;
+}
+
+/**
  * Get the plan type from workspace subscription
+ * Only returns the plan if the subscription is actually active
  */
 export function getWorkspacePlan(
-  subscription?: { plan: string } | null
+  subscription?: {
+    plan?: string;
+    status?: string;
+    cancelAtPeriodEnd?: boolean;
+    currentPeriodEnd?: string | Date;
+  } | null
 ): PlanType {
-  if (!subscription?.plan) {
-    return "free";
+  // If subscription doesn't exist or is not active, return free
+  if (!subscription?.plan || !isSubscriptionActive(subscription)) {
+    return "hobby";
   }
 
   const plan = subscription.plan.toLowerCase();
   if (plan === "pro") {
     return "pro";
   }
-  if (plan === "team") {
-    return "team";
-  }
-
-  return "free";
+  return "hobby";
 }
 
 /**

@@ -2,39 +2,11 @@
 
 import { db } from "@marble/db";
 import type { WebhookSubscriptionUpdatedPayload } from "@polar-sh/sdk/models/components/webhooksubscriptionupdatedpayload.js";
-import { PlanType, SubscriptionStatus } from "@prisma/client";
-
-function getPlanType(productName: string): PlanType | null {
-  const plan = productName.toLowerCase();
-  if (plan === "pro") {
-    return PlanType.pro;
-  }
-  if (plan === "team") {
-    return PlanType.team;
-  }
-  return null;
-}
-
-function getSubscriptionStatus(
-  polarStatus: WebhookSubscriptionUpdatedPayload["data"]["status"]
-): SubscriptionStatus | null {
-  switch (polarStatus) {
-    case "active":
-      return SubscriptionStatus.active;
-    case "trialing":
-      return SubscriptionStatus.trialing;
-    case "canceled":
-      return SubscriptionStatus.cancelled;
-    case "past_due":
-    case "incomplete":
-    case "unpaid":
-      return SubscriptionStatus.past_due;
-    case "incomplete_expired":
-      return SubscriptionStatus.expired;
-    default:
-      return null;
-  }
-}
+import {
+  getPlanType,
+  getRecurringInterval,
+  getSubscriptionStatus,
+} from "./utils";
 
 export async function handleSubscriptionUpdated(
   payload: WebhookSubscriptionUpdatedPayload
@@ -73,6 +45,10 @@ export async function handleSubscriptionUpdated(
     return;
   }
 
+  const recurringInterval = getRecurringInterval(
+    subscription.recurringInterval
+  );
+
   try {
     await db.subscription.update({
       where: { polarId: subscription.id },
@@ -86,6 +62,17 @@ export async function handleSubscriptionUpdated(
           ? new Date(subscription.canceledAt)
           : null,
         endedAt: subscription.endedAt ? new Date(subscription.endedAt) : null,
+        endsAt: subscription.endsAt ? new Date(subscription.endsAt) : null,
+        startedAt: subscription.startedAt
+          ? new Date(subscription.startedAt)
+          : null,
+        productId: subscription.productId || undefined,
+        amount: subscription.amount
+          ? Math.round(subscription.amount)
+          : undefined,
+        currency: subscription.currency || undefined,
+        discountId: subscription.discountId || undefined,
+        recurringInterval,
       },
     });
 

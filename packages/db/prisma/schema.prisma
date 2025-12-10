@@ -9,25 +9,32 @@ datasource db {
 }
 
 model Subscription {
-  id                 String             @id @default(cuid())
+  id                 String                        @id @default(cuid())
   userId             String
   plan               PlanType
-  status             SubscriptionStatus @default(active)
-  updatedAt          DateTime           @updatedAt
-  cancelAtPeriodEnd  Boolean            @default(false)
+  status             SubscriptionStatus
+  updatedAt          DateTime                      @updatedAt
+  cancelAtPeriodEnd  Boolean
   canceledAt         DateTime?
-  createdAt          DateTime           @default(now())
+  createdAt          DateTime                      @default(now())
   currentPeriodEnd   DateTime
   currentPeriodStart DateTime
   endedAt            DateTime?
   endsAt             DateTime?
-  polarId            String             @unique
-  workspaceId        String             @unique
-  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  workspace          Organization       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  polarId            String                        @unique
+  workspaceId        String
+  startedAt          DateTime?
+  productId          String?
+  amount             Int                           @default(20)
+  currency           String                        @default("USD")
+  discountId         String?
+  recurringInterval  SubscriptionRecurringInterval @default(month)
+  user               User                          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace          Organization                  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([status])
+  @@index([workspaceId, status])
   @@map("subscription")
 }
 
@@ -48,7 +55,7 @@ model Organization {
   media             Media[]
   members           Member[]
   posts             Post[]
-  subscription      Subscription?
+  subscriptions     Subscription[]
   tags              Tag[]
   webhooks          Webhook[]
   editorPreferences EditorPreferences?
@@ -398,16 +405,26 @@ enum PostStatus {
 }
 
 enum PlanType {
-  team
+  hobby
   pro
 }
 
+enum SubscriptionRecurringInterval {
+  day
+  week
+  month
+  year
+}
+
 enum SubscriptionStatus {
-  active
-  cancelled
-  expired
-  trialing
-  past_due
+  active // Active subscription
+  expired // End of period
+  trialing // Still in a trial period
+  past_due // Payment failed, unpaid, or incomplete
+  incomplete // Created, but with unpaid invoice
+  incomplete_expired // Created, but never made a payment and now expired
+  unpaid // Payment failed and is unpaid
+  canceled // Canceled (Polar uses American spelling)
 }
 
 enum WebhookEvent {

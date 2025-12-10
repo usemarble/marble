@@ -1,6 +1,7 @@
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
+import { getWorkspacePlan } from "@/lib/plans";
 
 export async function GET(
   _request: Request,
@@ -46,7 +47,20 @@ export async function GET(
           expiresAt: true,
         },
       },
-      subscription: {
+      subscriptions: {
+        where: {
+          OR: [
+            { status: "active" },
+            { status: "trialing" },
+            {
+              status: "canceled",
+              cancelAtPeriodEnd: true,
+              currentPeriodEnd: { gt: new Date() },
+            },
+          ],
+        },
+        orderBy: { createdAt: "desc" },
+        take: 1,
         select: {
           id: true,
           status: true,
@@ -90,10 +104,18 @@ export async function GET(
   );
 
   const currentUserRole = currentUserMember?.role || null;
+  const activeSubscription = workspace.subscriptions[0] || null;
+  const activePlan = getWorkspacePlan(activeSubscription);
 
   const workspaceWithUserRole = {
     ...workspace,
     currentUserRole,
+    subscription: activeSubscription
+      ? {
+          ...activeSubscription,
+          activePlan,
+        }
+      : null,
   };
 
   return NextResponse.json(workspaceWithUserRole);

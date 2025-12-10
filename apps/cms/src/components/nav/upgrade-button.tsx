@@ -13,12 +13,12 @@ const UpgradeModal = dynamic(() =>
 
 export function UpgradeButton() {
   const { state } = useSidebar();
-  const { isFreePlan } = usePlan();
+  const { isHobbyPlan } = usePlan();
   const { isOwner } = useWorkspace();
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const isCollapsed = state === "collapsed";
 
-  if (!isFreePlan || !isOwner || isCollapsed) {
+  if (!isHobbyPlan || !isOwner || isCollapsed) {
     return null;
   }
 

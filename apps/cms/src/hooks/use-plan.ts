@@ -69,9 +69,8 @@ export function usePlan() {
     staleTime: 1000 * 60 * 10,
   });
 
-  const isFreePlan = currentPlan === "free";
+  const isHobbyPlan = currentPlan === "hobby";
   const isProPlan = currentPlan === "pro";
-  const isTeamPlan = currentPlan === "team";
 
   return {
     currentPlan,
@@ -81,9 +80,8 @@ export function usePlan() {
     remainingSlots,
     canUseFeature,
     checkLimits,
-    isFreePlan,
+    isHobbyPlan,
     isProPlan,
-    isTeamPlan,
     currentMediaUsage: data?.media.total ?? 0,
     currentApiRequests: data?.api.totals.total ?? 0,
   };

@@ -192,14 +192,23 @@ export async function checkPostSlugAvailable(
 }
 
 export async function checkWorkspaceSubscriptionAction(workspaceId: string) {
-  const subscription = await db.subscription.findUnique({
-    where: { workspaceId },
+  const subscription = await db.subscription.findFirst({
+    where: {
+      workspaceId,
+      OR: [
+        { status: "active" },
+        { status: "trialing" },
+        {
+          status: "canceled",
+          cancelAtPeriodEnd: true,
+          currentPeriodEnd: { gt: new Date() },
+        },
+      ],
+    },
+    orderBy: { createdAt: "desc" },
   });
 
-  return (
-    subscription &&
-    (subscription.status === "active" || subscription.status === "trialing")
-  );
+  return Boolean(subscription);
 }
 
 export async function guardWorkspaceSubscriptionAction(

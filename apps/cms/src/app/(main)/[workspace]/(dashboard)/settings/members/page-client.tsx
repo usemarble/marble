@@ -10,6 +10,7 @@ import PageLoader from "@/components/shared/page-loader";
 import { columns, type TeamMemberRow } from "@/components/team/columns";
 import { TeamDataTable } from "@/components/team/data-table";
 import { InviteSection } from "@/components/team/invite-section";
+import { usePlan } from "@/hooks/use-plan";
 import { useUser } from "@/providers/user";
 import { useWorkspace } from "@/providers/workspace";
 
@@ -27,6 +28,7 @@ function PageClient() {
   const { user } = useUser();
   const { activeWorkspace, isFetchingWorkspace, currentUserRole } =
     useWorkspace();
+  const { isHobbyPlan } = usePlan();
 
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showLeaveWorkspaceModal, setShowLeaveWorkspaceModal] = useState(false);
@@ -50,13 +52,9 @@ function PageClient() {
 
   console.log("invitations", activeWorkspace.invitations);
 
-  const isFreePlan =
-    !activeWorkspace.subscription ||
-    activeWorkspace.subscription.plan === "free";
-
   return (
     <WorkspacePageWrapper size="compact">
-      {isFreePlan ? (
+      {isHobbyPlan ? (
         <div className="grid h-full place-content-center">
           <div className="flex max-w-84 flex-col items-center gap-4">
             <div className="p-2">

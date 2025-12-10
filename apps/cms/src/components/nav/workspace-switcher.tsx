@@ -25,6 +25,7 @@ import { Skeleton } from "@marble/ui/components/skeleton";
 import { cn } from "@marble/ui/lib/utils";
 import { CaretDownIcon, CheckIcon, PlusIcon } from "@phosphor-icons/react";
 import { useState } from "react";
+import { getWorkspacePlan } from "@/lib/plans";
 import type { Workspace } from "@/types/workspace";
 import { useWorkspace } from "../../providers/workspace";
 import { CreateWorkspaceDialog } from "./create-workspace-dialog";
@@ -64,6 +65,7 @@ export function WorkspaceSwitcher() {
   }
 
   const showSkeleton = !activeWorkspace && isFetchingWorkspace;
+  const currentPlan = getWorkspacePlan(activeWorkspace?.subscription);
 
   return (
     <SidebarMenu>
@@ -97,13 +99,9 @@ export function WorkspaceSwitcher() {
                       </span>
                       <Badge
                         className="px-1.5 py-0 text-[11px] capitalize"
-                        variant={
-                          activeWorkspace.subscription?.plan === "pro"
-                            ? "premium"
-                            : "free"
-                        }
+                        variant={currentPlan === "pro" ? "paid" : "free"}
                       >
-                        {activeWorkspace.subscription?.plan || "free"}
+                        {currentPlan === "hobby" ? "free" : currentPlan}
                       </Badge>
                     </div>
                     <CaretDownIcon className="ml-auto" />

@@ -1,7 +1,8 @@
 import { db } from "@marble/db";
+import { SubscriptionStatus } from "@prisma/client";
 import type { RequestCookies } from "next/dist/compiled/@edge-runtime/cookies";
 import { getServerSession } from "@/lib/auth/session";
-import { workspaceSelect } from "@/lib/db/select";
+import { getWorkspacePlan } from "@/lib/plans";
 import type { Workspace } from "@/types/workspace";
 import { getLastVisitedWorkspace } from "@/utils/workspace/client";
 
@@ -109,7 +110,64 @@ export async function getInitialWorkspaceData(): Promise<Workspace | null> {
 
     const workspace = await db.organization.findUnique({
       where: { id: session.session.activeOrganizationId },
-      select: workspaceSelect,
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        logo: true,
+        timezone: true,
+        createdAt: true,
+        editorPreferences: {
+          select: { ai: { select: { enabled: true } } },
+        },
+        members: {
+          select: {
+            id: true,
+            role: true,
+            userId: true,
+            organizationId: true,
+            createdAt: true,
+            user: {
+              select: { id: true, name: true, email: true, image: true },
+            },
+          },
+        },
+        invitations: {
+          select: {
+            id: true,
+            email: true,
+            role: true,
+            status: true,
+            organizationId: true,
+            inviterId: true,
+            expiresAt: true,
+          },
+        },
+        subscriptions: {
+          where: {
+            OR: [
+              { status: SubscriptionStatus.active },
+              { status: SubscriptionStatus.trialing },
+              {
+                status: SubscriptionStatus.canceled,
+                cancelAtPeriodEnd: true,
+                currentPeriodEnd: { gt: new Date() },
+              },
+            ],
+          },
+          orderBy: { createdAt: "desc" },
+          take: 1,
+          select: {
+            id: true,
+            status: true,
+            plan: true,
+            currentPeriodStart: true,
+            currentPeriodEnd: true,
+            cancelAtPeriodEnd: true,
+            canceledAt: true,
+          },
+        },
+      },
     });
 
     if (!workspace) {
@@ -119,11 +177,19 @@ export async function getInitialWorkspaceData(): Promise<Workspace | null> {
     const currentUserMember = workspace.members.find(
       (member) => member.userId === session.user.id
     );
+    const activeSubscription = workspace.subscriptions[0] || null;
+    const activePlan = getWorkspacePlan(activeSubscription);
 
     return {
       ...workspace,
       ai: workspace.editorPreferences?.ai ?? { enabled: false },
       currentUserRole: currentUserMember?.role || null,
+      subscription: activeSubscription
+        ? {
+            ...activeSubscription,
+            activePlan,
+          }
+        : null,
     } as Workspace;
   } catch (error) {
     console.error("Error fetching initial workspace data:", error);

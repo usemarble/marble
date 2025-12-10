@@ -18,7 +18,7 @@ import { useMutation } from "@tanstack/react-query";
 import { differenceInHours, differenceInMinutes, isBefore } from "date-fns";
 import { useState } from "react";
 import { UpgradeModal } from "@/components/billing/upgrade-modal";
-import { useWorkspace } from "@/providers/workspace";
+import { usePlan } from "@/hooks/use-plan";
 import { AsyncButton } from "../ui/async-button";
 import { CopyButton } from "../ui/copy-button";
 
@@ -29,16 +29,11 @@ type ShareModalProps = {
 export function ShareModal({ postId }: ShareModalProps) {
   const [shareLink, setShareLink] = useState<string | null>(null);
   const [expiresAt, setExpiresAt] = useState<Date | null>(null);
-  const [open, setOpen] = useState(false);
   const [date, setDate] = useState<Date | undefined>(new Date());
-  const [showExpiry, setShowExpiry] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
-  const { activeWorkspace } = useWorkspace();
-
-  const isFreePlan =
-    !activeWorkspace?.subscription ||
-    activeWorkspace.subscription.plan === "free";
+  const { isHobbyPlan } = usePlan();
+  const isFreePlan = isHobbyPlan;
 
   const { mutate: generateShareLink, isPending } = useMutation({
     mutationFn: async () => {
