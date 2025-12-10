@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  transpilePackages: ["@marble/db", "@marble/ui", "@marble/parser"],
+  transpilePackages: ["@marble/db", "@marble/ui", "@marble/parser", "@marble/email"],
   experimental: {
     optimizePackageImports: ["@phosphor-icons/react"],
   },
