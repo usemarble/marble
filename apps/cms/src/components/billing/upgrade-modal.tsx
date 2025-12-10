@@ -30,15 +30,15 @@ type UpgradeModalProps = {
 };
 
 export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
-  const [checkoutLoading, setCheckoutLoading] = useState<"pro" | "free" | null>(
-    null
-  );
+  const [checkoutLoading, setCheckoutLoading] = useState<
+    "pro" | "hobby" | null
+  >(null);
   const [selectedPlan, setSelectedPlan] = useState<string | null>("pro");
   const { activeWorkspace } = useWorkspace();
 
-  const currentPlan = activeWorkspace?.subscription?.activePlan || "free";
+  const currentPlan = activeWorkspace?.subscription?.activePlan || "hobby";
 
-  const handleCheckout = async (plan: "pro" | "free") => {
+  const handleCheckout = async (plan: "pro" | "hobby") => {
     if (!activeWorkspace?.id) {
       return;
     }
@@ -58,7 +58,7 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
     }
   };
 
-  const renderPlanButton = (plan: "free" | "pro") => {
+  const renderPlanButton = (plan: "hobby" | "pro") => {
     const isCurrentPlan = currentPlan === plan;
 
     if (isCurrentPlan) {
@@ -131,7 +131,7 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
                     </div>
                   </div>
                   <div className="border-y border-dashed py-4">
-                    {renderPlanButton(plan.id as "free" | "pro")}
+                    {renderPlanButton(plan.id as "hobby" | "pro")}
                   </div>
                   <ul className="flex flex-col gap-2 text-sm">
                     {plan.features.map((feature) => (

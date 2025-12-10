@@ -199,7 +199,7 @@ export async function checkWorkspaceSubscriptionAction(workspaceId: string) {
         { status: "active" },
         { status: "trialing" },
         {
-          status: "cancelled",
+          status: "canceled",
           cancelAtPeriodEnd: true,
           currentPeriodEnd: { gt: new Date() },
         },

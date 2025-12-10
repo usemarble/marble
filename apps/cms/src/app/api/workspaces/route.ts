@@ -52,7 +52,7 @@ export async function GET() {
             { status: "active" },
             { status: "trialing" },
             {
-              status: "cancelled",
+              status: "canceled",
               cancelAtPeriodEnd: true,
               currentPeriodEnd: { gt: new Date() },
             },

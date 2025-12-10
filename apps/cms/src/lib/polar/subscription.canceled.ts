@@ -24,7 +24,7 @@ export async function handleSubscriptionCanceled(
     await db.subscription.update({
       where: { polarId: subscription.id },
       data: {
-        status: SubscriptionStatus.cancelled,
+        status: SubscriptionStatus.canceled,
         cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
         canceledAt: subscription.canceledAt
           ? new Date(subscription.canceledAt)

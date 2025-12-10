@@ -24,7 +24,7 @@ export function getSubscriptionStatus(
     case "trialing":
       return SubscriptionStatus.trialing;
     case "canceled":
-      return SubscriptionStatus.cancelled;
+      return SubscriptionStatus.canceled;
     case "past_due":
     case "incomplete":
     case "unpaid":

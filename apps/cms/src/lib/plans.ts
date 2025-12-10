@@ -59,9 +59,9 @@ function isSubscriptionActive(
     return true;
   }
 
-  // Cancelled subscriptions are active until period end
+  // Canceled subscriptions are active until period end
   if (
-    subscription.status === "cancelled" &&
+    subscription.status === "canceled" &&
     subscription.cancelAtPeriodEnd &&
     subscription.currentPeriodEnd
   ) {

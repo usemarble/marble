@@ -149,7 +149,7 @@ export async function getInitialWorkspaceData(): Promise<Workspace | null> {
               { status: SubscriptionStatus.active },
               { status: SubscriptionStatus.trialing },
               {
-                status: SubscriptionStatus.cancelled,
+                status: SubscriptionStatus.canceled,
                 cancelAtPeriodEnd: true,
                 currentPeriodEnd: { gt: new Date() },
               },

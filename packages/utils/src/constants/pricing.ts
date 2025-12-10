@@ -16,7 +16,7 @@ export type PricingPlan = {
 
 export const PRICING_PLANS: PricingPlan[] = [
   {
-    id: "free",
+    id: "hobby",
     title: "Hobby",
     description: "For Hobbyists",
     price: {

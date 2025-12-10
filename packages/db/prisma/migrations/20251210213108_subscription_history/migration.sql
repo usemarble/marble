@@ -2,6 +2,7 @@
   Warnings:
 
   - The values [team] on the enum `PlanType` will be removed. If these variants are still used in the database, this will fail.
+  - The values [cancelled] on the enum `SubscriptionStatus` will be removed. If these variants are still used in the database, this will fail.
 
 */
 -- CreateEnum
@@ -17,17 +18,14 @@ DROP TYPE "public"."PlanType_old";
 COMMIT;
 
 -- AlterEnum
--- This migration adds more than one value to an enum.
--- With PostgreSQL versions 11 and earlier, this is not possible
--- in a single migration. This can be worked around by creating
--- multiple migrations, each migration adding only one value to
--- the enum.
-
-
-ALTER TYPE "public"."SubscriptionStatus" ADD VALUE 'incomplete';
-ALTER TYPE "public"."SubscriptionStatus" ADD VALUE 'incomplete_expired';
-ALTER TYPE "public"."SubscriptionStatus" ADD VALUE 'unpaid';
-ALTER TYPE "public"."SubscriptionStatus" ADD VALUE 'canceled';
+BEGIN;
+CREATE TYPE "public"."SubscriptionStatus_new" AS ENUM ('active', 'expired', 'trialing', 'past_due', 'incomplete', 'incomplete_expired', 'unpaid', 'canceled');
+ALTER TABLE "public"."subscription" ALTER COLUMN "status" DROP DEFAULT;
+ALTER TABLE "public"."subscription" ALTER COLUMN "status" TYPE "public"."SubscriptionStatus_new" USING ("status"::text::"public"."SubscriptionStatus_new");
+ALTER TYPE "public"."SubscriptionStatus" RENAME TO "SubscriptionStatus_old";
+ALTER TYPE "public"."SubscriptionStatus_new" RENAME TO "SubscriptionStatus";
+DROP TYPE "public"."SubscriptionStatus_old";
+COMMIT;
 
 -- DropIndex
 DROP INDEX "public"."subscription_workspaceId_key";

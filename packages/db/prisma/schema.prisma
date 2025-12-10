@@ -418,7 +418,6 @@ enum SubscriptionRecurringInterval {
 
 enum SubscriptionStatus {
   active // Active subscription
-  cancelled // Was canceled by user or system
   expired // End of period
   trialing // Still in a trial period
   past_due // Payment failed, unpaid, or incomplete
