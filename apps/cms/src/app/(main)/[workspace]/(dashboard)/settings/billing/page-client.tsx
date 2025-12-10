@@ -60,10 +60,10 @@ function PageClient() {
     switch (currentPlan) {
       case "pro":
         return "Pro Plan";
-      case "team":
-        return "Team Plan";
+      case "hobby":
+        return "Hobby Plan";
       default:
-        return "Free Plan";
+        return "Hobby Plan";
     }
   };
 
@@ -161,16 +161,20 @@ function PageClient() {
                 {isOwner && (
                   <>
                     <Button onClick={() => setShowUpgradeModal(true)}>
-                      {subscription?.plan ? "Change Plan" : "Upgrade"}
+                      {subscription?.activePlan &&
+                      subscription.activePlan !== "hobby"
+                        ? "Change Plan"
+                        : "Upgrade"}
                     </Button>
-                    {subscription?.plan && (
-                      <Button
-                        onClick={() => redirectCustomerPortal()}
-                        variant="outline"
-                      >
-                        Manage Subscription
-                      </Button>
-                    )}
+                    {subscription?.activePlan &&
+                      subscription.activePlan !== "hobby" && (
+                        <Button
+                          onClick={() => redirectCustomerPortal()}
+                          variant="outline"
+                        >
+                          Manage Subscription
+                        </Button>
+                      )}
                   </>
                 )}
               </div>

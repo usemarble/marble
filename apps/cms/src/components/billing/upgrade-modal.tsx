@@ -36,7 +36,7 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
   const [selectedPlan, setSelectedPlan] = useState<string | null>("pro");
   const { activeWorkspace } = useWorkspace();
 
-  const currentPlan = activeWorkspace?.subscription?.plan || "free";
+  const currentPlan = activeWorkspace?.subscription?.activePlan || "free";
 
   const handleCheckout = async (plan: "pro" | "free") => {
     if (!activeWorkspace?.id) {

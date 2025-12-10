@@ -18,7 +18,7 @@ type InviteButtonProps = {
 
 export function InviteButton({ onInvite }: InviteButtonProps) {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  const { canInvite, remainingSlots, isFreePlan, planLimits } = usePlan();
+  const { canInvite, remainingSlots, isHobbyPlan, planLimits } = usePlan();
 
   const handleInviteClick = () => {
     if (canInvite) {
@@ -41,9 +41,9 @@ export function InviteButton({ onInvite }: InviteButtonProps) {
         <Tooltip delayDuration={0}>
           <TooltipTrigger asChild>
             <Button
-              className={isFreePlan ? "" : "opacity-50"}
+              className={isHobbyPlan ? "" : "opacity-50"}
               onClick={handleInviteClick}
-              variant={isFreePlan ? "default" : "outline"}
+              variant={isHobbyPlan ? "default" : "outline"}
             >
               <PlusIcon className="size-4" />
               Invite
