@@ -5,7 +5,7 @@ import {
   getWorkflowState,
   updateWorkflowStep,
   addWorkflowLog,
-} from "@/lib/workflows/brand-knowledge-state";
+} from "@/lib/workflows/knowledge-state";
 
 export async function GET() {
   const sessionData = await getServerSession();

@@ -1,10 +1,10 @@
-export type BrandKnowledgePromptParams = {
+export type KnowledgePromptParams = {
   websiteUrl: string;
 };
 
-export const brandKnowledgePrompt = ({
+export const knowledgePrompt = ({
   websiteUrl,
-}: BrandKnowledgePromptParams) => `Scrape the website at URL: ${websiteUrl} using the scrapeWebsite tool with url parameter "${websiteUrl}", then analyze the scraped content and generate a structured brand knowledge summary.
+}: KnowledgePromptParams) => `Scrape the website at URL: ${websiteUrl} using the scrapeWebsite tool with url parameter "${websiteUrl}", then analyze the scraped content and generate a structured knowledge summary.
 
     <PROMPT>
         ## TASK

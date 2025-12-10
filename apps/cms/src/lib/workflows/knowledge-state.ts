@@ -17,7 +17,7 @@ export type WorkflowLogEntry = {
   level: "info" | "error" | "warn";
 };
 
-export type BrandKnowledgeWorkflowState = {
+export type KnowledgeWorkflowState = {
   runId: string;
   workspaceId: string;
   websiteUrl: string;
@@ -27,7 +27,7 @@ export type BrandKnowledgeWorkflowState = {
   logs: WorkflowLogEntry[];
 };
 
-const REDIS_KEY_PREFIX = "brand-knowledge:workflow:";
+const REDIS_KEY_PREFIX = "knowledge:workflow:";
 const TTL_SECONDS = 3600;
 
 export function getWorkflowKey(workspaceId: string): string {
@@ -36,14 +36,14 @@ export function getWorkflowKey(workspaceId: string): string {
 
 export async function getWorkflowState(
   workspaceId: string
-): Promise<BrandKnowledgeWorkflowState | null> {
+): Promise<KnowledgeWorkflowState | null> {
   const key = getWorkflowKey(workspaceId);
-  const state = await redis.get<BrandKnowledgeWorkflowState>(key);
+  const state = await redis.get<KnowledgeWorkflowState>(key);
   return state;
 }
 
 export async function setWorkflowState(
-  state: BrandKnowledgeWorkflowState
+  state: KnowledgeWorkflowState
 ): Promise<void> {
   const key = getWorkflowKey(state.workspaceId);
   await redis.set(key, state, { ex: TTL_SECONDS });

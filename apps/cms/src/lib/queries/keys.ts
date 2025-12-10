@@ -31,7 +31,7 @@ export const QUERY_KEYS = {
 
   USAGE_DASHBOARD: (workspaceId: string) => ["usage-dashboard", workspaceId],
 
-  BRAND_KNOWLEDGE: (workspaceId: string) => ["brand-knowledge", workspaceId],
+  KNOWLEDGE: (workspaceId: string) => ["knowledge", workspaceId],
 
   AI_READABILITY_SUGGESTIONS: (workspaceId: string, contentKey: string) => [
     "ai-readability-suggestions",

@@ -16,8 +16,8 @@ import { useParams, usePathname } from "next/navigation";
 
 const items = [
   {
-    name: "Brand Knowledge",
-    url: "brand-knowledge",
+    name: "Knowledge",
+    url: "knowledge",
     icon: GearIcon,
   },
   {

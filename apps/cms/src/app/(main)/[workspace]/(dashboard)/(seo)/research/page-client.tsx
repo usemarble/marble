@@ -2,7 +2,7 @@
 
 import { MagnifyingGlassIcon } from "@phosphor-icons/react";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
-import { BrandKnowledgeWebsiteSheet } from "../brand-knowledge/page-client";
+import { KnowledgeWebsiteModal } from "../knowledge/page-client";
 
 function PageClient() {
   return (
@@ -16,7 +16,7 @@ function PageClient() {
             Discover and analyze keywords to optimize your content for better
             search rankings.
           </p>
-          <BrandKnowledgeWebsiteSheet />
+          <KnowledgeWebsiteModal />
         </div>
       </div>
     </WorkspacePageWrapper>

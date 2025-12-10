@@ -2,12 +2,12 @@ import { db } from "@marble/db";
 import { type NextRequest, NextResponse } from "next/server";
 import { start } from "workflow/api";
 import { getServerSession } from "@/lib/auth/session";
-import { brandKnowledgeWebsiteSchema } from "@/lib/validations/seo";
+import { knowledgeWebsiteSchema } from "@/lib/validations/seo";
 import {
   getWorkflowState,
   setWorkflowState,
-} from "@/lib/workflows/brand-knowledge-state";
-import { brandKnowledgeWorkflow } from "@/workflows/brand-knowledge";
+} from "@/lib/workflows/knowledge-state";
+import { knowledgeWorkflow } from "@/workflows/knowledge";
 
 export const maxDuration = 60;
 
@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
   const workspaceId = sessionData.session.activeOrganizationId;
 
   const body = await req.json();
-  const parsedBody = brandKnowledgeWebsiteSchema.safeParse(body);
+  const parsedBody = knowledgeWebsiteSchema.safeParse(body);
   if (!parsedBody.success) {
     return NextResponse.json(
       { error: "Invalid request body", details: parsedBody.error.issues },
@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const run = await start(brandKnowledgeWorkflow, [
+  const run = await start(knowledgeWorkflow, [
     { workspaceId, websiteUrl, additionalUrls },
   ]);
 
@@ -142,7 +142,7 @@ export async function PATCH(req: NextRequest) {
 
   if (!existing) {
     return NextResponse.json(
-      { error: "No brand knowledge found to update" },
+      { error: "No knowledge found to update" },
       { status: 404 }
     );
   }

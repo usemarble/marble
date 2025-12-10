@@ -4,15 +4,15 @@ import {
   addWorkflowLog,
   clearWorkflowState,
   updateWorkflowStep,
-} from "@/lib/workflows/brand-knowledge-state";
+} from "@/lib/workflows/knowledge-state";
 
-export type BrandKnowledgeResult = {
+export type KnowledgeResult = {
   companyDescription: string;
   tone: string;
   audience: string;
 };
 
-export type BrandKnowledgeWorkflowInput = {
+export type KnowledgeWorkflowInput = {
   workspaceId: string;
   websiteUrl: string;
   additionalUrls?: string[];
@@ -202,7 +202,7 @@ async function summarizeContent(
   content: string,
   websiteUrl: string,
   workspaceId: string
-): Promise<BrandKnowledgeResult> {
+): Promise<KnowledgeResult> {
   "use step";
 
   await updateWorkflowStep(workspaceId, "summarizing");
@@ -285,7 +285,7 @@ IMPORTANT: Only include information actually present in the content. Do not fabr
 async function saveToDatabase(
   workspaceId: string,
   websiteUrl: string,
-  result: BrandKnowledgeResult
+  result: KnowledgeResult
 ) {
   "use step";
 
@@ -340,9 +340,9 @@ async function saveToDatabase(
   }
 }
 
-export async function brandKnowledgeWorkflow(
-  input: BrandKnowledgeWorkflowInput
-): Promise<BrandKnowledgeResult> {
+export async function knowledgeWorkflow(
+  input: KnowledgeWorkflowInput
+): Promise<KnowledgeResult> {
   "use workflow";
 
   const { workspaceId, websiteUrl, additionalUrls } = input;

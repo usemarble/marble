@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const brandKnowledgeWebsiteSchema = z.object({
+export const knowledgeWebsiteSchema = z.object({
   websiteUrl: z
     .string()
     .trim()
@@ -11,11 +11,11 @@ export const brandKnowledgeWebsiteSchema = z.object({
     .default([]),
 });
 
-export type BrandKnowledgeWebsiteValues = z.infer<
-  typeof brandKnowledgeWebsiteSchema
+export type KnowledgeWebsiteValues = z.infer<
+  typeof knowledgeWebsiteSchema
 >;
 
-export const brandKnowledgeResponseSchema = z.object({
+export const knowledgeResponseSchema = z.object({
   tone: z
     .enum([
       "Professional",
@@ -34,8 +34,8 @@ export const brandKnowledgeResponseSchema = z.object({
     .describe("A description of the core audience the company is targeting (1-2 sentences)"),
 });
 
-export type BrandKnowledgeResponseValues = z.infer<
-  typeof brandKnowledgeResponseSchema
+export type KnowledgeResponseValues = z.infer<
+  typeof knowledgeResponseSchema
 >;
 
 

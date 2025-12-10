@@ -19,8 +19,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@marble/ui/components/select";
-import { Textarea } from "@marble/ui/components/textarea";
 import { toast } from "@marble/ui/components/sonner";
+import { Textarea } from "@marble/ui/components/textarea";
 import { cn } from "@marble/ui/lib/utils";
 import {
   ArrowClockwiseIcon,
@@ -45,22 +45,22 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
-import PageLoader from "@/components/shared/page-loader";
 import {
-  HorizontalStepper,
   type HorizontalStepItem,
+  HorizontalStepper,
 } from "@/components/shared/horizontal-stepper";
+import PageLoader from "@/components/shared/page-loader";
 import { AsyncButton } from "@/components/ui/async-button";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import {
-  type BrandKnowledgeWebsiteValues,
-  brandKnowledgeWebsiteSchema,
+  type KnowledgeWebsiteValues,
+  knowledgeWebsiteSchema,
 } from "@/lib/validations/seo";
 import type {
-  WorkflowStep,
   WorkflowLogEntry,
-} from "@/lib/workflows/brand-knowledge-state";
+  WorkflowStep,
+} from "@/lib/workflows/knowledge-state";
 import { getDomain, getFaviconUrl } from "@/utils/favicon";
 
 const TONE_OPTIONS = [
@@ -72,7 +72,7 @@ const TONE_OPTIONS = [
   "Technical",
 ] as const;
 
-type BrandKnowledgeDescription =
+type KnowledgeDescription =
   | { status: "pending" }
   | { status: "scraping" }
   | { status: "crawling" }
@@ -90,10 +90,10 @@ type BrandKnowledgeDescription =
       error: string;
     };
 
-type BrandKnowledgeWebsite = {
+type KnowledgeWebsite = {
   id: string;
   url: string;
-  description: BrandKnowledgeDescription | null;
+  description: KnowledgeDescription | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -146,11 +146,10 @@ function WebsiteFavicon({
   className,
 }: {
   url: string;
-  size?: 16 | 32 | 64 | 128;
   className?: string;
 }) {
   const [error, setError] = useState(false);
-  const faviconUrl = getFaviconUrl(url, size);
+  const faviconUrl = getFaviconUrl(url);
 
   if (error) {
     return (
@@ -168,7 +167,7 @@ function WebsiteFavicon({
 
   return (
     <Image
-      alt={`${getDomain(url)} favicon`}
+      alt=""
       className={cn("rounded-lg", className)}
       height={size}
       onError={() => setError(true)}
@@ -178,7 +177,7 @@ function WebsiteFavicon({
   );
 }
 
-export function BrandKnowledgeWebsiteModal({
+export function KnowledgeWebsiteModal({
   onSuccess,
 }: {
   onSuccess?: () => void;
@@ -198,8 +197,8 @@ export function BrandKnowledgeWebsiteModal({
     reset,
     watch,
     formState: { errors },
-  } = useForm<BrandKnowledgeWebsiteValues>({
-    resolver: zodResolver(brandKnowledgeWebsiteSchema),
+  } = useForm<KnowledgeWebsiteValues>({
+    resolver: zodResolver(knowledgeWebsiteSchema),
     defaultValues: {
       websiteUrl: "",
       additionalUrls: [],
@@ -213,11 +212,11 @@ export function BrandKnowledgeWebsiteModal({
 
   const { data: statusData, refetch: refetchStatus } =
     useQuery<WorkflowStatusResponse>({
-      queryKey: [...QUERY_KEYS.BRAND_KNOWLEDGE(workspaceId ?? ""), "status"],
+      queryKey: [...QUERY_KEYS.KNOWLEDGE(workspaceId ?? ""), "status"],
       enabled: !!workspaceId && isPolling,
       refetchInterval: isPolling ? 2000 : false,
       queryFn: async () => {
-        const res = await fetch("/api/ai/brand-knowledge/status");
+        const res = await fetch("/api/ai/knowledge/status");
         if (!res.ok) {
           return { status: "idle" as const, logs: [] };
         }
@@ -226,8 +225,8 @@ export function BrandKnowledgeWebsiteModal({
     });
 
   const { mutate: saveWebsite, isPending } = useMutation({
-    mutationFn: async (data: BrandKnowledgeWebsiteValues) => {
-      const res = await fetch("/api/ai/brand-knowledge", {
+    mutationFn: async (data: KnowledgeWebsiteValues) => {
+      const res = await fetch("/api/ai/knowledge", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -267,7 +266,7 @@ export function BrandKnowledgeWebsiteModal({
     }
   }, [currentStep]);
 
-  const onSubmit = (data: BrandKnowledgeWebsiteValues) => {
+  const onSubmit = (data: KnowledgeWebsiteValues) => {
     const filteredUrls = (data.additionalUrls ?? []).filter(
       (url) => url.trim() !== ""
     );
@@ -286,7 +285,7 @@ export function BrandKnowledgeWebsiteModal({
       onSuccess?.();
       if (workspaceId) {
         queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.BRAND_KNOWLEDGE(workspaceId),
+          queryKey: QUERY_KEYS.KNOWLEDGE(workspaceId),
         });
       }
     }
@@ -297,7 +296,7 @@ export function BrandKnowledgeWebsiteModal({
     onSuccess?.();
     if (workspaceId) {
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.BRAND_KNOWLEDGE(workspaceId),
+        queryKey: QUERY_KEYS.KNOWLEDGE(workspaceId),
       });
     }
   };
@@ -331,8 +330,8 @@ export function BrandKnowledgeWebsiteModal({
                     <Label htmlFor="websiteUrl">Main website URL</Label>
                     <div className="relative">
                       {watchedUrl && (
-                        <div className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2">
-                          <WebsiteFavicon size={16} url={watchedUrl} />
+                        <div className="-translate-y-1/2 pointer-events-none absolute top-1/2 left-3">
+                          <WebsiteFavicon url={watchedUrl} />
                         </div>
                       )}
                       <Input
@@ -353,7 +352,7 @@ export function BrandKnowledgeWebsiteModal({
                     <div className="flex flex-col gap-3">
                       <Label>Additional pages to crawl</Label>
                       {fields.map((field, index) => (
-                        <div key={field.id} className="flex gap-2">
+                        <div className="flex gap-2" key={field.id}>
                           <Input
                             placeholder="https://your-website.com/about"
                             {...register(`additionalUrls.${index}` as const)}
@@ -416,7 +415,6 @@ export function BrandKnowledgeWebsiteModal({
                 <div className="mb-8 flex flex-col items-center gap-3">
                   <WebsiteFavicon
                     className="shadow-lg"
-                    size={64}
                     url={submittedUrl}
                   />
                   <div className="flex flex-col items-center gap-1">
@@ -463,7 +461,7 @@ export function BrandKnowledgeWebsiteModal({
               <DialogHeader className="sr-only">
                 <DialogTitle>Analysis complete</DialogTitle>
                 <DialogDescription>
-                  Your brand knowledge has been saved.
+                  Your knowledge has been saved.
                 </DialogDescription>
               </DialogHeader>
 
@@ -477,8 +475,8 @@ export function BrandKnowledgeWebsiteModal({
                 <div className="flex flex-col items-center gap-1 text-center">
                   <p className="font-medium text-lg">Analysis complete!</p>
                   <p className="max-w-xs text-muted-foreground text-sm">
-                    We&apos;ve analyzed your website and saved the brand
-                    knowledge to your workspace.
+                    We&apos;ve analyzed your website and saved the knowledge
+                    to your workspace.
                   </p>
                 </div>
               </div>
@@ -510,7 +508,7 @@ function DebugPanel({ logs }: { logs: WorkflowLogEntry[] }) {
         onClick={() => setIsExpanded(!isExpanded)}
         type="button"
       >
-        <span className="flex items-center gap-2 text-muted-foreground text-xs font-medium">
+        <span className="flex items-center gap-2 font-medium text-muted-foreground text-xs">
           <BugIcon className="size-4" />
           Debug Logs ({logs.length})
         </span>
@@ -525,8 +523,8 @@ function DebugPanel({ logs }: { logs: WorkflowLogEntry[] }) {
           <div className="space-y-2 font-mono text-xs">
             {logs.map((log, index) => (
               <div
-                key={`${log.timestamp}-${index}`}
                 className="flex items-start gap-2"
+                key={`${log.timestamp}-${index}`}
               >
                 <span className="shrink-0 text-muted-foreground">
                   {format(new Date(log.timestamp), "HH:mm:ss")}
@@ -596,7 +594,7 @@ function EditableKnowledge({
   onCancel,
   onSave,
 }: {
-  website: BrandKnowledgeWebsite;
+  website: KnowledgeWebsite;
   onCancel: () => void;
   onSave: () => void;
 }) {
@@ -618,7 +616,7 @@ function EditableKnowledge({
 
   const { mutate: saveChanges, isPending } = useMutation({
     mutationFn: async () => {
-      const res = await fetch("/api/ai/brand-knowledge", {
+      const res = await fetch("/api/ai/knowledge", {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -641,7 +639,7 @@ function EditableKnowledge({
       toast.success("Changes saved");
       if (workspaceId) {
         queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.BRAND_KNOWLEDGE(workspaceId),
+          queryKey: QUERY_KEYS.KNOWLEDGE(workspaceId),
         });
       }
       onSave();
@@ -723,7 +721,7 @@ function EditableKnowledge({
   );
 }
 
-function CompletedKnowledge({ website }: { website: BrandKnowledgeWebsite }) {
+function CompletedKnowledge({ website }: { website: KnowledgeWebsite }) {
   const [isEditing, setIsEditing] = useState(false);
   const queryClient = useQueryClient();
   const workspaceId = useWorkspaceId();
@@ -741,7 +739,7 @@ function CompletedKnowledge({ website }: { website: BrandKnowledgeWebsite }) {
 
   const { mutate: refreshKnowledge, isPending: isRefreshing } = useMutation({
     mutationFn: async () => {
-      const res = await fetch("/api/ai/brand-knowledge", {
+      const res = await fetch("/api/ai/knowledge", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -757,10 +755,10 @@ function CompletedKnowledge({ website }: { website: BrandKnowledgeWebsite }) {
       return res.json();
     },
     onSuccess: () => {
-      toast.success("Refreshing brand knowledge...");
+      toast.success("Refreshing knowledge...");
       if (workspaceId) {
         queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.BRAND_KNOWLEDGE(workspaceId),
+          queryKey: QUERY_KEYS.KNOWLEDGE(workspaceId),
         });
       }
     },
@@ -818,28 +816,28 @@ function CompletedKnowledge({ website }: { website: BrandKnowledgeWebsite }) {
 
       <div className="flex flex-col gap-4 rounded-lg border bg-card p-4">
         <div>
-          <p className="mb-1 text-muted-foreground text-xs font-medium uppercase">
+          <p className="mb-1 font-medium text-muted-foreground text-xs uppercase">
             Tone
           </p>
-          <span className="inline-flex rounded-full border bg-muted px-3 py-1 text-xs font-medium">
+          <span className="inline-flex rounded-full border bg-muted px-3 py-1 font-medium text-xs">
             {description.tone}
           </span>
         </div>
 
         <div>
-          <p className="mb-2 text-muted-foreground text-xs font-medium uppercase">
+          <p className="mb-2 font-medium text-muted-foreground text-xs uppercase">
             Company Description
           </p>
-          <p className="text-muted-foreground text-sm whitespace-pre-line">
+          <p className="whitespace-pre-line text-muted-foreground text-sm">
             {description.summary}
           </p>
         </div>
 
         <div>
-          <p className="mb-2 text-muted-foreground text-xs font-medium uppercase">
+          <p className="mb-2 font-medium text-muted-foreground text-xs uppercase">
             Target Audience
           </p>
-          <p className="text-muted-foreground text-sm whitespace-pre-line">
+          <p className="whitespace-pre-line text-muted-foreground text-sm">
             {description.audience}
           </p>
         </div>
@@ -853,7 +851,7 @@ function PageClient() {
   const [isPolling, setIsPolling] = useState(false);
 
   const { data, isLoading, refetch } = useQuery<{
-    website: BrandKnowledgeWebsite | null;
+    website: KnowledgeWebsite | null;
     workflowState?: {
       currentStep: WorkflowStep;
       websiteUrl: string;
@@ -861,26 +859,26 @@ function PageClient() {
       error?: string;
     };
   }>({
-    queryKey: QUERY_KEYS.BRAND_KNOWLEDGE(workspaceId ?? ""),
+    queryKey: QUERY_KEYS.KNOWLEDGE(workspaceId ?? ""),
     enabled: !!workspaceId,
     staleTime: 1000 * 60,
     refetchInterval: isPolling ? 2000 : false,
     queryFn: async () => {
-      const res = await fetch("/api/ai/brand-knowledge");
+      const res = await fetch("/api/ai/knowledge");
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || "Failed to load brand knowledge");
+        throw new Error(err.error || "Failed to load knowledge");
       }
       return res.json();
     },
   });
 
   const { data: statusData } = useQuery<WorkflowStatusResponse>({
-    queryKey: [...QUERY_KEYS.BRAND_KNOWLEDGE(workspaceId ?? ""), "status"],
+    queryKey: [...QUERY_KEYS.KNOWLEDGE(workspaceId ?? ""), "status"],
     enabled: !!workspaceId && isPolling,
     refetchInterval: isPolling ? 2000 : false,
     queryFn: async () => {
-      const res = await fetch("/api/ai/brand-knowledge/status");
+      const res = await fetch("/api/ai/knowledge/status");
       if (!res.ok) {
         return { status: "idle" as const, logs: [] };
       }
@@ -898,8 +896,7 @@ function PageClient() {
     workflowState.currentStep !== "error";
 
   const isInProgress =
-    description?.status &&
-    !["completed", "error"].includes(description.status);
+    description?.status && !["completed", "error"].includes(description.status);
 
   const logs = statusData?.logs ?? workflowState?.logs ?? [];
   const workflowError = statusData?.error ?? workflowState?.error;
@@ -960,7 +957,7 @@ function PageClient() {
             logs={logs}
             websiteUrl={website.url}
           />
-          <BrandKnowledgeWebsiteModal onSuccess={() => refetch()} />
+          <KnowledgeWebsiteModal onSuccess={() => refetch()} />
         </div>
       </WorkspacePageWrapper>
     );
@@ -974,10 +971,10 @@ function PageClient() {
         </div>
         <div className="flex flex-col items-center gap-4 text-center">
           <p className="text-muted-foreground text-sm">
-            Configure your brand knowledge settings to improve SEO and content
+            Configure your knowledge settings to improve SEO and content
             quality.
           </p>
-          <BrandKnowledgeWebsiteModal onSuccess={() => refetch()} />
+          <KnowledgeWebsiteModal onSuccess={() => refetch()} />
         </div>
       </div>
     </WorkspacePageWrapper>
@@ -985,3 +982,4 @@ function PageClient() {
 }
 
 export default PageClient;
+

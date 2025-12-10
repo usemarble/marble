@@ -1,8 +1,8 @@
 import PageClient from "./page-client";
 
 export const metadata = {
-  title: "Brand Knowledge",
-  description: "Manage your brand knowledge",
+  title: "Knowledge",
+  description: "Manage your knowledge",
 };
 
 function Page() {
@@ -10,3 +10,4 @@ function Page() {
 }
 
 export default Page;
+
