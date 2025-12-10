@@ -261,14 +261,14 @@
 }
 
 @layer base {
-  html {
-    scrollbar-gutter: stable;
-  }
   * {
     @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
+  }
+  html {
+    scrollbar-gutter: stable;
   }
   .darkbackground {
     background-color: hsl(150, 4%, 9%);
