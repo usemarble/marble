@@ -1,15 +1,17 @@
 ---
+import SpeedInsights from "@vercel/speed-insights/astro";
 import FooterComponent from "@/components/Footer.astro";
 import HeadComponent from "@/components/Head.astro";
 import HeaderComponent from "@/components/Header.astro";
 import ScrollToTop from "@/components/ScrollToTop.astro";
 
-const { title, description, image } = Astro.props;
+const { title, description, image, canonical } = Astro.props;
 ---
 <!doctype html>
 <html lang="en">
   <head>
-    <HeadComponent title={title} description={description} image={image}/>
+    <HeadComponent title={title} description={description} image={image} canonical={canonical}/>
+    <SpeedInsights />
   </head>
   <body>
     <HeaderComponent />

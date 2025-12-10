@@ -284,7 +284,7 @@ function PageClient() {
               <Label className="sr-only" htmlFor="email">
                 Email
               </Label>
-              <Input defaultValue={user?.email} readOnly />
+              <Input defaultValue={user?.email} disabled readOnly />
             </div>
           </CardContent>
           <CardFooter className="border-t">

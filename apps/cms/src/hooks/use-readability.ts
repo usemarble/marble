@@ -1,7 +1,7 @@
 "use client";
 
+import type { Editor } from "@marble/editor";
 import { useQuery } from "@tanstack/react-query";
-import type { EditorInstance } from "novel";
 import { useMemo } from "react";
 import { useDebounce } from "@/hooks/use-debounce";
 import { fetchAiReadabilitySuggestionsStrings } from "@/lib/ai/readability";
@@ -14,7 +14,7 @@ import {
 } from "@/utils/readability";
 
 type UseReadabilityParams = {
-  editor?: EditorInstance | null;
+  editor: Editor | null;
   text: string;
 };
 
@@ -46,7 +46,7 @@ function countSyllablesForWord(word: string): number {
   return matches ? matches.length : 1;
 }
 
-function computeMetrics(text: string, editor?: EditorInstance | null) {
+function computeMetrics(text: string, editor?: Editor | null) {
   if (!text || text.trim().length === 0) {
     return {
       wordCount: 0,

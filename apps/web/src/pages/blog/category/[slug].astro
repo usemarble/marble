@@ -29,6 +29,7 @@ const postsResponse = await fetchPosts(`?categories=${entry.data.slug}`);
 <Layout
   title={`${entry.data.name} - ${SITE.TITLE}`}
   description={entry.data.description}
+  canonical="/blog"
 >
   <section class="lg:border-y border-dashed min-h-[calc(100vh-140px)]">
     <div

@@ -2,40 +2,39 @@
 import { SITE } from "@/lib/constants";
 import "@/styles/globals.css";
 import { Font } from "astro:assets";
+import { getSecret } from "astro:env/server";
 import { ClientRouter } from "astro:transitions";
 
 type Props = {
   title: string;
   description: string;
   image?: string;
+  canonical?: string;
 };
 
-const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const { title, description, image = "/og.jpg", canonical } = Astro.props;
 
-const { title, description, image = "/og.jpg" } = Astro.props;
+const canonicalURL = canonical
+  ? new URL(canonical, Astro.site)
+  : new URL(Astro.url.pathname, Astro.site);
 ---
-<!-- Global Metadata -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <meta name="generator" content={Astro.generator}>
 
-<!-- Favicons -->
 <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
 <link rel="shortcut icon" href="/favicon.ico">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="MyWebSite">
 <link rel="manifest" href="/site.webmanifest">
 
-<!-- Canonical URL -->
 <link rel="canonical" href={canonicalURL}>
 
-<!-- Page Meta Tags -->
 <title>{title}</title>
 <meta name="title" content={title}>
 <meta name="description" content={description}>
 
-<!-- Open Graph Tags -->
 <meta property="og:type" content="website">
 <meta property="og:url" content={Astro.url}>
 <meta property="og:title" content={title}>
@@ -43,14 +42,12 @@ const { title, description, image = "/og.jpg" } = Astro.props;
 <meta property="og:description" content={description}>
 <meta property="og:image" content={new URL(image, Astro.url)}>
 
-<!-- Twitter Open Graph -->
 <meta property="twitter:card" content="summary_large_image">
 <meta property="twitter:url" content={Astro.url}>
 <meta property="twitter:title" content={title}>
 <meta property="twitter:description" content={description}>
 <meta property="twitter:image" content={new URL(image, Astro.url)}>
 
-<!-- Discovery -->
 <link rel="sitemap" href="/sitemap-index.xml">
 <link
   rel="alternate"
@@ -59,11 +56,10 @@ const { title, description, image = "/og.jpg" } = Astro.props;
   href={new URL('rss.xml', Astro.site)}
 >
 
-<!-- DataDaddy Analytics -->
 <script
   is:inline
   src="https://cdn.databuddy.cc/databuddy.js"
-  data-client-id="Dq_1D8IsZscrCY2rNneFZ"
+  data-client-id={getSecret("DATABUDDY_CLIENT_ID")}
   data-track-web-vitals="true"
   data-track-errors="true"
   data-enable-batching="true"
@@ -71,9 +67,7 @@ const { title, description, image = "/og.jpg" } = Astro.props;
   async
 />
 
-<!-- Fonts -->
 <Font cssVariable="--font-geist" preload/>
 <Font cssVariable="--font-literata"/>
 
-<!-- Client Router -->
 <ClientRouter />

@@ -12,6 +12,7 @@ import {
 } from "@/lib/plans";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { useWorkspace } from "@/providers/workspace";
+import type { UsageDashboardData } from "@/types/dashboard";
 
 type BillingUsage = {
   media: number;
@@ -51,18 +52,21 @@ export function usePlan() {
   const checkLimits = (usage: Parameters<typeof isOverLimit>[1]) =>
     isOverLimit(currentPlan, usage);
 
+  const workspaceId = activeWorkspace?.id;
+
   const { data } = useQuery({
-    // biome-ignore lint/style/noNonNullAssertion: <>
-    queryKey: QUERY_KEYS.BILLING_USAGE(activeWorkspace!.id),
-    staleTime: 1000 * 60 * 5,
-    queryFn: async (): Promise<BillingUsage> => {
-      const res = await fetch("/api/billing/usage");
-      if (!res.ok) {
-        throw new Error("Failed to fetch billing usage");
+    queryKey: workspaceId
+      ? QUERY_KEYS.USAGE_DASHBOARD(workspaceId)
+      : ["usage-dashboard", "disabled"],
+    queryFn: async (): Promise<UsageDashboardData> => {
+      const response = await fetch("/api/metrics/usage");
+      if (!response.ok) {
+        throw new Error("Failed to fetch usage metrics");
       }
-      return res.json();
+      return response.json();
     },
-    enabled: !!activeWorkspace?.id,
+    enabled: Boolean(workspaceId),
+    staleTime: 1000 * 60 * 10,
   });
 
   const isFreePlan = currentPlan === "free";
@@ -80,6 +84,7 @@ export function usePlan() {
     isFreePlan,
     isProPlan,
     isTeamPlan,
-    currentMediaUsage: data?.media ?? 0,
+    currentMediaUsage: data?.media.total ?? 0,
+    currentApiRequests: data?.api.totals.total ?? 0,
   };
 }

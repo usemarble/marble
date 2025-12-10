@@ -4,14 +4,18 @@ import { useQuery } from "@tanstack/react-query";
 import { notFound, useParams } from "next/navigation";
 import EditorPage from "@/components/editor/editor-page";
 import PageLoader from "@/components/shared/page-loader";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { PostValues } from "@/lib/validations/post";
 
 function PageClient() {
   const params = useParams<{ id: string }>();
+  const workspaceId = useWorkspaceId();
 
   const { data: postData, isLoading } = useQuery({
-    queryKey: ["post", params.id],
+    queryKey: QUERY_KEYS.POST(workspaceId ?? "", params.id),
     staleTime: 1000 * 60 * 5,
+    enabled: !!workspaceId,
     queryFn: async () => {
       const res = await fetch(`/api/posts/${params.id}`);
       if (!res.ok) {

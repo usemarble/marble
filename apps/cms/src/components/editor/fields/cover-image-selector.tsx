@@ -2,12 +2,12 @@
 
 import { Button } from "@marble/ui/components/button";
 import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-} from "@marble/ui/components/drawer";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@marble/ui/components/dialog";
 import { Input } from "@marble/ui/components/input";
 import { ScrollArea } from "@marble/ui/components/scroll-area";
 import { toast } from "@marble/ui/components/sonner";
@@ -85,18 +85,14 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
   });
 
   // Fetch media
-  const { data: media } = useQuery({
+  const { data: media, isLoading: isLoadingMedia } = useQuery({
     // biome-ignore lint/style/noNonNullAssertion: <>
     queryKey: QUERY_KEYS.MEDIA(workspaceId!),
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
-      try {
-        const res = await fetch("/api/media");
-        const data: MediaListResponse = await res.json();
-        return data.media;
-      } catch (_error) {
-        return [];
-      }
+      const res = await fetch("/api/media");
+      const data: MediaListResponse = await res.json();
+      return data.media;
     },
     enabled: !!workspaceId,
   });
@@ -268,46 +264,52 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
       </div>
       {renderContent()}
 
-      <Drawer onOpenChange={setIsGalleryOpen} open={isGalleryOpen}>
-        <DrawerContent className="mt-4 flex min-h-[95vh] flex-col">
-          <DrawerHeader className="sr-only">
-            <DrawerTitle>Gallery</DrawerTitle>
-            <DrawerDescription>
-              Select an image from your media library to use as your cover
-              image.
-            </DrawerDescription>
-          </DrawerHeader>
-          {media && media.length > 0 ? (
-            <div className="flex-1 overflow-y-auto">
-              <ScrollArea className="h-full">
-                <ul className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-4 p-4">
-                  {media
-                    .filter((item) => item.type === "image")
-                    .map((item) => (
-                      <li
-                        className="group relative h-48 overflow-hidden rounded-[4px]"
-                        key={item.id}
+      {/* Media Gallery Dialog */}
+      <Dialog onOpenChange={setIsGalleryOpen} open={isGalleryOpen}>
+        <DialogHeader className="sr-only">
+          <DialogTitle>Media Gallery</DialogTitle>
+          <DialogDescription>
+            Select an image from your media library to use as your cover image.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogContent className="max-h-[800px] min-w-[1000px] sm:min-w-[1000px]">
+          {isLoadingMedia ? (
+            <div className="flex h-full items-center justify-center p-8">
+              <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                <p className="font-medium text-sm">Loading media...</p>
+              </div>
+            </div>
+          ) : media && media.length > 0 ? (
+            <ScrollArea className="max-h-[550px]">
+              <ul className="m-0 grid w-full list-none grid-cols-[repeat(auto-fill,minmax(8.125rem,1fr))] gap-2.5 p-0">
+                {media
+                  ?.filter((item) => item.type === "image")
+                  .map((item) => (
+                    <li
+                      className="group relative size-[8.125rem]"
+                      key={item.id}
+                    >
+                      <button
+                        className="flex h-full w-full items-center justify-center rounded-lg border border-border bg-background p-1 transition-opacity hover:opacity-80"
+                        onClick={() => handleImageSelect(item.url)}
+                        type="button"
                       >
-                        <button
-                          className="h-full w-full cursor-pointer"
-                          onClick={() => handleImageSelect(item.url)}
-                          type="button"
-                        >
-                          {/* biome-ignore lint/performance/noImgElement: <> */}
-                          {/** biome-ignore lint/correctness/useImageSize: <> */}
+                        <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-md border border-border">
+                          {/* biome-ignore lint/performance/noImgElement: Preview image in dialog */}
+                          {/* biome-ignore lint/correctness/useImageSize: Dynamic image sizes from media library */}
                           <img
                             alt={item.name}
-                            className="h-full w-full object-cover"
+                            className="h-full w-full object-contain"
                             src={item.url}
                           />
-                        </button>
-                      </li>
-                    ))}
-                </ul>
-              </ScrollArea>
-            </div>
+                        </div>
+                      </button>
+                    </li>
+                  ))}
+              </ul>
+            </ScrollArea>
           ) : (
-            <div className="grid h-full flex-1 place-items-center p-4">
+            <div className="flex min-h-[400px] items-center justify-center p-8">
               <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
                 <ImagesIcon className="size-8" />
                 <p className="font-medium text-sm">
@@ -316,8 +318,8 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
               </div>
             </div>
           )}
-        </DrawerContent>
-      </Drawer>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

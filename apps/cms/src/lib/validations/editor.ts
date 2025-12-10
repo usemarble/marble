@@ -15,6 +15,7 @@ export const aiReadabilityBodySchema = z.object({
     readabilityScore: z.number(),
     readingTime: z.number(),
   }),
+  postId: z.string().optional(),
 });
 
 export const aiReadabilityResponseSchema = z.object({

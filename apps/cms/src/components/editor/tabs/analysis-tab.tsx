@@ -1,5 +1,6 @@
 "use client";
 
+import { useCurrentEditor } from "@marble/editor";
 import { Button } from "@marble/ui/components/button";
 import { Separator } from "@marble/ui/components/separator";
 import {
@@ -8,7 +9,6 @@ import {
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { ArrowClockwiseIcon, InfoIcon } from "@phosphor-icons/react";
-import type { EditorInstance } from "novel";
 import { useEffect, useState } from "react";
 import { useReadability } from "@/hooks/use-readability";
 import { useUnsavedChanges } from "@/providers/unsaved-changes";
@@ -18,7 +18,6 @@ import type { ReadabilitySuggestion } from "../ai/readability-suggestions";
 import { ReadabilitySuggestions } from "../ai/readability-suggestions";
 
 type AnalysisTabProps = {
-  editor?: EditorInstance | null;
   aiSuggestions?: ReadabilitySuggestion[];
   aiLoading?: boolean;
   onRefreshAi?: () => void;
@@ -27,13 +26,13 @@ type AnalysisTabProps = {
 };
 
 export function AnalysisTab({
-  editor,
   aiSuggestions,
   aiLoading,
   onRefreshAi,
   aiEnabled,
   localSuggestions,
 }: AnalysisTabProps) {
+  const { editor } = useCurrentEditor();
   const [editorText, setEditorText] = useState("");
   const { setHasUnsavedChanges } = useUnsavedChanges();
 
@@ -123,7 +122,7 @@ export function AnalysisTab({
                     <TooltipTrigger asChild>
                       <InfoIcon
                         aria-label="AI generated"
-                        className="h-3.5 w-3.5 text-muted-foreground"
+                        className="h-3.5 w-3.5 cursor-help text-muted-foreground"
                       />
                     </TooltipTrigger>
                     <TooltipContent>

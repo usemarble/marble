@@ -1,3 +1,4 @@
+import { useCurrentEditor } from "@marble/editor";
 import { Button } from "@marble/ui/components/button";
 import { Label } from "@marble/ui/components/label";
 import {
@@ -9,7 +10,6 @@ import { Separator } from "@marble/ui/components/separator";
 import { Switch } from "@marble/ui/components/switch";
 import { cn } from "@marble/ui/lib/utils";
 import { CheckIcon, LinkSimpleIcon, TrashIcon } from "@phosphor-icons/react";
-import { useEditor } from "novel";
 import { useEffect, useRef, useState } from "react";
 
 export function isValidUrl(url: string) {
@@ -41,7 +41,7 @@ type LinkSelectorProps = {
 
 export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const { editor } = useEditor();
+  const { editor } = useCurrentEditor();
   const [openInNewTab, setOpenInNewTab] = useState(true);
   const [inputValue, setInputValue] = useState("");
 
