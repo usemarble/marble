@@ -13,7 +13,7 @@ import { MEDIA_FILTER_TYPES, MEDIA_SORTS } from "@/lib/constants";
 import { uploadFile } from "@/lib/media/upload";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { getMediaApiUrl, useMediaPageFilters } from "@/lib/search-params";
-import type { MediaListResponse, MediaQueryKey } from "@/types/media";
+import type { Media, MediaListResponse, MediaQueryKey } from "@/types/media";
 import { toMediaType } from "@/utils/media";
 
 function PageClient() {
@@ -22,7 +22,7 @@ function PageClient() {
   const normalizedType = toMediaType(type);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [mediaToDelete, setMediaToDelete] = useState<typeof mediaItems>([]);
+  const [mediaToDelete, setMediaToDelete] = useState<Media[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
 
@@ -82,7 +82,6 @@ function PageClient() {
       const normalizedType = toMediaType(filterType);
 
       for (const sortOption of MEDIA_SORTS) {
-        // Skip current active combo since it's already fetched
         if (filterType === type && sortOption === sort) {
           continue;
         }
@@ -154,7 +153,6 @@ function PageClient() {
     let uploaded = 0;
     let failed = 0;
 
-    // For single file, show simple message; for multiple, show count
     const getUploadMessage = (current: number, totalFiles: number) => {
       if (totalFiles === 1) {
         return "Uploading image...";

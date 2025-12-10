@@ -113,7 +113,6 @@ export function DeleteMediaModal({
           : `${deletedCount} items deleted successfully`;
       toast.success(message, { id: "deleting-media" });
 
-      // Invalidate billing usage to update storage stats
       if (workspaceId) {
         queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.BILLING_USAGE(workspaceId),
@@ -137,7 +136,6 @@ export function DeleteMediaModal({
     }
   };
 
-  // Dynamic content based on single vs multiple items
   const title = isSingleItem
     ? `Delete this ${singleItem?.type || "media"}?`
     : `Delete ${count} media items?`;

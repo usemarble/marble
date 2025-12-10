@@ -75,10 +75,10 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
           <>
             <motion.div
               animate={{ opacity: 1 }}
-              className="fixed inset-0 z-10 bg-black/30 backdrop-blur-xs"
+              className="fixed inset-0 z-55 bg-black/30 backdrop-blur-xs"
               exit={{ opacity: 0 }}
             />
-            <div className="pointer-events-none fixed inset-0 z-50 grid place-items-center">
+            <div className="pointer-events-none fixed inset-0 z-56 grid place-items-center">
               <motion.div
                 aria-labelledby={`file-name-${selectedFile.id}`}
                 aria-modal="true"
@@ -138,15 +138,21 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
                     layoutId={`image-${selectedFile.id}`}
                   >
                     {selectedFile.type === "image" ? (
-                      <motion.img
-                        alt={selectedFile.name}
+                      <motion.div
                         animate={{ opacity: 1 }}
-                        className="h-full w-full object-cover"
+                        className="h-full w-full"
                         exit={{ opacity: 0 }}
                         initial={{ opacity: 0 }}
-                        src={selectedFile.url}
                         transition={{ duration: 0.2 }}
-                      />
+                      >
+                        <img
+                          alt={selectedFile.name}
+                          className="h-full w-full object-cover"
+                          height={350}
+                          src={selectedFile.url}
+                          width={600}
+                        />
+                      </motion.div>
                     ) : selectedFile.type === "video" ? (
                       <div className="relative h-full w-full">
                         <VideoPlayer
