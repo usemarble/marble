@@ -261,6 +261,9 @@
 }
 
 @layer base {
+  html {
+    scrollbar-gutter: stable;
+  }
   * {
     @apply border-border;
   }
@@ -350,6 +353,3 @@
   }
 }
 
-@utility scrollbar-stable {
-  scrollbar-gutter: stable;
-}
