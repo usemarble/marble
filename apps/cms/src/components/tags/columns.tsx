@@ -7,6 +7,7 @@ export type Tag = {
   id: string;
   name: string;
   slug: string;
+  description?: string | null;
   postsCount: number;
 };
 

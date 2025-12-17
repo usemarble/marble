@@ -38,7 +38,7 @@ export function TagModal({
   open,
   setOpen,
   mode = "create",
-  tagData = { name: "", slug: "" },
+  tagData = { name: "", slug: "", description: "" },
   onTagCreated,
 }: {
   open: boolean;
@@ -57,7 +57,7 @@ export function TagModal({
     formState: { errors, isSubmitting },
   } = useForm<CreateTagValues>({
     resolver: zodResolver(tagSchema),
-    defaultValues: { name: tagData.name || "", slug: tagData.slug || "" },
+    defaultValues: { name: tagData.name || "", slug: tagData.slug || "", description: tagData.description || "" },
   });
 
   const { name } = watch();

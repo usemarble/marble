@@ -40,12 +40,14 @@ export default function TableActions(props: Tag) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <TagModal
-        mode="update"
-        open={showUpdateModal}
-        setOpen={setShowUpdateModal}
-        tagData={{ ...props }}
-      />
+      {showUpdateModal && (
+        <TagModal
+          mode="update"
+          open={showUpdateModal}
+          setOpen={setShowUpdateModal}
+          tagData={{ ...props }}
+        />
+      )}
 
       <DeleteTagModal
         id={props.id}
