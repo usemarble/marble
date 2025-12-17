@@ -42,7 +42,7 @@ export const CategoryModal = ({
   open,
   setOpen,
   mode = "create",
-  categoryData = { name: "", slug: "" },
+  categoryData = { name: "", slug: "", description: "" },
   onCategoryCreated,
 }: {
   open: boolean;
@@ -68,6 +68,7 @@ export const CategoryModal = ({
     defaultValues: {
       name: categoryData.name || "",
       slug: categoryData.slug || "",
+      description: categoryData.description || "",
     },
   });
 

@@ -18,6 +18,7 @@ export async function GET() {
       id: true,
       name: true,
       slug: true,
+      description: true,
       _count: {
         select: {
           posts: true,
@@ -70,6 +71,7 @@ export async function POST(req: Request) {
     data: {
       name: body.data.name,
       slug: body.data.slug,
+      description: body.data.description,
       workspaceId,
     },
   });

@@ -47,6 +47,7 @@ export async function PATCH(
     data: {
       name: body.data.name,
       slug: body.data.slug,
+      description: body.data.description,
     },
   });
 
