@@ -25,6 +25,12 @@ export const keyAnalytics = (): MiddlewareHandler<ApiKeyApp> => {
     const apiKeyType = c.get("apiKeyType");
     const status = c.res.status ?? 200;
 
+    // Validate workspaceId before analytics
+    if (!workspaceId) {
+      console.warn("[KeyAnalytics] Missing workspaceId, skipping analytics");
+      return;
+    }
+
     if (method === "OPTIONS" || status >= 400) {
       return;
     }
