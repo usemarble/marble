@@ -95,7 +95,7 @@ export function DataGrid({ data }: DataGridProps) {
               </CardContent>
             </Link>
             <CardFooter className="px-2 py-2.5">
-              <ul className="-space-x-2 flex items-center">
+              <ul className="flex items-center -space-x-2">
                 {post.authors.map((author) => (
                   <li className="flex items-center" key={author.id}>
                     <Tooltip>

@@ -285,14 +285,14 @@ export const FigureView = ({
               <>
                 {/* Left handle */}
                 <button
-                  className="-translate-x-1/2 -translate-y-1/2 absolute top-1/2 left-0 z-20 h-16 w-2 cursor-ew-resize rounded-sm bg-primary opacity-0 transition-opacity hover:opacity-100"
+                  className="absolute top-1/2 left-0 z-20 h-16 w-2 -translate-x-1/2 -translate-y-1/2 cursor-ew-resize rounded-sm bg-primary opacity-0 transition-opacity hover:opacity-100"
                   onMouseDown={handleResizeStart}
                   title="Drag to resize"
                   type="button"
                 />
                 {/* Right handle */}
                 <button
-                  className="-translate-y-1/2 absolute top-1/2 right-0 z-20 h-16 w-2 translate-x-1/2 cursor-ew-resize rounded-sm bg-primary opacity-0 transition-opacity hover:opacity-100"
+                  className="absolute top-1/2 right-0 z-20 h-16 w-2 translate-x-1/2 -translate-y-1/2 cursor-ew-resize rounded-sm bg-primary opacity-0 transition-opacity hover:opacity-100"
                   onMouseDown={handleResizeStart}
                   title="Drag to resize"
                   type="button"
