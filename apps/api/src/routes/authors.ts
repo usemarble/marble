@@ -1,5 +1,6 @@
 import { createClient } from "@marble/db/workers";
 import { Hono } from "hono";
+import { getWorkspaceId } from "../lib/workspace";
 import type { Env } from "../types/env";
 import { AuthorQuerySchema, AuthorsQuerySchema } from "../validations/authors";
 
@@ -7,7 +8,7 @@ const authors = new Hono<{ Bindings: Env }>();
 
 authors.get("/", async (c) => {
   const url = c.env.DATABASE_URL;
-  const workspaceId = c.req.param("workspaceId");
+  const workspaceId = getWorkspaceId(c);
   const db = createClient(url);
 
   // Validate query parameters
@@ -125,7 +126,7 @@ authors.get("/", async (c) => {
 
 authors.get("/:identifier", async (c) => {
   const url = c.env.DATABASE_URL;
-  const workspaceId = c.req.param("workspaceId");
+  const workspaceId = getWorkspaceId(c);
   const identifier = c.req.param("identifier");
   const db = createClient(url);
 

@@ -11,8 +11,15 @@ export type RateLimit = {
 
 const cache = new Map();
 
+type RateLimitMode = "workspace" | "apiKey";
+
+/**
+ * Rate limiting middleware using Upstash Redis
+ * @param mode - "workspace" for legacy routes (IP + workspaceId), "apiKey" for API key routes
+ */
 export const ratelimit =
-  (): MiddlewareHandler => async (c: Context, next: Next) => {
+  (mode: RateLimitMode = "workspace"): MiddlewareHandler =>
+  async (c: Context, next: Next) => {
     try {
       const redisClient = createRedisClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
 
@@ -21,17 +28,29 @@ export const ratelimit =
         c.req.header("cf-connecting-ip") ||
         "anonymous";
 
-      const workspaceId: string | null = c.req.param("workspaceId") ?? null;
+      let identifier: string;
+      let limitConfig: ReturnType<typeof Ratelimit.slidingWindow>;
 
-      const identifier = workspaceId
-        ? `${clientIp}:workspace:${workspaceId}`
-        : clientIp;
+      if (mode === "apiKey") {
+        // For API key routes, we rate limit by IP initially
+        // After keyAuthorization runs, we could enhance this
+        // For now: IP-based with higher limits since API keys are trusted
+        identifier = `apikey:${clientIp}`;
+        limitConfig = Ratelimit.slidingWindow(200, "10 s");
+      } else {
+        // Legacy workspace mode: IP + workspaceId
+        const workspaceId: string | null = c.req.param("workspaceId") ?? null;
+        identifier = workspaceId
+          ? `${clientIp}:workspace:${workspaceId}`
+          : clientIp;
+        limitConfig = workspaceId
+          ? Ratelimit.slidingWindow(200, "10 s")
+          : Ratelimit.slidingWindow(10, "10 s");
+      }
 
       const rateLimiter = new Ratelimit({
         redis: redisClient,
-        limiter: workspaceId
-          ? Ratelimit.slidingWindow(200, "10 s")
-          : Ratelimit.slidingWindow(10, "10 s"),
+        limiter: limitConfig,
         ephemeralCache: cache,
       });
 
