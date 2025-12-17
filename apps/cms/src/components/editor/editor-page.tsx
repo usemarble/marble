@@ -77,8 +77,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
       }),
     onSuccess: (data) => {
       toast.success("Post created");
-      window.location.href = `/${params.workspace}/editor/p/${data.id}`;
-      // router.push(`/${params.workspace}/editor/p/${data.id}`);
+      router.push(`/${params.workspace}/editor/p/${data.id}`);
       if (workspaceId) {
         queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.POSTS(workspaceId),
@@ -129,91 +128,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
     initialDataRef.current = initialData;
   }, [initialData, form.reset]);
 
-  // Debounced form update to reduce React Hook Form rerenders
-  const updateFormValues = useCallback(
-    (html: string, json: JSONContent) => {
-      if (html.length > 0) {
-        clearErrors("content");
-      }
-      setValue("content", html);
-      setValue("contentJson", JSON.stringify(json));
-    },
-    [setValue, clearErrors]
-  );
-
-  const debouncedUpdateFormValues = useMemo(() => {
-    let timeoutId: NodeJS.Timeout;
-    return (html: string, json: JSONContent) => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        updateFormValues(html, json);
-      }, 150);
-    };
-  }, [updateFormValues]);
-
-  // Create stable onUpdate callback ref to avoid recreating editor
-  const onUpdateRef = useRef<
-    ((html: string, json: JSONContent) => void) | null
-  >(null);
-
   useEffect(() => {
-    onUpdateRef.current = debouncedUpdateFormValues;
-  }, [debouncedUpdateFormValues]);
-
-  // Track content changes and idle callback for performance
-  const contentChangedRef = useRef(false);
-  const idleCallbackId = useRef<number | null>(null);
-  const editorRef = useRef<Editor | null>(null);
-
-  const initialContentRef = useRef<string>(initialData?.content ?? "");
-  const editor = useEditor({
-    extensions: defaultExtensions,
-    content: initialContentRef.current,
-    editorProps: {
-      attributes: {
-        class:
-          "prose dark:prose-invert min-h-96 h-full sm:px-4 focus:outline-hidden max-w-full prose-blockquote:border-border",
-      },
-    },
-    onUpdate: ({ editor }) => {
-      contentChangedRef.current = true;
-      editorRef.current = editor;
-
-      // Cancel previous idle callback if exists
-      if (idleCallbackId.current !== null) {
-        cancelIdleCallback(idleCallbackId.current);
-      }
-
-      // Schedule serialization when browser is idle
-      idleCallbackId.current = requestIdleCallback(
-        () => {
-          if (contentChangedRef.current && editorRef.current) {
-            const html = editorRef.current.getHTML();
-            const json = editorRef.current.getJSON();
-            onUpdateRef.current?.(html, json);
-            contentChangedRef.current = false;
-          }
-        },
-        { timeout: 100 }
-      );
-    },
-    immediatelyRender: false,
-    shouldRerenderOnTransaction: false,
-  });
-
-  // Cleanup idle callback on unmount
-  useEffect(
-    () => () => {
-      if (idleCallbackId.current !== null) {
-        cancelIdleCallback(idleCallbackId.current);
-      }
-    },
-    []
-  );
-
-  // Debounce unsaved changes check to reduce overhead
-  useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
     const subscription = watch((currentValues) => {
       const initial = initialDataRef.current;
       // Compare HTML content directly instead of parsing JSON
@@ -236,10 +151,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
       }
     });
 
-    return () => {
-      clearTimeout(timeoutId);
-      subscription.unsubscribe();
-    };
+    return () => subscription.unsubscribe();
   }, [watch, setHasUnsavedChanges]);
 
   // Image upload handler
@@ -293,7 +205,6 @@ function EditorPage({ initialData, id }: EditorPageProps) {
   );
 
   function onSubmit(values: PostValues) {
-    // return console.log(values)
     if (isUpdateMode && id) {
       updatePost(values);
     } else {
