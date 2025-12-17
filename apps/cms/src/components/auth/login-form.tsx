@@ -187,7 +187,7 @@ export function LoginForm() {
                 {...register("password")}
               />
               <button
-                className="-translate-y-1/2 absolute top-1/2 right-4 text-muted-foreground"
+                className="absolute top-1/2 right-4 -translate-y-1/2 text-muted-foreground"
                 onClick={() => setIsPasswordVisible((prev) => !prev)}
                 type="button"
               >
