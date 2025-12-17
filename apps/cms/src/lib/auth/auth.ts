@@ -7,11 +7,12 @@ import {
   webhooks,
 } from "@polar-sh/better-auth";
 import { Polar } from "@polar-sh/sdk";
-import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { createAuthMiddleware } from "better-auth/api";
+import { betterAuth } from "better-auth/minimal";
 import { nextCookies } from "better-auth/next-js";
 import { emailOTP, organization } from "better-auth/plugins";
+import { customAlphabet } from "nanoid";
 import {
   sendInviteEmailAction,
   sendResetPasswordAction,
@@ -25,6 +26,7 @@ import { handleSubscriptionCreated } from "@/lib/polar/subscription.created";
 import { handleSubscriptionRevoked } from "@/lib/polar/subscription.revoked";
 import { handleSubscriptionUpdated } from "@/lib/polar/subscription.updated";
 import { getLastActiveWorkspaceOrNewOneToSetAsActive } from "@/lib/queries/workspace";
+import { guardWorkspaceSubscriptionAction } from "../actions/checks";
 import {
   createAuthor,
   validateWorkspaceName,
@@ -33,6 +35,8 @@ import {
   validateWorkspaceTimezone,
 } from "../actions/workspace";
 import { redis } from "../redis";
+
+const nanoid = customAlphabet("abcdefghijklmnopqrstuvwxyz0123456789", 6);
 
 const polarClient = new Polar({
   accessToken: process.env.POLAR_ACCESS_TOKEN,
@@ -43,6 +47,9 @@ export const auth = betterAuth({
   database: prismaAdapter(db, {
     provider: "postgresql",
   }),
+  experimental: {
+    joins: true,
+  },
   secondaryStorage: {
     get: async (key) => await redis.get(key),
     set: async (key, value, ttl) => {
@@ -188,6 +195,18 @@ export const auth = betterAuth({
             await validateWorkspaceTimezone(organization.timezone);
           }
         },
+        beforeCreateInvitation: async ({ organization }) => {
+          await guardWorkspaceSubscriptionAction(
+            organization.id,
+            "Upgrade to Pro to invite team members"
+          );
+        },
+        // beforeAddMember: async ({ organization }) => {
+        //   await guardWorkspaceSubscriptionAction(
+        //     organization.id,
+        //     "Upgrade to Pro to add team members"
+        //   );
+        // },
       },
     }),
     emailOTP({
@@ -245,6 +264,25 @@ export const auth = betterAuth({
       create: {
         after: async (user) => {
           await storeUserImageAction(user);
+
+          const email = user.email || "";
+          const raw = email.split("@")[0] || "";
+          const base = raw
+            .toLowerCase()
+            .replace(/[^a-z0-9]/g, "")
+            .slice(0, 20);
+
+          const slug = `${base || "marble"}-${nanoid()}`;
+
+          await auth.api.createOrganization({
+            body: {
+              name: "Personal",
+              slug,
+              timezone: "Europe/London",
+              userId: user.id,
+              logo: `https://api.dicebear.com/9.x/glass/svg?seed=${slug}`,
+            },
+          });
         },
       },
     },

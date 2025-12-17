@@ -22,7 +22,7 @@ import { useUser } from "@/providers/user";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
-  const { user, isSigningOut, signOut, isFetchingUser } = useUser();
+  const { user, signOut, isFetchingUser } = useUser();
 
   if (!user || isFetchingUser) {
     return <Skeleton className="size-8 shrink-0 rounded-full border" />;
@@ -60,7 +60,9 @@ export function NavUser() {
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-medium text-sm">{user?.name}</span>
-              <span className="truncate text-xs">{user?.email}</span>
+              <span className="truncate text-muted-foreground text-xs">
+                {user?.email}
+              </span>
             </div>
           </div>
         </DropdownMenuLabel>
@@ -78,7 +80,7 @@ export function NavUser() {
         </DropdownMenuGroup>
         <DropdownMenuItem onSelect={signOut} variant="destructive">
           <SignOutIcon className="mr-1.5 size-4" />
-          Log out
+          Log Out
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

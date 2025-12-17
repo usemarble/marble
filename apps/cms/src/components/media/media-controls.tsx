@@ -13,15 +13,12 @@ import {
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { PlusIcon, TrashIcon, XIcon } from "@phosphor-icons/react";
-import type { MediaFilterType, MediaSort } from "@/types/media";
+import { useMediaPageFilters } from "@/lib/search-params";
+import type { MediaFilterType } from "@/types/media";
 import { isMediaFilterType, isMediaSort } from "@/utils/media";
 import { FileUploadInput } from "./file-upload-input";
 
 export function MediaControls({
-  type,
-  setType,
-  sort,
-  setSort,
   onUpload,
   isUploading,
   selectedItems,
@@ -29,11 +26,8 @@ export function MediaControls({
   onDeselectAll,
   onBulkDelete,
   mediaLength,
+  disabled = false,
 }: {
-  type: MediaFilterType;
-  setType: (value: MediaFilterType) => void;
-  sort: MediaSort;
-  setSort: (value: MediaSort) => void;
   onUpload: (files: FileList) => void;
   isUploading: boolean;
   selectedItems: Set<string>;
@@ -41,19 +35,24 @@ export function MediaControls({
   onDeselectAll: () => void;
   onBulkDelete: () => void;
   mediaLength: number;
+  disabled?: boolean;
 }) {
+  const [{ type, sort }, setSearchParams] = useMediaPageFilters();
+
+  const isDisabled = disabled || isUploading;
   return (
     <section className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
       <div className="flex flex-wrap items-center gap-1 sm:gap-4">
         <Select
+          disabled={isDisabled}
           onValueChange={(val: MediaFilterType) => {
             if (isMediaFilterType(val)) {
-              setType(val);
+              setSearchParams({ type: val });
             }
           }}
           value={type}
         >
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[100px]">
             <SelectValue placeholder="Filter by type" />
           </SelectTrigger>
           <SelectContent>
@@ -63,14 +62,15 @@ export function MediaControls({
           </SelectContent>
         </Select>
         <Select
+          disabled={isDisabled}
           onValueChange={(val: string) => {
             if (isMediaSort(val)) {
-              setSort(val);
+              setSearchParams({ sort: val });
             }
           }}
           value={sort}
         >
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[150px]">
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
           <SelectContent>
@@ -84,6 +84,7 @@ export function MediaControls({
           {selectedItems.size > 0 && (
             <Button
               aria-label="Deselect all"
+              disabled={isDisabled}
               onClick={onDeselectAll}
               size="icon"
               type="button"
@@ -95,6 +96,7 @@ export function MediaControls({
           {mediaLength > 0 && (
             <Button
               className="shadow-none"
+              disabled={isDisabled}
               onClick={onSelectAll}
               type="button"
               variant="outline"
@@ -110,6 +112,7 @@ export function MediaControls({
                 <TooltipTrigger asChild>
                   <Button
                     aria-label={`Delete selected (${selectedItems.size})`}
+                    disabled={isDisabled}
                     onClick={onBulkDelete}
                     size="icon"
                     type="button"
@@ -134,7 +137,7 @@ export function MediaControls({
           variant="icon"
         >
           <PlusIcon className="size-4" />
-          <span>{isUploading ? "Uploading..." : "Upload"}</span>
+          <span>Upload</span>
         </FileUploadInput>
       </div>
     </section>

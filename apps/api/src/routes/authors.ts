@@ -1,4 +1,4 @@
-import { createClient } from "@marble/db";
+import { createClient } from "@marble/db/workers";
 import { Hono } from "hono";
 import type { Env } from "../types/env";
 import { AuthorQuerySchema, AuthorsQuerySchema } from "../validations/authors";
@@ -174,7 +174,13 @@ authors.get("/:identifier", async (c) => {
     });
 
     if (!author) {
-      return c.json({ error: "Author not found" }, 404);
+      return c.json(
+        {
+          error: "Author not found",
+          message: "The requested author does not exist or is not active",
+        },
+        404
+      );
     }
 
     const totalPosts = await db.post.count({

@@ -1,8 +1,9 @@
 ---
+import { PRICING_PLANS } from "@marble/utils";
 import Container from "@/components/Container.astro";
 import AccordionItem from "@/components/ui/AccordionItem.astro";
 import Layout from "@/layouts/Layout.astro";
-import { PRICING, PRICING_FAQS, SITE } from "@/lib/constants";
+import { PRICING_FAQS, SITE } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 ---
 <Layout
@@ -19,22 +20,29 @@ import { cn } from "@/lib/utils";
             >
               Pricing
             </h1>
-            <p class="max-w-prose Md:text-lg text-muted-foreground text-center">
-              Simple pricing, cancel anytime.
+            <p class="max-w-prose md:text-lg text-muted-foreground text-center">
+              Simple pricing, cancel anytime.{(() => { const planWithTrial = PRICING_PLANS.find((p) => p.trial); return planWithTrial ? ` ${planWithTrial.title} plan includes a 7-day free trial.` : ""; })()}
             </p>
           </div>
           <!-- <ul class="grid gap-5 lg:gap-10 sm:grid-cols-2 lg:grid-cols-3"> -->
           <ul
             class="flex flex-col items-center md:items-stretch justify-center gap-5 md:flex-row"
           >
-            {PRICING.map((plan, index) => (
+            {PRICING_PLANS.map((plan, index) => (
                   <li class={cn("border min-w-[300px] w-full max-w-[350px] bg-gray-50/80 backdrop-blur-md p-1 rounded-xl", index === 2 && 'sm:col-span-2 lg:col-span-1 sm:h-fit')}>
                     <div class={cn("border flex flex-col gap-5 rounded-[8px] bg-white w-full px-4 py-6", index === 2 ? 'sm:flex-row sm:px-14 sm:py-10 lg:py-6 sm:justify-center sm:gap-20 lg:gap-4 lg:px-4 lg:flex-col min-h-96 sm:min-h-fit lg:min-h-96' : 'min-h-96 h-full')}>
                       {index === 2 ? (
                         <>
                           <div class="flex flex-col gap-5 sm:min-w-60 lg:min-w-0">
                             <div class="flex flex-col gap-4">
-                              <h3 class="text-medium text-xl">{plan.title}</h3>
+                              <div class="flex items-center justify-between">
+                                <h3 class="text-medium text-xl">{plan.title}</h3>
+                                {plan.trial && (
+                                  <span class="text-xs font-medium text-emerald-700 bg-emerald-50 border border-dashed border-emerald-200 px-2 py-1 rounded-md">
+                                    {plan.trial}
+                                  </span>
+                                )}
+                              </div>
                               <div>
                                 <p><span class="font-bold text-2xl">{plan.price.monthly}</span>{' '}<span>per month.</span></p>
                                 <p class="text-muted-foreground text-sm">{plan.description}</p>
@@ -64,7 +72,14 @@ import { cn } from "@/lib/utils";
                       ) : (
                         <>
                           <div class="flex flex-col gap-4">
-                            <h4 class="text-medium text-2xl">{plan.title}</h4>
+                            <div class="flex items-center justify-between">
+                              <h4 class="text-medium text-2xl">{plan.title}</h4>
+                              {plan.trial && (
+                                <span class="text-xs font-medium text-emerald-700 bg-emerald-50 border border-dashed border-emerald-200 px-2 py-1 rounded-md">
+                                  {plan.trial}
+                                </span>
+                              )}
+                            </div>
                             <div>
                               <p><span class="font-bold text-2xl">{plan.price.monthly}</span>{' '}<span>per month.</span></p>
                               <p class="text-muted-foreground text-sm">{plan.description}</p>
@@ -119,7 +134,7 @@ import { cn } from "@/lib/utils";
           >
             {PRICING_FAQS.map((faq) => (
               <AccordionItem name="details" title={faq.question}>
-                <p class="text-sm [&>a]:text-foreground hover:[&>a]:text-primary [&>a]:underline [&>a]:font-medium" set:html={faq.answer} />
+                <p class="text-sm faq-answer" set:html={faq.answer} />
               </AccordionItem>
             ))}
           </div>

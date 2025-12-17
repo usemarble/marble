@@ -78,9 +78,12 @@ export function InviteSection({ invitations }: InviteSectionProps) {
         id: "resend-invitation",
       });
 
-      if (activeWorkspace?.id) {
+      if (activeWorkspace?.id && activeWorkspace?.slug) {
         queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.WORKSPACE(activeWorkspace.id),
+        });
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.WORKSPACE_BY_SLUG(activeWorkspace.slug),
         });
       }
     },
@@ -116,9 +119,12 @@ export function InviteSection({ invitations }: InviteSectionProps) {
         id: "cancel-invitation",
       });
 
-      if (activeWorkspace?.id) {
+      if (activeWorkspace?.id && activeWorkspace?.slug) {
         queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.WORKSPACE(activeWorkspace.id),
+        });
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.WORKSPACE_BY_SLUG(activeWorkspace.slug),
         });
       }
     },

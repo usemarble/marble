@@ -1,8 +1,8 @@
 "use client";
 
+import type { Editor } from "@marble/editor";
 import { cn } from "@marble/ui/lib/utils";
 import { CursorClickIcon } from "@phosphor-icons/react";
-import type { Editor } from "@tiptap/core";
 import React from "react";
 
 export type ReadabilitySuggestion = {

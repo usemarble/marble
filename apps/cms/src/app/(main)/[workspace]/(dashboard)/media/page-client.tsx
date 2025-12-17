@@ -2,7 +2,6 @@
 
 import { toast } from "@marble/ui/components/sonner";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
-import { parseAsStringLiteral, useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import { MediaControls } from "@/components/media/media-controls";
@@ -10,30 +9,20 @@ import { MediaGallery } from "@/components/media/media-gallery";
 import PageLoader from "@/components/shared/page-loader";
 import { useMediaActions } from "@/hooks/use-media-actions";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { MEDIA_FILTER_TYPES, MEDIA_LIMIT, MEDIA_SORTS } from "@/lib/constants";
+import { MEDIA_FILTER_TYPES, MEDIA_SORTS } from "@/lib/constants";
 import { uploadFile } from "@/lib/media/upload";
 import { QUERY_KEYS } from "@/lib/queries/keys";
-import type {
-  MediaFilterType,
-  MediaListResponse,
-  MediaQueryKey,
-  MediaSort,
-} from "@/types/media";
+import { getMediaApiUrl, useMediaPageFilters } from "@/lib/search-params";
+import type { Media, MediaListResponse, MediaQueryKey } from "@/types/media";
 import { toMediaType } from "@/utils/media";
 
 function PageClient() {
   const workspaceId = useWorkspaceId();
-  const [type, setType] = useQueryState<MediaFilterType>(
-    "type",
-    parseAsStringLiteral(MEDIA_FILTER_TYPES).withDefault("all")
-  );
-  const [sort, setSort] = useQueryState<MediaSort>(
-    "sort",
-    parseAsStringLiteral(MEDIA_SORTS).withDefault("createdAt_desc")
-  );
+  const [{ type, sort }] = useMediaPageFilters();
   const normalizedType = toMediaType(type);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
-  const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [mediaToDelete, setMediaToDelete] = useState<Media[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
 
@@ -52,18 +41,13 @@ function PageClient() {
     ],
     queryFn: async ({ pageParam }: { pageParam?: string }) => {
       try {
-        const params = new URLSearchParams();
-        params.set("limit", String(MEDIA_LIMIT));
-        params.set("sort", sort);
+        const url = getMediaApiUrl("/api/media", {
+          sort,
+          type: normalizedType,
+          cursor: pageParam,
+        });
 
-        if (normalizedType) {
-          params.set("type", normalizedType);
-        }
-        if (pageParam) {
-          params.set("cursor", pageParam);
-        }
-
-        const res = await fetch(`/api/media?${params}`);
+        const res = await fetch(url);
         if (!res.ok) {
           throw new Error(
             `Failed to fetch media: ${res.status} ${res.statusText}`
@@ -98,7 +82,6 @@ function PageClient() {
       const normalizedType = toMediaType(filterType);
 
       for (const sortOption of MEDIA_SORTS) {
-        // Skip current active combo since it's already fetched
         if (filterType === type && sortOption === sort) {
           continue;
         }
@@ -109,17 +92,13 @@ function PageClient() {
             { type: normalizedType, sort: sortOption },
           ],
           queryFn: async ({ pageParam }: { pageParam?: string }) => {
-            const params = new URLSearchParams();
-            params.set("limit", String(MEDIA_LIMIT));
-            params.set("sort", sortOption);
-            if (normalizedType) {
-              params.set("type", normalizedType);
-            }
-            if (pageParam) {
-              params.set("cursor", pageParam);
-            }
+            const url = getMediaApiUrl("/api/media", {
+              sort: sortOption,
+              type: normalizedType,
+              cursor: pageParam,
+            });
 
-            const res = await fetch(`/api/media?${params}`);
+            const res = await fetch(url);
             if (!res.ok) {
               throw new Error(
                 `Failed to prefetch media: ${res.status} ${res.statusText}`
@@ -174,8 +153,15 @@ function PageClient() {
     let uploaded = 0;
     let failed = 0;
 
-    const toastId = toast.loading(`Uploading ${uploaded}/${total} files...`);
-    setStatusMessage(`Uploading 0 of ${total} files...`);
+    const getUploadMessage = (current: number, totalFiles: number) => {
+      if (totalFiles === 1) {
+        return "Uploading image...";
+      }
+      return `Uploading ${current} of ${totalFiles} files...`;
+    };
+
+    const toastId = toast.loading(getUploadMessage(0, total));
+    setStatusMessage(getUploadMessage(0, total));
 
     try {
       const errors: Array<{ file: string; error: string }> = [];
@@ -192,7 +178,7 @@ function PageClient() {
           failed += 1;
         }
 
-        const message = `Uploading ${uploaded} of ${total} files...`;
+        const message = getUploadMessage(uploaded, total);
         toast.loading(message, { id: toastId });
         setStatusMessage(message);
       }
@@ -221,23 +207,29 @@ function PageClient() {
   }
 
   return (
-    <WorkspacePageWrapper className="flex flex-col gap-8 pt-10 pb-16">
+    <WorkspacePageWrapper
+      className="flex flex-col gap-8 pt-10 pb-16"
+      size="compact"
+    >
       <div aria-atomic="true" aria-live="polite" className="sr-only">
         {statusMessage}
       </div>
       {hasAnyMedia && (
         <MediaControls
+          disabled={isFetching || isUploading}
           isUploading={isUploading}
           mediaLength={mediaItems.length}
-          onBulkDelete={() => setShowBulkDeleteModal(true)}
+          onBulkDelete={() => {
+            const itemsToDelete = mediaItems.filter((item) =>
+              selectedItems.has(item.id)
+            );
+            setMediaToDelete(itemsToDelete);
+            setShowDeleteModal(true);
+          }}
           onDeselectAll={handleDeselectAll}
           onSelectAll={handleSelectAll}
           onUpload={handleFileUpload}
           selectedItems={selectedItems}
-          setSort={setSort}
-          setType={setType}
-          sort={sort}
-          type={type}
         />
       )}
       <MediaGallery
@@ -248,12 +240,14 @@ function PageClient() {
         isUploading={isUploading}
         media={mediaItems}
         mediaQueryKey={mediaQueryKey}
+        mediaToDelete={mediaToDelete}
         onLoadMore={fetchNextPage}
         onSelectItem={setSelectedItems}
         onUpload={handleFileUpload}
         selectedItems={selectedItems}
-        setShowBulkDeleteModal={setShowBulkDeleteModal}
-        showBulkDeleteModal={showBulkDeleteModal}
+        setMediaToDelete={setMediaToDelete}
+        setShowDeleteModal={setShowDeleteModal}
+        showDeleteModal={showDeleteModal}
         type={normalizedType}
       />
     </WorkspacePageWrapper>

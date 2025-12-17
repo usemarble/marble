@@ -25,7 +25,6 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import nextDynamic from "next/dynamic";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { type ComponentType, type JSX, useState } from "react";
@@ -50,6 +49,12 @@ const DataTable = dynamic(
   columns: ColumnDef<TData, TValue>[];
 }) => JSX.Element;
 
+const PostsImportModal = dynamic(
+  () =>
+    import("@/components/posts/import-modal").then((m) => m.PostsImportModal),
+  { ssr: false }
+);
+
 type DataViewProps<TData, TValue> = {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
@@ -63,7 +68,6 @@ export function PostDataView<TData, TValue>({
 }: DataViewProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [viewType, setViewType] = useLocalStorage<ViewType | null>(
     "viewType",
     "table"
@@ -71,12 +75,6 @@ export function PostDataView<TData, TValue>({
 
   const { activeWorkspace } = useWorkspace();
   const [importOpen, setImportOpen] = useState(false);
-  const PostsImportModal = nextDynamic(
-    () =>
-      import("@/components/posts/import-modal").then((m) => m.PostsImportModal),
-    { ssr: false }
-  );
-
   const table = useReactTable({
     data,
     columns,

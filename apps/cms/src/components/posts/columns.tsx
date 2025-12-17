@@ -36,7 +36,16 @@ export const columns: ColumnDef<Post>[] = [
   },
   {
     accessorKey: "status",
-    header: "Status",
+    header: ({ column }) => (
+      <Button
+        className="h-auto font-medium hover:bg-transparent has-[>svg]:px-0"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        variant="ghost"
+      >
+        Status
+        <CaretUpDownIcon className="h-4 w-4" />
+      </Button>
+    ),
     cell: ({ row }) => {
       const status = row.original.status;
       return (
@@ -53,7 +62,7 @@ export const columns: ColumnDef<Post>[] = [
     accessorKey: "publishedAt",
     header: ({ column }) => (
       <Button
-        className="h-auto p-0 font-medium hover:bg-transparent"
+        className="h-auto font-medium hover:bg-transparent has-[>svg]:px-0"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         variant="ghost"
       >
@@ -67,7 +76,7 @@ export const columns: ColumnDef<Post>[] = [
     accessorKey: "updatedAt",
     header: ({ column }) => (
       <Button
-        className="h-auto p-0 font-medium hover:bg-transparent"
+        className="h-auto font-medium hover:bg-transparent has-[>svg]:px-0"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         variant="ghost"
       >

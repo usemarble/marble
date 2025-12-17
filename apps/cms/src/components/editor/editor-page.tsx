@@ -1,55 +1,35 @@
 "use client";
 
+import "@/styles/editor.css";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { buttonVariants } from "@marble/ui/components/button";
 import {
-  SidebarInset,
-  SidebarTrigger,
-  useSidebar,
-} from "@marble/ui/components/sidebar";
+  EditorContext,
+  ImageUpload,
+  type JSONContent,
+  type MediaItem,
+  useMarbleEditor,
+} from "@marble/editor";
+import { SidebarInset, useSidebar } from "@marble/ui/components/sidebar";
 import { toast } from "@marble/ui/components/sonner";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@marble/ui/components/tooltip";
 import { cn } from "@marble/ui/lib/utils";
-import { SidebarSimpleIcon, XIcon } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { Editor, JSONContent } from "@tiptap/core";
-import { EditorContent, EditorContext, useEditor } from "@tiptap/react";
-import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { BubbleMenu } from "@/components/editor/bubble-menu";
-import { DragHandle } from "@/components/editor/drag-handle";
+import { MarbleEditorMenus } from "@/components/editor/editor";
+import { EditorHeader } from "@/components/editor/editor-header";
 import { EditorSidebar } from "@/components/editor/editor-sidebar";
-import { ColumnsMenu } from "@/components/editor/extensions/multi-column/menus";
-import {
-  TableColumnMenu,
-  TableRowMenu,
-} from "@/components/editor/extensions/table/menus";
-import { HiddenScrollbar } from "@/components/editor/hidden-scrollbar";
+import { HiddenScrollbar } from "@/components/ui/hidden-scrollbar";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { MAX_MEDIA_FILE_SIZE } from "@/lib/constants";
+import { uploadFile } from "@/lib/media/upload";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { type PostValues, postSchema } from "@/lib/validations/post";
 import { useUnsavedChanges } from "@/providers/unsaved-changes";
+import type { MediaListResponse } from "@/types/media";
 import { generateSlug } from "@/utils/string";
-import { defaultExtensions } from "./extensions";
-import { ShareModal } from "./share-modal";
 import { TextareaAutosize } from "./textarea-autosize";
-
-const getToggleSidebarShortcut = () => {
-  const isMac = useMemo(
-    () =>
-      typeof navigator !== "undefined" &&
-      navigator.platform.toUpperCase().indexOf("MAC") >= 0,
-    []
-  );
-  return isMac ? "⌘K" : "Ctrl+K";
-};
 
 type EditorPageProps = {
   initialData: PostValues;
@@ -235,28 +215,25 @@ function EditorPage({ initialData, id }: EditorPageProps) {
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
     const subscription = watch((currentValues) => {
-      // Debounce the check to avoid running on every keystroke
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        const initial = initialDataRef.current;
-        // Simple field comparison first (faster than JSON operations)
-        const simpleFieldsChanged =
-          currentValues.title !== initial.title ||
-          currentValues.slug !== initial.slug ||
-          currentValues.status !== initial.status ||
-          currentValues.description !== initial.description;
-
-        if (simpleFieldsChanged) {
-          setHasUnsavedChanges(true);
-          return;
-        }
-
-        // Only do expensive content comparison if simple fields haven't changed
-        const contentChanged = currentValues.content !== initial.content;
-        if (contentChanged) {
-          setHasUnsavedChanges(true);
-        }
-      }, 300);
+      const initial = initialDataRef.current;
+      // Compare HTML content directly instead of parsing JSON
+      const hasChanged =
+        currentValues.content !== initial.content ||
+        currentValues.title !== initial.title ||
+        currentValues.slug !== initial.slug ||
+        currentValues.description !== initial.description ||
+        currentValues.category !== initial.category ||
+        currentValues.status !== initial.status ||
+        currentValues.featured !== initial.featured ||
+        JSON.stringify(currentValues.tags) !== JSON.stringify(initial.tags) ||
+        JSON.stringify(currentValues.authors) !==
+          JSON.stringify(initial.authors) ||
+        currentValues.coverImage !== initial.coverImage ||
+        JSON.stringify(currentValues.attribution) !==
+          JSON.stringify(initial.attribution);
+      if (hasChanged) {
+        setHasUnsavedChanges(true);
+      }
     });
 
     return () => {
@@ -265,12 +242,55 @@ function EditorPage({ initialData, id }: EditorPageProps) {
     };
   }, [watch, setHasUnsavedChanges]);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      editor?.commands.focus();
+  // Image upload handler
+  const handleImageUpload = useCallback(async (file: File): Promise<string> => {
+    const result = await uploadFile({ file, type: "media" });
+    if (!result?.url) {
+      throw new Error("Upload failed: Invalid response from server.");
     }
-  };
+    return result.url;
+  }, []);
+
+  // Fetch media handler
+  const fetchMedia = useCallback(async (): Promise<MediaItem[]> => {
+    try {
+      const res = await fetch("/api/media");
+      if (!res.ok) {
+        return [];
+      }
+      const data: MediaListResponse = await res.json();
+      return data.media.map((item) => ({
+        id: item.id,
+        url: item.url,
+        name: item.name,
+        type: item.type as "image" | "video" | "file",
+      }));
+    } catch {
+      return [];
+    }
+  }, []);
+
+  // Handle upload errors
+  const handleUploadError = useCallback((error: Error) => {
+    toast.error(`Upload failed: ${error.message}`);
+  }, []);
+
+  const handleEditorUpdate = useCallback(
+    ({
+      editor,
+    }: {
+      editor: { getHTML: () => string; getJSON: () => JSONContent };
+    }) => {
+      const html = editor.getHTML();
+      const json = editor.getJSON();
+      if (html.length > 0) {
+        clearErrors("content");
+      }
+      setValue("content", html);
+      setValue("contentJson", JSON.stringify(json));
+    },
+    [clearErrors, setValue]
+  );
 
   function onSubmit(values: PostValues) {
     // return console.log(values)
@@ -292,57 +312,33 @@ function EditorPage({ initialData, id }: EditorPageProps) {
     }
   }, [debouncedTitle, setValue, clearErrors, isUpdateMode]);
 
-  // Create context value that updates when editor initializes
+  const editor = useMarbleEditor({
+    content: initialData.content || "",
+    placeholder: "Start typing or press '/' for commands",
+    editorProps: {
+      attributes: {
+        class:
+          "prose dark:prose-invert min-h-96 h-full sm:px-4 focus:outline-hidden max-w-full prose-blockquote:border-border",
+      },
+    },
+    extensions: [
+      ImageUpload.configure({
+        accept: "image/*",
+        maxSize: MAX_MEDIA_FILE_SIZE,
+        limit: 3,
+        upload: handleImageUpload,
+        onError: handleUploadError,
+        fetchMedia,
+      }),
+    ],
+    onUpdate: handleEditorUpdate,
+  });
   const editorContextValue = useMemo(() => ({ editor }), [editor]);
-
-  // Memoize DragHandle to prevent plugin unregister/register cycles
-  const dragHandle = useMemo(
-    () => (editor ? <DragHandle editor={editor} /> : null),
-    [editor]
-  );
 
   return (
     <EditorContext.Provider value={editorContextValue}>
-      <BubbleMenu />
-      {editor && <TableRowMenu editor={editor} />}
-      {editor && <TableColumnMenu editor={editor} />}
-      {editor && <ColumnsMenu editor={editor} />}
-      {dragHandle}
       <SidebarInset className="h-[calc(100vh-1rem)] min-h-[calc(100vh-1rem)] rounded-xl border bg-editor-content-background shadow-xs">
-        <header className="sticky top-0 z-50 flex justify-between p-3">
-          <div className="flex items-center gap-4">
-            <Tooltip delayDuration={400}>
-              <TooltipTrigger asChild>
-                <Link
-                  className={cn(
-                    buttonVariants({ variant: "ghost", size: "icon" }),
-                    "group cursor-default"
-                  )}
-                  href={`/${params.workspace}/posts`}
-                >
-                  <XIcon className="size-4 text-muted-foreground group-hover:text-foreground" />
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Close editor</p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {id && <ShareModal postId={id} />}
-            <Tooltip delayDuration={400}>
-              <TooltipTrigger asChild>
-                <SidebarTrigger className="size-8 text-muted-foreground">
-                  <SidebarSimpleIcon className="size-4" />
-                </SidebarTrigger>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Toggle sidebar ({getToggleSidebarShortcut()})</p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
-        </header>
+        <EditorHeader postId={id} workspace={params.workspace} />
         <section className="mx-auto w-full max-w-3xl flex-1">
           <HiddenScrollbar className="h-[calc(100vh-7rem)]">
             <form
@@ -360,7 +356,14 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                   placeholder="Title"
                   {...register("title")}
                   className="scrollbar-hide mb-2 w-full resize-none bg-transparent font-semibold prose-headings:font-semibold text-4xl focus:outline-hidden focus:ring-0 sm:px-4"
-                  onKeyDown={handleKeyDown}
+                  onEnterPress={() => {
+                    editor
+                      ?.chain()
+                      .focus()
+                      .insertContentAt(0, { type: "paragraph" })
+                      .focus("start")
+                      .run();
+                  }}
                 />
                 {errors.title && (
                   <p className="px-1 font-medium text-destructive text-sm">
@@ -369,7 +372,8 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                 )}
               </div>
               <div className="flex flex-col">
-                <EditorContent editor={editor} />
+                <MarbleEditorMenus />
+
                 {errors.content && (
                   <p className="px-1 font-medium text-destructive text-sm">
                     {errors.content.message}
@@ -390,12 +394,12 @@ function EditorPage({ initialData, id }: EditorPageProps) {
       )}
       <EditorSidebar
         control={control}
-        editor={editor}
         errors={errors}
         formRef={formRef}
         isOpen={showSettings}
         isSubmitting={isCreating || isUpdating}
         mode={isUpdateMode ? "update" : "create"}
+        postId={id}
         setIsOpen={setShowSettings}
         watch={watch}
       />

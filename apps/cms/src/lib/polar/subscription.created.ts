@@ -2,39 +2,11 @@
 
 import { db } from "@marble/db";
 import type { WebhookSubscriptionCreatedPayload } from "@polar-sh/sdk/models/components/webhooksubscriptioncreatedpayload.js";
-import { PlanType, SubscriptionStatus } from "@prisma/client";
-
-function getPlanType(productName: string): PlanType | null {
-  const plan = productName.toLowerCase();
-  if (plan === "pro") {
-    return PlanType.pro;
-  }
-  if (plan === "team") {
-    return PlanType.team;
-  }
-  return null;
-}
-
-function getSubscriptionStatus(
-  polarStatus: WebhookSubscriptionCreatedPayload["data"]["status"]
-): SubscriptionStatus | null {
-  switch (polarStatus) {
-    case "active":
-      return SubscriptionStatus.active;
-    case "trialing":
-      return SubscriptionStatus.trialing;
-    case "canceled":
-      return SubscriptionStatus.cancelled;
-    case "past_due":
-    case "incomplete":
-    case "unpaid":
-      return SubscriptionStatus.past_due;
-    case "incomplete_expired":
-      return SubscriptionStatus.expired;
-    default:
-      return null;
-  }
-}
+import {
+  getPlanType,
+  getRecurringInterval,
+  getSubscriptionStatus,
+} from "./utils";
 
 export async function handleSubscriptionCreated(
   payload: WebhookSubscriptionCreatedPayload
@@ -71,6 +43,10 @@ export async function handleSubscriptionCreated(
     return;
   }
 
+  // Store validated dates to satisfy TypeScript
+  const currentPeriodStart = subscription.currentPeriodStart;
+  const currentPeriodEnd = subscription.currentPeriodEnd;
+
   const userExists = await db.user.findUnique({ where: { id: userId } });
   if (!userExists) {
     console.error(`User with id ${userId} not found.`);
@@ -99,21 +75,49 @@ export async function handleSubscriptionCreated(
     return;
   }
 
+  const recurringInterval = getRecurringInterval(
+    subscription.recurringInterval
+  );
+
   try {
+    // Check if subscription already exists (upsert pattern)
+    const existingSubscription = await db.subscription.findUnique({
+      where: { polarId: subscription.id },
+    });
+
+    if (existingSubscription) {
+      console.log(
+        `Subscription ${subscription.id} already exists, skipping creation`
+      );
+      return;
+    }
+
+    // Create new subscription (allow multiple subscriptions per workspace)
     await db.subscription.create({
       data: {
         polarId: subscription.id,
         plan,
         status,
-        currentPeriodStart: new Date(subscription.currentPeriodStart),
-        currentPeriodEnd: new Date(subscription.currentPeriodEnd),
+        currentPeriodStart: new Date(currentPeriodStart),
+        currentPeriodEnd: new Date(currentPeriodEnd),
+        cancelAtPeriodEnd: subscription.cancelAtPeriodEnd || false,
         userId,
         workspaceId,
+        startedAt: subscription.startedAt
+          ? new Date(subscription.startedAt)
+          : null,
+        productId: subscription.productId || undefined,
+        amount: subscription.amount
+          ? Math.round(subscription.amount)
+          : undefined,
+        currency: subscription.currency || undefined,
+        discountId: subscription.discountId || undefined,
+        recurringInterval,
       },
     });
 
     console.log(
-      `Successfully created subscription for workspace ${workspaceId}`
+      `Successfully created subscription ${subscription.id} for workspace ${workspaceId}`
     );
   } catch (error) {
     console.error("Error creating subscription in DB:", error);

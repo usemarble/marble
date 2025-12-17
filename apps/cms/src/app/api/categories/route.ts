@@ -2,7 +2,7 @@ import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { categorySchema } from "@/lib/validations/workspace";
-import { getWebhooks, WebhookClient } from "@/lib/webhooks/webhook-client";
+import { dispatchWebhooks } from "@/lib/webhooks/dispatcher";
 
 export async function GET() {
   const sessionData = await getServerSession();
@@ -18,10 +18,23 @@ export async function GET() {
       id: true,
       name: true,
       slug: true,
+      _count: {
+        select: {
+          posts: true,
+        },
+      },
     },
   });
 
-  return NextResponse.json(categories, { status: 200 });
+  const transformedCategories = categories.map((category) => {
+    const { _count, ...rest } = category;
+    return {
+      ...rest,
+      postsCount: _count.posts,
+    };
+  });
+
+  return NextResponse.json(transformedCategories, { status: 200 });
 }
 
 export async function POST(req: Request) {
@@ -61,21 +74,21 @@ export async function POST(req: Request) {
     },
   });
 
-  const webhooks = getWebhooks(sessionData.session, "category_created");
-
-  for (const webhook of await webhooks) {
-    const webhookClient = new WebhookClient({ secret: webhook.secret });
-    await webhookClient.send({
-      url: webhook.endpoint,
-      event: "category.created",
-      data: {
-        id: categoryCreated.id,
-        slug: categoryCreated.slug,
-        userId: sessionData.user.id,
-      },
-      format: webhook.format,
-    });
-  }
+  dispatchWebhooks({
+    workspaceId,
+    validationEvent: "category_created",
+    deliveryEvent: "category.created",
+    payload: {
+      id: categoryCreated.id,
+      slug: categoryCreated.slug,
+      userId: sessionData.user.id,
+    },
+  }).catch((error) => {
+    console.error(
+      `[WebhookDelivery] Failed to dispatch webhooks for category_created: workspaceId=${workspaceId}, categoryId=${categoryCreated.id},`,
+      error
+    );
+  });
 
   return NextResponse.json(categoryCreated, { status: 201 });
 }

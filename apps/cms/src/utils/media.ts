@@ -1,4 +1,5 @@
-import type { MediaFilterType, MediaType } from "@/types/media";
+import type { MEDIA_SORT_BY, SORT_DIRECTIONS } from "@/lib/constants";
+import type { MediaFilterType, MediaSort, MediaType } from "@/types/media";
 
 export function getMediaType(mimeType: string): MediaType {
   if (mimeType.startsWith("image/")) {
@@ -31,11 +32,19 @@ export function getEmptyStateMessage(type?: MediaType, hasAnyMedia?: boolean) {
   }
 }
 
-export function isMediaSort(value: string) {
+export function isMediaSort(value: string): value is MediaSort {
   // defer to constants list at call sites where needed; this keeps util generic
   return ["createdAt_desc", "createdAt_asc", "name_asc", "name_desc"].includes(
     value
   );
+}
+
+export function splitMediaSort(sort: MediaSort) {
+  const [field, direction] = sort.split("_") as [
+    (typeof MEDIA_SORT_BY)[number],
+    (typeof SORT_DIRECTIONS)[number],
+  ];
+  return { field, direction };
 }
 
 export function isMediaFilterType(

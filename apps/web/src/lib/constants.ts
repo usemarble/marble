@@ -1,9 +1,14 @@
+import type { SvgComponent } from "astro/types";
 import Bounty from "@/components/icons/brand/Bounty.astro";
+import Candle from "@/components/icons/brand/Candle.astro";
 import Databuddy from "@/components/icons/brand/Databuddy.astro";
 import Helix from "@/components/icons/brand/Helix.astro";
 import Ia from "@/components/icons/brand/Ia.astro";
 import Mantlz from "@/components/icons/brand/Mantlz.astro";
 import Opencut from "@/components/icons/brand/Opencut.astro";
+import Discord from "@/components/icons/Discord.astro";
+import Github from "@/components/icons/Github.astro";
+import X from "@/components/icons/X.astro";
 
 export type Site = {
   TITLE: string;
@@ -76,63 +81,6 @@ export const FAQs: {
   },
 ];
 
-export type Pricing = {
-  title: string;
-  description: string;
-  price: {
-    monthly: string;
-    yearly: string;
-  };
-  features: string[];
-  button: {
-    href: string;
-    label: string;
-  };
-};
-
-export const PRICING: Pricing[] = [
-  {
-    title: "Hobby",
-    description: "For Hobbyists",
-    price: {
-      monthly: "$0",
-      yearly: "$0",
-    },
-    features: [
-      "Unlimited posts",
-      "1GB media storage",
-      "2 member seats",
-      "AI Readability insights",
-      "10k API requests per month",
-      "100 webhook events per month",
-    ],
-    button: {
-      href: "https://app.marblecms.com",
-      label: "Start for free",
-    },
-  },
-  {
-    title: "Pro",
-    description: "For Small Teams",
-    price: {
-      monthly: "$20",
-      yearly: "$180",
-    },
-    features: [
-      "Unlimited posts",
-      "10GB media storage",
-      "10 member seats",
-      "AI Readability insights",
-      "50k API requests per month",
-      "1k webhook events per month",
-    ],
-    button: {
-      href: "https://app.marblecms.com",
-      label: "Get Started",
-    },
-  },
-];
-
 export const PRICING_FAQS: {
   question: string;
   answer: string;
@@ -141,6 +89,11 @@ export const PRICING_FAQS: {
     question: "How are plans billed?",
     answer:
       "Our plans are billed per workspace, not per user. This means you can invite as many team members as your plan allows to a workspace without any extra charges per member. Each workspace requires its own subscription if you wish to upgrade it.",
+  },
+  {
+    question: "Do you offer a free trial?",
+    answer:
+      "Yes! The Pro plan includes a 7-day free trial. You can try all Pro features risk-free for 7 days. If you don't cancel during the trial period, your subscription will automatically renew at the full price. You can cancel anytime during the trial period without being charged.",
   },
   {
     question: "How do I get a refund?",
@@ -200,5 +153,143 @@ export const USERS = [
     url: "https://databuddy.cc",
     component: Databuddy,
     showWordmark: true,
+  },
+  {
+    name: "Candle",
+    url: "https://www.trycandle.app/",
+    component: Candle,
+    showWordmark: false,
+  },
+];
+
+export type FooterLink = {
+  label: string;
+  href: string;
+  external?: boolean;
+  target?: string;
+  rel?: string;
+  icon?: SvgComponent;
+};
+
+export type FooterSection = {
+  title: string;
+  links: FooterLink[];
+};
+
+export const FOOTER_SECTIONS: FooterSection[] = [
+  {
+    title: "Product",
+    links: [
+      {
+        label: "Get Started",
+        href: SITE.APP_URL,
+      },
+      {
+        label: "Pricing",
+        href: "/pricing",
+      },
+      {
+        label: "Changelog",
+        href: "/changelog",
+      },
+    ],
+  },
+  {
+    title: "Resources",
+    links: [
+      {
+        label: "Blog",
+        href: "/blog",
+      },
+      {
+        label: "Feed",
+        href: "/rss.xml",
+      },
+      {
+        label: "Contributors",
+        href: "/contributors",
+      },
+    ],
+  },
+  {
+    title: "Developers",
+    links: [
+      {
+        label: "Documentation",
+        href: "https://docs.marblecms.com",
+        external: true,
+        target: "_blank",
+        rel: "noopener",
+      },
+      {
+        label: "Astro Example",
+        href: "https://github.com/usemarble/astro-example",
+        external: true,
+        target: "_blank",
+        rel: "noopener",
+      },
+      {
+        label: "Next.js Example",
+        href: "https://github.com/usemarble/nextjs-example",
+        external: true,
+        target: "_blank",
+        rel: "noopener",
+      },
+      {
+        label: "TanStack Example",
+        href: "https://github.com/usemarble/tanstack-start-example",
+        external: true,
+        target: "_blank",
+        rel: "noopener",
+      },
+    ],
+  },
+  {
+    title: "Company",
+    links: [
+      {
+        label: "Contact",
+        href: "mailto:support@marblecms.com",
+      },
+      {
+        label: "Terms",
+        href: "/terms",
+      },
+      {
+        label: "Privacy",
+        href: "/privacy",
+      },
+      {
+        label: "Sponsors",
+        href: "/sponsors",
+      },
+    ],
+  },
+];
+
+export const FOOTER_SOCIAL_LINKS: FooterLink[] = [
+  {
+    label: "Twitter",
+    href: "https://x.com/usemarblecms",
+    external: true,
+    target: "_blank",
+    rel: "noopener",
+    icon: X,
+  },
+  {
+    label: "Github",
+    href: "https://github.com/usemarble",
+    external: true,
+    target: "_blank",
+    rel: "noopener",
+    icon: Github,
+  },
+  {
+    label: "Discord",
+    href: "https://discord.marblecms.com",
+    external: true,
+    target: "_blank",
+    rel: "noopener",
+    icon: Discord,
   },
 ];

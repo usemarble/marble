@@ -1,5 +1,5 @@
 import { toast } from "@marble/ui/components/sonner";
-import { polarClient } from "@polar-sh/better-auth";
+import { polarClient } from "@polar-sh/better-auth/client";
 import {
   emailOTPClient,
   inferOrgAdditionalFields,

@@ -3,6 +3,7 @@ import type { SvgComponent } from "astro/types";
 import Container from "@/components/Container.astro";
 import Neon from "@/components/icons/sponsors/Neon.astro";
 import Upstash from "@/components/icons/sponsors/Upstash.astro";
+import Vercel from "@/components/icons/sponsors/Vercel.astro";
 import Layout from "@/layouts/Layout.astro";
 import { SITE } from "@/lib/constants";
 
@@ -19,13 +20,19 @@ const sponsorsData: Sponsor[] = [
     url: "https://upstash.com?utm_source=marble",
     icon: Upstash,
     description:
-      "Powers our caching, webhooks and rate limiting infrastructure",
+      "Powers our caching, webhooks and rate limiting infrastructure.",
   },
   {
     name: "Neon",
     url: "https://neon.com?utm_source=marble",
     icon: Neon,
-    description: "Powers our entire database, literally",
+    description: "Powers our entire database, literally.",
+  },
+  {
+    name: "Vercel",
+    url: "https://vercel.com?utm_source=marble",
+    icon: Vercel,
+    description: "Powers our entire deployment and ai infrastructure.",
   },
 ];
 ---
@@ -55,8 +62,12 @@ const sponsorsData: Sponsor[] = [
           <ul
             class="grid gap-8 md:gap-10 grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto"
           >
-            {sponsorsData.map((sponsor) => (
-              <li class="border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl min-h-64">
+            {sponsorsData.map((sponsor, index) => {
+              const isLastItem = index === sponsorsData.length - 1;
+              const isOddCount = sponsorsData.length % 2 !== 0;
+              const shouldCenter = isLastItem && isOddCount;
+              return (
+              <li class={`border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl min-h-64 ${shouldCenter ? 'md:col-span-2 md:max-w-md md:mx-auto' : ''}`}>
                 <div class="border flex flex-col justify-between rounded-[8px] bg-white h-full w-full p-8 text-center">
                   <div class="space-y-6">
                     <div class="flex items-center justify-center">
@@ -90,7 +101,8 @@ const sponsorsData: Sponsor[] = [
                   </div>
                 </div>
               </li>
-            ))}
+              );
+            })}
           </ul>
 
           <div class="max-w-2xl mx-auto text-center space-y-4">

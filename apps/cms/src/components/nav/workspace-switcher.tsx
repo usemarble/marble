@@ -24,9 +24,11 @@ import {
 import { Skeleton } from "@marble/ui/components/skeleton";
 import { cn } from "@marble/ui/lib/utils";
 import { CaretDownIcon, CheckIcon, PlusIcon } from "@phosphor-icons/react";
-import Link from "next/link";
+import { useState } from "react";
+import { getWorkspacePlan } from "@/lib/plans";
 import type { Workspace } from "@/types/workspace";
 import { useWorkspace } from "../../providers/workspace";
+import { CreateWorkspaceDialog } from "./create-workspace-dialog";
 
 export function WorkspaceSwitcher() {
   const { isMobile, state } = useSidebar();
@@ -37,6 +39,8 @@ export function WorkspaceSwitcher() {
     workspaceList,
     isFetchingWorkspace,
   } = useWorkspace();
+
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const ownedWorkspaces =
     workspaceList?.filter(
@@ -61,6 +65,7 @@ export function WorkspaceSwitcher() {
   }
 
   const showSkeleton = !activeWorkspace && isFetchingWorkspace;
+  const currentPlan = getWorkspacePlan(activeWorkspace?.subscription);
 
   return (
     <SidebarMenu>
@@ -70,7 +75,7 @@ export function WorkspaceSwitcher() {
             <DropdownMenuTrigger asChild>
               <SidebarMenuButton
                 className={cn(
-                  "border border-transparent transition hover:border-border hover:bg-sidebar-accent hover:shadow-xs data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground",
+                  "cursor-pointer border border-transparent transition hover:bg-sidebar-accent data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground",
                   isCollapsed &&
                     "size-10 min-w-0 justify-center rounded-full p-1"
                 )}
@@ -94,13 +99,9 @@ export function WorkspaceSwitcher() {
                       </span>
                       <Badge
                         className="px-1.5 py-0 text-[11px] capitalize"
-                        variant={
-                          activeWorkspace.subscription?.plan === "pro"
-                            ? "premium"
-                            : "free"
-                        }
+                        variant={currentPlan === "pro" ? "paid" : "free"}
                       >
-                        {activeWorkspace.subscription?.plan || "free"}
+                        {currentPlan === "hobby" ? "free" : currentPlan}
                       </Badge>
                     </div>
                     <CaretDownIcon className="ml-auto" />
@@ -141,12 +142,12 @@ export function WorkspaceSwitcher() {
             {ownedWorkspaces.length > 0 && (
               <DropdownMenuGroup>
                 <DropdownMenuLabel className="text-muted-foreground text-xs">
-                  Your workspaces
+                  Your Workspaces
                 </DropdownMenuLabel>
                 {ownedWorkspaces.map((org) => (
                   <DropdownMenuItem key={org.id}>
                     <button
-                      className="relative flex w-full items-center gap-4 disabled:opacity-50"
+                      className="relative flex w-full cursor-pointer items-center gap-4 disabled:opacity-50"
                       disabled={isFetchingWorkspace}
                       onClick={() => switchWorkspace(org)}
                       type="button"
@@ -174,7 +175,7 @@ export function WorkspaceSwitcher() {
                 {sharedWorkspaces.map((org) => (
                   <DropdownMenuItem key={org.id}>
                     <button
-                      className="relative flex w-full items-center gap-4 disabled:opacity-50"
+                      className="relative flex w-full cursor-pointer items-center gap-4 disabled:opacity-50"
                       disabled={isFetchingWorkspace}
                       onClick={() => switchWorkspace(org)}
                       type="button"
@@ -195,20 +196,22 @@ export function WorkspaceSwitcher() {
 
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <Link
-                className="flex w-full items-center gap-2"
-                href={`/new?workspaces=${workspaceList && workspaceList.length > 0}`}
+              <button
+                className="flex w-full cursor-pointer items-center gap-2"
+                onClick={() => setDialogOpen(true)}
+                type="button"
               >
                 <div className="flex size-6 items-center justify-center rounded-md border bg-background">
                   <PlusIcon className="size-4" />
                 </div>
                 <div className="font-medium text-muted-foreground">
-                  Add workspace
+                  Create Workspace
                 </div>
-              </Link>
+              </button>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        <CreateWorkspaceDialog open={dialogOpen} setOpen={setDialogOpen} />
       </SidebarMenuItem>
     </SidebarMenu>
   );

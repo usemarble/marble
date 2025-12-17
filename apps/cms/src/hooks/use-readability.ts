@@ -1,7 +1,7 @@
 "use client";
 
+import type { Editor } from "@marble/editor";
 import { useQuery } from "@tanstack/react-query";
-import type { Editor } from "@tiptap/core";
 import { useMemo } from "react";
 import { useDebounce } from "@/hooks/use-debounce";
 import { fetchAiReadabilitySuggestionsStrings } from "@/lib/ai/readability";
@@ -14,7 +14,7 @@ import {
 } from "@/utils/readability";
 
 type UseReadabilityParams = {
-  editor?: Editor | null;
+  editor: Editor | null;
   text: string;
 };
 

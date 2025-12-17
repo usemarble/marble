@@ -1,10 +1,13 @@
 import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { getServerSession } from "@/lib/auth/session";
 import { R2_BUCKET_NAME, r2 } from "@/lib/r2";
-import { DeleteSchema, GetSchema } from "@/lib/validations/upload";
-import { getWebhooks, WebhookClient } from "@/lib/webhooks/webhook-client";
+import { loadMediaApiFilters } from "@/lib/search-params";
+import { DeleteSchema } from "@/lib/validations/upload";
+import { dispatchWebhooks } from "@/lib/webhooks/dispatcher";
+import { splitMediaSort } from "@/utils/media";
 
 export async function GET(request: Request) {
   const sessionData = await getServerSession();
@@ -22,20 +25,12 @@ export async function GET(request: Request) {
     );
   }
 
-  const { searchParams } = new URL(request.url);
-  const parsed = GetSchema.safeParse(Object.fromEntries(searchParams));
-
-  if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.message }, { status: 400 });
+  const filters = loadMediaApiFilters(request, { strict: true });
+  if (!z.number().int().min(1).max(100).safeParse(filters.limit).success) {
+    return NextResponse.json({ error: "Invalid limit" }, { status: 400 });
   }
-
-  const { limit, cursor, type, sort } = parsed.data;
-
-  // Break sort option into field + direction (e.g. "createdAt_desc")
-  const [field, direction] = sort.split("_") as [
-    "createdAt" | "name",
-    "asc" | "desc",
-  ];
+  const { field, direction } = splitMediaSort(filters.sort);
+  const { limit, cursor, type } = filters;
   const orderBy = [{ [field]: direction }, { id: direction }];
 
   try {
@@ -122,6 +117,8 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const workspaceId = sessionData.session.activeOrganizationId;
+
   const parsedBody = await request.json();
 
   const parsed = DeleteSchema.safeParse(parsedBody);
@@ -129,16 +126,7 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: parsed.error.message }, { status: 400 });
   }
 
-  const { mediaId, mediaIds } = await parsed.data;
-
-  const idsToDelete = mediaIds || (mediaId ? [mediaId] : []);
-
-  if (idsToDelete.length === 0) {
-    return NextResponse.json(
-      { error: "mediaId or mediaIds is required" },
-      { status: 400 }
-    );
-  }
+  const { mediaIds } = parsed.data;
 
   try {
     const deletedIds: string[] = [];
@@ -146,19 +134,19 @@ export async function DELETE(request: Request) {
 
     const existingMedia = await db.media.findMany({
       where: {
-        id: { in: idsToDelete },
-        workspaceId: sessionData.session.activeOrganizationId,
+        id: { in: mediaIds },
+        workspaceId,
       },
     });
 
     const existingIds = existingMedia.map((media) => media.id);
-    for (const id of idsToDelete) {
+    for (const id of mediaIds) {
       if (!existingIds.includes(id)) {
         failedIds.push(id);
       }
     }
 
-    const successfullyDeletedFromR2: Array<{
+    const mediaDeletedFromR2: Array<{
       id: string;
       media: (typeof existingMedia)[0];
     }> = [];
@@ -188,7 +176,7 @@ export async function DELETE(request: Request) {
               Key: key,
             })
           );
-          successfullyDeletedFromR2.push({ id: media.id, media });
+          mediaDeletedFromR2.push({ id: media.id, media });
         } catch (error) {
           console.error(
             `Failed to delete media object from R2 for media ID ${media.id}. URL: ${media.url}`,
@@ -200,34 +188,31 @@ export async function DELETE(request: Request) {
         console.error(
           `Media with ID ${media.id} has no URL. Deleting database record only.`
         );
-        successfullyDeletedFromR2.push({ id: media.id, media });
+        mediaDeletedFromR2.push({ id: media.id, media });
       }
     }
 
-    if (successfullyDeletedFromR2.length > 0) {
+    if (mediaDeletedFromR2.length > 0) {
       await db.media.deleteMany({
         where: {
-          id: { in: successfullyDeletedFromR2.map((item) => item.id) },
+          id: { in: mediaDeletedFromR2.map((item) => item.id) },
         },
       });
 
-      for (const { media } of successfullyDeletedFromR2) {
-        const webhooks = getWebhooks(sessionData.session, "media_deleted");
-        for (const webhook of await webhooks) {
-          const webhookClient = new WebhookClient({ secret: webhook.secret });
-          await webhookClient.send({
-            url: webhook.endpoint,
-            event: "media.deleted",
-            data: {
-              id: media.id,
-              name: media.name,
-              userId: sessionData.user.id,
-            },
-            format: webhook.format,
-          });
-        }
-        deletedIds.push(media.id);
-      }
+      deletedIds.push(...mediaDeletedFromR2.map((item) => item.id));
+
+      dispatchWebhooks({
+        workspaceId,
+        validationEvent: "media_deleted",
+        deliveryEvent: "media.deleted",
+        payload: mediaDeletedFromR2.map(({ media }) => ({
+          id: media.id,
+          name: media.name,
+          userId: sessionData.user.id,
+        })),
+      }).catch((error) => {
+        console.error("[MediaDelete] Failed to dispatch webhooks:", error);
+      });
     }
 
     if (deletedIds.length === 0) {

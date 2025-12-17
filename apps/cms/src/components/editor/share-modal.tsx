@@ -1,7 +1,5 @@
 import { Badge } from "@marble/ui/components/badge";
 import { Button } from "@marble/ui/components/button";
-import { Calendar } from "@marble/ui/components/calendar";
-import { Checkbox } from "@marble/ui/components/checkbox";
 import {
   Dialog,
   DialogClose,
@@ -14,22 +12,13 @@ import {
 } from "@marble/ui/components/dialog";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@marble/ui/components/popover";
-import { Separator } from "@marble/ui/components/separator";
 import { toast } from "@marble/ui/components/sonner";
-import {
-  CalendarDotsIcon,
-  CaretDownIcon,
-  LinkSimpleIcon,
-  TimerIcon,
-} from "@phosphor-icons/react";
+import { LinkSimpleIcon, TimerIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import { differenceInHours, differenceInMinutes, isBefore } from "date-fns";
 import { useState } from "react";
+import { UpgradeModal } from "@/components/billing/upgrade-modal";
+import { usePlan } from "@/hooks/use-plan";
 import { AsyncButton } from "../ui/async-button";
 import { CopyButton } from "../ui/copy-button";
 
@@ -40,9 +29,11 @@ type ShareModalProps = {
 export function ShareModal({ postId }: ShareModalProps) {
   const [shareLink, setShareLink] = useState<string | null>(null);
   const [expiresAt, setExpiresAt] = useState<Date | null>(null);
-  const [open, setOpen] = useState(false);
   const [date, setDate] = useState<Date | undefined>(new Date());
-  const [showExpiry, setShowExpiry] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
+  const { isHobbyPlan } = usePlan();
+  const isFreePlan = isHobbyPlan;
 
   const { mutate: generateShareLink, isPending } = useMutation({
     mutationFn: async () => {
@@ -92,43 +83,66 @@ export function ShareModal({ postId }: ShareModalProps) {
   };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button size="icon" type="button" variant="ghost">
-          <LinkSimpleIcon className="size-4" />
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Share Draft link</DialogTitle>
-          <DialogDescription>
-            Anyone with this link will be able to view your draft.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="flex flex-col gap-3">
-          <div className="flex w-full items-center gap-2">
-            <Label className="sr-only" htmlFor="link">
-              Link
-            </Label>
-            <Input
-              id="link"
-              placeholder="your share link will appear here"
-              readOnly
-              value={shareLink || ""}
-            />
-            <CopyButton
-              className="shadow-none"
-              disabled={!shareLink}
-              textToCopy={shareLink || ""}
-              toastMessage="Link copied to clipboard."
-            />
-          </div>
-          {expiresAt && (
-            <Badge variant="pending">
-              <TimerIcon className="size-2.5" /> {formatExpiration(expiresAt)}
-            </Badge>
-          )}
-          {/* {expiresAt && (
+    <>
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button size="icon" type="button" variant="ghost">
+            <LinkSimpleIcon className="size-4" />
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Share Draft link</DialogTitle>
+            <DialogDescription>
+              Anyone with this link will be able to view your draft.
+            </DialogDescription>
+          </DialogHeader>
+          {isFreePlan ? (
+            <>
+              <div className="flex flex-col gap-2 py-4">
+                <p className="">Upgrade to Pro to share drafts with others.</p>
+                <p className="text-muted-foreground text-sm">
+                  You can try it free for 7 days.
+                </p>
+              </div>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button type="button" variant="secondary">
+                    Close
+                  </Button>
+                </DialogClose>
+                <Button onClick={() => setShowUpgradeModal(true)}>
+                  Upgrade
+                </Button>
+              </DialogFooter>
+            </>
+          ) : (
+            <>
+              <div className="flex flex-col gap-3">
+                <div className="flex w-full items-center gap-2">
+                  <Label className="sr-only" htmlFor="link">
+                    Link
+                  </Label>
+                  <Input
+                    id="link"
+                    placeholder="your share link will appear here"
+                    readOnly
+                    value={shareLink || ""}
+                  />
+                  <CopyButton
+                    className="shadow-none"
+                    disabled={!shareLink}
+                    textToCopy={shareLink || ""}
+                    toastMessage="Link copied to clipboard."
+                  />
+                </div>
+                {expiresAt && (
+                  <Badge variant="pending">
+                    <TimerIcon className="size-2.5" />{" "}
+                    {formatExpiration(expiresAt)}
+                  </Badge>
+                )}
+                {/* {expiresAt && (
             <p className="text-[11px] text-muted-foreground">
               {formatExpiration(expiresAt)}.
             </p>
@@ -138,7 +152,7 @@ export function ShareModal({ postId }: ShareModalProps) {
               Links automatically expire after 24 hours.
             </p>
           )} */}
-          {/* <Separator />
+                {/* <Separator />
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Checkbox
@@ -196,23 +210,30 @@ export function ShareModal({ postId }: ShareModalProps) {
               </div>
             </div>
           )} */}
-        </div>
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button type="button" variant="secondary">
-              Close
-            </Button>
-          </DialogClose>
-          <AsyncButton
-            disabled={isPending}
-            isLoading={isPending}
-            onClick={() => generateShareLink()}
-            type="button"
-          >
-            Generate
-          </AsyncButton>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+              </div>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button type="button" variant="secondary">
+                    Close
+                  </Button>
+                </DialogClose>
+                <AsyncButton
+                  disabled={isPending}
+                  isLoading={isPending}
+                  onClick={() => generateShareLink()}
+                  type="button"
+                >
+                  Generate
+                </AsyncButton>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+      />
+    </>
   );
 }

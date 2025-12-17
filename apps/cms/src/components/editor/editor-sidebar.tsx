@@ -1,5 +1,6 @@
 "use client";
 
+import { useCurrentEditor } from "@marble/editor";
 import {
   Sidebar,
   SidebarContent,
@@ -16,17 +17,8 @@ import {
 import { cn } from "@marble/ui/lib/utils";
 import { SpinnerIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import type { Editor } from "@tiptap/core";
 import { parseAsStringLiteral, useQueryState } from "nuqs";
-import {
-  lazy,
-  memo,
-  Suspense,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import type { Control, FieldErrors, UseFormWatch } from "react-hook-form";
 import { useDebounce } from "@/hooks/use-debounce";
 import { fetchAiReadabilitySuggestionsObject } from "@/lib/ai/readability";
@@ -65,7 +57,7 @@ type EditorSidebarProps = React.ComponentProps<typeof Sidebar> & {
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   mode?: "create" | "update";
-  editor?: Editor | null;
+  postId?: string;
 };
 
 function EditorSidebarComponent({
@@ -77,12 +69,13 @@ function EditorSidebarComponent({
   isOpen,
   setIsOpen,
   mode = "create",
-  editor,
+  postId,
   ...props
 }: EditorSidebarProps) {
   const { open } = useSidebar();
   const { tags, authors: initialAuthors } = watch();
   const { activeWorkspace } = useWorkspace();
+  const { editor } = useCurrentEditor();
 
   const [editorText, setEditorText] = useState("");
   const [editorHTML, setEditorHTML] = useState("");
@@ -141,8 +134,7 @@ function EditorSidebarComponent({
   const debouncedText = useDebounce(editorText, aiEnabled ? 1500 : 500);
 
   const metrics = useMemo(() => {
-    const text = debouncedText;
-    if (!text || text.trim().length === 0) {
+    if (!editor) {
       return {
         wordCount: 0,
         sentenceCount: 0,
@@ -151,20 +143,21 @@ function EditorSidebarComponent({
         readingTime: 0,
       };
     }
-    const words = text
-      .trim()
-      .split(/\s+/u)
-      .filter((w) => w.length > 0);
-    const wordCount = editor?.storage?.characterCount?.words
+
+    // Use CharacterCount extension for word count
+    const wordCount = editor.storage.characterCount?.words
       ? editor.storage.characterCount.words()
-      : words.length;
+      : 0;
+
+    // Calculate sentence count from text (CharacterCount doesn't provide this)
+    const text = debouncedText;
     const sentences = text.split(/[.!?]+/).filter((s) => s.trim().length > 0);
     const sentenceCount = sentences.length;
 
     const wordsPerSentence =
       sentenceCount > 0 ? Math.round(wordCount / sentenceCount) : 0;
 
-    const readabilityScore = editor ? calculateReadabilityScore(editor) : 0;
+    const readabilityScore = calculateReadabilityScore(editor);
     const readingTime = wordCount / 238;
     return {
       wordCount,
@@ -195,25 +188,24 @@ function EditorSidebarComponent({
 
   // biome-ignore lint/style/noNonNullAssertion: <>
   const workspaceId = activeWorkspace!.id;
+  const bypassCacheRef = useRef(false);
 
   const {
     data: aiData,
     isFetching: aiLoading,
     refetch: refetchAi,
   } = useQuery({
-    // Use a stable key so content changes don't auto-trigger refetches
     queryKey: QUERY_KEYS.AI_READABILITY_SUGGESTIONS(
       workspaceId,
-      "current-document"
+      postId ?? "draft"
     ),
-    // Disabled by default; we'll manually refetch on initial open and button click
-    enabled: false,
+    enabled: aiEnabled && editorHTML.trim().length > 0,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     retry: 0,
-    queryFn: async () =>
-      fetchAiReadabilitySuggestionsObject({
+    queryFn: async () => {
+      const result = await fetchAiReadabilitySuggestionsObject({
         content: editorHTML,
         metrics: {
           wordCount: metrics.wordCount,
@@ -222,7 +214,12 @@ function EditorSidebarComponent({
           readabilityScore: metrics.readabilityScore,
           readingTime: metrics.readingTime,
         },
-      }),
+        postId,
+        bypassCache: bypassCacheRef.current,
+      });
+      bypassCacheRef.current = false;
+      return result;
+    },
   });
 
   const [activeTab, setActiveTab] = useQueryState(
@@ -251,6 +248,7 @@ function EditorSidebarComponent({
   ]);
 
   const handleRefreshAi = () => {
+    bypassCacheRef.current = true;
     refetchAi();
   };
 
@@ -315,7 +313,6 @@ function EditorSidebarComponent({
                   aiEnabled={aiEnabled}
                   aiLoading={aiLoading}
                   aiSuggestions={aiData?.suggestions ?? []}
-                  editor={editor}
                   localSuggestions={localSuggestions}
                   onRefreshAi={handleRefreshAi}
                 />

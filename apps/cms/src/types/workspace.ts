@@ -1,3 +1,5 @@
+import type { PlanType } from "@/lib/plans";
+
 export type Workspace = {
   id: string;
   name: string;
@@ -31,7 +33,8 @@ export type Workspace = {
   subscription: {
     id: string;
     status: string;
-    plan: string;
+    plan: PlanType;
+    activePlan: PlanType;
     currentPeriodStart?: string | Date;
     currentPeriodEnd?: string | Date;
     cancelAtPeriodEnd?: boolean;

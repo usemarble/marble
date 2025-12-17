@@ -1,88 +1,58 @@
 "use client";
 
-import { Suspense } from "react";
-import { ApiUsageStats } from "@/components/home/ApiUsageStats";
-import { PublishingActivityGraph } from "@/components/home/PublishingActivityGraph";
-import { QuickStats } from "@/components/home/QuickStats";
+import { useQuery } from "@tanstack/react-query";
+import { ApiUsageCard } from "@/components/home/api-usage-card";
+import { MediaUsageCard } from "@/components/home/media-usage-card";
+import { PublishingActivityCard } from "@/components/home/publishing-activity-card";
+import { WebhookUsageCard } from "@/components/home/webhook-usage-card";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
-import { useUser } from "@/providers/user";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { QUERY_KEYS } from "@/lib/queries/keys";
+import type { UsageDashboardData } from "@/types/dashboard";
 
 export default function PageClient() {
-  const { user, isFetchingUser } = useUser();
+  const workspaceId = useWorkspaceId();
 
-  const getTimeOfDay = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) {
-      return "Good morning";
-    }
-    if (hour < 17) {
-      return "Good afternoon";
-    }
-    return "Good evening";
-  };
+  const { data, isPending, isError } = useQuery({
+    queryKey: workspaceId
+      ? QUERY_KEYS.USAGE_DASHBOARD(workspaceId)
+      : ["usage-dashboard", "disabled"],
+    queryFn: async (): Promise<UsageDashboardData> => {
+      const response = await fetch("/api/metrics/usage");
+      if (!response.ok) {
+        throw new Error("Failed to fetch usage metrics");
+      }
+      return response.json();
+    },
+    enabled: Boolean(workspaceId),
+    staleTime: 1000 * 60 * 10,
+  });
+
+  if (isPending) {
+    return <PageLoader />;
+  }
+
+  if (isError) {
+    return (
+      <div className="text-muted-foreground text-sm">
+        Unable to load dashboard metrics right now.
+      </div>
+    );
+  }
 
   return (
-    <WorkspacePageWrapper className="flex flex-col gap-8 pt-10 pb-16">
-      <div className="flex flex-col gap-2">
-        <h1 className="font-bold text-3xl">
-          {isFetchingUser ? (
-            getTimeOfDay()
-          ) : (
-            <>
-              {getTimeOfDay()}, {user?.name}
-            </>
-          )}
-        </h1>
-        <p className="text-muted-foreground">
-          Here's what's happening in your workspace
-        </p>
-      </div>
-
-      <div className="grid gap-8">
-        <div className="space-y-6">
-          <div className="flex items-center gap-2">
-            <h2 className="font-semibold text-xl">Publishing Data</h2>
-            <div className="h-px flex-1 bg-border" />
-          </div>
-
-          <Suspense
-            fallback={
-              <div className="h-20">
-                <PageLoader />
-              </div>
-            }
-          >
-            <QuickStats />
-          </Suspense>
-
-          <Suspense
-            fallback={
-              <div className="h-64">
-                <PageLoader />
-              </div>
-            }
-          >
-            <PublishingActivityGraph />
-          </Suspense>
+    <WorkspacePageWrapper
+      className="flex flex-col gap-8 pt-10 pb-16"
+      size="compact"
+    >
+      <div className="grid gap-x-10 gap-y-8">
+        <ApiUsageCard data={data?.api} isLoading={isPending} />
+        <div className="grid gap-8 lg:grid-cols-2">
+          <WebhookUsageCard data={data?.webhooks} isLoading={isPending} />
+          <MediaUsageCard data={data?.media} isLoading={isPending} />
         </div>
-
-        <div className="space-y-6">
-          <div className="flex items-center gap-2">
-            <h2 className="font-semibold text-xl">API Usage</h2>
-            <div className="h-px flex-1 bg-border" />
-          </div>
-
-          <Suspense
-            fallback={
-              <div className="h-20">
-                <PageLoader />
-              </div>
-            }
-          >
-            <ApiUsageStats />
-          </Suspense>
-        </div>
+        <PublishingActivityCard />
       </div>
     </WorkspacePageWrapper>
   );

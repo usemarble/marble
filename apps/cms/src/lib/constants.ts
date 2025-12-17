@@ -1,18 +1,3 @@
-export type PricingPlan = {
-  id: string;
-  title: string;
-  description: string;
-  price: {
-    monthly: string;
-    yearly: string;
-  };
-  features: string[];
-  button: {
-    href: string;
-    label: string;
-  };
-};
-
 export const VALID_DISCORD_DOMAINS = [
   "discord.com",
   "canary.discord.com",
@@ -20,51 +5,6 @@ export const VALID_DISCORD_DOMAINS = [
 ];
 
 export const VALID_SLACK_DOMAINS = ["hooks.slack.com"];
-
-export const PRICING_PLANS: PricingPlan[] = [
-  {
-    id: "free",
-    title: "Hobby",
-    description: "For Hobbyists",
-    price: {
-      monthly: "$0",
-      yearly: "$0",
-    },
-    features: [
-      "Unlimited posts",
-      "1GB media storage",
-      "2 team members",
-      "AI Readability insights",
-      "10k API requests per month",
-      "100 webhook events per month",
-    ],
-    button: {
-      href: "https://app.marblecms.com",
-      label: "Start for free",
-    },
-  },
-  {
-    id: "pro",
-    title: "Pro",
-    description: "For Small Teams",
-    price: {
-      monthly: "$20",
-      yearly: "$180",
-    },
-    features: [
-      "Unlimited posts",
-      "10GB media storage",
-      "10 team members",
-      "AI Readability insights",
-      "50k API requests per month",
-      "1k webhook events per month",
-    ],
-    button: {
-      href: "https://app.marblecms.com",
-      label: "Get Started",
-    },
-  },
-];
 
 export const timezones = Intl.supportedValuesOf("timeZone");
 
@@ -190,12 +130,12 @@ export const PLATFORM_DOMAINS = {
   bluesky: ["bsky.app"],
 } as const;
 
-export const MEDIA_SORTS = [
-  "createdAt_desc",
-  "createdAt_asc",
-  "name_asc",
-  "name_desc",
-];
+export const MEDIA_SORT_BY = ["createdAt", "name"] as const;
+export const SORT_DIRECTIONS = ["asc", "desc"] as const;
+
+export const MEDIA_SORTS = MEDIA_SORT_BY.flatMap((field) =>
+  SORT_DIRECTIONS.map((direction) => `${field}_${direction}` as const)
+);
 
 export const MEDIA_TYPES = ["image", "video", "audio", "document"] as const;
 

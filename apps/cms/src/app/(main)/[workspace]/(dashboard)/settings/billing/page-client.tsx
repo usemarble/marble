@@ -21,8 +21,13 @@ import { formatBytes } from "@/utils/string";
 function PageClient() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const { activeWorkspace, isOwner } = useWorkspace();
-  const { planLimits, currentMemberCount, currentPlan, currentMediaUsage } =
-    usePlan();
+  const {
+    planLimits,
+    currentMemberCount,
+    currentPlan,
+    currentMediaUsage,
+    currentApiRequests,
+  } = usePlan();
 
   const subscription = activeWorkspace?.subscription;
 
@@ -55,10 +60,10 @@ function PageClient() {
     switch (currentPlan) {
       case "pro":
         return "Pro Plan";
-      case "team":
-        return "Team Plan";
+      case "hobby":
+        return "Hobby Plan";
       default:
-        return "Free Plan";
+        return "Hobby Plan";
     }
   };
 
@@ -116,6 +121,15 @@ function PageClient() {
     ? Math.min(100, Math.round((mediaUsedBytes / maxMediaBytes) * 100))
     : 0;
 
+  const apiRequestsUsed = currentApiRequests;
+  const apiRequestsRemaining = planLimits.maxApiRequests - apiRequestsUsed;
+  const apiRequestsPercent = planLimits.maxApiRequests
+    ? Math.min(
+        100,
+        Math.round((apiRequestsUsed / planLimits.maxApiRequests) * 100)
+      )
+    : 0;
+
   const memberMax = planLimits.maxMembers;
   const memberPercent = memberMax
     ? Math.min(100, Math.round((currentMemberCount / memberMax) * 100))
@@ -130,7 +144,7 @@ function PageClient() {
   };
 
   return (
-    <WorkspacePageWrapper>
+    <WorkspacePageWrapper size="compact">
       <div className="flex flex-col gap-6">
         <Card>
           <CardContent className="px-6 py-10">
@@ -147,16 +161,20 @@ function PageClient() {
                 {isOwner && (
                   <>
                     <Button onClick={() => setShowUpgradeModal(true)}>
-                      {subscription?.plan ? "Change Plan" : "Upgrade"}
+                      {subscription?.activePlan &&
+                      subscription.activePlan !== "hobby"
+                        ? "Change Plan"
+                        : "Upgrade"}
                     </Button>
-                    {subscription?.plan && (
-                      <Button
-                        onClick={() => redirectCustomerPortal()}
-                        variant="outline"
-                      >
-                        Manage Subscription
-                      </Button>
-                    )}
+                    {subscription?.activePlan &&
+                      subscription.activePlan !== "hobby" && (
+                        <Button
+                          onClick={() => redirectCustomerPortal()}
+                          variant="outline"
+                        >
+                          Manage Subscription
+                        </Button>
+                      )}
                   </>
                 )}
               </div>
@@ -164,7 +182,6 @@ function PageClient() {
           </CardContent>
         </Card>
 
-        {/* Usage Cards */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <Card>
             <CardContent className="p-6">
@@ -175,12 +192,11 @@ function PageClient() {
                 <h3 className="font-medium">API Requests</h3>
               </div>
               <div className="space-y-3">
-                <div className="font-bold text-3xl">0</div>
-                <Progress value={planLimits.maxApiRequests === -1 ? 100 : 0} />
+                <div className="font-bold text-3xl">{apiRequestsUsed}</div>
+                <Progress value={apiRequestsPercent} />
                 <p className="text-muted-foreground text-sm">
-                  {planLimits.maxApiRequests === -1
-                    ? "Unlimited requests"
-                    : `${formatApiRequestLimit(planLimits.maxApiRequests)} remaining of ${formatApiRequestLimit(planLimits.maxApiRequests)}`}
+                  {apiRequestsRemaining.toLocaleString()} remaining of{" "}
+                  {planLimits.maxApiRequests.toLocaleString()}
                 </p>
               </div>
             </CardContent>

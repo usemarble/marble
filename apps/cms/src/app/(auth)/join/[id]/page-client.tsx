@@ -67,35 +67,57 @@ function PageClient({ id, user }: PageClientProps) {
 
   const handleAccept = async () => {
     setAccepting(true);
-    await organization
-      .acceptInvitation({
+    setError(null);
+    try {
+      const res = await organization.acceptInvitation({
         invitationId: id,
-      })
-      .then((res) => {
-        if (res.error) {
-          setError(res.error.message || "An error occurred");
-        } else {
-          setInviteStatus("accepted");
-          setAccepting(false);
-          router.push(`/${invitation?.organizationSlug}`);
-        }
       });
+
+      if (res.error) {
+        setError(res.error.message || "Failed to accept invitation");
+        return;
+      }
+
+      setInviteStatus("accepted");
+      router.push(`/${invitation?.organizationSlug}`);
+    } catch (error) {
+      // Handle unexpected errors (network errors, etc.)
+      console.error("Error accepting invitation:", error);
+      setError(
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred. Please try again."
+      );
+    } finally {
+      setAccepting(false);
+    }
   };
 
   const handleReject = async () => {
     setRejecting(true);
-    await organization
-      .rejectInvitation({
+    setError(null);
+    try {
+      const res = await organization.rejectInvitation({
         invitationId: id,
-      })
-      .then((res) => {
-        if (res.error) {
-          setError(res.error.message || "An error occurred");
-        } else {
-          setRejecting(false);
-          setInviteStatus("rejected");
-        }
       });
+
+      if (res.error) {
+        setError(res.error.message || "Failed to reject invitation");
+        return;
+      }
+
+      setInviteStatus("rejected");
+    } catch (error) {
+      // Handle unexpected errors
+      console.error("Error rejecting invitation:", error);
+      setError(
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred. Please try again."
+      );
+    } finally {
+      setRejecting(false);
+    }
   };
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <>
@@ -112,6 +134,14 @@ function PageClient({ id, user }: PageClientProps) {
         } else {
           setInvitation(res.data);
         }
+      })
+      .catch((error) => {
+        console.error("Error fetching invitation:", error);
+        setError(
+          error instanceof Error
+            ? error.message
+            : "Failed to load invitation. Please try again."
+        );
       });
   }, []);
 
@@ -154,8 +184,8 @@ function PageClient({ id, user }: PageClientProps) {
                     />
                   </svg>
                   <Avatar className="size-14">
-                    <AvatarImage src="https://github.com/taqh.png" />
-                    <AvatarFallback>XQ</AvatarFallback>
+                    <AvatarImage src="" />
+                    <AvatarFallback>MAB</AvatarFallback>
                   </Avatar>
                 </div>
                 <p className="text-center text-sm">
@@ -206,6 +236,11 @@ function PageClient({ id, user }: PageClientProps) {
               </div>
             )}
           </CardContent>
+          {error && inviteStatus === "pending" && (
+            <div className="mt-4 rounded-sm border border-destructive bg-destructive/10 p-3">
+              <p className="text-center text-destructive text-sm">{error}</p>
+            </div>
+          )}
           {inviteStatus === "pending" && (
             <CardFooter className="mt-4 grid grid-cols-2 gap-6">
               <AsyncButton

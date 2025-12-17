@@ -2,7 +2,7 @@ import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { categorySchema } from "@/lib/validations/workspace";
-import { getWebhooks, WebhookClient } from "@/lib/webhooks/webhook-client";
+import { dispatchWebhooks } from "@/lib/webhooks/dispatcher";
 
 export async function PATCH(
   req: Request,
@@ -39,7 +39,7 @@ export async function PATCH(
     return NextResponse.json({ error: "Slug already in use" }, { status: 409 });
   }
 
-  const categoryUpdated = await db.category.update({
+  const updatedCategory = await db.category.update({
     where: {
       id,
       workspaceId,
@@ -50,23 +50,23 @@ export async function PATCH(
     },
   });
 
-  const webhooks = getWebhooks(sessionData.session, "category_updated");
+  dispatchWebhooks({
+    workspaceId,
+    validationEvent: "category_updated",
+    deliveryEvent: "category.updated",
+    payload: {
+      id: updatedCategory.id,
+      slug: updatedCategory.slug,
+      userId: sessionData.user.id,
+    },
+  }).catch((error) => {
+    console.error(
+      `[CategoryUpdate] Failed to dispatch webhooks: categoryId=${updatedCategory.id}`,
+      error
+    );
+  });
 
-  for (const webhook of await webhooks) {
-    const webhookClient = new WebhookClient({ secret: webhook.secret });
-    await webhookClient.send({
-      url: webhook.endpoint,
-      event: "category.updated",
-      data: {
-        id: categoryUpdated.id,
-        slug: categoryUpdated.slug,
-        userId: sessionData.user.id,
-      },
-      format: webhook.format,
-    });
-  }
-
-  return NextResponse.json(categoryUpdated, { status: 200 });
+  return NextResponse.json(updatedCategory, { status: 200 });
 }
 
 export async function DELETE(
@@ -114,17 +114,18 @@ export async function DELETE(
       },
     });
 
-    const webhooks = getWebhooks(sessionData.session, "category_deleted");
-
-    for (const webhook of await webhooks) {
-      const webhookClient = new WebhookClient({ secret: webhook.secret });
-      await webhookClient.send({
-        url: webhook.endpoint,
-        event: "category.deleted",
-        data: { id, slug: category.slug, userId: sessionData.user.id },
-        format: webhook.format,
-      });
-    }
+    // Fire and forget - don't block response
+    dispatchWebhooks({
+      workspaceId,
+      validationEvent: "category_deleted",
+      deliveryEvent: "category.deleted",
+      payload: { id, slug: category.slug, userId: sessionData.user.id },
+    }).catch((error) => {
+      console.error(
+        `[CategoryDelete] Failed to dispatch webhooks: categoryId=${id}`,
+        error
+      );
+    });
 
     return new NextResponse(null, { status: 204 });
   } catch (_e) {

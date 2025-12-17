@@ -25,7 +25,7 @@ const badgeVariants = cva(
         info: "border-0 bg-blue-500/20 text-blue-800 dark:bg-blue-500/25 dark:text-blue-300 [a&]:hover:bg-blue-500/30 dark:[a&]:hover:bg-blue-500/35",
         neutral:
           "border-0 bg-gray-500/10 text-gray-700 dark:bg-gray-500/15 dark:text-gray-400 [a&]:hover:bg-gray-500/20 dark:[a&]:hover:bg-gray-500/25",
-        premium:
+        paid:
           "border-0 bg-blue-500/10 text-blue-700 dark:bg-blue-500/15 dark:text-blue-400 [a&]:hover:bg-blue-500/20 dark:[a&]:hover:bg-blue-500/25",
         free: "border-0 bg-gray-500/10 text-gray-600 dark:bg-gray-500/15 dark:text-gray-400 [a&]:hover:bg-gray-500/20 dark:[a&]:hover:bg-gray-500/25",
       },

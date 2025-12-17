@@ -9,25 +9,32 @@ datasource db {
 }
 
 model Subscription {
-  id                 String             @id @default(cuid())
+  id                 String                        @id @default(cuid())
   userId             String
   plan               PlanType
-  status             SubscriptionStatus @default(active)
-  updatedAt          DateTime           @updatedAt
-  cancelAtPeriodEnd  Boolean            @default(false)
+  status             SubscriptionStatus
+  updatedAt          DateTime                      @updatedAt
+  cancelAtPeriodEnd  Boolean
   canceledAt         DateTime?
-  createdAt          DateTime           @default(now())
+  createdAt          DateTime                      @default(now())
   currentPeriodEnd   DateTime
   currentPeriodStart DateTime
   endedAt            DateTime?
   endsAt             DateTime?
-  polarId            String             @unique
-  workspaceId        String             @unique
-  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  workspace          Organization       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  polarId            String                        @unique
+  workspaceId        String
+  startedAt          DateTime?
+  productId          String?
+  amount             Int                           @default(20)
+  currency           String                        @default("USD")
+  discountId         String?
+  recurringInterval  SubscriptionRecurringInterval @default(month)
+  user               User                          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace          Organization                  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([status])
+  @@index([workspaceId, status])
   @@map("subscription")
 }
 
@@ -48,11 +55,13 @@ model Organization {
   media             Media[]
   members           Member[]
   posts             Post[]
-  subscription      Subscription?
+  subscriptions     Subscription[]
   tags              Tag[]
   webhooks          Webhook[]
   editorPreferences EditorPreferences?
   ShareLink         ShareLink[]
+  usageEvents       UsageEvent[]
+  ApiToken          ApiKey[]
 
   @@map("workspace")
 }
@@ -151,6 +160,7 @@ model Media {
   name        String
   url         String
   size        Int
+  alt         String?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   workspaceId String
@@ -210,6 +220,7 @@ model User {
   members       Member[]
   sessions      Session[]
   subscriptions Subscription[]
+  ApiKey        ApiKey[]
 
   @@map("user")
 }
@@ -332,10 +343,60 @@ model Invitation {
   user           User         @relation(fields: [inviterId], references: [id], onDelete: Cascade)
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
+  createdAt DateTime @default(now())
+
   @@index([organizationId])
   @@index([email])
   @@index([inviterId])
   @@map("invitation")
+}
+
+model UsageEvent {
+  id          String         @id @default(cuid())
+  type        UsageEventType
+  workspaceId String
+  endpoint    String?
+  size        Int?
+  createdAt   DateTime       @default(now())
+  workspace   Organization   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, type, createdAt])
+  @@index([workspaceId, createdAt])
+  @@map("usage_event")
+}
+
+model ApiKey {
+  id           String     @id @default(cuid())
+  workspaceId  String
+  userId       String?
+  name         String
+  prefix       String?
+  key          String     @unique // SHA-256 hash of the API key
+  preview      String
+  type         ApiKeyType @default(public)
+  scopes       ApiScope[] @default([])
+  requestCount Int        @default(0)
+  enabled      Boolean    @default(true)
+
+  // Rate limiting fields
+  rateLimitTimeWindow Int? // milliseconds (e.g., 86400000 for 24 hours)
+  rateLimitMax        Int? // max requests per window
+  lastRequest         DateTime? // for rate limit window tracking
+
+  lastUsed  DateTime?
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  workspace Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([workspaceId])
+  @@index([workspaceId, createdAt])
+  @@index([workspaceId, enabled])
+  @@index([workspaceId, type])
+  @@index([key])
+  @@map("api_key")
 }
 
 enum PostStatus {
@@ -344,16 +405,26 @@ enum PostStatus {
 }
 
 enum PlanType {
-  team
+  hobby
   pro
 }
 
+enum SubscriptionRecurringInterval {
+  day
+  week
+  month
+  year
+}
+
 enum SubscriptionStatus {
-  active
-  cancelled
-  expired
-  trialing
-  past_due
+  active // Active subscription
+  expired // End of period
+  trialing // Still in a trial period
+  past_due // Payment failed, unpaid, or incomplete
+  incomplete // Created, but with unpaid invoice
+  incomplete_expired // Created, but never made a payment and now expired
+  unpaid // Payment failed and is unpaid
+  canceled // Canceled (Polar uses American spelling)
 }
 
 enum WebhookEvent {
@@ -367,6 +438,7 @@ enum WebhookEvent {
   tag_updated
   tag_deleted
   media_uploaded
+  media_updated
   media_deleted
 }
 
@@ -381,4 +453,28 @@ enum MediaType {
   video
   audio
   document
+}
+
+enum UsageEventType {
+  api_request
+  media_upload
+  webhook_delivery
+}
+
+enum ApiKeyType {
+  public
+  private
+}
+
+enum ApiScope {
+  posts_read
+  posts_write
+  authors_read
+  authors_write
+  categories_read
+  categories_write
+  tags_read
+  tags_write
+  media_read
+  media_write
 }

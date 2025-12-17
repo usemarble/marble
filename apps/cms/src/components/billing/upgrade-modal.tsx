@@ -4,10 +4,8 @@ import { Badge } from "@marble/ui/components/badge";
 import { Button } from "@marble/ui/components/button";
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@marble/ui/components/card";
@@ -19,11 +17,11 @@ import {
   DialogTitle,
 } from "@marble/ui/components/dialog";
 import { cn } from "@marble/ui/lib/utils";
+import { PRICING_PLANS } from "@marble/utils";
 import { CheckIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import { AsyncButton } from "@/components/ui/async-button";
 import { checkout } from "@/lib/auth/client";
-import { PRICING_PLANS } from "@/lib/constants";
 import { useWorkspace } from "@/providers/workspace";
 
 type UpgradeModalProps = {
@@ -32,15 +30,15 @@ type UpgradeModalProps = {
 };
 
 export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
-  const [checkoutLoading, setCheckoutLoading] = useState<"pro" | "free" | null>(
-    null
-  );
+  const [checkoutLoading, setCheckoutLoading] = useState<
+    "pro" | "hobby" | null
+  >(null);
   const [selectedPlan, setSelectedPlan] = useState<string | null>("pro");
   const { activeWorkspace } = useWorkspace();
 
-  const currentPlan = activeWorkspace?.subscription?.plan || "free";
+  const currentPlan = activeWorkspace?.subscription?.activePlan || "hobby";
 
-  const handleCheckout = async (plan: "pro" | "free") => {
+  const handleCheckout = async (plan: "pro" | "hobby") => {
     if (!activeWorkspace?.id) {
       return;
     }
@@ -60,7 +58,7 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
     }
   };
 
-  const renderPlanButton = (plan: "free" | "pro") => {
+  const renderPlanButton = (plan: "hobby" | "pro") => {
     const isCurrentPlan = currentPlan === plan;
 
     if (isCurrentPlan) {
@@ -73,7 +71,7 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
 
     return (
       <AsyncButton
-        className="w-full"
+        className="w-full cursor-pointer"
         isLoading={!!checkoutLoading}
         onClick={() => handleCheckout(plan)}
       >
@@ -107,9 +105,19 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
               }
 
               return (
-                <div className="flex h-full min-h-96 w-full flex-col gap-5 rounded-xl bg-background px-4 pt-6 pb-10 shadow-sm">
+                <div className="flex h-full min-h-96 w-full flex-col gap-5 rounded-xl bg-background px-4 pt-6 pb-10 shadow-xs">
                   <div className="flex flex-col gap-4">
-                    <h4 className="text-2xl text-medium">{plan.title}</h4>
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-2xl text-medium">{plan.title}</h4>
+                      {plan.trial && (
+                        <Badge
+                          className="border border-emerald-500/30 border-dashed dark:border-emerald-400/30"
+                          variant="positive"
+                        >
+                          {plan.trial}
+                        </Badge>
+                      )}
+                    </div>
                     <div>
                       <p>
                         <span className="font-bold text-3xl">
@@ -123,7 +131,7 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
                     </div>
                   </div>
                   <div className="border-y border-dashed py-4">
-                    {renderPlanButton(plan.id as "free" | "pro")}
+                    {renderPlanButton(plan.id as "hobby" | "pro")}
                   </div>
                   <ul className="flex flex-col gap-2 text-sm">
                     {plan.features.map((feature) => (
@@ -151,7 +159,7 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
                 >
                   <Card
                     className={cn(
-                      "flex-row items-center justify-start border-transparent bg-background px-6 shadow-sm transition-[color,box-shadow]",
+                      "flex-row items-center justify-start border-transparent bg-background px-6 shadow-xs transition-[color,box-shadow]",
                       selectedPlan === plan.id &&
                         "border-ring ring-[3px] ring-ring/50"
                     )}
@@ -168,9 +176,19 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
                     <CardHeader className="flex w-full flex-col gap-2 px-0 text-start">
                       <div className="flex w-full items-center justify-between">
                         <CardTitle>{plan.title}</CardTitle>
-                        {plan.id === currentPlan && (
-                          <Badge variant="free">Current Plan</Badge>
-                        )}
+                        <div className="flex items-center gap-2">
+                          {plan.trial && (
+                            <Badge
+                              className="border border-emerald-500/30 border-dashed dark:border-emerald-400/30"
+                              variant="positive"
+                            >
+                              {plan.trial}
+                            </Badge>
+                          )}
+                          {plan.id === currentPlan && (
+                            <Badge variant="free">Current Plan</Badge>
+                          )}
+                        </div>
                       </div>
                       <CardDescription>{plan.description}</CardDescription>
                     </CardHeader>

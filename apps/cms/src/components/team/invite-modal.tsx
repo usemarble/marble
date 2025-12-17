@@ -67,9 +67,12 @@ export const InviteModal = ({
       toast.success("Invitation sent successfully");
       setOpen(false);
       reset();
-      if (activeWorkspace?.id) {
+      if (activeWorkspace?.id && activeWorkspace?.slug) {
         queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.WORKSPACE(activeWorkspace.id),
+        });
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.WORKSPACE_BY_SLUG(activeWorkspace.slug),
         });
       }
     },

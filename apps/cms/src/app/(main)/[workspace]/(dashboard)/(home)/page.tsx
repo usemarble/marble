@@ -1,7 +1,7 @@
 import PageClient from "./page-client";
 
 export const metadata = {
-  title: "Overview",
+  title: "Home",
   description: "Workspace overview and metrics",
 };
 

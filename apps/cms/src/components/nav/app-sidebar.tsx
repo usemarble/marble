@@ -7,13 +7,14 @@ import {
 import { NavDevs } from "./nav-devs";
 import { NavMain } from "./nav-main";
 import { SidebarFooterContent } from "./sidebar-footer-content";
+import { UpgradeButton } from "./upgrade-button";
 import { WorkspaceSwitcher } from "./workspace-switcher";
 
 export async function AppSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar collapsible="icon" {...props} className="border-none">
       <SidebarHeader>
         <WorkspaceSwitcher />
       </SidebarHeader>
@@ -22,6 +23,7 @@ export async function AppSidebar({
         <NavDevs />
       </SidebarContent>
       <SidebarFooter>
+        <UpgradeButton />
         <SidebarFooterContent />
       </SidebarFooter>
     </Sidebar>

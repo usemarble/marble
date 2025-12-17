@@ -1,12 +1,15 @@
 ---
 import { Image } from "astro:assets";
-import editorImage from "@/assets/images/editor.png";
-import galleryImage from "@/assets/images/gallery.png";
-import postImage from "@/assets/images/posts.png";
+import { PRICING_PLANS, YOUTUBE_EMBED_URL } from "@marble/utils";
+import ApiIcon from "@/assets/images/api.svg";
+import editorBubble from "@/assets/images/bubble.png";
+import intelImage from "@/assets/images/readability.png";
 import Container from "@/components/Container.astro";
+import CollabIcon from "@/components/icons/Collab.astro";
+import MediaManagement from "@/components/icons/Media.astro";
 import AccordionItem from "@/components/ui/AccordionItem.astro";
 import Layout from "@/layouts/Layout.astro";
-import { FAQs, PRICING, SITE, USERS } from "@/lib/constants";
+import { FAQs, SITE, USERS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 ---
 <Layout
@@ -45,13 +48,13 @@ import { cn } from "@/lib/utils";
           <div
             class="bg-gray-50/80 p-1 rounded-xl backdrop-blur-md border mt-14 md:mt-24 lg:mt-28"
           >
-            <div class="border overflow-hidden rounded-[8px]">
-              <Image
-                src={editorImage}
-                alt="An preview of the Marble editor featuring a post in the editor and metadata in the sidebar"
-                loading="eager"
-                inferSize
-                class="object-cover"
+            <div class="border overflow-hidden rounded-[8px] aspect-video">
+              <iframe
+                src={YOUTUBE_EMBED_URL}
+                title="Marble CMS - Super Simple Headless CMS"
+                allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+                class="w-full h-full"
               />
             </div>
           </div>
@@ -108,40 +111,25 @@ import { cn } from "@/lib/utils";
             </p>
           </div>
           <div
-            class="grid gap-5 lg:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 auto-rows-fr"
+            class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 auto-rows-fr"
           >
             <!-- Media Management - 7 columns -->
             <div
               class="sm:col-span-2 lg:col-span-7 border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl min-h-64"
             >
               <div
-                class="border flex flex-col justify-between rounded-[8px] bg-white h-full w-full p-6"
+                class="border relative overflow-x-hidden flex justify-between rounded-[8px] bg-white h-full w-full p-6"
               >
-                <div
-                  class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    class="w-6 h-6 text-blue-600"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
-                    />
-                  </svg>
-                </div>
-                <div class="space-y-2">
+                <div class="space-y-2 self-end z-10 max-w-[60%]">
                   <h3 class="font-medium text-lg lg:text-xl">
                     Media Management
                   </h3>
                   <p class="text-muted-foreground text-sm lg:text-base">
-                    Upload and organize all your images in one centralized
-                    library.
+                    Upload, organize, and manage all your images and files in one place.
                   </p>
+                </div>
+                <div class="w-[300px] max-w-[50%] h-fit -mr-6 absolute right-0 user-select-none">
+                  <MediaManagement />
                 </div>
               </div>
             </div>
@@ -153,88 +141,36 @@ import { cn } from "@/lib/utils";
               <div
                 class="border flex flex-col justify-between rounded-[8px] bg-white h-full w-full p-6"
               >
-                <div
-                  class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    class="w-6 h-6 text-green-600"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125"
-                    />
-                  </svg>
+              <div>
+                  <Image
+                    src={editorBubble}
+                    alt=""
+                    class="w-full h-full object-cover user-select-none"
+                  />
                 </div>
+                
                 <div class="space-y-2">
                   <h3 class="font-medium text-lg">Simple Editor</h3>
                   <p class="text-muted-foreground text-sm">
-                    Smooth, intuitive writing experience.
+                    Write and format content easily with an intuitive interface.
                   </p>
                 </div>
               </div>
             </div>
 
-            <!-- Team Collaboration - 5 columns -->
+            <!-- Content Intelligence - 5 columns -->
             <div
               class="lg:col-span-5 border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl min-h-64"
             >
               <div
                 class="border flex flex-col justify-between rounded-[8px] bg-white h-full w-full p-6"
               >
-                <div
-                  class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    class="w-6 h-6 text-purple-600"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"
-                    />
-                  </svg>
-                </div>
-                <div class="space-y-2">
-                  <h3 class="font-medium text-lg">Team Collaboration</h3>
-                  <p class="text-muted-foreground text-sm">
-                    Invite teammates to write with you.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Content Intelligence - 7 columns -->
-            <div
-              class="sm:col-span-2 lg:col-span-7 border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl min-h-64"
-            >
-              <div
-                class="border flex flex-col justify-between rounded-[8px] bg-white h-full w-full p-6"
-              >
-                <div
-                  class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    class="w-6 h-6 text-emerald-600"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z"
-                    />
-                  </svg>
+                <div class="user-select-none">
+                  <Image
+                    src={intelImage}
+                    alt=""
+                    class="w-full h-full object-cover"
+                  />
                 </div>
                 <div class="space-y-2">
                   <h3 class="font-medium text-lg lg:text-xl">
@@ -247,31 +183,38 @@ import { cn } from "@/lib/utils";
               </div>
             </div>
 
+            <!-- Team Collaboration - 7 columns -->
+            <div
+              class="sm:col-span-2 lg:col-span-7 border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl min-h-64"
+            
+              >
+              <div
+                class="border flex justify-between rounded-[8px] overflow-hidden bg-white h-full w-full p-6"
+              >
+                <div class="space-y-2 self-end max-w-[60%]">
+                  <h3 class="font-medium text-lg">Team Collaboration</h3>
+                  <p class="text-muted-foreground text-sm">
+                    Work together efficiently with shared workspaces.
+                  </p>
+                </div>
+                <div class="w-[250px] max-w-[40%] shrink-0 user-select-none">
+                  <CollabIcon />
+                </div>
+              </div>
+            </div>
+
+
             <!-- API Integration - Full width -->
             <div
               class="sm:col-span-2 lg:col-span-12 border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl min-h-64"
             >
               <div
-                class="border flex flex-col justify-between rounded-[8px] bg-white h-full w-full p-6"
+                class="border flex justify-between rounded-[8px] bg-white h-full w-full p-6 relative"
               >
-                <div
-                  class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    class="w-6 h-6 text-orange-600"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5"
-                    />
-                  </svg>
+                <div class="w-[250px] max-w-[40%] h-fit -mr-6 absolute right-6 border-t border-l user-select-none">
+                  <ApiIcon />
                 </div>
-                <div class="space-y-2">
+                <div class="space-y-2 self-end max-w-[60%]">
                   <h3 class="font-medium text-lg lg:text-xl">
                     API Integration
                   </h3>
@@ -298,21 +241,28 @@ import { cn } from "@/lib/utils";
               Simple Pricing
             </h2>
             <p class="max-w-prose md:text-lg text-muted-foreground text-center">
-              Choose a plan that fits your needs.
+              Choose a plan that fits your needs. Start with a 7 day free trial.
             </p>
           </div>
           <!-- <ul class="grid gap-5 lg:gap-10 sm:grid-cols-2 lg:grid-cols-3"> -->
           <ul
             class="flex flex-col items-center md:items-stretch justify-center gap-5 md:flex-row"
           >
-            {PRICING.map((plan, index) => (
+            {PRICING_PLANS.map((plan, index) => (
                 <li class={cn("border min-w-[300px] w-full max-w-[350px] bg-gray-50/80 backdrop-blur-md p-1 rounded-xl", index === 2 && 'sm:col-span-2 lg:col-span-1 sm:h-fit')}>
                   <div class={cn("border flex flex-col gap-5 rounded-[8px] bg-white w-full px-4 py-6", index === 2 ? 'sm:flex-row sm:px-14 sm:py-10 lg:py-6 sm:justify-center sm:gap-20 lg:gap-4 lg:px-4 lg:flex-col min-h-96 sm:min-h-fit lg:min-h-96' : 'min-h-96 h-full')}>
                     {index === 2 ? (
                       <>
                         <div class="flex flex-col gap-5 sm:min-w-60 lg:min-w-0">
                           <div class="flex flex-col gap-4">
-                            <h3 class="text-medium text-xl">{plan.title}</h3>
+                            <div class="flex items-center justify-between">
+                              <h3 class="text-medium text-xl">{plan.title}</h3>
+                              {plan.trial && (
+                                <span class="text-xs font-medium text-emerald-700 bg-emerald-50 border border-dashed border-emerald-200 px-2 py-1 rounded-md">
+                                  {plan.trial}
+                                </span>
+                              )}
+                            </div>
                             <div>
                               <p><span class="font-bold text-2xl">{plan.price.monthly}</span>{' '}<span>per month.</span></p>
                               <p class="text-muted-foreground text-sm">{plan.description}</p>
@@ -342,7 +292,14 @@ import { cn } from "@/lib/utils";
                     ) : (
                       <>
                         <div class="flex flex-col gap-4">
-                          <h3 class="text-medium text-2xl">{plan.title}</h3>
+                          <div class="flex items-center justify-between">
+                            <h3 class="text-medium text-2xl">{plan.title}</h3>
+                            {plan.trial && (
+                              <span class="text-xs font-medium text-emerald-700 bg-emerald-50 border border-dashed border-emerald-200 px-2 py-1 rounded-md">
+                                {plan.trial}
+                              </span>
+                            )}
+                          </div>
                           <div>
                             <p><span class="font-bold text-2xl">{plan.price.monthly}</span>{' '}<span>per month.</span></p>
                             <p class="text-muted-foreground text-sm">{plan.description}</p>

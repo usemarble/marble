@@ -13,10 +13,9 @@ function PageClient() {
   const workspaceId = useWorkspaceId();
 
   const { data: postData, isLoading } = useQuery({
-    queryKey: workspaceId
-      ? QUERY_KEYS.POST(workspaceId, params.id)
-      : ["post", params.id],
+    queryKey: QUERY_KEYS.POST(workspaceId ?? "", params.id),
     staleTime: 1000 * 60 * 5,
+    enabled: !!workspaceId,
     queryFn: async () => {
       const res = await fetch(`/api/posts/${params.id}`);
       if (!res.ok) {

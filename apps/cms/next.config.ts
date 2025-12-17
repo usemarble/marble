@@ -2,8 +2,15 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  reactCompiler: false,
-  transpilePackages: ["@marble/db", "@marble/ui", "@marble/parser"],
+  transpilePackages: [
+    "@marble/db",
+    "@marble/ui",
+    "@marble/parser",
+    "@marble/email",
+  ],
+  experimental: {
+    optimizePackageImports: ["@phosphor-icons/react"],
+  },
   async redirects() {
     return [
       {
@@ -30,11 +37,11 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "avatar.vercel.sh",
+        hostname: "images.marblecms.com",
       },
       {
         protocol: "https",
-        hostname: "images.marblecms.com",
+        hostname: "media.marblecms.com",
       },
     ],
     qualities: [20, 40, 60, 80, 100],

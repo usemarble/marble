@@ -13,6 +13,7 @@ export default defineConfig({
     plugins: [tailwind()],
   },
   site: "https://marblecms.com",
+  trailingSlash: "never",
   image: {
     domains: ["images.marblecms.com"],
   },
@@ -44,5 +45,6 @@ export default defineConfig({
         subsets: ["latin"],
       },
     ],
+    svgo: true,
   },
 });

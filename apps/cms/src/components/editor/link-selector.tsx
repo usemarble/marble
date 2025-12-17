@@ -1,5 +1,4 @@
-"use client";
-
+import { useCurrentEditor } from "@marble/editor";
 import { Button } from "@marble/ui/components/button";
 import {
   Popover,
@@ -13,10 +12,7 @@ import {
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { cn } from "@marble/ui/lib/utils";
-import { LinkIcon } from "@phosphor-icons/react";
-import type { Editor } from "@tiptap/core";
-import { useCurrentEditor, useEditorState } from "@tiptap/react";
-import { Check, ExternalLink, Maximize2, Trash2 } from "lucide-react";
+import { CheckIcon, LinkSimpleIcon, TrashIcon } from "@phosphor-icons/react";
 import { useEffect, useRef, useState } from "react";
 import { useFloatingPortalContainer } from "@/components/editor/floating-portal-context";
 
@@ -50,7 +46,6 @@ type LinkSelectorProps = {
 export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { editor } = useCurrentEditor();
-  const [internalOpen, setInternalOpen] = useState(false);
   const [openInNewTab, setOpenInNewTab] = useState(true);
   const [inputValue, setInputValue] = useState("");
   const portalContainer = useFloatingPortalContainer();

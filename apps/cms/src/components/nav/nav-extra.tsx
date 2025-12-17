@@ -5,6 +5,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@marble/ui/components/popover";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@marble/ui/components/tooltip";
 import { cn } from "@marble/ui/lib/utils";
 import {
   ArrowUpRightIcon,
@@ -49,14 +54,27 @@ const resourceLinks = [
 export function NavExtra() {
   return (
     <Popover>
-      <PopoverTrigger asChild>
-        <Button className="rounded-lg" size="icon" variant="ghost">
-          <QuestionIcon className="size-4" />
-        </Button>
-      </PopoverTrigger>
+      <Tooltip delayDuration={300}>
+        <TooltipTrigger asChild>
+          <PopoverTrigger asChild>
+            <Button
+              aria-label="Get in touch"
+              className="cursor-help rounded-lg"
+              size="icon"
+              type="button"
+              variant="ghost"
+            >
+              <QuestionIcon className="size-4" />
+            </Button>
+          </PopoverTrigger>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Contact Us</p>
+        </TooltipContent>
+      </Tooltip>
       <PopoverContent className="w-60 divide-y p-0" side="right" sideOffset={6}>
         <div className="p-2">
-          <h3 className="px-2 py-1.5 font-medium text-muted-foreground text-sm">
+          <h3 className="px-2 py-1.5 font-medium text-foreground/90 text-sm">
             Get in touch
           </h3>
           <ul className="flex flex-col">
@@ -80,7 +98,7 @@ export function NavExtra() {
           </ul>
         </div>
         <div className="p-2">
-          <h3 className="px-2 py-1.5 font-medium text-muted-foreground text-sm">
+          <h3 className="px-2 py-1.5 font-medium text-foreground/90 text-sm">
             Resources
           </h3>
           <ul className="flex flex-col">
