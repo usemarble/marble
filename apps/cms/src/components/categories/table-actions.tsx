@@ -41,12 +41,14 @@ export default function TableActions(props: Category) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <CategoryModal
-        categoryData={{ ...props }}
-        mode="update"
-        open={showUpdateModal}
-        setOpen={setShowUpdateModal}
-      />
+      {showUpdateModal && (
+        <CategoryModal
+          categoryData={{ ...props }}
+          mode="update"
+          open={showUpdateModal}
+          setOpen={setShowUpdateModal}
+        />
+      )}
 
       <DeleteCategoryModal
         id={props.id}
