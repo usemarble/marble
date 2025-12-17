@@ -29,10 +29,10 @@ export const keyAnalytics = (): MiddlewareHandler<ApiKeyApp> => {
       return;
     }
 
-    // Parse endpoint from path (e.g., /v1/posts -> /posts)
+    // Parse endpoint from path
+    // After URL rewrite in app.ts, path is like /posts or /posts/slug (no /v1 prefix)
     const pathParts = path.split("/").filter(Boolean);
-    const endpoint =
-      pathParts.length >= 2 ? `/${pathParts.slice(1).join("/")}` : null;
+    const endpoint = pathParts.length >= 1 ? `/${pathParts.join("/")}` : null;
 
     const task = async () => {
       try {

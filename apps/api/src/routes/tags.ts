@@ -1,6 +1,6 @@
 import { createClient } from "@marble/db/workers";
 import { Hono } from "hono";
-import { getWorkspaceId } from "../lib/workspace";
+import { requireWorkspaceId } from "../lib/workspace";
 import type { Env } from "../types/env";
 import { TagQuerySchema, TagsQuerySchema } from "../validations/tags";
 
@@ -8,7 +8,7 @@ const tags = new Hono<{ Bindings: Env }>();
 
 tags.get("/", async (c) => {
   const db = createClient(c.env.DATABASE_URL);
-  const workspaceId = getWorkspaceId(c);
+  const workspaceId = requireWorkspaceId(c);
 
   const queryValidation = TagsQuerySchema.safeParse({
     limit: c.req.query("limit"),
@@ -104,7 +104,7 @@ tags.get("/", async (c) => {
 tags.get("/:identifier", async (c) => {
   try {
     const db = createClient(c.env.DATABASE_URL);
-    const workspaceId = getWorkspaceId(c);
+    const workspaceId = requireWorkspaceId(c);
     const identifier = c.req.param("identifier");
 
     const queryValidation = TagQuerySchema.safeParse({

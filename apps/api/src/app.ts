@@ -94,6 +94,19 @@ app.use("/:workspaceId/*", async (c, next) => {
   return next();
 });
 
+// Redirect non-versioned API routes to v1 (e.g., /posts -> /v1/posts)
+app.use("/*", async (c, next) => {
+  const path = c.req.path;
+  const firstSegment = path.split("/").filter(Boolean)[0];
+
+  if (firstSegment && ROUTES.includes(firstSegment)) {
+    const url = new URL(c.req.url);
+    url.pathname = `/v1${path}`;
+    return Response.redirect(url.toString(), 308);
+  }
+  return next();
+});
+
 // Health
 app.get("/", (c) => c.text("Hello from marble"));
 app.get("/status", (c) => c.json({ status: "ok" }));
