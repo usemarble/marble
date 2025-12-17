@@ -21,7 +21,6 @@ export const keyAnalytics = (): MiddlewareHandler<ApiKeyApp> => {
       return;
     }
 
-    // Type-safe access from context (set by keyAuthorization)
     const workspaceId = c.get("workspaceId");
     const apiKeyType = c.get("apiKeyType");
     const status = c.res.status ?? 200;
@@ -39,7 +38,6 @@ export const keyAnalytics = (): MiddlewareHandler<ApiKeyApp> => {
       try {
         const db = createClient(DATABASE_URL);
 
-        // Log usage event
         await db.usageEvent.create({
           data: {
             type: "api_request",
@@ -48,7 +46,6 @@ export const keyAnalytics = (): MiddlewareHandler<ApiKeyApp> => {
           },
         });
 
-        // Get customer ID for Polar (workspace owner)
         let customerId = workspaceId;
         const organization = await db.organization.findFirst({
           where: { id: workspaceId },
@@ -64,7 +61,6 @@ export const keyAnalytics = (): MiddlewareHandler<ApiKeyApp> => {
           customerId = organization.members[0].userId;
         }
 
-        // Log to Polar
         if (POLAR_ACCESS_TOKEN) {
           const isProduction = ENVIRONMENT === "production";
           const polar = createPolarClient(POLAR_ACCESS_TOKEN, isProduction);

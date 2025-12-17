@@ -8,8 +8,8 @@ import type { ApiKeyApp } from "../types/env";
  * Verifies API keys from Authorization header or ?key= query parameter
  * Sets workspaceId and apiKeyId in context for downstream use
  */
-export const keyAuthorization = (): MiddlewareHandler<ApiKeyApp> => {
-  return async (c, next) => {
+export const keyAuthorization =
+  (): MiddlewareHandler<ApiKeyApp> => async (c, next) => {
     const { DATABASE_URL } = c.env;
     if (!DATABASE_URL) {
       console.error("[KeyAuth] Database configuration error");
@@ -92,7 +92,6 @@ export const keyAuthorization = (): MiddlewareHandler<ApiKeyApp> => {
         })
       );
 
-      // Type-safe context setting
       c.set("workspaceId", key.workspaceId);
       c.set("apiKeyId", key.id);
       c.set("apiKeyType", key.type);
@@ -103,4 +102,3 @@ export const keyAuthorization = (): MiddlewareHandler<ApiKeyApp> => {
       return c.json({ error: "Failed to verify API key" }, 500);
     }
   };
-};
