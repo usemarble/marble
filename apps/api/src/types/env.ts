@@ -5,3 +5,16 @@ export type Env = {
   POLAR_ACCESS_TOKEN: string;
   ENVIRONMENT?: string;
 };
+
+// Context variables set by keyAuthorization middleware
+export type ApiKeyVariables = {
+  workspaceId: string;
+  apiKeyId: string;
+  apiKeyType: "public" | "private";
+};
+
+// Hono app type for API key authenticated routes
+export type ApiKeyApp = {
+  Bindings: Env;
+  Variables: ApiKeyVariables;
+};

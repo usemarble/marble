@@ -1,5 +1,6 @@
 import { createClient } from "@marble/db/workers";
 import { Hono } from "hono";
+import { requireWorkspaceId } from "../lib/workspace";
 import type { Env } from "../types/env";
 import {
   CategoriesQuerySchema,
@@ -11,7 +12,7 @@ const categories = new Hono<{ Bindings: Env }>();
 categories.get("/", async (c) => {
   try {
     const url = c.env.DATABASE_URL;
-    const workspaceId = c.req.param("workspaceId");
+    const workspaceId = requireWorkspaceId(c);
     const db = createClient(url);
 
     const queryValidation = CategoriesQuerySchema.safeParse({
@@ -111,7 +112,7 @@ categories.get("/", async (c) => {
 categories.get("/:identifier", async (c) => {
   try {
     const url = c.env.DATABASE_URL;
-    const workspaceId = c.req.param("workspaceId");
+    const workspaceId = requireWorkspaceId(c);
     const identifier = c.req.param("identifier");
     const db = createClient(url);
 

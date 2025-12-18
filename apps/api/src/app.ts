@@ -1,53 +1,78 @@
 import { Hono } from "hono";
 import { trimTrailingSlash } from "hono/trailing-slash";
+import { ROUTES } from "./lib/constants";
 import { analytics } from "./middleware/analytics";
-import { apiKeyAuth } from "./middleware/apiKeyAuth";
 import { authorization } from "./middleware/authorization";
+import { cache } from "./middleware/cache";
+import { keyAnalytics } from "./middleware/key-analytics";
+import { keyAuthorization } from "./middleware/key-authorization";
 import { ratelimit } from "./middleware/ratelimit";
 import authorsRoutes from "./routes/authors";
 import categoriesRoutes from "./routes/categories";
-import demoRoutes from "./routes/demo";
 import postsRoutes from "./routes/posts";
 import tagsRoutes from "./routes/tags";
-import type { Env } from "./types/env";
+import type { ApiKeyApp, Env } from "./types/env";
 
 const app = new Hono<{ Bindings: Env }>();
-const v1 = new Hono<{ Bindings: Env }>();
 
-const staleTime = 3600;
-
-// Global Middleware
-app.use("*", async (c, next) => {
-  await next();
-  const method = c.req.method;
-  // Make sure we only set the Cache-Control header for GET and HEAD requests
-  // and only if the response status is in the 2xx or 3xx range.
-  if (method === "GET" || method === "HEAD") {
-    const status = c.res.status ?? 200;
-    if (status >= 200 && status < 400) {
-      const cc = c.res.headers.get("Cache-Control") ?? "";
-      const hasNoStore = /\bno-store\b/i.test(cc);
-      const hasSIE = /\bstale-if-error\s*=\s*\d+\b/i.test(cc);
-      // If we already set a cache control header with no-store or stale-if-error, skip setting it again
-      if (!hasNoStore && !hasSIE) {
-        const value = cc
-          ? `${cc}, stale-if-error=${staleTime}`
-          : `stale-if-error=${staleTime}`;
-        c.header("Cache-Control", value);
-      }
-    }
-  }
-});
-
-app.use("/v1/:workspaceId/*", ratelimit());
-app.use("/v1/:workspaceId/*", authorization());
-app.use("/v1/:workspaceId/*", analytics());
+// Global middleware
+app.use("*", cache());
 app.use(trimTrailingSlash());
 
-// Demo route with API key authentication (no workspace ID required)
-app.use("/post", apiKeyAuth());
+// ============================================
+// API Key Routes (/v1/posts, /v1/tags, etc.)
+// Matched when first segment after /v1/ is a known resource
+// ============================================
+const apiKeyV1 = new Hono<ApiKeyApp>();
+apiKeyV1.use("*", ratelimit("apiKey"));
+apiKeyV1.use("*", keyAuthorization());
+apiKeyV1.use("*", keyAnalytics());
 
-// Workspace redirect logic
+apiKeyV1.route("/posts", postsRoutes);
+apiKeyV1.route("/categories", categoriesRoutes);
+apiKeyV1.route("/tags", tagsRoutes);
+apiKeyV1.route("/authors", authorsRoutes);
+
+// ============================================
+// Legacy Workspace ID Routes (/v1/:workspaceId/*)
+// Will eventually be deprecated
+// ============================================
+const legacyV1 = new Hono<{ Bindings: Env }>();
+legacyV1.use("/:workspaceId/*", ratelimit("workspace"));
+legacyV1.use("/:workspaceId/*", authorization());
+legacyV1.use("/:workspaceId/*", analytics());
+
+legacyV1.route("/:workspaceId/tags", tagsRoutes);
+legacyV1.route("/:workspaceId/categories", categoriesRoutes);
+legacyV1.route("/:workspaceId/posts", postsRoutes);
+legacyV1.route("/:workspaceId/authors", authorsRoutes);
+
+// ============================================
+// Route dispatcher - checks the path pattern to determine handler
+// ============================================
+app.use("/v1/*", async (c) => {
+  const path = c.req.path;
+  // Extract the first segment after /v1/
+  // e.g., /v1/posts -> "posts", /v1/abc123/posts -> "abc123"
+  const segments = path.replace("/v1/", "").split("/");
+  const firstSegment = segments[0];
+
+  // Rewrite path (strip /v1 prefix) for sub-routers
+  const newPath = path.replace("/v1", "");
+  const newUrl = new URL(c.req.url);
+  newUrl.pathname = newPath;
+  const newRequest = new Request(newUrl.toString(), c.req.raw);
+
+  // If the first segment is a known resource, use API key routes
+  if (ROUTES.includes(firstSegment)) {
+    return apiKeyV1.fetch(newRequest, c.env, c.executionCtx);
+  }
+
+  // Otherwise, treat first segment as workspaceId, use legacy routes
+  return legacyV1.fetch(newRequest, c.env, c.executionCtx);
+});
+
+// Redirect non-versioned routes to v1
 app.use("/:workspaceId/*", async (c, next) => {
   const path = c.req.path;
   const workspaceId = c.req.param("workspaceId");
@@ -55,11 +80,10 @@ app.use("/:workspaceId/*", async (c, next) => {
     return next();
   }
 
-  const workspaceRoutes = ["/tags", "/categories", "/posts", "/authors"];
-  const isWorkspaceRoute = workspaceRoutes.some(
+  const isWorkspaceRoute = ROUTES.some(
     (route) =>
-      path === `/${workspaceId}${route}` ||
-      path.startsWith(`/${workspaceId}${route}/`)
+      path === `/${workspaceId}/${route}` ||
+      path.startsWith(`/${workspaceId}/${route}/`)
   );
 
   if (isWorkspaceRoute) {
@@ -70,19 +94,21 @@ app.use("/:workspaceId/*", async (c, next) => {
   return next();
 });
 
+// Redirect non-versioned API routes to v1 (e.g., /posts -> /v1/posts)
+app.use("/*", async (c, next) => {
+  const path = c.req.path;
+  const firstSegment = path.split("/").filter(Boolean)[0];
+
+  if (firstSegment && ROUTES.includes(firstSegment)) {
+    const url = new URL(c.req.url);
+    url.pathname = `/v1${path}`;
+    return Response.redirect(url.toString(), 308);
+  }
+  return next();
+});
+
 // Health
 app.get("/", (c) => c.text("Hello from marble"));
 app.get("/status", (c) => c.json({ status: "ok" }));
-
-// Demo route
-app.route("/post", demoRoutes);
-
-// Mount routes
-v1.route("/:workspaceId/tags", tagsRoutes);
-v1.route("/:workspaceId/categories", categoriesRoutes);
-v1.route("/:workspaceId/posts", postsRoutes);
-v1.route("/:workspaceId/authors", authorsRoutes);
-
-app.route("/v1", v1);
 
 export default app;
