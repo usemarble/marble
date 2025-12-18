@@ -19,8 +19,12 @@ export const keyAuthorization =
     let apiKey: string | null = null;
 
     const authHeader = c.req.header("Authorization");
-    if (authHeader?.startsWith("Bearer ")) {
-      apiKey = authHeader.substring(7);
+    if (authHeader) {
+      if (authHeader.startsWith("Bearer ")) {
+        apiKey = authHeader.substring(7);
+      } else {
+        apiKey = authHeader;
+      }
     }
 
     if (!apiKey) {
