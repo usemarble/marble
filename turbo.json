@@ -33,7 +33,8 @@
         "QSTASH_TOKEN",
         "REDIS_URL",
         "REDIS_TOKEN",
-        "AI_GATEWAY_API_KEY"
+        "AI_GATEWAY_API_KEY",
+        "DATABUDDY_CLIENT_ID"
       ]
     },
     "lint": {

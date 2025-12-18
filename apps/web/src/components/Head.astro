@@ -17,6 +17,8 @@ const { title, description, image = "/og.jpg", canonical } = Astro.props;
 const canonicalURL = canonical
   ? new URL(canonical, Astro.site)
   : new URL(Astro.url.pathname, Astro.site);
+
+const databuddyClientId = getSecret("DATABUDDY_CLIENT_ID");
 ---
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -56,16 +58,18 @@ const canonicalURL = canonical
   href={new URL('rss.xml', Astro.site)}
 >
 
-<script
-  is:inline
-  src="https://cdn.databuddy.cc/databuddy.js"
-  data-client-id={getSecret("DATABUDDY_CLIENT_ID")}
-  data-track-web-vitals="true"
-  data-track-errors="true"
-  data-enable-batching="true"
-  crossorigin="anonymous"
-  async
-/>
+{databuddyClientId && (
+  <script
+    is:inline
+    src="https://cdn.databuddy.cc/databuddy.js"
+    data-client-id={databuddyClientId}
+    data-track-web-vitals="true"
+    data-track-errors="true"
+    data-enable-batching="true"
+    crossorigin="anonymous"
+    async
+  />
+)}
 
 <Font cssVariable="--font-geist" preload/>
 <Font cssVariable="--font-literata"/>
