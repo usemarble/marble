@@ -21,11 +21,9 @@ export const BubbleMenuButton = ({
     size="sm"
     variant="ghost"
   >
-    <Icon className="shrink-0 text-muted-foreground" size={12} />
+    <Icon className="shrink-0" size={12} />
     {!hideName && <span className="flex-1 text-left">{name}</span>}
-    {isActive() ? (
-      <CheckIcon className="shrink-0 text-muted-foreground" size={12} />
-    ) : null}
+    {isActive() ? <CheckIcon className="shrink-0" size={12} /> : null}
   </Button>
 );
 

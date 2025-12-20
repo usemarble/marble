@@ -57,7 +57,11 @@ export function TagModal({
     formState: { errors, isSubmitting },
   } = useForm<CreateTagValues>({
     resolver: zodResolver(tagSchema),
-    defaultValues: { name: tagData.name || "", slug: tagData.slug || "", description: tagData.description || "" },
+    defaultValues: {
+      name: tagData.name || "",
+      slug: tagData.slug || "",
+      description: tagData.description || "",
+    },
   });
 
   const { name } = watch();

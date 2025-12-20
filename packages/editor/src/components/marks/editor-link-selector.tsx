@@ -17,6 +17,7 @@ import {
   ExternalLinkIcon,
   Link,
   Maximize2,
+  Minimize2,
   TrashIcon,
 } from "lucide-react";
 import type { FormEventHandler } from "react";
@@ -41,13 +42,17 @@ export type EditorLinkSelectorProps = {
  * ```
  */
 export const EditorLinkSelector = ({
-  open,
-  onOpenChange,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
 }: EditorLinkSelectorProps) => {
   const { editor } = useCurrentEditor();
+  const [internalOpen, setInternalOpen] = useState(false);
   const [url, setUrl] = useState<string>("");
   const [openInNewTab, setOpenInNewTab] = useState(true);
   const inputReference = useRef<HTMLInputElement>(null);
+
+  const isOpen = controlledOpen ?? internalOpen;
+  const setIsOpen = controlledOnOpenChange ?? setInternalOpen;
 
   const isValidUrl = (text: string): boolean => {
     try {
@@ -74,24 +79,23 @@ export const EditorLinkSelector = ({
   };
 
   useEffect(() => {
-    if (open) {
-      // Reset URL to current link href when popover opens
+    if (isOpen) {
       const linkAttributes = editor?.getAttributes("link") ?? {};
       const href = linkAttributes.href ?? "";
       const target = linkAttributes.target ?? "_blank";
       setUrl(href);
       setOpenInNewTab(target === "_blank");
-      inputReference.current?.focus();
+      setTimeout(() => inputReference.current?.focus(), 0);
+    } else {
+      setUrl("");
     }
-  }, [open, editor]);
+  }, [isOpen, editor]);
 
   if (!editor) {
     return null;
   }
 
-  const handleSubmit: FormEventHandler<HTMLFormElement> = (event) => {
-    event.preventDefault();
-
+  const applyLink = () => {
     const href = getUrlFromString(url);
 
     if (href) {
@@ -103,29 +107,28 @@ export const EditorLinkSelector = ({
           target: openInNewTab ? "_blank" : "_self",
         })
         .run();
-      onOpenChange?.(false);
+      setUrl("");
+      setIsOpen(false);
     }
   };
 
+  const handleSubmit: FormEventHandler<HTMLFormElement> = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    applyLink();
+  };
+
   return (
-    <Popover modal onOpenChange={onOpenChange} open={open}>
+    <Popover modal onOpenChange={setIsOpen} open={isOpen}>
       <PopoverTrigger asChild>
         <Button
-          className="gap-2 rounded-none border-none"
-          size="sm"
+          className={cn("gap-2 rounded-none border-none", {
+            "text-primary": editor.isActive("link"),
+          })}
+          size="icon"
           variant="ghost"
         >
           <Link size={12} />
-          <p
-            className={cn(
-              "text-xs underline decoration-text-muted underline-offset-4",
-              {
-                "text-primary": editor.isActive("link"),
-              }
-            )}
-          >
-            Link
-          </p>
         </Button>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-fit p-0" sideOffset={10}>
@@ -139,67 +142,16 @@ export const EditorLinkSelector = ({
             type="text"
             value={url}
           />
-          {editor.getAttributes("link").href ? (
-            <>
-              <Button
-                className="h-8"
-                onClick={() => {
-                  const href = getUrlFromString(url);
-                  if (href) {
-                    editor
-                      .chain()
-                      .focus()
-                      .setLink({
-                        href,
-                        target: openInNewTab ? "_blank" : "_self",
-                      })
-                      .run();
-                    onOpenChange?.(false);
-                  }
-                }}
-                size="icon"
-                type="button"
-                variant="secondary"
-              >
-                <CheckIcon size={12} />
-              </Button>
-              <Button
-                className="flex h-8 items-center rounded-sm p-1 text-destructive transition-all hover:bg-destructive-foreground dark:hover:bg-destructive"
-                onClick={() => {
-                  editor.chain().focus().unsetLink().run();
-                  onOpenChange?.(false);
-                }}
-                size="icon"
-                type="button"
-                variant="outline"
-              >
-                <TrashIcon size={12} />
-              </Button>
-            </>
-          ) : (
-            <Button
-              className="h-8"
-              onClick={() => {
-                const href = getUrlFromString(url);
-                if (href) {
-                  editor
-                    .chain()
-                    .focus()
-                    .setLink({
-                      href,
-                      target: openInNewTab ? "_blank" : "_self",
-                    })
-                    .run();
-                  onOpenChange?.(false);
-                }
-              }}
-              size="icon"
-              type="button"
-              variant="secondary"
-            >
-              <CheckIcon size={12} />
-            </Button>
-          )}
+          <Button
+            className="h-8"
+            disabled={!url || !getUrlFromString(url)}
+            onClick={applyLink}
+            size="icon"
+            type="button"
+            variant="secondary"
+          >
+            <CheckIcon size={12} />
+          </Button>
           <Separator
             className="mx-1 h-full min-h-[1.5rem] w-[1px]"
             orientation="vertical"
@@ -207,21 +159,41 @@ export const EditorLinkSelector = ({
           <Tooltip delayDuration={400}>
             <TooltipTrigger asChild>
               <Button
-                className={cn(
-                  "h-8 rounded-sm",
-                  openInNewTab &&
-                    "bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary"
-                )}
+                className="h-8 rounded-sm"
                 onClick={() => setOpenInNewTab(!openInNewTab)}
                 size="icon"
                 type="button"
                 variant="ghost"
               >
-                <Maximize2 size={12} />
+                {openInNewTab ? (
+                  <Maximize2 size={12} />
+                ) : (
+                  <Minimize2 size={12} />
+                )}
               </Button>
             </TooltipTrigger>
             <TooltipContent>
               <p>{openInNewTab ? "Opens in new tab" : "Opens in same tab"}</p>
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip delayDuration={400}>
+            <TooltipTrigger asChild>
+              <Button
+                className="h-8 rounded-sm"
+                disabled={!editor.getAttributes("link").href}
+                onClick={() => {
+                  editor.chain().focus().unsetLink().run();
+                  setUrl("");
+                }}
+                size="icon"
+                type="button"
+                variant="ghost"
+              >
+                <TrashIcon size={12} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Remove link</p>
             </TooltipContent>
           </Tooltip>
           <Tooltip delayDuration={400}>

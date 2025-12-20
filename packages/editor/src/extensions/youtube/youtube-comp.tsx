@@ -9,7 +9,7 @@ import {
 import { Textarea } from "@marble/ui/components/textarea";
 import { cn } from "@marble/ui/lib/utils";
 import type { ChangeEvent, KeyboardEvent } from "react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { YouTubeIcon } from "../../components/icons/youtube";
 
 // Extract YouTube video ID from various URL formats
@@ -42,6 +42,15 @@ export const YouTubeComp = ({
 }) => {
   const [url, setUrl] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    // Use requestAnimationFrame to ensure the element is rendered
+    const frame = requestAnimationFrame(() => {
+      inputRef.current?.focus();
+    });
+    return () => cancelAnimationFrame(frame);
+  }, []);
 
   const validateAndSubmit = useCallback(() => {
     const videoId = extractYouTubeVideoId(url);
@@ -91,7 +100,6 @@ export const YouTubeComp = ({
       <CardContent className="rounded-[12px] bg-background p-4 shadow-xs">
         <div className="flex flex-col gap-2">
           <Textarea
-            autoFocus
             className={cn(
               "resize-none",
               error && "border-destructive focus-visible:ring-destructive"
@@ -99,6 +107,7 @@ export const YouTubeComp = ({
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
             placeholder="https://www.youtube.com/watch?v=..."
+            ref={inputRef}
             value={url}
           />
           {error && <p className="text-destructive text-xs">{error}</p>}
