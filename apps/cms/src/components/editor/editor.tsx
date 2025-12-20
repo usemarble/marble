@@ -15,7 +15,6 @@ import {
   EditorMarkTextColor,
   EditorMarkUnderline,
   EditorNodeBulletList,
-  EditorNodeCode,
   EditorNodeHeading1,
   EditorNodeHeading2,
   EditorNodeHeading3,
@@ -46,7 +45,6 @@ export function MarbleEditorMenus() {
           <EditorNodeOrderedList />
           <EditorNodeTaskList />
           <EditorNodeQuote />
-          <EditorNodeCode />
         </EditorSelector>
 
         <EditorSelector title="Format">

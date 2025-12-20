@@ -41,16 +41,16 @@ export const ExtensionKit = ({
   limit,
   placeholder,
 }: ExtensionKitOptions = {}) => [
-  // Markdown extension for parsing and serializing markdown
   Markdown,
-
-  // StarterKit with customizations
   StarterKit.configure({
     codeBlock: false, // Using custom CodeBlock with syntax highlighting
     bulletList: {
       HTMLAttributes: {
         class: cn("list-outside list-disc pl-4"),
       },
+    },
+    link: {
+      openOnClick: false,
     },
     orderedList: {
       HTMLAttributes: {
@@ -87,7 +87,6 @@ export const ExtensionKit = ({
   // Typography for smart quotes, dashes, etc.
   Typography,
 
-  // Placeholder
   Placeholder.configure({
     placeholder: ({ editor }) => {
       if (!editor) {
@@ -200,7 +199,7 @@ export const ExtensionKit = ({
     },
   }),
 
-  // Text styling kit (Tiptap v3)
+  // Text styling kit
   TextStyleKit,
 
   // Color extension for text color

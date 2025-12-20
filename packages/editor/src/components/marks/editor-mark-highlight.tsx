@@ -81,10 +81,7 @@ export const EditorMarkHighlight = ({
           variant="ghost"
         >
           <Highlighter
-            className={cn(
-              "shrink-0",
-              isActive ? "text-primary" : "text-muted-foreground"
-            )}
+            className={cn("shrink-0", isActive && "text-primary")}
             size={12}
           />
           {!hideName && <span className="flex-1 text-left">Highlight</span>}
