@@ -25,6 +25,7 @@ const { entry } = Astro.props;
 
 const categoriesEntries = await getCollection("categories");
 const postsResponse = await fetchPosts(`?categories=${entry.data.slug}`);
+const fillers = Array.from({ length: (3 - (postsResponse.posts.length % 3)) % 3 });
 ---
 <Layout
   title={`${entry.data.name} - ${SITE.TITLE}`}
@@ -58,6 +59,9 @@ const postsResponse = await fetchPosts(`?categories=${entry.data.slug}`);
                 <CategoryCard entry={post} />
               ))
             }
+            {fillers.map(() => (
+              <li class="border-b border-r border-dashed bg-white hidden md:block h-full" />
+            ))}
           </ul>
         ) : (
           <p class='text-muted-foreground text-center text-sm md:text-base'>No posts found</p>

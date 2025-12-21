@@ -8,6 +8,7 @@ import { SITE } from "@/lib/constants";
 
 const posts = await getCollection("posts");
 const categories = await getCollection("categories");
+const fillers = Array.from({ length: (3 - (posts.length % 3)) % 3 });
 ---
 <Layout
   title={`Blog - ${SITE.TITLE}`}
@@ -40,6 +41,9 @@ const categories = await getCollection("categories");
               <PostCard entry={post} />
             ))
           }
+          {fillers.map(() => (
+            <li class="border-b border-r border-dashed bg-white hidden md:block h-full" />
+          ))}
         </ul>
       </Container>
     </div>
