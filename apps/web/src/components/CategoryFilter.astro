@@ -8,7 +8,8 @@ type Props = {
 
 const { categories } = Astro.props as Props;
 const categoriesToShow = categories.filter(
-  (category) => category.data.slug !== "legal" && category.data.slug !== "changelog"
+  (category) =>
+    category.data.slug !== "legal" && category.data.slug !== "changelog"
 );
 
 const currentPath = Astro.url.pathname.replace(/\/$/, "");

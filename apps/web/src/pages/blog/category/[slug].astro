@@ -25,7 +25,9 @@ const { entry } = Astro.props;
 
 const categoriesEntries = await getCollection("categories");
 const postsResponse = await fetchPosts(`?categories=${entry.data.slug}`);
-const fillers = Array.from({ length: (3 - (postsResponse.posts.length % 3)) % 3 });
+const fillers = Array.from({
+  length: (3 - (postsResponse.posts.length % 3)) % 3,
+});
 ---
 <Layout
   title={`${entry.data.name} - ${SITE.TITLE}`}
