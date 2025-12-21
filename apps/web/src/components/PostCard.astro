@@ -21,7 +21,7 @@ const formattedDate = new Date(publishedAt).toLocaleDateString("en-US", {
     href={`/blog/${slug}`}
     class="flex flex-col h-full hover:bg-gray-50 transition-colors duration-300"
   >
-    <div class="w-full aspect-video overflow-hidden border-b border-dashed">
+    <div class="w-full aspect-video overflow-hidden p-2 border-dashed">
       <Image
         src={coverImage || "/og-blog.jpg"}
         alt={title}
@@ -30,7 +30,7 @@ const formattedDate = new Date(publishedAt).toLocaleDateString("en-US", {
         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
       />
     </div>
-    <div class="flex flex-col gap-4 p-6 flex-1">
+    <div class="flex flex-col gap-4 px-6 py-4 flex-1">
       <div class="space-y-3 flex-1">
         <div class="flex items-center gap-2 text-xs text-muted-foreground uppercase tracking-wider">
           <time datetime={publishedAt.toISOString()}>

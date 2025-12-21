@@ -1,10 +1,14 @@
 ---
 export const prerender = false;
 
+import { YOUTUBE_VIDEO_ID } from "@marble/utils";
 import Container from "@/components/Container.astro";
+import Button from "@/components/ui/Button.astro";
 import Layout from "@/layouts/Layout.astro";
 import { SITE } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+
+const YOUTUBE_WATCH_URL = `https://www.youtube.com/watch?v=${YOUTUBE_VIDEO_ID}`;
 
 type GitHubUser = {
   login: string;
@@ -189,7 +193,7 @@ Astro.response.headers.set(
       <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
         <Container class="space-y-12 lg:space-y-20 pt-12 pb-20 lg:py-24">
           <div
-            class="relative flex flex-col items-center space-y-6 text-center"
+            class="relative flex flex-col items-center space-y-4 text-center"
           >
             <h1
               class="relative text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-[25ch] mx-auto"
@@ -198,8 +202,7 @@ Astro.response.headers.set(
             </h1>
             <p class="mx-auto max-w-[60ch] md:text-lg text-muted-foreground">
               Meet the amazing developers and contributors who help build
-              Marble. Join our open source community and help shape the future
-              of content management.
+              Marble.
             </p>
           </div>
 
@@ -274,9 +277,12 @@ Astro.response.headers.set(
                   href="https://github.com/usemarble/marble/issues"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="text-sm text-primary hover:text-primary-dark transition-colors"
+                  class="text-sm font-medium text-accent flex items-center gap-1 group"
                 >
-                  View all →
+                  View all
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 transition-transform group-hover:translate-x-1">
+                    <path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd" />
+                  </svg>
                 </a>
               </div>
 
@@ -289,7 +295,7 @@ Astro.response.headers.set(
                   githubData.issues.map((issue) => {
                     const issueType = getIssueTypeFromLabels(issue.labels);
                     return (
-                      <div class="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                      <div class="bg-white rounded-xl p-4 border border-dashed hover:shadow-sm transition-all duration-300">
                         <div class="flex items-start gap-3">
                           <img
                             src={issue.user.avatar_url}
@@ -333,9 +339,12 @@ Astro.response.headers.set(
                   href="https://github.com/usemarble/marble/pulls"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="text-sm text-primary hover:text-primary-dark transition-colors"
+                  class="text-sm font-medium text-accent flex items-center gap-1 group"
                 >
-                  View all →
+                  View all
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 transition-transform group-hover:translate-x-1">
+                    <path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd" />
+                  </svg>
                 </a>
               </div>
 
@@ -346,7 +355,7 @@ Astro.response.headers.set(
                   </div>
                 ) : (
                   githubData.prs.map((pr) => (
-                    <div class="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                    <div class="bg-white rounded-xl p-4 border border-dashed hover:shadow-sm transition-all duration-300">
                       <div class="flex items-start gap-3">
                         <img
                           src={pr.user.avatar_url}
@@ -382,35 +391,41 @@ Astro.response.headers.set(
               </div>
             </div>
           </div>
+        </Container>
+      </div>
+    </section>
 
-          <div class="max-w-2xl mx-auto text-center space-y-4">
-            <h2 class="text-xl md:text-2xl">Want to contribute?</h2>
-            <p class="text-muted-foreground">
-              We welcome contributions from developers of all skill levels.
-              Check out our
-              <a
-                href="https://github.com/usemarble/marble"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="text-primary hover:text-primary-dark transition-colors"
-                >GitHub repository</a
-              >to get started, or reach out to us on <a
-                href="https://x.com/usemarblecms"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="text-primary hover:text-primary-dark transition-colors"
-                >Twitter</a
-              >!
-            </p>
-            <div class="flex items-center justify-center gap-4 pt-4">
-              <a
-                href="https://github.com/usemarble/marble/"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="flex gap-2 justify-center group w-48 bg-primary text-primary-foreground items-center py-2.5 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary focus-visible:ring-2 transition-all duration-300 ease-out px-4 group rounded"
+    <!-- CTA -->
+    <section class="border-b border-dashed">
+      <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
+        <Container class="py-12 md:py-20">
+          <div class="flex flex-col items-center space-y-6">
+            <div class="space-y-4 text-center">
+              <h2
+                class="relative text-center text-balance text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl"
               >
-                <span>View Repository</span>
-              </a>
+                Get started today.
+              </h2>
+              <p class="mx-auto max-w-2xl text-muted-foreground md:text-lg text-balance">
+                Create and manage content, so you can focus on what matters most.
+              </p>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row w-full items-center justify-center gap-4">
+              <Button
+                href={SITE.APP_URL}
+                target="_blank"
+                class="w-full sm:w-auto"
+              >
+                Try Marble for free
+              </Button>
+              <Button
+                href={YOUTUBE_WATCH_URL}
+                variant="secondary"
+                class="w-full sm:w-auto"
+              >
+                Watch Demo
+              </Button>
             </div>
           </div>
         </Container>
@@ -418,19 +433,3 @@ Astro.response.headers.set(
     </section>
   </div>
 </Layout>
-
-<style>
-  .line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .line-clamp-3 {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-</style>

@@ -15,6 +15,8 @@ export type Site = {
   EMAIL: string;
   URL: string;
   APP_URL: string;
+  TWITTER_URL: string;
+  DISCORD_URL: string;
 };
 
 export type Link = {
@@ -29,6 +31,8 @@ export const SITE: Site = {
   EMAIL: "support@marblecms.com",
   URL: "https://marblecms.com",
   APP_URL: "https://app.marblecms.com",
+  TWITTER_URL: "https://x.com/usemarblecms",
+  DISCORD_URL: "https://discord.gg/gU44Pmwqkx",
 };
 
 export const SOCIAL_LINKS: Link[] = [
