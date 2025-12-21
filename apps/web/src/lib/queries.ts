@@ -1,8 +1,14 @@
 import { getSecret } from "astro:env/server";
 import type { Category, Post } from "./schemas";
 
-const key = getSecret("MARBLE_WORKSPACE_KEY");
+const key = getSecret("MARBLE_API_KEY");
 const url = getSecret("MARBLE_API_URL");
+
+if (!url || !key) {
+  throw new Error(
+    "Missing MARBLE_API_URL or MARBLE_API_KEY in environment variables"
+  );
+}
 
 type PostsResponse = {
   posts: Post[];
@@ -21,10 +27,15 @@ type CategoriesResponse = {
 };
 
 export async function fetchPosts(queryParams = ""): Promise<PostsResponse> {
-  const fullUrl = `${url}/${key}/posts${queryParams}`;
+  const fullUrl = `${url}/posts${queryParams}`;
 
   try {
-    const response = await fetch(fullUrl);
+    const response = await fetch(fullUrl, {
+      headers: {
+        Authorization: `Bearer ${key}`,
+      },
+      cache: "force-cache",
+    });
 
     if (!response.ok) {
       console.error(`Failed to fetch posts from ${fullUrl}:`, {
@@ -66,10 +77,15 @@ export async function fetchPosts(queryParams = ""): Promise<PostsResponse> {
 export async function fetchCategories(
   queryParams = ""
 ): Promise<CategoriesResponse> {
-  const fullUrl = `${url}/${key}/categories${queryParams}`;
+  const fullUrl = `${url}/categories${queryParams}`;
 
   try {
-    const response = await fetch(fullUrl);
+    const response = await fetch(fullUrl, {
+      headers: {
+        Authorization: `Bearer ${key}`,
+      },
+      cache: "force-cache",
+    });
 
     if (!response.ok) {
       console.error(`Failed to fetch categories from ${fullUrl}:`, {
