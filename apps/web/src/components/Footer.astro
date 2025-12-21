@@ -4,10 +4,10 @@ import Container from "./Container.astro";
 import Logo from "./icons/Logo.astro";
 ---
 <footer>
-  <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
+  <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] bg-white mx-auto">
     <Container class="py-12 sm:py-20 md:py-36">
       <section
-        class="rounded-xl border bg-white p-10 lg:p-12 md:min-h-[420px] flex flex-col justify-between gap-5"
+        class="md:min-h-[420px] flex flex-col justify-between gap-5"
       >
         <div class="flex flex-col justify-between gap-10 md:flex-row">
           <div class="sm:col-span-3">
@@ -18,9 +18,9 @@ import Logo from "./icons/Logo.astro";
               <Logo />
               <span class="sr-only">marblecms</span>
             </a>
-            <p class="mb-1 text-sm text-muted-foreground tracking-wider">
+            <!-- <p class="mb-1 text-sm text-muted-foreground tracking-wider">
               Content simplified.
-            </p>
+            </p> -->
           </div>
 
           <div class="grid grid-cols-1 gap-8 md:grid-cols-4 lg:gap-14">

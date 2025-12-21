@@ -1,16 +1,17 @@
 ---
 import { Image } from "astro:assets";
-import { PRICING_PLANS, YOUTUBE_EMBED_URL } from "@marble/utils";
-import ApiIcon from "@/assets/images/api.svg";
-import editorBubble from "@/assets/images/bubble.png";
-import intelImage from "@/assets/images/readability.png";
+import { PRICING_PLANS, YOUTUBE_VIDEO_ID } from "@marble/utils";
+import heroImage from "@/assets/images/hero.png";
+import mediaImage from "@/assets/images/media.png";
 import Container from "@/components/Container.astro";
-import CollabIcon from "@/components/icons/Collab.astro";
-import MediaManagement from "@/components/icons/Media.astro";
 import AccordionItem from "@/components/ui/AccordionItem.astro";
+import Button from "@/components/ui/Button.astro";
 import Layout from "@/layouts/Layout.astro";
-import { FAQs, SITE, USERS } from "@/lib/constants";
+import { FAQs, FEATURES, REVIEWS, SITE, USERS } from "@/lib/constants";
+import { HERO } from "@/lib/site";
 import { cn } from "@/lib/utils";
+
+const YOUTUBE_WATCH_URL = `https://www.youtube.com/watch?v=${YOUTUBE_VIDEO_ID}`;
 ---
 <Layout
   title={`${SITE.TITLE} - Super Simple Headless CMS`}
@@ -20,44 +21,52 @@ import { cn } from "@/lib/utils";
     <!-- Hero section -->
     <section class="border-t border-dashed">
       <div
-        class="lg:border-x border-dashed md:w-[calc(100%-140px)] grid place-content-center h-full mx-auto"
+        class="lg:border-x border-dashed md:w-[calc(100%-140px)] flex flex-col justify-center h-full mx-auto"
       >
-        <Container class="py-24 md:py-28 lg:py-40">
-          <div class="relative mx-auto text-center space-y-6">
-            <h1
-              class="relative text-4xl md:text-5xl max-w-[25ch] mx-auto lg:text-6xl"
-            >
-              Simple content management for modern apps
-            </h1>
-            <p class="mx-auto max-w-[50ch] md:text-lg text-muted-foreground">
-              A clean, collaborative way to publish articles, changelogs, and
-              product updates to your site
-            </p>
-          </div>
-          <div class="mt-8 flex w-full items-center justify-center">
-            <div>
-              <a
+        <Container class="py-24 md:py-28 w-full lg:py-36 flex flex-col gap-14 md:gap-28">
+          <div class="flex flex-col gap-8">
+            <div class="relative mx-auto text-center flex flex-col gap-6">
+              <h1
+                class="relative text-4xl md:text-5xl max-w-[25ch] font-medium mx-auto tracking-tight"
+              >
+                {HERO.title}
+              </h1>
+              <p class="mx-auto max-w-[50ch] md:text-lg text-muted-foreground">
+                {HERO.subtitle}
+              </p>
+            </div>
+            <div class="flex flex-col sm:flex-row w-full items-center justify-center gap-4">
+              <Button
                 href={SITE.APP_URL}
                 target="_blank"
-                class="flex gap-2 justify-center font-medium group w-48 bg-primary text-primary-foreground items-center py-3 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary focus-visible:ring-2 transition-all duration-300 ease-out px-4 group rounded"
+                class="w-full sm:w-auto"
               >
-                <span>Publish your first post</span>
-              </a>
+                Publish your first post
+              </Button>
+              <Button
+                href={YOUTUBE_WATCH_URL}
+                target="_blank"
+                variant="secondary"
+                class="w-full sm:w-auto"
+              >
+                Watch Demo
+              </Button>
             </div>
           </div>
-          <div
-            class="bg-gray-50/80 p-1 rounded-xl backdrop-blur-md border mt-14 md:mt-24 lg:mt-28"
-          >
-            <div class="border overflow-hidden rounded-[8px] aspect-video">
-              <iframe
+            <div class="w-full overflow-hidden rounded-[8px] aspect-video">
+              <!-- <iframe
                 src={YOUTUBE_EMBED_URL}
                 title="Marble CMS - Super Simple Headless CMS"
                 allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowfullscreen
                 class="w-full h-full"
+              /> -->
+              <Image
+                src={heroImage}
+                inferSize
+                alt="marble dashboard showing a chart and list of media files"
               />
             </div>
-          </div>
         </Container>
       </div>
     </section>
@@ -65,9 +74,9 @@ import { cn } from "@/lib/utils";
     <!--  Social Proof -->
     <section>
       <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
-        <Container class="space-y-10 py-12">
+        <Container class="py-12">
           <div
-            class="relative flex flex-col items-center space-y-3 text-balance"
+            class="sr-only"
           >
             <h2
               class="relative text-center text-balance text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl"
@@ -75,16 +84,16 @@ import { cn } from "@/lib/utils";
               Trusted by
             </h2>
           </div>
-          <ul class="flex flex-wrap justify-center gap-4">
+          <ul class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 border-t border-l border-dashed">
             {USERS.map((user) => (
-              <li class="flex items-center justify-center min-w-[14rem] p-6">
-                <a href={user.url + "?utm_source=marble"} target="_blank" class={cn(user.showWordmark && "flex items-center gap-2")}>
-                  <user.component />
+              <li class="flex items-center justify-center h-24 border-b border-r border-dashed bg-white hover:bg-gray-50 transition-colors">
+                <a href={user.url + "?utm_source=marble"} target="_blank" class={cn("hover:opacity-100 transition-opacity", user.showWordmark && "flex items-center gap-2")}>
+                  <user.component class="h-8 w-auto" />
                   {user.showWordmark && (
-                    <span class="text-xl font-medium">{user.name}</span>
+                    <span class="text-base font-medium">{user.name}</span>
                   )}
                   {!user.showWordmark && (
-                    <span class="text-xl font-medium sr-only">{user.name}</span>
+                    <span class="text-base font-medium sr-only">{user.name}</span>
                   )}
                 </a>
               </li>
@@ -97,135 +106,88 @@ import { cn } from "@/lib/utils";
     <!-- Features section -->
     <section>
       <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
-        <Container class="space-y-10 lg:space-y-14 pt-12 pb-20">
+        <Container class="space-y-10 lg:space-y-14 py-20">
           <div
             class="relative flex flex-col items-center space-y-3 text-balance"
           >
             <h2
               class="relative text-center text-balance text-acc text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl"
             >
-              Features
+              Everything you need to publish.
+
             </h2>
-            <p class="max-w-prose md:text-lg text-muted-foreground text-center">
+            <!-- <p class="max-w-prose md:text-lg text-muted-foreground text-center">
               Everything you need to manage your content.
-            </p>
+            </p> -->
           </div>
+          
+          <ul class="flex flex-col gap-12 md:gap-24">
+            {FEATURES.map((feature, index) => (
+              <li class={cn("flex flex-col md:flex-row items-center gap-8 md:gap-12 lg:gap-24", index % 2 === 0 && "md:flex-row-reverse")}>
+                <div class="flex-1 text-left">
+                  <h3 class="text-xl mb-3 lg:text-2xl font-medium">
+                    {feature.title}
+                  </h3>
+                  <p class="text-muted-foreground text-balance">
+                    {feature.description}
+                  </p>
+                  {feature.link && (
+                    <a href={feature.link.href} target="_blank" class="block text-accent underline hover:text-accent/80 w-fit mt-5">
+                      {feature.link.text}
+                    </a>
+                  )}
+                </div>
+                  <div class="overflow-hidden flex-1 w-full rounded-[8px] bg-white relative">
+                   <Image
+                      src={mediaImage}
+                      alt={feature.title}
+                      class="w-full h-auto"
+                      inferSize
+                    />
+                  </div>
+              </li>
+            ))}
+          </ul>
+        </Container>
+      </div>
+    </section>
+
+    <!-- Reviews section -->
+    <section>
+      <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto border-b">
+        <Container class="space-y-10 lg:space-y-14 pt-12 pb-20">
           <div
-            class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 auto-rows-fr"
+            class="relative flex flex-col items-center space-y-3 text-balance"
           >
-            <!-- Media Management - 7 columns -->
-            <div
-              class="sm:col-span-2 lg:col-span-7 border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl min-h-64"
+            <h2
+              class="relative text-center text-balance text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl"
             >
-              <div
-                class="border relative overflow-x-hidden flex justify-between rounded-[8px] bg-white h-full w-full p-6"
-              >
-                <div class="space-y-2 self-end z-10 max-w-[60%]">
-                  <h3 class="font-medium text-lg lg:text-xl">
-                    Media Management
-                  </h3>
-                  <p class="text-muted-foreground text-sm lg:text-base">
-                    Upload, organize, and manage all your images and files in one place.
-                  </p>
-                </div>
-                <div class="w-[300px] max-w-[50%] h-fit -mr-6 absolute right-0 user-select-none">
-                  <MediaManagement />
-                </div>
-              </div>
-            </div>
-
-            <!-- Simple Editor - 5 columns -->
-            <div
-              class="lg:col-span-5 border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl min-h-64"
-            >
-              <div
-                class="border flex flex-col justify-between rounded-[8px] bg-white h-full w-full p-6"
-              >
-              <div>
-                  <Image
-                    src={editorBubble}
-                    alt=""
-                    class="w-full h-full object-cover user-select-none"
-                  />
-                </div>
-                
-                <div class="space-y-2">
-                  <h3 class="font-medium text-lg">Simple Editor</h3>
-                  <p class="text-muted-foreground text-sm">
-                    Write and format content easily with an intuitive interface.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Content Intelligence - 5 columns -->
-            <div
-              class="lg:col-span-5 border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl min-h-64"
-            >
-              <div
-                class="border flex flex-col justify-between rounded-[8px] bg-white h-full w-full p-6"
-              >
-                <div class="user-select-none">
-                  <Image
-                    src={intelImage}
-                    alt=""
-                    class="w-full h-full object-cover"
-                  />
-                </div>
-                <div class="space-y-2">
-                  <h3 class="font-medium text-lg lg:text-xl">
-                    Content Intelligence
-                  </h3>
-                  <p class="text-muted-foreground text-sm">
-                    Real-time readability scores, and optimization tips.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Team Collaboration - 7 columns -->
-            <div
-              class="sm:col-span-2 lg:col-span-7 border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl min-h-64"
-            
-              >
-              <div
-                class="border flex justify-between rounded-[8px] overflow-hidden bg-white h-full w-full p-6"
-              >
-                <div class="space-y-2 self-end max-w-[60%]">
-                  <h3 class="font-medium text-lg">Team Collaboration</h3>
-                  <p class="text-muted-foreground text-sm">
-                    Work together efficiently with shared workspaces.
-                  </p>
-                </div>
-                <div class="w-[250px] max-w-[40%] shrink-0 user-select-none">
-                  <CollabIcon />
-                </div>
-              </div>
-            </div>
-
-
-            <!-- API Integration - Full width -->
-            <div
-              class="sm:col-span-2 lg:col-span-12 border bg-gray-50/80 backdrop-blur-md p-1 rounded-xl min-h-64"
-            >
-              <div
-                class="border flex justify-between rounded-[8px] bg-white h-full w-full p-6 relative"
-              >
-                <div class="w-[250px] max-w-[40%] h-fit -mr-6 absolute right-6 border-t border-l user-select-none">
-                  <ApiIcon />
-                </div>
-                <div class="space-y-2 self-end max-w-[60%]">
-                  <h3 class="font-medium text-lg lg:text-xl">
-                    API Integration
-                  </h3>
-                  <p class="text-muted-foreground text-sm">
-                    Pull content via API into any framework. Works seamlessly
-                    with Next.js, Astro, Nuxt, and more.
-                  </p>
-                </div>
-              </div>
-            </div>
+              What people are saying
+            </h2>
           </div>
+          
+          <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {REVIEWS.map((review) => (
+              <li class="bg-white p-6 rounded-xl flex flex-col justify-between gap-8">
+                <p class="text-muted-foreground leading-relaxed">
+                  {review.text}
+                </p>
+                <div class="flex items-center gap-3">
+                  <div class="size-10 rounded-full bg-gray-100 flex items-center justify-center text-xs font-medium text-gray-500">
+                    {review.avatar}
+                  </div>
+                  <div class="space-y-0.5">
+                    <p class="font-medium text-sm text-foreground">
+                      {review.author}
+                    </p>
+                    <p class="text-muted-foreground text-xs">
+                      {review.role}
+                    </p>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
         </Container>
       </div>
     </section>
@@ -233,15 +195,15 @@ import { cn } from "@/lib/utils";
     <!-- Pricing section -->
     <section>
       <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
-        <Container class="space-y-10 lg:space-y-14 pt-12 pb-20">
+        <Container class="space-y-10 lg:space-y-14 py-20">
           <div class="relative flex flex-col items-center space-y-4">
             <h2
-              class="relative text-center text-balance text-2xl sm:text-xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl"
+              class="relative text-center text-balance text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl"
             >
               Simple Pricing
             </h2>
             <p class="max-w-prose md:text-lg text-muted-foreground text-center">
-              Choose a plan that fits your needs. Start with a 7 day free trial.
+              Choose a plan that fits your needs.
             </p>
           </div>
           <!-- <ul class="grid gap-5 lg:gap-10 sm:grid-cols-2 lg:grid-cols-3"> -->
@@ -249,8 +211,8 @@ import { cn } from "@/lib/utils";
             class="flex flex-col items-center md:items-stretch justify-center gap-5 md:flex-row"
           >
             {PRICING_PLANS.map((plan, index) => (
-                <li class={cn("border min-w-[300px] w-full max-w-[350px] bg-gray-50/80 backdrop-blur-md p-1 rounded-xl", index === 2 && 'sm:col-span-2 lg:col-span-1 sm:h-fit')}>
-                  <div class={cn("border flex flex-col gap-5 rounded-[8px] bg-white w-full px-4 py-6", index === 2 ? 'sm:flex-row sm:px-14 sm:py-10 lg:py-6 sm:justify-center sm:gap-20 lg:gap-4 lg:px-4 lg:flex-col min-h-96 sm:min-h-fit lg:min-h-96' : 'min-h-96 h-full')}>
+                <li class={cn("min-w-[300px] w-full max-w-[350px] rounded-xl", index === 2 && 'sm:col-span-2 lg:col-span-1 sm:h-fit')}>
+                  <div class={cn("flex flex-col gap-5 rounded-xl bg-white w-full px-4 py-6", index === 2 ? 'sm:flex-row sm:px-14 sm:py-10 lg:py-6 sm:justify-center sm:gap-20 lg:gap-4 lg:px-4 lg:flex-col min-h-96 sm:min-h-fit lg:min-h-96' : 'min-h-96 h-full')}>
                     {index === 2 ? (
                       <>
                         <div class="flex flex-col gap-5 sm:min-w-60 lg:min-w-0">
@@ -269,13 +231,13 @@ import { cn } from "@/lib/utils";
                             </div>
                           </div>
                           <div class="border-y border-dashed py-4">
-                            <a 
+                            <Button 
                               href={plan.button.href}
                               target="_blank"
-                              class="flex bg-primary gap-2 group text-primary-foreground items-center justify-center py-2 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 transition-all duration-300 ease-out px-8 group mt-auto rounded"
+                              class="w-full"
                             >
-                              <span>{plan.button.label}</span>
-                            </a>
+                              {plan.button.label}
+                            </Button>
                           </div>
                         </div>
                         <ul class="flex flex-col gap-2 text-sm">
@@ -306,13 +268,14 @@ import { cn } from "@/lib/utils";
                           </div>
                         </div>
                         <div class="border-y border-dashed py-4">
-                          <a 
+                          <Button 
                             href={plan.button.href}
                             target="_blank"
-                            class="flex bg-primary gap-2 group text-primary-foreground items-center justify-center py-2 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 transition-all duration-300 ease-out px-8 group mt-auto rounded"
+                            class="w-full"
+                            size="sm"
                           >
-                            <span>{plan.button.label}</span>
-                          </a>
+                            {plan.button.label}
+                          </Button>
                         </div>
                         <ul class="flex flex-col gap-2 text-sm">
                           {plan.features.map((feature) => (
@@ -337,26 +300,26 @@ import { cn } from "@/lib/utils";
     <!-- FAQ -->
     <section>
       <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
-        <Container class="space-y-10 lg:space-y-14 pt-12 pb-20">
-          <div class="relative flex flex-col items-center space-y-4">
+        <Container class="pt-12 pb-20">
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-20">
+            <div class="flex flex-col items-center lg:items-start space-y-4 text-center lg:text-left">
             <h2
-              class="relative text-center text-balance text-2xl sm:text-xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl"
+              class="relative text-center text-balance text-2xl tracking-tight md:text-3xl lg:text-4xl lg:text-left  md max-w-4xl"
             >
-              Frequently Asked Questions
+              Frequently asked Questions
             </h2>
-            <p class="max-w-prose md:text-lg text-muted-foreground text-center">
-              Answers to common questions about marblecms.
-            </p>
-          </div>
+              <p class="max-w-prose md:text-lg text-muted-foreground text-balance">
+                Answers to common questions about marblecms.
+              </p>
+            </div>
 
-          <div
-            class="mx-auto max-w-3xl bg-white rounded-md relative border py-2 px-6 divide-y"
-          >
-            {FAQs.map(faq => (
-            <AccordionItem name="details" title={faq.question}>
-              <p class="text-sm faq-answer" set:html={faq.answer} />
-            </AccordionItem>
-          ))}
+            <div class="lg:col-span-2 divide-y divide-dashed">
+              {FAQs.map(faq => (
+              <AccordionItem name="details" title={faq.question}>
+                <p class="text-sm faq-answer text-muted-foreground pb-2" set:html={faq.answer} />
+              </AccordionItem>
+            ))}
+            </div>
           </div>
         </Container>
       </div>
@@ -365,30 +328,34 @@ import { cn } from "@/lib/utils";
     <!-- CTA -->
     <section class="border-b border-dashed">
       <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
-        <Container class="space-y-10 lg:space-y-14 pt-12 lg:pt-20 pb-20">
-          <div
-            class="min-h-96 lg:min-h-[500px] grid place-content-center bg-white rounded-md relative border px-4"
-          >
-            <div class="space-y-2">
+        <Container class="py-12 md:py-20">
+          <div class="flex flex-col items-center space-y-6">
+            <div class="space-y-4 text-center">
               <h2
-                class="relative text-center text-balance text-2xl sm:text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl"
+                class="relative text-center text-balance text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl"
               >
-                Ready to start writing?
+                Get started today.
               </h2>
-              <p class="lg:text-lg text-muted-foreground text-center max-w-lg">
-                Create your account and start publishing in minutes.
+              <p class="mx-auto max-w-2xl text-muted-foreground md:text-lg text-balance">
+                Create and manage content, so you can focus on what matters most.
               </p>
             </div>
-            <div class="flex flex-col gap-3 items-center mt-8">
-              <a
-                href={`${SITE.APP_URL}/register`}
-                class="flex gap-2 justify-center group w-48 bg-primary text-primary-foreground items-center py-3 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary focus-visible:ring-2 transition-all duration-300 ease-out px-6 group rounded font-medium"
+            
+            <div class="flex flex-col sm:flex-row w-full items-center justify-center gap-4">
+              <Button
+                href={SITE.APP_URL}
+                target="_blank"
+                class="w-full sm:w-auto"
               >
-                <span>Start for free</span>
-              </a>
-              <p class="text-xs text-muted-foreground">
-                No credit card required
-              </p>
+                Try Marble for free
+              </Button>
+              <Button
+                href={YOUTUBE_WATCH_URL}
+                variant="secondary"
+                class="w-full sm:w-auto"
+              >
+                Watch Demo
+              </Button>
             </div>
           </div>
         </Container>
