@@ -18,39 +18,39 @@ const formattedDate = new Date(publishedAt).toLocaleDateString("en-US", {
 <li>
   <a
     href={`/changelog/${slug}`}
-    class="space-y-1 p-4 border bg-white flex gap-4 flex-col rounded-2xl hover:shadow-xs transition-all duration-300 h-full"
+    class="flex flex-col h-full bg-white border border-dashed rounded-2xl p-1.5 hover:shadow-xs transition-all duration-300 group"
   >
-    <div class="w-full border rounded-md overflow-hidden group">
+    <div class="w-full aspect-video overflow-hidden rounded-xl bg-gray-50">
       {coverImage && (
         <Image
           src={coverImage}
            alt={title}
            loading="eager"
           inferSize
-          class='w-full object-cover group-hover:scale-102 transition-all duration-500'
+          class='w-full h-full object-cover group-hover:scale-105 transition-transform duration-500'
         />
       )}
     </div>
-    <div class="flex flex-col gap-4 justify-between flex-1">
+    <div class="flex flex-col gap-4 px-3 py-4 flex-1">
       <div class="space-y-2">
-        <h2 class="md:text-lg font-medium">{title}</h2>
+        <h2 class="text-xl font-medium leading-snug">{title}</h2>
         <!-- <p class='text-muted-foreground text-sm line-clamp-2'>{description}</p> -->
       </div>
-      <div class="flex items-center flex-wrap gap-3 justify-between">
+      <div class="flex items-center flex-wrap gap-3 justify-between mt-auto">
         <div class="flex items-center gap-2">
           <div class="flex items-center gap-2">
             <Image
               src={authors[0].image || "/og-blog.jpg"}
               alt={authors[0].name}
-              class="size-7 rounded-full"
+              class="size-6 rounded-full ring-1 ring-border"
               inferSize
             />
-            <p class="text-muted-foreground text-sm">{authors[0].name}</p>
+            <p class="text-muted-foreground sr-only text-xs font-medium">{authors[0].name}</p>
           </div>
-          <span class="h-4 w-px bg-gray-300 shrink-0"></span>
+          <span class="h-3 w-px bg-border shrink-0"></span>
           <time
             datetime={publishedAt.toString()}
-            class="text-muted-foreground text-sm"
+            class="text-muted-foreground text-xs font-medium"
           >
             {formattedDate}
           </time>
@@ -58,7 +58,7 @@ const formattedDate = new Date(publishedAt).toLocaleDateString("en-US", {
 
         <div class="flex items-center gap-2">
           {tags.map((tag) => (
-            <span class="text-muted-foreground text-sm bg-muted px-2 py-0.5 rounded-md">
+            <span class="text-muted-foreground text-xs bg-secondary px-2 py-0.5 rounded-md border border-transparent group-hover:border-border transition-colors">
               #
               {tag.name}
             </span>
