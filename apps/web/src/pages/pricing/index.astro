@@ -2,6 +2,7 @@
 import { PRICING_PLANS } from "@marble/utils";
 import Container from "@/components/Container.astro";
 import AccordionItem from "@/components/ui/AccordionItem.astro";
+import Button from "@/components/ui/Button.astro";
 import Layout from "@/layouts/Layout.astro";
 import { PRICING_FAQS, SITE } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -24,13 +25,12 @@ import { cn } from "@/lib/utils";
               Simple pricing, cancel anytime.{(() => { const planWithTrial = PRICING_PLANS.find((p) => p.trial); return planWithTrial ? ` ${planWithTrial.title} plan includes a 7-day free trial.` : ""; })()}
             </p>
           </div>
-          <!-- <ul class="grid gap-5 lg:gap-10 sm:grid-cols-2 lg:grid-cols-3"> -->
           <ul
             class="flex flex-col items-center md:items-stretch justify-center gap-5 md:flex-row"
           >
             {PRICING_PLANS.map((plan, index) => (
-                  <li class={cn("border min-w-[300px] w-full max-w-[350px] bg-gray-50/80 backdrop-blur-md p-1 rounded-xl", index === 2 && 'sm:col-span-2 lg:col-span-1 sm:h-fit')}>
-                    <div class={cn("border flex flex-col gap-5 rounded-[8px] bg-white w-full px-4 py-6", index === 2 ? 'sm:flex-row sm:px-14 sm:py-10 lg:py-6 sm:justify-center sm:gap-20 lg:gap-4 lg:px-4 lg:flex-col min-h-96 sm:min-h-fit lg:min-h-96' : 'min-h-96 h-full')}>
+                  <li class={cn("min-w-[300px] w-full max-w-[350px] rounded-xl", index === 2 && 'sm:col-span-2 lg:col-span-1 sm:h-fit')}>
+                    <div class={cn("flex flex-col gap-5 rounded-[8px] bg-white w-full px-4 py-6", index === 2 ? 'sm:flex-row sm:px-14 sm:py-10 lg:py-6 sm:justify-center sm:gap-20 lg:gap-4 lg:px-4 lg:flex-col min-h-96 sm:min-h-fit lg:min-h-96' : 'min-h-96 h-full')}>
                       {index === 2 ? (
                         <>
                           <div class="flex flex-col gap-5 sm:min-w-60 lg:min-w-0">
@@ -49,13 +49,13 @@ import { cn } from "@/lib/utils";
                               </div>
                             </div>
                             <div class="border-y border-dashed py-4">
-                              <a 
+                              <Button 
                                 href={plan.button.href}
                                 target="_blank"
-                                class="flex bg-primary gap-2 group text-primary-foreground items-center justify-center py-2 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 transition-all duration-300 ease-out px-8 group mt-auto rounded"
+                                class="w-full"
                               >
-                                <span>{plan.button.label}</span>
-                              </a>
+                                {plan.button.label}
+                              </Button>
                             </div>
                           </div>
                           <ul class="flex flex-col gap-2 text-sm">
@@ -86,13 +86,14 @@ import { cn } from "@/lib/utils";
                             </div>
                           </div>
                           <div class="border-y border-dashed py-4">
-                            <a 
+                           <Button 
                               href={plan.button.href}
                               target="_blank"
-                              class="flex bg-primary gap-2 group text-primary-foreground items-center justify-center py-2 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 transition-all duration-300 ease-out px-8 group mt-auto rounded"
+                              class="w-full"
+                              size="sm"
                             >
-                              <span>{plan.button.label}</span>
-                            </a>
+                              {plan.button.label}
+                            </Button>
                           </div>
                           <ul class="flex flex-col gap-2 text-sm">
                             {plan.features.map((feature) => (
@@ -115,28 +116,28 @@ import { cn } from "@/lib/utils";
     </section>
 
     <!-- FAQ -->
-    <section class="border-t border-dashed">
+    <section class="border-y border-dashed">
       <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
-        <Container class="space-y-10 lg:space-y-14 pt-12 pb-20">
-          <div class="relative flex flex-col items-center space-y-4">
+        <Container class="pt-12 pb-20">
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-20">
+            <div class="flex flex-col items-center lg:items-start space-y-4 text-center lg:text-left">
             <h2
-              class="relative text-center text-balance text-2xl sm:text-xl font-medium tracking-tight md:text-3xl lg:text-4xl max-w-4xl"
+              class="relative text-center text-balance text-2xl tracking-tight md:text-3xl lg:text-4xl lg:text-left  md max-w-4xl"
             >
-              Frequently Asked Questions
+              Frequently asked Questions
             </h2>
-            <p class="max-w-prose md:text-lg text-muted-foreground text-center">
-              Answers to common questions about pricing and billing.
-            </p>
-          </div>
+              <p class="max-w-prose md:text-lg text-muted-foreground text-balance">
+                Answers to common questions about pricing and billing.
+              </p>
+            </div>
 
-          <div
-            class="mx-auto max-w-3xl bg-white rounded-md relative border py-2 px-6 divide-y"
-          >
-            {PRICING_FAQS.map((faq) => (
+            <div class="lg:col-span-2 divide-y divide-dashed">
+              {PRICING_FAQS.map(faq => (
               <AccordionItem name="details" title={faq.question}>
-                <p class="text-sm faq-answer" set:html={faq.answer} />
+                <p class="text-sm faq-answer text-muted-foreground pb-2" set:html={faq.answer} />
               </AccordionItem>
             ))}
+            </div>
           </div>
         </Container>
       </div>
