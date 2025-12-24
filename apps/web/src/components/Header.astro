@@ -1,7 +1,8 @@
 ---
 import Button from "@/components/ui/Button.astro";
-import { SITE } from "@/lib/constants";
+import { SITE } from "@/lib/constants/site";
 import Container from "./Container.astro";
+import Logo from "./icons/Logo.astro";
 import WordMark from "./icons/WordMark.astro";
 ---
 <header
@@ -53,7 +54,7 @@ import WordMark from "./icons/WordMark.astro";
         <!-- desktop nav -->
         <div class="flex items-center gap-4 justify-start z-100">
           <a href="/" class="text-lg tracking-wider flex items-center gap-2">
-            <WordMark />
+            <Logo />
             <span class="sr-only">Marble</span>
           </a>
         </div>

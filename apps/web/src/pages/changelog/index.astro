@@ -3,7 +3,7 @@ import { getCollection } from "astro:content";
 import ChangelogCard from "@/components/ChangelogCard.astro";
 import Container from "@/components/Container.astro";
 import Layout from "@/layouts/Layout.astro";
-import { SITE } from "@/lib/constants";
+import { SITE } from "@/lib/constants/site";
 
 const entries = await getCollection("changelog");
 ---

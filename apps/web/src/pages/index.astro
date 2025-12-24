@@ -7,7 +7,9 @@ import Container from "@/components/Container.astro";
 import AccordionItem from "@/components/ui/AccordionItem.astro";
 import Button from "@/components/ui/Button.astro";
 import Layout from "@/layouts/Layout.astro";
-import { FAQs, FEATURES, REVIEWS, SITE, USERS } from "@/lib/constants";
+import { FAQs } from "@/lib/constants/faqs";
+import { FEATURES, REVIEWS, USERS } from "@/lib/constants/landing";
+import { SITE } from "@/lib/constants/site";
 import { HERO } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
@@ -154,7 +156,7 @@ const YOUTUBE_WATCH_URL = `https://www.youtube.com/watch?v=${YOUTUBE_VIDEO_ID}`;
 
     <!-- Reviews section -->
     <section>
-      <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto border-b">
+      <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
         <Container class="space-y-10 lg:space-y-14 pt-12 pb-20">
           <div
             class="relative flex flex-col items-center space-y-3 text-balance"
@@ -168,23 +170,31 @@ const YOUTUBE_WATCH_URL = `https://www.youtube.com/watch?v=${YOUTUBE_VIDEO_ID}`;
           
           <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {REVIEWS.map((review) => (
-              <li class="bg-white p-6 rounded-xl flex flex-col justify-between gap-8">
-                <p class="text-muted-foreground leading-relaxed">
-                  {review.text}
-                </p>
-                <div class="flex items-center gap-3">
-                  <div class="size-10 rounded-full bg-gray-100 flex items-center justify-center text-xs font-medium text-gray-500">
-                    {review.avatar}
+              <li>
+                <a href={review.link} target="_blank" class="bg-white p-6 rounded-xl flex flex-col justify-between gap-8 h-full">
+                  <p class="text-muted-foreground leading-relaxed">
+                    {review.text}
+                  </p>
+                  <div class="flex items-center gap-3">
+                    <div class="size-10 rounded-full bg-gray-100 flex items-center justify-center text-xs font-medium text-gray-500">
+                      <Image
+                        src={review.avatar}
+                        alt={review.author}
+                        class="w-full h-auto rounded-full"
+                        width={40}
+                        height={40}
+                      />
+                    </div>
+                    <div class="space-y-0.5">
+                      <p class="font-medium text-sm text-foreground">
+                        {review.author}
+                      </p>
+                      <p class="text-muted-foreground text-xs">
+                        {review.role}
+                      </p>
+                    </div>
                   </div>
-                  <div class="space-y-0.5">
-                    <p class="font-medium text-sm text-foreground">
-                      {review.author}
-                    </p>
-                    <p class="text-muted-foreground text-xs">
-                      {review.role}
-                    </p>
-                  </div>
-                </div>
+                </a>
               </li>
             ))}
           </ul>

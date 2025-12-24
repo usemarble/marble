@@ -1,7 +1,8 @@
 ---
-import { FOOTER_SECTIONS, FOOTER_SOCIAL_LINKS } from "@/lib/constants";
+import { FOOTER_SECTIONS, FOOTER_SOCIAL_LINKS } from "@/lib/constants/navigation";
 import Container from "./Container.astro";
 import Logo from "./icons/Logo.astro";
+import WordMark from "./icons/WordMark.astro";
 ---
 <footer>
   <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] bg-white mx-auto">
@@ -15,7 +16,7 @@ import Logo from "./icons/Logo.astro";
               href="/"
               class="mb-2 flex items-center gap-2 tracking-widest w-fit font-medium"
             >
-              <Logo />
+              <WordMark />
               <span class="sr-only">marblecms</span>
             </a>
             <!-- <p class="mb-1 text-sm text-muted-foreground tracking-wider">
