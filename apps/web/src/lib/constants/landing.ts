@@ -1,3 +1,7 @@
+import contentIntelImage from "../../assets/images/content-intelligence.png";
+import apiImage from "../../assets/images/headless-api.png";
+import mediaImage from "../../assets/images/media-management.png";
+import webhooksImage from "../../assets/images/webhooks.png";
 import Bounty from "../../components/icons/brand/Bounty.astro";
 import Candle from "../../components/icons/brand/Candle.astro";
 import Databuddy from "../../components/icons/brand/Databuddy.astro";
@@ -7,40 +11,53 @@ import Opencut from "../../components/icons/brand/Opencut.astro";
 
 export const FEATURES = [
   {
-    title: "Media Management",
-    description:
-      "Upload, organize, and manage all your images and files in one place.",
-  },
-  {
-    title: "Simple Editor",
-    description: "Write and format content easily with an intuitive interface.",
-  },
-  {
-    title: "Content Intelligence",
-    description: "Real-time readability scores, and optimization tips.",
-  },
-  {
-    title: "Team Collaboration",
-    description: "Work together efficiently with shared workspaces.",
-  },
-  {
     title: "Simple Headless API",
     description:
-      "Pull content via API into any framework. Works seamlessly with Next.js, Astro, Nuxt, and more.",
+      "Pull your content into any framework. Works seamlessly with Next.js, Astro, Nuxt, and more.",
     link: {
-      text: "Learn how to use the API",
+      text: "Learn more",
       href: "https://docs.marblecms.com/api/introduction",
     },
+    image: apiImage,
+  },
+  {
+    title: "Media Management",
+    description:
+      "Upload, organize, and manage your images and videos in one place. media files are served from a globally distributed CDN for instant loading.",
+    link: {
+      text: "Learn more",
+      href: "https://docs.marblecms.com/guides/features/media",
+    },
+    image: mediaImage,
   },
   {
     title: "Realtime Webhooks",
     description:
       "Trigger external workflows instantly when your content changes. Integrate with your favorite tools.",
     link: {
-      text: "Learn more about webhooks",
+      text: "Learn more",
       href: "https://docs.marblecms.com/guides/features/webhooks",
     },
+    image: webhooksImage,
   },
+  {
+    title: "Content Intelligence",
+    description:
+      "Get Real-time readability scores, and optimization tips powered by AI to improve your writing.",
+    link: {
+      text: "Learn more",
+      href: "https://docs.marblecms.com/guides/features/content-intelligence",
+    },
+    image: contentIntelImage,
+  },
+  // {
+  //   title: "Simple Editor",
+  //   description: "Write and format content easily with an intuitive interface.",
+  // },
+  // {
+  //   title: "Team Collaboration",
+  //   description: "Work together efficiently with shared workspaces.",
+  // },
 ];
 
 export const USERS = [

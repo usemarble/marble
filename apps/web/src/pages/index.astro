@@ -2,7 +2,6 @@
 import { Image } from "astro:assets";
 import { PRICING_PLANS, YOUTUBE_VIDEO_ID } from "@marble/utils";
 import heroImage from "@/assets/images/hero.png";
-import mediaImage from "@/assets/images/media.png";
 import Container from "@/components/Container.astro";
 import AccordionItem from "@/components/ui/AccordionItem.astro";
 import Button from "@/components/ui/Button.astro";
@@ -123,30 +122,30 @@ const YOUTUBE_WATCH_URL = `https://www.youtube.com/watch?v=${YOUTUBE_VIDEO_ID}`;
             </p> -->
           </div>
           
-          <ul class="flex flex-col gap-12 md:gap-24">
+          <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
             {FEATURES.map((feature, index) => (
-              <li class={cn("flex flex-col md:flex-row items-center gap-8 md:gap-12 lg:gap-24", index % 2 === 0 && "md:flex-row-reverse")}>
+              <li class="bg-white p-3 rounded-[16px] flex flex-col gap-4 h-full">
+                <div class="overflow-hidden w-full rounded-lg bg-background">
+                  <Image
+                    src={feature.image}
+                    alt={feature.title}
+                    inferSize
+                    class="w-full h-auto"
+                  />
+                </div>
                 <div class="flex-1 text-left">
-                  <h3 class="text-xl mb-3 lg:text-2xl font-medium">
+                  <h3 class="text-xl mb-2 font-medium">
                     {feature.title}
                   </h3>
-                  <p class="text-muted-foreground text-balance">
+                  <p class="text-muted-foreground text-sm text-balance">
                     {feature.description}
                   </p>
                   {feature.link && (
-                    <a href={feature.link.href} target="_blank" class="block text-accent underline hover:text-accent/80 w-fit mt-5">
+                    <a href={feature.link.href} target="_blank" class="block text-accent text-sm hover:underline hover:text-accent/80 w-fit mt-4">
                       {feature.link.text}
                     </a>
                   )}
                 </div>
-                  <div class="overflow-hidden flex-1 w-full rounded-[8px] bg-white relative">
-                   <Image
-                      src={mediaImage}
-                      alt={feature.title}
-                      class="w-full h-auto"
-                      inferSize
-                    />
-                  </div>
               </li>
             ))}
           </ul>
@@ -344,10 +343,10 @@ const YOUTUBE_WATCH_URL = `https://www.youtube.com/watch?v=${YOUTUBE_VIDEO_ID}`;
               <h2
                 class="relative text-center text-balance text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl"
               >
-                Get started today.
+                Try Marble today.
               </h2>
               <p class="mx-auto max-w-2xl text-muted-foreground md:text-lg text-balance">
-                Create and manage content, so you can focus on what matters most.
+                A simpler way to publish articles and manage your blog.
               </p>
             </div>
             
