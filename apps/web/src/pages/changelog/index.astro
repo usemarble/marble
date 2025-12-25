@@ -3,7 +3,7 @@ import { getCollection } from "astro:content";
 import ChangelogCard from "@/components/ChangelogCard.astro";
 import Container from "@/components/Container.astro";
 import Layout from "@/layouts/Layout.astro";
-import { SITE } from "@/lib/constants";
+import { SITE } from "@/lib/constants/site";
 
 const entries = await getCollection("changelog");
 ---
@@ -16,18 +16,18 @@ const entries = await getCollection("changelog");
     <div
       class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto h-full"
     >
-      <Container class="pt-20 lg:pt-24 pb-32 h-full">
-        <div class="max-w-2xl mx-auto mb-16 space-y-2">
+      <Container class="py-20 lg:py-24 h-full">
+        <div class="mb-16 space-y-4 max-w-2xl">
           <h1
-            class="text-2xl leading-[1.1] sm:text-3xl md:text-4xl text-center"
+            class="text-2xl tracking-tight md:text-3xl lg:text-4xl font-medium"
           >
             Changelog
           </h1>
-          <p class="text-muted-foreground text-center text-sm md:text-base">
+          <p class="max-w-prose md:text-lg text-muted-foreground">
             Product improvements and updates.
           </p>
         </div>
-        <ul class="grid gap-6 md:gap-8 auto-rows-fr max-w-lg mx-auto">
+        <ul class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 auto-rows-fr">
           {
             entries.map((entry) => (
               <ChangelogCard entry={entry} />

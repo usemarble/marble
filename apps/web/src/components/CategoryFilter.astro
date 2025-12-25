@@ -8,7 +8,8 @@ type Props = {
 
 const { categories } = Astro.props as Props;
 const categoriesToShow = categories.filter(
-  (category) => category.data.slug !== "legal"
+  (category) =>
+    category.data.slug !== "legal" && category.data.slug !== "changelog"
 );
 
 const currentPath = Astro.url.pathname.replace(/\/$/, "");
@@ -23,8 +24,7 @@ const currentPath = Astro.url.pathname.replace(/\/$/, "");
   </li>
   {
       categoriesToShow.map((category) => {
-        const isChangelog = category.data.slug === "changelog";
-        const link = isChangelog ? "/changelog" : `/blog/category/${category.data.slug}`;
+        const link = `/blog/category/${category.data.slug}`;
         const isActive = currentPath === link;
         return (
           <li>

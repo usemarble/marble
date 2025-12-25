@@ -16,33 +16,35 @@ const formattedDate = new Date(publishedAt).toLocaleDateString("en-US", {
   year: "numeric",
 });
 ---
-<li>
+<li class="border-b border-r border-dashed bg-white h-full group">
   <a
     href={`/blog/${slug}`}
-    class="space-y-1 p-4 border bg-white flex gap-4 flex-col rounded-2xl hover:shadow-xs transition-all duration-300 h-full"
+    class="flex flex-col h-full hover:bg-gray-50 transition-colors duration-300"
   >
-    <div class="w-full border rounded-md overflow-hidden group">
+    <div class="w-full aspect-video overflow-hidden p-2 border-dashed">
       <Image
         src={coverImage || "/og-blog.jpg"}
         alt={title}
         loading="eager"
         inferSize
-        class="w-full object-cover group-hover:scale-102 transition-all duration-500"
+        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
       />
     </div>
-    <div class="flex flex-col gap-4 justify-between md:gap-6 flex-1">
-      <div class="space-y-2">
-        <h2 class="md:text-lg font-medium">{title}</h2>
-        <p class="text-muted-foreground text-sm line-clamp-2">{description}</p>
+    <div class="flex flex-col gap-4 px-6 py-4 flex-1">
+      <div class="space-y-3 flex-1">
+        <h2 class="lg:text-lg font-medium leading-snug">{title}</h2>
+        <p class="text-muted-foreground text-sm leading-relaxed line-clamp-2">{description}</p>
       </div>
-      <div class="flex items-center gap-2 justify-between">
-        <p class="text-muted-foreground text-sm">{authors[0].name}</p>
-        <time
-          datetime={publishedAt.toISOString()}
-          class="text-muted-foreground text-sm"
-        >
+      <div class="flex items-center justify-between">
+        <time datetime={publishedAt.toISOString()} class="text-xs text-muted-foreground">
           {formattedDate}
         </time>
+        <div class="text-sm font-medium text-accent flex items-center gap-1">
+          Read article
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 transition-transform group-hover:translate-x-1">
+            <path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd" />
+          </svg>
+        </div>
       </div>
     </div>
   </a>

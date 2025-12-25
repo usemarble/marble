@@ -1,6 +1,8 @@
 ---
-import { SITE } from "@/lib/constants";
+import Button from "@/components/ui/Button.astro";
+import { SITE } from "@/lib/constants/site";
 import Container from "./Container.astro";
+import Logo from "./icons/Logo.astro";
 import WordMark from "./icons/WordMark.astro";
 ---
 <header
@@ -52,44 +54,44 @@ import WordMark from "./icons/WordMark.astro";
         <!-- desktop nav -->
         <div class="flex items-center gap-4 justify-start z-100">
           <a href="/" class="text-lg tracking-wider flex items-center gap-2">
-            <WordMark/>
-            <span class="sr-only">marblecms</span>
+            <Logo />
+            <span class="sr-only">Marble</span>
           </a>
         </div>
-        <ul class="items-center gap-10 text-sm justify-center hidden md:flex">
+        <ul class="items-center gap-4 text-sm justify-center hidden md:flex">
           <li>
-            <a
+            <Button
               href="https://docs.marblecms.com"
               target="_blank"
-              class="hover:bg-muted p-2 transition duration-300 rounded"
+              variant="ghost"
+              size="sm"
             >
-              <span>Docs</span>
-            </a>
+              Docs
+            </Button>
           </li>
           <li>
-            <a
+            <Button
               href="/pricing"
-              class="hover:bg-muted p-2 transition duration-300 rounded"
+              variant="ghost"
+              size="sm"
             >
-              <span>Pricing</span>
-            </a>
+              Pricing
+            </Button>
           </li>
           <li>
-            <a
+            <Button
               href="/blog"
-              class="hover:bg-muted p-2 transition duration-300 rounded"
+              variant="ghost"
+              size="sm"
             >
-              <span>Blog</span>
-            </a>
+              Blog
+            </Button>
           </li>
         </ul>
         <div class="hidden md:flex items-center justify-end">
-          <a
-            href={`${SITE.APP_URL}/login`}
-            class="font-medium hover:bg-primary hover:text-white p-2 w-24 flex items-center justify-center transition duration-300 text-sm border border-primary bg-white rounded"
-          >
-            <span>Sign in</span>
-          </a>
+          <Button href={`${SITE.APP_URL}/login`} variant="secondary" size="sm" class="w-24">
+            Sign in
+          </Button>
         </div>
         <!-- mobile nav toggle -->
         <div class="flex items-center justify-end md:hidden z-100">
