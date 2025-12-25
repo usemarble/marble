@@ -17,7 +17,7 @@ const {
 } = Astro.props;
 
 const variants = {
-  primary: "bg-accent text-white hover:opacity-90",
+  primary: "bg-accent text-white hover:bg-accent/90",
   secondary: "bg-muted text-muted-foreground hover:bg-muted/80",
   outline: "border border-input bg-background hover:bg-accent hover:text-white",
   ghost: "hover:bg-muted/50 hover:text-foreground",
@@ -31,7 +31,7 @@ const sizes = {
 };
 
 const baseClass =
-  "inline-flex items-center justify-center transition-colors duration-300 whitespace-nowrap rounded-full text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 cursor-pointer";
+  "inline-flex items-center justify-center transition duration-300 whitespace-nowrap rounded-full text-sm font-medium ring-offset-background transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 outline-accent disabled:pointer-events-none disabled:opacity-50 cursor-pointer";
 
 const classes = cn(baseClass, variants[variant], sizes[size], className);
 
