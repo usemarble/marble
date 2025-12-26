@@ -73,8 +73,12 @@
 }
 
 @layer base {
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
   html {
-    scroll-behavior: smooth;
     color: var(--foreground);
     background: var(--background);
     font-family: var(--font-geist), system-ui, sans-serif;
