@@ -46,7 +46,7 @@ export const FEATURES = [
       "Get Real-time readability scores, and optimization tips powered by AI to improve your writing.",
     link: {
       text: "Learn more",
-      href: "https://docs.marblecms.com/guides/features/content-intelligence",
+      href: "https://docs.marblecms.com/guides/features/editor#analysis-tab",
     },
     image: contentIntelImage,
   },
