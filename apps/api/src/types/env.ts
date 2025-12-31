@@ -4,6 +4,7 @@ export type Env = {
   REDIS_TOKEN: string;
   POLAR_ACCESS_TOKEN: string;
   ENVIRONMENT?: string;
+  SYSTEM_SECRET: string;
 };
 
 // Context variables set by keyAuthorization middleware

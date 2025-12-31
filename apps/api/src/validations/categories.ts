@@ -15,15 +15,6 @@ export const CategoriesQuerySchema = z.object({
       return Number.isNaN(num) ? 1 : Math.max(1, num);
     })
     .default("1"),
-  include: z
-    .string()
-    .transform((val) =>
-      val
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean)
-    )
-    .optional(),
 });
 
 export const CategoryQuerySchema = z.object({
@@ -41,13 +32,4 @@ export const CategoryQuerySchema = z.object({
       return Number.isNaN(num) ? 1 : Math.max(1, num);
     })
     .default("1"),
-  include: z
-    .string()
-    .transform((val) =>
-      val
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean)
-    )
-    .optional(),
 });

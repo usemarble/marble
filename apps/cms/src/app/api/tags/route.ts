@@ -1,6 +1,7 @@
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
+import { invalidateCache } from "@/lib/cache/invalidate";
 import { tagSchema } from "@/lib/validations/workspace";
 import { getWebhooks } from "@/lib/webhooks/utils";
 import { WebhookClient } from "@/lib/webhooks/webhook-client";
@@ -85,6 +86,10 @@ export async function POST(req: Request) {
       format: webhook.format,
     });
   }
+
+  // Invalidate cache for tags and posts (tags affect posts)
+  invalidateCache(workspaceId, "tags");
+  invalidateCache(workspaceId, "posts");
 
   return NextResponse.json(tagCreated, { status: 201 });
 }

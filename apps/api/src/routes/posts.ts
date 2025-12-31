@@ -1,6 +1,7 @@
 import { createClient } from "@marble/db/workers";
 import { Hono } from "hono";
 import { NodeHtmlMarkdown } from "node-html-markdown";
+import { cacheKey, createCacheClient, hashQueryParams } from "../lib/cache";
 import { requireWorkspaceId } from "../lib/workspace";
 import type { Env } from "../types/env";
 import { PostsQuerySchema } from "../validations/posts";
@@ -13,6 +14,7 @@ posts.get("/", async (c) => {
     const workspaceId = requireWorkspaceId(c);
     const format = c.req.query("format");
     const db = createClient(url);
+    const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
 
     // Validate query parameters
     const queryValidation = PostsQuerySchema.safeParse({
@@ -85,8 +87,45 @@ posts.get("/", async (c) => {
       }),
     };
 
-    // Get total count for pagination
-    const totalPosts = await db.post.count({ where });
+    // Generate cache key for count (exclude page and format - they don't affect count)
+    const countCacheKey = cacheKey(
+      workspaceId,
+      "posts",
+      "list",
+      hashQueryParams({
+        limit: rawLimit,
+        order,
+        categories,
+        excludeCategories,
+        tags,
+        excludeTags,
+        query,
+      }),
+      "count"
+    );
+
+    // Cache count query separately (1 hour TTL, same as data)
+    const totalPosts = await cache.getOrSetCount(countCacheKey, () =>
+      db.post.count({ where })
+    );
+
+    // Generate cache key for data (includes page and format)
+    const listCacheKey = cacheKey(
+      workspaceId,
+      "posts",
+      "list",
+      hashQueryParams({
+        page,
+        limit: rawLimit,
+        order,
+        categories,
+        excludeCategories,
+        tags,
+        excludeTags,
+        query,
+        format,
+      })
+    );
 
     // Handle pagination
     const limit = rawLimit === "all" ? undefined : rawLimit;
@@ -112,58 +151,60 @@ posts.get("/", async (c) => {
     const prevPage = page > 1 ? page - 1 : null;
     const nextPage = page < totalPages ? page + 1 : null;
 
-    const posts = await db.post.findMany({
-      where,
-      orderBy: {
-        publishedAt: order,
-      },
-      take: limit,
-      skip: postsToSkip,
-      select: {
-        id: true,
-        slug: true,
-        title: true,
-        content: true,
-        featured: true,
-        coverImage: true,
-        description: true,
-        publishedAt: true,
-        updatedAt: true,
-        attribution: true,
-        authors: {
-          select: {
-            id: true,
-            name: true,
-            image: true,
-            bio: true,
-            role: true,
-            slug: true,
-            socials: {
-              select: {
-                url: true,
-                platform: true,
+    const posts = await cache.getOrSet(listCacheKey, () =>
+      db.post.findMany({
+        where,
+        orderBy: {
+          publishedAt: order,
+        },
+        take: limit,
+        skip: postsToSkip,
+        select: {
+          id: true,
+          slug: true,
+          title: true,
+          content: true,
+          featured: true,
+          coverImage: true,
+          description: true,
+          publishedAt: true,
+          updatedAt: true,
+          attribution: true,
+          authors: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+              bio: true,
+              role: true,
+              slug: true,
+              socials: {
+                select: {
+                  url: true,
+                  platform: true,
+                },
               },
             },
           },
-        },
-        category: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-            description: true,
+          category: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              description: true,
+            },
+          },
+          tags: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              description: true,
+            },
           },
         },
-        tags: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-            description: true,
-          },
-        },
-      },
-    });
+      })
+    );
 
     // Format posts based on requested format
     const formattedPosts =
@@ -215,58 +256,69 @@ posts.get("/:identifier", async (c) => {
     const identifier = c.req.param("identifier");
     const format = c.req.query("format");
     const db = createClient(url);
+    const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
 
-    const post = await db.post.findFirst({
-      where: {
-        workspaceId,
-        OR: [{ slug: identifier }, { id: identifier }],
-        status: "published",
-      },
-      select: {
-        id: true,
-        slug: true,
-        title: true,
-        content: true,
-        featured: true,
-        coverImage: true,
-        description: true,
-        publishedAt: true,
-        updatedAt: true,
-        attribution: true,
-        authors: {
-          select: {
-            id: true,
-            name: true,
-            image: true,
-            bio: true,
-            role: true,
-            slug: true,
-            socials: {
-              select: {
-                url: true,
-                platform: true,
+    // Cache by identifier (slug or id) and format
+    const singleCacheKey = cacheKey(
+      workspaceId,
+      "posts",
+      identifier,
+      hashQueryParams({ format })
+    );
+
+    const post = await cache.getOrSet(singleCacheKey, () =>
+      db.post.findFirst({
+        where: {
+          workspaceId,
+          OR: [{ slug: identifier }, { id: identifier }],
+          status: "published",
+        },
+        select: {
+          id: true,
+          slug: true,
+          title: true,
+          content: true,
+          featured: true,
+          coverImage: true,
+          description: true,
+          publishedAt: true,
+          updatedAt: true,
+          attribution: true,
+          authors: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+              bio: true,
+              role: true,
+              slug: true,
+              socials: {
+                select: {
+                  url: true,
+                  platform: true,
+                },
               },
             },
           },
-        },
-        category: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-            description: true,
+          category: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              description: true,
+            },
+          },
+          tags: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              description: true,
+            },
           },
         },
-        tags: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-            description: true,
-          },
-        },
-      },
-    });
+      })
+    );
 
     if (!post) {
       return c.json(

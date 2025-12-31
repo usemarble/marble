@@ -1,6 +1,7 @@
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
+import { invalidateCache } from "@/lib/cache/invalidate";
 import { authorSchema } from "@/lib/validations/authors";
 
 export async function DELETE(
@@ -40,6 +41,10 @@ export async function DELETE(
         workspaceId: sessionData.session.activeOrganizationId,
       },
     });
+
+    // Invalidate cache for authors and posts (authors affect posts)
+    invalidateCache(sessionData.session.activeOrganizationId, "authors");
+    invalidateCache(sessionData.session.activeOrganizationId, "posts");
 
     return NextResponse.json(deletedAuthor.id, { status: 200 });
   } catch (error) {
@@ -135,6 +140,10 @@ export async function PATCH(
         socials: true,
       },
     });
+
+    // Invalidate cache for authors and posts (authors affect posts)
+    invalidateCache(workspaceId, "authors");
+    invalidateCache(workspaceId, "posts");
 
     return NextResponse.json(updatedAuthor, { status: 200 });
   } catch (error) {

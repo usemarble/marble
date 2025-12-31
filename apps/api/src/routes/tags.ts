@@ -1,5 +1,6 @@
 import { createClient } from "@marble/db/workers";
 import { Hono } from "hono";
+import { cacheKey, createCacheClient, hashQueryParams } from "../lib/cache";
 import { requireWorkspaceId } from "../lib/workspace";
 import type { Env } from "../types/env";
 import { TagQuerySchema, TagsQuerySchema } from "../validations/tags";
@@ -9,11 +10,11 @@ const tags = new Hono<{ Bindings: Env }>();
 tags.get("/", async (c) => {
   const db = createClient(c.env.DATABASE_URL);
   const workspaceId = requireWorkspaceId(c);
+  const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
 
   const queryValidation = TagsQuerySchema.safeParse({
     limit: c.req.query("limit"),
     page: c.req.query("page"),
-    include: c.req.query("include"),
   });
 
   if (!queryValidation.success) {
@@ -30,11 +31,32 @@ tags.get("/", async (c) => {
   }
 
   const { limit, page } = queryValidation.data;
-  const totalTags = await db.tag.count({
-    where: {
-      workspaceId,
-    },
-  });
+
+  // Generate cache key for count (exclude page - it doesn't affect count)
+  const countCacheKey = cacheKey(
+    workspaceId,
+    "tags",
+    "list",
+    hashQueryParams({ limit }),
+    "count"
+  );
+
+  // Cache count query separately (1 hour TTL, invalidated with posts)
+  const totalTags = await cache.getOrSetCount(countCacheKey, () =>
+    db.tag.count({
+      where: {
+        workspaceId,
+      },
+    })
+  );
+
+  // Generate cache key for data (includes page)
+  const listCacheKey = cacheKey(
+    workspaceId,
+    "tags",
+    "list",
+    hashQueryParams({ page, limit })
+  );
 
   const totalPages = Math.ceil(totalTags / limit);
   const prevPage = page > 1 ? page - 1 : null;
@@ -56,28 +78,30 @@ tags.get("/", async (c) => {
     );
   }
 
-  const tagsList = await db.tag.findMany({
-    where: {
-      workspaceId,
-    },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      description: true,
-      _count: {
-        select: {
-          posts: {
-            where: {
-              status: "published",
+  const tagsList = await cache.getOrSet(listCacheKey, () =>
+    db.tag.findMany({
+      where: {
+        workspaceId,
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        _count: {
+          select: {
+            posts: {
+              where: {
+                status: "published",
+              },
             },
           },
         },
       },
-    },
-    take: limit,
-    skip: tagsToSkip,
-  });
+      take: limit,
+      skip: tagsToSkip,
+    })
+  );
 
   // because I dont want prisma's ugly _count
   const transformedTags = tagsList.map((tag) => {
@@ -106,11 +130,11 @@ tags.get("/:identifier", async (c) => {
     const db = createClient(c.env.DATABASE_URL);
     const workspaceId = requireWorkspaceId(c);
     const identifier = c.req.param("identifier");
+    const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
 
     const queryValidation = TagQuerySchema.safeParse({
       limit: c.req.query("limit"),
       page: c.req.query("page"),
-      include: c.req.query("include"),
     });
 
     if (!queryValidation.success) {
@@ -126,30 +150,35 @@ tags.get("/:identifier", async (c) => {
       );
     }
 
-    const { limit, page, include = [] } = queryValidation.data;
+    const { limit, page } = queryValidation.data;
+
+    // Cache by identifier (slug or id)
+    const singleCacheKey = cacheKey(workspaceId, "tags", identifier);
 
     // First get the tag
-    const tag = await db.tag.findFirst({
-      where: {
-        workspaceId,
-        OR: [{ id: identifier }, { slug: identifier }],
-      },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        description: true,
-        _count: {
-          select: {
-            posts: {
-              where: {
-                status: "published",
+    const tag = await cache.getOrSet(singleCacheKey, () =>
+      db.tag.findFirst({
+        where: {
+          workspaceId,
+          OR: [{ id: identifier }, { slug: identifier }],
+        },
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          description: true,
+          _count: {
+            select: {
+              posts: {
+                where: {
+                  status: "published",
+                },
               },
             },
           },
         },
-      },
-    });
+      })
+    );
 
     if (!tag) {
       return c.json(
@@ -161,84 +190,12 @@ tags.get("/:identifier", async (c) => {
       );
     }
 
-    const totalPosts = await db.post.count({
-      where: {
-        workspaceId,
-        status: "published",
-        tags: {
-          some: {
-            id: tag.id,
-          },
-        },
-      },
-    });
-
-    const totalPages = Math.ceil(totalPosts / limit);
-    const prevPage = page > 1 ? page - 1 : null;
-    const nextPage = page < totalPages ? page + 1 : null;
-    const postsToSkip = limit ? (page - 1) * limit : 0;
-
-    if (page > totalPages && totalPosts > 0) {
-      return c.json(
-        {
-          error: "Invalid page number",
-          details: {
-            message: `Page ${page} does not exist.`,
-            totalPages,
-            requestedPage: page,
-          },
-        },
-        400
-      );
-    }
-
     // Transform _count to count
     const { _count, ...rest } = tag;
     const transformedTag = {
       ...rest,
       count: _count,
     };
-
-    if (include.includes("posts")) {
-      const posts = await db.post.findMany({
-        where: {
-          workspaceId,
-          status: "published",
-          tags: {
-            some: {
-              id: tag.id,
-            },
-          },
-        },
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          description: true,
-          coverImage: true,
-          publishedAt: true,
-        },
-        orderBy: {
-          publishedAt: "desc",
-        },
-        take: limit,
-        skip: postsToSkip,
-      });
-      return c.json({
-        ...transformedTag,
-        posts: {
-          data: posts,
-          pagination: {
-            limit,
-            currentPage: page,
-            nextPage,
-            previousPage: prevPage,
-            totalPages,
-            totalItems: totalPosts,
-          },
-        },
-      });
-    }
 
     return c.json(transformedTag);
   } catch (error) {

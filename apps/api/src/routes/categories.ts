@@ -1,5 +1,6 @@
 import { createClient } from "@marble/db/workers";
 import { Hono } from "hono";
+import { cacheKey, createCacheClient, hashQueryParams } from "../lib/cache";
 import { requireWorkspaceId } from "../lib/workspace";
 import type { Env } from "../types/env";
 import {
@@ -14,11 +15,11 @@ categories.get("/", async (c) => {
     const url = c.env.DATABASE_URL;
     const workspaceId = requireWorkspaceId(c);
     const db = createClient(url);
+    const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
 
     const queryValidation = CategoriesQuerySchema.safeParse({
       limit: c.req.query("limit"),
       page: c.req.query("page"),
-      include: c.req.query("include"),
     });
 
     if (!queryValidation.success) {
@@ -36,10 +37,29 @@ categories.get("/", async (c) => {
 
     const { limit, page } = queryValidation.data;
 
-    // Get total count
-    const totalCategories = await db.category.count({
-      where: { workspaceId },
-    });
+    // Generate cache key for count (exclude page - it doesn't affect count)
+    const countCacheKey = cacheKey(
+      workspaceId,
+      "categories",
+      "list",
+      hashQueryParams({ limit }),
+      "count"
+    );
+
+    // Cache count query separately (1 hour TTL, invalidated with posts)
+    const totalCategories = await cache.getOrSetCount(countCacheKey, () =>
+      db.category.count({
+        where: { workspaceId },
+      })
+    );
+
+    // Generate cache key for data (includes page)
+    const listCacheKey = cacheKey(
+      workspaceId,
+      "categories",
+      "list",
+      hashQueryParams({ page, limit })
+    );
 
     const totalPages = Math.ceil(totalCategories / limit);
     const prevPage = page > 1 ? page - 1 : null;
@@ -61,28 +81,30 @@ categories.get("/", async (c) => {
       );
     }
 
-    const categoriesList = await db.category.findMany({
-      where: {
-        workspaceId,
-      },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        description: true,
-        _count: {
-          select: {
-            posts: {
-              where: {
-                status: "published",
+    const categoriesList = await cache.getOrSet(listCacheKey, () =>
+      db.category.findMany({
+        where: {
+          workspaceId,
+        },
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          description: true,
+          _count: {
+            select: {
+              posts: {
+                where: {
+                  status: "published",
+                },
               },
             },
           },
         },
-      },
-      take: limit,
-      skip: categoriesToSkip,
-    });
+        take: limit,
+        skip: categoriesToSkip,
+      })
+    );
 
     const transformedCategories = categoriesList.map((category) => {
       const { _count, ...rest } = category;
@@ -115,11 +137,11 @@ categories.get("/:identifier", async (c) => {
     const workspaceId = requireWorkspaceId(c);
     const identifier = c.req.param("identifier");
     const db = createClient(url);
+    const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
 
     const queryValidation = CategoryQuerySchema.safeParse({
       limit: c.req.query("limit"),
       page: c.req.query("page"),
-      include: c.req.query("include"),
     });
 
     if (!queryValidation.success) {
@@ -135,29 +157,34 @@ categories.get("/:identifier", async (c) => {
       );
     }
 
-    const { limit, page, include = [] } = queryValidation.data;
+    const { limit, page } = queryValidation.data;
 
-    const category = await db.category.findFirst({
-      where: {
-        workspaceId,
-        OR: [{ id: identifier }, { slug: identifier }],
-      },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        description: true,
-        _count: {
-          select: {
-            posts: {
-              where: {
-                status: "published",
+    // Cache by identifier (slug or id)
+    const singleCacheKey = cacheKey(workspaceId, "categories", identifier);
+
+    const category = await cache.getOrSet(singleCacheKey, () =>
+      db.category.findFirst({
+        where: {
+          workspaceId,
+          OR: [{ id: identifier }, { slug: identifier }],
+        },
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          description: true,
+          _count: {
+            select: {
+              posts: {
+                where: {
+                  status: "published",
+                },
               },
             },
           },
         },
-      },
-    });
+      })
+    );
 
     if (!category) {
       return c.json(
@@ -169,100 +196,12 @@ categories.get("/:identifier", async (c) => {
       );
     }
 
-    const totalPosts = await db.post.count({
-      where: {
-        workspaceId,
-        status: "published",
-        categoryId: category.id,
-      },
-    });
-
-    const totalPages = Math.ceil(totalPosts / limit);
-    const prevPage = page > 1 ? page - 1 : null;
-    const nextPage = page < totalPages ? page + 1 : null;
-    const postsToSkip = limit ? (page - 1) * limit : 0;
-
-    if (page > totalPages && totalPosts > 0) {
-      return c.json(
-        {
-          error: "Invalid page number",
-          details: {
-            message: `Page ${page} does not exist.`,
-            totalPages,
-            requestedPage: page,
-          },
-        },
-        400
-      );
-    }
-
     // Transform _count to count
     const { _count, ...rest } = category;
     const transformedCategory = {
       ...rest,
       count: _count,
     };
-
-    if (include.includes("posts")) {
-      const posts = await db.post.findMany({
-        where: {
-          workspaceId,
-          status: "published",
-          categoryId: category.id,
-        },
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          description: true,
-          coverImage: true,
-          publishedAt: true,
-          updatedAt: true,
-          content: true,
-          authors: {
-            select: {
-              id: true,
-              name: true,
-              image: true,
-            },
-          },
-          tags: {
-            select: {
-              id: true,
-              name: true,
-              slug: true,
-            },
-          },
-          category: {
-            select: {
-              id: true,
-              name: true,
-              slug: true,
-            },
-          },
-        },
-        orderBy: {
-          publishedAt: "desc",
-        },
-        take: limit,
-        skip: postsToSkip,
-      });
-
-      return c.json({
-        ...transformedCategory,
-        posts: {
-          data: posts,
-          pagination: {
-            limit,
-            currentPage: page,
-            nextPage,
-            previousPage: prevPage,
-            totalPages,
-            totalItems: totalPosts,
-          },
-        },
-      });
-    }
 
     return c.json(transformedCategory);
   } catch (error) {
