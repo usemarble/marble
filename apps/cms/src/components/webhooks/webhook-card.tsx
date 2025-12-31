@@ -1,11 +1,9 @@
 "use client";
 
-import { Badge } from "@marble/ui/components/badge";
 import { Button } from "@marble/ui/components/button";
 import {
   Card,
-  CardContent,
-  CardHeader,
+  CardDescription,
   CardTitle,
 } from "@marble/ui/components/card";
 import {
@@ -14,11 +12,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
+import { Switch } from "@marble/ui/components/switch";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@marble/ui/components/tooltip";
 import { toast } from "@marble/ui/components/sonner";
 import {
   CopyIcon,
   DotsThreeVerticalIcon,
-  ToggleRightIcon,
+  PencilIcon,
   TrashIcon,
 } from "@phosphor-icons/react";
 import { format } from "date-fns";
@@ -29,6 +33,12 @@ import type { Webhook } from "@/types/webhook";
 const DeleteWebhookModal = dynamic(() =>
   import("@/components/webhooks/delete-webhook").then(
     (mod) => mod.DeleteWebhookModal
+  )
+);
+
+const EditWebhookSheet = dynamic(() =>
+  import("@/components/webhooks/edit-webhook").then(
+    (mod) => mod.EditWebhookSheet
   )
 );
 
@@ -47,88 +57,98 @@ export function WebhookCard({
   isToggling,
   toggleVariables,
 }: WebhookCardProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
   const handleCopySecret = (secret: string) => {
     navigator.clipboard.writeText(secret);
     toast.success("Secret copied to clipboard");
   };
 
+  const isCurrentlyToggling =
+    isToggling && toggleVariables?.id === webhook.id;
+
   return (
     <li>
-      <Card>
-        <CardHeader className="flex justify-between">
-          <div className="mb-2 flex items-center gap-3">
-            <CardTitle className="text-lg">{webhook.name}</CardTitle>
-            <Badge
-              className="text-xs"
-              variant={webhook.enabled ? "positive" : "negative"}
-            >
-              {webhook.enabled ? "Enabled" : "Disabled"}
-            </Badge>
-          </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button size="icon" variant="ghost">
-                <DotsThreeVerticalIcon size={16} />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                disabled={isToggling && toggleVariables?.id === webhook.id}
-                onClick={() =>
-                  onToggle({
-                    id: webhook.id,
-                    enabled: !webhook.enabled,
-                  })
-                }
-              >
-                <ToggleRightIcon className="mr-1.5" size={16} />
-                <span>{webhook.enabled ? "Disable" : "Enable"} Webhook</span>
-              </DropdownMenuItem>
-              {webhook.format === "json" ? (
-                <DropdownMenuItem
-                  onClick={() => handleCopySecret(webhook.secret)}
-                >
-                  <CopyIcon className="mr-1.5 size-4" />
-                  Copy Secret
-                </DropdownMenuItem>
-              ) : undefined}
-              <DropdownMenuItem
-                disabled={isToggling}
-                onSelect={(_e) => setIsOpen(true)}
-                variant="destructive"
-              >
-                <TrashIcon className="mr-1.5 size-4 text-inherit" />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </CardHeader>
-        <CardContent>
+      <Card className="rounded-[20px] border-none bg-sidebar p-2">
+        <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
           <div className="flex items-start justify-between">
-            <div className="min-w-0 flex-1">
-              <p className="mb-3 line-clamp-1 break-all font-mono text-muted-foreground text-sm">
+            <div className="flex flex-1 flex-col gap-1">
+              <CardTitle className="font-medium text-lg">
+                {webhook.name}
+              </CardTitle>
+              <CardDescription className="line-clamp-1 break-all font-mono text-sm">
                 {webhook.endpoint}
-              </p>
-              <div className="flex items-center justify-between gap-4 text-muted-foreground text-xs">
-                <span>
-                  Created {format(new Date(webhook.createdAt), "MMM d, yyyy")}
-                </span>
-                <div>
-                  <span>
-                    {webhook.events.length} event
-                    {webhook.events.length !== 1 ? "s" : ""}
-                  </span>
-                </div>
-              </div>
+              </CardDescription>
             </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="icon" variant="ghost">
+                  <DotsThreeVerticalIcon size={16} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {webhook.format === "json" ? (
+                  <DropdownMenuItem
+                    onClick={() => handleCopySecret(webhook.secret)}
+                  >
+                    <CopyIcon className="mr-1.5 size-4" />
+                    Copy Secret
+                  </DropdownMenuItem>
+                ) : undefined}
+                <DropdownMenuItem
+                  disabled={isToggling}
+                  onSelect={(_e) => setIsEditOpen(true)}
+                >
+                  <PencilIcon className="mr-1.5 size-4" />
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  disabled={isToggling}
+                  onSelect={(_e) => setIsDeleteOpen(true)}
+                  variant="destructive"
+                >
+                  <TrashIcon className="mr-1.5 size-4 text-inherit" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-        </CardContent>
+
+          <div className="flex items-center justify-between">
+            <p className="text-muted-foreground text-sm">
+              Created {format(new Date(webhook.createdAt), "MMM d, yyyy")}
+            </p>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <Switch
+                    checked={webhook.enabled}
+                    disabled={isCurrentlyToggling}
+                    onCheckedChange={(checked) =>
+                      onToggle({
+                        id: webhook.id,
+                        enabled: checked,
+                      })
+                    }
+                  />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                {webhook.enabled ? "Disable webhook" : "Enable webhook"}
+              </TooltipContent>
+            </Tooltip>
+          </div>
+        </div>
       </Card>
+      <EditWebhookSheet
+        isOpen={isEditOpen}
+        onOpenChange={setIsEditOpen}
+        webhook={webhook}
+      />
       <DeleteWebhookModal
-        isOpen={isOpen}
+        isOpen={isDeleteOpen}
         onDelete={onDelete}
-        onOpenChange={setIsOpen}
+        onOpenChange={setIsDeleteOpen}
         webhookId={webhook.id}
         webhookName={webhook.name}
       />

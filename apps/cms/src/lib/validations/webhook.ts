@@ -70,11 +70,69 @@ export const webhookSchema = z
 
 export type WebhookFormValues = z.infer<typeof webhookSchema>;
 
-export const webhookToggleSchema = z.object({
-  enabled: z.boolean(),
-});
+export const webhookUpdateSchema = z
+  .object({
+    name: z
+      .string()
+      .min(1, { message: "Name cannot be empty" })
+      .max(50, { message: "Name cannot be more than 50 characters" })
+      .optional(),
+    endpoint: z
+      .string()
+      .url({ message: "Please enter a valid URL" })
+      .refine(
+        (raw) => {
+          try {
+            return new URL(raw).protocol === "https:";
+          } catch {
+            return false;
+          }
+        },
+        { message: "Webhook URL must use HTTPS" }
+      )
+      .optional(),
+    events: z
+      .array(webhookEventEnum)
+      .min(1, { message: "Please select at least one event" })
+      .optional(),
+    format: payloadFormatEnum.optional(),
+    enabled: z.boolean().optional(),
+  })
+  .superRefine((data, ctx) => {
+    // Only validate endpoint/format relationship if both are provided
+    if (data.endpoint && data.format) {
+      try {
+        const hostname = new URL(data.endpoint).hostname;
 
-export type WebhookToggleValues = z.infer<typeof webhookToggleSchema>;
+        switch (data.format) {
+          case "discord":
+            if (!VALID_DISCORD_DOMAINS.includes(hostname)) {
+              ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: `Discord webhook URL must be from one of: ${VALID_DISCORD_DOMAINS.join(", ")}`,
+                path: ["endpoint"],
+              });
+            }
+            break;
+          case "slack":
+            if (!VALID_SLACK_DOMAINS.includes(hostname)) {
+              ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: `Slack webhook URL must be from: ${VALID_SLACK_DOMAINS.join(", ")}`,
+                path: ["endpoint"],
+              });
+            }
+            break;
+          default:
+            break;
+        }
+      } catch {
+        // URL parsing error already handled by endpoint validation
+      }
+    }
+  });
+
+export type WebhookUpdateValues = z.infer<typeof webhookUpdateSchema>;
 
 export type WebhookEvent = z.infer<typeof webhookEventEnum>;
 export type PayloadFormat = z.infer<typeof payloadFormatEnum>;
