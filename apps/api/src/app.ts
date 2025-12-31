@@ -7,7 +7,9 @@ import { cache } from "./middleware/cache";
 import { keyAnalytics } from "./middleware/key-analytics";
 import { keyAuthorization } from "./middleware/key-authorization";
 import { ratelimit } from "./middleware/ratelimit";
+import { systemAuth } from "./middleware/system";
 import authorsRoutes from "./routes/authors";
+import cacheRoutes from "./routes/cache";
 import categoriesRoutes from "./routes/categories";
 import invalidateRoutes from "./routes/invalidate";
 import postsRoutes from "./routes/posts";
@@ -19,6 +21,12 @@ const app = new Hono<{ Bindings: Env }>();
 // Global middleware
 app.use("*", cache());
 app.use(trimTrailingSlash());
+
+// ============================================
+// Internal System Routes (no API key, no analytics)
+// ============================================
+app.use("/cache/invalidate", systemAuth());
+app.route("/cache/invalidate", cacheRoutes);
 
 // ============================================
 // API Key Routes (/v1/posts, /v1/tags, etc.)

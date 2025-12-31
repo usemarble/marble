@@ -1,6 +1,7 @@
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
+import { invalidateCache } from "@/lib/cache/invalidate";
 import { authorSchema } from "@/lib/validations/authors";
 
 export async function GET() {
@@ -125,6 +126,10 @@ export async function POST(request: Request) {
         socials: true,
       },
     });
+
+    // Invalidate cache for authors and posts (authors affect posts)
+    invalidateCache(workspaceId, "authors");
+    invalidateCache(workspaceId, "posts");
 
     return NextResponse.json(author, { status: 201 });
   } catch (error) {

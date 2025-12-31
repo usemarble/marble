@@ -1,6 +1,7 @@
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
+import { invalidateCache } from "@/lib/cache/invalidate";
 import { type Attribution, postSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";
 import { dispatchWebhooks } from "@/lib/webhooks/dispatcher";
@@ -227,6 +228,9 @@ export async function PATCH(
       );
     });
 
+    // Invalidate cache for posts
+    invalidateCache(workspaceId, "posts");
+
     return NextResponse.json({ id: postUpdated.id }, { status: 200 });
   } catch (_e) {
     return NextResponse.json(
@@ -271,6 +275,9 @@ export async function DELETE(
         error
       );
     });
+
+    // Invalidate cache for posts
+    invalidateCache(workspaceId, "posts");
 
     return NextResponse.json({ id: deletedPost.id }, { status: 200 });
   } catch (_e) {

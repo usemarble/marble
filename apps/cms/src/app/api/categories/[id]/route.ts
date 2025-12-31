@@ -1,6 +1,7 @@
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
+import { invalidateCache } from "@/lib/cache/invalidate";
 import { categorySchema } from "@/lib/validations/workspace";
 import { dispatchWebhooks } from "@/lib/webhooks/dispatcher";
 
@@ -67,6 +68,10 @@ export async function PATCH(
     );
   });
 
+  // Invalidate cache for categories and posts (categories affect posts)
+  invalidateCache(workspaceId, "categories");
+  invalidateCache(workspaceId, "posts");
+
   return NextResponse.json(updatedCategory, { status: 200 });
 }
 
@@ -127,6 +132,10 @@ export async function DELETE(
         error
       );
     });
+
+    // Invalidate cache for categories and posts (categories affect posts)
+    invalidateCache(workspaceId, "categories");
+    invalidateCache(workspaceId, "posts");
 
     return new NextResponse(null, { status: 204 });
   } catch (_e) {

@@ -30,6 +30,7 @@
         "POLAR_SUCCESS_URL",
         "MARBLE_API_KEY",
         "MARBLE_API_URL",
+        "SYSTEM_SECRET",
         "QSTASH_TOKEN",
         "REDIS_URL",
         "REDIS_TOKEN",

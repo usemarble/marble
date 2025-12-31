@@ -2,6 +2,7 @@ import { db } from "@marble/db";
 import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
+import { invalidateCache } from "@/lib/cache/invalidate";
 import { postSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";
 import { dispatchWebhooks } from "@/lib/webhooks/dispatcher";
@@ -195,6 +196,8 @@ export async function POST(request: Request) {
       );
     });
   }
+
+  invalidateCache(activeWorkspaceId, "posts");
 
   return NextResponse.json({ id: postCreated.id });
 }
