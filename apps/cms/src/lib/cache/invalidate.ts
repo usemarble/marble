@@ -14,10 +14,9 @@ export function invalidateCache(
   workspaceId: string,
   resource?: CacheResource
 ): void {
-  // Only invalidate cache in production
-  // if (process.env.NODE_ENV !== "production") {
-  //   return;
-  // }
+  if (process.env.NODE_ENV !== "production") {
+    return;
+  }
 
   const apiUrl = process.env.MARBLE_API_URL;
   const systemSecret = process.env.SYSTEM_SECRET;
