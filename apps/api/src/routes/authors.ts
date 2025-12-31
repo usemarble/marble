@@ -89,7 +89,11 @@ authors.get("/", async (c) => {
       db.author.findMany({
         where: {
           workspaceId,
-          isActive: true,
+          coAuthoredPosts: {
+            some: {
+              status: "published",
+            },
+          },
         },
         select: {
           id: true,
@@ -182,7 +186,6 @@ authors.get("/:identifier", async (c) => {
       db.author.findFirst({
         where: {
           workspaceId,
-          isActive: true,
           OR: [{ id: identifier }, { slug: identifier }],
         },
         select: {
@@ -206,7 +209,7 @@ authors.get("/:identifier", async (c) => {
       return c.json(
         {
           error: "Author not found",
-          message: "The requested author does not exist or is not active",
+          message: "The requested author does not exist",
         },
         404
       );

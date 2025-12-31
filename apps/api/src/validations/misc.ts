@@ -16,3 +16,7 @@ export const BasicPaginationSchema = z.object({
     })
     .default("1"),
 });
+
+export const CacheInvalidateSchema = z.object({
+  resource: z.enum(["posts", "categories", "tags", "authors"]).optional(),
+});

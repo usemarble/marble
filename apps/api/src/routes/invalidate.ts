@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { createCacheClient } from "../lib/cache";
 import type { ApiKeyApp } from "../types/env";
+import { CacheInvalidateSchema } from "../validations/misc";
 
 const invalidate = new Hono<ApiKeyApp>();
 
@@ -19,11 +20,23 @@ invalidate.post("/", async (c) => {
   const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
 
   try {
-    const body = await c.req.json<{
-      resource?: "posts" | "categories" | "tags" | "authors";
-    }>();
+    const rawBody = await c.req.json();
+    const validation = CacheInvalidateSchema.safeParse(rawBody);
 
-    const { resource } = body;
+    if (!validation.success) {
+      return c.json(
+        {
+          error: "Invalid request body",
+          details: validation.error.errors.map((err) => ({
+            field: err.path.join("."),
+            message: err.message,
+          })),
+        },
+        400
+      );
+    }
+
+    const { resource } = validation.data;
 
     let invalidatedCount: number;
 
