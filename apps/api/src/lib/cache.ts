@@ -169,6 +169,7 @@ export function cacheKey(
 
 /**
  * Generate a hash from query parameters for cache key uniqueness
+ * Uses a polynomial rolling hash that works in both Node and Workers
  */
 export function hashQueryParams(params: Record<string, unknown>): string {
   const sorted = Object.keys(params)
@@ -184,19 +185,12 @@ export function hashQueryParams(params: Record<string, unknown>): string {
       {} as Record<string, unknown>
     );
 
-  // Simple hash using base64 of JSON string (truncated for brevity)
+  // Use a polynomial rolling hash for consistent cross-platform hashing
   const str = JSON.stringify(sorted);
-  try {
-    return Buffer.from(str, "utf-8")
-      .toString("base64")
-      .slice(0, 12)
-      .replace(/[+/=]/g, "x");
-  } catch {
-    return Array.from(str)
-      .reduce((hash, char) => {
-        const code = char.charCodeAt(0);
-        return Math.abs((hash * 31 + code) % 2_147_483_647);
-      }, 0)
-      .toString(36);
-  }
+  const hash = Array.from(str).reduce((acc, char) => {
+    const code = char.charCodeAt(0);
+    return Math.abs((acc * 31 + code) % 2_147_483_647);
+  }, 0);
+
+  return hash.toString(36);
 }

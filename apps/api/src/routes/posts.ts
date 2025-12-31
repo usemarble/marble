@@ -52,36 +52,30 @@ posts.get("/", async (c) => {
       query,
     } = queryValidation.data;
 
+    const categoryFilter: Record<string, unknown> = {};
+    if (categories.length > 0) {
+      categoryFilter.in = categories;
+    }
+    if (excludeCategories.length > 0) {
+      categoryFilter.notIn = excludeCategories;
+    }
+
+    const tagFilter: Record<string, unknown> = {};
+    if (tags.length > 0) {
+      tagFilter.some = { slug: { in: tags } };
+    }
+    if (excludeTags.length > 0) {
+      tagFilter.none = { slug: { in: excludeTags } };
+    }
+
     // Build the where clause
     const where = {
       workspaceId,
       status: "published" as const,
-      ...(() => {
-        const categoryFilter: Record<string, string[]> = {};
-        if (categories.length > 0) {
-          categoryFilter.in = categories;
-        }
-        if (excludeCategories.length > 0) {
-          categoryFilter.notIn = excludeCategories;
-        }
-        if (Object.keys(categoryFilter).length > 0) {
-          return { category: { slug: categoryFilter } };
-        }
-        return {};
-      })(),
-      ...(() => {
-        const tagFilter: Record<string, unknown> = {};
-        if (tags.length > 0) {
-          tagFilter.some = { slug: { in: tags } };
-        }
-        if (excludeTags.length > 0) {
-          tagFilter.none = { slug: { in: excludeTags } };
-        }
-        if (Object.keys(tagFilter).length > 0) {
-          return { tags: tagFilter };
-        }
-        return {};
-      })(),
+      ...(Object.keys(categoryFilter).length > 0
+        ? { category: { slug: categoryFilter } }
+        : {}),
+      ...(Object.keys(tagFilter).length > 0 ? { tags: tagFilter } : {}),
       ...(query && {
         OR: [{ title: { contains: query } }, { content: { contains: query } }],
       }),
