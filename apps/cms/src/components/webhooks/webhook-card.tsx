@@ -1,24 +1,20 @@
 "use client";
 
 import { Button } from "@marble/ui/components/button";
-import {
-  Card,
-  CardDescription,
-  CardTitle,
-} from "@marble/ui/components/card";
+import { Card, CardDescription, CardTitle } from "@marble/ui/components/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
+import { toast } from "@marble/ui/components/sonner";
 import { Switch } from "@marble/ui/components/switch";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
-import { toast } from "@marble/ui/components/sonner";
 import {
   CopyIcon,
   DotsThreeVerticalIcon,
@@ -64,8 +60,7 @@ export function WebhookCard({
     toast.success("Secret copied to clipboard");
   };
 
-  const isCurrentlyToggling =
-    isToggling && toggleVariables?.id === webhook.id;
+  const isCurrentlyToggling = isToggling && toggleVariables?.id === webhook.id;
 
   return (
     <li>
