@@ -11,13 +11,7 @@ import {
   AlertDialogTrigger,
 } from "@marble/ui/components/alert-dialog";
 import { Button } from "@marble/ui/components/button";
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@marble/ui/components/card";
+import { Card, CardDescription, CardTitle } from "@marble/ui/components/card";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
@@ -84,18 +78,24 @@ export function Delete() {
   }
 
   return (
-    <Card className="pb-4">
-      <CardHeader>
-        <CardTitle className="font-medium text-lg">Delete workspace.</CardTitle>
-        <CardDescription>
-          Permanently delete your workspace and all associated data within. This
-          action cannot be undone.
-        </CardDescription>
-      </CardHeader>
-      <CardFooter className="justify-end border-t pt-4">
+    <Card className="gap-0 rounded-[20px] border-none bg-sidebar p-2">
+      <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
+        <div className="flex flex-col gap-1.5">
+          <CardTitle className="font-medium text-lg">
+            Delete workspace.
+          </CardTitle>
+          <CardDescription>
+            Permanently delete your workspace and all associated data within.
+            This action cannot be undone.
+          </CardDescription>
+        </div>
+      </div>
+      <div className="flex justify-end px-2 pt-2">
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="destructive">Delete Workspace</Button>
+            <Button size="sm" variant="destructive">
+              Delete Workspace
+            </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
@@ -145,7 +145,7 @@ export function Delete() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-      </CardFooter>
+      </div>
     </Card>
   );
 }

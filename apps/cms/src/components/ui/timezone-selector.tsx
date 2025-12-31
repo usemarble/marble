@@ -146,7 +146,7 @@ export function TimezoneSelector({
     <Popover onOpenChange={setIsOpen} open={isOpen}>
       <PopoverTrigger asChild>
         <Button
-          className="w-full items-center justify-between gap-2 shadow-none"
+          className="w-full items-center justify-between gap-2 shadow-none active:scale-100"
           disabled={disabled}
           onClick={() => !disabled && setIsOpen(!isOpen)}
           type="button"

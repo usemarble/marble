@@ -1,14 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@marble/ui/components/card";
+import { Card, CardDescription, CardTitle } from "@marble/ui/components/card";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
@@ -103,16 +96,18 @@ export function Slug() {
   };
 
   return (
-    <Card className="pb-4">
-      <CardHeader>
-        <CardTitle className="font-medium text-lg">Workspace Slug</CardTitle>
-        <CardDescription>Your unique workspace slug.</CardDescription>
-      </CardHeader>
+    <Card className="rounded-[20px] border-none bg-sidebar p-2">
       <form
-        className="flex flex-col gap-6"
+        className="flex flex-col"
         onSubmit={slugForm.handleSubmit(onSlugSubmit)}
       >
-        <CardContent>
+        <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
+          <div className="flex flex-col gap-1.5">
+            <CardTitle className="font-medium text-lg">
+              Workspace Slug
+            </CardTitle>
+            <CardDescription>Your unique workspace slug.</CardDescription>
+          </div>
           <div className="flex w-full flex-col gap-2">
             <div className="flex items-center gap-2">
               <div className="flex flex-1 flex-col gap-2">
@@ -133,8 +128,8 @@ export function Slug() {
               </p>
             )}
           </div>
-        </CardContent>
-        <CardFooter className="flex justify-between border-t pt-4">
+        </div>
+        <div className="flex items-center justify-between px-2 pt-2">
           <p className="text-muted-foreground text-sm">
             Used in your workspace URL
           </p>
@@ -142,10 +137,11 @@ export function Slug() {
             className={cn("flex w-20 items-center gap-2 self-end")}
             disabled={!isOwner || !slugForm.formState.isDirty}
             isLoading={isPending}
+            size="sm"
           >
             Save
           </AsyncButton>
-        </CardFooter>
+        </div>
       </form>
     </Card>
   );

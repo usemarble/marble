@@ -2,13 +2,7 @@
 
 import { Badge } from "@marble/ui/components/badge";
 import { Button } from "@marble/ui/components/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@marble/ui/components/card";
+import { Card, CardDescription, CardTitle } from "@marble/ui/components/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -155,8 +149,8 @@ export function InviteSection({ invitations }: InviteSectionProps) {
   }
 
   return (
-    <Card className="rounded-sm">
-      <CardHeader>
+    <Card className="rounded-[20px] border-none bg-sidebar p-2.5">
+      <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-lg">Pending Invitations</CardTitle>
@@ -166,8 +160,6 @@ export function InviteSection({ invitations }: InviteSectionProps) {
             </CardDescription>
           </div>
         </div>
-      </CardHeader>
-      <CardContent>
         <div className="space-y-3 divide-y">
           {pendingInvitations.map((invitation) => (
             <div
@@ -228,7 +220,7 @@ export function InviteSection({ invitations }: InviteSectionProps) {
             </div>
           ))}
         </div>
-      </CardContent>
+      </div>
     </Card>
   );
 }

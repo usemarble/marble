@@ -5,14 +5,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@marble/ui/components/avatar";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@marble/ui/components/card";
+import { Card, CardDescription, CardTitle } from "@marble/ui/components/card";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
@@ -97,20 +90,20 @@ export function Logo() {
   });
 
   return (
-    <Card>
-      <CardHeader className="px-6">
-        <CardTitle className="font-medium text-lg">Workspace Logo.</CardTitle>
-        <CardDescription>
-          Upload a logo for your workspace. (Accepted file types are .png, .jpg,
-          .jpeg, .webp)
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="px-6">
+    <Card className="gap-0 rounded-[20px] border-none bg-sidebar p-2">
+      <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
+        <div className="flex flex-col gap-1.5">
+          <CardTitle className="font-medium text-lg">Workspace Logo.</CardTitle>
+          <CardDescription>
+            Upload a logo for your workspace. (Accepted file types are .png,
+            .jpg, .jpeg, .webp)
+          </CardDescription>
+        </div>
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-5">
             <Label
               className={cn(
-                "group relative size-16 cursor-pointer overflow-hidden rounded-full",
+                "group relative size-16 cursor-pointer overflow-hidden rounded-full border",
                 (isUpdatingLogo || !isOwner) && "pointer-events-none",
                 !isOwner && "opacity-50"
               )}
@@ -160,12 +153,12 @@ export function Logo() {
             />
           </div>
         </div>
-      </CardContent>
-      <CardFooter className="border-t">
+      </div>
+      <div className="px-2 pt-4 pb-2">
         <p className="text-muted-foreground text-sm">
           Square images work best for logos
         </p>
-      </CardFooter>
+      </div>
     </Card>
   );
 }

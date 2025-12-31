@@ -1,7 +1,7 @@
 "use client";
 
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
-import { Enable } from "@/components/settings/fields/ai/enable";
+import { Enable } from "@/components/settings/fields/enable";
 
 function PageClient() {
   return (

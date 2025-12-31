@@ -1,14 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@marble/ui/components/card";
+import { Card, CardDescription, CardTitle } from "@marble/ui/components/card";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { Switch } from "@marble/ui/components/switch";
@@ -138,30 +131,20 @@ export function Enable() {
   };
 
   return (
-    <Card className="pb-4">
-      <CardHeader>
-        <CardTitle className="font-medium text-lg">AI Integration</CardTitle>
-        <CardDescription>
-          Enable AI-powered writing suggestions and content assistance for your
-          workspace
-        </CardDescription>
-      </CardHeader>
+    <Card className="rounded-[20px] border-none bg-sidebar p-2">
       <form
-        className="flex flex-col gap-6"
+        className="flex flex-col"
         onSubmit={enableForm.handleSubmit(onEnableSubmit)}
       >
-        <CardContent>
+        <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
+          <div className="flex flex-col gap-1.5">
+            <CardTitle className="font-medium text-lg">AI Features</CardTitle>
+            <CardDescription>
+              Enable AI-powered readability insights and suggestions
+            </CardDescription>
+          </div>
           <div className="flex w-full flex-col gap-4">
             <div className="flex items-center justify-between">
-              <div className="flex flex-col gap-1">
-                <Label className="font-medium text-sm" htmlFor={enableId}>
-                  Enable AI Features
-                </Label>
-                <p className="text-muted-foreground text-xs">
-                  Enabling AI features will share your content with third party
-                  AI providers.
-                </p>
-              </div>
               <Switch
                 checked={enableForm.watch("ai.enabled")}
                 disabled={!isOwner}
@@ -179,21 +162,22 @@ export function Enable() {
               </p>
             )}
           </div>
-        </CardContent>
-        <CardFooter className="flex justify-between border-t pt-4">
+        </div>
+        <div className="flex items-center justify-between px-2 pt-2">
           <p className="text-muted-foreground text-sm">
             {enableForm.watch("ai.enabled")
-              ? "AI features are enabled for this workspace"
-              : "AI features are disabled for this workspace"}
+              ? "AI features are enabled"
+              : "AI features are disabled"}
           </p>
           <AsyncButton
             className={cn("flex w-20 items-center gap-2 self-end")}
             disabled={!isOwner || !enableForm.formState.isDirty}
             isLoading={isPending}
+            size="sm"
           >
             Save
           </AsyncButton>
-        </CardFooter>
+        </div>
       </form>
     </Card>
   );

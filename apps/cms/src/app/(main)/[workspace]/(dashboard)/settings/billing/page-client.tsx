@@ -146,8 +146,8 @@ function PageClient() {
   return (
     <WorkspacePageWrapper size="compact">
       <div className="flex flex-col gap-6">
-        <Card>
-          <CardContent className="px-6 py-10">
+        <Card className="rounded-[20px] border-none bg-sidebar p-2.5">
+          <div className="rounded-[12px] bg-background p-6 shadow-xs">
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="font-semibold text-2xl">
@@ -179,14 +179,14 @@ function PageClient() {
                 )}
               </div>
             </div>
-          </CardContent>
+          </div>
         </Card>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <Card>
-            <CardContent className="p-6">
-              <div className="mb-4 flex items-center gap-3">
-                <div className="flex size-8 items-center justify-center rounded-lg bg-muted">
+          <Card className="rounded-[20px] border-none bg-sidebar p-2.5">
+            <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
+              <div className="flex items-center gap-3">
+                <div className="flex size-8 items-center justify-center rounded-lg bg-background/50">
                   <PlugsIcon className="text-muted-foreground" size={16} />
                 </div>
                 <h3 className="font-medium">API Requests</h3>
@@ -199,13 +199,13 @@ function PageClient() {
                   {planLimits.maxApiRequests.toLocaleString()}
                 </p>
               </div>
-            </CardContent>
+            </div>
           </Card>
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="mb-4 flex items-center gap-3">
-                <div className="flex size-8 items-center justify-center rounded-lg bg-muted">
+          <Card className="rounded-[20px] border-none bg-sidebar p-2.5">
+            <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
+              <div className="flex items-center gap-3">
+                <div className="flex size-8 items-center justify-center rounded-lg bg-background/50">
                   <ImagesIcon className="text-muted-foreground" />
                 </div>
                 <h3 className="font-medium">Media</h3>
@@ -220,13 +220,13 @@ function PageClient() {
                   {formatStorageLimit(planLimits.maxMediaStorage)}
                 </p>
               </div>
-            </CardContent>
+            </div>
           </Card>
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="mb-4 flex items-center gap-3">
-                <div className="flex size-8 items-center justify-center rounded-lg bg-muted">
+          <Card className="rounded-[20px] border-none bg-sidebar p-2.5">
+            <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
+              <div className="flex items-center gap-3">
+                <div className="flex size-8 items-center justify-center rounded-lg bg-background/50">
                   <UsersIcon className="text-muted-foreground" size={16} />
                 </div>
                 <h3 className="font-medium">Members</h3>
@@ -239,7 +239,7 @@ function PageClient() {
                   remaining of {planLimits.maxMembers}
                 </p>
               </div>
-            </CardContent>
+            </div>
           </Card>
         </div>
 

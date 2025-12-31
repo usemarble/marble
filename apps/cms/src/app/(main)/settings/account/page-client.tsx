@@ -7,14 +7,7 @@ import {
   AvatarImage,
 } from "@marble/ui/components/avatar";
 import { buttonVariants } from "@marble/ui/components/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@marble/ui/components/card";
+import { Card, CardDescription, CardTitle } from "@marble/ui/components/card";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
@@ -137,85 +130,89 @@ function PageClient() {
         </div>
       </div>
       <div className="flex flex-col gap-8 py-12">
-        <Card className="flex justify-between">
-          <CardHeader>
-            <CardTitle className="font-medium text-lg">Theme</CardTitle>
-            <CardDescription>Choose your preferred theme.</CardDescription>
-          </CardHeader>
-          <CardContent className="center flex items-center">
-            <ThemeSwitch />
-          </CardContent>
-          <CardFooter className="border-t">
-            <p className="text-muted-foreground text-sm">
-              This defaults to the system theme.
-            </p>
-          </CardFooter>
+        <Card className="rounded-[20px] border-none bg-sidebar p-2.5">
+          <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
+            <div className="flex flex-col gap-1.5">
+              <CardTitle className="font-medium text-lg">Theme</CardTitle>
+              <CardDescription>Choose your preferred theme.</CardDescription>
+            </div>
+            <div className="flex items-center">
+              <ThemeSwitch />
+            </div>
+            <div className="border-t pt-6">
+              <p className="text-muted-foreground text-sm">
+                This defaults to the system theme.
+              </p>
+            </div>
+          </div>
         </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="font-medium text-lg">Avatar</CardTitle>
-            <CardDescription>Change your profile picture.</CardDescription>
-          </CardHeader>
-          <CardContent className="justify-end">
-            <div className="flex items-center gap-6">
-              <div className="flex items-center gap-5">
-                <Label
-                  className={cn(
-                    "group relative size-16 cursor-pointer overflow-hidden rounded-full",
-                    isUploading && "pointer-events-none"
-                  )}
-                  htmlFor="logo"
-                >
-                  <Avatar className="size-16">
-                    <AvatarImage src={avatarUrl || undefined} />
-                    <AvatarFallback>
-                      <ImageIcon className="size-4 text-muted-foreground" />
-                    </AvatarFallback>
-                  </Avatar>
-
-                  <input
-                    accept="image/*"
-                    className="sr-only"
-                    id="logo"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file && !isUploading) {
-                        setFile(file);
-                      }
-                    }}
-                    title="Upload avatar"
-                    type="file"
-                  />
-                  <div
+        <Card className="rounded-[20px] border-none bg-sidebar p-2.5">
+          <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
+            <div className="flex flex-col gap-1.5">
+              <CardTitle className="font-medium text-lg">Avatar</CardTitle>
+              <CardDescription>Change your profile picture.</CardDescription>
+            </div>
+            <div className="justify-end">
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-5">
+                  <Label
                     className={cn(
-                      "absolute inset-0 flex size-full items-center justify-center bg-background/50 backdrop-blur-xs transition-opacity duration-300",
-                      isUploading
-                        ? "opacity-100"
-                        : "opacity-0 group-hover:opacity-100"
+                      "group relative size-16 cursor-pointer overflow-hidden rounded-full",
+                      isUploading && "pointer-events-none"
                     )}
+                    htmlFor="logo"
                   >
-                    {isUploading ? (
-                      <CircleNotchIcon className="size-4 animate-spin" />
-                    ) : (
-                      <UploadSimpleIcon className="size-4" />
-                    )}
-                  </div>
-                </Label>
-              </div>
-              <div className="flex w-full items-center gap-2">
-                <Input readOnly value={avatarUrl || ""} />
-                <CopyButton
-                  textToCopy={avatarUrl || ""}
-                  toastMessage="Avatar URL copied to clipboard."
-                />
+                    <Avatar className="size-16">
+                      <AvatarImage src={avatarUrl || undefined} />
+                      <AvatarFallback>
+                        <ImageIcon className="size-4 text-muted-foreground" />
+                      </AvatarFallback>
+                    </Avatar>
+
+                    <input
+                      accept="image/*"
+                      className="sr-only"
+                      id="logo"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file && !isUploading) {
+                          setFile(file);
+                        }
+                      }}
+                      title="Upload avatar"
+                      type="file"
+                    />
+                    <div
+                      className={cn(
+                        "absolute inset-0 flex size-full items-center justify-center bg-background/50 backdrop-blur-xs transition-opacity duration-300",
+                        isUploading
+                          ? "opacity-100"
+                          : "opacity-0 group-hover:opacity-100"
+                      )}
+                    >
+                      {isUploading ? (
+                        <CircleNotchIcon className="size-4 animate-spin" />
+                      ) : (
+                        <UploadSimpleIcon className="size-4" />
+                      )}
+                    </div>
+                  </Label>
+                </div>
+                <div className="flex w-full items-center gap-2">
+                  <Input readOnly value={avatarUrl || ""} />
+                  <CopyButton
+                    textToCopy={avatarUrl || ""}
+                    toastMessage="Avatar URL copied to clipboard."
+                  />
+                </div>
               </div>
             </div>
-          </CardContent>
-          <CardFooter className="border-t">
-            <p className="text-muted-foreground text-sm">
-              Square images work best for avatars
-            </p>
-          </CardFooter>
+            <div className="border-t pt-6">
+              <p className="text-muted-foreground text-sm">
+                Square images work best for avatars
+              </p>
+            </div>
+          </div>
         </Card>
         <CropImageModal
           aspect={1}
@@ -237,18 +234,18 @@ function PageClient() {
           }}
         />
 
-        <Card className="pb-4">
-          <form
-            className="flex flex-col gap-6"
-            onSubmit={handleSubmit(onSubmit)}
-          >
-            <CardHeader>
+        <Card className="rounded-[20px] border-none bg-sidebar p-2.5">
+          <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
+            <div className="flex flex-col gap-1.5">
               <CardTitle className="font-medium text-lg">Full Name</CardTitle>
               <CardDescription>
                 Your name will be displayed on your profile and in emails.
               </CardDescription>
-            </CardHeader>
-            <CardContent>
+            </div>
+            <form
+              className="flex flex-col gap-6"
+              onSubmit={handleSubmit(onSubmit)}
+            >
               <div>
                 <Label className="sr-only" htmlFor="name">
                   Name
@@ -258,55 +255,59 @@ function PageClient() {
                   <ErrorMessage>{errors.name.message}</ErrorMessage>
                 )}
               </div>
-            </CardContent>
-            <CardFooter className="justify-end border-t pt-4">
-              <AsyncButton
-                className="w-20 self-end"
-                disabled={!isChanged}
-                isLoading={isSubmitting || isUpdatingUser}
-                type="submit"
-              >
-                Save
-              </AsyncButton>
-            </CardFooter>
-          </form>
+              <div className="flex justify-end border-t pt-6">
+                <AsyncButton
+                  className="w-20 self-end"
+                  disabled={!isChanged}
+                  isLoading={isSubmitting || isUpdatingUser}
+                  type="submit"
+                >
+                  Save
+                </AsyncButton>
+              </div>
+            </form>
+          </div>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="font-medium text-lg">Email</CardTitle>
-            <CardDescription>
-              Email associated with your account.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="justify-end">
-            <div>
-              <Label className="sr-only" htmlFor="email">
-                Email
-              </Label>
-              <Input defaultValue={user?.email} disabled readOnly />
+        <Card className="rounded-[20px] border-none bg-sidebar p-2.5">
+          <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
+            <div className="flex flex-col gap-1.5">
+              <CardTitle className="font-medium text-lg">Email</CardTitle>
+              <CardDescription>
+                Email associated with your account.
+              </CardDescription>
             </div>
-          </CardContent>
-          <CardFooter className="border-t">
-            <p className="text-muted-foreground text-sm">
-              Email cannot be changed
-            </p>
-          </CardFooter>
+            <div className="justify-end">
+              <div>
+                <Label className="sr-only" htmlFor="email">
+                  Email
+                </Label>
+                <Input defaultValue={user?.email} disabled readOnly />
+              </div>
+            </div>
+            <div className="border-t pt-6">
+              <p className="text-muted-foreground text-sm">
+                Email cannot be changed
+              </p>
+            </div>
+          </div>
         </Card>
 
-        <Card className="pb-4">
-          <CardHeader>
-            <CardTitle className="font-medium text-lg">
-              Delete Account
-            </CardTitle>
-            <CardDescription>
-              Permanently delete your account and all associated data. This
-              action cannot be undone.
-            </CardDescription>
-          </CardHeader>
-          <CardFooter className="justify-end border-t pt-4">
-            <DeleteAccountModal />
-          </CardFooter>
+        <Card className="rounded-[20px] border-none bg-sidebar p-2.5">
+          <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
+            <div className="flex flex-col gap-1.5">
+              <CardTitle className="font-medium text-lg">
+                Delete Account
+              </CardTitle>
+              <CardDescription>
+                Permanently delete your account and all associated data. This
+                action cannot be undone.
+              </CardDescription>
+            </div>
+            <div className="flex justify-end border-t pt-6">
+              <DeleteAccountModal />
+            </div>
+          </div>
         </Card>
       </div>
     </div>
