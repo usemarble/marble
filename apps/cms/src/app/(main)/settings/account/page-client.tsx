@@ -130,7 +130,7 @@ function PageClient() {
         </div>
       </div>
       <div className="flex flex-col gap-8 py-12">
-        <Card className="rounded-[20px] border-none bg-sidebar p-2.5">
+        <Card className="gap-0 rounded-[20px] border-none bg-sidebar p-2">
           <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
             <div className="flex flex-col gap-1.5">
               <CardTitle className="font-medium text-lg">Theme</CardTitle>
@@ -139,14 +139,14 @@ function PageClient() {
             <div className="flex items-center">
               <ThemeSwitch />
             </div>
-            <div className="border-t pt-6">
-              <p className="text-muted-foreground text-sm">
-                This defaults to the system theme.
-              </p>
-            </div>
+          </div>
+          <div className="px-2 pt-4 pb-2">
+            <p className="text-muted-foreground text-sm">
+              This defaults to the system theme.
+            </p>
           </div>
         </Card>
-        <Card className="rounded-[20px] border-none bg-sidebar p-2.5">
+        <Card className="gap-0 rounded-[20px] border-none bg-sidebar p-2">
           <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
             <div className="flex flex-col gap-1.5">
               <CardTitle className="font-medium text-lg">Avatar</CardTitle>
@@ -207,11 +207,11 @@ function PageClient() {
                 </div>
               </div>
             </div>
-            <div className="border-t pt-6">
-              <p className="text-muted-foreground text-sm">
-                Square images work best for avatars
-              </p>
-            </div>
+          </div>
+          <div className="px-2 pt-4 pb-2">
+            <p className="text-muted-foreground text-sm">
+              Square images work best for avatars
+            </p>
           </div>
         </Card>
         <CropImageModal
@@ -234,42 +234,43 @@ function PageClient() {
           }}
         />
 
-        <Card className="rounded-[20px] border-none bg-sidebar p-2.5">
-          <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
-            <div className="flex flex-col gap-1.5">
-              <CardTitle className="font-medium text-lg">Full Name</CardTitle>
-              <CardDescription>
-                Your name will be displayed on your profile and in emails.
-              </CardDescription>
+        <Card className="rounded-[20px] border-none bg-sidebar p-2">
+          <form className="flex flex-col" onSubmit={handleSubmit(onSubmit)}>
+            <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
+              <div className="flex flex-col gap-1.5">
+                <CardTitle className="font-medium text-lg">Full Name</CardTitle>
+                <CardDescription>
+                  Your name will be displayed on your profile and in emails.
+                </CardDescription>
+              </div>
+              <div className="flex w-full flex-col gap-2">
+                <div>
+                  <Label className="sr-only" htmlFor="name">
+                    Name
+                  </Label>
+                  <Input {...register("name")} />
+                  {errors.name && (
+                    <ErrorMessage>{errors.name.message}</ErrorMessage>
+                  )}
+                </div>
+              </div>
             </div>
-            <form
-              className="flex flex-col gap-6"
-              onSubmit={handleSubmit(onSubmit)}
-            >
-              <div>
-                <Label className="sr-only" htmlFor="name">
-                  Name
-                </Label>
-                <Input {...register("name")} />
-                {errors.name && (
-                  <ErrorMessage>{errors.name.message}</ErrorMessage>
-                )}
-              </div>
-              <div className="flex justify-end border-t pt-6">
-                <AsyncButton
-                  className="w-20 self-end"
-                  disabled={!isChanged}
-                  isLoading={isSubmitting || isUpdatingUser}
-                  type="submit"
-                >
-                  Save
-                </AsyncButton>
-              </div>
-            </form>
-          </div>
+            <div className="flex items-center justify-between px-2 pt-2">
+              <p className="text-muted-foreground text-sm">Your display name</p>
+              <AsyncButton
+                className={cn("flex w-20 items-center gap-2 self-end")}
+                disabled={!isChanged}
+                isLoading={isSubmitting || isUpdatingUser}
+                size="sm"
+                type="submit"
+              >
+                Save
+              </AsyncButton>
+            </div>
+          </form>
         </Card>
 
-        <Card className="rounded-[20px] border-none bg-sidebar p-2.5">
+        <Card className="gap-0 rounded-[20px] border-none bg-sidebar p-2">
           <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
             <div className="flex flex-col gap-1.5">
               <CardTitle className="font-medium text-lg">Email</CardTitle>
@@ -285,15 +286,15 @@ function PageClient() {
                 <Input defaultValue={user?.email} disabled readOnly />
               </div>
             </div>
-            <div className="border-t pt-6">
-              <p className="text-muted-foreground text-sm">
-                Email cannot be changed
-              </p>
-            </div>
+          </div>
+          <div className="px-2 pt-4 pb-2">
+            <p className="text-muted-foreground text-sm">
+              Email cannot be changed
+            </p>
           </div>
         </Card>
 
-        <Card className="rounded-[20px] border-none bg-sidebar p-2.5">
+        <Card className="gap-0 rounded-[20px] border-none bg-sidebar p-2">
           <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
             <div className="flex flex-col gap-1.5">
               <CardTitle className="font-medium text-lg">
@@ -304,9 +305,9 @@ function PageClient() {
                 action cannot be undone.
               </CardDescription>
             </div>
-            <div className="flex justify-end border-t pt-6">
-              <DeleteAccountModal />
-            </div>
+          </div>
+          <div className="flex justify-end px-2 pt-2">
+            <DeleteAccountModal />
           </div>
         </Card>
       </div>
