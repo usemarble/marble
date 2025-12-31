@@ -9,6 +9,7 @@ import { keyAuthorization } from "./middleware/key-authorization";
 import { ratelimit } from "./middleware/ratelimit";
 import authorsRoutes from "./routes/authors";
 import categoriesRoutes from "./routes/categories";
+import invalidateRoutes from "./routes/invalidate";
 import postsRoutes from "./routes/posts";
 import tagsRoutes from "./routes/tags";
 import type { ApiKeyApp, Env } from "./types/env";
@@ -32,6 +33,7 @@ apiKeyV1.route("/posts", postsRoutes);
 apiKeyV1.route("/categories", categoriesRoutes);
 apiKeyV1.route("/tags", tagsRoutes);
 apiKeyV1.route("/authors", authorsRoutes);
+apiKeyV1.route("/cache/invalidate", invalidateRoutes);
 
 // ============================================
 // Legacy Workspace ID Routes (/v1/:workspaceId/*)
