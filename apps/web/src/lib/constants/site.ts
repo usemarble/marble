@@ -10,8 +10,7 @@ export type Site = {
 
 export const SITE: Site = {
   TITLE: "Marble",
-  DESCRIPTION:
-    "A simple, collaborative CMS for publishing articles, changelogs, and product updates.",
+  DESCRIPTION: "A simple headless CMS for managing your blog and media files.",
   EMAIL: "support@marblecms.com",
   URL: "https://marblecms.com",
   APP_URL: "https://app.marblecms.com",
