@@ -12,7 +12,7 @@ type Props = {
   canonical?: string;
 };
 
-const { title, description, image = "/og.jpg", canonical } = Astro.props;
+const { title, description, image = "/og.webp", canonical } = Astro.props;
 
 const canonicalURL = canonical
   ? new URL(canonical, Astro.site)
