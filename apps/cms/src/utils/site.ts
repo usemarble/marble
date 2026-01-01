@@ -3,5 +3,5 @@ export const SITE_CONFIG = {
   description:
     "A simple, collaborative CMS for publishing articles, changelogs, and product updates.",
   url: "https://app.marblecms.com",
-  ogImage: "https://app.marblecms.com/og.jpg",
+  ogImage: "https://app.marblecms.com/og.webp",
 };
