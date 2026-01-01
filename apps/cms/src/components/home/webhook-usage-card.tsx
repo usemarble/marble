@@ -16,10 +16,10 @@ import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import type { UsageDashboardData } from "@/types/dashboard";
 
-type WebhookUsageCardProps = {
+interface WebhookUsageCardProps {
   data?: UsageDashboardData["webhooks"];
   isLoading?: boolean;
-};
+}
 
 const numberFormatter = new Intl.NumberFormat("en-US");
 

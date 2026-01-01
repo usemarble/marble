@@ -15,10 +15,10 @@ export const metadata: Metadata = {
   },
 };
 
-type PageProps = {
+interface PageProps {
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-};
+}
 
 export default async function RegisterPage(props: PageProps) {
   const searchParams = await props.searchParams;

@@ -21,10 +21,10 @@ const SlashPluginKey = new PluginKey("slash");
 /**
  * Slash command options type
  */
-export type SlashOptions<
+export interface SlashOptions<
   SlashOptionSuggestionItem = unknown,
   Attrs = SlashNodeAttrs,
-> = {
+> {
   HTMLAttributes: Record<string, unknown>;
   renderText: (props: {
     options: SlashOptions<SlashOptionSuggestionItem, Attrs>;
@@ -39,7 +39,7 @@ export type SlashOptions<
     SuggestionOptions<SlashOptionSuggestionItem, Attrs>,
     "editor"
   >;
-};
+}
 
 /**
  * Slash Command Extension

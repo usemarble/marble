@@ -1,4 +1,4 @@
-export type SystemPromptParams = {
+export interface SystemPromptParams {
   metrics: {
     wordCount: number;
     sentenceCount: number;
@@ -6,7 +6,7 @@ export type SystemPromptParams = {
     readingTime: number;
     readabilityScore: number;
   };
-};
+}
 
 export const systemPrompt = ({
   metrics,

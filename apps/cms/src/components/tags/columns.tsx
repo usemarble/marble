@@ -3,13 +3,13 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import TableActions from "./table-actions";
 
-export type Tag = {
+export interface Tag {
   id: string;
   name: string;
   slug: string;
   description?: string | null;
   postsCount: number;
-};
+}
 
 export const columns: ColumnDef<Tag>[] = [
   {

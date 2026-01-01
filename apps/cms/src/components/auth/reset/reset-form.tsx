@@ -8,10 +8,10 @@ import { authClient } from "@/lib/auth/client";
 import Container from "../../shared/container";
 import { AsyncButton } from "../../ui/async-button";
 
-type ResetFormProps = {
+interface ResetFormProps {
   callbackUrl: string;
   token: string;
-};
+}
 
 export function ResetForm({ callbackUrl, token }: ResetFormProps) {
   const [password, setPassword] = useState("");

@@ -19,10 +19,10 @@ import {
 } from "@tanstack/react-table";
 import { useState } from "react";
 
-type DataTableProps<TData, TValue> = {
+interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-};
+}
 
 export function InvoiceDataTable<TData, TValue>({
   columns,

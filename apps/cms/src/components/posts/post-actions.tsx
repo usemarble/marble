@@ -17,10 +17,10 @@ import { useWorkspace } from "@/providers/workspace";
 import type { Post } from "./columns";
 import { DeletePostModal } from "./post-modals";
 
-type PostTableActionsProps = {
+interface PostTableActionsProps {
   post: Post;
   view?: "table" | "grid";
-};
+}
 
 export default function PostActions({
   post,

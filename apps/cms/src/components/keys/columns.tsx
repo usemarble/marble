@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import type { ApiScope } from "@/utils/keys";
 import TableActions from "./table-actions";
 
-export type APIKey = {
+export interface APIKey {
   id: string;
   name: string;
   preview: string;
@@ -16,7 +16,7 @@ export type APIKey = {
   lastUsed: Date | null;
   expiresAt: Date | null;
   createdAt: Date;
-};
+}
 
 export const columns: ColumnDef<APIKey>[] = [
   {

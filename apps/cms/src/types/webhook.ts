@@ -1,4 +1,4 @@
-export type Webhook = {
+export interface Webhook {
   id: string;
   name: string;
   endpoint: string;
@@ -8,4 +8,4 @@ export type Webhook = {
   format: string;
   createdAt: Date;
   updatedAt: Date;
-};
+}

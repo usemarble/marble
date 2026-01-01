@@ -30,12 +30,12 @@ const parseSchema = z.object({
   category: z.string().optional(),
 });
 
-type ImportState = {
+interface ImportState {
   file: File | null;
   status: "idle" | "parsing" | "ready" | "error";
   error?: string;
   parsedData?: Partial<PostImportValues>;
-};
+}
 
 export function PostsImportModal({
   open,

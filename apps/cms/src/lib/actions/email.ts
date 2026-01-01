@@ -14,7 +14,7 @@ const resendApiKey = process.env.RESEND_API_KEY;
 const isDevelopment = process.env.NODE_ENV === "development";
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
-type SendInviteEmailProps = {
+interface SendInviteEmailProps {
   inviteeEmail: string;
   inviteeUsername?: string;
   inviterName: string;
@@ -22,7 +22,7 @@ type SendInviteEmailProps = {
   workspaceName: string;
   inviteLink: string;
   teamLogo?: string | null;
-};
+}
 
 export async function sendInviteEmailAction({
   inviteeEmail,

@@ -5,7 +5,7 @@ import { ImageIcon } from "@phosphor-icons/react";
 import { type DropzoneOptions, useDropzone } from "react-dropzone";
 import { IMAGE_DROPZONE_ACCEPT, MEDIA_DROPZONE_ACCEPT } from "@/lib/constants";
 
-type DropzoneProps = {
+interface DropzoneProps {
   onFilesAccepted: (files: File[]) => void;
   className?: string;
   multiple?: boolean;
@@ -18,7 +18,7 @@ type DropzoneProps = {
     active: string;
     subtitle?: string;
   };
-};
+}
 
 export function Dropzone({
   onFilesAccepted,

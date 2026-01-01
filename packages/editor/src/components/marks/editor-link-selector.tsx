@@ -23,10 +23,10 @@ import {
 import type { FormEventHandler } from "react";
 import { useEffect, useRef, useState } from "react";
 
-export type EditorLinkSelectorProps = {
+export interface EditorLinkSelectorProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-};
+}
 
 /**
  * Link Selector Component

@@ -27,7 +27,7 @@ import { useEffect, useState } from "react";
 import { AsyncButton } from "@/components/ui/async-button";
 import { organization } from "@/lib/auth/client";
 
-type PageClientProps = {
+interface PageClientProps {
   id: string;
   user: {
     id: string;
@@ -38,9 +38,9 @@ type PageClientProps = {
     updatedAt: Date;
     image?: string | null | undefined | undefined;
   };
-};
+}
 
-type GetOrganizationResponse = {
+interface GetOrganizationResponse {
   organizationName: string;
   organizationSlug: string;
   inviterEmail: string;
@@ -51,7 +51,7 @@ type GetOrganizationResponse = {
   organizationId: string;
   role: string;
   inviterId: string;
-};
+}
 
 type InviteStatus = "pending" | "accepted" | "rejected";
 

@@ -22,9 +22,9 @@ import { usePlan } from "@/hooks/use-plan";
 import { AsyncButton } from "../ui/async-button";
 import { CopyButton } from "../ui/copy-button";
 
-type ShareModalProps = {
+interface ShareModalProps {
   postId: string;
-};
+}
 
 export function ShareModal({ postId }: ShareModalProps) {
   const [shareLink, setShareLink] = useState<string | null>(null);

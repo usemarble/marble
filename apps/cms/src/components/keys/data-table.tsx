@@ -23,10 +23,10 @@ import {
 import { useState } from "react";
 import { ApiKeyModal } from "./api-key-modal";
 
-type DataTableProps<TData, TValue> = {
+interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-};
+}
 
 export function DataTable<TData, TValue>({
   columns,

@@ -20,18 +20,18 @@ import { organization } from "@/lib/auth/client";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { useWorkspace } from "@/providers/workspace";
 
-type Invite = {
+interface Invite {
   id: string;
   email: string;
   role: string | null;
   status: string;
   expiresAt: string | Date;
   inviterId: string;
-};
+}
 
-type InviteSectionProps = {
+interface InviteSectionProps {
   invitations: Invite[];
-};
+}
 
 export function InviteSection({ invitations }: InviteSectionProps) {
   const { activeWorkspace } = useWorkspace();

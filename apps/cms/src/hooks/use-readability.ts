@@ -13,14 +13,14 @@ import {
   getReadabilityLevel,
 } from "@/utils/readability";
 
-type UseReadabilityParams = {
+interface UseReadabilityParams {
   editor: Editor | null;
   text: string;
-};
+}
 
 type ReadabilityLevel = ReturnType<typeof getReadabilityLevel>;
 
-export type ReadabilityResult = {
+export interface ReadabilityResult {
   wordCount: number;
   sentenceCount: number;
   wordsPerSentence: number;
@@ -31,7 +31,7 @@ export type ReadabilityResult = {
   isLoadingSuggestions: boolean;
   aiEnabled: boolean;
   debounceMs: number;
-};
+}
 
 const READING_SPEED = 238;
 

@@ -34,7 +34,7 @@
     "prettier-plugin-tailwindcss": "^0.6.8",
     "turbo": "^2.7.2",
     "typescript": "^5.4.5",
-    "ultracite": "6.0.5"
+    "ultracite": "7.0.3"
   },
   "engines": {
     "node": ">=20"

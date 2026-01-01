@@ -40,11 +40,11 @@ import {
 import type { Webhook } from "@/types/webhook";
 import { Discord, Slack } from "../shared/icons";
 
-type EditWebhookSheetProps = {
+interface EditWebhookSheetProps {
   webhook: Webhook;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-};
+}
 
 export function EditWebhookSheet({
   webhook,

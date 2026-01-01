@@ -15,12 +15,12 @@ import { SlugField } from "../fields/slug-field";
 import { StatusField } from "../fields/status-field";
 import { TagSelector } from "../fields/tag-selector";
 
-type MetadataTabProps = {
+interface MetadataTabProps {
   control: Control<PostValues>;
   errors: FieldErrors<PostValues>;
   initialAuthors?: string[];
   tags?: string[];
-};
+}
 
 export function MetadataTab({
   control,

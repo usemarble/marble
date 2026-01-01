@@ -2,12 +2,12 @@ import { Ratelimit } from "@upstash/ratelimit";
 import type { Context, MiddlewareHandler, Next } from "hono";
 import { createRedisClient } from "../lib/redis";
 
-export type RateLimit = {
+export interface RateLimit {
   limit: number;
   remaining: number;
   reset: number;
   success: boolean;
-};
+}
 
 const cache = new Map();
 

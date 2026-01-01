@@ -5,16 +5,16 @@ import { ArrowLeftIcon, ArrowRightIcon, Trash2Icon } from "lucide-react";
 import { type JSX, memo, useCallback } from "react";
 import { isColumnGripSelected } from "./utils";
 
-type MenuProps = {
+interface MenuProps {
   editor: Editor;
   appendTo?: React.RefObject<HTMLElement>;
-};
+}
 
-type ShouldShowProps = {
+interface ShouldShowProps {
   view: unknown;
   state: unknown;
   from: number;
-};
+}
 
 function TableColumnMenuComponent({
   editor,

@@ -26,11 +26,11 @@ import { organization } from "@/lib/auth/client";
 import { AsyncButton } from "../ui/async-button";
 import type { TeamMemberRow } from "./columns";
 
-type ProfileSheetProps = {
+interface ProfileSheetProps {
   open: boolean;
   setOpen: (open: boolean) => void;
   member: TeamMemberRow;
-};
+}
 
 export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
   const [role, setRole] = useState(member.role);

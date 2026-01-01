@@ -71,10 +71,10 @@ const eventSchema = z.object({
 });
 
 type WebhookEvent = z.infer<typeof eventSchema>;
-export type WebhookBody = {
+export interface WebhookBody {
   event: keyof WebhookEvent;
   data: WebhookEvent[keyof WebhookEvent];
-};
+}
 
 export class WebhookClient {
   private readonly secret: string;

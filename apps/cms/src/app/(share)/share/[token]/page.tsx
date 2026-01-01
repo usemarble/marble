@@ -3,9 +3,9 @@ import { notFound } from "next/navigation";
 import type { ShareData, ShareStatus } from "@/types/share";
 import SharePageClient from "./page-client";
 
-type SharePageProps = {
+interface SharePageProps {
   params: Promise<{ token: string }>;
-};
+}
 
 async function fetchShareData(token: string) {
   try {

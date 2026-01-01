@@ -38,13 +38,13 @@ const EditWebhookSheet = dynamic(() =>
   )
 );
 
-type WebhookCardProps = {
+interface WebhookCardProps {
   webhook: Webhook;
   onToggle: (data: { id: string; enabled: boolean }) => void;
   onDelete: () => void;
   isToggling: boolean;
   toggleVariables?: { id: string; enabled: boolean };
-};
+}
 
 export function WebhookCard({
   webhook,

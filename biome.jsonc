@@ -1,9 +1,16 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-  "extends": ["ultracite/core", "ultracite/react", "ultracite/next"],
+  "extends": [
+    "ultracite/biome/core",
+    "ultracite/biome/react",
+    "ultracite/biome/next",
+    "ultracite/biome/astro"
+  ],
+  "html": {
+    "experimentalFullSupportEnabled": true
+  },
   "files": {
     "includes": [
-      "**",
       "!packages/ui/src",
       "packages/editor/src",
       "!apps/cms/src/hooks/use-mobile.tsx"

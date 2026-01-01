@@ -4,7 +4,7 @@ import { ResetPasswordEmail } from "../components/reset";
 import { VerifyUserEmail } from "../components/verify";
 import { WelcomeEmail } from "../components/welcome";
 
-type SendInviteEmailProps = {
+interface SendInviteEmailProps {
   inviteeEmail: string;
   inviteeUsername?: string;
   inviterName: string;
@@ -12,7 +12,7 @@ type SendInviteEmailProps = {
   workspaceName: string;
   inviteLink: string;
   teamLogo?: string | null;
-};
+}
 
 export async function sendInviteEmail(
   resend: Resend,

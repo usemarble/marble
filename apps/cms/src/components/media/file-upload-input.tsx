@@ -6,7 +6,7 @@ import { useId } from "react";
 import { toast } from "sonner";
 import { ALLOWED_MIME_TYPES, MAX_MEDIA_FILE_SIZE } from "@/lib/constants";
 
-type FileUploadInputProps = {
+interface FileUploadInputProps {
   onUpload?: (files: FileList) => void;
   isUploading?: boolean;
   accept?: string;
@@ -15,7 +15,7 @@ type FileUploadInputProps = {
   className?: string;
   children?: React.ReactNode;
   maxSize?: number;
-};
+}
 
 export function FileUploadInput({
   onUpload,

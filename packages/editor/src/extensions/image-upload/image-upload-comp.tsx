@@ -38,7 +38,7 @@ const isValidUrl = (url: string): boolean => {
   }
 };
 
-export type ImageUploadCompProps = {
+export interface ImageUploadCompProps {
   initialFile?: File;
   onUpload: (url: string) => void;
   onCancel: () => void;
@@ -46,7 +46,7 @@ export type ImageUploadCompProps = {
   media?: MediaItem[];
   fetchMedia?: () => Promise<MediaItem[]>;
   onError?: (error: Error) => void;
-};
+}
 
 export const ImageUploadComp = ({
   initialFile,

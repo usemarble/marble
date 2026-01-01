@@ -2,9 +2,9 @@
 import { Image } from "astro:assets";
 import type { CollectionEntry } from "astro:content";
 
-type Props = {
+interface Props {
   entry: CollectionEntry<"changelog">;
-};
+}
 
 const { entry } = Astro.props as Props;
 const { title, coverImage, publishedAt, authors, slug, tags } = entry.data;
@@ -15,6 +15,7 @@ const formattedDate = new Date(publishedAt).toLocaleDateString("en-US", {
   year: "numeric",
 });
 ---
+
 <li>
   <a
     href={`/changelog/${slug}`}
@@ -45,7 +46,9 @@ const formattedDate = new Date(publishedAt).toLocaleDateString("en-US", {
               class="size-6 rounded-full ring-1 ring-border"
               inferSize
             />
-            <p class="text-muted-foreground sr-only text-xs font-medium">{authors[0].name}</p>
+            <p class="text-muted-foreground sr-only text-xs font-medium">
+              {authors[0].name}
+            </p>
           </div>
           <span class="h-3 w-px bg-border shrink-0"></span>
           <time

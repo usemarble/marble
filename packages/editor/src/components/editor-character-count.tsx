@@ -2,10 +2,10 @@ import { cn } from "@marble/ui/lib/utils";
 import { useCurrentEditor } from "@tiptap/react";
 import type { ReactNode } from "react";
 
-export type EditorCharacterCountProps = {
+export interface EditorCharacterCountProps {
   children: ReactNode;
   className?: string;
-};
+}
 
 /**
  * Character Count Component

@@ -7,10 +7,10 @@ export const metadata: Metadata = {
   title: "Verify Email",
 };
 
-type PageProps = {
+interface PageProps {
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-};
+}
 
 export default async function VerifyPage({ searchParams }: PageProps) {
   const s = await searchParams;

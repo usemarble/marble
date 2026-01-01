@@ -30,6 +30,7 @@ const formattedDate = new Date(entry.data.publishedAt).toLocaleDateString(
 
 const readTime = calculateReadTime(entry.data.content);
 ---
+
 <Layout
   title={`${entry.data.title} - ${SITE.TITLE}`}
   description={entry.data.description}

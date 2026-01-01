@@ -8,12 +8,12 @@ import Button from "@/components/ui/Button.astro";
 import Layout from "@/layouts/Layout.astro";
 import { SITE } from "@/lib/constants/site";
 
-type Sponsor = {
+interface Sponsor {
   url: string;
   name: string;
   description: string;
   icon: SvgComponent;
-};
+}
 
 const sponsorsData: Sponsor[] = [
   {
@@ -37,6 +37,7 @@ const sponsorsData: Sponsor[] = [
   },
 ];
 ---
+
 <Layout
   title={`Our Sponsors & Supporters - ${SITE.TITLE}`}
   description="Meet the amazing companies and individuals that support the development of Marble."
@@ -112,12 +113,16 @@ const sponsorsData: Sponsor[] = [
               >
                 Want to support Marble?
               </h2>
-              <p class="mx-auto max-w-2xl text-muted-foreground md:text-lg text-balance">
+              <p
+                class="mx-auto max-w-2xl text-muted-foreground md:text-lg text-balance"
+              >
                 If you would like to support Marble, feel free to reach out.
               </p>
             </div>
-            
-            <div class="flex flex-col sm:flex-row w-full items-center justify-center gap-4">
+
+            <div
+              class="flex flex-col sm:flex-row w-full items-center justify-center gap-4"
+            >
               <Button
                 href="https://twitter.com/usemarblecms"
                 target="_blank"
@@ -126,7 +131,7 @@ const sponsorsData: Sponsor[] = [
                 Reach out on Twitter
               </Button>
               <Button
-                href={SITE.DISCORD_URL} 
+                href={SITE.DISCORD_URL}
                 variant="secondary"
                 class="w-full sm:w-auto"
               >

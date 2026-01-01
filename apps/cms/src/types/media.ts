@@ -12,14 +12,14 @@ export type MediaFilterType = (typeof MEDIA_FILTER_TYPES)[number];
 
 export type UploadType = "avatar" | "author-avatar" | "logo" | "media";
 
-export type Media = {
+export interface Media {
   id: string;
   name: string;
   url: string;
   type: MediaType;
   size: number;
   createdAt: string;
-};
+}
 
 export type MediaSort = (typeof MEDIA_SORTS)[number];
 
@@ -28,8 +28,8 @@ export type MediaQueryKey = [
   { type?: string; sort: MediaSort },
 ];
 
-export type MediaListResponse = {
+export interface MediaListResponse {
   media: Media[];
   nextCursor?: string;
   hasAnyMedia: boolean;
-};
+}

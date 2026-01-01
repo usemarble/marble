@@ -14,9 +14,9 @@ import {
 } from "@phosphor-icons/react";
 import type { Table } from "@tanstack/react-table";
 
-type DataTablePaginationProps<TData> = {
+interface DataTablePaginationProps<TData> {
   table: Table<TData>;
-};
+}
 
 export function DataTablePagination<TData>({
   table,

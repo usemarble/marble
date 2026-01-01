@@ -1,14 +1,14 @@
 import { db } from "@marble/db";
 import { createPolarClient } from "../polar/client";
 
-type TrackWebhookUsageArgs = {
+interface TrackWebhookUsageArgs {
   workspaceId: string | null | undefined;
   endpoint: string;
   event: string;
   webhookId: string;
   format: string;
   status?: "success" | "failure";
-};
+}
 
 export async function trackWebhookUsage({
   workspaceId,

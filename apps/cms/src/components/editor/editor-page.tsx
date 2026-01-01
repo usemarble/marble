@@ -31,10 +31,10 @@ import type { MediaListResponse } from "@/types/media";
 import { generateSlug } from "@/utils/string";
 import { TextareaAutosize } from "./textarea-autosize";
 
-type EditorPageProps = {
+interface EditorPageProps {
   initialData: PostValues;
   id?: string;
-};
+}
 
 function EditorPage({ initialData, id }: EditorPageProps) {
   const router = useRouter();

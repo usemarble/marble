@@ -25,10 +25,10 @@ import {
 } from "@/lib/validations/workspace";
 import { generateSlug } from "@/utils/string";
 
-type CreateWorkspaceDialogProps = {
+interface CreateWorkspaceDialogProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-};
+}
 
 export const CreateWorkspaceDialog = (props: CreateWorkspaceDialogProps) => {
   const router = useRouter();

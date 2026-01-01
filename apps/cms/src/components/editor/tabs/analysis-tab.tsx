@@ -17,13 +17,13 @@ import { HiddenScrollbar } from "../../ui/hidden-scrollbar";
 import type { ReadabilitySuggestion } from "../ai/readability-suggestions";
 import { ReadabilitySuggestions } from "../ai/readability-suggestions";
 
-type AnalysisTabProps = {
+interface AnalysisTabProps {
   aiSuggestions?: ReadabilitySuggestion[];
   aiLoading?: boolean;
   onRefreshAi?: () => void;
   aiEnabled?: boolean;
   localSuggestions?: string[];
-};
+}
 
 export function AnalysisTab({
   aiSuggestions,

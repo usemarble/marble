@@ -23,10 +23,10 @@ import { useState } from "react";
 import type { Author } from "@/types/author";
 import AuthorSheet from "./author-sheet";
 
-type AuthorDataTableProps = {
+interface AuthorDataTableProps {
   columns: ColumnDef<Author>[];
   data: Author[];
-};
+}
 
 export function AuthorDataTable({ columns, data }: AuthorDataTableProps) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);

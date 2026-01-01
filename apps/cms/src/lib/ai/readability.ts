@@ -1,12 +1,12 @@
 import { aiReadabilityResponseSchema } from "@/lib/validations/editor";
 
-export type ReadabilityMetrics = {
+export interface ReadabilityMetrics {
   wordCount: number;
   sentenceCount: number;
   wordsPerSentence: number;
   readabilityScore: number;
   readingTime: number;
-};
+}
 
 export async function fetchAiReadabilityRaw(params: {
   content: string;

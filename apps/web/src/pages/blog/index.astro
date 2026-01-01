@@ -10,6 +10,7 @@ const posts = await getCollection("posts");
 const categories = await getCollection("categories");
 const fillers = Array.from({ length: (3 - (posts.length % 3)) % 3 });
 ---
+
 <Layout
   title={`Blog - ${SITE.TITLE}`}
   description="Bits and pieces about SEO and content writing."
@@ -19,7 +20,9 @@ const fillers = Array.from({ length: (3 - (posts.length % 3)) % 3 });
       class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto h-full"
     >
       <Container class="py-20 lg:py-24 h-full">
-        <div class="mb-16 flex flex-col items-start gap-4 md:flex-row md:items-end md:justify-between">
+        <div
+          class="mb-16 flex flex-col items-start gap-4 md:flex-row md:items-end md:justify-between"
+        >
           <div class="space-y-4">
             <h1
               class="text-2xl tracking-tight md:text-3xl lg:text-4xl font-medium"
@@ -31,10 +34,12 @@ const fillers = Array.from({ length: (3 - (posts.length % 3)) % 3 });
             </p>
           </div>
           <div class="w-full md:w-auto">
-             <CategoryFilter categories={categories}/>
+            <CategoryFilter categories={categories}/>
           </div>
         </div>
-        <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-t border-l border-dashed">
+        <ul
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-t border-l border-dashed"
+        >
           {
             posts.map((post) => (
               <PostCard entry={post} />

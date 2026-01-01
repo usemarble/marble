@@ -43,9 +43,9 @@ const urlSchema = z.string().url({
   message: "Please enter a valid URL",
 });
 
-type CoverImageSelectorProps = {
+interface CoverImageSelectorProps {
   control: Control<PostValues>;
-};
+}
 
 export function CoverImageSelector({ control }: CoverImageSelectorProps) {
   const {

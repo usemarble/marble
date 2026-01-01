@@ -4,22 +4,22 @@ import {
   FOOTER_SOCIAL_LINKS,
 } from "@/lib/constants/navigation";
 import Container from "./Container.astro";
-import Logo from "./icons/Logo.astro";
 import WordMark from "./icons/WordMark.astro";
 ---
+
 <footer>
-  <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] bg-white mx-auto">
+  <div
+    class="lg:border-x border-dashed md:w-[calc(100%-140px)] bg-white mx-auto"
+  >
     <Container class="py-12 sm:py-20 md:py-36">
-      <section
-        class="md:min-h-[420px] flex flex-col justify-between gap-5"
-      >
+      <section class="md:min-h-[420px] flex flex-col justify-between gap-5">
         <div class="flex flex-col justify-between gap-10 md:flex-row">
           <div class="sm:col-span-3">
             <a
               href="/"
               class="mb-2 flex items-center gap-2 tracking-widest w-fit font-medium"
             >
-              <WordMark />
+              <WordMark/>
               <span class="sr-only">marblecms</span>
             </a>
             <!-- <p class="mb-1 text-sm text-muted-foreground tracking-wider">
@@ -68,7 +68,7 @@ import WordMark from "./icons/WordMark.astro";
             })}
           </ul>
           <p class="text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} all rights reserved
+            &copy; {new Date().getFullYear()}all rights reserved
           </p>
         </div>
       </section>

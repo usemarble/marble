@@ -4,12 +4,12 @@ import { AsyncButton } from "@/components/ui/async-button";
 import type { PostValues } from "@/lib/validations/post";
 import { useUnsavedChanges } from "@/providers/unsaved-changes";
 
-type MetadataFooterProps = {
+interface MetadataFooterProps {
   mode: "create" | "update";
   isSubmitting: boolean;
   errors: FieldErrors<PostValues>;
   formRef: React.RefObject<HTMLFormElement | null>;
-};
+}
 
 export function MetadataFooter({
   mode,

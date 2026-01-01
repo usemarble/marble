@@ -12,9 +12,9 @@ import { useState } from "react";
 import { UpgradeModal } from "@/components/billing/upgrade-modal";
 import { usePlan } from "@/hooks/use-plan";
 
-type InviteButtonProps = {
+interface InviteButtonProps {
   onInvite: () => void;
-};
+}
 
 export function InviteButton({ onInvite }: InviteButtonProps) {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);

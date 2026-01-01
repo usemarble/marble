@@ -19,10 +19,10 @@ function getToggleSidebarShortcut() {
   return isMac ? "⌘K" : "Ctrl+K";
 }
 
-type EditorHeaderProps = {
+interface EditorHeaderProps {
   postId?: string;
   workspace: string;
-};
+}
 
 export function EditorHeader({ postId, workspace }: EditorHeaderProps) {
   return (

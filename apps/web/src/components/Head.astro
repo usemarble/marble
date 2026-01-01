@@ -5,12 +5,12 @@ import { Font } from "astro:assets";
 import { getSecret } from "astro:env/server";
 import { ClientRouter } from "astro:transitions";
 
-type Props = {
+interface Props {
   title: string;
   description: string;
   image?: string;
   canonical?: string;
-};
+}
 
 const { title, description, image = "/og.webp", canonical } = Astro.props;
 
@@ -20,6 +20,7 @@ const canonicalURL = canonical
 
 const databuddyClientId = getSecret("DATABUDDY_CLIENT_ID");
 ---
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -74,4 +75,4 @@ const databuddyClientId = getSecret("DATABUDDY_CLIENT_ID");
 <Font cssVariable="--font-geist" preload/>
 <Font cssVariable="--font-literata"/>
 
-<ClientRouter />
+<ClientRouter/>

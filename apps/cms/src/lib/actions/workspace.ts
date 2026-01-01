@@ -92,11 +92,11 @@ export async function validateWorkspaceTimezone(timezone: string | undefined) {
   }
 }
 
-type ValidateWorkspace = {
+interface ValidateWorkspace {
   slug: string | undefined;
   name: string | undefined;
   timezone: string | undefined;
-};
+}
 
 export async function validateWorkspaceSchema({
   slug,

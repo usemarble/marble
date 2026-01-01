@@ -15,10 +15,10 @@ import { AsyncButton } from "@/components/ui/async-button";
 import { authClient } from "@/lib/auth/client";
 import Container from "../shared/container";
 
-type VerifyFormProps = {
+interface VerifyFormProps {
   email: string;
   callbackUrl: string;
-};
+}
 
 export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
   const [otp, setOtp] = useState("");

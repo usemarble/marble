@@ -7,16 +7,16 @@ import { ArrowDownIcon, ArrowUpIcon, Trash2Icon } from "lucide-react";
 import { type JSX, memo, useCallback } from "react";
 import { isRowGripSelected } from "./utils";
 
-type MenuProps = {
+interface MenuProps {
   editor: Editor;
   appendTo?: React.RefObject<HTMLElement>;
-};
+}
 
-type ShouldShowProps = {
+interface ShouldShowProps {
   view: EditorView;
   state: EditorState;
   from: number;
-};
+}
 
 function TableRowMenuComponent({ editor, appendTo }: MenuProps): JSX.Element {
   const shouldShow = useCallback(

@@ -2,9 +2,9 @@
 import type { CollectionEntry } from "astro:content";
 import { cn } from "@/lib/utils";
 
-type Props = {
+interface Props {
   categories: CollectionEntry<"categories">[];
-};
+}
 
 const { categories } = Astro.props as Props;
 const categoriesToShow = categories.filter(
@@ -14,6 +14,7 @@ const categoriesToShow = categories.filter(
 
 const currentPath = Astro.url.pathname.replace(/\/$/, "");
 ---
+
 <ul class="flex flex-wrap items-center gap-2 justify-center mt-8">
   <li>
     <a

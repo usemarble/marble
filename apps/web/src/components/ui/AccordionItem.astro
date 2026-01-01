@@ -1,13 +1,14 @@
 ---
-type Props = {
+interface Props {
   open?: boolean;
   title: string;
   name?: string;
   class?: string;
-};
+}
 
 const { open, title, name, class: className } = Astro.props;
 ---
+
 <details
   data-accordion-item
   class:list={['accordion-item group', className]}

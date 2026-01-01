@@ -10,7 +10,7 @@ if (!url || !key) {
   );
 }
 
-type PostsResponse = {
+interface PostsResponse {
   posts: Post[];
   pagination: {
     limit: number;
@@ -20,11 +20,11 @@ type PostsResponse = {
     totalPages: number;
     totalItems: number;
   };
-};
+}
 
-type CategoriesResponse = {
+interface CategoriesResponse {
   categories: Category[];
-};
+}
 
 export async function fetchPosts(queryParams = ""): Promise<PostsResponse> {
   const fullUrl = `${url}/posts${queryParams}`;

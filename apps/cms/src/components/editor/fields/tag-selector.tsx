@@ -33,25 +33,25 @@ import { ErrorMessage } from "../../auth/error-message";
 import { TagModal } from "../../tags/tag-modals";
 import { FieldInfo } from "./field-info";
 
-type Option = {
+interface Option {
   id: string;
   name: string;
   slug: string;
-};
+}
 
-type TagResponse = {
+interface TagResponse {
   id: string;
   name: string;
   slug: string;
-};
+}
 
-type MultiSelectPopoverProps = {
+interface MultiSelectPopoverProps {
   control: Control<PostValues>;
   placeholder?: string;
   isOpen?: boolean;
   setIsOpen?: (open: boolean) => void;
   defaultTags?: string[];
-};
+}
 
 export const TagSelector = ({
   control,

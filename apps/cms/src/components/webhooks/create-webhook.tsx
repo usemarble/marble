@@ -41,9 +41,9 @@ import {
 } from "@/lib/validations/webhook";
 import { Discord, Slack } from "../shared/icons";
 
-type CreateWebhookSheetProps = {
+interface CreateWebhookSheetProps {
   children?: React.ReactNode;
-};
+}
 
 function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
   const [isOpen, setIsOpen] = useState(false);

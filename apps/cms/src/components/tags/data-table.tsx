@@ -23,10 +23,10 @@ import {
 import { useState } from "react";
 import { TagModal } from "./tag-modals";
 
-type DataTableProps<TData, TValue> = {
+interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-};
+}
 
 export function DataTable<TData, TValue>({
   columns,

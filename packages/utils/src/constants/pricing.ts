@@ -1,4 +1,4 @@
-export type PricingPlan = {
+export interface PricingPlan {
   id: string;
   title: string;
   description: string;
@@ -12,7 +12,7 @@ export type PricingPlan = {
     href: string;
     label: string;
   };
-};
+}
 
 export const PRICING_PLANS: PricingPlan[] = [
   {

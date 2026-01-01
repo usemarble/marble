@@ -3,8 +3,8 @@ import Button from "@/components/ui/Button.astro";
 import { SITE } from "@/lib/constants/site";
 import Container from "./Container.astro";
 import Logo from "./icons/Logo.astro";
-import WordMark from "./icons/WordMark.astro";
 ---
+
 <header
   id="header"
   class="bg-background/90 z-50 relative max-lg:py-4 backdrop-blur-md"
@@ -54,7 +54,7 @@ import WordMark from "./icons/WordMark.astro";
         <!-- desktop nav -->
         <div class="flex items-center gap-4 justify-start z-100">
           <a href="/" class="text-lg tracking-wider flex items-center gap-2">
-            <Logo />
+            <Logo/>
             <span class="sr-only">Marble</span>
           </a>
         </div>
@@ -70,26 +70,19 @@ import WordMark from "./icons/WordMark.astro";
             </Button>
           </li>
           <li>
-            <Button
-              href="/pricing"
-              variant="ghost"
-              size="sm"
-            >
-              Pricing
-            </Button>
+            <Button href="/pricing" variant="ghost" size="sm">Pricing</Button>
           </li>
           <li>
-            <Button
-              href="/blog"
-              variant="ghost"
-              size="sm"
-            >
-              Blog
-            </Button>
+            <Button href="/blog" variant="ghost" size="sm">Blog</Button>
           </li>
         </ul>
         <div class="hidden md:flex items-center justify-end">
-          <Button href={`${SITE.APP_URL}/login`} variant="secondary" size="sm" class="w-24">
+          <Button
+            href={`${SITE.APP_URL}/login`}
+            variant="secondary"
+            size="sm"
+            class="w-24"
+          >
             Sign in
           </Button>
         </div>

@@ -5,18 +5,18 @@ import { cn } from "@marble/ui/lib/utils";
 import { CursorClickIcon } from "@phosphor-icons/react";
 import React from "react";
 
-export type ReadabilitySuggestion = {
+export interface ReadabilitySuggestion {
   text: string;
   explanation?: string;
   textReference?: string;
-};
+}
 
-type ReadabilitySuggestionsProps = {
+interface ReadabilitySuggestionsProps {
   editor?: Editor | null;
   suggestions: ReadabilitySuggestion[];
   isLoading?: boolean;
   onRefresh?: () => void;
-};
+}
 
 function highlightTextInEditor(editor: Editor, textReference: string) {
   const trimmed = textReference.trim();

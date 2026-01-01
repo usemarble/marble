@@ -5,7 +5,7 @@ import {
 } from "@marble/ui/components/tooltip";
 import { InfoIcon } from "@phosphor-icons/react";
 
-type FieldInfoProps = {
+interface FieldInfoProps {
   /**
    * The information text to display in the tooltip
    */
@@ -14,7 +14,7 @@ type FieldInfoProps = {
    * Additional className for the icon
    */
   className?: string;
-};
+}
 
 export function FieldInfo({
   text,

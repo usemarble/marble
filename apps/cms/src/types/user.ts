@@ -17,7 +17,7 @@ export interface UserProfile extends Omit<User, "emailVerified"> {
   } | null;
 }
 
-export type UserContextType = {
+export interface UserContextType {
   user: UserProfile | null;
   isAuthenticated: boolean;
   isFetchingUser: boolean;
@@ -27,4 +27,4 @@ export type UserContextType = {
   isUpdatingUser: boolean;
   signOut: () => Promise<void>;
   isSigningOut: boolean;
-};
+}

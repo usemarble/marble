@@ -7,7 +7,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import PostActions from "./post-actions";
 
-export type Post = {
+export interface Post {
   id: string;
   title: string;
   status: "published" | "unpublished";
@@ -19,7 +19,7 @@ export type Post = {
     name: string;
     image: string | null;
   }>;
-};
+}
 
 export const columns: ColumnDef<Post>[] = [
   {

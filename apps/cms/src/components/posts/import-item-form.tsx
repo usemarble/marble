@@ -20,12 +20,12 @@ import {
   postSchema,
 } from "@/lib/validations/post";
 
-type ImportItemFormProps = {
+interface ImportItemFormProps {
   name: string;
   initialData: Partial<PostValues>;
   onImport: (payload: PostImportValues) => void;
   isImporting: boolean;
-};
+}
 
 function isFormValid(values: Partial<PostValues>): boolean {
   return !!(

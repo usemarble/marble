@@ -1,6 +1,6 @@
 export type PlanType = "pro" | "hobby";
 
-export type PlanLimits = {
+export interface PlanLimits {
   maxMembers: number;
   maxMediaStorage: number;
   maxApiRequests: number;
@@ -11,7 +11,7 @@ export type PlanLimits = {
     keywordOptimization: boolean;
     unlimitedPosts: boolean;
   };
-};
+}
 
 export const PLAN_LIMITS: Record<PlanType, PlanLimits> = {
   hobby: {

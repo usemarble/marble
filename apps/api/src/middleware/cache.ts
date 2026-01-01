@@ -6,14 +6,14 @@ import type { MiddlewareHandler } from "hono";
  */
 const DEFAULT_STALE_IF_ERROR = 3600; // 1 hour
 
-export type CacheOptions = {
+export interface CacheOptions {
   /**
    * Time in seconds for stale-if-error directive.
    * When the origin returns an error, CDNs can serve cached content for this duration.
    * @default 3600 (1 hour)
    */
   staleIfError?: number;
-};
+}
 
 /**
  * Cache Control Middleware

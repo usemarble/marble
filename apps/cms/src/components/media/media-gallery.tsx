@@ -10,16 +10,16 @@ import type { MediaQueryKey, MediaType } from "@/types/media";
 import { getEmptyStateMessage } from "@/utils/media";
 import { FileUploadInput } from "./file-upload-input";
 
-type Media = {
+interface Media {
   id: string;
   name: string;
   url: string;
   type: MediaType;
   size: number;
   createdAt: string;
-};
+}
 
-type MediaGalleryProps = {
+interface MediaGalleryProps {
   media: Media[];
   hasNextPage?: boolean;
   onLoadMore?: () => void;
@@ -36,7 +36,7 @@ type MediaGalleryProps = {
   mediaQueryKey: MediaQueryKey;
   onUpload?: (files: FileList) => void;
   isUploading?: boolean;
-};
+}
 
 export function MediaGallery({
   media,

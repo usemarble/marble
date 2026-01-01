@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 
 const YOUTUBE_WATCH_URL = `https://www.youtube.com/watch?v=${YOUTUBE_VIDEO_ID}`;
 ---
+
 <Layout
   title={`${SITE.TITLE} - Super Simple Headless CMS`}
   description={SITE.DESCRIPTION}
@@ -24,7 +25,9 @@ const YOUTUBE_WATCH_URL = `https://www.youtube.com/watch?v=${YOUTUBE_VIDEO_ID}`;
       <div
         class="lg:border-x border-dashed md:w-[calc(100%-140px)] flex flex-col justify-center h-full mx-auto"
       >
-        <Container class="py-24 md:py-28 w-full lg:py-36 flex flex-col gap-14 md:gap-28">
+        <Container
+          class="py-24 md:py-28 w-full lg:py-36 flex flex-col gap-14 md:gap-28"
+        >
           <div class="flex flex-col gap-8">
             <div class="relative mx-auto text-center flex flex-col gap-6">
               <h1
@@ -36,7 +39,9 @@ const YOUTUBE_WATCH_URL = `https://www.youtube.com/watch?v=${YOUTUBE_VIDEO_ID}`;
                 {HERO.subtitle}
               </p>
             </div>
-            <div class="flex flex-col sm:flex-row w-full items-center justify-center gap-4">
+            <div
+              class="flex flex-col sm:flex-row w-full items-center justify-center gap-4"
+            >
               <Button
                 href={SITE.APP_URL}
                 target="_blank"
@@ -54,21 +59,21 @@ const YOUTUBE_WATCH_URL = `https://www.youtube.com/watch?v=${YOUTUBE_VIDEO_ID}`;
               </Button>
             </div>
           </div>
-            <div class="w-full overflow-hidden rounded-[8px] aspect-video">
-              <!-- <iframe
+          <div class="w-full overflow-hidden rounded-[8px] aspect-video">
+            <!-- <iframe
                 src={YOUTUBE_EMBED_URL}
                 title="Marble CMS - Super Simple Headless CMS"
                 allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowfullscreen
                 class="w-full h-full"
               /> -->
-              <Image
-                src={heroImage}
-                inferSize
-                alt="marble dashboard showing a chart and list of media files"
-                loading="eager"
-              />
-            </div>
+            <Image
+              src={heroImage}
+              inferSize
+              alt="marble dashboard showing a chart and list of media files"
+              loading="eager"
+            />
+          </div>
         </Container>
       </div>
     </section>
@@ -77,16 +82,16 @@ const YOUTUBE_WATCH_URL = `https://www.youtube.com/watch?v=${YOUTUBE_VIDEO_ID}`;
     <section>
       <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
         <Container class="py-12">
-          <div
-            class="sr-only"
-          >
+          <div class="sr-only">
             <h2
               class="relative text-center text-balance text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl"
             >
               Trusted by
             </h2>
           </div>
-          <ul class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 border-t border-l border-dashed">
+          <ul
+            class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 border-t border-l border-dashed"
+          >
             {USERS.map((user) => (
               <li class="flex items-center justify-center h-24 border-b border-r border-dashed bg-white hover:bg-gray-50 transition-colors">
                 <a href={user.url + "?utm_source=marble"} target="_blank" class={cn("hover:opacity-100 transition-opacity", user.showWordmark && "flex items-center gap-2")}>
@@ -116,13 +121,12 @@ const YOUTUBE_WATCH_URL = `https://www.youtube.com/watch?v=${YOUTUBE_VIDEO_ID}`;
               class="relative text-center text-balance text-acc text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl"
             >
               Everything you need to publish.
-
             </h2>
             <!-- <p class="max-w-prose md:text-lg text-muted-foreground text-center">
               Everything you need to manage your content.
             </p> -->
           </div>
-          
+
           <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
             {FEATURES.map((feature, index) => (
               <li class="bg-white p-3 rounded-[16px] flex flex-col gap-4 h-full">
@@ -170,7 +174,7 @@ const YOUTUBE_WATCH_URL = `https://www.youtube.com/watch?v=${YOUTUBE_VIDEO_ID}`;
               What people are saying
             </h2>
           </div>
-          
+
           <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {REVIEWS.map((review) => (
               <li>
@@ -315,13 +319,17 @@ const YOUTUBE_WATCH_URL = `https://www.youtube.com/watch?v=${YOUTUBE_VIDEO_ID}`;
       <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
         <Container class="pt-12 pb-20">
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-20">
-            <div class="flex flex-col items-center lg:items-start space-y-4 text-center lg:text-left">
-            <h2
-              class="relative text-center text-balance text-2xl tracking-tight md:text-3xl lg:text-4xl lg:text-left  md max-w-4xl"
+            <div
+              class="flex flex-col items-center lg:items-start space-y-4 text-center lg:text-left"
             >
-              Frequently asked Questions
-            </h2>
-              <p class="max-w-prose md:text-lg text-muted-foreground text-balance">
+              <h2
+                class="relative text-center text-balance text-2xl tracking-tight md:text-3xl lg:text-4xl lg:text-left  md max-w-4xl"
+              >
+                Frequently asked Questions
+              </h2>
+              <p
+                class="max-w-prose md:text-lg text-muted-foreground text-balance"
+              >
                 Answers to common questions about marblecms.
               </p>
             </div>
@@ -349,12 +357,16 @@ const YOUTUBE_WATCH_URL = `https://www.youtube.com/watch?v=${YOUTUBE_VIDEO_ID}`;
               >
                 Try Marble today.
               </h2>
-              <p class="mx-auto max-w-2xl text-muted-foreground md:text-lg text-balance">
+              <p
+                class="mx-auto max-w-2xl text-muted-foreground md:text-lg text-balance"
+              >
                 A simpler way to publish articles and manage your blog.
               </p>
             </div>
-            
-            <div class="flex flex-col sm:flex-row w-full items-center justify-center gap-4">
+
+            <div
+              class="flex flex-col sm:flex-row w-full items-center justify-center gap-4"
+            >
               <Button
                 href={SITE.APP_URL}
                 target="_blank"

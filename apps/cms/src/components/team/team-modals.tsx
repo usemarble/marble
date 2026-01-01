@@ -16,11 +16,11 @@ import { useWorkspace } from "@/providers/workspace";
 import { AsyncButton } from "../ui/async-button";
 import type { TeamMemberRow } from "./columns";
 
-type RemoveMemberModalProps = {
+interface RemoveMemberModalProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   member: TeamMemberRow;
-};
+}
 
 export function RemoveMemberModal({
   open,

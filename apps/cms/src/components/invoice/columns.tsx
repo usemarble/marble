@@ -5,13 +5,13 @@ import { cn } from "@marble/ui/lib/utils";
 import type { ColumnDef } from "@tanstack/react-table";
 import TableActions from "./table-actions";
 
-export type Invoice = {
+export interface Invoice {
   id: string;
   plan: string;
   amount: number;
   status: "Success" | "Failed";
   date: string;
-};
+}
 
 export const invoiceTableColumns: ColumnDef<Invoice>[] = [
   {

@@ -15,18 +15,18 @@ export type EditorIcon =
 /**
  * Suggestion item for slash command menu
  */
-export type SuggestionItem = {
+export interface SuggestionItem {
   title: string;
   description: string;
   icon: EditorIcon;
   searchTerms: string[];
   command: (props: { editor: Editor; range: Range }) => void;
-};
+}
 
 /**
  * Props for editor provider component
  */
-export type EditorProviderProps = {
+export interface EditorProviderProps {
   className?: string;
   limit?: number;
   placeholder?: string;
@@ -35,51 +35,51 @@ export type EditorProviderProps = {
   extensions?: any[];
   editorProps?: Record<string, unknown>;
   onUpdate?: (props: { editor: Editor }) => void;
-};
+}
 
 /**
  * Props for editor button components
  */
-export type EditorButtonProps = {
+export interface EditorButtonProps {
   name: string;
   isActive: () => boolean;
   command: () => void;
   icon: EditorIcon;
   hideName?: boolean;
-};
+}
 
 /**
  * Props for slash command menu component
  */
-export type EditorSlashMenuProps = {
+export interface EditorSlashMenuProps {
   items: SuggestionItem[];
   command: (item: SuggestionItem) => void;
   editor: Editor;
   range: Range;
-};
+}
 
 /**
  * Slash node attributes type
  */
-export type SlashNodeAttrs = {
+export interface SlashNodeAttrs {
   id: string | null;
   label?: string | null;
-};
+}
 
 /**
  * Media item type for image upload extension
  */
-export type MediaItem = {
+export interface MediaItem {
   id: string;
   url: string;
   name: string;
   type: "image" | "video" | "file";
-};
+}
 
 /**
  * Image upload extension options
  */
-export type ImageUploadOptions = {
+export interface ImageUploadOptions {
   /** Upload handler function - required for upload functionality */
   upload?: (file: File) => Promise<string>;
   /** File accept types (default: 'image/*') */
@@ -94,4 +94,4 @@ export type ImageUploadOptions = {
   media?: MediaItem[];
   /** Function to fetch media */
   fetchMedia?: () => Promise<MediaItem[]>;
-};
+}

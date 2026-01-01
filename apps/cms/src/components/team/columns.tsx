@@ -11,7 +11,7 @@ import TableActions from "./table-actions";
 
 type UserRole = "owner" | "admin" | "member";
 
-export type TeamMemberRow = {
+export interface TeamMemberRow {
   id: string;
   type: "member";
   name: string | null;
@@ -21,7 +21,7 @@ export type TeamMemberRow = {
   status: "accepted";
   userId?: string | null;
   joinedAt?: Date | null;
-};
+}
 
 export const columns: ColumnDef<TeamMemberRow>[] = [
   {

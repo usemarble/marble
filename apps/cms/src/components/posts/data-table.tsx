@@ -17,10 +17,10 @@ import { useRouter } from "next/navigation";
 import { useWorkspace } from "@/providers/workspace";
 import type { Post } from "./columns";
 
-type DataTableProps<TData, TValue> = {
+interface DataTableProps<TData, TValue> {
   table: TableType<TData>;
   columns: ColumnDef<TData, TValue>[];
-};
+}
 
 export function DataTable<TData, TValue>({
   table,

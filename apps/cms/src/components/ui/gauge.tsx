@@ -5,7 +5,7 @@ import { motion } from "motion/react";
 import { nanoid } from "nanoid";
 import { useId, useRef } from "react";
 
-type GaugeProps = {
+interface GaugeProps {
   value: number;
   min?: number;
   max?: number;
@@ -19,7 +19,7 @@ type GaugeProps = {
   formatValue?: (value: number) => string;
   onAnimationComplete?: () => void;
   animate?: boolean;
-};
+}
 
 export function Gauge({
   value,

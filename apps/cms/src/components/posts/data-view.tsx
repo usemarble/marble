@@ -55,10 +55,10 @@ const PostsImportModal = dynamic(
   { ssr: false }
 );
 
-type DataViewProps<TData, TValue> = {
+interface DataViewProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-};
+}
 
 type ViewType = "table" | "grid";
 

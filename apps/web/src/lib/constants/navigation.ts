@@ -4,10 +4,10 @@ import Github from "../../components/icons/Github.astro";
 import X from "../../components/icons/X.astro";
 import { SITE } from "./site";
 
-export type Link = {
+export interface Link {
   href: string;
   label: string;
-};
+}
 
 export const SOCIAL_LINKS: Link[] = [
   { href: "https://github.com/usemarble", label: "GitHub" },
@@ -17,19 +17,19 @@ export const SOCIAL_LINKS: Link[] = [
   { href: "/rss.xml", label: "RSS" },
 ];
 
-export type FooterLink = {
+export interface FooterLink {
   label: string;
   href: string;
   external?: boolean;
   target?: string;
   rel?: string;
   icon?: SvgComponent;
-};
+}
 
-export type FooterSection = {
+export interface FooterSection {
   title: string;
   links: FooterLink[];
-};
+}
 
 export const FOOTER_SECTIONS: FooterSection[] = [
   {

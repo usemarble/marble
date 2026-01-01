@@ -24,10 +24,10 @@ import { AsyncButton } from "@/components/ui/async-button";
 import { checkout } from "@/lib/auth/client";
 import { useWorkspace } from "@/providers/workspace";
 
-type UpgradeModalProps = {
+interface UpgradeModalProps {
   isOpen: boolean;
   onClose: () => void;
-};
+}
 
 export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
   const [checkoutLoading, setCheckoutLoading] = useState<

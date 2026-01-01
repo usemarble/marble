@@ -8,10 +8,10 @@ import { type Control, type FieldErrors, useController } from "react-hook-form";
 import type { PostValues } from "@/lib/validations/post";
 import { FieldInfo } from "./field-info";
 
-type AttributionFieldProps = {
+interface AttributionFieldProps {
   control: Control<PostValues>;
   errors: FieldErrors<PostValues>;
-};
+}
 
 export function AttributionField({ control, errors }: AttributionFieldProps) {
   const {

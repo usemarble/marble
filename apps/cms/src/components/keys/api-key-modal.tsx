@@ -35,12 +35,12 @@ import {
 import { AsyncButton } from "../ui/async-button";
 import type { APIKey } from "./columns";
 
-type ApiKeyModalProps = {
+interface ApiKeyModalProps {
   data?: APIKey;
   mode: "create" | "update";
   open: boolean;
   setOpen: (open: boolean) => void;
-};
+}
 
 export function ApiKeyModal({ data, mode, open, setOpen }: ApiKeyModalProps) {
   const queryClient = useQueryClient();

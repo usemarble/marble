@@ -37,20 +37,20 @@ import { useUser } from "@/providers/user";
 import { ErrorMessage } from "../../auth/error-message";
 import { FieldInfo } from "./field-info";
 
-type AuthorOptions = {
+interface AuthorOptions {
   id: string;
   name: string;
   image: string | null;
   userId: string | null;
-};
+}
 
-type AuthorSelectorProps = {
+interface AuthorSelectorProps {
   control: Control<PostValues>;
   placeholder?: string;
   isOpen?: boolean;
   setIsOpen?: (open: boolean) => void;
   defaultAuthors?: string[];
-};
+}
 
 export function AuthorSelector({
   control,

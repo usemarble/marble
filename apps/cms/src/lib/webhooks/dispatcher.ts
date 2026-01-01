@@ -3,7 +3,7 @@ import { trackWebhookUsage } from "./usage";
 import { getWebhooks } from "./utils";
 import { WebhookClient } from "./webhook-client";
 
-type WebhookEventMap = {
+interface WebhookEventMap {
   "post.published": { id: string; title: string; slug: string; userId: string };
   "post.updated": { id: string; title: string; slug: string; userId: string };
   "post.deleted": { id: string; slug: string; userId: string };
@@ -21,14 +21,14 @@ type WebhookEventMap = {
     type: "image" | "video" | "audio" | "document";
   };
   "media.deleted": { id: string; name: string; userId: string };
-};
+}
 
-type DispatchWebhooksArgs<K extends keyof WebhookEventMap> = {
+interface DispatchWebhooksArgs<K extends keyof WebhookEventMap> {
   workspaceId: string;
   validationEvent: WebhookValidationEvent;
   deliveryEvent: K;
   payload: WebhookEventMap[K] | WebhookEventMap[K][];
-};
+}
 
 export async function dispatchWebhooks<K extends keyof WebhookEventMap>({
   workspaceId,

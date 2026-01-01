@@ -8,6 +8,7 @@ import { PRICING_FAQS } from "@/lib/constants/faqs";
 import { SITE } from "@/lib/constants/site";
 import { cn } from "@/lib/utils";
 ---
+
 <Layout
   title={`Pricing - ${SITE.TITLE}`}
   description="Pricing plans for marble."
@@ -23,7 +24,8 @@ import { cn } from "@/lib/utils";
               Pricing
             </h1>
             <p class="max-w-prose md:text-lg text-muted-foreground text-center">
-              Simple pricing, cancel anytime.{(() => { const planWithTrial = PRICING_PLANS.find((p) => p.trial); return planWithTrial ? ` ${planWithTrial.title} plan includes a 7-day free trial.` : ""; })()}
+              Simple pricing, cancel anytime.
+              {(() => { const planWithTrial = PRICING_PLANS.find((p) => p.trial); return planWithTrial ? ` ${planWithTrial.title} plan includes a 7-day free trial.` : ""; })()}
             </p>
           </div>
           <ul
@@ -121,13 +123,17 @@ import { cn } from "@/lib/utils";
       <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
         <Container class="pt-12 pb-20">
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-20">
-            <div class="flex flex-col items-center lg:items-start space-y-4 text-center lg:text-left">
-            <h2
-              class="relative text-center text-balance text-2xl tracking-tight md:text-3xl lg:text-4xl lg:text-left  md max-w-4xl"
+            <div
+              class="flex flex-col items-center lg:items-start space-y-4 text-center lg:text-left"
             >
-              Frequently asked Questions
-            </h2>
-              <p class="max-w-prose md:text-lg text-muted-foreground text-balance">
+              <h2
+                class="relative text-center text-balance text-2xl tracking-tight md:text-3xl lg:text-4xl lg:text-left  md max-w-4xl"
+              >
+                Frequently asked Questions
+              </h2>
+              <p
+                class="max-w-prose md:text-lg text-muted-foreground text-balance"
+              >
                 Answers to common questions about pricing and billing.
               </p>
             </div>

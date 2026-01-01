@@ -26,12 +26,12 @@ import "../styles/task-list.css";
 /**
  * Extension kit configuration options
  */
-export type ExtensionKitOptions = {
+export interface ExtensionKitOptions {
   /** Character limit for the editor */
   limit?: number;
   /** Placeholder text for empty editor */
   placeholder?: string;
-};
+}
 
 /**
  * Extension Kit

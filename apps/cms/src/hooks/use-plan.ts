@@ -14,9 +14,9 @@ import { QUERY_KEYS } from "@/lib/queries/keys";
 import { useWorkspace } from "@/providers/workspace";
 import type { UsageDashboardData } from "@/types/dashboard";
 
-type BillingUsage = {
+interface BillingUsage {
   media: number;
-};
+}
 
 export function usePlan() {
   const { activeWorkspace } = useWorkspace();

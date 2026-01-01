@@ -2,7 +2,7 @@
 import { cn } from "@marble/ui/lib/utils";
 import { nanoid } from "nanoid";
 
-type SegmentedProgressProps = {
+interface SegmentedProgressProps {
   value: number;
   max?: number;
   segments?: number;
@@ -11,7 +11,7 @@ type SegmentedProgressProps = {
   filledColor?: string;
   unfilledColor?: string;
   width?: number;
-};
+}
 
 export function SegmentedProgress({
   value,

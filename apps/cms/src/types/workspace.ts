@@ -1,6 +1,6 @@
 import type { PlanType } from "@/lib/plans";
 
-export type Workspace = {
+export interface Workspace {
   id: string;
   name: string;
   slug: string;
@@ -43,9 +43,9 @@ export type Workspace = {
   ai: {
     enabled: boolean;
   } | null;
-};
+}
 
-export type WorkspaceContextType = {
+export interface WorkspaceContextType {
   activeWorkspace: Workspace | null;
   updateActiveWorkspace: (workspace: Partial<Workspace>) => Promise<void>;
   workspaceList: Workspace[] | null;
@@ -54,10 +54,10 @@ export type WorkspaceContextType = {
   isAdmin: boolean;
   isMember: boolean;
   currentUserRole: string | null;
-};
+}
 
-export type WorkspaceProviderProps = {
+export interface WorkspaceProviderProps {
   children: React.ReactNode;
   initialWorkspace: Workspace | null;
   workspaceSlug: string;
-};
+}

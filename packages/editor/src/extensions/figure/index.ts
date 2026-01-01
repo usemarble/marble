@@ -4,7 +4,6 @@ import { ReactNodeViewRenderer } from "@tiptap/react";
 import { FigureView } from "./figure-view";
 
 declare module "@tiptap/core" {
-  // biome-ignore lint/style/useConsistentTypeDefinitions: Extending tiptap commands
   interface Commands<ReturnType> {
     figure: {
       setFigure: (options: {

@@ -1,6 +1,6 @@
 import type { MediaType } from "./media";
 
-export type UsageDashboardData = {
+export interface UsageDashboardData {
   api: {
     totals: {
       total: number;
@@ -39,9 +39,9 @@ export type UsageDashboardData = {
       url: string;
     }>;
   };
-};
+}
 
-export type PublishingMetricsData = {
+export interface PublishingMetricsData {
   graph: {
     activity: Array<{
       date: string;
@@ -49,4 +49,4 @@ export type PublishingMetricsData = {
       level: number;
     }>;
   };
-};
+}

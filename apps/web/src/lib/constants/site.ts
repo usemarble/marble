@@ -1,4 +1,4 @@
-export type Site = {
+export interface Site {
   TITLE: string;
   DESCRIPTION: string;
   EMAIL: string;
@@ -6,7 +6,7 @@ export type Site = {
   APP_URL: string;
   TWITTER_URL: string;
   DISCORD_URL: string;
-};
+}
 
 export const SITE: Site = {
   TITLE: "Marble",

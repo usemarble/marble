@@ -7,18 +7,24 @@ import ScrollToTop from "@/components/ScrollToTop.astro";
 
 const { title, description, image, canonical } = Astro.props;
 ---
+
 <!doctype html>
 <html lang="en">
   <head>
-    <HeadComponent title={title} description={description} image={image} canonical={canonical}/>
+    <HeadComponent
+      title={title}
+      description={description}
+      image={image}
+      canonical={canonical}
+    />
   </head>
   <body>
-    <HeaderComponent />
+    <HeaderComponent/>
     <main>
       <slot/>
     </main>
-    <FooterComponent />
-    <ScrollToTop />
-    <SpeedInsights />
+    <FooterComponent/>
+    <ScrollToTop/>
+    <SpeedInsights/>
   </body>
 </html>

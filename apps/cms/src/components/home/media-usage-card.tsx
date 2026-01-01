@@ -21,10 +21,10 @@ import { formatBytes } from "@/utils/string";
 import { VideoPlayer } from "../media/video-player";
 import { HiddenScrollbar } from "../ui/hidden-scrollbar";
 
-type MediaUsageCardProps = {
+interface MediaUsageCardProps {
   data?: UsageDashboardData["media"];
   isLoading?: boolean;
-};
+}
 
 function getMediaTypeIcon(type: string) {
   switch (type) {

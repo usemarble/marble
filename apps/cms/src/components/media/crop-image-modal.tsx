@@ -17,7 +17,7 @@ import { XIcon } from "@phosphor-icons/react";
 import { useCallback } from "react";
 import { MAX_AVATAR_FILE_SIZE } from "@/lib/constants";
 
-type Props = {
+interface Props {
   open: boolean;
   reset: () => void;
   onOpenChange: (open: boolean) => void;
@@ -26,7 +26,7 @@ type Props = {
   title?: string;
   maxImageSize?: number;
   file: File | null;
-};
+}
 
 export function CropImageModal({
   open,

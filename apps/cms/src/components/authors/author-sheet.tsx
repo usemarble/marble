@@ -45,13 +45,13 @@ import { generateSlug } from "@/utils/string";
 import { AsyncButton } from "../ui/async-button";
 import { CopyButton } from "../ui/copy-button";
 
-type AuthorSheetProps = {
+interface AuthorSheetProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   mode?: "create" | "update";
   authorData?: Partial<Author>;
   onAuthorCreated?: (author: Author) => void;
-};
+}
 
 export const AuthorSheet = ({
   open,

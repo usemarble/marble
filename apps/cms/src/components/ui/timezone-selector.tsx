@@ -22,21 +22,21 @@ import { getTimeZones } from "@vvo/tzdb";
 import { Cron } from "croner";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-type TimezoneOption = {
+interface TimezoneOption {
   value: string;
   label: string;
   currentTime: string;
   countryName: string;
   countryCode: string;
-};
+}
 
-type TimezoneSelectorProps = {
+interface TimezoneSelectorProps {
   value?: string;
   onValueChange?: (value: string) => void;
   disabled?: boolean;
   placeholder?: string;
   timezones: string[];
-};
+}
 
 export function TimezoneSelector({
   value,

@@ -10,10 +10,10 @@ import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { UserContextType, UserProfile } from "@/types/user";
 import { request } from "@/utils/fetch/client";
 
-type UserProviderProps = {
+interface UserProviderProps {
   children: React.ReactNode;
   initialUser: UserProfile | null;
-};
+}
 
 const UserContext = createContext<UserContextType | null>(null);
 
