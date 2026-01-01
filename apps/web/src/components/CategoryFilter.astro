@@ -1,5 +1,6 @@
 ---
 import type { CollectionEntry } from "astro:content";
+import Button from "@/components/ui/Button.astro";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -15,13 +16,16 @@ const categoriesToShow = categories.filter(
 const currentPath = Astro.url.pathname.replace(/\/$/, "");
 ---
 
-<ul class="flex flex-wrap items-center gap-2 justify-center mt-8">
+<ul class="flex flex-wrap items-center gap-2 justify-start mt-4">
   <li>
-    <a
+    <Button
       href="/blog"
-      class={cn("inline-block border text-sm rounded-full px-5 py-1.5", currentPath === "/blog" ? "bg-primary text-white border-transparent" : "bg-transparent text-foreground border-border")}
-      >All Posts</a
+      variant={currentPath === "/blog" ? "primary" : "outline"}
+      size="sm"
+      class={cn("px-5 py-1.5", currentPath !== "/blog" && "hover:bg-muted/50 hover:text-foreground")}
     >
+      All Posts
+    </Button>
   </li>
   {
       categoriesToShow.map((category) => {
@@ -29,7 +33,14 @@ const currentPath = Astro.url.pathname.replace(/\/$/, "");
         const isActive = currentPath === link;
         return (
           <li>
-            <a href={link} class={cn("inline-block text-sm border rounded-full px-4 py-1.5", isActive ? "bg-primary text-white border-transparent" : "bg-transparent text-foreground border-border")}>{category.data.name}</a>
+            <Button
+              href={link}
+              variant={isActive ? "primary" : "outline"}
+              size="sm"
+              class={cn("px-4 py-1.5", !isActive && "hover:bg-muted/50 hover:text-foreground")}
+            >
+              {category.data.name}
+            </Button>
           </li>
         )
       })

@@ -60,7 +60,7 @@ export const FAQs: {
   {
     question: "Is Marble open source?",
     answer:
-      "Yes, Marble is 100% open source. You can find the source code on <a href='https://github.com/usemarble/marble'>GitHub</a>.",
+      "Yes, Marble is 100% open source. You can find the source code on <a href='https://github.com/usemarble/marble' target='_blank' rel='noopener' aria-label='Marble GitHub repository'>GitHub</a>.",
   },
 ];
 
@@ -81,7 +81,7 @@ export const PRICING_FAQS: {
   {
     question: "How do I get a refund?",
     answer:
-      "To request a refund, please contact us at <a href='mailto:support@marblecms.com'>support@marblecms.com</a> within 7 days of your purchase. We're also available on X at <a href='https://x.com/usemarblecms'>usemarblecms</a> and on our <a href='https://discord.gg/gU44Pmwqkx'>Discord</a> channel.",
+      "To request a refund, please contact us at <a href='mailto:support@marblecms.com'>support@marblecms.com</a> within 7 days of your purchase. We're also available on X at <a href='https://x.com/usemarblecms' target='_blank' rel='noopener'>usemarblecms</a> and on our <a href='https://discord.gg/gU44Pmwqkx' target='_blank' rel='noopener'>Discord</a> channel.",
   },
   {
     question: "Can I change my plan later?",
@@ -91,7 +91,7 @@ export const PRICING_FAQS: {
   {
     question: "What payment methods do you accept?",
     answer:
-      "We accept all major credit cards, including Visa, Mastercard, and American Express. All payments are processed securely via <a href='https://polar.sh'>Polar</a>.",
+      "We accept all major credit cards, including Visa, Mastercard, and American Express. All payments are processed securely via <a href='https://polar.sh' target='_blank' rel='noopener'>Polar</a>.",
   },
   {
     question: "What happens when I downgrade my plan?",

@@ -7,7 +7,7 @@ export const HERO_VARIATIONS = {
   simple: {
     title: "Super simple headless CMS",
     subtitle:
-      "Marble is a simple way to manage your blog and media without the complexity of traditional platforms.",
+      "Marble is a simple way to manage your blog and media. Write, upload, and publish with a clean interface and simple API.",
   },
   smart: {
     title: "The smarter way to manage your blog",
