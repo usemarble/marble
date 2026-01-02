@@ -128,7 +128,7 @@ export const InviteModal = ({
               }}
             >
               <SelectTrigger className="w-full">
-                <SelectValue>Select a role</SelectValue>
+                <SelectValue className="capitalize" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="member">Member</SelectItem>

@@ -296,20 +296,24 @@ export const ImageCropApply = ({
   const renderProp =
     asChild && isValidElement(children) ? children : render;
 
+  const mergedProps = mergeProps<"button">(
+    {
+      onClick: handleClick,
+    },
+    props
+  );
+
+  const rendered = useRender({
+    defaultTagName: "button",
+    props: mergedProps,
+    render: renderProp,
+    state: {
+      slot: "image-crop-apply",
+    },
+  });
+
   if (renderProp) {
-    return useRender({
-      defaultTagName: "button",
-      props: mergeProps<"button">(
-        {
-          onClick: handleClick,
-        },
-        props
-      ),
-      render: renderProp,
-      state: {
-        slot: "image-crop-apply",
-      },
-    });
+    return rendered;
   }
 
   return (
@@ -340,20 +344,24 @@ export const ImageCropReset = ({
   const renderProp =
     asChild && isValidElement(children) ? children : render;
 
+  const mergedProps = mergeProps<"button">(
+    {
+      onClick: handleClick,
+    },
+    props
+  );
+
+  const rendered = useRender({
+    defaultTagName: "button",
+    props: mergedProps,
+    render: renderProp,
+    state: {
+      slot: "image-crop-reset",
+    },
+  });
+
   if (renderProp) {
-    return useRender({
-      defaultTagName: "button",
-      props: mergeProps<"button">(
-        {
-          onClick: handleClick,
-        },
-        props
-      ),
-      render: renderProp,
-      state: {
-        slot: "image-crop-reset",
-      },
-    });
+    return rendered;
   }
 
   return (

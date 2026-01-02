@@ -83,7 +83,17 @@ export function CategorySelector({ control }: CategorySelectorProps) {
         </div>
         <Select onValueChange={onChange} value={value}>
           <SelectTrigger className="w-full bg-editor-field shadow-none">
-            <SelectValue>Choose a category</SelectValue>
+            <SelectValue>
+              {(selectedValue) => {
+                if (!selectedValue) {
+                  return "Choose a category";
+                }
+                const category = categories.find(
+                  (cat) => cat.id === selectedValue
+                );
+                return category?.name ?? selectedValue;
+              }}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent className="min-w-[350.67px]">
             <SelectGroup>

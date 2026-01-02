@@ -128,6 +128,8 @@ export function MediaCard({
           <DropdownMenuTrigger
             render={
               <button
+                aria-haspopup="menu"
+                aria-label="More actions"
                 className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full bg-background shadow-xs outline-none transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
                 onClick={(e) => {
                   e.stopPropagation();

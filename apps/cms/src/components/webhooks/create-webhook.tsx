@@ -229,7 +229,39 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                 value={watch("format")}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue>Select a payload format</SelectValue>
+                  <SelectValue>
+                    {() => {
+                      const value = watch("format");
+                      if (value === "json") {
+                        return (
+                          <>
+                            <BracketsCurlyIcon
+                              className="text-amber-500"
+                              weight="bold"
+                            />
+                            JSON
+                          </>
+                        );
+                      }
+                      if (value === "discord") {
+                        return (
+                          <>
+                            <Discord fill="#5865F2" />
+                            Discord
+                          </>
+                        );
+                      }
+                      if (value === "slack") {
+                        return (
+                          <>
+                            <Slack />
+                            Slack
+                          </>
+                        );
+                      }
+                      return value;
+                    }}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="json">

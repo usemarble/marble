@@ -38,8 +38,9 @@ export function InviteButton({ onInvite }: InviteButtonProps) {
   if (!canInvite) {
     return (
       <>
-        <Tooltip delay={0}>
+        <Tooltip>
           <TooltipTrigger
+            delay={0}
             render={
               <Button
                 className={isHobbyPlan ? "" : "opacity-50"}

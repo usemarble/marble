@@ -16,6 +16,19 @@ import { useMediaPageFilters } from "@/lib/search-params";
 import { isMediaFilterType, isMediaSort } from "@/utils/media";
 import { FileUploadInput } from "./file-upload-input";
 
+const typeLabels: Record<string, string> = {
+  all: "All",
+  image: "Image",
+  video: "Video",
+};
+
+const sortLabels: Record<string, string> = {
+  createdAt_desc: "Newest first",
+  createdAt_asc: "Oldest first",
+  name_asc: "Name A-Z",
+  name_desc: "Name Z-A",
+};
+
 export function MediaControls({
   onUpload,
   isUploading,
@@ -51,7 +64,7 @@ export function MediaControls({
           value={type}
         >
           <SelectTrigger className="min-w-[100px]">
-            <SelectValue>Filter by type</SelectValue>
+            <SelectValue>{(value) => typeLabels[value] ?? value}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All</SelectItem>
@@ -69,7 +82,7 @@ export function MediaControls({
           value={sort}
         >
           <SelectTrigger className="min-w-[150px]">
-            <SelectValue>Sort by</SelectValue>
+            <SelectValue>{(value) => sortLabels[value] ?? value}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="createdAt_desc">Newest first</SelectItem>

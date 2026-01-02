@@ -215,7 +215,7 @@ export function ApiKeyModal({ data, mode, open, setOpen }: ApiKeyModalProps) {
                   value={type}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue>Select type</SelectValue>
+                    <SelectValue className="capitalize" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="public">Public</SelectItem>
