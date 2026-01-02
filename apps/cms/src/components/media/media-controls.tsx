@@ -9,12 +9,10 @@ import {
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { PlusIcon, TrashIcon, XIcon } from "@phosphor-icons/react";
 import { useMediaPageFilters } from "@/lib/search-params";
-import type { MediaFilterType } from "@/types/media";
 import { isMediaFilterType, isMediaSort } from "@/utils/media";
 import { FileUploadInput } from "./file-upload-input";
 
@@ -45,15 +43,15 @@ export function MediaControls({
       <div className="flex flex-wrap items-center gap-1 sm:gap-4">
         <Select
           disabled={isDisabled}
-          onValueChange={(val: MediaFilterType) => {
-            if (isMediaFilterType(val)) {
+          onValueChange={(val) => {
+            if (val && isMediaFilterType(val)) {
               setSearchParams({ type: val });
             }
           }}
           value={type}
         >
-          <SelectTrigger className="w-[100px]">
-            <SelectValue placeholder="Filter by type" />
+          <SelectTrigger className="min-w-[100px]">
+            <SelectValue>Filter by type</SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All</SelectItem>
@@ -63,15 +61,15 @@ export function MediaControls({
         </Select>
         <Select
           disabled={isDisabled}
-          onValueChange={(val: string) => {
-            if (isMediaSort(val)) {
+          onValueChange={(val) => {
+            if (val && isMediaSort(val)) {
               setSearchParams({ sort: val });
             }
           }}
           value={sort}
         >
-          <SelectTrigger className="w-[150px]">
-            <SelectValue placeholder="Sort by" />
+          <SelectTrigger className="min-w-[150px]">
+            <SelectValue>Sort by</SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="createdAt_desc">Newest first</SelectItem>
@@ -107,9 +105,9 @@ export function MediaControls({
             </Button>
           )}
           {selectedItems.size > 0 && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
+            <Tooltip>
+              <TooltipTrigger
+                render={
                   <Button
                     aria-label={`Delete selected (${selectedItems.size})`}
                     disabled={isDisabled}
@@ -120,12 +118,12 @@ export function MediaControls({
                   >
                     <TrashIcon aria-hidden="true" size={16} />
                   </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Delete selected ({selectedItems.size})</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+                }
+              />
+              <TooltipContent>
+                <p>Delete selected ({selectedItems.size})</p>
+              </TooltipContent>
+            </Tooltip>
           )}
         </div>
       </div>

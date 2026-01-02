@@ -1,12 +1,10 @@
 /** biome-ignore-all lint/suspicious/noArrayIndexKey: <> */
-import { Separator } from "@marble/ui/components/separator";
 import { cn } from "@marble/ui/lib/utils";
 import { useCurrentEditor } from "@tiptap/react";
 import {
   BubbleMenu as TiptapBubbleMenu,
   type BubbleMenuProps as TiptapBubbleMenuProps,
 } from "@tiptap/react/menus";
-import type { ReactNode } from "react";
 import { useCallback } from "react";
 import { isCustomNodeSelected, isTextSelected } from "../../lib";
 
@@ -83,19 +81,7 @@ export const EditorBubbleMenu = ({
       shouldShow={shouldShow}
       {...props}
     >
-      {children && Array.isArray(children)
-        ? children.reduce((acc: ReactNode[], child, index) => {
-            if (index === 0) {
-              return [child];
-            }
-
-            acc.push(
-              <Separator key={`separator-${index}`} orientation="vertical" />
-            );
-            acc.push(child);
-            return acc;
-          }, [])
-        : children}
+      {children}
     </TiptapBubbleMenu>
   );
 };

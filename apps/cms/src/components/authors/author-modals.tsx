@@ -71,7 +71,7 @@ export const DeleteAuthorModal = ({
           <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
           <AsyncButton
             isLoading={isPending}
-            onClick={(e) => {
+            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
               e.preventDefault();
               deleteAuthor();
             }}

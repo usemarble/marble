@@ -72,43 +72,47 @@ export function WorkspaceSwitcher() {
       <SidebarMenuItem>
         <DropdownMenu>
           {activeWorkspace && !showSkeleton ? (
-            <DropdownMenuTrigger asChild>
-              <SidebarMenuButton
-                className={cn(
-                  "cursor-pointer border border-transparent transition hover:bg-sidebar-accent data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground",
-                  isCollapsed &&
-                    "size-10 min-w-0 justify-center rounded-full p-1"
-                )}
-                disabled={isFetchingWorkspace}
-                size="lg"
-              >
-                <Avatar className={cn("size-8", isCollapsed && "size-6.5")}>
-                  <AvatarImage
-                    className="rounded-[4px]"
-                    src={activeWorkspace.logo || undefined}
-                  />
-                  <AvatarFallback className="border bg-sidebar-accent">
-                    {activeWorkspace.name.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-                {!isCollapsed && (
-                  <>
-                    <div className="flex flex-1 gap-2 text-left text-sm leading-tight">
-                      <span className="truncate text-ellipsis font-medium text-sm">
-                        {activeWorkspace?.name}
-                      </span>
-                      <Badge
-                        className="px-1.5 py-0 text-[11px] capitalize"
-                        variant={currentPlan === "pro" ? "paid" : "free"}
-                      >
-                        {currentPlan === "hobby" ? "free" : currentPlan}
-                      </Badge>
-                    </div>
-                    <CaretDownIcon className="ml-auto" />
-                  </>
-                )}
-              </SidebarMenuButton>
-            </DropdownMenuTrigger>
+            <DropdownMenuTrigger
+              nativeButton={false}
+              render={
+                <SidebarMenuButton
+                  className={cn(
+                    "cursor-pointer border border-transparent transition hover:bg-sidebar-accent data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground",
+                    isCollapsed &&
+                      "size-10 min-w-0 justify-center rounded-full p-1"
+                  )}
+                  disabled={isFetchingWorkspace}
+                  render={<div />}
+                  size="lg"
+                >
+                  <Avatar className={cn("size-8", isCollapsed && "size-6.5")}>
+                    <AvatarImage
+                      className="rounded-[4px]"
+                      src={activeWorkspace.logo || undefined}
+                    />
+                    <AvatarFallback className="border bg-sidebar-accent">
+                      {activeWorkspace.name.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                  {!isCollapsed && (
+                    <>
+                      <div className="flex flex-1 gap-2 text-left text-sm leading-tight">
+                        <span className="truncate text-ellipsis font-medium text-sm">
+                          {activeWorkspace?.name}
+                        </span>
+                        <Badge
+                          className="px-1.5 py-0 text-[11px] capitalize"
+                          variant={currentPlan === "pro" ? "paid" : "free"}
+                        >
+                          {currentPlan === "hobby" ? "free" : currentPlan}
+                        </Badge>
+                      </div>
+                      <CaretDownIcon className="ml-auto" />
+                    </>
+                  )}
+                </SidebarMenuButton>
+              }
+            />
           ) : (
             <div
               className={cn(

@@ -1,17 +1,16 @@
 "use client";
 
-import { Button } from "@marble/ui/components/button";
-import { cn } from "@marble/ui/lib/utils";
-import { CropIcon, RotateCcwIcon } from "lucide-react";
-import { Slot } from "radix-ui";
+import { mergeProps } from "@base-ui/react/merge-props";
+import { useRender } from "@base-ui/react/use-render";
+import { CropIcon, RotateLeft01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import {
-  type ComponentProps,
   type CSSProperties,
-  createContext,
-  type MouseEvent,
   type ReactNode,
   type RefObject,
   type SyntheticEvent,
+  createContext,
+  isValidElement,
   useCallback,
   useContext,
   useEffect,
@@ -19,12 +18,15 @@ import {
   useState,
 } from "react";
 import ReactCrop, {
-  centerCrop,
-  makeAspectCrop,
   type PercentCrop,
   type PixelCrop,
   type ReactCropProps,
+  centerCrop,
+  makeAspectCrop,
 } from "react-image-crop";
+
+import { Button } from "@marble/ui/components/button";
+import { cn } from "@marble/ui/lib/utils";
 
 import "react-image-crop/dist/ReactCrop.css";
 
@@ -273,66 +275,90 @@ export const ImageCropContent = ({
   );
 };
 
-export type ImageCropApplyProps = ComponentProps<"button"> & {
+export type ImageCropApplyProps = useRender.ComponentProps<"button"> & {
   asChild?: boolean;
+  children?: ReactNode;
 };
 
 export const ImageCropApply = ({
-  asChild = false,
   children,
-  onClick,
+  render,
+  asChild,
   ...props
 }: ImageCropApplyProps) => {
   const { applyCrop } = useImageCrop();
 
-  const handleClick = async (e: MouseEvent<HTMLButtonElement>) => {
+  const handleClick = async () => {
     await applyCrop();
-    onClick?.(e);
   };
 
-  if (asChild) {
-    return (
-      <Slot.Root onClick={handleClick} {...props}>
-        {children}
-      </Slot.Root>
-    );
+  // Convert asChild to render for backward compatibility
+  const renderProp =
+    asChild && isValidElement(children) ? children : render;
+
+  if (renderProp) {
+    return useRender({
+      defaultTagName: "button",
+      props: mergeProps<"button">(
+        {
+          onClick: handleClick,
+        },
+        props
+      ),
+      render: renderProp,
+      state: {
+        slot: "image-crop-apply",
+      },
+    });
   }
 
   return (
     <Button onClick={handleClick} size="icon" variant="ghost" {...props}>
-      {children ?? <CropIcon className="size-4" />}
+      {children ?? <HugeiconsIcon icon={CropIcon} strokeWidth={2} />}
     </Button>
   );
 };
 
-export type ImageCropResetProps = ComponentProps<"button"> & {
+export type ImageCropResetProps = useRender.ComponentProps<"button"> & {
   asChild?: boolean;
+  children?: ReactNode;
 };
 
 export const ImageCropReset = ({
-  asChild = false,
   children,
-  onClick,
+  render,
+  asChild,
   ...props
 }: ImageCropResetProps) => {
   const { resetCrop } = useImageCrop();
 
-  const handleClick = (e: MouseEvent<HTMLButtonElement>) => {
+  const handleClick = () => {
     resetCrop();
-    onClick?.(e);
   };
 
-  if (asChild) {
-    return (
-      <Slot.Root onClick={handleClick} {...props}>
-        {children}
-      </Slot.Root>
-    );
+  // Convert asChild to render for backward compatibility
+  const renderProp =
+    asChild && isValidElement(children) ? children : render;
+
+  if (renderProp) {
+    return useRender({
+      defaultTagName: "button",
+      props: mergeProps<"button">(
+        {
+          onClick: handleClick,
+        },
+        props
+      ),
+      render: renderProp,
+      state: {
+        slot: "image-crop-reset",
+      },
+    });
   }
 
   return (
     <Button onClick={handleClick} size="icon" variant="ghost" {...props}>
-      {children ?? <RotateCcwIcon className="size-4" />}
+      {children ?? <HugeiconsIcon icon={RotateLeft01Icon} strokeWidth={2} />}
     </Button>
   );
 };

@@ -42,15 +42,14 @@ export default function TableActions(props: TableActionsProps) {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            className="size-8 p-0 data-[state=open]:bg-muted"
-            variant="ghost"
-          >
-            <span className="sr-only">Open menu</span>
-            <DotsThreeVerticalIcon className="size-4" />
-          </Button>
-        </DropdownMenuTrigger>
+        <DropdownMenuTrigger
+          render={
+            <Button className="size-8 p-0" variant="ghost">
+              <span className="sr-only">Open menu</span>
+              <DotsThreeVerticalIcon size={16} weight="bold" />
+            </Button>
+          }
+        />
         <DropdownMenuContent align="end" className="text-muted-foreground">
           <DropdownMenuItem onClick={() => setShowProfileSheet(true)}>
             <ShieldCheckIcon className="size-4" />

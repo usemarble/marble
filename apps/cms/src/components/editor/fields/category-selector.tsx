@@ -82,12 +82,12 @@ export function CategorySelector({ control }: CategorySelectorProps) {
           <FieldInfo text="Good for grouping posts together. You can have one category per post." />
         </div>
         <Select onValueChange={onChange} value={value}>
-          <SelectTrigger className="w-full bg-editor-field">
-            <SelectValue placeholder="Choose a category" />
+          <SelectTrigger className="w-full bg-editor-field shadow-none">
+            <SelectValue>Choose a category</SelectValue>
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="min-w-[350.67px]">
             <SelectGroup>
-              <SelectLabel className="flex items-center justify-between gap-1 px-2 font-normal text-xs">
+              <SelectLabel className="flex items-center justify-between gap-1 p-1 font-normal text-xs">
                 <span className="text-muted-foreground text-xs">
                   {isLoadingCategories
                     ? "Loading categories..."

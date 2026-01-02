@@ -54,20 +54,24 @@ const resourceLinks = [
 export function NavExtra() {
   return (
     <Popover>
-      <Tooltip delayDuration={300}>
-        <TooltipTrigger asChild>
-          <PopoverTrigger asChild>
-            <Button
-              aria-label="Get in touch"
-              className="cursor-help rounded-lg"
-              size="icon"
-              type="button"
-              variant="ghost"
-            >
-              <QuestionIcon className="size-4" />
-            </Button>
-          </PopoverTrigger>
-        </TooltipTrigger>
+      <Tooltip delay={300}>
+        <TooltipTrigger
+          render={
+            <PopoverTrigger
+              render={
+                <Button
+                  aria-label="Get in touch"
+                  className="cursor-help rounded-lg"
+                  size="icon"
+                  type="button"
+                  variant="ghost"
+                >
+                  <QuestionIcon className="size-4" />
+                </Button>
+              }
+            />
+          }
+        />
         <TooltipContent>
           <p>Contact Us</p>
         </TooltipContent>

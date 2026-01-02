@@ -169,14 +169,16 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
 
   return (
     <Sheet onOpenChange={setIsOpen} open={isOpen}>
-      <SheetTrigger asChild>
-        {children || (
-          <Button>
-            <PlusIcon className="mr-2 size-4" />
-            New Webhook
-          </Button>
-        )}
-      </SheetTrigger>
+      <SheetTrigger
+        render={
+          (children as React.ReactElement) || (
+            <Button>
+              <PlusIcon className="mr-2 size-4" />
+              New Webhook
+            </Button>
+          )
+        }
+      />
       <SheetContent className="overflow-y-auto">
         <SheetHeader className="p-6">
           <SheetTitle className="font-medium text-xl">New Webhook</SheetTitle>
@@ -219,13 +221,15 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
             <div className="grid gap-3">
               <Label htmlFor="format">Format</Label>
               <Select
-                onValueChange={(value: PayloadFormat) =>
-                  setValue("format", value)
-                }
+                onValueChange={(value) => {
+                  if (value) {
+                    setValue("format", value);
+                  }
+                }}
                 value={watch("format")}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select a payload format" />
+                  <SelectValue>Select a payload format</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="json">

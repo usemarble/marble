@@ -38,17 +38,19 @@ export function InviteButton({ onInvite }: InviteButtonProps) {
   if (!canInvite) {
     return (
       <>
-        <Tooltip delayDuration={0}>
-          <TooltipTrigger asChild>
-            <Button
-              className={isHobbyPlan ? "" : "opacity-50"}
-              onClick={handleInviteClick}
-              variant={isHobbyPlan ? "default" : "outline"}
-            >
-              <PlusIcon className="size-4" />
-              Invite
-            </Button>
-          </TooltipTrigger>
+        <Tooltip delay={0}>
+          <TooltipTrigger
+            render={
+              <Button
+                className={isHobbyPlan ? "" : "opacity-50"}
+                onClick={handleInviteClick}
+                variant={isHobbyPlan ? "default" : "outline"}
+              >
+                <PlusIcon className="size-4" />
+                Invite
+              </Button>
+            }
+          />
           <TooltipContent>
             <p className="text-xs">{getTooltipContent()}</p>
           </TooltipContent>
@@ -64,13 +66,15 @@ export function InviteButton({ onInvite }: InviteButtonProps) {
 
   return (
     <TooltipProvider>
-      <Tooltip delayDuration={0}>
-        <TooltipTrigger asChild>
-          <Button onClick={onInvite}>
-            <PlusIcon className="size-4" />
-            <span>Invite</span>
-          </Button>
-        </TooltipTrigger>
+      <Tooltip delay={0}>
+        <TooltipTrigger
+          render={
+            <Button onClick={onInvite}>
+              <PlusIcon className="size-4" />
+              <span>Invite</span>
+            </Button>
+          }
+        />
         <TooltipContent>
           <p className="text-xs">{getTooltipContent()}</p>
         </TooltipContent>

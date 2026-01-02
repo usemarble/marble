@@ -120,17 +120,19 @@ export const EditorLinkSelector = ({
 
   return (
     <Popover modal onOpenChange={setIsOpen} open={isOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          className={cn("gap-2 rounded-none border-none", {
-            "text-primary": editor.isActive("link"),
-          })}
-          size="icon"
-          variant="ghost"
-        >
-          <Link size={12} />
-        </Button>
-      </PopoverTrigger>
+      <PopoverTrigger
+        render={
+          <Button
+            className={cn("gap-2 rounded-none border-none", {
+              "text-primary": editor.isActive("link"),
+            })}
+            size="sm"
+            variant="ghost"
+          >
+            <Link size={12} />
+          </Button>
+        }
+      />
       <PopoverContent align="start" className="w-fit p-0" sideOffset={10}>
         <form className="flex items-center gap-0.5 p-1" onSubmit={handleSubmit}>
           <input
@@ -156,65 +158,72 @@ export const EditorLinkSelector = ({
             className="mx-1 h-full min-h-[1.5rem] w-[1px]"
             orientation="vertical"
           />
-          <Tooltip delayDuration={400}>
-            <TooltipTrigger asChild>
-              <Button
-                className="h-8 rounded-sm"
-                onClick={() => setOpenInNewTab(!openInNewTab)}
-                size="icon"
-                type="button"
-                variant="ghost"
-              >
-                {openInNewTab ? (
-                  <Maximize2 size={12} />
-                ) : (
-                  <Minimize2 size={12} />
-                )}
-              </Button>
-            </TooltipTrigger>
+          <Tooltip delay={400}>
+            <TooltipTrigger
+              render={
+                <Button
+                  className="h-8 rounded-sm"
+                  onClick={() => setOpenInNewTab(!openInNewTab)}
+                  size="icon"
+                  type="button"
+                  variant="ghost"
+                >
+                  {openInNewTab ? (
+                    <Maximize2 size={12} />
+                  ) : (
+                    <Minimize2 size={12} />
+                  )}
+                </Button>
+              }
+            />
             <TooltipContent>
               <p>{openInNewTab ? "Opens in new tab" : "Opens in same tab"}</p>
             </TooltipContent>
           </Tooltip>
-          <Tooltip delayDuration={400}>
-            <TooltipTrigger asChild>
-              <Button
-                className="h-8 rounded-sm"
-                disabled={!editor.getAttributes("link").href}
-                onClick={() => {
-                  editor.chain().focus().unsetLink().run();
-                  setUrl("");
-                }}
-                size="icon"
-                type="button"
-                variant="ghost"
-              >
-                <TrashIcon size={12} />
-              </Button>
-            </TooltipTrigger>
+          <Tooltip delay={400}>
+            <TooltipTrigger
+              render={
+                <Button
+                  className="h-8 rounded-sm"
+                  disabled={!editor.getAttributes("link").href}
+                  onClick={() => {
+                    editor.chain().focus().unsetLink().run();
+                    setUrl("");
+                  }}
+                  size="icon"
+                  type="button"
+                  variant="ghost"
+                >
+                  <TrashIcon size={12} />
+                </Button>
+              }
+            />
             <TooltipContent>
               <p>Remove link</p>
             </TooltipContent>
           </Tooltip>
-          <Tooltip delayDuration={400}>
-            <TooltipTrigger asChild>
-              <Button
-                className="h-8 rounded-sm"
-                disabled={!url || !getUrlFromString(url)}
-                onClick={() => {
-                  const href =
-                    getUrlFromString(url) || editor.getAttributes("link").href;
-                  if (href) {
-                    window.open(href, "_blank", "noopener,noreferrer");
-                  }
-                }}
-                size="icon"
-                type="button"
-                variant="ghost"
-              >
-                <ExternalLinkIcon size={12} />
-              </Button>
-            </TooltipTrigger>
+          <Tooltip delay={400}>
+            <TooltipTrigger
+              render={
+                <Button
+                  className="h-8 rounded-sm"
+                  disabled={!url || !getUrlFromString(url)}
+                  onClick={() => {
+                    const href =
+                      getUrlFromString(url) ||
+                      editor.getAttributes("link").href;
+                    if (href) {
+                      window.open(href, "_blank", "noopener,noreferrer");
+                    }
+                  }}
+                  size="icon"
+                  type="button"
+                  variant="ghost"
+                >
+                  <ExternalLinkIcon size={12} />
+                </Button>
+              }
+            />
             <TooltipContent>
               <p>Open link</p>
             </TooltipContent>

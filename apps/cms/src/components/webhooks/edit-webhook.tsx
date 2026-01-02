@@ -237,13 +237,15 @@ export function EditWebhookSheet({
             <div className="grid gap-3">
               <Label htmlFor="format">Format</Label>
               <Select
-                onValueChange={(value: PayloadFormat) =>
-                  setValue("format", value)
-                }
+                onValueChange={(value) => {
+                  if (value) {
+                    setValue("format", value);
+                  }
+                }}
                 value={watch("format")}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select a payload format" />
+                  <SelectValue>Select a payload format</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="json">

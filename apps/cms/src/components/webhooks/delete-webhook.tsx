@@ -70,7 +70,7 @@ export function DeleteWebhookModal({
           <AsyncButton
             className="min-w-20"
             disabled={isPending}
-            onClick={(e) => {
+            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
               e.preventDefault();
               deleteWebhook();
             }}

@@ -92,11 +92,13 @@ export function Delete() {
       </div>
       <div className="flex justify-end px-2 pt-2">
         <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button size="sm" variant="destructive">
-              Delete Workspace
-            </Button>
-          </AlertDialogTrigger>
+          <AlertDialogTrigger
+            render={
+              <Button size="sm" variant="destructive">
+                Delete Workspace
+              </Button>
+            }
+          />
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Delete workspace?</AlertDialogTitle>

@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@marble/ui/components/button";
 import { Card, CardContent, CardFooter } from "@marble/ui/components/card";
 import {
   DropdownMenu,
@@ -126,15 +125,19 @@ export function MediaCard({
           </div>
         </div>
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button
-              className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full bg-background shadow-xs outline-none transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-              onClick={(e) => e.stopPropagation()}
-              type="button"
-            >
-              <DotsThreeVerticalIcon size={16} />
-            </button>
-          </DropdownMenuTrigger>
+          <DropdownMenuTrigger
+            render={
+              <button
+                className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full bg-background shadow-xs outline-none transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+                type="button"
+              >
+                <DotsThreeVerticalIcon size={16} />
+              </button>
+            }
+          />
           <DropdownMenuContent align="end">
             <DropdownMenuItem
               onClick={(e) => {

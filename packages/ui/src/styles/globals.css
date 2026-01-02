@@ -1,10 +1,10 @@
 @import 'tailwindcss';
+@import 'tw-animate-css';
 
 /* Custom variant for dark mode */
 @custom-variant dark (&:is(.dark *));
 
 /* Plugins */
-@plugin "tailwindcss-animate";
 @plugin "@toolwind/corner-shape";
 
 :root {

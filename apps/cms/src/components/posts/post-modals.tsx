@@ -70,7 +70,7 @@ export const DeletePostModal = ({
           </AlertDialogCancel>
           <AsyncButton
             isLoading={isPending}
-            onClick={(e) => {
+            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
               e.preventDefault();
               deletePost(id);
             }}
