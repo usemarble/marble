@@ -1,5 +1,7 @@
 "use client";
 
+import { Key01Icon, WebhookIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -10,7 +12,6 @@ import {
 } from "@marble/ui/components/sidebar";
 import { cn } from "@marble/ui/lib/utils";
 
-import { KeyIcon, WebhooksLogoIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 
@@ -18,12 +19,12 @@ const items = [
   {
     name: "API Keys",
     url: "keys",
-    icon: KeyIcon,
+    icon: Key01Icon,
   },
   {
     name: "Webhooks",
     url: "webhooks",
-    icon: WebhooksLogoIcon,
+    icon: WebhookIcon,
   },
 ];
 
@@ -47,7 +48,7 @@ export function NavDevs() {
               }`}
               render={
                 <Link href={`/${params.workspace}/${item.url}`}>
-                  <item.icon /> <span>{item.name}</span>
+                  <HugeiconsIcon icon={item.icon} /> <span>{item.name}</span>
                 </Link>
               }
             />

@@ -70,10 +70,9 @@ export default function PostActions({
                 view === "grid" &&
                   "rounded-full bg-sidebar hover:bg-primary/10 hover:text-primary dark:bg-accent/50 dark:hover:text-accent-foreground"
               )}
-              onClick={(e) => e.stopPropagation()}
-              onPointerDown={(e) => {
-                e.preventDefault();
+              onClick={(e) => {
                 e.stopPropagation();
+                e.preventDefault();
               }}
               variant="ghost"
             >

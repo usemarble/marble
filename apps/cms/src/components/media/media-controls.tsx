@@ -16,18 +16,18 @@ import { useMediaPageFilters } from "@/lib/search-params";
 import { isMediaFilterType, isMediaSort } from "@/utils/media";
 import { FileUploadInput } from "./file-upload-input";
 
-const typeLabels: Record<string, string> = {
-  all: "All",
-  image: "Image",
-  video: "Video",
-};
+const typeOptions = [
+  { label: "All", value: "all" },
+  { label: "Image", value: "image" },
+  { label: "Video", value: "video" },
+];
 
-const sortLabels: Record<string, string> = {
-  createdAt_desc: "Newest first",
-  createdAt_asc: "Oldest first",
-  name_asc: "Name A-Z",
-  name_desc: "Name Z-A",
-};
+const sortOptions = [
+  { label: "Newest first", value: "createdAt_desc" },
+  { label: "Oldest first", value: "createdAt_asc" },
+  { label: "Name A-Z", value: "name_asc" },
+  { label: "Name Z-A", value: "name_desc" },
+];
 
 export function MediaControls({
   onUpload,
@@ -56,6 +56,7 @@ export function MediaControls({
       <div className="flex flex-wrap items-center gap-1 sm:gap-4">
         <Select
           disabled={isDisabled}
+          items={typeOptions}
           onValueChange={(val) => {
             if (val && isMediaFilterType(val)) {
               setSearchParams({ type: val });
@@ -64,16 +65,19 @@ export function MediaControls({
           value={type}
         >
           <SelectTrigger className="min-w-[100px]">
-            <SelectValue>{(value) => typeLabels[value] ?? value}</SelectValue>
+            <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All</SelectItem>
-            <SelectItem value="image">Image</SelectItem>
-            <SelectItem value="video">Video</SelectItem>
+            {typeOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
         <Select
           disabled={isDisabled}
+          items={sortOptions}
           onValueChange={(val) => {
             if (val && isMediaSort(val)) {
               setSearchParams({ sort: val });
@@ -82,13 +86,14 @@ export function MediaControls({
           value={sort}
         >
           <SelectTrigger className="min-w-[150px]">
-            <SelectValue>{(value) => sortLabels[value] ?? value}</SelectValue>
+            <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="createdAt_desc">Newest first</SelectItem>
-            <SelectItem value="createdAt_asc">Oldest first</SelectItem>
-            <SelectItem value="name_asc">Name A-Z</SelectItem>
-            <SelectItem value="name_desc">Name Z-A</SelectItem>
+            {sortOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
         <div className="flex items-center gap-2">

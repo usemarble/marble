@@ -28,11 +28,9 @@ const entries = await getCollection("changelog");
           </p>
         </div>
         <ul class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 auto-rows-fr">
-          {
-            entries.map((entry) => (
+          {entries.map((entry) => (
               <ChangelogCard entry={entry} />
-            ))
-          }
+            ))}
         </ul>
       </Container>
     </div>

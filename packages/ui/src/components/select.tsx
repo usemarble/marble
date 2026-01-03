@@ -95,6 +95,7 @@ function SelectContent({
             className
           )}
           data-slot="select-content"
+          style={{ width: "var(--anchor-width)" }}
           {...props}
         >
           <SelectScrollUpButton />

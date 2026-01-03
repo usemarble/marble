@@ -21,8 +21,8 @@
 
 @theme inline {
   --font-sans:
-    var(--font-geist), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
-    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    var(--font-geist), ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-serif:
     var(--font-literata), ui-serif, Georgia, Cambria, "Times New Roman", Times,
     serif;

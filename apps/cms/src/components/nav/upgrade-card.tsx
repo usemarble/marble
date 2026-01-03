@@ -11,7 +11,7 @@ const UpgradeModal = dynamic(() =>
   import("@/components/billing/upgrade-modal").then((mod) => mod.UpgradeModal)
 );
 
-export function UpgradeButton() {
+export function UpgradeCard() {
   const { state } = useSidebar();
   const { isHobbyPlan } = usePlan();
   const { isOwner } = useWorkspace();
@@ -22,22 +22,28 @@ export function UpgradeButton() {
     return null;
   }
 
-  const handleUpgradeClick = () => {
-    setShowUpgradeModal(true);
-  };
-
   return (
     <>
-      <div className="px-2 pb-2">
-        <Button
-          className="w-full cursor-pointer"
-          onClick={handleUpgradeClick}
-          size="sm"
-          type="button"
-          variant="outline"
-        >
-          Upgrade To Pro
-        </Button>
+      <div className="p-2">
+        <div className="group relative w-full overflow-hidden rounded-xl border bg-background p-3 text-left shadow-xs">
+          <div className="relative z-10 flex flex-col gap-3">
+            <div className="space-y-1">
+              <h4 className="font-semibold text-xs leading-none tracking-tight">
+                Upgrade to pro
+              </h4>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
+                Unlock higher limits, invite team members, and get more storage.
+              </p>
+            </div>
+            <Button
+              className="rounded-[2px]"
+              onClick={() => setShowUpgradeModal(true)}
+              size="xs"
+            >
+              Start 7 day free trial
+            </Button>
+          </div>
+        </div>
       </div>
       <UpgradeModal
         isOpen={showUpgradeModal}

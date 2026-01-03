@@ -1,6 +1,16 @@
 "use client";
 
 import {
+  Files01Icon,
+  Home01Icon,
+  Image02Icon,
+  Package01Icon,
+  Settings01Icon,
+  Tag01Icon,
+  Users,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
+import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
@@ -17,17 +27,6 @@ import {
   useSidebar,
 } from "@marble/ui/components/sidebar";
 import { cn } from "@marble/ui/lib/utils";
-import {
-  FadersIcon,
-  HouseIcon,
-  ImagesIcon,
-  LayoutIcon,
-  NoteIcon,
-  PackageIcon,
-  TagIcon,
-  UsersThreeIcon,
-} from "@phosphor-icons/react";
-
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 
@@ -35,27 +34,27 @@ const items = [
   {
     name: "Posts",
     url: "posts",
-    icon: NoteIcon,
+    icon: Files01Icon,
   },
   {
     name: "Categories",
     url: "categories",
-    icon: PackageIcon,
+    icon: Package01Icon,
   },
   {
     name: "Tags",
     url: "tags",
-    icon: TagIcon,
+    icon: Tag01Icon,
   },
   {
     name: "Media",
     url: "media",
-    icon: ImagesIcon,
+    icon: Image02Icon,
   },
   {
     name: "Authors",
     url: "authors",
-    icon: UsersThreeIcon,
+    icon: Users,
   },
 ];
 
@@ -100,7 +99,7 @@ export function NavMain() {
           }`}
           render={
             <Link href={`/${params.workspace}`}>
-              <HouseIcon />
+              <HugeiconsIcon icon={Home01Icon} />
               <span>Home</span>
             </Link>
           }
@@ -115,7 +114,7 @@ export function NavMain() {
             key={item.name}
             render={
               <Link href={`/${params.workspace}/${item.url}`}>
-                <item.icon />
+                <HugeiconsIcon icon={item.icon} />
                 <span>{item.name}</span>
               </Link>
             }
@@ -139,7 +138,7 @@ export function NavMain() {
                   render={<div />}
                   tooltip="Settings"
                 >
-                  <FadersIcon />
+                  <HugeiconsIcon icon={Settings01Icon} />
                   <span>Settings</span>
                 </SidebarMenuButton>
               </Link>

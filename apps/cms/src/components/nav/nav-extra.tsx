@@ -1,4 +1,6 @@
 "use client";
+import { HelpCircleIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Button, buttonVariants } from "@marble/ui/components/button";
 import {
   Popover,
@@ -61,12 +63,12 @@ export function NavExtra() {
               render={
                 <Button
                   aria-label="Get in touch"
-                  className="cursor-help rounded-lg"
+                  className="rounded-lg"
                   size="icon"
                   type="button"
                   variant="ghost"
                 >
-                  <QuestionIcon className="size-4" />
+                  <HugeiconsIcon icon={HelpCircleIcon} />
                 </Button>
               }
             />
