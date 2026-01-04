@@ -5,11 +5,11 @@ import {
   ArrowDown01Icon,
   ArrowUp01Icon,
   Tick02Icon,
-  UnfoldMoreIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import type * as React from "react";
 import { cn } from "@marble/ui/lib/utils";
+import { CaretUpDownIcon } from "@phosphor-icons/react";
 
 const Select = SelectPrimitive.Root;
 
@@ -54,11 +54,7 @@ function SelectTrigger({
       {children}
       <SelectPrimitive.Icon
         render={
-          <HugeiconsIcon
-            className="pointer-events-none size-4 text-muted-foreground opacity-50"
-            icon={UnfoldMoreIcon}
-            strokeWidth={2}
-          />
+          <CaretUpDownIcon className="pointer-events-none size-4 text-muted-foreground" />
         }
       />
     </SelectPrimitive.Trigger>

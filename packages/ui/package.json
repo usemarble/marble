@@ -20,6 +20,7 @@
     "@heroicons/react": "^2.2.0",
     "@hugeicons/core-free-icons": "^3.1.1",
     "@hugeicons/react": "^1.1.4",
+    "@phosphor-icons/react": "^2.1.10",
     "@tanstack/react-table": "^8.20.5",
     "@toolwind/corner-shape": "0.0.8-3",
     "class-variance-authority": "^0.7.0",

@@ -27,11 +27,11 @@ export function UpgradeCard() {
       <div className="p-2">
         <div className="group relative w-full overflow-hidden rounded-xl border bg-background p-3 text-left shadow-xs">
           <div className="relative z-10 flex flex-col gap-3">
-            <div className="space-y-1">
+            <div className="space-y-2.5">
               <h4 className="font-semibold text-xs leading-none tracking-tight">
-                Upgrade to pro
+                Upgrade to Pro
               </h4>
-              <p className="text-[11px] text-muted-foreground leading-relaxed">
+              <p className="text-[11px] text-muted-foreground leading-tight">
                 Unlock higher limits, invite team members, and get more storage.
               </p>
             </div>

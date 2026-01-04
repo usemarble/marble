@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  Cancel01Icon,
+  SidebarRight01Icon,
+  SidebarRightIcon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { buttonVariants } from "@marble/ui/components/button";
 import { SidebarTrigger } from "@marble/ui/components/sidebar";
 import {
@@ -28,17 +34,18 @@ export function EditorHeader({ postId, workspace }: EditorHeaderProps) {
   return (
     <header className="sticky top-0 z-50 flex justify-between p-3">
       <div className="flex items-center gap-4">
-        <Tooltip delay={400}>
+        <Tooltip>
           <TooltipTrigger
+            delay={10}
             render={
               <Link
                 className={cn(
-                  buttonVariants({ variant: "ghost", size: "icon" }),
+                  buttonVariants({ variant: "ghost", size: "icon-sm" }),
                   "group"
                 )}
                 href={`/${workspace}/posts`}
               >
-                <XIcon className="size-4 text-muted-foreground group-hover:text-foreground" />
+                <HugeiconsIcon icon={Cancel01Icon} />
               </Link>
             }
           />
@@ -53,8 +60,8 @@ export function EditorHeader({ postId, workspace }: EditorHeaderProps) {
         <Tooltip delay={400}>
           <TooltipTrigger
             render={
-              <SidebarTrigger className="size-8 text-muted-foreground">
-                <SidebarSimpleIcon className="size-4" />
+              <SidebarTrigger className="size-8">
+                <HugeiconsIcon icon={SidebarRightIcon} />
               </SidebarTrigger>
             }
           />
