@@ -19,7 +19,14 @@ export async function PATCH(
   const { id } = await params;
 
   const json = await req.json();
-  const body = tagSchema.parse(json);
+  const body = tagSchema.safeParse(json);
+
+  if (!body.success) {
+    return NextResponse.json(
+      { error: "Invalid request body", details: body.error.issues },
+      { status: 400 }
+    );
+  }
 
   const existing = await db.tag.findFirst({
     where: { id, workspaceId },
@@ -32,7 +39,7 @@ export async function PATCH(
 
   const existingTagWithSlug = await db.tag.findFirst({
     where: {
-      slug: body.slug,
+      slug: body.data.slug,
       workspaceId,
       id: { not: id },
     },
@@ -45,9 +52,9 @@ export async function PATCH(
   const updatedTag = await db.tag.update({
     where: { id },
     data: {
-      name: body.name,
-      slug: body.slug,
-      description: body.description,
+      name: body.data.name,
+      slug: body.data.slug,
+      description: body.data.description,
     },
   });
 

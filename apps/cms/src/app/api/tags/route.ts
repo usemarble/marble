@@ -49,11 +49,18 @@ export async function POST(req: Request) {
   }
 
   const json = await req.json();
-  const body = tagSchema.parse(json);
+  const body = tagSchema.safeParse(json);
+
+  if (!body.success) {
+    return NextResponse.json(
+      { error: "Invalid request body", details: body.error.issues },
+      { status: 400 }
+    );
+  }
 
   const existingTag = await db.tag.findFirst({
     where: {
-      slug: body.slug,
+      slug: body.data.slug,
       workspaceId,
     },
   });
@@ -64,9 +71,9 @@ export async function POST(req: Request) {
 
   const tagCreated = await db.tag.create({
     data: {
-      name: body.name,
-      slug: body.slug,
-      description: body.description,
+      name: body.data.name,
+      slug: body.data.slug,
+      description: body.data.description,
       workspaceId,
     },
   });

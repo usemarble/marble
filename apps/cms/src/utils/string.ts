@@ -1,9 +1,11 @@
 export function generateSlug(text: string) {
   const slug = text
+    .normalize("NFD") // Normalize Unicode to decomposed form (e.g., é → e + combining accent)
+    .replace(/[\u0300-\u036f]/g, "") // Remove combining diacritical marks
     .trim()
     .toLowerCase()
-    .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9-]/g, "") // Allow lowercase letters, digits, and hyphens
+    .replace(/[\s_]+/g, "-") // Replace whitespace variants and underscores with hyphens
+    .replace(/[^a-z0-9-]/g, "") // Allow only lowercase letters, digits, and hyphens
     .replace(/-+/g, "-") // Replace multiple hyphens with single hyphen
     .replace(/^-+|-+$/g, ""); // Remove leading/trailing hyphens
 

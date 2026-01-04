@@ -1,10 +1,19 @@
 import { z } from "zod";
 import { RESERVED_WORKSPACE_SLUGS, timezones } from "@/lib/constants";
 
+// Shared slug validation pattern for URL-safe identifiers
+const slugPattern = /^[a-z0-9]+([a-z0-9-]*[a-z0-9])?$/;
+const slugErrorMessage =
+  "Slug must start and end with letters or digits, and only contain lowercase letters, digits, and hyphens";
+
 // Tag Schema
 export const tagSchema = z.object({
   name: z.string().trim().min(1, { message: "Name cannot be empty" }),
-  slug: z.string().trim().min(1, { message: "Slug cannot be empty" }),
+  slug: z
+    .string()
+    .trim()
+    .min(1, { message: "Slug cannot be empty" })
+    .regex(slugPattern, { message: slugErrorMessage }),
   description: z.string().trim().optional(),
 });
 export type CreateTagValues = z.infer<typeof tagSchema>;
@@ -12,7 +21,11 @@ export type CreateTagValues = z.infer<typeof tagSchema>;
 // Category Schema
 export const categorySchema = z.object({
   name: z.string().trim().min(1, { message: "Name cannot be empty" }),
-  slug: z.string().trim().min(1, { message: "Slug cannot be empty" }),
+  slug: z
+    .string()
+    .trim()
+    .min(1, { message: "Slug cannot be empty" })
+    .regex(slugPattern, { message: slugErrorMessage }),
   description: z.string().trim().optional(),
 });
 export type CreateCategoryValues = z.infer<typeof categorySchema>;
