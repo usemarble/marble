@@ -17,7 +17,6 @@ import {
 import { cn } from "@marble/ui/lib/utils";
 import { SpinnerIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { parseAsStringLiteral, useQueryState } from "nuqs";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import type { Control, FieldErrors, UseFormWatch } from "react-hook-form";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -192,10 +191,7 @@ export function EditorSidebar({
     },
   });
 
-  const [activeTab, setActiveTab] = useQueryState(
-    "tab",
-    parseAsStringLiteral(Object.keys(tabs)).withDefault("metadata")
-  );
+  const [activeTab, setActiveTab] = useState<keyof typeof tabs>("metadata");
 
   useEffect(() => {
     if (
