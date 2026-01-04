@@ -89,7 +89,12 @@ export function ShareModal({ postId }: ShareModalProps) {
       <Dialog>
         <DialogTrigger
           render={
-            <Button size="icon-sm" type="button" variant="ghost">
+            <Button
+              aria-label="Share draft link"
+              size="icon-sm"
+              type="button"
+              variant="ghost"
+            >
               <HugeiconsIcon icon={Link02Icon} />
             </Button>
           }
