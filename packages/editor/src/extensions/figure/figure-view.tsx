@@ -3,15 +3,10 @@
 import { Button } from "@marble/ui/components/button";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@marble/ui/components/popover";
 import { cn } from "@marble/ui/lib/utils";
 import type { NodeViewProps } from "@tiptap/core";
 import { NodeViewWrapper } from "@tiptap/react";
-import { AlignCenter, AlignLeft, AlignRight, Settings2 } from "lucide-react";
+import { AlignCenter, AlignLeft, AlignRight, Settings2, X } from "lucide-react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 export const FigureView = ({
@@ -35,7 +30,9 @@ export const FigureView = ({
   );
   const [isResizing, setIsResizing] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const figureRef = useRef<HTMLElement>(null);
+  const settingsPanelRef = useRef<HTMLDivElement>(null);
   const startXRef = useRef(0);
   const startWidthRef = useRef(0);
   const resizeSideRef = useRef<"left" | "right">("right");
@@ -50,6 +47,36 @@ export const FigureView = ({
     setWidthValue(width || "100");
     setAlignValue(align || "center");
   }, [alt, caption, width, align]);
+
+  // Handle click outside settings panel
+  useEffect(() => {
+    if (!showSettings) {
+      return;
+    }
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        settingsPanelRef.current &&
+        !settingsPanelRef.current.contains(e.target as Node)
+      ) {
+        // Check if click was on the settings button
+        const target = e.target as HTMLElement;
+        if (!target.closest("[data-settings-trigger]")) {
+          setShowSettings(false);
+        }
+      }
+    };
+
+    // Use timeout to avoid the click that opened the panel from closing it
+    const timeoutId = setTimeout(() => {
+      document.addEventListener("mousedown", handleClickOutside);
+    }, 0);
+
+    return () => {
+      clearTimeout(timeoutId);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showSettings]);
 
   const handleAltChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -72,7 +99,6 @@ export const FigureView = ({
   const handleAlignChange = useCallback(
     (newAlign: "left" | "center" | "right") => {
       setAlignValue(newAlign);
-      // Use setTimeout to avoid Tiptap position conflicts
       setTimeout(() => {
         updateAttributes({ align: newAlign });
       }, 0);
@@ -129,14 +155,22 @@ export const FigureView = ({
     };
   }, [isResizing, updateAttributes]);
 
-  // Calculate alignment styles
   const alignmentStyles: React.CSSProperties = {
     width: `${widthValue}%`,
     marginLeft: alignValue === "left" ? 0 : "auto",
     marginRight: alignValue === "right" ? 0 : "auto",
   };
 
-  const showToolbar = selected || isHovered;
+  const showToolbar = selected || isHovered || showSettings;
+
+  const handleSettingsClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setShowSettings(!showSettings);
+    },
+    [showSettings]
+  );
 
   return (
     <NodeViewWrapper className="my-5" data-drag-handle>
@@ -159,13 +193,7 @@ export const FigureView = ({
         />
 
         {showToolbar && (
-          // biome-ignore lint/a11y/noStaticElementInteractions: <>
-          <div
-            className="absolute top-2 right-2 z-30 flex items-center gap-0.5 rounded-lg border bg-background p-1 shadow"
-            onClick={(e) => e.stopPropagation()}
-            onMouseDown={(e) => e.stopPropagation()}
-          >
-            {/* Alignment buttons */}
+          <div className="absolute top-2 right-2 z-30 flex items-center gap-0.5 rounded-lg border bg-background p-1 shadow">
             <Button
               className={cn(
                 "size-7 p-0",
@@ -209,59 +237,63 @@ export const FigureView = ({
             {/* Divider */}
             <div className="mx-0.5 h-5 w-px bg-border" />
 
-            {/* Settings button with popover */}
-            <Popover modal="trap-focus">
-              <PopoverTrigger
-                render={(props) => (
-                  <Button
-                    {...props}
-                    className="size-7 p-0"
-                    size="icon"
-                    title="Image settings"
-                    type="button"
-                    variant="ghost"
-                  >
-                    <Settings2 className="size-3.5" />
-                  </Button>
-                )}
-              />
-              <PopoverContent
-                align="end"
-                className="flex w-72 flex-col gap-3 p-3"
-                side="bottom"
-                sideOffset={8}
-              >
-                {/* Alt Text */}
-                <div className="space-y-1.5">
-                  <Label className="font-medium text-xs" htmlFor={altId}>
-                    Alt Text
-                  </Label>
-                  <Input
-                    className="h-8 text-sm"
-                    id={altId}
-                    onChange={handleAltChange}
-                    placeholder="Describe the image..."
-                    type="text"
-                    value={altValue}
-                  />
-                </div>
+            <button
+              className={cn(
+                "flex size-7 items-center justify-center rounded-lg transition-colors hover:bg-accent hover:text-accent-foreground",
+                showSettings && "bg-accent text-accent-foreground"
+              )}
+              data-settings-trigger
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setShowSettings((prev) => !prev);
+              }}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              title="Image settings"
+              type="button"
+            >
+              <Settings2 className="size-3.5" />
+            </button>
+          </div>
+        )}
 
-                {/* Caption */}
-                <div className="space-y-1.5">
-                  <Label className="font-medium text-xs" htmlFor={captionId}>
-                    Caption
-                  </Label>
-                  <Input
-                    className="h-8 text-sm"
-                    id={captionId}
-                    onChange={handleCaptionChange}
-                    placeholder="Add a caption..."
-                    type="text"
-                    value={captionValue}
-                  />
-                </div>
-              </PopoverContent>
-            </Popover>
+        {showSettings && (
+          <div
+            className="absolute top-14 right-2 z-40 flex w-72 flex-col gap-3 rounded-md border bg-popover p-3 text-popover-foreground shadow-md"
+            ref={settingsPanelRef}
+          >
+            {/* Alt Text */}
+            <div className="space-y-1.5">
+              <Label className="font-medium text-xs" htmlFor={altId}>
+                Alt Text
+              </Label>
+              <Input
+                className="h-8 text-sm"
+                id={altId}
+                onChange={handleAltChange}
+                placeholder="Describe the image..."
+                type="text"
+                value={altValue}
+              />
+            </div>
+
+            {/* Caption */}
+            <div className="space-y-1.5">
+              <Label className="font-medium text-xs" htmlFor={captionId}>
+                Caption
+              </Label>
+              <Input
+                className="h-8 text-sm"
+                id={captionId}
+                onChange={handleCaptionChange}
+                placeholder="Add a caption..."
+                type="text"
+                value={captionValue}
+              />
+            </div>
           </div>
         )}
 
@@ -282,7 +314,6 @@ export const FigureView = ({
           </>
         )}
 
-        {/* Caption - only shown when it has content */}
         {captionValue && (
           <figcaption className="mt-2 text-center text-muted-foreground text-sm italic">
             <p>{captionValue}</p>
