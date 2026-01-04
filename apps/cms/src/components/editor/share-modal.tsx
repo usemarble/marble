@@ -1,3 +1,5 @@
+import { Link02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Badge } from "@marble/ui/components/badge";
 import { Button } from "@marble/ui/components/button";
 import {
@@ -13,7 +15,7 @@ import {
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
-import { LinkSimpleIcon, TimerIcon } from "@phosphor-icons/react";
+import { TimerIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import { differenceInHours, differenceInMinutes, isBefore } from "date-fns";
 import { useState } from "react";
@@ -87,8 +89,8 @@ export function ShareModal({ postId }: ShareModalProps) {
       <Dialog>
         <DialogTrigger
           render={
-            <Button size="icon" type="button" variant="ghost">
-              <LinkSimpleIcon className="size-4" />
+            <Button size="icon-sm" type="button" variant="ghost">
+              <HugeiconsIcon icon={Link02Icon} />
             </Button>
           }
         />

@@ -92,11 +92,12 @@ export function NavMain() {
       <SidebarGroupLabel className="sr-only">Workspace</SidebarGroupLabel>
       <SidebarMenu>
         <SidebarMenuButton
-          className={`border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
+          className={cn(
+            "border border-transparent transition-colors duration-200 hover:bg-sidebar-accent",
             isOverviewActive
               ? "bg-sidebar-accent text-foreground"
               : "hover:text-accent-foreground"
-          }`}
+          )}
           render={
             <Link href={`/${params.workspace}`}>
               <HugeiconsIcon icon={Home01Icon} />
@@ -106,11 +107,12 @@ export function NavMain() {
         />
         {items.map((item) => (
           <SidebarMenuButton
-            className={`border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
+            className={cn(
+              "border border-transparent transition-colors duration-200 hover:bg-sidebar-accent",
               isActive(item.url)
-                ? "hover bg-sidebar-accent text-foreground"
+                ? "bg-sidebar-accent text-foreground"
                 : "hover:text-accent-foreground"
-            }`}
+            )}
             key={item.name}
             render={
               <Link href={`/${params.workspace}/${item.url}`}>
@@ -130,12 +132,12 @@ export function NavMain() {
             render={
               <Link href={`/${params.workspace}/settings/general`}>
                 <SidebarMenuButton
-                  className={`cursor-pointer border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
+                  className={cn(
+                    "cursor-pointer border border-transparent transition-colors duration-200 hover:bg-sidebar-accent",
                     isSettingsActive
                       ? "bg-sidebar-accent text-foreground"
                       : "hover:text-accent-foreground"
-                  }`}
-                  render={<div />}
+                  )}
                   tooltip="Settings"
                 >
                   <HugeiconsIcon icon={Settings01Icon} />
@@ -149,11 +151,11 @@ export function NavMain() {
               {settingsItems.map((subItem) => (
                 <SidebarMenuSubItem key={subItem.title}>
                   <SidebarMenuSubButton
-                    className={
+                    className={cn(
                       isActive(subItem.url)
                         ? "text-foreground"
                         : "text-muted-foreground"
-                    }
+                    )}
                     render={
                       <Link href={`/${params.workspace}/${subItem.url}`}>
                         <span>{subItem.title}</span>

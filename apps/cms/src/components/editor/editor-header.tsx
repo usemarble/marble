@@ -6,7 +6,7 @@ import {
   SidebarRightIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { buttonVariants } from "@marble/ui/components/button";
+import { Button, buttonVariants } from "@marble/ui/components/button";
 import { SidebarTrigger } from "@marble/ui/components/sidebar";
 import {
   Tooltip,
@@ -36,12 +36,12 @@ export function EditorHeader({ postId, workspace }: EditorHeaderProps) {
       <div className="flex items-center gap-4">
         <Tooltip>
           <TooltipTrigger
-            delay={10}
+            delay={400}
             render={
               <Link
                 className={cn(
-                  buttonVariants({ variant: "ghost", size: "icon-sm" }),
-                  "group"
+                  "group",
+                  buttonVariants({ variant: "ghost", size: "icon-sm" })
                 )}
                 href={`/${workspace}/posts`}
               >
@@ -60,9 +60,14 @@ export function EditorHeader({ postId, workspace }: EditorHeaderProps) {
         <Tooltip delay={400}>
           <TooltipTrigger
             render={
-              <SidebarTrigger className="size-8">
-                <HugeiconsIcon icon={SidebarRightIcon} />
-              </SidebarTrigger>
+              <SidebarTrigger
+                className="size-8"
+                render={
+                  <Button size="icon-sm" type="button" variant="ghost">
+                    <HugeiconsIcon icon={SidebarRightIcon} />
+                  </Button>
+                }
+              />
             }
           />
           <TooltipContent>

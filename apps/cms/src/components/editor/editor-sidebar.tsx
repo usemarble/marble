@@ -243,7 +243,6 @@ export function EditorSidebar({
               style={{
                 gridTemplateColumns: `repeat(${Object.keys(tabs).length}, 1fr)`,
               }}
-              variant="line"
             >
               {Object.entries(tabs).map(([value, label]) => (
                 <TabsTrigger className="px-2" key={value} value={value}>

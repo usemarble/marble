@@ -1,4 +1,5 @@
 /** biome-ignore-all lint/a11y/noNoninteractiveElementInteractions: <> */
+/** biome-ignore-all lint/a11y/useKeyWithClickEvents: <> */
 import { Button } from "@marble/ui/components/button";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
@@ -34,14 +35,11 @@ export const FigureView = ({
   );
   const [isResizing, setIsResizing] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const figureRef = useRef<HTMLElement>(null);
   const startXRef = useRef(0);
   const startWidthRef = useRef(0);
   const resizeSideRef = useRef<"left" | "right">("right");
 
-  // Use useId to generate unique ids for the inputs
-  const widthId = useId();
   const altId = useId();
   const captionId = useId();
 
@@ -52,13 +50,6 @@ export const FigureView = ({
     setWidthValue(width || "100");
     setAlignValue(align || "center");
   }, [alt, caption, width, align]);
-
-  // Close settings popover when node is deselected
-  useEffect(() => {
-    if (!selected) {
-      setIsSettingsOpen(false);
-    }
-  }, [selected]);
 
   const handleAltChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -112,7 +103,6 @@ export const FigureView = ({
       const containerWidth =
         figureRef.current?.parentElement?.clientWidth || 800;
 
-      // Invert delta for left handle (dragging left should grow the image)
       const effectiveDelta =
         resizeSideRef.current === "left" ? -deltaX : deltaX;
       const deltaPercent = (effectiveDelta / containerWidth) * 100;
@@ -139,14 +129,13 @@ export const FigureView = ({
     };
   }, [isResizing, updateAttributes]);
 
-  // Calculate alignment styles - only percent for now
+  // Calculate alignment styles
   const alignmentStyles: React.CSSProperties = {
     width: `${widthValue}%`,
     marginLeft: alignValue === "left" ? 0 : "auto",
     marginRight: alignValue === "right" ? 0 : "auto",
   };
 
-  // Show toolbar when hovered or selected
   const showToolbar = selected || isHovered;
 
   return (
@@ -169,11 +158,11 @@ export const FigureView = ({
           src={src}
         />
 
-        {/* Floating toolbar - shown on hover or selection */}
         {showToolbar && (
           // biome-ignore lint/a11y/noStaticElementInteractions: <>
           <div
             className="absolute top-2 right-2 z-30 flex items-center gap-0.5 rounded-lg border bg-background p-1 shadow"
+            onClick={(e) => e.stopPropagation()}
             onMouseDown={(e) => e.stopPropagation()}
           >
             {/* Alignment buttons */}
@@ -221,19 +210,12 @@ export const FigureView = ({
             <div className="mx-0.5 h-5 w-px bg-border" />
 
             {/* Settings button with popover */}
-            <Popover
-              modal
-              onOpenChange={setIsSettingsOpen}
-              open={isSettingsOpen}
-            >
+            <Popover modal="trap-focus">
               <PopoverTrigger
                 render={(props) => (
                   <Button
                     {...props}
-                    className={cn(
-                      "size-7 p-0",
-                      isSettingsOpen && "bg-accent text-accent-foreground"
-                    )}
+                    className="size-7 p-0"
                     size="icon"
                     title="Image settings"
                     type="button"
@@ -283,17 +265,14 @@ export const FigureView = ({
           </div>
         )}
 
-        {/* Resize handles - shown on hover or selection */}
         {showToolbar && (
           <>
-            {/* Left handle */}
             <button
               className="-translate-y-1/2 absolute top-1/2 left-2 z-20 h-8 w-1 cursor-ew-resize rounded-full border border-foreground border-white bg-background transition-all"
               onMouseDown={handleResizeStart("left")}
               title="Drag to resize"
               type="button"
             />
-            {/* Right handle */}
             <button
               className="-translate-y-1/2 absolute top-1/2 right-2 z-20 h-8 w-1 cursor-ew-resize rounded-full border border-foreground border-white bg-background transition-all"
               onMouseDown={handleResizeStart("right")}
