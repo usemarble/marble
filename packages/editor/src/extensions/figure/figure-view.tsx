@@ -1,3 +1,5 @@
+/** biome-ignore-all lint/a11y/noNoninteractiveElementInteractions: <> */
+/** biome-ignore-all lint/a11y/useKeyWithClickEvents: <> */
 import { Button } from "@marble/ui/components/button";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
@@ -9,6 +11,7 @@ import {
 import { cn } from "@marble/ui/lib/utils";
 import type { NodeViewProps } from "@tiptap/core";
 import { NodeViewWrapper } from "@tiptap/react";
+import { AlignCenter, AlignLeft, AlignRight, Settings2 } from "lucide-react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 export const FigureView = ({
@@ -31,13 +34,12 @@ export const FigureView = ({
     align || "center"
   );
   const [isResizing, setIsResizing] = useState(false);
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const figureRef = useRef<HTMLElement>(null);
   const startXRef = useRef(0);
   const startWidthRef = useRef(0);
+  const resizeSideRef = useRef<"left" | "right">("right");
 
-  // Use useId to generate unique ids for the width, alt, and caption inputs
-  const widthId = useId();
   const altId = useId();
   const captionId = useId();
 
@@ -48,37 +50,6 @@ export const FigureView = ({
     setWidthValue(width || "100");
     setAlignValue(align || "center");
   }, [alt, caption, width, align]);
-
-  // Close popover when node is deselected
-  useEffect(() => {
-    if (!selected) {
-      setIsPopoverOpen(false);
-    }
-  }, [selected]);
-
-  // Handle image click to toggle popover
-  const handleImageClick = useCallback(
-    (e: React.MouseEvent) => {
-      if (selected) {
-        e.preventDefault();
-        e.stopPropagation();
-        setIsPopoverOpen((prev) => !prev);
-      }
-    },
-    [selected]
-  );
-
-  // Handle keyboard events for accessibility
-  const handleImageKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (selected && (e.key === "Enter" || e.key === " ")) {
-        e.preventDefault();
-        e.stopPropagation();
-        setIsPopoverOpen((prev) => !prev);
-      }
-    },
-    [selected]
-  );
 
   const handleAltChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -98,62 +69,6 @@ export const FigureView = ({
     [updateAttributes]
   );
 
-  const handleWidthChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const newWidth = e.target.value;
-      // Only allow numbers and empty string
-      if (!/^\d*$/.test(newWidth)) {
-        return;
-      }
-
-      // Allow any valid number input during typing
-      setWidthValue(newWidth);
-
-      // Only update attributes if we have a valid number
-      if (newWidth && Number.parseInt(newWidth, 10) > 0) {
-        updateAttributes({ width: newWidth });
-      }
-    },
-    [updateAttributes]
-  );
-
-  const handleWidthBlur = useCallback(() => {
-    // Validate and clamp on blur - only percent for now
-    const numValue = Number.parseInt(widthValue, 10) || 100;
-    const minValue = 10;
-    const maxValue = 100;
-
-    const clampedValue = Math.max(minValue, Math.min(maxValue, numValue));
-    const finalWidth = String(clampedValue);
-
-    setWidthValue(finalWidth);
-    updateAttributes({ width: finalWidth, widthUnit: "percent" });
-  }, [widthValue, updateAttributes]);
-
-  // Width unit change disabled - only percent for now
-  // const handleWidthUnitChange = useCallback(
-  //   (newUnit: "percent" | "pixel") => {
-  //     setWidthUnitValue(newUnit);
-  //     // Convert width value when switching units
-  //     const currentNum = Number.parseInt(widthValue, 10) || 100;
-  //     const containerWidth =
-  //       figureRef.current?.parentElement?.clientWidth || 800;
-  //     let newWidth = widthValue;
-
-  //     if (newUnit === "pixel" && widthUnitValue === "percent") {
-  //       // Converting from % to px - use actual container width
-  //       newWidth = String(Math.round((currentNum / 100) * containerWidth));
-  //     } else if (newUnit === "percent" && widthUnitValue === "pixel") {
-  //       // Converting from px to %
-  //       newWidth = String(Math.round((currentNum / containerWidth) * 100));
-  //     }
-
-  //     setWidthValue(newWidth);
-  //     updateAttributes({ width: newWidth, widthUnit: newUnit });
-  //   },
-  //   [updateAttributes, widthValue, widthUnitValue]
-  // );
-
   const handleAlignChange = useCallback(
     (newAlign: "left" | "center" | "right") => {
       setAlignValue(newAlign);
@@ -165,13 +80,13 @@ export const FigureView = ({
     [updateAttributes]
   );
 
-  // Resize handle drag handlers
   const handleResizeStart = useCallback(
-    (e: React.MouseEvent) => {
+    (side: "left" | "right") => (e: React.MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
       setIsResizing(true);
       startXRef.current = e.clientX;
+      resizeSideRef.current = side;
       const currentWidth = Number.parseInt(widthValue, 10) || 100;
       startWidthRef.current = currentWidth;
     },
@@ -188,8 +103,9 @@ export const FigureView = ({
       const containerWidth =
         figureRef.current?.parentElement?.clientWidth || 800;
 
-      // Only percent for now
-      const deltaPercent = (deltaX / containerWidth) * 100;
+      const effectiveDelta =
+        resizeSideRef.current === "left" ? -deltaX : deltaX;
+      const deltaPercent = (effectiveDelta / containerWidth) * 100;
       const newWidth = Math.max(
         10,
         Math.min(100, startWidthRef.current + deltaPercent)
@@ -213,155 +129,166 @@ export const FigureView = ({
     };
   }, [isResizing, updateAttributes]);
 
-  // Calculate alignment styles - only percent for now
+  // Calculate alignment styles
   const alignmentStyles: React.CSSProperties = {
     width: `${widthValue}%`,
     marginLeft: alignValue === "left" ? 0 : "auto",
     marginRight: alignValue === "right" ? 0 : "auto",
   };
 
+  const showToolbar = selected || isHovered;
+
   return (
     <NodeViewWrapper className="my-5" data-drag-handle>
-      <Popover modal onOpenChange={setIsPopoverOpen} open={isPopoverOpen}>
-        <PopoverTrigger asChild>
-          {/* biome-ignore lint: PopoverTrigger with asChild handles interactivity, figure is semantically correct for image with caption */}
-          <figure
-            aria-label="Image settings"
-            className={cn(
-              "relative cursor-pointer",
-              selected && "outline-2 outline-primary outline-offset-2"
-            )}
-            onClick={handleImageClick}
-            onKeyDown={handleImageKeyDown}
-            ref={figureRef}
-            style={alignmentStyles}
-            tabIndex={selected ? 0 : -1}
+      <figure
+        aria-label="Image figure"
+        className={cn(
+          "relative",
+          selected && "outline-2 outline-primary outline-offset-2"
+        )}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        ref={figureRef}
+        style={alignmentStyles}
+      >
+        {/* biome-ignore lint: Tiptap NodeView requires standard img element */}
+        <img
+          alt={altValue}
+          className="h-auto w-full rounded-md border border-muted"
+          src={src}
+        />
+
+        {showToolbar && (
+          // biome-ignore lint/a11y/noStaticElementInteractions: <>
+          <div
+            className="absolute top-2 right-2 z-30 flex items-center gap-0.5 rounded-lg border bg-background p-1 shadow"
+            onClick={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
           >
-            {/* biome-ignore lint: Tiptap NodeView requires standard img element */}
-            <img
-              alt={altValue}
-              className="h-auto w-full rounded-md border border-muted"
-              src={src}
-            />
+            {/* Alignment buttons */}
+            <Button
+              className={cn(
+                "size-7 p-0",
+                alignValue === "left" && "bg-accent text-accent-foreground"
+              )}
+              onClick={() => handleAlignChange("left")}
+              size="icon"
+              title="Align left"
+              type="button"
+              variant="ghost"
+            >
+              <AlignLeft className="size-3.5" />
+            </Button>
+            <Button
+              className={cn(
+                "size-7 p-0",
+                alignValue === "center" && "bg-accent text-accent-foreground"
+              )}
+              onClick={() => handleAlignChange("center")}
+              size="icon"
+              title="Align center"
+              type="button"
+              variant="ghost"
+            >
+              <AlignCenter className="size-3.5" />
+            </Button>
+            <Button
+              className={cn(
+                "size-7 p-0",
+                alignValue === "right" && "bg-accent text-accent-foreground"
+              )}
+              onClick={() => handleAlignChange("right")}
+              size="icon"
+              title="Align right"
+              type="button"
+              variant="ghost"
+            >
+              <AlignRight className="size-3.5" />
+            </Button>
 
-            {/* Resize handles - only shown when selected */}
-            {selected && (
-              <>
-                {/* Left handle */}
-                <button
-                  className="absolute top-1/2 left-0 z-20 h-16 w-2 -translate-x-1/2 -translate-y-1/2 cursor-ew-resize rounded-sm bg-primary opacity-0 transition-opacity hover:opacity-100"
-                  onMouseDown={handleResizeStart}
-                  title="Drag to resize"
-                  type="button"
-                />
-                {/* Right handle */}
-                <button
-                  className="absolute top-1/2 right-0 z-20 h-16 w-2 translate-x-1/2 -translate-y-1/2 cursor-ew-resize rounded-sm bg-primary opacity-0 transition-opacity hover:opacity-100"
-                  onMouseDown={handleResizeStart}
-                  title="Drag to resize"
-                  type="button"
-                />
-              </>
-            )}
+            {/* Divider */}
+            <div className="mx-0.5 h-5 w-px bg-border" />
 
-            {/* Caption - only shown when it has content */}
-            {captionValue && (
-              <figcaption className="mt-2 text-center text-muted-foreground text-sm italic">
-                <p>{captionValue}</p>
-              </figcaption>
-            )}
-          </figure>
-        </PopoverTrigger>
-
-        {/* Toolbar in Popover - only shown when selected */}
-        <PopoverContent
-          align="start"
-          className="flex w-80 flex-col gap-3 p-3"
-          onOpenAutoFocus={(event) => event.preventDefault()}
-          side="right"
-          sideOffset={18}
-        >
-          {/* Width Controls - Only percent for now */}
-          <div className="space-y-2">
-            <Label className="font-medium text-xs" htmlFor={widthId}>
-              Width (%)
-            </Label>
-            <Input
-              className="h-8 text-sm"
-              id={widthId}
-              onBlur={handleWidthBlur}
-              onChange={handleWidthChange}
-              placeholder="100"
-              type="text"
-              value={widthValue}
-            />
-          </div>
-
-          {/* Alignment Controls */}
-          <div className="space-y-2">
-            <Label className="font-medium text-xs">Alignment</Label>
-            <div className="grid grid-cols-3 gap-1.5">
-              <Button
-                className="!rounded-sm w-full shadow-none data-[active=true]:bg-primary/20 data-[active=true]:text-primary"
-                data-active={alignValue === "left"}
-                onClick={() => handleAlignChange("left")}
-                type="button"
-                variant="outline"
+            {/* Settings button with popover */}
+            <Popover modal="trap-focus">
+              <PopoverTrigger
+                render={(props) => (
+                  <Button
+                    {...props}
+                    className="size-7 p-0"
+                    size="icon"
+                    title="Image settings"
+                    type="button"
+                    variant="ghost"
+                  >
+                    <Settings2 className="size-3.5" />
+                  </Button>
+                )}
+              />
+              <PopoverContent
+                align="end"
+                className="flex w-72 flex-col gap-3 p-3"
+                side="bottom"
+                sideOffset={8}
               >
-                {/* <AlignLeft className="size-4" /> */}
-                Left
-              </Button>
-              <Button
-                className="!rounded-sm w-full shadow-none data-[active=true]:bg-primary/20 data-[active=true]:text-primary"
-                data-active={alignValue === "center"}
-                onClick={() => handleAlignChange("center")}
-                type="button"
-                variant="outline"
-              >
-                {/* <AlignCenter className="size-4" /> */}
-                Center
-              </Button>
-              <Button
-                className="!rounded-sm w-full shadow-none data-[active=true]:bg-primary/20 data-[active=true]:text-primary"
-                data-active={alignValue === "right"}
-                onClick={() => handleAlignChange("right")}
-                type="button"
-                variant="outline"
-              >
-                {/* <AlignRight className="size-4" /> */}
-                Right
-              </Button>
-            </div>
-          </div>
+                {/* Alt Text */}
+                <div className="space-y-1.5">
+                  <Label className="font-medium text-xs" htmlFor={altId}>
+                    Alt Text
+                  </Label>
+                  <Input
+                    className="h-8 text-sm"
+                    id={altId}
+                    onChange={handleAltChange}
+                    placeholder="Describe the image..."
+                    type="text"
+                    value={altValue}
+                  />
+                </div>
 
-          <div className="space-y-2">
-            <Label className="font-medium text-xs" htmlFor={altId}>
-              Alt Text
-            </Label>
-            <Input
-              className="h-8 text-sm"
-              id={altId}
-              onChange={handleAltChange}
-              placeholder="Describe the image..."
-              type="text"
-              value={altValue}
-            />
+                {/* Caption */}
+                <div className="space-y-1.5">
+                  <Label className="font-medium text-xs" htmlFor={captionId}>
+                    Caption
+                  </Label>
+                  <Input
+                    className="h-8 text-sm"
+                    id={captionId}
+                    onChange={handleCaptionChange}
+                    placeholder="Add a caption..."
+                    type="text"
+                    value={captionValue}
+                  />
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
-          <div className="space-y-2">
-            <Label className="font-medium text-xs" htmlFor={captionId}>
-              Caption
-            </Label>
-            <Input
-              className="h-8 text-sm"
-              id="caption"
-              onChange={handleCaptionChange}
-              placeholder="Add a caption..."
-              type="text"
-              value={captionValue}
+        )}
+
+        {showToolbar && (
+          <>
+            <button
+              className="-translate-y-1/2 absolute top-1/2 left-2 z-20 h-8 w-1 cursor-ew-resize rounded-full border border-foreground border-white bg-background transition-all"
+              onMouseDown={handleResizeStart("left")}
+              title="Drag to resize"
+              type="button"
             />
-          </div>
-        </PopoverContent>
-      </Popover>
+            <button
+              className="-translate-y-1/2 absolute top-1/2 right-2 z-20 h-8 w-1 cursor-ew-resize rounded-full border border-foreground border-white bg-background transition-all"
+              onMouseDown={handleResizeStart("right")}
+              title="Drag to resize"
+              type="button"
+            />
+          </>
+        )}
+
+        {/* Caption - only shown when it has content */}
+        {captionValue && (
+          <figcaption className="mt-2 text-center text-muted-foreground text-sm italic">
+            <p>{captionValue}</p>
+          </figcaption>
+        )}
+      </figure>
     </NodeViewWrapper>
   );
 };

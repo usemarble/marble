@@ -16,6 +16,8 @@
     "@databuddy/sdk": "^2.1.75",
     "@discordjs/builders": "^1.13.0",
     "@hookform/resolvers": "^5.2.0",
+    "@hugeicons/core-free-icons": "^3.1.1",
+    "@hugeicons/react": "^1.1.4",
     "@marble/db": "workspace:*",
     "@marble/editor": "workspace:*",
     "@marble/email": "workspace:*",

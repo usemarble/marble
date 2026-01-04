@@ -54,17 +54,19 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
 
   return (
     <Popover modal={true} onOpenChange={onOpenChange} open={open}>
-      <PopoverTrigger asChild>
-        <Button
-          className={cn("gap-2 border-none", {
-            "text-emerald-500": editor.isActive("link"),
-          })}
-          size="icon"
-          variant="ghost"
-        >
-          <LinkSimpleIcon className="size-4" />
-        </Button>
-      </PopoverTrigger>
+      <PopoverTrigger
+        render={
+          <Button
+            className={cn("gap-2 border-none", {
+              "text-emerald-500": editor.isActive("link"),
+            })}
+            size="icon"
+            variant="ghost"
+          >
+            <LinkSimpleIcon className="size-4" />
+          </Button>
+        }
+      />
       <PopoverContent align="start" className="w-60 p-0" sideOffset={10}>
         {/** biome-ignore lint/a11y/noNoninteractiveElementInteractions: It's acting as a button */}
         {/** biome-ignore lint/a11y/noStaticElementInteractions: It's acting as a button */}

@@ -1,4 +1,6 @@
 "use client";
+import { HelpCircleIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Button, buttonVariants } from "@marble/ui/components/button";
 import {
   Popover,
@@ -54,20 +56,24 @@ const resourceLinks = [
 export function NavExtra() {
   return (
     <Popover>
-      <Tooltip delayDuration={300}>
-        <TooltipTrigger asChild>
-          <PopoverTrigger asChild>
-            <Button
-              aria-label="Get in touch"
-              className="cursor-help rounded-lg"
-              size="icon"
-              type="button"
-              variant="ghost"
-            >
-              <QuestionIcon className="size-4" />
-            </Button>
-          </PopoverTrigger>
-        </TooltipTrigger>
+      <Tooltip delay={300}>
+        <TooltipTrigger
+          render={
+            <PopoverTrigger
+              render={
+                <Button
+                  aria-label="Get in touch"
+                  className="rounded-lg"
+                  size="icon"
+                  type="button"
+                  variant="ghost"
+                >
+                  <HugeiconsIcon icon={HelpCircleIcon} />
+                </Button>
+              }
+            />
+          }
+        />
         <TooltipContent>
           <p>Contact Us</p>
         </TooltipContent>

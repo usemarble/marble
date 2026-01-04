@@ -17,7 +17,6 @@ import {
 import { cn } from "@marble/ui/lib/utils";
 import { SpinnerIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { parseAsStringLiteral, useQueryState } from "nuqs";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import type { Control, FieldErrors, UseFormWatch } from "react-hook-form";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -192,10 +191,7 @@ export function EditorSidebar({
     },
   });
 
-  const [activeTab, setActiveTab] = useQueryState(
-    "tab",
-    parseAsStringLiteral(Object.keys(tabs)).withDefault("metadata")
-  );
+  const [activeTab, setActiveTab] = useState<keyof typeof tabs>("metadata");
 
   useEffect(() => {
     if (
@@ -235,7 +231,7 @@ export function EditorSidebar({
         <SidebarHeader className="sticky top-0 z-10 shrink-0 bg-transparent px-6 py-4">
           <Tabs
             className="w-full"
-            onValueChange={setActiveTab}
+            onValueChange={(value) => setActiveTab(value)}
             value={activeTab}
           >
             <TabsList
@@ -243,7 +239,6 @@ export function EditorSidebar({
               style={{
                 gridTemplateColumns: `repeat(${Object.keys(tabs).length}, 1fr)`,
               }}
-              variant="line"
             >
               {Object.entries(tabs).map(([value, label]) => (
                 <TabsTrigger className="px-2" key={value} value={value}>
@@ -257,12 +252,11 @@ export function EditorSidebar({
         <SidebarContent className="min-h-0 flex-1 overflow-hidden bg-transparent">
           <Tabs
             className="flex h-full flex-col"
-            onValueChange={setActiveTab}
+            onValueChange={(value) => setActiveTab(value)}
             value={activeTab}
           >
             <TabsContent
               className="min-h-0 flex-1 data-[state=inactive]:hidden"
-              forceMount
               value="metadata"
             >
               <Suspense fallback={<TabLoadingSpinner />}>
@@ -277,7 +271,6 @@ export function EditorSidebar({
 
             <TabsContent
               className="min-h-0 flex-1 data-[state=inactive]:hidden"
-              forceMount
               value="analysis"
             >
               <Suspense fallback={<TabLoadingSpinner />}>

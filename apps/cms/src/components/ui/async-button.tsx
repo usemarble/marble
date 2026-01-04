@@ -1,34 +1,37 @@
 "use client";
 
-import { Button } from "@marble/ui/components/button";
-import type { ComponentProps, ReactNode, RefObject } from "react";
+import { Button, type buttonVariants } from "@marble/ui/components/button";
+import type { VariantProps } from "class-variance-authority";
+import type * as React from "react";
+import type { ReactNode, RefObject } from "react";
 import { ButtonLoadingSpinner } from "./loading-spinner";
 
-interface AsyncButtonProps extends ComponentProps<typeof Button> {
-  /**
-   * Whether the button is in a loading state
-   */
-  isLoading?: boolean;
-  /**
-   * Text to display when not loading
-   */
-  children: ReactNode;
-  /**
-   * Optional loading text to display when loading (takes priority over children)
-   */
-  loadingText?: string;
-  /**
-   * Whether to keep the original children text while loading
-   * If false (default), only spinner is shown
-   * If true, shows spinner + children
-   * Note: loadingText takes priority over this prop
-   */
-  keepTextWhileLoading?: boolean;
-  /**
-   * Optional ref for the underlying button element
-   */
-  ref?: RefObject<HTMLButtonElement | null>;
-}
+type AsyncButtonProps = React.ComponentPropsWithRef<"button"> &
+  VariantProps<typeof buttonVariants> & {
+    /**
+     * Whether the button is in a loading state
+     */
+    isLoading?: boolean;
+    /**
+     * Text to display when not loading
+     */
+    children: ReactNode;
+    /**
+     * Optional loading text to display when loading (takes priority over children)
+     */
+    loadingText?: string;
+    /**
+     * Whether to keep the original children text while loading
+     * If false (default), only spinner is shown
+     * If true, shows spinner + children
+     * Note: loadingText takes priority over this prop
+     */
+    keepTextWhileLoading?: boolean;
+    /**
+     * Optional ref for the underlying button element
+     */
+    ref?: RefObject<HTMLButtonElement | null>;
+  };
 
 const AsyncButton = ({
   children,
@@ -80,4 +83,4 @@ const AsyncButton = ({
 
 AsyncButton.displayName = "AsyncButton";
 
-export { AsyncButton };
+export { AsyncButton, type AsyncButtonProps };

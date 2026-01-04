@@ -103,7 +103,7 @@ export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
                   value={role}
                 >
                   <SelectTrigger className="w-[220px]">
-                    <SelectValue placeholder="Role" />
+                    <SelectValue className="capitalize" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="admin">Admin</SelectItem>

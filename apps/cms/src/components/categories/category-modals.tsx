@@ -213,9 +213,7 @@ export const CategoryModal = ({
             />
           </div>
           <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </DialogClose>
+            <DialogClose render={<Button variant="outline">Cancel</Button>} />
             <AsyncButton
               className="gap-2"
               isLoading={isSubmitting || isCreating || isUpdating}
@@ -285,7 +283,7 @@ export const DeleteCategoryModal = ({
           <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
           <AsyncButton
             isLoading={isPending}
-            onClick={(e) => {
+            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
               e.preventDefault();
               deleteCategory();
             }}

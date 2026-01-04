@@ -36,9 +36,9 @@ export function DeleteAccountModal() {
 
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button variant="destructive">Delete Account</Button>
-      </AlertDialogTrigger>
+      <AlertDialogTrigger
+        render={<Button variant="destructive">Delete Account</Button>}
+      />
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete account?</AlertDialogTitle>
@@ -53,7 +53,7 @@ export function DeleteAccountModal() {
           </AlertDialogCancel>
           <AsyncButton
             isLoading={isPending}
-            onClick={(e) => {
+            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
               e.preventDefault();
               deleteAccount();
             }}

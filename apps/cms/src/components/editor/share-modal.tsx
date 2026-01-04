@@ -1,3 +1,5 @@
+import { Link02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Badge } from "@marble/ui/components/badge";
 import { Button } from "@marble/ui/components/button";
 import {
@@ -13,7 +15,7 @@ import {
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
-import { LinkSimpleIcon, TimerIcon } from "@phosphor-icons/react";
+import { TimerIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import { differenceInHours, differenceInMinutes, isBefore } from "date-fns";
 import { useState } from "react";
@@ -85,11 +87,18 @@ export function ShareModal({ postId }: ShareModalProps) {
   return (
     <>
       <Dialog>
-        <DialogTrigger asChild>
-          <Button size="icon" type="button" variant="ghost">
-            <LinkSimpleIcon className="size-4" />
-          </Button>
-        </DialogTrigger>
+        <DialogTrigger
+          render={
+            <Button
+              aria-label="Share draft link"
+              size="icon-sm"
+              type="button"
+              variant="ghost"
+            >
+              <HugeiconsIcon icon={Link02Icon} />
+            </Button>
+          }
+        />
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Share Draft link</DialogTitle>
@@ -106,11 +115,13 @@ export function ShareModal({ postId }: ShareModalProps) {
                 </p>
               </div>
               <DialogFooter>
-                <DialogClose asChild>
-                  <Button type="button" variant="secondary">
-                    Close
-                  </Button>
-                </DialogClose>
+                <DialogClose
+                  render={
+                    <Button type="button" variant="secondary">
+                      Close
+                    </Button>
+                  }
+                />
                 <Button onClick={() => setShowUpgradeModal(true)}>
                   Upgrade
                 </Button>
@@ -212,11 +223,13 @@ export function ShareModal({ postId }: ShareModalProps) {
           )} */}
               </div>
               <DialogFooter>
-                <DialogClose asChild>
-                  <Button type="button" variant="secondary">
-                    Close
-                  </Button>
-                </DialogClose>
+                <DialogClose
+                  render={
+                    <Button type="button" variant="secondary">
+                      Close
+                    </Button>
+                  }
+                />
                 <AsyncButton
                   disabled={isPending}
                   isLoading={isPending}

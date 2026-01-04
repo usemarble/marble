@@ -119,41 +119,45 @@ export function PostDataView<TData, TValue>({
         <div className="flex items-center gap-2">
           <div className="flex gap-1 rounded-xl bg-sidebar p-1 dark:bg-accent/50">
             <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  className={cn(
-                    "size-7 rounded-r-none rounded-l-[8px] px-3 transition duration-300",
-                    viewType === "grid" &&
-                      "bg-background text-accent-foreground shadow-sm hover:bg-background dark:hover:bg-background"
-                  )}
-                  onClick={() => setViewType("grid")}
-                  size="sm"
-                  variant="ghost"
-                >
-                  <SquaresFourIcon size={16} />
-                  <span className="sr-only">Grid View</span>
-                </Button>
-              </TooltipTrigger>
+              <TooltipTrigger
+                render={
+                  <Button
+                    className={cn(
+                      "size-7 rounded-r-none rounded-l-[8px] px-3 transition duration-300",
+                      viewType === "grid" &&
+                        "bg-background text-accent-foreground shadow-sm hover:bg-background dark:hover:bg-background"
+                    )}
+                    onClick={() => setViewType("grid")}
+                    size="sm"
+                    variant="ghost"
+                  >
+                    <SquaresFourIcon size={16} />
+                    <span className="sr-only">Grid View</span>
+                  </Button>
+                }
+              />
               <TooltipContent>
                 <p>Grid View</p>
               </TooltipContent>
             </Tooltip>
             <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  className={cn(
-                    "size-7 rounded-r-[8px] rounded-l-none px-3 transition duration-300",
-                    viewType === "table" &&
-                      "bg-background text-accent-foreground shadow-sm hover:bg-background dark:hover:bg-background"
-                  )}
-                  onClick={() => setViewType("table")}
-                  size="sm"
-                  variant="ghost"
-                >
-                  <RowsIcon size={16} />
-                  <span className="sr-only">Table View</span>
-                </Button>
-              </TooltipTrigger>
+              <TooltipTrigger
+                render={
+                  <Button
+                    className={cn(
+                      "size-7 rounded-r-[8px] rounded-l-none px-3 transition duration-300",
+                      viewType === "table" &&
+                        "bg-background text-accent-foreground shadow-sm hover:bg-background dark:hover:bg-background"
+                    )}
+                    onClick={() => setViewType("table")}
+                    size="sm"
+                    variant="ghost"
+                  >
+                    <RowsIcon size={16} />
+                    <span className="sr-only">Table View</span>
+                  </Button>
+                }
+              />
               <TooltipContent>
                 <p>Table View</p>
               </TooltipContent>
@@ -169,15 +173,17 @@ export function PostDataView<TData, TValue>({
               <span>New Post</span>
             </Link>
             <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  aria-label="Upload"
-                  onClick={() => setImportOpen(true)}
-                  variant="default"
-                >
-                  <UploadSimpleIcon className="size-4" />
-                </Button>
-              </TooltipTrigger>
+              <TooltipTrigger
+                render={
+                  <Button
+                    aria-label="Upload"
+                    onClick={() => setImportOpen(true)}
+                    variant="default"
+                  >
+                    <UploadSimpleIcon className="size-4" />
+                  </Button>
+                }
+              />
               <TooltipContent side="top">Upload</TooltipContent>
             </Tooltip>
           </div>

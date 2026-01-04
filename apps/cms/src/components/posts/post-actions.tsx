@@ -62,19 +62,25 @@ export default function PostActions({
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            className={cn(
-              "size-8 p-0",
-              view === "grid" &&
-                "rounded-full bg-sidebar hover:bg-primary/10 hover:text-primary dark:bg-accent/50 dark:hover:text-accent-foreground"
-            )}
-            variant="ghost"
-          >
-            <span className="sr-only">Open menu</span>
-            <DotsThreeVerticalIcon size={16} weight="bold" />
-          </Button>
-        </DropdownMenuTrigger>
+        <DropdownMenuTrigger
+          render={
+            <Button
+              className={cn(
+                "size-8 p-0",
+                view === "grid" &&
+                  "rounded-full bg-sidebar hover:bg-primary/10 hover:text-primary dark:bg-accent/50 dark:hover:text-accent-foreground"
+              )}
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+              }}
+              variant="ghost"
+            >
+              <span className="sr-only">Open menu</span>
+              <DotsThreeVerticalIcon size={16} weight="bold" />
+            </Button>
+          }
+        />
         <DropdownMenuContent
           align={view === "grid" ? "center" : "end"}
           className="text-muted-foreground shadow-sm"

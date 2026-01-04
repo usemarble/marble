@@ -119,12 +119,14 @@ export function AnalysisTab({
                 </h4>
                 {aiEnabled && textMetrics.wordCount > 0 ? (
                   <Tooltip>
-                    <TooltipTrigger asChild>
-                      <InfoIcon
-                        aria-label="AI generated"
-                        className="h-3.5 w-3.5 cursor-help text-muted-foreground"
-                      />
-                    </TooltipTrigger>
+                    <TooltipTrigger
+                      render={
+                        <InfoIcon
+                          aria-label="AI generated"
+                          className="h-3.5 w-3.5 cursor-help text-muted-foreground"
+                        />
+                      }
+                    />
                     <TooltipContent>
                       <p className="text-xs">
                         These suggestions are AI-generated

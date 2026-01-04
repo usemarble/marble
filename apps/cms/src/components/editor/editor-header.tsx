@@ -1,6 +1,12 @@
 "use client";
 
-import { buttonVariants } from "@marble/ui/components/button";
+import {
+  Cancel01Icon,
+  SidebarRight01Icon,
+  SidebarRightIcon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Button, buttonVariants } from "@marble/ui/components/button";
 import { SidebarTrigger } from "@marble/ui/components/sidebar";
 import {
   Tooltip,
@@ -28,18 +34,21 @@ export function EditorHeader({ postId, workspace }: EditorHeaderProps) {
   return (
     <header className="sticky top-0 z-50 flex justify-between p-3">
       <div className="flex items-center gap-4">
-        <Tooltip delayDuration={400}>
-          <TooltipTrigger asChild>
-            <Link
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "icon" }),
-                "group"
-              )}
-              href={`/${workspace}/posts`}
-            >
-              <XIcon className="size-4 text-muted-foreground group-hover:text-foreground" />
-            </Link>
-          </TooltipTrigger>
+        <Tooltip>
+          <TooltipTrigger
+            delay={400}
+            render={
+              <Link
+                className={cn(
+                  "group",
+                  buttonVariants({ variant: "ghost", size: "icon-sm" })
+                )}
+                href={`/${workspace}/posts`}
+              >
+                <HugeiconsIcon icon={Cancel01Icon} />
+              </Link>
+            }
+          />
           <TooltipContent>
             <p>Close Editor</p>
           </TooltipContent>
@@ -48,12 +57,19 @@ export function EditorHeader({ postId, workspace }: EditorHeaderProps) {
 
       <div className="flex items-center gap-2">
         {postId && <ShareModal postId={postId} />}
-        <Tooltip delayDuration={400}>
-          <TooltipTrigger asChild>
-            <SidebarTrigger className="size-8 text-muted-foreground">
-              <SidebarSimpleIcon className="size-4" />
-            </SidebarTrigger>
-          </TooltipTrigger>
+        <Tooltip delay={400}>
+          <TooltipTrigger
+            render={
+              <SidebarTrigger
+                className="size-8"
+                render={
+                  <Button size="icon-sm" type="button" variant="ghost">
+                    <HugeiconsIcon icon={SidebarRightIcon} />
+                  </Button>
+                }
+              />
+            }
+          />
           <TooltipContent>
             <p>Toggle Sidebar ({getToggleSidebarShortcut()})</p>
           </TooltipContent>

@@ -75,18 +75,22 @@ export function DataGrid({ data }: DataGridProps) {
                 </div>
                 <div className="flex items-center gap-3 text-muted-foreground">
                   <Tooltip>
-                    <TooltipTrigger asChild>
-                      <CalendarIcon className="size-5 cursor-default" />
-                    </TooltipTrigger>
+                    <TooltipTrigger
+                      render={
+                        <CalendarIcon className="size-5 cursor-default" />
+                      }
+                    />
                     <TooltipContent>
                       Published: {format(post.publishedAt, "MMM dd, yyyy")}
                     </TooltipContent>
                   </Tooltip>
 
                   <Tooltip>
-                    <TooltipTrigger asChild>
-                      <ClockClockwiseIcon className="size-5 cursor-default" />
-                    </TooltipTrigger>
+                    <TooltipTrigger
+                      render={
+                        <ClockClockwiseIcon className="size-5 cursor-default" />
+                      }
+                    />
                     <TooltipContent>
                       Last Updated: {format(post.updatedAt, "MMM dd, yyyy")}
                     </TooltipContent>
@@ -95,18 +99,20 @@ export function DataGrid({ data }: DataGridProps) {
               </CardContent>
             </Link>
             <CardFooter className="px-2 py-2.5">
-              <ul className="flex items-center -space-x-2">
+              <ul className="-space-x-2 flex items-center">
                 {post.authors.map((author) => (
                   <li className="flex items-center" key={author.id}>
                     <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Avatar className="size-8 border-2 border-background">
-                          <AvatarImage src={author.image || undefined} />
-                          <AvatarFallback>
-                            {author.name.charAt(0)}
-                          </AvatarFallback>
-                        </Avatar>
-                      </TooltipTrigger>
+                      <TooltipTrigger
+                        render={
+                          <Avatar className="size-8 border-2 border-background">
+                            <AvatarImage src={author.image || undefined} />
+                            <AvatarFallback>
+                              {author.name.charAt(0)}
+                            </AvatarFallback>
+                          </Avatar>
+                        }
+                      />
                       <TooltipContent>
                         <p className="max-w-64 text-xs">{author.name}</p>
                       </TooltipContent>
