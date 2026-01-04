@@ -14,7 +14,7 @@ export const postSchema = z.object({
     .max(100, { message: "Title is too long" }),
   coverImage: z.string().url().nullable().optional(),
   description: z.string().min(1, { message: "Description cannot be empty" }),
-  slug: z.string().min(1, { message: "Slug cannot be empty" }),
+  slug: z.string().slugify().min(1, { message: "Slug cannot be empty" }),
   content: z.string(),
   contentJson: z.string().min(10),
   tags: z.array(z.string().min(1)).optional(),
@@ -43,7 +43,7 @@ export const postImportSchema = z.object({
     .max(100, { message: "Title is too long" }),
   coverImage: z.string().url().nullable().optional(),
   description: z.string().min(1, { message: "Description cannot be empty" }),
-  slug: z.string().min(1, { message: "Slug cannot be empty" }),
+  slug: z.string().slugify().min(1, { message: "Slug cannot be empty" }),
   // Markdown content
   content: z.string().min(1),
   tags: z.array(z.string().min(1)).optional(),

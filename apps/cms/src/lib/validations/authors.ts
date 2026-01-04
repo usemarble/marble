@@ -63,12 +63,9 @@ export const authorSchema = z.object({
     .or(z.literal("")),
   slug: z
     .string()
-    .min(4, { message: "Slug cannot be empty" })
-    .max(32, { message: "Slug cannot be more than 32 characters" })
-    .regex(/^[a-z0-9]+([a-z0-9-]*[a-z0-9])?$/, {
-      message:
-        "Slug must start and end with letters or digits, and only contain lowercase letters, digits, and hyphens",
-    }),
+    .slugify()
+    .min(4, { message: "Slug must be at least 4 characters" })
+    .max(32, { message: "Slug cannot be more than 32 characters" }),
   socials: z.array(socialLinkSchema).optional(),
 });
 export type CreateAuthorValues = z.infer<typeof authorSchema>;

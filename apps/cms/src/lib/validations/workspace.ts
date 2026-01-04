@@ -4,7 +4,7 @@ import { RESERVED_WORKSPACE_SLUGS, timezones } from "@/lib/constants";
 // Tag Schema
 export const tagSchema = z.object({
   name: z.string().trim().min(1, { message: "Name cannot be empty" }),
-  slug: z.string().trim().min(1, { message: "Slug cannot be empty" }),
+  slug: z.string().slugify().min(1, { message: "Slug cannot be empty" }),
   description: z.string().trim().optional(),
 });
 export type CreateTagValues = z.infer<typeof tagSchema>;
@@ -12,7 +12,7 @@ export type CreateTagValues = z.infer<typeof tagSchema>;
 // Category Schema
 export const categorySchema = z.object({
   name: z.string().trim().min(1, { message: "Name cannot be empty" }),
-  slug: z.string().trim().min(1, { message: "Slug cannot be empty" }),
+  slug: z.string().slugify().min(1, { message: "Slug cannot be empty" }),
   description: z.string().trim().optional(),
 });
 export type CreateCategoryValues = z.infer<typeof categorySchema>;
@@ -25,12 +25,9 @@ export const workspaceSchema = z.object({
     .max(32, { message: "Name cannot be more than 32 characters" }),
   slug: z
     .string()
-    .min(4, { message: "Slug must be at least 4 characters long" })
+    .slugify()
+    .min(4, { message: "Slug must be at least 4 characters" })
     .max(32, { message: "Slug cannot be more than 32 characters" })
-    .regex(/^[a-z0-9]+([a-z0-9-]*[a-z0-9])?$/, {
-      message:
-        "Slug must start and end with letters or digits, and only contain lowercase letters, digits, and hyphens",
-    })
     .refine(
       (slug) => !(RESERVED_WORKSPACE_SLUGS as readonly string[]).includes(slug),
       {
@@ -39,7 +36,7 @@ export const workspaceSchema = z.object({
     ),
   timezone: z
     .enum(timezones as [string, ...string[]], {
-      errorMap: () => ({ message: "Please select a valid timezone" }),
+      message: "Please select a valid timezone",
     })
     .optional(),
 });
@@ -59,12 +56,9 @@ export type NameValues = z.infer<typeof nameSchema>;
 export const slugSchema = z.object({
   slug: z
     .string()
-    .min(4, { message: "Slug must be at least 4 characters long" })
+    .slugify()
+    .min(4, { message: "Slug must be at least 4 characters" })
     .max(32, { message: "Slug cannot be more than 32 characters" })
-    .regex(/^[a-z0-9]+([a-z0-9-]*[a-z0-9])?$/, {
-      message:
-        "Slug must start and end with letters or digits, and only contain lowercase letters, digits, and hyphens",
-    })
     .refine(
       (slug) => !(RESERVED_WORKSPACE_SLUGS as readonly string[]).includes(slug),
       {

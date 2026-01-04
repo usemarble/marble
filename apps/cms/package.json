@@ -15,7 +15,7 @@
     "@better-fetch/fetch": "^1.1.18",
     "@databuddy/sdk": "^2.1.75",
     "@discordjs/builders": "^1.13.0",
-    "@hookform/resolvers": "^5.2.0",
+    "@hookform/resolvers": "^5.2.2",
     "@hugeicons/core-free-icons": "^3.1.1",
     "@hugeicons/react": "^1.1.4",
     "@marble/db": "workspace:*",
@@ -54,7 +54,7 @@
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-dropzone": "^14.3.8",
-    "react-hook-form": "^7.61.1",
+    "react-hook-form": "^7.70.0",
     "react-textarea-autosize": "^8.5.9",
     "recharts": "^2.15.3",
     "resend": "^4.0.1",
@@ -66,7 +66,7 @@
     "tailwindcss-animate": "^1.0.7",
     "usehooks-ts": "^3.1.1",
     "vaul": "^1.1.2",
-    "zod": "^3.25.76"
+    "zod": "^4.3.5"
   },
   "devDependencies": {
     "@marble/tsconfig": "workspace:*",

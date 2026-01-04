@@ -113,7 +113,7 @@ export function PostsImportModal({
         if (!validated.success) {
           updateImportState({
             status: "error",
-            error: `Invalid frontmatter: ${validated.error.errors[0]?.message}`,
+            error: `Invalid frontmatter: ${validated.error.issues[0]?.message}`,
           });
           return;
         }

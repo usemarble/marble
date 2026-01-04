@@ -47,7 +47,7 @@ export function ApiKeyModal({ data, mode, open, setOpen }: ApiKeyModalProps) {
   const workspaceId = useWorkspaceId();
   const [createdKey, setCreatedKey] = useState<string | null>(null);
 
-  const form = useForm<CreateApiKeyValues>({
+  const form = useForm({
     resolver: zodResolver(createApiKeySchema),
     defaultValues: {
       name: data?.name || "",

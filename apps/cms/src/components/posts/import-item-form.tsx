@@ -45,7 +45,8 @@ export function ImportItemForm({
   isImporting,
 }: ImportItemFormProps) {
   const form = useForm<PostValues>({
-    resolver: zodResolver(postSchema),
+    // biome-ignore lint/suspicious/noExplicitAny: Zod 4 + react-hook-form type inference issue with z.coerce.date()
+    resolver: zodResolver(postSchema) as any,
     defaultValues: {
       title: initialData.title || "",
       slug: initialData.slug || "",

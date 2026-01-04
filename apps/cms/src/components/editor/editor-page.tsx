@@ -16,6 +16,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import type { z } from "zod";
 import { MarbleEditorMenus } from "@/components/editor/editor";
 import { EditorHeader } from "@/components/editor/editor-header";
 import { EditorSidebar } from "@/components/editor/editor-sidebar";
@@ -49,7 +50,8 @@ function EditorPage({ initialData, id }: EditorPageProps) {
   const isUpdateMode = !!id;
 
   const form = useForm<PostValues>({
-    resolver: zodResolver(postSchema),
+    // biome-ignore lint/suspicious/noExplicitAny: Zod 4 + react-hook-form type inference issue with z.coerce.date()
+    resolver: zodResolver(postSchema) as any,
     defaultValues: { ...initialData },
   });
 

@@ -52,7 +52,7 @@ export const defaultSlashSuggestions: SuggestionOptions<SuggestionItem>["items"]
     },
     {
       title: "Heading 1",
-      description: "Big section heading.",
+      description: "Use for main page title.",
       searchTerms: ["title", "big", "large"],
       icon: Heading1Icon,
       command: ({ editor, range }) => {
@@ -66,7 +66,7 @@ export const defaultSlashSuggestions: SuggestionOptions<SuggestionItem>["items"]
     },
     {
       title: "Heading 2",
-      description: "Medium section heading.",
+      description: "Use for section headings.",
       searchTerms: ["subtitle", "medium"],
       icon: Heading2Icon,
       command: ({ editor, range }) => {
@@ -80,7 +80,7 @@ export const defaultSlashSuggestions: SuggestionOptions<SuggestionItem>["items"]
     },
     {
       title: "Heading 3",
-      description: "Small section heading.",
+      description: "Use for sub-section headings.",
       searchTerms: ["subtitle", "small"],
       icon: Heading3Icon,
       command: ({ editor, range }) => {

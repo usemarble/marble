@@ -120,7 +120,7 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
       img.src = url;
     } catch (error) {
       if (error instanceof z.ZodError) {
-        setUrlError(error.errors?.[0]?.message || "Invalid URL");
+        setUrlError(error.issues?.[0]?.message || "Invalid URL");
       } else {
         setUrlError("Invalid URL");
       }
