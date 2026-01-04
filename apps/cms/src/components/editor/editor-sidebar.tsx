@@ -261,7 +261,6 @@ export function EditorSidebar({
           >
             <TabsContent
               className="min-h-0 flex-1 data-[state=inactive]:hidden"
-              forceMount
               value="metadata"
             >
               <Suspense fallback={<TabLoadingSpinner />}>
@@ -276,7 +275,6 @@ export function EditorSidebar({
 
             <TabsContent
               className="min-h-0 flex-1 data-[state=inactive]:hidden"
-              forceMount
               value="analysis"
             >
               <Suspense fallback={<TabLoadingSpinner />}>
