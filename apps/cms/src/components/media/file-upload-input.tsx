@@ -2,7 +2,7 @@
 
 import { Button } from "@marble/ui/components/button";
 import { PlusIcon, UploadIcon } from "@phosphor-icons/react";
-import { useId } from "react";
+import { useId, useRef } from "react";
 import { toast } from "sonner";
 import { ALLOWED_MIME_TYPES, MAX_MEDIA_FILE_SIZE } from "@/lib/constants";
 
@@ -21,14 +21,12 @@ export function FileUploadInput({
   onUpload,
   isUploading: isUploadingProp = false,
   accept = ALLOWED_MIME_TYPES.join(","),
-  multiple = true,
   variant = "default",
   className,
   children,
   maxSize = MAX_MEDIA_FILE_SIZE,
 }: FileUploadInputProps) {
-  const id = useId();
-
+  const inputRef = useRef<HTMLInputElement>(null);
   function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
     if (!files || files.length === 0) {
@@ -55,34 +53,31 @@ export function FileUploadInput({
         aria-label="Upload File(s)"
         className="hidden"
         disabled={isUploadingProp}
-        id={id}
-        multiple={multiple}
+        id="file-upload-input"
         onChange={handleFileUpload}
+        ref={inputRef}
         type="file"
       />
       <Button
-        asChild
+        aria-busy={isUploadingProp ? "true" : "false"}
+        aria-disabled={isUploadingProp ? "true" : "false"}
         className={className}
         disabled={isUploadingProp}
+        onClick={() => {
+          inputRef.current?.click();
+        }}
         type="button"
       >
-        <label
-          aria-busy={isUploadingProp ? "true" : "false"}
-          aria-disabled={isUploadingProp ? "true" : "false"}
-          className="flex cursor-pointer items-center gap-2"
-          htmlFor={id}
-        >
-          {children || (
-            <>
-              {variant === "icon" ? (
-                <PlusIcon className="size-4" />
-              ) : (
-                <UploadIcon size={16} />
-              )}
-              <span>{variant === "icon" ? "Upload" : "Upload File(s)"}</span>
-            </>
-          )}
-        </label>
+        {children || (
+          <>
+            {variant === "icon" ? (
+              <PlusIcon className="size-4" />
+            ) : (
+              <UploadIcon size={16} />
+            )}
+            <span>{variant === "icon" ? "Upload" : "Upload File(s)"}</span>
+          </>
+        )}
       </Button>
     </>
   );

@@ -96,15 +96,17 @@ export function TeamDataTable<TData, TValue>({
           <InviteButton onInvite={() => setShowInviteModal(true)} />
           {currentUserRole === "owner" ? (
             <TooltipProvider>
-              <Tooltip delayDuration={0}>
-                <TooltipTrigger asChild>
-                  <Button
-                    className="cursor-not-allowed opacity-50"
-                    variant="outline"
-                  >
-                    <span>Leave Team</span>
-                  </Button>
-                </TooltipTrigger>
+              <Tooltip delay={0}>
+                <TooltipTrigger
+                  render={
+                    <Button
+                      className="cursor-not-allowed opacity-50"
+                      variant="outline"
+                    >
+                      <span>Leave Team</span>
+                    </Button>
+                  }
+                />
                 <TooltipContent>
                   <p className="text-xs">
                     You cannot leave your own workspace.

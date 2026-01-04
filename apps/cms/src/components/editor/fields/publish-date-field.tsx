@@ -35,18 +35,20 @@ export function PublishDateField({ control }: PublishDateFieldProps) {
         <FieldInfo text="The date your post was published. This is set by default but you can change it to any date." />
       </div>
       <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            className={cn(
-              "justify-between bg-editor-field text-left font-normal shadow-none active:scale-100",
-              !value && "text-muted-foreground"
-            )}
-            variant="outline"
-          >
-            {value ? format(value, "PPP") : <span>Pick a date</span>}
-            <CalendarDotsIcon className="text-muted-foreground" />
-          </Button>
-        </PopoverTrigger>
+        <PopoverTrigger
+          render={
+            <Button
+              className={cn(
+                "justify-between bg-editor-field text-left font-normal shadow-none active:scale-100",
+                !value && "text-muted-foreground"
+              )}
+              variant="outline"
+            >
+              {value ? format(value, "PPP") : <span>Pick a date</span>}
+              <CalendarDotsIcon className="text-muted-foreground" />
+            </Button>
+          }
+        />
         <PopoverContent className="w-auto overflow-hidden p-0">
           <Calendar
             autoFocus

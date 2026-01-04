@@ -81,13 +81,20 @@ export function CategorySelector({ control }: CategorySelectorProps) {
           <Label htmlFor="category">Category</Label>
           <FieldInfo text="Good for grouping posts together. You can have one category per post." />
         </div>
-        <Select onValueChange={onChange} value={value}>
-          <SelectTrigger className="w-full bg-editor-field">
-            <SelectValue placeholder="Choose a category" />
+        <Select
+          items={[
+            { label: "Choose a category", value: null },
+            ...categories.map((cat) => ({ label: cat.name, value: cat.id })),
+          ]}
+          onValueChange={onChange}
+          value={value || null}
+        >
+          <SelectTrigger className="w-full bg-editor-field shadow-none">
+            <SelectValue />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectLabel className="flex items-center justify-between gap-1 px-2 font-normal text-xs">
+              <SelectLabel className="flex items-center justify-between gap-1 p-1 font-normal text-xs">
                 <span className="text-muted-foreground text-xs">
                   {isLoadingCategories
                     ? "Loading categories..."

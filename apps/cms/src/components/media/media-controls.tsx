@@ -9,14 +9,25 @@ import {
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { PlusIcon, TrashIcon, XIcon } from "@phosphor-icons/react";
 import { useMediaPageFilters } from "@/lib/search-params";
-import type { MediaFilterType } from "@/types/media";
 import { isMediaFilterType, isMediaSort } from "@/utils/media";
 import { FileUploadInput } from "./file-upload-input";
+
+const typeOptions = [
+  { label: "All", value: "all" },
+  { label: "Image", value: "image" },
+  { label: "Video", value: "video" },
+];
+
+const sortOptions = [
+  { label: "Newest first", value: "createdAt_desc" },
+  { label: "Oldest first", value: "createdAt_asc" },
+  { label: "Name A-Z", value: "name_asc" },
+  { label: "Name Z-A", value: "name_desc" },
+];
 
 export function MediaControls({
   onUpload,
@@ -45,39 +56,44 @@ export function MediaControls({
       <div className="flex flex-wrap items-center gap-1 sm:gap-4">
         <Select
           disabled={isDisabled}
-          onValueChange={(val: MediaFilterType) => {
-            if (isMediaFilterType(val)) {
+          items={typeOptions}
+          onValueChange={(val) => {
+            if (val && isMediaFilterType(val)) {
               setSearchParams({ type: val });
             }
           }}
           value={type}
         >
-          <SelectTrigger className="w-[100px]">
-            <SelectValue placeholder="Filter by type" />
+          <SelectTrigger className="min-w-[100px]">
+            <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All</SelectItem>
-            <SelectItem value="image">Image</SelectItem>
-            <SelectItem value="video">Video</SelectItem>
+            {typeOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
         <Select
           disabled={isDisabled}
-          onValueChange={(val: string) => {
-            if (isMediaSort(val)) {
+          items={sortOptions}
+          onValueChange={(val) => {
+            if (val && isMediaSort(val)) {
               setSearchParams({ sort: val });
             }
           }}
           value={sort}
         >
-          <SelectTrigger className="w-[150px]">
-            <SelectValue placeholder="Sort by" />
+          <SelectTrigger className="min-w-[150px]">
+            <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="createdAt_desc">Newest first</SelectItem>
-            <SelectItem value="createdAt_asc">Oldest first</SelectItem>
-            <SelectItem value="name_asc">Name A-Z</SelectItem>
-            <SelectItem value="name_desc">Name Z-A</SelectItem>
+            {sortOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
         <div className="flex items-center gap-2">
@@ -107,9 +123,9 @@ export function MediaControls({
             </Button>
           )}
           {selectedItems.size > 0 && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
+            <Tooltip>
+              <TooltipTrigger
+                render={
                   <Button
                     aria-label={`Delete selected (${selectedItems.size})`}
                     disabled={isDisabled}
@@ -120,12 +136,12 @@ export function MediaControls({
                   >
                     <TrashIcon aria-hidden="true" size={16} />
                   </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Delete selected ({selectedItems.size})</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+                }
+              />
+              <TooltipContent>
+                <p>Delete selected ({selectedItems.size})</p>
+              </TooltipContent>
+            </Tooltip>
           )}
         </div>
       </div>

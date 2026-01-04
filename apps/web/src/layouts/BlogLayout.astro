@@ -11,15 +11,15 @@ const { title, description, image } = Astro.props;
 <!doctype html>
 <html lang="en">
   <head>
-    <HeadComponent title={title} description={description} image={image}/>
-    <SpeedInsights/>
+    <HeadComponent title={title} description={description} image={image} />
+    <SpeedInsights />
   </head>
   <body>
-    <BlogHeader/>
+    <BlogHeader />
     <main>
-      <slot/>
+      <slot />
     </main>
-    <FooterComponent/>
-    <ScrollToTop/>
+    <FooterComponent />
+    <ScrollToTop />
   </body>
 </html>

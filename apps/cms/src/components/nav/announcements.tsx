@@ -6,16 +6,19 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
-import { BellRinging } from "@phosphor-icons/react";
+import { MegaphoneIcon } from "@phosphor-icons/react";
 
 export function Announcements() {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button className="size-4" size="icon" variant="ghost">
-          <BellRinging />
-        </Button>
-      </DropdownMenuTrigger>
+      <DropdownMenuTrigger
+        render={
+          <Button className="size-7 rounded-full" size="icon" variant="ghost">
+            <MegaphoneIcon className="size-4" />
+            <span className="sr-only">Announcements</span>
+          </Button>
+        }
+      />
       <DropdownMenuContent align="end" className="w-56">
         <div className="grid min-h-28 place-content-center">
           <div className="flex flex-col items-center justify-center gap-3 text-muted-foreground">

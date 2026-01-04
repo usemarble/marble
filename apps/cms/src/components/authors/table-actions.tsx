@@ -36,15 +36,14 @@ export function AuthorTableActions({ author }: AuthorTableActionsProps) {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            className="size-8 p-0 data-[state=open]:bg-muted"
-            variant="ghost"
-          >
-            <span className="sr-only">Open menu</span>
-            <DotsThreeVerticalIcon className="size-4" />
-          </Button>
-        </DropdownMenuTrigger>
+        <DropdownMenuTrigger
+          render={
+            <Button className="h-8 w-8 p-0" variant="ghost">
+              <span className="sr-only">Open menu</span>
+              <DotsThreeVerticalIcon />
+            </Button>
+          }
+        />
         <DropdownMenuContent align="end" className="text-muted-foreground">
           <DropdownMenuItem onClick={() => handleEdit()}>
             <PencilSimpleLineIcon className="size-4" />

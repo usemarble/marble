@@ -22,12 +22,14 @@ export default function TableActions(props: APIKey) {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button className="h-8 w-8 p-0" variant="ghost">
-            <span className="sr-only">Open menu</span>
-            <DotsThreeVerticalIcon />
-          </Button>
-        </DropdownMenuTrigger>
+        <DropdownMenuTrigger
+          render={
+            <Button className="size-8 p-0" variant="ghost">
+              <span className="sr-only">Open menu</span>
+              <DotsThreeVerticalIcon size={16} weight="bold" />
+            </Button>
+          }
+        />
         <DropdownMenuContent align="end" className="text-muted-foreground">
           <DropdownMenuItem onClick={() => setShowUpdateModal(true)}>
             <PencilSimpleLineIcon className="mr-1.5 size-4" />

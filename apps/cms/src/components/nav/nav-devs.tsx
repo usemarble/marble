@@ -1,5 +1,7 @@
 "use client";
 
+import { Key01Icon, WebhookIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -10,7 +12,6 @@ import {
 } from "@marble/ui/components/sidebar";
 import { cn } from "@marble/ui/lib/utils";
 
-import { KeyIcon, WebhooksLogoIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 
@@ -18,12 +19,12 @@ const items = [
   {
     name: "API Keys",
     url: "keys",
-    icon: KeyIcon,
+    icon: Key01Icon,
   },
   {
     name: "Webhooks",
     url: "webhooks",
-    icon: WebhooksLogoIcon,
+    icon: WebhookIcon,
   },
 ];
 
@@ -40,18 +41,17 @@ export function NavDevs() {
         {items.map((item) => (
           <SidebarMenuItem key={item.name}>
             <SidebarMenuButton
-              asChild
               className={`border border-transparent transition-colors duration-200 hover:bg-sidebar-accent ${
                 isActive(item.url)
                   ? "border bg-sidebar-accent text-foreground"
                   : "hover:text-accent-foreground"
               }`}
-            >
-              <Link href={`/${params.workspace}/${item.url}`}>
-                <item.icon />
-                <span>{item.name}</span>
-              </Link>
-            </SidebarMenuButton>
+              render={
+                <Link href={`/${params.workspace}/${item.url}`}>
+                  <HugeiconsIcon icon={item.icon} /> <span>{item.name}</span>
+                </Link>
+              }
+            />
           </SidebarMenuItem>
         ))}
       </SidebarMenu>

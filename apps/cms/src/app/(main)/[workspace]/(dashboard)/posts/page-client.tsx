@@ -81,15 +81,17 @@ function PageClient() {
                     <span>New Post</span>
                   </Link>
                   <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        aria-label="Upload"
-                        onClick={() => setImportOpen(true)}
-                        variant="default"
-                      >
-                        <UploadSimpleIcon className="size-4" />
-                      </Button>
-                    </TooltipTrigger>
+                    <TooltipTrigger
+                      render={
+                        <Button
+                          aria-label="Upload"
+                          onClick={() => setImportOpen(true)}
+                          variant="default"
+                        >
+                          <UploadSimpleIcon className="size-4" />
+                        </Button>
+                      }
+                    />
                     <TooltipContent side="top">Upload</TooltipContent>
                   </Tooltip>
                 </div>

@@ -10,10 +10,8 @@ export default function NotFound() {
       <h1 className="font-bold text-5xl">404</h1>
       <p className="mt-2 text-2xl">Page not found</p>
 
-      <Button asChild className="mt-4">
-        <Link href="/">
-          <ArrowArcLeftIcon className="size-4" /> Go to homepage
-        </Link>
+      <Button className="mt-4" render={<Link href="/" />}>
+        <ArrowArcLeftIcon className="size-4" /> Go to homepage
       </Button>
     </main>
   );

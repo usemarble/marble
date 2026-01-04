@@ -7,7 +7,7 @@ import {
 import { cn } from "@marble/ui/lib/utils";
 import { useCurrentEditor } from "@tiptap/react";
 import { ChevronDownIcon } from "lucide-react";
-import type { HTMLAttributes, ReactNode } from "react";
+import { type HTMLAttributes, type ReactNode, useState } from "react";
 
 export type EditorSelectorProps = HTMLAttributes<HTMLDivElement> & {
   open?: boolean;
@@ -41,26 +41,40 @@ export const EditorSelector = ({
   ...props
 }: EditorSelectorProps) => {
   const { editor } = useCurrentEditor();
+  const [internalOpen, setInternalOpen] = useState(false);
 
   if (!editor) {
     return null;
   }
 
+  const isControlled = open !== undefined;
+  const currentOpen = isControlled ? open : internalOpen;
+
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!isControlled) {
+      setInternalOpen(newOpen);
+    }
+    onOpenChange?.(newOpen);
+  };
+
   return (
-    <Popover onOpenChange={onOpenChange} open={open}>
-      <PopoverTrigger asChild>
-        <Button
-          className="gap-2 rounded-none border-none"
-          size="sm"
-          variant="ghost"
-        >
-          <span className="whitespace-nowrap text-xs">{title}</span>
-          <ChevronDownIcon size={12} />
-        </Button>
-      </PopoverTrigger>
+    <Popover onOpenChange={handleOpenChange} open={currentOpen}>
+      <PopoverTrigger
+        render={
+          <Button
+            className="gap-2 rounded-none border-none"
+            size="sm"
+            variant="ghost"
+          >
+            <span className="whitespace-nowrap text-xs">{title}</span>
+            <ChevronDownIcon size={12} />
+          </Button>
+        }
+      />
       <PopoverContent
         align="start"
         className={cn("w-48 p-1", className)}
+        onClick={() => handleOpenChange(false)}
         sideOffset={5}
         {...props}
       >

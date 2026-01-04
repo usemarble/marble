@@ -40,6 +40,36 @@ import {
 import type { Webhook } from "@/types/webhook";
 import { Discord, Slack } from "../shared/icons";
 
+const formatOptions = [
+  {
+    label: (
+      <>
+        <BracketsCurlyIcon className="text-amber-500" weight="bold" />
+        JSON
+      </>
+    ),
+    value: "json",
+  },
+  {
+    label: (
+      <>
+        <Discord fill="#5865F2" />
+        Discord
+      </>
+    ),
+    value: "discord",
+  },
+  {
+    label: (
+      <>
+        <Slack />
+        Slack
+      </>
+    ),
+    value: "slack",
+  },
+];
+
 interface EditWebhookSheetProps {
   webhook: Webhook;
   isOpen: boolean;
@@ -237,30 +267,23 @@ export function EditWebhookSheet({
             <div className="grid gap-3">
               <Label htmlFor="format">Format</Label>
               <Select
-                onValueChange={(value: PayloadFormat) =>
-                  setValue("format", value)
-                }
+                items={formatOptions}
+                onValueChange={(value) => {
+                  if (value) {
+                    setValue("format", value);
+                  }
+                }}
                 value={watch("format")}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select a payload format" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="json">
-                    <BracketsCurlyIcon
-                      className="text-amber-500"
-                      weight="bold"
-                    />
-                    JSON
-                  </SelectItem>
-                  <SelectItem value="discord">
-                    <Discord fill="#5865F2" />
-                    Discord
-                  </SelectItem>
-                  <SelectItem value="slack">
-                    <Slack />
-                    Slack
-                  </SelectItem>
+                  {formatOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               {errors.format && (

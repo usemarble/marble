@@ -166,47 +166,52 @@ export function AuthorSelector({
         <FieldInfo text="List of authors who contributed to the article." />
       </div>
       <Popover onOpenChange={setIsOpen} open={isOpen}>
-        <PopoverTrigger>
-          <div className="relative flex h-auto min-h-9 w-full cursor-pointer items-center justify-between gap-2 rounded-md border bg-editor-field px-3 py-1.5 text-sm">
-            <ul className="flex flex-wrap -space-x-2">
-              {selected.length === 0 && (
-                <li className="text-muted-foreground">
-                  {placeholder || "Select authors"}
-                </li>
-              )}
-              {selected.length === 1 && (
-                <li className="flex items-center gap-2">
-                  <Avatar className="size-6">
-                    <AvatarImage src={selected[0]?.image || undefined} />
-                    <AvatarFallback>
-                      {selected[0]?.name.charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <p className="max-w-64 text-sm">{selected[0]?.name}</p>
-                </li>
-              )}
-              {selected.length > 1 &&
-                selected.map((author) => (
-                  <li className="flex items-center" key={author.id}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Avatar className="size-6">
-                          <AvatarImage src={author.image || undefined} />
-                          <AvatarFallback>
-                            {author.name.charAt(0)}
-                          </AvatarFallback>
-                        </Avatar>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="max-w-64 text-xs">{author.name}</p>
-                      </TooltipContent>
-                    </Tooltip>
+        <PopoverTrigger
+          nativeButton={false}
+          render={
+            <div className="relative flex h-auto min-h-9 w-full cursor-pointer items-center justify-between gap-2 rounded-md border bg-editor-field px-3 py-1.5 text-sm">
+              <ul className="flex flex-wrap -space-x-2">
+                {selected.length === 0 && (
+                  <li className="text-muted-foreground">
+                    {placeholder || "Select authors"}
                   </li>
-                ))}
-            </ul>
-            <CaretUpDownIcon className="size-4 shrink-0 opacity-50" />
-          </div>
-        </PopoverTrigger>
+                )}
+                {selected.length === 1 && (
+                  <li className="flex items-center gap-2">
+                    <Avatar className="size-6">
+                      <AvatarImage src={selected[0]?.image || undefined} />
+                      <AvatarFallback>
+                        {selected[0]?.name.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <p className="max-w-64 text-sm">{selected[0]?.name}</p>
+                  </li>
+                )}
+                {selected.length > 1 &&
+                  selected.map((author) => (
+                    <li className="flex items-center" key={author.id}>
+                      <Tooltip>
+                        <TooltipTrigger
+                          render={
+                            <Avatar className="size-6">
+                              <AvatarImage src={author.image || undefined} />
+                              <AvatarFallback>
+                                {author.name.charAt(0)}
+                              </AvatarFallback>
+                            </Avatar>
+                          }
+                        />
+                        <TooltipContent>
+                          <p className="max-w-64 text-xs">{author.name}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </li>
+                  ))}
+              </ul>
+              <CaretUpDownIcon className="size-4 shrink-0 opacity-50" />
+            </div>
+          }
+        />
         {error && <ErrorMessage>{error.message}</ErrorMessage>}
         <PopoverContent align="start" className="min-w-[350.67px] p-0">
           <Command className="w-full">

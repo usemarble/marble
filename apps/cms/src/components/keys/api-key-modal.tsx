@@ -207,13 +207,15 @@ export function ApiKeyModal({ data, mode, open, setOpen }: ApiKeyModalProps) {
                 <Label htmlFor="type">Type</Label>
                 <Select
                   disabled
-                  onValueChange={(value: "public" | "private") =>
-                    setValue("type", value)
-                  }
+                  onValueChange={(value) => {
+                    if (value) {
+                      setValue("type", value);
+                    }
+                  }}
                   value={type}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select type" />
+                    <SelectValue className="capitalize" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="public">Public</SelectItem>
@@ -227,9 +229,7 @@ export function ApiKeyModal({ data, mode, open, setOpen }: ApiKeyModalProps) {
             )}
 
             <DialogFooter>
-              <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
-              </DialogClose>
+              <DialogClose render={<Button variant="outline">Cancel</Button>} />
               <AsyncButton
                 className="gap-2"
                 isLoading={isSubmitting || isCreating || isUpdating}

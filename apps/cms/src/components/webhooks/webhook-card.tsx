@@ -76,11 +76,14 @@ export function WebhookCard({
               </CardDescription>
             </div>
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button size="icon" variant="ghost">
-                  <DotsThreeVerticalIcon size={16} />
-                </Button>
-              </DropdownMenuTrigger>
+              <DropdownMenuTrigger
+                render={
+                  <Button className="size-8 p-0" variant="ghost">
+                    <span className="sr-only">Open menu</span>
+                    <DotsThreeVerticalIcon className="size-6 text-muted-foreground" />
+                  </Button>
+                }
+              />
               <DropdownMenuContent align="end">
                 {webhook.format === "json" ? (
                   <DropdownMenuItem
@@ -114,20 +117,22 @@ export function WebhookCard({
               Created {format(new Date(webhook.createdAt), "MMM d, yyyy")}
             </p>
             <Tooltip>
-              <TooltipTrigger asChild>
-                <div>
-                  <Switch
-                    checked={webhook.enabled}
-                    disabled={isCurrentlyToggling}
-                    onCheckedChange={(checked) =>
-                      onToggle({
-                        id: webhook.id,
-                        enabled: checked,
-                      })
-                    }
-                  />
-                </div>
-              </TooltipTrigger>
+              <TooltipTrigger
+                render={
+                  <div>
+                    <Switch
+                      checked={webhook.enabled}
+                      disabled={isCurrentlyToggling}
+                      onCheckedChange={(checked) =>
+                        onToggle({
+                          id: webhook.id,
+                          enabled: checked,
+                        })
+                      }
+                    />
+                  </div>
+                }
+              />
               <TooltipContent>
                 {webhook.enabled ? "Disable webhook" : "Enable webhook"}
               </TooltipContent>

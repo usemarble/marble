@@ -7,7 +7,7 @@ import {
 import { NavDevs } from "./nav-devs";
 import { NavMain } from "./nav-main";
 import { SidebarFooterContent } from "./sidebar-footer-content";
-import { UpgradeButton } from "./upgrade-button";
+import { UpgradeCard } from "./upgrade-card";
 import { WorkspaceSwitcher } from "./workspace-switcher";
 
 export async function AppSidebar({
@@ -23,7 +23,7 @@ export async function AppSidebar({
         <NavDevs />
       </SidebarContent>
       <SidebarFooter>
-        <UpgradeButton />
+        <UpgradeCard />
         <SidebarFooterContent />
       </SidebarFooter>
     </Sidebar>

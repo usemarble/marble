@@ -27,8 +27,7 @@ const currentPath = Astro.url.pathname.replace(/\/$/, "");
       All Posts
     </Button>
   </li>
-  {
-      categoriesToShow.map((category) => {
+  {categoriesToShow.map((category) => {
         const link = `/blog/category/${category.data.slug}`;
         const isActive = currentPath === link;
         return (
@@ -43,6 +42,5 @@ const currentPath = Astro.url.pathname.replace(/\/$/, "");
             </Button>
           </li>
         )
-      })
-    }
+      })}
 </ul>

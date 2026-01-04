@@ -103,22 +103,24 @@ export const PublishingActivityCard = () => {
             <ContributionGraphCalendar>
               {({ activity, dayIndex, weekIndex }) => (
                 <Tooltip>
-                  <TooltipTrigger asChild>
-                    <g>
-                      <ContributionGraphBlock
-                        activity={activity}
-                        className={cn(
-                          'data-[level="0"]:fill-muted dark:data-[level="0"]:fill-white/5',
-                          'data-[level="1"]:fill-primary/20 dark:data-[level="1"]:fill-primary/30',
-                          'data-[level="2"]:fill-primary/40 dark:data-[level="2"]:fill-primary/50',
-                          'data-[level="3"]:fill-primary/60 dark:data-[level="3"]:fill-primary/70',
-                          'data-[level="4"]:fill-primary/80 dark:data-[level="4"]:fill-primary/90'
-                        )}
-                        dayIndex={dayIndex}
-                        weekIndex={weekIndex}
-                      />
-                    </g>
-                  </TooltipTrigger>
+                  <TooltipTrigger
+                    render={
+                      <g>
+                        <ContributionGraphBlock
+                          activity={activity}
+                          className={cn(
+                            'data-[level="0"]:fill-muted dark:data-[level="0"]:fill-white/5',
+                            'data-[level="1"]:fill-primary/20 dark:data-[level="1"]:fill-primary/30',
+                            'data-[level="2"]:fill-primary/40 dark:data-[level="2"]:fill-primary/50',
+                            'data-[level="3"]:fill-primary/60 dark:data-[level="3"]:fill-primary/70',
+                            'data-[level="4"]:fill-primary/80 dark:data-[level="4"]:fill-primary/90'
+                          )}
+                          dayIndex={dayIndex}
+                          weekIndex={weekIndex}
+                        />
+                      </g>
+                    }
+                  />
                   <TooltipContent>
                     <p className="font-semibold">
                       {format(parseISO(activity.date), "MMMM d, yyyy")}

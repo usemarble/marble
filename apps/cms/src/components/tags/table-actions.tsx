@@ -21,12 +21,14 @@ export default function TableActions(props: Tag) {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button className="h-8 w-8 p-0" variant="ghost">
-            <span className="sr-only">Open menu</span>
-            <DotsThreeVerticalIcon />
-          </Button>
-        </DropdownMenuTrigger>
+        <DropdownMenuTrigger
+          render={
+            <Button className="h-8 w-8 p-0" variant="ghost">
+              <span className="sr-only">Open menu</span>
+              <DotsThreeVerticalIcon />
+            </Button>
+          }
+        />
         <DropdownMenuContent align="end" className="text-muted-foreground">
           <DropdownMenuItem onClick={() => setShowUpdateModal(true)}>
             <PencilSimpleLineIcon size={16} /> <span>Edit</span>

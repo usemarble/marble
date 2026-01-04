@@ -69,30 +69,27 @@ export const EditorMarkHighlight = ({
 
   return (
     <Popover modal>
-      <PopoverTrigger asChild>
-        <Button
-          className={cn(
-            hideName ? "" : "w-full",
-            isActive &&
-              "bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary"
-          )}
-          size="sm"
-          type="button"
-          variant="ghost"
-        >
-          <Highlighter
-            className={cn("shrink-0", isActive && "text-primary")}
-            size={12}
-          />
-          {!hideName && <span className="flex-1 text-left">Highlight</span>}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent
-        align="start"
-        className="w-auto p-0"
-        onOpenAutoFocus={(event) => event.preventDefault()}
-        side="top"
-      >
+      <PopoverTrigger
+        render={
+          <Button
+            className={cn(
+              hideName ? "" : "w-full",
+              isActive &&
+                "bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary"
+            )}
+            size="sm"
+            type="button"
+            variant="ghost"
+          >
+            <Highlighter
+              className={cn("shrink-0", isActive && "text-primary")}
+              size={12}
+            />
+            {!hideName && <span className="flex-1 text-left">Highlight</span>}
+          </Button>
+        }
+      />
+      <PopoverContent align="start" className="w-auto p-0" side="top">
         <ColorPicker
           color={currentHighlight}
           onChange={handleColorChange}
