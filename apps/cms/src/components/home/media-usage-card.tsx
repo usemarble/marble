@@ -69,7 +69,7 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
   }, [selectedFile]);
 
   return (
-    <div className="flex flex-col gap-4 rounded-[20px] border border-none bg-sidebar p-2.5 text-card-foreground">
+    <div className="flex flex-col gap-4 rounded-[20px] border border-none bg-sidebar p-2 text-card-foreground">
       <AnimatePresence key={mountKeyRef.current} mode="wait">
         {selectedFile ? (
           <>
@@ -205,7 +205,7 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
             No uploads yet.
           </div>
         ) : (
-          <ul className="flex flex-col gap-2.5">
+          <ul className="flex flex-col gap-2">
             {recentUploads.map((file) => {
               const Icon = getMediaTypeIcon(file.type);
               return (

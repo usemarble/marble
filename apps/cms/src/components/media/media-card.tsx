@@ -57,7 +57,7 @@ export function MediaCard({
   return (
     <Card
       className={cn(
-        "gap-2.5 overflow-hidden rounded-[20px] border-none bg-sidebar p-2.5"
+        "gap-2.5 overflow-hidden rounded-[20px] border-none bg-sidebar p-2"
       )}
     >
       <button

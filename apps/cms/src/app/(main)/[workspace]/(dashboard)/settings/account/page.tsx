@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import PageClient from "./page-client";
 
 export const metadata: Metadata = {
-  title: "Account Settings",
+  title: "Account",
   description: "Manage your account settings",
 };
 
-export default async function AccountSettingsPage() {
+async function Page() {
   return <PageClient />;
 }
+
+export default Page;

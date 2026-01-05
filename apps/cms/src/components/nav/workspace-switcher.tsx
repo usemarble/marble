@@ -77,20 +77,18 @@ export function WorkspaceSwitcher() {
               render={
                 <SidebarMenuButton
                   className={cn(
-                    "cursor-pointer border border-transparent transition hover:bg-sidebar-accent data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground",
-                    isCollapsed &&
-                      "size-10 min-w-0 justify-center rounded-full p-1"
+                    "h-10 cursor-pointer border border-transparent transition hover:bg-sidebar-accent data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground",
+                    isCollapsed && "min-w-0 justify-center rounded-full p-1"
                   )}
                   disabled={isFetchingWorkspace}
                   render={<div />}
-                  size="lg"
                 >
-                  <Avatar className={cn("size-8", isCollapsed && "size-6.5")}>
+                  <Avatar className={cn("size-7", isCollapsed && "size-6.5")}>
                     <AvatarImage
                       className="rounded-[4px]"
                       src={activeWorkspace.logo || undefined}
                     />
-                    <AvatarFallback className="border bg-sidebar-accent">
+                    <AvatarFallback className="border bg-sidebar-accent text-xs">
                       {activeWorkspace.name.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
@@ -101,7 +99,7 @@ export function WorkspaceSwitcher() {
                           {activeWorkspace?.name}
                         </span>
                         <Badge
-                          className="px-1.5 py-0 text-[11px] capitalize"
+                          className="px-1.5 py-0 text-[10px] capitalize"
                           variant={currentPlan === "pro" ? "paid" : "free"}
                         >
                           {currentPlan === "hobby" ? "free" : currentPlan}

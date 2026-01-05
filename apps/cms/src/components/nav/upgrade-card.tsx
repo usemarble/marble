@@ -2,8 +2,9 @@
 
 import { Button } from "@marble/ui/components/button";
 import { useSidebar } from "@marble/ui/components/sidebar";
+import { motion } from "motion/react";
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePlan } from "@/hooks/use-plan";
 import { useWorkspace } from "@/providers/workspace";
 
@@ -18,13 +19,25 @@ export function UpgradeCard() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const isCollapsed = state === "collapsed";
 
+  const wasCollapsed = useRef(isCollapsed);
+  const shouldAnimate = wasCollapsed.current && !isCollapsed;
+
+  useEffect(() => {
+    wasCollapsed.current = isCollapsed;
+  }, [isCollapsed]);
+
   if (!isHobbyPlan || !isOwner || isCollapsed) {
     return null;
   }
 
   return (
     <>
-      <div className="p-2">
+      <motion.div
+        animate={{ opacity: 1, x: 0 }}
+        className="p-2"
+        initial={shouldAnimate ? { opacity: 0, x: "-100%" } : false}
+        transition={{ duration: 0.4 }}
+      >
         <div className="group relative w-full overflow-hidden rounded-xl border bg-background p-3 text-left shadow-xs">
           <div className="relative z-10 flex flex-col gap-3">
             <div className="space-y-2.5">
@@ -44,7 +57,7 @@ export function UpgradeCard() {
             </Button>
           </div>
         </div>
-      </div>
+      </motion.div>
       <UpgradeModal
         isOpen={showUpgradeModal}
         onClose={() => setShowUpgradeModal(false)}
