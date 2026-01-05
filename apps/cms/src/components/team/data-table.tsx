@@ -69,7 +69,7 @@ export function TeamDataTable<TData, TValue>({
       <div className="flex items-center justify-between gap-4 py-4">
         <div className="relative">
           <MagnifyingGlassIcon
-            className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+            className="-translate-y-1/2 absolute top-1/2 left-3 size-4 text-muted-foreground"
             size={16}
           />
           <Input
@@ -96,8 +96,9 @@ export function TeamDataTable<TData, TValue>({
           <InviteButton onInvite={() => setShowInviteModal(true)} />
           {currentUserRole === "owner" ? (
             <TooltipProvider>
-              <Tooltip delay={0}>
+              <Tooltip>
                 <TooltipTrigger
+                  delay={0}
                   render={
                     <Button
                       className="cursor-not-allowed opacity-50"

@@ -275,7 +275,7 @@ export function EditWebhookSheet({
                 }}
                 value={watch("format")}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full shadow-none">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
