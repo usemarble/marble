@@ -133,8 +133,9 @@ export function NavExtra({ asMenuButton = false }: NavExtraProps) {
 
   return (
     <Popover>
-      <Tooltip delay={300}>
+      <Tooltip>
         <TooltipTrigger
+          delay={300}
           render={
             <PopoverTrigger
               render={
