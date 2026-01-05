@@ -51,7 +51,6 @@ function PageClient() {
       setFile(null);
     },
     onError: (error) => {
-      console.error("Upload error:", error);
       toast.error(error.message);
     },
   });
@@ -61,7 +60,7 @@ function PageClient() {
       await updateUser(data);
       setIsChanged(false);
     } catch (error) {
-      console.error("Update error:", error);
+      toast.error("Failed to update user");
     }
   };
 
