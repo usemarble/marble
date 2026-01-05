@@ -41,7 +41,7 @@ export const PageHeader = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 flex h-14 shrink-0 items-center gap-2 border-b border-dashed bg-background transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-10 md:px-8">
+    <header className="sticky top-0 z-50 flex h-13 shrink-0 items-center gap-2 border-b border-dashed bg-background transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 md:px-8">
       <div className="flex items-center gap-2 px-4 md:hidden">
         <SidebarTrigger className="-ml-1 size-4" />
         <Separator className="mr-2 h-4" orientation="vertical" />

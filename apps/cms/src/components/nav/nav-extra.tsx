@@ -7,6 +7,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@marble/ui/components/popover";
+import { SidebarMenuButton } from "@marble/ui/components/sidebar";
 import {
   Tooltip,
   TooltipContent,
@@ -18,7 +19,6 @@ import {
   BookOpenIcon,
   BugIcon,
   NewspaperClippingIcon,
-  QuestionIcon,
 } from "@phosphor-icons/react";
 import { Discord, XFormerlyTwitter } from "../icons/social";
 
@@ -53,7 +53,84 @@ const resourceLinks = [
   },
 ];
 
-export function NavExtra() {
+interface NavExtraProps {
+  asMenuButton?: boolean;
+}
+
+export function NavExtra({ asMenuButton = false }: NavExtraProps) {
+  const PopoverContentElement = (
+    <PopoverContent
+      className="w-52 divide-y p-0"
+      side={asMenuButton ? "left" : "right"}
+      sideOffset={6}
+    >
+      <div className="p-2">
+        <h3 className="px-2 py-1.5 font-medium text-foreground/90 text-sm">
+          Get in touch
+        </h3>
+        <ul className="flex flex-col">
+          {communityLinks.map((link) => (
+            <li key={link.label}>
+              <a
+                className={cn(
+                  buttonVariants({ variant: "ghost", size: "sm" }),
+                  "w-full justify-start gap-2 text-muted-foreground"
+                )}
+                href={link.href}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                {link.icon}
+                {link.label}
+                <ArrowUpRightIcon className="ml-auto size-4" />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div className="p-2">
+        <h3 className="px-2 py-1.5 font-medium text-foreground/90 text-sm">
+          Resources
+        </h3>
+        <ul className="flex flex-col">
+          {resourceLinks.map((link) => (
+            <li key={link.label}>
+              <a
+                className={cn(
+                  buttonVariants({ variant: "ghost", size: "sm" }),
+                  "w-full justify-start gap-2 text-muted-foreground"
+                )}
+                href={link.href}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                {link.icon}
+                {link.label}
+                <ArrowUpRightIcon className="ml-auto size-4" />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </PopoverContent>
+  );
+
+  if (asMenuButton) {
+    return (
+      <Popover>
+        <PopoverTrigger
+          render={
+            <SidebarMenuButton className="border border-transparent transition-colors duration-200 hover:bg-sidebar-accent hover:text-accent-foreground">
+              <HugeiconsIcon icon={HelpCircleIcon} />
+              <span>Help</span>
+            </SidebarMenuButton>
+          }
+        />
+        {PopoverContentElement}
+      </Popover>
+    );
+  }
+
   return (
     <Popover>
       <Tooltip delay={300}>
@@ -75,59 +152,10 @@ export function NavExtra() {
           }
         />
         <TooltipContent>
-          <p>Contact Us</p>
+          <p>Help</p>
         </TooltipContent>
       </Tooltip>
-      <PopoverContent className="w-60 divide-y p-0" side="right" sideOffset={6}>
-        <div className="p-2">
-          <h3 className="px-2 py-1.5 font-medium text-foreground/90 text-sm">
-            Get in touch
-          </h3>
-          <ul className="flex flex-col">
-            {communityLinks.map((link) => (
-              <li key={link.label}>
-                <a
-                  className={cn(
-                    buttonVariants({ variant: "ghost", size: "sm" }),
-                    "w-full justify-start gap-2 text-muted-foreground"
-                  )}
-                  href={link.href}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  {link.icon}
-                  {link.label}
-                  <ArrowUpRightIcon className="ml-auto size-4" />
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div className="p-2">
-          <h3 className="px-2 py-1.5 font-medium text-foreground/90 text-sm">
-            Resources
-          </h3>
-          <ul className="flex flex-col">
-            {resourceLinks.map((link) => (
-              <li key={link.label}>
-                <a
-                  className={cn(
-                    buttonVariants({ variant: "ghost", size: "sm" }),
-                    "w-full justify-start gap-2 text-muted-foreground"
-                  )}
-                  href={link.href}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  {link.icon}
-                  {link.label}
-                  <ArrowUpRightIcon className="ml-auto size-4" />
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </PopoverContent>
+      {PopoverContentElement}
     </Popover>
   );
 }

@@ -18,11 +18,13 @@ import { useSidebar } from "@marble/ui/components/sidebar";
 import { Skeleton } from "@marble/ui/components/skeleton";
 import { SignOutIcon, UserIcon } from "@phosphor-icons/react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { useUser } from "@/providers/user";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
   const { user, signOut, isFetchingUser } = useUser();
+  const params = useParams<{ workspace: string }>();
 
   if (!user || isFetchingUser) {
     return <Skeleton className="size-8 shrink-0 rounded-full border" />;
@@ -75,7 +77,7 @@ export function NavUser() {
           <DropdownMenuItem>
             <Link
               className="flex w-full items-center gap-4"
-              href="/settings/account"
+              href={`/${params.workspace}/settings/account`}
             >
               <UserIcon className="size-4" />
               Account

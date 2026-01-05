@@ -5,25 +5,15 @@ import {
   Home01Icon,
   Image02Icon,
   Package01Icon,
-  Settings01Icon,
   Tag01Icon,
   Users,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@marble/ui/components/collapsible";
-import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
   useSidebar,
 } from "@marble/ui/components/sidebar";
 import { cn } from "@marble/ui/lib/utils";
@@ -58,25 +48,6 @@ const items = [
   },
 ];
 
-const settingsItems = [
-  {
-    title: "General",
-    url: "settings/general",
-  },
-  {
-    title: "Members",
-    url: "settings/members",
-  },
-  {
-    title: "Billing",
-    url: "settings/billing",
-  },
-  {
-    title: "Editor",
-    url: "settings/editor",
-  },
-];
-
 export function NavMain() {
   const pathname = usePathname();
   const params = useParams<{ workspace: string }>();
@@ -85,7 +56,6 @@ export function NavMain() {
   const isActive = (url: string) => pathname === `/${params.workspace}/${url}`;
 
   const isOverviewActive = pathname === `/${params.workspace}`;
-  const isSettingsActive = pathname.startsWith(`/${params.workspace}/settings`);
 
   return (
     <SidebarGroup className={cn(open ? "px-4" : "px-2")}>
@@ -104,6 +74,7 @@ export function NavMain() {
               <span>Home</span>
             </Link>
           }
+          tooltip="Home"
         />
         {items.map((item) => (
           <SidebarMenuButton
@@ -120,53 +91,9 @@ export function NavMain() {
                 <span>{item.name}</span>
               </Link>
             }
+            tooltip={item.name}
           />
         ))}
-        <Collapsible
-          className="group/collapsible"
-          open={isSettingsActive}
-          render={<SidebarMenuItem />}
-        >
-          <CollapsibleTrigger
-            nativeButton={false}
-            render={
-              <Link href={`/${params.workspace}/settings/general`}>
-                <SidebarMenuButton
-                  className={cn(
-                    "cursor-pointer border border-transparent transition-colors duration-200 hover:bg-sidebar-accent",
-                    isSettingsActive
-                      ? "bg-sidebar-accent text-foreground"
-                      : "hover:text-accent-foreground"
-                  )}
-                  tooltip="Settings"
-                >
-                  <HugeiconsIcon icon={Settings01Icon} />
-                  <span>Settings</span>
-                </SidebarMenuButton>
-              </Link>
-            }
-          />
-          <CollapsibleContent>
-            <SidebarMenuSub>
-              {settingsItems.map((subItem) => (
-                <SidebarMenuSubItem key={subItem.title}>
-                  <SidebarMenuSubButton
-                    className={cn(
-                      isActive(subItem.url)
-                        ? "text-foreground"
-                        : "text-muted-foreground"
-                    )}
-                    render={
-                      <Link href={`/${params.workspace}/${subItem.url}`}>
-                        <span>{subItem.title}</span>
-                      </Link>
-                    }
-                  />
-                </SidebarMenuSubItem>
-              ))}
-            </SidebarMenuSub>
-          </CollapsibleContent>
-        </Collapsible>
       </SidebarMenu>
     </SidebarGroup>
   );

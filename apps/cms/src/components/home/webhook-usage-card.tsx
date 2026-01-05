@@ -69,7 +69,7 @@ export function WebhookUsageCard({ data, isLoading }: WebhookUsageCardProps) {
     : null;
 
   return (
-    <Card className="gap-4 rounded-[20px] border-none bg-sidebar p-2.5">
+    <Card className="gap-4 rounded-[20px] border-none bg-sidebar p-2">
       <CardHeader className="gap-0 px-4 pt-4">
         <div className="flex flex-col gap-1">
           <div className="flex items-center justify-between gap-4">
