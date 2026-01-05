@@ -59,7 +59,11 @@ interface NavExtraProps {
 
 export function NavExtra({ asMenuButton = false }: NavExtraProps) {
   const PopoverContentElement = (
-    <PopoverContent className="w-52 divide-y p-0" side={asMenuButton ? "left" : "right"} sideOffset={6}>
+    <PopoverContent
+      className="w-52 divide-y p-0"
+      side={asMenuButton ? "left" : "right"}
+      sideOffset={6}
+    >
       <div className="p-2">
         <h3 className="px-2 py-1.5 font-medium text-foreground/90 text-sm">
           Get in touch
