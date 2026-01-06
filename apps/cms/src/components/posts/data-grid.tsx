@@ -58,7 +58,7 @@ export function DataGrid({ data }: DataGridProps) {
                   <CardTitle className="mr-2 line-clamp-2 flex-1 font-medium leading-[1.4]">
                     {post.title}
                   </CardTitle>
-                  <div>
+                  <div className="isolate">
                     <PostActions post={post} view="grid" />
                   </div>
                 </div>

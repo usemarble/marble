@@ -54,7 +54,8 @@ export const DeletePostModal = ({
 
   return (
     <AlertDialog onOpenChange={setOpen} open={open}>
-      <AlertDialogContent variant="card">
+      {/* this is simply to prevent clicks on the dialog from bubbling up and clcikng the post link */}
+      <AlertDialogContent onClick={(e) => e.stopPropagation()} variant="card">
         <AlertDialogHeader className="flex-row items-center justify-between px-4 py-2">
           <div className="flex flex-1 items-center gap-2">
             <HugeiconsIcon
