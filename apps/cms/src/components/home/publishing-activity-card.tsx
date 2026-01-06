@@ -165,7 +165,7 @@ export const PublishingActivityCard = () => {
                         level === 4 && "bg-primary/80 dark:bg-primary/90"
                       )}
                     />
-                    <span className="absolute -top-8 hidden rounded bg-popover px-2 py-1 text-popover-foreground text-xs shadow-md group-hover:block">
+                    <span className="-top-8 absolute hidden rounded bg-popover px-2 py-1 text-popover-foreground text-xs shadow-md group-hover:block">
                       Level {level}
                     </span>
                   </div>
