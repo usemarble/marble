@@ -70,7 +70,7 @@ export const DeletePostModal = ({
           <AlertDialogX />
         </AlertDialogHeader>
         <AlertDialogBody>
-          <AlertDialogDescription>
+          <AlertDialogDescription className="text-balance">
             Deleting this post will remove it from your workspace, and will no
             longer be accessible via the API. This cannot be undone.
           </AlertDialogDescription>

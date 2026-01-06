@@ -1,7 +1,8 @@
 "use client";
 
+import { Image02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { cn } from "@marble/ui/lib/utils";
-import { ImageIcon } from "@phosphor-icons/react";
 import { type DropzoneOptions, useDropzone } from "react-dropzone";
 import { IMAGE_DROPZONE_ACCEPT, MEDIA_DROPZONE_ACCEPT } from "@/lib/constants";
 
@@ -55,7 +56,7 @@ export function Dropzone({
   const hasErrors = fileRejections.length > 0;
 
   return (
-    <div className="w-full">
+    <div className="h-full w-full">
       <div
         {...getRootProps()}
         className={cn(
@@ -70,7 +71,8 @@ export function Dropzone({
         <input {...getInputProps()} />
         {children || (
           <div className="flex flex-col items-center gap-2 p-6 text-muted-foreground">
-            <ImageIcon className="size-6" />
+            {/* Fetch media */}
+            <HugeiconsIcon icon={Image02Icon} />
             <div className="flex flex-col items-center text-center">
               <p className="font-medium text-sm">
                 {isDragReject

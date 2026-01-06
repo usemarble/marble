@@ -1,5 +1,12 @@
 "use client";
 
+import { ImageDropzone } from "@/components/shared/dropzone";
+import { AsyncButton } from "@/components/ui/async-button";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { uploadFile } from "@/lib/media/upload";
+import { QUERY_KEYS } from "@/lib/queries/keys";
+import type { PostValues } from "@/lib/validations/post";
+import type { Media, MediaListResponse } from "@/types/media";
 import { Album02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@marble/ui/components/button";
@@ -12,7 +19,6 @@ import {
   DialogX,
 } from "@marble/ui/components/dialog";
 import { Input } from "@marble/ui/components/input";
-import { ScrollArea } from "@marble/ui/components/scroll-area";
 import { toast } from "@marble/ui/components/sonner";
 import {
   Tabs,
@@ -23,25 +29,16 @@ import {
 import { cn } from "@marble/ui/lib/utils";
 import {
   CheckIcon,
-  ImagesIcon,
   SpinnerIcon,
-  TrashIcon,
+  TrashIcon
 } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import NextImage from "next/image";
 import { useState } from "react";
 import { type Control, useController } from "react-hook-form";
 import { z } from "zod";
-import { ImageDropzone } from "@/components/shared/dropzone";
-import { AsyncButton } from "@/components/ui/async-button";
-import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { uploadFile } from "@/lib/media/upload";
-import { QUERY_KEYS } from "@/lib/queries/keys";
-import type { PostValues } from "@/lib/validations/post";
-import type { Media, MediaListResponse } from "@/types/media";
 import { FieldInfo } from "./field-info";
 
-// URL schema
 const urlSchema = z.string().url({
   message: "Please enter a valid URL",
 });
@@ -87,7 +84,6 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
     },
   });
 
-  // Fetch media
   const { data: media, isLoading: isLoadingMedia } = useQuery({
     // biome-ignore lint/style/noNonNullAssertion: <>
     queryKey: QUERY_KEYS.MEDIA(workspaceId!),
@@ -250,7 +246,7 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
             type="button"
           >
             <div className="flex flex-col items-center gap-2 text-muted-foreground">
-              <ImagesIcon className="size-6" />
+              <HugeiconsIcon icon={Album02Icon} />
               <p className="font-medium text-sm">Click to view your gallery</p>
             </div>
           </button>
@@ -323,7 +319,7 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
             ) : (
               <div className="flex min-h-[400px] items-center justify-center p-8">
                 <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
-                  <ImagesIcon className="size-8" />
+                  <HugeiconsIcon icon={Album02Icon} />
                   <p className="font-medium text-sm">
                     Your gallery is empty. Upload some media to get started.
                   </p>

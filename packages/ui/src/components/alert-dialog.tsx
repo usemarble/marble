@@ -25,6 +25,7 @@ function AlertDialogPortal({ ...props }: AlertDialogPrimitive.Portal.Props) {
 
 function AlertDialogOverlay({
   className,
+  onClick,
   ...props
 }: AlertDialogPrimitive.Backdrop.Props) {
   return (
@@ -34,6 +35,12 @@ function AlertDialogOverlay({
         className
       )}
       data-slot="alert-dialog-overlay"
+      onClick={(e) => {
+        // Stop propagation to prevent clicks on the overlay from bubbling
+        // through to parent elements when rendered in a portal (this is specifically for the post card links)
+        e.stopPropagation();
+        onClick?.(e);
+      }}
       {...props}
     />
   );
