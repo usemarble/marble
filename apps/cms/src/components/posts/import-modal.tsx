@@ -168,11 +168,7 @@ export function PostsImportModal({
           </div>
           <DialogX />
         </DialogHeader>
-        <DialogDescription
-          className={
-            importState.status === "ready" ? "hidden text-center" : "sr-only"
-          }
-        >
+        <DialogDescription className="sr-only">
           {importState.status === "ready" && importState.file
             ? `We've parsed metadata from your file. Please review and complete the details.`
             : "Import content into your workspace. You can import a .md/.mdx file."}

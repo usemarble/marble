@@ -268,7 +268,6 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
       {renderContent()}
 
       {/* Media Gallery Dialog */}
-      {/* Media Gallery Dialog */}
       <Dialog onOpenChange={setIsGalleryOpen} open={isGalleryOpen}>
         <DialogContent
           className="flex max-h-[800px] flex-col overflow-hidden text-clip sm:max-w-4xl"

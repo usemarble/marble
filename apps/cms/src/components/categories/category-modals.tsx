@@ -225,7 +225,7 @@ export const CategoryModal = ({
               )}
             </div>
             <div className="grid flex-1 gap-2">
-              <Label htmlFor="description">Descriptio</Label>
+              <Label htmlFor="description">Description</Label>
               <Textarea
                 id="description"
                 {...register("description")}
