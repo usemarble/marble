@@ -2,23 +2,29 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Alert02Icon, Package01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import {
   AlertDialog,
+  AlertDialogBody,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogX,
 } from "@marble/ui/components/alert-dialog";
 import { Button } from "@marble/ui/components/button";
 import {
   Dialog,
+  DialogBody,
   DialogClose,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogX,
 } from "@marble/ui/components/dialog";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
@@ -176,53 +182,75 @@ export const CategoryModal = ({
 
   return (
     <Dialog onOpenChange={setOpen} open={open}>
-      <DialogContent className="p-8 sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="text-center font-medium">
-            {mode === "create" ? "Create Category" : "Update Category"}
-          </DialogTitle>
+      <DialogContent className="sm:max-w-md" variant="card">
+        <DialogHeader className="flex-row items-center justify-between px-4 py-2">
+          <div className="flex flex-1 items-center gap-2">
+            <HugeiconsIcon
+              className="text-muted-foreground"
+              icon={Package01Icon}
+              size={18}
+              strokeWidth={2}
+            />
+            <DialogTitle className="font-medium text-muted-foreground text-sm">
+              {mode === "create" ? "Create Category" : "Update Category"}
+            </DialogTitle>
+          </div>
+          <DialogX />
         </DialogHeader>
-        <form
-          className="mt-2 flex flex-col gap-5"
-          onSubmit={handleSubmit(onSubmit)}
-        >
-          <div className="grid flex-1 gap-2">
-            <Label htmlFor="name">Name</Label>
-            <Input
-              id="name"
-              {...register("name")}
-              placeholder="The name of the category"
-            />
-            {errors.name && <ErrorMessage>{errors.name.message}</ErrorMessage>}
-          </div>
-          <div className="grid flex-1 gap-2">
-            <Label htmlFor="slug">Slug</Label>
-            <Input
-              id="slug"
-              {...register("slug")}
-              placeholder="unique-identifier"
-            />
-            {errors.slug && <ErrorMessage>{errors.slug.message}</ErrorMessage>}
-          </div>
-          <div className="grid flex-1 gap-2">
-            <Label htmlFor="description">Description (optional)</Label>
-            <Textarea
-              id="description"
-              {...register("description")}
-              placeholder="A short description of the category"
-            />
-          </div>
-          <DialogFooter>
-            <DialogClose render={<Button variant="outline">Cancel</Button>} />
-            <AsyncButton
-              className="gap-2"
-              isLoading={isSubmitting || isCreating || isUpdating}
-              type="submit"
-            >
-              {mode === "create" ? "Create" : "Update"}
-            </AsyncButton>
-          </DialogFooter>
-        </form>
+        <DialogBody>
+          <form
+            className="flex flex-col gap-3"
+            onSubmit={handleSubmit(onSubmit)}
+          >
+            <div className="grid flex-1 gap-2">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                {...register("name")}
+                placeholder="The name of the category"
+              />
+              {errors.name && (
+                <ErrorMessage>{errors.name.message}</ErrorMessage>
+              )}
+            </div>
+            <div className="grid flex-1 gap-2">
+              <Label htmlFor="slug">Slug</Label>
+              <Input
+                id="slug"
+                {...register("slug")}
+                placeholder="unique-identifier"
+              />
+              {errors.slug && (
+                <ErrorMessage>{errors.slug.message}</ErrorMessage>
+              )}
+            </div>
+            <div className="grid flex-1 gap-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                {...register("description")}
+                placeholder="An optional description of the category"
+              />
+            </div>
+            <DialogFooter>
+              <DialogClose
+                render={
+                  <Button size="sm" variant="outline">
+                    Cancel
+                  </Button>
+                }
+              />
+              <AsyncButton
+                className="gap-2"
+                isLoading={isSubmitting || isCreating || isUpdating}
+                size="sm"
+                type="submit"
+              >
+                {mode === "create" ? "Create" : "Update"}
+              </AsyncButton>
+            </DialogFooter>
+          </form>
+        </DialogBody>
       </DialogContent>
     </Dialog>
   );
@@ -271,27 +299,43 @@ export const DeleteCategoryModal = ({
 
   return (
     <AlertDialog onOpenChange={setOpen} open={open}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Delete {name}?</AlertDialogTitle>
+      <AlertDialogContent className="sm:max-w-md" variant="card">
+        <AlertDialogHeader className="flex-row items-center justify-between px-4 py-2">
+          <div className="flex flex-1 items-center gap-2">
+            <HugeiconsIcon
+              className="text-destructive"
+              icon={Alert02Icon}
+              size={18}
+              strokeWidth={2}
+            />
+            <AlertDialogTitle className="font-medium text-muted-foreground text-sm">
+              Delete "{name}"?
+            </AlertDialogTitle>
+          </div>
+          <AlertDialogX />
+        </AlertDialogHeader>
+        <AlertDialogBody>
           <AlertDialogDescription>
             This will permanently delete this category from your list and you
             can no longer use this in articles.
           </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
-          <AsyncButton
-            isLoading={isPending}
-            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-              e.preventDefault();
-              deleteCategory();
-            }}
-            variant="destructive"
-          >
-            Delete
-          </AsyncButton>
-        </AlertDialogFooter>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isPending} size="sm">
+              Cancel
+            </AlertDialogCancel>
+            <AsyncButton
+              isLoading={isPending}
+              onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                e.preventDefault();
+                deleteCategory();
+              }}
+              size="sm"
+              variant="destructive"
+            >
+              Delete
+            </AsyncButton>
+          </AlertDialogFooter>
+        </AlertDialogBody>
       </AlertDialogContent>
     </AlertDialog>
   );

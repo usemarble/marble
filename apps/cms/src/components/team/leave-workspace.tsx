@@ -1,11 +1,15 @@
+import { Alert02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import {
   AlertDialog,
+  AlertDialogBody,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogX,
 } from "@marble/ui/components/alert-dialog";
 import { toast } from "@marble/ui/components/sonner";
 import { useRouter } from "next/navigation";
@@ -81,25 +85,41 @@ export function LeaveWorkspaceModal({
 
   return (
     <AlertDialog onOpenChange={setOpen} open={open}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Leave {name}?</AlertDialogTitle>
-          <AlertDialogDescription>
-            Once you leave the workspace, you will no longer have access to it.
+      <AlertDialogContent variant="card">
+        <AlertDialogHeader className="flex-row items-center justify-between px-4 py-2">
+          <div className="flex flex-1 items-center gap-2">
+            <HugeiconsIcon
+              className="text-destructive"
+              icon={Alert02Icon}
+              size={18}
+              strokeWidth={2}
+            />
+            <AlertDialogTitle className="font-medium text-muted-foreground text-sm">
+              Leave {name}?
+            </AlertDialogTitle>
+          </div>
+          <AlertDialogX />
+        </AlertDialogHeader>
+        <AlertDialogBody>
+          <AlertDialogDescription className="text-balance">
+            Once you leave the workspace, you will no longer have access to it
             until you are invited again.
           </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel className="min-w-20">Cancel</AlertDialogCancel>
-          <AsyncButton
-            className="min-w-20"
-            isLoading={isLeavingWorkspace}
-            onClick={handleLeaveWorkspace}
-            variant="destructive"
-          >
-            Leave
-          </AsyncButton>
-        </AlertDialogFooter>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="min-w-20" size="sm">
+              Cancel
+            </AlertDialogCancel>
+            <AsyncButton
+              className="min-w-20"
+              isLoading={isLeavingWorkspace}
+              onClick={handleLeaveWorkspace}
+              size="sm"
+              variant="destructive"
+            >
+              Leave
+            </AsyncButton>
+          </AlertDialogFooter>
+        </AlertDialogBody>
       </AlertDialogContent>
     </AlertDialog>
   );

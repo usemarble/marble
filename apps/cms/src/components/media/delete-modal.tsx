@@ -1,13 +1,17 @@
 "use client";
 
+import { Alert02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import {
   AlertDialog,
+  AlertDialogBody,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogX,
 } from "@marble/ui/components/alert-dialog";
 import { toast } from "@marble/ui/components/sonner";
 import {
@@ -148,21 +152,37 @@ export function DeleteMediaModal({
 
   return (
     <AlertDialog onOpenChange={setIsOpen} open={isOpen}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription>{description}</AlertDialogDescription>
+      <AlertDialogContent variant="card">
+        <AlertDialogHeader className="flex-row items-center justify-between px-4 py-2">
+          <div className="flex flex-1 items-center gap-2">
+            <HugeiconsIcon
+              className="text-destructive"
+              icon={Alert02Icon}
+              size={18}
+              strokeWidth={2}
+            />
+            <AlertDialogTitle className="font-medium text-muted-foreground text-sm">
+              {title}
+            </AlertDialogTitle>
+          </div>
+          <AlertDialogX />
         </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AsyncButton
-            isLoading={isPending}
-            onClick={handleDelete}
-            variant="destructive"
-          >
-            {buttonText}
-          </AsyncButton>
-        </AlertDialogFooter>
+        <AlertDialogBody>
+          <AlertDialogDescription className="text-balance">
+            {description}
+          </AlertDialogDescription>
+          <AlertDialogFooter>
+            <AlertDialogCancel size="sm">Cancel</AlertDialogCancel>
+            <AsyncButton
+              isLoading={isPending}
+              onClick={handleDelete}
+              size="sm"
+              variant="destructive"
+            >
+              {buttonText}
+            </AsyncButton>
+          </AlertDialogFooter>
+        </AlertDialogBody>
       </AlertDialogContent>
     </AlertDialog>
   );

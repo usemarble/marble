@@ -57,8 +57,9 @@ export function EditorHeader({ postId, workspace }: EditorHeaderProps) {
 
       <div className="flex items-center gap-2">
         {postId && <ShareModal postId={postId} />}
-        <Tooltip delay={400}>
+        <Tooltip>
           <TooltipTrigger
+            delay={400}
             render={
               <SidebarTrigger
                 className="size-8"

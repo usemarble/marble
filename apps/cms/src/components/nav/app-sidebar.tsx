@@ -13,7 +13,7 @@ import {
   useSidebar,
 } from "@marble/ui/components/sidebar";
 import { cn } from "@marble/ui/lib/utils";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import { NavExtra } from "./nav-extra";
@@ -27,18 +27,25 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
   const params = useParams<{ workspace: string }>();
   const { open } = useSidebar();
+  const shouldReduceMotion = useReducedMotion();
   const isSettingsRoute = pathname.startsWith(`/${params.workspace}/settings`);
 
   const mainVariants = {
-    initial: { opacity: 0, x: "-100%" },
+    initial: shouldReduceMotion
+      ? { opacity: 1, x: 0 }
+      : { opacity: 0, x: "-100%" },
     animate: { opacity: 1, x: 0 },
-    exit: { opacity: 0, x: "-100%" },
+    exit: shouldReduceMotion
+      ? { opacity: 1, x: 0 }
+      : { opacity: 0, x: "-100%" },
   };
 
   const settingsVariants = {
-    initial: { opacity: 0, x: "100%" },
+    initial: shouldReduceMotion
+      ? { opacity: 1, x: 0 }
+      : { opacity: 0, x: "100%" },
     animate: { opacity: 1, x: 0 },
-    exit: { opacity: 0, x: "100%" },
+    exit: shouldReduceMotion ? { opacity: 1, x: 0 } : { opacity: 0, x: "100%" },
   };
 
   const transition = { duration: 0.3, type: "spring", bounce: 0.15 };

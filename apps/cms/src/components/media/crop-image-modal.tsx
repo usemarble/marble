@@ -1,11 +1,15 @@
 "use client";
 
+import { Image01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@marble/ui/components/button";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogX,
 } from "@marble/ui/components/dialog";
 import {
   ImageCrop,
@@ -13,7 +17,6 @@ import {
   ImageCropContent,
   ImageCropReset,
 } from "@marble/ui/components/kibo-ui/image-crop";
-import { XIcon } from "@phosphor-icons/react";
 import { useCallback } from "react";
 import { MAX_AVATAR_FILE_SIZE } from "@/lib/constants";
 
@@ -59,32 +62,34 @@ export function CropImageModal({
 
   return (
     <Dialog onOpenChange={handleClose} open={open}>
-      <DialogContent className="sm:max-w-[520px]">
-        <Button
-          className="absolute top-4 right-4 z-50"
-          onClick={() => handleClose(false)}
-          size="icon"
-          type="button"
-          variant="ghost"
-        >
-          <XIcon className="h-4 w-4" />
-        </Button>
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
+      <DialogContent className="sm:max-w-xl" variant="card">
+        <DialogHeader className="flex-row items-center justify-between px-4 py-2">
+          <div className="flex flex-1 items-center gap-2">
+            <HugeiconsIcon
+              className="text-muted-foreground"
+              icon={Image01Icon}
+              size={18}
+              strokeWidth={2}
+            />
+            <DialogTitle className="font-medium text-muted-foreground text-sm">
+              {title}
+            </DialogTitle>
+          </div>
+          <DialogX />
         </DialogHeader>
-        <div className="flex flex-col items-center gap-4">
-          {file ? (
-            <div className="space-y-3">
-              <ImageCrop
-                aspect={aspect}
-                file={file}
-                maxImageSize={maxImageSize}
-                onCrop={handleCropped}
-              >
-                <div className="group relative inline-block max-w-full">
-                  <ImageCropContent className="max-w-full" />
-                  <div className="pointer-events-none absolute inset-0 flex items-end justify-center bg-gradient-to-t from-black/40 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                    <div className="pointer-events-auto mb-3 flex items-center gap-2">
+        <DialogBody>
+          <div className="flex flex-col items-center gap-4">
+            {file ? (
+              <div className="space-y-3">
+                <ImageCrop
+                  aspect={aspect}
+                  file={file}
+                  maxImageSize={maxImageSize}
+                  onCrop={handleCropped}
+                >
+                  <div className="flex flex-col items-center gap-4">
+                    <ImageCropContent className="max-w-full rounded-md shadow-sm" />
+                    <div className="flex items-center gap-2">
                       <ImageCropReset asChild>
                         <Button size="sm" type="button" variant="secondary">
                           Reset
@@ -97,11 +102,11 @@ export function CropImageModal({
                       </ImageCropApply>
                     </div>
                   </div>
-                </div>
-              </ImageCrop>
-            </div>
-          ) : null}
-        </div>
+                </ImageCrop>
+              </div>
+            ) : null}
+          </div>
+        </DialogBody>
       </DialogContent>
     </Dialog>
   );

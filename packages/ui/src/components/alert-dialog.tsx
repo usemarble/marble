@@ -1,6 +1,8 @@
 "use client";
 
 import { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog";
+import { Cancel01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import type * as React from "react";
 import { Button, buttonVariants } from "@marble/ui/components/button";
 import { cn } from "@marble/ui/lib/utils";
@@ -28,7 +30,7 @@ function AlertDialogOverlay({
   return (
     <AlertDialogPrimitive.Backdrop
       className={cn(
-        "data-closed:fade-out-0 data-open:fade-in-0 fixed inset-0 isolate z-50 bg-black/50 backdrop-blur-sm duration-100 data-closed:animate-out data-open:animate-in",
+        "data-closed:fade-out-0 data-open:fade-in-0 fixed inset-0 isolate z-50 bg-black/10 backdrop-blur-xs duration-100 data-closed:animate-out data-open:animate-in",
         className
       )}
       data-slot="alert-dialog-overlay"
@@ -40,16 +42,20 @@ function AlertDialogOverlay({
 function AlertDialogContent({
   className,
   size = "default",
+  variant = "default",
   ...props
 }: AlertDialogPrimitive.Popup.Props & {
   size?: "default" | "sm";
+  variant?: "default" | "card";
 }) {
   return (
     <AlertDialogPortal>
       <AlertDialogOverlay />
       <AlertDialogPrimitive.Popup
         className={cn(
-          "data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 group/alert-dialog-content fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-3xl border bg-background p-6 shadow-lg duration-200 data-closed:animate-out data-open:animate-in sm:max-w-lg",
+          "data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 group/alert-dialog-content fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 duration-200 data-closed:animate-out data-open:animate-in sm:max-w-lg",
+          variant === "default" && "bg-background border gap-6 rounded-xl p-6 shadow-lg",
+          variant === "card" && "gap-0 rounded-[1.5rem] bg-surface p-1 sm:p-1.5 shadow-2xl",
           className
         )}
         data-size={size}
@@ -68,6 +74,19 @@ function AlertDialogHeader({
     <div
       className={cn("flex flex-col gap-2 text-center sm:text-left", className)}
       data-slot="alert-dialog-header"
+      {...props}
+    />
+  );
+}
+
+function AlertDialogBody({
+  className,
+  ...props
+}: React.ComponentProps<"div">) {
+  return (
+    <div
+      className={cn("bg-background flex flex-col gap-4 rounded-[calc(1.5rem-4px)] p-4 shadow-xs sm:rounded-[calc(1.5rem-6px)]", className)}
+      data-slot="alert-dialog-body"
       {...props}
     />
   );
@@ -160,9 +179,32 @@ function AlertDialogCancel({
   );
 }
 
+function AlertDialogX({
+  className,
+  icon,
+  ...props
+}: AlertDialogPrimitive.Close.Props & {
+  icon?: React.ReactNode;
+}) {
+  return (
+    <AlertDialogPrimitive.Close
+      className={cn(
+        "rounded-xs opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-open:bg-accent data-open:text-muted-foreground [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        className
+      )}
+      data-slot="alert-dialog-close"
+      {...props}
+    >
+      {icon ?? <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2} />}
+      <span className="sr-only">Close</span>
+    </AlertDialogPrimitive.Close>
+  );
+}
+
 export {
   AlertDialog,
   AlertDialogAction,
+  AlertDialogBody,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -173,4 +215,5 @@ export {
   AlertDialogPortal,
   AlertDialogTitle,
   AlertDialogTrigger,
+  AlertDialogX,
 };

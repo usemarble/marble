@@ -69,7 +69,7 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
   }, [selectedFile]);
 
   return (
-    <div className="flex flex-col gap-4 rounded-[20px] border border-none bg-sidebar p-2 text-card-foreground">
+    <div className="flex flex-col gap-4 rounded-[20px] border border-none bg-surface p-2 text-card-foreground">
       <AnimatePresence key={mountKeyRef.current} mode="wait">
         {selectedFile ? (
           <>
@@ -251,7 +251,7 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
                         </div>
                       </div>
                       <motion.div
-                        className="flex size-8 items-center justify-center rounded-full bg-sidebar hover:bg-primary/10 hover:text-primary dark:bg-accent/50 dark:hover:bg-sidebar-accent dark:hover:text-accent-foreground"
+                        className="flex size-8 items-center justify-center rounded-full bg-surface hover:bg-primary/10 hover:text-primary dark:bg-accent/50 dark:hover:bg-accent dark:hover:text-accent-foreground"
                         layoutId={`button-${file.id}`}
                       >
                         <ArrowsOutSimpleIcon size={16} />

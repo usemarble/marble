@@ -2,7 +2,7 @@
 
 import { Button } from "@marble/ui/components/button";
 import { useSidebar } from "@marble/ui/components/sidebar";
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { usePlan } from "@/hooks/use-plan";
@@ -18,9 +18,11 @@ export function UpgradeCard() {
   const { isOwner } = useWorkspace();
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const isCollapsed = state === "collapsed";
+  const shouldReduceMotion = useReducedMotion();
 
   const wasCollapsed = useRef(isCollapsed);
-  const shouldAnimate = wasCollapsed.current && !isCollapsed;
+  const shouldAnimate =
+    !shouldReduceMotion && wasCollapsed.current && !isCollapsed;
 
   useEffect(() => {
     wasCollapsed.current = isCollapsed;

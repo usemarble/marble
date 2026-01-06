@@ -158,8 +158,9 @@ export const EditorLinkSelector = ({
             className="mx-1 h-full min-h-[1.5rem] w-[1px]"
             orientation="vertical"
           />
-          <Tooltip delay={400}>
+          <Tooltip>
             <TooltipTrigger
+              delay={400}
               render={
                 <Button
                   className="h-8 rounded-sm"
@@ -180,8 +181,9 @@ export const EditorLinkSelector = ({
               <p>{openInNewTab ? "Opens in new tab" : "Opens in same tab"}</p>
             </TooltipContent>
           </Tooltip>
-          <Tooltip delay={400}>
+          <Tooltip>
             <TooltipTrigger
+              delay={400}
               render={
                 <Button
                   className="h-8 rounded-sm"
@@ -202,8 +204,9 @@ export const EditorLinkSelector = ({
               <p>Remove link</p>
             </TooltipContent>
           </Tooltip>
-          <Tooltip delay={400}>
+          <Tooltip>
             <TooltipTrigger
+              delay={400}
               render={
                 <Button
                   className="h-8 rounded-sm"

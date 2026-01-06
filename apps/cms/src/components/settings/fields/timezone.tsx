@@ -80,7 +80,7 @@ export function Timezone() {
   };
 
   return (
-    <Card className="rounded-[20px] border-none bg-sidebar p-2">
+    <Card className="rounded-[20px] border-none bg-surface p-2">
       <form
         className="flex flex-col"
         onSubmit={timezoneForm.handleSubmit(onTimezoneSubmit)}

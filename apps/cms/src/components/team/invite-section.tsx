@@ -149,7 +149,7 @@ export function InviteSection({ invitations }: InviteSectionProps) {
   }
 
   return (
-    <Card className="rounded-[20px] border-none bg-sidebar p-2.5">
+    <Card className="rounded-[20px] border-none bg-surface p-2.5">
       <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
         <div className="flex items-center justify-between">
           <div>

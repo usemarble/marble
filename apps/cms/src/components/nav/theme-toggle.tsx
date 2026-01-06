@@ -59,8 +59,9 @@ export function ThemeToggle() {
   };
 
   return (
-    <Tooltip delay={300}>
+    <Tooltip>
       <TooltipTrigger
+        delay={300}
         render={
           <Button
             aria-label="Toggle theme"

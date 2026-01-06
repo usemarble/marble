@@ -1,5 +1,7 @@
 "use client";
 
+import { FileImportIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Button, buttonVariants } from "@marble/ui/components/button";
 import { Input } from "@marble/ui/components/input";
 import {
@@ -94,7 +96,7 @@ export function PostDataView<TData, TValue>({
       <div className="mb-4 flex items-center justify-between py-4">
         <div className="relative">
           <MagnifyingGlassIcon
-            className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+            className="-translate-y-1/2 absolute top-1/2 left-3 size-4 text-muted-foreground"
             size={16}
           />
           <Input
@@ -117,7 +119,7 @@ export function PostDataView<TData, TValue>({
           )}
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex gap-1 rounded-xl bg-sidebar p-1 dark:bg-accent/50">
+          <div className="flex gap-1 rounded-xl bg-surface p-1 dark:bg-accent/50">
             <Tooltip>
               <TooltipTrigger
                 render={
@@ -180,7 +182,11 @@ export function PostDataView<TData, TValue>({
                     onClick={() => setImportOpen(true)}
                     variant="default"
                   >
-                    <UploadSimpleIcon className="size-4" />
+                    <HugeiconsIcon
+                      icon={FileImportIcon}
+                      size={16}
+                      strokeWidth={2}
+                    />
                   </Button>
                 }
               />

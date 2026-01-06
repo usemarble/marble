@@ -12,7 +12,7 @@ export function Id() {
   const linkId = useId();
 
   return (
-    <Card className="rounded-[20px] border-none bg-sidebar p-2">
+    <Card className="rounded-[20px] border-none bg-surface p-2">
       <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
         <div className="flex flex-col gap-1.5">
           <CardTitle className="font-medium text-lg">Workspace ID.</CardTitle>

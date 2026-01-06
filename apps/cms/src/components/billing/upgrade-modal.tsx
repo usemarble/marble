@@ -89,7 +89,7 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
       }}
       open={isOpen}
     >
-      <DialogContent className="max-h-[700px] overflow-y-auto rounded-[20px] bg-sidebar p-2 sm:max-w-4xl">
+      <DialogContent className="max-h-[700px] overflow-y-auto rounded-[20px] bg-surface p-2 sm:max-w-4xl">
         <DialogHeader className="sr-only">
           <DialogTitle>Upgrade Plan</DialogTitle>
           <DialogDescription>

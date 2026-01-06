@@ -447,6 +447,7 @@ export const AuthorSheet = ({
                 <Button
                   className="w-fit shadow-none"
                   onClick={addSocialLink}
+                  size="sm"
                   type="button"
                   variant="outline"
                 >

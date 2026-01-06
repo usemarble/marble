@@ -91,14 +91,14 @@ function PageClient() {
   return (
     <WorkspacePageWrapper className="flex flex-col gap-8 py-12" size="compact">
       {/* Current Plan Header */}
-      <Card className="gap-0 rounded-[20px] border-none bg-sidebar p-1.5">
+      <Card className="gap-0 rounded-[20px] border-none bg-surface p-1.5">
         <div className="flex items-center justify-between rounded-[12px] bg-background p-6 shadow-xs">
           <div className="flex flex-col gap-1">
             <CardTitle className="font-medium text-lg">Billing Plan</CardTitle>
             <CardDescription>View and manage your billing plan</CardDescription>
           </div>
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 rounded-full bg-sidebar px-4 py-2">
+            <div className="flex items-center gap-2 rounded-full bg-surface px-4 py-2">
               <span className="text-muted-foreground text-sm">
                 Current plan:
               </span>
@@ -129,7 +129,7 @@ function PageClient() {
 
         <section className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {hobbyPlan && (
-            <Card className="relative gap-0 rounded-[20px] border-none bg-sidebar p-1.5">
+            <Card className="relative gap-0 rounded-[20px] border-none bg-surface p-1.5">
               <div className="flex h-full flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
                 <div className="flex items-start justify-between">
                   <div>
@@ -168,7 +168,7 @@ function PageClient() {
           )}
 
           {proPlan && (
-            <Card className="relative gap-0 rounded-[20px] border-none bg-sidebar p-1.5">
+            <Card className="relative gap-0 rounded-[20px] border-none bg-surface p-1.5">
               <div className="flex h-full flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
                 <div className="flex items-start justify-between">
                   <div>
@@ -210,7 +210,7 @@ function PageClient() {
         </section>
       </div>
 
-      <Card className="gap-0 rounded-[20px] border-none bg-sidebar p-1.5">
+      <Card className="gap-0 rounded-[20px] border-none bg-surface p-1.5">
         <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
           <div className="flex flex-col gap-1">
             <CardTitle className="font-medium text-lg">Invoices</CardTitle>

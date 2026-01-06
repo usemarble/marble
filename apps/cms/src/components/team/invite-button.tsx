@@ -67,8 +67,9 @@ export function InviteButton({ onInvite }: InviteButtonProps) {
 
   return (
     <TooltipProvider>
-      <Tooltip delay={0}>
+      <Tooltip>
         <TooltipTrigger
+          delay={0}
           render={
             <Button onClick={onInvite}>
               <PlusIcon className="size-4" />

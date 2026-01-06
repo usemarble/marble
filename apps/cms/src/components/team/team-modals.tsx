@@ -1,13 +1,17 @@
 "use client";
 
+import { Alert02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import {
   AlertDialog,
+  AlertDialogBody,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogX,
 } from "@marble/ui/components/alert-dialog";
 import { toast } from "@marble/ui/components/sonner";
 import { useState } from "react";
@@ -56,26 +60,40 @@ export function RemoveMemberModal({
 
   return (
     <AlertDialog onOpenChange={setOpen} open={open}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>
-            Remove {member.name || member.email}?
-          </AlertDialogTitle>
-          <AlertDialogDescription>
+      <AlertDialogContent variant="card">
+        <AlertDialogHeader className="flex-row items-center justify-between px-4 py-2">
+          <div className="flex flex-1 items-center gap-2">
+            <HugeiconsIcon
+              className="text-destructive"
+              icon={Alert02Icon}
+              size={18}
+              strokeWidth={2}
+            />
+            <AlertDialogTitle className="font-medium text-muted-foreground text-sm">
+              Remove {member.name || member.email}?
+            </AlertDialogTitle>
+          </div>
+          <AlertDialogX />
+        </AlertDialogHeader>
+        <AlertDialogBody>
+          <AlertDialogDescription className="text-balance">
             This action will revoke their access to the workspace permanently.
           </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
-          <AsyncButton
-            disabled={loading}
-            isLoading={loading}
-            onClick={removeMember}
-            variant="destructive"
-          >
-            Remove
-          </AsyncButton>
-        </AlertDialogFooter>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={loading} size="sm">
+              Cancel
+            </AlertDialogCancel>
+            <AsyncButton
+              disabled={loading}
+              isLoading={loading}
+              onClick={removeMember}
+              size="sm"
+              variant="destructive"
+            >
+              Remove
+            </AsyncButton>
+          </AlertDialogFooter>
+        </AlertDialogBody>
       </AlertDialogContent>
     </AlertDialog>
   );
