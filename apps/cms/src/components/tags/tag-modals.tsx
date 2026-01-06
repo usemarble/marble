@@ -193,9 +193,9 @@ export function TagModal({
             onSubmit={handleSubmit(onSubmit)}
           >
             <div className="grid flex-1 gap-2">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="tag-name">Name</Label>
               <Input
-                id="name"
+                id="tag-name"
                 {...register("name")}
                 placeholder="The name of the tag"
               />
@@ -204,9 +204,9 @@ export function TagModal({
               )}
             </div>
             <div className="grid flex-1 gap-2">
-              <Label htmlFor="slug">Slug</Label>
+              <Label htmlFor="tag-slug">Slug</Label>
               <Input
-                id="slug"
+                id="tag-slug"
                 {...register("slug")}
                 placeholder="unique-identifier"
               />
@@ -215,9 +215,9 @@ export function TagModal({
               )}
             </div>
             <div className="grid flex-1 gap-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="tag-description">Description</Label>
               <Textarea
-                id="description"
+                id="tag-description"
                 {...register("description")}
                 placeholder="An optional description of the tag"
               />

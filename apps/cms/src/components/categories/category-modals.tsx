@@ -1,4 +1,3 @@
-/** biome-ignore-all lint/correctness/useUniqueElementIds: IDs are unique within their respective modals */
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -203,9 +202,9 @@ export const CategoryModal = ({
             onSubmit={handleSubmit(onSubmit)}
           >
             <div className="grid flex-1 gap-2">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="category-name">Name</Label>
               <Input
-                id="name"
+                id="category-name"
                 {...register("name")}
                 placeholder="The name of the category"
               />
@@ -214,9 +213,9 @@ export const CategoryModal = ({
               )}
             </div>
             <div className="grid flex-1 gap-2">
-              <Label htmlFor="slug">Slug</Label>
+              <Label htmlFor="category-slug">Slug</Label>
               <Input
-                id="slug"
+                id="category-slug"
                 {...register("slug")}
                 placeholder="unique-identifier"
               />
@@ -225,9 +224,9 @@ export const CategoryModal = ({
               )}
             </div>
             <div className="grid flex-1 gap-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="category-description">Description</Label>
               <Textarea
-                id="description"
+                id="category-description"
                 {...register("description")}
                 placeholder="An optional description of the category"
               />
