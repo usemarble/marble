@@ -8,10 +8,11 @@ import {
 } from "@marble/ui/components/card";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogX,
 } from "@marble/ui/components/dialog";
 import { Input } from "@marble/ui/components/input";
 import { ScrollArea } from "@marble/ui/components/scroll-area";
@@ -183,7 +184,7 @@ export const ImageUploadComp = ({
 
   return (
     <>
-      <Card className="col-span-full gap-4 rounded-[20px] border-none bg-sidebar p-2.5">
+      <Card className="col-span-full gap-4 rounded-[20px] border-none bg-surface p-2.5">
         <CardHeader className="gap-0 px-4 pt-2">
           <div className="flex items-center justify-between gap-2">
             <ImageIcon className="size-5" />
@@ -303,7 +304,7 @@ export const ImageUploadComp = ({
             <div className="flex items-center gap-2">
               {(media !== undefined || fetchMedia) && (
                 <Button
-                  className="shrink-0 shadow-none"
+                  className="shrink-0 text-muted-foreground shadow-none"
                   disabled={loading}
                   onClick={() => setIsGalleryOpen(true)}
                   size="sm"
@@ -314,7 +315,7 @@ export const ImageUploadComp = ({
                 </Button>
               )}
               <Button
-                className="shrink-0 shadow-none"
+                className="shrink-0 text-muted-foreground shadow-none"
                 disabled={loading}
                 onClick={() => setShowEmbedInput(true)}
                 size="sm"
@@ -340,21 +341,27 @@ export const ImageUploadComp = ({
       {/* Media Gallery Dialog */}
       {(media !== undefined || fetchMedia) && (
         <Dialog onOpenChange={setIsGalleryOpen} open={isGalleryOpen}>
-          <DialogHeader className="sr-only">
-            <DialogTitle>Media Gallery</DialogTitle>
-            <DialogDescription>
-              Select an image from your media library to embed.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogContent className="max-h-[800px] min-w-[1000px] sm:min-w-[1000px]">
-            {isLoadingMedia ? (
-              <div className="flex h-full items-center justify-center p-8">
-                <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
-                  <p className="font-medium text-sm">Loading media...</p>
-                </div>
+          <DialogContent
+            className="flex max-h-[800px] flex-col overflow-hidden text-clip sm:max-w-4xl"
+            variant="card"
+          >
+            <DialogHeader className="flex-row items-center justify-between px-4 py-2">
+              <div className="flex flex-1 items-center gap-2">
+                <ImagesIcon className="size-5 text-muted-foreground" />
+                <DialogTitle className="font-medium text-muted-foreground text-sm">
+                  Media Gallery
+                </DialogTitle>
               </div>
-            ) : media && media.length > 0 ? (
-              <ScrollArea className="max-h-[550px]">
+              <DialogX />
+            </DialogHeader>
+            <DialogBody className="min-h-0 overflow-y-auto p-4">
+              {isLoadingMedia ? (
+                <div className="flex h-full items-center justify-center p-8">
+                  <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                    <p className="font-medium text-sm">Loading media...</p>
+                  </div>
+                </div>
+              ) : media && media.length > 0 ? (
                 <ul className="m-0 grid w-full list-none grid-cols-[repeat(auto-fill,minmax(8.125rem,1fr))] gap-2.5 p-0">
                   {media
                     ?.filter((item) => item.type === "image")
@@ -380,17 +387,17 @@ export const ImageUploadComp = ({
                       </li>
                     ))}
                 </ul>
-              </ScrollArea>
-            ) : (
-              <div className="flex min-h-[400px] items-center justify-center p-8">
-                <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
-                  <ImagesIcon className="size-8" />
-                  <p className="font-medium text-sm">
-                    Your gallery is empty. Upload some media to get started.
-                  </p>
+              ) : (
+                <div className="flex min-h-[400px] items-center justify-center p-8">
+                  <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                    <ImagesIcon className="size-8" />
+                    <p className="font-medium text-sm">
+                      Your gallery is empty. Upload some media to get started.
+                    </p>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </DialogBody>
           </DialogContent>
         </Dialog>
       )}

@@ -1,12 +1,15 @@
 "use client";
 
+import { Album02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@marble/ui/components/button";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogX,
 } from "@marble/ui/components/dialog";
 import { Input } from "@marble/ui/components/input";
 import { ScrollArea } from "@marble/ui/components/scroll-area";
@@ -265,22 +268,33 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
       {renderContent()}
 
       {/* Media Gallery Dialog */}
+      {/* Media Gallery Dialog */}
       <Dialog onOpenChange={setIsGalleryOpen} open={isGalleryOpen}>
-        <DialogHeader className="sr-only">
-          <DialogTitle>Media Gallery</DialogTitle>
-          <DialogDescription>
-            Select an image from your media library to use as your cover image.
-          </DialogDescription>
-        </DialogHeader>
-        <DialogContent className="max-h-[800px] min-w-[1000px] sm:min-w-[1000px]">
-          {isLoadingMedia ? (
-            <div className="flex h-full items-center justify-center p-8">
-              <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
-                <p className="font-medium text-sm">Loading media...</p>
-              </div>
+        <DialogContent
+          className="flex max-h-[800px] flex-col overflow-hidden text-clip sm:max-w-4xl"
+          variant="card"
+        >
+          <DialogHeader className="flex-row items-center justify-between px-4 py-2">
+            <div className="flex flex-1 items-center gap-2">
+              <HugeiconsIcon
+                className="text-muted-foreground"
+                icon={Album02Icon}
+                size={20}
+              />
+              <DialogTitle className="font-medium text-muted-foreground text-sm">
+                Media Gallery
+              </DialogTitle>
             </div>
-          ) : media && media.length > 0 ? (
-            <ScrollArea className="max-h-[550px]">
+            <DialogX />
+          </DialogHeader>
+          <DialogBody className="min-h-0 overflow-y-auto p-4">
+            {isLoadingMedia ? (
+              <div className="flex h-full items-center justify-center p-8">
+                <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                  <p className="font-medium text-sm">Loading media...</p>
+                </div>
+              </div>
+            ) : media && media.length > 0 ? (
               <ul className="m-0 grid w-full list-none grid-cols-[repeat(auto-fill,minmax(8.125rem,1fr))] gap-2.5 p-0">
                 {media
                   ?.filter((item) => item.type === "image")
@@ -307,17 +321,17 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
                     </li>
                   ))}
               </ul>
-            </ScrollArea>
-          ) : (
-            <div className="flex min-h-[400px] items-center justify-center p-8">
-              <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
-                <ImagesIcon className="size-8" />
-                <p className="font-medium text-sm">
-                  Your gallery is empty. Upload some media to get started.
-                </p>
+            ) : (
+              <div className="flex min-h-[400px] items-center justify-center p-8">
+                <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                  <ImagesIcon className="size-8" />
+                  <p className="font-medium text-sm">
+                    Your gallery is empty. Upload some media to get started.
+                  </p>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </DialogBody>
         </DialogContent>
       </Dialog>
     </div>

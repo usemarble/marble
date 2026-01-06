@@ -48,7 +48,7 @@ export const PublishingActivityCard = () => {
 
   if (isPending) {
     return (
-      <Card className="rounded-[20px] border-none bg-sidebar p-2.5">
+      <Card className="rounded-[20px] border-none bg-surface p-2.5">
         <CardHeader className="gap-0 px-4 pt-4">
           <div className="flex flex-col gap-1">
             <div className="flex items-center justify-between gap-4">
@@ -72,7 +72,7 @@ export const PublishingActivityCard = () => {
   }
 
   return (
-    <Card className="rounded-[20px] border-none bg-sidebar p-2">
+    <Card className="rounded-[20px] border-none bg-surface p-2">
       <CardHeader className="gap-0 px-4 pt-4">
         <div className="flex flex-col gap-1">
           <div className="flex items-center justify-between gap-4">
@@ -165,7 +165,7 @@ export const PublishingActivityCard = () => {
                         level === 4 && "bg-primary/80 dark:bg-primary/90"
                       )}
                     />
-                    <span className="-top-8 absolute hidden rounded bg-popover px-2 py-1 text-popover-foreground text-xs shadow-md group-hover:block">
+                    <span className="absolute -top-8 hidden rounded bg-popover px-2 py-1 text-popover-foreground text-xs shadow-md group-hover:block">
                       Level {level}
                     </span>
                   </div>

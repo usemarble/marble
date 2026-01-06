@@ -133,13 +133,7 @@ export function ImportItemForm({
       </div>
 
       <div className="mt-6 flex justify-end gap-2">
-        <DialogClose
-          render={
-            <Button className="shadow-none" variant="outline">
-              Cancel
-            </Button>
-          }
-        />
+        <DialogClose size="sm">Close</DialogClose>
         <AsyncButton
           disabled={isSubmitting || isImporting || !isValid}
           isLoading={isSubmitting || isImporting}

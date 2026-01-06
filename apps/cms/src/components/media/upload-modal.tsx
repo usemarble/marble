@@ -1,11 +1,15 @@
 "use client";
 
+import { FileImportIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@marble/ui/components/button";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogX,
 } from "@marble/ui/components/dialog";
 import { toast } from "@marble/ui/components/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -75,51 +79,67 @@ export function MediaUploadModal({
       }}
       open={isOpen}
     >
-      <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Upload Media</DialogTitle>
-        </DialogHeader>
-        <div className="flex flex-col gap-4 py-4">
-          {file ? (
-            <div className="flex flex-col gap-4">
-              <div className="relative flex h-[400px] w-full items-center justify-center overflow-hidden rounded-md">
-                {file.type.startsWith("image/") ? (
-                  <Image
-                    alt="cover preview"
-                    className="h-full w-full rounded-md object-contain"
-                    src={URL.createObjectURL(file)}
-                    unoptimized
-                  />
-                ) : (
-                  // biome-ignore lint/a11y/useMediaCaption: <>
-                  <video
-                    className="h-full w-full rounded-md object-contain"
-                    controls
-                    src={URL.createObjectURL(file)}
-                  />
-                )}
-              </div>
-              <div className="flex items-center justify-end gap-2">
-                <Button
-                  disabled={isUploading}
-                  onClick={() => setFile(undefined)}
-                  variant="outline"
-                >
-                  Cancel
-                </Button>
-                <AsyncButton isLoading={isUploading} onClick={handleUpload}>
-                  Upload
-                </AsyncButton>
-              </div>
-            </div>
-          ) : (
-            <MediaDropzone
-              className="flex h-64 w-full cursor-pointer items-center justify-center rounded-md border border-dashed bg-background"
-              multiple={false}
-              onFilesAccepted={(files: File[]) => setFile(files[0])}
+      <DialogContent
+        className="max-h-[90vh] max-w-4xl overflow-y-auto"
+        variant="card"
+      >
+        <DialogHeader className="flex-row items-center justify-between px-4 py-2">
+          <div className="flex flex-1 items-center gap-2">
+            <HugeiconsIcon
+              className="text-muted-foreground"
+              icon={FileImportIcon}
+              size={18}
+              strokeWidth={2}
             />
-          )}
-        </div>
+            <DialogTitle className="font-medium text-muted-foreground text-sm">
+              Upload Media
+            </DialogTitle>
+          </div>
+          <DialogX />
+        </DialogHeader>
+        <DialogBody>
+          <div className="flex flex-col gap-4">
+            {file ? (
+              <div className="flex flex-col gap-4">
+                <div className="relative flex h-[400px] w-full items-center justify-center overflow-hidden rounded-md">
+                  {file.type.startsWith("image/") ? (
+                    <Image
+                      alt="cover preview"
+                      className="h-full w-full rounded-md object-contain"
+                      src={URL.createObjectURL(file)}
+                      unoptimized
+                    />
+                  ) : (
+                    // biome-ignore lint/a11y/useMediaCaption: <>
+                    <video
+                      className="h-full w-full rounded-md object-contain"
+                      controls
+                      src={URL.createObjectURL(file)}
+                    />
+                  )}
+                </div>
+                <div className="flex items-center justify-end gap-2">
+                  <Button
+                    disabled={isUploading}
+                    onClick={() => setFile(undefined)}
+                    variant="outline"
+                  >
+                    Cancel
+                  </Button>
+                  <AsyncButton isLoading={isUploading} onClick={handleUpload}>
+                    Upload
+                  </AsyncButton>
+                </div>
+              </div>
+            ) : (
+              <MediaDropzone
+                className="flex h-64 w-full cursor-pointer items-center justify-center rounded-md border border-dashed bg-background"
+                multiple={false}
+                onFilesAccepted={(files: File[]) => setFile(files[0])}
+              />
+            )}
+          </div>
+        </DialogBody>
       </DialogContent>
     </Dialog>
   );

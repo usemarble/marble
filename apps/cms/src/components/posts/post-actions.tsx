@@ -68,7 +68,7 @@ export default function PostActions({
               className={cn(
                 "size-8 p-0",
                 view === "grid" &&
-                  "rounded-full bg-sidebar hover:bg-primary/10 hover:text-primary dark:bg-accent/50 dark:hover:text-accent-foreground"
+                  "rounded-full bg-surface hover:bg-primary/10 hover:text-primary dark:bg-accent/50 dark:hover:text-accent-foreground"
               )}
               onClick={(e) => {
                 e.stopPropagation();

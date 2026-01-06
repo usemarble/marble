@@ -69,7 +69,7 @@ export function ApiUsageCard({ data, isLoading }: ApiUsageCardProps) {
     : null;
 
   return (
-    <Card className="col-span-full gap-4 rounded-[20px] border-none bg-sidebar p-2">
+    <Card className="col-span-full gap-4 rounded-[20px] border-none bg-surface p-2">
       <CardHeader className="gap-0 px-4 pt-4">
         <div className="flex flex-col gap-1">
           <div className="flex items-center justify-between gap-4">

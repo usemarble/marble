@@ -1,11 +1,15 @@
 "use client";
 
+import { FileImportIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogX,
 } from "@marble/ui/components/dialog";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import matter from "gray-matter";
@@ -144,75 +148,89 @@ export function PostsImportModal({
 
   return (
     <Dialog onOpenChange={setOpen} open={open}>
-      <DialogContent className="grid grid-rows-[auto_1fr] sm:h-[580px] sm:max-w-4xl">
-        <DialogHeader className="h-fit">
-          <DialogTitle className="text-center">
-            {importState.status === "ready"
-              ? "Review Metadata"
-              : "Import Content"}
-          </DialogTitle>
-          <DialogDescription
-            className={
-              importState.status === "ready" ? "text-center" : "sr-only"
-            }
-          >
-            {importState.status === "ready" && importState.file
-              ? `We've parsed metadata from your file. Please review and complete the details.`
-              : "Import content into your workspace. You can import a .md/.mdx file."}
-          </DialogDescription>
-        </DialogHeader>
-        {importState.status === "idle" && (
-          <Dropzone
-            accept={{
-              "text/markdown": [".md", ".mdx"],
-            }}
-            className="flex h-full w-full flex-1 cursor-pointer items-center justify-center rounded-md border border-dashed bg-editor-field"
-            onFilesAccepted={(accepted) => {
-              if (accepted.length > 0) {
-                const file = accepted[0];
-                if (file) {
-                  updateImportState({ file, status: "parsing" });
-                  parseFile(file);
-                }
-              }
-            }}
-            placeholder={{
-              idle: "Drag & drop a .md/.mdx file, or click to select",
-              active: "Drop the file here...",
-              subtitle: "We will parse frontmatter and content",
-            }}
-          />
-        )}
-        {importState.status !== "idle" && (
-          <div className="scrollbar-custom flex flex-col gap-4 overflow-y-auto pt-4">
-            {importState.status === "parsing" && (
-              <div className="flex items-center justify-center py-8">
-                <div className="text-muted-foreground text-sm">
-                  Parsing file...
-                </div>
-              </div>
-            )}
-
-            {importState.status === "error" && (
-              <div className="flex items-center justify-center py-8">
-                <div className="text-destructive text-sm">
-                  {importState.error ?? "Error processing file"}
-                </div>
-              </div>
-            )}
-
-            {importState.status === "ready" &&
-              importState.parsedData &&
-              importState.file && (
-                <ImportItemForm
-                  initialData={importState.parsedData}
-                  isImporting={isImporting}
-                  name={importState.file.name}
-                  onImport={importPost}
-                />
-              )}
+      <DialogContent
+        className="grid grid-rows-[auto_1fr] sm:h-[580px] sm:max-w-4xl"
+        variant="card"
+      >
+        <DialogHeader className="flex-row items-center justify-between px-4 py-2">
+          <div className="flex flex-1 items-center gap-2">
+            <HugeiconsIcon
+              className="text-muted-foreground"
+              icon={FileImportIcon}
+              size={18}
+              strokeWidth={2}
+            />
+            <DialogTitle className="font-medium text-muted-foreground text-sm">
+              {importState.status === "ready"
+                ? "Review Metadata"
+                : "Import Content"}
+            </DialogTitle>
           </div>
-        )}
+          <DialogX />
+        </DialogHeader>
+        <DialogDescription
+          className={
+            importState.status === "ready" ? "hidden text-center" : "sr-only"
+          }
+        >
+          {importState.status === "ready" && importState.file
+            ? `We've parsed metadata from your file. Please review and complete the details.`
+            : "Import content into your workspace. You can import a .md/.mdx file."}
+        </DialogDescription>
+        <DialogBody className="overflow-hidden">
+          {importState.status === "idle" && (
+            <Dropzone
+              accept={{
+                "text/markdown": [".md", ".mdx"],
+              }}
+              className="flex h-full w-full flex-1 cursor-pointer items-center justify-center rounded-md border border-dashed bg-editor-field"
+              onFilesAccepted={(accepted) => {
+                if (accepted.length > 0) {
+                  const file = accepted[0];
+                  if (file) {
+                    updateImportState({ file, status: "parsing" });
+                    parseFile(file);
+                  }
+                }
+              }}
+              placeholder={{
+                idle: "Drag & drop a .md/.mdx file, or click to select",
+                active: "Drop the file here...",
+                subtitle: "We will parse frontmatter and content",
+              }}
+            />
+          )}
+          {importState.status !== "idle" && (
+            <div className="scrollbar-custom flex flex-col gap-4 overflow-y-auto pt-4">
+              {importState.status === "parsing" && (
+                <div className="flex items-center justify-center py-8">
+                  <div className="text-muted-foreground text-sm">
+                    Parsing file...
+                  </div>
+                </div>
+              )}
+
+              {importState.status === "error" && (
+                <div className="flex items-center justify-center py-8">
+                  <div className="text-destructive text-sm">
+                    {importState.error ?? "Error processing file"}
+                  </div>
+                </div>
+              )}
+
+              {importState.status === "ready" &&
+                importState.parsedData &&
+                importState.file && (
+                  <ImportItemForm
+                    initialData={importState.parsedData}
+                    isImporting={isImporting}
+                    name={importState.file.name}
+                    onImport={importPost}
+                  />
+                )}
+            </div>
+          )}
+        </DialogBody>
       </DialogContent>
     </Dialog>
   );

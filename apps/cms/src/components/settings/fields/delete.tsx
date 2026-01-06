@@ -1,7 +1,10 @@
 "use client";
 
+import { Alert02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import {
   AlertDialog,
+  AlertDialogBody,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -9,6 +12,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
+  AlertDialogX,
 } from "@marble/ui/components/alert-dialog";
 import { Button } from "@marble/ui/components/button";
 import { Card, CardDescription, CardTitle } from "@marble/ui/components/card";
@@ -78,7 +82,7 @@ export function Delete() {
   }
 
   return (
-    <Card className="gap-0 rounded-[20px] border-none bg-sidebar p-2">
+    <Card className="gap-0 rounded-[20px] border-none bg-surface p-2">
       <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
         <div className="flex flex-col gap-1.5">
           <CardTitle className="font-medium text-lg">
@@ -99,52 +103,69 @@ export function Delete() {
               </Button>
             }
           />
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Delete workspace?</AlertDialogTitle>
-              <AlertDialogDescription>
+          <AlertDialogContent variant="card">
+            <AlertDialogHeader className="flex-row items-center justify-between px-4 py-2">
+              <div className="flex flex-1 items-center gap-2">
+                <HugeiconsIcon
+                  className="text-destructive"
+                  icon={Alert02Icon}
+                  size={18}
+                  strokeWidth={2}
+                />
+                <AlertDialogTitle className="font-medium text-muted-foreground text-sm">
+                  Delete workspace?
+                </AlertDialogTitle>
+              </div>
+              <AlertDialogX />
+            </AlertDialogHeader>
+            <AlertDialogBody>
+              <AlertDialogDescription className="text-balance">
                 This action cannot be undone. This will permanently delete your
                 workspace and all associated data within.
               </AlertDialogDescription>
-            </AlertDialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="confirmation-input">
-                  To confirm, type{" "}
-                  <span className="font-mono font-semibold">
-                    "{CONFIRMATION_PHRASE}"
-                  </span>{" "}
-                  below
-                </Label>
-                <Input
-                  className={cn(
-                    !isConfirmationValid &&
-                      "border-destructive focus-visible:border-destructive focus-visible:ring-destructive/50"
-                  )}
-                  id="confirmation-input"
-                  onChange={(e) => setConfirmationText(e.target.value)}
-                  placeholder={CONFIRMATION_PHRASE}
-                  value={confirmationText}
-                />
+              <div className="space-y-4 py-2">
+                <div className="space-y-2">
+                  <Label className="text-sm" htmlFor="confirmation-input">
+                    To confirm, type{" "}
+                    <span className="font-mono font-semibold">
+                      "{CONFIRMATION_PHRASE}"
+                    </span>{" "}
+                    below
+                  </Label>
+                  <Input
+                    className={cn(
+                      !isConfirmationValid &&
+                        "focus-visible:border-destructive focus-visible:ring-destructive/50"
+                    )}
+                    id="confirmation-input"
+                    onChange={(e) => setConfirmationText(e.target.value)}
+                    placeholder={CONFIRMATION_PHRASE}
+                    value={confirmationText}
+                  />
+                </div>
               </div>
-            </div>
-            <AlertDialogFooter>
-              <AlertDialogCancel onClick={() => setConfirmationText("")}>
-                Cancel
-              </AlertDialogCancel>
-              <AsyncButton
-                disabled={!isConfirmationValid}
-                isLoading={isPending || !activeWorkspace?.id}
-                onClick={() => {
-                  if (isConfirmationValid && activeWorkspace?.id) {
-                    deleteWorkspace({ organizationId: activeWorkspace.id });
-                  }
-                }}
-                variant="destructive"
-              >
-                Delete Workspace
-              </AsyncButton>
-            </AlertDialogFooter>
+              <AlertDialogFooter>
+                <AlertDialogCancel
+                  onClick={() => setConfirmationText("")}
+                  size="sm"
+                >
+                  Cancel
+                </AlertDialogCancel>
+                <AsyncButton
+                  disabled={!isConfirmationValid}
+                  isLoading={isPending || !activeWorkspace?.id}
+                  onClick={() => {
+                    if (isConfirmationValid && activeWorkspace?.id) {
+                      deleteWorkspace({ organizationId: activeWorkspace.id });
+                    }
+                  }}
+                  size="sm"
+                  variant="destructive"
+                >
+                  Delete Workspace
+                </AsyncButton>
+              </AlertDialogFooter>
+            </AlertDialogBody>
           </AlertDialogContent>
         </AlertDialog>
       </div>

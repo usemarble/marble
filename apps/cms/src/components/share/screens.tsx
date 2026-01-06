@@ -9,7 +9,7 @@ import Link from "next/link";
 export function LinkExpired() {
   return (
     <main className="flex h-screen flex-col items-center justify-center">
-      <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-sidebar dark:bg-accent/50">
+      <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-surface dark:bg-accent/50">
         <LinkBreakIcon className="size-6 dark:text-accent-foreground" />
       </div>
       <h1 className="font-bold text-4xl">Expired</h1>
@@ -27,7 +27,7 @@ export function LinkExpired() {
 export function LinkNotFound() {
   return (
     <main className="flex h-screen flex-col items-center justify-center">
-      <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-sidebar dark:bg-accent/50">
+      <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-surface dark:bg-accent/50">
         <LinkBreakIcon className="size-6 dark:text-accent-foreground" />
       </div>
       <h1 className="font-bold text-4xl">Link Not Found</h1>

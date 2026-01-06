@@ -1,13 +1,17 @@
 "use client";
 
+import { Alert02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import {
   AlertDialog,
+  AlertDialogBody,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogX,
 } from "@marble/ui/components/alert-dialog";
 import { toast } from "@marble/ui/components/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -50,35 +54,51 @@ export const DeletePostModal = ({
 
   return (
     <AlertDialog onOpenChange={setOpen} open={open}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Delete?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This will permanently delete the post and cannot be undone.
-          </AlertDialogDescription>
+      <AlertDialogContent variant="card">
+        <AlertDialogHeader className="flex-row items-center justify-between px-4 py-2">
+          <div className="flex flex-1 items-center gap-2">
+            <HugeiconsIcon
+              className="text-destructive"
+              icon={Alert02Icon}
+              size={18}
+              strokeWidth={2}
+            />
+            <AlertDialogTitle className="font-medium text-muted-foreground text-sm">
+              Delete Post?
+            </AlertDialogTitle>
+          </div>
+          <AlertDialogX />
         </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel
-            disabled={isPending}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setOpen(false);
-            }}
-          >
-            Cancel
-          </AlertDialogCancel>
-          <AsyncButton
-            isLoading={isPending}
-            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-              e.preventDefault();
-              deletePost(id);
-            }}
-            variant="destructive"
-          >
-            Delete
-          </AsyncButton>
-        </AlertDialogFooter>
+        <AlertDialogBody>
+          <AlertDialogDescription>
+            Deleting this post will remove it from your workspace, and will no
+            longer be accessible via the api. This cannot be undone.
+          </AlertDialogDescription>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              disabled={isPending}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setOpen(false);
+              }}
+              size="sm"
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AsyncButton
+              isLoading={isPending}
+              onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                e.preventDefault();
+                deletePost(id);
+              }}
+              size="sm"
+              variant="destructive"
+            >
+              Delete
+            </AsyncButton>
+          </AlertDialogFooter>
+        </AlertDialogBody>
       </AlertDialogContent>
     </AlertDialog>
   );

@@ -95,7 +95,7 @@ function PageClient() {
     }
   }
   return (
-    <div className="grid h-screen place-items-center bg-sidebar dark:bg-background">
+    <div className="grid h-screen place-items-center bg-surface dark:bg-background">
       <Card className="rounded-[24px] px-4 py-6 sm:w-[450px]">
         <CardHeader className="mb-5 items-center text-center">
           <CardTitle className="font-medium">New workspace</CardTitle>

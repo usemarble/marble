@@ -57,7 +57,7 @@ export function MediaCard({
   return (
     <Card
       className={cn(
-        "gap-2.5 overflow-hidden rounded-[20px] border-none bg-sidebar p-2"
+        "gap-2.5 overflow-hidden rounded-[20px] border-none bg-surface p-2"
       )}
     >
       <button
@@ -130,7 +130,7 @@ export function MediaCard({
               <button
                 aria-haspopup="menu"
                 aria-label="More actions"
-                className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full bg-background shadow-xs outline-none transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full bg-background shadow-xs outline-none transition-all hover:bg-surface-foreground/10 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 dark:bg-zinc-800 dark:hover:bg-zinc-700"
                 onClick={(e) => {
                   e.stopPropagation();
                 }}

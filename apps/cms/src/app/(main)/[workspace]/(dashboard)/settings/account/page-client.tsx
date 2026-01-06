@@ -112,7 +112,7 @@ function PageClient() {
 
   return (
     <WorkspacePageWrapper className="flex flex-col gap-8 py-12" size="compact">
-      <Card className="gap-0 rounded-[20px] border-none bg-sidebar p-2">
+      <Card className="gap-0 rounded-[20px] border-none bg-surface p-2">
         <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
           <div className="flex flex-col gap-1.5">
             <CardTitle className="font-medium text-lg">Avatar</CardTitle>
@@ -200,7 +200,7 @@ function PageClient() {
         }}
       />
 
-      <Card className="rounded-[20px] border-none bg-sidebar p-2">
+      <Card className="rounded-[20px] border-none bg-surface p-2">
         <form className="flex flex-col" onSubmit={handleSubmit(onSubmit)}>
           <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
             <div className="flex flex-col gap-1.5">
@@ -236,7 +236,7 @@ function PageClient() {
         </form>
       </Card>
 
-      <Card className="gap-0 rounded-[20px] border-none bg-sidebar p-2">
+      <Card className="gap-0 rounded-[20px] border-none bg-surface p-2">
         <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
           <div className="flex flex-col gap-1.5">
             <CardTitle className="font-medium text-lg">Email</CardTitle>
@@ -260,7 +260,7 @@ function PageClient() {
         </div>
       </Card>
 
-      <Card className="gap-0 rounded-[20px] border-none bg-sidebar p-2">
+      <Card className="gap-0 rounded-[20px] border-none bg-surface p-2">
         <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
           <div className="flex flex-col gap-1.5">
             <CardTitle className="font-medium text-lg">

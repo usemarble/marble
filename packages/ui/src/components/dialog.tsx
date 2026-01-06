@@ -3,9 +3,9 @@
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { Cancel01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import type * as React from "react";
-import { Button } from "@marble/ui/components/button";
+import { Button, buttonVariants } from "@marble/ui/components/button";
 import { cn } from "@marble/ui/lib/utils";
+import type * as React from "react";
 
 function Dialog({ ...props }: DialogPrimitive.Root.Props) {
   return <DialogPrimitive.Root data-slot="dialog" {...props} />;
@@ -19,8 +19,20 @@ function DialogPortal({ ...props }: DialogPrimitive.Portal.Props) {
   return <DialogPrimitive.Portal data-slot="dialog-portal" {...props} />;
 }
 
-function DialogClose({ ...props }: DialogPrimitive.Close.Props) {
-  return <DialogPrimitive.Close data-slot="dialog-close" {...props} />;
+function DialogClose({
+  className,
+  variant = "outline",
+  size = "default",
+  ...props
+}: DialogPrimitive.Close.Props &
+  Pick<React.ComponentProps<typeof Button>, "variant" | "size">) {
+  return (
+    <DialogPrimitive.Close
+      className={cn(buttonVariants({ variant, size }), className)}
+      data-slot="dialog-close"
+      {...props}
+    />
+  );
 }
 
 
@@ -31,7 +43,7 @@ function DialogOverlay({
   return (
     <DialogPrimitive.Backdrop
       className={cn(
-        "data-closed:fade-out-0 data-open:fade-in-0 fixed inset-0 isolate z-50 bg-black/50 backdrop-blur-sm duration-100 data-closed:animate-out data-open:animate-in",
+        "data-closed:fade-out-0 data-open:fade-in-0 fixed inset-0 isolate z-50 bg-black/10 backdrop-blur-xs duration-100 data-closed:animate-out data-open:animate-in",
         className
       )}
       data-slot="dialog-overlay"
@@ -40,20 +52,26 @@ function DialogOverlay({
   );
 }
 
+interface DialogContentProps extends DialogPrimitive.Popup.Props {
+  showCloseButton?: boolean;
+  variant?: "default" | "card";
+}
+
 function DialogContent({
   className,
   children,
   showCloseButton = false,
+  variant = "default",
   ...props
-}: DialogPrimitive.Popup.Props & {
-  showCloseButton?: boolean;
-}) {
+}: DialogContentProps) {
   return (
     <DialogPortal>
       <DialogOverlay />
       <DialogPrimitive.Popup
         className={cn(
-          "data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-2xl border bg-background p-6 shadow-lg duration-200 data-closed:animate-out data-open:animate-in sm:max-w-lg",
+          "data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 duration-200 data-closed:animate-out data-open:animate-in sm:max-w-lg",
+          variant === "default" && "bg-background border gap-6 rounded-xl p-6 shadow-lg",
+          variant === "card" && "gap-0 rounded-[1.5rem] bg-surface p-1 sm:p-1.5 shadow-2xl",
           className
         )}
         data-slot="dialog-content"
@@ -90,6 +108,16 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+function DialogBody({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      className={cn("bg-background flex flex-col gap-4 rounded-[calc(1.5rem-4px)] p-4 shadow-xs sm:rounded-[calc(1.5rem-6px)]", className)}
+      data-slot="dialog-body"
+      {...props}
+    />
+  );
+}
+
 function DialogFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -106,7 +134,7 @@ function DialogFooter({ className, ...props }: React.ComponentProps<"div">) {
 function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
   return (
     <DialogPrimitive.Title
-      className={cn("font-semibold text-lg leading-none", className)}
+      className={cn("font-medium text-lg leading-none", className)}
       data-slot="dialog-title"
       {...props}
     />
@@ -136,7 +164,7 @@ function DialogX({
   return (
     <DialogPrimitive.Close
       className={cn(
-        "rounded-xs opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-open:bg-accent data-open:text-muted-foreground [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "rounded-xs cursor-pointer opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-open:bg-accent data-open:text-muted-foreground [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         className
       )}
       data-slot="dialog-close"
@@ -150,6 +178,7 @@ function DialogX({
 
 export {
   Dialog,
+  DialogBody,
   DialogClose,
   DialogContent,
   DialogDescription,
@@ -159,5 +188,6 @@ export {
   DialogPortal,
   DialogTitle,
   DialogTrigger,
-  DialogX,
+  DialogX
 };
+

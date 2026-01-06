@@ -44,6 +44,10 @@
   /* radius */
   --radius: 0.65rem;
 
+  /* surface - muted background for cards, modals, panels */
+  --surface: hsl(233 10% 96.5%);
+  --surface-foreground: hsl(240 5.3% 26.1%);
+
   /* sidebar */
   --sidebar-background: hsl(233 10% 96.5%);
   --sidebar-foreground: hsl(240 5.3% 26.1%);
@@ -130,6 +134,10 @@
   --sidebar-border: hsl(240 3.7% 15.9%);
   --sidebar-ring: hsl(217.2 91.2% 59.8%);
 
+  /* surface - muted background for cards, modals, panels */
+  --surface: hsl(240 6% 10%);
+  --surface-foreground: hsl(240 4.8% 95.9%);
+
   /* editor */
   --editor-background: hsl(240 6% 10%);
   --editor-content-background: hsl(233 7% 8%);
@@ -201,6 +209,10 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Surface colors - muted background for cards, modals, panels */
+  --color-surface: var(--surface);
+  --color-surface-foreground: var(--surface-foreground);
 
   /* Editor colors */
   --color-editor-background: var(--editor-background);

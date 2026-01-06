@@ -1,12 +1,18 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { FolderAddIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Dialog,
+  DialogBody,
+  DialogClose,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogX,
 } from "@marble/ui/components/dialog";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
@@ -98,72 +104,89 @@ export const CreateWorkspaceDialog = (props: CreateWorkspaceDialogProps) => {
 
   return (
     <Dialog onOpenChange={props.setOpen} open={props.open}>
-      <DialogContent className="p-8 sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="text-center font-medium">
-            Create Workspace
-          </DialogTitle>
-          <DialogDescription className="text-center">
-            Set up your new workspace.
-          </DialogDescription>
-        </DialogHeader>
-        <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)}>
-          <div className="flex flex-col gap-2">
-            <Label className="sr-only" htmlFor="name">
-              Name
-            </Label>
-            <Input id="name" placeholder="Name" {...register("name")} />
-            {errors.name && <ErrorMessage>{errors.name.message}</ErrorMessage>}
-          </div>
-
-          <div className="grid flex-1 gap-2">
-            <Label className="sr-only" htmlFor="slug">
-              Slug
-            </Label>
-            <div className="flex w-full overflow-hidden rounded-md border border-input bg-transparent text-base shadow-xs transition-[color,box-shadow] placeholder:text-muted-foreground focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30">
-              <span className="border-r bg-muted p-2">
-                {process.env.NEXT_PUBLIC_APP_URL?.split("//")[1]}/
-              </span>
-              <input
-                id="slug"
-                placeholder="Slug"
-                {...register("slug")}
-                autoComplete="off"
-                className="w-full bg-transparent px-2 py-2 outline-none ring-0"
-              />
-            </div>
-            {errors.slug && <ErrorMessage>{errors.slug.message}</ErrorMessage>}
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <Label className="sr-only" htmlFor="timezone">
-              Timezone
-            </Label>
-            <Controller
-              control={control}
-              name="timezone"
-              render={({ field }) => (
-                <TimezoneSelector
-                  onValueChange={field.onChange}
-                  placeholder="Select timezone..."
-                  timezones={timezones}
-                  value={field.value}
-                />
-              )}
+      <DialogContent className="sm:max-w-md" variant="card">
+        <DialogHeader className="flex-row items-center justify-between px-4 py-2">
+          <div className="flex flex-1 items-center gap-2">
+            <HugeiconsIcon
+              className="text-muted-foreground"
+              icon={FolderAddIcon}
+              size={18}
+              strokeWidth={2}
             />
-            {errors.timezone && (
-              <ErrorMessage>{errors.timezone.message}</ErrorMessage>
-            )}
+            <DialogTitle className="font-medium text-muted-foreground text-sm">
+              Create Workspace
+            </DialogTitle>
           </div>
-
-          <AsyncButton
-            className="mt-4 flex w-full gap-2"
-            isLoading={isSubmitting}
-            type="submit"
+          <DialogX />
+        </DialogHeader>
+        <DialogDescription className="sr-only">
+          Set up your new workspace.
+        </DialogDescription>
+        <DialogBody>
+          <form
+            className="flex flex-col gap-3"
+            onSubmit={handleSubmit(onSubmit)}
           >
-            Create
-          </AsyncButton>
-        </form>
+            <div className="flex flex-col gap-2">
+              <Label className="sr-only" htmlFor="name">
+                Name
+              </Label>
+              <Input id="name" placeholder="Name" {...register("name")} />
+              {errors.name && (
+                <ErrorMessage>{errors.name.message}</ErrorMessage>
+              )}
+            </div>
+
+            <div className="grid flex-1 gap-2">
+              <Label className="sr-only" htmlFor="slug">
+                Slug
+              </Label>
+              <div className="flex w-full overflow-hidden rounded-md border border-input bg-transparent text-base shadow-xs transition-[color,box-shadow] placeholder:text-muted-foreground focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30">
+                <span className="border-r bg-muted p-2">
+                  {process.env.NEXT_PUBLIC_APP_URL?.split("//")[1]}/
+                </span>
+                <input
+                  id="slug"
+                  placeholder="Slug"
+                  {...register("slug")}
+                  autoComplete="off"
+                  className="w-full bg-transparent px-2 py-2 outline-none ring-0"
+                />
+              </div>
+              {errors.slug && (
+                <ErrorMessage>{errors.slug.message}</ErrorMessage>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Label className="sr-only" htmlFor="timezone">
+                Timezone
+              </Label>
+              <Controller
+                control={control}
+                name="timezone"
+                render={({ field }) => (
+                  <TimezoneSelector
+                    onValueChange={field.onChange}
+                    placeholder="Select timezone..."
+                    timezones={timezones}
+                    value={field.value}
+                  />
+                )}
+              />
+              {errors.timezone && (
+                <ErrorMessage>{errors.timezone.message}</ErrorMessage>
+              )}
+            </div>
+
+            <DialogFooter className="mt-2">
+              <DialogClose size="sm">Close</DialogClose>
+              <AsyncButton isLoading={isSubmitting} size="sm" type="submit">
+                Create
+              </AsyncButton>
+            </DialogFooter>
+          </form>
+        </DialogBody>
       </DialogContent>
     </Dialog>
   );
