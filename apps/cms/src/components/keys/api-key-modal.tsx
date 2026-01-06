@@ -1,15 +1,19 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Key01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@marble/ui/components/button";
 import {
   Dialog,
+  DialogBody,
   DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogX,
 } from "@marble/ui/components/dialog";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
@@ -156,90 +160,116 @@ export function ApiKeyModal({ data, mode, open, setOpen }: ApiKeyModalProps) {
 
   return (
     <Dialog onOpenChange={handleClose} open={open}>
-      <DialogContent className="p-8 sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="font-medium">
-            {createdKey
-              ? "API key created"
-              : mode === "create"
-                ? "Create API Key"
-                : "Update API Key"}
-          </DialogTitle>
-          <DialogDescription>
-            {createdKey
-              ? "Save this now, you won't be able to see it again"
-              : mode === "create"
-                ? "Create a key to use with the API."
-                : "Update your API key."}
-          </DialogDescription>
-        </DialogHeader>
-
-        {createdKey ? (
-          <div className="mt-4 flex flex-col gap-4">
-            <div className="grid flex-1 gap-2">
-              <div className="flex items-center gap-2">
-                <Input readOnly value={createdKey} />
-                <CopyButton
-                  textToCopy={createdKey}
-                  toastMessage="API key copied to clipboard"
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button onClick={handleClose}>Done</Button>
-            </DialogFooter>
+      <DialogContent className="sm:max-w-md" variant="card">
+        <DialogHeader className="flex-row items-center justify-between px-4 py-2">
+          <div className="flex flex-1 items-center gap-2">
+            <HugeiconsIcon
+              className="text-muted-foreground"
+              icon={Key01Icon}
+              size={18}
+              strokeWidth={2}
+            />
+            <DialogTitle className="font-medium text-muted-foreground text-sm">
+              {createdKey
+                ? "API key created"
+                : mode === "create"
+                  ? "Create API Key"
+                  : "Update API Key"}
+            </DialogTitle>
           </div>
-        ) : (
-          <form
-            className="mt-2 flex flex-col gap-5"
-            onSubmit={handleSubmit(onSubmit)}
-          >
-            <div className="grid flex-1 gap-2">
-              <Label htmlFor="name">Name</Label>
-              <Input id="name" {...register("name")} placeholder="My API Key" />
-              {errors.name && (
-                <ErrorMessage>{errors.name.message}</ErrorMessage>
-              )}
-            </div>
-
-            {mode === "create" && (
+          <DialogX />
+        </DialogHeader>
+        <DialogDescription className="sr-only">
+          {createdKey
+            ? "Save this now, you won't be able to see it again"
+            : mode === "create"
+              ? "Create a key to use with the API."
+              : "Update your API key."}
+        </DialogDescription>
+        <DialogBody>
+          {createdKey ? (
+            <div className="flex flex-col gap-4">
+              <p className="text-muted-foreground text-sm">
+                Save this now, you won't be able to see it again.
+              </p>
               <div className="grid flex-1 gap-2">
-                <Label htmlFor="type">Type</Label>
-                <Select
-                  disabled
-                  onValueChange={(value) => {
-                    if (value) {
-                      setValue("type", value);
-                    }
-                  }}
-                  value={type}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue className="capitalize" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="public">Public</SelectItem>
-                    <SelectItem value="private">Private</SelectItem>
-                  </SelectContent>
-                </Select>
-                <p className="text-[11px] text-muted-foreground">
-                  Public keys have read-only access.
-                </p>
+                <div className="flex items-center gap-2">
+                  <Input readOnly value={createdKey} />
+                  <CopyButton
+                    textToCopy={createdKey}
+                    toastMessage="API key copied to clipboard"
+                  />
+                </div>
               </div>
-            )}
+              <DialogFooter>
+                <Button onClick={handleClose} size="sm">
+                  Done
+                </Button>
+              </DialogFooter>
+            </div>
+          ) : (
+            <form
+              className="flex flex-col gap-4"
+              onSubmit={handleSubmit(onSubmit)}
+            >
+              <div className="grid flex-1 gap-2">
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  {...register("name")}
+                  placeholder="My API Key"
+                />
+                {errors.name && (
+                  <ErrorMessage>{errors.name.message}</ErrorMessage>
+                )}
+              </div>
 
-            <DialogFooter>
-              <DialogClose render={<Button variant="outline">Cancel</Button>} />
-              <AsyncButton
-                className="gap-2"
-                isLoading={isSubmitting || isCreating || isUpdating}
-                type="submit"
-              >
-                {mode === "create" ? "Create" : "Update"}
-              </AsyncButton>
-            </DialogFooter>
-          </form>
-        )}
+              {mode === "create" && (
+                <div className="grid flex-1 gap-2">
+                  <Label htmlFor="type">Type</Label>
+                  <Select
+                    disabled
+                    onValueChange={(value) => {
+                      if (value) {
+                        setValue("type", value);
+                      }
+                    }}
+                    value={type}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue className="capitalize" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="public">Public</SelectItem>
+                      <SelectItem value="private">Private</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-[11px] text-muted-foreground">
+                    Public keys have read-only access.
+                  </p>
+                </div>
+              )}
+
+              <DialogFooter>
+                <DialogClose
+                  render={
+                    <Button size="sm" variant="outline">
+                      Cancel
+                    </Button>
+                  }
+                />
+                <AsyncButton
+                  className="gap-2"
+                  isLoading={isSubmitting || isCreating || isUpdating}
+                  size="sm"
+                  type="submit"
+                >
+                  {mode === "create" ? "Create" : "Update"}
+                </AsyncButton>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogBody>
       </DialogContent>
     </Dialog>
   );

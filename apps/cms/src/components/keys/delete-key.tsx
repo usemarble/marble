@@ -1,13 +1,17 @@
 "use client";
 
+import { Alert02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import {
   AlertDialog,
+  AlertDialogBody,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogX,
 } from "@marble/ui/components/alert-dialog";
 import { toast } from "@marble/ui/components/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -58,27 +62,43 @@ export const DeleteKeyModal = ({
 
   return (
     <AlertDialog onOpenChange={setOpen} open={open}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Delete {name}?</AlertDialogTitle>
-          <AlertDialogDescription>
+      <AlertDialogContent variant="card">
+        <AlertDialogHeader className="flex-row items-center justify-between px-4 py-2">
+          <div className="flex flex-1 items-center gap-2">
+            <HugeiconsIcon
+              className="text-destructive"
+              icon={Alert02Icon}
+              size={18}
+              strokeWidth={2}
+            />
+            <AlertDialogTitle className="font-medium text-muted-foreground text-sm">
+              Delete {name}?
+            </AlertDialogTitle>
+          </div>
+          <AlertDialogX />
+        </AlertDialogHeader>
+        <AlertDialogBody>
+          <AlertDialogDescription className="text-balance">
             This will permanently delete this key and any requests using it will
             fail.
           </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
-          <AsyncButton
-            isLoading={isPending}
-            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-              e.preventDefault();
-              deleteKey();
-            }}
-            variant="destructive"
-          >
-            Delete
-          </AsyncButton>
-        </AlertDialogFooter>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isPending} size="sm">
+              Cancel
+            </AlertDialogCancel>
+            <AsyncButton
+              isLoading={isPending}
+              onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                e.preventDefault();
+                deleteKey();
+              }}
+              size="sm"
+              variant="destructive"
+            >
+              Delete
+            </AsyncButton>
+          </AlertDialogFooter>
+        </AlertDialogBody>
       </AlertDialogContent>
     </AlertDialog>
   );
