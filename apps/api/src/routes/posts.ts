@@ -318,7 +318,7 @@ posts.openapi(listPostsRoute, async (c) => {
             requestedPage: page,
           },
         },
-        400
+        400 as const
       );
     }
 
@@ -388,8 +388,12 @@ posts.openapi(listPostsRoute, async (c) => {
         ? postsData.map((post) => ({
             ...post,
             content: NodeHtmlMarkdown.translate(post.content || ""),
+            attribution: post.attribution as string | null,
           }))
-        : postsData;
+        : postsData.map((post) => ({
+            ...post,
+            attribution: post.attribution as string | null,
+          }));
 
     const paginationInfo = limit
       ? {
@@ -409,10 +413,13 @@ posts.openapi(listPostsRoute, async (c) => {
           totalItems: totalPosts,
         };
 
-    return c.json({
-      posts: formattedPosts,
-      pagination: paginationInfo,
-    });
+    return c.json(
+      {
+        posts: formattedPosts,
+        pagination: paginationInfo,
+      },
+      200 as const
+    );
   } catch (error) {
     console.error("Error fetching posts:", error);
     return c.json(
@@ -420,7 +427,7 @@ posts.openapi(listPostsRoute, async (c) => {
         error: "Failed to fetch posts",
         message: error instanceof Error ? error.message : "Unknown error",
       },
-      500
+      500 as const
     );
   }
 });
@@ -502,19 +509,26 @@ posts.openapi(getPostRoute, async (c) => {
           error: "Post not found",
           message: "The requested post does not exist or is not published",
         },
-        404
+        404 as const
       );
     }
 
     // Format post based on requested format
     const formattedPost =
       format === "markdown"
-        ? { ...post, content: NodeHtmlMarkdown.translate(post.content || "") }
-        : post;
+        ? {
+            ...post,
+            content: NodeHtmlMarkdown.translate(post.content || ""),
+            attribution: post.attribution as string | null,
+          }
+        : {
+            ...post,
+            attribution: post.attribution as string | null,
+          };
 
-    return c.json({ post: formattedPost });
+    return c.json({ post: formattedPost }, 200 as const);
   } catch (_error) {
-    return c.json({ error: "Failed to fetch post" }, 500);
+    return c.json({ error: "Failed to fetch post" }, 500 as const);
   }
 });
 

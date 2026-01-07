@@ -15,11 +15,11 @@ export const PostsQuerySchema = z.object({
     .default(10),
   page: z
     .string()
+    .default("1")
     .transform((val) => {
       const num = Number.parseInt(val, 10);
       return Number.isNaN(num) ? 1 : Math.max(1, num);
-    })
-    .default("1"),
+    }),
   order: OrderSchema,
   author: z.string().optional(),
   categories: z

@@ -31,4 +31,8 @@ export const CategoriesListResponseSchema = z
   })
   .openapi("CategoriesListResponse");
 
-export const SingleCategoryResponseSchema = CategorySchema;
+export const SingleCategoryResponseSchema = z
+  .object({
+    category: CategorySchema,
+  })
+  .openapi("SingleCategoryResponse");

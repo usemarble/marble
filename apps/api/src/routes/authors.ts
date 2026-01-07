@@ -8,8 +8,10 @@ import {
 } from "../schemas/authors";
 import {
   ErrorSchema,
+  LimitQuerySchema,
   NotFoundSchema,
   PageNotFoundSchema,
+  PageQuerySchema,
 } from "../schemas/common";
 import type { Env } from "../types/env";
 
@@ -19,24 +21,8 @@ const authors = new OpenAPIHono<{ Bindings: Env }>();
 // Query Schemas
 // ============================================
 const AuthorsQuerySchema = z.object({
-  limit: z
-    .string()
-    .optional()
-    .default("10")
-    .openapi({
-      param: { name: "limit", in: "query" },
-      example: "10",
-      description: "Number of authors per page (1-100)",
-    }),
-  page: z
-    .string()
-    .optional()
-    .default("1")
-    .openapi({
-      param: { name: "page", in: "query" },
-      example: "1",
-      description: "Page number",
-    }),
+  limit: LimitQuerySchema,
+  page: PageQuerySchema,
 });
 
 const AuthorParamsSchema = z.object({
@@ -114,17 +100,7 @@ authors.openapi(listAuthorsRoute, async (c) => {
   const db = createClient(url);
   const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
 
-  const { limit: limitStr, page: pageStr } = c.req.valid("query");
-
-  const limit = (() => {
-    const num = Number.parseInt(limitStr, 10);
-    return Number.isNaN(num) ? 10 : Math.max(1, Math.min(100, num));
-  })();
-
-  const page = (() => {
-    const num = Number.parseInt(pageStr, 10);
-    return Number.isNaN(num) ? 1 : Math.max(1, num);
-  })();
+  const { limit, page } = c.req.valid("query");
 
   // Generate cache key for count (exclude page - it doesn't affect count)
   const countCacheKey = cacheKey(
@@ -172,7 +148,7 @@ authors.openapi(listAuthorsRoute, async (c) => {
           requestedPage: page,
         },
       },
-      400
+      400 as const
     );
   }
 
@@ -227,19 +203,22 @@ authors.openapi(listAuthorsRoute, async (c) => {
       };
     });
 
-    return c.json({
-      authors: transformedAuthors,
-      pagination: {
-        limit,
-        currentPage: page,
-        nextPage,
-        previousPage: prevPage,
-        totalPages,
-        totalItems: totalAuthors,
+    return c.json(
+      {
+        authors: transformedAuthors,
+        pagination: {
+          limit,
+          currentPage: page,
+          nextPage,
+          previousPage: prevPage,
+          totalPages,
+          totalItems: totalAuthors,
+        },
       },
-    });
+      200 as const
+    );
   } catch (_error) {
-    return c.json({ error: "Failed to fetch authors" }, 500);
+    return c.json({ error: "Failed to fetch authors" }, 500 as const);
   }
 });
 
@@ -283,13 +262,13 @@ authors.openapi(getAuthorRoute, async (c) => {
           error: "Author not found",
           message: "The requested author does not exist",
         },
-        404
+        404 as const
       );
     }
 
-    return c.json({ author });
+    return c.json({ author }, 200 as const);
   } catch (_error) {
-    return c.json({ error: "Failed to fetch author" }, 500);
+    return c.json({ error: "Failed to fetch author" }, 500 as const);
   }
 });
 

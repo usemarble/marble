@@ -4,8 +4,10 @@ import { cacheKey, createCacheClient, hashQueryParams } from "../lib/cache";
 import { requireWorkspaceId } from "../lib/workspace";
 import {
   ErrorSchema,
+  LimitQuerySchema,
   NotFoundSchema,
   PageNotFoundSchema,
+  PageQuerySchema,
 } from "../schemas/common";
 import {
   SingleTagResponseSchema,
@@ -19,24 +21,8 @@ const tags = new OpenAPIHono<{ Bindings: Env }>();
 // Query Schemas
 // ============================================
 const TagsQuerySchema = z.object({
-  limit: z
-    .string()
-    .optional()
-    .default("10")
-    .openapi({
-      param: { name: "limit", in: "query" },
-      example: "10",
-      description: "Number of tags per page (1-100)",
-    }),
-  page: z
-    .string()
-    .optional()
-    .default("1")
-    .openapi({
-      param: { name: "page", in: "query" },
-      example: "1",
-      description: "Page number",
-    }),
+  limit: LimitQuerySchema,
+  page: PageQuerySchema,
 });
 
 const TagParamsSchema = z.object({
@@ -113,17 +99,7 @@ tags.openapi(listTagsRoute, async (c) => {
   const workspaceId = requireWorkspaceId(c);
   const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
 
-  const { limit: limitStr, page: pageStr } = c.req.valid("query");
-
-  const limit = (() => {
-    const num = Number.parseInt(limitStr, 10);
-    return Number.isNaN(num) ? 10 : Math.max(1, Math.min(100, num));
-  })();
-
-  const page = (() => {
-    const num = Number.parseInt(pageStr, 10);
-    return Number.isNaN(num) ? 1 : Math.max(1, num);
-  })();
+  const { limit, page } = c.req.valid("query");
 
   // Generate cache key for count (exclude page - it doesn't affect count)
   const countCacheKey = cacheKey(
@@ -167,7 +143,7 @@ tags.openapi(listTagsRoute, async (c) => {
           requestedPage: page,
         },
       },
-      400
+      400 as const
     );
   }
 
@@ -205,17 +181,20 @@ tags.openapi(listTagsRoute, async (c) => {
     };
   });
 
-  return c.json({
-    tags: transformedTags,
-    pagination: {
-      limit,
-      currentPage: page,
-      nextPage,
-      previousPage: prevPage,
-      totalPages,
-      totalItems: totalTags,
+  return c.json(
+    {
+      tags: transformedTags,
+      pagination: {
+        limit,
+        currentPage: page,
+        nextPage,
+        previousPage: prevPage,
+        totalPages,
+        totalItems: totalTags,
+      },
     },
-  });
+    200 as const
+  );
 });
 
 tags.openapi(getTagRoute, async (c) => {
@@ -259,7 +238,7 @@ tags.openapi(getTagRoute, async (c) => {
           error: "Tag not found",
           message: "The requested tag does not exist",
         },
-        404
+        404 as const
       );
     }
 
@@ -270,10 +249,10 @@ tags.openapi(getTagRoute, async (c) => {
       count: _count,
     };
 
-    return c.json(transformedTag);
+    return c.json({ tag: transformedTag }, 200 as const);
   } catch (error) {
     console.error("Error fetching tag:", error);
-    return c.json({ error: "Failed to fetch tag" }, 500);
+    return c.json({ error: "Failed to fetch tag" }, 500 as const);
   }
 });
 

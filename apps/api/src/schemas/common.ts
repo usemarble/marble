@@ -53,20 +53,23 @@ export const PageNotFoundSchema = z
 // ============================================
 // Common Query Parameters
 // ============================================
-export const LimitQuerySchema = z
-  .string()
-  .optional()
-  .default("10")
+export const LimitQuerySchema = z.coerce
+  .number()
+  .int()
+  .min(1)
+  .max(100)
+  .default(10)
   .openapi({
     param: { name: "limit", in: "query" },
     example: "10",
     description: "Number of items per page (1-100)",
   });
 
-export const PageQuerySchema = z
-  .string()
-  .optional()
-  .default("1")
+export const PageQuerySchema = z.coerce
+  .number()
+  .int()
+  .positive()
+  .default(1)
   .openapi({
     param: { name: "page", in: "query" },
     example: "1",

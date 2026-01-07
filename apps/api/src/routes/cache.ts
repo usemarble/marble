@@ -16,7 +16,7 @@ cacheInvalidate.post("/", async (c) => {
       return c.json(
         {
           error: "Invalid request body",
-          details: validation.error.errors.map((err) => ({
+          details: validation.error.issues.map((err) => ({
             field: err.path.join("."),
             message: err.message,
           })),

@@ -31,4 +31,8 @@ export const TagsListResponseSchema = z
   })
   .openapi("TagsListResponse");
 
-export const SingleTagResponseSchema = TagSchema;
+export const SingleTagResponseSchema = z
+  .object({
+    tag: TagSchema,
+  })
+  .openapi("SingleTagResponse");
