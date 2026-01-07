@@ -89,7 +89,7 @@ app.use("/:workspaceId/*", async (c, next) => {
     path.startsWith("/v1/") ||
     path === "/" ||
     path === "/status" ||
-    path === "/doc"
+    path === "/openapi.json"
   ) {
     return next();
   }
@@ -128,7 +128,7 @@ app.get("/status", (c) => c.json({ status: "ok" }));
 // ============================================
 // OpenAPI Documentation (public, no auth)
 // ============================================
-app.doc("/doc", {
+app.doc("/openapi.json", {
   openapi: "3.1.0",
   info: {
     title: "Marble API",
