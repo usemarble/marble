@@ -19,7 +19,7 @@ export const PostsQuerySchema = z.object({
       const num = Number.parseInt(val, 10);
       return Number.isNaN(num) ? 1 : Math.max(1, num);
     })
-    .default("1"),
+    .default(1),
   order: OrderSchema,
   author: z.string().optional(),
   categories: z

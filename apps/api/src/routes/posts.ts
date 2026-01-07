@@ -1,56 +1,238 @@
+import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { createClient } from "@marble/db/workers";
-import { Hono } from "hono";
 import { NodeHtmlMarkdown } from "node-html-markdown";
 import { cacheKey, createCacheClient, hashQueryParams } from "../lib/cache";
 import { requireWorkspaceId } from "../lib/workspace";
+import {
+  ErrorSchema,
+  NotFoundSchema,
+  PageNotFoundSchema,
+} from "../schemas/common";
+import {
+  PostsListResponseSchema,
+  SinglePostResponseSchema,
+} from "../schemas/posts";
 import type { Env } from "../types/env";
-import { PostsQuerySchema } from "../validations/posts";
 
-const posts = new Hono<{ Bindings: Env }>();
+const posts = new OpenAPIHono<{ Bindings: Env }>();
 
-posts.get("/", async (c) => {
+// ============================================
+// Query Schemas (with OpenAPI metadata)
+// ============================================
+const PostsQuerySchema = z.object({
+  limit: z
+    .string()
+    .optional()
+    .default("10")
+    .openapi({
+      param: { name: "limit", in: "query" },
+      example: "10",
+      description: "Number of posts per page, or 'all' for no pagination",
+    }),
+  page: z
+    .string()
+    .optional()
+    .default("1")
+    .openapi({
+      param: { name: "page", in: "query" },
+      example: "1",
+      description: "Page number",
+    }),
+  order: z
+    .enum(["asc", "desc"])
+    .optional()
+    .default("desc")
+    .openapi({
+      param: { name: "order", in: "query" },
+      example: "desc",
+      description: "Sort order by publishedAt",
+    }),
+  categories: z
+    .string()
+    .optional()
+    .openapi({
+      param: { name: "categories", in: "query" },
+      example: "tech,news",
+      description: "Comma-separated category slugs to include",
+    }),
+  excludeCategories: z
+    .string()
+    .optional()
+    .openapi({
+      param: { name: "excludeCategories", in: "query" },
+      example: "drafts",
+      description: "Comma-separated category slugs to exclude",
+    }),
+  tags: z
+    .string()
+    .optional()
+    .openapi({
+      param: { name: "tags", in: "query" },
+      example: "javascript,react",
+      description: "Comma-separated tag slugs to include",
+    }),
+  excludeTags: z
+    .string()
+    .optional()
+    .openapi({
+      param: { name: "excludeTags", in: "query" },
+      example: "outdated",
+      description: "Comma-separated tag slugs to exclude",
+    }),
+  query: z
+    .string()
+    .optional()
+    .openapi({
+      param: { name: "query", in: "query" },
+      example: "nextjs",
+      description: "Search query for title and content",
+    }),
+  format: z
+    .enum(["html", "markdown"])
+    .optional()
+    .openapi({
+      param: { name: "format", in: "query" },
+      example: "html",
+      description: "Content format (html or markdown)",
+    }),
+});
+
+const PostParamsSchema = z.object({
+  identifier: z.string().openapi({
+    param: { name: "identifier", in: "path" },
+    example: "my-post-slug",
+    description: "Post ID or slug",
+  }),
+});
+
+const SinglePostQuerySchema = z.object({
+  format: z
+    .enum(["html", "markdown"])
+    .optional()
+    .openapi({
+      param: { name: "format", in: "query" },
+      example: "html",
+      description: "Content format (html or markdown)",
+    }),
+});
+
+// ============================================
+// Routes
+// ============================================
+const listPostsRoute = createRoute({
+  method: "get",
+  path: "/",
+  tags: ["Posts"],
+  summary: "List posts",
+  description:
+    "Get a paginated list of published posts with optional filtering",
+  request: {
+    query: PostsQuerySchema,
+  },
+  responses: {
+    200: {
+      content: { "application/json": { schema: PostsListResponseSchema } },
+      description: "Paginated list of posts",
+    },
+    400: {
+      content: {
+        "application/json": {
+          schema: z.union([ErrorSchema, PageNotFoundSchema]),
+        },
+      },
+      description: "Invalid query parameters or page number",
+    },
+    500: {
+      content: { "application/json": { schema: ErrorSchema } },
+      description: "Server error",
+    },
+  },
+});
+
+const getPostRoute = createRoute({
+  method: "get",
+  path: "/{identifier}",
+  tags: ["Posts"],
+  summary: "Get a post",
+  description: "Get a single published post by ID or slug",
+  request: {
+    params: PostParamsSchema,
+    query: SinglePostQuerySchema,
+  },
+  responses: {
+    200: {
+      content: { "application/json": { schema: SinglePostResponseSchema } },
+      description: "The requested post",
+    },
+    404: {
+      content: { "application/json": { schema: NotFoundSchema } },
+      description: "Post not found",
+    },
+    500: {
+      content: { "application/json": { schema: ErrorSchema } },
+      description: "Server error",
+    },
+  },
+});
+
+// ============================================
+// Handlers
+// ============================================
+posts.openapi(listPostsRoute, async (c) => {
   try {
     const url = c.env.DATABASE_URL;
     const workspaceId = requireWorkspaceId(c);
-    const format = c.req.query("format");
     const db = createClient(url);
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
 
-    // Validate query parameters
-    const queryValidation = PostsQuerySchema.safeParse({
-      limit: c.req.query("limit"),
-      page: c.req.query("page"),
-      order: c.req.query("order"),
-      categories: c.req.query("categories"),
-      excludeCategories: c.req.query("excludeCategories"),
-      tags: c.req.query("tags"),
-      excludeTags: c.req.query("excludeTags"),
-      query: c.req.query("query"),
-    });
-
-    if (!queryValidation.success) {
-      return c.json(
-        {
-          error: "Invalid query parameters",
-          details: queryValidation.error.errors.map((err) => ({
-            field: err.path.join("."),
-            message: err.message,
-          })),
-        },
-        400
-      );
-    }
-
     const {
-      limit: rawLimit,
-      page,
+      limit: rawLimitStr,
+      page: pageStr,
       order,
-      categories = [],
-      excludeCategories = [],
-      tags = [],
-      excludeTags = [],
+      categories: categoriesStr,
+      excludeCategories: excludeCategoriesStr,
+      tags: tagsStr,
+      excludeTags: excludeTagsStr,
       query,
-    } = queryValidation.data;
+      format,
+    } = c.req.valid("query");
+
+    // Parse limit
+    const rawLimit =
+      rawLimitStr === "all"
+        ? "all"
+        : (() => {
+            const num = Number.parseInt(rawLimitStr, 10);
+            return Number.isNaN(num) ? 10 : Math.max(1, num);
+          })();
+
+    // Parse page
+    const page = (() => {
+      const num = Number.parseInt(pageStr, 10);
+      return Number.isNaN(num) ? 1 : Math.max(1, num);
+    })();
+
+    // Parse arrays
+    const categories =
+      categoriesStr
+        ?.split(",")
+        .map((s) => s.trim())
+        .filter(Boolean) ?? [];
+    const excludeCategories =
+      excludeCategoriesStr
+        ?.split(",")
+        .map((s) => s.trim())
+        .filter(Boolean) ?? [];
+    const tags =
+      tagsStr
+        ?.split(",")
+        .map((s) => s.trim())
+        .filter(Boolean) ?? [];
+    const excludeTags =
+      excludeTagsStr
+        ?.split(",")
+        .map((s) => s.trim())
+        .filter(Boolean) ?? [];
 
     const categoryFilter: Record<string, unknown> = {};
     if (categories.length > 0) {
@@ -129,14 +311,14 @@ posts.get("/", async (c) => {
     if (limit && page > totalPages && totalPosts > 0) {
       return c.json(
         {
-          error: "Invalid page number",
+          error: "Invalid page number" as const,
           details: {
             message: `Page ${page} does not exist.`,
             totalPages,
             requestedPage: page,
           },
         },
-        400
+        400 as const
       );
     }
 
@@ -145,7 +327,7 @@ posts.get("/", async (c) => {
     const prevPage = page > 1 ? page - 1 : null;
     const nextPage = page < totalPages ? page + 1 : null;
 
-    const posts = await cache.getOrSet(listCacheKey, () =>
+    const postsData = await cache.getOrSet(listCacheKey, () =>
       db.post.findMany({
         where,
         orderBy: {
@@ -203,11 +385,15 @@ posts.get("/", async (c) => {
     // Format posts based on requested format
     const formattedPosts =
       format === "markdown"
-        ? posts.map((post) => ({
+        ? postsData.map((post) => ({
             ...post,
             content: NodeHtmlMarkdown.translate(post.content || ""),
+            attribution: post.attribution as string | null,
           }))
-        : posts;
+        : postsData.map((post) => ({
+            ...post,
+            attribution: post.attribution as string | null,
+          }));
 
     const paginationInfo = limit
       ? {
@@ -227,10 +413,13 @@ posts.get("/", async (c) => {
           totalItems: totalPosts,
         };
 
-    return c.json({
-      posts: formattedPosts,
-      pagination: paginationInfo,
-    });
+    return c.json(
+      {
+        posts: formattedPosts,
+        pagination: paginationInfo,
+      },
+      200 as const
+    );
   } catch (error) {
     console.error("Error fetching posts:", error);
     return c.json(
@@ -238,17 +427,17 @@ posts.get("/", async (c) => {
         error: "Failed to fetch posts",
         message: error instanceof Error ? error.message : "Unknown error",
       },
-      500
+      500 as const
     );
   }
 });
 
-posts.get("/:identifier", async (c) => {
+posts.openapi(getPostRoute, async (c) => {
   try {
     const url = c.env.DATABASE_URL;
     const workspaceId = requireWorkspaceId(c);
-    const identifier = c.req.param("identifier");
-    const format = c.req.query("format");
+    const { identifier } = c.req.valid("param");
+    const { format } = c.req.valid("query");
     const db = createClient(url);
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
 
@@ -320,19 +509,26 @@ posts.get("/:identifier", async (c) => {
           error: "Post not found",
           message: "The requested post does not exist or is not published",
         },
-        404
+        404 as const
       );
     }
 
     // Format post based on requested format
     const formattedPost =
       format === "markdown"
-        ? { ...post, content: NodeHtmlMarkdown.translate(post.content || "") }
-        : post;
+        ? {
+            ...post,
+            content: NodeHtmlMarkdown.translate(post.content || ""),
+            attribution: post.attribution as string | null,
+          }
+        : {
+            ...post,
+            attribution: post.attribution as string | null,
+          };
 
-    return c.json({ post: formattedPost });
+    return c.json({ post: formattedPost }, 200 as const);
   } catch (_error) {
-    return c.json({ error: "Failed to fetch post" }, 500);
+    return c.json({ error: "Failed to fetch post" }, 500 as const);
   }
 });
 

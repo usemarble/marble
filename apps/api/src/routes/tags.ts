@@ -1,36 +1,104 @@
+import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { createClient } from "@marble/db/workers";
-import { Hono } from "hono";
 import { cacheKey, createCacheClient, hashQueryParams } from "../lib/cache";
 import { requireWorkspaceId } from "../lib/workspace";
+import {
+  ErrorSchema,
+  LimitQuerySchema,
+  NotFoundSchema,
+  PageNotFoundSchema,
+  PageQuerySchema,
+} from "../schemas/common";
+import {
+  SingleTagResponseSchema,
+  TagsListResponseSchema,
+} from "../schemas/tags";
 import type { Env } from "../types/env";
-import { TagQuerySchema, TagsQuerySchema } from "../validations/tags";
 
-const tags = new Hono<{ Bindings: Env }>();
+const tags = new OpenAPIHono<{ Bindings: Env }>();
 
-tags.get("/", async (c) => {
+// ============================================
+// Query Schemas
+// ============================================
+const TagsQuerySchema = z.object({
+  limit: LimitQuerySchema,
+  page: PageQuerySchema,
+});
+
+const TagParamsSchema = z.object({
+  identifier: z.string().openapi({
+    param: { name: "identifier", in: "path" },
+    example: "javascript",
+    description: "Tag ID or slug",
+  }),
+});
+
+// ============================================
+// Routes
+// ============================================
+const listTagsRoute = createRoute({
+  method: "get",
+  path: "/",
+  tags: ["Tags"],
+  summary: "List tags",
+  description: "Get a paginated list of tags",
+  request: {
+    query: TagsQuerySchema,
+  },
+  responses: {
+    200: {
+      content: { "application/json": { schema: TagsListResponseSchema } },
+      description: "Paginated list of tags",
+    },
+    400: {
+      content: {
+        "application/json": {
+          schema: z.union([ErrorSchema, PageNotFoundSchema]),
+        },
+      },
+      description: "Invalid query parameters or page number",
+    },
+    500: {
+      content: { "application/json": { schema: ErrorSchema } },
+      description: "Server error",
+    },
+  },
+});
+
+const getTagRoute = createRoute({
+  method: "get",
+  path: "/{identifier}",
+  tags: ["Tags"],
+  summary: "Get a tag",
+  description: "Get a single tag by ID or slug",
+  request: {
+    params: TagParamsSchema,
+  },
+  responses: {
+    200: {
+      content: { "application/json": { schema: SingleTagResponseSchema } },
+      description: "The requested tag",
+    },
+    404: {
+      content: { "application/json": { schema: NotFoundSchema } },
+      description: "Tag not found",
+    },
+    500: {
+      content: { "application/json": { schema: ErrorSchema } },
+      description: "Server error",
+    },
+  },
+});
+
+// ============================================
+// Handlers
+// ============================================
+tags.openapi(listTagsRoute, async (c) => {
   const db = createClient(c.env.DATABASE_URL);
   const workspaceId = requireWorkspaceId(c);
   const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
 
-  const queryValidation = TagsQuerySchema.safeParse({
-    limit: c.req.query("limit"),
-    page: c.req.query("page"),
-  });
-
-  if (!queryValidation.success) {
-    return c.json(
-      {
-        error: "Invalid query parameters",
-        details: queryValidation.error.errors.map((err) => ({
-          field: err.path.join("."),
-          message: err.message,
-        })),
-      },
-      400
-    );
-  }
-
-  const { limit, page } = queryValidation.data;
+  const { limit, page } = c.req.valid("query");
 
   // Generate cache key for count (exclude page - it doesn't affect count)
   const countCacheKey = cacheKey(
@@ -67,14 +135,14 @@ tags.get("/", async (c) => {
   if (page > totalPages && totalTags > 0) {
     return c.json(
       {
-        error: "Invalid page number",
+        error: "Invalid page number" as const,
         details: {
           message: `Page ${page} does not exist.`,
           totalPages,
           requestedPage: page,
         },
       },
-      400
+      400 as const
     );
   }
 
@@ -112,45 +180,28 @@ tags.get("/", async (c) => {
     };
   });
 
-  return c.json({
-    tags: transformedTags,
-    pagination: {
-      limit,
-      currentPage: page,
-      nextPage,
-      previousPage: prevPage,
-      totalPages,
-      totalItems: totalTags,
+  return c.json(
+    {
+      tags: transformedTags,
+      pagination: {
+        limit,
+        currentPage: page,
+        nextPage,
+        previousPage: prevPage,
+        totalPages,
+        totalItems: totalTags,
+      },
     },
-  });
+    200 as const
+  );
 });
 
-tags.get("/:identifier", async (c) => {
+tags.openapi(getTagRoute, async (c) => {
   try {
     const db = createClient(c.env.DATABASE_URL);
     const workspaceId = requireWorkspaceId(c);
-    const identifier = c.req.param("identifier");
+    const { identifier } = c.req.valid("param");
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
-
-    const queryValidation = TagQuerySchema.safeParse({
-      limit: c.req.query("limit"),
-      page: c.req.query("page"),
-    });
-
-    if (!queryValidation.success) {
-      return c.json(
-        {
-          error: "Invalid query parameters",
-          details: queryValidation.error.errors.map((err) => ({
-            field: err.path.join("."),
-            message: err.message,
-          })),
-        },
-        400
-      );
-    }
-
-    const { limit, page } = queryValidation.data;
 
     // Cache by identifier (slug or id)
     const singleCacheKey = cacheKey(workspaceId, "tags", identifier);
@@ -186,7 +237,7 @@ tags.get("/:identifier", async (c) => {
           error: "Tag not found",
           message: "The requested tag does not exist",
         },
-        404
+        404 as const
       );
     }
 
@@ -197,10 +248,10 @@ tags.get("/:identifier", async (c) => {
       count: _count,
     };
 
-    return c.json(transformedTag);
+    return c.json({ tag: transformedTag }, 200 as const);
   } catch (error) {
     console.error("Error fetching tag:", error);
-    return c.json({ error: "Failed to fetch tag" }, 500);
+    return c.json({ error: "Failed to fetch tag" }, 500 as const);
   }
 });
 

@@ -1,38 +1,105 @@
+import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { createClient } from "@marble/db/workers";
-import { Hono } from "hono";
 import { cacheKey, createCacheClient, hashQueryParams } from "../lib/cache";
 import { requireWorkspaceId } from "../lib/workspace";
+import {
+  AuthorsListResponseSchema,
+  SingleAuthorResponseSchema,
+} from "../schemas/authors";
+import {
+  ErrorSchema,
+  LimitQuerySchema,
+  NotFoundSchema,
+  PageNotFoundSchema,
+  PageQuerySchema,
+} from "../schemas/common";
 import type { Env } from "../types/env";
-import { AuthorQuerySchema, AuthorsQuerySchema } from "../validations/authors";
 
-const authors = new Hono<{ Bindings: Env }>();
+const authors = new OpenAPIHono<{ Bindings: Env }>();
 
-authors.get("/", async (c) => {
+// ============================================
+// Query Schemas
+// ============================================
+const AuthorsQuerySchema = z.object({
+  limit: LimitQuerySchema,
+  page: PageQuerySchema,
+});
+
+const AuthorParamsSchema = z.object({
+  identifier: z.string().openapi({
+    param: { name: "identifier", in: "path" },
+    example: "john-doe",
+    description: "Author ID or slug",
+  }),
+});
+
+// ============================================
+// Routes
+// ============================================
+const listAuthorsRoute = createRoute({
+  method: "get",
+  path: "/",
+  tags: ["Authors"],
+  summary: "List authors",
+  description: "Get a paginated list of authors who have published posts",
+  request: {
+    query: AuthorsQuerySchema,
+  },
+  responses: {
+    200: {
+      content: { "application/json": { schema: AuthorsListResponseSchema } },
+      description: "Paginated list of authors",
+    },
+    400: {
+      content: {
+        "application/json": {
+          schema: z.union([ErrorSchema, PageNotFoundSchema]),
+        },
+      },
+      description: "Invalid query parameters or page number",
+    },
+    500: {
+      content: { "application/json": { schema: ErrorSchema } },
+      description: "Server error",
+    },
+  },
+});
+
+const getAuthorRoute = createRoute({
+  method: "get",
+  path: "/{identifier}",
+  tags: ["Authors"],
+  summary: "Get an author",
+  description: "Get a single author by ID or slug",
+  request: {
+    params: AuthorParamsSchema,
+  },
+  responses: {
+    200: {
+      content: { "application/json": { schema: SingleAuthorResponseSchema } },
+      description: "The requested author",
+    },
+    404: {
+      content: { "application/json": { schema: NotFoundSchema } },
+      description: "Author not found",
+    },
+    500: {
+      content: { "application/json": { schema: ErrorSchema } },
+      description: "Server error",
+    },
+  },
+});
+
+// ============================================
+// Handlers
+// ============================================
+authors.openapi(listAuthorsRoute, async (c) => {
   const url = c.env.DATABASE_URL;
   const workspaceId = requireWorkspaceId(c);
   const db = createClient(url);
   const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
 
-  // Validate query parameters
-  const queryValidation = AuthorsQuerySchema.safeParse({
-    limit: c.req.query("limit"),
-    page: c.req.query("page"),
-  });
-
-  if (!queryValidation.success) {
-    return c.json(
-      {
-        error: "Invalid query parameters",
-        details: queryValidation.error.errors.map((err) => ({
-          field: err.path.join("."),
-          message: err.message,
-        })),
-      },
-      400
-    );
-  }
-
-  const { limit, page } = queryValidation.data;
+  const { limit, page } = c.req.valid("query");
 
   // Generate cache key for count (exclude page - it doesn't affect count)
   const countCacheKey = cacheKey(
@@ -73,14 +140,14 @@ authors.get("/", async (c) => {
   if (page > totalPages && totalAuthors > 0) {
     return c.json(
       {
-        error: "Invalid page number",
+        error: "Invalid page number" as const,
         details: {
           message: `Page ${page} does not exist.`,
           totalPages,
           requestedPage: page,
         },
       },
-      400
+      400 as const
     );
   }
 
@@ -135,48 +202,31 @@ authors.get("/", async (c) => {
       };
     });
 
-    return c.json({
-      authors: transformedAuthors,
-      pagination: {
-        limit,
-        currentPage: page,
-        nextPage,
-        previousPage: prevPage,
-        totalPages,
-        totalItems: totalAuthors,
+    return c.json(
+      {
+        authors: transformedAuthors,
+        pagination: {
+          limit,
+          currentPage: page,
+          nextPage,
+          previousPage: prevPage,
+          totalPages,
+          totalItems: totalAuthors,
+        },
       },
-    });
+      200 as const
+    );
   } catch (_error) {
-    return c.json({ error: "Failed to fetch authors" }, 500);
+    return c.json({ error: "Failed to fetch authors" }, 500 as const);
   }
 });
 
-authors.get("/:identifier", async (c) => {
+authors.openapi(getAuthorRoute, async (c) => {
   const url = c.env.DATABASE_URL;
   const workspaceId = requireWorkspaceId(c);
-  const identifier = c.req.param("identifier");
+  const { identifier } = c.req.valid("param");
   const db = createClient(url);
   const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
-
-  const queryValidation = AuthorQuerySchema.safeParse({
-    limit: c.req.query("limit"),
-    page: c.req.query("page"),
-  });
-
-  if (!queryValidation.success) {
-    return c.json(
-      {
-        error: "Invalid query parameters",
-        details: queryValidation.error.errors.map((err) => ({
-          field: err.path.join("."),
-          message: err.message,
-        })),
-      },
-      400
-    );
-  }
-
-  const { limit, page } = queryValidation.data;
 
   try {
     // Cache by identifier (slug or id)
@@ -211,13 +261,13 @@ authors.get("/:identifier", async (c) => {
           error: "Author not found",
           message: "The requested author does not exist",
         },
-        404
+        404 as const
       );
     }
 
-    return c.json({ author });
+    return c.json({ author }, 200 as const);
   } catch (_error) {
-    return c.json({ error: "Failed to fetch author" }, 500);
+    return c.json({ error: "Failed to fetch author" }, 500 as const);
   }
 });
 
