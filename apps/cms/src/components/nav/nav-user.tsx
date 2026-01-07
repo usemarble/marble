@@ -84,7 +84,7 @@ export function NavUser() {
             </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
-        <DropdownMenuItem onSelect={signOut} variant="destructive">
+        <DropdownMenuItem onClick={signOut} variant="destructive">
           <SignOutIcon className="mr-1.5 size-4" />
           Log Out
         </DropdownMenuItem>
