@@ -26,6 +26,12 @@ export async function GET() {
       featured: true,
       publishedAt: true,
       updatedAt: true,
+      category: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
       authors: {
         select: {
           id: true,

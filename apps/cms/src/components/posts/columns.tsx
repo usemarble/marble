@@ -14,6 +14,10 @@ export interface Post {
   featured: boolean;
   publishedAt: Date;
   updatedAt: Date;
+  category: {
+    id: string;
+    name: string;
+  };
   authors: Array<{
     id: string;
     name: string;
@@ -22,6 +26,17 @@ export interface Post {
 }
 
 export const columns: ColumnDef<Post>[] = [
+  {
+    id: "category",
+    accessorFn: (row) => row.category.id,
+    filterFn: (row, _columnId, filterValue) => {
+      if (!filterValue) {
+        return true;
+      }
+      return row.original.category.id === filterValue;
+    },
+    enableHiding: true,
+  },
   {
     accessorKey: "title",
     header: "Title",
