@@ -73,7 +73,6 @@ const getAuthorRoute = createRoute({
   description: "Get a single author by ID or slug",
   request: {
     params: AuthorParamsSchema,
-    query: AuthorsQuerySchema,
   },
   responses: {
     200: {

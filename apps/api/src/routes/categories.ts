@@ -73,7 +73,6 @@ const getCategoryRoute = createRoute({
   description: "Get a single category by ID or slug",
   request: {
     params: CategoryParamsSchema,
-    query: CategoriesQuerySchema,
   },
   responses: {
     200: {

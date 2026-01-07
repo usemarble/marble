@@ -73,7 +73,6 @@ const getTagRoute = createRoute({
   description: "Get a single tag by ID or slug",
   request: {
     params: TagParamsSchema,
-    query: TagsQuerySchema,
   },
   responses: {
     200: {
