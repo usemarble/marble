@@ -30,6 +30,41 @@ app.use("/cache/invalidate", systemAuth());
 app.route("/cache/invalidate", cacheRoutes);
 
 // ============================================
+// Legacy Workspace ID Routes (/v1/:workspaceId/*)
+// MUST be registered BEFORE apiKeyV1 to intercept workspace ID routes
+// Using standard Hono since these are deprecated and don't need to be in the spec
+// ============================================
+const legacyV1 = new Hono<{ Bindings: Env }>();
+legacyV1.use("/:workspaceId/*", ratelimit("workspace"));
+legacyV1.use("/:workspaceId/*", authorization());
+legacyV1.use("/:workspaceId/*", analytics());
+
+legacyV1.route("/:workspaceId/tags", tagsRoutes);
+legacyV1.route("/:workspaceId/categories", categoriesRoutes);
+legacyV1.route("/:workspaceId/posts", postsRoutes);
+legacyV1.route("/:workspaceId/authors", authorsRoutes);
+
+// Mount legacy routes dispatcher - intercepts /v1/:workspaceId/* BEFORE apiKeyV1
+app.use("/v1/:workspaceId/*", async (c, next) => {
+  const path = c.req.path;
+  const workspaceId = c.req.param("workspaceId");
+
+  // Check if this is a legacy workspace route (workspaceId is not a known resource)
+  if (!ROUTES.includes(workspaceId)) {
+    // Rewrite path (strip /v1 prefix) for legacy router
+    const newPath = path.replace("/v1", "");
+    const newUrl = new URL(c.req.url);
+    newUrl.pathname = newPath;
+    const newRequest = new Request(newUrl.toString(), c.req.raw);
+    return legacyV1.fetch(newRequest, c.env, c.executionCtx);
+  }
+
+  // If workspaceId is actually a resource name (posts, tags, etc.), skip this middleware
+  // and let Hono continue to the next matching route (apiKeyV1)
+  return next();
+});
+
+// ============================================
 // API Key Routes (/v1/posts, /v1/tags, etc.)
 // Using OpenAPIHono to properly merge specs
 // ============================================
@@ -47,39 +82,6 @@ apiKeyV1.route("/cache/invalidate", invalidateRoutes);
 
 // Mount apiKeyV1 under /v1 to automatically merge OpenAPI specs
 app.route("/v1", apiKeyV1);
-
-// ============================================
-// Legacy Workspace ID Routes (/v1/:workspaceId/*)
-// Using standard Hono since these are deprecated and don't need to be in the spec
-// ============================================
-const legacyV1 = new Hono<{ Bindings: Env }>();
-legacyV1.use("/:workspaceId/*", ratelimit("workspace"));
-legacyV1.use("/:workspaceId/*", authorization());
-legacyV1.use("/:workspaceId/*", analytics());
-
-legacyV1.route("/:workspaceId/tags", tagsRoutes);
-legacyV1.route("/:workspaceId/categories", categoriesRoutes);
-legacyV1.route("/:workspaceId/posts", postsRoutes);
-legacyV1.route("/:workspaceId/authors", authorsRoutes);
-
-// Mount legacy routes - use custom middleware to handle the dispatch
-app.use("/v1/:workspaceId/*", async (c) => {
-  const path = c.req.path;
-  const workspaceId = c.req.param("workspaceId");
-
-  // Check if this is a legacy workspace route (workspaceId is not a known resource)
-  if (!ROUTES.includes(workspaceId)) {
-    // Rewrite path (strip /v1 prefix) for legacy router
-    const newPath = path.replace("/v1", "");
-    const newUrl = new URL(c.req.url);
-    newUrl.pathname = newPath;
-    const newRequest = new Request(newUrl.toString(), c.req.raw);
-    return legacyV1.fetch(newRequest, c.env, c.executionCtx);
-  }
-
-  // If workspaceId is actually a resource name, let the route fall through to apiKeyV1
-  return c.notFound();
-});
 
 // Redirect non-versioned routes to v1
 app.use("/:workspaceId/*", async (c, next) => {
