@@ -58,6 +58,12 @@ export function LoginForm() {
           onError: (ctx) => {
             if (ctx.error.status === 403) {
               toast.error("Please verify your email address");
+            } else if (ctx.error.status === 401) {
+              toast.error("Invalid email or password");
+            } else {
+              toast.error(
+                ctx.error.message || "Login failed. Please try again."
+              );
             }
           },
         }
@@ -187,7 +193,7 @@ export function LoginForm() {
                 {...register("password")}
               />
               <button
-                className="absolute top-1/2 right-4 -translate-y-1/2 text-muted-foreground"
+                className="-translate-y-1/2 absolute top-1/2 right-4 text-muted-foreground"
                 onClick={() => setIsPasswordVisible((prev) => !prev)}
                 type="button"
               >
@@ -210,6 +216,7 @@ export function LoginForm() {
               isCredentialsLoading || isGoogleLoading || isGithubLoading
             }
             isLoading={isCredentialsLoading}
+            type="submit"
           >
             <LastUsedBadge
               className="border-input"
