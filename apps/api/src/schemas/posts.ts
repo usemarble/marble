@@ -6,7 +6,7 @@ import { PaginationSchema } from "./common";
 // ============================================
 export const SocialRefSchema = z
   .object({
-    url: z.string().url().openapi({ example: "https://twitter.com/johndoe" }),
+    url: z.url().openapi({ example: "https://twitter.com/johndoe" }),
     platform: z.string().openapi({ example: "twitter" }),
   })
   .openapi("SocialRef");
@@ -71,19 +71,23 @@ export const PostSchema = z
       .string()
       .nullable()
       .openapi({ example: "A beginner's guide to Next.js" }),
-    publishedAt: z
-      .string()
+    publishedAt: z.iso
       .datetime()
       .nullable()
       .openapi({ example: "2024-01-15T10:00:00Z" }),
-    updatedAt: z
-      .string()
-      .datetime()
-      .openapi({ example: "2024-01-16T12:00:00Z" }),
+    updatedAt: z.iso.datetime().openapi({ example: "2024-01-16T12:00:00Z" }),
     attribution: z
-      .string()
+      .object({
+        author: z.string().openapi({ example: "John Doe" }),
+        url: z
+          .url()
+          .openapi({ example: "https://original-source.com/article" }),
+      })
       .nullable()
-      .openapi({ example: "Photo by Unsplash" }),
+      .openapi({
+        description:
+          "Attribution to the original author when republishing content",
+      }),
     authors: z.array(AuthorRefSchema),
     category: CategoryRefSchema.nullable(),
     tags: z.array(TagRefSchema),

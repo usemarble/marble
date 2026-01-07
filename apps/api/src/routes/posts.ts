@@ -389,11 +389,17 @@ posts.openapi(listPostsRoute, async (c) => {
         ? postsData.map((post) => ({
             ...post,
             content: NodeHtmlMarkdown.translate(post.content || ""),
-            attribution: post.attribution as string | null,
+            attribution: post.attribution as {
+              author: string;
+              url: string;
+            } | null,
           }))
         : postsData.map((post) => ({
             ...post,
-            attribution: post.attribution as string | null,
+            attribution: post.attribution as {
+              author: string;
+              url: string;
+            } | null,
           }));
 
     const paginationInfo = limit
@@ -520,11 +526,17 @@ posts.openapi(getPostRoute, async (c) => {
         ? {
             ...post,
             content: NodeHtmlMarkdown.translate(post.content || ""),
-            attribution: post.attribution as string | null,
+            attribution: post.attribution as {
+              author: string;
+              url: string;
+            } | null,
           }
         : {
             ...post,
-            attribution: post.attribution as string | null,
+            attribution: post.attribution as {
+              author: string;
+              url: string;
+            } | null,
           };
 
     return c.json({ post: formattedPost }, 200 as const);

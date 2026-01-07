@@ -6,7 +6,7 @@ import { PaginationSchema } from "./common";
 // ============================================
 export const SocialSchema = z
   .object({
-    url: z.string().url().openapi({ example: "https://twitter.com/johndoe" }),
+    url: z.url().openapi({ example: "https://twitter.com/johndoe" }),
     platform: z.string().openapi({ example: "twitter" }),
   })
   .openapi("Social");
