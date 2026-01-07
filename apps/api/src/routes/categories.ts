@@ -1,41 +1,131 @@
+import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { createClient } from "@marble/db/workers";
-import { Hono } from "hono";
 import { cacheKey, createCacheClient, hashQueryParams } from "../lib/cache";
 import { requireWorkspaceId } from "../lib/workspace";
-import type { Env } from "../types/env";
 import {
-  CategoriesQuerySchema,
-  CategoryQuerySchema,
-} from "../validations/categories";
+  CategoriesListResponseSchema,
+  SingleCategoryResponseSchema,
+} from "../schemas/categories";
+import {
+  ErrorSchema,
+  NotFoundSchema,
+  PageNotFoundSchema,
+} from "../schemas/common";
+import type { Env } from "../types/env";
 
-const categories = new Hono<{ Bindings: Env }>();
+const categories = new OpenAPIHono<{ Bindings: Env }>();
 
-categories.get("/", async (c) => {
+// ============================================
+// Query Schemas
+// ============================================
+const CategoriesQuerySchema = z.object({
+  limit: z
+    .string()
+    .optional()
+    .default("10")
+    .openapi({
+      param: { name: "limit", in: "query" },
+      example: "10",
+      description: "Number of categories per page (1-100)",
+    }),
+  page: z
+    .string()
+    .optional()
+    .default("1")
+    .openapi({
+      param: { name: "page", in: "query" },
+      example: "1",
+      description: "Page number",
+    }),
+});
+
+const CategoryParamsSchema = z.object({
+  identifier: z.string().openapi({
+    param: { name: "identifier", in: "path" },
+    example: "technology",
+    description: "Category ID or slug",
+  }),
+});
+
+// ============================================
+// Routes
+// ============================================
+const listCategoriesRoute = createRoute({
+  method: "get",
+  path: "/",
+  tags: ["Categories"],
+  summary: "List categories",
+  description: "Get a paginated list of categories",
+  request: {
+    query: CategoriesQuerySchema,
+  },
+  responses: {
+    200: {
+      content: { "application/json": { schema: CategoriesListResponseSchema } },
+      description: "Paginated list of categories",
+    },
+    400: {
+      content: {
+        "application/json": {
+          schema: z.union([ErrorSchema, PageNotFoundSchema]),
+        },
+      },
+      description: "Invalid query parameters or page number",
+    },
+    500: {
+      content: { "application/json": { schema: ErrorSchema } },
+      description: "Server error",
+    },
+  },
+});
+
+const getCategoryRoute = createRoute({
+  method: "get",
+  path: "/{identifier}",
+  tags: ["Categories"],
+  summary: "Get a category",
+  description: "Get a single category by ID or slug",
+  request: {
+    params: CategoryParamsSchema,
+    query: CategoriesQuerySchema,
+  },
+  responses: {
+    200: {
+      content: { "application/json": { schema: SingleCategoryResponseSchema } },
+      description: "The requested category",
+    },
+    404: {
+      content: { "application/json": { schema: NotFoundSchema } },
+      description: "Category not found",
+    },
+    500: {
+      content: { "application/json": { schema: ErrorSchema } },
+      description: "Server error",
+    },
+  },
+});
+
+// ============================================
+// Handlers
+// ============================================
+categories.openapi(listCategoriesRoute, async (c) => {
   try {
     const url = c.env.DATABASE_URL;
     const workspaceId = requireWorkspaceId(c);
     const db = createClient(url);
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
 
-    const queryValidation = CategoriesQuerySchema.safeParse({
-      limit: c.req.query("limit"),
-      page: c.req.query("page"),
-    });
+    const { limit: limitStr, page: pageStr } = c.req.valid("query");
 
-    if (!queryValidation.success) {
-      return c.json(
-        {
-          error: "Invalid query parameters",
-          details: queryValidation.error.errors.map((err) => ({
-            field: err.path.join("."),
-            message: err.message,
-          })),
-        },
-        400
-      );
-    }
+    const limit = (() => {
+      const num = Number.parseInt(limitStr, 10);
+      return Number.isNaN(num) ? 10 : Math.max(1, Math.min(100, num));
+    })();
 
-    const { limit, page } = queryValidation.data;
+    const page = (() => {
+      const num = Number.parseInt(pageStr, 10);
+      return Number.isNaN(num) ? 1 : Math.max(1, num);
+    })();
 
     // Generate cache key for count (exclude page - it doesn't affect count)
     const countCacheKey = cacheKey(
@@ -70,7 +160,7 @@ categories.get("/", async (c) => {
     if (page > totalPages && totalCategories > 0) {
       return c.json(
         {
-          error: "Invalid page number",
+          error: "Invalid page number" as const,
           details: {
             message: `Page ${page} does not exist.`,
             totalPages,
@@ -131,33 +221,13 @@ categories.get("/", async (c) => {
   }
 });
 
-categories.get("/:identifier", async (c) => {
+categories.openapi(getCategoryRoute, async (c) => {
   try {
     const url = c.env.DATABASE_URL;
     const workspaceId = requireWorkspaceId(c);
-    const identifier = c.req.param("identifier");
+    const { identifier } = c.req.valid("param");
     const db = createClient(url);
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
-
-    const queryValidation = CategoryQuerySchema.safeParse({
-      limit: c.req.query("limit"),
-      page: c.req.query("page"),
-    });
-
-    if (!queryValidation.success) {
-      return c.json(
-        {
-          error: "Invalid query parameters",
-          details: queryValidation.error.errors.map((err) => ({
-            field: err.path.join("."),
-            message: err.message,
-          })),
-        },
-        400
-      );
-    }
-
-    const { limit, page } = queryValidation.data;
 
     // Cache by identifier (slug or id)
     const singleCacheKey = cacheKey(workspaceId, "categories", identifier);

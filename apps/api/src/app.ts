@@ -1,3 +1,4 @@
+import { OpenAPIHono } from "@hono/zod-openapi";
 import { Hono } from "hono";
 import { trimTrailingSlash } from "hono/trailing-slash";
 import { ROUTES } from "./lib/constants";
@@ -16,7 +17,7 @@ import postsRoutes from "./routes/posts";
 import tagsRoutes from "./routes/tags";
 import type { ApiKeyApp, Env } from "./types/env";
 
-const app = new Hono<{ Bindings: Env }>();
+const app = new OpenAPIHono<{ Bindings: Env }>();
 
 // Global middleware
 app.use("*", cache());
@@ -30,22 +31,26 @@ app.route("/cache/invalidate", cacheRoutes);
 
 // ============================================
 // API Key Routes (/v1/posts, /v1/tags, etc.)
-// Matched when first segment after /v1/ is a known resource
+// Using OpenAPIHono to properly merge specs
 // ============================================
-const apiKeyV1 = new Hono<ApiKeyApp>();
+const apiKeyV1 = new OpenAPIHono<ApiKeyApp>();
 apiKeyV1.use("*", ratelimit("apiKey"));
 apiKeyV1.use("*", keyAuthorization());
 apiKeyV1.use("*", keyAnalytics());
 
+// Mount routes with proper OpenAPIHono to enable spec merging
 apiKeyV1.route("/posts", postsRoutes);
 apiKeyV1.route("/categories", categoriesRoutes);
 apiKeyV1.route("/tags", tagsRoutes);
 apiKeyV1.route("/authors", authorsRoutes);
 apiKeyV1.route("/cache/invalidate", invalidateRoutes);
 
+// Mount apiKeyV1 under /v1 to automatically merge OpenAPI specs
+app.route("/v1", apiKeyV1);
+
 // ============================================
 // Legacy Workspace ID Routes (/v1/:workspaceId/*)
-// Will eventually be deprecated
+// Using standard Hono since these are deprecated and don't need to be in the spec
 // ============================================
 const legacyV1 = new Hono<{ Bindings: Env }>();
 legacyV1.use("/:workspaceId/*", ratelimit("workspace"));
@@ -57,36 +62,35 @@ legacyV1.route("/:workspaceId/categories", categoriesRoutes);
 legacyV1.route("/:workspaceId/posts", postsRoutes);
 legacyV1.route("/:workspaceId/authors", authorsRoutes);
 
-// ============================================
-// Route dispatcher - checks the path pattern to determine handler
-// ============================================
-app.use("/v1/*", async (c) => {
+// Mount legacy routes - use custom middleware to handle the dispatch
+app.use("/v1/:workspaceId/*", async (c) => {
   const path = c.req.path;
-  // Extract the first segment after /v1/
-  // e.g., /v1/posts -> "posts", /v1/abc123/posts -> "abc123"
-  const segments = path.replace("/v1/", "").split("/");
-  const firstSegment = segments[0];
+  const workspaceId = c.req.param("workspaceId");
 
-  // Rewrite path (strip /v1 prefix) for sub-routers
-  const newPath = path.replace("/v1", "");
-  const newUrl = new URL(c.req.url);
-  newUrl.pathname = newPath;
-  const newRequest = new Request(newUrl.toString(), c.req.raw);
-
-  // If the first segment is a known resource, use API key routes
-  if (ROUTES.includes(firstSegment)) {
-    return apiKeyV1.fetch(newRequest, c.env, c.executionCtx);
+  // Check if this is a legacy workspace route (workspaceId is not a known resource)
+  if (!ROUTES.includes(workspaceId)) {
+    // Rewrite path (strip /v1 prefix) for legacy router
+    const newPath = path.replace("/v1", "");
+    const newUrl = new URL(c.req.url);
+    newUrl.pathname = newPath;
+    const newRequest = new Request(newUrl.toString(), c.req.raw);
+    return legacyV1.fetch(newRequest, c.env, c.executionCtx);
   }
 
-  // Otherwise, treat first segment as workspaceId, use legacy routes
-  return legacyV1.fetch(newRequest, c.env, c.executionCtx);
+  // If workspaceId is actually a resource name, let the route fall through to apiKeyV1
+  return c.notFound();
 });
 
 // Redirect non-versioned routes to v1
 app.use("/:workspaceId/*", async (c, next) => {
   const path = c.req.path;
   const workspaceId = c.req.param("workspaceId");
-  if (path.startsWith("/v1/") || path === "/" || path === "/status") {
+  if (
+    path.startsWith("/v1/") ||
+    path === "/" ||
+    path === "/status" ||
+    path === "/doc"
+  ) {
     return next();
   }
 
@@ -120,5 +124,28 @@ app.use("/*", async (c, next) => {
 // Health
 app.get("/", (c) => c.text("Hello from marble"));
 app.get("/status", (c) => c.json({ status: "ok" }));
+
+// ============================================
+// OpenAPI Documentation (public, no auth)
+// ============================================
+app.doc("/doc", {
+  openapi: "3.1.0",
+  info: {
+    title: "Marble API",
+    version: "1.0.0",
+    description:
+      "Headless CMS API for content delivery. Use your API key in the Authorization header as a Bearer token.",
+  },
+  servers: [{ url: "https://api.marblecms.com", description: "Production" }],
+  security: [{ bearerAuth: [] }],
+});
+
+// Register security scheme
+app.openAPIRegistry.registerComponent("securitySchemes", "bearerAuth", {
+  type: "http",
+  scheme: "bearer",
+  bearerFormat: "API Key",
+  description: "Your Marble API key",
+});
 
 export default app;

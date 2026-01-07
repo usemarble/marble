@@ -1,38 +1,130 @@
+import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { createClient } from "@marble/db/workers";
-import { Hono } from "hono";
 import { cacheKey, createCacheClient, hashQueryParams } from "../lib/cache";
 import { requireWorkspaceId } from "../lib/workspace";
+import {
+  AuthorsListResponseSchema,
+  SingleAuthorResponseSchema,
+} from "../schemas/authors";
+import {
+  ErrorSchema,
+  NotFoundSchema,
+  PageNotFoundSchema,
+} from "../schemas/common";
 import type { Env } from "../types/env";
-import { AuthorQuerySchema, AuthorsQuerySchema } from "../validations/authors";
 
-const authors = new Hono<{ Bindings: Env }>();
+const authors = new OpenAPIHono<{ Bindings: Env }>();
 
-authors.get("/", async (c) => {
+// ============================================
+// Query Schemas
+// ============================================
+const AuthorsQuerySchema = z.object({
+  limit: z
+    .string()
+    .optional()
+    .default("10")
+    .openapi({
+      param: { name: "limit", in: "query" },
+      example: "10",
+      description: "Number of authors per page (1-100)",
+    }),
+  page: z
+    .string()
+    .optional()
+    .default("1")
+    .openapi({
+      param: { name: "page", in: "query" },
+      example: "1",
+      description: "Page number",
+    }),
+});
+
+const AuthorParamsSchema = z.object({
+  identifier: z.string().openapi({
+    param: { name: "identifier", in: "path" },
+    example: "john-doe",
+    description: "Author ID or slug",
+  }),
+});
+
+// ============================================
+// Routes
+// ============================================
+const listAuthorsRoute = createRoute({
+  method: "get",
+  path: "/",
+  tags: ["Authors"],
+  summary: "List authors",
+  description: "Get a paginated list of authors who have published posts",
+  request: {
+    query: AuthorsQuerySchema,
+  },
+  responses: {
+    200: {
+      content: { "application/json": { schema: AuthorsListResponseSchema } },
+      description: "Paginated list of authors",
+    },
+    400: {
+      content: {
+        "application/json": {
+          schema: z.union([ErrorSchema, PageNotFoundSchema]),
+        },
+      },
+      description: "Invalid query parameters or page number",
+    },
+    500: {
+      content: { "application/json": { schema: ErrorSchema } },
+      description: "Server error",
+    },
+  },
+});
+
+const getAuthorRoute = createRoute({
+  method: "get",
+  path: "/{identifier}",
+  tags: ["Authors"],
+  summary: "Get an author",
+  description: "Get a single author by ID or slug",
+  request: {
+    params: AuthorParamsSchema,
+    query: AuthorsQuerySchema,
+  },
+  responses: {
+    200: {
+      content: { "application/json": { schema: SingleAuthorResponseSchema } },
+      description: "The requested author",
+    },
+    404: {
+      content: { "application/json": { schema: NotFoundSchema } },
+      description: "Author not found",
+    },
+    500: {
+      content: { "application/json": { schema: ErrorSchema } },
+      description: "Server error",
+    },
+  },
+});
+
+// ============================================
+// Handlers
+// ============================================
+authors.openapi(listAuthorsRoute, async (c) => {
   const url = c.env.DATABASE_URL;
   const workspaceId = requireWorkspaceId(c);
   const db = createClient(url);
   const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
 
-  // Validate query parameters
-  const queryValidation = AuthorsQuerySchema.safeParse({
-    limit: c.req.query("limit"),
-    page: c.req.query("page"),
-  });
+  const { limit: limitStr, page: pageStr } = c.req.valid("query");
 
-  if (!queryValidation.success) {
-    return c.json(
-      {
-        error: "Invalid query parameters",
-        details: queryValidation.error.errors.map((err) => ({
-          field: err.path.join("."),
-          message: err.message,
-        })),
-      },
-      400
-    );
-  }
+  const limit = (() => {
+    const num = Number.parseInt(limitStr, 10);
+    return Number.isNaN(num) ? 10 : Math.max(1, Math.min(100, num));
+  })();
 
-  const { limit, page } = queryValidation.data;
+  const page = (() => {
+    const num = Number.parseInt(pageStr, 10);
+    return Number.isNaN(num) ? 1 : Math.max(1, num);
+  })();
 
   // Generate cache key for count (exclude page - it doesn't affect count)
   const countCacheKey = cacheKey(
@@ -73,7 +165,7 @@ authors.get("/", async (c) => {
   if (page > totalPages && totalAuthors > 0) {
     return c.json(
       {
-        error: "Invalid page number",
+        error: "Invalid page number" as const,
         details: {
           message: `Page ${page} does not exist.`,
           totalPages,
@@ -151,32 +243,12 @@ authors.get("/", async (c) => {
   }
 });
 
-authors.get("/:identifier", async (c) => {
+authors.openapi(getAuthorRoute, async (c) => {
   const url = c.env.DATABASE_URL;
   const workspaceId = requireWorkspaceId(c);
-  const identifier = c.req.param("identifier");
+  const { identifier } = c.req.valid("param");
   const db = createClient(url);
   const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
-
-  const queryValidation = AuthorQuerySchema.safeParse({
-    limit: c.req.query("limit"),
-    page: c.req.query("page"),
-  });
-
-  if (!queryValidation.success) {
-    return c.json(
-      {
-        error: "Invalid query parameters",
-        details: queryValidation.error.errors.map((err) => ({
-          field: err.path.join("."),
-          message: err.message,
-        })),
-      },
-      400
-    );
-  }
-
-  const { limit, page } = queryValidation.data;
 
   try {
     // Cache by identifier (slug or id)

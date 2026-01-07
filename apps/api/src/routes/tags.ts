@@ -1,36 +1,129 @@
+import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { createClient } from "@marble/db/workers";
-import { Hono } from "hono";
 import { cacheKey, createCacheClient, hashQueryParams } from "../lib/cache";
 import { requireWorkspaceId } from "../lib/workspace";
+import {
+  ErrorSchema,
+  NotFoundSchema,
+  PageNotFoundSchema,
+} from "../schemas/common";
+import {
+  SingleTagResponseSchema,
+  TagsListResponseSchema,
+} from "../schemas/tags";
 import type { Env } from "../types/env";
-import { TagQuerySchema, TagsQuerySchema } from "../validations/tags";
 
-const tags = new Hono<{ Bindings: Env }>();
+const tags = new OpenAPIHono<{ Bindings: Env }>();
 
-tags.get("/", async (c) => {
+// ============================================
+// Query Schemas
+// ============================================
+const TagsQuerySchema = z.object({
+  limit: z
+    .string()
+    .optional()
+    .default("10")
+    .openapi({
+      param: { name: "limit", in: "query" },
+      example: "10",
+      description: "Number of tags per page (1-100)",
+    }),
+  page: z
+    .string()
+    .optional()
+    .default("1")
+    .openapi({
+      param: { name: "page", in: "query" },
+      example: "1",
+      description: "Page number",
+    }),
+});
+
+const TagParamsSchema = z.object({
+  identifier: z.string().openapi({
+    param: { name: "identifier", in: "path" },
+    example: "javascript",
+    description: "Tag ID or slug",
+  }),
+});
+
+// ============================================
+// Routes
+// ============================================
+const listTagsRoute = createRoute({
+  method: "get",
+  path: "/",
+  tags: ["Tags"],
+  summary: "List tags",
+  description: "Get a paginated list of tags",
+  request: {
+    query: TagsQuerySchema,
+  },
+  responses: {
+    200: {
+      content: { "application/json": { schema: TagsListResponseSchema } },
+      description: "Paginated list of tags",
+    },
+    400: {
+      content: {
+        "application/json": {
+          schema: z.union([ErrorSchema, PageNotFoundSchema]),
+        },
+      },
+      description: "Invalid query parameters or page number",
+    },
+    500: {
+      content: { "application/json": { schema: ErrorSchema } },
+      description: "Server error",
+    },
+  },
+});
+
+const getTagRoute = createRoute({
+  method: "get",
+  path: "/{identifier}",
+  tags: ["Tags"],
+  summary: "Get a tag",
+  description: "Get a single tag by ID or slug",
+  request: {
+    params: TagParamsSchema,
+    query: TagsQuerySchema,
+  },
+  responses: {
+    200: {
+      content: { "application/json": { schema: SingleTagResponseSchema } },
+      description: "The requested tag",
+    },
+    404: {
+      content: { "application/json": { schema: NotFoundSchema } },
+      description: "Tag not found",
+    },
+    500: {
+      content: { "application/json": { schema: ErrorSchema } },
+      description: "Server error",
+    },
+  },
+});
+
+// ============================================
+// Handlers
+// ============================================
+tags.openapi(listTagsRoute, async (c) => {
   const db = createClient(c.env.DATABASE_URL);
   const workspaceId = requireWorkspaceId(c);
   const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
 
-  const queryValidation = TagsQuerySchema.safeParse({
-    limit: c.req.query("limit"),
-    page: c.req.query("page"),
-  });
+  const { limit: limitStr, page: pageStr } = c.req.valid("query");
 
-  if (!queryValidation.success) {
-    return c.json(
-      {
-        error: "Invalid query parameters",
-        details: queryValidation.error.errors.map((err) => ({
-          field: err.path.join("."),
-          message: err.message,
-        })),
-      },
-      400
-    );
-  }
+  const limit = (() => {
+    const num = Number.parseInt(limitStr, 10);
+    return Number.isNaN(num) ? 10 : Math.max(1, Math.min(100, num));
+  })();
 
-  const { limit, page } = queryValidation.data;
+  const page = (() => {
+    const num = Number.parseInt(pageStr, 10);
+    return Number.isNaN(num) ? 1 : Math.max(1, num);
+  })();
 
   // Generate cache key for count (exclude page - it doesn't affect count)
   const countCacheKey = cacheKey(
@@ -67,7 +160,7 @@ tags.get("/", async (c) => {
   if (page > totalPages && totalTags > 0) {
     return c.json(
       {
-        error: "Invalid page number",
+        error: "Invalid page number" as const,
         details: {
           message: `Page ${page} does not exist.`,
           totalPages,
@@ -125,32 +218,12 @@ tags.get("/", async (c) => {
   });
 });
 
-tags.get("/:identifier", async (c) => {
+tags.openapi(getTagRoute, async (c) => {
   try {
     const db = createClient(c.env.DATABASE_URL);
     const workspaceId = requireWorkspaceId(c);
-    const identifier = c.req.param("identifier");
+    const { identifier } = c.req.valid("param");
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
-
-    const queryValidation = TagQuerySchema.safeParse({
-      limit: c.req.query("limit"),
-      page: c.req.query("page"),
-    });
-
-    if (!queryValidation.success) {
-      return c.json(
-        {
-          error: "Invalid query parameters",
-          details: queryValidation.error.errors.map((err) => ({
-            field: err.path.join("."),
-            message: err.message,
-          })),
-        },
-        400
-      );
-    }
-
-    const { limit, page } = queryValidation.data;
 
     // Cache by identifier (slug or id)
     const singleCacheKey = cacheKey(workspaceId, "tags", identifier);
