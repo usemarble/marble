@@ -8,6 +8,7 @@ import {
   NotFoundSchema,
   PageNotFoundSchema,
   PageQuerySchema,
+  ServerErrorSchema,
 } from "../schemas/common";
 import {
   SingleTagResponseSchema,
@@ -59,7 +60,7 @@ const listTagsRoute = createRoute({
       description: "Invalid query parameters or page number",
     },
     500: {
-      content: { "application/json": { schema: ErrorSchema } },
+      content: { "application/json": { schema: ServerErrorSchema } },
       description: "Server error",
     },
   },
@@ -84,7 +85,7 @@ const getTagRoute = createRoute({
       description: "Tag not found",
     },
     500: {
-      content: { "application/json": { schema: ErrorSchema } },
+      content: { "application/json": { schema: ServerErrorSchema } },
       description: "Server error",
     },
   },

@@ -7,6 +7,7 @@ import {
   ErrorSchema,
   NotFoundSchema,
   PageNotFoundSchema,
+  ServerErrorSchema,
 } from "../schemas/common";
 import {
   PostsListResponseSchema,
@@ -143,7 +144,7 @@ const listPostsRoute = createRoute({
       description: "Invalid query parameters or page number",
     },
     500: {
-      content: { "application/json": { schema: ErrorSchema } },
+      content: { "application/json": { schema: ServerErrorSchema } },
       description: "Server error",
     },
   },
@@ -169,7 +170,7 @@ const getPostRoute = createRoute({
       description: "Post not found",
     },
     500: {
-      content: { "application/json": { schema: ErrorSchema } },
+      content: { "application/json": { schema: ServerErrorSchema } },
       description: "Server error",
     },
   },
