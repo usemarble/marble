@@ -1,8 +1,10 @@
 "use client";
 
+import { Key01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Button, buttonVariants } from "@marble/ui/components/button";
 import { cn } from "@marble/ui/lib/utils";
-import { KeyIcon, PlusIcon } from "@phosphor-icons/react";
+import { PlusIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import Link from "next/link";
@@ -66,7 +68,7 @@ function PageClient() {
         >
           <div className="flex max-w-80 flex-col items-center gap-4">
             <div className="p-2">
-              <KeyIcon className="size-16" />
+              <HugeiconsIcon className="size-16" icon={Key01Icon} />
             </div>
             <div className="flex flex-col items-center gap-4 text-center">
               <div className="flex flex-col items-center gap-2">

@@ -88,7 +88,7 @@ export const YouTubeComp = ({
   const isValidUrl = extractYouTubeVideoId(url) !== null;
 
   return (
-    <Card className="col-span-full gap-4 rounded-[20px] border-none bg-surface p-2.5">
+    <Card className="col-span-full gap-4 rounded-[20px] border-none bg-surface p-2">
       <CardHeader className="gap-0 px-4 pt-2">
         <div className="flex items-center justify-between gap-2">
           <YouTubeIcon className="size-5" />

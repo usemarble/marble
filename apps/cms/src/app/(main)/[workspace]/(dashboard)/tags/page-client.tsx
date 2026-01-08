@@ -1,7 +1,9 @@
 "use client";
 
+import { Tag01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@marble/ui/components/button";
-import { PlusIcon, TagIcon } from "@phosphor-icons/react";
+import { PlusIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import { useState } from "react";
@@ -62,7 +64,7 @@ function PageClient() {
         >
           <div className="flex max-w-80 flex-col items-center gap-4">
             <div className="p-2">
-              <TagIcon className="size-16" />
+              <HugeiconsIcon className="size-16" icon={Tag01Icon} />
             </div>
             <div className="flex flex-col items-center gap-4 text-center">
               <p className="text-muted-foreground text-sm">

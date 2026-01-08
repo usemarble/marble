@@ -1,12 +1,14 @@
 "use client";
 
+import { Files01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Button, buttonVariants } from "@marble/ui/components/button";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
-import { NoteIcon, PlusIcon, UploadSimpleIcon } from "@phosphor-icons/react";
+import { PlusIcon, UploadSimpleIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import Link from "next/link";
@@ -66,7 +68,7 @@ function PageClient() {
           <WorkspacePageWrapper className="grid h-full place-content-center">
             <div className="flex max-w-80 flex-col items-center gap-4">
               <div className="p-2">
-                <NoteIcon className="size-16" />
+                <HugeiconsIcon className="size-16" icon={Files01Icon} />
               </div>
               <div className="flex flex-col items-center gap-4 text-center">
                 <p className="text-muted-foreground text-sm">

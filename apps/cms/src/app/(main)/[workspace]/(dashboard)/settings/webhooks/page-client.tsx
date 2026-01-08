@@ -1,8 +1,10 @@
 "use client";
 
+import { WebhookIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@marble/ui/components/button";
 import { toast } from "@marble/ui/components/sonner";
-import { PlusIcon, WebhooksLogoIcon } from "@phosphor-icons/react";
+import { PlusIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
@@ -110,7 +112,7 @@ export function PageClient() {
       >
         <div className="flex max-w-80 flex-col items-center gap-4">
           <div className="p-2">
-            <WebhooksLogoIcon className="size-16" />
+            <HugeiconsIcon className="size-16" icon={WebhookIcon} />
           </div>
           <div className="flex flex-col items-center gap-4 text-center">
             <p className="text-muted-foreground text-sm">

@@ -1,7 +1,8 @@
 "use client";
 
+import { Image02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Skeleton } from "@marble/ui/components/skeleton";
-import { ImagesIcon } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "motion/react";
 import { DeleteMediaModal } from "@/components/media/delete-modal";
 import { MediaCard } from "@/components/media/media-card";
@@ -124,7 +125,7 @@ export function MediaGallery({
           <div className="grid h-full place-content-center">
             <div className="flex max-w-80 flex-col items-center gap-4">
               <div className="p-2">
-                <ImagesIcon className="size-16" />
+                <HugeiconsIcon className="size-16" icon={Image02Icon} />
               </div>
               <div className="flex flex-col items-center gap-4 text-center">
                 <p className="text-muted-foreground text-sm">

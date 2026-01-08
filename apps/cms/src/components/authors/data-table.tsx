@@ -1,5 +1,7 @@
 "use client";
 
+import { Users } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@marble/ui/components/button";
 import { Input } from "@marble/ui/components/input";
 import {
@@ -52,7 +54,7 @@ export function AuthorDataTable({ columns, data }: AuthorDataTableProps) {
       <div className="flex items-center justify-between gap-4 py-4">
         <div className="relative">
           <MagnifyingGlassIcon
-            className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+            className="-translate-y-1/2 absolute top-1/2 left-3 size-4 text-muted-foreground"
             size={16}
           />
           <Input
@@ -124,7 +126,15 @@ export function AuthorDataTable({ columns, data }: AuthorDataTableProps) {
                   className="h-24 text-center"
                   colSpan={columns.length}
                 >
-                  No authors found.
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <HugeiconsIcon
+                      className="size-12 text-muted-foreground"
+                      icon={Users}
+                    />
+                    <p className="text-muted-foreground text-sm">
+                      No authors found.
+                    </p>
+                  </div>
                 </TableCell>
               </TableRow>
             )}
