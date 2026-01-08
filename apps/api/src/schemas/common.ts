@@ -1,8 +1,5 @@
 import { z } from "@hono/zod-openapi";
 
-// ============================================
-// Pagination
-// ============================================
 export const PaginationSchema = z
   .object({
     limit: z.number().int().positive().openapi({ example: 10 }),
@@ -14,9 +11,6 @@ export const PaginationSchema = z
   })
   .openapi("Pagination");
 
-// ============================================
-// Error Responses
-// ============================================
 export const ErrorDetailSchema = z.object({
   field: z.string().openapi({ example: "limit" }),
   message: z.string().openapi({ example: "Expected number, received string" }),
@@ -62,9 +56,6 @@ export const PageNotFoundSchema = z
   })
   .openapi("PageNotFound");
 
-// ============================================
-// Common Query Parameters
-// ============================================
 export const LimitQuerySchema = z.coerce
   .number()
   .int()
@@ -94,9 +85,6 @@ export const IdentifierParamSchema = z.string().openapi({
   description: "ID or slug of the resource",
 });
 
-// ============================================
-// Content Format (for posts)
-// ============================================
 export const ContentFormatSchema = z
   .enum(["html", "markdown"])
   .openapi("ContentFormat");

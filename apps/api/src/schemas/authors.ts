@@ -1,9 +1,6 @@
 import { z } from "@hono/zod-openapi";
 import { PaginationSchema } from "./common";
 
-// ============================================
-// Social Schema
-// ============================================
 export const SocialSchema = z
   .object({
     url: z.url().openapi({ example: "https://twitter.com/johndoe" }),
@@ -11,9 +8,6 @@ export const SocialSchema = z
   })
   .openapi("Social");
 
-// ============================================
-// Author Schema
-// ============================================
 export const AuthorSchema = z
   .object({
     id: z.string().openapi({ example: "clx123abc" }),
@@ -38,9 +32,6 @@ export const AuthorSchema = z
   })
   .openapi("Author");
 
-// ============================================
-// Response Schemas
-// ============================================
 export const AuthorsListResponseSchema = z
   .object({
     authors: z.array(AuthorSchema),

@@ -1,9 +1,6 @@
 import { z } from "@hono/zod-openapi";
 import { PaginationSchema } from "./common";
 
-// ============================================
-// Tag Schema
-// ============================================
 export const TagSchema = z
   .object({
     id: z.string().openapi({ example: "clx789ghi" }),
@@ -21,9 +18,6 @@ export const TagSchema = z
   })
   .openapi("Tag");
 
-// ============================================
-// Response Schemas
-// ============================================
 export const TagsListResponseSchema = z
   .object({
     tags: z.array(TagSchema),

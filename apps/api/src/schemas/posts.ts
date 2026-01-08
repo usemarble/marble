@@ -1,9 +1,6 @@
 import { z } from "@hono/zod-openapi";
 import { PaginationSchema } from "./common";
 
-// ============================================
-// Embedded References (for Post responses)
-// ============================================
 export const SocialRefSchema = z
   .object({
     url: z.url().openapi({ example: "https://twitter.com/johndoe" }),
@@ -53,9 +50,6 @@ export const TagRefSchema = z
   })
   .openapi("TagRef");
 
-// ============================================
-// Post Schema
-// ============================================
 export const PostSchema = z
   .object({
     id: z.string().openapi({ example: "clx000post" }),
@@ -94,9 +88,6 @@ export const PostSchema = z
   })
   .openapi("Post");
 
-// ============================================
-// Response Schemas
-// ============================================
 export const PostsListResponseSchema = z
   .object({
     posts: z.array(PostSchema),

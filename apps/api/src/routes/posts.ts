@@ -18,9 +18,7 @@ import type { Env } from "../types/env";
 
 const posts = new OpenAPIHono<{ Bindings: Env }>();
 
-// ============================================
-// Query Schemas (with OpenAPI metadata)
-// ============================================
+
 const PostsQuerySchema = z.object({
   limit: z
     .string()
@@ -112,9 +110,7 @@ const SinglePostQuerySchema = z.object({
   }),
 });
 
-// ============================================
-// Routes
-// ============================================
+
 const listPostsRoute = createRoute({
   method: "get",
   path: "/",
@@ -171,9 +167,7 @@ const getPostRoute = createRoute({
   },
 });
 
-// ============================================
-// Handlers
-// ============================================
+
 posts.openapi(listPostsRoute, async (c) => {
   try {
     const url = c.env.DATABASE_URL;

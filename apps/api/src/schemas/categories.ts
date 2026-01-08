@@ -1,9 +1,6 @@
 import { z } from "@hono/zod-openapi";
 import { PaginationSchema } from "./common";
 
-// ============================================
-// Category Schema
-// ============================================
 export const CategorySchema = z
   .object({
     id: z.string().openapi({ example: "clx456def" }),
@@ -21,9 +18,6 @@ export const CategorySchema = z
   })
   .openapi("Category");
 
-// ============================================
-// Response Schemas
-// ============================================
 export const CategoriesListResponseSchema = z
   .object({
     categories: z.array(CategorySchema),
