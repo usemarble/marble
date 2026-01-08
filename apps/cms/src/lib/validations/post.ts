@@ -1,4 +1,4 @@
-import { z } from "zod";
+import * as z from "zod";
 
 const attributionSchema = z.object({
   author: z.string().min(1, "Author name is required"),
@@ -11,7 +11,6 @@ export const postSchema = z.object({
   title: z
     .string()
     .min(1, { message: "Title cannot be empty" })
-    .max(100, { message: "Title is too long" }),
   coverImage: z.string().url().nullable().optional(),
   description: z.string().min(1, { message: "Description cannot be empty" }),
   slug: z.string().slugify().min(1, { message: "Slug cannot be empty" }),
@@ -40,7 +39,6 @@ export const postImportSchema = z.object({
   title: z
     .string()
     .min(1, { message: "Title cannot be empty" })
-    .max(100, { message: "Title is too long" }),
   coverImage: z.string().url().nullable().optional(),
   description: z.string().min(1, { message: "Description cannot be empty" }),
   slug: z.string().slugify().min(1, { message: "Slug cannot be empty" }),
