@@ -93,3 +93,10 @@ export const IdentifierParamSchema = z.string().openapi({
   example: "my-post-slug",
   description: "ID or slug of the resource",
 });
+
+// ============================================
+// Content Format (for posts)
+// ============================================
+export const ContentFormatSchema = z
+  .enum(["html", "markdown"])
+  .openapi("ContentFormat");

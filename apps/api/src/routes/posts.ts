@@ -4,6 +4,7 @@ import { NodeHtmlMarkdown } from "node-html-markdown";
 import { cacheKey, createCacheClient, hashQueryParams } from "../lib/cache";
 import { requireWorkspaceId } from "../lib/workspace";
 import {
+  ContentFormatSchema,
   ErrorSchema,
   NotFoundSchema,
   PageNotFoundSchema,
@@ -88,14 +89,11 @@ const PostsQuerySchema = z.object({
       example: "nextjs",
       description: "Search query for title and content",
     }),
-  format: z
-    .enum(["html", "markdown"])
-    .optional()
-    .openapi({
-      param: { name: "format", in: "query" },
-      example: "html",
-      description: "Content format (html or markdown)",
-    }),
+  format: ContentFormatSchema.optional().openapi({
+    param: { name: "format", in: "query" },
+    example: "html",
+    description: "Content format (html or markdown)",
+  }),
 });
 
 const PostParamsSchema = z.object({
@@ -107,14 +105,11 @@ const PostParamsSchema = z.object({
 });
 
 const SinglePostQuerySchema = z.object({
-  format: z
-    .enum(["html", "markdown"])
-    .optional()
-    .openapi({
-      param: { name: "format", in: "query" },
-      example: "html",
-      description: "Content format (html or markdown)",
-    }),
+  format: ContentFormatSchema.optional().openapi({
+    param: { name: "format", in: "query" },
+    example: "html",
+    description: "Content format (html or markdown)",
+  }),
 });
 
 // ============================================
