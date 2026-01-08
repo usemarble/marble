@@ -1,12 +1,5 @@
 "use client";
 
-import { ImageDropzone } from "@/components/shared/dropzone";
-import { AsyncButton } from "@/components/ui/async-button";
-import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { uploadFile } from "@/lib/media/upload";
-import { QUERY_KEYS } from "@/lib/queries/keys";
-import type { PostValues } from "@/lib/validations/post";
-import type { Media, MediaListResponse } from "@/types/media";
 import { Album02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@marble/ui/components/button";
@@ -27,16 +20,19 @@ import {
   TabsTrigger,
 } from "@marble/ui/components/tabs";
 import { cn } from "@marble/ui/lib/utils";
-import {
-  CheckIcon,
-  SpinnerIcon,
-  TrashIcon
-} from "@phosphor-icons/react";
+import { CheckIcon, SpinnerIcon, TrashIcon } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import NextImage from "next/image";
 import { useState } from "react";
 import { type Control, useController } from "react-hook-form";
-import { z } from "zod";
+import * as z from "zod";
+import { ImageDropzone } from "@/components/shared/dropzone";
+import { AsyncButton } from "@/components/ui/async-button";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { uploadFile } from "@/lib/media/upload";
+import { QUERY_KEYS } from "@/lib/queries/keys";
+import type { PostValues } from "@/lib/validations/post";
+import type { Media, MediaListResponse } from "@/types/media";
 import { FieldInfo } from "./field-info";
 
 const urlSchema = z.string().url({

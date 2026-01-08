@@ -1,4 +1,4 @@
-import { z } from "zod";
+import * as z from "zod";
 
 // auth form
 export const credentialSchema = z.object({

@@ -1,4 +1,4 @@
-import { z } from "zod";
+import * as z from "zod";
 import { SOCIAL_PLATFORMS, type SocialPlatform } from "@/lib/constants";
 
 const socialLinkSchema = z.object({

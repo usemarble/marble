@@ -1,4 +1,4 @@
-import { z } from "zod";
+import * as z from "zod";
 import { VALID_DISCORD_DOMAINS, VALID_SLACK_DOMAINS } from "../constants";
 
 export const webhookEventEnum = z.enum([

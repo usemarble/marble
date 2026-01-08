@@ -10,7 +10,7 @@ export type Attribution = z.infer<typeof attributionSchema>;
 export const postSchema = z.object({
   title: z
     .string()
-    .min(1, { message: "Title cannot be empty" })
+    .min(1, { message: "Title cannot be empty" }),
   coverImage: z.string().url().nullable().optional(),
   description: z.string().min(1, { message: "Description cannot be empty" }),
   slug: z.string().slugify().min(1, { message: "Slug cannot be empty" }),
@@ -38,7 +38,7 @@ export type ShareLinkValues = z.infer<typeof shareLinkSchema>;
 export const postImportSchema = z.object({
   title: z
     .string()
-    .min(1, { message: "Title cannot be empty" })
+    .min(1, { message: "Title cannot be empty" }),
   coverImage: z.string().url().nullable().optional(),
   description: z.string().min(1, { message: "Description cannot be empty" }),
   slug: z.string().slugify().min(1, { message: "Slug cannot be empty" }),
