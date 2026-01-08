@@ -1,4 +1,4 @@
-import { z } from "zod";
+import * as z from "zod";
 import { RESERVED_WORKSPACE_SLUGS, timezones } from "@/lib/constants";
 
 // Tag Schema

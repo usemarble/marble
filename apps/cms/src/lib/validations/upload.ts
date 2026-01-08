@@ -1,4 +1,4 @@
-import { z } from "zod";
+import * as z from "zod";
 import {
   ALLOWED_MIME_TYPES,
   ALLOWED_RASTER_MIME_TYPES,

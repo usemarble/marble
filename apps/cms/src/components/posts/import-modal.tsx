@@ -15,7 +15,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import matter from "gray-matter";
 import { type Dispatch, type SetStateAction, useState } from "react";
 import { toast } from "sonner";
-import { z } from "zod";
+import * as z from "zod";
 import { Dropzone } from "@/components/shared/dropzone";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
