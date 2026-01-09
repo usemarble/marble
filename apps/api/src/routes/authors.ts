@@ -18,9 +18,7 @@ import type { Env } from "../types/env";
 
 const authors = new OpenAPIHono<{ Bindings: Env }>();
 
-// ============================================
-// Query Schemas
-// ============================================
+
 const AuthorsQuerySchema = z.object({
   limit: LimitQuerySchema,
   page: PageQuerySchema,
@@ -34,9 +32,7 @@ const AuthorParamsSchema = z.object({
   }),
 });
 
-// ============================================
-// Routes
-// ============================================
+
 const listAuthorsRoute = createRoute({
   method: "get",
   path: "/",
@@ -91,9 +87,7 @@ const getAuthorRoute = createRoute({
   },
 });
 
-// ============================================
-// Handlers
-// ============================================
+
 authors.openapi(listAuthorsRoute, async (c) => {
   const url = c.env.DATABASE_URL;
   const workspaceId = requireWorkspaceId(c);

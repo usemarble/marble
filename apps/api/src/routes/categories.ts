@@ -18,9 +18,7 @@ import type { Env } from "../types/env";
 
 const categories = new OpenAPIHono<{ Bindings: Env }>();
 
-// ============================================
-// Query Schemas
-// ============================================
+
 const CategoriesQuerySchema = z.object({
   limit: LimitQuerySchema,
   page: PageQuerySchema,
@@ -34,9 +32,7 @@ const CategoryParamsSchema = z.object({
   }),
 });
 
-// ============================================
-// Routes
-// ============================================
+
 const listCategoriesRoute = createRoute({
   method: "get",
   path: "/",
@@ -91,9 +87,7 @@ const getCategoryRoute = createRoute({
   },
 });
 
-// ============================================
-// Handlers
-// ============================================
+
 categories.openapi(listCategoriesRoute, async (c) => {
   try {
     const url = c.env.DATABASE_URL;

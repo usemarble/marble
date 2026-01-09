@@ -23,17 +23,13 @@ const app = new OpenAPIHono<{ Bindings: Env }>();
 app.use("*", cache());
 app.use(trimTrailingSlash());
 
-// ============================================
 // Internal System Routes (no API key, no analytics)
-// ============================================
 app.use("/cache/invalidate", systemAuth());
 app.route("/cache/invalidate", cacheRoutes);
 
-// ============================================
 // Legacy Workspace ID Routes (/v1/:workspaceId/*)
 // MUST be registered BEFORE apiKeyV1 to intercept workspace ID routes
 // Using standard Hono since these are deprecated and don't need to be in the spec
-// ============================================
 const legacyV1 = new Hono<{ Bindings: Env }>();
 legacyV1.use("/:workspaceId/*", ratelimit("workspace"));
 legacyV1.use("/:workspaceId/*", authorization());
@@ -64,10 +60,8 @@ app.use("/v1/:workspaceId/*", async (c, next) => {
   return next();
 });
 
-// ============================================
 // API Key Routes (/v1/posts, /v1/tags, etc.)
 // Using OpenAPIHono to properly merge specs
-// ============================================
 const apiKeyV1 = new OpenAPIHono<ApiKeyApp>();
 apiKeyV1.use("*", ratelimit("apiKey"));
 apiKeyV1.use("*", keyAuthorization());
@@ -127,16 +121,14 @@ app.use("/*", async (c, next) => {
 app.get("/", (c) => c.text("Hello from marble"));
 app.get("/status", (c) => c.json({ status: "ok" }));
 
-// ============================================
 // OpenAPI Documentation (public, no auth)
-// ============================================
 app.doc("/openapi.json", {
   openapi: "3.1.0",
   info: {
     title: "Marble API",
     version: "1.0.0",
     description:
-      "Headless CMS API for content delivery. Use your API key in the Authorization header as a Bearer token.",
+      "A headless CMS API for managing and delivering content programmatically.",
   },
   servers: [{ url: "https://api.marblecms.com", description: "Production" }],
   security: [{ bearerAuth: [] }],

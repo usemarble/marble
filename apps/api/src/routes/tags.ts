@@ -18,9 +18,6 @@ import type { Env } from "../types/env";
 
 const tags = new OpenAPIHono<{ Bindings: Env }>();
 
-// ============================================
-// Query Schemas
-// ============================================
 const TagsQuerySchema = z.object({
   limit: LimitQuerySchema,
   page: PageQuerySchema,
@@ -34,9 +31,6 @@ const TagParamsSchema = z.object({
   }),
 });
 
-// ============================================
-// Routes
-// ============================================
 const listTagsRoute = createRoute({
   method: "get",
   path: "/",
@@ -91,9 +85,6 @@ const getTagRoute = createRoute({
   },
 });
 
-// ============================================
-// Handlers
-// ============================================
 tags.openapi(listTagsRoute, async (c) => {
   const db = createClient(c.env.DATABASE_URL);
   const workspaceId = requireWorkspaceId(c);
