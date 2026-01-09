@@ -18,24 +18,30 @@ import type { Env } from "../types/env";
 
 const posts = new OpenAPIHono<{ Bindings: Env }>();
 
-
 const PostsQuerySchema = z.object({
-  limit: z
-    .string()
+  limit: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(100)
     .optional()
-    .default("10")
+    .default(10)
     .openapi({
       param: { name: "limit", in: "query" },
-      example: "10",
-      description: "Number of posts per page, or 'all' for no pagination",
+      type: "integer",
+      example: 10,
+      description: "Number of posts per page (1-100)",
     }),
-  page: z
-    .string()
+  page: z.coerce
+    .number()
+    .int()
+    .min(1)
     .optional()
-    .default("1")
+    .default(1)
     .openapi({
       param: { name: "page", in: "query" },
-      example: "1",
+      type: "integer",
+      example: 1,
       description: "Page number",
     }),
   order: z
@@ -110,7 +116,6 @@ const SinglePostQuerySchema = z.object({
   }),
 });
 
-
 const listPostsRoute = createRoute({
   method: "get",
   path: "/",
@@ -167,7 +172,6 @@ const getPostRoute = createRoute({
   },
 });
 
-
 posts.openapi(listPostsRoute, async (c) => {
   try {
     const url = c.env.DATABASE_URL;
@@ -176,8 +180,8 @@ posts.openapi(listPostsRoute, async (c) => {
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
 
     const {
-      limit: rawLimitStr,
-      page: pageStr,
+      limit: rawLimit,
+      page,
       order,
       categories: categoriesStr,
       excludeCategories: excludeCategoriesStr,
@@ -186,21 +190,6 @@ posts.openapi(listPostsRoute, async (c) => {
       query,
       format,
     } = c.req.valid("query");
-
-    // Parse limit
-    const rawLimit =
-      rawLimitStr === "all"
-        ? "all"
-        : (() => {
-            const num = Number.parseInt(rawLimitStr, 10);
-            return Number.isNaN(num) ? 10 : Math.max(1, num);
-          })();
-
-    // Parse page
-    const page = (() => {
-      const num = Number.parseInt(pageStr, 10);
-      return Number.isNaN(num) ? 1 : Math.max(1, num);
-    })();
 
     // Parse arrays
     const categories =
@@ -294,11 +283,11 @@ posts.openapi(listPostsRoute, async (c) => {
     );
 
     // Handle pagination
-    const limit = rawLimit === "all" ? undefined : rawLimit;
-    const totalPages = limit ? Math.ceil(totalPosts / limit) : 1;
+    const limit = rawLimit;
+    const totalPages = Math.ceil(totalPosts / limit);
 
-    // Validate page number if pagination is enabled
-    if (limit && page > totalPages && totalPosts > 0) {
+    // Validate page number
+    if (page > totalPages && totalPosts > 0) {
       return c.json(
         {
           error: "Invalid page number" as const,
@@ -313,7 +302,7 @@ posts.openapi(listPostsRoute, async (c) => {
     }
 
     // Infer some additional stuff
-    const postsToSkip = limit ? (page - 1) * limit : 0;
+    const postsToSkip = (page - 1) * limit;
     const prevPage = page > 1 ? page - 1 : null;
     const nextPage = page < totalPages ? page + 1 : null;
 
@@ -391,23 +380,14 @@ posts.openapi(listPostsRoute, async (c) => {
             } | null,
           }));
 
-    const paginationInfo = limit
-      ? {
-          limit,
-          currentPage: page,
-          nextPage,
-          previousPage: prevPage,
-          totalPages,
-          totalItems: totalPosts,
-        }
-      : {
-          limit: totalPosts,
-          currentPage: 1,
-          nextPage: null,
-          previousPage: null,
-          totalPages: 1,
-          totalItems: totalPosts,
-        };
+    const paginationInfo = {
+      limit,
+      currentPage: page,
+      nextPage,
+      previousPage: prevPage,
+      totalPages,
+      totalItems: totalPosts,
+    };
 
     return c.json(
       {
