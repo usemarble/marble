@@ -150,7 +150,7 @@ const getPostRoute = createRoute({
   method: "get",
   path: "/{identifier}",
   tags: ["Posts"],
-  summary: "Get a post",
+  summary: "Get post",
   description: "Get a single published post by ID or slug",
   request: {
     params: PostParamsSchema,

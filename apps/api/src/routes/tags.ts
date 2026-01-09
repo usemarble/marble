@@ -64,7 +64,7 @@ const getTagRoute = createRoute({
   method: "get",
   path: "/{identifier}",
   tags: ["Tags"],
-  summary: "Get a tag",
+  summary: "Get tag",
   description: "Get a single tag by ID or slug",
   request: {
     params: TagParamsSchema,

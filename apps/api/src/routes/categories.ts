@@ -18,7 +18,6 @@ import type { Env } from "../types/env";
 
 const categories = new OpenAPIHono<{ Bindings: Env }>();
 
-
 const CategoriesQuerySchema = z.object({
   limit: LimitQuerySchema,
   page: PageQuerySchema,
@@ -31,7 +30,6 @@ const CategoryParamsSchema = z.object({
     description: "Category ID or slug",
   }),
 });
-
 
 const listCategoriesRoute = createRoute({
   method: "get",
@@ -66,7 +64,7 @@ const getCategoryRoute = createRoute({
   method: "get",
   path: "/{identifier}",
   tags: ["Categories"],
-  summary: "Get a category",
+  summary: "Get category",
   description: "Get a single category by ID or slug",
   request: {
     params: CategoryParamsSchema,
@@ -86,7 +84,6 @@ const getCategoryRoute = createRoute({
     },
   },
 });
-
 
 categories.openapi(listCategoriesRoute, async (c) => {
   try {

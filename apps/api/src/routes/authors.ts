@@ -18,7 +18,6 @@ import type { Env } from "../types/env";
 
 const authors = new OpenAPIHono<{ Bindings: Env }>();
 
-
 const AuthorsQuerySchema = z.object({
   limit: LimitQuerySchema,
   page: PageQuerySchema,
@@ -31,7 +30,6 @@ const AuthorParamsSchema = z.object({
     description: "Author ID or slug",
   }),
 });
-
 
 const listAuthorsRoute = createRoute({
   method: "get",
@@ -66,7 +64,7 @@ const getAuthorRoute = createRoute({
   method: "get",
   path: "/{identifier}",
   tags: ["Authors"],
-  summary: "Get an author",
+  summary: "Get author",
   description: "Get a single author by ID or slug",
   request: {
     params: AuthorParamsSchema,
@@ -86,7 +84,6 @@ const getAuthorRoute = createRoute({
     },
   },
 });
-
 
 authors.openapi(listAuthorsRoute, async (c) => {
   const url = c.env.DATABASE_URL;
