@@ -4,7 +4,7 @@ import { cacheKey, createCacheClient, hashQueryParams } from "../lib/cache";
 import { requireWorkspaceId } from "../lib/workspace";
 import {
   CategoriesListResponseSchema,
-  SingleCategoryResponseSchema,
+  CategoryResponseSchema,
 } from "../schemas/categories";
 import {
   ErrorSchema,
@@ -71,7 +71,7 @@ const getCategoryRoute = createRoute({
   },
   responses: {
     200: {
-      content: { "application/json": { schema: SingleCategoryResponseSchema } },
+      content: { "application/json": { schema: CategoryResponseSchema } },
       description: "The requested category",
     },
     404: {

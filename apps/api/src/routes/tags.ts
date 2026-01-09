@@ -10,10 +10,7 @@ import {
   PageQuerySchema,
   ServerErrorSchema,
 } from "../schemas/common";
-import {
-  SingleTagResponseSchema,
-  TagsListResponseSchema,
-} from "../schemas/tags";
+import { TagResponseSchema, TagsListResponseSchema } from "../schemas/tags";
 import type { Env } from "../types/env";
 
 const tags = new OpenAPIHono<{ Bindings: Env }>();
@@ -71,7 +68,7 @@ const getTagRoute = createRoute({
   },
   responses: {
     200: {
-      content: { "application/json": { schema: SingleTagResponseSchema } },
+      content: { "application/json": { schema: TagResponseSchema } },
       description: "The requested tag",
     },
     404: {

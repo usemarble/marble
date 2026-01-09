@@ -3,7 +3,7 @@ import { PaginationSchema } from "./common";
 
 export const TagSchema = z
   .object({
-    id: z.string().openapi({ example: "clx789ghi" }),
+    id: z.string().openapi({ example: "cryitfjp4567no07ygqadhm1" }),
     name: z.string().openapi({ example: "JavaScript" }),
     slug: z.string().openapi({ example: "javascript" }),
     description: z
@@ -25,8 +25,8 @@ export const TagsListResponseSchema = z
   })
   .openapi("TagsListResponse");
 
-export const SingleTagResponseSchema = z
+export const TagResponseSchema = z
   .object({
     tag: TagSchema,
   })
-  .openapi("SingleTagResponse");
+  .openapi("TagResponse");

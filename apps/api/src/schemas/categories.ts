@@ -3,7 +3,7 @@ import { PaginationSchema } from "./common";
 
 export const CategorySchema = z
   .object({
-    id: z.string().openapi({ example: "clx456def" }),
+    id: z.string().openapi({ example: "cryitfjp2345kl05weoybfk9" }),
     name: z.string().openapi({ example: "Technology" }),
     slug: z.string().openapi({ example: "technology" }),
     description: z
@@ -25,8 +25,8 @@ export const CategoriesListResponseSchema = z
   })
   .openapi("CategoriesListResponse");
 
-export const SingleCategoryResponseSchema = z
+export const CategoryResponseSchema = z
   .object({
     category: CategorySchema,
   })
-  .openapi("SingleCategoryResponse");
+  .openapi("CategoryResponse");

@@ -10,12 +10,12 @@ export const SocialRefSchema = z
 
 export const AuthorRefSchema = z
   .object({
-    id: z.string().openapi({ example: "clx123abc" }),
+    id: z.string().openapi({ example: "cryitfjp1234jl04vdnycek8" }),
     name: z.string().openapi({ example: "John Doe" }),
     image: z
       .string()
       .nullable()
-      .openapi({ example: "https://cdn.example.com/avatar.jpg" }),
+      .openapi({ example: "https://media.marblecms.com/avatar.jpg" }),
     bio: z
       .string()
       .nullable()
@@ -28,7 +28,7 @@ export const AuthorRefSchema = z
 
 export const CategoryRefSchema = z
   .object({
-    id: z.string().openapi({ example: "clx456def" }),
+    id: z.string().openapi({ example: "cryitfjp1234jl04vdnycek8" }),
     name: z.string().openapi({ example: "Technology" }),
     slug: z.string().openapi({ example: "technology" }),
     description: z
@@ -40,7 +40,7 @@ export const CategoryRefSchema = z
 
 export const TagRefSchema = z
   .object({
-    id: z.string().openapi({ example: "clx789ghi" }),
+    id: z.string().openapi({ example: "cryitfjp1234jl04vdnycek8" }),
     name: z.string().openapi({ example: "JavaScript" }),
     slug: z.string().openapi({ example: "javascript" }),
     description: z
@@ -52,18 +52,17 @@ export const TagRefSchema = z
 
 export const PostSchema = z
   .object({
-    id: z.string().openapi({ example: "clx000post" }),
+    id: z.string().openapi({ example: "cryitfjp5678mn09qrstuvwx" }),
     slug: z.string().openapi({ example: "getting-started-with-nextjs" }),
     title: z.string().openapi({ example: "Getting Started with Next.js" }),
-    content: z.string().nullable().openapi({ example: "<p>Hello world</p>" }),
+    content: z.string().openapi({ example: "<p>Hello world</p>" }),
     featured: z.boolean().openapi({ example: false }),
     coverImage: z
       .string()
       .nullable()
-      .openapi({ example: "https://cdn.example.com/cover.jpg" }),
+      .openapi({ example: "https://media.marblecms.com/cover.jpg" }),
     description: z
       .string()
-      .nullable()
       .openapi({ example: "A beginner's guide to Next.js" }),
     publishedAt: z.iso.datetime().openapi({ example: "2024-01-15T10:00:00Z" }),
     updatedAt: z.iso.datetime().openapi({ example: "2024-01-16T12:00:00Z" }),
@@ -92,8 +91,8 @@ export const PostsListResponseSchema = z
   })
   .openapi("PostsListResponse");
 
-export const SinglePostResponseSchema = z
+export const PostResponseSchema = z
   .object({
     post: PostSchema,
   })
-  .openapi("SinglePostResponse");
+  .openapi("PostResponse");

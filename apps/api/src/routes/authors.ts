@@ -3,8 +3,8 @@ import { createClient } from "@marble/db/workers";
 import { cacheKey, createCacheClient, hashQueryParams } from "../lib/cache";
 import { requireWorkspaceId } from "../lib/workspace";
 import {
+  AuthorResponseSchema,
   AuthorsListResponseSchema,
-  SingleAuthorResponseSchema,
 } from "../schemas/authors";
 import {
   ErrorSchema,
@@ -71,7 +71,7 @@ const getAuthorRoute = createRoute({
   },
   responses: {
     200: {
-      content: { "application/json": { schema: SingleAuthorResponseSchema } },
+      content: { "application/json": { schema: AuthorResponseSchema } },
       description: "The requested author",
     },
     404: {

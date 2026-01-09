@@ -10,12 +10,12 @@ export const SocialSchema = z
 
 export const AuthorSchema = z
   .object({
-    id: z.string().openapi({ example: "clx123abc" }),
+    id: z.string().openapi({ example: "cryitfjp3456lm06xfpzcgl0" }),
     name: z.string().openapi({ example: "John Doe" }),
     image: z
       .string()
       .nullable()
-      .openapi({ example: "https://cdn.example.com/avatar.jpg" }),
+      .openapi({ example: "https://media.marblecms.com/avatar.jpg" }),
     slug: z.string().openapi({ example: "john-doe" }),
     bio: z
       .string()
@@ -39,8 +39,8 @@ export const AuthorsListResponseSchema = z
   })
   .openapi("AuthorsListResponse");
 
-export const SingleAuthorResponseSchema = z
+export const AuthorResponseSchema = z
   .object({
     author: AuthorSchema,
   })
-  .openapi("SingleAuthorResponse");
+  .openapi("AuthorResponse");

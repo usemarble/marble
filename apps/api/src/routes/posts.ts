@@ -10,10 +10,7 @@ import {
   PageNotFoundSchema,
   ServerErrorSchema,
 } from "../schemas/common";
-import {
-  PostsListResponseSchema,
-  SinglePostResponseSchema,
-} from "../schemas/posts";
+import { PostResponseSchema, PostsListResponseSchema } from "../schemas/posts";
 import type { Env } from "../types/env";
 
 const posts = new OpenAPIHono<{ Bindings: Env }>();
@@ -66,7 +63,7 @@ const PostsQuerySchema = z.object({
     .optional()
     .openapi({
       param: { name: "excludeCategories", in: "query" },
-      example: "drafts",
+      example: "changelog",
       description: "Comma-separated category slugs to exclude",
     }),
   tags: z
@@ -158,7 +155,7 @@ const getPostRoute = createRoute({
   },
   responses: {
     200: {
-      content: { "application/json": { schema: SinglePostResponseSchema } },
+      content: { "application/json": { schema: PostResponseSchema } },
       description: "The requested post",
     },
     404: {
