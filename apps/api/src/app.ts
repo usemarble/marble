@@ -131,14 +131,13 @@ app.doc("/openapi.json", {
       "A headless CMS API for managing and delivering content programmatically.",
   },
   servers: [{ url: "https://api.marblecms.com", description: "Production" }],
-  security: [{ bearerAuth: [] }],
+  security: [{ apiKey: [] }],
 });
 
-// Register security scheme
-app.openAPIRegistry.registerComponent("securitySchemes", "bearerAuth", {
-  type: "http",
-  scheme: "bearer",
-  bearerFormat: "API Key",
+app.openAPIRegistry.registerComponent("securitySchemes", "apiKey", {
+  type: "apiKey",
+  in: "header",
+  name: "Authorization",
   description: "Your Marble API key",
 });
 
