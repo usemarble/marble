@@ -65,10 +65,7 @@ export const PostSchema = z
       .string()
       .nullable()
       .openapi({ example: "A beginner's guide to Next.js" }),
-    publishedAt: z.iso
-      .datetime()
-      .nullable()
-      .openapi({ example: "2024-01-15T10:00:00Z" }),
+    publishedAt: z.iso.datetime().openapi({ example: "2024-01-15T10:00:00Z" }),
     updatedAt: z.iso.datetime().openapi({ example: "2024-01-16T12:00:00Z" }),
     attribution: z
       .object({
