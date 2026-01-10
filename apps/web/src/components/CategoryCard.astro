@@ -1,9 +1,9 @@
 ---
 import { Image } from "astro:assets";
-import type { CategoryPost } from "@/lib/schemas";
+import type { Post } from "@/lib/schemas";
 
 interface Props {
-  entry: CategoryPost;
+  entry: Post;
 }
 
 const { entry } = Astro.props as Props;

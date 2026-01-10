@@ -8,9 +8,7 @@ const attributionSchema = z.object({
 export type Attribution = z.infer<typeof attributionSchema>;
 
 export const postSchema = z.object({
-  title: z
-    .string()
-    .min(1, { message: "Title cannot be empty" }),
+  title: z.string().min(1, { message: "Title cannot be empty" }),
   coverImage: z.string().url().nullable().optional(),
   description: z.string().min(1, { message: "Description cannot be empty" }),
   slug: z.string().slugify().min(1, { message: "Slug cannot be empty" }),
@@ -36,9 +34,7 @@ export type ShareLinkValues = z.infer<typeof shareLinkSchema>;
 // Schema for importing posts where the client sends markdown only and
 // the server derives HTML and Tiptap JSON.
 export const postImportSchema = z.object({
-  title: z
-    .string()
-    .min(1, { message: "Title cannot be empty" }),
+  title: z.string().min(1, { message: "Title cannot be empty" }),
   coverImage: z.string().url().nullable().optional(),
   description: z.string().min(1, { message: "Description cannot be empty" }),
   slug: z.string().slugify().min(1, { message: "Slug cannot be empty" }),

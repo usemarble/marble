@@ -1,15 +1,15 @@
 import { defineCollection } from "astro:content";
 import { highlightContent } from "@marble/utils";
-import { fetchCategories, fetchPosts } from "./lib/queries";
+import { marble } from "./lib/marble";
 import { categorySchema, postSchema } from "./lib/schemas";
 
 const posts = defineCollection({
   loader: async () => {
-    const response = await fetchPosts("?excludeCategories=legal,changelog");
-    // Must return an array of entries with an id property
-    // or an object with IDs as keys and entries as values
+    const { result } = await marble.posts.list({
+      excludeCategories: "legal,changelog",
+    });
     return Promise.all(
-      response.posts.map(async (post) => ({
+      result.posts.map(async (post) => ({
         ...post,
         content: await highlightContent(post.content),
       }))
@@ -20,9 +20,9 @@ const posts = defineCollection({
 
 const page = defineCollection({
   loader: async () => {
-    const response = await fetchPosts("?categories=legal");
+    const { result } = await marble.posts.list({ categories: "legal" });
 
-    return response.posts.map((post) => ({
+    return result.posts.map((post) => ({
       ...post,
       // Astro uses the id as a key to get the entry
       // We can't know the id of the post so we use the slug
@@ -34,9 +34,9 @@ const page = defineCollection({
 
 const changelog = defineCollection({
   loader: async () => {
-    const response = await fetchPosts("?categories=changelog");
+    const { result } = await marble.posts.list({ categories: "changelog" });
 
-    return response.posts.map((post) => ({
+    return result.posts.map((post) => ({
       ...post,
       id: post.slug,
     }));
@@ -46,9 +46,9 @@ const changelog = defineCollection({
 
 const categories = defineCollection({
   loader: async () => {
-    const response = await fetchCategories();
+    const { result } = await marble.categories.list();
 
-    return response.categories.map((category) => ({
+    return result.categories.map((category) => ({
       ...category,
       id: category.slug,
     }));

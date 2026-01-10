@@ -54,7 +54,8 @@
       },
       "performance": {
         /* Needs more work to fix */
-        "useTopLevelRegex": "off"
+        "useTopLevelRegex": "off",
+        "noNamespaceImport": "warn"
       },
       "correctness": {
         /* Doesn't work with Astro */

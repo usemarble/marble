@@ -5,7 +5,7 @@ import CategoryFilter from "@/components/CategoryFilter.astro";
 import Container from "@/components/Container.astro";
 import Layout from "@/layouts/Layout.astro";
 import { SITE } from "@/lib/constants/site";
-import { fetchPosts } from "@/lib/queries";
+import { marble } from "@/lib/marble";
 
 export const prerender = true;
 
@@ -24,9 +24,9 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 
 const categoriesEntries = await getCollection("categories");
-const postsResponse = await fetchPosts(`?categories=${entry.data.slug}`);
+const { result } = await marble.posts.list({ categories: entry.data.slug });
 const fillers = Array.from({
-  length: (3 - (postsResponse.posts.length % 3)) % 3,
+  length: (3 - (result.posts.length % 3)) % 3,
 });
 ---
 
@@ -57,10 +57,10 @@ const fillers = Array.from({
             <CategoryFilter categories={categoriesEntries} />
           </div>
         </div>
-        {postsResponse.posts.length > 0 ? (
+        {result.posts.length > 0 ? (
           <ul class='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-t border-l border-dashed'>
             {
-              postsResponse.posts.map((post) => (
+              result.posts.map((post) => (
                 <CategoryCard entry={post} />
               ))
             }
