@@ -95,6 +95,14 @@ const PostsQuerySchema = z.object({
     example: "html",
     description: "Content format (html or markdown)",
   }),
+  featured: z
+    .enum(["true", "false"])
+    .optional()
+    .openapi({
+      param: { name: "featured", in: "query" },
+      example: "true",
+      description: "Filter by featured status",
+    }),
 });
 
 const PostParamsSchema = z.object({
@@ -186,6 +194,7 @@ posts.openapi(listPostsRoute, async (c) => {
       excludeTags: excludeTagsStr,
       query,
       format,
+      featured,
     } = c.req.valid("query");
 
     // Parse arrays
@@ -237,6 +246,7 @@ posts.openapi(listPostsRoute, async (c) => {
       ...(query && {
         OR: [{ title: { contains: query } }, { content: { contains: query } }],
       }),
+      ...(featured !== undefined && { featured: featured === "true" }),
     };
 
     // Generate cache key for count (exclude page and format - they don't affect count)
@@ -252,6 +262,7 @@ posts.openapi(listPostsRoute, async (c) => {
         tags,
         excludeTags,
         query,
+        featured,
       }),
       "count"
     );
@@ -276,6 +287,7 @@ posts.openapi(listPostsRoute, async (c) => {
         excludeTags,
         query,
         format,
+        featured,
       })
     );
 
