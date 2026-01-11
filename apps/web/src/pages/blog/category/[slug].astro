@@ -24,7 +24,7 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 
 const categoriesEntries = await getCollection("categories");
-const { result } = await marble.posts.list({ categories: entry.data.slug });
+const { result } = await marble.posts.list({ categories: [entry.data.slug] });
 const fillers = Array.from({
   length: (3 - (result.posts.length % 3)) % 3,
 });

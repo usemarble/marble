@@ -6,7 +6,7 @@ import { categorySchema, postSchema } from "./lib/schemas";
 const posts = defineCollection({
   loader: async () => {
     const { result } = await marble.posts.list({
-      excludeCategories: "legal,changelog",
+      excludeCategories: ["legal", "changelog"],
     });
     return Promise.all(
       result.posts.map(async (post) => ({
@@ -20,7 +20,7 @@ const posts = defineCollection({
 
 const page = defineCollection({
   loader: async () => {
-    const { result } = await marble.posts.list({ categories: "legal" });
+    const { result } = await marble.posts.list({ categories: ["legal"] });
 
     return result.posts.map((post) => ({
       ...post,
@@ -34,7 +34,7 @@ const page = defineCollection({
 
 const changelog = defineCollection({
   loader: async () => {
-    const { result } = await marble.posts.list({ categories: "changelog" });
+    const { result } = await marble.posts.list({ categories: ["changelog"] });
 
     return result.posts.map((post) => ({
       ...post,

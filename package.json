@@ -30,8 +30,6 @@
     "@commitlint/config-conventional": "^19.8.1",
     "@marble/tsconfig": "workspace:*",
     "husky": "^9.1.7",
-    "prettier": "^3.3.3",
-    "prettier-plugin-tailwindcss": "^0.6.8",
     "turbo": "^2.7.2",
     "typescript": "^5.4.5",
     "ultracite": "7.0.3"
