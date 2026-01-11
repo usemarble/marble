@@ -51,36 +51,86 @@ const PostsQuerySchema = z.object({
       description: "Sort order by publishedAt",
     }),
   categories: z
-    .string()
-    .optional()
+    .preprocess(
+      (val) =>
+        typeof val === "string"
+          ? val
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean)
+          : val,
+      z.array(z.string()).optional().default([])
+    )
     .openapi({
-      param: { name: "categories", in: "query" },
-      example: "tech,news",
-      description: "Comma-separated category slugs to include",
+      param: { name: "categories", in: "query", style: "form", explode: false },
+      type: "array",
+      items: { type: "string" },
+      example: ["tech", "news"],
+      description: "Category slugs to include",
     }),
   excludeCategories: z
-    .string()
-    .optional()
+    .preprocess(
+      (val) =>
+        typeof val === "string"
+          ? val
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean)
+          : val,
+      z.array(z.string()).optional().default([])
+    )
     .openapi({
-      param: { name: "excludeCategories", in: "query" },
-      example: "changelog",
-      description: "Comma-separated category slugs to exclude",
+      param: {
+        name: "excludeCategories",
+        in: "query",
+        style: "form",
+        explode: false,
+      },
+      type: "array",
+      items: { type: "string" },
+      example: ["changelog"],
+      description: "Category slugs to exclude",
     }),
   tags: z
-    .string()
-    .optional()
+    .preprocess(
+      (val) =>
+        typeof val === "string"
+          ? val
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean)
+          : val,
+      z.array(z.string()).optional().default([])
+    )
     .openapi({
-      param: { name: "tags", in: "query" },
-      example: "javascript,react",
-      description: "Comma-separated tag slugs to include",
+      param: { name: "tags", in: "query", style: "form", explode: false },
+      type: "array",
+      items: { type: "string" },
+      example: ["javascript", "react"],
+      description: "Tag slugs to include",
     }),
   excludeTags: z
-    .string()
-    .optional()
+    .preprocess(
+      (val) =>
+        typeof val === "string"
+          ? val
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean)
+          : val,
+      z.array(z.string()).optional().default([])
+    )
     .openapi({
-      param: { name: "excludeTags", in: "query" },
-      example: "outdated",
-      description: "Comma-separated tag slugs to exclude",
+      param: {
+        name: "excludeTags",
+        in: "query",
+        style: "form",
+        explode: false,
+      },
+      type: "array",
+      items: { type: "string" },
+      example: ["outdated"],
+      description: "Tag slugs to exclude",
     }),
   query: z
     .string()
@@ -188,36 +238,14 @@ posts.openapi(listPostsRoute, async (c) => {
       limit: rawLimit,
       page,
       order,
-      categories: categoriesStr,
-      excludeCategories: excludeCategoriesStr,
-      tags: tagsStr,
-      excludeTags: excludeTagsStr,
+      categories,
+      excludeCategories,
+      tags,
+      excludeTags,
       query,
       format,
       featured,
     } = c.req.valid("query");
-
-    // Parse arrays
-    const categories =
-      categoriesStr
-        ?.split(",")
-        .map((s) => s.trim())
-        .filter(Boolean) ?? [];
-    const excludeCategories =
-      excludeCategoriesStr
-        ?.split(",")
-        .map((s) => s.trim())
-        .filter(Boolean) ?? [];
-    const tags =
-      tagsStr
-        ?.split(",")
-        .map((s) => s.trim())
-        .filter(Boolean) ?? [];
-    const excludeTags =
-      excludeTagsStr
-        ?.split(",")
-        .map((s) => s.trim())
-        .filter(Boolean) ?? [];
 
     const categoryFilter: Record<string, unknown> = {};
     if (categories.length > 0) {
