@@ -79,7 +79,7 @@ export const PostSchema = z
           "Attribution to the original author when republishing content",
       }),
     authors: z.array(AuthorRefSchema),
-    category: CategoryRefSchema.nullable(),
+    category: CategoryRefSchema,
     tags: z.array(TagRefSchema),
   })
   .openapi("Post");
