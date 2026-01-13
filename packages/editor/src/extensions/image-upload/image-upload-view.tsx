@@ -77,7 +77,7 @@ export const ImageUploadView = ({
     <NodeViewWrapper className="my-5">
       <div className="m-0 p-0" data-drag-handle>
         <ImageUploadComp
-          fetchMedia={options.fetchMedia}
+          fetchMediaPage={options.fetchMediaPage}
           initialFile={initialFile}
           media={options.media}
           onCancel={onCancel}

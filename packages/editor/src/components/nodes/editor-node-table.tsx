@@ -1,5 +1,5 @@
+import { TableIcon } from "@phosphor-icons/react";
 import { useCurrentEditor } from "@tiptap/react";
-import { TableIcon } from "lucide-react";
 import type { EditorButtonProps } from "../../types";
 import { BubbleMenuButton } from "../ui/editor-button";
 

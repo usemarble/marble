@@ -1,6 +1,17 @@
 /** biome-ignore-all lint/performance/noBarrelFile: <> */
 
 export {
+  EditorAlignCenter,
+  EditorAlignJustify,
+  EditorAlignLeft,
+  type EditorAlignProps,
+  EditorAlignRight,
+} from "./editor-align";
+export {
+  EditorAlignSelector,
+  type EditorAlignSelectorProps,
+} from "./editor-align-selector";
+export {
   EditorNodeBulletList,
   type EditorNodeBulletListProps,
 } from "./editor-node-bullet-list";

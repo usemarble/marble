@@ -4,9 +4,15 @@ import { Button } from "@marble/ui/components/button";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { cn } from "@marble/ui/lib/utils";
+import {
+  FadersHorizontalIcon,
+  TextAlignCenterIcon,
+  TextAlignLeftIcon,
+  TextAlignRightIcon,
+  XIcon,
+} from "@phosphor-icons/react";
 import type { NodeViewProps } from "@tiptap/core";
 import { NodeViewWrapper } from "@tiptap/react";
-import { AlignCenter, AlignLeft, AlignRight, Settings2, X } from "lucide-react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 export const FigureView = ({
@@ -205,7 +211,7 @@ export const FigureView = ({
               type="button"
               variant="ghost"
             >
-              <AlignLeft className="size-3.5" />
+              <TextAlignLeftIcon className="size-3.5" />
             </Button>
             <Button
               className={cn(
@@ -218,7 +224,7 @@ export const FigureView = ({
               type="button"
               variant="ghost"
             >
-              <AlignCenter className="size-3.5" />
+              <TextAlignCenterIcon className="size-3.5" />
             </Button>
             <Button
               className={cn(
@@ -231,7 +237,7 @@ export const FigureView = ({
               type="button"
               variant="ghost"
             >
-              <AlignRight className="size-3.5" />
+              <TextAlignRightIcon className="size-3.5" />
             </Button>
 
             {/* Divider */}
@@ -255,7 +261,7 @@ export const FigureView = ({
               title="Image settings"
               type="button"
             >
-              <Settings2 className="size-3.5" />
+              <FadersHorizontalIcon className="size-3.5" />
             </button>
           </div>
         )}

@@ -3,7 +3,6 @@ import {
   createLoader,
   createParser,
   createSerializer,
-  type inferParserType,
   type Options,
   parseAsInteger,
   parseAsString,

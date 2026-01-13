@@ -1,6 +1,6 @@
 import { Button } from "@marble/ui/components/button";
 import { Input } from "@marble/ui/components/input";
-import { Undo2 } from "lucide-react";
+import { ArrowUUpLeft } from "@phosphor-icons/react";
 import { useCallback, useEffect, useState } from "react";
 import { HexColorPicker } from "react-colorful";
 import "../styles/color-picker.css";
@@ -87,7 +87,7 @@ export const ColorPicker = ({
           type="button"
           variant="ghost"
         >
-          <Undo2 className="size-4" />
+          <ArrowUUpLeft className="size-4" />
         </Button>
       </div>
     </div>

@@ -5,8 +5,8 @@ import {
   PopoverTrigger,
 } from "@marble/ui/components/popover";
 import { cn } from "@marble/ui/lib/utils";
+import { CaretDownIcon } from "@phosphor-icons/react";
 import { useCurrentEditor } from "@tiptap/react";
-import { ChevronDownIcon } from "lucide-react";
 import { type HTMLAttributes, type ReactNode, useState } from "react";
 
 export type EditorSelectorProps = HTMLAttributes<HTMLDivElement> & {
@@ -66,8 +66,10 @@ export const EditorSelector = ({
             size="sm"
             variant="ghost"
           >
-            <span className="whitespace-nowrap text-xs">{title}</span>
-            <ChevronDownIcon size={12} />
+            <span className="whitespace-nowrap font-normal text-xs">
+              {title}
+            </span>
+            <CaretDownIcon size={12} />
           </Button>
         }
       />

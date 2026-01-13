@@ -31,7 +31,6 @@ export async function GET(request: Request) {
   }
   const { field, direction } = splitMediaSort(filters.sort);
   const { limit, cursor, type } = filters;
-  const orderBy = [{ [field]: direction }, { id: direction }];
 
   try {
     const hasAnyMedia =
@@ -52,6 +51,8 @@ export async function GET(request: Request) {
           field === "createdAt" ? new Date(valuePart) : valuePart;
       }
     }
+
+    const orderBy = [{ [field]: direction }, { id: direction }];
 
     // Fetch one more than the requested limit to detect "hasNextPage"
     const media = await db.media.findMany({
@@ -101,8 +102,10 @@ export async function GET(request: Request) {
       }
     }
 
-    const response = { media, nextCursor, hasAnyMedia };
-    return NextResponse.json(response, { status: 200 });
+    return NextResponse.json(
+      { media, nextCursor, hasAnyMedia },
+      { status: 200 }
+    );
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Failed to fetch media";

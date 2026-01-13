@@ -1,13 +1,11 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: <expanation> */
-import type { Editor, Extension, Range } from "@tiptap/core";
-import type { LucideIcon } from "lucide-react";
+import type { Editor, Range } from "@tiptap/core";
 import type { ComponentType, SVGProps } from "react";
 
 /**
  * Icon type that accepts Lucide icons, custom SVG components, or render functions
  */
 export type EditorIcon =
-  | LucideIcon
   | ComponentType<SVGProps<SVGSVGElement>>
   | ComponentType<Record<string, unknown>>
   | ((props: Record<string, unknown>) => React.ReactNode);
@@ -77,6 +75,14 @@ export interface MediaItem {
 }
 
 /**
+ * Paginated media response
+ */
+export interface MediaPage {
+  media: MediaItem[];
+  nextCursor?: string;
+}
+
+/**
  * Image upload extension options
  */
 export interface ImageUploadOptions {
@@ -90,8 +96,8 @@ export interface ImageUploadOptions {
   limit?: number;
   /** Error handler */
   onError?: (error: Error) => void;
-  /** Media library items */
+  /** Pre-loaded media library items */
   media?: MediaItem[];
-  /** Function to fetch media */
-  fetchMedia?: () => Promise<MediaItem[]>;
+  /** Fetch media with pagination - takes optional cursor, returns page with media and next cursor */
+  fetchMediaPage?: (cursor?: string) => Promise<MediaPage>;
 }

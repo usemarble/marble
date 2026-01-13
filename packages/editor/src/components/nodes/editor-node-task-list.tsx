@@ -1,5 +1,5 @@
+import { CheckSquareIcon } from "@phosphor-icons/react";
 import { useCurrentEditor } from "@tiptap/react";
-import { CheckSquareIcon } from "lucide-react";
 import type { EditorButtonProps } from "../../types";
 import { BubbleMenuButton } from "../ui/editor-button";
 

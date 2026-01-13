@@ -11,15 +11,15 @@ import {
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { cn } from "@marble/ui/lib/utils";
-import { useCurrentEditor } from "@tiptap/react";
 import {
+  ArrowSquareOutIcon,
+  ArrowsInSimpleIcon,
+  ArrowsOutSimpleIcon,
   CheckIcon,
-  ExternalLinkIcon,
-  Link,
-  Maximize2,
-  Minimize2,
+  LinkIcon,
   TrashIcon,
-} from "lucide-react";
+} from "@phosphor-icons/react";
+import { useCurrentEditor } from "@tiptap/react";
 import type { FormEventHandler } from "react";
 import { useEffect, useRef, useState } from "react";
 
@@ -129,7 +129,7 @@ export const EditorLinkSelector = ({
             size="sm"
             variant="ghost"
           >
-            <Link size={12} />
+            <LinkIcon size={12} />
           </Button>
         }
       />
@@ -170,9 +170,9 @@ export const EditorLinkSelector = ({
                   variant="ghost"
                 >
                   {openInNewTab ? (
-                    <Maximize2 size={12} />
+                    <ArrowSquareOutIcon size={12} />
                   ) : (
-                    <Minimize2 size={12} />
+                    <ArrowSquareOutIcon size={12} />
                   )}
                 </Button>
               }
@@ -223,7 +223,7 @@ export const EditorLinkSelector = ({
                   type="button"
                   variant="ghost"
                 >
-                  <ExternalLinkIcon size={12} />
+                  <ArrowSquareOutIcon size={12} />
                 </Button>
               }
             />

@@ -1,22 +1,5 @@
 "use client";
 
-import "@/styles/editor.css";
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  EditorContext,
-  ImageUpload,
-  type JSONContent,
-  type MediaItem,
-  useMarbleEditor,
-} from "@marble/editor";
-import { SidebarInset, useSidebar } from "@marble/ui/components/sidebar";
-import { toast } from "@marble/ui/components/sonner";
-import { cn } from "@marble/ui/lib/utils";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useParams, useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
-import type { z } from "zod";
 import { MarbleEditorMenus } from "@/components/editor/editor";
 import { EditorHeader } from "@/components/editor/editor-header";
 import { EditorSidebar } from "@/components/editor/editor-sidebar";
@@ -28,6 +11,22 @@ import { uploadFile } from "@/lib/media/upload";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { type PostValues, postSchema } from "@/lib/validations/post";
 import { useUnsavedChanges } from "@/providers/unsaved-changes";
+import "@/styles/editor.css";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  EditorContext,
+  ImageUpload,
+  type JSONContent,
+  type MediaPage,
+  useMarbleEditor,
+} from "@marble/editor";
+import { SidebarInset, useSidebar } from "@marble/ui/components/sidebar";
+import { toast } from "@marble/ui/components/sonner";
+import { cn } from "@marble/ui/lib/utils";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useParams, useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
 import type { MediaListResponse } from "@/types/media";
 import { generateSlug } from "@/utils/string";
 import { TextareaAutosize } from "./textarea-autosize";
@@ -165,24 +164,33 @@ function EditorPage({ initialData, id }: EditorPageProps) {
     return result.url;
   }, []);
 
-  // Fetch media handler
-  const fetchMedia = useCallback(async (): Promise<MediaItem[]> => {
-    try {
-      const res = await fetch("/api/media");
-      if (!res.ok) {
-        return [];
+  // Fetch media page handler (with pagination)
+  const fetchMediaPage = useCallback(
+    async (cursor?: string): Promise<MediaPage> => {
+      try {
+        const url = cursor
+          ? `/api/media?cursor=${encodeURIComponent(cursor)}`
+          : "/api/media";
+        const res = await fetch(url);
+        if (!res.ok) {
+          return { media: [] };
+        }
+        const data: MediaListResponse = await res.json();
+        return {
+          media: data.media.map((item) => ({
+            id: item.id,
+            url: item.url,
+            name: item.name,
+            type: item.type as "image" | "video" | "file",
+          })),
+          nextCursor: data.nextCursor,
+        };
+      } catch {
+        return { media: [] };
       }
-      const data: MediaListResponse = await res.json();
-      return data.media.map((item) => ({
-        id: item.id,
-        url: item.url,
-        name: item.name,
-        type: item.type as "image" | "video" | "file",
-      }));
-    } catch {
-      return [];
-    }
-  }, []);
+    },
+    []
+  );
 
   // Handle upload errors
   const handleUploadError = useCallback((error: Error) => {
@@ -241,7 +249,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
         limit: 3,
         upload: handleImageUpload,
         onError: handleUploadError,
-        fetchMedia,
+        fetchMediaPage,
       }),
     ],
     onUpdate: handleEditorUpdate,

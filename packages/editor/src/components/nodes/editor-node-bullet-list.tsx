@@ -1,5 +1,5 @@
+import { ListBulletsIcon } from "@phosphor-icons/react";
 import { useCurrentEditor } from "@tiptap/react";
-import { ListIcon } from "lucide-react";
 import type { EditorButtonProps } from "../../types";
 import { BubbleMenuButton } from "../ui/editor-button";
 
@@ -30,7 +30,7 @@ export const EditorNodeBulletList = ({
     <BubbleMenuButton
       command={() => editor.chain().focus().toggleBulletList().run()}
       hideName={hideName}
-      icon={ListIcon}
+      icon={ListBulletsIcon}
       isActive={() => editor.isActive("bulletList") ?? false}
       name="Bullet List"
     />

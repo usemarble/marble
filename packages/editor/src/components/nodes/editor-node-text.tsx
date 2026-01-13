@@ -1,5 +1,5 @@
+import { TextAlignLeftIcon } from "@phosphor-icons/react";
 import { useCurrentEditor } from "@tiptap/react";
-import { TextIcon } from "lucide-react";
 import type { EditorButtonProps } from "../../types";
 import { BubbleMenuButton } from "../ui/editor-button";
 
@@ -30,7 +30,7 @@ export const EditorNodeText = ({ hideName = false }: EditorNodeTextProps) => {
         editor.chain().focus().toggleNode("paragraph", "paragraph").run()
       }
       hideName={hideName}
-      icon={TextIcon}
+      icon={TextAlignLeftIcon}
       isActive={() =>
         (editor &&
           !editor.isActive("paragraph") &&

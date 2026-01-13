@@ -35,8 +35,15 @@ export type {
   UseMarbleEditorOptions,
 } from "./components";
 export {
+  // Alignment Components
+  EditorAlignCenter,
+  EditorAlignJustify,
+  EditorAlignLeft,
+  EditorAlignRight,
+  EditorAlignSelector,
   EditorBubbleMenu,
   EditorCharacterCount,
+  EditorClearFormatting,
   EditorContent,
   EditorContext,
   EditorFloatingMenu,
@@ -96,6 +103,7 @@ export type {
   EditorSlashMenuProps,
   ImageUploadOptions,
   MediaItem,
+  MediaPage,
   SlashNodeAttrs,
   SuggestionItem,
 } from "./types";

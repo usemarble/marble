@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  EditorAlignSelector,
   EditorBubbleMenu,
   EditorClearFormatting,
   EditorContent,
@@ -61,6 +62,8 @@ export function MarbleEditorMenus() {
         <EditorMarkHighlight />
 
         <EditorLinkSelector />
+
+        <EditorAlignSelector />
 
         <EditorClearFormatting />
       </EditorBubbleMenu>

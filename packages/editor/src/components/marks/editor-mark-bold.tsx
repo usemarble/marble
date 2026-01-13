@@ -1,5 +1,5 @@
+import { TextBIcon } from "@phosphor-icons/react";
 import { useCurrentEditor } from "@tiptap/react";
-import { BoldIcon } from "lucide-react";
 import type { EditorButtonProps } from "../../types";
 import { BubbleMenuButton } from "../ui/editor-button";
 
@@ -28,7 +28,7 @@ export const EditorMarkBold = ({ hideName = false }: EditorMarkBoldProps) => {
     <BubbleMenuButton
       command={() => editor.chain().focus().toggleBold().run()}
       hideName={hideName}
-      icon={BoldIcon}
+      icon={TextBIcon}
       isActive={() => editor.isActive("bold") ?? false}
       name="Bold"
     />

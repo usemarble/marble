@@ -1,5 +1,5 @@
+import { TextSubscriptIcon } from "@phosphor-icons/react";
 import { useCurrentEditor } from "@tiptap/react";
-import { SubscriptIcon } from "lucide-react";
 import type { EditorButtonProps } from "../../types";
 import { BubbleMenuButton } from "../ui/editor-button";
 
@@ -30,7 +30,7 @@ export const EditorMarkSubscript = ({
     <BubbleMenuButton
       command={() => editor.chain().focus().toggleSubscript().run()}
       hideName={hideName}
-      icon={SubscriptIcon}
+      icon={TextSubscriptIcon}
       isActive={() => editor.isActive("subscript") ?? false}
       name="Subscript"
     />

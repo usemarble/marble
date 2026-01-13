@@ -1,5 +1,5 @@
+import { TextStrikethroughIcon } from "@phosphor-icons/react";
 import { useCurrentEditor } from "@tiptap/react";
-import { StrikethroughIcon } from "lucide-react";
 import type { EditorButtonProps } from "../../types";
 import { BubbleMenuButton } from "../ui/editor-button";
 
@@ -30,7 +30,7 @@ export const EditorMarkStrike = ({
     <BubbleMenuButton
       command={() => editor.chain().focus().toggleStrike().run()}
       hideName={hideName}
-      icon={StrikethroughIcon}
+      icon={TextStrikethroughIcon}
       isActive={() => editor.isActive("strike") ?? false}
       name="Strikethrough"
     />

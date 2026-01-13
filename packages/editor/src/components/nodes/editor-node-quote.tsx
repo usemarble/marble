@@ -1,5 +1,5 @@
+import { QuotesIcon } from "@phosphor-icons/react";
 import { useCurrentEditor } from "@tiptap/react";
-import { TextQuoteIcon } from "lucide-react";
 import type { EditorButtonProps } from "../../types";
 import { BubbleMenuButton } from "../ui/editor-button";
 
@@ -35,7 +35,7 @@ export const EditorNodeQuote = ({ hideName = false }: EditorNodeQuoteProps) => {
           .run()
       }
       hideName={hideName}
-      icon={TextQuoteIcon}
+      icon={QuotesIcon}
       isActive={() => editor.isActive("blockquote") ?? false}
       name="Quote"
     />

@@ -1,5 +1,5 @@
+import { TextSuperscriptIcon } from "@phosphor-icons/react";
 import { useCurrentEditor } from "@tiptap/react";
-import { SuperscriptIcon } from "lucide-react";
 import type { EditorButtonProps } from "../../types";
 import { BubbleMenuButton } from "../ui/editor-button";
 
@@ -30,7 +30,7 @@ export const EditorMarkSuperscript = ({
     <BubbleMenuButton
       command={() => editor.chain().focus().toggleSuperscript().run()}
       hideName={hideName}
-      icon={SuperscriptIcon}
+      icon={TextSuperscriptIcon}
       isActive={() => editor.isActive("superscript") ?? false}
       name="Superscript"
     />

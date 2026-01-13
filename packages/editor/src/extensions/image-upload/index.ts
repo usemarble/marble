@@ -33,7 +33,7 @@ export const ImageUpload = Node.create<ImageUploadOptions>({
       limit: undefined,
       onError: undefined,
       media: undefined,
-      fetchMedia: undefined,
+      fetchMediaPage: undefined,
     };
   },
 

@@ -13,6 +13,8 @@
   },
   "dependencies": {
     "@floating-ui/dom": "^1.6.0",
+    "@hugeicons/core-free-icons": "^3.1.1",
+    "@hugeicons/react": "^1.1.4",
     "@marble/ui": "workspace:*",
     "@phosphor-icons/react": "^2.1.10",
     "@tiptap/core": "^3.14.0",
@@ -26,6 +28,7 @@
     "@tiptap/extension-subscript": "^3.14.0",
     "@tiptap/extension-superscript": "^3.14.0",
     "@tiptap/extension-table": "^3.14.0",
+    "@tiptap/extension-text-align": "^3.15.3",
     "@tiptap/extension-text-style": "^3.14.0",
     "@tiptap/extension-twitch": "^3.14.0",
     "@tiptap/extension-typography": "^3.14.0",
@@ -38,7 +41,6 @@
     "@tiptap/suggestion": "^3.14.0",
     "fuse.js": "^7.0.0",
     "lowlight": "^3.3.0",
-    "lucide-react": "^0.452.0",
     "react-colorful": "^5.6.1",
     "react-tweet": "^3.2.2",
     "tippy.js": "^6.3.7"
@@ -50,6 +52,7 @@
     "@types/react-dom": "^19.2.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "tailwindcss": "^4.1.12",
     "typescript": "^5"
   }
 }

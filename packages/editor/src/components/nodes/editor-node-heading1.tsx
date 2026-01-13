@@ -1,5 +1,5 @@
+import { TextHOneIcon } from "@phosphor-icons/react";
 import { useCurrentEditor } from "@tiptap/react";
-import { Heading1Icon } from "lucide-react";
 import type { EditorButtonProps } from "../../types";
 import { BubbleMenuButton } from "../ui/editor-button";
 
@@ -30,7 +30,7 @@ export const EditorNodeHeading1 = ({
     <BubbleMenuButton
       command={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
       hideName={hideName}
-      icon={Heading1Icon}
+      icon={TextHOneIcon}
       isActive={() => editor.isActive("heading", { level: 1 }) ?? false}
       name="Heading 1"
     />

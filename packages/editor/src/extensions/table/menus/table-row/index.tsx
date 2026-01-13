@@ -1,9 +1,9 @@
 import { Button } from "@marble/ui/components/button";
+import { ArrowDownIcon, ArrowUpIcon, TrashIcon } from "@phosphor-icons/react";
 import type { EditorState } from "@tiptap/pm/state";
 import type { EditorView } from "@tiptap/pm/view";
 import type { Editor } from "@tiptap/react";
 import { BubbleMenu as TiptapBubbleMenu } from "@tiptap/react/menus";
-import { ArrowDownIcon, ArrowUpIcon, Trash2Icon } from "lucide-react";
 import { type JSX, memo, useCallback } from "react";
 import { isRowGripSelected } from "./utils";
 
@@ -86,7 +86,7 @@ function TableRowMenuComponent({ editor, appendTo }: MenuProps): JSX.Element {
         type="button"
         variant="ghost"
       >
-        <Trash2Icon className="size-4" />
+        <TrashIcon className="size-4" />
         <span>Delete row</span>
       </Button>
     </TiptapBubbleMenu>

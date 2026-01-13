@@ -1,17 +1,17 @@
-import type { SuggestionOptions } from "@tiptap/suggestion";
 import {
-  CheckSquareIcon,
-  CodeIcon,
-  Heading1Icon,
-  Heading2Icon,
-  Heading3Icon,
-  ImageIcon,
-  ListIcon,
-  ListOrderedIcon,
-  TableIcon,
-  TextIcon,
-  TextQuoteIcon,
-} from "lucide-react";
+  CheckSquare,
+  Code,
+  Image,
+  ListBullets,
+  ListNumbers,
+  Quotes,
+  Table,
+  TextAlignLeft,
+  TextHOne,
+  TextHThree,
+  TextHTwo,
+} from "@phosphor-icons/react";
+import type { SuggestionOptions } from "@tiptap/suggestion";
 import { Twitter } from "../../components/icons/twitter";
 import { YouTubeIcon } from "../../components/icons/youtube";
 import type { SuggestionItem } from "../../types";
@@ -26,7 +26,7 @@ export const defaultSlashSuggestions: SuggestionOptions<SuggestionItem>["items"]
       title: "Text",
       description: "Just start typing with plain text.",
       searchTerms: ["p", "paragraph"],
-      icon: TextIcon,
+      icon: TextAlignLeft,
       command: ({ editor, range }) => {
         editor
           .chain()
@@ -40,7 +40,7 @@ export const defaultSlashSuggestions: SuggestionOptions<SuggestionItem>["items"]
       title: "To-do List",
       description: "Track tasks with a to-do list.",
       searchTerms: ["todo", "task", "list", "check", "checkbox"],
-      icon: CheckSquareIcon,
+      icon: CheckSquare,
       command: ({ editor, range }) => {
         editor
           .chain()
@@ -54,7 +54,7 @@ export const defaultSlashSuggestions: SuggestionOptions<SuggestionItem>["items"]
       title: "Heading 1",
       description: "Use for main page title.",
       searchTerms: ["title", "big", "large"],
-      icon: Heading1Icon,
+      icon: TextHOne,
       command: ({ editor, range }) => {
         editor
           .chain()
@@ -68,7 +68,7 @@ export const defaultSlashSuggestions: SuggestionOptions<SuggestionItem>["items"]
       title: "Heading 2",
       description: "Use for section headings.",
       searchTerms: ["subtitle", "medium"],
-      icon: Heading2Icon,
+      icon: TextHTwo,
       command: ({ editor, range }) => {
         editor
           .chain()
@@ -82,7 +82,7 @@ export const defaultSlashSuggestions: SuggestionOptions<SuggestionItem>["items"]
       title: "Heading 3",
       description: "Use for sub-section headings.",
       searchTerms: ["subtitle", "small"],
-      icon: Heading3Icon,
+      icon: TextHThree,
       command: ({ editor, range }) => {
         editor
           .chain()
@@ -96,7 +96,7 @@ export const defaultSlashSuggestions: SuggestionOptions<SuggestionItem>["items"]
       title: "Bullet List",
       description: "Create a simple bullet list.",
       searchTerms: ["unordered", "point"],
-      icon: ListIcon,
+      icon: ListBullets,
       command: ({ editor, range }) => {
         editor.chain().focus().deleteRange(range).toggleBulletList().run();
       },
@@ -105,7 +105,7 @@ export const defaultSlashSuggestions: SuggestionOptions<SuggestionItem>["items"]
       title: "Numbered List",
       description: "Create a list with numbering.",
       searchTerms: ["ordered"],
-      icon: ListOrderedIcon,
+      icon: ListNumbers,
       command: ({ editor, range }) => {
         editor.chain().focus().deleteRange(range).toggleOrderedList().run();
       },
@@ -114,7 +114,7 @@ export const defaultSlashSuggestions: SuggestionOptions<SuggestionItem>["items"]
       title: "Quote",
       description: "Capture a quote.",
       searchTerms: ["blockquote"],
-      icon: TextQuoteIcon,
+      icon: Quotes,
       command: ({ editor, range }) =>
         editor
           .chain()
@@ -128,7 +128,7 @@ export const defaultSlashSuggestions: SuggestionOptions<SuggestionItem>["items"]
       title: "Code",
       description: "Capture a code snippet.",
       searchTerms: ["codeblock"],
-      icon: CodeIcon,
+      icon: Code,
       command: ({ editor, range }) =>
         editor.chain().focus().deleteRange(range).toggleCodeBlock().run(),
     },
@@ -136,7 +136,7 @@ export const defaultSlashSuggestions: SuggestionOptions<SuggestionItem>["items"]
       title: "Table",
       description: "Add a table view to organize data.",
       searchTerms: ["table"],
-      icon: TableIcon,
+      icon: Table,
       command: ({ editor, range }) =>
         editor
           .chain()
@@ -181,7 +181,7 @@ export const defaultSlashSuggestions: SuggestionOptions<SuggestionItem>["items"]
       title: "Image",
       description: "Upload or embed an image.",
       searchTerms: ["image", "picture", "photo", "img"],
-      icon: ImageIcon,
+      icon: Image,
       command: ({ editor, range }) => {
         editor
           .chain()

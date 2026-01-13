@@ -1,5 +1,5 @@
+import { TextUnderlineIcon } from "@phosphor-icons/react";
 import { useCurrentEditor } from "@tiptap/react";
-import { UnderlineIcon } from "lucide-react";
 import type { EditorButtonProps } from "../../types";
 import { BubbleMenuButton } from "../ui/editor-button";
 
@@ -30,7 +30,7 @@ export const EditorMarkUnderline = ({
     <BubbleMenuButton
       command={() => editor.chain().focus().toggleUnderline().run()}
       hideName={hideName}
-      icon={UnderlineIcon}
+      icon={TextUnderlineIcon}
       isActive={() => editor.isActive("underline") ?? false}
       name="Underline"
     />

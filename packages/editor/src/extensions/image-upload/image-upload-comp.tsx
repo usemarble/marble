@@ -1,3 +1,5 @@
+import { Album02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@marble/ui/components/button";
 import {
   Card,
@@ -15,18 +17,16 @@ import {
   DialogX,
 } from "@marble/ui/components/dialog";
 import { Input } from "@marble/ui/components/input";
-import { ScrollArea } from "@marble/ui/components/scroll-area";
 import { cn } from "@marble/ui/lib/utils";
 import {
   CheckIcon,
-  ImageIcon,
   ImagesIcon,
-  Loader2Icon,
+  SpinnerIcon,
   XIcon,
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import type { ChangeEvent } from "react";
 import { useCallback, useEffect, useState } from "react";
-import type { MediaItem } from "../../types";
+import type { MediaItem, MediaPage } from "../../types";
 import { useDropZone, useFileUpload, useUploader } from "./hooks";
 
 // Simple URL validation
@@ -45,7 +45,7 @@ export interface ImageUploadCompProps {
   onCancel: () => void;
   upload: (file: File) => Promise<string>;
   media?: MediaItem[];
-  fetchMedia?: () => Promise<MediaItem[]>;
+  fetchMediaPage?: (cursor?: string) => Promise<MediaPage>;
   onError?: (error: Error) => void;
 }
 
@@ -55,7 +55,7 @@ export const ImageUploadComp = ({
   onCancel,
   upload,
   media: providedMedia,
-  fetchMedia,
+  fetchMediaPage,
   onError,
 }: ImageUploadCompProps) => {
   const [showEmbedInput, setShowEmbedInput] = useState(false);
@@ -65,6 +65,8 @@ export const ImageUploadComp = ({
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [media, setMedia] = useState<MediaItem[] | undefined>(providedMedia);
   const [isLoadingMedia, setIsLoadingMedia] = useState(false);
+  const [nextCursor, setNextCursor] = useState<string | undefined>(undefined);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const { loading, uploadImage } = useUploader({ onUpload, upload, onError });
   const { handleUploadClick, ref } = useFileUpload();
@@ -73,13 +75,14 @@ export const ImageUploadComp = ({
       uploader: uploadImage,
     });
 
-  // Fetch media if fetchMedia function is provided
+  // Fetch initial media page if fetchMediaPage function is provided
   useEffect(() => {
-    if (fetchMedia && !providedMedia) {
+    if (fetchMediaPage && !providedMedia) {
       setIsLoadingMedia(true);
-      fetchMedia()
-        .then((fetchedMedia) => {
-          setMedia(fetchedMedia);
+      fetchMediaPage()
+        .then((page) => {
+          setMedia(page.media);
+          setNextCursor(page.nextCursor);
         })
         .catch(() => {
           setMedia([]);
@@ -88,7 +91,24 @@ export const ImageUploadComp = ({
           setIsLoadingMedia(false);
         });
     }
-  }, [fetchMedia, providedMedia]);
+  }, [fetchMediaPage, providedMedia]);
+
+  // Load more media handler
+  const handleLoadMore = useCallback(async () => {
+    if (!fetchMediaPage || !nextCursor || isLoadingMore) {
+      return;
+    }
+    setIsLoadingMore(true);
+    try {
+      const page = await fetchMediaPage(nextCursor);
+      setMedia((prev) => [...(prev || []), ...page.media]);
+      setNextCursor(page.nextCursor);
+    } catch {
+      // Ignore errors on load more
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [fetchMediaPage, nextCursor, isLoadingMore]);
 
   // Update media when providedMedia changes
   useEffect(() => {
@@ -187,7 +207,11 @@ export const ImageUploadComp = ({
       <Card className="col-span-full gap-4 rounded-[20px] border-none bg-surface p-2">
         <CardHeader className="gap-0 px-4 pt-2">
           <div className="flex items-center justify-between gap-2">
-            <ImageIcon className="size-5" />
+            <HugeiconsIcon
+              className="text-muted-foreground"
+              icon={Album02Icon}
+              size={20}
+            />
             <CardTitle className="font-normal text-sm">
               Upload or embed an image
             </CardTitle>
@@ -275,7 +299,7 @@ export const ImageUploadComp = ({
                   variant="outline"
                 >
                   {isValidatingUrl ? (
-                    <Loader2Icon className="size-4 animate-spin" />
+                    <SpinnerIcon className="size-4 animate-spin" />
                   ) : (
                     <CheckIcon className="size-4" />
                   )}
@@ -302,7 +326,7 @@ export const ImageUploadComp = ({
           ) : (
             // Media and Embed URL buttons - shown by default
             <div className="flex items-center gap-2">
-              {(media !== undefined || fetchMedia) && (
+              {(media !== undefined || fetchMediaPage) && (
                 <Button
                   className="shrink-0 text-muted-foreground shadow-none"
                   disabled={loading}
@@ -339,7 +363,7 @@ export const ImageUploadComp = ({
       </Card>
 
       {/* Media Gallery Dialog */}
-      {(media !== undefined || fetchMedia) && (
+      {(media !== undefined || fetchMediaPage) && (
         <Dialog onOpenChange={setIsGalleryOpen} open={isGalleryOpen}>
           <DialogContent
             className="flex max-h-[800px] flex-col overflow-hidden text-clip sm:max-w-4xl"
@@ -347,48 +371,74 @@ export const ImageUploadComp = ({
           >
             <DialogHeader className="flex-row items-center justify-between px-4 py-2">
               <div className="flex flex-1 items-center gap-2">
-                <ImagesIcon className="size-5 text-muted-foreground" />
+                <HugeiconsIcon
+                  className="text-muted-foreground"
+                  icon={Album02Icon}
+                  size={20}
+                />
                 <DialogTitle className="font-medium text-muted-foreground text-sm">
                   Media Gallery
                 </DialogTitle>
               </div>
               <DialogX />
             </DialogHeader>
-            <DialogBody className="min-h-0 overflow-y-auto p-4">
+            <DialogBody className="min-h-[400px] p-4">
               {isLoadingMedia ? (
-                <div className="flex h-full items-center justify-center p-8">
+                <div className="flex min-h-[360px] items-center justify-center">
                   <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                    <SpinnerIcon className="size-6 animate-spin" />
                     <p className="font-medium text-sm">Loading media...</p>
                   </div>
                 </div>
               ) : media && media.length > 0 ? (
-                <ul className="m-0 grid w-full list-none grid-cols-[repeat(auto-fill,minmax(8.125rem,1fr))] gap-2.5 p-0">
-                  {media
-                    ?.filter((item) => item.type === "image")
-                    .map((item) => (
-                      <li
-                        className="group relative size-[8.125rem]"
-                        key={item.id}
-                      >
-                        <button
-                          className="flex h-full w-full items-center justify-center rounded-lg border border-border bg-background p-1 transition-opacity hover:opacity-80"
-                          onClick={() => handleMediaSelect(item.url)}
-                          type="button"
+                <div className="flex max-h-[500px] flex-col gap-4 overflow-y-auto">
+                  <ul className="m-0 grid w-full list-none grid-cols-[repeat(auto-fill,minmax(8.125rem,1fr))] gap-2.5 p-0">
+                    {media
+                      ?.filter((item) => item.type === "image")
+                      .map((item) => (
+                        <li
+                          className="group relative size-[8.125rem]"
+                          key={item.id}
                         >
-                          <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-md border border-border">
-                            {/* biome-ignore lint: Preview image in dialog */}
-                            <img
-                              alt={item.name}
-                              className="h-full w-full object-contain"
-                              src={item.url}
-                            />
-                          </div>
-                        </button>
-                      </li>
-                    ))}
-                </ul>
+                          <button
+                            className="flex h-full w-full items-center justify-center rounded-lg border border-border bg-background p-1 transition-opacity hover:opacity-80"
+                            onClick={() => handleMediaSelect(item.url)}
+                            type="button"
+                          >
+                            <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-md border border-border">
+                              {/* biome-ignore lint: Preview image in dialog */}
+                              <img
+                                alt={item.name}
+                                className="h-full w-full object-contain"
+                                src={item.url}
+                              />
+                            </div>
+                          </button>
+                        </li>
+                      ))}
+                  </ul>
+                  {nextCursor && (
+                    <div className="flex justify-center py-2">
+                      <Button
+                        disabled={isLoadingMore}
+                        onClick={handleLoadMore}
+                        type="button"
+                        variant="outline"
+                      >
+                        {isLoadingMore ? (
+                          <>
+                            <SpinnerIcon className="mr-2 size-4 animate-spin" />
+                            Loading...
+                          </>
+                        ) : (
+                          "Load More"
+                        )}
+                      </Button>
+                    </div>
+                  )}
+                </div>
               ) : (
-                <div className="flex min-h-[400px] items-center justify-center p-8">
+                <div className="flex min-h-[360px] items-center justify-center">
                   <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
                     <ImagesIcon className="size-8" />
                     <p className="font-medium text-sm">

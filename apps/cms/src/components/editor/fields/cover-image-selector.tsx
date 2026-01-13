@@ -20,8 +20,17 @@ import {
   TabsTrigger,
 } from "@marble/ui/components/tabs";
 import { cn } from "@marble/ui/lib/utils";
-import { CheckIcon, SpinnerIcon, TrashIcon } from "@phosphor-icons/react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  CheckIcon,
+  CircleNotchIcon,
+  SpinnerIcon,
+  TrashIcon,
+} from "@phosphor-icons/react";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import NextImage from "next/image";
 import { useState } from "react";
 import { type Control, useController } from "react-hook-form";
@@ -80,17 +89,33 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
     },
   });
 
-  const { data: media, isLoading: isLoadingMedia } = useQuery({
-    // biome-ignore lint/style/noNonNullAssertion: <>
-    queryKey: QUERY_KEYS.MEDIA(workspaceId!),
-    staleTime: 1000 * 60 * 60,
-    queryFn: async () => {
-      const res = await fetch("/api/media");
+  const {
+    data,
+    isLoading: isLoadingMedia,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: [
+      // biome-ignore lint/style/noNonNullAssertion: workspace is verified before enabled
+      ...QUERY_KEYS.MEDIA(workspaceId!),
+      { context: "cover-selector" },
+    ],
+    staleTime: 1000 * 60 * 5,
+    queryFn: async ({ pageParam }: { pageParam?: string }) => {
+      const url = pageParam
+        ? `/api/media?cursor=${encodeURIComponent(pageParam)}`
+        : "/api/media";
+      const res = await fetch(url);
       const data: MediaListResponse = await res.json();
-      return data.media;
+      return data;
     },
+    getNextPageParam: (lastPage) => lastPage.nextCursor || undefined,
+    initialPageParam: undefined,
     enabled: !!workspaceId,
   });
+
+  const media = data?.pages.flatMap((page) => page.media) ?? [];
 
   const handleEmbed = async (url: string) => {
     if (!url) {
@@ -278,42 +303,63 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
             </div>
             <DialogX />
           </DialogHeader>
-          <DialogBody className="min-h-0 overflow-y-auto p-4">
+          <DialogBody className="min-h-[400px] p-4">
             {isLoadingMedia ? (
-              <div className="flex h-full items-center justify-center p-8">
+              <div className="flex min-h-[360px] items-center justify-center">
                 <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                  <CircleNotchIcon className="size-6 animate-spin" />
                   <p className="font-medium text-sm">Loading media...</p>
                 </div>
               </div>
             ) : media && media.length > 0 ? (
-              <ul className="m-0 grid w-full list-none grid-cols-[repeat(auto-fill,minmax(8.125rem,1fr))] gap-2.5 p-0">
-                {media
-                  ?.filter((item) => item.type === "image")
-                  .map((item) => (
-                    <li
-                      className="group relative size-[8.125rem]"
-                      key={item.id}
-                    >
-                      <button
-                        className="flex h-full w-full items-center justify-center rounded-lg border border-border bg-background p-1 transition-opacity hover:opacity-80"
-                        onClick={() => handleImageSelect(item.url)}
-                        type="button"
+              <div className="flex max-h-[500px] flex-col gap-4 overflow-y-auto">
+                <ul className="m-0 grid w-full list-none grid-cols-[repeat(auto-fill,minmax(8.125rem,1fr))] gap-2.5 p-0">
+                  {media
+                    ?.filter((item) => item.type === "image")
+                    .map((item) => (
+                      <li
+                        className="group relative size-[8.125rem]"
+                        key={item.id}
                       >
-                        <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-md border border-border">
-                          {/* biome-ignore lint/performance/noImgElement: Preview image in dialog */}
-                          {/* biome-ignore lint/correctness/useImageSize: Dynamic image sizes from media library */}
-                          <img
-                            alt={item.name}
-                            className="h-full w-full object-contain"
-                            src={item.url}
-                          />
-                        </div>
-                      </button>
-                    </li>
-                  ))}
-              </ul>
+                        <button
+                          className="flex h-full w-full items-center justify-center rounded-lg border border-border bg-background p-1 transition-opacity hover:opacity-80"
+                          onClick={() => handleImageSelect(item.url)}
+                          type="button"
+                        >
+                          <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-md border border-border">
+                            {/* biome-ignore lint: Preview images from media library */}
+                            <img
+                              alt={item.name}
+                              className="h-full w-full object-contain"
+                              src={item.url}
+                            />
+                          </div>
+                        </button>
+                      </li>
+                    ))}
+                </ul>
+                {hasNextPage && (
+                  <div className="flex justify-center py-2">
+                    <Button
+                      disabled={isFetchingNextPage}
+                      onClick={() => fetchNextPage()}
+                      type="button"
+                      variant="outline"
+                    >
+                      {isFetchingNextPage ? (
+                        <>
+                          <CircleNotchIcon className="mr-2 size-4 animate-spin" />
+                          Loading...
+                        </>
+                      ) : (
+                        "Load More"
+                      )}
+                    </Button>
+                  </div>
+                )}
+              </div>
             ) : (
-              <div className="flex min-h-[400px] items-center justify-center p-8">
+              <div className="flex min-h-[360px] items-center justify-center">
                 <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
                   <HugeiconsIcon icon={Album02Icon} />
                   <p className="font-medium text-sm">

@@ -1,7 +1,7 @@
 "use client";
 
 import { toast } from "@marble/ui/components/sonner";
-import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import { MediaControls } from "@/components/media/media-controls";
@@ -9,7 +9,6 @@ import { MediaGallery } from "@/components/media/media-gallery";
 import PageLoader from "@/components/shared/page-loader";
 import { useMediaActions } from "@/hooks/use-media-actions";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { MEDIA_FILTER_TYPES, MEDIA_SORTS } from "@/lib/constants";
 import { uploadFile } from "@/lib/media/upload";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { getMediaApiUrl, useMediaPageFilters } from "@/lib/search-params";
@@ -69,50 +68,6 @@ function PageClient() {
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 30,
   });
-
-  const queryClient = useQueryClient();
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <prevent multiple prefetches, only prefetch on workspaceId change>
-  useEffect(() => {
-    if (!workspaceId) {
-      return;
-    }
-
-    // Iterate through all combinations of filter types and sorts
-    for (const filterType of MEDIA_FILTER_TYPES) {
-      const normalizedType = toMediaType(filterType);
-
-      for (const sortOption of MEDIA_SORTS) {
-        if (filterType === type && sortOption === sort) {
-          continue;
-        }
-
-        queryClient.prefetchInfiniteQuery({
-          queryKey: [
-            ...QUERY_KEYS.MEDIA(workspaceId),
-            { type: normalizedType, sort: sortOption },
-          ],
-          queryFn: async ({ pageParam }: { pageParam?: string }) => {
-            const url = getMediaApiUrl("/api/media", {
-              sort: sortOption,
-              type: normalizedType,
-              cursor: pageParam,
-            });
-
-            const res = await fetch(url);
-            if (!res.ok) {
-              throw new Error(
-                `Failed to prefetch media: ${res.status} ${res.statusText}`
-              );
-            }
-
-            const data: MediaListResponse = await res.json();
-            return data;
-          },
-          initialPageParam: undefined,
-        });
-      }
-    }
-  }, [workspaceId, queryClient]);
 
   const mediaItems = data?.pages.flatMap((page) => page.media) ?? [];
   const hasAnyMedia = data?.pages.at(0)?.hasAnyMedia ?? mediaItems.length > 0;

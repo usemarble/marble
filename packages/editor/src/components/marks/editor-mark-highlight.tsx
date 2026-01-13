@@ -5,8 +5,8 @@ import {
   PopoverTrigger,
 } from "@marble/ui/components/popover";
 import { cn } from "@marble/ui/lib/utils";
+import { HighlighterIcon } from "@phosphor-icons/react";
 import { useCurrentEditor, useEditorState } from "@tiptap/react";
-import { Highlighter } from "lucide-react";
 import { useCallback } from "react";
 import type { EditorButtonProps } from "../../types";
 import { ColorPicker } from "../color-picker";
@@ -81,7 +81,7 @@ export const EditorMarkHighlight = ({
             type="button"
             variant="ghost"
           >
-            <Highlighter
+            <HighlighterIcon
               className={cn("shrink-0", isActive && "text-primary")}
               size={12}
             />

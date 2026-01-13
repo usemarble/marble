@@ -1,4 +1,11 @@
 {
+  "tailwindCSS.experimental.configFile": {
+    "./packages/ui/src/styles/globals.css": [
+      "./packages/ui/src/**",
+      "./packages/editor/src/**",
+      "./apps/cms/src/**"
+    ]
+  },
   "editor.defaultFormatter": "biomejs.biome",
   "[javascript]": {
     "editor.defaultFormatter": "biomejs.biome"

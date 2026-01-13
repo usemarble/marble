@@ -1,7 +1,11 @@
 import { Button } from "@marble/ui/components/button";
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  TrashIcon,
+} from "@phosphor-icons/react";
 import type { Editor } from "@tiptap/react";
 import { BubbleMenu as TiptapBubbleMenu } from "@tiptap/react/menus";
-import { ArrowLeftIcon, ArrowRightIcon, Trash2Icon } from "lucide-react";
 import { type JSX, memo, useCallback } from "react";
 import { isColumnGripSelected } from "./utils";
 
@@ -90,7 +94,7 @@ function TableColumnMenuComponent({
         type="button"
         variant="ghost"
       >
-        <Trash2Icon className="size-4" />
+        <TrashIcon className="size-4" />
         <span>Delete column</span>
       </Button>
     </TiptapBubbleMenu>

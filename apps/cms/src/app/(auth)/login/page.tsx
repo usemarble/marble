@@ -1,6 +1,5 @@
 import { Separator } from "@marble/ui/components/separator";
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
 import { LoginForm } from "@/components/auth/login-form";
@@ -27,27 +26,11 @@ export default async function LoginPage(props: PageProps) {
 
   return (
     <div className="h-screen w-full md:grid md:grid-cols-2">
-      <section className="relative hidden flex-col justify-between overflow-hidden p-10 md:flex">
-        <Image
-          alt="Light marble texture background"
-          className="object-cover object-center dark:hidden"
-          fill
-          loading="lazy"
-          quality={100}
-          src="/textures/marble-light.avif"
-        />
-        <Image
-          alt="Dark marble texture background"
-          className="hidden object-cover object-center dark:block"
-          fill
-          loading="lazy"
-          quality={100}
-          src="/textures/marble-dark.avif"
-        />
-        <div className="relative z-10">
+      <section className="hidden flex-col justify-between bg-surface p-10 md:flex">
+        <div>
           <MarbleIcon />
         </div>
-        <div className="relative z-10 flex items-center justify-between gap-4">
+        <div className="flex items-center justify-between gap-4">
           <p className="font-medium text-lg">
             The easiest way to manage your blog.
           </p>

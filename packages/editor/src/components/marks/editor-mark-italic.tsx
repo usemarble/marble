@@ -1,5 +1,5 @@
+import { TextItalicIcon } from "@phosphor-icons/react";
 import { useCurrentEditor } from "@tiptap/react";
-import { ItalicIcon } from "lucide-react";
 import type { EditorButtonProps } from "../../types";
 import { BubbleMenuButton } from "../ui/editor-button";
 
@@ -30,7 +30,7 @@ export const EditorMarkItalic = ({
     <BubbleMenuButton
       command={() => editor.chain().focus().toggleItalic().run()}
       hideName={hideName}
-      icon={ItalicIcon}
+      icon={TextItalicIcon}
       isActive={() => editor.isActive("italic") ?? false}
       name="Italic"
     />

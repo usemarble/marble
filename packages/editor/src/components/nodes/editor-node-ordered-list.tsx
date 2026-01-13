@@ -1,5 +1,5 @@
+import { ListNumbersIcon } from "@phosphor-icons/react";
 import { useCurrentEditor } from "@tiptap/react";
-import { ListOrderedIcon } from "lucide-react";
 import type { EditorButtonProps } from "../../types";
 import { BubbleMenuButton } from "../ui/editor-button";
 
@@ -30,7 +30,7 @@ export const EditorNodeOrderedList = ({
     <BubbleMenuButton
       command={() => editor.chain().focus().toggleOrderedList().run()}
       hideName={hideName}
-      icon={ListOrderedIcon}
+      icon={ListNumbersIcon}
       isActive={() => editor.isActive("orderedList") ?? false}
       name="Numbered List"
     />

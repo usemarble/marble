@@ -6,6 +6,7 @@ import { Image } from "@tiptap/extension-image";
 import { TaskItem, TaskList } from "@tiptap/extension-list";
 import { Subscript } from "@tiptap/extension-subscript";
 import { Superscript } from "@tiptap/extension-superscript";
+import { TextAlign } from "@tiptap/extension-text-align";
 import { TextStyleKit } from "@tiptap/extension-text-style";
 import Typography from "@tiptap/extension-typography";
 import { Youtube } from "@tiptap/extension-youtube";
@@ -207,6 +208,12 @@ export const ExtensionKit = ({
 
   // Highlight extension for text highlighting
   Highlight.configure({ multicolor: true }),
+
+  // Text alignment
+  TextAlign.configure({
+    types: ["heading", "paragraph"],
+    alignments: ["left", "center", "right", "justify"],
+  }),
 
   // Markdown input handling (paste and file drop)
   MarkdownInput,

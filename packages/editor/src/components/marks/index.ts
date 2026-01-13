@@ -1,6 +1,10 @@
 /** biome-ignore-all lint/performance/noBarrelFile: <> */
 
 export {
+  EditorClearFormatting,
+  type EditorClearFormattingProps,
+} from "./editor-clear-formatting";
+export {
   EditorLinkSelector,
   type EditorLinkSelectorProps,
 } from "./editor-link-selector";

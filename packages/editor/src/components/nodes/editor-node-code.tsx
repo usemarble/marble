@@ -1,5 +1,5 @@
+import { CodeIcon } from "@phosphor-icons/react";
 import { useCurrentEditor } from "@tiptap/react";
-import { CodeIcon } from "lucide-react";
 import type { EditorButtonProps } from "../../types";
 import { BubbleMenuButton } from "../ui/editor-button";
 
