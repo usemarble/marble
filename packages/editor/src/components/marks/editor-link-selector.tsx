@@ -170,9 +170,9 @@ export const EditorLinkSelector = ({
                   variant="ghost"
                 >
                   {openInNewTab ? (
-                    <ArrowSquareOutIcon size={12} />
+                    <ArrowsOutSimpleIcon size={12} />
                   ) : (
-                    <ArrowSquareOutIcon size={12} />
+                    <ArrowsInSimpleIcon size={12} />
                   )}
                 </Button>
               }
