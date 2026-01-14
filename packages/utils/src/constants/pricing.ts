@@ -25,7 +25,7 @@ export const PRICING_PLANS: PricingPlan[] = [
     },
     features: [
       "Unlimited posts",
-      "1 author",
+      "1 Author",
       "1GB media storage",
       "AI Readability insights",
       "10k API requests per month",
