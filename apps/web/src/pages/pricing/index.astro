@@ -4,9 +4,11 @@ import Container from "@/components/Container.astro";
 import AccordionItem from "@/components/ui/AccordionItem.astro";
 import Button from "@/components/ui/Button.astro";
 import Layout from "@/layouts/Layout.astro";
-import { PRICING_FAQS } from "@/lib/constants/faqs";
 import { SITE } from "@/lib/constants/site";
 import { cn } from "@/lib/utils";
+
+// Calculate yearly monthly equivalent for display
+const yearlyMonthlyPrice = "$16";
 ---
 
 <Layout
@@ -27,6 +29,25 @@ import { cn } from "@/lib/utils";
               Simple pricing, cancel anytime.
             </p>
           </div>
+
+          <!-- Billing Toggle -->
+          <div class="flex items-center justify-center gap-3">
+            <span class="text-sm text-muted-foreground">Monthly</span>
+            <button
+              id="billing-toggle"
+              type="button"
+              role="switch"
+              aria-checked="true"
+              class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-accent transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              <span
+                id="toggle-thumb"
+                class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-5"
+              ></span>
+            </button>
+            <span class="text-sm text-muted-foreground">Yearly</span>
+          </div>
+
           <ul
             class="flex flex-col items-center md:items-stretch justify-center gap-5 md:flex-row"
           >
@@ -39,14 +60,20 @@ import { cn } from "@/lib/utils";
                             <div class="flex flex-col gap-4">
                               <div class="flex items-center justify-between">
                                 <h3 class="text-medium text-xl">{plan.title}</h3>
-                                {plan.trial && (
-                                  <span class="text-xs font-medium text-muted-foreground bg-muted border border-dashed border-border px-2 py-1 rounded-md">
-                                    {plan.trial}
+                                {plan.id === "pro" && (
+                                  <span class="save-badge text-xs font-medium text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
+                                    Save 20%
                                   </span>
                                 )}
                               </div>
                               <div>
-                                <p><span class="font-bold text-2xl">{plan.price.monthly}</span>{' '}<span>per month.</span></p>
+                                <p>
+                                  <span class="font-bold text-2xl" data-plan-id={plan.id} data-monthly={plan.price.monthly} data-yearly={yearlyMonthlyPrice}>
+                                    {plan.id === "pro" ? yearlyMonthlyPrice : plan.price.monthly}
+                                  </span>{' '}
+                                  <span>per month.</span>
+                                </p>
+
                                 <p class="text-muted-foreground text-sm">{plan.description}</p>
                               </div>
                             </div>
@@ -76,14 +103,20 @@ import { cn } from "@/lib/utils";
                           <div class="flex flex-col gap-4">
                             <div class="flex items-center justify-between">
                               <h4 class="text-medium text-2xl">{plan.title}</h4>
-                              {plan.trial && (
-                                <span class="text-xs font-medium text-muted-foreground bg-muted border border-dashed border-border px-2 py-1 rounded-md">
-                                  {plan.trial}
+                              {plan.id === "pro" && (
+                                <span class="save-badge text-xs font-medium text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
+                                  Save 20%
                                 </span>
                               )}
                             </div>
                             <div>
-                              <p><span class="font-bold text-2xl">{plan.price.monthly}</span>{' '}<span>per month.</span></p>
+                              <p>
+                                <span class="font-bold text-2xl" data-plan-id={plan.id} data-monthly={plan.price.monthly} data-yearly={yearlyMonthlyPrice}>
+                                  {plan.id === "pro" ? yearlyMonthlyPrice : plan.price.monthly}
+                                </span>{' '}
+                                <span>per month.</span>
+                              </p>
+
                               <p class="text-muted-foreground text-sm">{plan.description}</p>
                             </div>
                           </div>
@@ -116,37 +149,53 @@ import { cn } from "@/lib/utils";
         </Container>
       </div>
     </section>
-
-    <!-- FAQ -->
-    <section class="border-y border-dashed">
-      <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
-        <Container class="pt-12 pb-20">
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-20">
-            <div
-              class="flex flex-col items-center lg:items-start space-y-4 text-center lg:text-left"
-            >
-              <h2
-                class="relative text-center text-balance text-2xl tracking-tight md:text-3xl lg:text-4xl lg:text-left  md max-w-4xl"
-              >
-                Frequently asked Questions
-              </h2>
-              <p
-                class="max-w-prose md:text-lg text-muted-foreground text-balance"
-              >
-                Answers to common questions about pricing and billing.
-              </p>
-            </div>
-
-            <div class="lg:col-span-2 divide-y divide-dashed">
-              {PRICING_FAQS.map(faq => (
-              <AccordionItem name="details" title={faq.question}>
-                <p class="text-sm faq-answer text-muted-foreground pb-2" set:html={faq.answer} />
-              </AccordionItem>
-            ))}
-            </div>
-          </div>
-        </Container>
-      </div>
-    </section>
   </div>
 </Layout>
+
+<script>
+  function initBillingToggle() {
+    const toggle = document.getElementById("billing-toggle");
+    const thumb = document.getElementById("toggle-thumb");
+    const saveBadges = document.querySelectorAll(".save-badge");
+    const priceElements = document.querySelectorAll('[data-plan-id="pro"]');
+
+    let isYearly = true;
+
+    toggle?.addEventListener("click", () => {
+      isYearly = !isYearly;
+
+      // Update toggle appearance
+      toggle.setAttribute("aria-checked", String(isYearly));
+      if (isYearly) {
+        thumb?.classList.add("translate-x-5");
+        thumb?.classList.remove("translate-x-0");
+        toggle.classList.add("bg-accent");
+        toggle.classList.remove("bg-muted");
+        for (const badge of saveBadges) {
+          badge.classList.remove("hidden");
+        }
+      } else {
+        thumb?.classList.remove("translate-x-5");
+        thumb?.classList.add("translate-x-0");
+        toggle.classList.remove("bg-accent");
+        toggle.classList.add("bg-muted");
+        for (const badge of saveBadges) {
+          badge.classList.add("hidden");
+        }
+      }
+
+      // Update prices
+      for (const el of priceElements) {
+        const monthly = el.getAttribute("data-monthly");
+        const yearly = el.getAttribute("data-yearly");
+        el.textContent = isYearly ? yearly : monthly;
+      }
+    });
+  }
+
+  // Initialize on first load
+  initBillingToggle();
+
+  // Re-initialize after page transitions
+  document.addEventListener("astro:after-swap", initBillingToggle);
+</script>

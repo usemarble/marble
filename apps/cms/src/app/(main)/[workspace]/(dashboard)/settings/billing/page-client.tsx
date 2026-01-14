@@ -3,6 +3,8 @@
 import { Badge } from "@marble/ui/components/badge";
 import { Button } from "@marble/ui/components/button";
 import { Card, CardDescription, CardTitle } from "@marble/ui/components/card";
+import { Label } from "@marble/ui/components/label";
+import { Switch } from "@marble/ui/components/switch";
 import {
   Table,
   TableBody,
@@ -23,8 +25,9 @@ import { useWorkspace } from "@/providers/workspace";
 
 function PageClient() {
   const [checkoutLoading, setCheckoutLoading] = useState<
-    "pro" | "hobby" | null
+    "pro" | "pro-yearly" | "hobby" | null
   >(null);
+  const [isYearly, setIsYearly] = useState(true);
   const { activeWorkspace, isOwner } = useWorkspace();
   const { currentPlan, isProPlan } = usePlan();
 
@@ -35,7 +38,10 @@ function PageClient() {
     return currentPlan === "pro" ? "Pro" : "Hobby";
   };
 
-  const handleCheckout = async (plan: "pro" | "hobby") => {
+  const yearlyMonthlyPrice = "$16";
+  const monthlyPrice = "$20";
+
+  const handleCheckout = async (plan: "pro" | "pro-yearly" | "hobby") => {
     if (!activeWorkspace?.id) {
       return;
     }
@@ -75,12 +81,14 @@ function PageClient() {
     }
 
     const isUpgrade = planId === "pro" && currentPlan === "hobby";
+    const checkoutSlug =
+      planId === "pro" ? (isYearly ? "pro-yearly" : "pro") : "hobby";
 
     return (
       <AsyncButton
         className="w-full"
-        isLoading={checkoutLoading === planId}
-        onClick={() => handleCheckout(planId)}
+        isLoading={checkoutLoading === checkoutSlug}
+        onClick={() => handleCheckout(checkoutSlug)}
         variant={isUpgrade ? "default" : "outline"}
       >
         {isUpgrade ? "Upgrade to Pro" : "Downgrade"}
@@ -122,8 +130,31 @@ function PageClient() {
           <div>
             <h2 className="font-medium text-lg">Plans</h2>
             <p className="text-muted-foreground text-sm">
-              Upgrade or change your plan
+              Upgrade or change your plan. Pro includes a 3 day free trial.
             </p>
+          </div>
+          {/* Billing Period Toggle */}
+          <div className="flex items-center gap-3">
+            <Label
+              className={isYearly ? "text-muted-foreground" : "font-medium"}
+              htmlFor="billing-toggle"
+            >
+              Monthly
+            </Label>
+            <Switch
+              checked={isYearly}
+              id="billing-toggle"
+              onCheckedChange={setIsYearly}
+            />
+            <Label
+              className={isYearly ? "font-medium" : "text-muted-foreground"}
+              htmlFor="billing-toggle"
+            >
+              Yearly
+            </Label>
+            {/* <Badge className="ml-1" variant="positive">
+              Save 17%
+            </Badge> */}
           </div>
         </div>
 
@@ -179,18 +210,24 @@ function PageClient() {
                   </div>
                   {currentPlan === "pro" ? (
                     <Badge variant="secondary">Current Plan</Badge>
-                  ) : proPlan.trial ? (
-                    <Badge variant="positive">{proPlan.trial}</Badge>
+                  ) : isYearly ? (
+                    <Badge variant="positive">Save 20%</Badge>
                   ) : null}
                 </div>
 
                 <div>
-                  <span className="font-bold text-3xl">
-                    {proPlan.price.monthly}
+                  <div>
+                    <span className="font-bold text-3xl">
+                      {isYearly ? yearlyMonthlyPrice : monthlyPrice}
+                    </span>
+                    <span className="text-muted-foreground">/month</span>
+                  </div>
+                  <span className="text-muted-foreground text-sm">
+                    {isYearly
+                      ? "billed annually ($192/year)"
+                      : "billed monthly"}
                   </span>
-                  <span className="text-muted-foreground">/month</span>
                 </div>
-
                 {isOwner && renderPlanButton("pro")}
 
                 <ul className="flex flex-col gap-2">

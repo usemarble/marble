@@ -20,7 +20,7 @@ import { TimerIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import { differenceInHours, differenceInMinutes, isBefore } from "date-fns";
 import { useState } from "react";
-import { FeatureUpgradeModal } from "@/components/billing/feature-upgrade-modal";
+import { UpgradeModal } from "@/components/billing/upgrade-modal";
 import { usePlan } from "@/hooks/use-plan";
 import { AsyncButton } from "../ui/async-button";
 import { CopyButton } from "../ui/copy-button";
@@ -167,7 +167,7 @@ export function ShareModal({ postId }: ShareModalProps) {
       </Dialog>
 
       {/* Upgrade Modal - for free users */}
-      <FeatureUpgradeModal
+      <UpgradeModal
         feature="share-drafts"
         isOpen={showUpgradeModal}
         onClose={() => setShowUpgradeModal(false)}

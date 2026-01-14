@@ -42,7 +42,7 @@ export const PRICING_PLANS: PricingPlan[] = [
     description: "For Small Teams",
     price: {
       monthly: "$20",
-      yearly: "$180",
+      yearly: "$192",
     },
     trial: "3 day free trial",
     features: [

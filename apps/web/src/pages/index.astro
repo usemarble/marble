@@ -1,8 +1,9 @@
 ---
 import { Image } from "astro:assets";
-import { PRICING_PLANS, YOUTUBE_VIDEO_ID } from "@marble/utils";
+import { YOUTUBE_VIDEO_ID } from "@marble/utils";
 import heroImage from "@/assets/images/hero.png";
 import Container from "@/components/Container.astro";
+import Pricing from "@/components/sections/Pricing.astro";
 import AccordionItem from "@/components/ui/AccordionItem.astro";
 import Button from "@/components/ui/Button.astro";
 import Layout from "@/layouts/Layout.astro";
@@ -210,109 +211,7 @@ const YOUTUBE_WATCH_URL = `https://www.youtube.com/watch?v=${YOUTUBE_VIDEO_ID}`;
     </section>
 
     <!-- Pricing section -->
-    <section>
-      <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
-        <Container class="space-y-10 lg:space-y-14 py-20">
-          <div class="relative flex flex-col items-center space-y-4">
-            <h2
-              class="relative text-center text-balance text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl"
-            >
-              Simple Pricing
-            </h2>
-            <p class="max-w-prose md:text-lg text-muted-foreground text-center">
-              Choose a plan that fits your needs.
-            </p>
-          </div>
-          <!-- <ul class="grid gap-5 lg:gap-10 sm:grid-cols-2 lg:grid-cols-3"> -->
-          <ul
-            class="flex flex-col items-center md:items-stretch justify-center gap-5 md:flex-row"
-          >
-            {PRICING_PLANS.map((plan, index) => (
-                <li class={cn("min-w-[300px] w-full max-w-[350px] rounded-xl", index === 2 && 'sm:col-span-2 lg:col-span-1 sm:h-fit')}>
-                  <div class={cn("flex flex-col gap-5 rounded-xl bg-white w-full px-4 py-6", index === 2 ? 'sm:flex-row sm:px-14 sm:py-10 lg:py-6 sm:justify-center sm:gap-20 lg:gap-4 lg:px-4 lg:flex-col min-h-96 sm:min-h-fit lg:min-h-96' : 'min-h-96 h-full')}>
-                    {index === 2 ? (
-                      <>
-                        <div class="flex flex-col gap-5 sm:min-w-60 lg:min-w-0">
-                          <div class="flex flex-col gap-4">
-                            <div class="flex items-center justify-between">
-                              <h3 class="text-medium text-xl">{plan.title}</h3>
-                              {plan.trial && (
-                                <span class="text-xs font-medium text-muted-foreground bg-muted border border-dashed border-border px-2 py-1 rounded-md">
-                                  {plan.trial}
-                                </span>
-                              )}
-                            </div>
-                            <div>
-                              <p><span class="font-bold text-2xl">{plan.price.monthly}</span>{' '}<span>per month.</span></p>
-                              <p class="text-muted-foreground text-sm">{plan.description}</p>
-                            </div>
-                          </div>
-                          <div class="border-y border-dashed py-4">
-                            <Button 
-                              href={plan.button.href}
-                              target="_blank"
-                              class="w-full"
-                            >
-                              {plan.button.label}
-                            </Button>
-                          </div>
-                        </div>
-                        <ul class="flex flex-col gap-2 text-sm">
-                          {plan.features.map((feature) => (
-                            <li class="flex items-center gap-2">
-                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-                              </svg>
-                              <span>{feature}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </>
-                    ) : (
-                      <>
-                        <div class="flex flex-col gap-4">
-                          <div class="flex items-center justify-between">
-                            <h3 class="text-medium text-2xl">{plan.title}</h3>
-                            {plan.trial && (
-                              <span class="text-xs font-medium text-muted-foreground bg-muted border border-dashed border-border px-2 py-1 rounded-md">
-                                {plan.trial}
-                              </span>
-                            )}
-                          </div>
-                          <div>
-                            <p><span class="font-bold text-2xl">{plan.price.monthly}</span>{' '}<span>per month.</span></p>
-                            <p class="text-muted-foreground text-sm">{plan.description}</p>
-                          </div>
-                        </div>
-                        <div class="border-y border-dashed py-4">
-                          <Button 
-                            href={plan.button.href}
-                            target="_blank"
-                            class="w-full"
-                            size="sm"
-                          >
-                            {plan.button.label}
-                          </Button>
-                        </div>
-                        <ul class="flex flex-col gap-2 text-sm">
-                          {plan.features.map((feature) => (
-                            <li class="flex items-center gap-2">
-                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-5 text-emerald-500">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-                              </svg>
-                              <span>{feature}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </>
-                    )}
-                  </div>
-                </li>
-              ))}
-          </ul>
-        </Container>
-      </div>
-    </section>
+    <Pricing />
 
     <!-- FAQ -->
     <section>

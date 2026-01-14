@@ -119,8 +119,8 @@ export const auth = betterAuth({
               slug: "pro",
             },
             {
-              productId: process.env.POLAR_TEAM_PRODUCT_ID || "",
-              slug: "team",
+              productId: process.env.POLAR_PRO_YEARLY_PRODUCT_ID || "",
+              slug: "pro-yearly",
             },
           ],
           successUrl: process.env.POLAR_SUCCESS_URL || "",

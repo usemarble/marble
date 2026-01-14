@@ -1,16 +1,16 @@
 "use client";
 
+import { buttonVariants } from "@marble/ui/components/button";
 import { UsersIcon } from "@phosphor-icons/react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { useState } from "react";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
 import { columns, type TeamMemberRow } from "@/components/team/columns";
 import { TeamDataTable } from "@/components/team/data-table";
 import { InviteSection } from "@/components/team/invite-section";
-import { AsyncButton } from "@/components/ui/async-button";
 import { usePlan } from "@/hooks/use-plan";
-import { checkout } from "@/lib/auth/client";
 import { useUser } from "@/providers/user";
 import { useWorkspace } from "@/providers/workspace";
 
@@ -32,7 +32,6 @@ function PageClient() {
 
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showLeaveWorkspaceModal, setShowLeaveWorkspaceModal] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   if (isFetchingWorkspace || !activeWorkspace || !user) {
     return <PageLoader />;
@@ -49,25 +48,6 @@ function PageClient() {
     joinedAt: new Date(member.createdAt),
     userId: member.userId,
   }));
-
-  const handleUpgrade = async () => {
-    if (!activeWorkspace?.id) {
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      await checkout({
-        slug: "pro",
-        referenceId: activeWorkspace.id,
-      });
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   console.log("invitations", activeWorkspace.invitations);
 
@@ -88,13 +68,12 @@ function PageClient() {
                   You can try it free for 3 days.
                 </p>
               </div>
-              <AsyncButton
-                className="w-fit"
-                isLoading={isLoading}
-                onClick={handleUpgrade}
+              <Link
+                className={buttonVariants({ variant: "default" })}
+                href={`/${activeWorkspace.slug}/settings/billing`}
               >
-                <span>Upgrade</span>
-              </AsyncButton>
+                Go to Billing
+              </Link>
             </div>
           </div>
         </div>

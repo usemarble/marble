@@ -58,6 +58,7 @@ export function InviteButton({ onInvite }: InviteButtonProps) {
         </Tooltip>
 
         <UpgradeModal
+          feature="team-members"
           isOpen={showUpgradeModal}
           onClose={() => setShowUpgradeModal(false)}
         />

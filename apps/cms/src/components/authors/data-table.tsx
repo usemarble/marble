@@ -27,10 +27,8 @@ import { usePlan } from "@/hooks/use-plan";
 import type { Author } from "@/types/author";
 import AuthorSheet from "./author-sheet";
 
-const FeatureUpgradeModal = dynamic(() =>
-  import("@/components/billing/feature-upgrade-modal").then(
-    (mod) => mod.FeatureUpgradeModal
-  )
+const UpgradeModal = dynamic(() =>
+  import("@/components/billing/upgrade-modal").then((mod) => mod.UpgradeModal)
 );
 
 interface AuthorDataTableProps {
@@ -163,7 +161,7 @@ export function AuthorDataTable({ columns, data }: AuthorDataTableProps) {
         setOpen={setShowCreateModal}
       />
 
-      <FeatureUpgradeModal
+      <UpgradeModal
         feature="authors"
         isOpen={showUpgradeModal}
         onClose={() => setShowUpgradeModal(false)}
