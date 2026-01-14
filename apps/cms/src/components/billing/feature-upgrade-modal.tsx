@@ -12,7 +12,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@marble/ui/components/dialog";
-import { CreditCardIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import { AsyncButton } from "@/components/ui/async-button";
 import { checkout } from "@/lib/auth/client";
