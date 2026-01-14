@@ -1,12 +1,11 @@
 ---
-import {
-  FOOTER_SECTIONS,
-  FOOTER_SOCIAL_LINKS,
-} from "@/lib/constants/navigation";
-import Container from "./Container.astro";
-import WordMark from "./icons/WordMark.astro";
+  import {
+    FOOTER_SECTIONS,
+    FOOTER_SOCIAL_LINKS,
+  } from "@/lib/constants/navigation";
+  import Container from "./Container.astro";
+  import WordMark from "./icons/WordMark.astro";
 ---
-
 <footer>
   <div
     class="lg:border-x border-dashed md:w-[calc(100%-140px)] bg-white mx-auto"
@@ -19,7 +18,7 @@ import WordMark from "./icons/WordMark.astro";
               href="/"
               class="mb-2 flex items-center gap-2 tracking-widest w-fit font-medium"
             >
-              <WordMark />
+              <WordMark/>
               <span class="sr-only">marblecms</span>
             </a>
             <!-- <p class="mb-1 text-sm text-muted-foreground tracking-wider">
@@ -68,7 +67,8 @@ import WordMark from "./icons/WordMark.astro";
             })}
           </ul>
           <p class="text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()}all rights reserved
+            &copy; {new Date().getFullYear()}
+            {" "}all rights reserved
           </p>
         </div>
       </section>
