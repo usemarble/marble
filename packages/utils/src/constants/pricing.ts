@@ -25,6 +25,7 @@ export const PRICING_PLANS: PricingPlan[] = [
     },
     features: [
       "Unlimited posts",
+      "1 author",
       "1GB media storage",
       "AI Readability insights",
       "10k API requests per month",
@@ -43,9 +44,10 @@ export const PRICING_PLANS: PricingPlan[] = [
       monthly: "$20",
       yearly: "$180",
     },
-    trial: "7 day free trial",
+    trial: "3 day free trial",
     features: [
       "Unlimited posts",
+      "Unlimited authors",
       "10GB media storage",
       "AI Readability insights",
       "50k API requests per month",

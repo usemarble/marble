@@ -21,9 +21,17 @@ import {
   getFilteredRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import dynamic from "next/dynamic";
 import { useState } from "react";
+import { usePlan } from "@/hooks/use-plan";
 import type { Author } from "@/types/author";
 import AuthorSheet from "./author-sheet";
+
+const FeatureUpgradeModal = dynamic(() =>
+  import("@/components/billing/feature-upgrade-modal").then(
+    (mod) => mod.FeatureUpgradeModal
+  )
+);
 
 interface AuthorDataTableProps {
   columns: ColumnDef<Author>[];
@@ -33,6 +41,8 @@ interface AuthorDataTableProps {
 export function AuthorDataTable({ columns, data }: AuthorDataTableProps) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const { isHobbyPlan } = usePlan();
 
   const table = useReactTable({
     data,
@@ -46,6 +56,11 @@ export function AuthorDataTable({ columns, data }: AuthorDataTableProps) {
   });
 
   const handleAddAuthor = () => {
+    // Free plan is limited to 1 author
+    if (isHobbyPlan && data.length >= 1) {
+      setShowUpgradeModal(true);
+      return;
+    }
     setShowCreateModal(true);
   };
 
@@ -54,7 +69,7 @@ export function AuthorDataTable({ columns, data }: AuthorDataTableProps) {
       <div className="flex items-center justify-between gap-4 py-4">
         <div className="relative">
           <MagnifyingGlassIcon
-            className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+            className="-translate-y-1/2 absolute top-1/2 left-3 size-4 text-muted-foreground"
             size={16}
           />
           <Input
@@ -146,6 +161,12 @@ export function AuthorDataTable({ columns, data }: AuthorDataTableProps) {
         mode="create"
         open={showCreateModal}
         setOpen={setShowCreateModal}
+      />
+
+      <FeatureUpgradeModal
+        feature="authors"
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
       />
     </div>
   );

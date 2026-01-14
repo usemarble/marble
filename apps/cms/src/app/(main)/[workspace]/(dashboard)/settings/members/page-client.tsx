@@ -1,16 +1,16 @@
 "use client";
 
-import { Button } from "@marble/ui/components/button";
 import { UsersIcon } from "@phosphor-icons/react";
 import dynamic from "next/dynamic";
 import { useState } from "react";
-import { UpgradeModal } from "@/components/billing/upgrade-modal";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
 import { columns, type TeamMemberRow } from "@/components/team/columns";
 import { TeamDataTable } from "@/components/team/data-table";
 import { InviteSection } from "@/components/team/invite-section";
+import { AsyncButton } from "@/components/ui/async-button";
 import { usePlan } from "@/hooks/use-plan";
+import { checkout } from "@/lib/auth/client";
 import { useUser } from "@/providers/user";
 import { useWorkspace } from "@/providers/workspace";
 
@@ -32,7 +32,7 @@ function PageClient() {
 
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showLeaveWorkspaceModal, setShowLeaveWorkspaceModal] = useState(false);
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   if (isFetchingWorkspace || !activeWorkspace || !user) {
     return <PageLoader />;
@@ -50,6 +50,25 @@ function PageClient() {
     userId: member.userId,
   }));
 
+  const handleUpgrade = async () => {
+    if (!activeWorkspace?.id) {
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      await checkout({
+        slug: "pro",
+        referenceId: activeWorkspace.id,
+      });
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   console.log("invitations", activeWorkspace.invitations);
 
   return (
@@ -66,15 +85,16 @@ function PageClient() {
                   To add team members upgrade to a pro plan
                 </p>
                 <p className="text-muted-foreground text-sm">
-                  You can try it free for 7 days.
+                  You can try it free for 3 days.
                 </p>
               </div>
-              <Button
+              <AsyncButton
                 className="w-fit"
-                onClick={() => setShowUpgradeModal(true)}
+                isLoading={isLoading}
+                onClick={handleUpgrade}
               >
                 <span>Upgrade</span>
-              </Button>
+              </AsyncButton>
             </div>
           </div>
         </div>
@@ -94,11 +114,6 @@ function PageClient() {
           <InviteSection invitations={activeWorkspace.invitations || []} />
         </div>
       )}
-
-      <UpgradeModal
-        isOpen={showUpgradeModal}
-        onClose={() => setShowUpgradeModal(false)}
-      />
 
       <InviteModal open={showInviteModal} setOpen={setShowInviteModal} />
       <LeaveWorkspaceModal
