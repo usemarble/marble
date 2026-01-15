@@ -15,6 +15,14 @@ import type { Env } from "../types/env";
 
 const posts = new OpenAPIHono<{ Bindings: Env }>();
 
+/**
+ * Build Prisma status filter based on status parameter
+ */
+const buildStatusFilter = (status: "published" | "draft" | "all") =>
+  status === "all"
+    ? { status: { in: ["published", "draft"] as ("published" | "draft")[] } }
+    : { status };
+
 const PostsQuerySchema = z.object({
   limit: z.coerce
     .number()
@@ -226,7 +234,8 @@ const getPostRoute = createRoute({
   path: "/{identifier}",
   tags: ["Posts"],
   summary: "Get post",
-  description: "Get a single published post by ID or slug",
+  description:
+    "Get a single post by ID or slug, with optional status filtering",
   request: {
     params: PostParamsSchema,
     query: SinglePostQuerySchema,
@@ -284,13 +293,7 @@ posts.openapi(listPostsRoute, async (c) => {
       tagFilter.none = { slug: { in: excludeTags } };
     }
 
-    // Build status filter based on status parameter
-    const statusFilter =
-      status === "all"
-        ? {
-            status: { in: ["published", "draft"] as ("published" | "draft")[] },
-          }
-        : { status: status as "published" | "draft" };
+    const statusFilter = buildStatusFilter(status);
 
     // Build the where clause
     const where = {
@@ -485,13 +488,7 @@ posts.openapi(getPostRoute, async (c) => {
     const db = createClient(url);
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
 
-    // Build status filter based on status parameter
-    const statusFilter =
-      status === "all"
-        ? {
-            status: { in: ["published", "draft"] as ("published" | "draft")[] },
-          }
-        : { status: status as "published" | "draft" };
+    const statusFilter = buildStatusFilter(status);
 
     // Cache by identifier (slug or id), format, and status
     const singleCacheKey = cacheKey(
@@ -559,7 +556,8 @@ posts.openapi(getPostRoute, async (c) => {
       return c.json(
         {
           error: "Post not found",
-          message: "The requested post does not exist or is not published",
+          message:
+            "The requested post does not exist or does not match the requested status",
         },
         404 as const
       );
