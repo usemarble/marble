@@ -1,6 +1,6 @@
 import { createClient } from "@marble/db/workers";
-import { hashApiKey } from "@marble/utils";
 import type { MiddlewareHandler } from "hono";
+import { hashApiKey } from "../lib/crypto";
 import type { ApiKeyApp } from "../types/env";
 
 /**
@@ -45,7 +45,7 @@ export const keyAuthorization =
     try {
       const db = createClient(DATABASE_URL);
 
-      const hashedKey = hashApiKey(apiKey);
+      const hashedKey = await hashApiKey(apiKey);
 
       const key = await db.apiKey.findUnique({
         where: { key: hashedKey },

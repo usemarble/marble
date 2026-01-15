@@ -153,6 +153,16 @@ const PostsQuerySchema = z.object({
       example: "true",
       description: "Filter by featured status",
     }),
+  status: z
+    .enum(["published", "draft", "all"])
+    .optional()
+    .default("published")
+    .openapi({
+      param: { name: "status", in: "query" },
+      example: "published",
+      description:
+        "Filter by post status. Use 'published' for live posts, 'draft' for unpublished posts, or 'all' for both.",
+    }),
 });
 
 const PostParamsSchema = z.object({
@@ -169,6 +179,16 @@ const SinglePostQuerySchema = z.object({
     example: "html",
     description: "Content format (html or markdown)",
   }),
+  status: z
+    .enum(["published", "draft", "all"])
+    .optional()
+    .default("published")
+    .openapi({
+      param: { name: "status", in: "query" },
+      example: "published",
+      description:
+        "Filter by post status. Use 'published' for live posts, 'draft' for unpublished posts, or 'all' for both.",
+    }),
 });
 
 const listPostsRoute = createRoute({
@@ -245,6 +265,7 @@ posts.openapi(listPostsRoute, async (c) => {
       query,
       format,
       featured,
+      status,
     } = c.req.valid("query");
 
     const categoryFilter: Record<string, unknown> = {};
@@ -263,10 +284,18 @@ posts.openapi(listPostsRoute, async (c) => {
       tagFilter.none = { slug: { in: excludeTags } };
     }
 
+    // Build status filter based on status parameter
+    const statusFilter =
+      status === "all"
+        ? {
+            status: { in: ["published", "draft"] as ("published" | "draft")[] },
+          }
+        : { status: status as "published" | "draft" };
+
     // Build the where clause
     const where = {
       workspaceId,
-      status: "published" as const,
+      ...statusFilter,
       ...(Object.keys(categoryFilter).length > 0
         ? { category: { slug: categoryFilter } }
         : {}),
@@ -291,6 +320,7 @@ posts.openapi(listPostsRoute, async (c) => {
         excludeTags,
         query,
         featured,
+        status,
       }),
       "count"
     );
@@ -316,6 +346,7 @@ posts.openapi(listPostsRoute, async (c) => {
         query,
         format,
         featured,
+        status,
       })
     );
 
@@ -450,16 +481,24 @@ posts.openapi(getPostRoute, async (c) => {
     const url = c.env.DATABASE_URL;
     const workspaceId = requireWorkspaceId(c);
     const { identifier } = c.req.valid("param");
-    const { format } = c.req.valid("query");
+    const { format, status } = c.req.valid("query");
     const db = createClient(url);
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
 
-    // Cache by identifier (slug or id) and format
+    // Build status filter based on status parameter
+    const statusFilter =
+      status === "all"
+        ? {
+            status: { in: ["published", "draft"] as ("published" | "draft")[] },
+          }
+        : { status: status as "published" | "draft" };
+
+    // Cache by identifier (slug or id), format, and status
     const singleCacheKey = cacheKey(
       workspaceId,
       "posts",
       identifier,
-      hashQueryParams({ format })
+      hashQueryParams({ format, status })
     );
 
     const post = await cache.getOrSet(singleCacheKey, () =>
@@ -467,7 +506,7 @@ posts.openapi(getPostRoute, async (c) => {
         where: {
           workspaceId,
           OR: [{ slug: identifier }, { id: identifier }],
-          status: "published",
+          ...statusFilter,
         },
         select: {
           id: true,
