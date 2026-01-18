@@ -71,7 +71,7 @@ export const PRICING_FAQS: {
   {
     question: "How are plans billed?",
     answer:
-      "Our plans are billed per workspace, not per user. This means you can invite as many team members as your plan allows to a workspace without any extra charges per member. Each workspace requires its own subscription if you wish to upgrade it.",
+      "Our plans are billed per workspace. This means you can invite as many team members as your plan allows to a workspace without any extra charges per member.",
   },
   {
     question: "Do you offer a free trial?",
@@ -97,5 +97,25 @@ export const PRICING_FAQS: {
     question: "What happens when I downgrade my plan?",
     answer:
       "When you downgrade, you'll retain access to paid features until the end of your current billing cycle. Afterward, your workspace will be moved to the Free plan, and some features may become unavailable.",
+  },
+  {
+    question: "Can I cancel anytime?",
+    answer:
+      "Yes, you can cancel your subscription at any time from your workspace billing settings. Your subscription will remain active until the end of your current billing period, and you won't be charged for the next cycle.",
+  },
+  {
+    question: "What happens if I exceed my plan limits?",
+    answer:
+      "If you exceed your plan's API request, storage, or webhook limits, we'll notify you. For API requests, you may experience rate limiting. We recommend upgrading to Pro if you consistently exceed limits, or you can monitor your usage in the dashboard.",
+  },
+  {
+    question: "Can I have multiple workspaces on one plan?",
+    answer:
+      "Each workspace requires its own subscription. If you want multiple workspaces on a paid plan, you'll need to subscribe separately for each workspace. However, you can have unlimited workspaces on the free Hobby plan.",
+  },
+  {
+    question: "Is there a discount for annual billing?",
+    answer:
+      "Yes! When you choose annual billing, you save 20% compared to monthly billing. The Pro plan is $192 per year (equivalent to $16/month) instead of $20/month when billed monthly.",
   },
 ];

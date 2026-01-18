@@ -4,6 +4,7 @@ import Container from "@/components/Container.astro";
 import AccordionItem from "@/components/ui/AccordionItem.astro";
 import Button from "@/components/ui/Button.astro";
 import Layout from "@/layouts/Layout.astro";
+import { PRICING_FAQS } from "@/lib/constants/faqs";
 import { SITE } from "@/lib/constants/site";
 import { cn } from "@/lib/utils";
 
@@ -146,6 +147,37 @@ const yearlyMonthlyPrice = "$16";
                   </li>
                 ))}
           </ul>
+        </Container>
+      </div>
+    </section>
+
+    <section>
+      <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
+        <Container class="pt-12 pb-20">
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-20">
+            <div
+              class="flex flex-col items-center lg:items-start space-y-4 text-center lg:text-left"
+            >
+              <h2
+                class="relative text-center text-balance text-2xl tracking-tight md:text-3xl lg:text-4xl lg:text-left max-w-4xl"
+              >
+                Frequently asked Questions
+              </h2>
+              <p
+                class="max-w-prose md:text-lg text-muted-foreground text-balance"
+              >
+                Answers to common questions about pricing and billing.
+              </p>
+            </div>
+
+            <div class="lg:col-span-2 divide-y divide-dashed">
+              {PRICING_FAQS.map(faq => (
+              <AccordionItem name="details" title={faq.question}>
+                <p class="text-sm faq-answer text-muted-foreground pb-2" set:html={faq.answer} />
+              </AccordionItem>
+            ))}
+            </div>
+          </div>
         </Container>
       </div>
     </section>
