@@ -9,8 +9,7 @@ import { SITE_CONFIG } from "@/utils/site";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_CONFIG.url),
   title: "Log In - Marble",
-  description:
-    "Sign in to your Marble account to manage your blog.",
+  description: "Sign in to your Marble account to manage your blog.",
   alternates: {
     canonical: "/login",
   },
