@@ -216,17 +216,10 @@ function PageClient() {
                 </div>
 
                 <div>
-                  <div>
-                    <span className="font-bold text-3xl">
-                      {isYearly ? yearlyMonthlyPrice : monthlyPrice}
-                    </span>
-                    <span className="text-muted-foreground">/month</span>
-                  </div>
-                  <span className="text-muted-foreground text-sm">
-                    {isYearly
-                      ? "billed annually ($192/year)"
-                      : "billed monthly"}
+                  <span className="font-bold text-3xl">
+                    {isYearly ? yearlyMonthlyPrice : monthlyPrice}
                   </span>
+                  <span className="text-muted-foreground">/month</span>
                 </div>
                 {isOwner && renderPlanButton("pro")}
 
