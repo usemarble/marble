@@ -1,6 +1,7 @@
 "use client";
 
 import { Input } from "@marble/ui/components/input";
+import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
 import { useEffect, useState } from "react";
@@ -57,28 +58,31 @@ export default function ResetRequestForm() {
           Enter your email address and we&apos;ll send you a reset link.
         </p>
       </div>
+      <div className="flex w-full flex-col gap-4">
+        <Label className="sr-only" htmlFor="email">
+          Email
+        </Label>
+        <Input
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="you@example.com"
+          type="email"
+          value={email}
+        />
 
-      <Input
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="you@example.com"
-        type="email"
-        value={email}
-      />
-
-      <AsyncButton
-        className={cn(
-          "flex min-w-48 items-center justify-center",
-          isLoading || (waitingSeconds > 0 && "cursor-not-allowed")
-        )}
-        disabled={!email || isLoading || waitingSeconds > 0}
-        isLoading={isLoading}
-        onClick={handleRequest}
-      >
-        <div>
-          Send reset link{" "}
-          {waitingSeconds > 0 && <span>({waitingSeconds}s)</span>}
-        </div>
-      </AsyncButton>
+        <AsyncButton
+          className={cn(
+            "flex items-center justify-center",
+            isLoading || (waitingSeconds > 0 && "cursor-not-allowed")
+          )}
+          disabled={!email || isLoading || waitingSeconds > 0}
+          isLoading={isLoading}
+          onClick={handleRequest}
+        >
+          <div>
+            Send link {waitingSeconds > 0 && <span>({waitingSeconds}s)</span>}
+          </div>
+        </AsyncButton>
+      </div>
     </section>
   );
 }

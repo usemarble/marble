@@ -1,16 +1,14 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { buttonVariants } from "@marble/ui/components/button";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
-import { EyeIcon, EyeSlashIcon, SpinnerIcon } from "@phosphor-icons/react";
+import { EyeIcon, EyeSlashIcon } from "@phosphor-icons/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
-import { ButtonLoadingSpinner } from "@/components/ui/loading-spinner";
 import { useLocalStorage } from "@/hooks/use-localstorage";
 import { authClient } from "@/lib/auth/client";
 import { type CredentialData, credentialSchema } from "@/lib/validations/auth";
@@ -109,51 +107,43 @@ export function RegisterForm() {
 
   return (
     <div className="grid gap-6">
-      <div className="grid grid-cols-2 gap-4">
-        <button
-          className={cn(
-            buttonVariants({ variant: "outline", size: "lg" }),
-            "relative"
-          )}
+      <div className="grid grid-cols-1 gap-4">
+        <AsyncButton
+          className={cn("relative")}
           disabled={isCredentialsLoading || isGoogleLoading || isGithubLoading}
+          isLoading={isGoogleLoading}
           onClick={async () => handleSocialSignIn("google")}
+          size="lg"
           type="button"
+          variant="outline"
         >
           <LastUsedBadge
             show={lastUsedAuthMethod === "google"}
             variant="info"
           />
-          {isGoogleLoading ? (
-            <SpinnerIcon className="mr-2 size-4 animate-spin" />
-          ) : (
-            <Google className="mr-2 size-4" />
-          )}{" "}
+          <Google className="size-4" />
           Google
-        </button>
-        <button
-          className={cn(
-            buttonVariants({ variant: "outline", size: "lg" }),
-            "relative gap-2"
-          )}
+        </AsyncButton>
+        <AsyncButton
+          className={cn("relative")}
           disabled={isCredentialsLoading || isGoogleLoading || isGithubLoading}
+          isLoading={isGithubLoading}
           onClick={async () => handleSocialSignIn("github")}
+          size="lg"
           type="button"
+          variant="outline"
         >
           <LastUsedBadge
             show={lastUsedAuthMethod === "github"}
             variant="info"
           />
-          {isGithubLoading ? (
-            <ButtonLoadingSpinner />
-          ) : (
-            <Github className="size-4" />
-          )}{" "}
+          <Github className="size-4" />
           GitHub
-        </button>
+        </AsyncButton>
       </div>
       <div className="relative flex items-center">
         <span className="inline-block h-px w-full border-t bg-border" />
-        <span className="shrink-0 px-2 text-muted-foreground text-xs uppercase">
+        <span className="shrink-0 px-2 text-[10px] text-muted-foreground uppercase">
           Or
         </span>
         <span className="inline-block h-px w-full border-t bg-border" />

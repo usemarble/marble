@@ -3,12 +3,12 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { RegisterForm } from "@/components/auth/register-form";
 import MarbleIcon from "@/components/icons/marble";
-import Credits from "@/components/util/credits";
 import { SITE_CONFIG } from "@/utils/site";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_CONFIG.url),
   title: "Sign Up - Marble",
+  description: "Create a new Marble account to start managing your blog.",
   alternates: {
     canonical: "/register",
   },
@@ -25,7 +25,7 @@ export default async function RegisterPage(props: PageProps) {
 
   return (
     <div className="h-screen w-full md:grid md:grid-cols-2">
-      <section className="hidden flex-col justify-between bg-surface p-10 md:flex">
+      <section className="hidden flex-col justify-between bg-surface p-6 md:flex">
         <div>
           <MarbleIcon />
         </div>
@@ -33,18 +33,15 @@ export default async function RegisterPage(props: PageProps) {
           <p className="font-medium text-lg">
             The easiest way to manage your blog.
           </p>
-          <Credits />
         </div>
       </section>
-      <section className="flex h-full flex-col items-center justify-between p-4">
+      <section className="flex h-full flex-col items-center justify-between p-6">
         <div className="self-start">
-          <h1 className="sr-only font-semibold uppercase">Marble</h1>
+          <h1 className="sr-only">Register for an account</h1>
         </div>
         <div className="flex min-w-[300px] flex-col gap-8 rounded-md p-6 lg:w-[384px] lg:px-8 lg:py-10">
           <div className="text-center">
-            <h1 className="font-semibold text-xl lg:text-2xl">
-              Create Account
-            </h1>
+            <p className="font-semibold text-xl lg:text-2xl">Create Account</p>
             <p className="text-muted-foreground text-sm">
               Sign up to get started.
             </p>
@@ -57,7 +54,7 @@ export default async function RegisterPage(props: PageProps) {
           <p className="px-8 text-center text-muted-foreground text-xs">
             Already have an account?{" "}
             <Link
-              className="underline underline-offset-4 hover:text-primary"
+              className="underline underline-offset-2 hover:text-primary"
               href={from && from !== "/" ? `/login?from=${from}` : "/login"}
             >
               Login
@@ -68,7 +65,7 @@ export default async function RegisterPage(props: PageProps) {
           <p className="px-8 text-center text-muted-foreground text-xs">
             By continuing, you agree to our{" "}
             <Link
-              className="underline underline-offset-4 hover:text-primary"
+              className="underline underline-offset-2 hover:text-primary"
               href="https://marblecms.com/terms"
               target="_blank"
             >
@@ -76,7 +73,7 @@ export default async function RegisterPage(props: PageProps) {
             </Link>{" "}
             and{" "}
             <Link
-              className="underline underline-offset-4 hover:text-primary"
+              className="underline underline-offset-2 hover:text-primary"
               href="https://marblecms.com/privacy"
               target="_blank"
             >
