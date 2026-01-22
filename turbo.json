@@ -39,7 +39,7 @@
       ]
     },
     "lint": {
-      "dependsOn": ["^lint"]
+      "dependsOn": ["transit"]
     },
     "dev": {
       "dependsOn": ["^db:generate"],
