@@ -8,10 +8,7 @@ export const EMAIL_CONFIG = {
    * Falls back to production URL if not set
    */
   getSiteUrl(): string {
-    return (
-      process.env.NEXT_PUBLIC_APP_URL ||
-      "https://marblecms.com"
-    );
+    return process.env.NEXT_PUBLIC_APP_URL || "https://marblecms.com";
   },
 
   /**
@@ -19,10 +16,7 @@ export const EMAIL_CONFIG = {
    * Falls back to production URL if not set
    */
   getAppUrl(): string {
-    return (
-      process.env.NEXT_PUBLIC_APP_URL ||
-      "https://app.marblecms.com"
-    );
+    return process.env.NEXT_PUBLIC_APP_URL || "https://app.marblecms.com";
   },
 
   /**
