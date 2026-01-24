@@ -18,7 +18,7 @@ export const PLAN_LIMITS: Record<PlanType, PlanLimits> = {
     maxMembers: 1,
     maxMediaStorage: 1024,
     maxApiRequests: 10_000,
-    maxWebhookEvents: 0,
+    maxWebhookEvents: 100,
     features: {
       inviteMembers: true,
       advancedReadability: false,
@@ -28,9 +28,9 @@ export const PLAN_LIMITS: Record<PlanType, PlanLimits> = {
   },
   pro: {
     maxMembers: 5,
-    maxMediaStorage: 2048,
+    maxMediaStorage: 10_240,
     maxApiRequests: 50_000,
-    maxWebhookEvents: 50,
+    maxWebhookEvents: 1000,
     features: {
       inviteMembers: true,
       advancedReadability: true,

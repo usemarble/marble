@@ -2,6 +2,7 @@ import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { invalidateCache } from "@/lib/cache/invalidate";
+import { getWorkspacePlan } from "@/lib/plans";
 import { authorSchema } from "@/lib/validations/authors";
 
 export async function GET() {
@@ -67,6 +68,60 @@ export async function POST(request: Request) {
   }
 
   try {
+    // Check plan limits for author creation (only hobby plan is limited to 1 author)
+    const workspace = await db.organization.findUnique({
+      where: { id: workspaceId },
+      select: {
+        subscriptions: {
+          where: {
+            OR: [
+              { status: "active" },
+              { status: "trialing" },
+              {
+                status: "canceled",
+                cancelAtPeriodEnd: true,
+                currentPeriodEnd: { gt: new Date() },
+              },
+            ],
+          },
+          orderBy: { createdAt: "desc" },
+          take: 1,
+          select: {
+            id: true,
+            status: true,
+            plan: true,
+            currentPeriodStart: true,
+            currentPeriodEnd: true,
+            cancelAtPeriodEnd: true,
+            canceledAt: true,
+          },
+        },
+      },
+    });
+
+    const activeSubscription = workspace?.subscriptions[0] || null;
+    const currentPlan = getWorkspacePlan(activeSubscription);
+
+    // Hobby plan is limited to 1 author
+    if (currentPlan === "hobby") {
+      const existingAuthorsCount = await db.author.count({
+        where: {
+          workspaceId,
+          isActive: true,
+        },
+      });
+
+      if (existingAuthorsCount >= 1) {
+        return NextResponse.json(
+          {
+            error:
+              "Author limit reached. Upgrade to Pro plan to create more authors.",
+          },
+          { status: 403 }
+        );
+      }
+    }
+
     const body = await request.json();
     const parsedBody = authorSchema.safeParse(body);
 

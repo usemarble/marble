@@ -166,7 +166,6 @@ export const auth = betterAuth({
           inviterName: data.inviter.user.name,
           inviterEmail: data.inviter.user.email,
           workspaceName: data.organization.name,
-          teamLogo: data.organization.logo,
           inviteLink,
         });
       },

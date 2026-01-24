@@ -57,7 +57,7 @@
     "react-hook-form": "^7.70.0",
     "react-textarea-autosize": "^8.5.9",
     "recharts": "^2.15.3",
-    "resend": "^4.0.1",
+    "resend": "^6.8.0",
     "sanitize-html": "^2.17.0",
     "server-only": "^0.0.1",
     "sharp": "^0.33.5",

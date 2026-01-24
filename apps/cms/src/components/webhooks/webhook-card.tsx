@@ -95,14 +95,14 @@ export function WebhookCard({
                 ) : undefined}
                 <DropdownMenuItem
                   disabled={isToggling}
-                  onSelect={(_e) => setIsEditOpen(true)}
+                  onClick={() => setIsEditOpen(true)}
                 >
                   <PencilIcon className="mr-1.5 size-4" />
                   Edit
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   disabled={isToggling}
-                  onSelect={(_e) => setIsDeleteOpen(true)}
+                  onClick={() => setIsDeleteOpen(true)}
                   variant="destructive"
                 >
                   <TrashIcon className="mr-1.5 size-4 text-inherit" />
