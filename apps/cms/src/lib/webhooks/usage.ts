@@ -75,16 +75,25 @@ export async function getBillingPeriod(
   const now = new Date();
   const dayOfMonth = createdAt.getDate();
 
+  const getValidDate = (year: number, month: number, day: number) => {
+    const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
+    return new Date(year, month, Math.min(day, lastDayOfMonth));
+  };
+
   // Find the current period start
-  let periodStart = new Date(now.getFullYear(), now.getMonth(), dayOfMonth);
+  let periodStart = getValidDate(now.getFullYear(), now.getMonth(), dayOfMonth);
 
   // If we haven't reached this month's anniversary yet, use last month's
   if (periodStart > now) {
-    periodStart = new Date(now.getFullYear(), now.getMonth() - 1, dayOfMonth);
+    periodStart = getValidDate(
+      now.getFullYear(),
+      now.getMonth() - 1,
+      dayOfMonth
+    );
   }
 
   // Period end is one month after start
-  const periodEnd = new Date(
+  const periodEnd = getValidDate(
     periodStart.getFullYear(),
     periodStart.getMonth() + 1,
     dayOfMonth

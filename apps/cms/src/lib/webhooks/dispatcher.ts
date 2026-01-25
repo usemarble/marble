@@ -112,9 +112,11 @@ export async function dispatchWebhooks<K extends keyof WebhookEventMap>({
   // Calculate how many webhooks we can still send
   const remainingQuota = usageCheck.limit - usageCheck.currentUsage;
   const totalDeliveries = webhooks.length * payloads.length;
+  const sendable = Math.max(0, Math.min(remainingQuota, totalDeliveries));
+  const blockedCount = totalDeliveries - sendable;
 
   let deliveredCount = 0;
-  let blockedCount = 0;
+  let reservedCount = 0;
 
   const deliveries: Promise<void>[] = [];
 
@@ -122,14 +124,12 @@ export async function dispatchWebhooks<K extends keyof WebhookEventMap>({
     const client = new WebhookClient({ secret: webhook.secret });
     for (const data of payloads) {
       // Check if we've exceeded quota mid-dispatch
-      if (deliveredCount >= remainingQuota) {
-        blockedCount++;
-        console.log(
-          "[WebhookDispatcher] Quota exhausted mid-dispatch, blocking remaining webhooks"
-        );
+      if (reservedCount >= sendable) {
+        // All remaining are blocked
         continue;
       }
 
+      reservedCount++;
       deliveries.push(
         (async () => {
           try {
@@ -156,6 +156,12 @@ export async function dispatchWebhooks<K extends keyof WebhookEventMap>({
         })()
       );
     }
+  }
+
+  if (blockedCount > 0) {
+    console.log(
+      `[WebhookDispatcher] Quota exhausted mid-dispatch, blocked ${blockedCount} remaining webhooks`
+    );
   }
 
   await Promise.allSettled(deliveries).catch((error) => {

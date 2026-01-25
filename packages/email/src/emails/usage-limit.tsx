@@ -47,10 +47,16 @@ export const UsageLimitEmail = ({
   const billingUrl = `${siteurl}/pricing`;
 
   const greeting = userName ? `Hi ${userName},` : "Hi there,";
+  const limitValid = Number.isFinite(limitAmount) && limitAmount > 0;
+
   const usageFormatted = formatNumber(usageAmount);
-  const limitFormatted = formatNumber(limitAmount);
-  const percentage = Math.round((usageAmount / limitAmount) * 100);
-  const remaining = Math.max(0, limitAmount - usageAmount);
+  const limitFormatted = limitValid ? formatNumber(limitAmount) : "N/A";
+
+  const percentage = limitValid
+    ? Math.round((usageAmount / limitAmount) * 100)
+    : 0;
+
+  const remaining = limitValid ? Math.max(0, limitAmount - usageAmount) : 0;
 
   return (
     <Html>
@@ -74,7 +80,7 @@ export const UsageLimitEmail = ({
             </Heading>
 
             <Section className="mt-4">
-              <Text className="m-0 mb-4 text-base text-black leading-relaxed">
+              <Text className="m-0 mb-4 text-[#737373] text-base leading-relaxed">
                 {greeting}
               </Text>
               <Text className="m-0 mb-4 text-[#737373] text-base leading-relaxed">

@@ -1,14 +1,10 @@
-/**
- * Centralized email configuration
- */
-
 export const EMAIL_CONFIG = {
   /**
    * Site URL for marketing site (logo, assets, etc.)
    * Falls back to production URL if not set
    */
   getSiteUrl(): string {
-    return process.env.NEXT_PUBLIC_APP_URL || "https://marblecms.com";
+    return process.env.NEXT_PUBLIC_SITE_URL || "https://marblecms.com";
   },
 
   /**
@@ -20,11 +16,11 @@ export const EMAIL_CONFIG = {
   },
 
   /**
-   * @deprecated Use getSiteUrl() or getAppUrl() instead
-   * Base URL for backward compatibility
+   * Get logo URL with fallback (uses site URL)
    */
-  getBaseUrl(): string {
-    return this.getSiteUrl();
+  getLogoUrl(): string {
+    const siteUrl = this.getSiteUrl();
+    return `${siteUrl}/logo.svg`;
   },
 
   /**
@@ -47,13 +43,5 @@ export const EMAIL_CONFIG = {
     state: "",
     zip: "",
     country: "Federal Republic of Nigeria",
-  },
-
-  /**
-   * Get logo URL with fallback (uses site URL)
-   */
-  getLogoUrl(): string {
-    const siteUrl = this.getSiteUrl();
-    return `${siteUrl}/logo.svg`;
   },
 } as const;

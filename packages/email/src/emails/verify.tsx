@@ -19,7 +19,6 @@ interface VerifyUserEmailProps {
   userEmail: string;
   otp: string;
   type: "sign-in" | "email-verification" | "forget-password";
-  baseUrl?: string;
 }
 
 export const VerifyUserEmail = ({
