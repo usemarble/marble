@@ -12,19 +12,21 @@ import {
   Text,
 } from "@react-email/components";
 
+import { EmailFooter } from "../components/footer";
+import { EMAIL_CONFIG } from "../lib/config";
+
 interface VerifyUserEmailProps {
   userEmail: string;
   otp: string;
   type: "sign-in" | "email-verification" | "forget-password";
 }
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
-
 export const VerifyUserEmail = ({
   userEmail,
   otp,
   type,
 }: VerifyUserEmailProps) => {
+  const logoUrl = EMAIL_CONFIG.getLogoUrl();
   const previewText =
     type === "sign-in"
       ? "Your verification code"
@@ -43,17 +45,17 @@ export const VerifyUserEmail = ({
               <Img
                 alt="Marble Logo"
                 className="mx-auto"
-                height="48"
-                src={`${baseUrl}/icon.png`}
-                width="48"
+                height="40"
+                src={logoUrl}
+                width="40"
               />
             </Section>
 
-            <Heading className="my-6 text-center font-bold text-2xl text-black">
+            <Heading className="my-6 text-center font-medium text-2xl text-black">
               {previewText}
             </Heading>
 
-            <Text className="text-center text-base text-gray-700 leading-relaxed">
+            <Text className="text-center text-[#737373] text-base leading-relaxed">
               Use the verification code below to complete your verification
               process. This code will expire in 5 minutes.
             </Text>
@@ -64,17 +66,19 @@ export const VerifyUserEmail = ({
               </Text>
             </Section>
 
-            <Hr className="mx-0 my-[26px] w-full border border-[#eaeaea] border-solid" />
+            <Hr className="mx-0 mt-[26px] w-full border border-[#eaeaea] border-solid" />
             <Text className="text-[#666666] text-[12px] leading-[24px]">
               This email was intended for{" "}
-              <span className="text-black">{userEmail}</span>. If you did not
-              request this code, you can ignore this email. If you are concerned
-              about your account's safety, please send an email to
-              support@marblecms.com to get in touch with us.
+              <span className="text-black">{userEmail}</span>. If you didn't
+              request this code, you can safely ignore this email. Need help?
+              Reach us at {EMAIL_CONFIG.replyTo}.
             </Text>
+            <EmailFooter />
           </Container>
         </Body>
       </Tailwind>
     </Html>
   );
 };
+
+export default VerifyUserEmail;

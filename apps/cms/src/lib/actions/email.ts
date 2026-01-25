@@ -4,6 +4,7 @@ import {
   sendDevEmail,
   sendInviteEmail,
   sendResetPassword,
+  sendUsageLimitEmail,
   sendVerificationEmail,
   sendWelcomeEmail,
 } from "@marble/email";
@@ -21,7 +22,6 @@ interface SendInviteEmailProps {
   inviterEmail: string;
   workspaceName: string;
   inviteLink: string;
-  teamLogo?: string | null;
 }
 
 export async function sendInviteEmailAction({
@@ -30,7 +30,6 @@ export async function sendInviteEmailAction({
   inviterEmail,
   workspaceName,
   inviteLink,
-  teamLogo,
 }: SendInviteEmailProps) {
   if (!resend && isDevelopment) {
     return sendDevEmail({
@@ -46,7 +45,6 @@ export async function sendInviteEmailAction({
           inviterEmail,
           workspaceName,
           inviteLink,
-          teamLogo: teamLogo || "default",
         },
       },
     });
@@ -69,7 +67,6 @@ export async function sendInviteEmailAction({
       inviterEmail,
       workspaceName,
       inviteLink,
-      teamLogo,
     });
 
     console.log("Email sent successfully:", response);
@@ -185,5 +182,61 @@ export async function sendWelcomeEmailAction({
   } catch (error) {
     console.error("Detailed error sending email:", error);
     return { success: false, error: "Failed to send email" };
+  }
+}
+
+export async function sendUsageLimitEmailAction({
+  userEmail,
+  userName,
+  featureName = "Webhooks",
+  usageAmount,
+  limitAmount,
+  workspaceId,
+}: {
+  userEmail: string;
+  userName?: string;
+  featureName?: string;
+  usageAmount: number;
+  limitAmount: number;
+  workspaceId?: string;
+}) {
+  if (!resend && isDevelopment) {
+    return sendDevEmail({
+      from: "Marble <emails@marblecms.com>",
+      to: userEmail,
+      text: `This is a mock usage limit email for ${featureName}`,
+      subject: `You're approaching your ${featureName} limit`,
+      _mockContext: {
+        type: "usage-limit",
+        data: {
+          userEmail,
+          userName,
+          featureName,
+          usageAmount,
+          limitAmount,
+          workspaceId,
+        },
+      },
+    });
+  }
+
+  if (!resend) {
+    throw new Error("Resend API key not set");
+  }
+
+  try {
+    await sendUsageLimitEmail(resend, {
+      userEmail,
+      userName,
+      featureName,
+      usageAmount,
+      limitAmount,
+      workspaceId,
+    });
+
+    return { success: true, message: "Usage limit email sent successfully" };
+  } catch (error) {
+    console.error("Detailed error sending usage limit email:", error);
+    return { success: false, error: "Failed to send usage limit email" };
   }
 }

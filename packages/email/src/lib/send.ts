@@ -1,8 +1,10 @@
 import type { Resend } from "resend";
-import { InviteUserEmail } from "../components/invite";
-import { ResetPasswordEmail } from "../components/reset";
-import { VerifyUserEmail } from "../components/verify";
-import { WelcomeEmail } from "../components/welcome";
+import { InviteUserEmail } from "../emails/invite";
+import { ResetPasswordEmail } from "../emails/reset";
+import { UsageLimitEmail } from "../emails/usage-limit";
+import { VerifyUserEmail } from "../emails/verify";
+import { WelcomeEmail } from "../emails/welcome";
+import { EMAIL_CONFIG } from "./config";
 
 interface SendInviteEmailProps {
   inviteeEmail: string;
@@ -11,7 +13,6 @@ interface SendInviteEmailProps {
   inviterEmail: string;
   workspaceName: string;
   inviteLink: string;
-  teamLogo?: string | null;
 }
 
 export async function sendInviteEmail(
@@ -22,23 +23,19 @@ export async function sendInviteEmail(
     inviterEmail,
     workspaceName,
     inviteLink,
-    teamLogo,
   }: SendInviteEmailProps
 ) {
   return await resend.emails.send({
-    from: "Marble <emails@marblecms.com>",
+    from: EMAIL_CONFIG.from,
+    replyTo: EMAIL_CONFIG.replyTo,
     to: inviteeEmail,
     subject: `Join ${workspaceName} on Marble`,
     react: InviteUserEmail({
       inviteeEmail,
       invitedByUsername: inviterName,
       invitedByEmail: inviterEmail,
-      teamName: workspaceName,
+      workspaceName,
       inviteLink,
-      userImage: `https://api.dicebear.com/9.x/notionists-neutral/svg?seed=${inviteeEmail}`,
-      teamImage:
-        teamLogo ||
-        `https://api.dicebear.com/9.x/glass/svg?seed=${workspaceName}`,
     }),
   });
 }
@@ -56,7 +53,8 @@ export async function sendVerificationEmail(
   }
 ) {
   return await resend.emails.send({
-    from: "Marble <emails@marblecms.com>",
+    from: EMAIL_CONFIG.from,
+    replyTo: EMAIL_CONFIG.replyTo,
     to: userEmail,
     subject: "Verify your email address",
     react: VerifyUserEmail({
@@ -78,7 +76,8 @@ export async function sendResetPassword(
   }
 ) {
   return await resend.emails.send({
-    from: "Marble <emails@marblecms.com>",
+    from: EMAIL_CONFIG.from,
+    replyTo: EMAIL_CONFIG.replyTo,
     to: userEmail,
     subject: "Reset Your Password",
     react: ResetPasswordEmail({
@@ -97,11 +96,46 @@ export async function sendWelcomeEmail(
   }
 ) {
   return await resend.emails.send({
-    from: "Marble <emails@marblecms.com>",
+    from: EMAIL_CONFIG.from,
+    replyTo: EMAIL_CONFIG.replyTo,
     to: userEmail,
     subject: "Welcome to Marble!",
     react: WelcomeEmail({
       userEmail,
+      baseUrl: EMAIL_CONFIG.getAppUrl(),
+    }),
+  });
+}
+
+export async function sendUsageLimitEmail(
+  resend: Resend,
+  {
+    userEmail,
+    userName,
+    featureName = "Webhooks",
+    usageAmount,
+    limitAmount,
+    workspaceId,
+  }: {
+    userEmail: string;
+    userName?: string;
+    featureName?: string;
+    usageAmount: number;
+    limitAmount: number;
+    workspaceId?: string;
+  }
+) {
+  return await resend.emails.send({
+    from: EMAIL_CONFIG.from,
+    replyTo: EMAIL_CONFIG.replyTo,
+    to: userEmail,
+    subject: `You're approaching your ${featureName} limit`,
+    react: UsageLimitEmail({
+      userName,
+      featureName,
+      usageAmount,
+      limitAmount,
+      workspaceId,
     }),
   });
 }
