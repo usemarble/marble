@@ -75,34 +75,53 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Slug already in use" }, { status: 409 });
   }
 
-  const baseSlug = generateSlug(sessionData.user.name);
-  const uniqueSlug = `${baseSlug}-${nanoid(6)}`;
-  // Ensure there is an author profile for this user; create if missing using upsert
-  // since its possible for a user to have no author profile, We can take several directions
-  // 1. create an author profile for the user
-  // 2. use the first author in the workspace
-  // 3. reject the request
-
-  // since primary author is not required and is really only a way for us to track the original creator of the post,
-  // We'll go with the first option and create an author profile for the user (for now)
-  const primaryAuthor = await db.author.upsert({
+  // Try to find an existing author profile for this user
+  let primaryAuthor = await db.author.findUnique({
     where: {
       workspaceId_userId: {
         workspaceId: activeWorkspaceId,
         userId: sessionData.user.id,
       },
     },
-    update: {},
-    create: {
-      name: sessionData.user.name,
-      email: sessionData.user.email,
-      slug: uniqueSlug,
-      image: sessionData.user.image,
-      workspaceId: activeWorkspaceId,
-      userId: sessionData.user.id,
-      role: "Writer",
-    },
   });
+
+  // If no author profile exists for this user fallback to the first available author in the workspace.
+  if (!primaryAuthor) {
+    primaryAuthor = await db.author.findFirst({
+      where: {
+        workspaceId: activeWorkspaceId,
+      },
+      orderBy: {
+        createdAt: "asc",
+      },
+    });
+  }
+
+  // If STILL no author exists then we create one for the current user to proceed.
+  if (!primaryAuthor) {
+    try {
+      const baseSlug = generateSlug(sessionData.user.name || "user");
+      const uniqueSlug = `${baseSlug}-${nanoid(6)}`;
+
+      primaryAuthor = await db.author.create({
+        data: {
+          name: sessionData.user.name || "Member",
+          email: sessionData.user.email,
+          slug: uniqueSlug,
+          image: sessionData.user.image,
+          workspaceId: activeWorkspaceId,
+          userId: sessionData.user.id,
+          role: "Writer",
+        },
+      });
+    } catch (error) {
+      console.error("[PostCreate] Failed to generate fallback author:", error);
+      return NextResponse.json(
+        { error: "Failed to create author profile for post" },
+        { status: 500 }
+      );
+    }
+  }
 
   const contentJson = JSON.parse(values.data.contentJson);
   const validAttribution = values.data.attribution
@@ -156,54 +175,61 @@ export async function POST(request: Request) {
     );
   }
 
-  const postCreated = await db.post.create({
-    data: {
-      primaryAuthorId: primaryAuthor.id,
-      contentJson,
-      slug: values.data.slug,
-      title: values.data.title,
-      status: values.data.status,
-      featured: values.data.featured,
-      content: cleanContent,
-      categoryId: values.data.category,
-      coverImage: values.data.coverImage,
-      publishedAt: values.data.publishedAt,
-      description: values.data.description,
-      attribution: validAttribution,
-      workspaceId: activeWorkspaceId,
-      tags:
-        uniqueTagIds.length > 0
-          ? {
-              connect: uniqueTagIds.map((id) => ({ id })),
-            }
-          : undefined,
-      authors: {
-        connect: validAuthors.map((author) => ({ id: author.id })),
+  try {
+    const postCreated = await db.post.create({
+      data: {
+        primaryAuthorId: primaryAuthor.id,
+        contentJson,
+        slug: values.data.slug,
+        title: values.data.title,
+        status: values.data.status,
+        featured: values.data.featured,
+        content: cleanContent,
+        categoryId: values.data.category,
+        coverImage: values.data.coverImage,
+        publishedAt: values.data.publishedAt,
+        description: values.data.description,
+        attribution: validAttribution,
+        workspaceId: activeWorkspaceId,
+        tags:
+          uniqueTagIds.length > 0
+            ? {
+                connect: uniqueTagIds.map((id) => ({ id })),
+              }
+            : undefined,
+        authors: {
+          connect: validAuthors.map((author) => ({ id: author.id })),
+        },
       },
-    },
-  });
-
-  // Fire and forget - don't block response
-  if (postCreated.status === "published") {
-    dispatchWebhooks({
-      workspaceId: activeWorkspaceId,
-      validationEvent: "post_published",
-      deliveryEvent: "post.published",
-      payload: {
-        id: postCreated.id,
-        title: postCreated.title,
-        slug: postCreated.slug,
-        userId: sessionData.user.id,
-      },
-    }).catch((error) => {
-      console.error(
-        `[PostCreate] Failed to dispatch webhooks: postId=${postCreated.id}`,
-        error
-      );
     });
+
+    if (postCreated.status === "published") {
+      dispatchWebhooks({
+        workspaceId: activeWorkspaceId,
+        validationEvent: "post_published",
+        deliveryEvent: "post.published",
+        payload: {
+          id: postCreated.id,
+          title: postCreated.title,
+          slug: postCreated.slug,
+          userId: sessionData.user.id,
+        },
+      }).catch((error) => {
+        console.error(
+          `[PostCreate] Failed to dispatch webhooks: postId=${postCreated.id}`,
+          error
+        );
+      });
+    }
+
+    invalidateCache(activeWorkspaceId, "posts");
+
+    return NextResponse.json({ id: postCreated.id });
+  } catch (error) {
+    console.error("[PostCreate] Error creating post:", error);
+    return NextResponse.json(
+      { error: "Failed to create post" },
+      { status: 500 }
+    );
   }
-
-  invalidateCache(activeWorkspaceId, "posts");
-
-  return NextResponse.json({ id: postCreated.id });
 }

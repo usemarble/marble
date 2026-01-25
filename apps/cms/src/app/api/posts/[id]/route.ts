@@ -232,7 +232,8 @@ export async function PATCH(
     invalidateCache(workspaceId, "posts");
 
     return NextResponse.json({ id: postUpdated.id }, { status: 200 });
-  } catch (_e) {
+  } catch (error) {
+    console.error(`[PostUpdate] Error updating post ${id}:`, error);
     return NextResponse.json(
       { error: "Failed to update post" },
       { status: 500 }
