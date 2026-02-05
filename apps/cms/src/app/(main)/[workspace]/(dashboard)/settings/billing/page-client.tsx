@@ -80,18 +80,30 @@ function PageClient() {
       );
     }
 
+    if (planId === "hobby" && isProPlan) {
+      return (
+        <Button
+          className="w-full"
+          onClick={() => redirectCustomerPortal()}
+          variant="outline"
+        >
+          Manage Billing
+          <ArrowUpRightIcon className="ml-1 size-4" />
+        </Button>
+      );
+    }
+
     const isUpgrade = planId === "pro" && currentPlan === "hobby";
-    const checkoutSlug =
-      planId === "pro" ? (isYearly ? "pro-yearly" : "pro") : "hobby";
+    const checkoutSlug = isYearly ? "pro-yearly" : "pro";
 
     return (
       <AsyncButton
         className="w-full"
         isLoading={checkoutLoading === checkoutSlug}
         onClick={() => handleCheckout(checkoutSlug)}
-        variant={isUpgrade ? "default" : "outline"}
+        variant="default"
       >
-        {isUpgrade ? "Upgrade to Pro" : "Downgrade"}
+        Upgrade to Pro
       </AsyncButton>
     );
   };
@@ -106,12 +118,14 @@ function PageClient() {
             <CardDescription>View and manage your billing plan</CardDescription>
           </div>
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 rounded-full bg-surface px-4 py-2">
-              <span className="text-muted-foreground text-sm">
-                Current plan:
-              </span>
-              <span className="font-medium">{getPlanDisplayName()}</span>
-            </div>
+            {!isProPlan && (
+              <div className="flex items-center gap-2 rounded-full bg-surface px-4 py-2">
+                <span className="text-muted-foreground text-sm">
+                  Current plan:
+                </span>
+                <span className="font-medium">{getPlanDisplayName()}</span>
+              </div>
+            )}
             {isOwner && isProPlan && (
               <Button
                 onClick={() => redirectCustomerPortal()}
