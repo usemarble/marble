@@ -96,20 +96,21 @@ function PageClient() {
   }
   return (
     <div className="grid h-screen place-items-center bg-surface dark:bg-background">
-      <Card className="rounded-[24px] px-4 py-6 sm:w-[450px]">
-        <CardHeader className="mb-5 items-center text-center">
-          <CardTitle className="font-medium">New workspace</CardTitle>
-          <CardDescription className="text-center">
-            {hasWorkspaces
-              ? "Set up your new workspace."
-              : "You'll need a workspace to proceed."}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form
-            className="flex flex-col gap-10"
-            onSubmit={handleSubmit(onSubmit)}
-          >
+      <Card className="rounded-[20px] border-none bg-surface p-2 sm:w-[450px]">
+        <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
+          <CardHeader className="mb-0 items-center gap-0 text-center">
+            <CardTitle className="font-medium text-2xl">New workspace</CardTitle>
+            <CardDescription className="text-center">
+              {hasWorkspaces
+                ? "Set up your new workspace."
+                : "You'll need a workspace to proceed."}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-0">
+            <form
+              className="flex flex-col gap-10"
+              onSubmit={handleSubmit(onSubmit)}
+            >
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-2">
                 <Label className="sr-only" htmlFor="name">
@@ -167,7 +168,6 @@ function PageClient() {
               <AsyncButton
                 className="flex w-full cursor-pointer gap-2"
                 isLoading={isSubmitting}
-                size="lg"
                 type="submit"
               >
                 Create
@@ -175,7 +175,7 @@ function PageClient() {
               {hasWorkspaces && (
                 <Link
                   className={cn(
-                    buttonVariants({ variant: "ghost", size: "lg" }),
+                    buttonVariants({ variant: "ghost", }),
                     "w-full"
                   )}
                   href="/"
@@ -185,7 +185,8 @@ function PageClient() {
               )}
             </div>
           </form>
-        </CardContent>
+          </CardContent>
+        </div>
       </Card>
     </div>
   );

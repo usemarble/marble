@@ -61,7 +61,7 @@ export async function sendInviteEmailAction({
   }
 
   try {
-    const response = await sendInviteEmail(resend, {
+    await sendInviteEmail(resend, {
       inviteeEmail,
       inviterName,
       inviterEmail,
@@ -69,7 +69,6 @@ export async function sendInviteEmailAction({
       inviteLink,
     });
 
-    console.log("Email sent successfully:", response);
     return { success: true, message: "Email sent successfully" };
   } catch (error) {
     console.error("Detailed error sending email:", error);
@@ -86,8 +85,6 @@ export async function sendVerificationEmailAction({
   otp: string;
   type: "sign-in" | "email-verification" | "forget-password";
 }) {
-  console.log("called verification email");
-
   if (!resend && isDevelopment) {
     return sendDevEmail({
       from: "Marble <emails@marblecms.com>",
@@ -141,12 +138,11 @@ export async function sendResetPasswordAction({
   }
 
   try {
-    const response = await sendResetPassword(resend, {
+    await sendResetPassword(resend, {
       userEmail,
       resetLink,
     });
 
-    console.log("Email sent successfully:", response);
     return { success: true, message: "Email sent successfully" };
   } catch (error) {
     console.error("Detailed error sending email:", error);
