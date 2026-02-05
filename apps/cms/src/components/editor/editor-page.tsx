@@ -127,7 +127,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
     // Reset form if initialData changes (e.g., navigating between posts or from new to edit)
     form.reset({ ...initialData });
     initialDataRef.current = initialData;
-  }, [initialData, form.reset]);
+  }, [initialData, form]);
 
   useEffect(() => {
     const subscription = watch((currentValues) => {
