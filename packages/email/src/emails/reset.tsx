@@ -49,9 +49,8 @@ export const ResetPasswordEmail = ({
             </Heading>
 
             <Text className="text-center text-[#737373] text-base leading-relaxed">
-              Forgot your password? We received a request to reset the password
-              for your account. To reset your password, click on the button
-              below:
+              We received a request to reset the password for your account. To
+              proceed, click on the button below
             </Text>
 
             <Section className="my-8 text-center">

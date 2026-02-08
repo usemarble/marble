@@ -2,7 +2,13 @@ import type { CreateEmailOptions } from "resend";
 
 type MockableEmailOptions = CreateEmailOptions & {
   _mockContext?: {
-    type: "invite" | "verification" | "reset" | "welcome" | "usage-limit";
+    type:
+      | "invite"
+      | "verification"
+      | "reset"
+      | "welcome"
+      | "usage-limit"
+      | "founder";
     data: Record<string, unknown>;
   };
 };

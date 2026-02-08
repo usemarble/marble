@@ -34,6 +34,14 @@ export const EMAIL_CONFIG = {
   from: "Marble <notifications@marblecms.com>",
 
   /**
+   * Founder email configuration
+   */
+  founderFrom: "Taqib <taqib@marblecms.com>",
+  founderReplyTo: "taqib@marblecms.com",
+  calLink: "https://cal.com/taqib",
+  twitterLink: "https://x.com/retaqib",
+
+  /**
    * Physical mailing address for CAN-SPAM compliance
    */
   physicalAddress: {

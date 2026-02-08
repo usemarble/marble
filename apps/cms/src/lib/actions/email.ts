@@ -2,6 +2,7 @@
 
 import {
   sendDevEmail,
+  sendFounderEmail,
   sendInviteEmail,
   sendResetPassword,
   sendUsageLimitEmail,
@@ -234,5 +235,42 @@ export async function sendUsageLimitEmailAction({
   } catch (error) {
     console.error("Detailed error sending usage limit email:", error);
     return { success: false, error: "Failed to send usage limit email" };
+  }
+}
+
+export async function sendFounderEmailAction({
+  userEmail,
+  scheduledAt,
+}: {
+  userEmail: string;
+  scheduledAt?: Date;
+}) {
+  if (!resend && isDevelopment) {
+    const scheduledInfo = scheduledAt
+      ? ` (scheduled for ${scheduledAt.toISOString()})`
+      : "";
+    return sendDevEmail({
+      from: "Taqib <taqib@marblecms.com>",
+      to: userEmail,
+      text: `This is a mock founder email${scheduledInfo}`,
+      subject: "Welcome to Marble",
+      _mockContext: { type: "founder", data: { userEmail, scheduledAt } },
+    });
+  }
+
+  if (!resend) {
+    throw new Error("Resend API key not set");
+  }
+
+  try {
+    await sendFounderEmail(resend, {
+      userEmail,
+      scheduledAt,
+    });
+
+    return { success: true, message: "Founder email sent successfully" };
+  } catch (error) {
+    console.error("Detailed error sending founder email:", error);
+    return { success: false, error: "Failed to send founder email" };
   }
 }

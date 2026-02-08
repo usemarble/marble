@@ -1,4 +1,5 @@
 import type { Resend } from "resend";
+import { FounderEmail } from "../emails/founder";
 import { InviteUserEmail } from "../emails/invite";
 import { ResetPasswordEmail } from "../emails/reset";
 import { UsageLimitEmail } from "../emails/usage-limit";
@@ -137,5 +138,27 @@ export async function sendUsageLimitEmail(
       limitAmount,
       workspaceId,
     }),
+  });
+}
+
+export async function sendFounderEmail(
+  resend: Resend,
+  {
+    userEmail,
+    scheduledAt,
+  }: {
+    userEmail: string;
+    scheduledAt?: Date;
+  }
+) {
+  return await resend.emails.send({
+    from: EMAIL_CONFIG.founderFrom,
+    replyTo: EMAIL_CONFIG.founderReplyTo,
+    to: userEmail,
+    subject: "Welcome to Marble",
+    react: FounderEmail({
+      userEmail,
+    }),
+    ...(scheduledAt && { scheduledAt: scheduledAt.toISOString() }),
   });
 }

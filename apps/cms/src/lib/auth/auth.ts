@@ -8,12 +8,12 @@ import {
 } from "@polar-sh/better-auth";
 import { Polar } from "@polar-sh/sdk";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { createAuthMiddleware } from "better-auth/api";
 import { betterAuth } from "better-auth/minimal";
 import { nextCookies } from "better-auth/next-js";
 import { emailOTP, organization } from "better-auth/plugins";
 import { customAlphabet } from "nanoid";
 import {
+  sendFounderEmailAction,
   sendInviteEmailAction,
   sendResetPasswordAction,
   sendVerificationEmailAction,
@@ -219,23 +219,7 @@ export const auth = betterAuth({
     }),
     nextCookies(),
   ],
-  hooks: {
-    after: createAuthMiddleware(async (ctx) => {
-      // Check whether it is a sign-up
-      if (ctx.path.startsWith("/sign-up")) {
-        const newSession = ctx.context.newSession;
-        if (newSession?.user?.email) {
-          try {
-            await sendWelcomeEmailAction({
-              userEmail: newSession.user.email,
-            });
-          } catch (err) {
-            console.error("Failed to send welcome email:", err);
-          }
-        }
-      }
-    }),
-  },
+
   databaseHooks: {
     // To set active organization when a session is created
     // This works but only when user isnt a new user i.e they already have an organization
@@ -263,6 +247,26 @@ export const auth = betterAuth({
       create: {
         after: async (user) => {
           await storeUserImageAction(user);
+
+          if (user.email) {
+            try {
+              await sendWelcomeEmailAction({
+                userEmail: user.email,
+              });
+            } catch (err) {
+              console.error("Failed to send welcome email:", err);
+            }
+
+            try {
+              const scheduledAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+              await sendFounderEmailAction({
+                userEmail: user.email,
+                scheduledAt,
+              });
+            } catch (err) {
+              console.error("Failed to schedule founder email:", err);
+            }
+          }
 
           const email = user.email || "";
           const raw = email.split("@")[0] || "";
