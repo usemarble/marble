@@ -64,14 +64,14 @@ export function AuthorDataTable({ columns, data }: AuthorDataTableProps) {
 
   return (
     <div>
-      <div className="flex items-center justify-between gap-4 py-4">
+      <div className="flex flex-col gap-4 py-4 md:flex-row md:items-center md:justify-between">
         <div className="relative">
           <MagnifyingGlassIcon
             className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
             size={16}
           />
           <Input
-            className="w-72 px-8"
+            className="w-full px-8 sm:w-72"
             onChange={(event) =>
               table.getColumn("name")?.setFilterValue(event.target.value)
             }
