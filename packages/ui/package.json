@@ -42,11 +42,11 @@
     "@marble/tsconfig": "workspace:*",
     "@tailwindcss/postcss": "^4.1.12",
     "@types/node": "^20.11.24",
-    "@types/react": "^19.2.0",
-    "@types/react-dom": "^19.2.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
     "@types/react-image-crop": "^9.0.2",
     "postcss": "^8.4.24",
-    "react": "^19.2.0",
+    "react": "^19.2.4",
     "tailwindcss": "^4.1.12",
     "typescript": "^5.3.3"
   }
