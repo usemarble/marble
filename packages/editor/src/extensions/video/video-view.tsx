@@ -9,26 +9,23 @@ import {
   TextAlignCenterIcon,
   TextAlignLeftIcon,
   TextAlignRightIcon,
-  XIcon,
 } from "@phosphor-icons/react";
 import type { NodeViewProps } from "@tiptap/core";
 import { NodeViewWrapper } from "@tiptap/react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 
-export const FigureView = ({
+export const VideoView = ({
   node,
   updateAttributes,
   selected,
 }: NodeViewProps) => {
-  const { src, alt, caption, width, align } = node.attrs as {
+  const { src, caption, width, align } = node.attrs as {
     src: string;
-    alt: string;
     caption: string;
     width: string;
     align: "left" | "center" | "right";
   };
 
-  const [altValue, setAltValue] = useState(alt || "");
   const [captionValue, setCaptionValue] = useState(caption || "");
   const [widthValue, setWidthValue] = useState(width || "100");
   const [alignValue, setAlignValue] = useState<"left" | "center" | "right">(
@@ -43,16 +40,14 @@ export const FigureView = ({
   const startWidthRef = useRef(0);
   const resizeSideRef = useRef<"left" | "right">("right");
 
-  const altId = useId();
   const captionId = useId();
 
   // Sync local state with node attributes when they change externally
   useEffect(() => {
-    setAltValue(alt || "");
     setCaptionValue(caption || "");
     setWidthValue(width || "100");
     setAlignValue(align || "center");
-  }, [alt, caption, width, align]);
+  }, [caption, width, align]);
 
   // Handle click outside settings panel
   useEffect(() => {
@@ -65,7 +60,6 @@ export const FigureView = ({
         settingsPanelRef.current &&
         !settingsPanelRef.current.contains(e.target as Node)
       ) {
-        // Check if click was on the settings button
         const target = e.target as HTMLElement;
         if (!target.closest("[data-settings-trigger]")) {
           setShowSettings(false);
@@ -73,7 +67,6 @@ export const FigureView = ({
       }
     };
 
-    // Use timeout to avoid the click that opened the panel from closing it
     const timeoutId = setTimeout(() => {
       document.addEventListener("mousedown", handleClickOutside);
     }, 0);
@@ -83,15 +76,6 @@ export const FigureView = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showSettings]);
-
-  const handleAltChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const newAlt = e.target.value;
-      setAltValue(newAlt);
-      updateAttributes({ alt: newAlt });
-    },
-    [updateAttributes]
-  );
 
   const handleCaptionChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -169,19 +153,10 @@ export const FigureView = ({
 
   const showToolbar = selected || isHovered || showSettings;
 
-  const handleSettingsClick = useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setShowSettings(!showSettings);
-    },
-    [showSettings]
-  );
-
   return (
     <NodeViewWrapper className="my-5" data-drag-handle>
       <figure
-        aria-label="Image figure"
+        aria-label="Video figure"
         className={cn(
           "relative",
           selected && "outline-2 outline-primary outline-offset-2"
@@ -191,12 +166,14 @@ export const FigureView = ({
         ref={figureRef}
         style={alignmentStyles}
       >
-        {/* biome-ignore lint: Tiptap NodeView requires standard img element */}
-        <img
-          alt={altValue}
+        <video
           className="h-auto w-full rounded-md border border-muted"
+          controls
+          preload="metadata"
           src={src}
-        />
+        >
+          <track kind="captions" />
+        </video>
 
         {showToolbar && (
           <div className="absolute top-2 right-2 z-30 flex items-center gap-0.5 rounded-lg border bg-background p-1 shadow">
@@ -258,7 +235,7 @@ export const FigureView = ({
                 e.preventDefault();
                 e.stopPropagation();
               }}
-              title="Image settings"
+              title="Video settings"
               type="button"
             >
               <FadersHorizontalIcon className="size-3.5" />
@@ -271,21 +248,6 @@ export const FigureView = ({
             className="absolute top-14 right-2 z-40 flex w-72 flex-col gap-3 rounded-md border bg-popover p-3 text-popover-foreground shadow-md"
             ref={settingsPanelRef}
           >
-            {/* Alt Text */}
-            <div className="space-y-1.5">
-              <Label className="font-medium text-xs" htmlFor={altId}>
-                Alt Text
-              </Label>
-              <Input
-                className="h-8 text-sm"
-                id={altId}
-                onChange={handleAltChange}
-                placeholder="Describe the image..."
-                type="text"
-                value={altValue}
-              />
-            </div>
-
             {/* Caption */}
             <div className="space-y-1.5">
               <Label className="font-medium text-xs" htmlFor={captionId}>
@@ -306,13 +268,13 @@ export const FigureView = ({
         {showToolbar && (
           <>
             <button
-              className="-translate-y-1/2 absolute top-1/2 left-2 z-20 h-8 w-1 cursor-ew-resize rounded-full border border-foreground border-white bg-background transition-all"
+              className="-translate-y-1/2 absolute top-1/2 left-2 z-20 h-8 w-1 cursor-ew-resize rounded-full border border-white bg-background transition-all"
               onMouseDown={handleResizeStart("left")}
               title="Drag to resize"
               type="button"
             />
             <button
-              className="-translate-y-1/2 absolute top-1/2 right-2 z-20 h-8 w-1 cursor-ew-resize rounded-full border border-foreground border-white bg-background transition-all"
+              className="-translate-y-1/2 absolute top-1/2 right-2 z-20 h-8 w-1 cursor-ew-resize rounded-full border border-white bg-background transition-all"
               onMouseDown={handleResizeStart("right")}
               title="Drag to resize"
               type="button"

@@ -10,6 +10,26 @@
   }
 }
 
+/* Video node styles */
+figure[data-type="video"] video {
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  border-radius: 0.375rem;
+}
+
+@media only screen and (max-width: 480px) {
+  figure[data-type="video"] video {
+    max-height: 200px;
+  }
+}
+
+@media only screen and (max-width: 720px) {
+  figure[data-type="video"] video {
+    max-height: 360px;
+  }
+}
+
 /* CSS for bold coloring and highlighting issue*/
 span[style] > strong {
   color: inherit;

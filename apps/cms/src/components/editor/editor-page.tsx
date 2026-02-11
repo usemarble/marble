@@ -19,6 +19,7 @@ import {
   type JSONContent,
   type MediaPage,
   useMarbleEditor,
+  VideoUpload,
 } from "@marble/editor";
 import { SidebarInset, useSidebar } from "@marble/ui/components/sidebar";
 import { toast } from "@marble/ui/components/sonner";
@@ -164,6 +165,15 @@ function EditorPage({ initialData, id }: EditorPageProps) {
     return result.url;
   }, []);
 
+  // Video upload handler
+  const handleVideoUpload = useCallback(async (file: File): Promise<string> => {
+    const result = await uploadFile({ file, type: "media" });
+    if (!result?.url) {
+      throw new Error("Upload failed: Invalid response from server.");
+    }
+    return result.url;
+  }, []);
+
   // Fetch media page handler (with pagination)
   const fetchMediaPage = useCallback(
     async (cursor?: string): Promise<MediaPage> => {
@@ -248,6 +258,13 @@ function EditorPage({ initialData, id }: EditorPageProps) {
         maxSize: MAX_MEDIA_FILE_SIZE,
         limit: 3,
         upload: handleImageUpload,
+        onError: handleUploadError,
+        fetchMediaPage,
+      }),
+      VideoUpload.configure({
+        accept: "video/*",
+        maxSize: MAX_MEDIA_FILE_SIZE,
+        upload: handleVideoUpload,
         onError: handleUploadError,
         fetchMediaPage,
       }),
