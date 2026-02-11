@@ -1,8 +1,8 @@
 import type { NodeViewProps } from "@tiptap/core";
 import { NodeViewWrapper } from "@tiptap/react";
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { ImageUploadComp } from "./image-upload-comp";
-import { pendingUploads } from "./index";
+import type { ImageUploadStorage } from "./index";
 
 export const ImageUploadView = ({
   getPos,
@@ -10,24 +10,40 @@ export const ImageUploadView = ({
   node,
   extension,
 }: NodeViewProps) => {
+  const storage = extension.storage as ImageUploadStorage;
+  const pendingUploads = storage.pendingUploads;
+
   // Get fileId from node attributes
   const fileId = node.attrs.fileId as string | null;
   const initialFile = fileId ? pendingUploads.get(fileId) : undefined;
 
   // Get extension options from storage
-  const options = extension.storage.options;
+  const { options } = storage;
+
+  // Track whether the upload was consumed (success or cancel) so the
+  // unmount cleanup knows whether it still needs to release the entry.
+  const consumedRef = useRef(false);
+
+  // Clean up the pending upload entry when this view unmounts (e.g. the
+  // node is deleted while an upload is still in progress).
+  useEffect(() => {
+    return () => {
+      if (fileId && !consumedRef.current) {
+        pendingUploads.delete(fileId);
+      }
+    };
+  }, [fileId, pendingUploads]);
 
   const onUpload = useCallback(
     (url: string) => {
       if (url && typeof getPos === "function") {
         const pos = getPos();
         if (typeof pos === "number") {
-          // Clean up pending upload if it exists
+          consumedRef.current = true;
           if (fileId) {
             pendingUploads.delete(fileId);
           }
 
-          // Replace the imageUpload node with a figure (image with caption support)
           editor
             .chain()
             .focus()
@@ -37,19 +53,18 @@ export const ImageUploadView = ({
         }
       }
     },
-    [getPos, editor, fileId]
+    [getPos, editor, fileId, pendingUploads]
   );
 
   const onCancel = useCallback(() => {
     if (typeof getPos === "function") {
       const pos = getPos();
       if (typeof pos === "number") {
-        // Clean up pending upload if it exists
+        consumedRef.current = true;
         if (fileId) {
           pendingUploads.delete(fileId);
         }
 
-        // Remove the placeholder node
         editor
           .chain()
           .focus()
@@ -57,7 +72,7 @@ export const ImageUploadView = ({
           .run();
       }
     }
-  }, [getPos, editor, fileId]);
+  }, [getPos, editor, fileId, pendingUploads]);
 
   // Only render if upload handler is configured
   if (!options.upload) {

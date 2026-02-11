@@ -75,22 +75,37 @@ export const ImageUploadComp = ({
       uploader: uploadImage,
     });
 
-  // Fetch initial media page if fetchMediaPage function is provided
+  // Fetch initial media page if fetchMediaPage function is provided.
+  // Uses an `active` flag so stale responses from a previous render are ignored.
   useEffect(() => {
-    if (fetchMediaPage && !providedMedia) {
-      setIsLoadingMedia(true);
-      fetchMediaPage()
-        .then((page) => {
+    if (!fetchMediaPage || providedMedia) {
+      return;
+    }
+
+    let active = true;
+    setIsLoadingMedia(true);
+
+    fetchMediaPage()
+      .then((page) => {
+        if (active) {
           setMedia(page.media);
           setNextCursor(page.nextCursor);
-        })
-        .catch(() => {
+        }
+      })
+      .catch(() => {
+        if (active) {
           setMedia([]);
-        })
-        .finally(() => {
+        }
+      })
+      .finally(() => {
+        if (active) {
           setIsLoadingMedia(false);
-        });
-    }
+        }
+      });
+
+    return () => {
+      active = false;
+    };
   }, [fetchMediaPage, providedMedia]);
 
   // Load more media handler

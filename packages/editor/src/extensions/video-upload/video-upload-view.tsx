@@ -1,7 +1,7 @@
 import type { NodeViewProps } from "@tiptap/core";
 import { NodeViewWrapper } from "@tiptap/react";
-import { useCallback } from "react";
-import { pendingVideoUploads } from "./index";
+import { useCallback, useEffect, useRef } from "react";
+import type { VideoUploadStorage } from "./index";
 import { VideoUploadComp } from "./video-upload-comp";
 
 export const VideoUploadView = ({
@@ -10,24 +10,40 @@ export const VideoUploadView = ({
   node,
   extension,
 }: NodeViewProps) => {
+  const storage = extension.storage as VideoUploadStorage;
+  const pendingUploads = storage.pendingUploads;
+
   // Get fileId from node attributes
   const fileId = node.attrs.fileId as string | null;
-  const initialFile = fileId ? pendingVideoUploads.get(fileId) : undefined;
+  const initialFile = fileId ? pendingUploads.get(fileId) : undefined;
 
   // Get extension options from storage
-  const options = extension.storage.options;
+  const { options } = storage;
+
+  // Track whether the upload was consumed (success or cancel) so the
+  // unmount cleanup knows whether it still needs to release the entry.
+  const consumedRef = useRef(false);
+
+  // Clean up the pending upload entry when this view unmounts (e.g. the
+  // node is deleted while an upload is still in progress).
+  useEffect(() => {
+    return () => {
+      if (fileId && !consumedRef.current) {
+        pendingUploads.delete(fileId);
+      }
+    };
+  }, [fileId, pendingUploads]);
 
   const onUpload = useCallback(
     (url: string) => {
       if (url && typeof getPos === "function") {
         const pos = getPos();
         if (typeof pos === "number") {
-          // Clean up pending upload if it exists
+          consumedRef.current = true;
           if (fileId) {
-            pendingVideoUploads.delete(fileId);
+            pendingUploads.delete(fileId);
           }
 
-          // Replace the videoUpload node with a video node
           editor
             .chain()
             .focus()
@@ -37,19 +53,18 @@ export const VideoUploadView = ({
         }
       }
     },
-    [getPos, editor, fileId]
+    [getPos, editor, fileId, pendingUploads]
   );
 
   const onCancel = useCallback(() => {
     if (typeof getPos === "function") {
       const pos = getPos();
       if (typeof pos === "number") {
-        // Clean up pending upload if it exists
+        consumedRef.current = true;
         if (fileId) {
-          pendingVideoUploads.delete(fileId);
+          pendingUploads.delete(fileId);
         }
 
-        // Remove the placeholder node
         editor
           .chain()
           .focus()
@@ -57,7 +72,7 @@ export const VideoUploadView = ({
           .run();
       }
     }
-  }, [getPos, editor, fileId]);
+  }, [getPos, editor, fileId, pendingUploads]);
 
   // Only render if upload handler is configured
   if (!options.upload) {

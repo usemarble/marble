@@ -13,9 +13,6 @@ declare module "@tiptap/core" {
   }
 }
 
-// Storage for pending file uploads
-export const pendingVideoUploads = new Map<string, File>();
-
 export const VideoUpload = Node.create<VideoUploadOptions>({
   name: "videoUpload",
   isolating: true,
@@ -67,6 +64,7 @@ export const VideoUpload = Node.create<VideoUploadOptions>({
   },
 
   addCommands() {
+    const extensionStorage = this.storage as VideoUploadStorage;
     return {
       setVideoUpload:
         (options) =>
@@ -74,9 +72,8 @@ export const VideoUpload = Node.create<VideoUploadOptions>({
           const { file } = options || {};
 
           if (file) {
-            // Generate unique ID and store file
             const fileId = `upload-${Date.now()}-${Math.random()}`;
-            pendingVideoUploads.set(fileId, file);
+            extensionStorage.pendingUploads.set(fileId, file);
 
             return commands.insertContent({
               type: this.name,
@@ -99,8 +96,18 @@ export const VideoUpload = Node.create<VideoUploadOptions>({
 
   addStorage() {
     return {
-      pendingUploads: pendingVideoUploads,
+      pendingUploads: new Map<string, File>(),
       options: this.options,
     };
   },
+
+  onDestroy() {
+    const storage = this.storage as VideoUploadStorage;
+    storage.pendingUploads.clear();
+  },
 });
+
+export interface VideoUploadStorage {
+  pendingUploads: Map<string, File>;
+  options: VideoUploadOptions;
+}

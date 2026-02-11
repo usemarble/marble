@@ -61,7 +61,6 @@ export const VideoUploadComp = ({
   const [showEmbedInput, setShowEmbedInput] = useState(false);
   const [embedUrl, setEmbedUrl] = useState("");
   const [urlError, setUrlError] = useState<string | null>(null);
-  const [isValidatingUrl, setIsValidatingUrl] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [media, setMedia] = useState<MediaItem[] | undefined>(providedMedia);
   const [isLoadingMedia, setIsLoadingMedia] = useState(false);
@@ -75,22 +74,35 @@ export const VideoUploadComp = ({
       uploader: uploadVideo,
     });
 
-  // Fetch initial media page if fetchMediaPage function is provided
   useEffect(() => {
-    if (fetchMediaPage && !providedMedia) {
-      setIsLoadingMedia(true);
-      fetchMediaPage()
-        .then((page) => {
+    if (!fetchMediaPage || providedMedia) {
+      return;
+    }
+
+    let active = true;
+    setIsLoadingMedia(true);
+
+    fetchMediaPage()
+      .then((page) => {
+        if (active) {
           setMedia(page.media);
           setNextCursor(page.nextCursor);
-        })
-        .catch(() => {
+        }
+      })
+      .catch(() => {
+        if (active) {
           setMedia([]);
-        })
-        .finally(() => {
+        }
+      })
+      .finally(() => {
+        if (active) {
           setIsLoadingMedia(false);
-        });
-    }
+        }
+      });
+
+    return () => {
+      active = false;
+    };
   }, [fetchMediaPage, providedMedia]);
 
   // Load more media handler
@@ -147,20 +159,16 @@ export const VideoUploadComp = ({
         return;
       }
 
-      setIsValidatingUrl(true);
       setUrlError(null);
 
       if (!isValidUrl(url)) {
         setUrlError("Please enter a valid URL");
-        setIsValidatingUrl(false);
         return;
       }
 
-      // For video URLs, we accept them directly without loading validation
       onUpload(url);
       setEmbedUrl("");
       setShowEmbedInput(false);
-      setIsValidatingUrl(false);
     },
     [onUpload]
   );
@@ -265,18 +273,13 @@ export const VideoUploadComp = ({
                     "flex-1 bg-background",
                     urlError && "border-destructive"
                   )}
-                  disabled={isValidatingUrl || loading}
+                  disabled={loading}
                   onChange={({ target }) => {
                     setEmbedUrl(target.value);
                     setUrlError(null);
                   }}
                   onKeyDown={(e) => {
-                    if (
-                      e.key === "Enter" &&
-                      embedUrl &&
-                      !isValidatingUrl &&
-                      !loading
-                    ) {
+                    if (e.key === "Enter" && embedUrl && !loading) {
                       handleEmbedUrl(embedUrl);
                     }
                   }}
@@ -285,17 +288,13 @@ export const VideoUploadComp = ({
                 />
                 <Button
                   className="shrink-0 shadow-none"
-                  disabled={!embedUrl || isValidatingUrl || loading}
+                  disabled={!embedUrl || loading}
                   onClick={() => handleEmbedUrl(embedUrl)}
                   size="icon"
                   type="button"
                   variant="outline"
                 >
-                  {isValidatingUrl ? (
-                    <SpinnerIcon className="size-4 animate-spin" />
-                  ) : (
-                    <CheckIcon className="size-4" />
-                  )}
+                  <CheckIcon className="size-4" />
                 </Button>
                 <Button
                   className="shrink-0 shadow-none"

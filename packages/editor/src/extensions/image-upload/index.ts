@@ -13,9 +13,6 @@ declare module "@tiptap/core" {
   }
 }
 
-// Storage for pending file uploads
-export const pendingUploads = new Map<string, File>();
-
 export const ImageUpload = Node.create<ImageUploadOptions>({
   name: "imageUpload",
   isolating: true,
@@ -67,6 +64,7 @@ export const ImageUpload = Node.create<ImageUploadOptions>({
   },
 
   addCommands() {
+    const extensionStorage = this.storage as ImageUploadStorage;
     return {
       setImageUpload:
         (options) =>
@@ -74,9 +72,8 @@ export const ImageUpload = Node.create<ImageUploadOptions>({
           const { file } = options || {};
 
           if (file) {
-            // Generate unique ID and store file
             const fileId = `upload-${Date.now()}-${Math.random()}`;
-            pendingUploads.set(fileId, file);
+            extensionStorage.pendingUploads.set(fileId, file);
 
             return commands.insertContent({
               type: this.name,
@@ -93,15 +90,24 @@ export const ImageUpload = Node.create<ImageUploadOptions>({
 
   addNodeView() {
     return ReactNodeViewRenderer(ImageUploadView, {
-      // Pass pendingUploads map through context
       as: "div",
     });
   },
 
   addStorage() {
     return {
-      pendingUploads,
+      pendingUploads: new Map<string, File>(),
       options: this.options,
     };
   },
+
+  onDestroy() {
+    const storage = this.storage as ImageUploadStorage;
+    storage.pendingUploads.clear();
+  },
 });
+
+export interface ImageUploadStorage {
+  pendingUploads: Map<string, File>;
+  options: ImageUploadOptions;
+}
