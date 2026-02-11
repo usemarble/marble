@@ -21,6 +21,8 @@ import { configureSlashCommand } from "./slash-command";
 import { Table, TableCell, TableHeader, TableRow } from "./table";
 import { Twitter } from "./twitter/index";
 import { TwitterUpload } from "./twitter/twitter-upload";
+import { Video } from "./video";
+import { VideoUpload } from "./video-upload";
 import { YouTubeUpload } from "./youtube/youtube-upload";
 import "../styles/task-list.css";
 
@@ -170,19 +172,41 @@ export const ExtensionKit = ({
   // Note: Will be unconfigured by default, CMS app should pass configured version
   ImageUpload,
 
-  // File Handler for drag-and-drop and paste image uploads
+  // Video (self-hosted video with caption support)
+  Video,
+
+  // Video Upload (placeholder node for video upload component)
+  // Note: Will be unconfigured by default, CMS app should pass configured version
+  VideoUpload,
+
+  // File Handler for drag-and-drop and paste image/video uploads
   FileHandler.configure({
-    allowedMimeTypes: ["image/png", "image/jpeg", "image/gif", "image/webp"],
+    allowedMimeTypes: [
+      "image/png",
+      "image/jpeg",
+      "image/gif",
+      "image/webp",
+      "video/mp4",
+      "video/webm",
+      "video/ogg",
+      "video/quicktime",
+    ],
     onDrop: (currentEditor, files, _pos) => {
       for (const file of files) {
-        // Insert imageUpload node at drop position with the file
-        currentEditor.chain().focus().setImageUpload({ file }).run();
+        if (file.type.startsWith("video/")) {
+          currentEditor.chain().focus().setVideoUpload({ file }).run();
+        } else {
+          currentEditor.chain().focus().setImageUpload({ file }).run();
+        }
       }
     },
     onPaste: (currentEditor, files) => {
       for (const file of files) {
-        // Insert imageUpload node at cursor with the file
-        currentEditor.chain().focus().setImageUpload({ file }).run();
+        if (file.type.startsWith("video/")) {
+          currentEditor.chain().focus().setVideoUpload({ file }).run();
+        } else {
+          currentEditor.chain().focus().setImageUpload({ file }).run();
+        }
       }
     },
   }),

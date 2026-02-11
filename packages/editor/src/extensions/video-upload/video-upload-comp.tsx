@@ -1,4 +1,4 @@
-import { Album02Icon } from "@hugeicons/core-free-icons";
+import { Video02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@marble/ui/components/button";
 import {
@@ -20,8 +20,8 @@ import { Input } from "@marble/ui/components/input";
 import { cn } from "@marble/ui/lib/utils";
 import {
   CheckIcon,
-  ImagesIcon,
   SpinnerIcon,
+  VideoCameraIcon,
   XIcon,
 } from "@phosphor-icons/react";
 import type { ChangeEvent } from "react";
@@ -39,7 +39,7 @@ const isValidUrl = (url: string): boolean => {
   }
 };
 
-export interface ImageUploadCompProps {
+export interface VideoUploadCompProps {
   initialFile?: File;
   onUpload: (url: string) => void;
   onCancel: () => void;
@@ -49,7 +49,7 @@ export interface ImageUploadCompProps {
   onError?: (error: Error) => void;
 }
 
-export const ImageUploadComp = ({
+export const VideoUploadComp = ({
   initialFile,
   onUpload,
   onCancel,
@@ -57,26 +57,23 @@ export const ImageUploadComp = ({
   media: providedMedia,
   fetchMediaPage,
   onError,
-}: ImageUploadCompProps) => {
+}: VideoUploadCompProps) => {
   const [showEmbedInput, setShowEmbedInput] = useState(false);
   const [embedUrl, setEmbedUrl] = useState("");
   const [urlError, setUrlError] = useState<string | null>(null);
-  const [isValidatingUrl, setIsValidatingUrl] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [media, setMedia] = useState<MediaItem[] | undefined>(providedMedia);
   const [isLoadingMedia, setIsLoadingMedia] = useState(false);
   const [nextCursor, setNextCursor] = useState<string | undefined>(undefined);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  const { loading, uploadImage } = useUploader({ onUpload, upload, onError });
+  const { loading, uploadVideo } = useUploader({ onUpload, upload, onError });
   const { handleUploadClick, ref } = useFileUpload();
   const { draggedInside, onDrop, onDragEnter, onDragLeave, onDragOver } =
     useDropZone({
-      uploader: uploadImage,
+      uploader: uploadVideo,
     });
 
-  // Fetch initial media page if fetchMediaPage function is provided.
-  // Uses an `active` flag so stale responses from a previous render are ignored.
   useEffect(() => {
     if (!fetchMediaPage || providedMedia) {
       return;
@@ -135,18 +132,18 @@ export const ImageUploadComp = ({
   // Auto-upload if initialFile is provided
   useEffect(() => {
     if (initialFile) {
-      uploadImage(initialFile);
+      uploadVideo(initialFile);
     }
-  }, [initialFile, uploadImage]);
+  }, [initialFile, uploadVideo]);
 
   const onFileChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (file) {
-        uploadImage(file);
+        uploadVideo(file);
       }
     },
-    [uploadImage]
+    [uploadVideo]
   );
 
   const handleDrop = useCallback(
@@ -157,32 +154,21 @@ export const ImageUploadComp = ({
   );
 
   const handleEmbedUrl = useCallback(
-    async (url: string) => {
+    (url: string) => {
       if (!url) {
         return;
       }
 
-      setIsValidatingUrl(true);
       setUrlError(null);
 
       if (!isValidUrl(url)) {
         setUrlError("Please enter a valid URL");
-        setIsValidatingUrl(false);
         return;
       }
 
-      const img = new Image();
-      img.onload = () => {
-        onUpload(url);
-        setEmbedUrl("");
-        setShowEmbedInput(false);
-        setIsValidatingUrl(false);
-      };
-      img.onerror = () => {
-        setUrlError("Invalid image URL");
-        setIsValidatingUrl(false);
-      };
-      img.src = url;
+      onUpload(url);
+      setEmbedUrl("");
+      setShowEmbedInput(false);
     },
     [onUpload]
   );
@@ -212,7 +198,7 @@ export const ImageUploadComp = ({
   // Get dropzone text based on drag state
   const getDropzoneText = () => {
     if (draggedInside) {
-      return "Drop image here";
+      return "Drop video here";
     }
     return "Drag and drop or click to upload";
   };
@@ -224,11 +210,11 @@ export const ImageUploadComp = ({
           <div className="flex items-center justify-between gap-2">
             <HugeiconsIcon
               className="text-muted-foreground"
-              icon={Album02Icon}
+              icon={Video02Icon}
               size={20}
             />
             <CardTitle className="font-normal text-sm">
-              Upload or embed an image
+              Upload or embed a video
             </CardTitle>
           </div>
         </CardHeader>
@@ -237,13 +223,13 @@ export const ImageUploadComp = ({
           {loading ? (
             <div className="flex min-h-[260px] flex-1 flex-col items-center justify-center">
               <p className="text-muted-foreground text-sm">
-                Uploading image...
+                Uploading video...
               </p>
             </div>
           ) : (
             // biome-ignore lint/a11y/useSemanticElements: Dropzone requires div for drag-and-drop functionality
             <div
-              aria-label="Upload image by clicking or dragging and dropping"
+              aria-label="Upload video by clicking or dragging and dropping"
               className={cn(
                 "flex min-h-[260px] flex-1 cursor-pointer flex-col items-center justify-center gap-2",
                 draggedInside
@@ -268,8 +254,8 @@ export const ImageUploadComp = ({
                 {getDropzoneText()}
               </p>
               <input
-                accept="image/*"
-                aria-label="Upload image"
+                accept="video/*"
+                aria-label="Upload video"
                 className="sr-only size-0 overflow-hidden opacity-0"
                 onChange={onFileChange}
                 ref={ref}
@@ -287,37 +273,28 @@ export const ImageUploadComp = ({
                     "flex-1 bg-background",
                     urlError && "border-destructive"
                   )}
-                  disabled={isValidatingUrl || loading}
+                  disabled={loading}
                   onChange={({ target }) => {
                     setEmbedUrl(target.value);
                     setUrlError(null);
                   }}
                   onKeyDown={(e) => {
-                    if (
-                      e.key === "Enter" &&
-                      embedUrl &&
-                      !isValidatingUrl &&
-                      !loading
-                    ) {
+                    if (e.key === "Enter" && embedUrl && !loading) {
                       handleEmbedUrl(embedUrl);
                     }
                   }}
-                  placeholder="Paste image URL"
+                  placeholder="Paste video URL"
                   value={embedUrl}
                 />
                 <Button
                   className="shrink-0 shadow-none"
-                  disabled={!embedUrl || isValidatingUrl || loading}
+                  disabled={!embedUrl || loading}
                   onClick={() => handleEmbedUrl(embedUrl)}
                   size="icon"
                   type="button"
                   variant="outline"
                 >
-                  {isValidatingUrl ? (
-                    <SpinnerIcon className="size-4 animate-spin" />
-                  ) : (
-                    <CheckIcon className="size-4" />
-                  )}
+                  <CheckIcon className="size-4" />
                 </Button>
                 <Button
                   className="shrink-0 shadow-none"
@@ -388,11 +365,11 @@ export const ImageUploadComp = ({
               <div className="flex flex-1 items-center gap-2">
                 <HugeiconsIcon
                   className="text-muted-foreground"
-                  icon={Album02Icon}
+                  icon={Video02Icon}
                   size={20}
                 />
                 <DialogTitle className="font-medium text-muted-foreground text-sm">
-                  Media Gallery
+                  Video Gallery
                 </DialogTitle>
               </div>
               <DialogX />
@@ -409,7 +386,7 @@ export const ImageUploadComp = ({
                 <div className="flex max-h-[500px] flex-col gap-4 overflow-y-auto">
                   <ul className="m-0 grid w-full list-none grid-cols-[repeat(auto-fill,minmax(8.125rem,1fr))] gap-2.5 p-0">
                     {media
-                      ?.filter((item) => item.type === "image")
+                      ?.filter((item) => item.type === "video")
                       .map((item) => (
                         <li
                           className="group relative size-[8.125rem]"
@@ -420,13 +397,15 @@ export const ImageUploadComp = ({
                             onClick={() => handleMediaSelect(item.url)}
                             type="button"
                           >
-                            <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-md border border-border">
-                              {/* biome-ignore lint: Preview image in dialog */}
-                              <img
-                                alt={item.name}
-                                className="h-full w-full object-contain"
-                                src={item.url}
-                              />
+                            <div className="flex h-full w-full flex-col items-center justify-center gap-1 overflow-hidden rounded-md border border-border">
+                              <video
+                                className="h-full w-full object-cover"
+                                muted
+                                preload="metadata"
+                                src={`${item.url}#t=0.5`}
+                              >
+                                <track kind="captions" />
+                              </video>
                             </div>
                           </button>
                         </li>
@@ -455,9 +434,10 @@ export const ImageUploadComp = ({
               ) : (
                 <div className="flex min-h-[360px] items-center justify-center">
                   <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
-                    <ImagesIcon className="size-8" />
+                    <VideoCameraIcon className="size-8" />
                     <p className="font-medium text-sm">
-                      Your gallery is empty. Upload some media to get started.
+                      Your gallery has no videos. Upload some media to get
+                      started.
                     </p>
                   </div>
                 </div>

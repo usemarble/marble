@@ -101,3 +101,23 @@ export interface ImageUploadOptions {
   /** Fetch media with pagination - takes optional cursor, returns page with media and next cursor */
   fetchMediaPage?: (cursor?: string) => Promise<MediaPage>;
 }
+
+/**
+ * Video upload extension options
+ */
+export interface VideoUploadOptions {
+  /** Upload handler function - required for upload functionality */
+  upload?: (file: File) => Promise<string>;
+  /** File accept types (default: 'video/*') */
+  accept?: string;
+  /** Max file size in bytes */
+  maxSize?: number;
+  /** Max number of files */
+  limit?: number;
+  /** Error handler */
+  onError?: (error: Error) => void;
+  /** Pre-loaded media library items */
+  media?: MediaItem[];
+  /** Fetch media with pagination - takes optional cursor, returns page with media and next cursor */
+  fetchMediaPage?: (cursor?: string) => Promise<MediaPage>;
+}

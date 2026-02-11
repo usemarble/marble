@@ -44,6 +44,8 @@ export function isCustomNodeSelected(
     "imageUpload",
     "figure",
     "image",
+    "video",
+    "videoUpload",
   ];
 
   const isCustomNodeActive = customNodes.some((type) => editor.isActive(type));

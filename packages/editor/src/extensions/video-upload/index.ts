@@ -2,19 +2,19 @@
 import type { CommandProps } from "@tiptap/core";
 import { Node } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
-import type { ImageUploadOptions } from "../../types";
-import { ImageUploadView } from "./image-upload-view";
+import type { VideoUploadOptions } from "../../types";
+import { VideoUploadView } from "./video-upload-view";
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
-    imageUpload: {
-      setImageUpload: (options?: { file?: File }) => ReturnType;
+    videoUpload: {
+      setVideoUpload: (options?: { file?: File }) => ReturnType;
     };
   }
 }
 
-export const ImageUpload = Node.create<ImageUploadOptions>({
-  name: "imageUpload",
+export const VideoUpload = Node.create<VideoUploadOptions>({
+  name: "videoUpload",
   isolating: true,
   defining: true,
   group: "block",
@@ -25,7 +25,7 @@ export const ImageUpload = Node.create<ImageUploadOptions>({
   addOptions() {
     return {
       upload: undefined,
-      accept: "image/*",
+      accept: "video/*",
       maxSize: undefined,
       limit: undefined,
       onError: undefined,
@@ -64,9 +64,9 @@ export const ImageUpload = Node.create<ImageUploadOptions>({
   },
 
   addCommands() {
-    const extensionStorage = this.storage as ImageUploadStorage;
+    const extensionStorage = this.storage as VideoUploadStorage;
     return {
-      setImageUpload:
+      setVideoUpload:
         (options) =>
         ({ commands }: CommandProps) => {
           const { file } = options || {};
@@ -89,7 +89,7 @@ export const ImageUpload = Node.create<ImageUploadOptions>({
   },
 
   addNodeView() {
-    return ReactNodeViewRenderer(ImageUploadView, {
+    return ReactNodeViewRenderer(VideoUploadView, {
       as: "div",
     });
   },
@@ -102,12 +102,12 @@ export const ImageUpload = Node.create<ImageUploadOptions>({
   },
 
   onDestroy() {
-    const storage = this.storage as ImageUploadStorage;
+    const storage = this.storage as VideoUploadStorage;
     storage.pendingUploads.clear();
   },
 });
 
-export interface ImageUploadStorage {
+export interface VideoUploadStorage {
   pendingUploads: Map<string, File>;
-  options: ImageUploadOptions;
+  options: VideoUploadOptions;
 }

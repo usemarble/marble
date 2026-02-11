@@ -91,6 +91,8 @@ export {
   TableHeader,
   TableRow,
   TableRowMenu,
+  Video,
+  VideoUpload,
 } from "./extensions";
 export type { ExtensionKitOptions } from "./extensions/extension-kit";
 // Extensions
@@ -106,4 +108,5 @@ export type {
   MediaPage,
   SlashNodeAttrs,
   SuggestionItem,
+  VideoUploadOptions,
 } from "./types";

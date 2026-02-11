@@ -1,16 +1,16 @@
 import type { NodeViewProps } from "@tiptap/core";
 import { NodeViewWrapper } from "@tiptap/react";
 import { useCallback, useEffect, useRef } from "react";
-import { ImageUploadComp } from "./image-upload-comp";
-import type { ImageUploadStorage } from "./index";
+import type { VideoUploadStorage } from "./index";
+import { VideoUploadComp } from "./video-upload-comp";
 
-export const ImageUploadView = ({
+export const VideoUploadView = ({
   getPos,
   editor,
   node,
   extension,
 }: NodeViewProps) => {
-  const storage = extension.storage as ImageUploadStorage;
+  const storage = extension.storage as VideoUploadStorage;
   const pendingUploads = storage.pendingUploads;
 
   // Get fileId from node attributes
@@ -48,7 +48,7 @@ export const ImageUploadView = ({
             .chain()
             .focus()
             .deleteRange({ from: pos, to: pos + 1 })
-            .setFigure({ src: url, alt: "", caption: "" })
+            .setVideo({ src: url, caption: "" })
             .run();
         }
       }
@@ -80,7 +80,7 @@ export const ImageUploadView = ({
       <NodeViewWrapper className="my-5">
         <div className="flex items-center justify-center rounded-md border border-muted bg-muted/50 p-8">
           <p className="text-muted-foreground text-sm">
-            Image upload is not configured. Please configure the ImageUpload
+            Video upload is not configured. Please configure the VideoUpload
             extension with an upload handler.
           </p>
         </div>
@@ -91,7 +91,7 @@ export const ImageUploadView = ({
   return (
     <NodeViewWrapper className="my-5">
       <div className="m-0 p-0" data-drag-handle>
-        <ImageUploadComp
+        <VideoUploadComp
           fetchMediaPage={options.fetchMediaPage}
           initialFile={initialFile}
           media={options.media}
