@@ -306,13 +306,13 @@ export const FigureView = ({
         {showToolbar && (
           <>
             <button
-              className="-translate-y-1/2 absolute top-1/2 left-2 z-20 h-8 w-1 cursor-ew-resize rounded-full border border-foreground border-white bg-background transition-all"
+              className="absolute top-1/2 left-2 z-20 h-8 w-1 -translate-y-1/2 cursor-ew-resize rounded-full border border-foreground border-white bg-background transition-all"
               onMouseDown={handleResizeStart("left")}
               title="Drag to resize"
               type="button"
             />
             <button
-              className="-translate-y-1/2 absolute top-1/2 right-2 z-20 h-8 w-1 cursor-ew-resize rounded-full border border-foreground border-white bg-background transition-all"
+              className="absolute top-1/2 right-2 z-20 h-8 w-1 -translate-y-1/2 cursor-ew-resize rounded-full border border-foreground border-white bg-background transition-all"
               onMouseDown={handleResizeStart("right")}
               title="Drag to resize"
               type="button"
