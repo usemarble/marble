@@ -118,9 +118,11 @@ export const CodeBlockComp = ({
       {/* biome-ignore lint/a11y/noStaticElementInteractions: ProseMirror event isolation */}
       <div
         className="flex items-center justify-between gap-2 px-2 py-1.5"
+        contentEditable={false}
         data-drag-handle
         onClick={(e) => e.stopPropagation()}
         onMouseDown={(e) => e.stopPropagation()}
+        suppressContentEditableWarning
       >
         <Popover onOpenChange={setOpen} open={open}>
           <PopoverTrigger
