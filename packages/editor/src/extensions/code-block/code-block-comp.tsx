@@ -8,11 +8,7 @@ import {
   CommandItem,
   CommandList,
 } from "@marble/ui/components/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@marble/ui/components/popover";
+import { Popover, PopoverContent } from "@marble/ui/components/popover";
 import { cn } from "@marble/ui/lib/utils";
 import {
   CaretUpDownIcon,
@@ -20,7 +16,7 @@ import {
   CopySimpleIcon,
 } from "@phosphor-icons/react";
 import type { ReactNode } from "react";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 /**
  * Supported languages for the code block language selector.
@@ -98,6 +94,7 @@ export const CodeBlockComp = ({
   children,
 }: CodeBlockCompProps) => {
   const [open, setOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   const selectedLabel =
     LANGUAGES.find((lang) => lang.value === language)?.label ?? language;
@@ -118,27 +115,32 @@ export const CodeBlockComp = ({
       {/* biome-ignore lint/a11y/noStaticElementInteractions: ProseMirror event isolation */}
       <div
         className="flex select-none items-center justify-between gap-2 p-1.5"
+        contentEditable={false}
         data-drag-handle
         onClick={(e) => e.stopPropagation()}
         onMouseDown={(e) => e.stopPropagation()}
-        // suppressContentEditableWarning
       >
+        {/*
+         * we are using a regular Button instead of PopoverTrigger to avoid
+         * Base UI's internal pointer-event handling conflicting with
+         * ProseMirror's contentEditable. The popover is fully controlled
+         * via open/onOpenChange and anchored to this button via ref.
+         */}
         <Popover onOpenChange={setOpen} open={open}>
-          <PopoverTrigger
-            render={
-              <Button
-                className="h-7 gap-1.5 px-2 font-normal text-muted-foreground text-xs shadow-none hover:bg-background active:scale-100"
-                size="sm"
-                type="button"
-                variant="ghost"
-              />
-            }
+          <Button
+            className="h-7 gap-1.5 px-2 font-normal text-muted-foreground text-xs shadow-none hover:bg-background active:scale-100"
+            onClick={() => setOpen(!open)}
+            ref={triggerRef}
+            size="sm"
+            type="button"
+            variant="ghost"
           >
             {selectedLabel}
             <CaretUpDownIcon className="size-3 opacity-50" />
-          </PopoverTrigger>
+          </Button>
           <PopoverContent
             align="start"
+            anchor={triggerRef}
             className="w-[200px] p-0"
             side="bottom"
             sideOffset={4}
