@@ -17,12 +17,17 @@ export const CodeBlockView = ({ node, updateAttributes }: NodeViewProps) => {
 
   const onCopy = useCallback(() => {
     const text = node.textContent;
-    navigator.clipboard.writeText(text).then(() => {
-      setCopied(true);
-      setTimeout(() => {
-        setCopied(false);
-      }, 2000);
-    });
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => {
+          setCopied(false);
+        }, 2000);
+      })
+      .catch((error: unknown) => {
+        console.error("Failed to copy code block content:", error);
+      });
   }, [node]);
 
   return (
