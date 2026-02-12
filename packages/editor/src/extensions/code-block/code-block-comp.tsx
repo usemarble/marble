@@ -117,19 +117,17 @@ export const CodeBlockComp = ({
       {/* biome-ignore lint/a11y/noNoninteractiveElementInteractions: ProseMirror event isolation */}
       {/* biome-ignore lint/a11y/noStaticElementInteractions: ProseMirror event isolation */}
       <div
-        className="flex items-center justify-between gap-2 px-2 py-1.5"
-        contentEditable={false}
+        className="flex select-none items-center justify-between gap-2 p-1.5"
         data-drag-handle
         onClick={(e) => e.stopPropagation()}
         onMouseDown={(e) => e.stopPropagation()}
-        suppressContentEditableWarning
+        // suppressContentEditableWarning
       >
         <Popover onOpenChange={setOpen} open={open}>
           <PopoverTrigger
             render={
               <Button
-                className="h-7 gap-1.5 px-2 font-normal text-muted-foreground text-xs shadow-none active:scale-100"
-                onClick={() => setOpen((prev) => !prev)}
+                className="h-7 gap-1.5 px-2 font-normal text-muted-foreground text-xs shadow-none hover:bg-background active:scale-100"
                 size="sm"
                 type="button"
                 variant="ghost"
@@ -172,7 +170,7 @@ export const CodeBlockComp = ({
         </Popover>
 
         <Button
-          className="h-7 w-7 text-muted-foreground shadow-none"
+          className="h-7 w-7 text-muted-foreground shadow-none hover:bg-background"
           onClick={onCopy}
           size="icon"
           type="button"

@@ -1,13 +1,7 @@
 import { Album02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@marble/ui/components/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@marble/ui/components/card";
+import { Card, CardContent, CardFooter } from "@marble/ui/components/card";
 import {
   Dialog,
   DialogBody,
@@ -219,19 +213,17 @@ export const ImageUploadComp = ({
 
   return (
     <>
-      <Card className="col-span-full gap-4 rounded-[20px] border-none bg-surface p-2">
-        <CardHeader className="gap-0 px-4 pt-2">
-          <div className="flex items-center justify-between gap-2">
-            <HugeiconsIcon
-              className="text-muted-foreground"
-              icon={Album02Icon}
-              size={20}
-            />
-            <CardTitle className="font-normal text-sm">
-              Upload or embed an image
-            </CardTitle>
-          </div>
-        </CardHeader>
+      <Card className="col-span-full gap-0 rounded-[20px] border-none bg-surface p-2 pt-0">
+        <div className="flex h-10 select-none items-center justify-between gap-2 p-1.5">
+          <HugeiconsIcon
+            className="shrink-0 text-muted-foreground"
+            icon={Album02Icon}
+            size={18}
+          />
+          <span className="font-normal text-muted-foreground text-xs">
+            Upload or embed an image
+          </span>
+        </div>
         <CardContent className="rounded-[12px] bg-background p-4 shadow-xs">
           {/* Dropzone or Uploading state */}
           {loading ? (
@@ -278,13 +270,13 @@ export const ImageUploadComp = ({
             </div>
           )}
         </CardContent>
-        <CardFooter className="-mt-2 flex items-center justify-between gap-10 rounded-[12px] bg-background p-4 shadow-xs">
+        <CardFooter className="mt-2 flex items-center justify-between gap-10 rounded-[12px] bg-background p-3 shadow-xs">
           {showEmbedInput ? (
             <div className="flex flex-1 flex-col gap-2">
               <div className="flex items-center gap-2">
                 <Input
                   className={cn(
-                    "flex-1 bg-background",
+                    "h-8 flex-1 bg-background",
                     urlError && "border-destructive"
                   )}
                   disabled={isValidatingUrl || loading}
@@ -306,7 +298,7 @@ export const ImageUploadComp = ({
                   value={embedUrl}
                 />
                 <Button
-                  className="shrink-0 shadow-none"
+                  className="size-8 shrink-0 shadow-none"
                   disabled={!embedUrl || isValidatingUrl || loading}
                   onClick={() => handleEmbedUrl(embedUrl)}
                   size="icon"
@@ -320,7 +312,7 @@ export const ImageUploadComp = ({
                   )}
                 </Button>
                 <Button
-                  className="shrink-0 shadow-none"
+                  className="size-8 shrink-0 shadow-none"
                   disabled={loading}
                   onClick={() => {
                     setShowEmbedInput(false);
