@@ -129,6 +129,7 @@ export const CodeBlockComp = ({
             render={
               <Button
                 className="h-7 gap-1.5 px-2 font-normal text-muted-foreground text-xs shadow-none active:scale-100"
+                onClick={() => setOpen((prev) => !prev)}
                 size="sm"
                 type="button"
                 variant="ghost"
