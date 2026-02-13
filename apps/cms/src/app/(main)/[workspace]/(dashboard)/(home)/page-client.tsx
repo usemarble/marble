@@ -46,9 +46,9 @@ export default function PageClient() {
       className="flex flex-col gap-8 pt-10 pb-16"
       size="compact"
     >
-      <div className="grid gap-x-10 gap-y-8">
+      <div className="flex w-full flex-col gap-6 md:grid md:gap-x-10 md:gap-y-8">
         <ApiUsageCard data={data?.api} isLoading={isPending} />
-        <div className="grid gap-8 lg:grid-cols-2">
+        <div className="flex flex-col gap-6 lg:grid lg:grid-cols-2 lg:gap-8">
           <WebhookUsageCard data={data?.webhooks} isLoading={isPending} />
           <MediaUsageCard data={data?.media} isLoading={isPending} />
         </div>
