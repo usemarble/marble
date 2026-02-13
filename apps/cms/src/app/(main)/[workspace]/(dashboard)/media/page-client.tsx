@@ -110,7 +110,7 @@ function PageClient() {
 
     const getUploadMessage = (current: number, totalFiles: number) => {
       if (totalFiles === 1) {
-        return "Uploading image...";
+        return "Uploading file...";
       }
       return `Uploading ${current} of ${totalFiles} files...`;
     };

@@ -1,7 +1,11 @@
 // Extensions
 /** biome-ignore-all lint/performance/noBarrelFile: <> */
 
-export type { ImageUploadOptions, MediaItem } from "../types";
+export type {
+  ImageUploadOptions,
+  MediaItem,
+  VideoUploadOptions,
+} from "../types";
 export { CodeBlock } from "./code-block";
 // Extension Kit
 export {
@@ -26,4 +30,6 @@ export {
   TableRowMenu,
 } from "./table";
 export { TwitterUpload } from "./twitter/twitter-upload";
+export { Video } from "./video";
+export { VideoUpload } from "./video-upload";
 export { YouTubeUpload } from "./youtube/youtube-upload";

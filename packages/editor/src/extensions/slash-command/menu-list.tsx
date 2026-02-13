@@ -63,7 +63,7 @@ export const EditorSlashMenu = ({
       <CommandEmpty className="flex w-full items-center justify-center p-4 text-muted-foreground text-sm">
         <p>No results</p>
       </CommandEmpty>
-      <CommandList>
+      <CommandList className="p-1">
         {items.map((item, index) => (
           <CommandItem
             className="flex items-center gap-3 pr-3"
