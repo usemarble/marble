@@ -1,6 +1,11 @@
 import { createClient } from "@marble/db/workers";
 import type { MiddlewareHandler } from "hono";
 import { createPolarClient } from "../lib/polar";
+import {
+  checkApiUsage,
+  notifyApiUsageThreshold,
+  type UsageCheckResult,
+} from "../lib/usage";
 import type { ApiKeyApp } from "../types/env";
 
 /**
@@ -13,19 +18,50 @@ export const keyAnalytics = (): MiddlewareHandler<ApiKeyApp> => {
     const path = c.req.path;
     const method = c.req.method;
 
+    const {
+      DATABASE_URL,
+      REDIS_URL,
+      REDIS_TOKEN,
+      POLAR_ACCESS_TOKEN,
+      RESEND_API_KEY,
+      ENVIRONMENT,
+    } = c.env;
+
+    const workspaceId = c.get("workspaceId");
+
+    let usageResult: UsageCheckResult | null = null;
+
+    if (DATABASE_URL && workspaceId && method !== "OPTIONS") {
+      try {
+        const db = createClient(DATABASE_URL);
+        const redis = { url: REDIS_URL, token: REDIS_TOKEN };
+        usageResult = await checkApiUsage(db, workspaceId, redis);
+
+        if (!usageResult.allowed) {
+          return c.json(
+            {
+              error: "Usage limit exceeded",
+              message:
+                "You have reached your API request limit for this billing period. Please upgrade your plan or wait until your usage resets.",
+            },
+            429
+          );
+        }
+      } catch (err) {
+        console.error("[KeyAnalytics] Error checking usage limits:", err);
+      }
+    }
+
     await next();
 
-    const { DATABASE_URL, POLAR_ACCESS_TOKEN, ENVIRONMENT } = c.env;
     if (!DATABASE_URL) {
       console.error("[KeyAnalytics] Database configuration error");
       return;
     }
 
-    const workspaceId = c.get("workspaceId");
     const apiKeyType = c.get("apiKeyType");
     const status = c.res.status ?? 200;
 
-    // Validate workspaceId before analytics
     if (!workspaceId) {
       console.warn("[KeyAnalytics] Missing workspaceId, skipping analytics");
       return;
@@ -35,8 +71,6 @@ export const keyAnalytics = (): MiddlewareHandler<ApiKeyApp> => {
       return;
     }
 
-    // Parse endpoint from path
-    // After URL rewrite in app.ts, path is like /posts or /posts/slug (no /v1 prefix)
     const pathParts = path.split("/").filter(Boolean);
     const endpoint = pathParts.length >= 1 ? `/${pathParts.join("/")}` : null;
 
@@ -51,6 +85,25 @@ export const keyAnalytics = (): MiddlewareHandler<ApiKeyApp> => {
             endpoint,
           },
         });
+
+        if (RESEND_API_KEY && usageResult?.thresholdCrossed) {
+          try {
+            console.log("[KeyAnalytics] Usage threshold crossed");
+            await notifyApiUsageThreshold(
+              RESEND_API_KEY,
+              db,
+              workspaceId,
+              usageResult.thresholdCrossed,
+              usageResult.currentUsage + 1,
+              usageResult.limit
+            );
+          } catch (usageError) {
+            console.error(
+              "[KeyAnalytics] Error sending usage threshold email:",
+              usageError
+            );
+          }
+        }
 
         let customerId = workspaceId;
         const organization = await db.organization.findFirst({
