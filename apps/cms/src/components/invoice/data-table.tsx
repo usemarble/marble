@@ -46,7 +46,7 @@ export function InvoiceDataTable<TData, TValue>({
 
   return (
     <div>
-      <div className="flex items-center justify-between border-x py-4">
+      <div className="flex flex-col gap-4 border-x py-4 md:flex-row md:items-center md:justify-between">
         {/* <div className="relative">
           <SearchIcon
             size={16}
