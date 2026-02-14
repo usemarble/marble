@@ -1,25 +1,24 @@
 ---
-import SpeedInsights from "@vercel/speed-insights/astro";
-import BlogHeader from "@/components/BlogHeader.astro";
-import FooterComponent from "@/components/Footer.astro";
-import HeadComponent from "@/components/Head.astro";
-import ScrollToTop from "@/components/ScrollToTop.astro";
+  import SpeedInsights from "@vercel/speed-insights/astro";
+  import BlogHeader from "@/components/BlogHeader.astro";
+  import FooterComponent from "@/components/Footer.astro";
+  import HeadComponent from "@/components/Head.astro";
+  import ScrollToTop from "@/components/ScrollToTop.astro";
 
-const { title, description, image } = Astro.props;
+  const { title, description, image } = Astro.props;
 ---
-
 <!doctype html>
 <html lang="en">
   <head>
-    <HeadComponent title={title} description={description} image={image} />
-    <SpeedInsights />
+    <HeadComponent title={title} description={description} image={image}/>
+    <SpeedInsights/>
   </head>
   <body>
-    <BlogHeader />
+    <BlogHeader/>
     <main>
-      <slot />
+      <slot/>
     </main>
-    <FooterComponent />
-    <ScrollToTop />
+    <FooterComponent/>
+    <ScrollToTop/>
   </body>
 </html>

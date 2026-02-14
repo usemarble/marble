@@ -1,43 +1,42 @@
 ---
-import type { SvgComponent } from "astro/types";
-import Container from "@/components/Container.astro";
-import Neon from "@/components/icons/sponsors/Neon.astro";
-import Upstash from "@/components/icons/sponsors/Upstash.astro";
-import Vercel from "@/components/icons/sponsors/Vercel.astro";
-import Button from "@/components/ui/Button.astro";
-import Layout from "@/layouts/Layout.astro";
-import { SITE } from "@/lib/constants/site";
+  import type { SvgComponent } from "astro/types";
+  import Container from "@/components/Container.astro";
+  import Neon from "@/components/icons/sponsors/Neon.astro";
+  import Upstash from "@/components/icons/sponsors/Upstash.astro";
+  import Vercel from "@/components/icons/sponsors/Vercel.astro";
+  import ButtonComponent from "@/components/ui/Button.astro";
+  import Layout from "@/layouts/Layout.astro";
+  import { SITE } from "@/lib/constants/site";
 
-interface Sponsor {
-  url: string;
-  name: string;
-  description: string;
-  icon: SvgComponent;
-}
+  interface Sponsor {
+    url: string;
+    name: string;
+    description: string;
+    icon: SvgComponent;
+  }
 
-const sponsorsData: Sponsor[] = [
-  {
-    name: "Upstash",
-    url: "https://upstash.com?utm_source=marble",
-    icon: Upstash,
-    description:
-      "Powers our caching, webhooks and rate limiting infrastructure.",
-  },
-  {
-    name: "Neon",
-    url: "https://neon.com?utm_source=marble",
-    icon: Neon,
-    description: "Powers our entire database, literally.",
-  },
-  {
-    name: "Vercel",
-    url: "https://vercel.com?utm_source=marble",
-    icon: Vercel,
-    description: "Powers our entire deployment and ai infrastructure.",
-  },
-];
+  const sponsorsData: Sponsor[] = [
+    {
+      name: "Upstash",
+      url: "https://upstash.com?utm_source=marble",
+      icon: Upstash,
+      description:
+        "Powers our caching, webhooks and rate limiting infrastructure.",
+    },
+    {
+      name: "Neon",
+      url: "https://neon.com?utm_source=marble",
+      icon: Neon,
+      description: "Powers our entire database, literally.",
+    },
+    {
+      name: "Vercel",
+      url: "https://vercel.com?utm_source=marble",
+      icon: Vercel,
+      description: "Powers our entire deployment and ai infrastructure.",
+    },
+  ];
 ---
-
 <Layout
   title={`Our Sponsors & Supporters - ${SITE.TITLE}`}
   description="Meet the amazing companies and individuals that support the development of Marble."
@@ -123,20 +122,20 @@ const sponsorsData: Sponsor[] = [
             <div
               class="flex flex-col sm:flex-row w-full items-center justify-center gap-4"
             >
-              <Button
+              <ButtonComponent
                 href="https://twitter.com/usemarblecms"
                 target="_blank"
                 class="w-full sm:w-auto"
               >
                 Reach out on Twitter
-              </Button>
-              <Button
+              </ButtonComponent>
+              <ButtonComponent
                 href={SITE.DISCORD_URL}
                 variant="secondary"
                 class="w-full sm:w-auto"
               >
                 Join the Discord
-              </Button>
+              </ButtonComponent>
             </div>
           </div>
         </Container>

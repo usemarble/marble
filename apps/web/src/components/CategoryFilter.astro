@@ -1,45 +1,44 @@
 ---
-import type { CollectionEntry } from "astro:content";
-import Button from "@/components/ui/Button.astro";
-import { cn } from "@/lib/utils";
+  import type { CollectionEntry } from "astro:content";
+  import ButtonComponent from "@/components/ui/Button.astro";
+  import { cn } from "@/lib/utils";
 
-interface Props {
-  categories: CollectionEntry<"categories">[];
-}
+  interface Props {
+    categories: CollectionEntry<"categories">[];
+  }
 
-const { categories } = Astro.props as Props;
-const categoriesToShow = categories.filter(
-  (category) =>
-    category.data.slug !== "legal" && category.data.slug !== "changelog"
-);
+  const { categories } = Astro.props as Props;
+  const categoriesToShow = categories.filter(
+    (category) =>
+      category.data.slug !== "legal" && category.data.slug !== "changelog"
+  );
 
-const currentPath = Astro.url.pathname.replace(/\/$/, "");
+  const currentPath = Astro.url.pathname.replace(/\/$/, "");
 ---
-
 <ul class="flex flex-wrap items-center gap-2 justify-start mt-4">
   <li>
-    <Button
+    <ButtonComponent
       href="/blog"
       variant={currentPath === "/blog" ? "primary" : "outline"}
       size="sm"
       class={cn("px-5 py-1.5", currentPath !== "/blog" && "hover:bg-muted/50 hover:text-foreground")}
     >
       All Posts
-    </Button>
+    </ButtonComponent>
   </li>
   {categoriesToShow.map((category) => {
         const link = `/blog/category/${category.data.slug}`;
         const isActive = currentPath === link;
         return (
           <li>
-            <Button
+            <ButtonComponent
               href={link}
               variant={isActive ? "primary" : "outline"}
               size="sm"
               class={cn("px-4 py-1.5", !isActive && "hover:bg-muted/50 hover:text-foreground")}
             >
               {category.data.name}
-            </Button>
+            </ButtonComponent>
           </li>
         )
       })}

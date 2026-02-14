@@ -170,7 +170,7 @@ export function AuthorSelector({
           nativeButton={false}
           render={
             <div className="relative flex h-auto min-h-9 w-full cursor-pointer items-center justify-between gap-2 rounded-md border bg-editor-field px-3 py-1.5 text-sm">
-              <ul className="flex flex-wrap -space-x-2">
+              <ul className="-space-x-2 flex flex-wrap">
                 {selected.length === 0 && (
                   <li className="text-muted-foreground">
                     {placeholder || "Select authors"}

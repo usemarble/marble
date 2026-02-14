@@ -1,26 +1,25 @@
 ---
-import { getEntry } from "astro:content";
-import Container from "@/components/Container.astro";
-import Prose from "@/components/Prose.astro";
-import Layout from "@/layouts/Layout.astro";
-import { SITE } from "@/lib/constants/site";
+  import { getEntry } from "astro:content";
+  import Container from "@/components/Container.astro";
+  import Prose from "@/components/Prose.astro";
+  import Layout from "@/layouts/Layout.astro";
+  import { SITE } from "@/lib/constants/site";
 
-const entry = await getEntry("page", "terms");
+  const entry = await getEntry("page", "terms");
 
-if (!entry) {
-  throw new Error("Page not found");
-}
-
-const formattedDate = new Date(entry.data.updatedAt).toLocaleDateString(
-  "en-US",
-  {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
+  if (!entry) {
+    throw new Error("Page not found");
   }
-);
----
 
+  const formattedDate = new Date(entry.data.updatedAt).toLocaleDateString(
+    "en-US",
+    {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }
+  );
+---
 <Layout
   title={`Terms of Service - ${SITE.TITLE}`}
   description="Marble's terms of service."
@@ -38,7 +37,7 @@ const formattedDate = new Date(entry.data.updatedAt).toLocaleDateString(
         </div>
 
         <Prose>
-          <div set:html={entry.data.content} />
+          <div set:html={entry.data.content}/>
         </Prose>
       </Container>
     </div>

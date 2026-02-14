@@ -1,16 +1,15 @@
 ---
-import { getCollection } from "astro:content";
-import CategoryFilter from "@/components/CategoryFilter.astro";
-import Container from "@/components/Container.astro";
-import PostCard from "@/components/PostCard.astro";
-import Layout from "@/layouts/Layout.astro";
-import { SITE } from "@/lib/constants/site";
+  import { getCollection } from "astro:content";
+  import CategoryFilter from "@/components/CategoryFilter.astro";
+  import Container from "@/components/Container.astro";
+  import PostCard from "@/components/PostCard.astro";
+  import Layout from "@/layouts/Layout.astro";
+  import { SITE } from "@/lib/constants/site";
 
-const posts = await getCollection("posts");
-const categories = await getCollection("categories");
-const fillers = Array.from({ length: (3 - (posts.length % 3)) % 3 });
+  const posts = await getCollection("posts");
+  const categories = await getCollection("categories");
+  const fillers = Array.from({ length: (3 - (posts.length % 3)) % 3 });
 ---
-
 <Layout
   title={`Blog - ${SITE.TITLE}`}
   description="Bits and pieces about SEO and content writing."
@@ -34,7 +33,7 @@ const fillers = Array.from({ length: (3 - (posts.length % 3)) % 3 });
             </p>
           </div>
           <div class="w-full md:w-auto">
-            <CategoryFilter categories={categories} />
+            <CategoryFilter categories={categories}/>
           </div>
         </div>
         <ul
