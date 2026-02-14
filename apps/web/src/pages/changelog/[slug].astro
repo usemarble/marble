@@ -1,36 +1,35 @@
 ---
-import { Image } from "astro:assets";
-import { getCollection } from "astro:content";
-import Container from "@/components/Container.astro";
-import Prose from "@/components/Prose.astro";
-import Layout from "@/layouts/Layout.astro";
-import { SITE } from "@/lib/constants/site";
-import { calculateReadTime } from "@/lib/utils";
+  import { Image } from "astro:assets";
+  import { getCollection } from "astro:content";
+  import Container from "@/components/Container.astro";
+  import Prose from "@/components/Prose.astro";
+  import Layout from "@/layouts/Layout.astro";
+  import { SITE } from "@/lib/constants/site";
+  import { calculateReadTime } from "@/lib/utils";
 
-export const prerender = true;
+  export const prerender = true;
 
-export async function getStaticPaths() {
-  const changelogEntries = await getCollection("changelog");
-  return changelogEntries.map((entry) => ({
-    params: { slug: entry.data.slug },
-    props: { entry },
-  }));
-}
-
-const { entry } = Astro.props;
-
-const formattedDate = new Date(entry.data.publishedAt).toLocaleDateString(
-  "en-US",
-  {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
+  export async function getStaticPaths() {
+    const changelogEntries = await getCollection("changelog");
+    return changelogEntries.map((entry) => ({
+      params: { slug: entry.data.slug },
+      props: { entry },
+    }));
   }
-);
 
-const readTime = calculateReadTime(entry.data.content);
+  const { entry } = Astro.props;
+
+  const formattedDate = new Date(entry.data.publishedAt).toLocaleDateString(
+    "en-US",
+    {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }
+  );
+
+  const readTime = calculateReadTime(entry.data.content);
 ---
-
 <Layout
   title={`${entry.data.title} - ${SITE.TITLE}`}
   description={entry.data.description}
@@ -91,7 +90,7 @@ const readTime = calculateReadTime(entry.data.content);
           )}
         </div> -->
         <Prose>
-          <div set:html={entry.data.content} />
+          <div set:html={entry.data.content}/>
         </Prose>
       </Container>
     </div>

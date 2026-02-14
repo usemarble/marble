@@ -1,35 +1,35 @@
 ---
-import { getCollection } from "astro:content";
-import CategoryCard from "@/components/CategoryCard.astro";
-import CategoryFilter from "@/components/CategoryFilter.astro";
-import Container from "@/components/Container.astro";
-import Layout from "@/layouts/Layout.astro";
-import { SITE } from "@/lib/constants/site";
-import { marble } from "@/lib/marble";
+  import { getCollection } from "astro:content";
+  import CategoryCard from "@/components/CategoryCard.astro";
+  import CategoryFilter from "@/components/CategoryFilter.astro";
+  import Container from "@/components/Container.astro";
+  import Layout from "@/layouts/Layout.astro";
+  import { SITE } from "@/lib/constants/site";
+  import { marble } from "@/lib/marble";
 
-export const prerender = true;
+  export const prerender = true;
 
-export async function getStaticPaths() {
-  const blogEntries = await getCollection("categories");
-  return blogEntries
-    .filter(
-      (entry) => entry.data.slug !== "legal" && entry.data.slug !== "changelog"
-    )
-    .map((entry) => ({
-      params: { slug: entry.data.slug },
-      props: { entry },
-    }));
-}
+  export async function getStaticPaths() {
+    const blogEntries = await getCollection("categories");
+    return blogEntries
+      .filter(
+        (entry) =>
+          entry.data.slug !== "legal" && entry.data.slug !== "changelog"
+      )
+      .map((entry) => ({
+        params: { slug: entry.data.slug },
+        props: { entry },
+      }));
+  }
 
-const { entry } = Astro.props;
+  const { entry } = Astro.props;
 
-const categoriesEntries = await getCollection("categories");
-const { result } = await marble.posts.list({ categories: [entry.data.slug] });
-const fillers = Array.from({
-  length: (3 - (result.posts.length % 3)) % 3,
-});
+  const categoriesEntries = await getCollection("categories");
+  const { result } = await marble.posts.list({ categories: [entry.data.slug] });
+  const fillers = Array.from({
+    length: (3 - (result.posts.length % 3)) % 3,
+  });
 ---
-
 <Layout
   title={`${entry.data.name} - ${SITE.TITLE}`}
   description={entry.data.description}
@@ -54,7 +54,7 @@ const fillers = Array.from({
             </p>
           </div>
           <div class="w-full md:w-auto">
-            <CategoryFilter categories={categoriesEntries} />
+            <CategoryFilter categories={categoriesEntries}/>
           </div>
         </div>
         {result.posts.length > 0 ? (

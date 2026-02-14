@@ -1,9 +1,8 @@
 ---
-import { SITE } from "@/lib/constants/site";
-import Container from "./Container.astro";
-import WordMark from "./icons/WordMark.astro";
+  import { SITE } from "@/lib/constants/site";
+  import Container from "./Container.astro";
+  import WordMark from "./icons/WordMark.astro";
 ---
-
 <header
   id="header"
   class="bg-background/90 z-50 relative max-lg:py-4 backdrop-blur-md"
@@ -23,22 +22,30 @@ import WordMark from "./icons/WordMark.astro";
             <li
               class="relative after:absolute after:bg-primary after:h-full after:w-0.5 after:top-auto after:bottom-0 after:left-0 after:scale-y-0 after:origin-top hover:after:scale-y-100 hover:after:origin-bottom transition after:transition after:duration-500 w-fit px-2"
             >
-              <a href="https://docs.marblecms.com"> <span>Docs</span> </a>
+              <a href="https://docs.marblecms.com">
+                <span>Docs</span>
+              </a>
             </li>
             <li
               class="relative after:absolute after:bg-primary after:h-full after:w-0.5 after:top-auto after:bottom-0 after:left-0 after:scale-y-0 after:origin-top hover:after:scale-y-100 hover:after:origin-bottom transition after:transition after:duration-500 w-fit px-2"
             >
-              <a href="/pricing"> <span>Pricing</span> </a>
+              <a href="/pricing">
+                <span>Pricing</span>
+              </a>
             </li>
             <li
               class="relative after:absolute after:bg-primary after:h-full after:w-0.5 after:top-auto after:bottom-0 after:left-0 after:scale-y-0 after:origin-top hover:after:scale-y-100 hover:after:origin-bottom transition after:transition after:duration-500 w-fit px-2"
             >
-              <a href="/blog"> <span>Blog</span> </a>
+              <a href="/blog">
+                <span>Blog</span>
+              </a>
             </li>
             <li
               class="relative after:absolute after:bg-primary after:h-full after:w-0.5 after:top-auto after:bottom-0 after:left-0 after:scale-y-0 after:origin-top hover:after:scale-y-100 hover:after:origin-bottom transition after:transition after:duration-500 w-fit px-2"
             >
-              <a href={`${SITE.APP_URL}/register`}> <span>Sign up</span> </a>
+              <a href={`${SITE.APP_URL}/register`}>
+                <span>Sign up</span>
+              </a>
             </li>
           </ul>
         </div>
@@ -48,7 +55,7 @@ import WordMark from "./icons/WordMark.astro";
             href="/blog"
             class="text-lg tracking-wider flex items-center gap-2"
           >
-            <WordMark />
+            <WordMark/>
             <span class="sr-only">marblecms</span>
           </a>
         </div>

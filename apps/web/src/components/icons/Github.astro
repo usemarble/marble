@@ -1,10 +1,9 @@
 ---
-import type { HTMLAttributes } from "astro/types";
+  import type { HTMLAttributes } from "astro/types";
 
-interface Props extends HTMLAttributes<"svg"> {}
-const { class: classNames, ...attrs } = Astro.props;
+  interface Props extends HTMLAttributes<"svg"> {}
+  const { class: classNames, ...attrs } = Astro.props;
 ---
-
 <svg
   role="img"
   viewBox="0 0 24 24"

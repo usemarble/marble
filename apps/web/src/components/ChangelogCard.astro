@@ -1,21 +1,20 @@
 ---
-import { Image } from "astro:assets";
-import type { CollectionEntry } from "astro:content";
+  import { Image } from "astro:assets";
+  import type { CollectionEntry } from "astro:content";
 
-interface Props {
-  entry: CollectionEntry<"changelog">;
-}
+  interface Props {
+    entry: CollectionEntry<"changelog">;
+  }
 
-const { entry } = Astro.props as Props;
-const { title, coverImage, publishedAt, authors, slug, tags } = entry.data;
+  const { entry } = Astro.props as Props;
+  const { title, coverImage, publishedAt, authors, slug, tags } = entry.data;
 
-const formattedDate = new Date(publishedAt).toLocaleDateString("en-US", {
-  day: "2-digit",
-  month: "long",
-  year: "numeric",
-});
+  const formattedDate = new Date(publishedAt).toLocaleDateString("en-US", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
 ---
-
 <li>
   <a
     href={`/changelog/${slug}`}

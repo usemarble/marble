@@ -1,10 +1,9 @@
 ---
-import type { HTMLAttributes } from "astro/types";
+  import type { HTMLAttributes } from "astro/types";
 
-interface Props extends HTMLAttributes<"svg"> {}
-const { class: classNames, ...attrs } = Astro.props;
+  interface Props extends HTMLAttributes<"svg"> {}
+  const { class: classNames, ...attrs } = Astro.props;
 ---
-
 <svg
   xmlns="http://www.w3.org/2000/svg"
   version="1.2"
@@ -20,8 +19,8 @@ const { class: classNames, ...attrs } = Astro.props;
       gradientUnits="userSpaceOnUse"
       gradientTransform="matrix(-50.032,-57.652,62.466,-54.21,57.588,57)"
     >
-      <stop offset="0" stop-color="#2ef51c" stop-opacity="1" />
-      <stop offset="1" stop-color="#2ef51c" stop-opacity="0" />
+      <stop offset="0" stop-color="#2ef51c" stop-opacity="1"/>
+      <stop offset="1" stop-color="#2ef51c" stop-opacity="0"/>
     </linearGradient>
     <linearGradient
       id="g2"
@@ -29,8 +28,8 @@ const { class: classNames, ...attrs } = Astro.props;
       gradientUnits="userSpaceOnUse"
       gradientTransform="matrix(-34.011,-13.404,13.812,-35.046,57.461,56.966)"
     >
-      <stop offset="0" stop-color="#000000" stop-opacity=".9" />
-      <stop offset="1" stop-color="#1a1a1a" stop-opacity="0" />
+      <stop offset="0" stop-color="#000000" stop-opacity=".9"/>
+      <stop offset="1" stop-color="#1a1a1a" stop-opacity="0"/>
     </linearGradient>
   </defs>
   <style>

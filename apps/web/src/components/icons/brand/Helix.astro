@@ -1,10 +1,9 @@
 ---
-import type { HTMLAttributes } from "astro/types";
+  import type { HTMLAttributes } from "astro/types";
 
-interface Props extends HTMLAttributes<"svg"> {}
-const { class: classNames, ...attrs } = Astro.props;
+  interface Props extends HTMLAttributes<"svg"> {}
+  const { class: classNames, ...attrs } = Astro.props;
 ---
-
 <svg
   width="28"
   height="28"
@@ -22,7 +21,7 @@ const { class: classNames, ...attrs } = Astro.props;
   </g>
   <defs>
     <clipPath id="clip0_2150_402">
-      <rect width="28" height="46" fill="white" />
+      <rect width="28" height="46" fill="white"/>
     </clipPath>
   </defs>
 </svg>
