@@ -1,9 +1,6 @@
 import { createClient } from "@marble/db/workers";
 import type { Context, MiddlewareHandler, Next } from "hono";
-import {
-  checkApiUsage,
-  type UsageCheckResult,
-} from "../lib/usage";
+import { checkApiUsage, type UsageCheckResult } from "../lib/usage";
 import { runAnalyticsTask } from "./analytics";
 
 /**
@@ -35,7 +32,7 @@ export const legacyAnalytics = (): MiddlewareHandler => {
               message:
                 "You have reached your API request limit for this billing period. Please upgrade your plan or wait until your usage resets.",
             },
-            429,
+            429
           );
         }
       } catch (err) {
@@ -75,7 +72,7 @@ export const legacyAnalytics = (): MiddlewareHandler => {
         resendApiKey: RESEND_API_KEY,
         polarAccessToken: POLAR_ACCESS_TOKEN,
         environment: ENVIRONMENT,
-      }),
+      })
     );
   };
 };
