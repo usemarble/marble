@@ -28,7 +28,10 @@ export const analytics = (): MiddlewareHandler => {
     if (DATABASE_URL && workspaceId && method !== "OPTIONS") {
       try {
         const db = createClient(DATABASE_URL);
-        const redis = { url: REDIS_URL, token: REDIS_TOKEN };
+        const redis =
+          REDIS_URL && REDIS_TOKEN
+            ? { url: REDIS_URL, token: REDIS_TOKEN }
+            : undefined;
         usageResult = await checkApiUsage(db, workspaceId, redis);
 
         if (!usageResult.allowed) {

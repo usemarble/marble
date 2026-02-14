@@ -64,10 +64,12 @@ async function getBillingPeriod(
     select: {
       createdAt: true,
       subscriptions: {
-        where: { status: { in: ["active", "trialing"] } },
+        where: { status: { in: ["active", "trialing", "canceled"] } },
         orderBy: { createdAt: "desc" },
         take: 1,
         select: {
+          status: true,
+          cancelAtPeriodEnd: true,
           currentPeriodStart: true,
           currentPeriodEnd: true,
         },
@@ -84,7 +86,20 @@ async function getBillingPeriod(
   }
 
   const subscription = workspace.subscriptions[0];
-  if (subscription?.currentPeriodStart && subscription?.currentPeriodEnd) {
+  const isValid =
+    subscription &&
+    (subscription.status === "active" ||
+      subscription.status === "trialing" ||
+      (subscription.status === "canceled" &&
+        subscription.cancelAtPeriodEnd &&
+        subscription.currentPeriodEnd &&
+        subscription.currentPeriodEnd > new Date()));
+
+  if (
+    isValid &&
+    subscription.currentPeriodStart &&
+    subscription.currentPeriodEnd
+  ) {
     return {
       start: subscription.currentPeriodStart,
       end: subscription.currentPeriodEnd,
