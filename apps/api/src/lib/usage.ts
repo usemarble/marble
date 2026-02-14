@@ -360,7 +360,7 @@ export async function notifyApiUsageThreshold(
       workspaceId,
     });
     console.log(
-      `[ApiUsage] Sent ${threshold}% threshold email to ${owner.user.email}`
+      `[ApiUsage] Sent ${threshold}% threshold email for workspace ${workspaceId}`
     );
   } catch (error) {
     console.error("[ApiUsage] Failed to send threshold notification:", error);
