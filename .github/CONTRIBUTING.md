@@ -24,8 +24,8 @@ This repository is a monorepo and is structured as follows:
 ```text
 /
 ├── apps/
-│   ├── api/      → Hono REST API (Cloudflare Workers)
-│   ├── cms/      → Next.js dashboard (React 19)
+│   ├── api/      → Hono REST API
+│   ├── cms/      → Next.js dashboard
 │   └── web/      → Astro marketing site
 ├── packages/
 │   ├── db/       → Prisma schema + client (shared by api & cms)
@@ -46,7 +46,7 @@ This repository is a monorepo and is structured as follows:
 
 This directory contains the source code for all related applications:
 
-- **api**: [Hono](https://hono.dev) REST API running on Cloudflare Workers
+- **api**: [Hono](https://hono.dev) REST API for content delivery
 - **cms**: [Next.js](https://nextjs.org) app for the dashboard
 - **web**: [Astro](https://astro.build) app for the marketing website
 
