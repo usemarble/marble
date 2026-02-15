@@ -1,9 +1,12 @@
 import axios from "axios";
-import type { UploadType } from "@/types/media";
+import type { PresignedUrlResponse, UploadType } from "@/types/media";
 import { generateSlug } from "@/utils/string";
 
-async function getPresignedUrl(file: File, type: UploadType) {
-  const response = await axios.post("/api/upload", {
+async function getPresignedUrl(
+  file: File,
+  type: UploadType
+): Promise<PresignedUrlResponse> {
+  const response = await axios.post<PresignedUrlResponse>("/api/upload", {
     type,
     fileType: file.type,
     fileSize: file.size,
@@ -26,8 +29,6 @@ async function uploadToR2(presignedUrl: string, file: File) {
   if (response.status !== 200) {
     throw new Error(response.data.error);
   }
-
-  return response.data;
 }
 
 async function completeUpload(key: string, file: File, type: UploadType) {

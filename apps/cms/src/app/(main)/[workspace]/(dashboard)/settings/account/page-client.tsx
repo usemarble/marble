@@ -45,8 +45,8 @@ function PageClient() {
   const { mutate: uploadAvatar, isPending: isUploading } = useMutation({
     mutationFn: (file: File) => uploadFile({ file, type: "avatar" }),
     onSuccess: (data) => {
-      setAvatarUrl(data.avatarUrl);
-      updateUser({ image: data.avatarUrl });
+      setAvatarUrl(data.url);
+      updateUser({ image: data.url });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.USER });
       setFile(null);
     },
