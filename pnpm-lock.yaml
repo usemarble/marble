@@ -48,6 +48,9 @@ importers:
       '@marble/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@marble/email':
+        specifier: workspace:*
+        version: link:../../packages/email
       '@marble/utils':
         specifier: workspace:*
         version: link:../../packages/utils
@@ -66,6 +69,9 @@ importers:
       node-html-markdown:
         specifier: ^2.0.0
         version: 2.0.0
+      resend:
+        specifier: ^6.8.0
+        version: 6.8.0(@react-email/render@2.0.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4))
       zod:
         specifier: ^4.3.6
         version: 4.3.6

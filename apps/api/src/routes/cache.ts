@@ -29,6 +29,20 @@ cacheInvalidate.post("/", async (c) => {
 
     let invalidatedCount: number;
 
+    if (resource === "usage") {
+      const redis = new (await import("@upstash/redis/cloudflare")).Redis({
+        url: c.env.REDIS_URL,
+        token: c.env.REDIS_TOKEN,
+      });
+      const deleted = await redis.del(`usage:meta:${workspaceId}`);
+      return c.json({
+        success: true,
+        message: `Invalidated usage cache${deleted ? "" : " (was not cached)"}`,
+        workspaceId,
+        resource,
+      });
+    }
+
     if (resource) {
       invalidatedCount = await cache.invalidateResource(workspaceId, resource);
       return c.json({
