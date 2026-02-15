@@ -7,9 +7,9 @@ Thanks for your interest in contributing! This guide explains how to get Marble 
 Before you start, make sure you have the following installed or available:
 
 - **Node.js** ≥ 20.x
-- **pnpm** ≥ 8.x (install with `npm i -g pnpm`)
+- **pnpm** ≥ 10.x (install with `npm i -g pnpm`)
 - **PostgreSQL** database (we use [Neon](https://neon.tech) in examples)
-- **Redis** database (we use [Upstash](https://upstash.com) for serverless Redis)
+- **Redis** database (we use [Upstash](https://upstash.com))
 - **Google** and **GitHub** OAuth apps (for authentication)
 - **Cloudflare** account with R2 enabled (for media uploads)
 - **Optional**: [Polar](https://sandbox.polar.sh) sandbox account if you want to test payments
@@ -19,20 +19,23 @@ Before you start, make sure you have the following installed or available:
 
 ## Structure
 
-This repository is a monorepo and is structured as follows
+This repository is a monorepo and is structured as follows:
 
 ```text
 /
 ├── apps/
-│ ├─ api/      → Hono API backend
-│ ├─ cms/      → Next.js app (the dashboard)
-│ └─ web/      → Astro marketing site
+│   ├── api/      → Hono REST API
+│   ├── cms/      → Next.js dashboard
+│   └── web/      → Astro marketing site
 ├── packages/
-│ ├─ db/       → Prisma schema + client
-│ ├─ tsconfig/ → Shared TS config
-│ └─ ui/       → Shared UI components (shadcn)
+│   ├── db/       → Prisma schema + client (shared by api & cms)
+│   ├── editor/   → Tiptap-based rich text editor
+│   ├── email/    → Email templates
+│   ├── parser/   → Content parsing utilities
+│   ├── tsconfig/ → Shared TypeScript configurations
+│   ├── ui/       → shadcn/ui components (shared UI library)
+│   └── utils/    → Shared utilities
 ├── .npmrc
-├── biome.json
 ├── package.json
 ├── pnpm-workspace.yaml
 ├── README.md
@@ -43,17 +46,21 @@ This repository is a monorepo and is structured as follows
 
 This directory contains the source code for all related applications:
 
-- api: A [Hono](https://hono.dev) app for the api
-- cms: A [Next.js](https://nextjs.org) app for the dashboard
-- web: An [Astro.js](https://astro.build) app for the website
+- **api**: [Hono](https://hono.dev) REST API for content delivery
+- **cms**: [Next.js](https://nextjs.org) app for the dashboard
+- **web**: [Astro](https://astro.build) app for the marketing website
 
 ### Packages
 
 Packages contain internal shared modules used across different applications:
 
-- ui: contains shadcn ui components used in the `cms` app
-- db: database client and schema shared between the `api` and `cms` apps
-- tsconfig: TypeScript configurations shared across the monorepo.
+- **db**: Prisma schema and client shared between the `api` and `cms` apps
+- **editor**: Tiptap-based rich text editor used in the CMS
+- **email**: Email templates for notifications and transactional emails
+- **parser**: Content parsing utilities
+- **tsconfig**: TypeScript configurations shared across the monorepo
+- **ui**: shadcn/ui components used in the `cms` app
+- **utils**: Shared utilities used across apps and packages
 
 ## Getting Started
 
@@ -292,16 +299,16 @@ pnpm web:dev
    git checkout -b feature/your-feature
    ```
 
-2. Before committing your changes make sure to run the lint command to catch any formatting errors
+2. Before committing your changes make sure to run the lint and format commands (via ultracite/Biome) to catch any issues
 
    ```bash
-   pnpm format-lint:fix
+   pnpm format
    ```
 
-   or if you would rather fix them yourself you can run the following to list the problems
+   or if you would rather fix issues yourself, run the following to list problems without fixing
 
    ```bash
-   pnpm format-lint:check
+   pnpm lint
    ```
 
 3. Test your changes and make sure they work and run a build
@@ -321,13 +328,13 @@ git commit -m "fix(cms): fix sidebar overflow issue"
 - Your PR should reference an issue (if applicable) or clearly describe its impact on the project. [see how to Link a pull request to an issue](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue)
 - Include a clear description of the changes
 - Keep PRs small and focused. Large PRs are harder to review and may be rejected or delayed.
-- Ensure consistency with the existing codebase. Use Biome for formatting.
+- Ensure consistency with the existing codebase. Use ultracite (Biome) for linting and formatting.
 - Include tests if applicable
 - Update documentation if your changes affect usage or API behavior.
 
 ## Code Style
 
-- Follow the existing code formatting in the project (use Biome for consistency).
+- Follow the existing code formatting in the project (use ultracite/Biome for consistency).
 - Write clear, self-documenting code
 - Add comments only when necessary to explain complex logic
 - Use meaningful variable and function names

@@ -67,16 +67,16 @@ export function Logo() {
   const { mutate: uploadLogo, isPending: isUpdatingLogo } = useMutation({
     mutationFn: (file: File) => uploadFile({ file, type: "logo" }),
     onSuccess: (data) => {
-      const { logoUrl } = data;
-      if (!logoUrl || !activeWorkspace?.id) {
+      const { url } = data;
+      if (!url || !activeWorkspace?.id) {
         return;
       }
 
-      setLogoUrl(logoUrl);
+      setLogoUrl(url);
       toast.success("Upload complete");
       updateLogo({
         organizationId: activeWorkspace.id,
-        logoUrl,
+        logoUrl: url,
       });
     },
     onError: (error: unknown) => {

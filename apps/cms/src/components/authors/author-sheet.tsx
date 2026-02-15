@@ -116,10 +116,10 @@ export const AuthorSheet = ({
   const [file, setFile] = useState<File | null>(null);
 
   const { mutate: uploadAvatar, isPending: isUploading } = useMutation({
-    mutationFn: (file: File) => uploadFile({ file, type: "author-avatar" }),
+    mutationFn: (file: File) => uploadFile({ file, type: "avatar" }),
     onSuccess: (data) => {
-      setAvatarUrl(data.avatarUrl);
-      setValue("image", data.avatarUrl, { shouldDirty: true });
+      setAvatarUrl(data.url);
+      setValue("image", data.url, { shouldDirty: true });
       setFile(null);
       toast.success("Avatar uploaded successfully");
     },

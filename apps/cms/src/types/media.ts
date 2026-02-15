@@ -10,7 +10,7 @@ export type MediaType = (typeof MEDIA_TYPES)[number];
 
 export type MediaFilterType = (typeof MEDIA_FILTER_TYPES)[number];
 
-export type UploadType = "avatar" | "author-avatar" | "logo" | "media";
+export type UploadType = "avatar" | "logo" | "media";
 
 export interface Media {
   id: string;
@@ -32,4 +32,26 @@ export interface MediaListResponse {
   media: Media[];
   nextCursor?: string;
   hasAnyMedia: boolean;
+}
+
+/** Response from POST /api/upload — returns a presigned URL and storage key */
+export interface PresignedUrlResponse {
+  url: string;
+  key: string;
+}
+
+/** Response from POST /api/upload/complete for non-media types (avatar, logo) */
+export interface UploadResponse {
+  url: string;
+}
+
+/**
+ * Maps each UploadType to its corresponding response from POST /api/upload/complete.
+ * - avatar / logo → UploadResponse (just a public URL)
+ * - media → Media (includes id, name, size, type, etc.)
+ */
+export interface UploadResponseMap {
+  avatar: UploadResponse;
+  logo: UploadResponse;
+  media: Media;
 }
