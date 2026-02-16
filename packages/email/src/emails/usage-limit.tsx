@@ -120,9 +120,9 @@ export const UsageLimitEmail = ({
 
             <Section>
               <Text className="m-0 mb-4 text-[#737373] text-base leading-relaxed">
-                To avoid any interruption to your service, consider upgrading
-                your plan. You can also wait until your usage resets at the
-                start of your next billing period.
+                {percentage >= 100
+                  ? `You've reached your ${featureName.toLowerCase()} limit and requests are no longer being processed. They will resume once your usage resets at the start of your next billing period, or you upgrade your plan.`
+                  : "To avoid any interruption to your service, consider upgrading your plan. You can also wait until your usage resets at the start of your next billing period."}
               </Text>
             </Section>
 

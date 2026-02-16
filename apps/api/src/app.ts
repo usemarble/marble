@@ -5,8 +5,8 @@ import { ROUTES } from "./lib/constants";
 import { analytics } from "./middleware/analytics";
 import { authorization } from "./middleware/authorization";
 import { cache } from "./middleware/cache";
-import { keyAnalytics } from "./middleware/key-analytics";
 import { keyAuthorization } from "./middleware/key-authorization";
+import { legacyAnalytics } from "./middleware/legacy-analytics";
 import { ratelimit } from "./middleware/ratelimit";
 import { systemAuth } from "./middleware/system";
 import authorsRoutes from "./routes/authors";
@@ -33,7 +33,7 @@ app.route("/cache/invalidate", cacheRoutes);
 const legacyV1 = new Hono<{ Bindings: Env }>();
 legacyV1.use("/:workspaceId/*", ratelimit("workspace"));
 legacyV1.use("/:workspaceId/*", authorization());
-legacyV1.use("/:workspaceId/*", analytics());
+legacyV1.use("/:workspaceId/*", legacyAnalytics());
 
 legacyV1.route("/:workspaceId/tags", tagsRoutes);
 legacyV1.route("/:workspaceId/categories", categoriesRoutes);
@@ -65,7 +65,7 @@ app.use("/v1/:workspaceId/*", async (c, next) => {
 const apiKeyV1 = new OpenAPIHono<ApiKeyApp>();
 apiKeyV1.use("*", ratelimit("apiKey"));
 apiKeyV1.use("*", keyAuthorization());
-apiKeyV1.use("*", keyAnalytics());
+apiKeyV1.use("*", analytics());
 
 // Mount routes with proper OpenAPIHono to enable spec merging
 apiKeyV1.route("/posts", postsRoutes);

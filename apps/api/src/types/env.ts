@@ -5,6 +5,7 @@ export interface Env {
   POLAR_ACCESS_TOKEN: string;
   ENVIRONMENT?: string;
   SYSTEM_SECRET: string;
+  RESEND_API_KEY: string;
 }
 
 // Context variables set by keyAuthorization middleware

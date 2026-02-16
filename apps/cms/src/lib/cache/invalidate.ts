@@ -4,7 +4,7 @@
  * Only runs in production environment
  */
 
-type CacheResource = "posts" | "categories" | "tags" | "authors";
+type CacheResource = "posts" | "categories" | "tags" | "authors" | "usage";
 
 /**
  * Invalidate cache for a workspace and optionally a specific resource
