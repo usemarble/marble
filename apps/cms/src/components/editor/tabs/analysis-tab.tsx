@@ -9,7 +9,7 @@ import {
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { ArrowClockwiseIcon, InfoIcon } from "@phosphor-icons/react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useSyncExternalStore } from "react";
 import { useReadability } from "@/hooks/use-readability";
 import { useUnsavedChanges } from "@/providers/unsaved-changes";
 import { Gauge } from "../../ui/gauge";
@@ -33,23 +33,39 @@ export function AnalysisTab({
   localSuggestions,
 }: AnalysisTabProps) {
   const { editor } = useCurrentEditor();
-  const [editorText, setEditorText] = useState("");
   const { setHasUnsavedChanges } = useUnsavedChanges();
+
+  const subscribe = useCallback(
+    (callback: () => void) => {
+      if (!editor) {
+        return () => {
+          return;
+        };
+      }
+      editor.on("update", callback);
+      editor.on("create", callback);
+      return () => {
+        editor.off("update", callback);
+        editor.off("create", callback);
+      };
+    },
+    [editor]
+  );
+
+  const editorText = useSyncExternalStore(
+    subscribe,
+    () => editor?.getText() ?? "",
+    () => ""
+  );
 
   useEffect(() => {
     if (!editor) {
       return;
     }
-    setEditorText(editor.getText());
-    const handler = () => {
-      setEditorText(editor.getText());
-      setHasUnsavedChanges(true);
-    };
+    const handler = () => setHasUnsavedChanges(true);
     editor.on("update", handler);
-    editor.on("create", handler);
     return () => {
       editor.off("update", handler);
-      editor.off("create", handler);
     };
   }, [editor, setHasUnsavedChanges]);
 

@@ -12,7 +12,7 @@ import {
 } from "@phosphor-icons/react";
 import { formatDistanceToNow } from "date-fns";
 import { AnimatePresence, motion } from "motion/react";
-import { type RefObject, useEffect, useRef, useState } from "react";
+import { type RefObject, useEffect, useId, useRef, useState } from "react";
 import { useOnClickOutside } from "usehooks-ts";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import type { UsageDashboardData } from "@/types/dashboard";
@@ -46,7 +46,7 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
   useOnClickOutside(dialogRef as RefObject<HTMLDivElement>, () =>
     setSelectedFile(null)
   );
-  const mountKeyRef = useRef(Math.random().toString(36));
+  const mountKey = useId();
 
   useEffect(() => {
     function handleClose(event: KeyboardEvent) {
@@ -70,7 +70,7 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
 
   return (
     <div className="flex flex-col gap-4 rounded-[20px] border border-none bg-surface p-2 text-card-foreground">
-      <AnimatePresence key={mountKeyRef.current} mode="wait">
+      <AnimatePresence key={mountKey} mode="wait">
         {selectedFile ? (
           <>
             <motion.div

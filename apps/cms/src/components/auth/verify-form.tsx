@@ -31,7 +31,7 @@ export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
   useEffect(() => {
     if (waitingSeconds > 0) {
       const timeout = setTimeout(() => {
-        setWaitingSeconds(waitingSeconds - 1);
+        setWaitingSeconds((prev) => prev - 1);
       }, 1000);
       return () => clearTimeout(timeout);
     }

@@ -10,7 +10,7 @@ import {
 } from "@marble/ui/components/dialog";
 import { CheckCircle } from "@phosphor-icons/react";
 import confetti from "canvas-confetti";
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 
 interface PaymentSuccessModalProps {
   isOpen: boolean;
@@ -23,11 +23,10 @@ export function PaymentSuccessModal({
   onClose,
   planName = "Pro",
 }: PaymentSuccessModalProps) {
-  const [hasTriggeredConfetti, setHasTriggeredConfetti] = useState(false);
+  const hasTriggeredConfettiRef = useRef(false);
 
   useEffect(() => {
-    if (isOpen && !hasTriggeredConfetti) {
-      // Trigger confetti animation
+    if (isOpen && !hasTriggeredConfettiRef.current) {
       const duration = 3000;
       const animationEnd = Date.now() + duration;
       const defaults = {
@@ -63,14 +62,14 @@ export function PaymentSuccessModal({
         });
       }, 250);
 
-      setHasTriggeredConfetti(true);
+      hasTriggeredConfettiRef.current = true;
 
       return () => clearInterval(interval);
     }
-  }, [isOpen, hasTriggeredConfetti]);
+  }, [isOpen]);
 
   const handleClose = () => {
-    setHasTriggeredConfetti(false);
+    hasTriggeredConfettiRef.current = false;
     onClose();
   };
 

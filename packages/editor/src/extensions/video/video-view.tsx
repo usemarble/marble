@@ -42,12 +42,18 @@ export const VideoView = ({
 
   const captionId = useId();
 
-  // Sync local state with node attributes when they change externally
-  useEffect(() => {
+  const [prevAttrs, setPrevAttrs] = useState({ caption, width, align });
+
+  if (
+    caption !== prevAttrs.caption ||
+    width !== prevAttrs.width ||
+    align !== prevAttrs.align
+  ) {
+    setPrevAttrs({ caption, width, align });
     setCaptionValue(caption || "");
     setWidthValue(width || "100");
     setAlignValue(align || "center");
-  }, [caption, width, align]);
+  }
 
   // Handle click outside settings panel
   useEffect(() => {

@@ -46,13 +46,20 @@ export const FigureView = ({
   const altId = useId();
   const captionId = useId();
 
-  // Sync local state with node attributes when they change externally
-  useEffect(() => {
+  const [prevAttrs, setPrevAttrs] = useState({ alt, caption, width, align });
+
+  if (
+    alt !== prevAttrs.alt ||
+    caption !== prevAttrs.caption ||
+    width !== prevAttrs.width ||
+    align !== prevAttrs.align
+  ) {
+    setPrevAttrs({ alt, caption, width, align });
     setAltValue(alt || "");
     setCaptionValue(caption || "");
     setWidthValue(width || "100");
     setAlignValue(align || "center");
-  }, [alt, caption, width, align]);
+  }
 
   // Handle click outside settings panel
   useEffect(() => {
