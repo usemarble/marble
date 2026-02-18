@@ -29,7 +29,7 @@ import {
   XIcon,
 } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
@@ -106,21 +106,17 @@ export const AuthorSheet = ({
     control,
   });
 
-  const { name } = watch();
   const watchedSocials = watch("socials");
   const workspaceId = useWorkspaceId();
 
   const [avatarUrl, setAvatarUrl] = useState<string | null>(
     authorData.image || null
   );
-  const [file, setFile] = useState<File | null>(null);
-
   const { mutate: uploadAvatar, isPending: isUploading } = useMutation({
     mutationFn: (file: File) => uploadFile({ file, type: "avatar" }),
     onSuccess: (data) => {
       setAvatarUrl(data.url);
       setValue("image", data.url, { shouldDirty: true });
-      setFile(null);
       toast.success("Avatar uploaded successfully");
     },
     onError: (error) => {
@@ -204,27 +200,8 @@ export const AuthorSheet = ({
   });
 
   useEffect(() => {
-    if (mode === "create") {
-      setValue("slug", generateSlug(name));
-    }
-  }, [mode, name, setValue]);
-
-  useEffect(() => {
     setAvatarUrl(authorData.image || null);
   }, [authorData.image]);
-
-  const handleAvatarUpload = useCallback(() => {
-    if (!file) {
-      return;
-    }
-    uploadAvatar(file);
-  }, [file, uploadAvatar]);
-
-  useEffect(() => {
-    if (file) {
-      handleAvatarUpload();
-    }
-  }, [file, handleAvatarUpload]);
 
   const addSocialLink = () => {
     append({ url: "", platform: "website" });
@@ -294,10 +271,9 @@ export const AuthorSheet = ({
                       className="sr-only"
                       id="avatar"
                       onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file && !isUploading) {
-                          setFile(file);
-                          handleAvatarUpload();
+                        const selectedFile = e.target.files?.[0];
+                        if (selectedFile && !isUploading) {
+                          uploadAvatar(selectedFile);
                         }
                       }}
                       title="Upload avatar"
@@ -339,7 +315,13 @@ export const AuthorSheet = ({
               <Label htmlFor="name">Name</Label>
               <Input
                 id="name"
-                {...register("name")}
+                {...register("name", {
+                  onChange: (e) => {
+                    if (mode === "create") {
+                      setValue("slug", generateSlug(e.target.value));
+                    }
+                  },
+                })}
                 placeholder="Author's full name"
               />
               {errors.name && (

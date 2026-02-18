@@ -25,10 +25,9 @@ import { toast } from "@marble/ui/components/sonner";
 import { BracketsCurlyIcon, PlusIcon } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useId, useState } from "react";
+import { useId, useState } from "react";
 import { useForm } from "react-hook-form";
 import { AsyncButton } from "@/components/ui/async-button";
-import { useDebounce } from "@/hooks/use-debounce";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { VALID_DISCORD_DOMAINS, VALID_SLACK_DOMAINS } from "@/lib/constants";
 import { QUERY_KEYS } from "@/lib/queries/keys";
@@ -99,49 +98,27 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
   });
 
   const watchedEvents = watch("events");
-  const watchedEndpoint = watch("endpoint");
-  const debouncedEndpoint = useDebounce(watchedEndpoint, 500);
 
   const router = useRouter();
 
-  const isDiscordUrl = useCallback((url: string): boolean => {
-    if (!url) {
-      return false;
+  const detectFormat = (url: string): PayloadFormat => {
+    const endpoint = url.trim();
+    if (!endpoint) {
+      return "json";
     }
     try {
-      const urlObj = new URL(url);
-      return VALID_DISCORD_DOMAINS.some((domain) => urlObj.hostname === domain);
-    } catch {
-      return false;
-    }
-  }, []);
-
-  const isSlackUrl = useCallback((url: string): boolean => {
-    if (!url) {
-      return false;
-    }
-    try {
-      const urlObj = new URL(url);
-      return VALID_SLACK_DOMAINS.some((domain) => urlObj.hostname === domain);
-    } catch {
-      return false;
-    }
-  }, []);
-
-  useEffect(() => {
-    const endpoint = debouncedEndpoint?.trim();
-    let nextFormat: PayloadFormat = "json";
-    if (endpoint) {
-      if (isDiscordUrl(endpoint)) {
-        nextFormat = "discord";
-      } else if (isSlackUrl(endpoint)) {
-        nextFormat = "slack";
+      const urlObj = new URL(endpoint);
+      if (VALID_DISCORD_DOMAINS.some((domain) => urlObj.hostname === domain)) {
+        return "discord";
       }
+      if (VALID_SLACK_DOMAINS.some((domain) => urlObj.hostname === domain)) {
+        return "slack";
+      }
+    } catch {
+      // invalid URL
     }
-    if (watch("format") !== nextFormat) {
-      setValue("format", nextFormat);
-    }
-  }, [debouncedEndpoint, setValue, watch, isDiscordUrl, isSlackUrl]);
+    return "json";
+  };
 
   const { mutate: createWebhook, isPending: isCreating } = useMutation({
     mutationFn: (data: WebhookFormValues) =>
@@ -239,7 +216,11 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
               <Input
                 id="endpoint"
                 placeholder="https://marblecms.com/webhooks/"
-                {...register("endpoint")}
+                {...register("endpoint", {
+                  onChange: (e) => {
+                    setValue("format", detectFormat(e.target.value));
+                  },
+                })}
               />
               {errors.endpoint && (
                 <p className="text-destructive text-sm">

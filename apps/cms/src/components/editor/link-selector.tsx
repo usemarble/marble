@@ -10,7 +10,7 @@ import { Separator } from "@marble/ui/components/separator";
 import { Switch } from "@marble/ui/components/switch";
 import { cn } from "@marble/ui/lib/utils";
 import { CheckIcon, LinkSimpleIcon, TrashIcon } from "@phosphor-icons/react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 export function isValidUrl(url: string) {
   try {
@@ -45,9 +45,6 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
   const [openInNewTab, setOpenInNewTab] = useState(true);
   const [inputValue, setInputValue] = useState("");
 
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
   if (!editor) {
     return null;
   }
@@ -91,6 +88,7 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
         >
           <div className="mb-3 flex">
             <input
+              autoFocus
               className="flex-1 bg-background p-1 text-sm outline-hidden"
               defaultValue={editor.getAttributes("link").href || ""}
               onChange={({ target }) => setInputValue(target.value)}

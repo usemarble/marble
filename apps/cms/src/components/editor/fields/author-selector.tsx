@@ -28,7 +28,7 @@ import {
 import { cn } from "@marble/ui/lib/utils";
 import { CaretUpDownIcon, CheckIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { type Control, useController } from "react-hook-form";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
@@ -68,7 +68,6 @@ export function AuthorSelector({
     defaultValue: defaultAuthors,
   });
 
-  const [selected, setSelected] = useState<AuthorOptions[]>([]);
   const { user } = useUser();
   const workspaceId = useWorkspaceId();
   const isNewPost = defaultAuthors.length === 0;
@@ -100,21 +99,14 @@ export function AuthorSelector({
     return authors.find((author) => author.userId === user.id) || authors[0];
   }, [user, authors]);
 
-  // Handle selected authors based on form value
-  // This is just to show the selected users in the UI
-  useEffect(() => {
+  const selected = useMemo(() => {
     if (isLoading || authors.length === 0) {
-      return;
+      return [];
     }
-
     if (value && value.length > 0) {
-      const authorsThatWerePreviouslySelected = authors.filter((opt) =>
-        value.includes(opt.id)
-      );
-      setSelected(authorsThatWerePreviouslySelected);
-    } else {
-      setSelected([]);
+      return authors.filter((opt) => value.includes(opt.id));
     }
+    return [];
   }, [value, authors, isLoading]);
 
   // Auto-select current user's author profile on initial load for better UX

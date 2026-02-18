@@ -7,7 +7,6 @@ import { Separator } from "@marble/ui/components/separator";
 import { toast } from "@marble/ui/components/sonner";
 import { CircleNotchIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { type ProfileData, profileSchema } from "@/lib/validations/settings";
 import { useUser } from "@/providers/user";
@@ -22,14 +21,12 @@ function AccountForm({ name, email }: AccountFormProps) {
   const {
     register,
     handleSubmit,
-    watch,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<ProfileData>({
     resolver: zodResolver(profileSchema),
     defaultValues: { name: name || "", email: email || "" },
   });
 
-  const [dataChanged, setDataChanged] = useState(false);
   const router = useRouter();
   const { updateUser } = useUser();
 
@@ -43,16 +40,6 @@ function AccountForm({ name, email }: AccountFormProps) {
       toast.error("Something went wrong");
     }
   };
-
-  useEffect(() => {
-    const dataSubscription = watch((value) => {
-      setDataChanged(value.name !== name);
-    });
-
-    return () => {
-      dataSubscription.unsubscribe();
-    };
-  }, [watch, name]);
 
   return (
     <form className="space-y-8" onSubmit={handleSubmit(onSubmit)}>
@@ -116,7 +103,7 @@ function AccountForm({ name, email }: AccountFormProps) {
       <section className="flex w-full justify-end gap-4">
         <Button
           className="flex w-20 items-center gap-2 self-end"
-          disabled={!dataChanged || isSubmitting}
+          disabled={!isDirty || isSubmitting}
         >
           {isSubmitting ? <CircleNotchIcon className="animate-spin" /> : "Save"}
         </Button>
