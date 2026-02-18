@@ -76,9 +76,8 @@ export function RegisterForm() {
       );
     } catch (_error) {
       toast.error("Sign in failed. Please try again.");
-    } finally {
-      setIsCredentialsLoading(false);
     }
+    setIsCredentialsLoading(false);
   }
 
   const handleSocialSignIn = async (provider: "google" | "github") => {
@@ -94,14 +93,13 @@ export function RegisterForm() {
         callbackURL,
       });
     } catch (_error) {
-      return toast("Your sign in request failed. Please try again.");
-    } finally {
-      setLastUsedAuthMethod(provider);
-      if (provider === "google") {
-        setIsGoogleLoading(false);
-      } else {
-        setIsGithubLoading(false);
-      }
+      toast("Your sign in request failed. Please try again.");
+    }
+    setLastUsedAuthMethod(provider);
+    if (provider === "google") {
+      setIsGoogleLoading(false);
+    } else {
+      setIsGithubLoading(false);
     }
   };
 

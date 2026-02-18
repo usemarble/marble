@@ -81,9 +81,8 @@ export function UserProvider({ children, initialUser }: UserProviderProps) {
     } catch (error) {
       console.error("Failed to sign out:", error);
       toast.error("Failed to sign out");
-    } finally {
-      setIsSigningOut(false);
     }
+    setIsSigningOut(false);
   };
 
   return (

@@ -1,7 +1,13 @@
 import { highlightContent } from "@marble/utils";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import type { ShareData, ShareStatus } from "@/types/share";
 import SharePageClient from "./page-client";
+
+export const metadata: Metadata = {
+  title: "Shared Post",
+  description: "View a shared draft post",
+};
 
 interface SharePageProps {
   params: Promise<{ token: string }>;

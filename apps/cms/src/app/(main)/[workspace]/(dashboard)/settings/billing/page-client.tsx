@@ -56,9 +56,8 @@ function PageClient() {
     } catch (error) {
       console.error(error);
       toast.error("Failed to start checkout");
-    } finally {
-      setCheckoutLoading(null);
     }
+    setCheckoutLoading(null);
   };
 
   const redirectCustomerPortal = async () => {

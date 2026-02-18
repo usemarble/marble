@@ -53,9 +53,8 @@ export function RemoveMemberModal({
       });
     } catch (_error) {
       toast.error("Failed to remove member");
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   }
 
   return (
