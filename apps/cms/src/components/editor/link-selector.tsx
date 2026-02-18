@@ -65,30 +65,25 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
         }
       />
       <PopoverContent align="start" className="w-60 p-0" sideOffset={10}>
-        {/** biome-ignore lint/a11y/noNoninteractiveElementInteractions: It's acting as a button */}
-        {/** biome-ignore lint/a11y/noStaticElementInteractions: It's acting as a button */}
-        <div
+        <form
           className="flex flex-col p-1"
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              const url = getUrlFromString(inputValue);
-              if (url) {
-                editor
-                  .chain()
-                  .focus()
-                  .setLink({
-                    href: url,
-                    target: openInNewTab ? "_blank" : "_self",
-                  })
-                  .run();
-              }
+          onSubmit={(e) => {
+            e.preventDefault();
+            const url = getUrlFromString(inputValue);
+            if (url) {
+              editor
+                .chain()
+                .focus()
+                .setLink({
+                  href: url,
+                  target: openInNewTab ? "_blank" : "_self",
+                })
+                .run();
             }
           }}
         >
           <div className="mb-3 flex">
             <input
-              autoFocus
               className="flex-1 bg-background p-1 text-sm outline-hidden"
               defaultValue={editor.getAttributes("link").href || ""}
               onChange={({ target }) => setInputValue(target.value)}
@@ -144,7 +139,7 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
               Open in new tab
             </Label>
           </div>
-        </div>
+        </form>
       </PopoverContent>
     </Popover>
   );

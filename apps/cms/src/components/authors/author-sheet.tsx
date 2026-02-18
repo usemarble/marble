@@ -29,8 +29,8 @@ import {
   XIcon,
 } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useState } from "react";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { uploadFile } from "@/lib/media/upload";
@@ -75,7 +75,6 @@ export const AuthorSheet = ({
     register,
     handleSubmit,
     setValue,
-    watch,
     control,
     reset,
     clearErrors,
@@ -106,16 +105,15 @@ export const AuthorSheet = ({
     control,
   });
 
-  const watchedSocials = watch("socials");
+  const watchedSocials = useWatch({ control, name: "socials" });
   const workspaceId = useWorkspaceId();
 
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(
-    authorData.image || null
-  );
+  const [pendingAvatarUrl, setPendingAvatarUrl] = useState<string | null>(null);
+  const avatarUrl = pendingAvatarUrl ?? authorData.image ?? null;
   const { mutate: uploadAvatar, isPending: isUploading } = useMutation({
     mutationFn: (file: File) => uploadFile({ file, type: "avatar" }),
     onSuccess: (data) => {
-      setAvatarUrl(data.url);
+      setPendingAvatarUrl(data.url);
       setValue("image", data.url, { shouldDirty: true });
       toast.success("Avatar uploaded successfully");
     },
@@ -127,24 +125,17 @@ export const AuthorSheet = ({
 
   const { mutate: createAuthor, isPending: isCreating } = useMutation({
     mutationFn: async (data: CreateAuthorValues) => {
-      try {
-        const res = await fetch("/api/authors", {
-          method: "POST",
-          body: JSON.stringify(data),
-        });
+      const res = await fetch("/api/authors", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
 
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          throw new Error(err.error || "Failed to create author");
-        }
-
-        const responseData = await res.json();
-        return responseData;
-      } catch (error) {
-        throw new Error(
-          error instanceof Error ? error.message : "Failed to create author"
-        );
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Failed to create author");
       }
+
+      return res.json();
     },
     onSuccess: (data) => {
       setOpen(false);
@@ -166,24 +157,17 @@ export const AuthorSheet = ({
 
   const { mutate: updateAuthor, isPending: isUpdating } = useMutation({
     mutationFn: async (data: CreateAuthorValues) => {
-      try {
-        const res = await fetch(`/api/authors/${authorData.id}`, {
-          method: "PATCH",
-          body: JSON.stringify(data),
-        });
+      const res = await fetch(`/api/authors/${authorData.id}`, {
+        method: "PATCH",
+        body: JSON.stringify(data),
+      });
 
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          throw new Error(err.error || "Failed to update author");
-        }
-
-        const responseData = await res.json();
-        return responseData;
-      } catch (error) {
-        throw new Error(
-          error instanceof Error ? error.message : "Failed to update author"
-        );
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Failed to update author");
       }
+
+      return res.json();
     },
     onSuccess: () => {
       setOpen(false);
@@ -199,9 +183,6 @@ export const AuthorSheet = ({
     },
   });
 
-  useEffect(() => {
-    setAvatarUrl(authorData.image || null);
-  }, [authorData.image]);
 
   const addSocialLink = () => {
     append({ url: "", platform: "website" });

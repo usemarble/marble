@@ -155,5 +155,3 @@ export const UsageLimitEmail = ({
     </Html>
   );
 };
-
-export default UsageLimitEmail;

@@ -52,12 +52,14 @@ interface AuthorSelectorProps {
   defaultAuthors?: string[];
 }
 
+const EMPTY_AUTHORS: string[] = [];
+
 export function AuthorSelector({
   control,
   placeholder,
   isOpen,
   setIsOpen,
-  defaultAuthors = [],
+  defaultAuthors = EMPTY_AUTHORS,
 }: AuthorSelectorProps) {
   const {
     field: { onChange, value },
@@ -76,17 +78,11 @@ export function AuthorSelector({
     // biome-ignore lint/style/noNonNullAssertion: <>
     queryKey: QUERY_KEYS.AUTHORS(workspaceId!),
     queryFn: async () => {
-      try {
-        const response = await fetch("/api/authors");
-        if (!response.ok) {
-          throw new Error("Failed to fetch authors");
-        }
-        const data = await response.json();
-        return data;
-      } catch (error) {
-        console.error("Failed to fetch authors:", error);
-        return [];
+      const response = await fetch("/api/authors");
+      if (!response.ok) {
+        throw new Error("Failed to fetch authors");
       }
+      return response.json();
     },
     enabled: !!workspaceId,
   });

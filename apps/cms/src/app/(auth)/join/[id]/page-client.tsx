@@ -90,11 +90,10 @@ function PageClient({ id, user }: PageClientProps) {
 
       if (res.error) {
         setActionError(res.error.message || "Failed to accept invitation");
-        return;
+      } else {
+        setInviteStatus("accepted");
+        router.push(`/${invitation?.organizationSlug}`);
       }
-
-      setInviteStatus("accepted");
-      router.push(`/${invitation?.organizationSlug}`);
     } catch (error) {
       console.error("Error accepting invitation:", error);
       setActionError(
@@ -102,9 +101,8 @@ function PageClient({ id, user }: PageClientProps) {
           ? error.message
           : "An unexpected error occurred. Please try again."
       );
-    } finally {
-      setAccepting(false);
     }
+    setAccepting(false);
   };
 
   const handleReject = async () => {
@@ -117,10 +115,9 @@ function PageClient({ id, user }: PageClientProps) {
 
       if (res.error) {
         setActionError(res.error.message || "Failed to reject invitation");
-        return;
+      } else {
+        setInviteStatus("rejected");
       }
-
-      setInviteStatus("rejected");
     } catch (error) {
       console.error("Error rejecting invitation:", error);
       setActionError(
@@ -128,9 +125,8 @@ function PageClient({ id, user }: PageClientProps) {
           ? error.message
           : "An unexpected error occurred. Please try again."
       );
-    } finally {
-      setRejecting(false);
     }
+    setRejecting(false);
   };
 
   return (

@@ -26,7 +26,7 @@ import { BracketsCurlyIcon, PlusIcon } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { AsyncButton } from "@/components/ui/async-button";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { VALID_DISCORD_DOMAINS, VALID_SLACK_DOMAINS } from "@/lib/constants";
@@ -84,7 +84,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
     register,
     handleSubmit,
     setValue,
-    watch,
+    control,
     reset,
     formState: { errors },
   } = useForm<WebhookFormValues>({
@@ -97,7 +97,8 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
     },
   });
 
-  const watchedEvents = watch("events");
+  const watchedEvents = useWatch({ control, name: "events" });
+  const watchedFormat = useWatch({ control, name: "format" });
 
   const router = useRouter();
 
@@ -238,7 +239,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                     setValue("format", value);
                   }
                 }}
-                value={watch("format")}
+                value={watchedFormat}
               >
                 <SelectTrigger className="w-full shadow-none">
                   <SelectValue />

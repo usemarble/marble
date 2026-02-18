@@ -73,24 +73,17 @@ export function TagModal({
 
   const { mutate: createTag, isPending: isCreating } = useMutation({
     mutationFn: async (data: CreateTagValues) => {
-      try {
-        const res = await fetch("/api/tags", {
-          method: "POST",
-          body: JSON.stringify(data),
-        });
+      const res = await fetch("/api/tags", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
 
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          throw new Error(err.error || "Failed to create tag");
-        }
-
-        const responseData = await res.json();
-        return responseData;
-      } catch (error) {
-        throw new Error(
-          error instanceof Error ? error.message : "Failed to create tag"
-        );
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Failed to create tag");
       }
+
+      return res.json();
     },
     onSuccess: (data) => {
       onTagCreated?.(data);
@@ -110,24 +103,17 @@ export function TagModal({
 
   const { mutate: updateTag, isPending: isUpdating } = useMutation({
     mutationFn: async (data: CreateTagValues) => {
-      try {
-        const res = await fetch(`/api/tags/${tagData.id}`, {
-          method: "PATCH",
-          body: JSON.stringify(data),
-        });
+      const res = await fetch(`/api/tags/${tagData.id}`, {
+        method: "PATCH",
+        body: JSON.stringify(data),
+      });
 
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          throw new Error(err.error || "Failed to update tag");
-        }
-
-        const responseData = await res.json();
-        return responseData;
-      } catch (error) {
-        throw new Error(
-          error instanceof Error ? error.message : "Failed to update tag"
-        );
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Failed to update tag");
       }
+
+      return res.json();
     },
     onSuccess: () => {
       setOpen(false);

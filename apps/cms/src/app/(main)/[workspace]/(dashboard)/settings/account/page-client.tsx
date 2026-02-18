@@ -35,16 +35,15 @@ import { useUser } from "@/providers/user";
 function PageClient() {
   const queryClient = useQueryClient();
   const { user, updateUser, isUpdatingUser, isFetchingUser } = useUser();
-  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(
-    user?.image ?? undefined
-  );
+  const [pendingAvatarUrl, setPendingAvatarUrl] = useState<string | undefined>();
+  const avatarUrl = pendingAvatarUrl ?? user?.image ?? undefined;
   const [file, setFile] = useState<File | null>(null);
   const [cropOpen, setCropOpen] = useState(false);
 
   const { mutate: uploadAvatar, isPending: isUploading } = useMutation({
     mutationFn: (file: File) => uploadFile({ file, type: "avatar" }),
     onSuccess: (data) => {
-      setAvatarUrl(data.url);
+      setPendingAvatarUrl(data.url);
       updateUser({ image: data.url });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.USER });
       setFile(null);
@@ -75,7 +74,6 @@ function PageClient() {
   useEffect(() => {
     if (user) {
       reset({ name: user.name ?? "", email: user.email ?? "" });
-      setAvatarUrl(user.image ?? undefined);
     }
   }, [user, reset]);
 

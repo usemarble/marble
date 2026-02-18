@@ -71,5 +71,3 @@ export const FounderEmail = ({ userEmail }: FounderEmailProps) => {
     </Html>
   );
 };
-
-export default FounderEmail;

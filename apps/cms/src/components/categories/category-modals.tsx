@@ -79,24 +79,17 @@ export const CategoryModal = ({
 
   const { mutate: createCategory, isPending: isCreating } = useMutation({
     mutationFn: async (data: CreateCategoryValues) => {
-      try {
-        const res = await fetch("/api/categories", {
-          method: "POST",
-          body: JSON.stringify(data),
-        });
+      const res = await fetch("/api/categories", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
 
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          throw new Error(err.error || "Failed to create category");
-        }
-
-        const responseData = await res.json();
-        return responseData;
-      } catch (error) {
-        throw new Error(
-          error instanceof Error ? error.message : "Failed to create category"
-        );
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Failed to create category");
       }
+
+      return res.json();
     },
     onSuccess: (data) => {
       setOpen(false);
@@ -117,24 +110,17 @@ export const CategoryModal = ({
 
   const { mutate: updateCategory, isPending: isUpdating } = useMutation({
     mutationFn: async (data: CreateCategoryValues) => {
-      try {
-        const res = await fetch(`/api/categories/${categoryData.id}`, {
-          method: "PATCH",
-          body: JSON.stringify(data),
-        });
+      const res = await fetch(`/api/categories/${categoryData.id}`, {
+        method: "PATCH",
+        body: JSON.stringify(data),
+      });
 
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          throw new Error(err.error || "Failed to update category");
-        }
-
-        const responseData = await res.json();
-        return responseData;
-      } catch (error) {
-        throw new Error(
-          error instanceof Error ? error.message : "Failed to update category"
-        );
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Failed to update category");
       }
+
+      return res.json();
     },
     onSuccess: () => {
       setOpen(false);

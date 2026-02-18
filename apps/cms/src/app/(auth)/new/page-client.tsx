@@ -15,6 +15,7 @@ import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
 import { AsyncButton } from "@/components/ui/async-button";
@@ -27,7 +28,7 @@ import {
 } from "@/lib/validations/workspace";
 import { generateSlug } from "@/utils/string";
 
-function PageClient() {
+function PageClientInner() {
   const {
     register,
     handleSubmit,
@@ -44,8 +45,6 @@ function PageClient() {
 
   const router = useRouter();
   const searchParams = useSearchParams();
-  // Yes i know manually changing this will show the button even if false
-  // but the middleware will just send you back here so it's whatever
   const hasWorkspaces = searchParams.get("workspaces") === "true";
 
   async function onSubmit(payload: CreateWorkspaceValues) {
@@ -189,6 +188,14 @@ function PageClient() {
         </div>
       </Card>
     </div>
+  );
+}
+
+function PageClient() {
+  return (
+    <Suspense>
+      <PageClientInner />
+    </Suspense>
   );
 }
 
