@@ -18,7 +18,6 @@ import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
 import { AsyncButton } from "@/components/ui/async-button";
@@ -42,7 +41,6 @@ export const CreateWorkspaceDialog = (props: CreateWorkspaceDialogProps) => {
   const {
     register,
     handleSubmit,
-    watch,
     setValue,
     control,
     reset,
@@ -54,15 +52,6 @@ export const CreateWorkspaceDialog = (props: CreateWorkspaceDialogProps) => {
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     },
   });
-
-  const { name } = watch();
-
-  useEffect(() => {
-    if (name) {
-      const slug = generateSlug(name);
-      setValue("slug", slug);
-    }
-  }, [name, setValue]);
 
   async function onSubmit(payload: CreateWorkspaceValues) {
     const { error } = await organization.checkSlug({
@@ -131,7 +120,17 @@ export const CreateWorkspaceDialog = (props: CreateWorkspaceDialogProps) => {
               <Label className="sr-only" htmlFor="name">
                 Name
               </Label>
-              <Input id="name" placeholder="Name" {...register("name")} />
+              <Input
+                id="name"
+                placeholder="Name"
+                {...register("name", {
+                  onChange: (e) => {
+                    if (e.target.value) {
+                      setValue("slug", generateSlug(e.target.value));
+                    }
+                  },
+                })}
+              />
               {errors.name && (
                 <ErrorMessage>{errors.name.message}</ErrorMessage>
               )}

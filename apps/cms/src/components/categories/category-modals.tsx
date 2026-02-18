@@ -30,7 +30,6 @@ import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { Textarea } from "@marble/ui/components/textarea";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
@@ -65,7 +64,6 @@ export const CategoryModal = ({
     register,
     handleSubmit,
     setValue,
-    watch,
     reset,
     formState: { errors, isSubmitting },
   } = useForm<CreateCategoryValues>({
@@ -77,7 +75,6 @@ export const CategoryModal = ({
     },
   });
 
-  const { name } = watch();
   const workspaceId = useWorkspaceId();
 
   const { mutate: createCategory, isPending: isCreating } = useMutation({
@@ -154,12 +151,6 @@ export const CategoryModal = ({
     },
   });
 
-  useEffect(() => {
-    if (mode === "create") {
-      setValue("slug", generateSlug(name));
-    }
-  }, [mode, name, setValue]);
-
   const onSubmit = async (data: CreateCategoryValues) => {
     if (!workspaceId) {
       toast.error("No active workspace");
@@ -205,7 +196,13 @@ export const CategoryModal = ({
               <Label htmlFor="category-name">Name</Label>
               <Input
                 id="category-name"
-                {...register("name")}
+                {...register("name", {
+                  onChange: (e) => {
+                    if (mode === "create") {
+                      setValue("slug", generateSlug(e.target.value));
+                    }
+                  },
+                })}
                 placeholder="The name of the category"
               />
               {errors.name && (

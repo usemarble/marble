@@ -35,7 +35,6 @@ import { useUser } from "@/providers/user";
 function PageClient() {
   const queryClient = useQueryClient();
   const { user, updateUser, isUpdatingUser, isFetchingUser } = useUser();
-  const [isChanged, setIsChanged] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | undefined>(
     user?.image ?? undefined
   );
@@ -58,7 +57,6 @@ function PageClient() {
   const handleUpdateUser = async (data: { name: string }) => {
     try {
       await updateUser(data);
-      setIsChanged(false);
     } catch (error) {
       toast.error("Failed to update user");
     }
@@ -68,8 +66,7 @@ function PageClient() {
     register,
     handleSubmit,
     reset,
-    watch,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<ProfileData>({
     resolver: zodResolver(profileSchema),
     defaultValues: { name: user?.name ?? "", email: user?.email ?? "" },
@@ -82,13 +79,6 @@ function PageClient() {
     }
   }, [user, reset]);
 
-  useEffect(() => {
-    const subscription = watch((value) => {
-      setIsChanged(value.name !== user?.name);
-    });
-    return () => subscription.unsubscribe();
-  }, [watch, user?.name]);
-
   const onSubmit = (data: ProfileData) => {
     if (!user?.id) {
       return;
@@ -99,12 +89,6 @@ function PageClient() {
   const handleReset = () => {
     setFile(null);
   };
-
-  useEffect(() => {
-    if (file) {
-      setCropOpen(true);
-    }
-  }, [file]);
 
   if (isFetchingUser) {
     return <PageLoader />;
@@ -140,9 +124,10 @@ function PageClient() {
                     className="sr-only"
                     id="logo"
                     onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file && !isUploading) {
-                        setFile(file);
+                      const selectedFile = e.target.files?.[0];
+                      if (selectedFile && !isUploading) {
+                        setFile(selectedFile);
+                        setCropOpen(true);
                       }
                     }}
                     title="Upload avatar"
@@ -225,7 +210,7 @@ function PageClient() {
             <p className="text-muted-foreground text-sm">Your display name</p>
             <AsyncButton
               className={cn("flex w-20 items-center gap-2 self-end")}
-              disabled={!isChanged}
+              disabled={!isDirty}
               isLoading={isSubmitting || isUpdatingUser}
               size="sm"
               type="submit"

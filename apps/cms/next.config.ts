@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
     "@marble/parser",
     "@marble/email",
   ],
+  reactCompiler: true,
   experimental: {
     optimizePackageImports: ["@phosphor-icons/react"],
   },
