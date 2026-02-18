@@ -35,7 +35,9 @@ import { useUser } from "@/providers/user";
 function PageClient() {
   const queryClient = useQueryClient();
   const { user, updateUser, isUpdatingUser, isFetchingUser } = useUser();
-  const [pendingAvatarUrl, setPendingAvatarUrl] = useState<string | undefined>();
+  const [pendingAvatarUrl, setPendingAvatarUrl] = useState<
+    string | undefined
+  >();
   const avatarUrl = pendingAvatarUrl ?? user?.image ?? undefined;
   const [file, setFile] = useState<File | null>(null);
   const [cropOpen, setCropOpen] = useState(false);
