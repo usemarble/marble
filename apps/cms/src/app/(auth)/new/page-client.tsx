@@ -114,9 +114,7 @@ function PageClient() {
                     placeholder="Name"
                     {...register("name", {
                       onChange: (e) => {
-                        if (e.target.value) {
-                          setValue("slug", generateSlug(e.target.value));
-                        }
+                        setValue("slug", generateSlug(e.target.value));
                       },
                     })}
                   />

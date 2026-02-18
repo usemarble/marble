@@ -104,6 +104,7 @@ function AccountForm({ name, email }: AccountFormProps) {
         <Button
           className="flex w-20 items-center gap-2 self-end"
           disabled={!isDirty || isSubmitting}
+          type="submit"
         >
           {isSubmitting ? <CircleNotchIcon className="animate-spin" /> : "Save"}
         </Button>
