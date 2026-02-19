@@ -1,5 +1,3 @@
-/** biome-ignore-all lint/performance/noImgElement: <> */
-/** biome-ignore-all lint/correctness/useImageSize: <> */
 "use client";
 
 import {
@@ -40,6 +38,7 @@ function getMediaTypeIcon(type: string) {
 }
 
 export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
+  "use no memo"; // React Compiler affects layout measurement timing for Motion layoutId open animation
   const recentUploads = data?.recentUploads ?? [];
   const [selectedFile, setSelectedFile] = useState<Media | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -145,6 +144,7 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
                         initial={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
                       >
+                        {/** biome-ignore lint/performance/noImgElement: <> */}
                         <img
                           alt={selectedFile.name}
                           className="h-full w-full object-cover"
