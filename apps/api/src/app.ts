@@ -117,11 +117,9 @@ app.use("/*", async (c, next) => {
   return next();
 });
 
-// Health
 app.get("/", (c) => c.text("Hello from marble"));
 app.get("/status", (c) => c.json({ status: "ok" }));
 
-// OpenAPI Documentation (public, no auth)
 app.doc("/openapi.json", {
   openapi: "3.1.0",
   info: {

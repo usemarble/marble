@@ -100,6 +100,17 @@ export const keyAuthorization =
       c.set("apiKeyId", key.id);
       c.set("apiKeyType", key.type);
 
+      if (c.req.method !== "GET" && key.type !== "private") {
+        return c.json(
+          {
+            error: "Forbidden",
+            message:
+              "Write operations require a private API key (msk_...). Public keys are read-only.",
+          },
+          403
+        );
+      }
+
       await next();
     } catch (error) {
       console.error("[KeyAuth] Error verifying API key:", error);

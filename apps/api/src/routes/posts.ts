@@ -2,15 +2,26 @@ import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { createClient } from "@marble/db/workers";
 import { NodeHtmlMarkdown } from "node-html-markdown";
 import { cacheKey, createCacheClient, hashQueryParams } from "../lib/cache";
+import { sanitizeHtml } from "../lib/sanitize";
 import { requireWorkspaceId } from "../lib/workspace";
 import {
+  ConflictSchema,
   ContentFormatSchema,
+  DeleteResponseSchema,
   ErrorSchema,
+  ForbiddenSchema,
   NotFoundSchema,
   PageNotFoundSchema,
   ServerErrorSchema,
 } from "../schemas/common";
-import { PostResponseSchema, PostsListResponseSchema } from "../schemas/posts";
+import {
+  CreatePostBodySchema,
+  CreatePostResponseSchema,
+  PostResponseSchema,
+  PostsListResponseSchema,
+  UpdatePostBodySchema,
+  UpdatePostResponseSchema,
+} from "../schemas/posts";
 import type { Env } from "../types/env";
 
 const posts = new OpenAPIHono<{ Bindings: Env }>();
@@ -256,6 +267,43 @@ const getPostRoute = createRoute({
   },
 });
 
+const createPostRoute = createRoute({
+  method: "post",
+  path: "/",
+  tags: ["Posts"],
+  summary: "Create post",
+  description:
+    "Create a new post. Requires a private API key. Category is required. If authors are not provided, the first workspace author is used.",
+  request: {
+    body: {
+      content: { "application/json": { schema: CreatePostBodySchema } },
+      required: true,
+    },
+  },
+  responses: {
+    201: {
+      content: { "application/json": { schema: CreatePostResponseSchema } },
+      description: "Post created successfully",
+    },
+    400: {
+      content: { "application/json": { schema: ErrorSchema } },
+      description: "Invalid request body or referenced resources not found",
+    },
+    403: {
+      content: { "application/json": { schema: ForbiddenSchema } },
+      description: "Public API key used for write operation",
+    },
+    409: {
+      content: { "application/json": { schema: ConflictSchema } },
+      description: "Post with this slug already exists",
+    },
+    500: {
+      content: { "application/json": { schema: ServerErrorSchema } },
+      description: "Server error",
+    },
+  },
+});
+
 posts.openapi(listPostsRoute, async (c) => {
   try {
     const url = c.env.DATABASE_URL;
@@ -472,7 +520,7 @@ posts.openapi(listPostsRoute, async (c) => {
     return c.json(
       {
         error: "Failed to fetch posts",
-        message: error instanceof Error ? error.message : "Unknown error",
+        message: "An unexpected error occurred",
       },
       500 as const
     );
@@ -585,6 +633,536 @@ posts.openapi(getPostRoute, async (c) => {
     return c.json({ post: formattedPost }, 200 as const);
   } catch (_error) {
     return c.json({ error: "Failed to fetch post" }, 500 as const);
+  }
+});
+
+posts.openapi(createPostRoute, async (c) => {
+  try {
+    const url = c.env.DATABASE_URL;
+    const workspaceId = requireWorkspaceId(c);
+    const db = createClient(url);
+    const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
+    const body = c.req.valid("json");
+
+    // 1. Check slug uniqueness within workspace
+    const existingPost = await db.post.findFirst({
+      where: {
+        slug: body.slug,
+        workspaceId,
+      },
+    });
+
+    if (existingPost) {
+      return c.json(
+        {
+          error: "Slug already in use",
+          message: "A post with this slug already exists in this workspace",
+        },
+        409 as const
+      );
+    }
+
+    // 2. Validate category exists in workspace
+    const category = await db.category.findFirst({
+      where: {
+        id: body.categoryId,
+        workspaceId,
+      },
+    });
+
+    if (!category) {
+      return c.json(
+        {
+          error: "Invalid category",
+          message:
+            "The specified category does not exist in this workspace. Use GET /v1/categories to list available categories.",
+        },
+        400 as const
+      );
+    }
+
+    // 3. Validate tags if provided
+    let validTagIds: string[] = [];
+    if (body.tags && body.tags.length > 0) {
+      const validTags = await db.tag.findMany({
+        where: {
+          id: { in: body.tags },
+          workspaceId,
+        },
+        select: { id: true },
+      });
+
+      validTagIds = validTags.map((t) => t.id);
+
+      // Check if any provided tag IDs were invalid
+      const invalidTagIds = body.tags.filter((id) => !validTagIds.includes(id));
+      if (invalidTagIds.length > 0) {
+        return c.json(
+          {
+            error: "Invalid tags",
+            message: `The following tag IDs do not exist in this workspace: ${invalidTagIds.join(", ")}. Use GET /v1/tags to list available tags.`,
+          },
+          400 as const
+        );
+      }
+    }
+
+    // 4. Resolve authors
+    let authorIds: string[];
+
+    if (body.authors && body.authors.length > 0) {
+      // Validate provided author IDs
+      const validAuthors = await db.author.findMany({
+        where: {
+          id: { in: body.authors },
+          workspaceId,
+          isActive: true,
+        },
+        select: { id: true },
+      });
+
+      if (validAuthors.length === 0) {
+        return c.json(
+          {
+            error: "Invalid authors",
+            message:
+              "None of the provided author IDs exist in this workspace. Use GET /v1/authors to list available authors.",
+          },
+          400 as const
+        );
+      }
+
+      const invalidAuthorIds = body.authors.filter(
+        (id) => !validAuthors.map((a) => a.id).includes(id)
+      );
+      if (invalidAuthorIds.length > 0) {
+        return c.json(
+          {
+            error: "Invalid authors",
+            message: `The following author IDs do not exist in this workspace: ${invalidAuthorIds.join(", ")}. Use GET /v1/authors to list available authors.`,
+          },
+          400 as const
+        );
+      }
+
+      const validAuthorIdSet = new Set(validAuthors.map((a) => a.id));
+      authorIds = body.authors.filter((id) => validAuthorIdSet.has(id));
+    } else {
+      // Fallback: use the first workspace author
+      const firstAuthor = await db.author.findFirst({
+        where: {
+          workspaceId,
+          isActive: true,
+        },
+        orderBy: { createdAt: "asc" },
+        select: { id: true },
+      });
+
+      if (!firstAuthor) {
+        return c.json(
+          {
+            error: "No authors available",
+            message:
+              "This workspace has no authors. Please create an author in the dashboard before creating posts via the API.",
+          },
+          400 as const
+        );
+      }
+
+      authorIds = [firstAuthor.id];
+    }
+
+    // The first author in the list becomes the primary author
+    const primaryAuthorId = authorIds[0];
+
+    // 5. Determine publishedAt
+    const publishedAt = body.publishedAt
+      ? new Date(body.publishedAt)
+      : new Date();
+
+    // 6. Create the post
+    const postCreated = await db.post.create({
+      data: {
+        title: body.title,
+        content: sanitizeHtml(body.content),
+        contentJson: {}, // API users send HTML, not TipTap JSON
+        description: body.description,
+        slug: body.slug,
+        categoryId: body.categoryId,
+        status: body.status,
+        featured: body.featured ?? false,
+        coverImage: body.coverImage ?? null,
+        publishedAt,
+        attribution: body.attribution ?? undefined,
+        workspaceId,
+        primaryAuthorId,
+        tags:
+          validTagIds.length > 0
+            ? { connect: validTagIds.map((id) => ({ id })) }
+            : undefined,
+        authors: {
+          connect: authorIds.map((id) => ({ id })),
+        },
+      },
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        status: true,
+        featured: true,
+        publishedAt: true,
+        createdAt: true,
+      },
+    });
+
+    // 7. Invalidate cache
+    await cache.invalidateResource(workspaceId, "posts");
+    await cache.invalidateResource(workspaceId, "tags");
+    await cache.invalidateResource(workspaceId, "categories");
+    await cache.invalidateResource(workspaceId, "authors");
+
+    return c.json({ post: postCreated }, 201 as const);
+  } catch (error) {
+    console.error("Error creating post:", error);
+    return c.json(
+      {
+        error: "Failed to create post",
+        message: "An unexpected error occurred",
+      },
+      500 as const
+    );
+  }
+});
+
+const updatePostRoute = createRoute({
+  method: "patch",
+  path: "/{identifier}",
+  tags: ["Posts"],
+  summary: "Update post",
+  description:
+    "Update an existing post by ID or slug. All fields are optional — only provided fields are updated. Requires a private API key.",
+  request: {
+    params: PostParamsSchema,
+    body: {
+      content: { "application/json": { schema: UpdatePostBodySchema } },
+      required: true,
+    },
+  },
+  responses: {
+    200: {
+      content: { "application/json": { schema: UpdatePostResponseSchema } },
+      description: "Post updated successfully",
+    },
+    400: {
+      content: { "application/json": { schema: ErrorSchema } },
+      description: "Invalid request body or referenced resources not found",
+    },
+    403: {
+      content: { "application/json": { schema: ForbiddenSchema } },
+      description: "Public API key used for write operation",
+    },
+    404: {
+      content: { "application/json": { schema: NotFoundSchema } },
+      description: "Post not found",
+    },
+    409: {
+      content: { "application/json": { schema: ConflictSchema } },
+      description: "Post with this slug already exists",
+    },
+    500: {
+      content: { "application/json": { schema: ServerErrorSchema } },
+      description: "Server error",
+    },
+  },
+});
+
+const deletePostRoute = createRoute({
+  method: "delete",
+  path: "/{identifier}",
+  tags: ["Posts"],
+  summary: "Delete post",
+  description: "Delete a post by ID or slug. Requires a private API key.",
+  request: {
+    params: PostParamsSchema,
+  },
+  responses: {
+    200: {
+      content: { "application/json": { schema: DeleteResponseSchema } },
+      description: "Post deleted successfully",
+    },
+    403: {
+      content: { "application/json": { schema: ForbiddenSchema } },
+      description: "Public API key used for write operation",
+    },
+    404: {
+      content: { "application/json": { schema: NotFoundSchema } },
+      description: "Post not found",
+    },
+    500: {
+      content: { "application/json": { schema: ServerErrorSchema } },
+      description: "Server error",
+    },
+  },
+});
+
+posts.openapi(updatePostRoute, async (c) => {
+  try {
+    const url = c.env.DATABASE_URL;
+    const workspaceId = requireWorkspaceId(c);
+    const db = createClient(url);
+    const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
+    const { identifier } = c.req.valid("param");
+    const body = c.req.valid("json");
+
+    // 1. Find the existing post
+    const existingPost = await db.post.findFirst({
+      where: {
+        workspaceId,
+        OR: [{ slug: identifier }, { id: identifier }],
+      },
+    });
+
+    if (!existingPost) {
+      return c.json(
+        {
+          error: "Post not found",
+          message: "The requested post does not exist",
+        },
+        404 as const
+      );
+    }
+
+    // 2. If slug is being changed, check uniqueness
+    if (body.slug && body.slug !== existingPost.slug) {
+      const slugConflict = await db.post.findFirst({
+        where: {
+          slug: body.slug,
+          workspaceId,
+          id: { not: existingPost.id },
+        },
+      });
+
+      if (slugConflict) {
+        return c.json(
+          {
+            error: "Slug already in use",
+            message: "A post with this slug already exists in this workspace",
+          },
+          409 as const
+        );
+      }
+    }
+
+    // 3. Validate category if provided
+    if (body.categoryId) {
+      const category = await db.category.findFirst({
+        where: { id: body.categoryId, workspaceId },
+      });
+
+      if (!category) {
+        return c.json(
+          {
+            error: "Invalid category",
+            message:
+              "The specified category does not exist in this workspace. Use GET /v1/categories to list available categories.",
+          },
+          400 as const
+        );
+      }
+    }
+
+    // 4. Validate tags if provided
+    let tagUpdate: { set: { id: string }[] } | undefined;
+    if (body.tags !== undefined) {
+      if (body.tags.length > 0) {
+        const validTags = await db.tag.findMany({
+          where: { id: { in: body.tags }, workspaceId },
+          select: { id: true },
+        });
+
+        const validTagIds = validTags.map((t) => t.id);
+        const invalidTagIds = body.tags.filter(
+          (id) => !validTagIds.includes(id)
+        );
+
+        if (invalidTagIds.length > 0) {
+          return c.json(
+            {
+              error: "Invalid tags",
+              message: `The following tag IDs do not exist in this workspace: ${invalidTagIds.join(", ")}. Use GET /v1/tags to list available tags.`,
+            },
+            400 as const
+          );
+        }
+
+        tagUpdate = { set: validTagIds.map((id) => ({ id })) };
+      } else {
+        // Empty array = remove all tags
+        tagUpdate = { set: [] };
+      }
+    }
+
+    // 5. Validate authors if provided
+    let authorUpdate: { set: { id: string }[] } | undefined;
+    let primaryAuthorId: string | undefined;
+    if (body.authors !== undefined) {
+      if (body.authors.length === 0) {
+        return c.json(
+          {
+            error: "Invalid authors",
+            message:
+              "Authors array cannot be empty. At least one author is required.",
+          },
+          400 as const
+        );
+      }
+
+      const validAuthors = await db.author.findMany({
+        where: { id: { in: body.authors }, workspaceId, isActive: true },
+        select: { id: true },
+      });
+
+      const invalidAuthorIds = body.authors.filter(
+        (id) => !validAuthors.map((a) => a.id).includes(id)
+      );
+
+      if (invalidAuthorIds.length > 0) {
+        return c.json(
+          {
+            error: "Invalid authors",
+            message: `The following author IDs do not exist in this workspace: ${invalidAuthorIds.join(", ")}. Use GET /v1/authors to list available authors.`,
+          },
+          400 as const
+        );
+      }
+
+      const validAuthorIdSet = new Set(validAuthors.map((a) => a.id));
+      const orderedAuthorIds = body.authors.filter((id) =>
+        validAuthorIdSet.has(id)
+      );
+      authorUpdate = { set: orderedAuthorIds.map((id) => ({ id })) };
+      primaryAuthorId = orderedAuthorIds[0];
+    }
+
+    // 6. Build update data
+    const updateData: Record<string, unknown> = {};
+    if (body.title !== undefined) {
+      updateData.title = body.title;
+    }
+    if (body.content !== undefined) {
+      updateData.content = sanitizeHtml(body.content);
+    }
+    if (body.description !== undefined) {
+      updateData.description = body.description;
+    }
+    if (body.slug !== undefined) {
+      updateData.slug = body.slug;
+    }
+    if (body.categoryId !== undefined) {
+      updateData.categoryId = body.categoryId;
+    }
+    if (body.status !== undefined) {
+      updateData.status = body.status;
+    }
+    if (body.featured !== undefined) {
+      updateData.featured = body.featured;
+    }
+    if (body.coverImage !== undefined) {
+      updateData.coverImage = body.coverImage;
+    }
+    if (body.publishedAt !== undefined) {
+      updateData.publishedAt = new Date(body.publishedAt);
+    }
+    if (body.attribution !== undefined) {
+      updateData.attribution = body.attribution;
+    }
+    if (tagUpdate) {
+      updateData.tags = tagUpdate;
+    }
+    if (authorUpdate) {
+      updateData.authors = authorUpdate;
+    }
+    if (primaryAuthorId) {
+      updateData.primaryAuthorId = primaryAuthorId;
+    }
+
+    const postUpdated = await db.post.update({
+      where: { id: existingPost.id },
+      data: updateData,
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        status: true,
+        featured: true,
+        publishedAt: true,
+        updatedAt: true,
+      },
+    });
+
+    // 7. Invalidate cache
+    await cache.invalidateResource(workspaceId, "posts");
+    await cache.invalidateResource(workspaceId, "tags");
+    await cache.invalidateResource(workspaceId, "categories");
+    await cache.invalidateResource(workspaceId, "authors");
+
+    return c.json({ post: postUpdated }, 200 as const);
+  } catch (error) {
+    console.error("Error updating post:", error);
+    return c.json(
+      {
+        error: "Failed to update post",
+        message: "An unexpected error occurred",
+      },
+      500 as const
+    );
+  }
+});
+
+posts.openapi(deletePostRoute, async (c) => {
+  try {
+    const url = c.env.DATABASE_URL;
+    const workspaceId = requireWorkspaceId(c);
+    const db = createClient(url);
+    const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
+    const { identifier } = c.req.valid("param");
+
+    const existingPost = await db.post.findFirst({
+      where: {
+        workspaceId,
+        OR: [{ slug: identifier }, { id: identifier }],
+      },
+    });
+
+    if (!existingPost) {
+      return c.json(
+        {
+          error: "Post not found",
+          message: "The requested post does not exist",
+        },
+        404 as const
+      );
+    }
+
+    await db.post.delete({
+      where: { id: existingPost.id },
+    });
+
+    await cache.invalidateResource(workspaceId, "posts");
+    await cache.invalidateResource(workspaceId, "tags");
+    await cache.invalidateResource(workspaceId, "categories");
+    await cache.invalidateResource(workspaceId, "authors");
+
+    return c.json({ id: existingPost.id }, 200 as const);
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    return c.json(
+      {
+        error: "Failed to delete post",
+        message: "An unexpected error occurred",
+      },
+      500 as const
+    );
   }
 });
 
