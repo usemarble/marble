@@ -72,6 +72,9 @@ importers:
       resend:
         specifier: ^6.8.0
         version: 6.8.0(@react-email/render@2.0.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4))
+      sanitize-html:
+        specifier: ^2.17.0
+        version: 2.17.0
       zod:
         specifier: ^4.3.6
         version: 4.3.6
@@ -79,6 +82,9 @@ importers:
       '@cloudflare/workers-types':
         specifier: ^4.20260124.0
         version: 4.20260124.0
+      '@types/sanitize-html':
+        specifier: ^2.16.0
+        version: 2.16.0
       wrangler:
         specifier: ^4.60.0
         version: 4.60.0(@cloudflare/workers-types@4.20260124.0)(bufferutil@4.0.9)

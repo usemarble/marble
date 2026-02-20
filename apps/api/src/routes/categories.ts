@@ -5,9 +5,15 @@ import { requireWorkspaceId } from "../lib/workspace";
 import {
   CategoriesListResponseSchema,
   CategoryResponseSchema,
+  CreateCategoryBodySchema,
+  CreateCategoryResponseSchema,
+  UpdateCategoryBodySchema,
 } from "../schemas/categories";
 import {
+  ConflictSchema,
+  DeleteResponseSchema,
   ErrorSchema,
+  ForbiddenSchema,
   LimitQuerySchema,
   NotFoundSchema,
   PageNotFoundSchema,
@@ -77,6 +83,44 @@ const getCategoryRoute = createRoute({
     404: {
       content: { "application/json": { schema: NotFoundSchema } },
       description: "Category not found",
+    },
+    500: {
+      content: { "application/json": { schema: ServerErrorSchema } },
+      description: "Server error",
+    },
+  },
+});
+
+const createCategoryRoute = createRoute({
+  method: "post",
+  path: "/",
+  tags: ["Categories"],
+  summary: "Create category",
+  description: "Create a new category. Requires a private API key.",
+  request: {
+    body: {
+      content: { "application/json": { schema: CreateCategoryBodySchema } },
+      required: true,
+    },
+  },
+  responses: {
+    201: {
+      content: {
+        "application/json": { schema: CreateCategoryResponseSchema },
+      },
+      description: "Category created successfully",
+    },
+    400: {
+      content: { "application/json": { schema: ErrorSchema } },
+      description: "Invalid request body",
+    },
+    403: {
+      content: { "application/json": { schema: ForbiddenSchema } },
+      description: "Public API key used for write operation",
+    },
+    409: {
+      content: { "application/json": { schema: ConflictSchema } },
+      description: "Category with this slug already exists",
     },
     500: {
       content: { "application/json": { schema: ServerErrorSchema } },
@@ -247,6 +291,282 @@ categories.openapi(getCategoryRoute, async (c) => {
   } catch (error) {
     console.error("Error fetching category:", error);
     return c.json({ error: "Failed to fetch category" }, 500 as const);
+  }
+});
+
+categories.openapi(createCategoryRoute, async (c) => {
+  try {
+    const url = c.env.DATABASE_URL;
+    const workspaceId = requireWorkspaceId(c);
+    const db = createClient(url);
+    const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
+    const body = c.req.valid("json");
+
+    // Check for slug uniqueness within workspace
+    const existingCategory = await db.category.findFirst({
+      where: {
+        slug: body.slug,
+        workspaceId,
+      },
+    });
+
+    if (existingCategory) {
+      return c.json(
+        {
+          error: "Slug already in use",
+          message: "A category with this slug already exists in this workspace",
+        },
+        409 as const
+      );
+    }
+
+    const categoryCreated = await db.category.create({
+      data: {
+        name: body.name,
+        slug: body.slug,
+        description: body.description ?? null,
+        workspaceId,
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+      },
+    });
+
+    // Invalidate cache for categories and posts
+    await cache.invalidateResource(workspaceId, "categories");
+    await cache.invalidateResource(workspaceId, "posts");
+
+    return c.json({ category: categoryCreated }, 201 as const);
+  } catch (error) {
+    console.error("Error creating category:", error);
+    return c.json(
+      {
+        error: "Failed to create category",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+      500 as const
+    );
+  }
+});
+
+const updateCategoryRoute = createRoute({
+  method: "patch",
+  path: "/{identifier}",
+  tags: ["Categories"],
+  summary: "Update category",
+  description:
+    "Update an existing category by ID or slug. Requires a private API key.",
+  request: {
+    params: CategoryParamsSchema,
+    body: {
+      content: { "application/json": { schema: UpdateCategoryBodySchema } },
+      required: true,
+    },
+  },
+  responses: {
+    200: {
+      content: {
+        "application/json": { schema: CreateCategoryResponseSchema },
+      },
+      description: "Category updated successfully",
+    },
+    400: {
+      content: { "application/json": { schema: ErrorSchema } },
+      description: "Invalid request body",
+    },
+    403: {
+      content: { "application/json": { schema: ForbiddenSchema } },
+      description: "Public API key used for write operation",
+    },
+    404: {
+      content: { "application/json": { schema: NotFoundSchema } },
+      description: "Category not found",
+    },
+    409: {
+      content: { "application/json": { schema: ConflictSchema } },
+      description: "Category with this slug already exists",
+    },
+    500: {
+      content: { "application/json": { schema: ServerErrorSchema } },
+      description: "Server error",
+    },
+  },
+});
+
+const deleteCategoryRoute = createRoute({
+  method: "delete",
+  path: "/{identifier}",
+  tags: ["Categories"],
+  summary: "Delete category",
+  description:
+    "Delete a category by ID or slug. Requires a private API key. Cannot delete a category that has posts assigned to it.",
+  request: {
+    params: CategoryParamsSchema,
+  },
+  responses: {
+    200: {
+      content: { "application/json": { schema: DeleteResponseSchema } },
+      description: "Category deleted successfully",
+    },
+    400: {
+      content: { "application/json": { schema: ErrorSchema } },
+      description: "Category has posts assigned to it",
+    },
+    403: {
+      content: { "application/json": { schema: ForbiddenSchema } },
+      description: "Public API key used for write operation",
+    },
+    404: {
+      content: { "application/json": { schema: NotFoundSchema } },
+      description: "Category not found",
+    },
+    500: {
+      content: { "application/json": { schema: ServerErrorSchema } },
+      description: "Server error",
+    },
+  },
+});
+
+categories.openapi(updateCategoryRoute, async (c) => {
+  try {
+    const url = c.env.DATABASE_URL;
+    const workspaceId = requireWorkspaceId(c);
+    const db = createClient(url);
+    const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
+    const { identifier } = c.req.valid("param");
+    const body = c.req.valid("json");
+
+    const existingCategory = await db.category.findFirst({
+      where: {
+        workspaceId,
+        OR: [{ id: identifier }, { slug: identifier }],
+      },
+    });
+
+    if (!existingCategory) {
+      return c.json(
+        {
+          error: "Category not found",
+          message: "The requested category does not exist",
+        },
+        404 as const
+      );
+    }
+
+    // If slug is being changed, check uniqueness
+    if (body.slug && body.slug !== existingCategory.slug) {
+      const slugConflict = await db.category.findFirst({
+        where: {
+          slug: body.slug,
+          workspaceId,
+          id: { not: existingCategory.id },
+        },
+      });
+
+      if (slugConflict) {
+        return c.json(
+          {
+            error: "Slug already in use",
+            message:
+              "A category with this slug already exists in this workspace",
+          },
+          409 as const
+        );
+      }
+    }
+
+    const categoryUpdated = await db.category.update({
+      where: { id: existingCategory.id },
+      data: {
+        ...(body.name !== undefined && { name: body.name }),
+        ...(body.slug !== undefined && { slug: body.slug }),
+        ...(body.description !== undefined && {
+          description: body.description,
+        }),
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+      },
+    });
+
+    await cache.invalidateResource(workspaceId, "categories");
+    await cache.invalidateResource(workspaceId, "posts");
+
+    return c.json({ category: categoryUpdated }, 200 as const);
+  } catch (error) {
+    console.error("Error updating category:", error);
+    return c.json(
+      {
+        error: "Failed to update category",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+      500 as const
+    );
+  }
+});
+
+categories.openapi(deleteCategoryRoute, async (c) => {
+  try {
+    const url = c.env.DATABASE_URL;
+    const workspaceId = requireWorkspaceId(c);
+    const db = createClient(url);
+    const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
+    const { identifier } = c.req.valid("param");
+
+    const existingCategory = await db.category.findFirst({
+      where: {
+        workspaceId,
+        OR: [{ id: identifier }, { slug: identifier }],
+      },
+      include: {
+        _count: { select: { posts: true } },
+      },
+    });
+
+    if (!existingCategory) {
+      return c.json(
+        {
+          error: "Category not found",
+          message: "The requested category does not exist",
+        },
+        404 as const
+      );
+    }
+
+    // Prevent deleting a category that has posts
+    if (existingCategory._count.posts > 0) {
+      return c.json(
+        {
+          error: "Category has posts",
+          message: `This category has ${existingCategory._count.posts} post(s) assigned to it. Reassign or delete them before deleting this category.`,
+        },
+        400 as const
+      );
+    }
+
+    await db.category.delete({
+      where: { id: existingCategory.id },
+    });
+
+    await cache.invalidateResource(workspaceId, "categories");
+    await cache.invalidateResource(workspaceId, "posts");
+
+    return c.json({ id: existingCategory.id }, 200 as const);
+  } catch (error) {
+    console.error("Error deleting category:", error);
+    return c.json(
+      {
+        error: "Failed to delete category",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+      500 as const
+    );
   }
 });
 
