@@ -1,6 +1,7 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { createClient } from "@marble/db/workers";
 import { cacheKey, createCacheClient, hashQueryParams } from "../lib/cache";
+import { getConnectionString } from "../lib/db";
 import { requireWorkspaceId } from "../lib/workspace";
 import {
   AuthorResponseSchema,
@@ -92,7 +93,7 @@ const getAuthorRoute = createRoute({
 });
 
 authors.openapi(listAuthorsRoute, async (c) => {
-  const url = c.env.DATABASE_URL;
+  const url = getConnectionString(c.env);
   const workspaceId = requireWorkspaceId(c);
   const db = createClient(url);
   const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
@@ -220,7 +221,7 @@ authors.openapi(listAuthorsRoute, async (c) => {
 });
 
 authors.openapi(getAuthorRoute, async (c) => {
-  const url = c.env.DATABASE_URL;
+  const url = getConnectionString(c.env);
   const workspaceId = requireWorkspaceId(c);
   const { identifier } = c.req.valid("param");
   const db = createClient(url);
@@ -311,7 +312,7 @@ const createAuthorRoute = createRoute({
 
 authors.openapi(createAuthorRoute, async (c) => {
   try {
-    const db = createClient(c.env.DATABASE_URL);
+    const db = createClient(getConnectionString(c.env));
     const workspaceId = requireWorkspaceId(c);
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const body = c.req.valid("json");
@@ -467,7 +468,7 @@ const updateAuthorRoute = createRoute({
 
 authors.openapi(updateAuthorRoute, async (c) => {
   try {
-    const db = createClient(c.env.DATABASE_URL);
+    const db = createClient(getConnectionString(c.env));
     const workspaceId = requireWorkspaceId(c);
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const { identifier } = c.req.valid("param");
@@ -596,7 +597,7 @@ const deleteAuthorRoute = createRoute({
 
 authors.openapi(deleteAuthorRoute, async (c) => {
   try {
-    const db = createClient(c.env.DATABASE_URL);
+    const db = createClient(getConnectionString(c.env));
     const workspaceId = requireWorkspaceId(c);
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const { identifier } = c.req.valid("param");

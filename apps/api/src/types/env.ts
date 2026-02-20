@@ -1,5 +1,6 @@
 export interface Env {
   DATABASE_URL: string;
+  HYPERDRIVE: { connectionString: string };
   REDIS_URL: string;
   REDIS_TOKEN: string;
   POLAR_ACCESS_TOKEN: string;

@@ -1,5 +1,6 @@
 import { createClient } from "@marble/db/workers";
 import type { Context, MiddlewareHandler } from "hono";
+import { getConnectionString } from "../lib/db";
 import { createPolarClient } from "../lib/polar";
 import {
   checkApiUsage,
@@ -112,14 +113,15 @@ async function checkUsage(
   c: Context,
   workspaceId: string
 ): Promise<UsageCheckResult | null> {
-  const { DATABASE_URL, REDIS_URL, REDIS_TOKEN } = c.env;
+  const { REDIS_URL, REDIS_TOKEN } = c.env;
 
-  if (!DATABASE_URL || !workspaceId) {
+  if (!workspaceId) {
     return null;
   }
 
   try {
-    const db = createClient(DATABASE_URL);
+    const connectionString = getConnectionString(c.env);
+    const db = createClient(connectionString);
     const redis =
       REDIS_URL && REDIS_TOKEN
         ? { url: REDIS_URL, token: REDIS_TOKEN }
@@ -165,10 +167,12 @@ export const analytics = (): MiddlewareHandler<ApiKeyApp> => {
 
     await next();
 
-    const { DATABASE_URL, RESEND_API_KEY, POLAR_ACCESS_TOKEN, ENVIRONMENT } =
-      c.env;
+    const { RESEND_API_KEY, POLAR_ACCESS_TOKEN, ENVIRONMENT } = c.env;
 
-    if (!DATABASE_URL) {
+    let connectionString: string;
+    try {
+      connectionString = getConnectionString(c.env);
+    } catch {
       console.error("[Analytics] Database configuration error");
       return;
     }
@@ -184,7 +188,7 @@ export const analytics = (): MiddlewareHandler<ApiKeyApp> => {
     const pathParts = path.split("/").filter(Boolean);
     const endpoint = pathParts.length >= 1 ? `/${pathParts.join("/")}` : null;
 
-    const db = createClient(DATABASE_URL);
+    const db = createClient(connectionString);
 
     c.executionCtx?.waitUntil(
       runAnalyticsTask({

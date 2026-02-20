@@ -2,7 +2,7 @@
   "name": "api",
   "version": "0.1.0",
   "scripts": {
-    "dev": "wrangler dev",
+    "dev": "dotenv -e .dev.vars -- wrangler dev",
     "deploy": "wrangler deploy --minify",
     "env": "dotenv -e .dev.vars"
   },
@@ -24,6 +24,7 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260124.0",
     "@types/sanitize-html": "^2.16.0",
+    "dotenv-cli": "^11.0.0",
     "wrangler": "^4.60.0"
   }
 }
