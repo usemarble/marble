@@ -45,6 +45,31 @@ export const NotFoundSchema = z
   })
   .openapi("NotFound");
 
+export const ForbiddenSchema = z
+  .object({
+    error: z.string().openapi({ example: "Forbidden" }),
+    message: z.string().openapi({
+      example:
+        "Write operations require a private API key (msk_...). Public keys are read-only.",
+    }),
+  })
+  .openapi("Forbidden");
+
+export const ConflictSchema = z
+  .object({
+    error: z.string().openapi({ example: "Slug already in use" }),
+    message: z.string().optional().openapi({
+      example: "A resource with this slug already exists in this workspace",
+    }),
+  })
+  .openapi("Conflict");
+
+export const DeleteResponseSchema = z
+  .object({
+    id: z.string().openapi({ example: "cryitfjp5678mn09qrstuvwx" }),
+  })
+  .openapi("DeleteResponse");
+
 export const PageNotFoundSchema = z
   .object({
     error: z.literal("Invalid page number"),

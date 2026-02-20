@@ -1,10 +1,9 @@
 ---
-import type { HTMLAttributes } from "astro/types";
+  import type { HTMLAttributes } from "astro/types";
 
-interface Props extends HTMLAttributes<"svg"> {}
-const { class: classNames, ...attrs } = Astro.props;
+  interface Props extends HTMLAttributes<"svg"> {}
+  const { class: classNames, ...attrs } = Astro.props;
 ---
-
 <svg
   width="120"
   height="44"
@@ -118,8 +117,8 @@ const { class: classNames, ...attrs } = Astro.props;
       y2="1243.32"
       gradientUnits="userSpaceOnUse"
     >
-      <stop stop-color="#C3C3C3" />
-      <stop offset="1" stop-color="#5D5D5D" />
+      <stop stop-color="#C3C3C3"/>
+      <stop offset="1" stop-color="#5D5D5D"/>
     </linearGradient>
   </defs>
 </svg>

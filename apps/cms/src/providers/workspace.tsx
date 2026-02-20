@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
-import { notFound, usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   createContext,
   useCallback,
@@ -63,7 +63,7 @@ export function WorkspaceProvider({
       }
       if (response.status === 404) {
         console.error("Workspace not found");
-        return notFound();
+        return null;
       }
       console.error(`Unexpected status code: ${response.status}`);
       return null;

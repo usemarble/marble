@@ -228,9 +228,8 @@ export function ApiKeyModal({ data, mode, open, setOpen }: ApiKeyModalProps) {
                 <div className="grid flex-1 gap-2">
                   <Label htmlFor="type">Type</Label>
                   <Select
-                    disabled
                     onValueChange={(value) => {
-                      if (value) {
+                      if (value === "public" || value === "private") {
                         setValue("type", value);
                       }
                     }}
@@ -245,7 +244,9 @@ export function ApiKeyModal({ data, mode, open, setOpen }: ApiKeyModalProps) {
                     </SelectContent>
                   </Select>
                   <p className="text-[11px] text-muted-foreground">
-                    Public keys have read-only access.
+                    {type === "public"
+                      ? "Read-only access to all resources."
+                      : "Read and write access to all resources. Keep this key secret."}
                   </p>
                 </div>
               )}

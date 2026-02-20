@@ -21,9 +21,10 @@ import {
   CircleNotchIcon,
   XIcon,
 } from "@phosphor-icons/react";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { AsyncButton } from "@/components/ui/async-button";
 import { organization } from "@/lib/auth/client";
 
@@ -56,94 +57,77 @@ interface GetOrganizationResponse {
 type InviteStatus = "pending" | "accepted" | "rejected";
 
 function PageClient({ id, user }: PageClientProps) {
-  const [invitation, setInvitation] = useState<GetOrganizationResponse | null>(
-    null
-  );
   const [inviteStatus, setInviteStatus] = useState<InviteStatus>("pending");
-  const [error, setError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
   const [accepting, setAccepting] = useState(false);
   const [rejecting, setRejecting] = useState(false);
   const router = useRouter();
 
+  const {
+    data: invitation,
+    error: fetchError,
+    isLoading,
+  } = useQuery({
+    queryKey: ["invitation", id],
+    queryFn: async () => {
+      const res = await organization.getInvitation({ query: { id } });
+      if (res.error) {
+        throw new Error(res.error.message || "An error occurred");
+      }
+      return res.data as GetOrganizationResponse;
+    },
+  });
+
+  const error = actionError || fetchError?.message || null;
+
   const handleAccept = async () => {
     setAccepting(true);
-    setError(null);
+    setActionError(null);
     try {
       const res = await organization.acceptInvitation({
         invitationId: id,
       });
 
       if (res.error) {
-        setError(res.error.message || "Failed to accept invitation");
-        return;
+        setActionError(res.error.message || "Failed to accept invitation");
+      } else {
+        setInviteStatus("accepted");
+        router.push(`/${invitation?.organizationSlug}`);
       }
-
-      setInviteStatus("accepted");
-      router.push(`/${invitation?.organizationSlug}`);
     } catch (error) {
-      // Handle unexpected errors (network errors, etc.)
       console.error("Error accepting invitation:", error);
-      setError(
+      setActionError(
         error instanceof Error
           ? error.message
           : "An unexpected error occurred. Please try again."
       );
-    } finally {
-      setAccepting(false);
     }
+    setAccepting(false);
   };
 
   const handleReject = async () => {
     setRejecting(true);
-    setError(null);
+    setActionError(null);
     try {
       const res = await organization.rejectInvitation({
         invitationId: id,
       });
 
       if (res.error) {
-        setError(res.error.message || "Failed to reject invitation");
-        return;
+        setActionError(res.error.message || "Failed to reject invitation");
+      } else {
+        setInviteStatus("rejected");
       }
-
-      setInviteStatus("rejected");
     } catch (error) {
-      // Handle unexpected errors
       console.error("Error rejecting invitation:", error);
-      setError(
+      setActionError(
         error instanceof Error
           ? error.message
           : "An unexpected error occurred. Please try again."
       );
-    } finally {
-      setRejecting(false);
     }
+    setRejecting(false);
   };
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <>
-  useEffect(() => {
-    organization
-      .getInvitation({
-        query: {
-          id,
-        },
-      })
-      .then((res) => {
-        if (res.error) {
-          setError(res.error.message || "An error occurred");
-        } else {
-          setInvitation(res.data);
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching invitation:", error);
-        setError(
-          error instanceof Error
-            ? error.message
-            : "Failed to load invitation. Please try again."
-        );
-      });
-  }, []);
 
   return (
     <div className="flex items-center justify-center">
@@ -260,11 +244,11 @@ function PageClient({ id, user }: PageClientProps) {
             </CardFooter>
           )}
         </Card>
-      ) : error ? (
+      ) : error && !isLoading ? (
         <InviteError />
-      ) : (
+      ) : isLoading ? (
         <InviteLoading />
-      )}
+      ) : null}
     </div>
   );
 }

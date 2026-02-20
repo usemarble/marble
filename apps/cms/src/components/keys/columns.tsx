@@ -1,5 +1,6 @@
 "use client";
 
+import { Badge } from "@marble/ui/components/badge";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import type { ApiScope } from "@/utils/keys";
@@ -29,9 +30,9 @@ export const columns: ColumnDef<APIKey>[] = [
     cell: ({ row }) => {
       const type = row.original.type;
       return (
-        <span className="capitalize">
+        <Badge variant={type === "public" ? "info" : "pending"}>
           {type === "public" ? "Public" : "Private"}
-        </span>
+        </Badge>
       );
     },
   },

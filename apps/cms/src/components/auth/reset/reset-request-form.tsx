@@ -17,7 +17,7 @@ export default function ResetRequestForm() {
   useEffect(() => {
     if (waitingSeconds > 0) {
       const timeout = setTimeout(() => {
-        setWaitingSeconds(waitingSeconds - 1);
+        setWaitingSeconds((prev) => prev - 1);
       }, 1000);
       return () => clearTimeout(timeout);
     }
@@ -43,11 +43,10 @@ export default function ResetRequestForm() {
     } catch (err) {
       console.error(err);
       toast.error("Failed to request reset");
-    } finally {
-      setWaitingSeconds(60);
-      setIsLoading(false);
-      setIsRequestSuccess(true);
     }
+    setWaitingSeconds(60);
+    setIsLoading(false);
+    setIsRequestSuccess(true);
   };
 
   return (

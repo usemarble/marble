@@ -41,9 +41,8 @@ export function ResetForm({ callbackUrl, token }: ResetFormProps) {
     } catch (error) {
       console.error("Password reset failed:", error);
       toast.error("Password reset failed");
-    } finally {
-      setIsLoading(false);
     }
+    setIsLoading(false);
   };
 
   return (

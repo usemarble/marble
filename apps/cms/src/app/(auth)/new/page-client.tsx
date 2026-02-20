@@ -15,7 +15,7 @@ import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { Suspense } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
 import { AsyncButton } from "@/components/ui/async-button";
@@ -28,11 +28,10 @@ import {
 } from "@/lib/validations/workspace";
 import { generateSlug } from "@/utils/string";
 
-function PageClient() {
+function PageClientInner() {
   const {
     register,
     handleSubmit,
-    watch,
     setValue,
     control,
     formState: { errors, isSubmitting },
@@ -46,17 +45,7 @@ function PageClient() {
 
   const router = useRouter();
   const searchParams = useSearchParams();
-  // Yes i know manually changing this will show the button even if false
-  // but the middleware will just send you back here so it's whatever
   const hasWorkspaces = searchParams.get("workspaces") === "true";
-  const { name } = watch();
-
-  useEffect(() => {
-    if (name) {
-      const slug = generateSlug(name);
-      setValue("slug", slug);
-    }
-  }, [name, setValue]);
 
   async function onSubmit(payload: CreateWorkspaceValues) {
     const { error } = await organization.checkSlug({
@@ -119,7 +108,15 @@ function PageClient() {
                     Name
                   </Label>
 
-                  <Input id="name" placeholder="Name" {...register("name")} />
+                  <Input
+                    id="name"
+                    placeholder="Name"
+                    {...register("name", {
+                      onChange: (e) => {
+                        setValue("slug", generateSlug(e.target.value));
+                      },
+                    })}
+                  />
                   {errors.name && (
                     <ErrorMessage>{errors.name.message}</ErrorMessage>
                   )}
@@ -191,6 +188,14 @@ function PageClient() {
         </div>
       </Card>
     </div>
+  );
+}
+
+function PageClient() {
+  return (
+    <Suspense>
+      <PageClientInner />
+    </Suspense>
   );
 }
 

@@ -1,10 +1,9 @@
 ---
-import type { HTMLAttributes } from "astro/types";
+  import type { HTMLAttributes } from "astro/types";
 
-interface Props extends HTMLAttributes<"svg"> {}
-const { class: classNames, ...attrs } = Astro.props;
+  interface Props extends HTMLAttributes<"svg"> {}
+  const { class: classNames, ...attrs } = Astro.props;
 ---
-
 <svg
   width="28"
   height="28"
@@ -20,7 +19,7 @@ const { class: classNames, ...attrs } = Astro.props;
     d="M9.667 9.667H14.5V14.5H9.667zM14.5 14.5h4.833v4.833H14.5z"
     fill="#000"
   />
-  <path d="M29 4.833h-4.833v19.334H29z" fill="#000" />
+  <path d="M29 4.833h-4.833v19.334H29z" fill="#000"/>
   <path
     fill-rule="evenodd"
     clip-rule="evenodd"

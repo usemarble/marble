@@ -85,5 +85,3 @@ export const InviteUserEmail = ({
     </Html>
   );
 };
-
-export default InviteUserEmail;

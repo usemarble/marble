@@ -46,13 +46,20 @@ export const FigureView = ({
   const altId = useId();
   const captionId = useId();
 
-  // Sync local state with node attributes when they change externally
-  useEffect(() => {
+  const [prevAttrs, setPrevAttrs] = useState({ alt, caption, width, align });
+
+  if (
+    alt !== prevAttrs.alt ||
+    caption !== prevAttrs.caption ||
+    width !== prevAttrs.width ||
+    align !== prevAttrs.align
+  ) {
+    setPrevAttrs({ alt, caption, width, align });
     setAltValue(alt || "");
     setCaptionValue(caption || "");
     setWidthValue(width || "100");
     setAlignValue(align || "center");
-  }, [alt, caption, width, align]);
+  }
 
   // Handle click outside settings panel
   useEffect(() => {
@@ -306,13 +313,13 @@ export const FigureView = ({
         {showToolbar && (
           <>
             <button
-              className="absolute top-1/2 left-2 z-20 h-8 w-1 -translate-y-1/2 cursor-ew-resize rounded-full border border-foreground border-white bg-background transition-all"
+              className="-translate-y-1/2 absolute top-1/2 left-2 z-20 h-8 w-1 cursor-ew-resize rounded-full border border-foreground border-white bg-background transition-all"
               onMouseDown={handleResizeStart("left")}
               title="Drag to resize"
               type="button"
             />
             <button
-              className="absolute top-1/2 right-2 z-20 h-8 w-1 -translate-y-1/2 cursor-ew-resize rounded-full border border-foreground border-white bg-background transition-all"
+              className="-translate-y-1/2 absolute top-1/2 right-2 z-20 h-8 w-1 cursor-ew-resize rounded-full border border-foreground border-white bg-background transition-all"
               onMouseDown={handleResizeStart("right")}
               title="Drag to resize"
               type="button"

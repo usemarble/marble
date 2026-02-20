@@ -53,12 +53,14 @@ interface MultiSelectPopoverProps {
   defaultTags?: string[];
 }
 
+const EMPTY_TAGS: string[] = [];
+
 export const TagSelector = ({
   control,
   placeholder,
   isOpen,
   setIsOpen,
-  defaultTags = [],
+  defaultTags = EMPTY_TAGS,
 }: MultiSelectPopoverProps) => {
   const {
     field: { onChange, value },

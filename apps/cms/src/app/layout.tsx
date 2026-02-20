@@ -3,6 +3,7 @@ import "@/styles/globals.css";
 // import "@/styles/editor.css";
 import { Databuddy } from "@databuddy/sdk/react";
 import { Geist } from "next/font/google";
+import Script from "next/script";
 import { SITE_CONFIG } from "@/utils/site";
 import Providers from "./providers";
 
@@ -68,9 +69,10 @@ export default async function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         {process.env.NODE_ENV === "development" && (
-          <script
+          <Script
             crossOrigin="anonymous"
             src="//unpkg.com/react-scan/dist/auto.global.js"
+            strategy="beforeInteractive"
           />
         )}
       </head>

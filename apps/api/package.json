@@ -10,16 +10,20 @@
     "@hono/zod-openapi": "^1.2.0",
     "@hono/zod-validator": "^0.7.6",
     "@marble/db": "workspace:*",
+    "@marble/email": "workspace:*",
     "@marble/utils": "workspace:*",
     "@polar-sh/sdk": "^0.42.2",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.36.1",
     "hono": "^4.11.7",
     "node-html-markdown": "^2.0.0",
+    "resend": "^6.8.0",
+    "sanitize-html": "^2.17.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260124.0",
+    "@types/sanitize-html": "^2.16.0",
     "wrangler": "^4.60.0"
   }
 }

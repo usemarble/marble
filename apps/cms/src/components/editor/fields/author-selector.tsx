@@ -28,7 +28,7 @@ import {
 import { cn } from "@marble/ui/lib/utils";
 import { CaretUpDownIcon, CheckIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { type Control, useController } from "react-hook-form";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
@@ -52,12 +52,14 @@ interface AuthorSelectorProps {
   defaultAuthors?: string[];
 }
 
+const EMPTY_AUTHORS: string[] = [];
+
 export function AuthorSelector({
   control,
   placeholder,
   isOpen,
   setIsOpen,
-  defaultAuthors = [],
+  defaultAuthors = EMPTY_AUTHORS,
 }: AuthorSelectorProps) {
   const {
     field: { onChange, value },
@@ -68,7 +70,6 @@ export function AuthorSelector({
     defaultValue: defaultAuthors,
   });
 
-  const [selected, setSelected] = useState<AuthorOptions[]>([]);
   const { user } = useUser();
   const workspaceId = useWorkspaceId();
   const isNewPost = defaultAuthors.length === 0;
@@ -77,17 +78,11 @@ export function AuthorSelector({
     // biome-ignore lint/style/noNonNullAssertion: <>
     queryKey: QUERY_KEYS.AUTHORS(workspaceId!),
     queryFn: async () => {
-      try {
-        const response = await fetch("/api/authors");
-        if (!response.ok) {
-          throw new Error("Failed to fetch authors");
-        }
-        const data = await response.json();
-        return data;
-      } catch (error) {
-        console.error("Failed to fetch authors:", error);
-        return [];
+      const response = await fetch("/api/authors");
+      if (!response.ok) {
+        throw new Error("Failed to fetch authors");
       }
+      return response.json();
     },
     enabled: !!workspaceId,
   });
@@ -100,21 +95,14 @@ export function AuthorSelector({
     return authors.find((author) => author.userId === user.id) || authors[0];
   }, [user, authors]);
 
-  // Handle selected authors based on form value
-  // This is just to show the selected users in the UI
-  useEffect(() => {
+  const selected = useMemo(() => {
     if (isLoading || authors.length === 0) {
-      return;
+      return [];
     }
-
     if (value && value.length > 0) {
-      const authorsThatWerePreviouslySelected = authors.filter((opt) =>
-        value.includes(opt.id)
-      );
-      setSelected(authorsThatWerePreviouslySelected);
-    } else {
-      setSelected([]);
+      return authors.filter((opt) => value.includes(opt.id));
     }
+    return [];
   }, [value, authors, isLoading]);
 
   // Auto-select current user's author profile on initial load for better UX
@@ -170,7 +158,7 @@ export function AuthorSelector({
           nativeButton={false}
           render={
             <div className="relative flex h-auto min-h-9 w-full cursor-pointer items-center justify-between gap-2 rounded-md border bg-editor-field px-3 py-1.5 text-sm">
-              <ul className="flex flex-wrap -space-x-2">
+              <ul className="-space-x-2 flex flex-wrap">
                 {selected.length === 0 && (
                   <li className="text-muted-foreground">
                     {placeholder || "Select authors"}

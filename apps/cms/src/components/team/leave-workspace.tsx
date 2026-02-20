@@ -56,19 +56,19 @@ export function LeaveWorkspaceModal({
 
       toast.success("You have left the workspace.");
 
-      // Find the next available workspace or redirect to new
       const remainingWorkspaces = organizations?.filter(
         (org: ListOrganizationResponse) => org.id !== id
       );
 
       if (!remainingWorkspaces || remainingWorkspaces.length === 0) {
+        setIsLeavingWorkspace(false);
         router.push("/new");
         return;
       }
 
-      // Set the first remaining workspace as active and redirect
       const nextWorkspace = remainingWorkspaces[0];
       if (!nextWorkspace) {
+        setIsLeavingWorkspace(false);
         router.push("/new");
         return;
       }
@@ -78,9 +78,8 @@ export function LeaveWorkspaceModal({
     } catch (error) {
       console.error("Failed to delete workspace:", error);
       toast.error("Failed to delete workspace.");
-    } finally {
-      setIsLeavingWorkspace(false);
     }
+    setIsLeavingWorkspace(false);
   };
 
   return (

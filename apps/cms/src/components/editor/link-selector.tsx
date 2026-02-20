@@ -10,7 +10,7 @@ import { Separator } from "@marble/ui/components/separator";
 import { Switch } from "@marble/ui/components/switch";
 import { cn } from "@marble/ui/lib/utils";
 import { CheckIcon, LinkSimpleIcon, TrashIcon } from "@phosphor-icons/react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 export function isValidUrl(url: string) {
   try {
@@ -45,9 +45,6 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
   const [openInNewTab, setOpenInNewTab] = useState(true);
   const [inputValue, setInputValue] = useState("");
 
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
   if (!editor) {
     return null;
   }
@@ -68,24 +65,20 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
         }
       />
       <PopoverContent align="start" className="w-60 p-0" sideOffset={10}>
-        {/** biome-ignore lint/a11y/noNoninteractiveElementInteractions: It's acting as a button */}
-        {/** biome-ignore lint/a11y/noStaticElementInteractions: It's acting as a button */}
-        <div
+        <form
           className="flex flex-col p-1"
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              const url = getUrlFromString(inputValue);
-              if (url) {
-                editor
-                  .chain()
-                  .focus()
-                  .setLink({
-                    href: url,
-                    target: openInNewTab ? "_blank" : "_self",
-                  })
-                  .run();
-              }
+          onSubmit={(e) => {
+            e.preventDefault();
+            const url = getUrlFromString(inputValue);
+            if (url) {
+              editor
+                .chain()
+                .focus()
+                .setLink({
+                  href: url,
+                  target: openInNewTab ? "_blank" : "_self",
+                })
+                .run();
             }
           }}
         >
@@ -146,7 +139,7 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
               Open in new tab
             </Label>
           </div>
-        </div>
+        </form>
       </PopoverContent>
     </Popover>
   );

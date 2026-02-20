@@ -152,9 +152,8 @@ function PageClient() {
     } catch (err) {
       toast.error("Unexpected upload error", { id: toastId });
       setStatusMessage("Unexpected upload error");
-    } finally {
-      setIsUploading(false);
     }
+    setIsUploading(false);
   };
 
   if (isLoading) {

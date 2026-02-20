@@ -74,10 +74,9 @@ export function UpgradeModal({ feature, isOpen, onClose }: UpgradeModalProps) {
       });
     } catch (error) {
       console.error(error);
-    } finally {
-      setLoadingPlan(null);
-      onClose();
     }
+    setLoadingPlan(null);
+    onClose();
   };
 
   return (

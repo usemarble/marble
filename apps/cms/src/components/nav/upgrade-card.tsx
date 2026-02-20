@@ -43,9 +43,8 @@ export function UpgradeCard() {
       });
     } catch (error) {
       console.error(error);
-    } finally {
-      setIsLoading(false);
     }
+    setIsLoading(false);
   };
 
   return (

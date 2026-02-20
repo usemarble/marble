@@ -1,14 +1,13 @@
 ---
-interface Props {
-  open?: boolean;
-  title: string;
-  name?: string;
-  class?: string;
-}
+  interface Props {
+    open?: boolean;
+    title: string;
+    name?: string;
+    class?: string;
+  }
 
-const { open, title, name, class: className } = Astro.props;
+  const { open, title, name, class: className } = Astro.props;
 ---
-
 <details
   data-accordion-item
   class:list={['accordion-item group', className]}
@@ -38,7 +37,7 @@ const { open, title, name, class: className } = Astro.props;
     </svg>
   </summary>
   <div class="pb-4">
-    <slot />
+    <slot/>
   </div>
 </details>
 

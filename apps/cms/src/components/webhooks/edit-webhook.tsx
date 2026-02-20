@@ -23,10 +23,9 @@ import { toast } from "@marble/ui/components/sonner";
 import { BracketsCurlyIcon } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useId } from "react";
-import { useForm } from "react-hook-form";
+import { useEffect, useId } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import { AsyncButton } from "@/components/ui/async-button";
-import { useDebounce } from "@/hooks/use-debounce";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { VALID_DISCORD_DOMAINS, VALID_SLACK_DOMAINS } from "@/lib/constants";
 import { QUERY_KEYS } from "@/lib/queries/keys";
@@ -89,7 +88,7 @@ export function EditWebhookSheet({
     register,
     handleSubmit,
     setValue,
-    watch,
+    control,
     reset,
     formState: { errors },
   } = useForm<WebhookFormValues>({
@@ -102,7 +101,6 @@ export function EditWebhookSheet({
     },
   });
 
-  // Reset form when webhook changes or sheet opens
   useEffect(() => {
     if (isOpen && webhook) {
       reset({
@@ -114,50 +112,29 @@ export function EditWebhookSheet({
     }
   }, [isOpen, webhook, reset]);
 
-  const watchedEvents = watch("events");
-  const watchedEndpoint = watch("endpoint");
-  const debouncedEndpoint = useDebounce(watchedEndpoint, 500);
+  const watchedEvents = useWatch({ control, name: "events" });
+  const watchedFormat = useWatch({ control, name: "format" });
 
   const router = useRouter();
 
-  const isDiscordUrl = useCallback((url: string): boolean => {
-    if (!url) {
-      return false;
+  const detectFormat = (url: string): PayloadFormat => {
+    const endpoint = url.trim();
+    if (!endpoint) {
+      return "json";
     }
     try {
-      const urlObj = new URL(url);
-      return VALID_DISCORD_DOMAINS.some((domain) => urlObj.hostname === domain);
-    } catch {
-      return false;
-    }
-  }, []);
-
-  const isSlackUrl = useCallback((url: string): boolean => {
-    if (!url) {
-      return false;
-    }
-    try {
-      const urlObj = new URL(url);
-      return VALID_SLACK_DOMAINS.some((domain) => urlObj.hostname === domain);
-    } catch {
-      return false;
-    }
-  }, []);
-
-  useEffect(() => {
-    const endpoint = debouncedEndpoint?.trim();
-    let nextFormat: PayloadFormat = "json";
-    if (endpoint) {
-      if (isDiscordUrl(endpoint)) {
-        nextFormat = "discord";
-      } else if (isSlackUrl(endpoint)) {
-        nextFormat = "slack";
+      const urlObj = new URL(endpoint);
+      if (VALID_DISCORD_DOMAINS.some((domain) => urlObj.hostname === domain)) {
+        return "discord";
       }
+      if (VALID_SLACK_DOMAINS.some((domain) => urlObj.hostname === domain)) {
+        return "slack";
+      }
+    } catch {
+      // invalid URL
     }
-    if (watch("format") !== nextFormat) {
-      setValue("format", nextFormat);
-    }
-  }, [debouncedEndpoint, setValue, watch, isDiscordUrl, isSlackUrl]);
+    return "json";
+  };
 
   const { mutate: updateWebhook, isPending: isUpdating } = useMutation({
     mutationFn: (data: WebhookFormValues) =>
@@ -255,7 +232,11 @@ export function EditWebhookSheet({
               <Input
                 id="endpoint"
                 placeholder="https://marblecms.com/webhooks/"
-                {...register("endpoint")}
+                {...register("endpoint", {
+                  onChange: (e) => {
+                    setValue("format", detectFormat(e.target.value));
+                  },
+                })}
               />
               {errors.endpoint && (
                 <p className="text-destructive text-sm">
@@ -273,7 +254,7 @@ export function EditWebhookSheet({
                     setValue("format", value);
                   }
                 }}
-                value={watch("format")}
+                value={watchedFormat}
               >
                 <SelectTrigger className="w-full shadow-none">
                   <SelectValue />

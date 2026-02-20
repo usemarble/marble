@@ -31,7 +31,7 @@ export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
   useEffect(() => {
     if (waitingSeconds > 0) {
       const timeout = setTimeout(() => {
-        setWaitingSeconds(waitingSeconds - 1);
+        setWaitingSeconds((prev) => prev - 1);
       }, 1000);
       return () => clearTimeout(timeout);
     }
@@ -51,11 +51,10 @@ export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
       toast.success("Verification code sent!");
     } catch {
       toast.error("Failed to resend code. Please try again.");
-    } finally {
-      setWaitingSeconds(30);
-      setIsResendLoading(false);
-      setIsResendSuccess(true);
     }
+    setWaitingSeconds(30);
+    setIsResendLoading(false);
+    setIsResendSuccess(true);
   };
 
   const handleVerifyOtp = async () => {
@@ -74,9 +73,8 @@ export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
       }
     } catch {
       toast.error("Invalid verification code. Please try again.");
-    } finally {
-      setIsLoading(false);
     }
+    setIsLoading(false);
   };
 
   return (

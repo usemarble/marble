@@ -1,21 +1,20 @@
 ---
-import { Image } from "astro:assets";
-import { YOUTUBE_VIDEO_ID } from "@marble/utils";
-import heroImage from "@/assets/images/hero.png";
-import Container from "@/components/Container.astro";
-import Pricing from "@/components/sections/Pricing.astro";
-import AccordionItem from "@/components/ui/AccordionItem.astro";
-import Button from "@/components/ui/Button.astro";
-import Layout from "@/layouts/Layout.astro";
-import { FAQs } from "@/lib/constants/faqs";
-import { FEATURES, REVIEWS, USERS } from "@/lib/constants/landing";
-import { SITE } from "@/lib/constants/site";
-import { HERO } from "@/lib/site";
-import { cn } from "@/lib/utils";
+  import { Image } from "astro:assets";
+  import { YOUTUBE_VIDEO_ID } from "@marble/utils";
+  import heroImage from "@/assets/images/hero.png";
+  import Container from "@/components/Container.astro";
+  import Pricing from "@/components/sections/Pricing.astro";
+  import AccordionItem from "@/components/ui/AccordionItem.astro";
+  import ButtonComponent from "@/components/ui/Button.astro";
+  import Layout from "@/layouts/Layout.astro";
+  import { FAQs } from "@/lib/constants/faqs";
+  import { FEATURES, REVIEWS, USERS } from "@/lib/constants/landing";
+  import { SITE } from "@/lib/constants/site";
+  import { HERO } from "@/lib/site";
+  import { cn } from "@/lib/utils";
 
-const YOUTUBE_WATCH_URL = `https://www.youtube.com/watch?v=${YOUTUBE_VIDEO_ID}`;
+  const YOUTUBE_WATCH_URL = `https://www.youtube.com/watch?v=${YOUTUBE_VIDEO_ID}`;
 ---
-
 <Layout
   title={`${SITE.TITLE} - Super Simple Headless CMS`}
   description={SITE.DESCRIPTION}
@@ -43,21 +42,21 @@ const YOUTUBE_WATCH_URL = `https://www.youtube.com/watch?v=${YOUTUBE_VIDEO_ID}`;
             <div
               class="flex flex-col sm:flex-row w-full items-center justify-center gap-4"
             >
-              <Button
+              <ButtonComponent
                 href={SITE.APP_URL}
                 target="_blank"
                 class="w-full sm:w-auto"
               >
                 Publish your first post
-              </Button>
-              <Button
+              </ButtonComponent>
+              <ButtonComponent
                 href={YOUTUBE_WATCH_URL}
                 target="_blank"
                 variant="secondary"
                 class="w-full sm:w-auto"
               >
                 Watch Demo
-              </Button>
+              </ButtonComponent>
             </div>
           </div>
           <div class="w-full overflow-hidden rounded-[8px] aspect-video">
@@ -211,7 +210,7 @@ const YOUTUBE_WATCH_URL = `https://www.youtube.com/watch?v=${YOUTUBE_VIDEO_ID}`;
     </section>
 
     <!-- Pricing section -->
-    <Pricing />
+    <Pricing/>
 
     <!-- FAQ -->
     <section>
@@ -266,20 +265,20 @@ const YOUTUBE_WATCH_URL = `https://www.youtube.com/watch?v=${YOUTUBE_VIDEO_ID}`;
             <div
               class="flex flex-col sm:flex-row w-full items-center justify-center gap-4"
             >
-              <Button
+              <ButtonComponent
                 href={SITE.APP_URL}
                 target="_blank"
                 class="w-full sm:w-auto"
               >
                 Try Marble for free
-              </Button>
-              <Button
+              </ButtonComponent>
+              <ButtonComponent
                 href={YOUTUBE_WATCH_URL}
                 variant="secondary"
                 class="w-full sm:w-auto"
               >
                 Watch Demo
-              </Button>
+              </ButtonComponent>
             </div>
           </div>
         </Container>

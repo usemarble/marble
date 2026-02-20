@@ -122,8 +122,10 @@ interface MediaDropzoneProps
   };
 }
 
+const EMPTY_PLACEHOLDER: MediaDropzoneProps["placeholder"] = {};
+
 export function MediaDropzone({
-  placeholder = {},
+  placeholder = EMPTY_PLACEHOLDER,
   ...props
 }: MediaDropzoneProps) {
   return (
@@ -131,10 +133,11 @@ export function MediaDropzone({
       accept={MEDIA_DROPZONE_ACCEPT}
       placeholder={{
         idle:
-          placeholder.idle || "Drag & drop a media here, or click to select",
-        active: placeholder.active || "Drop the media here...",
+          placeholder?.idle || "Drag & drop a media here, or click to select",
+        active: placeholder?.active || "Drop the media here...",
         subtitle:
-          placeholder.subtitle || "Supports all common image and video formats",
+          placeholder?.subtitle ||
+          "Supports all common image and video formats",
       }}
       {...props}
     />
@@ -142,7 +145,7 @@ export function MediaDropzone({
 }
 
 export function ImageDropzone({
-  placeholder = {},
+  placeholder = EMPTY_PLACEHOLDER,
   ...props
 }: MediaDropzoneProps) {
   return (
@@ -150,9 +153,10 @@ export function ImageDropzone({
       accept={{ "image/*": IMAGE_DROPZONE_ACCEPT }}
       placeholder={{
         idle:
-          placeholder.idle || "Drag & drop an image here, or click to select",
-        active: placeholder.active || "Drop the image here...",
-        subtitle: placeholder.subtitle || "Supports JPEG, PNG, GIF, WebP, AVIF",
+          placeholder?.idle || "Drag & drop an image here, or click to select",
+        active: placeholder?.active || "Drop the image here...",
+        subtitle:
+          placeholder?.subtitle || "Supports JPEG, PNG, GIF, WebP, AVIF",
       }}
       {...props}
     />

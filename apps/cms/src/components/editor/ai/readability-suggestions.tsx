@@ -64,7 +64,7 @@ function ReadabilitySuggestionsBase({
         <p className="text-muted-foreground text-sm">Generating suggestions…</p>
       ) : suggestions.length > 0 ? (
         <div className="space-y-3">
-          {suggestions.map((suggestion, index) => (
+          {suggestions.map((suggestion) => (
             <button
               className={cn(
                 "text-left text-muted-foreground text-sm leading-relaxed transition-colors",
@@ -72,7 +72,7 @@ function ReadabilitySuggestionsBase({
                   ? "cursor-pointer hover:text-foreground"
                   : ""
               )}
-              key={`${suggestion.text}-${index}`}
+              key={`${suggestion.text}-${suggestion.textReference ?? ""}`}
               onClick={() => {
                 if (suggestion.textReference && editor) {
                   highlightTextInEditor(editor, suggestion.textReference);

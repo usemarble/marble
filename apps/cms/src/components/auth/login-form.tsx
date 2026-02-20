@@ -64,10 +64,9 @@ export function LoginForm() {
         }
       );
     } catch (_error) {
-      return toast("Login failed. Please try again.");
-    } finally {
-      setIsCredentialsLoading(false);
+      toast("Login failed. Please try again.");
     }
+    setIsCredentialsLoading(false);
   }
 
   const handleSocialSignIn = async (provider: "google" | "github") => {
@@ -83,14 +82,13 @@ export function LoginForm() {
         callbackURL,
       });
     } catch (_error) {
-      return toast("Sign in failed. Please try again.");
-    } finally {
-      setLastUsedAuthMethod(provider);
-      if (provider === "google") {
-        setIsGoogleLoading(false);
-      } else {
-        setIsGithubLoading(false);
-      }
+      toast("Sign in failed. Please try again.");
+    }
+    setLastUsedAuthMethod(provider);
+    if (provider === "google") {
+      setIsGoogleLoading(false);
+    } else {
+      setIsGithubLoading(false);
     }
   };
 
@@ -178,7 +176,7 @@ export function LoginForm() {
                 {...register("password")}
               />
               <button
-                className="absolute top-1/2 right-4 -translate-y-1/2 text-muted-foreground"
+                className="-translate-y-1/2 absolute top-1/2 right-4 text-muted-foreground"
                 onClick={() => setIsPasswordVisible((prev) => !prev)}
                 type="button"
               >

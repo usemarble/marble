@@ -1,22 +1,21 @@
 ---
-import { Image } from "astro:assets";
-import type { CollectionEntry } from "astro:content";
+  import { Image } from "astro:assets";
+  import type { CollectionEntry } from "astro:content";
 
-interface Props {
-  entry: CollectionEntry<"posts">;
-}
+  interface Props {
+    entry: CollectionEntry<"posts">;
+  }
 
-const { entry } = Astro.props as Props;
-const { title, description, coverImage, publishedAt, authors, slug } =
-  entry.data;
+  const { entry } = Astro.props as Props;
+  const { title, description, coverImage, publishedAt, authors, slug } =
+    entry.data;
 
-const formattedDate = new Date(publishedAt).toLocaleDateString("en-US", {
-  day: "2-digit",
-  month: "2-digit",
-  year: "numeric",
-});
+  const formattedDate = new Date(publishedAt).toLocaleDateString("en-US", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
 ---
-
 <li class="border-b border-r border-dashed bg-white h-full group">
   <a
     href={`/blog/${slug}`}

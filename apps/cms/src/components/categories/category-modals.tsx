@@ -30,7 +30,6 @@ import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { Textarea } from "@marble/ui/components/textarea";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/auth/error-message";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
@@ -65,7 +64,6 @@ export const CategoryModal = ({
     register,
     handleSubmit,
     setValue,
-    watch,
     reset,
     formState: { errors, isSubmitting },
   } = useForm<CreateCategoryValues>({
@@ -77,29 +75,21 @@ export const CategoryModal = ({
     },
   });
 
-  const { name } = watch();
   const workspaceId = useWorkspaceId();
 
   const { mutate: createCategory, isPending: isCreating } = useMutation({
     mutationFn: async (data: CreateCategoryValues) => {
-      try {
-        const res = await fetch("/api/categories", {
-          method: "POST",
-          body: JSON.stringify(data),
-        });
+      const res = await fetch("/api/categories", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
 
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          throw new Error(err.error || "Failed to create category");
-        }
-
-        const responseData = await res.json();
-        return responseData;
-      } catch (error) {
-        throw new Error(
-          error instanceof Error ? error.message : "Failed to create category"
-        );
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Failed to create category");
       }
+
+      return res.json();
     },
     onSuccess: (data) => {
       setOpen(false);
@@ -120,24 +110,17 @@ export const CategoryModal = ({
 
   const { mutate: updateCategory, isPending: isUpdating } = useMutation({
     mutationFn: async (data: CreateCategoryValues) => {
-      try {
-        const res = await fetch(`/api/categories/${categoryData.id}`, {
-          method: "PATCH",
-          body: JSON.stringify(data),
-        });
+      const res = await fetch(`/api/categories/${categoryData.id}`, {
+        method: "PATCH",
+        body: JSON.stringify(data),
+      });
 
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          throw new Error(err.error || "Failed to update category");
-        }
-
-        const responseData = await res.json();
-        return responseData;
-      } catch (error) {
-        throw new Error(
-          error instanceof Error ? error.message : "Failed to update category"
-        );
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Failed to update category");
       }
+
+      return res.json();
     },
     onSuccess: () => {
       setOpen(false);
@@ -153,12 +136,6 @@ export const CategoryModal = ({
       toast.error(error.message);
     },
   });
-
-  useEffect(() => {
-    if (mode === "create") {
-      setValue("slug", generateSlug(name));
-    }
-  }, [mode, name, setValue]);
 
   const onSubmit = async (data: CreateCategoryValues) => {
     if (!workspaceId) {
@@ -205,7 +182,13 @@ export const CategoryModal = ({
               <Label htmlFor="category-name">Name</Label>
               <Input
                 id="category-name"
-                {...register("name")}
+                {...register("name", {
+                  onChange: (e) => {
+                    if (mode === "create") {
+                      setValue("slug", generateSlug(e.target.value));
+                    }
+                  },
+                })}
                 placeholder="The name of the category"
               />
               {errors.name && (

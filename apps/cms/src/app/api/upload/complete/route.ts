@@ -31,22 +31,14 @@ export async function POST(request: Request) {
   try {
     switch (type) {
       case "avatar": {
-        const userId = sessionData.session.userId;
-        await db.user.update({
-          where: { id: userId },
-          data: { image: url },
-        });
-        return NextResponse.json({ avatarUrl: url });
-      }
-      case "author-avatar": {
-        return NextResponse.json({ avatarUrl: url });
+        return NextResponse.json({ url });
       }
       case "logo": {
         await db.organization.update({
           where: { id: workspaceId },
           data: { logo: url },
         });
-        return NextResponse.json({ logoUrl: url });
+        return NextResponse.json({ url });
       }
       case "media": {
         const mediaName = parsedBody.data.name;

@@ -2,6 +2,7 @@ import { db } from "@marble/db";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
+import { invalidateCache } from "@/lib/cache/invalidate";
 import { getLastVisitedWorkspace } from "@/utils/workspace/client";
 
 export async function GET(request: Request) {
@@ -30,6 +31,10 @@ export async function GET(request: Request) {
       select: { slug: true },
     });
     workspaceSlug = workspace?.slug;
+  }
+
+  if (authInfo.session.activeOrganizationId) {
+    invalidateCache(authInfo.session.activeOrganizationId as string, "usage");
   }
 
   if (workspaceSlug) {

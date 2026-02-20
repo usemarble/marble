@@ -3,14 +3,23 @@ import { createClient } from "@marble/db/workers";
 import { cacheKey, createCacheClient, hashQueryParams } from "../lib/cache";
 import { requireWorkspaceId } from "../lib/workspace";
 import {
+  ConflictSchema,
+  DeleteResponseSchema,
   ErrorSchema,
+  ForbiddenSchema,
   LimitQuerySchema,
   NotFoundSchema,
   PageNotFoundSchema,
   PageQuerySchema,
   ServerErrorSchema,
 } from "../schemas/common";
-import { TagResponseSchema, TagsListResponseSchema } from "../schemas/tags";
+import {
+  CreateTagBodySchema,
+  CreateTagResponseSchema,
+  TagResponseSchema,
+  TagsListResponseSchema,
+  UpdateTagBodySchema,
+} from "../schemas/tags";
 import type { Env } from "../types/env";
 
 const tags = new OpenAPIHono<{ Bindings: Env }>();
@@ -74,6 +83,42 @@ const getTagRoute = createRoute({
     404: {
       content: { "application/json": { schema: NotFoundSchema } },
       description: "Tag not found",
+    },
+    500: {
+      content: { "application/json": { schema: ServerErrorSchema } },
+      description: "Server error",
+    },
+  },
+});
+
+const createTagRoute = createRoute({
+  method: "post",
+  path: "/",
+  tags: ["Tags"],
+  summary: "Create tag",
+  description: "Create a new tag. Requires a private API key.",
+  request: {
+    body: {
+      content: { "application/json": { schema: CreateTagBodySchema } },
+      required: true,
+    },
+  },
+  responses: {
+    201: {
+      content: { "application/json": { schema: CreateTagResponseSchema } },
+      description: "Tag created successfully",
+    },
+    400: {
+      content: { "application/json": { schema: ErrorSchema } },
+      description: "Invalid request body",
+    },
+    403: {
+      content: { "application/json": { schema: ForbiddenSchema } },
+      description: "Public API key used for write operation",
+    },
+    409: {
+      content: { "application/json": { schema: ConflictSchema } },
+      description: "Tag with this slug already exists",
     },
     500: {
       content: { "application/json": { schema: ServerErrorSchema } },
@@ -241,6 +286,258 @@ tags.openapi(getTagRoute, async (c) => {
   } catch (error) {
     console.error("Error fetching tag:", error);
     return c.json({ error: "Failed to fetch tag" }, 500 as const);
+  }
+});
+
+tags.openapi(createTagRoute, async (c) => {
+  try {
+    const db = createClient(c.env.DATABASE_URL);
+    const workspaceId = requireWorkspaceId(c);
+    const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
+    const body = c.req.valid("json");
+
+    // Check for slug uniqueness within workspace
+    const existingTag = await db.tag.findFirst({
+      where: {
+        slug: body.slug,
+        workspaceId,
+      },
+    });
+
+    if (existingTag) {
+      return c.json(
+        {
+          error: "Slug already in use",
+          message: "A tag with this slug already exists in this workspace",
+        },
+        409 as const
+      );
+    }
+
+    const tagCreated = await db.tag.create({
+      data: {
+        name: body.name,
+        slug: body.slug,
+        description: body.description ?? null,
+        workspaceId,
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+      },
+    });
+
+    // Invalidate cache for tags and posts
+    await cache.invalidateResource(workspaceId, "tags");
+    await cache.invalidateResource(workspaceId, "posts");
+
+    return c.json({ tag: tagCreated }, 201 as const);
+  } catch (error) {
+    console.error("Error creating tag:", error);
+    return c.json(
+      {
+        error: "Failed to create tag",
+        message: "An unexpected error occurred",
+      },
+      500 as const
+    );
+  }
+});
+
+const updateTagRoute = createRoute({
+  method: "patch",
+  path: "/{identifier}",
+  tags: ["Tags"],
+  summary: "Update tag",
+  description:
+    "Update an existing tag by ID or slug. Requires a private API key.",
+  request: {
+    params: TagParamsSchema,
+    body: {
+      content: { "application/json": { schema: UpdateTagBodySchema } },
+      required: true,
+    },
+  },
+  responses: {
+    200: {
+      content: { "application/json": { schema: CreateTagResponseSchema } },
+      description: "Tag updated successfully",
+    },
+    400: {
+      content: { "application/json": { schema: ErrorSchema } },
+      description: "Invalid request body",
+    },
+    403: {
+      content: { "application/json": { schema: ForbiddenSchema } },
+      description: "Public API key used for write operation",
+    },
+    404: {
+      content: { "application/json": { schema: NotFoundSchema } },
+      description: "Tag not found",
+    },
+    409: {
+      content: { "application/json": { schema: ConflictSchema } },
+      description: "Tag with this slug already exists",
+    },
+    500: {
+      content: { "application/json": { schema: ServerErrorSchema } },
+      description: "Server error",
+    },
+  },
+});
+
+const deleteTagRoute = createRoute({
+  method: "delete",
+  path: "/{identifier}",
+  tags: ["Tags"],
+  summary: "Delete tag",
+  description: "Delete a tag by ID or slug. Requires a private API key.",
+  request: {
+    params: TagParamsSchema,
+  },
+  responses: {
+    200: {
+      content: { "application/json": { schema: DeleteResponseSchema } },
+      description: "Tag deleted successfully",
+    },
+    403: {
+      content: { "application/json": { schema: ForbiddenSchema } },
+      description: "Public API key used for write operation",
+    },
+    404: {
+      content: { "application/json": { schema: NotFoundSchema } },
+      description: "Tag not found",
+    },
+    500: {
+      content: { "application/json": { schema: ServerErrorSchema } },
+      description: "Server error",
+    },
+  },
+});
+
+tags.openapi(updateTagRoute, async (c) => {
+  try {
+    const db = createClient(c.env.DATABASE_URL);
+    const workspaceId = requireWorkspaceId(c);
+    const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
+    const { identifier } = c.req.valid("param");
+    const body = c.req.valid("json");
+
+    // Find the tag first
+    const existingTag = await db.tag.findFirst({
+      where: {
+        workspaceId,
+        OR: [{ id: identifier }, { slug: identifier }],
+      },
+    });
+
+    if (!existingTag) {
+      return c.json(
+        {
+          error: "Tag not found",
+          message: "The requested tag does not exist",
+        },
+        404 as const
+      );
+    }
+
+    // If slug is being changed, check uniqueness
+    if (body.slug && body.slug !== existingTag.slug) {
+      const slugConflict = await db.tag.findFirst({
+        where: {
+          slug: body.slug,
+          workspaceId,
+          id: { not: existingTag.id },
+        },
+      });
+
+      if (slugConflict) {
+        return c.json(
+          {
+            error: "Slug already in use",
+            message: "A tag with this slug already exists in this workspace",
+          },
+          409 as const
+        );
+      }
+    }
+
+    const tagUpdated = await db.tag.update({
+      where: { id: existingTag.id },
+      data: {
+        ...(body.name !== undefined && { name: body.name }),
+        ...(body.slug !== undefined && { slug: body.slug }),
+        ...(body.description !== undefined && {
+          description: body.description,
+        }),
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+      },
+    });
+
+    await cache.invalidateResource(workspaceId, "tags");
+    await cache.invalidateResource(workspaceId, "posts");
+
+    return c.json({ tag: tagUpdated }, 200 as const);
+  } catch (error) {
+    console.error("Error updating tag:", error);
+    return c.json(
+      {
+        error: "Failed to update tag",
+        message: "An unexpected error occurred",
+      },
+      500 as const
+    );
+  }
+});
+
+tags.openapi(deleteTagRoute, async (c) => {
+  try {
+    const db = createClient(c.env.DATABASE_URL);
+    const workspaceId = requireWorkspaceId(c);
+    const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
+    const { identifier } = c.req.valid("param");
+
+    const existingTag = await db.tag.findFirst({
+      where: {
+        workspaceId,
+        OR: [{ id: identifier }, { slug: identifier }],
+      },
+    });
+
+    if (!existingTag) {
+      return c.json(
+        {
+          error: "Tag not found",
+          message: "The requested tag does not exist",
+        },
+        404 as const
+      );
+    }
+
+    await db.tag.delete({
+      where: { id: existingTag.id },
+    });
+
+    await cache.invalidateResource(workspaceId, "tags");
+    await cache.invalidateResource(workspaceId, "posts");
+
+    return c.json({ id: existingTag.id }, 200 as const);
+  } catch (error) {
+    console.error("Error deleting tag:", error);
+    return c.json(
+      {
+        error: "Failed to delete tag",
+        message: "An unexpected error occurred",
+      },
+      500 as const
+    );
   }
 });
 

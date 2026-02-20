@@ -1,26 +1,25 @@
 ---
-import { SITE } from "@/lib/constants/site";
-import "@/styles/globals.css";
-import { Font } from "astro:assets";
-import { getSecret } from "astro:env/server";
-import { ClientRouter } from "astro:transitions";
+  import { SITE } from "@/lib/constants/site";
+  import "@/styles/globals.css";
+  import { Font } from "astro:assets";
+  import { getSecret } from "astro:env/server";
+  import { ClientRouter } from "astro:transitions";
 
-interface Props {
-  title: string;
-  description: string;
-  image?: string;
-  canonical?: string;
-}
+  interface Props {
+    title: string;
+    description: string;
+    image?: string;
+    canonical?: string;
+  }
 
-const { title, description, image = "/og.webp", canonical } = Astro.props;
+  const { title, description, image = "/og.webp", canonical } = Astro.props;
 
-const canonicalURL = canonical
-  ? new URL(canonical, Astro.site)
-  : new URL(Astro.url.pathname, Astro.site);
+  const canonicalURL = canonical
+    ? new URL(canonical, Astro.site)
+    : new URL(Astro.url.pathname, Astro.site);
 
-const databuddyClientId = getSecret("DATABUDDY_CLIENT_ID");
+  const databuddyClientId = getSecret("DATABUDDY_CLIENT_ID");
 ---
-
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -72,7 +71,7 @@ const databuddyClientId = getSecret("DATABUDDY_CLIENT_ID");
   />
 )}
 
-<Font cssVariable="--font-geist" preload />
-<Font cssVariable="--font-literata" />
+<Font cssVariable="--font-geist" preload/>
+<Font cssVariable="--font-literata"/>
 
-<ClientRouter />
+<ClientRouter/>

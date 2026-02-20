@@ -21,7 +21,7 @@ import {
 } from "@marble/ui/components/sheet";
 import { toast } from "@marble/ui/components/sonner";
 import { CalendarIcon } from "@phosphor-icons/react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { organization } from "@/lib/auth/client";
 import { AsyncButton } from "../ui/async-button";
 import type { TeamMemberRow } from "./columns";
@@ -36,10 +36,7 @@ export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
   const [role, setRole] = useState(member.role);
   const [loading, setLoading] = useState(false);
 
-  const settingsChanges = useMemo(
-    () => role !== member.role,
-    [role, member.role]
-  );
+  const settingsChanges = role !== member.role;
 
   async function handleSave() {
     setLoading(true);

@@ -1,5 +1,3 @@
-/** biome-ignore-all lint/performance/noImgElement: <> */
-/** biome-ignore-all lint/correctness/useImageSize: <> */
 "use client";
 
 import {
@@ -12,7 +10,7 @@ import {
 } from "@phosphor-icons/react";
 import { formatDistanceToNow } from "date-fns";
 import { AnimatePresence, motion } from "motion/react";
-import { type RefObject, useEffect, useRef, useState } from "react";
+import { type RefObject, useEffect, useId, useRef, useState } from "react";
 import { useOnClickOutside } from "usehooks-ts";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import type { UsageDashboardData } from "@/types/dashboard";
@@ -40,13 +38,14 @@ function getMediaTypeIcon(type: string) {
 }
 
 export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
+  "use no memo"; // React Compiler affects layout measurement timing for Motion layoutId open animation
   const recentUploads = data?.recentUploads ?? [];
   const [selectedFile, setSelectedFile] = useState<Media | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   useOnClickOutside(dialogRef as RefObject<HTMLDivElement>, () =>
     setSelectedFile(null)
   );
-  const mountKeyRef = useRef(Math.random().toString(36));
+  const mountKey = useId();
 
   useEffect(() => {
     function handleClose(event: KeyboardEvent) {
@@ -70,7 +69,7 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
 
   return (
     <div className="flex flex-col gap-4 rounded-[20px] border border-none bg-surface p-2 text-card-foreground">
-      <AnimatePresence key={mountKeyRef.current} mode="wait">
+      <AnimatePresence key={mountKey} mode="wait">
         {selectedFile ? (
           <>
             <motion.div
@@ -145,6 +144,7 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
                         initial={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
                       >
+                        {/** biome-ignore lint/performance/noImgElement: <> */}
                         <img
                           alt={selectedFile.name}
                           className="h-auto max-h-[60vh] w-full object-contain"

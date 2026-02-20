@@ -1,17 +1,16 @@
 ---
-import { PRICING_PLANS } from "@marble/utils";
-import Container from "@/components/Container.astro";
-import AccordionItem from "@/components/ui/AccordionItem.astro";
-import Button from "@/components/ui/Button.astro";
-import Layout from "@/layouts/Layout.astro";
-import { PRICING_FAQS } from "@/lib/constants/faqs";
-import { SITE } from "@/lib/constants/site";
-import { cn } from "@/lib/utils";
+  import { PRICING_PLANS } from "@marble/utils";
+  import Container from "@/components/Container.astro";
+  import AccordionItem from "@/components/ui/AccordionItem.astro";
+  import Button from "@/components/ui/Button.astro";
+  import Layout from "@/layouts/Layout.astro";
+  import { PRICING_FAQS } from "@/lib/constants/faqs";
+  import { SITE } from "@/lib/constants/site";
+  import { cn } from "@/lib/utils";
 
-// Calculate yearly monthly equivalent for display
-const yearlyMonthlyPrice = "$16";
+  // Calculate yearly monthly equivalent for display
+  const yearlyMonthlyPrice = "$16";
 ---
-
 <Layout
   title={`Pricing - ${SITE.TITLE}`}
   description="Pricing plans for marble."
