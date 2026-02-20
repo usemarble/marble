@@ -336,8 +336,10 @@ categories.openapi(createCategoryRoute, async (c) => {
     });
 
     // Invalidate cache for categories and posts
-    await cache.invalidateResource(workspaceId, "categories");
-    await cache.invalidateResource(workspaceId, "posts");
+    c.executionCtx.waitUntil(
+      cache.invalidateResource(workspaceId, "categories")
+    );
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
 
     return c.json({ category: categoryCreated }, 201 as const);
   } catch (error) {
@@ -495,8 +497,10 @@ categories.openapi(updateCategoryRoute, async (c) => {
       },
     });
 
-    await cache.invalidateResource(workspaceId, "categories");
-    await cache.invalidateResource(workspaceId, "posts");
+    c.executionCtx.waitUntil(
+      cache.invalidateResource(workspaceId, "categories")
+    );
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
 
     return c.json({ category: categoryUpdated }, 200 as const);
   } catch (error) {
@@ -554,8 +558,10 @@ categories.openapi(deleteCategoryRoute, async (c) => {
       where: { id: existingCategory.id },
     });
 
-    await cache.invalidateResource(workspaceId, "categories");
-    await cache.invalidateResource(workspaceId, "posts");
+    c.executionCtx.waitUntil(
+      cache.invalidateResource(workspaceId, "categories")
+    );
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
 
     return c.json({ id: existingCategory.id }, 200 as const);
   } catch (error) {

@@ -330,8 +330,8 @@ tags.openapi(createTagRoute, async (c) => {
     });
 
     // Invalidate cache for tags and posts
-    await cache.invalidateResource(workspaceId, "tags");
-    await cache.invalidateResource(workspaceId, "posts");
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "tags"));
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
 
     return c.json({ tag: tagCreated }, 201 as const);
   } catch (error) {
@@ -481,8 +481,8 @@ tags.openapi(updateTagRoute, async (c) => {
       },
     });
 
-    await cache.invalidateResource(workspaceId, "tags");
-    await cache.invalidateResource(workspaceId, "posts");
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "tags"));
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
 
     return c.json({ tag: tagUpdated }, 200 as const);
   } catch (error) {
@@ -525,8 +525,8 @@ tags.openapi(deleteTagRoute, async (c) => {
       where: { id: existingTag.id },
     });
 
-    await cache.invalidateResource(workspaceId, "tags");
-    await cache.invalidateResource(workspaceId, "posts");
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "tags"));
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
 
     return c.json({ id: existingTag.id }, 200 as const);
   } catch (error) {

@@ -36,3 +36,8 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+
+# Agent skills (install locally via npx skills add)
+.agents/skills/
+.agent/skills/
+.cursor/skills/

@@ -816,10 +816,12 @@ posts.openapi(createPostRoute, async (c) => {
     });
 
     // 7. Invalidate cache
-    await cache.invalidateResource(workspaceId, "posts");
-    await cache.invalidateResource(workspaceId, "tags");
-    await cache.invalidateResource(workspaceId, "categories");
-    await cache.invalidateResource(workspaceId, "authors");
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "tags"));
+    c.executionCtx.waitUntil(
+      cache.invalidateResource(workspaceId, "categories")
+    );
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
 
     return c.json({ post: postCreated }, 201 as const);
   } catch (error) {
@@ -1101,10 +1103,12 @@ posts.openapi(updatePostRoute, async (c) => {
     });
 
     // 7. Invalidate cache
-    await cache.invalidateResource(workspaceId, "posts");
-    await cache.invalidateResource(workspaceId, "tags");
-    await cache.invalidateResource(workspaceId, "categories");
-    await cache.invalidateResource(workspaceId, "authors");
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "tags"));
+    c.executionCtx.waitUntil(
+      cache.invalidateResource(workspaceId, "categories")
+    );
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
 
     return c.json({ post: postUpdated }, 200 as const);
   } catch (error) {
@@ -1148,10 +1152,12 @@ posts.openapi(deletePostRoute, async (c) => {
       where: { id: existingPost.id },
     });
 
-    await cache.invalidateResource(workspaceId, "posts");
-    await cache.invalidateResource(workspaceId, "tags");
-    await cache.invalidateResource(workspaceId, "categories");
-    await cache.invalidateResource(workspaceId, "authors");
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "tags"));
+    c.executionCtx.waitUntil(
+      cache.invalidateResource(workspaceId, "categories")
+    );
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
 
     return c.json({ id: existingPost.id }, 200 as const);
   } catch (error) {

@@ -406,7 +406,7 @@ authors.openapi(createAuthorRoute, async (c) => {
       },
     });
 
-    await cache.invalidateResource(workspaceId, "authors");
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
 
     return c.json({ author }, 201 as const);
   } catch (error) {
@@ -547,8 +547,8 @@ authors.openapi(updateAuthorRoute, async (c) => {
       },
     });
 
-    await cache.invalidateResource(workspaceId, "authors");
-    await cache.invalidateResource(workspaceId, "posts");
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
 
     return c.json({ author: updatedAuthor }, 200 as const);
   } catch (error) {
@@ -622,8 +622,8 @@ authors.openapi(deleteAuthorRoute, async (c) => {
       where: { id: existingAuthor.id },
     });
 
-    await cache.invalidateResource(workspaceId, "authors");
-    await cache.invalidateResource(workspaceId, "posts");
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
 
     return c.json({ id: existingAuthor.id }, 200 as const);
   } catch (error) {
