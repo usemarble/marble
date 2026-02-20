@@ -81,7 +81,7 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
               <motion.div
                 aria-labelledby={`file-name-${selectedFile.id}`}
                 aria-modal="true"
-                className="pointer-events-auto z-50 h-fit max-h-[90vh] w-full max-w-[600px] overflow-y-auto rounded-[20px] bg-background p-3 shadow-sm sm:w-[600px] sm:max-w-[calc(100vw-20rem)]"
+                className="pointer-events-auto z-50 h-fit max-h-[90vh] w-full max-w-[600px] overflow-y-auto rounded-[20px] bg-background p-3 shadow-sm sm:w-[600px] sm:max-w-[calc(100vw-var(--sidebar-width,16rem))]"
                 key={selectedFile.id}
                 layoutId={`file-${selectedFile.id}`}
                 ref={dialogRef}
@@ -154,14 +154,14 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
                         />
                       </motion.div>
                     ) : selectedFile.type === "video" ? (
-                      <div className="relative flex max-h-[60vh] w-full">
+                      <div className="relative flex aspect-video max-h-[60vh] w-full">
                         <VideoPlayer
                           className="h-auto max-h-[60vh] w-full object-contain"
                           src={selectedFile.url}
                         />
                       </div>
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-muted">
+                      <div className="flex min-h-[200px] w-full items-center justify-center bg-muted">
                         {(() => {
                           const Icon = getMediaTypeIcon(selectedFile.type);
                           return (
