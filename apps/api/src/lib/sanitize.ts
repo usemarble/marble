@@ -105,6 +105,9 @@ export const sanitizeHtml = (content: string): string => {
       if (frame.tag === "script") {
         return true;
       }
+      if (frame.tag === "input" && frame.attribs?.type !== "checkbox") {
+        return true;
+      }
       if (frame.attribs) {
         for (const attr in frame.attribs) {
           if (/^on/i.test(attr)) {

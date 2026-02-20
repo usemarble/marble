@@ -113,6 +113,7 @@ export const CreatePostBodySchema = z
       .openapi({ example: "A beginner's guide to Next.js" }),
     slug: z
       .string()
+      .slugify()
       .min(1, "Slug cannot be empty")
       .openapi({ example: "getting-started-with-nextjs" }),
     categoryId: z
@@ -137,12 +138,11 @@ export const CreatePostBodySchema = z
       }),
     featured: z.boolean().optional().default(false).openapi({ example: false }),
     coverImage: z
-      .string()
       .url()
       .nullable()
       .optional()
       .openapi({ example: "https://media.marblecms.com/cover.jpg" }),
-    publishedAt: z.string().datetime().optional().openapi({
+    publishedAt: z.iso.datetime().optional().openapi({
       example: "2024-01-15T10:00:00Z",
       description: "ISO 8601 datetime. Defaults to current time if omitted.",
     }),
@@ -192,6 +192,7 @@ export const UpdatePostBodySchema = z
       .openapi({ example: "Updated description" }),
     slug: z
       .string()
+      .slugify()
       .min(1, "Slug cannot be empty")
       .optional()
       .openapi({ example: "updated-post-slug" }),
@@ -222,13 +223,11 @@ export const UpdatePostBodySchema = z
       }),
     featured: z.boolean().optional().openapi({ example: true }),
     coverImage: z
-      .string()
       .url()
       .nullable()
       .optional()
       .openapi({ example: "https://media.marblecms.com/new-cover.jpg" }),
-    publishedAt: z
-      .string()
+    publishedAt: z.iso
       .datetime()
       .optional()
       .openapi({ example: "2024-02-01T10:00:00Z" }),

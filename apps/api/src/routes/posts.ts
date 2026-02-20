@@ -520,7 +520,7 @@ posts.openapi(listPostsRoute, async (c) => {
     return c.json(
       {
         error: "Failed to fetch posts",
-        message: error instanceof Error ? error.message : "Unknown error",
+        message: "An unexpected error occurred",
       },
       500 as const
     );
@@ -745,7 +745,8 @@ posts.openapi(createPostRoute, async (c) => {
         );
       }
 
-      authorIds = validAuthors.map((a) => a.id);
+      const validAuthorIdSet = new Set(validAuthors.map((a) => a.id));
+      authorIds = body.authors.filter((id) => validAuthorIdSet.has(id));
     } else {
       // Fallback: use the first workspace author
       const firstAuthor = await db.author.findFirst({
@@ -826,7 +827,7 @@ posts.openapi(createPostRoute, async (c) => {
     return c.json(
       {
         error: "Failed to create post",
-        message: error instanceof Error ? error.message : "Unknown error",
+        message: "An unexpected error occurred",
       },
       500 as const
     );
@@ -1035,8 +1036,12 @@ posts.openapi(updatePostRoute, async (c) => {
         );
       }
 
-      authorUpdate = { set: validAuthors.map((a) => ({ id: a.id })) };
-      primaryAuthorId = validAuthors[0].id;
+      const validAuthorIdSet = new Set(validAuthors.map((a) => a.id));
+      const orderedAuthorIds = body.authors.filter((id) =>
+        validAuthorIdSet.has(id)
+      );
+      authorUpdate = { set: orderedAuthorIds.map((id) => ({ id })) };
+      primaryAuthorId = orderedAuthorIds[0];
     }
 
     // 6. Build update data
@@ -1069,7 +1074,7 @@ posts.openapi(updatePostRoute, async (c) => {
       updateData.publishedAt = new Date(body.publishedAt);
     }
     if (body.attribution !== undefined) {
-      updateData.attribution = body.attribution ?? undefined;
+      updateData.attribution = body.attribution;
     }
     if (tagUpdate) {
       updateData.tags = tagUpdate;
@@ -1107,7 +1112,7 @@ posts.openapi(updatePostRoute, async (c) => {
     return c.json(
       {
         error: "Failed to update post",
-        message: error instanceof Error ? error.message : "Unknown error",
+        message: "An unexpected error occurred",
       },
       500 as const
     );
@@ -1154,7 +1159,7 @@ posts.openapi(deletePostRoute, async (c) => {
     return c.json(
       {
         error: "Failed to delete post",
-        message: error instanceof Error ? error.message : "Unknown error",
+        message: "An unexpected error occurred",
       },
       500 as const
     );

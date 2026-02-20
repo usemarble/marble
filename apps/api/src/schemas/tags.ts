@@ -39,6 +39,7 @@ export const CreateTagBodySchema = z
       .openapi({ example: "JavaScript" }),
     slug: z
       .string()
+      .slugify()
       .min(1, "Slug cannot be empty")
       .openapi({ example: "javascript" }),
     description: z
@@ -71,6 +72,7 @@ export const UpdateTagBodySchema = z
       .openapi({ example: "TypeScript" }),
     slug: z
       .string()
+      .slugify()
       .min(1, "Slug cannot be empty")
       .optional()
       .openapi({ example: "typescript" }),

@@ -339,7 +339,7 @@ tags.openapi(createTagRoute, async (c) => {
     return c.json(
       {
         error: "Failed to create tag",
-        message: error instanceof Error ? error.message : "Unknown error",
+        message: "An unexpected error occurred",
       },
       500 as const
     );
@@ -490,7 +490,7 @@ tags.openapi(updateTagRoute, async (c) => {
     return c.json(
       {
         error: "Failed to update tag",
-        message: error instanceof Error ? error.message : "Unknown error",
+        message: "An unexpected error occurred",
       },
       500 as const
     );
@@ -534,7 +534,7 @@ tags.openapi(deleteTagRoute, async (c) => {
     return c.json(
       {
         error: "Failed to delete tag",
-        message: error instanceof Error ? error.message : "Unknown error",
+        message: "An unexpected error occurred",
       },
       500 as const
     );

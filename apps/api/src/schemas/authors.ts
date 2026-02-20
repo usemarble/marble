@@ -77,6 +77,7 @@ export const CreateAuthorBodySchema = z
       .openapi({ example: "John Doe" }),
     slug: z
       .string()
+      .slugify()
       .min(1, "Slug is required")
       .openapi({ example: "john-doe" }),
     bio: z
@@ -131,6 +132,7 @@ export const UpdateAuthorBodySchema = z
       .openapi({ example: "John Doe" }),
     slug: z
       .string()
+      .slugify()
       .min(1, "Slug cannot be empty")
       .optional()
       .openapi({ example: "john-doe" }),
@@ -146,7 +148,6 @@ export const UpdateAuthorBodySchema = z
       .optional()
       .openapi({ example: "john@example.com" }),
     image: z
-      .string()
       .url()
       .nullable()
       .optional()

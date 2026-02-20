@@ -414,7 +414,7 @@ authors.openapi(createAuthorRoute, async (c) => {
     return c.json(
       {
         error: "Failed to create author",
-        message: error instanceof Error ? error.message : "Unknown error",
+        message: "An unexpected error occurred",
       },
       500 as const
     );
@@ -556,7 +556,7 @@ authors.openapi(updateAuthorRoute, async (c) => {
     return c.json(
       {
         error: "Failed to update author",
-        message: error instanceof Error ? error.message : "Unknown error",
+        message: "An unexpected error occurred",
       },
       500 as const
     );
@@ -631,7 +631,7 @@ authors.openapi(deleteAuthorRoute, async (c) => {
     return c.json(
       {
         error: "Failed to delete author",
-        message: error instanceof Error ? error.message : "Unknown error",
+        message: "An unexpected error occurred",
       },
       500 as const
     );

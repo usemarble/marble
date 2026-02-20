@@ -39,6 +39,7 @@ export const CreateCategoryBodySchema = z
       .openapi({ example: "Technology" }),
     slug: z
       .string()
+      .slugify()
       .min(1, "Slug cannot be empty")
       .openapi({ example: "technology" }),
     description: z
@@ -71,6 +72,7 @@ export const UpdateCategoryBodySchema = z
       .openapi({ example: "Engineering" }),
     slug: z
       .string()
+      .slugify()
       .min(1, "Slug cannot be empty")
       .optional()
       .openapi({ example: "engineering" }),

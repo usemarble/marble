@@ -345,7 +345,7 @@ categories.openapi(createCategoryRoute, async (c) => {
     return c.json(
       {
         error: "Failed to create category",
-        message: error instanceof Error ? error.message : "Unknown error",
+        message: "An unexpected error occurred",
       },
       500 as const
     );
@@ -504,7 +504,7 @@ categories.openapi(updateCategoryRoute, async (c) => {
     return c.json(
       {
         error: "Failed to update category",
-        message: error instanceof Error ? error.message : "Unknown error",
+        message: "An unexpected error occurred",
       },
       500 as const
     );
@@ -563,7 +563,7 @@ categories.openapi(deleteCategoryRoute, async (c) => {
     return c.json(
       {
         error: "Failed to delete category",
-        message: error instanceof Error ? error.message : "Unknown error",
+        message: "An unexpected error occurred",
       },
       500 as const
     );
