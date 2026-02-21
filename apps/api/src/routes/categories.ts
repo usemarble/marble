@@ -1,6 +1,6 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
-import { createClient } from "@marble/db/workers";
 import { cacheKey, createCacheClient, hashQueryParams } from "../lib/cache";
+import { createDbClient } from "../lib/db";
 import { requireWorkspaceId } from "../lib/workspace";
 import {
   CategoriesListResponseSchema,
@@ -131,9 +131,8 @@ const createCategoryRoute = createRoute({
 
 categories.openapi(listCategoriesRoute, async (c) => {
   try {
-    const url = c.env.DATABASE_URL;
     const workspaceId = requireWorkspaceId(c);
-    const db = createClient(url);
+    const db = createDbClient(c.env);
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
 
     const { limit, page } = c.req.valid("query");
@@ -237,10 +236,9 @@ categories.openapi(listCategoriesRoute, async (c) => {
 
 categories.openapi(getCategoryRoute, async (c) => {
   try {
-    const url = c.env.DATABASE_URL;
     const workspaceId = requireWorkspaceId(c);
     const { identifier } = c.req.valid("param");
-    const db = createClient(url);
+    const db = createDbClient(c.env);
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
 
     // Cache by identifier (slug or id)
@@ -296,9 +294,8 @@ categories.openapi(getCategoryRoute, async (c) => {
 
 categories.openapi(createCategoryRoute, async (c) => {
   try {
-    const url = c.env.DATABASE_URL;
     const workspaceId = requireWorkspaceId(c);
-    const db = createClient(url);
+    const db = createDbClient(c.env);
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const body = c.req.valid("json");
 
@@ -336,8 +333,10 @@ categories.openapi(createCategoryRoute, async (c) => {
     });
 
     // Invalidate cache for categories and posts
-    await cache.invalidateResource(workspaceId, "categories");
-    await cache.invalidateResource(workspaceId, "posts");
+    c.executionCtx.waitUntil(
+      cache.invalidateResource(workspaceId, "categories")
+    );
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
 
     return c.json({ category: categoryCreated }, 201 as const);
   } catch (error) {
@@ -432,9 +431,8 @@ const deleteCategoryRoute = createRoute({
 
 categories.openapi(updateCategoryRoute, async (c) => {
   try {
-    const url = c.env.DATABASE_URL;
     const workspaceId = requireWorkspaceId(c);
-    const db = createClient(url);
+    const db = createDbClient(c.env);
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const { identifier } = c.req.valid("param");
     const body = c.req.valid("json");
@@ -495,8 +493,10 @@ categories.openapi(updateCategoryRoute, async (c) => {
       },
     });
 
-    await cache.invalidateResource(workspaceId, "categories");
-    await cache.invalidateResource(workspaceId, "posts");
+    c.executionCtx.waitUntil(
+      cache.invalidateResource(workspaceId, "categories")
+    );
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
 
     return c.json({ category: categoryUpdated }, 200 as const);
   } catch (error) {
@@ -513,9 +513,8 @@ categories.openapi(updateCategoryRoute, async (c) => {
 
 categories.openapi(deleteCategoryRoute, async (c) => {
   try {
-    const url = c.env.DATABASE_URL;
     const workspaceId = requireWorkspaceId(c);
-    const db = createClient(url);
+    const db = createDbClient(c.env);
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const { identifier } = c.req.valid("param");
 
@@ -554,8 +553,10 @@ categories.openapi(deleteCategoryRoute, async (c) => {
       where: { id: existingCategory.id },
     });
 
-    await cache.invalidateResource(workspaceId, "categories");
-    await cache.invalidateResource(workspaceId, "posts");
+    c.executionCtx.waitUntil(
+      cache.invalidateResource(workspaceId, "categories")
+    );
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
 
     return c.json({ id: existingCategory.id }, 200 as const);
   } catch (error) {

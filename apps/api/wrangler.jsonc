@@ -1,0 +1,16 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "marble-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-01-20",
+  "compatibility_flags": ["nodejs_compat"],
+  "keep_vars": true,
+  "placement": { "mode": "smart" },
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+  "hyperdrive": [
+    { "binding": "HYPERDRIVE", "id": "c0eea431cc454c9b96589cd52f70a009" }
+  ]
+}

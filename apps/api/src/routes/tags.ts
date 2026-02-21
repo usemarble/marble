@@ -1,6 +1,6 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
-import { createClient } from "@marble/db/workers";
 import { cacheKey, createCacheClient, hashQueryParams } from "../lib/cache";
+import { createDbClient } from "../lib/db";
 import { requireWorkspaceId } from "../lib/workspace";
 import {
   ConflictSchema,
@@ -128,7 +128,7 @@ const createTagRoute = createRoute({
 });
 
 tags.openapi(listTagsRoute, async (c) => {
-  const db = createClient(c.env.DATABASE_URL);
+  const db = createDbClient(c.env);
   const workspaceId = requireWorkspaceId(c);
   const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
 
@@ -232,7 +232,7 @@ tags.openapi(listTagsRoute, async (c) => {
 
 tags.openapi(getTagRoute, async (c) => {
   try {
-    const db = createClient(c.env.DATABASE_URL);
+    const db = createDbClient(c.env);
     const workspaceId = requireWorkspaceId(c);
     const { identifier } = c.req.valid("param");
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
@@ -291,7 +291,7 @@ tags.openapi(getTagRoute, async (c) => {
 
 tags.openapi(createTagRoute, async (c) => {
   try {
-    const db = createClient(c.env.DATABASE_URL);
+    const db = createDbClient(c.env);
     const workspaceId = requireWorkspaceId(c);
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const body = c.req.valid("json");
@@ -330,8 +330,8 @@ tags.openapi(createTagRoute, async (c) => {
     });
 
     // Invalidate cache for tags and posts
-    await cache.invalidateResource(workspaceId, "tags");
-    await cache.invalidateResource(workspaceId, "posts");
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "tags"));
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
 
     return c.json({ tag: tagCreated }, 201 as const);
   } catch (error) {
@@ -419,7 +419,7 @@ const deleteTagRoute = createRoute({
 
 tags.openapi(updateTagRoute, async (c) => {
   try {
-    const db = createClient(c.env.DATABASE_URL);
+    const db = createDbClient(c.env);
     const workspaceId = requireWorkspaceId(c);
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const { identifier } = c.req.valid("param");
@@ -481,8 +481,8 @@ tags.openapi(updateTagRoute, async (c) => {
       },
     });
 
-    await cache.invalidateResource(workspaceId, "tags");
-    await cache.invalidateResource(workspaceId, "posts");
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "tags"));
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
 
     return c.json({ tag: tagUpdated }, 200 as const);
   } catch (error) {
@@ -499,7 +499,7 @@ tags.openapi(updateTagRoute, async (c) => {
 
 tags.openapi(deleteTagRoute, async (c) => {
   try {
-    const db = createClient(c.env.DATABASE_URL);
+    const db = createDbClient(c.env);
     const workspaceId = requireWorkspaceId(c);
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const { identifier } = c.req.valid("param");
@@ -525,8 +525,8 @@ tags.openapi(deleteTagRoute, async (c) => {
       where: { id: existingTag.id },
     });
 
-    await cache.invalidateResource(workspaceId, "tags");
-    await cache.invalidateResource(workspaceId, "posts");
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "tags"));
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
 
     return c.json({ id: existingTag.id }, 200 as const);
   } catch (error) {

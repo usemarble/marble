@@ -1,6 +1,6 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
-import { createClient } from "@marble/db/workers";
 import { cacheKey, createCacheClient, hashQueryParams } from "../lib/cache";
+import { createDbClient } from "../lib/db";
 import { requireWorkspaceId } from "../lib/workspace";
 import {
   AuthorResponseSchema,
@@ -92,9 +92,8 @@ const getAuthorRoute = createRoute({
 });
 
 authors.openapi(listAuthorsRoute, async (c) => {
-  const url = c.env.DATABASE_URL;
   const workspaceId = requireWorkspaceId(c);
-  const db = createClient(url);
+  const db = createDbClient(c.env);
   const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
 
   const { limit, page } = c.req.valid("query");
@@ -220,10 +219,9 @@ authors.openapi(listAuthorsRoute, async (c) => {
 });
 
 authors.openapi(getAuthorRoute, async (c) => {
-  const url = c.env.DATABASE_URL;
   const workspaceId = requireWorkspaceId(c);
   const { identifier } = c.req.valid("param");
-  const db = createClient(url);
+  const db = createDbClient(c.env);
   const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
 
   try {
@@ -311,7 +309,7 @@ const createAuthorRoute = createRoute({
 
 authors.openapi(createAuthorRoute, async (c) => {
   try {
-    const db = createClient(c.env.DATABASE_URL);
+    const db = createDbClient(c.env);
     const workspaceId = requireWorkspaceId(c);
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const body = c.req.valid("json");
@@ -406,7 +404,7 @@ authors.openapi(createAuthorRoute, async (c) => {
       },
     });
 
-    await cache.invalidateResource(workspaceId, "authors");
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
 
     return c.json({ author }, 201 as const);
   } catch (error) {
@@ -467,7 +465,7 @@ const updateAuthorRoute = createRoute({
 
 authors.openapi(updateAuthorRoute, async (c) => {
   try {
-    const db = createClient(c.env.DATABASE_URL);
+    const db = createDbClient(c.env);
     const workspaceId = requireWorkspaceId(c);
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const { identifier } = c.req.valid("param");
@@ -547,8 +545,8 @@ authors.openapi(updateAuthorRoute, async (c) => {
       },
     });
 
-    await cache.invalidateResource(workspaceId, "authors");
-    await cache.invalidateResource(workspaceId, "posts");
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
 
     return c.json({ author: updatedAuthor }, 200 as const);
   } catch (error) {
@@ -596,7 +594,7 @@ const deleteAuthorRoute = createRoute({
 
 authors.openapi(deleteAuthorRoute, async (c) => {
   try {
-    const db = createClient(c.env.DATABASE_URL);
+    const db = createDbClient(c.env);
     const workspaceId = requireWorkspaceId(c);
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const { identifier } = c.req.valid("param");
@@ -622,8 +620,8 @@ authors.openapi(deleteAuthorRoute, async (c) => {
       where: { id: existingAuthor.id },
     });
 
-    await cache.invalidateResource(workspaceId, "authors");
-    await cache.invalidateResource(workspaceId, "posts");
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
 
     return c.json({ id: existingAuthor.id }, 200 as const);
   } catch (error) {

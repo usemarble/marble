@@ -1,5 +1,5 @@
-import { createClient } from "@marble/db/workers";
 import type { Context, MiddlewareHandler } from "hono";
+import { createDbClient, type DbClient } from "../lib/db";
 import { createPolarClient } from "../lib/polar";
 import {
   checkApiUsage,
@@ -9,7 +9,7 @@ import {
 import type { ApiKeyApp } from "../types/env";
 
 interface AnalyticsTaskParams {
-  db: ReturnType<typeof createClient>;
+  db: ReturnType<typeof createDbClient>;
   workspaceId: string;
   endpoint: string | null;
   method: string;
@@ -112,14 +112,14 @@ async function checkUsage(
   c: Context,
   workspaceId: string
 ): Promise<UsageCheckResult | null> {
-  const { DATABASE_URL, REDIS_URL, REDIS_TOKEN } = c.env;
+  const { REDIS_URL, REDIS_TOKEN } = c.env;
 
-  if (!DATABASE_URL || !workspaceId) {
+  if (!workspaceId) {
     return null;
   }
 
   try {
-    const db = createClient(DATABASE_URL);
+    const db = createDbClient(c.env);
     const redis =
       REDIS_URL && REDIS_TOKEN
         ? { url: REDIS_URL, token: REDIS_TOKEN }
@@ -165,10 +165,12 @@ export const analytics = (): MiddlewareHandler<ApiKeyApp> => {
 
     await next();
 
-    const { DATABASE_URL, RESEND_API_KEY, POLAR_ACCESS_TOKEN, ENVIRONMENT } =
-      c.env;
+    const { RESEND_API_KEY, POLAR_ACCESS_TOKEN, ENVIRONMENT } = c.env;
 
-    if (!DATABASE_URL) {
+    let db: DbClient;
+    try {
+      db = createDbClient(c.env);
+    } catch {
       console.error("[Analytics] Database configuration error");
       return;
     }
@@ -183,8 +185,6 @@ export const analytics = (): MiddlewareHandler<ApiKeyApp> => {
     const path = c.req.path;
     const pathParts = path.split("/").filter(Boolean);
     const endpoint = pathParts.length >= 1 ? `/${pathParts.join("/")}` : null;
-
-    const db = createClient(DATABASE_URL);
 
     c.executionCtx?.waitUntil(
       runAnalyticsTask({

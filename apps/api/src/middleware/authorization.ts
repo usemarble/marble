@@ -1,10 +1,12 @@
-import { createClient } from "@marble/db/workers";
 import type { Context, MiddlewareHandler, Next } from "hono";
+import { createDbClient, type DbClient } from "../lib/db";
 
 export const authorization =
   (): MiddlewareHandler => async (c: Context, next: Next) => {
-    const { DATABASE_URL } = c.env;
-    if (!DATABASE_URL) {
+    let db: DbClient;
+    try {
+      db = createDbClient(c.env);
+    } catch {
       console.error("[Authorization] Database configuration error");
       return c.json({ error: "Internal server error" }, 500);
     }
@@ -16,7 +18,6 @@ export const authorization =
     }
 
     try {
-      const db = createClient(DATABASE_URL);
       const workspace = await db.organization.findUnique({
         where: {
           id: workspaceId,

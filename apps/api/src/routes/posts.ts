@@ -1,7 +1,7 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
-import { createClient } from "@marble/db/workers";
 import { NodeHtmlMarkdown } from "node-html-markdown";
 import { cacheKey, createCacheClient, hashQueryParams } from "../lib/cache";
+import { createDbClient } from "../lib/db";
 import { sanitizeHtml } from "../lib/sanitize";
 import { requireWorkspaceId } from "../lib/workspace";
 import {
@@ -306,9 +306,8 @@ const createPostRoute = createRoute({
 
 posts.openapi(listPostsRoute, async (c) => {
   try {
-    const url = c.env.DATABASE_URL;
     const workspaceId = requireWorkspaceId(c);
-    const db = createClient(url);
+    const db = createDbClient(c.env);
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
 
     const {
@@ -529,11 +528,10 @@ posts.openapi(listPostsRoute, async (c) => {
 
 posts.openapi(getPostRoute, async (c) => {
   try {
-    const url = c.env.DATABASE_URL;
     const workspaceId = requireWorkspaceId(c);
     const { identifier } = c.req.valid("param");
     const { format, status } = c.req.valid("query");
-    const db = createClient(url);
+    const db = createDbClient(c.env);
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
 
     const statusFilter = buildStatusFilter(status);
@@ -638,9 +636,8 @@ posts.openapi(getPostRoute, async (c) => {
 
 posts.openapi(createPostRoute, async (c) => {
   try {
-    const url = c.env.DATABASE_URL;
     const workspaceId = requireWorkspaceId(c);
-    const db = createClient(url);
+    const db = createDbClient(c.env);
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const body = c.req.valid("json");
 
@@ -816,10 +813,12 @@ posts.openapi(createPostRoute, async (c) => {
     });
 
     // 7. Invalidate cache
-    await cache.invalidateResource(workspaceId, "posts");
-    await cache.invalidateResource(workspaceId, "tags");
-    await cache.invalidateResource(workspaceId, "categories");
-    await cache.invalidateResource(workspaceId, "authors");
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "tags"));
+    c.executionCtx.waitUntil(
+      cache.invalidateResource(workspaceId, "categories")
+    );
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
 
     return c.json({ post: postCreated }, 201 as const);
   } catch (error) {
@@ -907,9 +906,8 @@ const deletePostRoute = createRoute({
 
 posts.openapi(updatePostRoute, async (c) => {
   try {
-    const url = c.env.DATABASE_URL;
     const workspaceId = requireWorkspaceId(c);
-    const db = createClient(url);
+    const db = createDbClient(c.env);
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const { identifier } = c.req.valid("param");
     const body = c.req.valid("json");
@@ -1101,10 +1099,12 @@ posts.openapi(updatePostRoute, async (c) => {
     });
 
     // 7. Invalidate cache
-    await cache.invalidateResource(workspaceId, "posts");
-    await cache.invalidateResource(workspaceId, "tags");
-    await cache.invalidateResource(workspaceId, "categories");
-    await cache.invalidateResource(workspaceId, "authors");
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "tags"));
+    c.executionCtx.waitUntil(
+      cache.invalidateResource(workspaceId, "categories")
+    );
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
 
     return c.json({ post: postUpdated }, 200 as const);
   } catch (error) {
@@ -1121,9 +1121,8 @@ posts.openapi(updatePostRoute, async (c) => {
 
 posts.openapi(deletePostRoute, async (c) => {
   try {
-    const url = c.env.DATABASE_URL;
     const workspaceId = requireWorkspaceId(c);
-    const db = createClient(url);
+    const db = createDbClient(c.env);
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const { identifier } = c.req.valid("param");
 
@@ -1148,10 +1147,12 @@ posts.openapi(deletePostRoute, async (c) => {
       where: { id: existingPost.id },
     });
 
-    await cache.invalidateResource(workspaceId, "posts");
-    await cache.invalidateResource(workspaceId, "tags");
-    await cache.invalidateResource(workspaceId, "categories");
-    await cache.invalidateResource(workspaceId, "authors");
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "tags"));
+    c.executionCtx.waitUntil(
+      cache.invalidateResource(workspaceId, "categories")
+    );
+    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
 
     return c.json({ id: existingPost.id }, 200 as const);
   } catch (error) {

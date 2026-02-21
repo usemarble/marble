@@ -1,5 +1,5 @@
-import { createClient } from "@marble/db/workers";
 import type { Context, MiddlewareHandler, Next } from "hono";
+import { createDbClient, type DbClient } from "../lib/db";
 import { checkApiUsage, type UsageCheckResult } from "../lib/usage";
 import { runAnalyticsTask } from "./analytics";
 
@@ -12,13 +12,13 @@ export const legacyAnalytics = (): MiddlewareHandler => {
     const method = c.req.method;
     const workspaceId: string | null = c.req.param("workspaceId") ?? null;
 
-    const { DATABASE_URL, REDIS_URL, REDIS_TOKEN } = c.env;
+    const { REDIS_URL, REDIS_TOKEN } = c.env;
 
     let usageResult: UsageCheckResult | null = null;
 
-    if (DATABASE_URL && workspaceId && method !== "OPTIONS") {
+    if (workspaceId && method !== "OPTIONS") {
       try {
-        const db = createClient(DATABASE_URL);
+        const db = createDbClient(c.env);
         const redis =
           REDIS_URL && REDIS_TOKEN
             ? { url: REDIS_URL, token: REDIS_TOKEN }
@@ -42,7 +42,10 @@ export const legacyAnalytics = (): MiddlewareHandler => {
 
     await next();
 
-    if (!DATABASE_URL) {
+    let db: DbClient;
+    try {
+      db = createDbClient(c.env);
+    } catch {
       console.error("[LegacyAnalytics] Database configuration error");
       return;
     }
@@ -59,7 +62,6 @@ export const legacyAnalytics = (): MiddlewareHandler => {
       pathParts.length >= 3 ? `/${pathParts.slice(2).join("/")}` : null;
 
     const { RESEND_API_KEY, POLAR_ACCESS_TOKEN, ENVIRONMENT } = c.env;
-    const db = createClient(DATABASE_URL);
 
     c.executionCtx?.waitUntil(
       runAnalyticsTask({
