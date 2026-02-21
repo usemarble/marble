@@ -1,6 +1,5 @@
-import { createClient } from "@marble/db/workers";
 import type { Context, MiddlewareHandler } from "hono";
-import { getConnectionString } from "../lib/db";
+import { createDbClient, type DbClient } from "../lib/db";
 import { createPolarClient } from "../lib/polar";
 import {
   checkApiUsage,
@@ -10,7 +9,7 @@ import {
 import type { ApiKeyApp } from "../types/env";
 
 interface AnalyticsTaskParams {
-  db: ReturnType<typeof createClient>;
+  db: ReturnType<typeof createDbClient>;
   workspaceId: string;
   endpoint: string | null;
   method: string;
@@ -120,8 +119,7 @@ async function checkUsage(
   }
 
   try {
-    const connectionString = getConnectionString(c.env);
-    const db = createClient(connectionString);
+    const db = createDbClient(c.env);
     const redis =
       REDIS_URL && REDIS_TOKEN
         ? { url: REDIS_URL, token: REDIS_TOKEN }
@@ -169,9 +167,9 @@ export const analytics = (): MiddlewareHandler<ApiKeyApp> => {
 
     const { RESEND_API_KEY, POLAR_ACCESS_TOKEN, ENVIRONMENT } = c.env;
 
-    let connectionString: string;
+    let db: DbClient;
     try {
-      connectionString = getConnectionString(c.env);
+      db = createDbClient(c.env);
     } catch {
       console.error("[Analytics] Database configuration error");
       return;
@@ -187,8 +185,6 @@ export const analytics = (): MiddlewareHandler<ApiKeyApp> => {
     const path = c.req.path;
     const pathParts = path.split("/").filter(Boolean);
     const endpoint = pathParts.length >= 1 ? `/${pathParts.join("/")}` : null;
-
-    const db = createClient(connectionString);
 
     c.executionCtx?.waitUntil(
       runAnalyticsTask({

@@ -1,9 +1,9 @@
-import type { createClient } from "@marble/db/workers";
 import { sendUsageLimitEmail } from "@marble/email";
 import { Redis } from "@upstash/redis/cloudflare";
 import { Resend } from "resend";
+import type { createDbClient } from "../lib/db";
 
-type DbClient = ReturnType<typeof createClient>;
+type DbClient = ReturnType<typeof createDbClient>;
 
 type PlanType = "pro" | "hobby";
 

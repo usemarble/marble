@@ -1,7 +1,6 @@
-import { createClient } from "@marble/db/workers";
 import type { MiddlewareHandler } from "hono";
 import { hashApiKey } from "../lib/crypto";
-import { getConnectionString } from "../lib/db";
+import { createDbClient, type DbClient } from "../lib/db";
 import type { ApiKeyApp } from "../types/env";
 
 /**
@@ -11,9 +10,9 @@ import type { ApiKeyApp } from "../types/env";
  */
 export const keyAuthorization =
   (): MiddlewareHandler<ApiKeyApp> => async (c, next) => {
-    let connectionString: string;
+    let db: DbClient;
     try {
-      connectionString = getConnectionString(c.env);
+      db = createDbClient(c.env);
     } catch {
       console.error("[KeyAuth] Database configuration error");
       return c.json({ error: "Internal server error" }, 500);
@@ -46,8 +45,6 @@ export const keyAuthorization =
     }
 
     try {
-      const db = createClient(connectionString);
-
       const hashedKey = await hashApiKey(apiKey);
 
       const key = await db.apiKey.findUnique({

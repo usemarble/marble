@@ -1,6 +1,5 @@
-import { createClient } from "@marble/db/workers";
 import type { Context, MiddlewareHandler, Next } from "hono";
-import { getConnectionString } from "../lib/db";
+import { createDbClient, type DbClient } from "../lib/db";
 import { checkApiUsage, type UsageCheckResult } from "../lib/usage";
 import { runAnalyticsTask } from "./analytics";
 
@@ -19,8 +18,7 @@ export const legacyAnalytics = (): MiddlewareHandler => {
 
     if (workspaceId && method !== "OPTIONS") {
       try {
-        const connectionString = getConnectionString(c.env);
-        const db = createClient(connectionString);
+        const db = createDbClient(c.env);
         const redis =
           REDIS_URL && REDIS_TOKEN
             ? { url: REDIS_URL, token: REDIS_TOKEN }
@@ -44,9 +42,9 @@ export const legacyAnalytics = (): MiddlewareHandler => {
 
     await next();
 
-    let connectionString: string;
+    let db: DbClient;
     try {
-      connectionString = getConnectionString(c.env);
+      db = createDbClient(c.env);
     } catch {
       console.error("[LegacyAnalytics] Database configuration error");
       return;
@@ -64,7 +62,6 @@ export const legacyAnalytics = (): MiddlewareHandler => {
       pathParts.length >= 3 ? `/${pathParts.slice(2).join("/")}` : null;
 
     const { RESEND_API_KEY, POLAR_ACCESS_TOKEN, ENVIRONMENT } = c.env;
-    const db = createClient(connectionString);
 
     c.executionCtx?.waitUntil(
       runAnalyticsTask({

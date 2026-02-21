@@ -4,7 +4,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./client": "./src/client.ts",
-    "./workers": "./src/workers.ts"
+    "./workers": "./src/workers.ts",
+    "./hyperdrive": "./src/hyperdrive.ts"
   },
   "scripts": {
     "db:generate": "prisma generate",
@@ -17,7 +18,9 @@
   "dependencies": {
     "@neondatabase/serverless": "^1.0.1",
     "@prisma/adapter-neon": "^6.15.0",
+    "@prisma/adapter-pg": "6.15.0",
     "@prisma/client": "^6.15.0",
+    "pg": "^8.18.0",
     "ws": "^8.18.0"
   },
   "devDependencies": {
