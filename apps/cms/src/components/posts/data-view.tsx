@@ -130,7 +130,7 @@ export function PostDataView<TData, TValue>({
 
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between py-4">
+      <div className="mb-4 flex flex-col gap-4 py-4 md:flex-row md:items-center md:justify-between">
         <div className="flex flex-col gap-2">
           <div className="text-muted-foreground text-xs">
             {table.getFilteredRowModel().rows.length === data.length ? (
@@ -142,14 +142,14 @@ export function PostDataView<TData, TValue>({
               </span>
             )}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2">
             <div className="relative">
               <MagnifyingGlassIcon
                 className="-translate-y-1/2 absolute top-1/2 left-3 size-4 text-muted-foreground"
                 size={16}
               />
               <Input
-                className="w-72 px-8"
+                className="w-full px-8 sm:w-72"
                 onChange={(event) =>
                   table.getColumn("title")?.setFilterValue(event.target.value)
                 }
@@ -191,7 +191,7 @@ export function PostDataView<TData, TValue>({
             </Select>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2 sm:justify-end">
           <div className="flex gap-0.5 rounded-xl bg-surface p-0.5 dark:bg-accent/50">
             <Tooltip>
               <TooltipTrigger

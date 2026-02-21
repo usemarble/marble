@@ -81,7 +81,7 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
               <motion.div
                 aria-labelledby={`file-name-${selectedFile.id}`}
                 aria-modal="true"
-                className="pointer-events-auto z-50 h-fit w-[600px] max-w-[calc(100vw-20rem)] rounded-[20px] bg-background p-3 shadow-sm"
+                className="pointer-events-auto z-50 h-fit max-h-[90vh] w-full max-w-[600px] overflow-y-auto rounded-[20px] bg-background p-3 shadow-sm sm:w-[600px] sm:max-w-[calc(100vw-var(--sidebar-width,16rem))]"
                 key={selectedFile.id}
                 layoutId={`file-${selectedFile.id}`}
                 ref={dialogRef}
@@ -133,13 +133,13 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
                   </div>
 
                   <motion.div
-                    className="aspect-video h-[350px] w-full overflow-hidden rounded-[12px] bg-background"
+                    className="w-full overflow-hidden rounded-[12px] bg-background"
                     layoutId={`image-${selectedFile.id}`}
                   >
                     {selectedFile.type === "image" ? (
                       <motion.div
                         animate={{ opacity: 1 }}
-                        className="h-full w-full"
+                        className="flex justify-center"
                         exit={{ opacity: 0 }}
                         initial={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
@@ -147,21 +147,21 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
                         {/** biome-ignore lint/performance/noImgElement: <> */}
                         <img
                           alt={selectedFile.name}
-                          className="h-full w-full object-cover"
+                          className="h-auto max-h-[60vh] w-full object-contain"
                           height={350}
                           src={selectedFile.url}
                           width={600}
                         />
                       </motion.div>
                     ) : selectedFile.type === "video" ? (
-                      <div className="relative h-full w-full">
+                      <div className="relative flex aspect-video max-h-[60vh] w-full">
                         <VideoPlayer
-                          className="h-full w-full object-cover"
+                          className="h-auto max-h-[60vh] w-full object-contain"
                           src={selectedFile.url}
                         />
                       </div>
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-muted">
+                      <div className="flex min-h-[200px] w-full items-center justify-center bg-muted">
                         {(() => {
                           const Icon = getMediaTypeIcon(selectedFile.type);
                           return (
