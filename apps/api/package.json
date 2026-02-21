@@ -15,7 +15,7 @@
     "@polar-sh/sdk": "^0.42.2",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.36.1",
-    "hono": "^4.11.7",
+    "hono": "^4.11.10",
     "node-html-markdown": "^2.0.0",
     "resend": "^6.8.0",
     "sanitize-html": "^2.17.0",
