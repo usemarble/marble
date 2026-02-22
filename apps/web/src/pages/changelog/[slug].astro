@@ -1,11 +1,15 @@
 ---
   import { Image } from "astro:assets";
   import { getCollection } from "astro:content";
+  import { YOUTUBE_VIDEO_ID } from "@marble/utils";
   import Container from "@/components/Container.astro";
   import Prose from "@/components/Prose.astro";
+  import ButtonComponent from "@/components/ui/Button.astro";
   import Layout from "@/layouts/Layout.astro";
   import { SITE } from "@/lib/constants/site";
   import { calculateReadTime } from "@/lib/utils";
+
+  const YOUTUBE_WATCH_URL = `https://www.youtube.com/watch?v=${YOUTUBE_VIDEO_ID}`;
 
   export const prerender = true;
 
@@ -84,14 +88,48 @@
             </div> -->
           </div>
         </section>
-        <!-- <div>
-          {entry.data.coverImage && (
-            <Image src={entry.data.coverImage} alt={entry.data.title} class="w-full max-w-3xl mx-auto mb-8" inferSize />
-          )}
-        </div> -->
         <Prose>
           <div set:html={entry.data.content}/>
         </Prose>
+      </Container>
+    </div>
+  </section>
+  <section class="border-b border-dashed">
+    <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
+      <Container class="py-12 md:py-20">
+        <div class="flex flex-col items-center space-y-6">
+          <div class="space-y-4 text-center">
+            <h2
+              class="relative text-center text-balance text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl"
+            >
+              Try Marble today.
+            </h2>
+            <p
+              class="mx-auto max-w-2xl text-muted-foreground md:text-lg text-balance"
+            >
+              A simpler way to publish articles and manage your blog.
+            </p>
+          </div>
+
+          <div
+            class="flex flex-col sm:flex-row w-full items-center justify-center gap-4"
+          >
+            <ButtonComponent
+              href={SITE.APP_URL}
+              target="_blank"
+              class="w-full sm:w-auto"
+            >
+              Try Marble for free
+            </ButtonComponent>
+            <ButtonComponent
+              href={YOUTUBE_WATCH_URL}
+              variant="secondary"
+              class="w-full sm:w-auto"
+            >
+              Watch Demo
+            </ButtonComponent>
+          </div>
+        </div>
       </Container>
     </div>
   </section>
