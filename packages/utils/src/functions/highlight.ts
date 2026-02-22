@@ -57,7 +57,7 @@ export async function highlightContent(
   // i.e <pre><code class="language-jsx">...</code></pre>
   // so we use a regex to find and pick the language from the classname
   const codeBlockRegex =
-    /<pre><code(?:\s+class="language-([^"]+)")?[^>]*>([\s\S]*?)<\/code><\/pre>/g;
+    /<pre[^>]*>\s*<code(?:\s+[^>]*?class="[^"]*?language-([^"\s]+)[^"]*?")?[^>]*>([\s\S]*?)<\/code>\s*<\/pre>/g;
 
   return htmlContent.replace(codeBlockRegex, (match, language, code) => {
     try {

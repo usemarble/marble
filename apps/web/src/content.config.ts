@@ -36,10 +36,13 @@ const changelog = defineCollection({
   loader: async () => {
     const { result } = await marble.posts.list({ categories: ["changelog"] });
 
-    return result.posts.map((post) => ({
-      ...post,
-      id: post.slug,
-    }));
+    return Promise.all(
+      result.posts.map(async (post) => ({
+        ...post,
+        id: post.slug,
+        content: await highlightContent(post.content),
+      }))
+    );
   },
   schema: postSchema,
 });
