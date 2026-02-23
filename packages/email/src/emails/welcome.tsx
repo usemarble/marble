@@ -47,7 +47,7 @@ export const WelcomeEmail = ({
             </Section>
 
             <Heading className="my-6 text-center font-medium text-2xl text-black">
-              👋 Welcome aboard
+              Welcome aboard
             </Heading>
 
             <Text className="text-center text-[#737373] text-base leading-relaxed">

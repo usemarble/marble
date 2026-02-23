@@ -18,7 +18,7 @@ interface FounderEmailProps {
 }
 
 export const FounderEmail = ({ userEmail }: FounderEmailProps) => {
-  const previewText = "Welcom to Marble";
+  const previewText = "A note from Marble's creator";
   const calLink = EMAIL_CONFIG.calLink;
   const twitterLink = EMAIL_CONFIG.twitterLink;
 

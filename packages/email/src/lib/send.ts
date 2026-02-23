@@ -155,7 +155,7 @@ export async function sendFounderEmail(
     from: EMAIL_CONFIG.founderFrom,
     replyTo: EMAIL_CONFIG.founderReplyTo,
     to: userEmail,
-    subject: "Welcome to Marble",
+    subject: "A note from Marble's creator",
     react: FounderEmail({
       userEmail,
     }),
