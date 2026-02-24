@@ -62,7 +62,9 @@ const DataTable = dynamic(
   }
 ) as <TData, TValue>(props: {
   table: ReturnType<typeof useReactTable<TData>>;
-  rows: ReturnType<ReturnType<typeof useReactTable<TData>>["getRowModel"]>["rows"];
+  rows: ReturnType<
+    ReturnType<typeof useReactTable<TData>>["getRowModel"]
+  >["rows"];
   columns: ColumnDef<TData, TValue>[];
 }) => JSX.Element;
 
