@@ -10,6 +10,7 @@ import {
 } from "@marble/ui/components/table";
 import {
   type ColumnDef,
+  type Row,
   flexRender,
   type Table as TableType,
 } from "@tanstack/react-table";
@@ -19,11 +20,13 @@ import type { Post } from "./columns";
 
 interface DataTableProps<TData, TValue> {
   table: TableType<TData>;
+  rows: Row<TData>[];
   columns: ColumnDef<TData, TValue>[];
 }
 
 export function DataTable<TData, TValue>({
   table,
+  rows,
   columns,
 }: DataTableProps<TData, TValue>) {
   const router = useRouter();
@@ -61,8 +64,8 @@ export function DataTable<TData, TValue>({
           ))}
         </TableHeader>
         <TableBody>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
+          {rows?.length ? (
+            rows.map((row) => (
               <TableRow
                 className="cursor-pointer hover:bg-muted/50"
                 data-state={row.getIsSelected() && "selected"}

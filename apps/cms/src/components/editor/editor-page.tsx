@@ -38,6 +38,7 @@ interface EditorPageProps {
 }
 
 function EditorPage({ initialData, id }: EditorPageProps) {
+  "use no memo"; // React Compiler affects form watch → setHasUnsavedChanges timing; Save/Update button stays disabled when editing
   const router = useRouter();
   const params = useParams<{ workspace: string }>();
   const workspaceId = useWorkspaceId();

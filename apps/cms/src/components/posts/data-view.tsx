@@ -62,6 +62,7 @@ const DataTable = dynamic(
   }
 ) as <TData, TValue>(props: {
   table: ReturnType<typeof useReactTable<TData>>;
+  rows: ReturnType<ReturnType<typeof useReactTable<TData>>["getRowModel"]>["rows"];
   columns: ColumnDef<TData, TValue>[];
 }) => JSX.Element;
 
@@ -283,7 +284,11 @@ export function PostDataView<TData, TValue>({
         </div>
       </div>
       {viewType === "table" ? (
-        <DataTable columns={columns} table={table} />
+        <DataTable
+          columns={columns}
+          rows={table.getRowModel().rows}
+          table={table}
+        />
       ) : (
         <DataGrid
           data={

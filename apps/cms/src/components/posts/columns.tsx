@@ -53,12 +53,13 @@ export const columns: ColumnDef<Post>[] = [
     accessorKey: "status",
     header: ({ column }) => (
       <Button
-        className="h-auto font-medium hover:bg-transparent has-[>svg]:px-0"
+        className="h-8 gap-1.5 px-2 font-medium text-muted-foreground text-sm shadow-none hover:bg-muted active:scale-100"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        size="sm"
         variant="ghost"
       >
         Status
-        <CaretUpDownIcon className="h-4 w-4" />
+        <CaretUpDownIcon className="size-3.5 opacity-70" />
       </Button>
     ),
     cell: ({ row }) => {
@@ -77,12 +78,13 @@ export const columns: ColumnDef<Post>[] = [
     accessorKey: "publishedAt",
     header: ({ column }) => (
       <Button
-        className="h-auto font-medium hover:bg-transparent has-[>svg]:px-0"
+        className="h-8 gap-1.5 px-2 font-medium text-muted-foreground text-sm shadow-none hover:bg-muted active:scale-100"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        size="sm"
         variant="ghost"
       >
         Published
-        <CaretUpDownIcon className="h-4 w-4" />
+        <CaretUpDownIcon className="size-3.5 opacity-70" />
       </Button>
     ),
     cell: ({ row }) => format(row.original.publishedAt, "MMM dd, yyyy"),
@@ -91,12 +93,13 @@ export const columns: ColumnDef<Post>[] = [
     accessorKey: "updatedAt",
     header: ({ column }) => (
       <Button
-        className="h-auto font-medium hover:bg-transparent has-[>svg]:px-0"
+        className="h-8 gap-1.5 px-2 font-medium text-muted-foreground text-sm shadow-none hover:bg-muted active:scale-100"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        size="sm"
         variant="ghost"
       >
         Last Updated
-        <CaretUpDownIcon className="h-4 w-4" />
+        <CaretUpDownIcon className="size-3.5 opacity-70" />
       </Button>
     ),
     cell: ({ row }) => format(row.original.updatedAt, "MMM dd, yyyy"),
