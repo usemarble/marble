@@ -1,7 +1,7 @@
 DATABASE_URL=postgresql://usemarble:justusemarble@localhost:5432/marble
 CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE=postgresql://usemarble:justusemarble@localhost:5432/marble
-REDIS_URL=
-REDIS_TOKEN=
+REDIS_URL=http://localhost:8079
+REDIS_TOKEN=justusemarble
 POLAR_ACCESS_TOKEN=
 ENVIRONMENT=
 SYSTEM_SECRET=

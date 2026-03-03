@@ -1,6 +1,6 @@
 services:
   db:
-    image: bitnami/postgresql:15
+    image: postgres:15
     environment:
       POSTGRES_USER: usemarble
       POSTGRES_PASSWORD: justusemarble
@@ -17,6 +17,22 @@ services:
       retries: 5
       start_period: 20s
     restart: unless-stopped
+
+  redis:
+    image: redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+  serverless-redis-http:
+    ports:
+      - "8079:80"
+    image: hiett/serverless-redis-http:latest
+    restart: always
+    environment:
+      SRH_MODE: env
+      SRH_TOKEN: justusemarble
+      SRH_CONNECTION_STRING: "redis://redis:6379" # Using `redis` hostname since they're in the same Docker network.
 
 volumes:
   pgdata:

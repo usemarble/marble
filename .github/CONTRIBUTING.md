@@ -128,7 +128,7 @@ Packages contain internal shared modules used across different applications:
    ```bash
    DATABASE_URL="postgresql://<user>:<password>@<host>/<db>?sslmode=require"
    ```
-   
+
    - Paste it into the relevant env files:
    - `apps/api/.dev.vars` → `DATABASE_URL=<YOUR_STRING_HERE>`
    - `apps/cms/.env` → `DATABASE_URL=<YOUR_STRING_HERE>`
@@ -174,7 +174,7 @@ This will:
 - Expose Postgres on port `5432` using the credentials from the compose file.
 - Persist data in the `marble_pgdata` Docker volume.
 - Note: If you already have a local Postgres on port 5432, stop it or adjust the port mapping in `docker-compose.yml`.
-   
+
    Useful commands:
 
    ```bash
@@ -228,7 +228,9 @@ This will:
 
 - Copy the values to `CLOUDFLARE_SECRET_ACCESS_KEY` and `CLOUDFLARE_ACCESS_KEY_ID` respectively
 
-### Set up Upstash Redis
+## Set up Redis
+
+### Option 1: Use Upstash Redis
 
    Marble uses Redis for rate limiting, session caching, and analytics. We use [Upstash](https://upstash.com) for serverless Redis. Here's how to set it up:
 
@@ -253,6 +255,35 @@ This will:
    You'll need to add these to:
    - `apps/api/.dev.vars` → `REDIS_URL=<YOUR_URL_HERE>` and `REDIS_TOKEN=<YOUR_TOKEN_HERE>`
    - `apps/cms/.env` → `REDIS_URL=<YOUR_URL_HERE>` and `REDIS_TOKEN=<YOUR_TOKEN_HERE>`
+
+### Option 2: Docker (Local)
+
+Use the repository's Docker Compose services to run Redis locally (native Redis + Upstash-compatible HTTP bridge):
+
+```bash
+# from repo root
+pnpm docker:up
+pnpm docker:ps
+```
+
+Expected Redis services:
+- `redis` on `localhost:6379`
+- `serverless-redis-http` on `localhost:8079`
+
+Set these in your env files:
+- `apps/api/.dev.vars` → `REDIS_URL=http://localhost:8079` and `REDIS_TOKEN=justusemarble`
+- `apps/cms/.env` → `REDIS_URL=http://localhost:8079` and `REDIS_TOKEN=justusemarble`
+
+These values match the local defaults in:
+- `apps/api/.dev.vars.example`
+- `apps/cms/.env.example`
+- `docker-compose.yml` (`SRH_TOKEN=justusemarble`, `8079:80`, `6379:6379`)
+
+Stop services when done:
+
+```bash
+pnpm docker:down
+```
 
 ### Set up QStash (Optional)
 
