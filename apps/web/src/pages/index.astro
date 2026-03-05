@@ -90,11 +90,20 @@
             </h2>
           </div>
           <ul
-            class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 border-t border-l border-dashed"
+            class="grid gap-4"
+            style="grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));"
           >
             {USERS.map((user) => (
-              <li class="flex items-center justify-center h-24 border-b border-r border-dashed bg-white hover:bg-gray-50 transition-colors">
-                <a href={user.url + "?utm_source=marble"} target="_blank" class={cn("hover:opacity-100 transition-opacity", user.showWordmark && "flex items-center gap-2")}>
+              <li class="h-24 rounded-xl bg-white border border-transparent border-dashed hover:border-border transition-colors">
+                <a
+                  href={user.url + "?utm_source=marble"}
+                  target="_blank"
+                  rel="noopener"
+                  class={cn(
+                    "flex items-center justify-center h-full w-full rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+                    user.showWordmark && "gap-2"
+                  )}
+                >
                   <user.component class="h-8 w-auto" />
                   {user.showWordmark && (
                     <span class="text-base font-medium">{user.name}</span>
