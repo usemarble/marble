@@ -10,22 +10,14 @@
 
 ---
 
-## ✨ Features (MVP)
+## ✨ Features
 
 - Create, edit, and manage posts in a beautiful editor
 - Organise content with **tags** and **categories**
-- Upload and embed images in posts
+- Upload and embed **images** and **videos** in posts
+- **Readability insights** and AI-powered writing suggestions in the editor
+- **Realtime webhooks** to trigger workflows when content changes
 - Fetch your content anywhere through the **REST API**
-
-## 🚧 Roadmap
-
-- Generate blog post and content using AI
-- Readability insights and analysis directly in the editor
-- AI-assisted writing for grammar and style suggestions
-- Image optimisation / compression for Pro users
-- Video uploads & streaming support
-- Extensible post schema (add custom fields)
-- and much more coming soon!
 
 ## 🛠 Local Development & Contributing
 
