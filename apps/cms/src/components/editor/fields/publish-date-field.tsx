@@ -1,6 +1,5 @@
 "use client";
 
-import { ErrorMessage } from "@/components/ui/error-message";
 import { Button } from "@marble/ui/components/button";
 import { Calendar } from "@marble/ui/components/calendar";
 import { Label } from "@marble/ui/components/label";
@@ -13,6 +12,7 @@ import { cn } from "@marble/ui/lib/utils";
 import { CalendarDotsIcon } from "@phosphor-icons/react";
 import { format } from "date-fns";
 import { type Control, useController } from "react-hook-form";
+import { ErrorMessage } from "@/components/ui/error-message";
 import type { PostValues } from "@/lib/validations/post";
 import { FieldInfo } from "./field-info";
 

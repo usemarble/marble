@@ -1,9 +1,9 @@
 "use client";
 
-import { ErrorMessage } from "@/components/ui/error-message";
 import { MarbleEditorMenus } from "@/components/editor/editor";
 import { EditorHeader } from "@/components/editor/editor-header";
 import { EditorSidebar } from "@/components/editor/editor-sidebar";
+import { ErrorMessage } from "@/components/ui/error-message";
 import { HiddenScrollbar } from "@/components/ui/hidden-scrollbar";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
@@ -306,14 +306,18 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                   }}
                 />
                 {errors.title && (
-                  <ErrorMessage className="text-sm">{errors.title.message}</ErrorMessage>
+                  <ErrorMessage className="text-sm">
+                    {errors.title.message}
+                  </ErrorMessage>
                 )}
               </div>
               <div className="flex flex-col">
                 <MarbleEditorMenus />
 
                 {errors.content && (
-                  <ErrorMessage className="text-sm">{errors.content.message}</ErrorMessage>
+                  <ErrorMessage className="text-sm">
+                    {errors.content.message}
+                  </ErrorMessage>
                 )}
               </div>
             </form>

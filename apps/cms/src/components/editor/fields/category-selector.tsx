@@ -12,8 +12,8 @@ import { PlusIcon } from "@phosphor-icons/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { type Control, useController } from "react-hook-form";
-import { ErrorMessage } from "@/components/ui/error-message";
 import { CategoryModal } from "@/components/categories/category-modals";
+import { ErrorMessage } from "@/components/ui/error-message";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { PostValues } from "@/lib/validations/post";
@@ -121,9 +121,7 @@ export function CategorySelector({ control }: CategorySelectorProps) {
           </SelectContent>
         </Select>
         {error && (
-          <ErrorMessage className="text-sm">
-            {error.message}
-          </ErrorMessage>
+          <ErrorMessage className="text-sm">{error.message}</ErrorMessage>
         )}
       </div>
       <CategoryModal

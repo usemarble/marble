@@ -1,11 +1,11 @@
 "use client";
 
-import { ErrorMessage } from "@/components/ui/error-message";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { Switch } from "@marble/ui/components/switch";
 import { useState } from "react";
 import { type Control, type FieldErrors, useController } from "react-hook-form";
+import { ErrorMessage } from "@/components/ui/error-message";
 import type { PostValues } from "@/lib/validations/post";
 import { FieldInfo } from "./field-info";
 
@@ -61,7 +61,9 @@ export function AttributionField({ control, errors }: AttributionFieldProps) {
               value={value?.author || ""}
             />
             {errors.attribution?.author && (
-              <ErrorMessage className="text-sm">{errors.attribution.author.message}</ErrorMessage>
+              <ErrorMessage className="text-sm">
+                {errors.attribution.author.message}
+              </ErrorMessage>
             )}
           </div>
 
@@ -78,7 +80,9 @@ export function AttributionField({ control, errors }: AttributionFieldProps) {
               value={value?.url || ""}
             />
             {errors.attribution?.url && (
-              <ErrorMessage className="text-sm">{errors.attribution.url.message}</ErrorMessage>
+              <ErrorMessage className="text-sm">
+                {errors.attribution.url.message}
+              </ErrorMessage>
             )}
           </div>
         </div>

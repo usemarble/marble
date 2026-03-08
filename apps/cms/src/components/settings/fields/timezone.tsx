@@ -1,6 +1,5 @@
 "use client";
 
-import { ErrorMessage } from "@/components/ui/error-message";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardDescription, CardTitle } from "@marble/ui/components/card";
 import { Label } from "@marble/ui/components/label";
@@ -11,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 import { AsyncButton } from "@/components/ui/async-button";
+import { ErrorMessage } from "@/components/ui/error-message";
 import { TimezoneSelector } from "@/components/ui/timezone-selector";
 import { organization } from "@/lib/auth/client";
 import { timezones } from "@/lib/constants";
@@ -114,7 +114,9 @@ export function Timezone() {
               </div>
             </div>
             {timezoneForm.formState.errors.timezone && (
-              <ErrorMessage>{timezoneForm.formState.errors.timezone.message}</ErrorMessage>
+              <ErrorMessage>
+                {timezoneForm.formState.errors.timezone.message}
+              </ErrorMessage>
             )}
           </div>
         </div>

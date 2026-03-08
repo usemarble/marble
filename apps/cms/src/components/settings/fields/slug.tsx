@@ -1,6 +1,5 @@
 "use client";
 
-import { ErrorMessage } from "@/components/ui/error-message";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardDescription, CardTitle } from "@marble/ui/components/card";
 import { Input } from "@marble/ui/components/input";
@@ -12,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { useId } from "react";
 import { useForm } from "react-hook-form";
 import { AsyncButton } from "@/components/ui/async-button";
+import { ErrorMessage } from "@/components/ui/error-message";
 import { organization } from "@/lib/auth/client";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { type SlugValues, slugSchema } from "@/lib/validations/workspace";
@@ -124,7 +124,9 @@ export function Slug() {
               </div>
             </div>
             {slugForm.formState.errors.slug && (
-              <ErrorMessage>{slugForm.formState.errors.slug.message}</ErrorMessage>
+              <ErrorMessage>
+                {slugForm.formState.errors.slug.message}
+              </ErrorMessage>
             )}
           </div>
         </div>

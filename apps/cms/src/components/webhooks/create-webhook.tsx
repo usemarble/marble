@@ -1,6 +1,5 @@
 "use client";
 
-import { ErrorMessage } from "@/components/ui/error-message";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@marble/ui/components/button";
 import { Checkbox } from "@marble/ui/components/checkbox";
@@ -29,6 +28,7 @@ import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { AsyncButton } from "@/components/ui/async-button";
+import { ErrorMessage } from "@/components/ui/error-message";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { VALID_DISCORD_DOMAINS, VALID_SLACK_DOMAINS } from "@/lib/constants";
 import { QUERY_KEYS } from "@/lib/queries/keys";
@@ -206,7 +206,9 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
 
               <Input id="name" placeholder="My Webhook" {...register("name")} />
               {errors.name && (
-                <ErrorMessage className="text-sm">{errors.name.message}</ErrorMessage>
+                <ErrorMessage className="text-sm">
+                  {errors.name.message}
+                </ErrorMessage>
               )}
             </div>
 
@@ -223,7 +225,9 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                 })}
               />
               {errors.endpoint && (
-                <ErrorMessage className="text-sm">{errors.endpoint.message}</ErrorMessage>
+                <ErrorMessage className="text-sm">
+                  {errors.endpoint.message}
+                </ErrorMessage>
               )}
             </div>
 
@@ -250,7 +254,9 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                 </SelectContent>
               </Select>
               {errors.format && (
-                <ErrorMessage className="text-sm">{errors.format.message}</ErrorMessage>
+                <ErrorMessage className="text-sm">
+                  {errors.format.message}
+                </ErrorMessage>
               )}
             </div>
 
@@ -305,7 +311,9 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                 ))}
               </div>
               {errors.events && (
-                <ErrorMessage className="text-sm">{errors.events.message}</ErrorMessage>
+                <ErrorMessage className="text-sm">
+                  {errors.events.message}
+                </ErrorMessage>
               )}
             </div>
           </div>

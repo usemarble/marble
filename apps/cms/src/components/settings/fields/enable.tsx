@@ -1,6 +1,5 @@
 "use client";
 
-import { ErrorMessage } from "@/components/ui/error-message";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardDescription, CardTitle } from "@marble/ui/components/card";
 import { Label } from "@marble/ui/components/label";
@@ -12,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { useId } from "react";
 import { useForm } from "react-hook-form";
 import { AsyncButton } from "@/components/ui/async-button";
+import { ErrorMessage } from "@/components/ui/error-message";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import {
   type AiEnableValues,
@@ -158,7 +158,9 @@ export function Enable() {
               />
             </div>
             {enableForm.formState.errors.ai?.enabled && (
-              <ErrorMessage>{enableForm.formState.errors.ai.enabled.message}</ErrorMessage>
+              <ErrorMessage>
+                {enableForm.formState.errors.ai.enabled.message}
+              </ErrorMessage>
             )}
           </div>
         </div>
