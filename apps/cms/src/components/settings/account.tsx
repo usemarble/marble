@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { type ProfileData, profileSchema } from "@/lib/validations/settings";
 import { useUser } from "@/providers/user";
-import { ErrorMessage } from "../auth/error-message";
+import { ErrorMessage } from "../ui/error-message";
 
 interface AccountFormProps {
   email: string;

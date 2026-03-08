@@ -12,6 +12,7 @@ import { cn } from "@marble/ui/lib/utils";
 import { CalendarDotsIcon } from "@phosphor-icons/react";
 import { format } from "date-fns";
 import { type Control, useController } from "react-hook-form";
+import { ErrorMessage } from "@/components/ui/error-message";
 import type { PostValues } from "@/lib/validations/post";
 import { FieldInfo } from "./field-info";
 
@@ -64,9 +65,7 @@ export function PublishDateField({ control }: PublishDateFieldProps) {
         </PopoverContent>
       </Popover>
       {error && (
-        <p className="px-1 font-medium text-destructive text-sm">
-          {error.message}
-        </p>
+        <ErrorMessage className="text-sm">{error.message}</ErrorMessage>
       )}
     </div>
   );

@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { useId } from "react";
 import { useForm } from "react-hook-form";
 import { AsyncButton } from "@/components/ui/async-button";
+import { ErrorMessage } from "@/components/ui/error-message";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import {
   type AiEnableValues,
@@ -157,9 +158,9 @@ export function Enable() {
               />
             </div>
             {enableForm.formState.errors.ai?.enabled && (
-              <p className="text-destructive text-xs">
+              <ErrorMessage>
                 {enableForm.formState.errors.ai.enabled.message}
-              </p>
+              </ErrorMessage>
             )}
           </div>
         </div>

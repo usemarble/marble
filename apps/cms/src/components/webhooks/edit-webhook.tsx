@@ -26,6 +26,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useId } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { AsyncButton } from "@/components/ui/async-button";
+import { ErrorMessage } from "@/components/ui/error-message";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { VALID_DISCORD_DOMAINS, VALID_SLACK_DOMAINS } from "@/lib/constants";
 import { QUERY_KEYS } from "@/lib/queries/keys";
@@ -220,9 +221,9 @@ export function EditWebhookSheet({
 
               <Input id="name" placeholder="My Webhook" {...register("name")} />
               {errors.name && (
-                <p className="text-destructive text-sm">
+                <ErrorMessage className="text-sm">
                   {errors.name.message}
-                </p>
+                </ErrorMessage>
               )}
             </div>
 
@@ -239,9 +240,9 @@ export function EditWebhookSheet({
                 })}
               />
               {errors.endpoint && (
-                <p className="text-destructive text-sm">
+                <ErrorMessage className="text-sm">
                   {errors.endpoint.message}
-                </p>
+                </ErrorMessage>
               )}
             </div>
 
@@ -268,9 +269,9 @@ export function EditWebhookSheet({
                 </SelectContent>
               </Select>
               {errors.format && (
-                <p className="text-destructive text-sm">
+                <ErrorMessage className="text-sm">
                   {errors.format.message}
-                </p>
+                </ErrorMessage>
               )}
             </div>
 
@@ -325,9 +326,9 @@ export function EditWebhookSheet({
                 ))}
               </div>
               {errors.events && (
-                <p className="text-destructive text-sm">
+                <ErrorMessage className="text-sm">
                   {errors.events.message}
-                </p>
+                </ErrorMessage>
               )}
             </div>
           </div>

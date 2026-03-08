@@ -9,6 +9,7 @@ import { EyeIcon, EyeSlashIcon } from "@phosphor-icons/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { ErrorMessage } from "@/components/ui/error-message";
 import { useLocalStorage } from "@/hooks/use-localstorage";
 import { authClient } from "@/lib/auth/client";
 import { type CredentialData, credentialSchema } from "@/lib/validations/auth";
@@ -153,9 +154,7 @@ export function LoginForm() {
               {...register("email")}
             />
             {errors?.email && (
-              <p className="px-1 font-medium text-destructive text-xs">
-                {errors.email.message}
-              </p>
+              <ErrorMessage>{errors.email.message}</ErrorMessage>
             )}
           </div>
           <div className="grid gap-1">
@@ -188,9 +187,7 @@ export function LoginForm() {
               </button>
             </div>
             {errors?.password && (
-              <p className="px-1 font-medium text-destructive text-xs">
-                {errors.password.message}
-              </p>
+              <ErrorMessage>{errors.password.message}</ErrorMessage>
             )}
           </div>
           <AsyncButton

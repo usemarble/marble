@@ -26,6 +26,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AsyncButton } from "@/components/ui/async-button";
+import { ErrorMessage } from "@/components/ui/error-message";
 import { organization } from "@/lib/auth/client";
 
 interface PageClientProps {
@@ -222,7 +223,9 @@ function PageClient({ id, user }: PageClientProps) {
           </CardContent>
           {error && inviteStatus === "pending" && (
             <div className="mt-4 rounded-sm border border-destructive bg-destructive/10 p-3">
-              <p className="text-center text-destructive text-sm">{error}</p>
+              <ErrorMessage className="text-center text-sm">
+                {error}
+              </ErrorMessage>
             </div>
           )}
           {inviteStatus === "pending" && (
