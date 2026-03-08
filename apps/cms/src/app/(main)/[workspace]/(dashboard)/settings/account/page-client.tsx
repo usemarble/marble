@@ -19,7 +19,7 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { ErrorMessage } from "@/components/auth/error-message";
+import { ErrorMessage } from "@/components/ui/error-message";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import { CropImageModal } from "@/components/media/crop-image-modal";
 import { DeleteAccountModal } from "@/components/settings/delete-account";

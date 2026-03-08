@@ -1,5 +1,6 @@
 "use client";
 
+import { ErrorMessage } from "@/components/ui/error-message";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@marble/ui/components/button";
 import { DialogClose } from "@marble/ui/components/dialog";
@@ -120,9 +121,7 @@ export function ImportItemForm({
             placeholder="Title"
           />
           {errors.title && (
-            <p className="font-medium text-destructive text-xs">
-              {errors.title.message}
-            </p>
+            <ErrorMessage>{errors.title.message}</ErrorMessage>
           )}
         </div>
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { ErrorMessage } from "@/components/ui/error-message";
 import { Button } from "@marble/ui/components/button";
 import { Calendar } from "@marble/ui/components/calendar";
 import { Label } from "@marble/ui/components/label";
@@ -64,9 +65,7 @@ export function PublishDateField({ control }: PublishDateFieldProps) {
         </PopoverContent>
       </Popover>
       {error && (
-        <p className="px-1 font-medium text-destructive text-sm">
-          {error.message}
-        </p>
+        <ErrorMessage className="text-sm">{error.message}</ErrorMessage>
       )}
     </div>
   );

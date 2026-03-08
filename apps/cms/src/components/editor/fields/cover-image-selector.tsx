@@ -1,5 +1,6 @@
 "use client";
 
+import { ErrorMessage } from "@/components/ui/error-message";
 import { Album02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@marble/ui/components/button";
@@ -255,7 +256,7 @@ export function CoverImageSelector({ control }: CoverImageSelectorProps) {
                 </AsyncButton>
               </div>
               {urlError && (
-                <p className="text-destructive text-sm">{urlError}</p>
+                <ErrorMessage className="text-sm">{urlError}</ErrorMessage>
               )}
             </div>
           </div>

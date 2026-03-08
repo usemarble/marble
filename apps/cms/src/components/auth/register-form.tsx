@@ -1,5 +1,6 @@
 "use client";
 
+import { ErrorMessage } from "@/components/ui/error-message";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
@@ -166,9 +167,7 @@ export function RegisterForm() {
               {...register("email")}
             />
             {errors?.email && (
-              <p className="px-1 font-medium text-destructive text-xs">
-                {errors.email.message}
-              </p>
+              <ErrorMessage>{errors.email.message}</ErrorMessage>
             )}
           </div>
           <div className="grid gap-1">
@@ -201,9 +200,7 @@ export function RegisterForm() {
               </button>
             </div>
             {errors?.password && (
-              <p className="px-1 font-medium text-destructive text-xs">
-                {errors.password.message}
-              </p>
+              <ErrorMessage>{errors.password.message}</ErrorMessage>
             )}
           </div>
           <AsyncButton

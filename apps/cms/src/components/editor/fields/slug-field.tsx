@@ -1,5 +1,6 @@
 "use client";
 
+import { ErrorMessage } from "@/components/ui/error-message";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { type Control, useController } from "react-hook-form";
@@ -32,9 +33,7 @@ export function SlugField({ control }: SlugFieldProps) {
         placeholder="my-awesome-post"
       />
       {error && (
-        <p className="px-1 font-medium text-destructive text-sm">
-          {error.message}
-        </p>
+        <ErrorMessage className="text-sm">{error.message}</ErrorMessage>
       )}
     </div>
   );

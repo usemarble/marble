@@ -1,5 +1,6 @@
 "use client";
 
+import { ErrorMessage } from "@/components/ui/error-message";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { Switch } from "@marble/ui/components/switch";
@@ -60,9 +61,7 @@ export function AttributionField({ control, errors }: AttributionFieldProps) {
               value={value?.author || ""}
             />
             {errors.attribution?.author && (
-              <p className="px-1 text-destructive text-sm">
-                {errors.attribution.author.message}
-              </p>
+              <ErrorMessage className="text-sm">{errors.attribution.author.message}</ErrorMessage>
             )}
           </div>
 
@@ -79,9 +78,7 @@ export function AttributionField({ control, errors }: AttributionFieldProps) {
               value={value?.url || ""}
             />
             {errors.attribution?.url && (
-              <p className="px-1 text-destructive text-sm">
-                {errors.attribution.url.message}
-              </p>
+              <ErrorMessage className="text-sm">{errors.attribution.url.message}</ErrorMessage>
             )}
           </div>
         </div>

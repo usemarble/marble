@@ -1,5 +1,6 @@
 "use client";
 
+import { ErrorMessage } from "@/components/ui/error-message";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardDescription, CardTitle } from "@marble/ui/components/card";
 import { Input } from "@marble/ui/components/input";
@@ -123,9 +124,7 @@ export function Slug() {
               </div>
             </div>
             {slugForm.formState.errors.slug && (
-              <p className="text-destructive text-xs">
-                {slugForm.formState.errors.slug.message}
-              </p>
+              <ErrorMessage>{slugForm.formState.errors.slug.message}</ErrorMessage>
             )}
           </div>
         </div>

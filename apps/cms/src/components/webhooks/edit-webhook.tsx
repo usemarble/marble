@@ -1,5 +1,6 @@
 "use client";
 
+import { ErrorMessage } from "@/components/ui/error-message";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Checkbox } from "@marble/ui/components/checkbox";
 import { Input } from "@marble/ui/components/input";
@@ -220,9 +221,7 @@ export function EditWebhookSheet({
 
               <Input id="name" placeholder="My Webhook" {...register("name")} />
               {errors.name && (
-                <p className="text-destructive text-sm">
-                  {errors.name.message}
-                </p>
+                <ErrorMessage className="text-sm">{errors.name.message}</ErrorMessage>
               )}
             </div>
 
@@ -239,9 +238,7 @@ export function EditWebhookSheet({
                 })}
               />
               {errors.endpoint && (
-                <p className="text-destructive text-sm">
-                  {errors.endpoint.message}
-                </p>
+                <ErrorMessage className="text-sm">{errors.endpoint.message}</ErrorMessage>
               )}
             </div>
 
@@ -268,9 +265,7 @@ export function EditWebhookSheet({
                 </SelectContent>
               </Select>
               {errors.format && (
-                <p className="text-destructive text-sm">
-                  {errors.format.message}
-                </p>
+                <ErrorMessage className="text-sm">{errors.format.message}</ErrorMessage>
               )}
             </div>
 
@@ -325,9 +320,7 @@ export function EditWebhookSheet({
                 ))}
               </div>
               {errors.events && (
-                <p className="text-destructive text-sm">
-                  {errors.events.message}
-                </p>
+                <ErrorMessage className="text-sm">{errors.events.message}</ErrorMessage>
               )}
             </div>
           </div>

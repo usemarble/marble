@@ -1,5 +1,6 @@
 "use client";
 
+import { ErrorMessage } from "@/components/ui/error-message";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardDescription, CardTitle } from "@marble/ui/components/card";
 import { Label } from "@marble/ui/components/label";
@@ -157,9 +158,7 @@ export function Enable() {
               />
             </div>
             {enableForm.formState.errors.ai?.enabled && (
-              <p className="text-destructive text-xs">
-                {enableForm.formState.errors.ai.enabled.message}
-              </p>
+              <ErrorMessage>{enableForm.formState.errors.ai.enabled.message}</ErrorMessage>
             )}
           </div>
         </div>

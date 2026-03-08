@@ -1,5 +1,6 @@
 "use client";
 
+import { ErrorMessage } from "@/components/ui/error-message";
 import { MarbleEditorMenus } from "@/components/editor/editor";
 import { EditorHeader } from "@/components/editor/editor-header";
 import { EditorSidebar } from "@/components/editor/editor-sidebar";
@@ -305,18 +306,14 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                   }}
                 />
                 {errors.title && (
-                  <p className="px-1 font-medium text-destructive text-sm">
-                    {errors.title.message}
-                  </p>
+                  <ErrorMessage className="text-sm">{errors.title.message}</ErrorMessage>
                 )}
               </div>
               <div className="flex flex-col">
                 <MarbleEditorMenus />
 
                 {errors.content && (
-                  <p className="px-1 font-medium text-destructive text-sm">
-                    {errors.content.message}
-                  </p>
+                  <ErrorMessage className="text-sm">{errors.content.message}</ErrorMessage>
                 )}
               </div>
             </form>

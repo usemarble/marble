@@ -31,7 +31,7 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
-import { ErrorMessage } from "@/components/auth/error-message";
+import { ErrorMessage } from "@/components/ui/error-message";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { uploadFile } from "@/lib/media/upload";
 import { QUERY_KEYS } from "@/lib/queries/keys";
@@ -397,7 +397,7 @@ export const AuthorSheet = ({
                       </Button>
                     </div>
                     {errors.socials?.[index]?.url && (
-                      <ErrorMessage className="ml-8 text-xs">
+                      <ErrorMessage className="ml-8">
                         {errors.socials[index].url.message}
                       </ErrorMessage>
                     )}

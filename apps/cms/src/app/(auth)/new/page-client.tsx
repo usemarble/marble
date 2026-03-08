@@ -17,7 +17,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { ErrorMessage } from "@/components/auth/error-message";
+import { ErrorMessage } from "@/components/ui/error-message";
 import { AsyncButton } from "@/components/ui/async-button";
 import { TimezoneSelector } from "@/components/ui/timezone-selector";
 import { organization } from "@/lib/auth/client";

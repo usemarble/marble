@@ -1,5 +1,6 @@
 "use client";
 
+import { ErrorMessage } from "@/components/ui/error-message";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardDescription, CardTitle } from "@marble/ui/components/card";
 import { Input } from "@marble/ui/components/input";
@@ -105,9 +106,7 @@ export function Name() {
               </div>
             </div>
             {nameForm.formState.errors.name && (
-              <p className="text-destructive text-xs">
-                {nameForm.formState.errors.name.message}
-              </p>
+              <ErrorMessage>{nameForm.formState.errors.name.message}</ErrorMessage>
             )}
           </div>
         </div>
