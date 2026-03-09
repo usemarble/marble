@@ -34,7 +34,7 @@ import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { PostValues } from "@/lib/validations/post";
 import { useUser } from "@/providers/user";
-import { ErrorMessage } from "../../auth/error-message";
+import { ErrorMessage } from "../../ui/error-message";
 import { FieldInfo } from "./field-info";
 
 interface AuthorOptions {

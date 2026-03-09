@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { useId } from "react";
 import { useForm } from "react-hook-form";
 import { AsyncButton } from "@/components/ui/async-button";
+import { ErrorMessage } from "@/components/ui/error-message";
 import { organization } from "@/lib/auth/client";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { type SlugValues, slugSchema } from "@/lib/validations/workspace";
@@ -123,9 +124,9 @@ export function Slug() {
               </div>
             </div>
             {slugForm.formState.errors.slug && (
-              <p className="text-destructive text-xs">
+              <ErrorMessage>
                 {slugForm.formState.errors.slug.message}
-              </p>
+              </ErrorMessage>
             )}
           </div>
         </div>

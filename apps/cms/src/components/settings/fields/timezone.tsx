@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 import { AsyncButton } from "@/components/ui/async-button";
+import { ErrorMessage } from "@/components/ui/error-message";
 import { TimezoneSelector } from "@/components/ui/timezone-selector";
 import { organization } from "@/lib/auth/client";
 import { timezones } from "@/lib/constants";
@@ -113,9 +114,9 @@ export function Timezone() {
               </div>
             </div>
             {timezoneForm.formState.errors.timezone && (
-              <p className="text-destructive text-xs">
+              <ErrorMessage>
                 {timezoneForm.formState.errors.timezone.message}
-              </p>
+              </ErrorMessage>
             )}
           </div>
         </div>

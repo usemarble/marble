@@ -27,7 +27,7 @@ import {
 import { toast } from "@marble/ui/components/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
-import { ErrorMessage } from "@/components/auth/error-message";
+import { ErrorMessage } from "@/components/ui/error-message";
 import { organization } from "@/lib/auth/client";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { type InviteData, inviteSchema } from "@/lib/validations/auth";

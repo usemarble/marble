@@ -13,6 +13,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { type Control, useController } from "react-hook-form";
 import { CategoryModal } from "@/components/categories/category-modals";
+import { ErrorMessage } from "@/components/ui/error-message";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { PostValues } from "@/lib/validations/post";
@@ -120,9 +121,7 @@ export function CategorySelector({ control }: CategorySelectorProps) {
           </SelectContent>
         </Select>
         {error && (
-          <p className="px-1 font-medium text-destructive text-sm">
-            {error.message}
-          </p>
+          <ErrorMessage className="text-sm">{error.message}</ErrorMessage>
         )}
       </div>
       <CategoryModal

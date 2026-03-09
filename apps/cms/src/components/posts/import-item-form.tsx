@@ -14,6 +14,7 @@ import { PublishDateField } from "@/components/editor/fields/publish-date-field"
 import { SlugField } from "@/components/editor/fields/slug-field";
 import { StatusField } from "@/components/editor/fields/status-field";
 import { AsyncButton } from "@/components/ui/async-button";
+import { ErrorMessage } from "@/components/ui/error-message";
 import {
   type PostImportValues,
   type PostValues,
@@ -119,11 +120,7 @@ export function ImportItemForm({
             className="bg-editor-field"
             placeholder="Title"
           />
-          {errors.title && (
-            <p className="font-medium text-destructive text-xs">
-              {errors.title.message}
-            </p>
-          )}
+          {errors.title && <ErrorMessage>{errors.title.message}</ErrorMessage>}
         </div>
 
         <DescriptionField control={control} />

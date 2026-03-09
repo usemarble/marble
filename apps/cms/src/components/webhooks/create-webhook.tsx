@@ -28,6 +28,7 @@ import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { AsyncButton } from "@/components/ui/async-button";
+import { ErrorMessage } from "@/components/ui/error-message";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { VALID_DISCORD_DOMAINS, VALID_SLACK_DOMAINS } from "@/lib/constants";
 import { QUERY_KEYS } from "@/lib/queries/keys";
@@ -205,9 +206,9 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
 
               <Input id="name" placeholder="My Webhook" {...register("name")} />
               {errors.name && (
-                <p className="text-destructive text-sm">
+                <ErrorMessage className="text-sm">
                   {errors.name.message}
-                </p>
+                </ErrorMessage>
               )}
             </div>
 
@@ -224,9 +225,9 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                 })}
               />
               {errors.endpoint && (
-                <p className="text-destructive text-sm">
+                <ErrorMessage className="text-sm">
                   {errors.endpoint.message}
-                </p>
+                </ErrorMessage>
               )}
             </div>
 
@@ -253,9 +254,9 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                 </SelectContent>
               </Select>
               {errors.format && (
-                <p className="text-destructive text-sm">
+                <ErrorMessage className="text-sm">
                   {errors.format.message}
-                </p>
+                </ErrorMessage>
               )}
             </div>
 
@@ -310,9 +311,9 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                 ))}
               </div>
               {errors.events && (
-                <p className="text-destructive text-sm">
+                <ErrorMessage className="text-sm">
                   {errors.events.message}
-                </p>
+                </ErrorMessage>
               )}
             </div>
           </div>

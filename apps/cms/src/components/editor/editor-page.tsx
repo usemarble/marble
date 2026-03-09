@@ -3,6 +3,7 @@
 import { MarbleEditorMenus } from "@/components/editor/editor";
 import { EditorHeader } from "@/components/editor/editor-header";
 import { EditorSidebar } from "@/components/editor/editor-sidebar";
+import { ErrorMessage } from "@/components/ui/error-message";
 import { HiddenScrollbar } from "@/components/ui/hidden-scrollbar";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
@@ -305,18 +306,18 @@ function EditorPage({ initialData, id }: EditorPageProps) {
                   }}
                 />
                 {errors.title && (
-                  <p className="px-1 font-medium text-destructive text-sm">
+                  <ErrorMessage className="text-sm">
                     {errors.title.message}
-                  </p>
+                  </ErrorMessage>
                 )}
               </div>
               <div className="flex flex-col">
                 <MarbleEditorMenus />
 
                 {errors.content && (
-                  <p className="px-1 font-medium text-destructive text-sm">
+                  <ErrorMessage className="text-sm">
                     {errors.content.message}
-                  </p>
+                  </ErrorMessage>
                 )}
               </div>
             </form>
