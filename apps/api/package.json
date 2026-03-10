@@ -14,17 +14,17 @@
     "@marble/utils": "workspace:*",
     "@polar-sh/sdk": "^0.42.5",
     "@upstash/ratelimit": "^2.0.8",
-    "@upstash/redis": "^1.36.2",
-    "hono": "^4.12.4",
+    "@upstash/redis": "^1.36.4",
+    "hono": "^4.12.7",
     "node-html-markdown": "^2.0.0",
-    "resend": "^6.9.2",
+    "resend": "^6.9.3",
     "sanitize-html": "^2.17.1",
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260304.0",
-    "@types/sanitize-html": "^2.16.0",
+    "@cloudflare/workers-types": "^4.20260310.1",
+    "@types/sanitize-html": "^2.16.1",
     "dotenv-cli": "^11.0.0",
-    "wrangler": "^4.68.1"
+    "wrangler": "^4.72.0"
   }
 }
