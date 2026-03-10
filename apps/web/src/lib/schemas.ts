@@ -1,4 +1,4 @@
-import { z } from "astro:content";
+import { z } from "astro/zod";
 
 export const paginationSchema = z.object({
   limit: z.number(),
@@ -29,7 +29,7 @@ export const postSchema = z.object({
       slug: z.string(),
       socials: z.array(
         z.object({
-          url: z.string().url(),
+          url: z.url(),
           platform: z.string(),
         })
       ),
@@ -54,7 +54,7 @@ export const postSchema = z.object({
   attribution: z
     .object({
       author: z.string(),
-      url: z.string().url(),
+      url: z.url(),
     })
     .nullable(),
 });

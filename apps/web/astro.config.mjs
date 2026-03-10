@@ -26,25 +26,25 @@ export default defineConfig({
       exclude: [/^\/(?!contributors\/?$).*/],
     },
   }),
+  fonts: [
+    {
+      name: "Literata",
+      cssVariable: "--font-literata",
+      provider: fontProviders.fontsource(),
+      weights: [400, 500, 600, 700],
+      styles: ["normal"],
+      subsets: ["latin"],
+    },
+    {
+      name: "Geist",
+      cssVariable: "--font-geist",
+      provider: fontProviders.google(),
+      weights: [400, 500, 600, 700],
+      styles: ["normal"],
+      subsets: ["latin"],
+    },
+  ],
   experimental: {
-    fonts: [
-      {
-        name: "Literata",
-        cssVariable: "--font-literata",
-        provider: fontProviders.fontsource(),
-        weights: [400, 500, 600, 700],
-        styles: ["normal"],
-        subsets: ["latin"],
-      },
-      {
-        name: "Geist",
-        cssVariable: "--font-geist",
-        provider: fontProviders.google(),
-        weights: [400, 500, 600, 700],
-        styles: ["normal"],
-        subsets: ["latin"],
-      },
-    ],
     svgo: true,
   },
 });
