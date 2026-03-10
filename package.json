@@ -31,7 +31,7 @@
     "@marble/tsconfig": "workspace:*",
     "husky": "^9.1.7",
     "turbo": "^2.7.2",
-    "typescript": "^5.4.5",
+    "typescript": "^5.9.3",
     "ultracite": "7.0.3"
   },
   "engines": {
