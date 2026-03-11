@@ -1,0 +1,81 @@
+---
+title: Media
+description: Upload, manage, and serve images and videos from Marble's CDN.
+---
+
+Marble handles your media so you can focus on writing. Upload images and videos directly to your workspace, and they're instantly available on a globally distributed CDN for lightning-fast delivery to your readers.
+
+## Supported media types
+
+<CardGroup cols={2}>
+  <Card title="Images" icon="image">
+    Upload common image formats including JPEG, PNG, GIF, WebP. Perfect for
+    featured images, inline content, and author avatars.
+  </Card>
+  <Card title="Videos" icon="video">
+    Host video files directly in Marble. Supported formats include MP4 and WebM
+    for seamless playback across all browsers.
+  </Card>
+</CardGroup>
+
+## How it works
+
+When you upload media to Marble, your files are stored on a globally distributed CDN. This means:
+
+- **Instant loading** — Images and videos load quickly for readers anywhere in the world
+- **Automatic optimization** — Files are served from the edge location closest to your reader
+- **No configuration needed** — Just upload and Marble handles the rest
+
+## Using media in your posts
+
+<Steps>
+  <Step title="Open the Media Library">
+    In the Marble dashboard, click on **Media** in the sidebar to access your
+    media library.
+  </Step>
+
+  <Step title="Upload Files">
+    Click **Upload** to add new images and videos. Files are processed and
+    available immediately.
+  </Step>
+
+  <Step title="Insert into Posts">
+    When editing a post, use the image or video node to insert media from your
+    library. You can also paste URLs directly.
+  </Step>
+</Steps>
+
+## Accessing media via API
+
+All uploaded media is accessible through the API. When you fetch a post, any embedded images or videos include their CDN URLs:
+
+```json
+{
+  "id": "cmf3d1gsv11469tlkp53bcutv",
+  "title": "My Post with Media",
+  "content": "...",
+  "featuredImage": {
+    "url": "https://media.marblecms.com/featured-image.jpg",
+    "alt": "Featured image description"
+  }
+}
+```
+
+<Tip>
+  As a rule of thumb, avoid using very large images in your posts. Users with
+  slower internet connections will experience longer load times, which can hurt
+  engagement.
+</Tip>
+
+## Managing your media
+
+From the Media Library, you can:
+
+- **Search and filter** — Find files quickly by name or type
+- **Delete unused files** — Remove media you no longer need
+- **View file details** — See file size, dimensions, and upload date
+
+<Note>
+  Deleting media from the library will break any posts that reference those
+  files. Make sure to update your posts before removing media.
+</Note>

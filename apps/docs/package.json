@@ -1,0 +1,10 @@
+{
+  "name": "docs",
+  "private": true,
+  "scripts": {
+    "dev": "mint dev"
+  },
+  "devDependencies": {
+    "mint": "^4.2.0"
+  }
+}

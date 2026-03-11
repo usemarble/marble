@@ -1,0 +1,219 @@
+---
+title: Webhooks
+description: Using webhooks to trigger builds and automate workflows.
+---
+
+Webhooks provide a powerful way to keep your site's content fresh and automate workflows. When an event occurs in your Marble workspace (like publishing a post), we can send an HTTP POST payload to a URL you configure. Webhooks are powered by [Upstash QStash](https://upstash.com?utm_source=marble-docs), ensuring reliable delivery of events.
+
+## Use cases
+
+<CardGroup cols={2}>
+  <Card title="Content Revalidation" icon="rotate">
+    For statically generated sites (SSG) built with frameworks like Next.js,
+    Astro, or Nuxt, content is fetched when you build your site. Webhooks allow
+    you to trigger instant revalidation when content changes.
+  </Card>
+  <Card title="Automating Workflows" icon="bolt">
+    Automate tasks like sending newsletters, sharing on social media, or syncing
+    content to other services when posts are published or updated.
+  </Card>
+</CardGroup>
+
+### Content revalidation
+
+For statically generated sites, content is fetched at build time. If you update a post in Marble, the change won't be live until you trigger a new deployment.
+
+Frameworks like Next.js provide built-in solutions for this, such as [Incremental Static Regeneration (ISR)](https://nextjs.org/docs/app/guides/incremental-static-regeneration), which can be triggered on-demand by a webhook for instant updates.
+
+### Automating workflows
+
+Create a serverless function that listens for a `post.published` event from a Marble webhook. When triggered, your function can:
+
+- Send a newsletter to your subscribers with the new post
+- Share the post on social media
+- Sync the content to another service or backup location
+
+## Setting up webhooks in Marble
+
+<Steps>
+  <Step title="Navigate to Webhooks">
+    On the Marble dashboard, go to the **Webhooks** section.
+  </Step>
+
+  <Step title="Create a New Webhook">
+    Click **Create Webhook** and fill in the required details: - **Name**: A
+    descriptive name for your webhook - **URL**: The endpoint where the webhook
+    payload will be sent - **Format**: Choose the payload format (currently only
+    JSON is supported) - **Events**: Select the events you want to listen for
+    (e.g., `post.published`, `post.updated`)
+  </Step>
+
+  <Step title="Save and Copy Secret">
+    Save your webhook, then click the 3 dots on the top right and select **Copy
+    secret**. You'll need this to verify the authenticity of incoming requests.
+  </Step>
+</Steps>
+
+### Verifying webhook requests
+
+To ensure that incoming webhook requests are from Marble and haven't been tampered with, you can verify the request using the webhook secret.
+
+Here's an example of how to verify a webhook request in Next.js using the `crypto` module:
+
+```typescript
+// lib/marble/webhook.ts
+import { createHmac, timingSafeEqual } from "node:crypto";
+import { revalidatePath, revalidateTag } from "next/cache";
+import type { PostEventData } from "@/types/blog";
+
+export async function handleWebhookEvent(payload: PostEventData) {
+  const event = payload.event;
+  const data = payload.data;
+
+  // Handle any post.* events (published, updated, deleted, etc.)
+  if (event.startsWith("post")) {
+    // Revalidate the blog index and the single post page
+    revalidatePath("/blog");
+    revalidatePath(`/blog/${data.slug}`);
+
+    // If your data fetches use tags, revalidate that tag as well:
+    // e.g. fetch(..., { next: { tags: ["posts"] } })
+    revalidateTag("posts");
+
+    return {
+      revalidated: true,
+      now: Date.now(),
+      message: "Post event handled",
+    };
+  }
+
+  return {
+    revalidated: false,
+    now: Date.now(),
+    message: "Event ignored",
+  };
+}
+
+export function verifySignature(
+  secret: string,
+  signatureHeader: string,
+  bodyText: string
+) {
+  // Strip possible "sha256=" prefix
+  const expectedHex = signatureHeader.replace(/^sha256=/, "");
+
+  const computedHex = createHmac("sha256", secret)
+    .update(bodyText)
+    .digest("hex");
+
+  // Convert to buffers for constant-time compare
+  const expected = Buffer.from(expectedHex, "hex");
+  const computed = Buffer.from(computedHex, "hex");
+
+  // lengths must match for timingSafeEqual
+  if (expected.length !== computed.length) return false;
+
+  return timingSafeEqual(expected, computed);
+}
+```
+
+```typescript
+// app/api/revalidate/route.ts
+import { NextResponse } from "next/server";
+import type { PostEventData } from "@/types/blog";
+import { verifySignature, handleWebhookEvent } from "@/lib/marble/webhook";
+
+export async function POST(request: Request) {
+  const signature = request.headers.get("x-marble-signature");
+  const secret = process.env.MARBLE_WEBHOOK_SECRET;
+
+  if (!secret || !signature) {
+    return NextResponse.json(
+      { error: "Secret or signature missing" },
+      { status: 400 }
+    );
+  }
+
+  const bodyText = await request.text();
+
+  if (!verifySignature(secret, signature, bodyText)) {
+    return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
+  }
+
+  const payload = JSON.parse(bodyText) as PostEventData;
+  if (!payload.event || !payload.data) {
+    return Response.json(
+      { error: "Invalid payload structure" },
+      { status: 400 }
+    );
+  }
+
+  try {
+    const result = await handleWebhookEvent(payload);
+    return NextResponse.json(result);
+  } catch (err) {
+    return NextResponse.json(
+      { error: "Failed to process webhook" },
+      { status: 500 }
+    );
+  }
+}
+```
+
+<Note>
+  If you want a better guide on how to invalidate cache in your framework of
+  choice, you can check out our blog post on [Using Marble's Webhooks with the
+  Next.js App Router](https://marblecms.com/blog/nextjs-webhooks-with-marble).
+</Note>
+
+Marble will send the signature in the `x-marble-signature` header of the request. You can use this signature to verify the authenticity of the request. Make sure to add the `process.env.MARBLE_WEBHOOK_SECRET` environment variable.
+
+### Request Payload
+
+When a webhook is triggered, Marble sends a POST request to the specified URL with a JSON payload. The payload structure varies depending on the event type. We try to keep the payloads as minimal as possible, only including relevant data.
+
+For `post.published` and `post.updated` events, the payload includes the post title along with the standard fields. Here's an example payload for a `post.published` event:
+
+```json
+{
+  "event": "post.published",
+  "data": {
+    "id": "cmf3d1gsv11469tlkp53bcutv",
+    "slug": "getting-started-with-marble",
+    "title": "Getting Started with Marble CMS",
+    "userId": "cms96emp70001l60415sft0i5"
+  }
+}
+```
+
+Here's an example payload for a `tag.deleted` event:
+
+```json
+{
+  "event": "tag.deleted",
+  "data": {
+    "id": "cmf3d1gsv11469tlkp53bcutv",
+    "slug": "news-and-updates",
+    "userId": "cms96emp70001l60415sft0i5"
+  }
+}
+```
+
+This structure is consistent across almost all different event types, with an exeption for `media.*` events, which include a `name` field instead of the `slug`.
+
+## Event Types
+
+Marble supports a variety of event types that you can listen for with webhooks. Here are the currently available events:
+
+- `post.published`: Triggered when a post is published.
+- `post.updated`: Triggered when a post is updated.
+- `post.deleted`: Triggered when a post is deleted.
+- `tag.created`: Triggered when a new tag is created.
+- `tag.updated`: Triggered when a tag is updated.
+- `tag.deleted`: Triggered when a tag is deleted.
+- `category.created`: Triggered when a new category is created.
+- `category.updated`: Triggered when a category is updated.
+- `category.deleted`: Triggered when a category is deleted.
+- `media.deleted`: Triggered when a media file is deleted.
+
+With more events planned for the future, you can stay tuned for updates in the Marble documentation.

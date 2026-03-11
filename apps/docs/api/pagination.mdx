@@ -1,0 +1,308 @@
+---
+title: "Pagination"
+description: "Learn how to use pagination in the Marble API."
+---
+
+Marble API uses offset-based pagination for endpoints that return multiple items. Pagination metadata is included in every response to help you navigate through large datasets efficiently.
+
+## How Pagination Works
+
+When you request a list of resources (like posts), the API automatically includes pagination information in the response. This allows you to:
+
+- Control how many items are returned per request
+- Navigate to specific pages
+- Understand the total size of the dataset
+- Build pagination UI components
+
+## Query Parameters
+
+<ParamField query="limit" type="integer" default="10">
+  The maximum number of items to return per page. **Range:** 1-200 items per
+  page
+</ParamField>
+
+<ParamField query="page" type="integer" default="1">
+  The page number to retrieve. Pages start at 1. **Minimum:** 1
+</ParamField>
+
+## Pagination Response
+
+Every paginated response includes a `pagination` object with the following fields:
+
+<ResponseField name="pagination" type="object">
+  Metadata about the current page and navigation options.
+
+  <Expandable title="Pagination properties">
+    <ResponseField name="limit" type="integer">
+      The number of items requested per page (matches your query parameter).
+    </ResponseField>
+
+    <ResponseField name="currentPage" type="integer">
+      The current page number being returned.
+    </ResponseField>
+
+    <ResponseField name="nextPage" type="integer | null">
+      The next page number, or `null` if you're on the last page.
+    </ResponseField>
+
+    <ResponseField name="previousPage" type="integer | null">
+      The previous page number, or `null` if you're on the first page.
+    </ResponseField>
+
+    <ResponseField name="totalPages" type="integer">
+      The total number of pages available.
+    </ResponseField>
+
+    <ResponseField name="totalItems" type="integer">
+      The total number of items across all pages.
+    </ResponseField>
+
+  </Expandable>
+</ResponseField>
+
+## Request Examples
+
+<Tabs>
+<Tab title="Default Pagination">
+Get the first page with default limit (10 items):
+
+```bash cURL
+curl -H "Authorization: YOUR_API_KEY" \
+  "https://api.marblecms.com/v1/posts"
+```
+
+</Tab>
+
+<Tab title="Custom Limit">
+Get 5 items per page:
+
+```bash cURL
+curl -H "Authorization: YOUR_API_KEY" \
+  "https://api.marblecms.com/v1/posts?limit=5"
+```
+
+</Tab>
+
+<Tab title="Specific Page">
+Get page 2 with 5 items per page:
+
+```bash cURL
+curl -H "Authorization: YOUR_API_KEY" \
+  "https://api.marblecms.com/v1/posts?page=2&limit=5"
+```
+
+</Tab>
+</Tabs>
+
+## SDK Examples
+
+<Tabs>
+<Tab title="Basic Pagination">
+Fetch posts with pagination options:
+
+```typescript
+import { Marble } from "@usemarble/sdk";
+
+const marble = new Marble({
+  apiKey: process.env["MARBLE_API_KEY"] ?? "",
+});
+
+const result = await marble.posts.list({
+  limit: 10,
+  page: 1,
+});
+```
+
+</Tab>
+
+<Tab title="Iterate All Pages">
+The SDK returns an async iterable for paginated endpoints:
+
+```typescript
+const result = await marble.posts.list({ limit: 10 });
+
+for await (const page of result) {
+  console.log(page.posts);
+  console.log(page.pagination.currentPage);
+}
+```
+
+</Tab>
+
+<Tab title="Pagination Controls">
+Use the pagination response to build navigation UI:
+
+```typescript
+const result = await marble.posts.list({ limit: 10, page: 1 });
+
+for await (const page of result) {
+  const { pagination } = page;
+
+  // Use these for your pagination UI
+  const canGoBack = pagination.previousPage !== null;
+  const canGoForward = pagination.nextPage !== null;
+  const pageInfo = `Page ${pagination.currentPage} of ${pagination.totalPages}`;
+  const itemCount = `${pagination.totalItems} total items`;
+}
+```
+
+</Tab>
+</Tabs>
+
+<Tip>
+  The SDK's async iterable automatically handles fetching subsequent pages. If
+  you only need a single page (e.g., for pagination controls), iterate once and
+  break.
+</Tip>
+
+<ResponseExample>
+```json Success Response
+{
+  "posts": [
+    {
+      "id": "post_abc123def456",
+      "slug": "getting-started-with-cms-integration",
+      "title": "Getting Started with CMS Integration",
+      "content": "<p>Learn how to integrate your content management system...</p>",
+      "coverImage": "https://cdn.marblecms.com/images/cms-guide.webp",
+      "description": "A comprehensive guide to integrating your CMS...",
+      "publishedAt": "2024-01-15T10:30:00.000Z",
+      "updatedAt": "2024-01-20T14:22:33.456Z",
+      "attribution": null,
+      "authors": [
+        {
+          "id": "author_xyz789",
+          "name": "John Smith",
+          "image": "https://cdn.marblecms.com/avatars/john.jpg"
+        }
+      ],
+      "category": {
+        "id": "cat_tutorials123",
+        "name": "Tutorials",
+        "slug": "tutorials"
+      },
+      "tags": [
+        {
+          "id": "tag_integration456",
+          "name": "Integration",
+          "slug": "integration"
+        }
+      ]
+    }
+  ],
+  "pagination": {
+    "limit": 5,
+    "currentPage": 1,
+    "nextPage": null,
+    "previousPage": null,
+    "totalPages": 1,
+    "totalItems": 2
+  }
+}
+```
+</ResponseExample>
+
+<ResponseExample>
+```json Empty Result Set
+{
+  "posts": [],
+  "pagination": {
+    "limit": 10,
+    "currentPage": 1,
+    "nextPage": null,
+    "previousPage": null,
+    "totalPages": 0,
+    "totalItems": 0
+  }
+}
+```
+</ResponseExample>
+
+<ResponseExample>
+```json Error - Invalid Page
+{
+  "error": "Invalid page number",
+  "details": {
+    "message": "Page 2 does not exist.",
+    "totalPages": 1,
+    "requestedPage": 2
+  }
+}
+```
+</ResponseExample>
+
+## Paginated Endpoints
+
+The following endpoints support pagination:
+
+<CardGroup cols={2}>
+<Card title="Posts" icon="file-text" href="/api-reference/posts/list-posts">
+  Get all published posts with pagination support.
+</Card>
+
+<Card title="Categories" icon="folder" href="/api-reference/categories/list-categories">
+  Browse all content categories with pagination.
+</Card>
+
+<Card title="Authors" icon="users" href="/api-reference/authors/list-authors">
+  List all authors with their associated content.
+</Card>
+
+<Card title="Tags" icon="tag" href="/api-reference/tags/list-tags">
+  Retrieve all content tags with pagination.
+</Card>
+</CardGroup>
+
+## Best Practices
+
+<Tip>
+  **Optimize Performance**: Use smaller page sizes (5-20 items) for better
+  performance, especially on mobile devices.
+</Tip>
+
+<Tip>
+  **Handle Empty Results**: Always check if the data array is empty and handle
+  the empty state in your UI.
+</Tip>
+
+<Note>
+  **Navigation Logic**: Use `nextPage` and `previousPage` values to build
+  navigation controls. These fields will be `null` when navigation in that
+  direction isn't possible.
+</Note>
+
+<Tip>
+  **Building Pagination UI**: The `pagination` object in every response gives
+  you everything needed for pagination controls: current page, total pages, and
+  next/previous page numbers.
+</Tip>
+
+## Error Handling
+
+<AccordionGroup>
+<Accordion title="Invalid page number">
+  When you request a page that doesn't exist, the API returns a structured error response:
+  
+  ```json
+  {
+    "error": "Invalid page number",
+    "details": {
+      "message": "Page 2 does not exist.",
+      "totalPages": 1,
+      "requestedPage": 2
+    }
+  }
+  ```
+  
+  Always check for the `error` field in your response before processing pagination data.
+</Accordion>
+
+<Accordion title="Invalid limit value">
+  - Values below 1 will default to 1 - Values above 200 will be capped at 200 -
+  Non-numeric values will default to 10
+</Accordion>
+
+<Accordion title="Empty datasets">
+  When there are no items, `totalPages` will be 0 and `totalItems` will be 0. The data array will be empty.
+</Accordion>
+</AccordionGroup>

@@ -1,0 +1,141 @@
+---
+title: "Syntax Highlighting"
+description: "Add syntax highlighting to code blocks in your posts"
+---
+
+Your posts might include code blocks that you want to style with syntax highlighting. This recipe shows how to use [Shiki](https://shiki.style) to transform your Marble content with beautiful code highlighting.
+
+<Note>
+  There are many syntax highlighting libraries available, such as
+  [Prism.js](https://prismjs.com/), [highlight.js](https://highlightjs.org/),
+  and [Shiki](https://shiki.style). This recipe uses Shiki.
+</Note>
+
+## Install Dependencies
+
+<CodeGroup>
+```bash npm
+npm install shiki
+```
+
+```bash pnpm
+pnpm add shiki
+```
+
+```bash yarn
+yarn add shiki
+```
+
+```bash bun
+bun add shiki
+```
+
+</CodeGroup>
+
+## Create a Highlighter
+
+Create a utility function that transforms HTML content with syntax highlighting:
+
+```typescript lib/highlight.ts
+import { createHighlighter } from "shiki";
+
+// Highlighter singleton
+let highlighter: Awaited<ReturnType<typeof createHighlighter>> | null = null;
+
+async function getHighlighter() {
+  if (!highlighter) {
+    highlighter = await createHighlighter({
+      themes: ["github-dark", "github-light"],
+      langs: ["javascript", "typescript", "html", "css", "json", "bash"],
+    });
+  }
+  return highlighter;
+}
+
+/**
+ * Transform Marble HTML content to add syntax highlighting to code blocks
+ */
+export async function highlightContent(htmlContent: string): Promise<string> {
+  const hl = await getHighlighter();
+
+  // Marble returns code blocks as: <pre><code class="language-js">...</code></pre>
+  const codeBlockRegex =
+    /<pre><code(?:\s+class="language-([^"]+)")?[^>]*>([\s\S]*?)<\/code><\/pre>/g;
+
+  return htmlContent.replace(codeBlockRegex, (match, language, code) => {
+    try {
+      // Decode HTML entities
+      const decodedCode = code
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&amp;/g, "&")
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'");
+
+      const lang = language || "text";
+      const supported = hl.getLoadedLanguages();
+      const finalLang = supported.includes(lang) ? lang : "text";
+
+      return hl.codeToHtml(decodedCode, {
+        lang: finalLang,
+        theme: "github-dark",
+      });
+    } catch (error) {
+      console.warn("Failed to highlight code block:", error);
+      return match;
+    }
+  });
+}
+```
+
+## Use with the SDK
+
+Apply the highlighter when fetching posts:
+
+```typescript
+import { Marble } from "@usemarble/sdk";
+import { highlightContent } from "./lib/highlight";
+
+const marble = new Marble({
+  apiKey: process.env["MARBLE_API_KEY"] ?? "",
+});
+
+async function getPost(slug: string) {
+  const { post } = await marble.posts.get({ identifier: slug });
+
+  return {
+    ...post,
+    content: await highlightContent(post.content),
+  };
+}
+```
+
+## Configuration
+
+Shiki supports many themes and languages. Update the `createHighlighter` options to match your needs:
+
+```typescript
+highlighter = await createHighlighter({
+  // Add more themes
+  themes: ["github-dark", "github-light", "dracula", "nord"],
+  // Add more languages
+  langs: ["javascript", "typescript", "python", "rust", "go"],
+});
+```
+
+For dual themes (light/dark mode), use:
+
+```typescript
+return hl.codeToHtml(decodedCode, {
+  lang: finalLang,
+  themes: {
+    dark: "github-dark",
+    light: "github-light",
+  },
+});
+```
+
+<Tip>
+  For more configuration options, themes, and languages, see the [Shiki
+  documentation](https://shiki.style).
+</Tip>

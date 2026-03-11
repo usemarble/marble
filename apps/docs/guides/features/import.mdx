@@ -1,0 +1,42 @@
+---
+title: Importing
+description: See which Markdown and MDX syntax Marble supports when you import existing content.
+---
+
+You can bring your existing `.md` and `.mdx` files into Marble. During import, Marble preserves the most commonly used Markdown and MDX syntax so you do not have to rewrite your content.
+
+## Supported Markdown syntax
+
+The following core Markdown features are **preserved on import**:
+
+| Syntax                     | Import | Editor |
+| -------------------------- | ------ | ------ |
+| Headings                  | ✅     | ✅     |
+| Paragraphs & line breaks  | ✅     | ✅     |
+| Emphasis                  | ✅     | ✅     |
+| Unordered lists           | ✅     | ✅     |
+| Ordered lists             | ✅     | ✅     |
+| Links                     | ✅     | ✅     |
+| Images                    | ✅     | ✅     |
+| Blockquotes               | ✅     | ✅     |
+| Code blocks               | ✅     | ✅     |
+| Inline code               | ✅     | ✅     |
+| Tables                    | ❌     | ❌     |
+
+Importing unsupported syntax might not display properly.
+
+## MDX and components
+
+If your content uses MDX, Marble will keep JSX-style components and custom MDX syntax **in the source**:
+
+- MDX elements like `<MyComponent prop="value" />`
+- Shortcodes or layout wrappers used in `.mdx` files
+
+However:
+
+- ❌ **Custom components will not render inside the Marble editor preview.**
+- ❌ **Marble does not execute or parse your components for you.** You need to parse the imported MDX inside your own codebase (for example, using your framework’s MDX pipeline) for those components to work at runtime.
+
+<Check>
+You can safely import your existing Markdown (`.md`) and MDX (`.mdx`) files into Marble. The supported Markdown syntax above is preserved during import, and MDX components remain in the source so they continue to work when parsed in your own application.
+</Check>

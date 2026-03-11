@@ -1,0 +1,255 @@
+---
+title: "TypeScript Types"
+description: "TypeScript type definitions for Marble API responses."
+---
+
+<Tip>
+  **We recommend using the [TypeScript SDK](/guides/sdk)** for the best
+  developer experience. The SDK is fully type-safe and exports all up-to-date
+  types automatically.
+</Tip>
+
+If you're using `fetch` directly and need type definitions, you can import them from the SDK or copy the definitions below.
+
+## Importing from the SDK
+
+The `@usemarble/sdk` package exports all TypeScript types:
+
+<CodeGroup>
+  ```bash npm npm install @usemarble/sdk ``` ```bash pnpm pnpm add
+  @usemarble/sdk ``` ```bash yarn yarn add @usemarble/sdk ``` ```bash bun bun
+  add @usemarble/sdk ```
+</CodeGroup>
+
+```typescript
+import type { Post, Category, Tag, Author, Pagination } from "@usemarble/sdk";
+
+// Use with fetch
+const response = await fetch("https://api.marblecms.com/v1/posts", {
+  headers: { Authorization: process.env.MARBLE_API_KEY },
+});
+const data: { posts: Post[]; pagination: Pagination } = await response.json();
+```
+
+---
+
+## Type Definitions
+
+If you prefer to copy the types directly into your project, here are the complete type definitions:
+
+```typescript
+export type Post = {
+  id: string;
+  slug: string;
+  title: string;
+  content: string;
+  featured: boolean;
+  description: string;
+  coverImage: string;
+  publishedAt: Date;
+  updatedAt: Date;
+  authors: Author[];
+  category: Omit<Category, "count">;
+  tags: Omit<Tag, "count">[];
+  attribution: {
+    author: string;
+    url: string;
+  } | null;
+};
+
+export type Pagination = {
+  limit: number;
+  currentPage: number;
+  nextPage: number | null;
+  previousPage: number | null;
+  totalItems: number;
+  totalPages: number;
+};
+
+export type MarblePostListResponse = {
+  posts: Post[];
+  pagination: Pagination;
+};
+
+export type MarblePostResponse = {
+  post: Post;
+};
+
+export type Tag = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  count: {
+    posts: number;
+  };
+};
+export type MarbleTagResponse = {
+  tag: Tag;
+};
+
+export type MarbleTagListResponse = {
+  tags: Tag[];
+  pagination: Pagination;
+};
+
+export type Category = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  count: {
+    posts: number;
+  };
+};
+
+export type MarbleCategoryResponse = {
+  category: Category;
+};
+
+export type MarbleCategoryListResponse = {
+  categories: Category[];
+  pagination: Pagination;
+};
+
+export type Author = {
+  id: string;
+  name: string;
+  slug: string;
+  image: string | null;
+  bio: string | null;
+  role: string | null;
+  socials: Social[];
+};
+
+export type Social = {
+  url: string;
+  platform: SocialPlatform;
+};
+
+export type SocialPlatform =
+  | "x"
+  | "github"
+  | "facebook"
+  | "instagram"
+  | "youtube"
+  | "tiktok"
+  | "linkedin"
+  | "website"
+  | "onlyfans"
+  | "discord"
+  | "bluesky";
+
+export type MarbleAuthorResponse = {
+  author: Author;
+};
+
+export type MarbleAuthorListResponse = {
+  authors: Author[];
+  pagination: Pagination;
+};
+```
+
+<Tip>
+  Copy these type definitions into a `types/marble.ts` file in your project. If
+  you prefer a published package, use the official SDK that exports these types.
+</Tip>
+
+### NPM package
+
+The official `@usemarble/sdk` package exports all TypeScript types shown on this page. Installing the package avoids copying the type definitions into multiple projects.
+
+To install the package run:
+
+<CodeGroup>
+  ```bash npm npm install @usemarble/sdk ``` ```bash yarn yarn add
+  @usemarble/sdk ``` ```bash pnpm pnpm add @usemarble/sdk ``` ```bash bun bun
+  add @usemarble/sdk ```
+</CodeGroup>
+
+You can import the types like this:
+
+```ts
+import type { Post, Category, Tag, Author } from "@usemarble/sdk";
+```
+
+The package will be kept up-to-date with the API types.
+
+### Zod Schemas
+
+For runtime validation, you can also create Zod schemas for your data:
+
+```typescript
+import { z } from "zod";
+
+const PostSchema = z.object({
+  id: z.string(),
+  slug: z.string(),
+  title: z.string(),
+  content: z.string(),
+  featured: z.boolean(),
+  description: z.string(),
+  coverImage: z.string().url(),
+  publishedAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+  authors: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string(),
+      slug: z.string(),
+      image: z.string().nullable(),
+      bio: z.string().nullable(),
+      role: z.string().nullable(),
+      socials: z.array(SocialSchema),
+    })
+  ),
+  category: z.object({
+    id: z.string(),
+    slug: z.string(),
+    name: z.string(),
+    description: z.string().nullable(),
+  }),
+  tags: z.array(
+    z.object({
+      id: z.string(),
+      slug: z.string(),
+      name: z.string(),
+      description: z.string().nullable(),
+    })
+  ),
+  attribution: z
+    .object({
+      author: z.string(),
+      url: z.string().url(),
+    })
+    .nullable(),
+});
+
+const PaginationSchema = z.object({
+  limit: z.number(),
+  currentPage: z.number(),
+  nextPage: z.number().nullable(),
+  previousPage: z.number().nullable(),
+  totalItems: z.number(),
+  totalPages: z.number(),
+});
+
+export const SocialSchema = z.object({
+  url: z.string(),
+  platform: SocialPlatformSchema,
+});
+
+export const SocialPlatformSchema = z.enum([
+  "x",
+  "github",
+  "facebook",
+  "instagram",
+  "youtube",
+  "tiktok",
+  "linkedin",
+  "website",
+  "onlyfans",
+  "discord",
+  "bluesky",
+]);
+```

@@ -1,0 +1,216 @@
+---
+title: "Next.js"
+description: "Integrate Marble in your Next.js application"
+---
+
+Getting your content to your Next.js site is as simple as using the Marble SDK. This guide will walk you through setting up a blog with Marble and Next.js.
+
+If you want to get started quickly, you can clone our [Next.js blog template](https://github.com/usemarble/nextjs-example).
+
+<Steps>
+<Step title="Install the SDK">
+Install the Marble SDK in your Next.js project:
+
+<CodeGroup>
+```bash npm
+npm install @usemarble/sdk
+```
+
+```bash pnpm
+pnpm add @usemarble/sdk
+```
+
+```bash yarn
+yarn add @usemarble/sdk
+```
+
+```bash bun
+bun add @usemarble/sdk
+```
+
+</CodeGroup>
+</Step>
+
+<Step title="Set up environment variables">
+Add your Marble API key to your environment variables. Create a `.env.local` file in the root of your Next.js project:
+
+```bash .env.local
+MARBLE_API_KEY=your_api_key_here
+```
+
+<Warning>
+  While public API keys are currently read-only, they should be used on the
+  server-side whenever possible to prevent your [rate limits](/api/rate-limits)
+  from being exhausted by others.
+</Warning>
+
+<Tip>
+You can find your API Key in your Marble dashboard under **Settings > API Keys**.
+</Tip>
+</Step>
+
+<Step title="Create a Marble client">
+Create a shared Marble client instance. Create a file at `lib/marble.ts`:
+
+```typescript lib/marble.ts
+import { Marble } from "@usemarble/sdk";
+
+export const marble = new Marble({
+  apiKey: process.env["MARBLE_API_KEY"] ?? "",
+});
+```
+
+</Step>
+
+<Step title="Display a list of posts">
+Use the Marble client in a Next.js page to fetch and display your posts:
+
+```tsx app/blog/page.tsx
+import { marble } from "@/lib/marble";
+
+// Revalidate this page every hour
+export const revalidate = 3600;
+
+export default async function BlogPage() {
+  const result = await marble.posts.list({ limit: 10 });
+
+  // Get the first page of results
+  const data = await result.next();
+  const posts = data.value?.posts ?? [];
+
+  return (
+    <section>
+      <ul>
+        {posts.map((post) => (
+          <li key={post.id}>
+            <a href={`/blog/${post.slug}`}>{post.title}</a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+```
+
+</Step>
+
+<Step title="Display a single post">
+Create a dynamic route at `app/blog/[slug]/page.tsx` to display individual posts:
+
+```tsx app/blog/[slug]/page.tsx
+import { marble } from "@/lib/marble";
+
+export default async function PostPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const { post } = await marble.posts.get({ identifier: slug });
+
+  return (
+    <div>
+      <h1>{post.title}</h1>
+      <article dangerouslySetInnerHTML={{ __html: post.content }} />
+    </div>
+  );
+}
+```
+
+<Info>
+  **A note on `dangerouslySetInnerHTML`**
+  
+  We use `dangerouslySetInnerHTML` to render the HTML content of your post. Marble sanitizes all HTML content before it's sent to you, so you can be confident that it's safe to render in your application.
+</Info>
+</Step>
+
+<Step title="Example Styling (Optional)">
+To improve the appearance of your content, you can use Tailwind CSS Typography to add beautiful typographic defaults. We provide a simple `Prose` component that makes it easy to style your Marble content.
+
+First, install the Tailwind CSS Typography plugin:
+
+```bash
+npm install -D @tailwindcss/typography
+```
+
+Add it to your Tailwind CSS configuration. If you're using Tailwind CSS v4:
+
+```css app/globals.css
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+```
+
+For Tailwind CSS v3, add it to your `tailwind.config.js`:
+
+```javascript tailwind.config.js
+module.exports = {
+  theme: {
+    // ...
+  },
+  plugins: [
+    require("@tailwindcss/typography"),
+    // ...
+  ],
+};
+```
+
+Now create a `Prose` component that you can use to style your content. Create `components/prose.tsx`:
+
+```tsx components/prose.tsx
+import { cn } from "@/lib/utils";
+import type { HTMLAttributes } from "react";
+
+type ProseProps = HTMLAttributes<HTMLElement> & {
+  as?: "article";
+  html: string;
+};
+
+export function Prose({ children, html, className }: ProseProps) {
+  return (
+    <article
+      className={cn(
+        "prose prose-h1:font-bold prose-h1:text-xl prose-a:text-blue-600 prose-p:text-justify prose-img:rounded-xl prose-headings:font-serif prose-headings:font-normal mx-auto",
+        className
+      )}
+    >
+      {html ? <div dangerouslySetInnerHTML={{ __html: html }} /> : children}
+    </article>
+  );
+}
+```
+
+<Info>
+  **Note:** This component assumes you have a `cn` utility function for
+  combining class names. You can install and set up `clsx` or use a similar
+  utility, or simply replace `cn()` with string concatenation.
+</Info>
+
+Now you can update your post page to use the `Prose` component:
+
+```tsx app/blog/[slug]/page.tsx
+import { marble } from "@/lib/marble";
+import { Prose } from "@/components/prose";
+
+export default async function PostPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const { post } = await marble.posts.get({ identifier: slug });
+
+  return (
+    <div>
+      <h1>{post.title}</h1>
+      <Prose html={post.content} />
+    </div>
+  );
+}
+```
+
+This will give your content beautiful, readable typography with proper spacing, font sizes, and styling for headings, links, images, and other elements. You can customize the styles by modifying the classes in the `Prose` component or by extending the typography configuration in your Tailwind config.
+
+For more information about customizing the typography styles, check out [Tailwind CSS Typography](https://github.com/tailwindlabs/tailwindcss-typography)!
+
+</Step>
+</Steps>

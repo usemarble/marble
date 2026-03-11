@@ -1,0 +1,150 @@
+---
+title: "Astro"
+description: "Integrate Marble in your Astro application"
+---
+
+To integrate Marble in your Astro application, you first need an Astro site. If you don't have one, you can check out the [Astro documentation](https://docs.astro.build/en/tutorial/0-introduction/) to get started, or use our [Astro blog template](https://github.com/usemarble/astro-example) for a ready-to-go solution.
+
+Astro's **Content Collections** are the best way to manage content in your project. We'll use a **Content Loader** to fetch your posts from Marble and make them available in your Astro site with full type-safety. You can learn more about this in the [Astro Content Collections documentation](https://docs.astro.build/en/guides/content-collections/).
+
+<Steps>
+<Step title="Install the SDK">
+Install the Marble SDK in your Astro project:
+
+<CodeGroup>
+```bash npm
+npm install @usemarble/sdk
+```
+
+```bash pnpm
+pnpm add @usemarble/sdk
+```
+
+```bash yarn
+yarn add @usemarble/sdk
+```
+
+```bash bun
+bun add @usemarble/sdk
+```
+
+</CodeGroup>
+</Step>
+
+<Step title="Set up environment variables">
+Add your Marble API key to your environment variables. Create a `.env` file in the root of your Astro project:
+
+```bash .env
+MARBLE_API_KEY="your_api_key_here"
+```
+
+<Warning>
+  While public API keys are currently read-only, they should be used on the
+  server-side whenever possible to prevent your [rate limits](/api/rate-limits)
+  from being exhausted by others.
+</Warning>
+
+<Tip>
+You can find your API Key in your Marble dashboard under **Settings > API Keys**.
+</Tip>
+</Step>
+
+<Step title="Configure your content collection">
+Define your content collection with a loader that uses the Marble SDK. Create a file named `src/content.config.ts`:
+
+```typescript src/content.config.ts
+import { defineCollection } from "astro:content";
+import { Marble } from "@usemarble/sdk";
+
+const marble = new Marble({
+  apiKey: import.meta.env.MARBLE_API_KEY,
+});
+
+const postsCollection = defineCollection({
+  loader: async () => {
+    const result = await marble.posts.list({ limit: 100 });
+    const data = await result.next();
+    const posts = data.value?.posts ?? [];
+
+    return posts.map((post) => ({
+      id: post.id,
+      ...post,
+    }));
+  },
+});
+
+export const collections = {
+  posts: postsCollection,
+};
+```
+
+<Tip>
+  The SDK provides full TypeScript types out of the box, so you get type-safety
+  without needing to define your own schemas.
+</Tip>
+</Step>
+
+<Step title="Display a list of posts">
+Use `getCollection()` to fetch all your posts and display them on a page. Create a file at `src/pages/blog/index.astro`:
+
+```astro src/pages/blog/index.astro
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('posts');
+---
+
+<Layout>
+  <h1>Blog</h1>
+  <ul>
+    {posts.map((post) => (
+      <li>
+        <a href={`/blog/${post.data.slug}`}>{post.data.title}</a>
+      </li>
+    ))}
+  </ul>
+</Layout>
+```
+
+</Step>
+
+<Step title="Display a single post">
+Create a dynamic route at `src/pages/blog/[...slug].astro` to display individual posts:
+
+```astro src/pages/blog/[...slug].astro
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  return posts.map((entry) => ({
+    params: { slug: entry.data.slug },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+---
+
+<Layout>
+  <article>
+    <h1>{entry.data.title}</h1>
+    <p>Published on: {new Date(entry.data.publishedAt).toLocaleDateString()}</p>
+    <img src={entry.data.coverImage} alt={entry.data.title} width="800" />
+    <div set:html={entry.data.content} />
+  </article>
+</Layout>
+```
+
+<Info>
+  **Rendering HTML Content**
+
+We use the `set:html` directive to render the post content. Marble sanitizes all HTML content on the server, ensuring it's safe to render directly in your application.
+
+</Info>
+</Step>
+</Steps>
+
+That's it! You now have a fully functional blog in your Astro project powered by Marble. For a complete, ready-to-use example, you can clone our [Astro blog template](https://github.com/usemarble/astro-example).

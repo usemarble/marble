@@ -1,0 +1,126 @@
+---
+title: "Rate Limits"
+description: "Understand how Marble API rate limiting works and what quotas apply to your requests."
+---
+
+Marble applies rate limits to protect the stability of the API for all users. This page explains the limits, how they are calculated, and how to design your integration to handle them gracefully.
+
+## Overview
+
+Marble API uses rate limiting to ensure fair usage and API stability. Rate limits are enforced per API key using a sliding window approach.
+
+<Info>
+  Most applications will not hit these limits during normal use, but you should
+  still build in defensive handling for rate limit responses.
+</Info>
+
+## Rate Limit Tiers
+
+### API Key Requests
+
+All authenticated requests are rate limited per API key:
+
+- **Limit**: **200 requests per 10 seconds**
+- **Applies to**: All resource routes
+  - `GET /posts`
+  - `GET /posts/:identifier`
+  - `GET /categories`
+  - `GET /tags`
+  - `GET /authors`
+
+This means each API key can make up to 200 requests every 10 seconds before receiving `429 Too Many Requests` responses.
+
+### Unauthenticated Requests
+
+Requests without a valid API key have a more conservative limit:
+
+- **Limit**: **10 requests per 10 seconds**
+
+## Rate Limit Response Headers
+
+When rate limiting is active, responses include standard headers that let you understand how many requests you have remaining in the current window.
+
+<ParamField header="X-RateLimit-Limit" type="integer">
+  The maximum number of requests allowed in the current window.
+</ParamField>
+
+<ParamField header="X-RateLimit-Remaining" type="integer">
+  The number of requests remaining in the current window before you hit the
+  limit.
+</ParamField>
+
+<ParamField header="X-RateLimit-Reset" type="integer">
+  Unix timestamp (in seconds) when the current rate limit window resets.
+</ParamField>
+
+You should use these headers to dynamically adjust your request rate, especially for background jobs and batch operations.
+
+## When You Exceed the Limit
+
+If you exceed the allowed number of requests in the current window, the API returns a `429 Too Many Requests` error.
+
+<RequestExample>
+
+```bash cURL
+curl -i -H "Authorization: YOUR_API_KEY" "https://api.marblecms.com/v1/posts"
+```
+
+</RequestExample>
+
+<ResponseExample>
+```json 429 Too Many Requests
+{
+  "error": "Too many requests",
+  "details": {
+    "message": "You have exceeded the allowed number of requests. Please try again after the reset time.",
+    "statusCode": 429
+  }
+}
+```
+</ResponseExample>
+
+<Warning>
+  If you receive `429` responses, you should back off immediately, respect the
+  `X-RateLimit-Reset` header, and implement exponential backoff with jitter in
+  automated clients.
+</Warning>
+
+## Implementing Backoff
+
+Here's a simple example of exponential backoff in JavaScript:
+
+```javascript
+async function fetchWithRetry(url, options, maxRetries = 3) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    const response = await fetch(url, options);
+
+    if (response.status === 429) {
+      const resetTime = response.headers.get("X-RateLimit-Reset");
+      const waitMs = resetTime
+        ? parseInt(resetTime) * 1000 - Date.now()
+        : Math.pow(2, attempt) * 1000;
+
+      await new Promise((resolve) => setTimeout(resolve, waitMs));
+      continue;
+    }
+
+    return response;
+  }
+  throw new Error("Max retries exceeded");
+}
+```
+
+## Best Practices
+
+<Tip>
+  - **Cache responses**: Store API responses where possible to reduce API calls.
+  - **Batch operations**: Process items sequentially with delays rather than
+  parallel requests. - **Monitor headers**: Track `X-RateLimit-Remaining` and
+  slow down before hitting limits. - **Use webhooks**: For real-time updates,
+  consider webhooks instead of polling the API.
+</Tip>
+
+<Note>
+  If you consistently need higher rate limits for your use case, please [contact
+  us](mailto:support@marblecms.com) to discuss your requirements.
+</Note>

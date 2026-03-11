@@ -1,0 +1,33 @@
+---
+title: "Reading Time"
+description: "How to display reading time for posts."
+---
+
+Some blogs like to show an estimated reading time for each post. Marble provides these estimates inside the editor interface, but you can also display them on the frontend of your site.
+
+## How It Works
+
+The math behind reading time is fairly simple: it's based on an average reading speed of 238 words per minute (often rounded to 200 for simplicity).
+
+## Implementation
+
+This is a simple function you can use to calculate reading time for any given content:
+
+```ts
+export function calculateReadTime(content: string): number {
+  const wordsPerMinute = 238;
+  const plainText = content.replace(/<[^>]*>/g, "").trim();
+  const wordCount = plainText.split(/\s+/).length;
+
+  const readingTime = Math.ceil(wordCount / wordsPerMinute);
+  return readingTime;
+}
+```
+
+To then use this function, simply pass in the HTML content of your post, and it will return the estimated reading time in minutes.
+
+```tsx
+const readTime = calculateReadTime("<p>Your post content goes here...</p>");
+```
+
+You can then use that number to display the reading time on your post pages. Feel free to tweek the words-per-minute value to better suit your audience!
