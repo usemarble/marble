@@ -21,6 +21,11 @@
     }
   },
   "favicon": "/favicon.svg",
+  "seo": {
+    "metatags": {
+      "og:image": "/images/og.webp"
+    }
+  },
   "contextual": {
     "options": [
       "copy",
@@ -51,11 +56,7 @@
           {
             "group": "Get Started",
             "icon": "rocket",
-            "pages": [
-              "guides/introduction",
-              "guides/quickstart",
-              "guides/sdk"
-            ]
+            "pages": ["guides/introduction", "guides/quickstart", "guides/sdk"]
           },
           {
             "group": "Integrations",
