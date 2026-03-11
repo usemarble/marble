@@ -1,0 +1,177 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "maple",
+  "name": "Marble Documentation",
+  "description": "Documentation for Marble, the simple headless CMS for writers and developers.",
+  "colors": {
+    "primary": "#584dff",
+    "light": "#7b73ff",
+    "dark": "#5b4ffc"
+  },
+  "background": {
+    "decoration": "windows"
+  },
+  "styling": {
+    "eyebrows": "breadcrumbs",
+    "codeblocks": {
+      "theme": {
+        "light": "github-light",
+        "dark": "github-dark"
+      }
+    }
+  },
+  "favicon": "/favicon.svg",
+  "contextual": {
+    "options": [
+      "copy",
+      "chatgpt",
+      "claude",
+      {
+        "title": "Open in T3 Chat",
+        "description": "Ask questions about this page",
+        "icon": "https://t3.chat/favicon.ico",
+        "href": {
+          "base": "https://t3.chat/new",
+          "query": [
+            {
+              "key": "q",
+              "value": "Read from https://docs.marblecms.com/$path so I can ask questions about it."
+            }
+          ]
+        }
+      },
+      "mcp"
+    ]
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Guides",
+        "groups": [
+          {
+            "group": "Get Started",
+            "icon": "rocket",
+            "pages": [
+              "guides/introduction",
+              "guides/quickstart",
+              "guides/sdk"
+            ]
+          },
+          {
+            "group": "Integrations",
+            "icon": "plug",
+            "pages": [
+              "guides/integrations/astro",
+              "guides/integrations/nextjs",
+              "guides/integrations/tanstack"
+            ]
+          },
+          {
+            "group": "Features",
+            "icon": "sparkles",
+            "pages": [
+              "guides/features/editor",
+              "guides/features/media",
+              "guides/features/webhooks",
+              "guides/features/import"
+            ]
+          },
+          {
+            "group": "Recipes",
+            "icon": "book-open",
+            "pages": [
+              "guides/recipes/reading-time",
+              "guides/recipes/code-highlighting"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "openapi": "https://api.marblecms.com/openapi.json",
+        "groups": [
+          {
+            "group": "Get Started",
+            "icon": "rocket",
+            "pages": [
+              "api/introduction",
+              "api/getting-started",
+              "api/pagination",
+              "api/filtering",
+              "api/rate-limits",
+              "api/types"
+            ]
+          },
+          {
+            "group": "Posts",
+            "icon": "file-text",
+            "pages": [
+              "GET /v1/posts",
+              "GET /v1/posts/{identifier}",
+              "POST /v1/posts",
+              "PATCH /v1/posts/{identifier}",
+              "DELETE /v1/posts/{identifier}"
+            ]
+          },
+          {
+            "group": "Authors",
+            "icon": "users",
+            "pages": [
+              "GET /v1/authors",
+              "GET /v1/authors/{identifier}",
+              "POST /v1/authors",
+              "PATCH /v1/authors/{identifier}",
+              "DELETE /v1/authors/{identifier}"
+            ]
+          },
+          {
+            "group": "Categories",
+            "icon": "folder",
+            "pages": [
+              "GET /v1/categories",
+              "GET /v1/categories/{identifier}",
+              "POST /v1/categories",
+              "PATCH /v1/categories/{identifier}",
+              "DELETE /v1/categories/{identifier}"
+            ]
+          },
+          {
+            "group": "Tags",
+            "icon": "tag",
+            "pages": [
+              "GET /v1/tags",
+              "GET /v1/tags/{identifier}",
+              "POST /v1/tags",
+              "PATCH /v1/tags/{identifier}",
+              "DELETE /v1/tags/{identifier}"
+            ]
+          }
+        ]
+      }
+    ],
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Blog",
+          "href": "https://marblecms.com/blog",
+          "icon": "newspaper"
+        },
+        {
+          "anchor": "Community",
+          "href": "https://discord.marblecms.com/",
+          "icon": "discord"
+        }
+      ]
+    }
+  },
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "footer": {
+    "socials": {
+      "x": "https://x.com/usemarblecms",
+      "github": "https://github.com/usemarble"
+    }
+  }
+}

@@ -26,6 +26,7 @@ This repository is a monorepo and is structured as follows:
 ├── apps/
 │   ├── api/      → Hono REST API
 │   ├── cms/      → Next.js dashboard
+│   ├── docs/     → Mintlify documentation
 │   └── web/      → Astro marketing site
 ├── packages/
 │   ├── db/       → Prisma schema + client (shared by api & cms)
@@ -48,6 +49,7 @@ This directory contains the source code for all related applications:
 
 - **api**: [Hono](https://hono.dev) REST API for content delivery
 - **cms**: [Next.js](https://nextjs.org) app for the dashboard
+- **docs**: [Mintlify](https://mintlify.com) documentation site
 - **web**: [Astro](https://astro.build) app for the marketing website
 
 ### Packages
@@ -320,7 +322,57 @@ or just one
 pnpm cms:dev
 pnpm api:dev
 pnpm web:dev
+pnpm docs:dev
 ```
+
+## Contributing to docs
+
+The documentation lives in `apps/docs` and is built with [Mintlify](https://mintlify.com). To contribute:
+
+### Prerequisites
+
+- Node.js v20.17.0+ (same as the main project)
+- No database, Redis, or OAuth setup required
+
+### Option A: From the monorepo root (recommended)
+
+After `pnpm install`, run:
+
+```bash
+pnpm docs:dev
+```
+
+This uses the Mintlify CLI from the workspace—no global install needed. Docs preview at `http://localhost:3000`.
+
+### Option B: Manual setup
+
+If you prefer the CLI globally:
+
+```bash
+pnpm add -g mint
+cd apps/docs
+mint dev
+```
+
+### Port conflicts
+
+If port 3000 is in use (e.g. by another app), use a different port:
+
+```bash
+mint dev --port 3333
+```
+
+### Useful commands
+
+From `apps/docs`:
+
+- `mint broken-links` — Find broken internal links
+- `mint a11y` — Check accessibility (contrast, alt text)
+- `mint validate` — Validate the build (useful for CI)
+
+### Project structure
+
+See [apps/docs/README.md](../apps/docs/README.md) for the docs file layout.
 
 ## Making changes
 

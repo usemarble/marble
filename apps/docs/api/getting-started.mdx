@@ -1,0 +1,98 @@
+---
+title: "Getting Started"
+description: "Get started with the Marble API."
+---
+
+## Quick Start
+
+Make your first API request in seconds! Copy and paste this command into your terminal:
+
+```bash
+curl -H "Authorization: YOUR_API_KEY" https://api.marblecms.com/v1/posts
+```
+
+<Tip>Replace `YOUR_API_KEY` with an API key from your Marble dashboard.</Tip>
+
+## Creating an API Key
+
+<Steps>
+<Step title="Open your workspace settings">
+  Navigate to your workspace dashboard and click **Settings** in the sidebar.
+</Step>
+
+<Step title="Go to API Keys">Click on **API Keys** in the settings menu.</Step>
+
+<Step title="Create a new key">
+  Click **Create API Key**, give it a descriptive name (e.g., "Production
+  Website"), and select the appropriate permissions.
+</Step>
+
+<Step title="Copy your key">
+  Your API key will only be shown once. Copy it and store it securely.
+</Step>
+</Steps>
+
+<Warning>
+  API keys should be kept secure. While public keys are read-only, exposing them
+  in client-side code can lead to your [rate limits](/api/rate-limits) being
+  consumed by others. We recommend performing API requests on the server-side
+  whenever possible.
+</Warning>
+
+## Authentication
+
+Include your API key in the `Authorization` header:
+
+<Tabs>
+<Tab title="cURL">
+```bash
+curl -H "Authorization: YOUR_API_KEY" https://api.marblecms.com/v1/posts
+```
+</Tab>
+
+<Tab title="JavaScript">
+```javascript
+const response = await fetch("https://api.marblecms.com/v1/posts", {
+  headers: {
+    Authorization: "YOUR_API_KEY",
+  },
+});
+const data = await response.json();
+console.log(data);
+```
+</Tab>
+</Tabs>
+
+Alternatively, use the `key` query parameter:
+
+```bash
+curl "https://api.marblecms.com/v1/posts?key=YOUR_API_KEY"
+```
+
+<Note>
+  The `Authorization` header method is recommended for security. Query
+  parameters may appear in server logs.
+</Note>
+
+## Available Resources
+
+- **[Posts](/api-reference/posts/list-posts)**: List, get, create, update, or delete posts
+- **[Authors](/api-reference/authors/list-authors)**: List, get, create, update, or delete authors
+- **[Categories](/api-reference/categories/list-categories)**: List, get, create, update, or delete categories
+- **[Tags](/api-reference/tags/list-tags)**: List, get, create, update, or delete tags
+
+## Next Steps
+
+<CardGroup>
+<Card title="Pagination" icon="book-open" href="/api/pagination">
+  Learn how to paginate through large result sets.
+</Card>
+
+<Card title="Rate Limits" icon="gauge" href="/api/rate-limits">
+  Understand API rate limiting and best practices.
+</Card>
+
+<Card title="TypeScript Types" icon="code" href="/api/types">
+  Use our TypeScript definitions for type-safe development.
+</Card>
+</CardGroup>

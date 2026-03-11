@@ -1,0 +1,331 @@
+---
+title: "Filtering"
+description: "Learn how to filter posts by categories, tags, and search queries."
+---
+
+Marble API provides powerful filtering options to retrieve exactly the content you need. Filters are applied using query parameters and can be combined for precise content selection.
+
+## How Filtering Works
+
+When you request a list of posts, you can include or exclude content based on:
+
+- **Categories** - Filter by the post's category (a post belongs to one category)
+- **Tags** - Filter by the post's tags (a post can have multiple tags)
+- **Featured status** - Filter by whether a post is featured
+- **Search queries** - Search for matches in title and content
+
+All filters are combined using **AND logic**. When multiple filters are applied, posts must match **all** conditions to be included in the results.
+
+## Filter Parameters
+
+<ParamField query="categories" type="string">
+  Comma-separated list of category slugs. Posts must belong to **one of** the
+  specified categories. **Example:** `tech,news`
+</ParamField>
+
+<ParamField query="excludeCategories" type="string">
+  Comma-separated list of category slugs to exclude. Posts in these categories
+  will be omitted from results. **Example:** `changelog,legal`
+</ParamField>
+
+<ParamField query="tags" type="string">
+  Comma-separated list of tag slugs. Posts must have **at least one** of the
+  specified tags. **Example:** `javascript,react`
+</ParamField>
+
+<ParamField query="excludeTags" type="string">
+  Comma-separated list of tag slugs to exclude. Posts with **any** of these tags
+  will be omitted. **Example:** `outdated,draft`
+</ParamField>
+
+<ParamField query="query" type="string">
+  Search term to filter by title and content. **Example:** `nextjs`
+</ParamField>
+
+<ParamField query="order" type="string" default="desc">
+  Sort order by `publishedAt`. Options: `asc` or `desc`
+</ParamField>
+
+<ParamField query="featured" type="string">
+  Filter by featured status. Options: `true` or `false`
+</ParamField>
+
+## SDK Examples
+
+<Tabs>
+<Tab title="Filter by Category">
+Get all posts in the "tutorials" category:
+
+```typescript
+import { Marble } from "@usemarble/sdk";
+
+const marble = new Marble({
+  apiKey: process.env["MARBLE_API_KEY"] ?? "",
+});
+
+const result = await marble.posts.list({
+  categories: ["tutorials"],
+});
+
+for await (const page of result) {
+  console.log(page.posts);
+}
+```
+
+</Tab>
+
+<Tab title="Exclude Categories">
+Get all posts except those in "changelog" or "legal":
+
+```typescript
+import { Marble } from "@usemarble/sdk";
+
+const marble = new Marble({
+  apiKey: process.env["MARBLE_API_KEY"] ?? "",
+});
+
+const result = await marble.posts.list({
+  excludeCategories: ["changelog", "legal"],
+});
+
+for await (const page of result) {
+  console.log(page.posts);
+}
+```
+
+</Tab>
+
+<Tab title="Filter by Tags">
+Get posts tagged with "javascript" or "typescript":
+
+```typescript
+import { Marble } from "@usemarble/sdk";
+
+const marble = new Marble({
+  apiKey: process.env["MARBLE_API_KEY"] ?? "",
+});
+
+const result = await marble.posts.list({
+  tags: ["javascript", "typescript"],
+});
+
+for await (const page of result) {
+  console.log(page.posts);
+}
+```
+
+</Tab>
+
+<Tab title="Combined Filters">
+Get posts in "tutorials" but exclude outdated content:
+
+```typescript
+import { Marble } from "@usemarble/sdk";
+
+const marble = new Marble({
+  apiKey: process.env["MARBLE_API_KEY"] ?? "",
+});
+
+const result = await marble.posts.list({
+  categories: ["tutorials"],
+  excludeTags: ["outdated", "deprecated"],
+});
+
+for await (const page of result) {
+  console.log(page.posts);
+}
+```
+
+</Tab>
+
+<Tab title="Featured Posts">
+Get only featured posts:
+
+```typescript
+import { Marble } from "@usemarble/sdk";
+
+const marble = new Marble({
+  apiKey: process.env["MARBLE_API_KEY"] ?? "",
+});
+
+const result = await marble.posts.list({
+  featured: "true",
+});
+
+for await (const page of result) {
+  console.log(page.posts);
+}
+```
+
+</Tab>
+</Tabs>
+
+## Filter Behavior
+
+<Note>
+  **AND Logic**: All specified filters are applied together. A post must satisfy
+  every condition to appear in results.
+</Note>
+
+### Understanding Filter Precedence
+
+When using both include and exclude filters, they work together—not against each other:
+
+| Filter Combination                     | Result                                     |
+| -------------------------------------- | ------------------------------------------ |
+| `categories=tech`                      | Posts in "tech" category                   |
+| `excludeTags=outdated`                 | Posts without "outdated" tag               |
+| `categories=tech&excludeTags=outdated` | Posts in "tech" AND without "outdated" tag |
+
+<Warning>
+  **Important**: If a post is in the "tech" category but has the "outdated" tag,
+  it will be **excluded** when using `categories=tech&excludeTags=outdated`.
+  Exclude filters take effect regardless of category matches.
+</Warning>
+
+### Include vs Exclude Logic
+
+<AccordionGroup>
+<Accordion title="Categories (include)">
+Posts must belong to **one of** the specified categories:
+
+```
+?categories=tech,news
+```
+
+Returns posts in "tech" **OR** "news" categories.
+
+</Accordion>
+
+<Accordion title="Categories (exclude)">
+Posts must **not** belong to any excluded category:
+
+```
+?excludeCategories=legal,changelog
+```
+
+Returns all posts **except** those in "legal" or "changelog".
+
+</Accordion>
+
+<Accordion title="Tags (include)">
+Posts must have **at least one** of the specified tags:
+
+```
+?tags=react,nextjs
+```
+
+Returns posts tagged with "react" **OR** "nextjs" (or both).
+
+</Accordion>
+
+<Accordion title="Tags (exclude)">
+Posts must have **none** of the excluded tags:
+
+```
+?excludeTags=outdated
+```
+
+Returns posts that do **not** have the "outdated" tag.
+
+</Accordion>
+</AccordionGroup>
+
+## Search Queries
+
+Use the `query` parameter to search for matches in post titles and content:
+
+```typescript
+import { Marble } from "@usemarble/sdk";
+
+const marble = new Marble({
+  apiKey: process.env["MARBLE_API_KEY"] ?? "",
+});
+
+const result = await marble.posts.list({
+  query: "getting started",
+});
+
+for await (const page of result) {
+  console.log(page.posts);
+}
+```
+
+<Tip>
+  Combine search with category filters for targeted results:
+  `?categories=tutorials&query=authentication`
+</Tip>
+
+## Common Use Cases
+
+<Tabs>
+<Tab title="Blog Posts Only">
+Exclude system pages like legal and changelog:
+
+```typescript
+await marble.posts.list({
+  excludeCategories: ["legal", "changelog"],
+});
+```
+
+</Tab>
+
+<Tab title="Featured Content">
+Get only featured posts:
+
+```typescript
+await marble.posts.list({
+  featured: "true",
+});
+```
+
+</Tab>
+
+<Tab title="Fresh Content">
+Exclude outdated posts:
+
+```typescript
+await marble.posts.list({
+  excludeTags: ["outdated", "archived"],
+});
+```
+
+</Tab>
+
+<Tab title="Topic Deep Dive">
+Category + search combo:
+
+```typescript
+await marble.posts.list({
+  categories: ["tutorials"],
+  query: "react hooks",
+});
+```
+
+</Tab>
+</Tabs>
+
+## Best Practices
+
+<Tip>
+  **Use excludes for "everything except"**: When you want all content except a
+  few categories, use `excludeCategories` instead of listing every category you
+  want.
+</Tip>
+
+<Tip>
+  **Combine with pagination**: Filtering works seamlessly with pagination. Apply
+  filters first, then paginate through the filtered results.
+</Tip>
+
+<Note>
+  **Filter order doesn't matter**: The API applies all filters together
+  regardless of the order you specify them in the query string.
+</Note>
+
+<Warning>
+  **Watch your rate limits**: Each search request counts against your [rate
+  limit](/api/rate-limits). For real-time "search as you type" experiences,
+  fetch your posts once and filter them client-side instead of making a new API
+  request on every keystroke.
+</Warning>

@@ -1,0 +1,203 @@
+---
+title: "TypeScript SDK"
+description: "Official Marble SDK for TypeScript."
+---
+
+Developer-friendly & type-safe TypeScript SDK for the Marble API. Built with automatic retries, pagination helpers, and full TypeScript support.
+
+## Installation
+
+<CodeGroup>
+```bash npm
+npm install @usemarble/sdk
+```
+
+```bash pnpm
+pnpm add @usemarble/sdk
+```
+
+```bash yarn
+yarn add @usemarble/sdk
+```
+
+```bash bun
+bun add @usemarble/sdk
+```
+
+</CodeGroup>
+
+<Note>
+  This package is published with CommonJS and ES Modules (ESM) support.
+</Note>
+
+## Quick Start
+
+```typescript
+import { Marble } from "@usemarble/sdk";
+
+const marble = new Marble({
+  apiKey: process.env["MARBLE_API_KEY"] ?? "",
+});
+
+async function run() {
+  const result = await marble.posts.list({
+    limit: 10,
+    page: 1,
+  });
+
+  for await (const page of result) {
+    console.log(page);
+  }
+}
+
+run();
+```
+
+## Authentication
+
+The SDK uses API key authentication. Pass your API key when initializing the client:
+
+```typescript
+import { Marble } from "@usemarble/sdk";
+
+const marble = new Marble({
+  apiKey: process.env["MARBLE_API_KEY"] ?? "",
+});
+```
+
+<Tip>
+  Set the `MARBLE_API_KEY` environment variable and the SDK will automatically
+  use it.
+</Tip>
+
+## Available Resources
+
+<CardGroup cols={2}>
+<Card title="Posts" icon="file-text">
+  - List all posts
+  - Get a single post
+</Card>
+
+<Card title="Categories" icon="folder">
+  - List all categories
+  - Get a single category
+</Card>
+
+<Card title="Tags" icon="tag">
+  - List all tags
+  - Get a single tag
+</Card>
+
+<Card title="Authors" icon="users">
+  - List all authors
+  - Get a single author
+</Card>
+</CardGroup>
+
+## Filtering Posts
+
+Filter posts by categories, tags, or featured status:
+
+```typescript
+const result = await marble.posts.list({
+  featured: "true",
+  categories: "tech,news",
+  excludeCategories: "drafts",
+  tags: "javascript,react",
+  excludeTags: "outdated",
+});
+```
+
+For a complete guide on filtering options and behavior, see the [Filtering documentation](/api/filtering).
+
+## Pagination
+
+Paginated endpoints return an async iterable. Use `for await...of` to iterate through pages:
+
+```typescript
+const result = await marble.posts.list({
+  limit: 10,
+  page: 1,
+});
+
+for await (const page of result) {
+  console.log(page.posts);
+  console.log(page.pagination);
+}
+```
+
+For full pagination details and response fields, see the [Pagination documentation](/api/pagination).
+
+## Error Handling
+
+The SDK provides typed error classes for different error scenarios:
+
+```typescript
+import { Marble } from "@usemarble/sdk";
+import * as errors from "@usemarble/sdk/models/errors";
+
+const marble = new Marble({
+  apiKey: process.env["MARBLE_API_KEY"] ?? "",
+});
+
+try {
+  const result = await marble.posts.get("non-existent-slug");
+} catch (error) {
+  if (error instanceof errors.NotFoundError) {
+    console.log("Post not found");
+  } else if (error instanceof errors.MarbleError) {
+    console.log(error.message);
+    console.log(error.statusCode);
+  }
+}
+```
+
+## Retries
+
+The SDK automatically retries failed requests. You can customize retry behavior:
+
+```typescript
+const marble = new Marble({
+  apiKey: process.env["MARBLE_API_KEY"] ?? "",
+  retryConfig: {
+    strategy: "backoff",
+    backoff: {
+      initialInterval: 1,
+      maxInterval: 50,
+      exponent: 1.1,
+      maxElapsedTime: 100,
+    },
+    retryConnectionErrors: false,
+  },
+});
+```
+
+## Framework Guides
+
+<CardGroup cols={3}>
+  <Card title="Next.js" icon="react" href="/guides/integrations/nextjs">
+    Build static and server-rendered pages.
+  </Card>
+
+{" "}
+
+<Card title="Astro" icon="star" href="/guides/integrations/astro">
+  Use Content Collections with Astro.
+</Card>
+
+  <Card title="TanStack Start" icon="layer-group" href="/guides/integrations/tanstack">
+    Server functions with TanStack Start.
+  </Card>
+</CardGroup>
+
+## Additional Resources
+
+<CardGroup cols={2}>
+  <Card title="NPM Package" icon="npm" href="https://www.npmjs.com/package/@usemarble/sdk">
+    View the package on npm.
+  </Card>
+
+  <Card title="GitHub" icon="github" href="https://github.com/usemarble/marble-ts">
+    View the source code.
+  </Card>
+</CardGroup>
