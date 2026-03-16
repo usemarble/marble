@@ -60,7 +60,7 @@ export const sanitizeHtml = (content: string): string => {
       "*": ["style"],
       code: ["class"],
       a: ["href", "target"],
-      iframe: ["src", "allowfullscreen", "style"],
+      iframe: ["src", "allowfullscreen", "style", "width", "height"],
       input: ["type", "checked"],
       figure: [
         "src",
@@ -72,7 +72,7 @@ export const sanitizeHtml = (content: string): string => {
       ],
       video: ["src", "controls", "preload", "muted", "loop", "playsinline"],
       track: ["kind", "src", "srclang", "label"],
-      div: ["data-twitter", "data-src"],
+      div: ["data-twitter", "data-src", "data-youtube-video"],
       span: ["style", "data-color"],
       mark: ["style", "data-color"],
     },
