@@ -77,6 +77,13 @@ export const FOOTER_SECTIONS: FooterSection[] = [
         rel: "noopener",
       },
       {
+        label: "Framer Plugin",
+        href: "https://www.framer.com/marketplace/plugins/marble",
+        external: true,
+        target: "_blank",
+        rel: "noopener",
+      },
+      {
         label: "Astro Example",
         href: "https://github.com/usemarble/astro-example",
         external: true,
