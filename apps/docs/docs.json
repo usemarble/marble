@@ -63,6 +63,7 @@
             "icon": "plug",
             "pages": [
               "guides/integrations/astro",
+              "guides/integrations/framer",
               "guides/integrations/nextjs",
               "guides/integrations/tanstack"
             ]
