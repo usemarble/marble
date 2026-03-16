@@ -1,5 +1,6 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { Hono } from "hono";
+import { cors } from "hono/cors";
 import { trimTrailingSlash } from "hono/trailing-slash";
 import { ROUTES } from "./lib/constants";
 import { analytics } from "./middleware/analytics";
@@ -17,9 +18,31 @@ import postsRoutes from "./routes/posts";
 import tagsRoutes from "./routes/tags";
 import type { ApiKeyApp, Env } from "./types/env";
 
+const FRAMER_PLUGIN_ID = "4pj5owtk2qcexo6c1yt9kicye";
+const FRAMER_PLUGIN_PATTERN = new RegExp(
+  `^https://${FRAMER_PLUGIN_ID}(-[a-zA-Z0-9]+)?\\.plugins\\.framercdn\\.com$`
+);
+
 const app = new OpenAPIHono<{ Bindings: Env }>();
 
-// Global middleware
+// Global middleware — CORS must be first so preflight and cross-origin responses work
+app.use(
+  "*",
+  cors({
+    origin: (origin) => {
+      if (!origin) {
+        return "*";
+      }
+      if (FRAMER_PLUGIN_PATTERN.test(origin)) {
+        return origin;
+      }
+      return "*";
+    },
+    allowHeaders: ["Content-Type", "Authorization"],
+    allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  })
+);
+
 app.use("*", cache());
 app.use(trimTrailingSlash());
 
