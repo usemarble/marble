@@ -182,6 +182,16 @@ const PostsQuerySchema = z.object({
       description:
         "Filter by post status. Use 'published' for live posts, 'draft' for unpublished posts, or 'all' for both.",
     }),
+  content: z
+    .enum(["true", "false"])
+    .optional()
+    .default("true")
+    .openapi({
+      param: { name: "content", in: "query" },
+      example: "false",
+      description:
+        "Include full post content in response (default: true). Set to false for lightweight list responses.",
+    }),
 });
 
 const PostParamsSchema = z.object({
@@ -322,7 +332,10 @@ posts.openapi(listPostsRoute, async (c) => {
       format,
       featured,
       status,
+      content,
     } = c.req.valid("query");
+
+    const includeContent = content === "true";
 
     const categoryFilter: Record<string, unknown> = {};
     if (categories.length > 0) {
@@ -424,67 +437,72 @@ posts.openapi(listPostsRoute, async (c) => {
     const prevPage = page > 1 ? page - 1 : null;
     const nextPage = page < totalPages ? page + 1 : null;
 
-    const postsData = await cache.getOrSet(listCacheKey, () =>
-      db.post.findMany({
-        where,
-        orderBy: {
-          publishedAt: order,
-        },
-        take: limit,
-        skip: postsToSkip,
+    const postSelect = {
+      id: true,
+      slug: true,
+      title: true,
+      content: includeContent,
+      featured: true,
+      coverImage: true,
+      description: true,
+      publishedAt: true,
+      updatedAt: true,
+      attribution: true,
+      authors: {
         select: {
           id: true,
+          name: true,
+          image: true,
+          bio: true,
+          role: true,
           slug: true,
-          title: true,
-          content: true,
-          featured: true,
-          coverImage: true,
-          description: true,
-          publishedAt: true,
-          updatedAt: true,
-          attribution: true,
-          authors: {
+          socials: {
             select: {
-              id: true,
-              name: true,
-              image: true,
-              bio: true,
-              role: true,
-              slug: true,
-              socials: {
-                select: {
-                  url: true,
-                  platform: true,
-                },
-              },
-            },
-          },
-          category: {
-            select: {
-              id: true,
-              name: true,
-              slug: true,
-              description: true,
-            },
-          },
-          tags: {
-            select: {
-              id: true,
-              name: true,
-              slug: true,
-              description: true,
+              url: true,
+              platform: true,
             },
           },
         },
-      })
-    );
+      },
+      category: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          description: true,
+        },
+      },
+      tags: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          description: true,
+        },
+      },
+    } as const;
 
-    // Format posts based on requested format
+    const findManyArgs = {
+      where,
+      orderBy: { publishedAt: order },
+      take: limit,
+      skip: postsToSkip,
+      select: postSelect,
+    };
+
+    const postsData = includeContent
+      ? await db.post.findMany(findManyArgs)
+      : await cache.getOrSet(listCacheKey, () =>
+          db.post.findMany(findManyArgs)
+        );
+
     const formattedPosts =
-      format === "markdown"
+      includeContent && format === "markdown"
         ? postsData.map((post) => ({
             ...post,
-            content: NodeHtmlMarkdown.translate(post.content || ""),
+            content: NodeHtmlMarkdown.translate(
+              (post as unknown as { content: string }).content || ""
+            ),
             attribution: post.attribution as {
               author: string;
               url: string;

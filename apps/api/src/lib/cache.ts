@@ -6,6 +6,9 @@ const DEFAULT_TTL = 3600;
 /** Cache key prefix for all cached data */
 const CACHE_PREFIX = "cache";
 
+/** Skip caching values larger than 8MB to stay under Upstash's 10MB request limit */
+const MAX_CACHE_VALUE_BYTES = 8 * 1024 * 1024;
+
 export type CacheClient = ReturnType<typeof createCacheClient>;
 
 /**
@@ -37,6 +40,13 @@ export function createCacheClient(url: string, token: string) {
      */
     async set<T>(key: string, value: T, ttl = DEFAULT_TTL): Promise<void> {
       try {
+        const serialized = JSON.stringify(value);
+        if (serialized.length > MAX_CACHE_VALUE_BYTES) {
+          console.warn(
+            `[Cache] SKIP SET: ${key} is ${serialized.length} bytes, exceeds ${MAX_CACHE_VALUE_BYTES} byte limit`
+          );
+          return;
+        }
         await redis.set(key, value, { ex: ttl });
         console.log(`[Cache] SET: ${key} (TTL: ${ttl}s)`);
       } catch (error) {
@@ -61,6 +71,13 @@ export function createCacheClient(url: string, token: string) {
 
         console.log(`[Cache] MISS: ${key}`);
         const fresh = await fetcher();
+        const serialized = JSON.stringify(fresh);
+        if (serialized.length > MAX_CACHE_VALUE_BYTES) {
+          console.warn(
+            `[Cache] SKIP SET: ${key} is ${serialized.length} bytes, exceeds ${MAX_CACHE_VALUE_BYTES} byte limit`
+          );
+          return fresh;
+        }
         await redis.set(key, fresh, { ex: ttl });
         return fresh;
       } catch (error) {
