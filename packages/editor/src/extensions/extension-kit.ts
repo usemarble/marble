@@ -1,5 +1,4 @@
 import { cn } from "@marble/ui/lib/utils";
-import { Color } from "@tiptap/extension-color";
 import { FileHandler } from "@tiptap/extension-file-handler";
 import { Highlight } from "@tiptap/extension-highlight";
 import { Image } from "@tiptap/extension-image";
@@ -224,11 +223,8 @@ export const ExtensionKit = ({
     },
   }),
 
-  // Text styling kit
+  // Text styling kit (includes Color, BackgroundColor, FontFamily, FontSize, LineHeight, TextStyle)
   TextStyleKit,
-
-  // Color extension for text color
-  Color,
 
   // Highlight extension for text highlighting
   Highlight.configure({ multicolor: true }),

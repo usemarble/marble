@@ -19,7 +19,6 @@
     "@phosphor-icons/react": "^2.1.10",
     "@tiptap/core": "^3.20.1",
     "@tiptap/extension-code-block-lowlight": "^3.20.1",
-    "@tiptap/extension-color": "^3.20.1",
     "@tiptap/extension-document": "^3.20.1",
     "@tiptap/extension-file-handler": "^3.20.1",
     "@tiptap/extension-highlight": "^3.20.1",

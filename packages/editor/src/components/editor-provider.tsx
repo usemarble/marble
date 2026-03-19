@@ -1,4 +1,5 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: <> */
+import type { AnyExtension } from "@tiptap/core";
 import {
   EditorProvider as TiptapEditorProvider,
   type EditorProviderProps as TiptapEditorProviderProps,
@@ -7,6 +8,17 @@ import {
 } from "@tiptap/react";
 import { ExtensionKit } from "../extensions/extension-kit";
 import { handleCommandNavigation } from "../extensions/slash-command";
+
+function deduplicateExtensions(
+  defaults: AnyExtension[],
+  overrides: AnyExtension[]
+): AnyExtension[] {
+  const overrideNames = new Set(overrides.map((ext) => ext.name));
+  return [
+    ...defaults.filter((ext) => !overrideNames.has(ext.name)),
+    ...overrides,
+  ];
+}
 
 export type EditorProviderProps = Omit<
   TiptapEditorProviderProps,
@@ -54,7 +66,7 @@ export const EditorProvider = ({
           handleCommandNavigation(event);
         },
       }}
-      extensions={[...defaultExtensions, ...(extensions ?? [])]}
+      extensions={deduplicateExtensions(defaultExtensions, extensions ?? [])}
       immediatelyRender={false}
       onUpdate={onUpdate}
       {...props}
@@ -101,7 +113,7 @@ export function useMarbleEditor(options: UseMarbleEditorOptions) {
       },
       ...restOptions.editorProps,
     },
-    extensions: [...defaultExtensions, ...extensions],
+    extensions: deduplicateExtensions(defaultExtensions, extensions),
     ...restOptions,
   });
 }

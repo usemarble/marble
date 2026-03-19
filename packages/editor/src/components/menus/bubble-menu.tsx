@@ -69,6 +69,10 @@ export const EditorBubbleMenu = ({
     [editor, customShouldShow]
   );
 
+  if (!editor) {
+    return null;
+  }
+
   return (
     <TiptapBubbleMenu
       className={cn(
@@ -77,7 +81,7 @@ export const EditorBubbleMenu = ({
         "[&>*:last-child]:rounded-r-[9px]",
         className
       )}
-      editor={editor ?? undefined}
+      editor={editor}
       shouldShow={shouldShow}
       {...props}
     >
