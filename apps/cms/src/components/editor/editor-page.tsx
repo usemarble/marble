@@ -63,6 +63,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
     watch,
     setValue,
     clearErrors,
+    trigger,
     control,
     formState: { errors },
   } = form;
@@ -341,6 +342,7 @@ function EditorPage({ initialData, id }: EditorPageProps) {
         mode={isUpdateMode ? "update" : "create"}
         postId={id}
         setIsOpen={setShowSettings}
+        trigger={trigger}
         watch={watch}
       />
     </EditorContext.Provider>

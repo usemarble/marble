@@ -18,7 +18,12 @@ import { cn } from "@marble/ui/lib/utils";
 import { SpinnerIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
-import type { Control, FieldErrors, UseFormWatch } from "react-hook-form";
+import type {
+  Control,
+  FieldErrors,
+  UseFormTrigger,
+  UseFormWatch,
+} from "react-hook-form";
 import { useDebounce } from "@/hooks/use-debounce";
 import { fetchAiReadabilitySuggestionsObject } from "@/lib/ai/readability";
 import { QUERY_KEYS } from "@/lib/queries/keys";
@@ -49,6 +54,7 @@ const TabLoadingSpinner = () => (
 type EditorSidebarProps = React.ComponentProps<typeof Sidebar> & {
   control: Control<PostValues>;
   errors: FieldErrors<PostValues>;
+  trigger: UseFormTrigger<PostValues>;
   watch: UseFormWatch<PostValues>;
   formRef: React.RefObject<HTMLFormElement | null>;
   isSubmitting: boolean;
@@ -62,6 +68,7 @@ type EditorSidebarProps = React.ComponentProps<typeof Sidebar> & {
 export function EditorSidebar({
   control,
   errors,
+  trigger,
   formRef,
   isSubmitting,
   watch,
@@ -289,10 +296,10 @@ export function EditorSidebar({
         <SidebarFooter className="shrink-0 bg-transparent px-6 py-6">
           {activeTab === "metadata" && (
             <MetadataFooter
-              errors={errors}
               formRef={formRef}
               isSubmitting={isSubmitting}
               mode={mode}
+              trigger={trigger}
             />
           )}
         </SidebarFooter>
