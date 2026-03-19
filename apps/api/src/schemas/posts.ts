@@ -59,17 +59,13 @@ const PostBaseFields = {
     .string()
     .nullable()
     .openapi({ example: "https://media.marblecms.com/cover.jpg" }),
-  description: z
-    .string()
-    .openapi({ example: "A beginner's guide to Next.js" }),
+  description: z.string().openapi({ example: "A beginner's guide to Next.js" }),
   publishedAt: z.iso.datetime().openapi({ example: "2024-01-15T10:00:00Z" }),
   updatedAt: z.iso.datetime().openapi({ example: "2024-01-16T12:00:00Z" }),
   attribution: z
     .object({
       author: z.string().openapi({ example: "John Doe" }),
-      url: z
-        .url()
-        .openapi({ example: "https://original-source.com/article" }),
+      url: z.url().openapi({ example: "https://original-source.com/article" }),
     })
     .nullable()
     .openapi({
@@ -91,14 +87,11 @@ export const PostSchema = z
 export const PostListItemSchema = z
   .object({
     ...PostBaseFields,
-    content: z
-      .string()
-      .optional()
-      .openapi({
-        example: "<p>Hello world</p>",
-        description:
-          "Full post content. Only included when content=true (default).",
-      }),
+    content: z.string().optional().openapi({
+      example: "<p>Hello world</p>",
+      description:
+        "Full post content. Only included when content=true (default).",
+    }),
   })
   .openapi("PostListItem");
 
