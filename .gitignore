@@ -41,3 +41,4 @@ yarn-error.log*
 .agents/skills/
 .agent/skills/
 .cursor/skills/
+.claude/skills/
