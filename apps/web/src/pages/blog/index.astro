@@ -8,7 +8,9 @@
 
   const unsortedPosts = await getCollection("posts");
   const posts = unsortedPosts.sort(
-    (a, b) => new Date(b.data.publishedAt).valueOf() - new Date(a.data.publishedAt).valueOf()
+    (a, b) =>
+      new Date(b.data.publishedAt).valueOf() -
+      new Date(a.data.publishedAt).valueOf()
   );
   const categories = await getCollection("categories");
   const fillers = Array.from({ length: (3 - (posts.length % 3)) % 3 });

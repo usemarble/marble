@@ -88,7 +88,8 @@ export const columns: ColumnDef<Post>[] = [
         <CaretUpDownIcon className="size-3.5 opacity-70" />
       </Button>
     ),
-    cell: ({ row }) => formatCalendarDate(new Date(row.original.publishedAt), "MMM dd, yyyy"),
+    cell: ({ row }) =>
+      formatCalendarDate(new Date(row.original.publishedAt), "MMM dd, yyyy"),
   },
   {
     accessorKey: "updatedAt",

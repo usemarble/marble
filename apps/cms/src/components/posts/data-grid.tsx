@@ -82,7 +82,11 @@ export function DataGrid({ data }: DataGridProps) {
                       }
                     />
                     <TooltipContent>
-                      Published: {formatCalendarDate(new Date(post.publishedAt), "MMM dd, yyyy")}
+                      Published:{" "}
+                      {formatCalendarDate(
+                        new Date(post.publishedAt),
+                        "MMM dd, yyyy"
+                      )}
                     </TooltipContent>
                   </Tooltip>
 

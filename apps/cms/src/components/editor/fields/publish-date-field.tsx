@@ -21,7 +21,9 @@ interface PublishDateFieldProps {
 }
 
 function toUTCMidnight(date: Date) {
-  return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  return new Date(
+    Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
+  );
 }
 
 function utcToLocalDate(date: Date) {
@@ -55,7 +57,11 @@ export function PublishDateField({ control }: PublishDateFieldProps) {
               )}
               variant="outline"
             >
-              {displayDate ? format(displayDate, "PPP") : <span>Pick a date</span>}
+              {displayDate ? (
+                format(displayDate, "PPP")
+              ) : (
+                <span>Pick a date</span>
+              )}
               <CalendarDotsIcon className="text-muted-foreground" />
             </Button>
           }

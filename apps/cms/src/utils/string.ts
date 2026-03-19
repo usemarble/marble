@@ -6,7 +6,11 @@ import { format } from "date-fns";
  * "Mar 18, 2026" regardless of where the viewer is.
  */
 export function formatCalendarDate(date: Date, formatStr: string) {
-  const local = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+  const local = new Date(
+    date.getUTCFullYear(),
+    date.getUTCMonth(),
+    date.getUTCDate()
+  );
   return format(local, formatStr);
 }
 
