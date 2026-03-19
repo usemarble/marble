@@ -5,6 +5,7 @@ import { Button } from "@marble/ui/components/button";
 import { CaretUpDownIcon } from "@phosphor-icons/react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
+import { formatCalendarDate } from "@/utils/string";
 import PostActions from "./post-actions";
 
 export interface Post {
@@ -87,7 +88,7 @@ export const columns: ColumnDef<Post>[] = [
         <CaretUpDownIcon className="size-3.5 opacity-70" />
       </Button>
     ),
-    cell: ({ row }) => format(row.original.publishedAt, "MMM dd, yyyy"),
+    cell: ({ row }) => formatCalendarDate(new Date(row.original.publishedAt), "MMM dd, yyyy"),
   },
   {
     accessorKey: "updatedAt",

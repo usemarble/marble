@@ -1,3 +1,15 @@
+import { format } from "date-fns";
+
+/**
+ * Formats a UTC-midnight date as a calendar date string, ignoring the
+ * browser's local timezone so "March 18 00:00 UTC" always renders as
+ * "Mar 18, 2026" regardless of where the viewer is.
+ */
+export function formatCalendarDate(date: Date, formatStr: string) {
+  const local = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+  return format(local, formatStr);
+}
+
 export function generateSlug(text: string) {
   const slug = text
     .trim()

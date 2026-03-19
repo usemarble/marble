@@ -6,7 +6,10 @@
   import Layout from "@/layouts/Layout.astro";
   import { SITE } from "@/lib/constants/site";
 
-  const posts = await getCollection("posts");
+  const unsortedPosts = await getCollection("posts");
+  const posts = unsortedPosts.sort(
+    (a, b) => new Date(b.data.publishedAt).valueOf() - new Date(a.data.publishedAt).valueOf()
+  );
   const categories = await getCollection("categories");
   const fillers = Array.from({ length: (3 - (posts.length % 3)) % 3 });
 ---

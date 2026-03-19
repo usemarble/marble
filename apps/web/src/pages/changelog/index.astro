@@ -5,7 +5,10 @@
   import Layout from "@/layouts/Layout.astro";
   import { SITE } from "@/lib/constants/site";
 
-  const entries = await getCollection("changelog");
+  const unsortedEntries = await getCollection("changelog");
+  const entries = unsortedEntries.sort(
+    (a, b) => new Date(b.data.publishedAt).valueOf() - new Date(a.data.publishedAt).valueOf()
+  );
 ---
 <Layout
   title={`Changelog - ${SITE.TITLE}`}

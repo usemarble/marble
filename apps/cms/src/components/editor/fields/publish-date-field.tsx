@@ -20,6 +20,14 @@ interface PublishDateFieldProps {
   control: Control<PostValues>;
 }
 
+function toUTCMidnight(date: Date) {
+  return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+}
+
+function utcToLocalDate(date: Date) {
+  return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+}
+
 export function PublishDateField({ control }: PublishDateFieldProps) {
   const {
     field: { onChange, value },
@@ -28,6 +36,8 @@ export function PublishDateField({ control }: PublishDateFieldProps) {
     name: "publishedAt",
     control,
   });
+
+  const displayDate = value ? utcToLocalDate(value) : undefined;
 
   return (
     <div className="flex flex-col gap-3">
@@ -45,7 +55,7 @@ export function PublishDateField({ control }: PublishDateFieldProps) {
               )}
               variant="outline"
             >
-              {value ? format(value, "PPP") : <span>Pick a date</span>}
+              {displayDate ? format(displayDate, "PPP") : <span>Pick a date</span>}
               <CalendarDotsIcon className="text-muted-foreground" />
             </Button>
           }
@@ -57,10 +67,10 @@ export function PublishDateField({ control }: PublishDateFieldProps) {
             mode="single"
             onSelect={(date: Date | undefined) => {
               if (date) {
-                onChange(date);
+                onChange(toUTCMidnight(date));
               }
             }}
-            selected={value}
+            selected={displayDate}
           />
         </PopoverContent>
       </Popover>

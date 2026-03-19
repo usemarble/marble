@@ -22,6 +22,7 @@ import { CalendarIcon, ClockClockwiseIcon } from "@phosphor-icons/react";
 import { format } from "date-fns";
 import Link from "next/link";
 import { useWorkspace } from "@/providers/workspace";
+import { formatCalendarDate } from "@/utils/string";
 import type { Post } from "./columns";
 import PostActions from "./post-actions";
 
@@ -81,7 +82,7 @@ export function DataGrid({ data }: DataGridProps) {
                       }
                     />
                     <TooltipContent>
-                      Published: {format(post.publishedAt, "MMM dd, yyyy")}
+                      Published: {formatCalendarDate(new Date(post.publishedAt), "MMM dd, yyyy")}
                     </TooltipContent>
                   </Tooltip>
 
