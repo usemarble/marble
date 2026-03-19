@@ -374,6 +374,27 @@ From `apps/docs`:
 
 See [apps/docs/README.md](../apps/docs/README.md) for the docs file layout.
 
+## Agent skills (optional)
+
+The repo root has a [`skills-lock.json`](../skills-lock.json) file that pins [Agent Skills](https://skills.sh/) (for example Cloudflare, Tiptap, Vercel labs, and Resend-related packages). Installed skill files live under gitignored paths (for example `.agents/skills/`, `.cursor/skills/`, and `.claude/skills/`) so they are not committed.
+
+After cloning, you can restore the same skills from the lockfile from the repository root:
+
+```bash
+npx skills experimental_install
+```
+
+`experimental_install` is the current CLI command that reads `skills-lock.json`. Adding a package updates the lockfile — for example:
+
+```bash
+npx skills add https://github.com/cloudflare/skills
+npx skills add ueberdosis/tiptap
+npx skills add vercel-labs/agent-skills
+npx skills add resend/email-best-practices
+```
+
+If you add or change skills for the team, commit the updated `skills-lock.json`.
+
 ## Making changes
 
 1. Create a new branch for your changes
