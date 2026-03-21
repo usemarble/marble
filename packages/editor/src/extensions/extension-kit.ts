@@ -161,7 +161,7 @@ export const ExtensionKit = ({
   // Image extension for backward compatibility with older posts
   Image.configure({
     inline: false,
-    allowBase64: true,
+    allowBase64: false,
   }),
 
   // Figure (image with caption support)

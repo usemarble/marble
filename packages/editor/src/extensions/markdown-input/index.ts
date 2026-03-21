@@ -56,7 +56,13 @@ export const MarkdownInput = Extension.create({
               return true;
             }
 
-            // If no files, check if clipboard text looks like markdown
+            // If HTML is available, let the normal HTML paste pipeline handle it
+            const html = event.clipboardData?.getData("text/html");
+            if (html) {
+              return false;
+            }
+
+            // If no HTML, check if clipboard text looks like markdown
             const text = event.clipboardData?.getData("text/plain");
 
             if (!text) {

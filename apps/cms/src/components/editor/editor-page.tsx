@@ -254,6 +254,25 @@ function EditorPage({ initialData, id }: EditorPageProps) {
         class:
           "prose dark:prose-invert min-h-96 h-full sm:px-4 focus:outline-hidden max-w-full prose-blockquote:border-border",
       },
+      transformPastedHTML(html) {
+        const cleaned = html
+          .replace(/<img[^>]*\ssrc=["']data:image\/[^"']*["'][^>]*\/?>/gi, "")
+          .replace(
+            /<video[^>]*\ssrc=["']data:video\/[^"']*["'][^>]*>.*?<\/video>/gi,
+            ""
+          );
+        const doc = new DOMParser().parseFromString(cleaned, "text/html");
+        for (const el of Array.from(doc.querySelectorAll("img, video"))) {
+          if (!el.closest("figure")) {
+            const figure = doc.createElement("figure");
+            const figcaption = doc.createElement("figcaption");
+            el.parentNode?.insertBefore(figure, el);
+            figure.appendChild(el);
+            figure.appendChild(figcaption);
+          }
+        }
+        return doc.body.innerHTML;
+      },
     },
     extensions: [
       ImageUpload.configure({
