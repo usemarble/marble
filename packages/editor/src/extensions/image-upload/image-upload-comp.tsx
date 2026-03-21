@@ -19,7 +19,7 @@ import {
   XIcon,
 } from "@phosphor-icons/react";
 import type { ChangeEvent } from "react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { MediaItem, MediaPage } from "../../types";
 import { useDropZone, useFileUpload, useUploader } from "./hooks";
 
@@ -126,9 +126,11 @@ export const ImageUploadComp = ({
     }
   }, [providedMedia]);
 
-  // Auto-upload if initialFile is provided
+  const initialUploadedRef = useRef(false);
+
   useEffect(() => {
-    if (initialFile) {
+    if (initialFile && !initialUploadedRef.current) {
+      initialUploadedRef.current = true;
       uploadImage(initialFile);
     }
   }, [initialFile, uploadImage]);
