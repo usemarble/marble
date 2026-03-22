@@ -105,8 +105,8 @@ export function WorkspaceSwitcher() {
                   </Avatar>
                   {!isCollapsed && (
                     <>
-                      <div className="flex min-w-0 flex-1 gap-2 text-left text-sm leading-tight">
-                        <span className="min-w-0 flex-1 truncate text-ellipsis font-medium text-sm">
+                      <div className="flex min-w-0 flex-1 items-center gap-2 text-left text-sm leading-tight">
+                        <span className="min-w-0 truncate text-ellipsis font-medium text-sm">
                           {activeWorkspace?.name}
                         </span>
                         <Badge
