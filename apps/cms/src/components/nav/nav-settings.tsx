@@ -80,7 +80,7 @@ export function NavSettings() {
 
   return (
     <>
-      <SidebarGroup className={cn(open ? "px-4" : "px-2")}>
+      <SidebarGroup className="px-3">
         <SidebarGroupLabel>Account</SidebarGroupLabel>
         <SidebarMenu>
           {accountItems.map((item) => (
@@ -106,7 +106,7 @@ export function NavSettings() {
       </SidebarGroup>
 
       {/* Workspace Section */}
-      <SidebarGroup className={cn(open ? "px-4" : "px-2")}>
+      <SidebarGroup className="px-3">
         <SidebarGroupLabel>Workspace</SidebarGroupLabel>
         <SidebarMenu>
           {workspaceItems.map((item) => (
@@ -132,7 +132,7 @@ export function NavSettings() {
       </SidebarGroup>
 
       {/* Developers Section */}
-      <SidebarGroup className={cn(open ? "px-4" : "px-2")}>
+      <SidebarGroup className="px-3">
         <SidebarGroupLabel>Developers</SidebarGroupLabel>
         <SidebarMenu>
           {developerItems.map((item) => (

@@ -79,7 +79,7 @@ export function WorkspaceSwitcher() {
   );
 
   return (
-    <SidebarMenu>
+    <SidebarMenu className={cn(isCollapsed && "w-auto")}>
       <SidebarMenuItem>
         <DropdownMenu>
           {activeWorkspace && !showSkeleton ? (

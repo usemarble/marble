@@ -23,7 +23,14 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <SidebarProvider className="overflow-y-hidden">
+    <SidebarProvider
+      className="overflow-y-hidden"
+      style={
+        {
+          "--sidebar-width-icon": "3.5rem",
+        } as React.CSSProperties
+      }
+    >
       <AppSidebar />
       <SidebarInset className="relative overflow-y-auto peer-data-[variant=inset]:border-l md:peer-data-[variant=inset]:shadow-none">
         <PageHeader />

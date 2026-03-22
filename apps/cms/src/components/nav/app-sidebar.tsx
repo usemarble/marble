@@ -83,8 +83,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             transition={transition}
             variants={settingsVariants}
           >
-            <SidebarHeader>
-              <SidebarMenu>
+            <SidebarHeader className={cn(!open && "items-center")}>
+              <SidebarMenu className={cn(!open && "w-auto")}>
                 <SidebarMenuButton
                   className={cn(
                     "h-9 border border-transparent transition-colors duration-200 hover:bg-sidebar-accent",
@@ -103,8 +103,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarContent className="gap-0">
               <NavSettings />
             </SidebarContent>
-            <SidebarFooter className="gap-0">
-              <SidebarGroup className={cn(open ? "px-2" : "px-0")}>
+            <SidebarFooter className="gap-0 p-0">
+              <SidebarGroup className="px-3">
                 <SidebarMenu>
                   <NavExtra asMenuButton />
                 </SidebarMenu>
@@ -122,7 +122,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             variants={mainVariants}
           >
             <SidebarHeader>
-              <div className="flex items-center justify-between gap-2">
+              <div
+                className={cn(
+                  "flex items-center gap-2",
+                  open ? "justify-between" : "justify-center"
+                )}
+              >
                 <WorkspaceSwitcher />
                 {open && (
                   <Tooltip>
@@ -149,12 +154,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarContent>
               <NavMain />
             </SidebarContent>
-            <SidebarFooter className="gap-0">
+            <SidebarFooter className="gap-0 p-0">
               <UpgradeCard />
-              <SidebarGroup className={cn(open ? "px-2" : "px-0")}>
+              <SidebarGroup className="px-3">
                 <SidebarMenu>
                   <SidebarMenuButton
-                    className="border border-transparent transition-colors duration-200 hover:bg-sidebar-accent hover:text-accent-foreground"
+                    className={cn(
+                      "border border-transparent transition-colors duration-200 hover:bg-sidebar-accent hover:text-accent-foreground",
+                      !open && "justify-center gap-0"
+                    )}
                     render={
                       <Link href={`/${params.workspace}/settings/general`}>
                         <HugeiconsIcon icon={Settings01Icon} />

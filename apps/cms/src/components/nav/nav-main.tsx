@@ -58,7 +58,7 @@ export function NavMain() {
   const isOverviewActive = pathname === `/${params.workspace}`;
 
   return (
-    <SidebarGroup className={cn(open ? "px-4" : "px-2")}>
+    <SidebarGroup className="px-3">
       <SidebarGroupLabel className="sr-only">Workspace</SidebarGroupLabel>
       <SidebarMenu>
         <SidebarMenuButton
