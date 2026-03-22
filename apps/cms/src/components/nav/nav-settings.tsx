@@ -87,6 +87,7 @@ export function NavSettings() {
             <SidebarMenuButton
               className={cn(
                 "border border-transparent transition-colors duration-200 hover:bg-sidebar-accent",
+                !open && "justify-center gap-0",
                 isActive(item.url)
                   ? "bg-sidebar-accent text-foreground"
                   : "hover:text-accent-foreground"
@@ -95,7 +96,7 @@ export function NavSettings() {
               render={
                 <Link href={`/${params.workspace}/${item.url}`}>
                   <HugeiconsIcon icon={item.icon} />
-                  <span>{item.name}</span>
+                  {open && <span>{item.name}</span>}
                 </Link>
               }
               tooltip={item.name}
@@ -112,6 +113,7 @@ export function NavSettings() {
             <SidebarMenuButton
               className={cn(
                 "border border-transparent transition-colors duration-200 hover:bg-sidebar-accent",
+                !open && "justify-center gap-0",
                 isActive(item.url)
                   ? "bg-sidebar-accent text-foreground"
                   : "hover:text-accent-foreground"
@@ -120,7 +122,7 @@ export function NavSettings() {
               render={
                 <Link href={`/${params.workspace}/${item.url}`}>
                   <HugeiconsIcon icon={item.icon} />
-                  <span>{item.name}</span>
+                  {open && <span>{item.name}</span>}
                 </Link>
               }
               tooltip={item.name}
@@ -137,6 +139,7 @@ export function NavSettings() {
             <SidebarMenuButton
               className={cn(
                 "border border-transparent transition-colors duration-200 hover:bg-sidebar-accent",
+                !open && "justify-center gap-0",
                 isActive(item.url)
                   ? "bg-sidebar-accent text-foreground"
                   : "hover:text-accent-foreground"
@@ -145,7 +148,7 @@ export function NavSettings() {
               render={
                 <Link href={`/${params.workspace}/${item.url}`}>
                   <HugeiconsIcon icon={item.icon} />
-                  <span>{item.name}</span>
+                  {open && <span>{item.name}</span>}
                 </Link>
               }
               tooltip={item.name}

@@ -1,5 +1,7 @@
 "use client";
 
+import { ArrowDown01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Avatar,
   AvatarFallback,
@@ -23,7 +25,7 @@ import {
 } from "@marble/ui/components/sidebar";
 import { Skeleton } from "@marble/ui/components/skeleton";
 import { cn } from "@marble/ui/lib/utils";
-import { CaretDownIcon, CheckIcon, PlusIcon } from "@phosphor-icons/react";
+import { CheckIcon, PlusIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import { getWorkspacePlan } from "@/lib/plans";
 import type { Workspace } from "@/types/workspace";
@@ -77,13 +79,13 @@ export function WorkspaceSwitcher() {
               render={
                 <SidebarMenuButton
                   className={cn(
-                    "h-10 cursor-pointer border border-transparent transition hover:bg-sidebar-accent data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground",
+                    "h-9 w-fit cursor-pointer border border-transparent px-2 py-1.5 transition hover:bg-sidebar-accent data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground",
                     isCollapsed && "min-w-0 justify-center rounded-full p-1"
                   )}
                   disabled={isFetchingWorkspace}
                   render={<div />}
                 >
-                  <Avatar className={cn("size-7", isCollapsed && "size-6.5")}>
+                  <Avatar className={cn("size-6.5", isCollapsed && "size-6")}>
                     <AvatarImage
                       className="rounded-[4px]"
                       src={activeWorkspace.logo || undefined}
@@ -99,13 +101,16 @@ export function WorkspaceSwitcher() {
                           {activeWorkspace?.name}
                         </span>
                         <Badge
-                          className="px-1.5 py-0 text-[10px] capitalize"
+                          className="shrink-0 px-1.5 py-0 text-[10px] capitalize"
                           variant={currentPlan === "pro" ? "paid" : "free"}
                         >
                           {currentPlan === "hobby" ? "free" : currentPlan}
                         </Badge>
                       </div>
-                      <CaretDownIcon className="ml-auto" />
+                      <HugeiconsIcon
+                        className="size-3 shrink-0"
+                        icon={ArrowDown01Icon}
+                      />
                     </>
                   )}
                 </SidebarMenuButton>
@@ -158,7 +163,7 @@ export function WorkspaceSwitcher() {
                         <AvatarImage src={org.logo || undefined} />
                         <AvatarFallback>{org.name.slice(0, 2)}</AvatarFallback>
                       </Avatar>
-                      {org.name}
+                      <span className="truncate text-[13px]">{org.name}</span>
                       {activeWorkspace?.id === org.id && (
                         <CheckIcon className="absolute right-0 size-4 text-muted-foreground" />
                       )}
@@ -186,7 +191,7 @@ export function WorkspaceSwitcher() {
                         <AvatarImage src={org.logo || undefined} />
                         <AvatarFallback>{org.name.slice(0, 2)}</AvatarFallback>
                       </Avatar>
-                      {org.name}
+                      <span className="truncate text-[13px]">{org.name}</span>
                       {activeWorkspace?.id === org.id && (
                         <CheckIcon className="absolute right-0 size-4 text-muted-foreground" />
                       )}
@@ -206,9 +211,7 @@ export function WorkspaceSwitcher() {
                 <div className="flex size-6 items-center justify-center rounded-md border bg-background">
                   <PlusIcon className="size-4" />
                 </div>
-                <div className="font-medium text-muted-foreground">
-                  Create Workspace
-                </div>
+                <div className="font-medium text-[13px]">Create Workspace</div>
               </button>
             </DropdownMenuItem>
           </DropdownMenuContent>

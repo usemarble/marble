@@ -1,6 +1,10 @@
 "use client";
 
-import { ArrowLeft01Icon, Settings01Icon } from "@hugeicons/core-free-icons";
+import {
+  ArrowLeft01Icon,
+  Settings01Icon,
+  SidebarLeftIcon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Sidebar,
@@ -12,6 +16,11 @@ import {
   SidebarMenuButton,
   useSidebar,
 } from "@marble/ui/components/sidebar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@marble/ui/components/tooltip";
 import { cn } from "@marble/ui/lib/utils";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
@@ -26,7 +35,7 @@ import { WorkspaceSwitcher } from "./workspace-switcher";
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
   const params = useParams<{ workspace: string }>();
-  const { open } = useSidebar();
+  const { open, toggleSidebar } = useSidebar();
   const shouldReduceMotion = useReducedMotion();
   const isSettingsRoute = pathname.startsWith(`/${params.workspace}/settings`);
 
@@ -70,18 +79,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarHeader>
               <SidebarMenu>
                 <SidebarMenuButton
-                  className="border border-transparent transition-colors duration-200 hover:bg-sidebar-accent"
+                  className={cn(
+                    "h-9 border border-transparent transition-colors duration-200 hover:bg-sidebar-accent",
+                    !open && "justify-center gap-0"
+                  )}
                   render={
                     <Link href={`/${params.workspace}`}>
                       <HugeiconsIcon icon={ArrowLeft01Icon} />
-                      <span>Back</span>
+                      {open && <span>Back</span>}
                     </Link>
                   }
                   tooltip="Back"
                 />
               </SidebarMenu>
             </SidebarHeader>
-            <SidebarContent>
+            <SidebarContent className="gap-0">
               <NavSettings />
             </SidebarContent>
             <SidebarFooter className="gap-0">
@@ -103,7 +115,29 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             variants={mainVariants}
           >
             <SidebarHeader>
-              <WorkspaceSwitcher />
+              <div className="flex items-center justify-between gap-2">
+                <WorkspaceSwitcher />
+                {open && (
+                  <Tooltip>
+                    <TooltipTrigger
+                      delay={400}
+                      render={
+                        <SidebarMenuButton
+                          aria-label="Collapse sidebar"
+                          className="h-9 w-9 shrink-0 justify-center border border-transparent p-0"
+                          onClick={toggleSidebar}
+                          type="button"
+                        >
+                          <HugeiconsIcon icon={SidebarLeftIcon} />
+                        </SidebarMenuButton>
+                      }
+                    />
+                    <TooltipContent>
+                      <p>Collapse Sidebar</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
+              </div>
             </SidebarHeader>
             <SidebarContent>
               <NavMain />
@@ -117,7 +151,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     render={
                       <Link href={`/${params.workspace}/settings/general`}>
                         <HugeiconsIcon icon={Settings01Icon} />
-                        <span>Settings</span>
+                        {open && <span>Settings</span>}
                       </Link>
                     }
                     tooltip="Settings"

@@ -7,7 +7,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@marble/ui/components/popover";
-import { SidebarMenuButton } from "@marble/ui/components/sidebar";
+import { SidebarMenuButton, useSidebar } from "@marble/ui/components/sidebar";
 import {
   Tooltip,
   TooltipContent,
@@ -58,6 +58,7 @@ interface NavExtraProps {
 }
 
 export function NavExtra({ asMenuButton = false }: NavExtraProps) {
+  const { open } = useSidebar();
   const PopoverContentElement = (
     <PopoverContent
       className="w-52 divide-y p-0"
@@ -120,9 +121,14 @@ export function NavExtra({ asMenuButton = false }: NavExtraProps) {
       <Popover>
         <PopoverTrigger
           render={
-            <SidebarMenuButton className="border border-transparent transition-colors duration-200 hover:bg-sidebar-accent hover:text-accent-foreground">
+            <SidebarMenuButton
+              className={cn(
+                "border border-transparent transition-colors duration-200 hover:bg-sidebar-accent hover:text-accent-foreground",
+                !open && "justify-center gap-0"
+              )}
+            >
               <HugeiconsIcon icon={HelpCircleIcon} />
-              <span>Help</span>
+              {open && <span>Help</span>}
             </SidebarMenuButton>
           }
         />
