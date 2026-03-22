@@ -75,7 +75,7 @@ export function WorkspaceSwitcher() {
   );
   const workspaceRowClass = cn(
     buttonVariants({ variant: "ghost", size: "sm" }),
-    "grid w-full grid-cols-[1.25rem_minmax(0,1fr)_1rem] items-center justify-start gap-2 rounded-md font-normal text-[13px] text-left"
+    "grid w-full grid-cols-[1.25rem_minmax(0,1fr)_1rem] items-center justify-start gap-2 rounded-md text-left font-normal text-[13px]"
   );
 
   return (
