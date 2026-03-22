@@ -32,6 +32,13 @@ import { SidebarFooterContent } from "./sidebar-footer-content";
 import { UpgradeCard } from "./upgrade-card";
 import { WorkspaceSwitcher } from "./workspace-switcher";
 
+function getToggleSidebarShortcut() {
+  const isMac =
+    typeof navigator !== "undefined" &&
+    navigator.platform.toUpperCase().indexOf("MAC") >= 0;
+  return isMac ? "⌘K" : "Ctrl+K";
+}
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
   const params = useParams<{ workspace: string }>();
@@ -133,7 +140,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       }
                     />
                     <TooltipContent>
-                      <p>Collapse Sidebar</p>
+                      <p>Collapse Sidebar ({getToggleSidebarShortcut()})</p>
                     </TooltipContent>
                   </Tooltip>
                 )}
