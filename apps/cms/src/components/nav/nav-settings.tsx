@@ -6,8 +6,8 @@ import {
   Key01Icon,
   PaintBoardIcon,
   Settings01Icon,
-  UserCircleIcon,
-  UserGroupIcon,
+  UserMultipleIcon,
+  UserIcon,
   WebhookIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -26,7 +26,7 @@ const accountItems = [
   {
     name: "Profile",
     url: "settings/account",
-    icon: UserCircleIcon,
+    icon: UserIcon,
   },
   {
     name: "Appearance",
@@ -44,7 +44,7 @@ const workspaceItems = [
   {
     name: "Members",
     url: "settings/members",
-    icon: UserGroupIcon,
+    icon: UserMultipleIcon,
   },
   {
     name: "Billing",

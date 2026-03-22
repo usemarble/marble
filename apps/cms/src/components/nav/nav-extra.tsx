@@ -25,7 +25,7 @@ import { Discord, XFormerlyTwitter } from "../icons/social";
 const communityLinks = [
   {
     label: "Discord",
-    href: "https://discord.gg/gU44Pmwqkx",
+    href: "https://discord.marblecms.com",
     icon: <Discord className="size-4" />,
   },
   {

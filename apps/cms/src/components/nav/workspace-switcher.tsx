@@ -8,6 +8,7 @@ import {
   AvatarImage,
 } from "@marble/ui/components/avatar";
 import { Badge } from "@marble/ui/components/badge";
+import { buttonVariants } from "@marble/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -68,6 +69,10 @@ export function WorkspaceSwitcher() {
 
   const showSkeleton = !activeWorkspace && isFetchingWorkspace;
   const currentPlan = getWorkspacePlan(activeWorkspace?.subscription);
+  const dropdownItemClass = cn(
+    buttonVariants({ variant: "ghost", size: "sm" }),
+    "relative w-full justify-start gap-2 rounded-md font-normal text-[13px]"
+  );
 
   return (
     <SidebarMenu>
@@ -152,20 +157,22 @@ export function WorkspaceSwitcher() {
                   Your Workspaces
                 </DropdownMenuLabel>
                 {ownedWorkspaces.map((org) => (
-                  <DropdownMenuItem key={org.id}>
+                  <DropdownMenuItem className="p-0 focus:bg-transparent" key={org.id}>
                     <button
-                      className="relative flex w-full cursor-pointer items-center gap-4 disabled:opacity-50"
+                      className={cn(dropdownItemClass, "pr-8")}
                       disabled={isFetchingWorkspace}
                       onClick={() => switchWorkspace(org)}
                       type="button"
                     >
-                      <Avatar className="size-6 rounded-[0.2rem]">
+                      <Avatar className="size-5 rounded-[0.2rem]">
                         <AvatarImage src={org.logo || undefined} />
-                        <AvatarFallback>{org.name.slice(0, 2)}</AvatarFallback>
+                        <AvatarFallback className="text-[10px]">
+                          {org.name.slice(0, 2)}
+                        </AvatarFallback>
                       </Avatar>
                       <span className="truncate text-[13px]">{org.name}</span>
                       {activeWorkspace?.id === org.id && (
-                        <CheckIcon className="absolute right-0 size-4 text-muted-foreground" />
+                        <CheckIcon className="absolute right-2 size-4 text-muted-foreground" />
                       )}
                     </button>
                   </DropdownMenuItem>
@@ -180,20 +187,22 @@ export function WorkspaceSwitcher() {
                   Shared workspaces
                 </DropdownMenuLabel>
                 {sharedWorkspaces.map((org) => (
-                  <DropdownMenuItem key={org.id}>
+                  <DropdownMenuItem className="p-0 focus:bg-transparent" key={org.id}>
                     <button
-                      className="relative flex w-full cursor-pointer items-center gap-4 disabled:opacity-50"
+                      className={cn(dropdownItemClass, "pr-8")}
                       disabled={isFetchingWorkspace}
                       onClick={() => switchWorkspace(org)}
                       type="button"
                     >
-                      <Avatar className="size-6 rounded-[0.2rem]">
+                      <Avatar className="size-5 rounded-[0.2rem]">
                         <AvatarImage src={org.logo || undefined} />
-                        <AvatarFallback>{org.name.slice(0, 2)}</AvatarFallback>
+                        <AvatarFallback className="text-[10px]">
+                          {org.name.slice(0, 2)}
+                        </AvatarFallback>
                       </Avatar>
                       <span className="truncate text-[13px]">{org.name}</span>
                       {activeWorkspace?.id === org.id && (
-                        <CheckIcon className="absolute right-0 size-4 text-muted-foreground" />
+                        <CheckIcon className="absolute right-2 size-4 text-muted-foreground" />
                       )}
                     </button>
                   </DropdownMenuItem>
@@ -202,14 +211,14 @@ export function WorkspaceSwitcher() {
             )}
 
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem className="p-0 focus:bg-transparent">
               <button
-                className="flex w-full cursor-pointer items-center gap-2"
+                className={dropdownItemClass}
                 onClick={() => setDialogOpen(true)}
                 type="button"
               >
-                <div className="flex size-6 items-center justify-center rounded-md border bg-background">
-                  <PlusIcon className="size-4" />
+                <div className="flex size-5 items-center justify-center rounded-md border bg-background">
+                  <PlusIcon className="size-3.5" />
                 </div>
                 <div className="font-medium text-[13px]">Create Workspace</div>
               </button>
