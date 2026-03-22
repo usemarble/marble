@@ -30,7 +30,7 @@ export function InviteButton({ onInvite }: InviteButtonProps) {
 
   const getTooltipContent = () => {
     if (remainingSlots === 0) {
-      return `You've reached your member limit (${planLimits.maxMembers}). Upgrade to invite more members.`;
+      return "You've reached your limit. Upgrade to invite more members.";
     }
     return `You can invite ${remainingSlots} more member${remainingSlots === 1 ? "" : "s"}`;
   };
