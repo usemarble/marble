@@ -124,7 +124,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarHeader>
               <div
                 className={cn(
-                  "flex items-center gap-2",
+                  "flex w-full min-w-0 items-center gap-2",
                   open ? "justify-between" : "justify-center"
                 )}
               >

@@ -175,6 +175,7 @@ export function Enable() {
             disabled={!isOwner || !enableForm.formState.isDirty}
             isLoading={isPending}
             size="sm"
+            type="submit"
           >
             Save
           </AsyncButton>

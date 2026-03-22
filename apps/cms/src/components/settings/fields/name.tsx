@@ -9,6 +9,7 @@ import { cn } from "@marble/ui/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useId } from "react";
+import type { SubmitErrorHandler } from "react-hook-form";
 import { useForm } from "react-hook-form";
 import { AsyncButton } from "@/components/ui/async-button";
 import { ErrorMessage } from "@/components/ui/error-message";
@@ -76,11 +77,18 @@ export function Name() {
     });
   };
 
+  const onNameInvalid: SubmitErrorHandler<NameValues> = (errors) => {
+    const message = errors.name?.message;
+    if (message) {
+      toast.error(message);
+    }
+  };
+
   return (
     <Card className="rounded-[20px] border-none bg-surface p-2">
       <form
         className="flex flex-col"
-        onSubmit={nameForm.handleSubmit(onNameSubmit)}
+        onSubmit={nameForm.handleSubmit(onNameSubmit, onNameInvalid)}
       >
         <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
           <div className="flex flex-col gap-1.5">
@@ -119,6 +127,7 @@ export function Name() {
             disabled={!isOwner || !nameForm.formState.isDirty}
             isLoading={isPending}
             size="sm"
+            type="submit"
           >
             Save
           </AsyncButton>

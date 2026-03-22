@@ -79,7 +79,7 @@ export function WorkspaceSwitcher() {
   );
 
   return (
-    <SidebarMenu className={cn(isCollapsed && "w-auto")}>
+    <SidebarMenu className={cn(isCollapsed ? "w-auto" : "min-w-0 flex-1")}>
       <SidebarMenuItem>
         <DropdownMenu>
           {activeWorkspace && !showSkeleton ? (
@@ -88,7 +88,7 @@ export function WorkspaceSwitcher() {
               render={
                 <SidebarMenuButton
                   className={cn(
-                    "h-9 w-fit cursor-pointer border border-transparent px-2 py-1.5 transition hover:bg-sidebar-accent data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground",
+                    "h-9 w-full max-w-full cursor-pointer border border-transparent px-2 py-1.5 transition hover:bg-sidebar-accent data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground",
                     isCollapsed && "min-w-0 justify-center rounded-full p-1"
                   )}
                   disabled={isFetchingWorkspace}
@@ -105,8 +105,8 @@ export function WorkspaceSwitcher() {
                   </Avatar>
                   {!isCollapsed && (
                     <>
-                      <div className="flex flex-1 gap-2 text-left text-sm leading-tight">
-                        <span className="truncate text-ellipsis font-medium text-sm">
+                      <div className="flex min-w-0 flex-1 gap-2 text-left text-sm leading-tight">
+                        <span className="min-w-0 flex-1 truncate text-ellipsis font-medium text-sm">
                           {activeWorkspace?.name}
                         </span>
                         <Badge

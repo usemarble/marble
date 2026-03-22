@@ -139,6 +139,7 @@ export function Slug() {
             disabled={!isOwner || !slugForm.formState.isDirty}
             isLoading={isPending}
             size="sm"
+            type="submit"
           >
             Save
           </AsyncButton>

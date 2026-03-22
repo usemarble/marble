@@ -129,6 +129,7 @@ export function Timezone() {
             disabled={!isOwner || !timezoneForm.formState.isDirty}
             isLoading={isPending}
             size="sm"
+            type="submit"
           >
             Save
           </AsyncButton>
