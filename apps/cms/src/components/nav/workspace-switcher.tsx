@@ -157,7 +157,10 @@ export function WorkspaceSwitcher() {
                   Your Workspaces
                 </DropdownMenuLabel>
                 {ownedWorkspaces.map((org) => (
-                  <DropdownMenuItem className="p-0 focus:bg-transparent" key={org.id}>
+                  <DropdownMenuItem
+                    className="p-0 focus:bg-transparent"
+                    key={org.id}
+                  >
                     <button
                       className={cn(dropdownItemClass, "pr-8")}
                       disabled={isFetchingWorkspace}
@@ -187,7 +190,10 @@ export function WorkspaceSwitcher() {
                   Shared workspaces
                 </DropdownMenuLabel>
                 {sharedWorkspaces.map((org) => (
-                  <DropdownMenuItem className="p-0 focus:bg-transparent" key={org.id}>
+                  <DropdownMenuItem
+                    className="p-0 focus:bg-transparent"
+                    key={org.id}
+                  >
                     <button
                       className={cn(dropdownItemClass, "pr-8")}
                       disabled={isFetchingWorkspace}
