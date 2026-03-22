@@ -73,6 +73,10 @@ export function WorkspaceSwitcher() {
     buttonVariants({ variant: "ghost", size: "sm" }),
     "relative w-full justify-start gap-2 rounded-md font-normal text-[13px]"
   );
+  const workspaceRowClass = cn(
+    buttonVariants({ variant: "ghost", size: "sm" }),
+    "grid w-full grid-cols-[1.25rem_minmax(0,1fr)_1rem] items-center justify-start gap-2 rounded-md font-normal text-[13px] text-left"
+  );
 
   return (
     <SidebarMenu>
@@ -162,7 +166,7 @@ export function WorkspaceSwitcher() {
                     key={org.id}
                   >
                     <button
-                      className={cn(dropdownItemClass, "pr-8")}
+                      className={workspaceRowClass}
                       disabled={isFetchingWorkspace}
                       onClick={() => switchWorkspace(org)}
                       type="button"
@@ -173,10 +177,17 @@ export function WorkspaceSwitcher() {
                           {org.name.slice(0, 2)}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="truncate text-[13px]">{org.name}</span>
-                      {activeWorkspace?.id === org.id && (
-                        <CheckIcon className="absolute right-2 size-4 text-muted-foreground" />
-                      )}
+                      <span className="min-w-0 truncate text-[13px]">
+                        {org.name}
+                      </span>
+                      <CheckIcon
+                        className={cn(
+                          "size-4 justify-self-end text-muted-foreground",
+                          activeWorkspace?.id === org.id
+                            ? "opacity-100"
+                            : "opacity-0"
+                        )}
+                      />
                     </button>
                   </DropdownMenuItem>
                 ))}
@@ -195,7 +206,7 @@ export function WorkspaceSwitcher() {
                     key={org.id}
                   >
                     <button
-                      className={cn(dropdownItemClass, "pr-8")}
+                      className={workspaceRowClass}
                       disabled={isFetchingWorkspace}
                       onClick={() => switchWorkspace(org)}
                       type="button"
@@ -206,10 +217,17 @@ export function WorkspaceSwitcher() {
                           {org.name.slice(0, 2)}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="truncate text-[13px]">{org.name}</span>
-                      {activeWorkspace?.id === org.id && (
-                        <CheckIcon className="absolute right-2 size-4 text-muted-foreground" />
-                      )}
+                      <span className="min-w-0 truncate text-[13px]">
+                        {org.name}
+                      </span>
+                      <CheckIcon
+                        className={cn(
+                          "size-4 justify-self-end text-muted-foreground",
+                          activeWorkspace?.id === org.id
+                            ? "opacity-100"
+                            : "opacity-0"
+                        )}
+                      />
                     </button>
                   </DropdownMenuItem>
                 ))}
