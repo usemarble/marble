@@ -8,6 +8,7 @@ import { AttributionField } from "../fields/attribution-field";
 import { AuthorSelector } from "../fields/author-selector";
 import { CategorySelector } from "../fields/category-selector";
 import { CoverImageSelector } from "../fields/cover-image-selector";
+import { CustomFieldsSection } from "../fields/custom-fields-section";
 import { DescriptionField } from "../fields/description-field";
 import { FeaturedField } from "../fields/featured-field";
 import { PublishDateField } from "../fields/publish-date-field";
@@ -20,6 +21,8 @@ interface MetadataTabProps {
   errors: FieldErrors<PostValues>;
   initialAuthors?: string[];
   tags?: string[];
+  postId?: string;
+  mode: "create" | "update";
 }
 
 export function MetadataTab({
@@ -27,6 +30,8 @@ export function MetadataTab({
   errors,
   initialAuthors,
   tags,
+  postId,
+  mode,
 }: MetadataTabProps) {
   "use no memo";
   return (
@@ -55,7 +60,7 @@ export function MetadataTab({
 
         <PublishDateField control={control} />
 
-        <Separator className="mt-4 flex" orientation="horizontal" />
+        <CustomFieldsSection mode={mode} postId={postId} />
 
         <AttributionField control={control} errors={errors} />
       </section>

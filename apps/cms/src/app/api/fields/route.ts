@@ -1,0 +1,81 @@
+import { db } from "@marble/db";
+import type { FieldType as PrismaFieldType } from "@prisma/client";
+import { NextResponse } from "next/server";
+import { getServerSession } from "@/lib/auth/session";
+import { customFieldSchema } from "@/lib/validations/fields";
+
+export async function GET() {
+  const sessionData = await getServerSession();
+  const activeOrganizationId = sessionData?.session.activeOrganizationId
+
+  if (!sessionData || !activeOrganizationId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const fields = await db.customField.findMany({
+    where: {
+      workspaceId: activeOrganizationId,
+    },
+    orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+  });
+
+  return NextResponse.json(fields, { status: 200 });
+}
+
+export async function POST(req: Request) {
+   const sessionData = await getServerSession();
+  const activeOrganizationId = sessionData?.session.activeOrganizationId;
+
+  if (!sessionData || !activeOrganizationId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const json = await req.json();
+  const body = customFieldSchema.safeParse(json);
+
+  if (!body.success) {
+    return NextResponse.json(
+      { error: "Invalid request body", details: body.error.issues },
+      { status: 400 }
+    );
+  }
+
+  // Check key uniqueness within workspace
+  const existing = await db.customField.findFirst({
+    where: {
+      workspaceId: activeOrganizationId,
+      key: body.data.key,
+    },
+  });
+
+  if (existing) {
+    return NextResponse.json(
+      { error: "A field with this key already exists in your workspace" },
+      { status: 409 }
+    );
+  }
+
+  // Get the next position value
+  const maxPosition = await db.customField.aggregate({
+    where: {
+      workspaceId: activeOrganizationId,
+    },
+    _max: {
+      position: true,
+    },
+  });
+
+  const field = await db.customField.create({
+    data: {
+      name: body.data.name,
+      description: body.data.description?.trim() || null,
+      key: body.data.key,
+      type: body.data.type as PrismaFieldType,
+      required: body.data.required ?? false,
+      position: (maxPosition._max.position ?? -1) + 1,
+      workspaceId: activeOrganizationId,
+    },
+  });
+
+  return NextResponse.json(field, { status: 201 });
+}

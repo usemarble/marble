@@ -34,6 +34,53 @@ const buildStatusFilter = (status: "published" | "draft" | "all") =>
     ? { status: { in: ["published", "draft"] as ("published" | "draft")[] } }
     : { status };
 
+/**
+ * Cast a stored field value string to the appropriate JS type based on field type.
+ */
+function castFieldValue(
+  value: string,
+  type: string
+): string | number | boolean | null {
+  switch (type) {
+    case "number": {
+      const num = Number.parseFloat(value);
+      return Number.isNaN(num) ? null : num;
+    }
+    case "boolean":
+      return value === "true";
+    default:
+      return value;
+  }
+}
+
+/**
+ * Transform raw fieldValues from Prisma into a Record<key, castValue> object.
+ * All workspace custom fields are represented; missing values are null.
+ */
+function buildFieldsObject(
+  fieldValues: Array<{
+    value: string;
+    field: { key: string; type: string };
+  }>,
+  allFields?: Array<{ key: string; type: string }>
+): Record<string, string | number | boolean | null> {
+  const result: Record<string, string | number | boolean | null> = {};
+
+  // Initialize all fields with null if allFields is provided
+  if (allFields) {
+    for (const f of allFields) {
+      result[f.key] = null;
+    }
+  }
+
+  // Override with actual values
+  for (const fv of fieldValues) {
+    result[fv.field.key] = castFieldValue(fv.value, fv.field.type);
+  }
+
+  return result;
+}
+
 const PostsQuerySchema = z.object({
   limit: z.coerce
     .number()
@@ -182,16 +229,6 @@ const PostsQuerySchema = z.object({
       description:
         "Filter by post status. Use 'published' for live posts, 'draft' for unpublished posts, or 'all' for both.",
     }),
-  content: z
-    .enum(["true", "false"])
-    .optional()
-    .default("true")
-    .openapi({
-      param: { name: "content", in: "query" },
-      example: "false",
-      description:
-        "Include full post content in response (default: true). Set to false for lightweight list responses.",
-    }),
 });
 
 const PostParamsSchema = z.object({
@@ -332,10 +369,7 @@ posts.openapi(listPostsRoute, async (c) => {
       format,
       featured,
       status,
-      content,
     } = c.req.valid("query");
-
-    const includeContent = content === "true";
 
     const categoryFilter: Record<string, unknown> = {};
     if (categories.length > 0) {
@@ -441,7 +475,7 @@ posts.openapi(listPostsRoute, async (c) => {
       id: true,
       slug: true,
       title: true,
-      content: includeContent,
+      content: true,
       featured: true,
       coverImage: true,
       description: true,
@@ -480,6 +514,17 @@ posts.openapi(listPostsRoute, async (c) => {
           description: true,
         },
       },
+      fieldValues: {
+        select: {
+          value: true,
+          field: {
+            select: {
+              key: true,
+              type: true,
+            },
+          },
+        },
+      },
     } as const;
 
     const findManyArgs = {
@@ -490,19 +535,15 @@ posts.openapi(listPostsRoute, async (c) => {
       select: postSelect,
     };
 
-    const postsData = includeContent
-      ? await db.post.findMany(findManyArgs)
-      : await cache.getOrSet(listCacheKey, () =>
-          db.post.findMany(findManyArgs)
-        );
+    const postsData = await cache.getOrSet(listCacheKey, () =>
+      db.post.findMany(findManyArgs)
+    );
 
     const formattedPosts =
-      includeContent && format === "markdown"
+      format === "markdown"
         ? postsData.map((post) => ({
             ...post,
-            content: NodeHtmlMarkdown.translate(
-              (post as unknown as { content: string }).content || ""
-            ),
+            content: NodeHtmlMarkdown.translate(post.content || ""),
             attribution: post.attribution as {
               author: string;
               url: string;
@@ -516,6 +557,16 @@ posts.openapi(listPostsRoute, async (c) => {
             } | null,
           }));
 
+    const postsWithFields = formattedPosts.map((post) => {
+      const { fieldValues, ...rest } = post as typeof post & {
+        fieldValues: Array<{ value: string; field: { key: string; type: string } }>;
+      };
+      return {
+        ...rest,
+        fields: buildFieldsObject(fieldValues || []),
+      };
+    });
+
     const paginationInfo = {
       limit,
       currentPage: page,
@@ -527,7 +578,7 @@ posts.openapi(listPostsRoute, async (c) => {
 
     return c.json(
       {
-        posts: formattedPosts,
+        posts: postsWithFields,
         pagination: paginationInfo,
       },
       200 as const
@@ -612,6 +663,17 @@ posts.openapi(getPostRoute, async (c) => {
               description: true,
             },
           },
+          fieldValues: {
+            select: {
+              value: true,
+              field: {
+                select: {
+                  key: true,
+                  type: true,
+                },
+              },
+            },
+          },
         },
       })
     );
@@ -646,7 +708,15 @@ posts.openapi(getPostRoute, async (c) => {
             } | null,
           };
 
-    return c.json({ post: formattedPost }, 200 as const);
+    const { fieldValues, ...postRest } = formattedPost as typeof formattedPost & {
+      fieldValues: Array<{ value: string; field: { key: string; type: string } }>;
+    };
+    const postWithFields = {
+      ...postRest,
+      fields: buildFieldsObject(fieldValues || []),
+    };
+
+    return c.json({ post: postWithFields }, 200 as const);
   } catch (_error) {
     return c.json({ error: "Failed to fetch post" }, 500 as const);
   }

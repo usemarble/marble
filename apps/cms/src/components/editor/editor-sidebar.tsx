@@ -271,6 +271,8 @@ export function EditorSidebar({
                   control={control}
                   errors={errors}
                   initialAuthors={initialAuthors}
+                  mode={mode}
+                  postId={postId}
                   tags={tags}
                 />
               </Suspense>

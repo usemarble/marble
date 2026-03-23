@@ -75,6 +75,15 @@ const PostBaseFields = {
   authors: z.array(AuthorRefSchema),
   category: CategoryRefSchema,
   tags: z.array(TagRefSchema),
+  fields: z
+    .record(
+      z.string(),
+      z.union([z.string(), z.number(), z.boolean(), z.null()])
+    )
+    .openapi({
+      description: "Custom field values keyed by field key",
+      example: { release_date: "2024-01-15", priority_score: 5 },
+    }),
 };
 
 export const PostSchema = z
@@ -87,11 +96,7 @@ export const PostSchema = z
 export const PostListItemSchema = z
   .object({
     ...PostBaseFields,
-    content: z.string().optional().openapi({
-      example: "<p>Hello world</p>",
-      description:
-        "Full post content. Only included when content=true (default).",
-    }),
+    content: z.string().openapi({ example: "<p>Hello world</p>" }),
   })
   .openapi("PostListItem");
 
