@@ -6,15 +6,19 @@ import { columns } from "@/components/authors/columns";
 import { AuthorDataTable } from "@/components/authors/data-table";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { useWorkspace } from "@/providers/workspace";
 import type { Author } from "@/types/author";
 
 function PageClient() {
-  const { activeWorkspace } = useWorkspace();
+  const workspaceId = useWorkspaceId();
+  const { isFetchingWorkspace } = useWorkspace();
 
   const { data: authors, isLoading } = useQuery({
-    queryKey: QUERY_KEYS.AUTHORS(activeWorkspace?.id ?? ""),
+    queryKey: workspaceId
+      ? QUERY_KEYS.AUTHORS(workspaceId)
+      : ["authors", "disabled"],
     queryFn: async () => {
       try {
         const response = await fetch("/api/authors");
@@ -29,10 +33,10 @@ function PageClient() {
         );
       }
     },
-    enabled: !!activeWorkspace?.id,
+    enabled: Boolean(workspaceId) && !isFetchingWorkspace,
   });
 
-  if (isLoading) {
+  if (isFetchingWorkspace || !workspaceId || isLoading) {
     return <PageLoader />;
   }
 

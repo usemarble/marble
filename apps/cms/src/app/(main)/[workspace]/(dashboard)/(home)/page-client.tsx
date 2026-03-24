@@ -9,10 +9,12 @@ import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
+import { useWorkspace } from "@/providers/workspace";
 import type { UsageDashboardData } from "@/types/dashboard";
 
 export default function PageClient() {
   const workspaceId = useWorkspaceId();
+  const { isFetchingWorkspace } = useWorkspace();
 
   const { data, isPending, isError } = useQuery({
     queryKey: workspaceId
@@ -25,11 +27,11 @@ export default function PageClient() {
       }
       return response.json();
     },
-    enabled: Boolean(workspaceId),
+    enabled: Boolean(workspaceId) && !isFetchingWorkspace,
     staleTime: 1000 * 60 * 10,
   });
 
-  if (isPending) {
+  if (isFetchingWorkspace || !workspaceId || isPending) {
     return <PageLoader />;
   }
 

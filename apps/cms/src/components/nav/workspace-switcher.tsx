@@ -67,7 +67,7 @@ export function WorkspaceSwitcher() {
     }
   }
 
-  const showSkeleton = !activeWorkspace && isFetchingWorkspace;
+  const showSkeleton = !activeWorkspace;
   const currentPlan = getWorkspacePlan(activeWorkspace?.subscription);
   const dropdownItemClass = cn(
     buttonVariants({ variant: "ghost", size: "sm" }),
@@ -84,6 +84,7 @@ export function WorkspaceSwitcher() {
         <DropdownMenu>
           {activeWorkspace && !showSkeleton ? (
             <DropdownMenuTrigger
+              disabled={isFetchingWorkspace}
               nativeButton={false}
               render={
                 <SidebarMenuButton
@@ -167,7 +168,6 @@ export function WorkspaceSwitcher() {
                   >
                     <button
                       className={workspaceRowClass}
-                      disabled={isFetchingWorkspace}
                       onClick={() => switchWorkspace(org)}
                       type="button"
                     >
@@ -207,7 +207,6 @@ export function WorkspaceSwitcher() {
                   >
                     <button
                       className={workspaceRowClass}
-                      disabled={isFetchingWorkspace}
                       onClick={() => switchWorkspace(org)}
                       type="button"
                     >

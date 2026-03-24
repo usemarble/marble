@@ -18,6 +18,7 @@ import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import { columns, type Post } from "@/components/posts/columns";
 import { PostDataView } from "@/components/posts/data-view";
 import PageLoader from "@/components/shared/page-loader";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { useWorkspace } from "@/providers/workspace";
 
@@ -28,12 +29,13 @@ const PostsImportModal = dynamic(
 );
 
 function PageClient() {
-  const { activeWorkspace } = useWorkspace();
+  const workspaceId = useWorkspaceId();
+  const { activeWorkspace, isFetchingWorkspace } = useWorkspace();
 
   const [importOpen, setImportOpen] = useState(false);
 
   const { data: posts, isLoading } = useQuery({
-    queryKey: QUERY_KEYS.POSTS(activeWorkspace?.id ?? ""),
+    queryKey: workspaceId ? QUERY_KEYS.POSTS(workspaceId) : ["posts", "disabled"],
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
       try {
@@ -49,10 +51,10 @@ function PageClient() {
         );
       }
     },
-    enabled: !!activeWorkspace?.id,
+    enabled: Boolean(workspaceId) && !isFetchingWorkspace,
   });
 
-  if (isLoading) {
+  if (isFetchingWorkspace || !workspaceId || isLoading) {
     return <PageLoader />;
   }
 

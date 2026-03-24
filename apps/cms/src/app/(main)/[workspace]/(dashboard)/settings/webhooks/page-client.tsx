@@ -11,6 +11,7 @@ import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
+import { useWorkspace } from "@/providers/workspace";
 import type { Webhook } from "@/types/webhook";
 
 const CreateWebhookSheet = dynamic(
@@ -23,6 +24,7 @@ const WebhookCard = dynamic(() =>
 
 export function PageClient() {
   const workspaceId = useWorkspaceId();
+  const { isFetchingWorkspace } = useWorkspace();
   const queryClient = useQueryClient();
 
   const { data: webhooks, isLoading } = useQuery({
@@ -45,7 +47,7 @@ export function PageClient() {
         );
       }
     },
-    enabled: !!workspaceId,
+    enabled: !!workspaceId && !isFetchingWorkspace,
   });
 
   const {
@@ -100,7 +102,7 @@ export function PageClient() {
     },
   });
 
-  if (isLoading) {
+  if (isFetchingWorkspace || !workspaceId || isLoading) {
     return <PageLoader />;
   }
 

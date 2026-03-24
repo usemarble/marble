@@ -14,6 +14,7 @@ import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
+import { useWorkspace } from "@/providers/workspace";
 
 const CategoryModal = dynamic(() =>
   import("@/components/categories/category-modals").then(
@@ -23,6 +24,7 @@ const CategoryModal = dynamic(() =>
 
 function PageClient() {
   const workspaceId = useWorkspaceId();
+  const { isFetchingWorkspace } = useWorkspace();
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const { data: categories, isLoading } = useQuery({
@@ -45,10 +47,10 @@ function PageClient() {
         );
       }
     },
-    enabled: !!workspaceId,
+    enabled: !!workspaceId && !isFetchingWorkspace,
   });
 
-  if (isLoading) {
+  if (isFetchingWorkspace || !workspaceId || isLoading) {
     return <PageLoader />;
   }
 

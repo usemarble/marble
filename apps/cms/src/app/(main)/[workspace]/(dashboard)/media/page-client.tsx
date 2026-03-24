@@ -12,11 +12,13 @@ import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { uploadFile } from "@/lib/media/upload";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { getMediaApiUrl, useMediaPageFilters } from "@/lib/search-params";
+import { useWorkspace } from "@/providers/workspace";
 import type { Media, MediaListResponse, MediaQueryKey } from "@/types/media";
 import { toMediaType } from "@/utils/media";
 
 function PageClient() {
   const workspaceId = useWorkspaceId();
+  const { isFetchingWorkspace } = useWorkspace();
   const [{ type, sort }] = useMediaPageFilters();
   const normalizedType = toMediaType(type);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
@@ -63,8 +65,16 @@ function PageClient() {
     },
     getNextPageParam: (lastPage) => lastPage.nextCursor || undefined,
     initialPageParam: undefined,
-    enabled: !!workspaceId,
-    placeholderData: (previous) => previous,
+    enabled: !!workspaceId && !isFetchingWorkspace,
+    placeholderData: (previous, previousQuery) => {
+      const previousWorkspaceId =
+        Array.isArray(previousQuery?.queryKey) &&
+        typeof previousQuery.queryKey[1] === "string"
+          ? previousQuery.queryKey[1]
+          : null;
+
+      return previousWorkspaceId === workspaceId ? previous : undefined;
+    },
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 30,
   });
@@ -156,7 +166,7 @@ function PageClient() {
     setIsUploading(false);
   };
 
-  if (isLoading) {
+  if (isFetchingWorkspace || !workspaceId || isLoading) {
     return <PageLoader />;
   }
 

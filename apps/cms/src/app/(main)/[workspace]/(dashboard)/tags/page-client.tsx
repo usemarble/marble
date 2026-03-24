@@ -14,6 +14,7 @@ import { columns, type Tag } from "@/components/tags/columns";
 import { DataTable } from "@/components/tags/data-table";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
+import { useWorkspace } from "@/providers/workspace";
 
 const TagModal = dynamic(() =>
   import("@/components/tags/tag-modals").then((mod) => mod.TagModal)
@@ -21,6 +22,7 @@ const TagModal = dynamic(() =>
 
 function PageClient() {
   const workspaceId = useWorkspaceId();
+  const { isFetchingWorkspace } = useWorkspace();
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const { data: tags, isLoading } = useQuery({
@@ -41,10 +43,10 @@ function PageClient() {
         );
       }
     },
-    enabled: !!workspaceId,
+    enabled: !!workspaceId && !isFetchingWorkspace,
   });
 
-  if (isLoading) {
+  if (isFetchingWorkspace || !workspaceId || isLoading) {
     return <PageLoader />;
   }
 
