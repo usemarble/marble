@@ -35,7 +35,9 @@ function PageClient() {
   const [importOpen, setImportOpen] = useState(false);
 
   const { data: posts, isLoading } = useQuery({
-    queryKey: workspaceId ? QUERY_KEYS.POSTS(workspaceId) : ["posts", "disabled"],
+    queryKey: workspaceId
+      ? QUERY_KEYS.POSTS(workspaceId)
+      : ["posts", "disabled"],
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
       try {

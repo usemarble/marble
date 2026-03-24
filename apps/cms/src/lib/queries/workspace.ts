@@ -106,10 +106,7 @@ export async function getInitialWorkspaceData(
     const session = await getServerSession();
     const activeOrganizationId = session?.session?.activeOrganizationId;
 
-    if (
-      !session?.user ||
-      (!activeOrganizationId && !workspaceSlug)
-    ) {
+    if (!session?.user || (!activeOrganizationId && !workspaceSlug)) {
       return null;
     }
 
