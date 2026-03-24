@@ -62,11 +62,18 @@ export const MAX_LOGO_FILE_SIZE = 5 * 1024 * 1024;
 export const MAX_MEDIA_FILE_SIZE = 250 * 1024 * 1024;
 
 export const WORKSPACE_SCOPED_PREFIXES = [
-  "posts",
-  "tags",
+  "ai-readability-suggestions",
+  "authors",
+  "billing-usage",
   "categories",
+  "posts",
+  "publishing-metrics",
+  "tags",
+  "team",
+  "usage-dashboard",
   "media",
   "webhooks",
+  "keys",
 ] as const;
 
 export type WorkspaceScopedPrefix = (typeof WORKSPACE_SCOPED_PREFIXES)[number];

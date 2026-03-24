@@ -25,12 +25,14 @@ import { format, parseISO } from "date-fns";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
+import { useWorkspace } from "@/providers/workspace";
 import type { PublishingMetricsData } from "@/types/dashboard";
 
 const numberFormatter = new Intl.NumberFormat("en-US");
 
 export const PublishingActivityCard = () => {
   const workspaceId = useWorkspaceId();
+  const { isFetchingWorkspace } = useWorkspace();
 
   const { data: metrics, isPending } = useQuery({
     queryKey: workspaceId
@@ -43,10 +45,10 @@ export const PublishingActivityCard = () => {
       }
       return response.json();
     },
-    enabled: Boolean(workspaceId),
+    enabled: Boolean(workspaceId) && !isFetchingWorkspace,
   });
 
-  if (isPending) {
+  if (isFetchingWorkspace || !workspaceId || isPending) {
     return (
       <Card className="rounded-[20px] border-none bg-surface p-2.5">
         <CardHeader className="gap-0 px-4 pt-4">

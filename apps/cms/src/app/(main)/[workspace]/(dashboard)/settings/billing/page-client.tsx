@@ -18,6 +18,7 @@ import { ArrowUpRightIcon, CheckIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
+import PageLoader from "@/components/shared/page-loader";
 import { AsyncButton } from "@/components/ui/async-button";
 import { usePlan } from "@/hooks/use-plan";
 import { authClient, checkout } from "@/lib/auth/client";
@@ -28,7 +29,7 @@ function PageClient() {
     "pro" | "pro-yearly" | "hobby" | null
   >(null);
   const [isYearly, setIsYearly] = useState(true);
-  const { activeWorkspace, isOwner } = useWorkspace();
+  const { activeWorkspace, isFetchingWorkspace, isOwner } = useWorkspace();
   const { currentPlan, isProPlan } = usePlan();
 
   const hobbyPlan = PRICING_PLANS.find((p) => p.id === "hobby");
@@ -40,6 +41,10 @@ function PageClient() {
 
   const yearlyMonthlyPrice = "$16";
   const monthlyPrice = "$20";
+
+  if (isFetchingWorkspace || !activeWorkspace) {
+    return <PageLoader />;
+  }
 
   const handleCheckout = async (plan: "pro" | "pro-yearly" | "hobby") => {
     if (!activeWorkspace?.id) {

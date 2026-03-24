@@ -17,17 +17,16 @@ export default async function WorkspaceLayout({
 }) {
   const { workspace: workspaceSlug } = await params;
 
-  const initialWorkspace = await getInitialWorkspaceData();
-  if (!initialWorkspace) {
-    notFound();
-  }
-
   const workspaceExists = await validateWorkspaceAccess(workspaceSlug);
   if (!workspaceExists) {
     notFound();
   }
 
   await setActiveWorkspace(workspaceSlug);
+  const initialWorkspace = await getInitialWorkspaceData(workspaceSlug);
+  if (!initialWorkspace) {
+    notFound();
+  }
 
   return (
     <WorkspaceProvider

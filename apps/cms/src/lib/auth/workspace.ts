@@ -12,7 +12,7 @@ import { authClient } from "./client";
  * @param slug - The slug of the workspace to set as active.
  */
 export async function setActiveWorkspace(slug: string) {
-  auth.api.setActiveOrganization({
+  await auth.api.setActiveOrganization({
     headers: await headers(),
     body: {
       organizationSlug: slug,
