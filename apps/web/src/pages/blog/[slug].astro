@@ -6,6 +6,7 @@
   import ButtonComponent from "@/components/ui/Button.astro";
   import Layout from "@/layouts/Layout.astro";
   import { SITE } from "@/lib/constants/site";
+  import { REGISTER_URL, TRACKING_EVENTS } from "@/lib/constants/tracking";
   import { calculateReadTime } from "@/lib/utils";
 
   const YOUTUBE_WATCH_URL = `https://www.youtube.com/watch?v=${YOUTUBE_VIDEO_ID}`;
@@ -110,9 +111,13 @@
             class="flex flex-col sm:flex-row w-full items-center justify-center gap-4"
           >
             <ButtonComponent
-              href={SITE.APP_URL}
+              href={REGISTER_URL}
               target="_blank"
               class="w-full sm:w-auto"
+              data-track={TRACKING_EVENTS.signupPressed}
+              data-location="blog_post_cta"
+              data-label="Try Marble for free"
+              data-href={REGISTER_URL}
             >
               Try Marble for free
             </ButtonComponent>

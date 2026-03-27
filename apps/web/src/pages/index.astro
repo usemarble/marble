@@ -10,6 +10,7 @@
   import { FAQs } from "@/lib/constants/faqs";
   import { FEATURES, REVIEWS, USERS } from "@/lib/constants/landing";
   import { SITE } from "@/lib/constants/site";
+  import { REGISTER_URL, TRACKING_EVENTS } from "@/lib/constants/tracking";
   import { HERO } from "@/lib/site";
   import { cn } from "@/lib/utils";
 
@@ -43,9 +44,13 @@
               class="flex flex-col sm:flex-row w-full items-center justify-center gap-4"
             >
               <ButtonComponent
-                href={SITE.APP_URL}
+                href={REGISTER_URL}
                 target="_blank"
                 class="w-full sm:w-auto"
+                data-track={TRACKING_EVENTS.signupPressed}
+                data-location="home_hero"
+                data-label="Publish your first post"
+                data-href={REGISTER_URL}
               >
                 Publish your first post
               </ButtonComponent>
@@ -275,9 +280,13 @@
               class="flex flex-col sm:flex-row w-full items-center justify-center gap-4"
             >
               <ButtonComponent
-                href={SITE.APP_URL}
+                href={REGISTER_URL}
                 target="_blank"
                 class="w-full sm:w-auto"
+                data-track={TRACKING_EVENTS.signupPressed}
+                data-location="home_bottom_cta"
+                data-label="Try Marble for free"
+                data-href={REGISTER_URL}
               >
                 Try Marble for free
               </ButtonComponent>
