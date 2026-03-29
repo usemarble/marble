@@ -3,11 +3,10 @@
 import { Label } from "@marble/ui/components/label";
 import { Switch } from "@marble/ui/components/switch";
 import { type Control, useController } from "react-hook-form";
-import type { PostValues } from "@/lib/validations/post";
 import { FieldInfo } from "./field-info";
 
 interface StatusFieldProps {
-  control: Control<PostValues>;
+  control: Control<any>;
 }
 
 export function StatusField({ control }: StatusFieldProps) {

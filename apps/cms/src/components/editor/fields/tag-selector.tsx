@@ -28,7 +28,6 @@ import { useMemo, useState } from "react";
 import { type Control, useController } from "react-hook-form";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
-import type { PostValues } from "@/lib/validations/post";
 import { TagModal } from "../../tags/tag-modals";
 import { ErrorMessage } from "../../ui/error-message";
 import { FieldInfo } from "./field-info";
@@ -46,7 +45,7 @@ interface TagResponse {
 }
 
 interface MultiSelectPopoverProps {
-  control: Control<PostValues>;
+  control: Control<any>;
   placeholder?: string;
   isOpen?: boolean;
   setIsOpen?: (open: boolean) => void;

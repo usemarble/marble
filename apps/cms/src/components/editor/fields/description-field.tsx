@@ -4,11 +4,10 @@ import { Label } from "@marble/ui/components/label";
 import { Textarea } from "@marble/ui/components/textarea";
 import { type Control, useController } from "react-hook-form";
 import { ErrorMessage } from "@/components/ui/error-message";
-import type { PostValues } from "@/lib/validations/post";
 import { FieldInfo } from "./field-info";
 
 interface DescriptionFieldProps {
-  control: Control<PostValues>;
+  control: Control<any>;
 }
 
 export function DescriptionField({ control }: DescriptionFieldProps) {

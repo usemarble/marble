@@ -3,11 +3,45 @@ import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { invalidateCache } from "@/lib/cache/invalidate";
-import { postSchema } from "@/lib/validations/post";
+import {
+  type CustomFieldValidationDefinition,
+  resolveCustomFieldValues,
+} from "@/lib/custom-fields";
+import { postUpsertSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";
 import { dispatchWebhooks } from "@/lib/webhooks/dispatcher";
 import { sanitizeHtml } from "@/utils/editor";
 import { generateSlug } from "@/utils/string";
+
+async function buildCustomFieldWrites(
+  workspaceId: string,
+  input: Record<string, string | null | undefined>
+): Promise<ReturnType<typeof resolveCustomFieldValues>> {
+  const fieldIds = Object.keys(input);
+
+  if (fieldIds.length === 0) {
+    return {
+      success: true as const,
+      values: [] as Array<{ fieldId: string; value: string | null }>,
+    };
+  }
+
+  const fields = await db.customField.findMany({
+    where: {
+      id: { in: fieldIds },
+      workspaceId,
+    },
+    select: {
+      id: true,
+      key: true,
+      name: true,
+      type: true,
+      required: true,
+    },
+  });
+
+  return resolveCustomFieldValues(fields, input);
+}
 
 export async function GET() {
   const sessionData = await getServerSession();
@@ -56,7 +90,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const values = postSchema.safeParse(await request.json());
+  const values = postUpsertSchema.safeParse(await request.json());
   if (!values.success) {
     return NextResponse.json(
       { error: "Invalid request body", details: values.error.issues },
@@ -176,31 +210,76 @@ export async function POST(request: Request) {
   }
 
   try {
-    const postCreated = await db.post.create({
-      data: {
-        primaryAuthorId: primaryAuthor.id,
-        contentJson,
-        slug: values.data.slug,
-        title: values.data.title,
-        status: values.data.status,
-        featured: values.data.featured,
-        content: cleanContent,
-        categoryId: values.data.category,
-        coverImage: values.data.coverImage,
-        publishedAt: values.data.publishedAt,
-        description: values.data.description,
-        attribution: validAttribution,
-        workspaceId: activeWorkspaceId,
-        tags:
-          uniqueTagIds.length > 0
-            ? {
-                connect: uniqueTagIds.map((id) => ({ id })),
-              }
-            : undefined,
-        authors: {
-          connect: validAuthors.map((author) => ({ id: author.id })),
+    const postCreated = await db.$transaction(async (tx) => {
+      const createdPost = await tx.post.create({
+        data: {
+          primaryAuthorId: primaryAuthor.id,
+          contentJson,
+          slug: values.data.slug,
+          title: values.data.title,
+          status: values.data.status,
+          featured: values.data.featured,
+          content: cleanContent,
+          categoryId: values.data.category,
+          coverImage: values.data.coverImage,
+          publishedAt: values.data.publishedAt,
+          description: values.data.description,
+          attribution: validAttribution,
+          workspaceId: activeWorkspaceId,
+          tags:
+            uniqueTagIds.length > 0
+              ? {
+                  connect: uniqueTagIds.map((id) => ({ id })),
+                }
+              : undefined,
+          authors: {
+            connect: validAuthors.map((author) => ({ id: author.id })),
+          },
         },
-      },
+      });
+
+      const customFieldWrites = await buildCustomFieldWrites(
+        activeWorkspaceId,
+        values.data.customFields
+      );
+
+      if (!customFieldWrites.success) {
+        throw new Error(JSON.stringify(customFieldWrites.error));
+      }
+
+      if (customFieldWrites.values.length > 0) {
+        await Promise.all(
+          customFieldWrites.values.map(({ fieldId, value }) => {
+            if (value === null) {
+              return tx.postFieldValue.deleteMany({
+                where: {
+                  postId: createdPost.id,
+                  fieldId,
+                  workspaceId: activeWorkspaceId,
+                },
+              });
+            }
+
+            return tx.postFieldValue.upsert({
+              where: {
+                postId_fieldId: { postId: createdPost.id, fieldId },
+              },
+              update: {
+                workspaceId: activeWorkspaceId,
+                value,
+              },
+              create: {
+                postId: createdPost.id,
+                fieldId,
+                workspaceId: activeWorkspaceId,
+                value,
+              },
+            });
+          })
+        );
+      }
+
+      return createdPost;
     });
 
     if (postCreated.status === "published") {
@@ -226,6 +305,16 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ id: postCreated.id });
   } catch (error) {
+    if (error instanceof Error) {
+      try {
+        const customFieldError = JSON.parse(error.message);
+        if (customFieldError?.error) {
+          return NextResponse.json(customFieldError, { status: 400 });
+        }
+      } catch {
+        // Ignore
+      }
+    }
     console.error("[PostCreate] Error creating post:", error);
     return NextResponse.json(
       { error: "Failed to create post" },

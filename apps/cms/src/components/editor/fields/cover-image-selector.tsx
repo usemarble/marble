@@ -41,7 +41,6 @@ import { ErrorMessage } from "@/components/ui/error-message";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { uploadFile } from "@/lib/media/upload";
 import { QUERY_KEYS } from "@/lib/queries/keys";
-import type { PostValues } from "@/lib/validations/post";
 import type { Media, MediaListResponse } from "@/types/media";
 import { FieldInfo } from "./field-info";
 
@@ -50,7 +49,7 @@ const urlSchema = z.string().url({
 });
 
 interface CoverImageSelectorProps {
-  control: Control<PostValues>;
+  control: Control<any>;
 }
 
 export function CoverImageSelector({ control }: CoverImageSelectorProps) {

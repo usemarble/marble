@@ -1,54 +1,10 @@
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
-import { z } from "zod";
 import { getServerSession } from "@/lib/auth/session";
-
-const postFieldValuesPayloadSchema = z.record(
-  z.string(),
-  z.union([z.string(), z.null()])
-);
-
-const fieldValueSchemas = {
-  text: z.string(),
-  number: z.coerce.number(),
-  boolean: z
-    .string()
-    .trim()
-    .toLowerCase()
-    .refine((value) => value === "true" || value === "false", {
-      message: "Boolean fields must be true or false",
-    })
-    .transform((value) => value === "true"),
-  date: z.iso.datetime({ offset: true }).or(z.iso.date()),
-  richtext: z.string(),
-  select: z.string(),
-  multiselect: z.string(),
-} as const;
-
-function normalizeFieldValue(
-  type: keyof typeof fieldValueSchemas,
-  value: string
-): { success: true; value: string } | { success: false; message: string } {
-  const schema = fieldValueSchemas[type];
-  const result = schema.safeParse(value);
-
-  if (!result.success) {
-    return {
-      success: false,
-      message: result.error.issues[0]?.message ?? "Invalid field value",
-    };
-  }
-
-  if (type === "number") {
-    return { success: true, value: String(result.data) };
-  }
-
-  if (type === "boolean") {
-    return { success: true, value: result.data ? "true" : "false" };
-  }
-
-  return { success: true, value: String(result.data).trim() };
-}
+import {
+  customFieldsPayloadSchema,
+  resolveCustomFieldValues,
+} from "@/lib/custom-fields";
 
 export async function GET(
   _req: Request,
@@ -129,7 +85,7 @@ export async function PUT(
   }
 
   const requestJson = await req.json();
-  const payload = postFieldValuesPayloadSchema.safeParse(requestJson);
+  const payload = customFieldsPayloadSchema.safeParse(requestJson);
   const workspaceId = session.session.activeOrganizationId;
 
   if (!payload.success) {
@@ -163,90 +119,72 @@ export async function PUT(
       },
     });
 
-    const fieldsById = new Map(validFields.map((field) => [field.id, field]));
-    const invalidIds = fieldIds.filter((id) => !fieldsById.has(id));
+    const resolvedValues = resolveCustomFieldValues(validFields, json);
 
-    if (invalidIds.length > 0) {
-      return NextResponse.json(
-        { error: "Invalid field IDs", invalidIds },
-        { status: 400 }
-      );
+    if (!resolvedValues.success) {
+      return NextResponse.json(resolvedValues.error, { status: 400 });
     }
 
-    for (const [fieldId, rawValue] of Object.entries(json)) {
-      const field = fieldsById.get(fieldId);
-
-      if (!field) {
-        continue;
-      }
-
-      if (rawValue === null || rawValue.trim() === "") {
-        if (field.required) {
-          return NextResponse.json(
-            {
-              error: "Required field cannot be empty",
-              fieldId,
-              key: field.key,
-              name: field.name,
-            },
-            { status: 400 }
-          );
-        }
-
-        continue;
-      }
-
-      const normalized = normalizeFieldValue(field.type, rawValue);
-
-      if (!normalized.success) {
-        return NextResponse.json(
-          {
-            error: "Invalid field value",
+    const operations = resolvedValues.values.map(({ fieldId, value }) => {
+      if (value === null) {
+        return db.postFieldValue.deleteMany({
+          where: {
+            postId,
             fieldId,
-            key: field.key,
-            name: field.name,
-            type: field.type,
-            message: normalized.message,
+            workspaceId,
           },
-          { status: 400 }
-        );
+        });
       }
 
-      json[fieldId] = normalized.value;
-    }
-  }
-
-  // Upsert each field value
-  const operations = Object.entries(json).map(([fieldId, value]) => {
-    if (value === null || value === "") {
-      // Delete the value if null or empty
-      return db.postFieldValue.deleteMany({
+      return db.postFieldValue.upsert({
         where: {
+          postId_fieldId: { postId, fieldId },
+        },
+        update: {
+          value,
+          workspaceId,
+        },
+        create: {
           postId,
           fieldId,
           workspaceId,
+          value,
         },
       });
-    }
-
-    return db.postFieldValue.upsert({
-      where: {
-        postId_fieldId: { postId, fieldId },
-      },
-      update: {
-        value: String(value),
-        workspaceId,
-      },
-      create: {
-        postId,
-        fieldId,
-        workspaceId,
-        value: String(value),
-      },
     });
-  });
 
-  await Promise.all(operations);
+    await Promise.all(operations);
+  } else {
+    const operations = Object.entries(json).map(([fieldId, value]) => {
+      if (value === null || value === "") {
+        return db.postFieldValue.deleteMany({
+          where: {
+            postId,
+            fieldId,
+            workspaceId,
+          },
+        });
+      }
+
+      return db.postFieldValue.upsert({
+        where: {
+          postId_fieldId: { postId, fieldId },
+        },
+        update: {
+          value: String(value),
+          workspaceId,
+        },
+        create: {
+          postId,
+          fieldId,
+          workspaceId,
+          value: String(value),
+        },
+      });
+    });
+
+    await Promise.all(operations);
+  }
 
   return NextResponse.json({ success: true }, { status: 200 });
 }

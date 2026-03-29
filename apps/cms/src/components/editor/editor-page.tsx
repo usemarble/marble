@@ -2,18 +2,15 @@
 
 import { MarbleEditorMenus } from "@/components/editor/editor";
 import { EditorHeader } from "@/components/editor/editor-header";
+import { useEditorPage } from "@/components/editor/editor-page-provider";
 import { EditorSidebar } from "@/components/editor/editor-sidebar";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { HiddenScrollbar } from "@/components/ui/hidden-scrollbar";
 import { useDebounce } from "@/hooks/use-debounce";
-import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { MAX_MEDIA_FILE_SIZE } from "@/lib/constants";
 import { uploadFile } from "@/lib/media/upload";
-import { QUERY_KEYS } from "@/lib/queries/keys";
-import { type PostValues, postSchema } from "@/lib/validations/post";
-import { useUnsavedChanges } from "@/providers/unsaved-changes";
+import type { PostEditorValues } from "@/lib/validations/post";
 import "@/styles/editor.css";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   EditorContext,
   ImageUpload,
@@ -25,141 +22,40 @@ import {
 import { SidebarInset, useSidebar } from "@marble/ui/components/sidebar";
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useParams, useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useParams } from "next/navigation";
+import { useCallback, useEffect, useMemo } from "react";
+import { useFormContext } from "react-hook-form";
 import type { MediaListResponse } from "@/types/media";
 import { generateSlug } from "@/utils/string";
 import { TextareaAutosize } from "./textarea-autosize";
 
-interface EditorPageProps {
-  initialData: PostValues;
-  id?: string;
-}
-
-function EditorPage({ initialData, id }: EditorPageProps) {
-  "use no memo"; // React Compiler affects form watch → setHasUnsavedChanges timing; Save/Update button stays disabled when editing
-  const router = useRouter();
+function EditorPageContent() {
+  "use no memo";
   const params = useParams<{ workspace: string }>();
-  const workspaceId = useWorkspaceId();
   const { open, isMobile } = useSidebar();
-  const formRef = useRef<HTMLFormElement>(null);
-  const [showSettings, setShowSettings] = useState(false);
-  const { setHasUnsavedChanges } = useUnsavedChanges();
-  const initialDataRef = useRef<PostValues>(initialData);
-  const queryClient = useQueryClient();
-  const isUpdateMode = !!id;
-
-  const form = useForm<PostValues>({
-    // biome-ignore lint/suspicious/noExplicitAny: Zod 4 + react-hook-form type inference issue with z.coerce.date()
-    resolver: zodResolver(postSchema) as any,
-    defaultValues: { ...initialData },
-  });
-
+  const { mode, postId } = useEditorPage();
   const {
-    register,
-    handleSubmit,
-    watch,
-    setValue,
     clearErrors,
-    trigger,
-    control,
     formState: { errors },
-  } = form;
+    register,
+    setValue,
+    watch,
+  } = useFormContext<PostEditorValues>();
 
-  const { mutate: createPost, isPending: isCreating } = useMutation({
-    mutationFn: (values: PostValues) =>
-      fetch("/api/posts", {
-        method: "POST",
-        body: JSON.stringify(values),
-      }).then(async (res) => {
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          throw new Error(err.error || "Failed to create post");
-        }
-        return await res.json();
-      }),
-    onSuccess: (data) => {
-      toast.success("Post created");
-      router.push(`/${params.workspace}/editor/p/${data.id}`);
-      if (workspaceId) {
-        queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.POSTS(workspaceId),
-        });
-      }
-      setHasUnsavedChanges(false);
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
-
-  const { mutate: updatePost, isPending: isUpdating } = useMutation({
-    mutationFn: (values: PostValues) =>
-      fetch(`/api/posts/${id}`, {
-        method: "PATCH",
-        body: JSON.stringify(values),
-      }).then(async (res) => {
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          throw new Error(err.error || "Failed to update post");
-        }
-        return res;
-      }),
-    onSuccess: async (_data, variables) => {
-      toast.success("Post updated");
-      if (workspaceId && id) {
-        await Promise.all([
-          queryClient.invalidateQueries({
-            queryKey: QUERY_KEYS.POSTS(workspaceId),
-          }),
-          queryClient.invalidateQueries({
-            queryKey: QUERY_KEYS.POST(workspaceId, id),
-          }),
-        ]);
-      }
-      form.reset({ ...variables });
-      setHasUnsavedChanges(false);
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
+  const title = watch("title");
+  const content = watch("content");
+  const debouncedTitle = useDebounce(title || "", 300);
 
   useEffect(() => {
-    // Reset form if initialData changes (e.g., navigating between posts or from new to edit)
-    form.reset({ ...initialData });
-    initialDataRef.current = initialData;
-  }, [initialData, form]);
+    if (debouncedTitle && mode === "create") {
+      const slug = generateSlug(debouncedTitle);
+      setValue("slug", slug, {
+        shouldDirty: true,
+      });
+      clearErrors("slug");
+    }
+  }, [clearErrors, debouncedTitle, mode, setValue]);
 
-  useEffect(() => {
-    const subscription = watch((currentValues) => {
-      const initial = initialDataRef.current;
-      // Compare HTML content directly instead of parsing JSON
-      const hasChanged =
-        currentValues.content !== initial.content ||
-        currentValues.title !== initial.title ||
-        currentValues.slug !== initial.slug ||
-        currentValues.description !== initial.description ||
-        currentValues.category !== initial.category ||
-        currentValues.status !== initial.status ||
-        currentValues.featured !== initial.featured ||
-        JSON.stringify(currentValues.tags) !== JSON.stringify(initial.tags) ||
-        JSON.stringify(currentValues.authors) !==
-          JSON.stringify(initial.authors) ||
-        currentValues.coverImage !== initial.coverImage ||
-        JSON.stringify(currentValues.attribution) !==
-          JSON.stringify(initial.attribution);
-      if (hasChanged) {
-        setHasUnsavedChanges(true);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [watch, setHasUnsavedChanges]);
-
-  // Image upload handler
   const handleImageUpload = useCallback(async (file: File): Promise<string> => {
     const result = await uploadFile({ file, type: "media" });
     if (!result?.url) {
@@ -168,7 +64,6 @@ function EditorPage({ initialData, id }: EditorPageProps) {
     return result.url;
   }, []);
 
-  // Video upload handler
   const handleVideoUpload = useCallback(async (file: File): Promise<string> => {
     const result = await uploadFile({ file, type: "media" });
     if (!result?.url) {
@@ -177,18 +72,17 @@ function EditorPage({ initialData, id }: EditorPageProps) {
     return result.url;
   }, []);
 
-  // Fetch media page handler (with pagination)
   const fetchMediaPage = useCallback(
     async (cursor?: string): Promise<MediaPage> => {
       try {
         const url = cursor
           ? `/api/media?cursor=${encodeURIComponent(cursor)}`
           : "/api/media";
-        const res = await fetch(url);
-        if (!res.ok) {
+        const response = await fetch(url);
+        if (!response.ok) {
           return { media: [] };
         }
-        const data: MediaListResponse = await res.json();
+        const data: MediaListResponse = await response.json();
         return {
           media: data.media.map((item) => ({
             id: item.id,
@@ -205,7 +99,6 @@ function EditorPage({ initialData, id }: EditorPageProps) {
     []
   );
 
-  // Handle upload errors
   const handleUploadError = useCallback((error: Error) => {
     toast.error(`Upload failed: ${error.message}`);
   }, []);
@@ -221,33 +114,17 @@ function EditorPage({ initialData, id }: EditorPageProps) {
       if (html.length > 0) {
         clearErrors("content");
       }
-      setValue("content", html);
-      setValue("contentJson", JSON.stringify(json));
+      setValue("content", html, { shouldDirty: true, shouldValidate: true });
+      setValue("contentJson", JSON.stringify(json), {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
     },
     [clearErrors, setValue]
   );
 
-  function onSubmit(values: PostValues) {
-    if (isUpdateMode && id) {
-      updatePost(values);
-    } else {
-      createPost(values);
-    }
-  }
-
-  const title = watch("title");
-  const debouncedTitle = useDebounce(title || "", 300);
-
-  useEffect(() => {
-    if (debouncedTitle && !isUpdateMode) {
-      const slug = generateSlug(debouncedTitle);
-      setValue("slug", slug);
-      clearErrors("slug");
-    }
-  }, [debouncedTitle, setValue, clearErrors, isUpdateMode]);
-
   const editor = useMarbleEditor({
-    content: initialData.content || "",
+    content: content || "",
     placeholder: "Start typing or press '/' for commands",
     editorProps: {
       attributes: {
@@ -298,13 +175,14 @@ function EditorPage({ initialData, id }: EditorPageProps) {
   return (
     <EditorContext.Provider value={editorContextValue}>
       <SidebarInset className="h-[calc(100vh-1rem)] min-h-[calc(100vh-1rem)] rounded-xl border bg-editor-content-background shadow-xs">
-        <EditorHeader postId={id} workspace={params.workspace} />
+        <EditorHeader postId={postId} workspace={params.workspace} />
         <section className="mx-auto w-full max-w-3xl flex-1">
           <HiddenScrollbar className="h-[calc(100vh-7rem)]">
             <form
               className="space-y-5 rounded-md p-4"
-              onSubmit={handleSubmit(onSubmit)}
-              ref={formRef}
+              onSubmit={(event) => {
+                event.preventDefault();
+              }}
             >
               <div className="flex flex-col">
                 <label className="sr-only" htmlFor="title">
@@ -352,19 +230,13 @@ function EditorPage({ initialData, id }: EditorPageProps) {
           )}
         />
       )}
-      <EditorSidebar
-        control={control}
-        errors={errors}
-        formRef={formRef}
-        isOpen={showSettings}
-        isSubmitting={isCreating || isUpdating}
-        mode={isUpdateMode ? "update" : "create"}
-        postId={id}
-        setIsOpen={setShowSettings}
-        trigger={trigger}
-        watch={watch}
-      />
+      <EditorSidebar />
     </EditorContext.Provider>
   );
 }
+
+function EditorPage() {
+  return <EditorPageContent />;
+}
+
 export default EditorPage;

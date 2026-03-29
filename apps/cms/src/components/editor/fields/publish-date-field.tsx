@@ -13,11 +13,10 @@ import { CalendarDotsIcon } from "@phosphor-icons/react";
 import { format } from "date-fns";
 import { type Control, useController } from "react-hook-form";
 import { ErrorMessage } from "@/components/ui/error-message";
-import type { PostValues } from "@/lib/validations/post";
 import { FieldInfo } from "./field-info";
 
 interface PublishDateFieldProps {
-  control: Control<PostValues>;
+  control: Control<any>;
 }
 
 function toUTCMidnight(date: Date) {

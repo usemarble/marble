@@ -32,7 +32,6 @@ import { useEffect, useMemo } from "react";
 import { type Control, useController } from "react-hook-form";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
-import type { PostValues } from "@/lib/validations/post";
 import { useUser } from "@/providers/user";
 import { ErrorMessage } from "../../ui/error-message";
 import { FieldInfo } from "./field-info";
@@ -45,7 +44,7 @@ interface AuthorOptions {
 }
 
 interface AuthorSelectorProps {
-  control: Control<PostValues>;
+  control: Control<any>;
   placeholder?: string;
   isOpen?: boolean;
   setIsOpen?: (open: boolean) => void;
@@ -128,7 +127,7 @@ export function AuthorSelector({
   const addOrRemoveAuthor = (authorToAdd: string) => {
     const currentValues = value || [];
     let newValue = currentValues.includes(authorToAdd)
-      ? currentValues.filter((id) => id !== authorToAdd)
+      ? currentValues.filter((id: string) => id !== authorToAdd)
       : [...currentValues, authorToAdd];
 
     if (

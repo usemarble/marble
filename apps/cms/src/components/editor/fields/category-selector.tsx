@@ -16,7 +16,6 @@ import { CategoryModal } from "@/components/categories/category-modals";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
-import type { PostValues } from "@/lib/validations/post";
 import { FieldInfo } from "./field-info";
 
 interface CategoryResponse {
@@ -26,7 +25,7 @@ interface CategoryResponse {
 }
 
 interface CategorySelectorProps {
-  control: Control<PostValues>;
+  control: Control<any>;
 }
 
 export function CategorySelector({ control }: CategorySelectorProps) {

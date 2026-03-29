@@ -1,16 +1,14 @@
 "use client";
 
+import { EditorPageProvider } from "@/components/editor/editor-page-provider";
 import EditorPage from "@/components/editor/editor-page";
-import { emptyPost } from "@/lib/data/post";
-import type { PostValues } from "@/lib/validations/post";
 
 function NewPostPageClient() {
-  const initialPostData: PostValues = {
-    ...emptyPost,
-    authors: [],
-  };
-
-  return <EditorPage initialData={initialPostData} />;
+  return (
+    <EditorPageProvider>
+      <EditorPage />
+    </EditorPageProvider>
+  );
 }
 
 export default NewPostPageClient;

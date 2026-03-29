@@ -25,6 +25,20 @@ export const postSchema = z.object({
 
 export type PostValues = z.infer<typeof postSchema>;
 
+export const postEditorSchema = postSchema.extend({
+  customFields: z.record(z.string(), z.string()).default({}),
+});
+
+export type PostEditorValues = z.infer<typeof postEditorSchema>;
+
+export const postUpsertSchema = postSchema.extend({
+  customFields: z
+    .record(z.string(), z.union([z.string(), z.null(), z.undefined()]))
+    .default({}),
+});
+
+export type PostUpsertValues = z.infer<typeof postUpsertSchema>;
+
 export const shareLinkSchema = z.object({
   postId: z.string().min(1, { message: "Post ID is required" }),
 });

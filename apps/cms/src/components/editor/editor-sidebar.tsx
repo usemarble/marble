@@ -18,16 +18,10 @@ import { cn } from "@marble/ui/lib/utils";
 import { SpinnerIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
-import type {
-  Control,
-  FieldErrors,
-  UseFormTrigger,
-  UseFormWatch,
-} from "react-hook-form";
+import { useEditorPage } from "@/components/editor/editor-page-provider";
 import { useDebounce } from "@/hooks/use-debounce";
 import { fetchAiReadabilitySuggestionsObject } from "@/lib/ai/readability";
 import { QUERY_KEYS } from "@/lib/queries/keys";
-import type { PostValues } from "@/lib/validations/post";
 import { useWorkspace } from "@/providers/workspace";
 import {
   calculateReadabilityScore,
@@ -51,37 +45,22 @@ const TabLoadingSpinner = () => (
   </div>
 );
 
-type EditorSidebarProps = React.ComponentProps<typeof Sidebar> & {
-  control: Control<PostValues>;
-  errors: FieldErrors<PostValues>;
-  trigger: UseFormTrigger<PostValues>;
-  watch: UseFormWatch<PostValues>;
-  formRef: React.RefObject<HTMLFormElement | null>;
-  isSubmitting: boolean;
-  defaultCoverImage?: string | null;
-  isOpen: boolean;
-  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  mode?: "create" | "update";
-  postId?: string;
-};
+type EditorSidebarProps = React.ComponentProps<typeof Sidebar>;
 
-export function EditorSidebar({
-  control,
-  errors,
-  trigger,
-  formRef,
-  isSubmitting,
-  watch,
-  isOpen,
-  setIsOpen,
-  mode = "create",
-  postId,
-  ...props
-}: EditorSidebarProps) {
+export function EditorSidebar({ ...props }: EditorSidebarProps) {
   const { open } = useSidebar();
-  const { tags, authors: initialAuthors } = watch();
   const { activeWorkspace } = useWorkspace();
   const { editor } = useCurrentEditor();
+  const {
+    form: {
+      watch,
+      formState: { errors },
+    },
+    isSubmitting,
+    mode,
+    postId,
+  } = useEditorPage();
+  const { tags, authors: initialAuthors } = watch();
 
   const [editorText, setEditorText] = useState("");
   const [editorHTML, setEditorHTML] = useState("");
@@ -268,7 +247,6 @@ export function EditorSidebar({
             >
               <Suspense fallback={<TabLoadingSpinner />}>
                 <MetadataTab
-                  control={control}
                   errors={errors}
                   initialAuthors={initialAuthors}
                   mode={mode}
@@ -297,12 +275,7 @@ export function EditorSidebar({
 
         <SidebarFooter className="shrink-0 bg-transparent px-6 py-6">
           {activeTab === "metadata" && (
-            <MetadataFooter
-              formRef={formRef}
-              isSubmitting={isSubmitting}
-              mode={mode}
-              trigger={trigger}
-            />
+            <MetadataFooter isSubmitting={isSubmitting} />
           )}
         </SidebarFooter>
       </Sidebar>
