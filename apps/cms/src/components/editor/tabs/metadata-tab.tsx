@@ -21,16 +21,12 @@ interface MetadataTabProps {
   errors: FieldErrors<PostEditorValues>;
   initialAuthors?: string[];
   tags?: string[];
-  postId?: string;
-  mode: "create" | "update";
 }
 
 export function MetadataTab({
   errors,
   initialAuthors,
   tags,
-  postId,
-  mode,
 }: MetadataTabProps) {
   "use no memo";
   const { control } = useFormContext<PostEditorValues>();

@@ -1,4 +1,4 @@
-import * as z from "zod";
+import { z } from "zod";
 
 const attributionSchema = z.object({
   author: z.string().min(1, "Author name is required"),

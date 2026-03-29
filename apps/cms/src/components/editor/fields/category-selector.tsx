@@ -11,7 +11,12 @@ import {
 import { PlusIcon } from "@phosphor-icons/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { type Control, useController } from "react-hook-form";
+import {
+  type Control,
+  type FieldValues,
+  type Path,
+  useController,
+} from "react-hook-form";
 import { CategoryModal } from "@/components/categories/category-modals";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
@@ -24,16 +29,18 @@ interface CategoryResponse {
   slug: string;
 }
 
-interface CategorySelectorProps {
-  control: Control<any>;
+interface CategorySelectorProps<TFieldValues extends FieldValues> {
+  control: Control<TFieldValues>;
 }
 
-export function CategorySelector({ control }: CategorySelectorProps) {
+export function CategorySelector<TFieldValues extends FieldValues>({
+  control,
+}: CategorySelectorProps<TFieldValues>) {
   const {
     field: { onChange, value },
     fieldState: { error },
   } = useController({
-    name: "category",
+    name: "category" as Path<TFieldValues>,
     control,
   });
 

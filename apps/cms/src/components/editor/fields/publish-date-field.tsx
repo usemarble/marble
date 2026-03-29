@@ -11,12 +11,17 @@ import {
 import { cn } from "@marble/ui/lib/utils";
 import { CalendarDotsIcon } from "@phosphor-icons/react";
 import { format } from "date-fns";
-import { type Control, useController } from "react-hook-form";
+import {
+  type Control,
+  type FieldValues,
+  type Path,
+  useController,
+} from "react-hook-form";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { FieldInfo } from "./field-info";
 
-interface PublishDateFieldProps {
-  control: Control<any>;
+interface PublishDateFieldProps<TFieldValues extends FieldValues> {
+  control: Control<TFieldValues>;
 }
 
 function toUTCMidnight(date: Date) {
@@ -29,12 +34,14 @@ function utcToLocalDate(date: Date) {
   return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
 }
 
-export function PublishDateField({ control }: PublishDateFieldProps) {
+export function PublishDateField<TFieldValues extends FieldValues>({
+  control,
+}: PublishDateFieldProps<TFieldValues>) {
   const {
     field: { onChange, value },
     fieldState: { error },
   } = useController({
-    name: "publishedAt",
+    name: "publishedAt" as Path<TFieldValues>,
     control,
   });
 

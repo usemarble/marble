@@ -2,20 +2,27 @@
 
 import { Label } from "@marble/ui/components/label";
 import { Textarea } from "@marble/ui/components/textarea";
-import { type Control, useController } from "react-hook-form";
+import {
+  type Control,
+  type FieldValues,
+  type Path,
+  useController,
+} from "react-hook-form";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { FieldInfo } from "./field-info";
 
-interface DescriptionFieldProps {
-  control: Control<any>;
+interface DescriptionFieldProps<TFieldValues extends FieldValues> {
+  control: Control<TFieldValues>;
 }
 
-export function DescriptionField({ control }: DescriptionFieldProps) {
+export function DescriptionField<TFieldValues extends FieldValues>({
+  control,
+}: DescriptionFieldProps<TFieldValues>) {
   const {
     field,
     fieldState: { error },
   } = useController({
-    name: "description",
+    name: "description" as Path<TFieldValues>,
     control,
   });
 

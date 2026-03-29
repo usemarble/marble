@@ -33,8 +33,13 @@ import {
 } from "@tanstack/react-query";
 import NextImage from "next/image";
 import { useState } from "react";
-import { type Control, useController } from "react-hook-form";
-import * as z from "zod";
+import {
+  type Control,
+  type FieldValues,
+  type Path,
+  useController,
+} from "react-hook-form";
+import { z } from "zod";
 import { ImageDropzone } from "@/components/shared/dropzone";
 import { AsyncButton } from "@/components/ui/async-button";
 import { ErrorMessage } from "@/components/ui/error-message";
@@ -48,15 +53,17 @@ const urlSchema = z.string().url({
   message: "Please enter a valid URL",
 });
 
-interface CoverImageSelectorProps {
-  control: Control<any>;
+interface CoverImageSelectorProps<TFieldValues extends FieldValues> {
+  control: Control<TFieldValues>;
 }
 
-export function CoverImageSelector({ control }: CoverImageSelectorProps) {
+export function CoverImageSelector<TFieldValues extends FieldValues>({
+  control,
+}: CoverImageSelectorProps<TFieldValues>) {
   const {
     field: { onChange, value: coverImage },
   } = useController({
-    name: "coverImage",
+    name: "coverImage" as Path<TFieldValues>,
     control,
   });
 

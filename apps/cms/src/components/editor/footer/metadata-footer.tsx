@@ -1,4 +1,4 @@
-import { useEditorPage } from "@/components/editor/editor-page-provider";
+import { useEditorData } from "@/components/editor/editor-data-provider";
 import { AsyncButton } from "@/components/ui/async-button";
 
 interface MetadataFooterProps {
@@ -6,7 +6,7 @@ interface MetadataFooterProps {
 }
 
 export function MetadataFooter({ isSubmitting }: MetadataFooterProps) {
-  const { hasUnsavedChanges, mode, submit } = useEditorPage();
+  const { hasUnsavedChanges, mode, submit } = useEditorData();
 
   return (
     <AsyncButton

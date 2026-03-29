@@ -16,7 +16,7 @@ import { CalendarDotsIcon } from "@phosphor-icons/react";
 import { format, parseISO } from "date-fns";
 import { useMemo } from "react";
 import { useController, useFormContext } from "react-hook-form";
-import { useEditorPage } from "@/components/editor/editor-page-provider";
+import { useEditorData } from "@/components/editor/editor-data-provider";
 import { ErrorMessage } from "@/components/ui/error-message";
 import {
   SUPPORTED_CUSTOM_FIELD_TYPES,
@@ -27,7 +27,7 @@ import type { CustomField } from "@/types/fields";
 import { FieldInfo } from "./field-info";
 
 export function CustomFieldsSection() {
-  const { fieldDefinitions } = useEditorPage();
+  const { fieldDefinitions } = useEditorData();
 
   const supportedFields = useMemo(
     () =>

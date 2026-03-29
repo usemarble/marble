@@ -30,7 +30,7 @@ interface EditorBootstrap {
   values: PostEditorValues;
 }
 
-interface EditorPageContextValue {
+interface EditorDataContextValue {
   fieldDefinitions: CustomField[];
   form: ReturnType<typeof useForm<PostEditorValues>>;
   hasUnsavedChanges: boolean;
@@ -41,7 +41,7 @@ interface EditorPageContextValue {
   submit: () => void;
 }
 
-const EditorPageContext = createContext<EditorPageContextValue | undefined>(
+const EditorDataContext = createContext<EditorDataContextValue | undefined>(
   undefined
 );
 
@@ -143,7 +143,7 @@ async function fetchEditorBootstrap(
   };
 }
 
-export function EditorPageProvider({
+export function EditorDataProvider({
   children,
   postId,
 }: {
@@ -313,7 +313,7 @@ export function EditorPageProvider({
     form.handleSubmit(handleValidSubmit, handleInvalidSubmit)();
   }, [form, handleInvalidSubmit, handleValidSubmit]);
 
-  const contextValue = useMemo<EditorPageContextValue>(() => {
+  const contextValue = useMemo<EditorDataContextValue>(() => {
     const fieldDefinitions = bootstrapQuery.data?.fields ?? [];
     return {
       fieldDefinitions,
@@ -350,17 +350,17 @@ export function EditorPageProvider({
   }
 
   return (
-    <EditorPageContext.Provider value={contextValue}>
+    <EditorDataContext.Provider value={contextValue}>
       <FormProvider {...form}>{children}</FormProvider>
-    </EditorPageContext.Provider>
+    </EditorDataContext.Provider>
   );
 }
 
-export function useEditorPage() {
-  const context = useContext(EditorPageContext);
+export function useEditorData() {
+  const context = useContext(EditorDataContext);
 
   if (!context) {
-    throw new Error("useEditorPage must be used within EditorPageProvider");
+    throw new Error("useEditorData must be used within EditorDataProvider");
   }
 
   return context;

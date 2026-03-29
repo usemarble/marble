@@ -18,7 +18,7 @@ import { cn } from "@marble/ui/lib/utils";
 import { SpinnerIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { useEditorPage } from "@/components/editor/editor-page-provider";
+import { useEditorData } from "@/components/editor/editor-data-provider";
 import { useDebounce } from "@/hooks/use-debounce";
 import { fetchAiReadabilitySuggestionsObject } from "@/lib/ai/readability";
 import { QUERY_KEYS } from "@/lib/queries/keys";
@@ -59,7 +59,7 @@ export function EditorSidebar({ ...props }: EditorSidebarProps) {
     isSubmitting,
     mode,
     postId,
-  } = useEditorPage();
+  } = useEditorData();
   const { tags, authors: initialAuthors } = watch();
 
   const [editorText, setEditorText] = useState("");
@@ -249,8 +249,6 @@ export function EditorSidebar({ ...props }: EditorSidebarProps) {
                 <MetadataTab
                   errors={errors}
                   initialAuthors={initialAuthors}
-                  mode={mode}
-                  postId={postId}
                   tags={tags}
                 />
               </Suspense>

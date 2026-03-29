@@ -4,16 +4,25 @@ import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { Switch } from "@marble/ui/components/switch";
 import { useState } from "react";
-import { type Control, type FieldErrors, useController } from "react-hook-form";
+import {
+  type Control,
+  type FieldErrors,
+  type FieldValues,
+  type Path,
+  useController,
+} from "react-hook-form";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { FieldInfo } from "./field-info";
 
-interface AttributionFieldProps {
-  control: Control<any>;
-  errors: FieldErrors<any>;
+interface AttributionFieldProps<TFieldValues extends FieldValues> {
+  control: Control<TFieldValues>;
+  errors: FieldErrors<TFieldValues>;
 }
 
-export function AttributionField({ control, errors }: AttributionFieldProps) {
+export function AttributionField<TFieldValues extends FieldValues>({
+  control,
+  errors,
+}: AttributionFieldProps<TFieldValues>) {
   const attributionErrors = errors.attribution as
     | {
         author?: { message?: string };
@@ -24,7 +33,7 @@ export function AttributionField({ control, errors }: AttributionFieldProps) {
   const {
     field: { onChange, value },
   } = useController({
-    name: "attribution",
+    name: "attribution" as Path<TFieldValues>,
     control,
   });
 

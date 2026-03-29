@@ -1,8 +1,8 @@
 "use client";
 
 import { MarbleEditorMenus } from "@/components/editor/editor";
+import { useEditorData } from "@/components/editor/editor-data-provider";
 import { EditorHeader } from "@/components/editor/editor-header";
-import { useEditorPage } from "@/components/editor/editor-page-provider";
 import { EditorSidebar } from "@/components/editor/editor-sidebar";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { HiddenScrollbar } from "@/components/ui/hidden-scrollbar";
@@ -33,7 +33,7 @@ function EditorPageContent() {
   "use no memo";
   const params = useParams<{ workspace: string }>();
   const { open, isMobile } = useSidebar();
-  const { mode, postId } = useEditorPage();
+  const { mode, postId } = useEditorData();
   const {
     clearErrors,
     formState: { errors },
