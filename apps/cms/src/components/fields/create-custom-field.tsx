@@ -183,8 +183,8 @@ function CreateCustomFieldSheet({ children }: CreateCustomFieldSheetProps) {
                 })}
               />
               <p className="text-muted-foreground text-xs">
-                Used as the identifier when storing the value. Must be unique per
-                workspace. Only lowercase letters, numbers, and underscores.
+                Used as the identifier when storing the value. Must be unique
+                per workspace. Only lowercase letters, numbers, and underscores.
               </p>
               {errors.key && (
                 <ErrorMessage className="text-sm">

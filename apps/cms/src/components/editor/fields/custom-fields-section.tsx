@@ -31,7 +31,9 @@ export function CustomFieldsSection() {
 
   const supportedFields = useMemo(
     () =>
-      fieldDefinitions.filter((field) => SUPPORTED_CUSTOM_FIELD_TYPES.has(field.type)),
+      fieldDefinitions.filter((field) =>
+        SUPPORTED_CUSTOM_FIELD_TYPES.has(field.type)
+      ),
     [fieldDefinitions]
   );
 
@@ -88,7 +90,9 @@ function FieldInput({ field }: { field: CustomField }) {
             ref={formField.ref}
             value={formField.value ?? ""}
           />
-          {error ? <ErrorMessage className="text-sm">{error.message}</ErrorMessage> : null}
+          {error ? (
+            <ErrorMessage className="text-sm">{error.message}</ErrorMessage>
+          ) : null}
         </div>
       );
 
@@ -105,7 +109,9 @@ function FieldInput({ field }: { field: CustomField }) {
             type="number"
             value={formField.value ?? ""}
           />
-          {error ? <ErrorMessage className="text-sm">{error.message}</ErrorMessage> : null}
+          {error ? (
+            <ErrorMessage className="text-sm">{error.message}</ErrorMessage>
+          ) : null}
         </div>
       );
 
@@ -122,7 +128,9 @@ function FieldInput({ field }: { field: CustomField }) {
               }
             />
           </div>
-          {error ? <ErrorMessage className="text-sm">{error.message}</ErrorMessage> : null}
+          {error ? (
+            <ErrorMessage className="text-sm">{error.message}</ErrorMessage>
+          ) : null}
         </div>
       );
 
@@ -170,7 +178,9 @@ function FieldInput({ field }: { field: CustomField }) {
               />
             </PopoverContent>
           </Popover>
-          {error ? <ErrorMessage className="text-sm">{error.message}</ErrorMessage> : null}
+          {error ? (
+            <ErrorMessage className="text-sm">{error.message}</ErrorMessage>
+          ) : null}
         </div>
       );
     }

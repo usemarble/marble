@@ -24,7 +24,8 @@ export const customFieldSchema = z.object({
     .min(1, { message: "Key cannot be empty" })
     .max(50, { message: "Key cannot be more than 50 characters" })
     .regex(/^[a-z0-9_]+$/, {
-      message: "Key can only contain lowercase letters, numbers, and underscores",
+      message:
+        "Key can only contain lowercase letters, numbers, and underscores",
     }),
   type: fieldTypeEnum,
   required: z.boolean().optional(),
@@ -47,7 +48,8 @@ export const customFieldUpdateSchema = z.object({
     .min(1, { message: "Key cannot be empty" })
     .max(50, { message: "Key cannot be more than 50 characters" })
     .regex(/^[a-z0-9_]+$/, {
-      message: "Key can only contain lowercase letters, numbers, and underscores",
+      message:
+        "Key can only contain lowercase letters, numbers, and underscores",
     })
     .optional(),
   type: fieldTypeEnum.optional(),

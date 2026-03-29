@@ -142,8 +142,8 @@ export function EditCustomFieldSheet({
                 {...register("key")}
               />
               <p className="text-muted-foreground text-xs">
-                Used as the identifier when storing the value. Must be unique per
-                workspace. Only lowercase letters, numbers, and underscores.
+                Used as the identifier when storing the value. Must be unique
+                per workspace. Only lowercase letters, numbers, and underscores.
               </p>
               {errors.key && (
                 <ErrorMessage className="text-sm">
@@ -202,11 +202,7 @@ export function EditCustomFieldSheet({
           </div>
 
           <SheetFooter className="p-6">
-            <AsyncButton
-              className="w-full"
-              isLoading={isPending}
-              type="submit"
-            >
+            <AsyncButton className="w-full" isLoading={isPending} type="submit">
               Save changes
             </AsyncButton>
           </SheetFooter>

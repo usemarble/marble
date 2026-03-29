@@ -1,5 +1,5 @@
-import { AsyncButton } from "@/components/ui/async-button";
 import { useEditorPage } from "@/components/editor/editor-page-provider";
+import { AsyncButton } from "@/components/ui/async-button";
 
 interface MetadataFooterProps {
   isSubmitting: boolean;

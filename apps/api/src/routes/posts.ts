@@ -559,7 +559,10 @@ posts.openapi(listPostsRoute, async (c) => {
 
     const postsWithFields = formattedPosts.map((post) => {
       const { fieldValues, ...rest } = post as typeof post & {
-        fieldValues: Array<{ value: string; field: { key: string; type: string } }>;
+        fieldValues: Array<{
+          value: string;
+          field: { key: string; type: string };
+        }>;
       };
       return {
         ...rest,
@@ -708,9 +711,13 @@ posts.openapi(getPostRoute, async (c) => {
             } | null,
           };
 
-    const { fieldValues, ...postRest } = formattedPost as typeof formattedPost & {
-      fieldValues: Array<{ value: string; field: { key: string; type: string } }>;
-    };
+    const { fieldValues, ...postRest } =
+      formattedPost as typeof formattedPost & {
+        fieldValues: Array<{
+          value: string;
+          field: { key: string; type: string };
+        }>;
+      };
     const postWithFields = {
       ...postRest,
       fields: buildFieldsObject(fieldValues || []),

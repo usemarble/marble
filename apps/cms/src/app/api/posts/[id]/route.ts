@@ -6,10 +6,7 @@ import {
   type CustomFieldValidationDefinition,
   resolveCustomFieldValues,
 } from "@/lib/custom-fields";
-import {
-  type Attribution,
-  postUpsertSchema,
-} from "@/lib/validations/post";
+import { type Attribution, postUpsertSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";
 import { dispatchWebhooks } from "@/lib/webhooks/dispatcher";
 import { sanitizeHtml } from "@/utils/editor";
@@ -21,7 +18,10 @@ async function buildCustomFieldWrites(
   const fieldIds = Object.keys(input);
 
   if (fieldIds.length === 0) {
-    return { success: true, values: [] as Array<{ fieldId: string; value: string | null }> };
+    return {
+      success: true,
+      values: [] as Array<{ fieldId: string; value: string | null }>,
+    };
   }
 
   const fields = await db.customField.findMany({

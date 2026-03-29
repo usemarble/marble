@@ -6,7 +6,7 @@ import { customFieldSchema } from "@/lib/validations/fields";
 
 export async function GET() {
   const sessionData = await getServerSession();
-  const activeOrganizationId = sessionData?.session.activeOrganizationId
+  const activeOrganizationId = sessionData?.session.activeOrganizationId;
 
   if (!sessionData || !activeOrganizationId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -23,7 +23,7 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-   const sessionData = await getServerSession();
+  const sessionData = await getServerSession();
   const activeOrganizationId = sessionData?.session.activeOrganizationId;
 
   if (!sessionData || !activeOrganizationId) {

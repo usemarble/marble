@@ -67,7 +67,9 @@ export function normalizeCustomFieldValue(
 export function validateCustomFieldValue(
   field: CustomFieldValidationDefinition,
   rawValue: string | null | undefined
-): { success: true; value: string | null } | { success: false; message: string } {
+):
+  | { success: true; value: string | null }
+  | { success: false; message: string } {
   if (rawValue == null) {
     return field.required
       ? { success: false, message: `${field.name} is required` }
