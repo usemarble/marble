@@ -54,6 +54,7 @@ const PostBaseFields = {
   id: z.string().openapi({ example: "cryitfjp5678mn09qrstuvwx" }),
   slug: z.string().openapi({ example: "getting-started-with-nextjs" }),
   title: z.string().openapi({ example: "Getting Started with Next.js" }),
+  status: z.enum(["published", "draft"]).openapi({ example: "published" }),
   featured: z.boolean().openapi({ example: false }),
   coverImage: z
     .string()
