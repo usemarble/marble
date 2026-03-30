@@ -21,7 +21,21 @@ export const SUPPORTED_CUSTOM_FIELD_TYPES = new Set<FieldType>([
   "number",
   "boolean",
   "date",
+  "richtext",
 ]);
+
+export function isRichTextContentEmpty(content: string) {
+  const plainText = content
+    .replace(/<br\s*\/?>/gi, " ")
+    .replace(/<\/?(p|div|li|ul|ol)>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&#160;/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return plainText.length === 0;
+}
 
 const fieldValueSchemas = {
   text: z.string(),
@@ -78,7 +92,10 @@ export function validateCustomFieldValue(
 
   const trimmedValue = rawValue.trim();
 
-  if (trimmedValue === "") {
+  if (
+    trimmedValue === "" ||
+    (field.type === "richtext" && isRichTextContentEmpty(trimmedValue))
+  ) {
     return field.required
       ? { success: false, message: `${field.name} is required` }
       : { success: true, value: null };
@@ -97,7 +114,14 @@ export function resolveCustomFieldValues(
   fields: CustomFieldValidationDefinition[],
   input: Record<string, string | null | undefined>
 ):
-  | { success: true; values: Array<{ fieldId: string; value: string | null }> }
+  | {
+      success: true;
+      values: Array<{
+        fieldId: string;
+        fieldType: FieldType;
+        value: string | null;
+      }>;
+    }
   | { success: false; error: Record<string, unknown> } {
   const fieldsById = new Map(fields.map((field) => [field.id, field]));
   const fieldIds = Object.keys(input);
@@ -113,7 +137,11 @@ export function resolveCustomFieldValues(
     };
   }
 
-  const values: Array<{ fieldId: string; value: string | null }> = [];
+  const values: Array<{
+    fieldId: string;
+    fieldType: FieldType;
+    value: string | null;
+  }> = [];
 
   for (const fieldId of fieldIds) {
     const field = fieldsById.get(fieldId);
@@ -140,6 +168,7 @@ export function resolveCustomFieldValues(
 
     values.push({
       fieldId,
+      fieldType: field.type,
       value: validation.value,
     });
   }

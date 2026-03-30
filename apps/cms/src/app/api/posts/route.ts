@@ -10,7 +10,7 @@ import {
 import { postUpsertSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";
 import { dispatchWebhooks } from "@/lib/webhooks/dispatcher";
-import { sanitizeHtml } from "@/utils/editor";
+import { sanitizeHtml, sanitizeRichTextHtml } from "@/utils/editor";
 import { generateSlug } from "@/utils/string";
 
 async function buildCustomFieldWrites(
@@ -22,7 +22,11 @@ async function buildCustomFieldWrites(
   if (fieldIds.length === 0) {
     return {
       success: true as const,
-      values: [] as Array<{ fieldId: string; value: string | null }>,
+      values: [] as Array<{
+        fieldId: string;
+        fieldType: CustomFieldValidationDefinition["type"];
+        value: string | null;
+      }>,
     };
   }
 
@@ -249,7 +253,7 @@ export async function POST(request: Request) {
 
       if (customFieldWrites.values.length > 0) {
         await Promise.all(
-          customFieldWrites.values.map(({ fieldId, value }) => {
+          customFieldWrites.values.map(({ fieldId, fieldType, value }) => {
             if (value === null) {
               return tx.postFieldValue.deleteMany({
                 where: {
@@ -266,13 +270,19 @@ export async function POST(request: Request) {
               },
               update: {
                 workspaceId: activeWorkspaceId,
-                value,
+                value:
+                  fieldType === "richtext"
+                    ? sanitizeRichTextHtml(value)
+                    : value,
               },
               create: {
                 postId: createdPost.id,
                 fieldId,
                 workspaceId: activeWorkspaceId,
-                value,
+                value:
+                  fieldType === "richtext"
+                    ? sanitizeRichTextHtml(value)
+                    : value,
               },
             });
           })

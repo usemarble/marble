@@ -1,5 +1,6 @@
 "use client";
 
+import { FieldRichTextEditor } from "@marble/editor";
 import { Button } from "@marble/ui/components/button";
 import { Calendar } from "@marble/ui/components/calendar";
 import { Input } from "@marble/ui/components/input";
@@ -82,7 +83,7 @@ function FieldInput({ field }: { field: CustomField }) {
         <div className="grid gap-2">
           <FieldLabel field={field} />
           <Textarea
-            className="min-h-[60px] resize-none"
+            className="min-h-[60px] resize-y bg-editor-field"
             id={`cf-${field.id}`}
             onBlur={formField.onBlur}
             onChange={formField.onChange}
@@ -101,6 +102,7 @@ function FieldInput({ field }: { field: CustomField }) {
         <div className="grid gap-2">
           <FieldLabel field={field} />
           <Input
+            className="bg-editor-field"
             id={`cf-${field.id}`}
             onBlur={formField.onBlur}
             onChange={formField.onChange}
@@ -184,6 +186,22 @@ function FieldInput({ field }: { field: CustomField }) {
         </div>
       );
     }
+
+    case "richtext":
+      return (
+        <div className="grid gap-2">
+          <FieldLabel field={field} />
+          <FieldRichTextEditor
+            onBlur={formField.onBlur}
+            onChange={formField.onChange}
+            placeholder={`Write ${field.name.toLowerCase()}`}
+            value={formField.value ?? ""}
+          />
+          {error ? (
+            <ErrorMessage className="text-sm">{error.message}</ErrorMessage>
+          ) : null}
+        </div>
+      );
 
     default:
       return null;

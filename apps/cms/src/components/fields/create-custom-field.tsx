@@ -41,6 +41,7 @@ const typeOptions = [
   { label: "Number", value: "number" },
   { label: "Boolean", value: "boolean" },
   { label: "Date", value: "date" },
+  { label: "Rich Text", value: "richtext" },
 ];
 
 function toSnakeCase(str: string): string {

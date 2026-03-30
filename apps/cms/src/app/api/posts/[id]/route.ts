@@ -9,7 +9,7 @@ import {
 import { type Attribution, postUpsertSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";
 import { dispatchWebhooks } from "@/lib/webhooks/dispatcher";
-import { sanitizeHtml } from "@/utils/editor";
+import { sanitizeHtml, sanitizeRichTextHtml } from "@/utils/editor";
 
 async function buildCustomFieldWrites(
   workspaceId: string,
@@ -20,7 +20,11 @@ async function buildCustomFieldWrites(
   if (fieldIds.length === 0) {
     return {
       success: true,
-      values: [] as Array<{ fieldId: string; value: string | null }>,
+      values: [] as Array<{
+        fieldId: string;
+        fieldType: CustomFieldValidationDefinition["type"];
+        value: string | null;
+      }>,
     };
   }
 
@@ -243,7 +247,7 @@ export async function PATCH(
 
       if (customFieldWrites.values.length > 0) {
         await Promise.all(
-          customFieldWrites.values.map(({ fieldId, value }) => {
+          customFieldWrites.values.map(({ fieldId, fieldType, value }) => {
             if (value === null) {
               return tx.postFieldValue.deleteMany({
                 where: {
@@ -260,13 +264,19 @@ export async function PATCH(
               },
               update: {
                 workspaceId,
-                value,
+                value:
+                  fieldType === "richtext"
+                    ? sanitizeRichTextHtml(value)
+                    : value,
               },
               create: {
                 postId: id,
                 fieldId,
                 workspaceId,
-                value,
+                value:
+                  fieldType === "richtext"
+                    ? sanitizeRichTextHtml(value)
+                    : value,
               },
             });
           })

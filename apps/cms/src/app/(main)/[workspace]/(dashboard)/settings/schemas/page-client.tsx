@@ -27,6 +27,7 @@ const fieldTypeLabels: Record<string, string> = {
   number: "Number",
   boolean: "Boolean",
   date: "Date",
+  richtext: "Rich Text",
 };
 
 export function PageClient() {
@@ -67,7 +68,8 @@ export function PageClient() {
           <div className="flex flex-col items-center gap-4 text-center">
             <p className="text-muted-foreground text-sm">
               Extend the default post schema with custom fields. Define text,
-              number, boolean, or date fields that can be set on every post.
+              number, boolean, date, or rich text fields that can be set on
+              every post.
             </p>
             <CreateCustomFieldSheet>
               <Button>

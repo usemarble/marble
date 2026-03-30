@@ -5,6 +5,7 @@ import {
   customFieldsPayloadSchema,
   resolveCustomFieldValues,
 } from "@/lib/custom-fields";
+import { sanitizeRichTextHtml } from "@/utils/editor";
 
 export async function GET(
   _req: Request,
@@ -125,33 +126,37 @@ export async function PUT(
       return NextResponse.json(resolvedValues.error, { status: 400 });
     }
 
-    const operations = resolvedValues.values.map(({ fieldId, value }) => {
-      if (value === null) {
-        return db.postFieldValue.deleteMany({
+    const operations = resolvedValues.values.map(
+      ({ fieldId, fieldType, value }) => {
+        if (value === null) {
+          return db.postFieldValue.deleteMany({
+            where: {
+              postId,
+              fieldId,
+              workspaceId,
+            },
+          });
+        }
+
+        return db.postFieldValue.upsert({
           where: {
+            postId_fieldId: { postId, fieldId },
+          },
+          update: {
+            value:
+              fieldType === "richtext" ? sanitizeRichTextHtml(value) : value,
+            workspaceId,
+          },
+          create: {
             postId,
             fieldId,
             workspaceId,
+            value:
+              fieldType === "richtext" ? sanitizeRichTextHtml(value) : value,
           },
         });
       }
-
-      return db.postFieldValue.upsert({
-        where: {
-          postId_fieldId: { postId, fieldId },
-        },
-        update: {
-          value,
-          workspaceId,
-        },
-        create: {
-          postId,
-          fieldId,
-          workspaceId,
-          value,
-        },
-      });
-    });
+    );
 
     await Promise.all(operations);
   } else {
