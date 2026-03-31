@@ -7,8 +7,16 @@ import { Logo } from "@/components/settings/fields/logo";
 import { Name } from "@/components/settings/fields/name";
 import { Slug } from "@/components/settings/fields/slug";
 import { Timezone } from "@/components/settings/fields/timezone";
+import PageLoader from "@/components/shared/page-loader";
+import { useWorkspace } from "@/providers/workspace";
 
 function PageClient() {
+  const { activeWorkspace, isFetchingWorkspace } = useWorkspace();
+
+  if (isFetchingWorkspace || !activeWorkspace) {
+    return <PageLoader />;
+  }
+
   return (
     <WorkspacePageWrapper className="flex flex-col gap-8 py-12" size="compact">
       <Name />

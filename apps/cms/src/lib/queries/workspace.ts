@@ -93,23 +93,27 @@ export async function getLastActiveWorkspaceOrNewOneToSetAsActive(
 /**
  * Fetches the initial workspace data for the active user.
  *
- * If a workspace slug is provided, the function attempts to fetch
- * that workspace (checking membership). Otherwise, it falls back
- * to the user's currently active session workspace.
+ * If a workspace slug is provided, the function fetches that workspace.
+ * Otherwise, it falls back to the user's currently active session workspace.
  *
  * @param {string} [workspaceSlug] - Optional slug of the workspace to fetch.
  * @returns {Promise<Workspace|null>} The workspace data or null if not found.
  */
-export async function getInitialWorkspaceData(): Promise<Workspace | null> {
+export async function getInitialWorkspaceData(
+  workspaceSlug?: string
+): Promise<Workspace | null> {
   try {
     const session = await getServerSession();
+    const activeOrganizationId = session?.session?.activeOrganizationId;
 
-    if (!session?.user || !session.session?.activeOrganizationId) {
+    if (!session?.user || (!activeOrganizationId && !workspaceSlug)) {
       return null;
     }
 
     const workspace = await db.organization.findUnique({
-      where: { id: session.session.activeOrganizationId },
+      where: workspaceSlug
+        ? { slug: workspaceSlug }
+        : { id: activeOrganizationId as string },
       select: {
         id: true,
         name: true,
@@ -177,6 +181,11 @@ export async function getInitialWorkspaceData(): Promise<Workspace | null> {
     const currentUserMember = workspace.members.find(
       (member) => member.userId === session.user.id
     );
+
+    if (!currentUserMember) {
+      return null;
+    }
+
     const activeSubscription = workspace.subscriptions[0] || null;
     const activePlan = getWorkspacePlan(activeSubscription);
 

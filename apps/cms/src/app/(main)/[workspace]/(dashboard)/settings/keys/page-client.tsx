@@ -16,6 +16,7 @@ import { WorkspacePageWrapper } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
+import { useWorkspace } from "@/providers/workspace";
 
 const CreateKeyModal = dynamic(() =>
   import("@/components/keys/api-key-modal").then((mod) => mod.ApiKeyModal)
@@ -23,6 +24,7 @@ const CreateKeyModal = dynamic(() =>
 
 function PageClient() {
   const workspaceId = useWorkspaceId();
+  const { isFetchingWorkspace } = useWorkspace();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const { data: keys, isLoading } = useQuery({
     // biome-ignore lint/style/noNonNullAssertion: <>
@@ -45,10 +47,10 @@ function PageClient() {
         return [];
       }
     },
-    enabled: !!workspaceId,
+    enabled: !!workspaceId && !isFetchingWorkspace,
   });
 
-  if (isLoading) {
+  if (isFetchingWorkspace || !workspaceId || isLoading) {
     return <PageLoader />;
   }
 
