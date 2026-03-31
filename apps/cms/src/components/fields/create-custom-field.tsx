@@ -197,7 +197,6 @@ function CreateCustomFieldSheet({ children }: CreateCustomFieldSheetProps) {
             <div className="grid gap-3">
               <Label htmlFor="cf-description">Description</Label>
               <Textarea
-                className="min-h-[96px] resize-none"
                 id="cf-description"
                 placeholder="Date of release of the post"
                 {...register("description")}

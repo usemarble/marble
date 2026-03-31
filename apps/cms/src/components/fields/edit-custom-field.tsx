@@ -156,7 +156,6 @@ export function EditCustomFieldSheet({
             <div className="grid gap-3">
               <Label htmlFor="edit-cf-description">Description</Label>
               <Textarea
-                className="min-h-[96px] resize-none"
                 id="edit-cf-description"
                 placeholder="Optional helper text shown to editors"
                 {...register("description")}

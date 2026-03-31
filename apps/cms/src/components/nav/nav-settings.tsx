@@ -67,7 +67,7 @@ const developerItems = [
   },
   {
     name: "Custom Fields",
-    url: "settings/schemas",
+    url: "settings/fields",
     icon: DatabaseIcon,
   },
   {
