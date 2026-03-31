@@ -56,13 +56,6 @@ export async function GET(
     valueMap[v.fieldId] = v.value;
   }
 
-  console.log("[GET /api/posts/[id]/fields]", {
-    postId,
-    fieldCount: fields.length,
-    valueCount: values.length,
-    valueMap,
-  });
-
   return NextResponse.json({ fields, values: valueMap }, { status: 200 });
 }
 
@@ -102,11 +95,6 @@ export async function PUT(
   }
 
   const json = payload.data;
-
-  console.log("[PUT /api/posts/[id]/fields]", {
-    postId,
-    payload: json,
-  });
 
   // Validate all fieldIds belong to this workspace
   const fieldIds = Object.keys(json);
