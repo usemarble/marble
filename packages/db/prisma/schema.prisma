@@ -58,6 +58,7 @@ model Organization {
   posts             Post[]
   subscriptions     Subscription[]
   tags              Tag[]
+  fieldOptions      FieldOption[]
   webhooks          Webhook[]
   editorPreferences EditorPreferences?
   ShareLink         ShareLink[]
@@ -506,11 +507,32 @@ model Field {
   updatedAt   DateTime       @updatedAt
   workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   values      FieldValue[]
+  options     FieldOption[]
 
   @@unique([workspaceId, key])
   @@unique([id, workspaceId])
   @@index([workspaceId])
   @@map("field")
+}
+
+model FieldOption {
+  id          String       @id @default(cuid())
+  fieldId      String
+  workspaceId String
+  value       String
+  label       String
+  position    Int          @default(0)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  field       Field        @relation(fields: [fieldId, workspaceId], references: [id, workspaceId], onDelete: Cascade)
+  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([fieldId, value])
+  @@unique([id, workspaceId])
+  @@index([fieldId])
+  @@index([workspaceId])
+  @@index([fieldId, position])
+  @@map("field_option")
 }
 
 model FieldValue {

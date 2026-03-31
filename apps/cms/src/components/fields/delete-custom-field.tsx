@@ -59,6 +59,9 @@ export function DeleteCustomFieldModal({
           queryKey: QUERY_KEYS.CUSTOM_FIELDS(workspaceId),
         });
       }
+      queryClient.invalidateQueries({
+        queryKey: ["editor-bootstrap"],
+      });
     },
     onError: (error) => {
       toast.error(error.message);

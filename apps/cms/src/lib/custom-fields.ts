@@ -14,6 +14,10 @@ export interface CustomFieldValidationDefinition {
   name: string;
   type: FieldType;
   required: boolean;
+  options?: Array<{
+    value: string;
+    label: string;
+  }>;
 }
 
 export const SUPPORTED_CUSTOM_FIELD_TYPES = new Set<FieldType>([
@@ -22,7 +26,55 @@ export const SUPPORTED_CUSTOM_FIELD_TYPES = new Set<FieldType>([
   "boolean",
   "date",
   "richtext",
+  "select",
+  "multiselect",
 ]);
+
+function normalizeMultiselectValue(
+  rawValue: string,
+  options: Array<{ value: string; label: string }>
+): { success: true; value: string } | { success: false; message: string } {
+  let parsedValue: unknown;
+
+  try {
+    parsedValue = JSON.parse(rawValue);
+  } catch {
+    return {
+      success: false,
+      message: "Multiselect fields must be a JSON array of option values",
+    };
+  }
+
+  const result = z.array(z.string()).safeParse(parsedValue);
+
+  if (!result.success) {
+    return {
+      success: false,
+      message: "Multiselect fields must be a JSON array of option values",
+    };
+  }
+
+  const allowedValues = new Set(options.map((option) => option.value));
+  const uniqueValues: string[] = [];
+
+  for (const selectedValue of result.data) {
+    if (!allowedValues.has(selectedValue)) {
+      return {
+        success: false,
+        message: "Selected values must match the configured options",
+      };
+    }
+
+    if (!uniqueValues.includes(selectedValue)) {
+      uniqueValues.push(selectedValue);
+    }
+  }
+
+  return {
+    success: true,
+    value: JSON.stringify(uniqueValues),
+  };
+}
 
 export function isRichTextContentEmpty(content: string) {
   const plainText = content
@@ -55,10 +107,36 @@ const fieldValueSchemas = {
 } as const satisfies Record<FieldType, z.ZodType>;
 
 export function normalizeCustomFieldValue(
-  type: FieldType,
+  field: CustomFieldValidationDefinition,
   value: string
 ): { success: true; value: string } | { success: false; message: string } {
-  const result = fieldValueSchemas[type].safeParse(value);
+  if (field.type === "select") {
+    const allowedValues = new Set(
+      (field.options ?? []).map((option) => option.value)
+    );
+
+    if (allowedValues.size === 0) {
+      return {
+        success: false,
+        message: "Select fields must define at least one option",
+      };
+    }
+
+    if (!allowedValues.has(value)) {
+      return {
+        success: false,
+        message: "Selected value must match a configured option",
+      };
+    }
+
+    return { success: true, value };
+  }
+
+  if (field.type === "multiselect") {
+    return normalizeMultiselectValue(value, field.options ?? []);
+  }
+
+  const result = fieldValueSchemas[field.type].safeParse(value);
 
   if (!result.success) {
     return {
@@ -67,11 +145,11 @@ export function normalizeCustomFieldValue(
     };
   }
 
-  if (type === "number") {
+  if (field.type === "number") {
     return { success: true, value: String(result.data) };
   }
 
-  if (type === "boolean") {
+  if (field.type === "boolean") {
     return { success: true, value: result.data ? "true" : "false" };
   }
 
@@ -101,7 +179,7 @@ export function validateCustomFieldValue(
       : { success: true, value: null };
   }
 
-  const normalized = normalizeCustomFieldValue(field.type, trimmedValue);
+  const normalized = normalizeCustomFieldValue(field, trimmedValue);
 
   if (!normalized.success) {
     return normalized;

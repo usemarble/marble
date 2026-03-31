@@ -39,6 +39,13 @@ async function buildCustomFieldWrites(
       name: true,
       type: true,
       required: true,
+      options: {
+        select: {
+          value: true,
+          label: true,
+        },
+        orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+      },
     },
   });
 

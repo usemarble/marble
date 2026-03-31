@@ -35,6 +35,11 @@ export async function GET(
   const [fields, values] = await Promise.all([
     db.field.findMany({
       where: { workspaceId: session.session.activeOrganizationId },
+      include: {
+        options: {
+          orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+        },
+      },
       orderBy: [{ position: "asc" }, { createdAt: "asc" }],
     }),
     db.fieldValue.findMany({
@@ -117,6 +122,13 @@ export async function PUT(
         name: true,
         type: true,
         required: true,
+        options: {
+          select: {
+            value: true,
+            label: true,
+          },
+          orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+        },
       },
     });
 

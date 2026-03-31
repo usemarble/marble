@@ -21,7 +21,8 @@ import {
 import { toast } from "@marble/ui/components/sonner";
 import { Textarea } from "@marble/ui/components/textarea";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useForm, useWatch } from "react-hook-form";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
+import { FieldOptionsInput } from "@/components/fields/field-options-input";
 import { AsyncButton } from "@/components/ui/async-button";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
@@ -38,6 +39,8 @@ const typeOptions = [
   { label: "Boolean", value: "boolean" },
   { label: "Date", value: "date" },
   { label: "Rich Text", value: "richtext" },
+  { label: "Select", value: "select" },
+  { label: "Multi Select", value: "multiselect" },
 ];
 
 interface EditCustomFieldSheetProps {
@@ -67,10 +70,20 @@ export function EditCustomFieldSheet({
       description: field.description ?? "",
       key: field.key,
       type: field.type,
+      options: field.options.map((option) => ({
+        value: option.value,
+        label: option.label,
+      })),
     },
   });
 
   const watchedType = useWatch({ control, name: "type" });
+  const showsOptions =
+    watchedType === "select" || watchedType === "multiselect";
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "options",
+  });
 
   const { mutate: updateField, isPending } = useMutation({
     mutationFn: async (data: CustomFieldFormValues) => {
@@ -95,6 +108,9 @@ export function EditCustomFieldSheet({
           queryKey: QUERY_KEYS.CUSTOM_FIELDS(workspaceId),
         });
       }
+      queryClient.invalidateQueries({
+        queryKey: ["editor-bootstrap"],
+      });
     },
     onError: (error) => {
       toast.error(error.message || "Failed to update field");
@@ -178,6 +194,17 @@ export function EditCustomFieldSheet({
                 onValueChange={(value) => {
                   if (value) {
                     setValue("type", value);
+                    const isOptionType =
+                      value === "select" || value === "multiselect";
+
+                    if (isOptionType && fields.length === 0) {
+                      append({ value: "", label: "" });
+                      return;
+                    }
+
+                    if (!isOptionType) {
+                      setValue("options", [], { shouldDirty: true });
+                    }
                   }
                 }}
                 value={watchedType}
@@ -199,6 +226,16 @@ export function EditCustomFieldSheet({
                 </ErrorMessage>
               )}
             </div>
+
+            {showsOptions ? (
+              <FieldOptionsInput
+                append={append}
+                errors={errors}
+                fields={fields}
+                register={register}
+                remove={remove}
+              />
+            ) : null}
           </div>
 
           <SheetFooter className="p-6">

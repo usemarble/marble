@@ -1,8 +1,16 @@
 "use client";
 
 import { FieldRichTextEditor } from "@marble/editor";
+import { Badge } from "@marble/ui/components/badge";
 import { Button } from "@marble/ui/components/button";
 import { Calendar } from "@marble/ui/components/calendar";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandList,
+} from "@marble/ui/components/command";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import {
@@ -10,12 +18,24 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@marble/ui/components/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@marble/ui/components/select";
 import { Switch } from "@marble/ui/components/switch";
 import { Textarea } from "@marble/ui/components/textarea";
 import { cn } from "@marble/ui/lib/utils";
-import { CalendarDotsIcon } from "@phosphor-icons/react";
+import {
+  CalendarDotsIcon,
+  CaretUpDownIcon,
+  CheckIcon,
+  XIcon,
+} from "@phosphor-icons/react";
 import { format, parseISO } from "date-fns";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useController, useFormContext } from "react-hook-form";
 import { useEditorData } from "@/components/editor/editor-data-provider";
 import { ErrorMessage } from "@/components/ui/error-message";
@@ -49,6 +69,21 @@ export function CustomFieldsSection() {
       ))}
     </div>
   );
+}
+
+function parseMultiselectValue(value: string | null | undefined) {
+  if (!value) {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed)
+      ? parsed.filter((item): item is string => typeof item === "string")
+      : [];
+  } catch {
+    return [];
+  }
 }
 
 function FieldLabel({ field }: { field: CustomField }) {
@@ -203,7 +238,169 @@ function FieldInput({ field }: { field: CustomField }) {
         </div>
       );
 
+    case "select":
+      return (
+        <div className="grid gap-2">
+          <FieldLabel field={field} />
+          <Select
+            items={[
+              { label: `Select ${field.name.toLowerCase()}`, value: null },
+              ...field.options.map((option) => ({
+                label: option.label,
+                value: option.value,
+              })),
+            ]}
+            onValueChange={(value) => formField.onChange(value ?? "")}
+            value={formField.value || null}
+          >
+            <SelectTrigger className="w-full bg-editor-field shadow-none">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {field.options.map((option) => (
+                <SelectItem key={option.id} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {error ? (
+            <ErrorMessage className="text-sm">{error.message}</ErrorMessage>
+          ) : null}
+        </div>
+      );
+
+    case "multiselect":
+      return (
+        <MultiselectField
+          error={error?.message}
+          field={field}
+          onBlur={formField.onBlur}
+          onChange={formField.onChange}
+          value={formField.value ?? ""}
+        />
+      );
+
     default:
       return null;
   }
+}
+
+function MultiselectField({
+  error,
+  field,
+  onBlur,
+  onChange,
+  value,
+}: {
+  error?: string;
+  field: CustomField;
+  onBlur: () => void;
+  onChange: (value: string) => void;
+  value: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const selectedValues = useMemo(() => parseMultiselectValue(value), [value]);
+  const selectedOptions = useMemo(
+    () =>
+      field.options.filter((option) => selectedValues.includes(option.value)),
+    [field.options, selectedValues]
+  );
+
+  const toggleValue = (optionValue: string) => {
+    const nextValues = selectedValues.includes(optionValue)
+      ? selectedValues.filter((value) => value !== optionValue)
+      : [...selectedValues, optionValue];
+
+    onChange(JSON.stringify(nextValues));
+  };
+
+  const removeValue = (optionValue: string) => {
+    onChange(
+      JSON.stringify(selectedValues.filter((value) => value !== optionValue))
+    );
+  };
+
+  return (
+    <div className="grid gap-2">
+      <FieldLabel field={field} />
+      <Popover
+        onOpenChange={(nextOpen) => {
+          setOpen(nextOpen);
+          if (!nextOpen) {
+            onBlur();
+          }
+        }}
+        open={open}
+      >
+        <PopoverTrigger
+          nativeButton={false}
+          render={
+            <div className="relative h-auto min-h-9 w-full cursor-pointer rounded-md border bg-editor-field px-3 py-2 text-sm">
+              <div className="flex items-center justify-between gap-2">
+                <ul className="flex flex-wrap gap-1">
+                  {selectedOptions.length === 0 ? (
+                    <li className="text-muted-foreground">
+                      {`Select ${field.name.toLowerCase()}`}
+                    </li>
+                  ) : (
+                    selectedOptions.map((option) => (
+                      <li key={option.id}>
+                        <Badge
+                          className="bg-background font-normal"
+                          variant="outline"
+                        >
+                          {option.label}
+                          <button
+                            className="ml-1 h-auto p-0 hover:bg-transparent"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              removeValue(option.value);
+                            }}
+                            type="button"
+                          >
+                            <XIcon className="size-2.5 p-0" />
+                          </button>
+                        </Badge>
+                      </li>
+                    ))
+                  )}
+                </ul>
+                <CaretUpDownIcon className="size-4 shrink-0 opacity-50" />
+              </div>
+            </div>
+          }
+        />
+        <PopoverContent align="start" className="min-w-[350px] p-0">
+          <Command className="w-full">
+            <CommandList>
+              <CommandEmpty>No options found.</CommandEmpty>
+              <CommandGroup>
+                {field.options.map((option) => {
+                  const isSelected = selectedValues.includes(option.value);
+
+                  return (
+                    <CommandItem
+                      id={option.id}
+                      key={option.id}
+                      onSelect={() => toggleValue(option.value)}
+                    >
+                      {option.label}
+                      <CheckIcon
+                        className={cn(
+                          "ml-auto size-4",
+                          isSelected ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                    </CommandItem>
+                  );
+                })}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+      {error ? <ErrorMessage className="text-sm">{error}</ErrorMessage> : null}
+    </div>
+  );
 }

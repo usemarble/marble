@@ -3,6 +3,16 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { customFieldUpdateSchema } from "@/lib/validations/fields";
 
+function buildFieldOptionWrites(
+  options: Array<{ value: string; label: string }>
+) {
+  return options.map((option, index) => ({
+    value: option.value,
+    label: option.label,
+    position: index,
+  }));
+}
+
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -34,6 +44,11 @@ export async function PATCH(
     where: {
       id,
       workspaceId: session.session.activeOrganizationId,
+    },
+    include: {
+      options: {
+        orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+      },
     },
   });
 
@@ -76,6 +91,25 @@ export async function PATCH(
     updateData.required = body.data.required;
   }
 
+  const effectiveType = body.data.type ?? existingField.type;
+  const effectiveOptions = body.data.options ?? existingField.options;
+  const requiresOptions =
+    effectiveType === "select" || effectiveType === "multiselect";
+
+  if (requiresOptions && effectiveOptions.length === 0) {
+    return NextResponse.json(
+      { error: "Select fields must define at least one option" },
+      { status: 400 }
+    );
+  }
+
+  if (!requiresOptions && effectiveOptions.length > 0) {
+    return NextResponse.json(
+      { error: "Only select and multiselect fields can define options" },
+      { status: 400 }
+    );
+  }
+
   const field = await db.field.update({
     where: {
       id_workspaceId: {
@@ -83,7 +117,23 @@ export async function PATCH(
         workspaceId: session.session.activeOrganizationId,
       },
     },
-    data: updateData,
+    data: {
+      ...updateData,
+      options:
+        body.data.options !== undefined || !requiresOptions
+          ? {
+              deleteMany: {},
+              create: requiresOptions
+                ? buildFieldOptionWrites(body.data.options ?? [])
+                : [],
+            }
+          : undefined,
+    },
+    include: {
+      options: {
+        orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+      },
+    },
   });
 
   return NextResponse.json(field, { status: 200 });

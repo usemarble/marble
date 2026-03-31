@@ -26,7 +26,8 @@ import { PlusIcon } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
+import { FieldOptionsInput } from "@/components/fields/field-options-input";
 import { AsyncButton } from "@/components/ui/async-button";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
@@ -42,6 +43,8 @@ const typeOptions = [
   { label: "Boolean", value: "boolean" },
   { label: "Date", value: "date" },
   { label: "Rich Text", value: "richtext" },
+  { label: "Select", value: "select" },
+  { label: "Multi Select", value: "multiselect" },
 ];
 
 function toSnakeCase(str: string): string {
@@ -75,10 +78,17 @@ function CreateCustomFieldSheet({ children }: CreateCustomFieldSheetProps) {
       description: "",
       key: "",
       type: "text",
+      options: [],
     },
   });
 
   const watchedType = useWatch({ control, name: "type" });
+  const showsOptions =
+    watchedType === "select" || watchedType === "multiselect";
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "options",
+  });
 
   const router = useRouter();
 
@@ -105,6 +115,9 @@ function CreateCustomFieldSheet({ children }: CreateCustomFieldSheetProps) {
           queryKey: QUERY_KEYS.CUSTOM_FIELDS(workspaceId),
         });
       }
+      queryClient.invalidateQueries({
+        queryKey: ["editor-bootstrap"],
+      });
       router.refresh();
     },
     onError: (error) => {
@@ -219,6 +232,17 @@ function CreateCustomFieldSheet({ children }: CreateCustomFieldSheetProps) {
                 onValueChange={(value) => {
                   if (value) {
                     setValue("type", value);
+                    const isOptionType =
+                      value === "select" || value === "multiselect";
+
+                    if (isOptionType && fields.length === 0) {
+                      append({ value: "", label: "" });
+                      return;
+                    }
+
+                    if (!isOptionType) {
+                      setValue("options", [], { shouldDirty: true });
+                    }
                   }
                 }}
                 value={watchedType}
@@ -240,6 +264,16 @@ function CreateCustomFieldSheet({ children }: CreateCustomFieldSheetProps) {
                 </ErrorMessage>
               )}
             </div>
+
+            {showsOptions ? (
+              <FieldOptionsInput
+                append={append}
+                errors={errors}
+                fields={fields}
+                register={register}
+                remove={remove}
+              />
+            ) : null}
           </div>
 
           <SheetFooter className="p-6">

@@ -4,6 +4,16 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { customFieldSchema } from "@/lib/validations/fields";
 
+function buildFieldOptionWrites(
+  options: Array<{ value: string; label: string }>
+) {
+  return options.map((option, index) => ({
+    value: option.value,
+    label: option.label,
+    position: index,
+  }));
+}
+
 export async function GET() {
   const sessionData = await getServerSession();
   const activeOrganizationId = sessionData?.session.activeOrganizationId;
@@ -15,6 +25,11 @@ export async function GET() {
   const fields = await db.field.findMany({
     where: {
       workspaceId: activeOrganizationId,
+    },
+    include: {
+      options: {
+        orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+      },
     },
     orderBy: [{ position: "asc" }, { createdAt: "asc" }],
   });
@@ -74,6 +89,17 @@ export async function POST(req: Request) {
       required: body.data.required ?? false,
       position: (maxPosition._max.position ?? -1) + 1,
       workspaceId: activeOrganizationId,
+      options:
+        (body.data.options ?? []).length > 0
+          ? {
+              create: buildFieldOptionWrites(body.data.options ?? []),
+            }
+          : undefined,
+    },
+    include: {
+      options: {
+        orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+      },
     },
   });
 

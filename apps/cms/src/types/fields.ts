@@ -1,3 +1,14 @@
+export interface FieldOption {
+  id: string;
+  fieldId: string;
+  workspaceId: string;
+  value: string;
+  label: string;
+  position: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface CustomField {
   id: string;
   name: string;
@@ -13,6 +24,7 @@ export interface CustomField {
     | "multiselect";
   required: boolean;
   position: number;
+  options: FieldOption[];
   createdAt: Date;
   updatedAt: Date;
 }
