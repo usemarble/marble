@@ -33,11 +33,11 @@ export async function GET(
 
   // Fetch workspace custom field definitions and this post's values
   const [fields, values] = await Promise.all([
-    db.customField.findMany({
+    db.field.findMany({
       where: { workspaceId: session.session.activeOrganizationId },
       orderBy: [{ position: "asc" }, { createdAt: "asc" }],
     }),
-    db.postFieldValue.findMany({
+    db.fieldValue.findMany({
       where: {
         postId,
         workspaceId: session.session.activeOrganizationId,
@@ -106,7 +106,7 @@ export async function PUT(
   // Validate all fieldIds belong to this workspace
   const fieldIds = Object.keys(json);
   if (fieldIds.length > 0) {
-    const validFields = await db.customField.findMany({
+    const validFields = await db.field.findMany({
       where: {
         id: { in: fieldIds },
         workspaceId,
@@ -129,7 +129,7 @@ export async function PUT(
     const operations = resolvedValues.values.map(
       ({ fieldId, fieldType, value }) => {
         if (value === null) {
-          return db.postFieldValue.deleteMany({
+          return db.fieldValue.deleteMany({
             where: {
               postId,
               fieldId,
@@ -138,7 +138,7 @@ export async function PUT(
           });
         }
 
-        return db.postFieldValue.upsert({
+        return db.fieldValue.upsert({
           where: {
             postId_fieldId: { postId, fieldId },
           },
@@ -162,7 +162,7 @@ export async function PUT(
   } else {
     const operations = Object.entries(json).map(([fieldId, value]) => {
       if (value === null || value === "") {
-        return db.postFieldValue.deleteMany({
+        return db.fieldValue.deleteMany({
           where: {
             postId,
             fieldId,
@@ -171,7 +171,7 @@ export async function PUT(
         });
       }
 
-      return db.postFieldValue.upsert({
+      return db.fieldValue.upsert({
         where: {
           postId_fieldId: { postId, fieldId },
         },

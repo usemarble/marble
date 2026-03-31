@@ -30,7 +30,7 @@ export async function PATCH(
   }
 
   // Verify field exists and belongs to workspace
-  const existingField = await db.customField.findFirst({
+  const existingField = await db.field.findFirst({
     where: {
       id,
       workspaceId: session.session.activeOrganizationId,
@@ -43,7 +43,7 @@ export async function PATCH(
 
   // If key is being changed, check uniqueness
   if (body.data.key && body.data.key !== existingField.key) {
-    const keyConflict = await db.customField.findFirst({
+    const keyConflict = await db.field.findFirst({
       where: {
         workspaceId: session.session.activeOrganizationId,
         key: body.data.key,
@@ -76,7 +76,7 @@ export async function PATCH(
     updateData.required = body.data.required;
   }
 
-  const field = await db.customField.update({
+  const field = await db.field.update({
     where: {
       id_workspaceId: {
         id,
@@ -105,7 +105,7 @@ export async function DELETE(
 
   const { id } = await params;
 
-  const existingField = await db.customField.findFirst({
+  const existingField = await db.field.findFirst({
     where: {
       id,
       workspaceId: session.session.activeOrganizationId,
@@ -116,7 +116,7 @@ export async function DELETE(
     return NextResponse.json({ error: "Field not found" }, { status: 404 });
   }
 
-  await db.customField.delete({
+  await db.field.delete({
     where: {
       id_workspaceId: {
         id,

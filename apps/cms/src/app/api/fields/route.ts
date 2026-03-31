@@ -12,7 +12,7 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const fields = await db.customField.findMany({
+  const fields = await db.field.findMany({
     where: {
       workspaceId: activeOrganizationId,
     },
@@ -41,7 +41,7 @@ export async function POST(req: Request) {
   }
 
   // Check key uniqueness within workspace
-  const existing = await db.customField.findFirst({
+  const existing = await db.field.findFirst({
     where: {
       workspaceId: activeOrganizationId,
       key: body.data.key,
@@ -56,7 +56,7 @@ export async function POST(req: Request) {
   }
 
   // Get the next position value
-  const maxPosition = await db.customField.aggregate({
+  const maxPosition = await db.field.aggregate({
     where: {
       workspaceId: activeOrganizationId,
     },
@@ -65,7 +65,7 @@ export async function POST(req: Request) {
     },
   });
 
-  const field = await db.customField.create({
+  const field = await db.field.create({
     data: {
       name: body.data.name,
       description: body.data.description?.trim() || null,

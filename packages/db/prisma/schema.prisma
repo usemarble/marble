@@ -51,7 +51,7 @@ model Organization {
   timezone          String             @default("Europe/London")
   authors           Author[]
   categories        Category[]
-  customFields      CustomField[]
+  fields            Field[]
   invitations       Invitation[]
   media             Media[]
   members           Member[]
@@ -63,7 +63,7 @@ model Organization {
   ShareLink         ShareLink[]
   usageEvents       UsageEvent[]
   ApiToken          ApiKey[]
-  postFieldValues   PostFieldValue[]
+  fieldValues       FieldValue[]
 
   @@map("workspace")
 }
@@ -112,7 +112,7 @@ model Post {
   workspace  Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   tags        Tag[]           @relation("PostToTag")
   shareLinks  ShareLink[]
-  fieldValues PostFieldValue[]
+  fieldValues FieldValue[]
 
   @@unique([workspaceId, slug])
   @@unique([id, workspaceId])
@@ -493,7 +493,7 @@ enum FieldType {
   multiselect
 }
 
-model CustomField {
+model Field {
   id          String         @id @default(cuid())
   workspaceId String
   key         String
@@ -504,30 +504,30 @@ model CustomField {
   position    Int            @default(0)
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
-  workspace   Organization   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  values      PostFieldValue[]
+  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  values      FieldValue[]
 
   @@unique([workspaceId, key])
   @@unique([id, workspaceId])
   @@index([workspaceId])
-  @@map("custom_field")
+  @@map("field")
 }
 
-model PostFieldValue {
-  id          String      @id @default(cuid())
+model FieldValue {
+  id          String       @id @default(cuid())
   postId      String
   fieldId     String
   workspaceId String
   value       String
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  post        Post        @relation(fields: [postId, workspaceId], references: [id, workspaceId], onDelete: Cascade)
-  field       CustomField @relation(fields: [fieldId, workspaceId], references: [id, workspaceId], onDelete: Cascade)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  post        Post         @relation(fields: [postId, workspaceId], references: [id, workspaceId], onDelete: Cascade)
+  field       Field        @relation(fields: [fieldId, workspaceId], references: [id, workspaceId], onDelete: Cascade)
   workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@unique([postId, fieldId])
   @@index([postId])
   @@index([fieldId])
   @@index([workspaceId])
-  @@map("post_field_value")
+  @@map("field_value")
 }

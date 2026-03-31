@@ -28,7 +28,7 @@ async function buildCustomFieldWrites(
     };
   }
 
-  const fields = await db.customField.findMany({
+  const fields = await db.field.findMany({
     where: {
       id: { in: fieldIds },
       workspaceId,
@@ -249,7 +249,7 @@ export async function PATCH(
         await Promise.all(
           customFieldWrites.values.map(({ fieldId, fieldType, value }) => {
             if (value === null) {
-              return tx.postFieldValue.deleteMany({
+              return tx.fieldValue.deleteMany({
                 where: {
                   postId: id,
                   fieldId,
@@ -258,7 +258,7 @@ export async function PATCH(
               });
             }
 
-            return tx.postFieldValue.upsert({
+            return tx.fieldValue.upsert({
               where: {
                 postId_fieldId: { postId: id, fieldId },
               },
