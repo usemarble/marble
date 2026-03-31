@@ -40,7 +40,7 @@ const buildStatusFilter = (status: "published" | "draft" | "all") =>
 function castFieldValue(
   value: string,
   type: string
-): string | number | boolean | null {
+): string | number | boolean | string[] | null {
   switch (type) {
     case "number": {
       const num = Number.parseFloat(value);
@@ -48,6 +48,12 @@ function castFieldValue(
     }
     case "boolean":
       return value === "true";
+    case "multiselect":
+      try {
+        return z.array(z.string()).parse(JSON.parse(value));
+      } catch {
+        return null;
+      }
     default:
       return value;
   }
@@ -63,8 +69,9 @@ function buildFieldsObject(
     field: { key: string; type: string };
   }>,
   allFields?: Array<{ key: string; type: string }>
-): Record<string, string | number | boolean | null> {
-  const result: Record<string, string | number | boolean | null> = {};
+): Record<string, string | number | boolean | string[] | null> {
+  const result: Record<string, string | number | boolean | string[] | null> =
+    {};
 
   // Initialize all fields with null if allFields is provided
   if (allFields) {

@@ -78,11 +78,21 @@ const PostBaseFields = {
   fields: z
     .record(
       z.string(),
-      z.union([z.string(), z.number(), z.boolean(), z.null()])
+      z.union([
+        z.string(),
+        z.number(),
+        z.boolean(),
+        z.array(z.string()),
+        z.null(),
+      ])
     )
     .openapi({
       description: "Custom field values keyed by field key",
-      example: { release_date: "2024-01-15", priority_score: 5 },
+      example: {
+        release_date: "2024-01-15",
+        priority_score: 5,
+        hashtags: ["#javascript", "#nextjs"],
+      },
     }),
 };
 
