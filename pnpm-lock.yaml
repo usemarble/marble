@@ -117,7 +117,7 @@ importers:
         version: 1.13.0
       '@hookform/resolvers':
         specifier: ^5.2.2
-        version: 5.2.2(react-hook-form@7.70.0(react@19.2.4))
+        version: 5.2.2(react-hook-form@7.72.0(react@19.2.4))
       '@hugeicons/core-free-icons':
         specifier: ^3.1.1
         version: 3.1.1
@@ -233,8 +233,8 @@ importers:
         specifier: ^14.3.8
         version: 14.3.8(react@19.2.4)
       react-hook-form:
-        specifier: ^7.70.0
-        version: 7.70.0(react@19.2.4)
+        specifier: ^7.72.0
+        version: 7.72.0(react@19.2.4)
       react-textarea-autosize:
         specifier: ^8.5.9
         version: 8.5.9(@types/react@19.2.14)(react@19.2.4)
@@ -8768,8 +8768,8 @@ packages:
     engines: {node: '>=20.0.0'}
     hasBin: true
 
-  react-hook-form@7.70.0:
-    resolution: {integrity: sha512-COOMajS4FI3Wuwrs3GPpi/Jeef/5W1DRR84Yl5/ShlT3dKVFUfoGiEZ/QE6Uw8P4T2/CLJdcTVYKvWBMQTEpvw==}
+  react-hook-form@7.72.0:
+    resolution: {integrity: sha512-V4v6jubaf6JAurEaVnT9aUPKFbNtDgohj5CIgVGyPHvT9wRx5OZHVjz31GsxnPNI278XMu+ruFz+wGOscHaLKw==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: ^16.8.0 || ^17 || ^18 || ^19
@@ -12031,10 +12031,10 @@ snapshots:
       hono: 4.12.7
       zod: 4.3.6
 
-  '@hookform/resolvers@5.2.2(react-hook-form@7.70.0(react@19.2.4))':
+  '@hookform/resolvers@5.2.2(react-hook-form@7.72.0(react@19.2.4))':
     dependencies:
       '@standard-schema/utils': 0.3.0
-      react-hook-form: 7.70.0(react@19.2.4)
+      react-hook-form: 7.72.0(react@19.2.4)
 
   '@hugeicons/core-free-icons@3.1.1': {}
 
@@ -13095,7 +13095,7 @@ snapshots:
       eventemitter3: 5.0.1
       markdown-to-jsx: 7.7.17(react@19.2.4)
       react: 19.2.4
-      react-hook-form: 7.70.0(react@19.2.4)
+      react-hook-form: 7.72.0(react@19.2.4)
     transitivePeerDependencies:
       - '@types/react'
       - '@types/react-dom'
@@ -13148,7 +13148,7 @@ snapshots:
       react: 19.2.4
       react-day-picker: 9.13.0(react@19.2.4)
       react-dom: 19.2.4(react@19.2.4)
-      react-hook-form: 7.70.0(react@19.2.4)
+      react-hook-form: 7.72.0(react@19.2.4)
       react-timeago: 8.3.0(react@19.2.4)
       recharts: 3.5.1(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react-is@18.3.1)(react@19.2.4)(redux@5.0.1)
       tailwind-merge: 3.5.0
@@ -20469,7 +20469,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  react-hook-form@7.70.0(react@19.2.4):
+  react-hook-form@7.72.0(react@19.2.4):
     dependencies:
       react: 19.2.4
 
