@@ -2,7 +2,6 @@
 
 import { Button } from "@marble/ui/components/button";
 import { Input } from "@marble/ui/components/input";
-import { Label } from "@marble/ui/components/label";
 import { PlusIcon, XIcon } from "@phosphor-icons/react";
 import type {
   FieldArrayWithId,
@@ -32,19 +31,34 @@ export function FieldOptionsInput({
   remove,
 }: FieldOptionsInputProps) {
   return (
-    <div className="grid gap-3">
-      <Label>Options</Label>
+    <fieldset className="grid gap-3">
+      <legend className="mb-3 font-medium text-sm">Options</legend>
       <div className="grid gap-2">
         {fields.map((field, index) => (
           <div className="grid gap-1" key={field.id}>
+            <div className="sr-only">{`Option ${index + 1}`}</div>
             <div className="flex items-start gap-2">
+              <label
+                className="sr-only"
+                htmlFor={`field-option-value-${field.id}`}
+              >
+                {`Option ${index + 1} value`}
+              </label>
               <Input
                 disabled={disabled}
+                id={`field-option-value-${field.id}`}
                 placeholder="value"
                 {...register(`options.${index}.value`)}
               />
+              <label
+                className="sr-only"
+                htmlFor={`field-option-label-${field.id}`}
+              >
+                {`Option ${index + 1} label`}
+              </label>
               <Input
                 disabled={disabled}
+                id={`field-option-label-${field.id}`}
                 placeholder="Label"
                 {...register(`options.${index}.label`)}
               />
@@ -93,6 +107,6 @@ export function FieldOptionsInput({
           {errors.options.message}
         </ErrorMessage>
       ) : null}
-    </div>
+    </fieldset>
   );
 }

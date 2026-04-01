@@ -28,6 +28,8 @@ const fieldTypeLabels: Record<string, string> = {
   boolean: "Boolean",
   date: "Date",
   richtext: "Rich Text",
+  select: "Select",
+  multiselect: "Multi Select",
 };
 
 export function PageClient() {

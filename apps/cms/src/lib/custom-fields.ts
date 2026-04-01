@@ -89,6 +89,20 @@ export function isRichTextContentEmpty(content: string) {
   return plainText.length === 0;
 }
 
+function isMultiselectValueEmpty(rawValue: string) {
+  let parsedValue: unknown;
+
+  try {
+    parsedValue = JSON.parse(rawValue);
+  } catch {
+    return false;
+  }
+
+  const result = z.array(z.string()).safeParse(parsedValue);
+
+  return result.success && result.data.length === 0;
+}
+
 const fieldValueSchemas = {
   text: z.string(),
   number: z.coerce.number(),
@@ -172,6 +186,7 @@ export function validateCustomFieldValue(
 
   if (
     trimmedValue === "" ||
+    (field.type === "multiselect" && isMultiselectValueEmpty(trimmedValue)) ||
     (field.type === "richtext" && isRichTextContentEmpty(trimmedValue))
   ) {
     return field.required
@@ -221,21 +236,15 @@ export function resolveCustomFieldValues(
     value: string | null;
   }> = [];
 
-  for (const fieldId of fieldIds) {
-    const field = fieldsById.get(fieldId);
-
-    if (!field) {
-      continue;
-    }
-
-    const validation = validateCustomFieldValue(field, input[fieldId]);
+  for (const field of fields) {
+    const validation = validateCustomFieldValue(field, input[field.id]);
 
     if (!validation.success) {
       return {
         success: false,
         error: {
           error: "Invalid field value",
-          fieldId,
+          fieldId: field.id,
           key: field.key,
           name: field.name,
           type: field.type,
@@ -245,7 +254,7 @@ export function resolveCustomFieldValues(
     }
 
     values.push({
-      fieldId,
+      fieldId: field.id,
       fieldType: field.type,
       value: validation.value,
     });

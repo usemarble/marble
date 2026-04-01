@@ -336,6 +336,7 @@ export function EditorDataProvider({
     bootstrapQuery.isSuccess,
     createMutation.isPending,
     form,
+    form.formState.isDirty,
     hasHydrated,
     mode,
     postId,

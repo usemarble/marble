@@ -21,6 +21,7 @@ import {
 import { toast } from "@marble/ui/components/sonner";
 import { Textarea } from "@marble/ui/components/textarea";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { FieldOptionsInput } from "@/components/fields/field-options-input";
 import { AsyncButton } from "@/components/ui/async-button";
@@ -60,6 +61,7 @@ export function EditCustomFieldSheet({
   const {
     register,
     handleSubmit,
+    reset,
     setValue,
     control,
     formState: { errors },
@@ -76,6 +78,23 @@ export function EditCustomFieldSheet({
       })),
     },
   });
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    reset({
+      name: field.name,
+      description: field.description ?? "",
+      key: field.key,
+      type: field.type,
+      options: field.options.map((option) => ({
+        value: option.value,
+        label: option.label,
+      })),
+    });
+  }, [field, open, reset]);
 
   const watchedType = useWatch({ control, name: "type" });
   const showsOptions =

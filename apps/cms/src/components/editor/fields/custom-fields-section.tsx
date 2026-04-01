@@ -284,6 +284,9 @@ function FieldInput({ field }: { field: CustomField }) {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
+              {/* <SelectItem value={null}>
+                {`Select ${field.name.toLowerCase()}`}
+              </SelectItem> */}
               {field.options.map((option) => (
                 <SelectItem key={option.id} value={option.value}>
                   {option.label}

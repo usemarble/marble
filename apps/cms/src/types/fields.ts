@@ -5,8 +5,8 @@ export interface FieldOption {
   value: string;
   label: string;
   position: number;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CustomField {
@@ -26,6 +26,6 @@ export interface CustomField {
   position: number;
   hasValues?: boolean;
   options: FieldOption[];
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
