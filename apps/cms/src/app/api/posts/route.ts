@@ -3,10 +3,7 @@ import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { invalidateCache } from "@/lib/cache/invalidate";
-import {
-  type CustomFieldValidationDefinition,
-  resolveCustomFieldValues,
-} from "@/lib/custom-fields";
+import { resolveCustomFieldValues } from "@/lib/custom-fields";
 import { postUpsertSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";
 import { dispatchWebhooks } from "@/lib/webhooks/dispatcher";
@@ -17,22 +14,8 @@ async function buildCustomFieldWrites(
   workspaceId: string,
   input: Record<string, string | null | undefined>
 ): Promise<ReturnType<typeof resolveCustomFieldValues>> {
-  const fieldIds = Object.keys(input);
-
-  if (fieldIds.length === 0) {
-    return {
-      success: true as const,
-      values: [] as Array<{
-        fieldId: string;
-        fieldType: CustomFieldValidationDefinition["type"];
-        value: string | null;
-      }>,
-    };
-  }
-
   const fields = await db.field.findMany({
     where: {
-      id: { in: fieldIds },
       workspaceId,
     },
     select: {
@@ -51,7 +34,16 @@ async function buildCustomFieldWrites(
     },
   });
 
-  return resolveCustomFieldValues(fields, input);
+  const normalizedInput: Record<string, string | null | undefined> = {
+    ...input,
+  };
+  for (const field of fields) {
+    if (!(field.id in normalizedInput)) {
+      normalizedInput[field.id] = undefined;
+    }
+  }
+
+  return resolveCustomFieldValues(fields, normalizedInput);
 }
 
 export async function GET() {
