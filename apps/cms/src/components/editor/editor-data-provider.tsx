@@ -10,6 +10,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { FormProvider, type Resolver, useForm } from "react-hook-form";
@@ -155,6 +156,7 @@ export function EditorDataProvider({
   const queryClient = useQueryClient();
   const mode: EditorMode = postId ? "update" : "create";
   const [hasHydrated, setHasHydrated] = useState(false);
+  const didInitialize = useRef(false);
 
   const form = useForm<PostEditorValues>({
     resolver: zodResolver(postEditorSchema) as Resolver<PostEditorValues>,
@@ -168,17 +170,22 @@ export function EditorDataProvider({
   });
 
   useEffect(() => {
-    if (bootstrapQuery.data) {
-      form.reset(bootstrapQuery.data.values);
-      setHasHydrated(true);
+    if (bootstrapQuery.data === undefined) {
+      return;
     }
-  }, [bootstrapQuery.data, form]);
 
-  useEffect(() => {
-    if (bootstrapQuery.isLoading) {
-      setHasHydrated(false);
+    if (bootstrapQuery.data === null) {
+      setHasHydrated(true);
+      return;
     }
-  }, [bootstrapQuery.isLoading]);
+
+    if (!didInitialize.current) {
+      form.reset(bootstrapQuery.data.values);
+      didInitialize.current = true;
+    }
+
+    setHasHydrated(true);
+  }, [bootstrapQuery.data, form]);
 
   useEffect(() => {
     if (!form.formState.isDirty) {
