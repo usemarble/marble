@@ -164,7 +164,7 @@ export function EditorDataProvider({
   });
 
   const bootstrapQuery = useQuery({
-    queryKey: ["editor-bootstrap", postId ?? "new"],
+    queryKey: ["editor-bootstrap", params.workspace, postId ?? "new"],
     staleTime: 1000 * 60 * 5,
     queryFn: () => fetchEditorBootstrap(postId),
   });
@@ -267,7 +267,7 @@ export function EditorDataProvider({
           queryKey: QUERY_KEYS.POST(params.workspace, postId ?? ""),
         }),
         queryClient.invalidateQueries({
-          queryKey: ["editor-bootstrap", postId ?? "new"],
+          queryKey: ["editor-bootstrap", params.workspace, postId ?? "new"],
         }),
       ]);
       form.reset(values);
