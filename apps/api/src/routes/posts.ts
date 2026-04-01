@@ -543,9 +543,16 @@ posts.openapi(listPostsRoute, async (c) => {
       select: postSelect,
     };
 
-    const postsData = await cache.getOrSet(listCacheKey, () =>
-      db.post.findMany(findManyArgs)
-    );
+    const [postsData, workspaceFields] = await Promise.all([
+      cache.getOrSet(listCacheKey, () => db.post.findMany(findManyArgs)),
+      db.field.findMany({
+        where: { workspaceId },
+        select: {
+          key: true,
+          type: true,
+        },
+      }),
+    ]);
 
     const formattedPosts =
       format === "markdown"
@@ -574,7 +581,7 @@ posts.openapi(listPostsRoute, async (c) => {
       };
       return {
         ...rest,
-        fields: buildFieldsObject(fieldValues || []),
+        fields: buildFieldsObject(fieldValues || [], workspaceFields),
       };
     });
 
@@ -701,6 +708,14 @@ posts.openapi(getPostRoute, async (c) => {
       );
     }
 
+    const workspaceFields = await db.field.findMany({
+      where: { workspaceId },
+      select: {
+        key: true,
+        type: true,
+      },
+    });
+
     // Format post based on requested format
     const formattedPost =
       format === "markdown"
@@ -729,7 +744,7 @@ posts.openapi(getPostRoute, async (c) => {
       };
     const postWithFields = {
       ...postRest,
-      fields: buildFieldsObject(fieldValues || []),
+      fields: buildFieldsObject(fieldValues || [], workspaceFields),
     };
 
     return c.json({ post: postWithFields }, 200 as const);

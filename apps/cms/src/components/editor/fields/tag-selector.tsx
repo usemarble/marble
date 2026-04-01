@@ -112,8 +112,8 @@ export const TagSelector = <TFieldValues extends FieldValues>({
   };
 
   const handleRemoveTag = (tagToDelete: string) => {
-    const newValue = (value || []).filter((tag: string) => tag !== tagToDelete);
-    onChange(newValue);
+    const newValue = selectedTagIds.filter((tag) => tag !== tagToDelete);
+    onChange(newValue as PathValue<TFieldValues, Path<TFieldValues>>);
   };
 
   const handleTagCreated = async (newTag: Option) => {

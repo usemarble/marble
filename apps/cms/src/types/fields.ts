@@ -24,6 +24,7 @@ export interface CustomField {
     | "multiselect";
   required: boolean;
   position: number;
+  hasValues?: boolean;
   options: FieldOption[];
   createdAt: Date;
   updatedAt: Date;

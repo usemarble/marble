@@ -16,6 +16,7 @@ import type { CustomFieldFormValues } from "@/lib/validations/fields";
 
 interface FieldOptionsInputProps {
   append: UseFieldArrayAppend<CustomFieldFormValues, "options">;
+  disabled?: boolean;
   errors: FieldErrors<CustomFieldFormValues>;
   fields: FieldArrayWithId<CustomFieldFormValues, "options", "id">[];
   register: UseFormRegister<CustomFieldFormValues>;
@@ -24,6 +25,7 @@ interface FieldOptionsInputProps {
 
 export function FieldOptionsInput({
   append,
+  disabled = false,
   errors,
   fields,
   register,
@@ -37,16 +39,19 @@ export function FieldOptionsInput({
           <div className="grid gap-1" key={field.id}>
             <div className="flex items-start gap-2">
               <Input
+                disabled={disabled}
                 placeholder="value"
                 {...register(`options.${index}.value`)}
               />
               <Input
+                disabled={disabled}
                 placeholder="Label"
                 {...register(`options.${index}.label`)}
               />
               <Button
                 aria-label="Remove option"
                 className="size-9 shrink-0 shadow-none"
+                disabled={disabled}
                 onClick={() => remove(index)}
                 type="button"
                 variant="ghost"
@@ -69,6 +74,7 @@ export function FieldOptionsInput({
       </div>
       <Button
         className="w-fit shadow-none"
+        disabled={disabled}
         onClick={() => append({ value: "", label: "" })}
         size="sm"
         type="button"
@@ -77,6 +83,11 @@ export function FieldOptionsInput({
         <PlusIcon className="size-4" />
         Add option
       </Button>
+      {disabled ? (
+        <p className="text-muted-foreground text-xs">
+          Options can't be changed after this field has saved values.
+        </p>
+      ) : null}
       {errors.options?.message ? (
         <ErrorMessage className="text-sm">
           {errors.options.message}

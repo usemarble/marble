@@ -32,9 +32,7 @@ export const postEditorSchema = postSchema.extend({
 export type PostEditorValues = z.infer<typeof postEditorSchema>;
 
 export const postUpsertSchema = postSchema.extend({
-  customFields: z
-    .record(z.string(), z.union([z.string(), z.null(), z.undefined()]))
-    .default({}),
+  customFields: z.record(z.string(), z.union([z.string(), z.null()])).default({}),
 });
 
 export type PostUpsertValues = z.infer<typeof postUpsertSchema>;

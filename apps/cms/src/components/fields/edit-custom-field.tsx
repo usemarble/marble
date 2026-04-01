@@ -80,6 +80,7 @@ export function EditCustomFieldSheet({
   const watchedType = useWatch({ control, name: "type" });
   const showsOptions =
     watchedType === "select" || watchedType === "multiselect";
+  const hasSavedValues = field.hasValues === true;
   const { fields, append, remove } = useFieldArray({
     control,
     name: "options",
@@ -131,6 +132,9 @@ export function EditCustomFieldSheet({
           <SheetDescription className="sr-only">
             Update the custom field properties.
           </SheetDescription>
+          <p className="text-muted-foreground text-sm">
+            Type cannot be changed.
+          </p>
         </SheetHeader>
         <form
           className="flex h-full flex-col justify-between"
@@ -190,6 +194,7 @@ export function EditCustomFieldSheet({
             <div className="grid gap-3">
               <Label htmlFor="edit-cf-type">Type</Label>
               <Select
+                disabled
                 items={typeOptions}
                 onValueChange={(value) => {
                   if (value) {
@@ -225,11 +230,15 @@ export function EditCustomFieldSheet({
                   {errors.type.message}
                 </ErrorMessage>
               )}
+              <p className="text-muted-foreground text-xs">
+                Field type is locked after creation.
+              </p>
             </div>
 
             {showsOptions ? (
               <FieldOptionsInput
                 append={append}
+                disabled={hasSavedValues}
                 errors={errors}
                 fields={fields}
                 register={register}

@@ -101,7 +101,21 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const values = postUpsertSchema.safeParse(await request.json());
+  let body: unknown;
+
+  try {
+    body = await request.json();
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error: "Invalid JSON",
+        details: error instanceof Error ? error.message : "",
+      },
+      { status: 400 }
+    );
+  }
+
+  const values = postUpsertSchema.safeParse(body);
   if (!values.success) {
     return NextResponse.json(
       { error: "Invalid request body", details: values.error.issues },

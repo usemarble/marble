@@ -86,10 +86,29 @@ function parseMultiselectValue(value: string | null | undefined) {
   }
 }
 
-function FieldLabel({ field }: { field: CustomField }) {
+function getCustomFieldControlId(fieldId: string) {
+  return `cf-${fieldId}`;
+}
+
+function getCustomFieldLabelId(fieldId: string) {
+  return `cf-label-${fieldId}`;
+}
+
+function FieldLabel({
+  field,
+  targetId,
+}: {
+  field: CustomField;
+  targetId?: string;
+}) {
   return (
     <div className="flex items-center gap-1">
-      <Label htmlFor={`cf-${field.id}`}>{field.name}</Label>
+      <Label
+        htmlFor={targetId ?? getCustomFieldControlId(field.id)}
+        id={getCustomFieldLabelId(field.id)}
+      >
+        {field.name}
+      </Label>
       {field.description ? <FieldInfo text={field.description} /> : null}
     </div>
   );
@@ -119,7 +138,7 @@ function FieldInput({ field }: { field: CustomField }) {
           <FieldLabel field={field} />
           <Textarea
             className="min-h-[60px] resize-y bg-editor-field"
-            id={`cf-${field.id}`}
+            id={getCustomFieldControlId(field.id)}
             onBlur={formField.onBlur}
             onChange={formField.onChange}
             placeholder={`Enter ${field.name.toLowerCase()}`}
@@ -138,7 +157,7 @@ function FieldInput({ field }: { field: CustomField }) {
           <FieldLabel field={field} />
           <Input
             className="bg-editor-field"
-            id={`cf-${field.id}`}
+            id={getCustomFieldControlId(field.id)}
             onBlur={formField.onBlur}
             onChange={formField.onChange}
             placeholder="0"
@@ -159,7 +178,7 @@ function FieldInput({ field }: { field: CustomField }) {
             <FieldLabel field={field} />
             <Switch
               checked={formField.value === "true"}
-              id={`cf-${field.id}`}
+              id={getCustomFieldControlId(field.id)}
               onCheckedChange={(checked) =>
                 formField.onChange(checked ? "true" : "false")
               }
@@ -183,10 +202,12 @@ function FieldInput({ field }: { field: CustomField }) {
             <PopoverTrigger
               render={
                 <Button
+                  aria-labelledby={getCustomFieldLabelId(field.id)}
                   className={cn(
                     "justify-between bg-editor-field text-left font-normal shadow-none active:scale-100",
                     !isValidDate && "text-muted-foreground"
                   )}
+                  id={getCustomFieldControlId(field.id)}
                   variant="outline"
                 >
                   {isValidDate ? (
@@ -227,6 +248,8 @@ function FieldInput({ field }: { field: CustomField }) {
         <div className="grid gap-2">
           <FieldLabel field={field} />
           <FieldRichTextEditor
+            id={getCustomFieldControlId(field.id)}
+            labelId={getCustomFieldLabelId(field.id)}
             onBlur={formField.onBlur}
             onChange={formField.onChange}
             placeholder={`Write ${field.name.toLowerCase()}`}
@@ -253,7 +276,11 @@ function FieldInput({ field }: { field: CustomField }) {
             onValueChange={(value) => formField.onChange(value ?? "")}
             value={formField.value || null}
           >
-            <SelectTrigger className="w-full bg-editor-field shadow-none">
+            <SelectTrigger
+              aria-labelledby={getCustomFieldLabelId(field.id)}
+              className="w-full bg-editor-field shadow-none"
+              id={getCustomFieldControlId(field.id)}
+            >
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -336,7 +363,13 @@ function MultiselectField({
         <PopoverTrigger
           nativeButton={false}
           render={
-            <div className="relative h-auto min-h-9 w-full cursor-pointer rounded-md border bg-editor-field px-3 py-2 text-sm">
+            // biome-ignore lint/a11y/useAriaPropsSupportedByRole: <>
+            <div
+              aria-haspopup="dialog"
+              aria-labelledby={getCustomFieldLabelId(field.id)}
+              className="relative h-auto min-h-9 w-full cursor-pointer rounded-md border bg-editor-field px-3 py-2 text-sm"
+              id={getCustomFieldControlId(field.id)}
+            >
               <div className="flex items-center justify-between gap-2">
                 <ul className="flex flex-wrap gap-1">
                   {selectedOptions.length === 0 ? (
@@ -370,6 +403,7 @@ function MultiselectField({
               </div>
             </div>
           }
+          tabIndex={0}
         />
         <PopoverContent align="start" className="min-w-[350px] p-0">
           <Command className="w-full">

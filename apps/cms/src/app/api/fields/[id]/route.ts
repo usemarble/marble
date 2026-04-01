@@ -13,6 +13,47 @@ function buildFieldOptionWrites(
   }));
 }
 
+function areFieldOptionsEqual(
+  nextOptions: Array<{ value: string; label: string }>,
+  currentOptions: Array<{ value: string; label: string }>
+) {
+  if (nextOptions.length !== currentOptions.length) {
+    return false;
+  }
+
+  return nextOptions.every((option, index) => {
+    const currentOption = currentOptions[index];
+    return (
+      currentOption !== undefined &&
+      option.value === currentOption.value &&
+      option.label === currentOption.label
+    );
+  });
+}
+
+function isUniqueConstraintError(error: unknown) {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  const candidate = error as Error & {
+    code?: string;
+    meta?: { target?: unknown };
+  };
+
+  if (candidate.code !== "P2002") {
+    return false;
+  }
+
+  const target = candidate.meta?.target;
+
+  return (
+    Array.isArray(target) &&
+    target.includes("workspaceId") &&
+    target.includes("key")
+  );
+}
+
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -95,6 +136,15 @@ export async function PATCH(
   const effectiveOptions = body.data.options ?? existingField.options;
   const requiresOptions =
     effectiveType === "select" || effectiveType === "multiselect";
+  const existingOptions = existingField.options.map((option) => ({
+    value: option.value,
+    label: option.label,
+  }));
+  const typeChanged =
+    body.data.type !== undefined && body.data.type !== existingField.type;
+  const optionsChanged =
+    body.data.options !== undefined &&
+    !areFieldOptionsEqual(body.data.options, existingOptions);
 
   if (requiresOptions && effectiveOptions.length === 0) {
     return NextResponse.json(
@@ -110,33 +160,63 @@ export async function PATCH(
     );
   }
 
-  const field = await db.field.update({
-    where: {
-      id_workspaceId: {
-        id,
+  if (typeChanged || optionsChanged) {
+    const fieldValueCount = await db.fieldValue.count({
+      where: {
+        fieldId: id,
         workspaceId: session.session.activeOrganizationId,
       },
-    },
-    data: {
-      ...updateData,
-      options:
-        body.data.options !== undefined || !requiresOptions
-          ? {
-              deleteMany: {},
-              create: requiresOptions
-                ? buildFieldOptionWrites(body.data.options ?? [])
-                : [],
-            }
-          : undefined,
-    },
-    include: {
-      options: {
-        orderBy: [{ position: "asc" }, { createdAt: "asc" }],
-      },
-    },
-  });
+    });
 
-  return NextResponse.json(field, { status: 200 });
+    if (fieldValueCount > 0) {
+      return NextResponse.json(
+        {
+          error:
+            "This field already has saved values. You can't change its type or options.",
+        },
+        { status: 400 }
+      );
+    }
+  }
+
+  try {
+    const field = await db.field.update({
+      where: {
+        id_workspaceId: {
+          id,
+          workspaceId: session.session.activeOrganizationId,
+        },
+      },
+      data: {
+        ...updateData,
+        options:
+          body.data.options !== undefined || !requiresOptions
+            ? {
+                deleteMany: {},
+                create: requiresOptions
+                  ? buildFieldOptionWrites(body.data.options ?? [])
+                  : [],
+              }
+            : undefined,
+      },
+      include: {
+        options: {
+          orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+        },
+      },
+    });
+
+    return NextResponse.json(field, { status: 200 });
+  } catch (error) {
+    if (isUniqueConstraintError(error)) {
+      return NextResponse.json(
+        { error: "A field with this key already exists in your workspace" },
+        { status: 409 }
+      );
+    }
+
+    throw error;
+  }
 }
 
 export async function DELETE(

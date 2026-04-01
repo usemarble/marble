@@ -3,7 +3,7 @@ import type { FieldType } from "@/lib/validations/fields";
 
 export const customFieldsPayloadSchema = z.record(
   z.string(),
-  z.union([z.string(), z.null(), z.undefined()])
+  z.union([z.string(), z.null()])
 );
 
 export type CustomFieldPayload = z.infer<typeof customFieldsPayloadSchema>;

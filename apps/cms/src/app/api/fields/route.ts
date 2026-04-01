@@ -14,6 +14,29 @@ function buildFieldOptionWrites(
   }));
 }
 
+function isUniqueFieldKeyConflict(error: unknown) {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  const candidate = error as Error & {
+    code?: string;
+    meta?: { target?: unknown };
+  };
+
+  if (candidate.code !== "P2002") {
+    return false;
+  }
+
+  const target = candidate.meta?.target;
+
+  return (
+    Array.isArray(target) &&
+    target.includes("workspaceId") &&
+    target.includes("key")
+  );
+}
+
 export async function GET() {
   const sessionData = await getServerSession();
   const activeOrganizationId = sessionData?.session.activeOrganizationId;
@@ -30,11 +53,21 @@ export async function GET() {
       options: {
         orderBy: [{ position: "asc" }, { createdAt: "asc" }],
       },
+      _count: {
+        select: {
+          values: true,
+        },
+      },
     },
     orderBy: [{ position: "asc" }, { createdAt: "asc" }],
   });
 
-  return NextResponse.json(fields, { status: 200 });
+  const fieldsWithUsage = fields.map(({ _count, ...field }) => ({
+    ...field,
+    hasValues: _count.values > 0,
+  }));
+
+  return NextResponse.json(fieldsWithUsage, { status: 200 });
 }
 
 export async function POST(req: Request) {
@@ -80,28 +113,39 @@ export async function POST(req: Request) {
     },
   });
 
-  const field = await db.field.create({
-    data: {
-      name: body.data.name,
-      description: body.data.description?.trim() || null,
-      key: body.data.key,
-      type: body.data.type as PrismaFieldType,
-      required: body.data.required ?? false,
-      position: (maxPosition._max.position ?? -1) + 1,
-      workspaceId: activeOrganizationId,
-      options:
-        (body.data.options ?? []).length > 0
-          ? {
-              create: buildFieldOptionWrites(body.data.options ?? []),
-            }
-          : undefined,
-    },
-    include: {
-      options: {
-        orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+  try {
+    const field = await db.field.create({
+      data: {
+        name: body.data.name,
+        description: body.data.description?.trim() || null,
+        key: body.data.key,
+        type: body.data.type as PrismaFieldType,
+        required: body.data.required ?? false,
+        position: (maxPosition._max.position ?? -1) + 1,
+        workspaceId: activeOrganizationId,
+        options:
+          (body.data.options ?? []).length > 0
+            ? {
+                create: buildFieldOptionWrites(body.data.options ?? []),
+              }
+            : undefined,
       },
-    },
-  });
+      include: {
+        options: {
+          orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+        },
+      },
+    });
 
-  return NextResponse.json(field, { status: 201 });
+    return NextResponse.json(field, { status: 201 });
+  } catch (error) {
+    if (isUniqueFieldKeyConflict(error)) {
+      return NextResponse.json(
+        { error: "A field with this key already exists in your workspace" },
+        { status: 409 }
+      );
+    }
+
+    throw error;
+  }
 }

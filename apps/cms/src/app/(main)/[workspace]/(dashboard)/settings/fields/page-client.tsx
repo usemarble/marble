@@ -34,7 +34,13 @@ export function PageClient() {
   const workspaceId = useWorkspaceId();
   const queryClient = useQueryClient();
 
-  const { data: fields, isLoading } = useQuery({
+  const {
+    data: fields,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
     // biome-ignore lint/style/noNonNullAssertion: <>
     queryKey: QUERY_KEYS.CUSTOM_FIELDS(workspaceId!),
     staleTime: 1000 * 60 * 60,
@@ -51,8 +57,27 @@ export function PageClient() {
     enabled: !!workspaceId,
   });
 
-  if (isLoading) {
+  if (!workspaceId || isLoading) {
     return <PageLoader />;
+  }
+
+  if (isError) {
+    return (
+      <WorkspacePageWrapper
+        className="grid h-full place-content-center"
+        size="compact"
+      >
+        <div className="flex max-w-96 flex-col items-center gap-4 text-center">
+          <p className="font-medium">Unable to load custom fields</p>
+          <p className="text-muted-foreground text-sm">
+            {error instanceof Error
+              ? error.message
+              : "Something went wrong while loading your workspace fields."}
+          </p>
+          <Button onClick={() => refetch()}>Retry</Button>
+        </div>
+      </WorkspacePageWrapper>
+    );
   }
 
   if (fields?.length === 0) {

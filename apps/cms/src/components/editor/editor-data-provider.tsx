@@ -12,7 +12,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, type Resolver, useForm } from "react-hook-form";
 import { emptyPost } from "@/lib/data/post";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import {
@@ -157,8 +157,7 @@ export function EditorDataProvider({
   const [hasHydrated, setHasHydrated] = useState(false);
 
   const form = useForm<PostEditorValues>({
-    // biome-ignore lint/suspicious/noExplicitAny: Zod 4 + react-hook-form inference issue
-    resolver: zodResolver(postEditorSchema) as any,
+    resolver: zodResolver(postEditorSchema) as Resolver<PostEditorValues>,
     defaultValues: buildEditorValues([]),
   });
 

@@ -17,6 +17,8 @@ import { useEffect } from "react";
 
 export interface FieldRichTextEditorProps {
   disabled?: boolean;
+  id?: string;
+  labelId?: string;
   onBlur?: () => void;
   onChange: (value: string) => void;
   placeholder?: string;
@@ -53,6 +55,8 @@ function ToolbarButton({
 
 export function FieldRichTextEditor({
   disabled,
+  id,
+  labelId,
   onBlur,
   onChange,
   placeholder = "Write something...",
@@ -94,6 +98,8 @@ export function FieldRichTextEditor({
       attributes: {
         class:
           "min-h-[120px] px-3 py-3 text-sm leading-6 text-foreground caret-foreground focus:outline-hidden [&_.field-rich-text-placeholder::before]:pointer-events-none [&_.field-rich-text-placeholder::before]:float-left [&_.field-rich-text-placeholder::before]:h-0 [&_.field-rich-text-placeholder::before]:text-muted-foreground [&_.field-rich-text-placeholder::before]:leading-6 [&_li_.field-rich-text-placeholder::before]:content-none [&_ol]:my-0 [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:m-0 [&_strong]:text-foreground [&_u]:text-foreground [&_ul]:my-0 [&_ul]:list-disc [&_ul]:pl-6 [&_li]:my-1 [&_li_p]:m-0",
+        ...(id ? { id } : {}),
+        ...(labelId ? { "aria-labelledby": labelId } : {}),
       },
     },
     onBlur: () => {
