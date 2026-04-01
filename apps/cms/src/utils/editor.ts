@@ -112,7 +112,19 @@ export const sanitizeHtml = (content: string) => {
 
 export const sanitizeRichTextHtml = (content: string) => {
   return sanitize(content, {
-    allowedTags: ["a", "b", "br", "em", "i", "li", "ol", "p", "strong", "u", "ul"],
+    allowedTags: [
+      "a",
+      "b",
+      "br",
+      "em",
+      "i",
+      "li",
+      "ol",
+      "p",
+      "strong",
+      "u",
+      "ul",
+    ],
     allowedAttributes: {
       a: ["href", "target", "rel"],
     },
