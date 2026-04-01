@@ -158,7 +158,7 @@ export async function PUT(
       }
     );
 
-    await Promise.all(operations);
+    await db.$transaction(operations);
   } else {
     const operations = Object.entries(json).map(([fieldId, value]) => {
       if (value === null || value === "") {
@@ -188,7 +188,7 @@ export async function PUT(
       });
     });
 
-    await Promise.all(operations);
+    await db.$transaction(operations);
   }
 
   return NextResponse.json({ success: true }, { status: 200 });
