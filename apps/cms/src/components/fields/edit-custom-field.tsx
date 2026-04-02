@@ -156,7 +156,9 @@ export function EditCustomFieldSheet({
             Update the custom field properties.
           </SheetDescription>
           <p className="text-muted-foreground text-sm">
-            Type cannot be changed.
+            {hasSavedValues
+              ? "Type and options are locked because this field already has saved values."
+              : "Type and options can still be changed until this field has saved values."}
           </p>
         </SheetHeader>
         <form
@@ -254,7 +256,9 @@ export function EditCustomFieldSheet({
                 </ErrorMessage>
               )}
               <p className="text-muted-foreground text-xs">
-                Field type is locked after creation.
+                {hasSavedValues
+                  ? "Field type is locked once this field has saved values."
+                  : "Field type can still change until this field has saved values."}
               </p>
             </div>
 
