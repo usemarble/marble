@@ -15,7 +15,8 @@ Custom fields let you add your own metadata to every post in a workspace. Instea
 
 <Steps>
   <Step title="Open Custom Fields">
-    Go to **Settings → Custom Fields** in your workspace.
+    Open your workspace settings, then select the **Custom Fields** section
+    under the developer settings area.
   </Step>
 
   <Step title="Create a field">
@@ -51,7 +52,7 @@ Custom fields let you add your own metadata to every post in a workspace. Instea
 Custom fields are exposed on posts as `post.fields` (single post) and `posts[].fields` (list posts).
 In the current public API, custom fields are returned in `GET` post responses.
 
-### Example: `GET /v1/posts/{identifier}`
+### Example response
 
 ```json
 {
