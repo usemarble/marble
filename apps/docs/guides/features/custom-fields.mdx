@@ -1,0 +1,90 @@
+---
+title: Custom Fields
+description: Extend your post schema with workspace-specific metadata and consume it directly from the API.
+---
+
+Custom fields let you add your own metadata to every post in a workspace. Instead of forcing everything into tags or description, you can model structured values like release dates, reading levels, priorities, product names, or any internal metadata your team needs.
+
+## Why use custom fields
+
+- Extend Marble's default post schema without changing your frontend code structure each time.
+- Keep metadata consistent across all posts with typed inputs.
+- Return custom field values directly in API responses under a single `fields` object.
+
+## Create and manage fields
+
+<Steps>
+  <Step title="Open Custom Fields">
+    Go to **Settings → Custom Fields** in your workspace.
+  </Step>
+
+  <Step title="Create a field">
+    Add a field name, key, type, and optional description. Mark it as required
+    if editors must provide a value.
+  </Step>
+
+  <Step title="Use it in the editor">
+    Open any post and set values in the **Metadata** tab. Every post can store
+    a value for each custom field.
+  </Step>
+</Steps>
+
+## Field types
+
+| Type | Input in Marble | API value |
+| --- | --- | --- |
+| `text` | Multi-line text | `string \| null` |
+| `number` | Numeric input | `number \| null` |
+| `boolean` | Toggle/switch | `boolean \| null` |
+| `date` | Date picker | `string \| null` (ISO date, e.g. `2026-04-02`) |
+| `richtext` | Rich text editor | `string \| null` (HTML string) |
+| `select` | Single option | `string \| null` |
+| `multiselect` | Multiple options | `string[] \| null` |
+
+<Note>
+  `select` and `multiselect` fields require predefined options. Option values
+  are what you receive in the API.
+</Note>
+
+## API response shape
+
+Custom fields are exposed on posts as `post.fields` (single post) and `posts[].fields` (list posts).
+In the current public API, custom fields are returned in `GET` post responses.
+
+### Example: `GET /v1/posts/{identifier}`
+
+```json
+{
+  "post": {
+    "id": "cm9x...",
+    "slug": "shipping-custom-fields",
+    "title": "Shipping Custom Fields",
+    "fields": {
+      "release_date": "2026-04-02",
+      "priority_score": 7,
+      "evergreen": true,
+      "target_channels": ["blog", "newsletter"],
+      "editor_note": "<p>Republish in Q3</p>"
+    }
+  }
+}
+```
+
+### Unset fields
+
+If a field exists in your workspace but a post has no value for it yet, Marble returns that key with `null`.
+
+```json
+{
+  "fields": {
+    "release_date": null,
+    "priority_score": null
+  }
+}
+```
+
+## Important behavior
+
+- Field keys are workspace-scoped and must be unique.
+- Field type and options are effectively schema choices. Plan them early to avoid migration work later.
+- Deleting a field removes that field and its stored values from all posts.

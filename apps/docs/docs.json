@@ -73,6 +73,7 @@
             "icon": "sparkles",
             "pages": [
               "guides/features/editor",
+              "guides/features/custom-fields",
               "guides/features/media",
               "guides/features/webhooks",
               "guides/features/import"
