@@ -21,6 +21,7 @@ import {
 import { toast } from "@marble/ui/components/sonner";
 import { Textarea } from "@marble/ui/components/textarea";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
 import { useEffect } from "react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { FieldOptionsInput } from "@/components/fields/field-options-input";
@@ -55,6 +56,7 @@ export function EditCustomFieldSheet({
   open,
   onOpenChange,
 }: EditCustomFieldSheetProps) {
+  const params = useParams<{ workspace: string }>();
   const workspaceId = useWorkspaceId();
   const queryClient = useQueryClient();
 
@@ -128,9 +130,11 @@ export function EditCustomFieldSheet({
           queryKey: QUERY_KEYS.CUSTOM_FIELDS(workspaceId),
         });
       }
-      queryClient.invalidateQueries({
-        queryKey: ["editor-bootstrap"],
-      });
+      if (params.workspace) {
+        queryClient.invalidateQueries({
+          queryKey: ["editor-bootstrap", params.workspace],
+        });
+      }
     },
     onError: (error) => {
       toast.error(error.message || "Failed to update field");

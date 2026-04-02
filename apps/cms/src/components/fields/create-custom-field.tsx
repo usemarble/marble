@@ -24,7 +24,7 @@ import { toast } from "@marble/ui/components/sonner";
 import { Textarea } from "@marble/ui/components/textarea";
 import { PlusIcon } from "@phosphor-icons/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { FieldOptionsInput } from "@/components/fields/field-options-input";
@@ -60,6 +60,7 @@ interface CreateCustomFieldSheetProps {
 
 function CreateCustomFieldSheet({ children }: CreateCustomFieldSheetProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const params = useParams<{ workspace: string }>();
   const workspaceId = useWorkspaceId();
   const queryClient = useQueryClient();
   const [keyManuallyEdited, setKeyManuallyEdited] = useState(false);
@@ -115,9 +116,11 @@ function CreateCustomFieldSheet({ children }: CreateCustomFieldSheetProps) {
           queryKey: QUERY_KEYS.CUSTOM_FIELDS(workspaceId),
         });
       }
-      queryClient.invalidateQueries({
-        queryKey: ["editor-bootstrap"],
-      });
+      if (params.workspace) {
+        queryClient.invalidateQueries({
+          queryKey: ["editor-bootstrap", params.workspace],
+        });
+      }
       router.refresh();
     },
     onError: (error) => {

@@ -15,6 +15,7 @@ import {
 } from "@marble/ui/components/alert-dialog";
 import { toast } from "@marble/ui/components/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
 import { AsyncButton } from "@/components/ui/async-button";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
@@ -34,6 +35,7 @@ export function DeleteCustomFieldModal({
   isOpen,
   onOpenChange,
 }: DeleteCustomFieldModalProps) {
+  const params = useParams<{ workspace: string }>();
   const workspaceId = useWorkspaceId();
   const queryClient = useQueryClient();
 
@@ -59,9 +61,11 @@ export function DeleteCustomFieldModal({
           queryKey: QUERY_KEYS.CUSTOM_FIELDS(workspaceId),
         });
       }
-      queryClient.invalidateQueries({
-        queryKey: ["editor-bootstrap"],
-      });
+      if (params.workspace) {
+        queryClient.invalidateQueries({
+          queryKey: ["editor-bootstrap", params.workspace],
+        });
+      }
     },
     onError: (error) => {
       toast.error(error.message);
