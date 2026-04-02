@@ -51,17 +51,20 @@ model Organization {
   timezone          String             @default("Europe/London")
   authors           Author[]
   categories        Category[]
+  fields            Field[]
   invitations       Invitation[]
   media             Media[]
   members           Member[]
   posts             Post[]
   subscriptions     Subscription[]
   tags              Tag[]
+  fieldOptions      FieldOption[]
   webhooks          Webhook[]
   editorPreferences EditorPreferences?
   ShareLink         ShareLink[]
   usageEvents       UsageEvent[]
   ApiToken          ApiKey[]
+  fieldValues       FieldValue[]
 
   @@map("workspace")
 }
@@ -108,10 +111,12 @@ model Post {
 
   category   Category     @relation(fields: [categoryId], references: [id])
   workspace  Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  tags       Tag[]        @relation("PostToTag")
-  shareLinks ShareLink[]
+  tags        Tag[]           @relation("PostToTag")
+  shareLinks  ShareLink[]
+  fieldValues FieldValue[]
 
   @@unique([workspaceId, slug])
+  @@unique([id, workspaceId])
   @@index([workspaceId, status])
   @@index([workspaceId, createdAt])
   @@index([workspaceId, status, publishedAt])
@@ -477,4 +482,74 @@ enum ApiScope {
   tags_write
   media_read
   media_write
+}
+
+enum FieldType {
+  text
+  number
+  boolean
+  date
+  richtext
+  select
+  multiselect
+}
+
+model Field {
+  id          String         @id @default(cuid())
+  workspaceId String
+  key         String
+  name        String
+  description String?
+  type        FieldType
+  required    Boolean        @default(false)
+  position    Int            @default(0)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  values      FieldValue[]
+  options     FieldOption[]
+
+  @@unique([workspaceId, key])
+  @@unique([id, workspaceId])
+  @@index([workspaceId])
+  @@map("field")
+}
+
+model FieldOption {
+  id          String       @id @default(cuid())
+  fieldId      String
+  workspaceId String
+  value       String
+  label       String
+  position    Int          @default(0)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  field       Field        @relation(fields: [fieldId, workspaceId], references: [id, workspaceId], onDelete: Cascade)
+  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([fieldId, value])
+  @@unique([id, workspaceId])
+  @@index([fieldId])
+  @@index([workspaceId])
+  @@index([fieldId, position])
+  @@map("field_option")
+}
+
+model FieldValue {
+  id          String       @id @default(cuid())
+  postId      String
+  fieldId     String
+  workspaceId String
+  value       String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  post        Post         @relation(fields: [postId, workspaceId], references: [id, workspaceId], onDelete: Cascade)
+  field       Field        @relation(fields: [fieldId, workspaceId], references: [id, workspaceId], onDelete: Cascade)
+  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, fieldId])
+  @@index([postId])
+  @@index([fieldId])
+  @@index([workspaceId])
+  @@map("field_value")
 }

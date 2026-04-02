@@ -4,21 +4,36 @@ import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { Switch } from "@marble/ui/components/switch";
 import { useState } from "react";
-import { type Control, type FieldErrors, useController } from "react-hook-form";
+import {
+  type Control,
+  type FieldErrors,
+  type FieldValues,
+  type Path,
+  useController,
+} from "react-hook-form";
 import { ErrorMessage } from "@/components/ui/error-message";
-import type { PostValues } from "@/lib/validations/post";
 import { FieldInfo } from "./field-info";
 
-interface AttributionFieldProps {
-  control: Control<PostValues>;
-  errors: FieldErrors<PostValues>;
+interface AttributionFieldProps<TFieldValues extends FieldValues> {
+  control: Control<TFieldValues>;
+  errors: FieldErrors<TFieldValues>;
 }
 
-export function AttributionField({ control, errors }: AttributionFieldProps) {
+export function AttributionField<TFieldValues extends FieldValues>({
+  control,
+  errors,
+}: AttributionFieldProps<TFieldValues>) {
+  const attributionErrors = errors.attribution as
+    | {
+        author?: { message?: string };
+        url?: { message?: string };
+      }
+    | undefined;
+
   const {
     field: { onChange, value },
   } = useController({
-    name: "attribution",
+    name: "attribution" as Path<TFieldValues>,
     control,
   });
 
@@ -60,9 +75,9 @@ export function AttributionField({ control, errors }: AttributionFieldProps) {
               placeholder="Original author's name"
               value={value?.author || ""}
             />
-            {errors.attribution?.author && (
+            {attributionErrors?.author && (
               <ErrorMessage className="text-sm">
-                {errors.attribution.author.message}
+                {attributionErrors.author.message}
               </ErrorMessage>
             )}
           </div>
@@ -79,9 +94,9 @@ export function AttributionField({ control, errors }: AttributionFieldProps) {
               placeholder="Link to original post"
               value={value?.url || ""}
             />
-            {errors.attribution?.url && (
+            {attributionErrors?.url && (
               <ErrorMessage className="text-sm">
-                {errors.attribution.url.message}
+                {attributionErrors.url.message}
               </ErrorMessage>
             )}
           </div>

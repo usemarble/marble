@@ -1,13 +1,15 @@
 "use client";
 
 import { Separator } from "@marble/ui/components/separator";
-import type { Control, FieldErrors } from "react-hook-form";
-import type { PostValues } from "@/lib/validations/post";
+import type { FieldErrors } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
+import type { PostEditorValues } from "@/lib/validations/post";
 import { HiddenScrollbar } from "../../ui/hidden-scrollbar";
 import { AttributionField } from "../fields/attribution-field";
 import { AuthorSelector } from "../fields/author-selector";
 import { CategorySelector } from "../fields/category-selector";
 import { CoverImageSelector } from "../fields/cover-image-selector";
+import { CustomFieldsSection } from "../fields/custom-fields-section";
 import { DescriptionField } from "../fields/description-field";
 import { FeaturedField } from "../fields/featured-field";
 import { PublishDateField } from "../fields/publish-date-field";
@@ -16,19 +18,18 @@ import { StatusField } from "../fields/status-field";
 import { TagSelector } from "../fields/tag-selector";
 
 interface MetadataTabProps {
-  control: Control<PostValues>;
-  errors: FieldErrors<PostValues>;
+  errors: FieldErrors<PostEditorValues>;
   initialAuthors?: string[];
   tags?: string[];
 }
 
 export function MetadataTab({
-  control,
   errors,
   initialAuthors,
   tags,
 }: MetadataTabProps) {
   "use no memo";
+  const { control } = useFormContext<PostEditorValues>();
   return (
     <HiddenScrollbar className="h-full px-6">
       <section className="grid gap-6 pt-4 pb-5">
@@ -55,7 +56,7 @@ export function MetadataTab({
 
         <PublishDateField control={control} />
 
-        <Separator className="mt-4 flex" orientation="horizontal" />
+        <CustomFieldsSection />
 
         <AttributionField control={control} errors={errors} />
       </section>

@@ -9,9 +9,8 @@ import {
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { ArrowClockwiseIcon, InfoIcon } from "@phosphor-icons/react";
-import { useCallback, useEffect, useSyncExternalStore } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 import { useReadability } from "@/hooks/use-readability";
-import { useUnsavedChanges } from "@/providers/unsaved-changes";
 import { Gauge } from "../../ui/gauge";
 import { HiddenScrollbar } from "../../ui/hidden-scrollbar";
 import type { ReadabilitySuggestion } from "../ai/readability-suggestions";
@@ -33,7 +32,6 @@ export function AnalysisTab({
   localSuggestions,
 }: AnalysisTabProps) {
   const { editor } = useCurrentEditor();
-  const { setHasUnsavedChanges } = useUnsavedChanges();
 
   const subscribe = useCallback(
     (callback: () => void) => {
@@ -57,17 +55,6 @@ export function AnalysisTab({
     () => editor?.getText() ?? "",
     () => ""
   );
-
-  useEffect(() => {
-    if (!editor) {
-      return;
-    }
-    const handler = () => setHasUnsavedChanges(true);
-    editor.on("update", handler);
-    return () => {
-      editor.off("update", handler);
-    };
-  }, [editor, setHasUnsavedChanges]);
 
   const textMetrics = useReadability({ editor, text: editorText });
 

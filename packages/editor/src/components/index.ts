@@ -27,4 +27,8 @@ export {
 } from "./menus";
 // Node Components
 export * from "./nodes";
+export {
+  FieldRichTextEditor,
+  type FieldRichTextEditorProps,
+} from "./rich-text-field";
 export * from "./ui";

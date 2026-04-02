@@ -2,6 +2,7 @@
 
 import {
   CreditCardIcon,
+  DatabaseIcon,
   Edit02Icon,
   Key01Icon,
   PaintBoardIcon,
@@ -63,6 +64,11 @@ const developerItems = [
     name: "API Keys",
     url: "settings/keys",
     icon: Key01Icon,
+  },
+  {
+    name: "Custom Fields",
+    url: "settings/fields",
+    icon: DatabaseIcon,
   },
   {
     name: "Webhooks",

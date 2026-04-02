@@ -2,21 +2,27 @@
 
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
-import { type Control, useController } from "react-hook-form";
+import {
+  type Control,
+  type FieldValues,
+  type Path,
+  useController,
+} from "react-hook-form";
 import { ErrorMessage } from "@/components/ui/error-message";
-import type { PostValues } from "@/lib/validations/post";
 import { FieldInfo } from "./field-info";
 
-interface SlugFieldProps {
-  control: Control<PostValues>;
+interface SlugFieldProps<TFieldValues extends FieldValues> {
+  control: Control<TFieldValues>;
 }
 
-export function SlugField({ control }: SlugFieldProps) {
+export function SlugField<TFieldValues extends FieldValues>({
+  control,
+}: SlugFieldProps<TFieldValues>) {
   const {
     field,
     fieldState: { error },
   } = useController({
-    name: "slug",
+    name: "slug" as Path<TFieldValues>,
     control,
   });
 

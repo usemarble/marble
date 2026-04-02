@@ -109,3 +109,38 @@ export const sanitizeHtml = (content: string) => {
 
   return sanitizedContent;
 };
+
+export const sanitizeRichTextHtml = (content: string) => {
+  return sanitize(content, {
+    allowedTags: [
+      "a",
+      "b",
+      "br",
+      "em",
+      "i",
+      "li",
+      "ol",
+      "p",
+      "strong",
+      "u",
+      "ul",
+    ],
+    allowedAttributes: {
+      a: ["href", "target", "rel"],
+    },
+    allowedSchemes: ["http", "https", "mailto"],
+    exclusiveFilter: (frame) => {
+      if (frame.tag === "script") {
+        return true;
+      }
+      if (frame.attribs) {
+        for (const attr in frame.attribs) {
+          if (/^on/i.test(attr)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    },
+  });
+};

@@ -32,6 +32,7 @@ export type {
   EditorProviderProps,
   // Utility Component Types
   EditorSelectorProps,
+  FieldRichTextEditorProps,
   UseMarbleEditorOptions,
 } from "./components";
 export {
@@ -73,6 +74,7 @@ export {
   // Utility Components
   EditorSelector,
   EditorTableMenus,
+  FieldRichTextEditor,
   useCurrentEditor,
   useEditor,
   useMarbleEditor,

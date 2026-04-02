@@ -2,10 +2,58 @@ import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { invalidateCache } from "@/lib/cache/invalidate";
-import { type Attribution, postSchema } from "@/lib/validations/post";
+import {
+  type CustomFieldValidationDefinition,
+  resolveCustomFieldValues,
+} from "@/lib/custom-fields";
+import { type Attribution, postUpsertSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";
 import { dispatchWebhooks } from "@/lib/webhooks/dispatcher";
-import { sanitizeHtml } from "@/utils/editor";
+import { sanitizeHtml, sanitizeRichTextHtml } from "@/utils/editor";
+
+async function buildCustomFieldWrites(
+  workspaceId: string,
+  input: Record<string, string | null | undefined>
+): Promise<ReturnType<typeof resolveCustomFieldValues>> {
+  const fieldIds = Object.keys(input);
+
+  if (fieldIds.length === 0) {
+    return {
+      success: true,
+      values: [] as Array<{
+        fieldId: string;
+        fieldType: CustomFieldValidationDefinition["type"];
+        value: string | null;
+      }>,
+    };
+  }
+
+  const fields = await db.field.findMany({
+    where: {
+      id: { in: fieldIds },
+      workspaceId,
+    },
+    select: {
+      id: true,
+      key: true,
+      name: true,
+      type: true,
+      required: true,
+      options: {
+        select: {
+          value: true,
+          label: true,
+        },
+        orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+      },
+    },
+  });
+
+  return resolveCustomFieldValues(
+    fields as CustomFieldValidationDefinition[],
+    input
+  );
+}
 
 export async function GET(
   _request: Request,
@@ -80,7 +128,7 @@ export async function PATCH(
 
   const body = await request.json();
 
-  const values = postSchema.safeParse(body);
+  const values = postUpsertSchema.safeParse(body);
 
   if (!values.success) {
     return NextResponse.json(
@@ -170,28 +218,79 @@ export async function PATCH(
   }
 
   try {
-    const postUpdated = await db.post.update({
-      where: { id },
-      data: {
-        contentJson,
-        slug: values.data.slug,
-        title: values.data.title,
-        status: values.data.status,
-        featured: values.data.featured,
-        content: cleanContent,
-        categoryId: values.data.category,
-        coverImage: values.data.coverImage,
-        description: values.data.description,
-        publishedAt: values.data.publishedAt,
-        attribution: validAttribution,
-        workspaceId,
-        tags: values.data.tags
-          ? { set: uniqueTagIds.map((id) => ({ id })) }
-          : undefined,
-        authors: {
-          set: validAuthors.map((author) => ({ id: author.id })),
+    const customFieldWrites = await buildCustomFieldWrites(
+      workspaceId,
+      values.data.customFields
+    );
+
+    if (!customFieldWrites.success) {
+      return NextResponse.json(customFieldWrites.error, { status: 400 });
+    }
+
+    const postUpdated = await db.$transaction(async (tx) => {
+      const updatedPost = await tx.post.update({
+        where: { id },
+        data: {
+          contentJson,
+          slug: values.data.slug,
+          title: values.data.title,
+          status: values.data.status,
+          featured: values.data.featured,
+          content: cleanContent,
+          categoryId: values.data.category,
+          coverImage: values.data.coverImage,
+          description: values.data.description,
+          publishedAt: values.data.publishedAt,
+          attribution: validAttribution,
+          workspaceId,
+          tags: values.data.tags
+            ? { set: uniqueTagIds.map((tagId) => ({ id: tagId })) }
+            : undefined,
+          authors: {
+            set: validAuthors.map((author) => ({ id: author.id })),
+          },
         },
-      },
+      });
+
+      if (customFieldWrites.values.length > 0) {
+        await Promise.all(
+          customFieldWrites.values.map(({ fieldId, fieldType, value }) => {
+            if (value === null) {
+              return tx.fieldValue.deleteMany({
+                where: {
+                  postId: id,
+                  fieldId,
+                  workspaceId,
+                },
+              });
+            }
+
+            return tx.fieldValue.upsert({
+              where: {
+                postId_fieldId: { postId: id, fieldId },
+              },
+              update: {
+                workspaceId,
+                value:
+                  fieldType === "richtext"
+                    ? sanitizeRichTextHtml(value)
+                    : value,
+              },
+              create: {
+                postId: id,
+                fieldId,
+                workspaceId,
+                value:
+                  fieldType === "richtext"
+                    ? sanitizeRichTextHtml(value)
+                    : value,
+              },
+            });
+          })
+        );
+      }
+
+      return updatedPost;
     });
 
     const data = {

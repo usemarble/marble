@@ -2,19 +2,25 @@
 
 import { Label } from "@marble/ui/components/label";
 import { Switch } from "@marble/ui/components/switch";
-import { type Control, useController } from "react-hook-form";
-import type { PostValues } from "@/lib/validations/post";
+import {
+  type Control,
+  type FieldValues,
+  type Path,
+  useController,
+} from "react-hook-form";
 import { FieldInfo } from "./field-info";
 
-interface FeaturedFieldProps {
-  control: Control<PostValues>;
+interface FeaturedFieldProps<TFieldValues extends FieldValues> {
+  control: Control<TFieldValues>;
 }
 
-export function FeaturedField({ control }: FeaturedFieldProps) {
+export function FeaturedField<TFieldValues extends FieldValues>({
+  control,
+}: FeaturedFieldProps<TFieldValues>) {
   const {
     field: { onChange, value },
   } = useController({
-    name: "featured",
+    name: "featured" as Path<TFieldValues>,
     control,
   });
 

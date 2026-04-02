@@ -25,10 +25,15 @@ import {
 } from "@phosphor-icons/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { type Control, useController } from "react-hook-form";
+import {
+  type Control,
+  type FieldValues,
+  type Path,
+  type PathValue,
+  useController,
+} from "react-hook-form";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
-import type { PostValues } from "@/lib/validations/post";
 import { TagModal } from "../../tags/tag-modals";
 import { ErrorMessage } from "../../ui/error-message";
 import { FieldInfo } from "./field-info";
@@ -45,8 +50,8 @@ interface TagResponse {
   slug: string;
 }
 
-interface MultiSelectPopoverProps {
-  control: Control<PostValues>;
+interface MultiSelectPopoverProps<TFieldValues extends FieldValues> {
+  control: Control<TFieldValues>;
   placeholder?: string;
   isOpen?: boolean;
   setIsOpen?: (open: boolean) => void;
@@ -55,21 +60,22 @@ interface MultiSelectPopoverProps {
 
 const EMPTY_TAGS: string[] = [];
 
-export const TagSelector = ({
+export const TagSelector = <TFieldValues extends FieldValues>({
   control,
   placeholder,
   isOpen,
   setIsOpen,
   defaultTags = EMPTY_TAGS,
-}: MultiSelectPopoverProps) => {
+}: MultiSelectPopoverProps<TFieldValues>) => {
   const {
     field: { onChange, value },
     fieldState: { error },
   } = useController({
-    name: "tags",
+    name: "tags" as Path<TFieldValues>,
     control,
-    defaultValue: defaultTags,
+    defaultValue: defaultTags as PathValue<TFieldValues, Path<TFieldValues>>,
   });
+  const selectedTagIds = (value as string[] | undefined) ?? [];
   const [openTagModal, setOpenTagModal] = useState(false);
   const workspaceId = useWorkspaceId();
   const queryClient = useQueryClient();
@@ -91,23 +97,23 @@ export const TagSelector = ({
 
   // Compute selected tags directly without useEffect
   const selected = useMemo(() => {
-    if (tags.length > 0 && value && value?.length > 0) {
-      return tags.filter((opt) => value.includes(opt.id));
+    if (tags.length > 0 && selectedTagIds.length > 0) {
+      return tags.filter((opt) => selectedTagIds.includes(opt.id));
     }
     return [];
-  }, [tags, value]);
+  }, [selectedTagIds, tags]);
 
   const addTag = (tagToAdd: string) => {
-    if (value?.includes(tagToAdd)) {
+    if (selectedTagIds.includes(tagToAdd)) {
       return;
     }
-    const newValue = [...(value || []), tagToAdd];
-    onChange(newValue);
+    const newValue = [...selectedTagIds, tagToAdd];
+    onChange(newValue as PathValue<TFieldValues, Path<TFieldValues>>);
   };
 
   const handleRemoveTag = (tagToDelete: string) => {
-    const newValue = (value || []).filter((tag: string) => tag !== tagToDelete);
-    onChange(newValue);
+    const newValue = selectedTagIds.filter((tag) => tag !== tagToDelete);
+    onChange(newValue as PathValue<TFieldValues, Path<TFieldValues>>);
   };
 
   const handleTagCreated = async (newTag: Option) => {

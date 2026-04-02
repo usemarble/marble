@@ -29,10 +29,15 @@ import { cn } from "@marble/ui/lib/utils";
 import { CaretUpDownIcon, CheckIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo } from "react";
-import { type Control, useController } from "react-hook-form";
+import {
+  type Control,
+  type FieldValues,
+  type Path,
+  type PathValue,
+  useController,
+} from "react-hook-form";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
-import type { PostValues } from "@/lib/validations/post";
 import { useUser } from "@/providers/user";
 import { ErrorMessage } from "../../ui/error-message";
 import { FieldInfo } from "./field-info";
@@ -44,8 +49,8 @@ interface AuthorOptions {
   userId: string | null;
 }
 
-interface AuthorSelectorProps {
-  control: Control<PostValues>;
+interface AuthorSelectorProps<TFieldValues extends FieldValues> {
+  control: Control<TFieldValues>;
   placeholder?: string;
   isOpen?: boolean;
   setIsOpen?: (open: boolean) => void;
@@ -54,21 +59,22 @@ interface AuthorSelectorProps {
 
 const EMPTY_AUTHORS: string[] = [];
 
-export function AuthorSelector({
+export function AuthorSelector<TFieldValues extends FieldValues>({
   control,
   placeholder,
   isOpen,
   setIsOpen,
   defaultAuthors = EMPTY_AUTHORS,
-}: AuthorSelectorProps) {
+}: AuthorSelectorProps<TFieldValues>) {
   const {
     field: { onChange, value },
     fieldState: { error },
   } = useController({
-    name: "authors",
+    name: "authors" as Path<TFieldValues>,
     control,
-    defaultValue: defaultAuthors,
+    defaultValue: defaultAuthors as PathValue<TFieldValues, Path<TFieldValues>>,
   });
+  const selectedAuthorIds = (value as string[] | undefined) ?? [];
 
   const { user } = useUser();
   const workspaceId = useWorkspaceId();
@@ -99,11 +105,11 @@ export function AuthorSelector({
     if (isLoading || authors.length === 0) {
       return [];
     }
-    if (value && value.length > 0) {
-      return authors.filter((opt) => value.includes(opt.id));
+    if (selectedAuthorIds.length > 0) {
+      return authors.filter((opt) => selectedAuthorIds.includes(opt.id));
     }
     return [];
-  }, [value, authors, isLoading]);
+  }, [authors, isLoading, selectedAuthorIds]);
 
   // Auto-select current user's author profile on initial load for better UX
   // This makes it obvious who is creating the content and saves them from
@@ -116,19 +122,29 @@ export function AuthorSelector({
     if (
       authors.length > 0 &&
       derivedPrimaryAuthor &&
-      (!value || value.length === 0) &&
+      selectedAuthorIds.length === 0 &&
       !isLoading &&
       isNewPost
     ) {
-      onChange([derivedPrimaryAuthor.id]);
+      onChange([derivedPrimaryAuthor.id] as PathValue<
+        TFieldValues,
+        Path<TFieldValues>
+      >);
       // console.log("auto selected primary author", derivedPrimaryAuthor);
     }
-  }, [authors, derivedPrimaryAuthor, onChange, isLoading, value, isNewPost]);
+  }, [
+    authors,
+    derivedPrimaryAuthor,
+    isLoading,
+    isNewPost,
+    onChange,
+    selectedAuthorIds.length,
+  ]);
 
   const addOrRemoveAuthor = (authorToAdd: string) => {
-    const currentValues = value || [];
+    const currentValues = selectedAuthorIds;
     let newValue = currentValues.includes(authorToAdd)
-      ? currentValues.filter((id) => id !== authorToAdd)
+      ? currentValues.filter((id: string) => id !== authorToAdd)
       : [...currentValues, authorToAdd];
 
     if (
@@ -144,7 +160,7 @@ export function AuthorSelector({
       newValue = [derivedPrimaryAuthor.id];
     }
 
-    onChange(newValue);
+    onChange(newValue as PathValue<TFieldValues, Path<TFieldValues>>);
   };
 
   return (
