@@ -50,70 +50,63 @@ export const TagRefSchema = z
   })
   .openapi("TagRef");
 
-const PostBaseFields = {
-  id: z.string().openapi({ example: "cryitfjp5678mn09qrstuvwx" }),
-  slug: z.string().openapi({ example: "getting-started-with-nextjs" }),
-  title: z.string().openapi({ example: "Getting Started with Next.js" }),
-  status: z.enum(["published", "draft"]).openapi({ example: "published" }),
-  featured: z.boolean().openapi({ example: false }),
-  coverImage: z
-    .string()
-    .nullable()
-    .openapi({ example: "https://media.marblecms.com/cover.jpg" }),
-  description: z.string().openapi({ example: "A beginner's guide to Next.js" }),
-  publishedAt: z.iso.datetime().openapi({ example: "2024-01-15T10:00:00Z" }),
-  updatedAt: z.iso.datetime().openapi({ example: "2024-01-16T12:00:00Z" }),
-  attribution: z
-    .object({
-      author: z.string().openapi({ example: "John Doe" }),
-      url: z.url().openapi({ example: "https://original-source.com/article" }),
-    })
-    .nullable()
-    .openapi({
-      description:
-        "Attribution to the original author when republishing content",
-    }),
-  authors: z.array(AuthorRefSchema),
-  category: CategoryRefSchema,
-  tags: z.array(TagRefSchema),
-  fields: z
-    .record(
-      z.string(),
-      z.union([
-        z.string(),
-        z.number(),
-        z.boolean(),
-        z.array(z.string()),
-        z.null(),
-      ])
-    )
-    .openapi({
-      description: "Custom field values keyed by field key",
-      example: {
-        release_date: "2024-01-15",
-        priority_score: 5,
-        hashtags: ["#javascript", "#nextjs"],
-      },
-    }),
-};
-
 export const PostSchema = z
   .object({
-    ...PostBaseFields,
+    id: z.string().openapi({ example: "cryitfjp5678mn09qrstuvwx" }),
+    slug: z.string().openapi({ example: "getting-started-with-nextjs" }),
+    title: z.string().openapi({ example: "Getting Started with Next.js" }),
+    status: z.enum(["published", "draft"]).openapi({ example: "published" }),
+    featured: z.boolean().openapi({ example: false }),
+    coverImage: z
+      .string()
+      .nullable()
+      .openapi({ example: "https://media.marblecms.com/cover.jpg" }),
+    description: z
+      .string()
+      .openapi({ example: "A beginner's guide to Next.js" }),
+    publishedAt: z.iso.datetime().openapi({ example: "2024-01-15T10:00:00Z" }),
+    updatedAt: z.iso.datetime().openapi({ example: "2024-01-16T12:00:00Z" }),
+    attribution: z
+      .object({
+        author: z.string().openapi({ example: "John Doe" }),
+        url: z
+          .url()
+          .openapi({ example: "https://original-source.com/article" }),
+      })
+      .nullable()
+      .openapi({
+        description:
+          "Attribution to the original author when republishing content",
+      }),
+    authors: z.array(AuthorRefSchema),
+    category: CategoryRefSchema,
+    tags: z.array(TagRefSchema),
+    fields: z
+      .record(
+        z.string(),
+        z.union([
+          z.string(),
+          z.number(),
+          z.boolean(),
+          z.array(z.string()),
+          z.null(),
+        ])
+      )
+      .openapi({
+        description: "Custom field values keyed by field key",
+        example: {
+          release_date: "2024-01-15",
+          priority_score: 5,
+          hashtags: ["#javascript", "#nextjs"],
+        },
+      }),
     content: z.string().openapi({ example: "<p>Hello world</p>" }),
   })
   .openapi("Post");
 
-export const PostListItemSchema = z
-  .object({
-    ...PostBaseFields,
-    content: z.string().openapi({ example: "<p>Hello world</p>" }),
-  })
-  .openapi("PostListItem");
-
 export const PostsListResponseSchema = z
   .object({
-    posts: z.array(PostListItemSchema),
+    posts: z.array(PostSchema),
     pagination: PaginationSchema,
   })
   .openapi("PostsListResponse");
