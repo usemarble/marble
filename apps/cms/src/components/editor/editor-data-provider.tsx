@@ -55,7 +55,6 @@ const CORE_FIELD_LABELS: Record<string, string> = {
   contentJson: "Content",
   publishedAt: "Publish date",
   coverImage: "Cover image",
-  attribution: "Attribution",
 };
 
 function buildEditorValues(

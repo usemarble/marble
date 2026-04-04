@@ -14,7 +14,6 @@ export const emptyPost: PostValues = {
   coverImage: null,
   description: "",
   publishedAt: todayUTCMidnight(),
-  attribution: null,
   tags: [],
   category: "",
   authors: [],

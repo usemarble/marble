@@ -51,12 +51,6 @@ export const postSchema = z.object({
       description: z.string().nullable(),
     })
   ),
-  attribution: z
-    .object({
-      author: z.string(),
-      url: z.url(),
-    })
-    .nullable(),
 });
 export type Post = z.infer<typeof postSchema>;
 

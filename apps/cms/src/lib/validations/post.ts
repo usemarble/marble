@@ -1,12 +1,5 @@
 import { z } from "zod";
 
-const attributionSchema = z.object({
-  author: z.string().min(1, "Author name is required"),
-  url: z.string().url("Please enter a valid URL"),
-});
-
-export type Attribution = z.infer<typeof attributionSchema>;
-
 export const postSchema = z.object({
   title: z.string().min(1, { message: "Title cannot be empty" }),
   coverImage: z.string().url().nullable().optional(),
@@ -20,7 +13,6 @@ export const postSchema = z.object({
   status: z.enum(["published", "draft"]),
   featured: z.boolean().default(false).optional(),
   publishedAt: z.coerce.date(),
-  attribution: attributionSchema.nullable().optional(),
 });
 
 export type PostValues = z.infer<typeof postSchema>;
@@ -61,7 +53,6 @@ export const postImportSchema = z.object({
   status: z.enum(["published", "draft"]),
   featured: z.boolean().default(false),
   publishedAt: z.coerce.date(),
-  attribution: attributionSchema.nullable().optional(),
 });
 
 export type PostImportValues = z.infer<typeof postImportSchema>;

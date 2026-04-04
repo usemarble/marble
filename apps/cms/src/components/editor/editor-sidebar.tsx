@@ -52,10 +52,7 @@ export function EditorSidebar({ ...props }: EditorSidebarProps) {
   const { activeWorkspace } = useWorkspace();
   const { editor } = useCurrentEditor();
   const {
-    form: {
-      watch,
-      formState: { errors },
-    },
+    form: { watch },
     isSubmitting,
     mode,
     postId,
@@ -246,11 +243,7 @@ export function EditorSidebar({ ...props }: EditorSidebarProps) {
               value="metadata"
             >
               <Suspense fallback={<TabLoadingSpinner />}>
-                <MetadataTab
-                  errors={errors}
-                  initialAuthors={initialAuthors}
-                  tags={tags}
-                />
+                <MetadataTab initialAuthors={initialAuthors} tags={tags} />
               </Suspense>
             </TabsContent>
 

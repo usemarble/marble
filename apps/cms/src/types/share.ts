@@ -37,7 +37,6 @@ export interface SharePost {
   createdAt: string;
   updatedAt: string;
   publishedAt: string;
-  attribution: { author: string; url: string } | null;
   authors: ShareAuthor[];
   category: ShareCategory;
   tags: ShareTag[];

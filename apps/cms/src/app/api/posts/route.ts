@@ -175,9 +175,6 @@ export async function POST(request: Request) {
   }
 
   const contentJson = JSON.parse(values.data.contentJson);
-  const validAttribution = values.data.attribution
-    ? values.data.attribution
-    : undefined;
   const cleanContent = sanitizeHtml(values.data.content);
 
   const tagValidation = await validateWorkspaceTags(
@@ -241,7 +238,6 @@ export async function POST(request: Request) {
           coverImage: values.data.coverImage,
           publishedAt: values.data.publishedAt,
           description: values.data.description,
-          attribution: validAttribution,
           workspaceId: activeWorkspaceId,
           tags:
             uniqueTagIds.length > 0

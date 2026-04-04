@@ -6,7 +6,7 @@ import {
   type CustomFieldValidationDefinition,
   resolveCustomFieldValues,
 } from "@/lib/custom-fields";
-import { type Attribution, postUpsertSchema } from "@/lib/validations/post";
+import { postUpsertSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";
 import { dispatchWebhooks } from "@/lib/webhooks/dispatcher";
 import { sanitizeHtml, sanitizeRichTextHtml } from "@/utils/editor";
@@ -81,7 +81,6 @@ export async function GET(
       publishedAt: true,
       contentJson: true,
       categoryId: true,
-      attribution: true,
       tags: {
         select: { id: true },
       },
@@ -104,7 +103,6 @@ export async function GET(
     coverImage: post.coverImage,
     description: post.description,
     publishedAt: post.publishedAt,
-    attribution: post.attribution as Attribution,
     contentJson: JSON.stringify(post.contentJson),
     tags: post.tags.map((tag) => tag.id),
     category: post.categoryId,
@@ -150,9 +148,6 @@ export async function PATCH(
   }
 
   const contentJson = JSON.parse(values.data.contentJson);
-  const validAttribution = values.data.attribution
-    ? values.data.attribution
-    : undefined;
   const cleanContent = sanitizeHtml(values.data.content);
 
   const tagValidation = await validateWorkspaceTags(
@@ -241,7 +236,6 @@ export async function PATCH(
           coverImage: values.data.coverImage,
           description: values.data.description,
           publishedAt: values.data.publishedAt,
-          attribution: validAttribution,
           workspaceId,
           tags: values.data.tags
             ? { set: uniqueTagIds.map((tagId) => ({ id: tagId })) }
