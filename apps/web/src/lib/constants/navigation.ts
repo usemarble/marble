@@ -84,6 +84,13 @@ export const FOOTER_SECTIONS: FooterSection[] = [
         rel: "noopener",
       },
       {
+        label: "Raycast Extension",
+        href: "https://www.raycast.com/dominikdev/marble",
+        external: true,
+        target: "_blank",
+        rel: "noopener",
+      },
+      {
         label: "Astro Example",
         href: "https://github.com/usemarble/astro-example",
         external: true,
