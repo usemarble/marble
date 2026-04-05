@@ -489,7 +489,6 @@ posts.openapi(listPostsRoute, async (c) => {
       description: true,
       publishedAt: true,
       updatedAt: true,
-      attribution: true,
       authors: {
         select: {
           id: true,
@@ -559,18 +558,8 @@ posts.openapi(listPostsRoute, async (c) => {
         ? postsData.map((post) => ({
             ...post,
             content: NodeHtmlMarkdown.translate(post.content || ""),
-            attribution: post.attribution as {
-              author: string;
-              url: string;
-            } | null,
           }))
-        : postsData.map((post) => ({
-            ...post,
-            attribution: post.attribution as {
-              author: string;
-              url: string;
-            } | null,
-          }));
+        : postsData;
 
     const postsWithFields = formattedPosts.map((post) => {
       const { fieldValues, ...rest } = post as typeof post & {
@@ -649,7 +638,6 @@ posts.openapi(getPostRoute, async (c) => {
           description: true,
           publishedAt: true,
           updatedAt: true,
-          attribution: true,
           authors: {
             select: {
               id: true,
@@ -722,18 +710,8 @@ posts.openapi(getPostRoute, async (c) => {
         ? {
             ...post,
             content: NodeHtmlMarkdown.translate(post.content || ""),
-            attribution: post.attribution as {
-              author: string;
-              url: string;
-            } | null,
           }
-        : {
-            ...post,
-            attribution: post.attribution as {
-              author: string;
-              url: string;
-            } | null,
-          };
+        : post;
 
     const { fieldValues, ...postRest } =
       formattedPost as typeof formattedPost & {
@@ -909,7 +887,6 @@ posts.openapi(createPostRoute, async (c) => {
         featured: body.featured ?? false,
         coverImage: body.coverImage ?? null,
         publishedAt,
-        attribution: body.attribution ?? undefined,
         workspaceId,
         primaryAuthorId,
         tags:
@@ -1189,9 +1166,6 @@ posts.openapi(updatePostRoute, async (c) => {
     }
     if (body.publishedAt !== undefined) {
       updateData.publishedAt = new Date(body.publishedAt);
-    }
-    if (body.attribution !== undefined) {
-      updateData.attribution = body.attribution;
     }
     if (tagUpdate) {
       updateData.tags = tagUpdate;

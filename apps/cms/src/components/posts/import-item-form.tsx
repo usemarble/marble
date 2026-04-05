@@ -93,7 +93,6 @@ export function ImportItemForm({
         content: markdown,
         coverImage: undefined,
         tags: [],
-        attribution: undefined,
       };
 
       onImport(payload);

@@ -1,11 +1,9 @@
 "use client";
 
 import { Separator } from "@marble/ui/components/separator";
-import type { FieldErrors } from "react-hook-form";
 import { useFormContext } from "react-hook-form";
 import type { PostEditorValues } from "@/lib/validations/post";
 import { HiddenScrollbar } from "../../ui/hidden-scrollbar";
-import { AttributionField } from "../fields/attribution-field";
 import { AuthorSelector } from "../fields/author-selector";
 import { CategorySelector } from "../fields/category-selector";
 import { CoverImageSelector } from "../fields/cover-image-selector";
@@ -18,16 +16,11 @@ import { StatusField } from "../fields/status-field";
 import { TagSelector } from "../fields/tag-selector";
 
 interface MetadataTabProps {
-  errors: FieldErrors<PostEditorValues>;
   initialAuthors?: string[];
   tags?: string[];
 }
 
-export function MetadataTab({
-  errors,
-  initialAuthors,
-  tags,
-}: MetadataTabProps) {
+export function MetadataTab({ initialAuthors, tags }: MetadataTabProps) {
   "use no memo";
   const { control } = useFormContext<PostEditorValues>();
   return (
@@ -57,8 +50,6 @@ export function MetadataTab({
         <PublishDateField control={control} />
 
         <CustomFieldsSection />
-
-        <AttributionField control={control} errors={errors} />
       </section>
     </HiddenScrollbar>
   );

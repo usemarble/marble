@@ -51,10 +51,6 @@ export type Post = {
   authors: Author[];
   category: Omit<Category, "count">;
   tags: Omit<Tag, "count">[];
-  attribution: {
-    author: string;
-    url: string;
-  } | null;
 };
 
 export type Pagination = {
@@ -217,12 +213,6 @@ const PostSchema = z.object({
       description: z.string().nullable(),
     })
   ),
-  attribution: z
-    .object({
-      author: z.string(),
-      url: z.string().url(),
-    })
-    .nullable(),
 });
 
 const PaginationSchema = z.object({

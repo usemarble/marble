@@ -59,10 +59,6 @@ export async function POST(request: Request) {
     },
   });
 
-  const validAttribution = values.data.attribution
-    ? values.data.attribution
-    : undefined;
-
   const contentJson = markdownToTiptap(values.data.content);
   const htmlContent = await markdownToHtml(values.data.content || "");
   const cleanContent = sanitizeHtml(htmlContent);
@@ -124,7 +120,6 @@ export async function POST(request: Request) {
       coverImage: values.data.coverImage,
       publishedAt: values.data.publishedAt,
       description: values.data.description,
-      attribution: validAttribution,
       workspaceId: activeWorkspaceId,
       tags:
         uniqueTagIds.length > 0

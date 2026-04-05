@@ -66,18 +66,6 @@ export const PostSchema = z
       .openapi({ example: "A beginner's guide to Next.js" }),
     publishedAt: z.iso.datetime().openapi({ example: "2024-01-15T10:00:00Z" }),
     updatedAt: z.iso.datetime().openapi({ example: "2024-01-16T12:00:00Z" }),
-    attribution: z
-      .object({
-        author: z.string().openapi({ example: "John Doe" }),
-        url: z
-          .url()
-          .openapi({ example: "https://original-source.com/article" }),
-      })
-      .nullable()
-      .openapi({
-        description:
-          "Attribution to the original author when republishing content",
-      }),
     authors: z.array(AuthorRefSchema),
     category: CategoryRefSchema,
     tags: z.array(TagRefSchema),
@@ -166,16 +154,6 @@ export const CreatePostBodySchema = z
       example: "2024-01-15T10:00:00Z",
       description: "ISO 8601 datetime. Defaults to current time if omitted.",
     }),
-    attribution: z
-      .object({
-        author: z.string().min(1, "Attribution author is required"),
-        url: z.string().url("Attribution URL must be a valid URL"),
-      })
-      .nullable()
-      .optional()
-      .openapi({
-        description: "Attribution to original author when republishing content",
-      }),
   })
   .openapi("CreatePostBody");
 
@@ -251,16 +229,6 @@ export const UpdatePostBodySchema = z
       .datetime()
       .optional()
       .openapi({ example: "2024-02-01T10:00:00Z" }),
-    attribution: z
-      .object({
-        author: z.string().min(1, "Attribution author is required"),
-        url: z.string().url("Attribution URL must be a valid URL"),
-      })
-      .nullable()
-      .optional()
-      .openapi({
-        description: "Attribution to original author when republishing content",
-      }),
   })
   .openapi("UpdatePostBody");
 

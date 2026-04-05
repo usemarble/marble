@@ -25,7 +25,6 @@ export async function GET(
           createdAt: true,
           updatedAt: true,
           publishedAt: true,
-          attribution: true,
           authors: {
             select: {
               id: true,
