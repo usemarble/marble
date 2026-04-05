@@ -1,5 +1,5 @@
 import { PrismaNeon } from "@prisma/adapter-neon";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "./generated/workerd/client";
 
 const createClient = (url: string) => {
   const connectionString =

@@ -2,7 +2,7 @@ import {
   PlanType,
   type SubscriptionRecurringInterval,
   SubscriptionStatus,
-} from "@prisma/client";
+} from "@marble/db/browser";
 
 export function getPlanType(productName: string): PlanType | null {
   const plan = productName.toLowerCase();

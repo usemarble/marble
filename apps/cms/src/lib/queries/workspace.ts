@@ -1,5 +1,5 @@
 import { db } from "@marble/db";
-import { SubscriptionStatus } from "@prisma/client";
+import { SubscriptionStatus } from "@marble/db/browser";
 import type { RequestCookies } from "next/dist/compiled/@edge-runtime/cookies";
 import { getServerSession } from "@/lib/auth/session";
 import { getWorkspacePlan } from "@/lib/plans";

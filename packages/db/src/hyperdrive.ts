@@ -1,5 +1,5 @@
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "./generated/workerd/client";
 
 /**
  * Create a Prisma client for Hyperdrive.

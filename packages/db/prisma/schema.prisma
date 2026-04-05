@@ -1,11 +1,22 @@
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
+  provider               = "prisma-client"
+  output                 = "../src/generated/node"
+  moduleFormat           = "esm"
+  generatedFileExtension = "ts"
+  importFileExtension    = "ts"
+}
+
+generator client_workers {
+  provider               = "prisma-client"
+  runtime                = "workerd"
+  output                 = "../src/generated/workerd"
+  moduleFormat           = "esm"
+  generatedFileExtension = "ts"
+  importFileExtension    = "ts"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model Subscription {

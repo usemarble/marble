@@ -1,5 +1,5 @@
 import { db } from "@marble/db";
-import { UsageEventType } from "@prisma/client";
+import { UsageEventType } from "@marble/db/browser";
 import { sendUsageLimitEmailAction } from "../actions/email";
 import { getWorkspacePlan, PLAN_LIMITS } from "../plans";
 import { createPolarClient } from "../polar/client";

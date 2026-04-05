@@ -1,7 +1,10 @@
 {
   "extends": "@marble/tsconfig/base.json",
   "compilerOptions": {
-    "baseUrl": "."
+    "baseUrl": ".",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "target": "ES2023"
   },
   "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]

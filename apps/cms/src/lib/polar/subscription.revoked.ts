@@ -2,7 +2,7 @@
 
 import { db } from "@marble/db";
 import type { WebhookSubscriptionRevokedPayload } from "@polar-sh/sdk/models/components/webhooksubscriptionrevokedpayload.js";
-import { SubscriptionStatus } from "@prisma/client";
+import { SubscriptionStatus } from "@marble/db/browser";
 
 export async function handleSubscriptionRevoked(
   payload: WebhookSubscriptionRevokedPayload

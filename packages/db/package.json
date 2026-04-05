@@ -1,9 +1,11 @@
 {
   "name": "@marble/db",
   "version": "0.0.0",
+  "type": "module",
   "exports": {
     ".": "./src/index.ts",
     "./client": "./src/client.ts",
+    "./browser": "./src/browser.ts",
     "./workers": "./src/workers.ts",
     "./hyperdrive": "./src/hyperdrive.ts"
   },
@@ -17,9 +19,9 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.1",
-    "@prisma/adapter-neon": "^6.15.0",
-    "@prisma/adapter-pg": "6.15.0",
-    "@prisma/client": "^6.15.0",
+    "@prisma/adapter-neon": "^7.0.0",
+    "@prisma/adapter-pg": "^7.0.0",
+    "@prisma/client": "^7.0.0",
     "pg": "^8.18.0",
     "ws": "^8.18.0"
   },
@@ -29,7 +31,7 @@
     "@types/ws": "^8.5.13",
     "bufferutil": "^4.0.9",
     "dotenv": "^16.4.7",
-    "prisma": "6.15.0",
+    "prisma": "^7.0.0",
     "typescript": "^5.9.3"
   }
 }

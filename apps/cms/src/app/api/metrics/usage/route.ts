@@ -1,5 +1,5 @@
 import { db } from "@marble/db";
-import { UsageEventType } from "@prisma/client";
+import { UsageEventType } from "@marble/db/browser";
 import { addDays, format, startOfDay, subDays, subHours } from "date-fns";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";

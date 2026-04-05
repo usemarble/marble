@@ -1,5 +1,5 @@
 import { db } from "@marble/db";
-import type { FieldType as PrismaFieldType } from "@prisma/client";
+import type { FieldType as PrismaFieldType } from "@marble/db/browser";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { customFieldSchema } from "@/lib/validations/fields";
