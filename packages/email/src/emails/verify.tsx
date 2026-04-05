@@ -18,7 +18,7 @@ import { EMAIL_CONFIG } from "../lib/config";
 interface VerifyUserEmailProps {
   userEmail: string;
   otp: string;
-  type: "sign-in" | "email-verification" | "forget-password";
+  type: "sign-in" | "email-verification" | "forget-password" | "change-email";
 }
 
 export const VerifyUserEmail = ({
@@ -32,7 +32,9 @@ export const VerifyUserEmail = ({
       ? "Your verification code"
       : type === "email-verification"
         ? "Verify your email address"
-        : "Reset your password";
+        : type === "change-email"
+          ? "Confirm your new email address"
+          : "Reset your password";
 
   return (
     <Html>

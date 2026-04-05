@@ -1,5 +1,5 @@
 import { headers } from "next/headers";
-import { auth } from "./auth";
+import { auth } from "./server";
 
 export async function getServerSession() {
   try {

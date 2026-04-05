@@ -84,7 +84,7 @@ export async function sendVerificationEmailAction({
 }: {
   userEmail: string;
   otp: string;
-  type: "sign-in" | "email-verification" | "forget-password";
+  type: "sign-in" | "email-verification" | "forget-password" | "change-email";
 }) {
   if (!resend && isDevelopment) {
     return sendDevEmail({

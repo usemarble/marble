@@ -50,7 +50,7 @@ export async function sendVerificationEmail(
   }: {
     userEmail: string;
     otp: string;
-    type: "sign-in" | "email-verification" | "forget-password";
+    type: "sign-in" | "email-verification" | "forget-password" | "change-email";
   }
 ) {
   return await resend.emails.send({
