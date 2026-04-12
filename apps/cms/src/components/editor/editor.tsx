@@ -2,6 +2,7 @@
 
 import {
   EditorAlignSelector,
+  EditorBlockHandleMenu,
   EditorBubbleMenu,
   EditorClearFormatting,
   EditorContent,
@@ -69,6 +70,8 @@ export function MarbleEditorMenus() {
       </EditorBubbleMenu>
 
       <EditorContent />
+
+      <EditorBlockHandleMenu />
 
       <EditorTableMenus />
     </>

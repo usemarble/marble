@@ -43,3 +43,5 @@ yarn-error.log*
 .agent/skills/
 .cursor/skills/
 .claude/skills/
+
+next-block-editor-app
