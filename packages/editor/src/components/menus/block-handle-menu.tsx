@@ -15,6 +15,11 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@marble/ui/components/tooltip";
 import { cn } from "@marble/ui/lib/utils";
 import {
   CheckSquareIcon,
@@ -43,8 +48,8 @@ import {
   type SVGProps,
   useCallback,
   useEffect,
-  useId,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -121,6 +126,26 @@ function canClearFormatting(node: ProseMirrorNode) {
   return CLEAR_FORMATTING_TYPES.has(node.type.name);
 }
 
+function getScrollParent(node: HTMLElement | null) {
+  if (!node) {
+    return null;
+  }
+
+  let current: HTMLElement | null = node.parentElement;
+
+  while (current) {
+    const { overflowY } = window.getComputedStyle(current);
+
+    if (overflowY === "auto" || overflowY === "scroll") {
+      return current;
+    }
+
+    current = current.parentElement;
+  }
+
+  return null;
+}
+
 function serializeNodeToClipboardData(
   node: ProseMirrorNode,
   schema: Parameters<typeof DOMSerializer.fromSchema>[0],
@@ -147,7 +172,7 @@ export function EditorBlockHandleMenu({
   const [menuOpen, setMenuOpen] = useState(false);
   const [target, setTarget] = useState<TargetBlock | null>(null);
   const menuHandle = useMemo(() => createDropdownMenuHandle(), []);
-  const menuTriggerId = useId();
+  const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     if (!editor) {
@@ -157,6 +182,28 @@ export function EditorBlockHandleMenu({
     const transaction = editor.state.tr.setMeta("lockDragHandle", menuOpen);
     editor.view.dispatch(transaction);
   }, [editor, menuOpen]);
+
+  useEffect(() => {
+    if (!editor) {
+      return;
+    }
+
+    const hideHandle = () => {
+      setMenuOpen(false);
+      setTarget(null);
+      editor.view.dispatch(editor.state.tr.setMeta("hideDragHandle", true));
+    };
+
+    const scrollParent = getScrollParent(editor.view.dom as HTMLElement);
+
+    scrollParent?.addEventListener("scroll", hideHandle, { passive: true });
+    window.addEventListener("scroll", hideHandle, { passive: true });
+
+    return () => {
+      scrollParent?.removeEventListener("scroll", hideHandle);
+      window.removeEventListener("scroll", hideHandle);
+    };
+  }, [editor]);
 
   const handleNodeChange = useCallback(
     ({ node, pos }: { node: ProseMirrorNode | null; pos: number }) => {
@@ -325,7 +372,7 @@ export function EditorBlockHandleMenu({
         isActive: (node) => node.type.name === "paragraph",
         label: "Text",
         run: (focusPos) => {
-          editor.chain().focus(focusPos).setParagraph().run();
+          editor.chain().focus(focusPos).clearNodes().run();
         },
       },
       {
@@ -334,7 +381,12 @@ export function EditorBlockHandleMenu({
           node.type.name === "heading" && node.attrs.level === 1,
         label: "Heading 1",
         run: (focusPos) => {
-          editor.chain().focus(focusPos).setNode("heading", { level: 1 }).run();
+          editor
+            .chain()
+            .focus(focusPos)
+            .clearNodes()
+            .setNode("heading", { level: 1 })
+            .run();
         },
       },
       {
@@ -343,7 +395,12 @@ export function EditorBlockHandleMenu({
           node.type.name === "heading" && node.attrs.level === 2,
         label: "Heading 2",
         run: (focusPos) => {
-          editor.chain().focus(focusPos).setNode("heading", { level: 2 }).run();
+          editor
+            .chain()
+            .focus(focusPos)
+            .clearNodes()
+            .setNode("heading", { level: 2 })
+            .run();
         },
       },
       {
@@ -352,7 +409,12 @@ export function EditorBlockHandleMenu({
           node.type.name === "heading" && node.attrs.level === 3,
         label: "Heading 3",
         run: (focusPos) => {
-          editor.chain().focus(focusPos).setNode("heading", { level: 3 }).run();
+          editor
+            .chain()
+            .focus(focusPos)
+            .clearNodes()
+            .setNode("heading", { level: 3 })
+            .run();
         },
       },
       {
@@ -360,7 +422,7 @@ export function EditorBlockHandleMenu({
         isActive: (node) => node.type.name === "bulletList",
         label: "Bullet List",
         run: (focusPos) => {
-          editor.chain().focus(focusPos).toggleBulletList().run();
+          editor.chain().focus(focusPos).clearNodes().toggleBulletList().run();
         },
       },
       {
@@ -368,7 +430,7 @@ export function EditorBlockHandleMenu({
         isActive: (node) => node.type.name === "orderedList",
         label: "Numbered List",
         run: (focusPos) => {
-          editor.chain().focus(focusPos).toggleOrderedList().run();
+          editor.chain().focus(focusPos).clearNodes().toggleOrderedList().run();
         },
       },
       {
@@ -379,6 +441,7 @@ export function EditorBlockHandleMenu({
           editor
             .chain()
             .focus(focusPos)
+            .clearNodes()
             .toggleList("taskList", "taskItem")
             .run();
         },
@@ -388,7 +451,7 @@ export function EditorBlockHandleMenu({
         isActive: (node) => node.type.name === "blockquote",
         label: "Quote",
         run: (focusPos) => {
-          editor.chain().focus(focusPos).toggleBlockquote().run();
+          editor.chain().focus(focusPos).clearNodes().toggleBlockquote().run();
         },
       },
       {
@@ -396,7 +459,7 @@ export function EditorBlockHandleMenu({
         isActive: (node) => node.type.name === "codeBlock",
         label: "Code",
         run: (focusPos) => {
-          editor.chain().focus(focusPos).toggleCodeBlock().run();
+          editor.chain().focus(focusPos).clearNodes().toggleCodeBlock().run();
         },
       },
     ];
@@ -433,20 +496,30 @@ export function EditorBlockHandleMenu({
             : "pointer-events-none opacity-0"
         )}
       >
-        <Button
-          className="size-6.5 rounded-md bg-transparent p-0 text-muted-foreground shadow-none hover:bg-accent/60 hover:text-foreground"
-          onClick={handleAdd}
-          size="icon-xs"
-          type="button"
-          variant="ghost"
-        >
-          <HugeiconsIcon
-            className="size-4"
-            icon={PlusSignIcon}
-            strokeWidth={2}
+        <Tooltip>
+          <TooltipTrigger
+            delay={300}
+            render={
+              <Button
+                className="size-6.5 rounded-md bg-transparent p-0 text-muted-foreground shadow-none hover:bg-accent/60 hover:text-foreground"
+                onClick={handleAdd}
+                size="icon-xs"
+                type="button"
+                variant="ghost"
+              >
+                <HugeiconsIcon
+                  className="size-4"
+                  icon={PlusSignIcon}
+                  strokeWidth={2}
+                />
+                <span className="sr-only">Insert block below</span>
+              </Button>
+            }
           />
-          <span className="sr-only">Insert block below</span>
-        </Button>
+          <TooltipContent side="top">
+            <p>Click to insert block below</p>
+          </TooltipContent>
+        </Tooltip>
 
         <DropdownMenu
           handle={menuHandle}
@@ -454,64 +527,73 @@ export function EditorBlockHandleMenu({
           open={menuOpen}
         >
           <div className="relative size-6.5">
-            <button
-              aria-expanded={menuOpen}
-              aria-haspopup="menu"
-              aria-label="Open block actions"
-              className={cn(
-                HANDLE_CONTROL_CLASSNAME,
-                "cursor-grab active:cursor-grabbing"
-              )}
-              onClick={() => {
-                if (menuOpen) {
-                  menuHandle.close();
-                  return;
-                }
+            <Tooltip>
+              <TooltipTrigger
+                delay={300}
+                render={
+                  <button
+                    aria-expanded={menuOpen}
+                    aria-haspopup="menu"
+                    aria-label="Open block actions"
+                    className={cn(
+                      HANDLE_CONTROL_CLASSNAME,
+                      "cursor-grab active:cursor-grabbing"
+                    )}
+                    onClick={() => {
+                      if (menuOpen) {
+                        menuHandle.close();
+                        return;
+                      }
 
-                menuHandle.open(menuTriggerId);
-              }}
-              type="button"
-            >
-              <svg
-                className="size-4"
-                fill="currentColor"
-                height="24"
-                viewBox="0 0 24 24"
-                width="24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <title>Open block actions</title>
-                <path
-                  d="M9 3C7.89543 3 7 3.89543 7 5C7 6.10457 7.89543 7 9 7C10.1046 7 11 6.10457 11 5C11 3.89543 10.1046 3 9 3Z"
-                  fill="currentColor"
-                />
-                <path
-                  d="M9 10C7.89543 10 7 10.8954 7 12C7 13.1046 7.89543 14 9 14C10.1046 14 11 13.1046 11 12C11 10.8954 10.1046 10 9 10Z"
-                  fill="currentColor"
-                />
-                <path
-                  d="M7 19C7 17.8954 7.89543 17 9 17C10.1046 17 11 17.8954 11 19C11 20.1046 10.1046 21 9 21C7.89543 21 7 20.1046 7 19Z"
-                  fill="currentColor"
-                />
-                <path
-                  d="M15 10C13.8954 10 13 10.8954 13 12C13 13.1046 13.8954 14 15 14C16.1046 14 17 13.1046 17 12C17 10.8954 16.1046 10 15 10Z"
-                  fill="currentColor"
-                />
-                <path
-                  d="M13 5C13 3.89543 13.8954 3 15 3C16.1046 3 17 3.89543 17 5C17 6.10457 16.1046 7 15 7C13.8954 7 13 6.10457 13 5Z"
-                  fill="currentColor"
-                />
-                <path
-                  d="M15 17C13.8954 17 13 17.8954 13 19C13 20.1046 13.8954 21 15 21C16.1046 21 17 20.1046 17 19C17 17.8954 16.1046 17 15 17Z"
-                  fill="currentColor"
-                />
-              </svg>
-              <span className="sr-only">Open block actions</span>
-            </button>
+                      menuTriggerRef.current?.click();
+                    }}
+                    type="button"
+                  >
+                    <svg
+                      className="size-4"
+                      fill="currentColor"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      width="24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <title>Open block actions</title>
+                      <path
+                        d="M9 3C7.89543 3 7 3.89543 7 5C7 6.10457 7.89543 7 9 7C10.1046 7 11 6.10457 11 5C11 3.89543 10.1046 3 9 3Z"
+                        fill="currentColor"
+                      />
+                      <path
+                        d="M9 10C7.89543 10 7 10.8954 7 12C7 13.1046 7.89543 14 9 14C10.1046 14 11 13.1046 11 12C11 10.8954 10.1046 10 9 10Z"
+                        fill="currentColor"
+                      />
+                      <path
+                        d="M7 19C7 17.8954 7.89543 17 9 17C10.1046 17 11 17.8954 11 19C11 20.1046 10.1046 21 9 21C7.89543 21 7 20.1046 7 19Z"
+                        fill="currentColor"
+                      />
+                      <path
+                        d="M15 10C13.8954 10 13 10.8954 13 12C13 13.1046 13.8954 14 15 14C16.1046 14 17 13.1046 17 12C17 10.8954 16.1046 10 15 10Z"
+                        fill="currentColor"
+                      />
+                      <path
+                        d="M13 5C13 3.89543 13.8954 3 15 3C16.1046 3 17 3.89543 17 5C17 6.10457 16.1046 7 15 7C13.8954 7 13 6.10457 13 5Z"
+                        fill="currentColor"
+                      />
+                      <path
+                        d="M15 17C13.8954 17 13 17.8954 13 19C13 20.1046 13.8954 21 15 21C16.1046 21 17 20.1046 17 19C17 17.8954 16.1046 17 15 17Z"
+                        fill="currentColor"
+                      />
+                    </svg>
+                    <span className="sr-only">Open block actions</span>
+                  </button>
+                }
+              />
+              <TooltipContent side="top">
+                <p>Drag to move, click to open menu</p>
+              </TooltipContent>
+            </Tooltip>
 
             <DropdownMenuTrigger
               handle={menuHandle}
-              id={menuTriggerId}
               render={
                 <button
                   aria-hidden="true"
@@ -519,6 +601,7 @@ export function EditorBlockHandleMenu({
                     HANDLE_CONTROL_CLASSNAME,
                     "pointer-events-none invisible absolute inset-0"
                   )}
+                  ref={menuTriggerRef}
                   tabIndex={-1}
                   type="button"
                 />
