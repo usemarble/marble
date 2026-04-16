@@ -7,7 +7,7 @@
     "env": "dotenv -e .dev.vars"
   },
   "dependencies": {
-    "@hono/zod-openapi": "^1.2.2",
+    "@hono/zod-openapi": "^1.3.0",
     "@hono/zod-validator": "^0.7.6",
     "@marble/db": "workspace:*",
     "@marble/email": "workspace:*",
@@ -15,7 +15,7 @@
     "@polar-sh/sdk": "^0.42.5",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.36.4",
-    "hono": "^4.12.7",
+    "hono": "^4.12.14",
     "node-html-markdown": "^2.0.0",
     "resend": "^6.9.3",
     "sanitize-html": "^2.17.1",
