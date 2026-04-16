@@ -4,6 +4,7 @@
 // Types
 export type { Editor, JSONContent } from "@tiptap/react";
 export type {
+  EditorBlockHandleMenuProps,
   EditorBubbleMenuProps,
   EditorCharacterCountProps,
   EditorFloatingMenuProps,
@@ -42,6 +43,7 @@ export {
   EditorAlignLeft,
   EditorAlignRight,
   EditorAlignSelector,
+  EditorBlockHandleMenu,
   EditorBubbleMenu,
   EditorCharacterCount,
   EditorClearFormatting,

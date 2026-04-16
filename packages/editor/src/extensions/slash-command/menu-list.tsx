@@ -4,7 +4,7 @@ import {
   CommandItem,
   CommandList,
 } from "@marble/ui/components/command";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import type { EditorSlashMenuProps } from "../../types";
 
 /**
@@ -26,37 +26,11 @@ export const EditorSlashMenu = ({
     }
   };
 
-  // Auto-select the first item when items change
-  useEffect(() => {
-    if (items.length > 0 && commandRef.current) {
-      // Small delay to ensure DOM is updated
-      const timeoutId = setTimeout(() => {
-        const commandElement = commandRef.current;
-        if (commandElement) {
-          // Simulate ArrowDown keypress to properly select first item via cmdk's internal logic
-          const arrowDownEvent = new KeyboardEvent("keydown", {
-            key: "ArrowDown",
-            code: "ArrowDown",
-            keyCode: 40,
-            which: 40,
-            bubbles: true,
-            cancelable: true,
-          });
-
-          commandElement.dispatchEvent(arrowDownEvent);
-        }
-      }, 10);
-
-      return () => {
-        clearTimeout(timeoutId);
-      };
-    }
-  }, [items]);
-
   return (
     <Command
       className="border shadow"
       id="slash-command"
+      loop
       ref={commandRef}
       shouldFilter={false}
     >

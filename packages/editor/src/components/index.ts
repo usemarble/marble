@@ -20,6 +20,8 @@ export { EditorTableMenus } from "./editor-table-menus";
 // Mark Components
 export * from "./marks";
 export {
+  EditorBlockHandleMenu,
+  type EditorBlockHandleMenuProps,
   EditorBubbleMenu,
   type EditorBubbleMenuProps,
   EditorFloatingMenu,

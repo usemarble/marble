@@ -38,20 +38,6 @@ export const defaultSlashSuggestions: SuggestionOptions<SuggestionItem>["items"]
       },
     },
     {
-      title: "To-do List",
-      description: "Track tasks with a to-do list.",
-      searchTerms: ["todo", "task", "list", "check", "checkbox"],
-      icon: CheckSquareIcon,
-      command: ({ editor, range }) => {
-        editor
-          .chain()
-          .focus()
-          .deleteRange(range)
-          .toggleList("taskList", "taskItem")
-          .run();
-      },
-    },
-    {
       title: "Heading 1",
       description: "Use for main page title.",
       searchTerms: ["title", "big", "large"],
@@ -109,6 +95,20 @@ export const defaultSlashSuggestions: SuggestionOptions<SuggestionItem>["items"]
       icon: ListNumbersIcon,
       command: ({ editor, range }) => {
         editor.chain().focus().deleteRange(range).toggleOrderedList().run();
+      },
+    },
+    {
+      title: "To-do List",
+      description: "Track tasks with a to-do list.",
+      searchTerms: ["todo", "task", "list", "check", "checkbox"],
+      icon: CheckSquareIcon,
+      command: ({ editor, range }) => {
+        editor
+          .chain()
+          .focus()
+          .deleteRange(range)
+          .toggleList("taskList", "taskItem")
+          .run();
       },
     },
     {
