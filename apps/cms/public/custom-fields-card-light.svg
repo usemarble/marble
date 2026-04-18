@@ -1,0 +1,32 @@
+<svg
+  width="400"
+  height="220"
+  viewBox="0 0 400 220"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <rect width="400" height="220" rx="24" fill="#F7F4F1" />
+  <rect x="20" y="24" width="112" height="68" rx="14" fill="#FFFFFF" stroke="#E5DED8" />
+  <rect x="34" y="42" width="44" height="10" rx="5" fill="#3E2F2A" fill-opacity="0.92" />
+  <rect x="34" y="60" width="70" height="6" rx="3" fill="#C4B8B0" />
+  <rect x="34" y="72" width="56" height="6" rx="3" fill="#DDD2CB" />
+  <rect x="144" y="76" width="112" height="68" rx="14" fill="#FFFEFD" stroke="#E5DED8" />
+  <rect x="158" y="94" width="38" height="10" rx="5" fill="#3B82F6" />
+  <rect x="158" y="112" width="74" height="6" rx="3" fill="#C4B8B0" />
+  <rect x="158" y="124" width="60" height="6" rx="3" fill="#DDD2CB" />
+  <rect x="268" y="128" width="112" height="68" rx="14" fill="#FFFFFF" stroke="#E5DED8" />
+  <rect x="282" y="146" width="48" height="10" rx="5" fill="#A855F7" />
+  <rect x="282" y="164" width="74" height="6" rx="3" fill="#C4B8B0" />
+  <rect x="282" y="176" width="52" height="6" rx="3" fill="#DDD2CB" />
+  <circle cx="124" cy="58" r="4" fill="#10B981" />
+  <circle cx="152" cy="82" r="4" fill="#10B981" />
+  <circle cx="264" cy="132" r="4" fill="#8B5CF6" />
+  <path d="M128 58H148C154 58 159 63 159 69V82" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" />
+  <path d="M236 110H252C258 110 263 115 263 121V132" stroke="#8B5CF6" stroke-width="2.5" stroke-linecap="round" />
+  <circle cx="244" cy="110" r="4" fill="#8B5CF6" />
+  <path d="M74 128H114" stroke="#D5CDC7" stroke-width="2" stroke-linecap="round" stroke-dasharray="4 6" />
+  <path d="M86 146H126" stroke="#D5CDC7" stroke-width="2" stroke-linecap="round" stroke-dasharray="4 6" />
+  <rect x="32" y="148" width="88" height="40" rx="12" fill="#FFFFFF" stroke="#E5DED8" />
+  <rect x="46" y="162" width="22" height="12" rx="6" fill="#10B981" fill-opacity="0.12" stroke="#10B981" />
+  <rect x="74" y="165" width="26" height="6" rx="3" fill="#C4B8B0" />
+</svg>

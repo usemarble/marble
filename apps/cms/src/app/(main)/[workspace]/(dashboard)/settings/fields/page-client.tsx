@@ -2,8 +2,9 @@
 
 import { DatabaseIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Button } from "@marble/ui/components/button";
-import { PlusIcon } from "@phosphor-icons/react";
+import { Button, buttonVariants } from "@marble/ui/components/button";
+import { cn } from "@marble/ui/lib/utils";
+import { ArrowUpRightIcon, PlusIcon } from "@phosphor-icons/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import { WorkspacePageWrapper } from "@/components/layout/wrapper";
@@ -35,6 +36,7 @@ const fieldTypeLabels: Record<string, string> = {
 export function PageClient() {
   const workspaceId = useWorkspaceId();
   const queryClient = useQueryClient();
+  const docsHref = "https://docs.marblecms.com/guides/features/custom-fields";
 
   const {
     data: fields,
@@ -98,12 +100,23 @@ export function PageClient() {
               number, boolean, date, or rich text fields that can be set on
               every post.
             </p>
-            <CreateCustomFieldSheet>
-              <Button>
-                <PlusIcon className="size-4" />
-                New Field
-              </Button>
-            </CreateCustomFieldSheet>
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <CreateCustomFieldSheet>
+                <Button>
+                  <PlusIcon className="size-4" />
+                  New Field
+                </Button>
+              </CreateCustomFieldSheet>
+              <a
+                className={cn(buttonVariants({ variant: "outline" }))}
+                href={docsHref}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                Learn more
+                <ArrowUpRightIcon className="size-4" />
+              </a>
+            </div>
           </div>
         </div>
       </WorkspacePageWrapper>

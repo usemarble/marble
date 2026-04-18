@@ -29,7 +29,7 @@ import { NavExtra } from "./nav-extra";
 import { NavMain } from "./nav-main";
 import { NavSettings } from "./nav-settings";
 import { SidebarFooterContent } from "./sidebar-footer-content";
-import { UpgradeCard } from "./upgrade-card";
+import { WhatsNewCard } from "./whats-new-card";
 import { WorkspaceSwitcher } from "./workspace-switcher";
 
 function getToggleSidebarShortcut() {
@@ -155,7 +155,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <NavMain />
             </SidebarContent>
             <SidebarFooter className="gap-0 p-0">
-              <UpgradeCard />
+              <WhatsNewCard />
               <SidebarGroup className="px-3">
                 <SidebarMenu>
                   <SidebarMenuButton
