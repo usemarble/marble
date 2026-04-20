@@ -46,8 +46,8 @@ export function UserProvider({ children, initialUser }: UserProviderProps) {
     retry: false,
   });
 
-  const { mutate: updateUserMutation, isPending: isUpdatingUser } = useMutation(
-    {
+  const { mutateAsync: updateUserMutation, isPending: isUpdatingUser } =
+    useMutation({
       mutationFn: async (
         updates: Partial<Pick<UserProfile, "name" | "image">>
       ) => {
@@ -63,13 +63,12 @@ export function UserProvider({ children, initialUser }: UserProviderProps) {
       onError: (_error) => {
         toast.error("Failed to update profile");
       },
-    }
-  );
+    });
 
   const updateUser = async (
     updates: Partial<Pick<UserProfile, "name" | "image">>
   ) => {
-    updateUserMutation(updates);
+    await updateUserMutation(updates);
   };
 
   const signOut = async () => {

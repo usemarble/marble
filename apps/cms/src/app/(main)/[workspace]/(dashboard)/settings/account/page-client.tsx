@@ -67,11 +67,16 @@ function PageClient() {
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors, isSubmitting, isDirty },
   } = useForm<ProfileData>({
     resolver: zodResolver(profileSchema),
     defaultValues: { name: user?.name ?? "", email: user?.email ?? "" },
   });
+
+  const watchedName = watch("name");
+  const hasNameChanges =
+    (watchedName ?? "").trim() !== (user?.name ?? "").trim() && isDirty;
 
   useEffect(() => {
     if (user) {
@@ -210,7 +215,7 @@ function PageClient() {
             <p className="text-muted-foreground text-sm">Your display name</p>
             <AsyncButton
               className={cn("flex w-20 items-center gap-2 self-end")}
-              disabled={!isDirty}
+              disabled={!hasNameChanges}
               isLoading={isSubmitting || isUpdatingUser}
               size="sm"
               type="submit"
