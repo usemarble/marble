@@ -116,6 +116,6 @@ export const PRICING_FAQS: {
   {
     question: "Is there a discount for annual billing?",
     answer:
-      "Yes! When you choose annual billing, you save 20% compared to monthly billing. The Pro plan is $192 per year (equivalent to $16/month) instead of $20/month when billed monthly.",
+      "Yes! When you choose annual billing, you save about 17% compared to monthly billing. The Pro plan is $200 per year (equivalent to about $16.67/month) instead of $20/month when billed monthly.",
   },
 ];

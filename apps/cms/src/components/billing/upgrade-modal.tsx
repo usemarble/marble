@@ -115,10 +115,7 @@ export function UpgradeModal({ feature, isOpen, onClose }: UpgradeModalProps) {
               onClick={() => handleUpgrade("yearly")}
               size="sm"
             >
-              $192/year
-              <span className="text-primary-foreground/80 text-xs">
-                (save 20%)
-              </span>
+              $200/year
             </AsyncButton>
             <Button
               className="w-full"

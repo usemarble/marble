@@ -18,7 +18,7 @@ export const PRICING_PLANS: PricingPlan[] = [
   {
     id: "hobby",
     title: "Hobby",
-    description: "For Hobbyists",
+    description: "For solo creators",
     price: {
       monthly: "$0",
       yearly: "$0",
@@ -30,6 +30,7 @@ export const PRICING_PLANS: PricingPlan[] = [
       "AI Readability insights",
       "10k API requests per month",
       "100 webhook events per month",
+      "1 team member",
     ],
     button: {
       href: "https://app.marblecms.com",
@@ -39,10 +40,10 @@ export const PRICING_PLANS: PricingPlan[] = [
   {
     id: "pro",
     title: "Pro",
-    description: "For Small Teams",
+    description: "For growing teams",
     price: {
       monthly: "$20",
-      yearly: "$192",
+      yearly: "$200",
     },
     trial: "3 day free trial",
     features: [

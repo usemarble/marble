@@ -7,9 +7,6 @@
   import { PRICING_FAQS } from "@/lib/constants/faqs";
   import { SITE } from "@/lib/constants/site";
   import { cn } from "@/lib/utils";
-
-  // Calculate yearly monthly equivalent for display
-  const yearlyMonthlyPrice = "$16";
 ---
 <Layout
   title={`Pricing - ${SITE.TITLE}`}
@@ -58,23 +55,19 @@
                         <>
                           <div class="flex flex-col gap-5 sm:min-w-60 lg:min-w-0">
                             <div class="flex flex-col gap-4">
-                              <div class="flex items-center justify-between">
+                              <div class="space-y-1">
                                 <h3 class="text-medium text-xl">{plan.title}</h3>
-                                {plan.id === "pro" && (
-                                  <span class="save-badge text-xs font-medium text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
-                                    Save 20%
-                                  </span>
-                                )}
+                                <p class="text-muted-foreground text-sm">{plan.description}</p>
                               </div>
                               <div>
                                 <p>
-                                  <span class="font-bold text-2xl" data-plan-id={plan.id} data-monthly={plan.price.monthly} data-yearly={yearlyMonthlyPrice}>
-                                    {plan.id === "pro" ? yearlyMonthlyPrice : plan.price.monthly}
+                                  <span class="font-bold text-2xl" data-plan-id={plan.id} data-monthly={plan.price.monthly} data-yearly={plan.price.yearly}>
+                                    {plan.price.yearly}
                                   </span>{' '}
-                                  <span>per month.</span>
+                                  <span class="text-muted-foreground" data-plan-period={plan.id} data-monthly="/ month" data-yearly="/ year">
+                                    / year
+                                  </span>
                                 </p>
-
-                                <p class="text-muted-foreground text-sm">{plan.description}</p>
                               </div>
                             </div>
                             <div class="border-y border-dashed py-4">
@@ -101,23 +94,19 @@
                       ) : (
                         <>
                           <div class="flex flex-col gap-4">
-                            <div class="flex items-center justify-between">
+                            <div class="space-y-1">
                               <h4 class="text-medium text-2xl">{plan.title}</h4>
-                              {plan.id === "pro" && (
-                                <span class="save-badge text-xs font-medium text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
-                                  Save 20%
-                                </span>
-                              )}
+                              <p class="text-muted-foreground text-sm">{plan.description}</p>
                             </div>
                             <div>
                               <p>
-                                <span class="font-bold text-2xl" data-plan-id={plan.id} data-monthly={plan.price.monthly} data-yearly={yearlyMonthlyPrice}>
-                                  {plan.id === "pro" ? yearlyMonthlyPrice : plan.price.monthly}
+                                <span class="font-bold text-2xl" data-plan-id={plan.id} data-monthly={plan.price.monthly} data-yearly={plan.price.yearly}>
+                                  {plan.price.yearly}
                                 </span>{' '}
-                                <span>per month.</span>
+                                <span class="text-muted-foreground" data-plan-period={plan.id} data-monthly="/ month" data-yearly="/ year">
+                                  / year
+                                </span>
                               </p>
-
-                              <p class="text-muted-foreground text-sm">{plan.description}</p>
                             </div>
                           </div>
                           <div class="border-y border-dashed py-4">
@@ -187,8 +176,8 @@
   function initBillingToggle() {
     const toggle = document.getElementById("billing-toggle");
     const thumb = document.getElementById("toggle-thumb");
-    const saveBadges = document.querySelectorAll(".save-badge");
-    const priceElements = document.querySelectorAll('[data-plan-id="pro"]');
+    const priceElements = document.querySelectorAll("[data-plan-id]");
+    const periodElements = document.querySelectorAll("[data-plan-period]");
 
     let isYearly = true;
 
@@ -202,21 +191,21 @@
         thumb?.classList.remove("translate-x-0");
         toggle.classList.add("bg-accent");
         toggle.classList.remove("bg-muted");
-        for (const badge of saveBadges) {
-          badge.classList.remove("hidden");
-        }
       } else {
         thumb?.classList.remove("translate-x-5");
         thumb?.classList.add("translate-x-0");
         toggle.classList.remove("bg-accent");
         toggle.classList.add("bg-muted");
-        for (const badge of saveBadges) {
-          badge.classList.add("hidden");
-        }
       }
 
       // Update prices
       for (const el of priceElements) {
+        const monthly = el.getAttribute("data-monthly");
+        const yearly = el.getAttribute("data-yearly");
+        el.textContent = isYearly ? yearly : monthly;
+      }
+
+      for (const el of periodElements) {
         const monthly = el.getAttribute("data-monthly");
         const yearly = el.getAttribute("data-yearly");
         el.textContent = isYearly ? yearly : monthly;

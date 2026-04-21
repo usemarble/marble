@@ -39,8 +39,8 @@ function PageClient() {
     return currentPlan === "pro" ? "Pro" : "Hobby";
   };
 
-  const yearlyMonthlyPrice = "$16";
   const monthlyPrice = "$20";
+  const yearlyPrice = "$200";
 
   if (isFetchingWorkspace || !activeWorkspace) {
     return <PageLoader />;
@@ -170,9 +170,6 @@ function PageClient() {
             >
               Yearly
             </Label>
-            {/* <Badge className="ml-1" variant="positive">
-              Save 17%
-            </Badge> */}
           </div>
         </div>
 
@@ -183,7 +180,7 @@ function PageClient() {
                 <div className="flex items-start justify-between">
                   <div>
                     <h3 className="font-semibold text-xl">{hobbyPlan.title}</h3>
-                    <p className="text-muted-foreground text-sm">
+                    <p className="mt-1 text-muted-foreground text-sm">
                       {hobbyPlan.description}
                     </p>
                   </div>
@@ -196,7 +193,7 @@ function PageClient() {
                   <span className="font-bold text-3xl">
                     {hobbyPlan.price.monthly}
                   </span>
-                  <span className="text-muted-foreground">/month</span>
+                  <span className="text-muted-foreground"> / month</span>
                 </div>
 
                 {isOwner && renderPlanButton("hobby")}
@@ -219,25 +216,25 @@ function PageClient() {
           {proPlan && (
             <Card className="relative gap-0 rounded-[20px] border-none bg-surface p-1.5">
               <div className="flex h-full flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
-                <div className="flex items-start justify-between">
+                <div className="flex items-start justify-between gap-4">
                   <div>
                     <h3 className="font-semibold text-xl">{proPlan.title}</h3>
-                    <p className="text-muted-foreground text-sm">
+                    <p className="mt-1 text-muted-foreground text-sm">
                       {proPlan.description}
                     </p>
                   </div>
                   {currentPlan === "pro" ? (
                     <Badge variant="secondary">Current Plan</Badge>
-                  ) : isYearly ? (
-                    <Badge variant="positive">Save 20%</Badge>
                   ) : null}
                 </div>
 
-                <div>
+                <div className="border-border border-t border-dashed pt-4">
                   <span className="font-bold text-3xl">
-                    {isYearly ? yearlyMonthlyPrice : monthlyPrice}
+                    {isYearly ? yearlyPrice : monthlyPrice}
                   </span>
-                  <span className="text-muted-foreground">/month</span>
+                  <span className="text-muted-foreground">
+                    {isYearly ? " / year" : " / month"}
+                  </span>
                 </div>
                 {isOwner && renderPlanButton("pro")}
 
