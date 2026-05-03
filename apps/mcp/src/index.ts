@@ -1,8 +1,11 @@
 import { Hono } from "hono";
+import { trimTrailingSlash } from "hono/trailing-slash";
 import { mcpRoute } from "./routes/mcp";
 import type { Env } from "./types";
 
 const app = new Hono<{ Bindings: Env }>();
+
+app.use(trimTrailingSlash());
 
 app.get("/", (c) =>
   c.json({
