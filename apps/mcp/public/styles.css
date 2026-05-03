@@ -59,7 +59,8 @@ main {
   gap: 1rem;
   width: min(100%, 50rem);
   margin: 0 auto;
-  padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 4vw, 1.75rem) clamp(1.5rem, 4vw, 3rem);
+  padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 4vw, 1.75rem)
+    clamp(1.5rem, 4vw, 3rem);
 }
 
 h1,
