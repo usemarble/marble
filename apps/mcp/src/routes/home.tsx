@@ -33,7 +33,7 @@ homeRoute.get("/", (c) => {
           content="Connect AI agents and MCP clients to your Marble workspace."
           name="twitter:description"
         />
-        <meta content="https://marblecms.com/og.webp" name="twitter:image" />
+        <meta content="/opengraph.png" name="twitter:image" />
         <link href="/favicon.svg" rel="icon" type="image/svg+xml" />
         <link href="/styles.css" rel="stylesheet" />
       </head>
