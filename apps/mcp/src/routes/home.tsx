@@ -57,8 +57,8 @@ homeRoute.get("/", (c) => {
               </button>
             </div>
             <p>
-              Connect using Streamable HTTP and pass your Marble API key in the{" "}
-              <code>Mcp-Marble-Api-Key</code> header.
+              Configure your MCP client with Streamable HTTP and pass your
+              Marble API key using the <code>Mcp-Marble-Api-Key</code> header.
             </p>
           </section>
           <section>
