@@ -52,6 +52,16 @@ main {
   padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 4vw, 1.75rem);
 }
 
+.site-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: min(100%, 50rem);
+  margin: 0 auto;
+  padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 4vw, 1.75rem) clamp(1.5rem, 4vw, 3rem);
+}
+
 h1,
 h2,
 p {
@@ -69,6 +79,26 @@ p {
   max-width: 36rem;
   color: var(--muted-foreground);
   font-size: 0.875rem;
+}
+
+.site-footer p {
+  font-size: 0.875rem;
+}
+
+.site-footer nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.site-footer a {
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  text-underline-offset: 0.1875rem;
+}
+
+.site-footer a:hover {
+  color: var(--foreground);
 }
 
 code {
@@ -186,6 +216,10 @@ section:not(:last-child) {
   background: var(--surface);
 }
 
+.server-url button {
+  min-width: 4.75rem;
+}
+
 .server-url code {
   display: flex;
   flex: 1;
@@ -274,7 +308,8 @@ section:not(:last-child) {
 @media (max-width: 720px) {
   .heading,
   .server-url,
-  .tool-item {
+  .tool-item,
+  .site-footer {
     display: grid;
   }
 

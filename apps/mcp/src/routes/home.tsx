@@ -102,6 +102,13 @@ homeRoute.get("/", (c) => {
             </div>
           </section>
         </main>
+        <footer class="site-footer">
+          <p>© 2026 all rights reserved</p>
+          <nav aria-label="Footer links">
+            <a href="https://github.com/usemarble/marble">GitHub</a>
+            <a href="https://marblecms.com?utm_source=mcp_home">Website</a>
+          </nav>
+        </footer>
         <script src="/home.js" type="module" />
       </body>
     </html>
