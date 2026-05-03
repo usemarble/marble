@@ -5,13 +5,13 @@ Remote Model Context Protocol server for Marble.
 The Worker exposes Marble API operations as MCP tools for agents and editors
 such as Cursor, Claude Code, Codex, and other MCP clients.
 
-## Routes
+### Routes
 
 - `GET /` - basic service metadata
 - `GET /health` - health check
 - `GET|POST /mcp` - MCP Streamable HTTP endpoint
 
-## Local development
+### Local development
 
 From the repository root:
 
@@ -27,7 +27,7 @@ http://localhost:8787
 
 If that port is already in use, Wrangler may choose another port.
 
-## Authentication
+### Authentication
 
 MCP clients must send a Marble API key using one of these headers:
 
@@ -39,7 +39,7 @@ Authorization: Bearer <key>
 
 The MCP server forwards the key to the Marble API.
 
-## Client configuration
+### Client configuration
 
 For clients that support remote Streamable HTTP MCP servers directly, use:
 
@@ -64,7 +64,7 @@ For clients that require a local stdio command, use `mcp-remote`:
 }
 ```
 
-## Tools
+### Tools
 
 The server currently exposes tools for:
 
@@ -75,7 +75,7 @@ The server currently exposes tools for:
 
 Write operations require a private Marble API key.
 
-## Verification
+### Verification
 
 Typecheck the app:
 

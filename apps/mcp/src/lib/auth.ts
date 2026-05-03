@@ -4,14 +4,17 @@
  * standard Authorization header.
  */
 export function getApiKey(request: Request) {
+  const authorization = request.headers.get("authorization");
   const apiKey =
     request.headers.get("mcp-marble-api-key") ??
     request.headers.get("x-marble-api-key") ??
-    request.headers.get("authorization");
+    parseAuthorizationHeader(authorization);
 
   if (!apiKey) {
     throw new Error(
-      "Missing Marble API key. Pass Authorization, Mcp-Marble-Api-Key, or X-Marble-Api-Key to the MCP server."
+      authorization
+        ? "Unsupported Authorization header. Use Authorization: Bearer <key>."
+        : "Missing Marble API key. Pass Authorization, Mcp-Marble-Api-Key, or X-Marble-Api-Key to the MCP server."
     );
   }
 
@@ -23,5 +26,22 @@ export function getApiKey(request: Request) {
  * by the Marble API. Existing Bearer values are preserved.
  */
 export function authHeaderValue(apiKey: string) {
-  return apiKey.toLowerCase().startsWith("bearer ") ? apiKey : `Bearer ${apiKey}`;
+  if (apiKey.toLowerCase().startsWith("bearer ")) {
+    return apiKey;
+  }
+
+  if (/^[a-z]+ /i.test(apiKey)) {
+    throw new Error("Unsupported API key header value. Use a raw key or Bearer token.");
+  }
+
+  return `Bearer ${apiKey}`;
+}
+
+function parseAuthorizationHeader(header: string | null) {
+  if (!header) {
+    return null;
+  }
+
+  const match = /^Bearer\s+(.+)$/i.exec(header.trim());
+  return match?.[1] ?? null;
 }

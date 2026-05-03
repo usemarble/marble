@@ -1,6 +1,8 @@
 import type { QueryParams } from "@/types";
 import { authHeaderValue } from "./auth";
 
+type ApiBody = Record<string, unknown> | null;
+
 /**
  * Builds a Marble API URL and serializes array query values using the comma
  * format expected by the existing API filters.
@@ -83,7 +85,7 @@ async function requestJsonApi(
   });
 
   const text = await response.text();
-  const body = text ? JSON.parse(text) : null;
+  const body = parseApiBody(text);
 
   if (!response.ok) {
     const message =
@@ -91,7 +93,7 @@ async function requestJsonApi(
         ? body.message
         : typeof body?.error === "string"
           ? body.error
-          : "The Marble API returned an error.";
+          : text || "The Marble API returned an error.";
 
     if (response.status === 401) {
       throw new Error(
@@ -102,5 +104,24 @@ async function requestJsonApi(
     throw new Error(`Marble API ${response.status}: ${message}`);
   }
 
-  return body as Record<string, unknown>;
+  if (text && !body) {
+    throw new Error("Marble API returned a non-JSON response.");
+  }
+
+  return body ?? {};
+}
+
+function parseApiBody(text: string): ApiBody {
+  if (!text) {
+    return null;
+  }
+
+  try {
+    const value = JSON.parse(text) as unknown;
+    return value && typeof value === "object" && !Array.isArray(value)
+      ? (value as Record<string, unknown>)
+      : { value };
+  } catch {
+    return null;
+  }
 }
