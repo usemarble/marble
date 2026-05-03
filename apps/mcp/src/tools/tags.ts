@@ -3,9 +3,11 @@ import { z } from "zod";
 import { deleteJsonApi, readJsonApi, writeJsonApi } from "@/lib/api";
 import { toolResult } from "@/lib/mcp";
 import {
+  destructiveAnnotations,
   identifierInput,
   namedResourceBody,
   paginationInput,
+  readOnlyAnnotations,
   updateNamedResourceBody,
 } from "./shared";
 
@@ -18,7 +20,8 @@ export function registerTagTools(
     "get_tags",
     {
       title: "Get Tags",
-      description: "Get a paginated list of tags in the Marble workspace.",
+      description: "Get a paginated list of tags.",
+      annotations: readOnlyAnnotations,
       inputSchema: paginationInput,
     },
     async ({ limit, page }) =>
@@ -32,6 +35,7 @@ export function registerTagTools(
     {
       title: "Get Tag",
       description: "Get a single tag by ID or slug.",
+      annotations: readOnlyAnnotations,
       inputSchema: identifierInput,
     },
     async ({ identifier }) =>
@@ -65,6 +69,7 @@ export function registerTagTools(
       title: "Update Tag",
       description:
         "Update an existing tag by ID or slug. Requires a private Marble API key.",
+      annotations: destructiveAnnotations,
       inputSchema: {
         ...identifierInput,
         body: z.object(updateNamedResourceBody),
@@ -88,6 +93,7 @@ export function registerTagTools(
       title: "Delete Tag",
       description:
         "Delete a tag by ID or slug. Requires a private Marble API key.",
+      annotations: destructiveAnnotations,
       inputSchema: identifierInput,
     },
     async ({ identifier }) =>

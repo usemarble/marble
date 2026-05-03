@@ -2,55 +2,117 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { deleteJsonApi, readJsonApi, writeJsonApi } from "@/lib/api";
 import { toolResult } from "@/lib/mcp";
-import { identifierInput, paginationInput } from "./shared";
+import {
+  destructiveAnnotations,
+  identifierInput,
+  paginationInput,
+  readOnlyAnnotations,
+} from "./shared";
 
 const postFilters = {
-  order: z.enum(["asc", "desc"]).optional(),
-  status: z.enum(["published", "draft", "all"]).optional(),
-  format: z.enum(["html", "markdown"]).optional(),
-  featured: z.enum(["true", "false"]).optional(),
-  categories: z.array(z.string()).optional(),
-  excludeCategories: z.array(z.string()).optional(),
-  tags: z.array(z.string()).optional(),
-  excludeTags: z.array(z.string()).optional(),
+  order: z.enum(["asc", "desc"]).optional().describe("Sort order."),
+  status: z
+    .enum(["published", "draft", "all"])
+    .optional()
+    .describe("Filter by post status. Defaults to published posts."),
+  format: z
+    .enum(["html", "markdown"])
+    .optional()
+    .describe("Content format to return."),
+  featured: z
+    .enum(["true", "false"])
+    .optional()
+    .describe("Filter by featured posts."),
+  categories: z
+    .array(z.string())
+    .optional()
+    .describe("Category IDs or slugs to include."),
+  excludeCategories: z
+    .array(z.string())
+    .optional()
+    .describe("Category IDs or slugs to exclude."),
+  tags: z.array(z.string()).optional().describe("Tag IDs or slugs to include."),
+  excludeTags: z
+    .array(z.string())
+    .optional()
+    .describe("Tag IDs or slugs to exclude."),
 };
 
 const postBody = {
-  title: z.string().min(1),
-  content: z.string().min(1),
-  description: z.string().min(1),
-  slug: z.string().min(1),
-  categoryId: z.string().min(1),
-  status: z.enum(["published", "draft"]),
-  tags: z.array(z.string()).optional(),
+  title: z.string().min(1).describe("Post title."),
+  content: z
+    .string()
+    .min(1)
+    .describe("Post body content, usually HTML or Markdown."),
+  description: z.string().min(1).describe("Short post description or excerpt."),
+  slug: z.string().min(1).describe("URL-friendly post slug."),
+  categoryId: z.string().min(1).describe("Required category ID for the post."),
+  status: z
+    .enum(["published", "draft"])
+    .describe("Initial post status: published or draft."),
+  tags: z
+    .array(z.string())
+    .optional()
+    .describe("Array of tag IDs to attach to the post."),
   authors: z
     .array(z.string())
     .optional()
-    .describe("If omitted, the first workspace author is used."),
-  featured: z.boolean().optional(),
-  coverImage: z.url().nullable().optional(),
-  publishedAt: z
-    .string()
+    .describe(
+      "Array of author IDs. If omitted, the first workspace author is used."
+    ),
+  featured: z
+    .boolean()
+    .optional()
+    .describe("Whether the post should be marked as featured."),
+  coverImage: z
+    .url()
+    .nullable()
+    .optional()
+    .describe("Cover image URL. Use null to clear it."),
+  publishedAt: z.iso
     .datetime()
     .optional()
     .describe("ISO 8601 datetime. Defaults to current time if omitted."),
 };
 
 const updatePostBody = {
-  title: z.string().min(1).optional(),
-  content: z.string().min(1).optional(),
-  description: z.string().min(1).optional(),
-  slug: z.string().min(1).optional(),
-  categoryId: z.string().min(1).optional(),
-  status: z.enum(["published", "draft"]).optional(),
-  tags: z.array(z.string()).optional().describe("Replaces existing tags."),
+  title: z.string().min(1).optional().describe("Updated post title."),
+  content: z.string().min(1).optional().describe("Updated post body content."),
+  description: z
+    .string()
+    .min(1)
+    .optional()
+    .describe("Updated short post description or excerpt."),
+  slug: z
+    .string()
+    .min(1)
+    .optional()
+    .describe("Updated URL-friendly post slug."),
+  categoryId: z.string().min(1).optional().describe("Updated category ID."),
+  status: z
+    .enum(["published", "draft"])
+    .optional()
+    .describe("Updated post status."),
+  tags: z
+    .array(z.string())
+    .optional()
+    .describe("Array of tag IDs. Replaces all existing tags when provided."),
   authors: z
     .array(z.string())
     .optional()
-    .describe("Replaces existing authors."),
-  featured: z.boolean().optional(),
-  coverImage: z.url().nullable().optional(),
-  publishedAt: z.string().datetime().optional(),
+    .describe(
+      "Array of author IDs. Replaces all existing authors when provided."
+    ),
+  featured: z.boolean().optional().describe("Updated featured status."),
+  coverImage: z
+    .url()
+    .nullable()
+    .optional()
+    .describe("Updated cover image URL. Use null to clear it."),
+  publishedAt: z.iso
+    .datetime()
+    .optional()
+    .describe("Updated ISO 8601 publication datetime."),
 };
 
 export function registerPostTools(
@@ -63,7 +125,8 @@ export function registerPostTools(
     {
       title: "Get Posts",
       description:
-        "Get a paginated list of Marble posts with optional filters.",
+        "Get a paginated list of published posts with optional filtering.",
+      annotations: readOnlyAnnotations,
       inputSchema: {
         ...paginationInput,
         ...postFilters,
@@ -83,6 +146,7 @@ export function registerPostTools(
       title: "Search Posts",
       description:
         "Search Marble posts by title and content. Use status 'all' when the user wants drafts included.",
+      annotations: readOnlyAnnotations,
       inputSchema: {
         ...paginationInput,
         query: z.string().min(1),
@@ -98,7 +162,9 @@ export function registerPostTools(
     "get_post",
     {
       title: "Get Post",
-      description: "Get a single Marble post by ID or slug.",
+      description:
+        "Get a single post by ID or slug, with optional status filtering.",
+      annotations: readOnlyAnnotations,
       inputSchema: {
         ...identifierInput,
         status: z.enum(["published", "draft", "all"]).optional(),
@@ -137,7 +203,8 @@ export function registerPostTools(
     {
       title: "Update Post",
       description:
-        "Update an existing post by ID or slug. Requires a private Marble API key.",
+        "Update an existing post by ID or slug. All fields are optional - only provided fields are updated. Requires a private Marble API key.",
+      annotations: destructiveAnnotations,
       inputSchema: {
         ...identifierInput,
         body: z.object(updatePostBody),
@@ -161,6 +228,7 @@ export function registerPostTools(
       title: "Delete Post",
       description:
         "Delete a post by ID or slug. Requires a private Marble API key.",
+      annotations: destructiveAnnotations,
       inputSchema: identifierInput,
     },
     async ({ identifier }) =>

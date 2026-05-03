@@ -3,7 +3,7 @@ import {
   ClaudeIcon,
   CodexIcon,
   CursorIcon,
-  VsCodeIcon,
+  GeminiIcon,
 } from "@/components/icons";
 
 export interface McpClient {
@@ -29,8 +29,8 @@ export const MCP_CLIENTS: McpClient[] = [
     Icon: CodexIcon,
   },
   {
-    id: "vscode",
-    name: "VS Code",
-    Icon: VsCodeIcon,
+    id: "gemini",
+    name: "Gemini CLI",
+    Icon: GeminiIcon,
   },
 ];

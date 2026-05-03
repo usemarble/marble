@@ -3,9 +3,11 @@ import { z } from "zod";
 import { deleteJsonApi, readJsonApi, writeJsonApi } from "@/lib/api";
 import { toolResult } from "@/lib/mcp";
 import {
+  destructiveAnnotations,
   identifierInput,
   namedResourceBody,
   paginationInput,
+  readOnlyAnnotations,
   updateNamedResourceBody,
 } from "./shared";
 
@@ -18,8 +20,8 @@ export function registerCategoryTools(
     "get_categories",
     {
       title: "Get Categories",
-      description:
-        "Get a paginated list of categories in the Marble workspace.",
+      description: "Get a paginated list of categories.",
+      annotations: readOnlyAnnotations,
       inputSchema: paginationInput,
     },
     async ({ limit, page }) =>
@@ -33,6 +35,7 @@ export function registerCategoryTools(
     {
       title: "Get Category",
       description: "Get a single category by ID or slug.",
+      annotations: readOnlyAnnotations,
       inputSchema: identifierInput,
     },
     async ({ identifier }) =>
@@ -66,6 +69,7 @@ export function registerCategoryTools(
       title: "Update Category",
       description:
         "Update an existing category by ID or slug. Requires a private Marble API key.",
+      annotations: destructiveAnnotations,
       inputSchema: {
         ...identifierInput,
         body: z.object(updateNamedResourceBody),
@@ -88,7 +92,8 @@ export function registerCategoryTools(
     {
       title: "Delete Category",
       description:
-        "Delete a category by ID or slug. Requires a private Marble API key. The API rejects categories that still have posts assigned.",
+        "Delete a category by ID or slug. Requires a private Marble API key. Cannot delete a category that has posts assigned to it.",
+      annotations: destructiveAnnotations,
       inputSchema: identifierInput,
     },
     async ({ identifier }) =>

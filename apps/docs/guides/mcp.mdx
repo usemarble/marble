@@ -17,84 +17,221 @@ https://mcp.marblecms.com/mcp
   require a private API key.
 </Note>
 
+## Installation
+
+<Tabs>
+  <Tab title="Cursor">
+    <Card
+      title="Install in Cursor"
+      icon="/images/cursor.svg"
+      href="cursor://anysphere.cursor-deeplink/mcp/install?name=marble&config=eyJ0eXBlIjoic3RyZWFtYWJsZUh0dHAiLCJ1cmwiOiJodHRwczovL21jcC5tYXJibGVjbXMuY29tL21jcCIsImhlYWRlcnMiOnsiTWNwLU1hcmJsZS1BcGktS2V5IjoiJHtNQ1BfTUFSQkxFX0FQSV9LRVl9In19"
+      arrow={false}
+    >
+      Open Cursor with the Marble MCP server pre-filled.
+    </Card>
+
+    <Steps>
+      <Step title="Open the installer">
+        Click **Install in Cursor** and allow your browser to open Cursor.
+      </Step>
+
+      <Step title="Add your API key">
+        Cursor installs the server with this header:
+
+        ```txt
+        Mcp-Marble-Api-Key: ${MCP_MARBLE_API_KEY}
+        ```
+
+        Set `MCP_MARBLE_API_KEY` in your environment before starting Cursor.
+      </Step>
+
+      <Step title="Verify the connection">
+        Open Cursor's MCP settings and confirm that the `marble` server is
+        enabled. The server URL should end with `/mcp`.
+      </Step>
+    </Steps>
+
+    You can also add the server manually in Cursor:
+
+    ```json
+    {
+      "mcpServers": {
+        "marble": {
+          "type": "streamableHttp",
+          "url": "https://mcp.marblecms.com/mcp",
+          "headers": {
+            "Mcp-Marble-Api-Key": "${MCP_MARBLE_API_KEY}"
+          }
+        }
+      }
+    }
+    ```
+  </Tab>
+
+  <Tab title="VS Code">
+    <Card
+      title="Install in VS Code"
+      icon="/images/vscode.svg"
+      href="vscode:mcp/install?%7B%22name%22%3A%22marble%22%2C%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fmcp.marblecms.com%2Fmcp%22%2C%22headers%22%3A%7B%22Mcp-Marble-Api-Key%22%3A%22%24%7BMCP_MARBLE_API_KEY%7D%22%7D%7D"
+      arrow={false}
+    >
+      Open VS Code with the Marble MCP server pre-filled.
+    </Card>
+
+    <Steps>
+      <Step title="Open the installer">
+        Click **Install in VS Code** and allow your browser to open VS Code.
+      </Step>
+
+      <Step title="Add your API key">
+        Set `MCP_MARBLE_API_KEY` in your environment before starting VS Code.
+      </Step>
+
+      <Step title="Start the server">
+        Use the MCP controls in VS Code to start or restart the `marble` server.
+      </Step>
+    </Steps>
+
+    You can also create `.vscode/mcp.json` manually:
+
+    ```json
+    {
+      "servers": {
+        "marble": {
+          "type": "http",
+          "url": "https://mcp.marblecms.com/mcp",
+          "headers": {
+            "Mcp-Marble-Api-Key": "${MCP_MARBLE_API_KEY}"
+          }
+        }
+      }
+    }
+    ```
+  </Tab>
+
+  <Tab title="Claude Code">
+    Add the remote MCP server with:
+
+    ```bash
+    claude mcp add --transport http marble https://mcp.marblecms.com/mcp \
+      --header "Mcp-Marble-Api-Key: ${MCP_MARBLE_API_KEY}"
+    ```
+
+    Set your API key in your shell before starting Claude Code:
+
+    ```bash
+    export MCP_MARBLE_API_KEY="<your-api-key>"
+    ```
+  </Tab>
+
+  <Tab title="Codex">
+    Add Marble to your Codex MCP configuration:
+
+    ```toml
+    [mcp_servers.marble]
+    command = "npx"
+    args = [
+      "mcp-remote",
+      "https://mcp.marblecms.com/mcp",
+      "--header",
+      "Mcp-Marble-Api-Key:${MCP_MARBLE_API_KEY}"
+    ]
+
+    [mcp_servers.marble.env]
+    MCP_MARBLE_API_KEY = "<your-api-key>"
+    ```
+  </Tab>
+
+  <Tab title="Manual">
+    Some MCP clients support remote Streamable HTTP servers directly:
+
+    ```json
+    {
+      "mcpServers": {
+        "marble": {
+          "type": "streamableHttp",
+          "url": "https://mcp.marblecms.com/mcp",
+          "headers": {
+            "Mcp-Marble-Api-Key": "${MCP_MARBLE_API_KEY}"
+          }
+        }
+      }
+    }
+    ```
+
+    Clients that only support local stdio servers can connect through
+    `mcp-remote`:
+
+    ```json
+    {
+      "mcpServers": {
+        "marble": {
+          "command": "npx",
+          "args": [
+            "mcp-remote",
+            "https://mcp.marblecms.com/mcp",
+            "--header",
+            "Mcp-Marble-Api-Key:${MCP_MARBLE_API_KEY}"
+          ],
+          "env": {
+            "MCP_MARBLE_API_KEY": "<your-api-key>"
+          }
+        }
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
 ## Available Tools
 
-The Marble MCP server exposes tools for:
+Tool badges describe how clients may present or approve tool calls:
 
-- Posts: list, search, get, create, update, and delete
-- Categories: list, get, create, update, and delete
-- Tags: list, get, create, update, and delete
-- Authors: list, get, create, update, and delete
+- `READ-ONLY`: reads data without changing your workspace
+- `DESTRUCTIVE`: may update or delete existing content
 
-## Cursor
+<AccordionGroup>
+  <Accordion title="Posts">
+    | Tool | Description | Badges |
+    | --- | --- | --- |
+    | `get_posts` | Get a paginated list of published posts with optional filtering. | `READ-ONLY` |
+    | `search_posts` | Search posts by title and content. Use this when an agent needs to find content before editing or linking to it. | `READ-ONLY` |
+    | `get_post` | Get a single post by ID or slug, with optional status and content format filtering. | `READ-ONLY` |
+    | `create_post` | Create a new post. Category is required. If authors are not provided, the first workspace author is used. Requires a private API key. |  |
+    | `update_post` | Update an existing post by ID or slug. All fields are optional, and only provided fields are updated. Requires a private API key. | `DESTRUCTIVE` |
+    | `delete_post` | Delete a post by ID or slug. Requires a private API key. | `DESTRUCTIVE` |
+  </Accordion>
 
-Add a new MCP server in Cursor with these values:
+  <Accordion title="Categories">
+    | Tool | Description | Badges |
+    | --- | --- | --- |
+    | `get_categories` | Get a paginated list of categories. | `READ-ONLY` |
+    | `get_category` | Get a single category by ID or slug. | `READ-ONLY` |
+    | `create_category` | Create a new category. Requires a private API key. |  |
+    | `update_category` | Update an existing category by ID or slug. Requires a private API key. | `DESTRUCTIVE` |
+    | `delete_category` | Delete a category by ID or slug. Cannot delete a category that has posts assigned to it. Requires a private API key. | `DESTRUCTIVE` |
+  </Accordion>
 
-```txt
-Name: marble
-Type: streamableHttp
-URL: https://mcp.marblecms.com/mcp
-```
+  <Accordion title="Tags">
+    | Tool | Description | Badges |
+    | --- | --- | --- |
+    | `get_tags` | Get a paginated list of tags. | `READ-ONLY` |
+    | `get_tag` | Get a single tag by ID or slug. | `READ-ONLY` |
+    | `create_tag` | Create a new tag. Requires a private API key. |  |
+    | `update_tag` | Update an existing tag by ID or slug. Requires a private API key. | `DESTRUCTIVE` |
+    | `delete_tag` | Delete a tag by ID or slug. Requires a private API key. | `DESTRUCTIVE` |
+  </Accordion>
 
-Add this header:
-
-```txt
-Mcp-Marble-Api-Key: <your-api-key>
-```
-
-## Claude Code
-
-Add the remote MCP server with:
-
-```bash
-claude mcp add --transport http marble https://mcp.marblecms.com/mcp \
-  --header "Mcp-Marble-Api-Key: ${MCP_MARBLE_API_KEY}"
-```
-
-Set your API key in your shell before starting Claude Code:
-
-```bash
-export MCP_MARBLE_API_KEY="<your-api-key>"
-```
-
-## Manual Configuration
-
-Some MCP clients support remote Streamable HTTP servers directly:
-
-```json
-{
-  "mcpServers": {
-    "marble": {
-      "type": "streamableHttp",
-      "url": "https://mcp.marblecms.com/mcp",
-      "headers": {
-        "Mcp-Marble-Api-Key": "${MCP_MARBLE_API_KEY}"
-      }
-    }
-  }
-}
-```
-
-Clients that only support local stdio servers can connect through `mcp-remote`:
-
-```json
-{
-  "mcpServers": {
-    "marble": {
-      "command": "npx",
-      "args": [
-        "mcp-remote",
-        "https://mcp.marblecms.com/mcp",
-        "--header",
-        "Mcp-Marble-Api-Key:${MCP_MARBLE_API_KEY}"
-      ],
-      "env": {
-        "MCP_MARBLE_API_KEY": "<your-api-key>"
-      }
-    }
-  }
-}
-```
+  <Accordion title="Authors">
+    | Tool | Description | Badges |
+    | --- | --- | --- |
+    | `get_authors` | Get a paginated list of authors who have published posts. | `READ-ONLY` |
+    | `get_author` | Get a single author by ID or slug. | `READ-ONLY` |
+    | `create_author` | Create a new author. Hobby plan workspaces are limited to 1 author. Requires a private API key. |  |
+    | `update_author` | Update an existing author by ID or slug. Requires a private API key. | `DESTRUCTIVE` |
+    | `delete_author` | Delete an author by ID or slug. Requires a private API key. | `DESTRUCTIVE` |
+  </Accordion>
+</AccordionGroup>
 
 ## Authentication
 

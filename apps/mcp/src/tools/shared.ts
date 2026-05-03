@@ -1,5 +1,14 @@
 import { z } from "zod";
 
+export const readOnlyAnnotations = {
+  readOnlyHint: true,
+} as const;
+
+export const destructiveAnnotations = {
+  readOnlyHint: false,
+  destructiveHint: true,
+} as const;
+
 export const paginationInput = {
   limit: z
     .number()
@@ -21,13 +30,17 @@ export const identifierInput = {
 };
 
 export const namedResourceBody = {
-  name: z.string().min(1),
-  slug: z.string().min(1),
-  description: z.string().optional(),
+  name: z.string().min(1).describe("Display name."),
+  slug: z.string().min(1).describe("URL-friendly slug."),
+  description: z.string().optional().describe("Optional description."),
 };
 
 export const updateNamedResourceBody = {
-  name: z.string().min(1).optional(),
-  slug: z.string().min(1).optional(),
-  description: z.string().nullable().optional(),
+  name: z.string().min(1).optional().describe("Updated display name."),
+  slug: z.string().min(1).optional().describe("Updated URL-friendly slug."),
+  description: z
+    .string()
+    .nullable()
+    .optional()
+    .describe("Updated description. Use null to clear it."),
 };
