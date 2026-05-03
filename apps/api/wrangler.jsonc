@@ -2,7 +2,7 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "marble-api",
   "main": "src/index.ts",
-  "compatibility_date": "2026-01-20",
+  "compatibility_date": "2026-05-02",
   "compatibility_flags": ["nodejs_compat"],
   "keep_vars": true,
   "placement": { "mode": "smart" },
