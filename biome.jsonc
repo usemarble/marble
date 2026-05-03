@@ -70,5 +70,20 @@
     "parser": {
       "tailwindDirectives": true
     }
-  }
+  },
+  "overrides": [
+    {
+      "includes": ["apps/mcp/**/*.tsx"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noHeadElement": "off"
+          },
+          "performance": {
+            "noImgElement": "off"
+          }
+        }
+      }
+    }
+  ]
 }

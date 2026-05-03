@@ -44,7 +44,10 @@ const updatePostBody = {
   categoryId: z.string().min(1).optional(),
   status: z.enum(["published", "draft"]).optional(),
   tags: z.array(z.string()).optional().describe("Replaces existing tags."),
-  authors: z.array(z.string()).optional().describe("Replaces existing authors."),
+  authors: z
+    .array(z.string())
+    .optional()
+    .describe("Replaces existing authors."),
   featured: z.boolean().optional(),
   coverImage: z.url().nullable().optional(),
   publishedAt: z.string().datetime().optional(),
@@ -59,7 +62,8 @@ export function registerPostTools(
     "get_posts",
     {
       title: "Get Posts",
-      description: "Get a paginated list of Marble posts with optional filters.",
+      description:
+        "Get a paginated list of Marble posts with optional filters.",
       inputSchema: {
         ...paginationInput,
         ...postFilters,
@@ -123,7 +127,9 @@ export function registerPostTools(
       },
     },
     async ({ body }) =>
-      toolResult(await writeJsonApi(apiBaseUrl, apiKey, "POST", "/v1/posts", body))
+      toolResult(
+        await writeJsonApi(apiBaseUrl, apiKey, "POST", "/v1/posts", body)
+      )
   );
 
   server.registerTool(
@@ -153,7 +159,8 @@ export function registerPostTools(
     "delete_post",
     {
       title: "Delete Post",
-      description: "Delete a post by ID or slug. Requires a private Marble API key.",
+      description:
+        "Delete a post by ID or slug. Requires a private Marble API key.",
       inputSchema: identifierInput,
     },
     async ({ identifier }) =>

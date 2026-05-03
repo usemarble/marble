@@ -2,6 +2,9 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "marble-mcp",
   "main": "src/index.ts",
+  "assets": {
+    "directory": "./public/"
+  },
   "compatibility_date": "2026-05-02",
   "compatibility_flags": ["nodejs_compat"],
   "keep_vars": true,

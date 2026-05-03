@@ -18,7 +18,8 @@ export function registerCategoryTools(
     "get_categories",
     {
       title: "Get Categories",
-      description: "Get a paginated list of categories in the Marble workspace.",
+      description:
+        "Get a paginated list of categories in the Marble workspace.",
       inputSchema: paginationInput,
     },
     async ({ limit, page }) =>

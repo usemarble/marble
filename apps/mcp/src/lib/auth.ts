@@ -32,7 +32,9 @@ export function authHeaderValue(apiKey: string) {
   }
 
   if (/^[a-z]+ /i.test(apiKey)) {
-    throw new Error("Unsupported API key header value. Use a raw key or Bearer token.");
+    throw new Error(
+      "Unsupported API key header value. Use a raw key or Bearer token."
+    );
   }
 
   return `Bearer ${apiKey}`;

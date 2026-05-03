@@ -22,7 +22,9 @@ export function registerTagTools(
       inputSchema: paginationInput,
     },
     async ({ limit, page }) =>
-      toolResult(await readJsonApi(apiBaseUrl, apiKey, "/v1/tags", { limit, page }))
+      toolResult(
+        await readJsonApi(apiBaseUrl, apiKey, "/v1/tags", { limit, page })
+      )
   );
 
   server.registerTool(
@@ -52,7 +54,9 @@ export function registerTagTools(
       },
     },
     async ({ body }) =>
-      toolResult(await writeJsonApi(apiBaseUrl, apiKey, "POST", "/v1/tags", body))
+      toolResult(
+        await writeJsonApi(apiBaseUrl, apiKey, "POST", "/v1/tags", body)
+      )
   );
 
   server.registerTool(
@@ -82,7 +86,8 @@ export function registerTagTools(
     "delete_tag",
     {
       title: "Delete Tag",
-      description: "Delete a tag by ID or slug. Requires a private Marble API key.",
+      description:
+        "Delete a tag by ID or slug. Requires a private Marble API key.",
       inputSchema: identifierInput,
     },
     async ({ identifier }) =>
