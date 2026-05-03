@@ -56,7 +56,12 @@
           {
             "group": "Get Started",
             "icon": "rocket",
-            "pages": ["guides/introduction", "guides/quickstart", "guides/sdk"]
+            "pages": [
+              "guides/introduction",
+              "guides/quickstart",
+              "guides/sdk",
+              "guides/mcp"
+            ]
           },
           {
             "group": "Integrations",

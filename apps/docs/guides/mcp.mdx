@@ -1,0 +1,120 @@
+---
+title: "Marble MCP"
+description: "Connect AI agents and MCP clients to your Marble workspace."
+---
+
+Use Marble's Model Context Protocol server to let AI agents read and manage
+content in your workspace through the Marble API.
+
+The MCP server is available at:
+
+```txt
+https://mcp.marblecms.com/mcp
+```
+
+<Note>
+  You need a Marble API key. Write tools such as create, update, and delete
+  require a private API key.
+</Note>
+
+## Available Tools
+
+The Marble MCP server exposes tools for:
+
+- Posts: list, search, get, create, update, and delete
+- Categories: list, get, create, update, and delete
+- Tags: list, get, create, update, and delete
+- Authors: list, get, create, update, and delete
+
+## Cursor
+
+Add a new MCP server in Cursor with these values:
+
+```txt
+Name: marble
+Type: streamableHttp
+URL: https://mcp.marblecms.com/mcp
+```
+
+Add this header:
+
+```txt
+Mcp-Marble-Api-Key: <your-api-key>
+```
+
+## Claude Code
+
+Add the remote MCP server with:
+
+```bash
+claude mcp add --transport http marble https://mcp.marblecms.com/mcp \
+  --header "Mcp-Marble-Api-Key: ${MCP_MARBLE_API_KEY}"
+```
+
+Set your API key in your shell before starting Claude Code:
+
+```bash
+export MCP_MARBLE_API_KEY="<your-api-key>"
+```
+
+## Manual Configuration
+
+Some MCP clients support remote Streamable HTTP servers directly:
+
+```json
+{
+  "mcpServers": {
+    "marble": {
+      "type": "streamableHttp",
+      "url": "https://mcp.marblecms.com/mcp",
+      "headers": {
+        "Mcp-Marble-Api-Key": "${MCP_MARBLE_API_KEY}"
+      }
+    }
+  }
+}
+```
+
+Clients that only support local stdio servers can connect through `mcp-remote`:
+
+```json
+{
+  "mcpServers": {
+    "marble": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://mcp.marblecms.com/mcp",
+        "--header",
+        "Mcp-Marble-Api-Key:${MCP_MARBLE_API_KEY}"
+      ],
+      "env": {
+        "MCP_MARBLE_API_KEY": "<your-api-key>"
+      }
+    }
+  }
+}
+```
+
+## Authentication
+
+The MCP server accepts your Marble API key through one of these headers:
+
+```txt
+Mcp-Marble-Api-Key: <your-api-key>
+X-Marble-Api-Key: <your-api-key>
+Authorization: Bearer <your-api-key>
+```
+
+<Warning>
+  Keep private API keys out of client-side code and public repositories.
+</Warning>
+
+## Troubleshooting
+
+If your client cannot connect, verify that:
+
+- The URL ends with `/mcp`
+- The API key header is present
+- Your key has the permissions needed for the tool you are calling
+- Write operations use a private Marble API key
