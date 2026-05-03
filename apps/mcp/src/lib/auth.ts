@@ -14,7 +14,7 @@ export function getApiKey(request: Request) {
     throw new Error(
       authorization
         ? "Unsupported Authorization header. Use Authorization: Bearer <key>."
-        : "Missing Marble API key. Pass Authorization, Mcp-Marble-Api-Key, or X-Marble-Api-Key to the MCP server."
+        : "Missing Marble API key."
     );
   }
 
