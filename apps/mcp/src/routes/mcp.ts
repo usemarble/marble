@@ -8,7 +8,22 @@ import type { Env } from "@/types";
 export const mcpRoute = new Hono<{ Bindings: Env }>();
 
 mcpRoute.all("/", async (c) => {
-  const apiKey = getApiKey(c.req.raw);
+  let apiKey: string;
+  try {
+    apiKey = getApiKey(c.req.raw);
+  } catch (error) {
+    return c.json(
+      {
+        error: "Unauthorized",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Missing or invalid Marble API key.",
+      },
+      401
+    );
+  }
+
   const apiBaseUrl = c.env.MARBLE_API_BASE_URL ?? DEFAULT_API_BASE_URL;
   const server = createServer(apiBaseUrl, apiKey);
   const handler = createMcpHandler(server, { route: "/mcp" });

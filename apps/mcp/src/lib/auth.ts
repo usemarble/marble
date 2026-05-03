@@ -23,11 +23,12 @@ export function getApiKey(request: Request) {
 
 /**
  * Normalizes a raw Marble API key into the Authorization header format expected
- * by the Marble API. Existing Bearer values are preserved.
+ * by the Marble API.
  */
 export function authHeaderValue(apiKey: string) {
-  if (apiKey.toLowerCase().startsWith("bearer ")) {
-    return apiKey;
+  const bearerMatch = /^Bearer\s+(.+)$/i.exec(apiKey.trim());
+  if (bearerMatch) {
+    return `Bearer ${bearerMatch[1]}`;
   }
 
   if (/^[a-z]+ /i.test(apiKey)) {
