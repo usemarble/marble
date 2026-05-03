@@ -26,7 +26,7 @@ homeRoute.get("/", (c) => {
         />
         <meta content="website" property="og:type" />
         <meta content={requestUrl.origin} property="og:url" />
-        <meta content="/opengraph.webp" property="og:image" />
+        <meta content="/opengraph.png" property="og:image" />
         <meta content="summary_large_image" name="twitter:card" />
         <meta content="Marble MCP" name="twitter:title" />
         <meta
