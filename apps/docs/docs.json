@@ -21,11 +21,6 @@
     }
   },
   "favicon": "/favicon.svg",
-  "seo": {
-    "metatags": {
-      "og:image": "/images/og.webp"
-    }
-  },
   "contextual": {
     "options": [
       "copy",
