@@ -13,6 +13,18 @@ content in your workspace through the Marble API.
 
 ## Installation
 
+The quickest way to add Marble to supported MCP clients is with the `add-mcp`
+CLI.
+
+```bash
+npx add-mcp https://mcp.marblecms.com/mcp \
+  --header "Mcp-Marble-Api-Key: $MCP_MARBLE_API_KEY" \
+  -g
+```
+
+This installs Marble globally for the agents you select. Without `-g`,
+`add-mcp` writes project-level MCP config.
+
 <Tabs>
   <Tab title="Cursor">
     <Card
