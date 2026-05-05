@@ -2,6 +2,11 @@
 
 import { Separator } from "@marble/ui/components/separator";
 import { SidebarTrigger, useSidebar } from "@marble/ui/components/sidebar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@marble/ui/components/tooltip";
 import { AnimatePresence, motion } from "motion/react";
 import { usePathname } from "next/navigation";
 
@@ -10,6 +15,13 @@ const sidebarToggleTransition = {
   duration: 0.8,
   type: "spring",
 } as const;
+
+function getToggleSidebarShortcut() {
+  const isMac =
+    typeof navigator !== "undefined" &&
+    navigator.platform.toUpperCase().indexOf("MAC") >= 0;
+  return isMac ? "⌘K" : "Ctrl+K";
+}
 
 export const PageHeader = () => {
   const pathname = usePathname();
@@ -66,10 +78,20 @@ export const PageHeader = () => {
               layoutId="main-sidebar-toggle"
               transition={sidebarToggleTransition}
             >
-              <SidebarTrigger
-                className="size-8 text-sidebar-foreground"
-                variant="ghost"
-              />
+              <Tooltip>
+                <TooltipTrigger
+                  delay={400}
+                  render={
+                    <SidebarTrigger
+                      className="size-8 text-sidebar-foreground"
+                      variant="ghost"
+                    />
+                  }
+                />
+                <TooltipContent>
+                  <p>Open Sidebar ({getToggleSidebarShortcut()})</p>
+                </TooltipContent>
+              </Tooltip>
             </motion.div>
             <Separator className="my-auto mr-2 h-4" orientation="vertical" />
           </motion.div>
