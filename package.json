@@ -21,6 +21,7 @@
     "cms:dev": "turbo run dev --filter=cms",
     "api:dev": "turbo run dev --filter=api",
     "docs:dev": "turbo run dev --filter=docs",
+    "mcp:dev": "turbo run dev --filter=mcp",
     "test": "turbo run test",
     "prepare": "husky"
   },
