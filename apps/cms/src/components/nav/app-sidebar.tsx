@@ -136,7 +136,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       render={
                         <SidebarMenuButton
                           aria-label="Collapse sidebar"
-                          className="h-9 w-9 shrink-0 justify-center border border-transparent p-0"
+                          className="h-9 w-9 shrink-0 cursor-pointer justify-center border border-transparent p-0"
                           onClick={toggleSidebar}
                           type="button"
                         >
