@@ -177,6 +177,11 @@ model Media {
   url         String
   size        Int
   alt         String?
+  mimeType    String?
+  width       Int?
+  height      Int?
+  duration    Int?
+  blurHash    String?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   workspaceId String

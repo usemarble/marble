@@ -18,6 +18,11 @@ export interface Media {
   url: string;
   type: MediaType;
   size: number;
+  mimeType: string | null;
+  width: number | null;
+  height: number | null;
+  duration: number | null;
+  blurHash: string | null;
   createdAt: string;
 }
 

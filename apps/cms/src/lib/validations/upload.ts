@@ -1,4 +1,4 @@
-import * as z from "zod";
+import { z } from "zod";
 import {
   ALLOWED_MIME_TYPES,
   ALLOWED_RASTER_MIME_TYPES,
@@ -100,6 +100,11 @@ export const completeMediaSchema = z.object({
   fileType: z.string().min(1),
   fileSize: z.coerce.number().int().positive().max(MAX_MEDIA_FILE_SIZE),
   name: z.string().min(1).max(255),
+  mimeType: z.string().min(1).max(255).optional(),
+  width: z.coerce.number().int().positive().optional(),
+  height: z.coerce.number().int().positive().optional(),
+  duration: z.coerce.number().int().nonnegative().optional(),
+  blurHash: z.string().min(6).max(128).optional(),
 });
 
 export const completeSchema = z.union([

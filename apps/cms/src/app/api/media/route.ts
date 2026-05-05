@@ -1,7 +1,7 @@
 import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
-import * as z from "zod";
+import { z } from "zod";
 import { getServerSession } from "@/lib/auth/session";
 import { R2_BUCKET_NAME, r2 } from "@/lib/r2";
 import { loadMediaApiFilters } from "@/lib/search-params";
@@ -83,6 +83,11 @@ export async function GET(request: Request) {
         createdAt: true,
         type: true,
         size: true,
+        mimeType: true,
+        width: true,
+        height: true,
+        duration: true,
+        blurHash: true,
       },
     });
 

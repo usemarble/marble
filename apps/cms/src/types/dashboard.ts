@@ -37,6 +37,11 @@ export interface UsageDashboardData {
       createdAt: string;
       type: MediaType;
       url: string;
+      mimeType: string | null;
+      width: number | null;
+      height: number | null;
+      duration: number | null;
+      blurHash: string | null;
     }>;
   };
 }

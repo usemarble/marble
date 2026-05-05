@@ -161,6 +161,11 @@ export async function GET() {
         createdAt: true,
         type: true,
         url: true,
+        mimeType: true,
+        width: true,
+        height: true,
+        duration: true,
+        blurHash: true,
       },
     }),
   ]);
@@ -213,6 +218,11 @@ export async function GET() {
         createdAt: media.createdAt.toISOString(),
         type: media.type,
         url: media.url,
+        mimeType: media.mimeType,
+        width: media.width,
+        height: media.height,
+        duration: media.duration,
+        blurHash: media.blurHash,
       })),
     },
   };
