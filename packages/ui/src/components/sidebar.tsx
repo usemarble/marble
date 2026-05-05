@@ -275,7 +275,7 @@ function SidebarTrigger({
       variant="ghost"
       {...props}
     >
-      {children ?? <HugeiconsIcon icon={SidebarLeftIcon} strokeWidth={2} />}
+      {children ?? <HugeiconsIcon icon={SidebarLeftIcon} />}
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   );
