@@ -2,7 +2,14 @@
 
 import { Separator } from "@marble/ui/components/separator";
 import { SidebarTrigger, useSidebar } from "@marble/ui/components/sidebar";
+import { AnimatePresence, motion } from "motion/react";
 import { usePathname } from "next/navigation";
+
+const sidebarToggleTransition = {
+  bounce: 0.18,
+  duration: 0.8,
+  type: "spring",
+} as const;
 
 export const PageHeader = () => {
   const pathname = usePathname();
@@ -44,15 +51,30 @@ export const PageHeader = () => {
 
   return (
     <header className="sticky top-0 z-50 flex h-13 shrink-0 items-center gap-2 border-b border-dashed bg-background transition-[width,height] ease-linear md:px-4">
-      {showSidebarTrigger && (
-        <div className="flex items-center gap-2 px-4 md:px-0">
-          <SidebarTrigger
-            className="-ml-1 size-8 text-sidebar-foreground"
-            variant="ghost"
-          />
-          <Separator className="my-auto mr-2 h-4" orientation="vertical" />
-        </div>
-      )}
+      <AnimatePresence initial={false} mode="popLayout">
+        {showSidebarTrigger && (
+          <motion.div
+            animate={{ opacity: 1 }}
+            className="z-100 flex items-center gap-2 px-4 md:px-0"
+            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }}
+            key="header-sidebar-toggle"
+            transition={{ duration: 0.15 }}
+          >
+            <motion.div
+              className="-ml-1 flex size-8 shrink-0 items-center justify-center"
+              layoutId="main-sidebar-toggle"
+              transition={sidebarToggleTransition}
+            >
+              <SidebarTrigger
+                className="size-8 text-sidebar-foreground"
+                variant="ghost"
+              />
+            </motion.div>
+            <Separator className="my-auto mr-2 h-4" orientation="vertical" />
+          </motion.div>
+        )}
+      </AnimatePresence>
       {/* <div>
         <AppBreadcrumb />
       </div> */}

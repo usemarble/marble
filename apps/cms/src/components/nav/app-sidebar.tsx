@@ -39,10 +39,16 @@ function getToggleSidebarShortcut() {
   return isMac ? "⌘K" : "Ctrl+K";
 }
 
+const sidebarToggleTransition = {
+  bounce: 0.18,
+  duration: 0.8,
+  type: "spring",
+} as const;
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
   const params = useParams<{ workspace: string }>();
-  const { open, toggleSidebar } = useSidebar();
+  const { open } = useSidebar();
   const shouldReduceMotion = useReducedMotion();
   const isSettingsRoute = pathname.startsWith(`/${params.workspace}/settings`);
 
@@ -84,21 +90,29 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             variants={settingsVariants}
           >
             <SidebarHeader className={cn(!open && "items-center")}>
-              <SidebarMenu className={cn(!open && "w-auto")}>
-                <SidebarMenuButton
-                  className={cn(
-                    "h-9 border border-transparent transition-colors duration-200 hover:bg-sidebar-accent",
-                    !open && "justify-center gap-0"
-                  )}
-                  render={
-                    <Link href={`/${params.workspace}`}>
-                      <HugeiconsIcon icon={ArrowLeft01Icon} />
-                      {open && <span>Back</span>}
-                    </Link>
-                  }
-                  tooltip="Back"
-                />
-              </SidebarMenu>
+              <div
+                className={cn(
+                  "flex w-full min-w-0 items-center gap-2",
+                  open ? "justify-between" : "justify-center"
+                )}
+              >
+                <SidebarMenu className={cn(open ? "min-w-0 flex-1" : "w-auto")}>
+                  <SidebarMenuButton
+                    className={cn(
+                      "h-9 border border-transparent transition-colors duration-200 hover:bg-sidebar-accent",
+                      !open && "justify-center gap-0"
+                    )}
+                    render={
+                      <Link href={`/${params.workspace}`}>
+                        <HugeiconsIcon icon={ArrowLeft01Icon} />
+                        {open && <span>Back</span>}
+                      </Link>
+                    }
+                    tooltip="Back"
+                  />
+                </SidebarMenu>
+                <SidebarCollapseTrigger />
+              </div>
             </SidebarHeader>
             <SidebarContent className="gap-0">
               <NavSettings />
@@ -129,26 +143,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 )}
               >
                 <WorkspaceSwitcher />
-                {open && (
-                  <Tooltip>
-                    <TooltipTrigger
-                      delay={400}
-                      render={
-                        <SidebarMenuButton
-                          aria-label="Collapse sidebar"
-                          className="h-9 w-9 shrink-0 cursor-pointer justify-center border border-transparent p-0"
-                          onClick={toggleSidebar}
-                          type="button"
-                        >
-                          <HugeiconsIcon icon={SidebarLeftIcon} />
-                        </SidebarMenuButton>
-                      }
-                    />
-                    <TooltipContent>
-                      <p>Collapse Sidebar ({getToggleSidebarShortcut()})</p>
-                    </TooltipContent>
-                  </Tooltip>
-                )}
+                <SidebarCollapseTrigger />
               </div>
             </SidebarHeader>
             <SidebarContent>
@@ -179,5 +174,44 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         )}
       </AnimatePresence>
     </Sidebar>
+  );
+}
+
+function SidebarCollapseTrigger() {
+  const { open, toggleSidebar } = useSidebar();
+
+  return (
+    <AnimatePresence initial={false} mode="popLayout">
+      {open && (
+        <motion.div
+          animate={{ opacity: 1 }}
+          className="z-100 flex h-9 w-9 shrink-0 items-center justify-center"
+          exit={{ opacity: 0 }}
+          initial={{ opacity: 0 }}
+          key="sidebar-sidebar-toggle"
+          layoutId="main-sidebar-toggle"
+          transition={sidebarToggleTransition}
+        >
+          <Tooltip>
+            <TooltipTrigger
+              delay={400}
+              render={
+                <SidebarMenuButton
+                  aria-label="Collapse sidebar"
+                  className="h-9 w-9 shrink-0 cursor-pointer justify-center border border-transparent p-0"
+                  onClick={toggleSidebar}
+                  type="button"
+                >
+                  <HugeiconsIcon icon={SidebarLeftIcon} />
+                </SidebarMenuButton>
+              }
+            />
+            <TooltipContent>
+              <p>Collapse Sidebar ({getToggleSidebarShortcut()})</p>
+            </TooltipContent>
+          </Tooltip>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

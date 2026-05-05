@@ -55,43 +55,43 @@ export function WhatsNewCard() {
           <XIcon className="size-3.5" />
         </Button>
         <div className="flex flex-col gap-3">
-          <div className="overflow-hidden rounded-[18px] border border-sidebar-border/70 bg-sidebar-accent/20">
+          <div className="overflow-hidden rounded-[16px] border border-sidebar-border/70 bg-sidebar-accent/20">
             <Image
               alt="Schema-style preview of Marble custom fields"
-              className="h-auto w-full dark:hidden"
-              height={220}
+              className="h-auto w-full rounded-[16px] dark:hidden"
+              height={200}
               priority={false}
               src="/custom-fields-card-light.svg"
               width={400}
             />
             <Image
               alt="Schema-style preview of Marble custom fields"
-              className="hidden h-auto w-full dark:block"
-              height={220}
+              className="hidden h-auto w-full rounded-[16px] dark:block"
+              height={200}
               priority={false}
               src="/custom-fields-card-dark.svg"
               width={400}
             />
           </div>
-          <div className="space-y-2 px-2 pb-3">
+          <div className="flex flex-col gap-1.5 px-2 pb-2">
             <div className="flex items-center gap-2">
-              <Badge className="text-[11px]" variant="positive">
-                New
-              </Badge>
-              <h4 className="font-medium text-[14px] text-foreground leading-none tracking-tight">
+              <h4 className="font-medium text-[13px] text-foreground leading-none tracking-tight">
                 Custom Fields
               </h4>
+              <Badge className="text-[10px]" variant="positive">
+                New
+              </Badge>
             </div>
             <p
               className={cn(
-                "text-[13px] text-muted-foreground leading-6",
+                "text-[12px] text-muted-foreground",
                 "overflow-hidden [-webkit-box-orient:vertical] [-webkit-line-clamp:2] [display:-webkit-box]"
               )}
             >
               Extend your post metadata by defining custom fields.
             </p>
             <Link
-              className="font-medium text-[13px] text-primary underline underline-offset-4 transition-colors hover:text-primary/85"
+              className="mt-1 w-fit font-medium text-[12px] text-primary underline-offset-4 transition-colors hover:text-primary/85 hover:underline"
               href={fieldsHref}
             >
               Configure Fields
