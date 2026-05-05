@@ -11,7 +11,14 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
-import { PlusIcon, TrashIcon, XIcon } from "@phosphor-icons/react";
+import {
+  PlusIcon,
+  RowsIcon,
+  SquaresFourIcon,
+  TrashIcon,
+  XIcon,
+} from "@phosphor-icons/react";
+import { motion } from "motion/react";
 import { useMediaPageFilters } from "@/lib/search-params";
 import { isMediaFilterType, isMediaSort } from "@/utils/media";
 import { FileUploadInput } from "./file-upload-input";
@@ -37,6 +44,8 @@ export function MediaControls({
   onDeselectAll,
   onBulkDelete,
   mediaLength,
+  viewType,
+  onViewTypeChange,
   disabled = false,
 }: {
   onUpload: (files: FileList) => void;
@@ -46,6 +55,8 @@ export function MediaControls({
   onDeselectAll: () => void;
   onBulkDelete: () => void;
   mediaLength: number;
+  viewType: "table" | "grid";
+  onViewTypeChange: (viewType: "table" | "grid") => void;
   disabled?: boolean;
 }) {
   const [{ type, sort }, setSearchParams] = useMediaPageFilters();
@@ -145,7 +156,70 @@ export function MediaControls({
           )}
         </div>
       </div>
-      <div className="flex justify-end">
+      <div className="flex items-center justify-end gap-2">
+        <div className="flex gap-0.5 rounded-xl bg-surface p-0.5 dark:bg-accent/50">
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Button
+                  className="relative h-8 w-9 rounded-[10px]"
+                  disabled
+                  onClick={() => onViewTypeChange("grid")}
+                  size="icon-sm"
+                  type="button"
+                  variant="ghost"
+                >
+                  {viewType === "grid" && (
+                    <motion.div
+                      className="absolute inset-0 rounded-[10px] bg-background shadow-sm"
+                      layoutId="mediaViewToggleHighlight"
+                      transition={{
+                        type: "spring",
+                        bounce: 0.2,
+                        duration: 0.4,
+                      }}
+                    />
+                  )}
+                  <SquaresFourIcon className="relative z-10" size={16} />
+                  <span className="sr-only">Grid view</span>
+                </Button>
+              }
+            />
+            <TooltipContent>
+              <p>Grid view coming soon</p>
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Button
+                  className="relative h-8 w-9 rounded-[10px]"
+                  onClick={() => onViewTypeChange("table")}
+                  size="icon-sm"
+                  type="button"
+                  variant="ghost"
+                >
+                  {viewType === "table" && (
+                    <motion.div
+                      className="absolute inset-0 rounded-[10px] bg-background shadow-sm"
+                      layoutId="mediaViewToggleHighlight"
+                      transition={{
+                        type: "spring",
+                        bounce: 0.2,
+                        duration: 0.4,
+                      }}
+                    />
+                  )}
+                  <RowsIcon className="relative z-10" size={16} />
+                  <span className="sr-only">Table view</span>
+                </Button>
+              }
+            />
+            <TooltipContent>
+              <p>Table view</p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
         <FileUploadInput
           className="w-full sm:w-auto"
           isUploading={isUploading}

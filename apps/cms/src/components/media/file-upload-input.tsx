@@ -66,6 +66,7 @@ export function FileUploadInput({
         onClick={() => {
           inputRef.current?.click();
         }}
+        size="sm"
         type="button"
       >
         {children || (

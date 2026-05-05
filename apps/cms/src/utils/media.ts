@@ -50,7 +50,9 @@ export function splitMediaSort(sort: MediaSort) {
 export function isMediaFilterType(
   value: MediaFilterType
 ): value is MediaFilterType {
-  return ["all", "image", "video"].includes(value as string);
+  return ["all", "image", "video", "audio", "document"].includes(
+    value as string
+  );
 }
 
 export function toMediaType(value: MediaFilterType): MediaType | undefined {

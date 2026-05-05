@@ -1,62 +1,53 @@
 import { Button } from "@marble/ui/components/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@marble/ui/components/select";
-import {
   CaretDoubleLeftIcon,
   CaretDoubleRightIcon,
   CaretLeftIcon,
   CaretRightIcon,
 } from "@phosphor-icons/react";
-import type { Table } from "@tanstack/react-table";
 
-interface DataTablePaginationProps<TData> {
-  table: Table<TData>;
+interface DataTablePaginationProps {
+  canNextPage: boolean;
+  canPreviousPage: boolean;
+  onPageChange: (pageIndex: number) => void;
+  pageCount: number;
+  pageIndex: number;
+  rowCount: number;
+  selectedCount: number;
+  totalCount: number;
+  mediaCount: number;
 }
 
-export function DataTablePagination<TData>({
-  table,
-}: DataTablePaginationProps<TData>) {
+export function DataTablePagination({
+  canNextPage,
+  canPreviousPage,
+  onPageChange,
+  pageCount,
+  pageIndex,
+  totalCount,
+  mediaCount,
+}: DataTablePaginationProps) {
+  const safePageCount = Math.max(1, pageCount);
+  const safePageIndex = Math.min(Math.max(0, pageIndex), safePageCount - 1);
+
   return (
     <div className="flex items-center justify-between px-2">
-      <div className="flex-1 text-muted-foreground text-sm">
-        {table.getFilteredSelectedRowModel().rows.length} of{" "}
-        {table.getFilteredRowModel().rows.length} row(s) selected.
-      </div>
-      <div className="flex items-center space-x-6 lg:space-x-8">
-        <div className="flex items-center space-x-2">
-          <p className="font-medium text-sm">Rows per page</p>
-          <Select
-            onValueChange={(value) => {
-              table.setPageSize(Number(value));
-            }}
-            value={`${table.getState().pagination.pageSize}`}
-          >
-            <SelectTrigger className="h-8 w-[70px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent side="top">
-              {[10, 20, 30, 40, 50].map((pageSize) => (
-                <SelectItem key={pageSize} value={`${pageSize}`}>
-                  {pageSize}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="flex w-[100px] items-center justify-center font-medium text-sm">
-          Page {table.getState().pagination.pageIndex + 1} of{" "}
-          {table.getPageCount()}
+      <p className="text-muted-foreground text-xs">
+        Showing {mediaCount} of {totalCount} media item
+        {totalCount === 1 ? "" : "s"}.
+      </p>
+      {/* <div className="flex-1 text-muted-foreground text-xs">
+        {selectedCount} of {rowCount} row(s) selected.
+      </div> */}
+      <div className="flex items-center gap-2">
+        <div className="flex w-[100px] items-center justify-center font-medium text-xs">
+          Page {safePageIndex + 1} of {safePageCount}
         </div>
         <div className="flex items-center space-x-2">
           <Button
             className="hidden h-8 w-8 p-0 lg:flex"
-            disabled={!table.getCanPreviousPage()}
-            onClick={() => table.setPageIndex(0)}
+            disabled={!canPreviousPage}
+            onClick={() => onPageChange(0)}
             variant="outline"
           >
             <span className="sr-only">Go to first page</span>
@@ -64,8 +55,8 @@ export function DataTablePagination<TData>({
           </Button>
           <Button
             className="h-8 w-8 p-0"
-            disabled={!table.getCanPreviousPage()}
-            onClick={() => table.previousPage()}
+            disabled={!canPreviousPage}
+            onClick={() => onPageChange(safePageIndex - 1)}
             variant="outline"
           >
             <span className="sr-only">Go to previous page</span>
@@ -73,8 +64,8 @@ export function DataTablePagination<TData>({
           </Button>
           <Button
             className="h-8 w-8 p-0"
-            disabled={!table.getCanNextPage()}
-            onClick={() => table.nextPage()}
+            disabled={!canNextPage}
+            onClick={() => onPageChange(safePageIndex + 1)}
             variant="outline"
           >
             <span className="sr-only">Go to next page</span>
@@ -82,8 +73,8 @@ export function DataTablePagination<TData>({
           </Button>
           <Button
             className="hidden h-8 w-8 p-0 lg:flex"
-            disabled={!table.getCanNextPage()}
-            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+            disabled={!canNextPage}
+            onClick={() => onPageChange(safePageCount - 1)}
             variant="outline"
           >
             <span className="sr-only">Go to last page</span>

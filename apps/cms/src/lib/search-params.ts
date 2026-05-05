@@ -37,6 +37,9 @@ const sortParser = parseAsSort(MEDIA_SORT_BY).withDefault("createdAt_desc");
 
 // Page level search params
 const mediaPageSearchParams = {
+  page: parseAsInteger.withDefault(1),
+  perPage: parseAsInteger.withDefault(MEDIA_LIMIT),
+  search: parseAsString.withDefault(""),
   sort: sortParser,
   type: parseAsStringLiteral(MEDIA_FILTER_TYPES).withDefault("all"),
 };
@@ -48,8 +51,9 @@ export const useMediaPageFilters = (options: Options = {}) =>
 const mediaApiSearchParams = {
   sort: sortParser,
   type: parseAsStringLiteral(MEDIA_TYPES),
-  cursor: parseAsString,
-  limit: parseAsInteger.withDefault(MEDIA_LIMIT),
+  page: parseAsInteger.withDefault(1),
+  perPage: parseAsInteger.withDefault(MEDIA_LIMIT),
+  search: parseAsString,
 };
 
 export const loadMediaApiFilters = createLoader(mediaApiSearchParams);
@@ -57,3 +61,20 @@ export const loadMediaApiFilters = createLoader(mediaApiSearchParams);
 export const getMediaApiUrl = createSerializer(mediaApiSearchParams, {
   clearOnDefault: false,
 });
+
+const mediaEditorApiSearchParams = {
+  sort: sortParser,
+  cursor: parseAsString,
+  limit: parseAsInteger.withDefault(MEDIA_LIMIT),
+};
+
+export const loadMediaEditorApiFilters = createLoader(
+  mediaEditorApiSearchParams
+);
+
+export const getMediaEditorApiUrl = createSerializer(
+  mediaEditorApiSearchParams,
+  {
+    clearOnDefault: false,
+  }
+);

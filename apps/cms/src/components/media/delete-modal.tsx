@@ -31,6 +31,26 @@ interface DeleteMediaModalProps {
   onDeleteComplete?: (deletedIds: string[]) => void;
 }
 
+function removeDeletedMediaFromPage(
+  page: MediaListResponse,
+  idsToDelete: Set<string>
+): MediaListResponse {
+  const media = page.media.filter((item) => !idsToDelete.has(item.id));
+
+  if ("totalCount" in page) {
+    return {
+      ...page,
+      media,
+      totalCount: Math.max(0, page.totalCount - idsToDelete.size),
+    };
+  }
+
+  return {
+    ...page,
+    media,
+  };
+}
+
 export function DeleteMediaModal({
   isOpen,
   setIsOpen,
@@ -69,7 +89,7 @@ export function DeleteMediaModal({
 
       // Snapshot all media queries for rollback
       const previousQueries = queryClient.getQueriesData<
-        InfiniteData<MediaListResponse>
+        InfiniteData<MediaListResponse> | MediaListResponse
       >({
         queryKey: workspaceId ? QUERY_KEYS.MEDIA(workspaceId) : [],
       });
@@ -78,21 +98,22 @@ export function DeleteMediaModal({
 
       // Optimistically remove items from all media queries
       if (workspaceId) {
-        queryClient.setQueriesData<InfiniteData<MediaListResponse>>(
-          { queryKey: QUERY_KEYS.MEDIA(workspaceId) },
-          (oldData) => {
-            if (!oldData) {
-              return oldData;
-            }
+        queryClient.setQueriesData<
+          InfiniteData<MediaListResponse> | MediaListResponse
+        >({ queryKey: QUERY_KEYS.MEDIA(workspaceId) }, (oldData) => {
+          if (!oldData) {
+            return oldData;
+          }
+          if ("pages" in oldData) {
             return {
               ...oldData,
-              pages: oldData.pages.map((page) => ({
-                ...page,
-                media: page.media.filter((item) => !idsToDelete.has(item.id)),
-              })),
+              pages: oldData.pages.map((page) =>
+                removeDeletedMediaFromPage(page, idsToDelete)
+              ),
             };
           }
-        );
+          return removeDeletedMediaFromPage(oldData, idsToDelete);
+        });
       }
 
       setIsOpen(false);

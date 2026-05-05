@@ -6,6 +6,17 @@
       "./apps/cms/src/**"
     ]
   },
+  "tailwindCSS.classFunctions": ["cn", "clsx"],
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "tailwindCSS.experimental.classRegex": [
+    [
+      "(?:export\\s+)?const\\s+[A-Za-z0-9_$]+\\s*=\\s*([\\s\\S]*?);",
+      "[\"'`]([^\"'`]*)[\"'`]"
+    ],
+    "return\\s+[\"'`]([^\"'`]*)[\"'`]"
+  ],
   "editor.defaultFormatter": "biomejs.biome",
   "[javascript]": {
     "editor.defaultFormatter": "biomejs.biome"

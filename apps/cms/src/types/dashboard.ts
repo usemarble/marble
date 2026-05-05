@@ -34,6 +34,7 @@ export interface UsageDashboardData {
       id: string;
       name: string;
       size: number;
+      alt: string | null;
       createdAt: string;
       type: MediaType;
       url: string;
