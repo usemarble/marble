@@ -9,6 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@marble/ui/components/table";
+import { cn } from "@marble/ui/lib/utils";
 import { FileImageIcon } from "@phosphor-icons/react";
 import {
   flexRender,
@@ -211,7 +212,7 @@ export function MediaDataTable({
 
   return (
     <>
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-4">
         <MediaTableToolbar
           disabled={disabled}
           isUploading={isUploading}
@@ -220,90 +221,97 @@ export function MediaDataTable({
           selectedCount={selectedMedia.length}
           table={table}
         />
-        <div className="overflow-hidden rounded-[20px] bg-surface p-1 [&_[data-slot=table-container]]:overflow-x-auto [&_[data-slot=table-container]]:overflow-y-hidden">
-          <Table className="-mb-1 h-fit border-separate border-spacing-y-1">
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow
-                  className="border-0 text-[13px] hover:bg-transparent"
-                  key={headerGroup.id}
-                >
-                  {headerGroup.headers.map((header) => (
-                    <TableHead
-                      className={getHeaderClassName(header.column.id)}
-                      key={header.id}
-                    >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows.length ? (
-                table.getRowModel().rows.map((row) => (
+        <div
+          className={cn(
+            "flex flex-col gap-3 transition-opacity duration-150",
+            disabled && "pointer-events-none opacity-50"
+          )}
+        >
+          <div className="overflow-hidden rounded-[20px] bg-surface p-1 [&_[data-slot=table-container]]:overflow-x-auto [&_[data-slot=table-container]]:overflow-y-hidden">
+            <Table className="-mb-1 h-fit border-separate border-spacing-y-1">
+              <TableHeader>
+                {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow
-                    className="cursor-pointer border-0 bg-background hover:bg-background/80 data-[state=selected]:bg-background"
-                    data-state={row.getIsSelected() && "selected"}
-                    key={row.id}
-                    onClick={(event) => {
-                      if (shouldIgnoreRowClick(event)) {
-                        return;
-                      }
-                      openMediaDetail(row.original);
-                    }}
+                    className="border-0 text-[13px] hover:bg-transparent"
+                    key={headerGroup.id}
                   >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell
-                        className={getCellClassName(cell.column.id)}
-                        data-no-row-click={
-                          cell.column.id === "select" ||
-                          cell.column.id === "actions"
-                            ? true
-                            : undefined
-                        }
-                        key={cell.id}
+                    {headerGroup.headers.map((header) => (
+                      <TableHead
+                        className={getHeaderClassName(header.column.id)}
+                        key={header.id}
                       >
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
                     ))}
                   </TableRow>
-                ))
-              ) : (
-                <TableRow className="border-0 bg-background">
-                  <TableCell
-                    className="h-28 rounded-[14px] text-center text-muted-foreground text-sm"
-                    colSpan={columns.length}
-                  >
-                    No media found. Try adjusting your filters.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
-        <div>
-          <DataTablePagination
-            canNextPage={pagination.pageIndex + 1 < pageCount}
-            canPreviousPage={pagination.pageIndex > 0}
-            mediaCount={media.length}
-            onPageChange={(pageIndex) => {
-              setSearchParams({ page: pageIndex + 1 });
-            }}
-            pageCount={pageCount}
-            pageIndex={pagination.pageIndex}
-            rowCount={media.length}
-            selectedCount={selectedMedia.length}
-            totalCount={totalCount}
-          />
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows.length ? (
+                  table.getRowModel().rows.map((row) => (
+                    <TableRow
+                      className="cursor-pointer border-0 bg-background hover:bg-background/80 data-[state=selected]:bg-background"
+                      data-state={row.getIsSelected() && "selected"}
+                      key={row.id}
+                      onClick={(event) => {
+                        if (shouldIgnoreRowClick(event)) {
+                          return;
+                        }
+                        openMediaDetail(row.original);
+                      }}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell
+                          className={getCellClassName(cell.column.id)}
+                          data-no-row-click={
+                            cell.column.id === "select" ||
+                            cell.column.id === "actions"
+                              ? true
+                              : undefined
+                          }
+                          key={cell.id}
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow className="border-0 bg-background">
+                    <TableCell
+                      className="h-28 rounded-[14px] text-center text-muted-foreground text-sm"
+                      colSpan={columns.length}
+                    >
+                      No media found. Try adjusting your filters.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+          <div>
+            <DataTablePagination
+              canNextPage={pagination.pageIndex + 1 < pageCount}
+              canPreviousPage={pagination.pageIndex > 0}
+              mediaCount={media.length}
+              onPageChange={(pageIndex) => {
+                setSearchParams({ page: pageIndex + 1 });
+              }}
+              pageCount={pageCount}
+              pageIndex={pagination.pageIndex}
+              rowCount={media.length}
+              selectedCount={selectedMedia.length}
+              totalCount={totalCount}
+            />
+          </div>
         </div>
       </div>
       <DeleteMediaModal

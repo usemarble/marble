@@ -1,3 +1,9 @@
+import {
+  Delete02Icon,
+  MoreVerticalIcon,
+  PencilEdit02Icon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@marble/ui/components/button";
 import {
   DropdownMenu,
@@ -6,11 +12,6 @@ import {
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
 import { cn } from "@marble/ui/lib/utils";
-import {
-  DotsThreeVerticalIcon,
-  PencilSimpleLineIcon,
-  TrashIcon,
-} from "@phosphor-icons/react";
 import Link from "next/link";
 import { useState } from "react";
 import { useWorkspace } from "@/providers/workspace";
@@ -39,26 +40,6 @@ export default function PostActions({
     setShowDeleteModal(true);
   };
 
-  // if (view === "grid") {
-  //   return (
-  //     <>
-  //       <Button
-  //         type="button"
-  //         className="size-8 text-foreground p-0 bg-secondary grid place-items-center rounded-full hover:text-destructive hover:bg-destructive/10 dark:hover:bg-destructive/20 focus:bg-destructive/10 dark:focus:bg-destructive/20 focus:text-destructive transition"
-  //         onClick={(e) => handleCardButtonClick(e)}
-  //       >
-  //         <TrashIcon size={16} />
-  //       </Button>
-  //       <DeletePostModal
-  //         open={showDeleteModal}
-  //         setOpen={setShowDeleteModal}
-  //         id={post.id}
-  //         mode={mode}
-  //       />
-  //     </>
-  //   );
-  // }
-
   return (
     <>
       <DropdownMenu>
@@ -77,7 +58,7 @@ export default function PostActions({
               variant="ghost"
             >
               <span className="sr-only">Open menu</span>
-              <DotsThreeVerticalIcon size={16} weight="bold" />
+              <HugeiconsIcon icon={MoreVerticalIcon} size={16} />
             </Button>
           }
         />
@@ -90,14 +71,16 @@ export default function PostActions({
               className="flex w-full cursor-default items-center gap-2"
               href={`/${activeWorkspace?.slug}/editor/p/${post.id}`}
             >
-              <PencilSimpleLineIcon size={16} /> <span>Edit</span>
+              <HugeiconsIcon icon={PencilEdit02Icon} size={16} />
+              <span>Edit</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={(e) => handleCardButtonClick(e)}
             variant="destructive"
           >
-            <TrashIcon size={16} /> <span>Delete</span>
+            <HugeiconsIcon icon={Delete02Icon} size={16} />
+            <span>Delete</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

@@ -13,6 +13,7 @@ import {
   MEDIA_LIMIT,
   MEDIA_SORT_BY,
   MEDIA_TYPES,
+  POST_LIMIT,
   SORT_DIRECTIONS,
 } from "./constants";
 
@@ -78,3 +79,36 @@ export const getMediaEditorApiUrl = createSerializer(
     clearOnDefault: false,
   }
 );
+
+export const POST_SORT_BY = [
+  "createdAt",
+  "publishedAt",
+  "updatedAt",
+  "title",
+] as const;
+
+export const POST_SORTS = POST_SORT_BY.flatMap((field) =>
+  SORT_DIRECTIONS.map((direction) => `${field}_${direction}` as const)
+);
+
+const postSortParser = parseAsSort(POST_SORT_BY).withDefault("createdAt_desc");
+
+const postPageSearchParams = {
+  category: parseAsString.withDefault("all"),
+  page: parseAsInteger.withDefault(1),
+  perPage: parseAsInteger.withDefault(POST_LIMIT),
+  search: parseAsString.withDefault(""),
+  sort: postSortParser,
+  status: parseAsStringLiteral(["all", "published", "draft"]).withDefault(
+    "all"
+  ),
+};
+
+export const usePostPageFilters = (options: Options = {}) =>
+  useQueryStates(postPageSearchParams, options);
+
+export const loadPostApiFilters = createLoader(postPageSearchParams);
+
+export const getPostApiUrl = createSerializer(postPageSearchParams, {
+  clearOnDefault: false,
+});

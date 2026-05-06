@@ -9,10 +9,10 @@ import {
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { PlusIcon, UploadSimpleIcon } from "@phosphor-icons/react";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { DashboardBody } from "@/components/layout/wrapper";
 import { columns, type Post } from "@/components/posts/columns";
@@ -20,6 +20,7 @@ import { PostDataView } from "@/components/posts/data-view";
 import PageLoader from "@/components/shared/page-loader";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
+import { getPostApiUrl, usePostPageFilters } from "@/lib/search-params";
 import { useWorkspace } from "@/providers/workspace";
 
 const PostsImportModal = dynamic(
@@ -31,21 +32,45 @@ const PostsImportModal = dynamic(
 function PageClient() {
   const workspaceId = useWorkspaceId();
   const { activeWorkspace, isFetchingWorkspace } = useWorkspace();
+  const [filters] = usePostPageFilters();
+  const apiFilters = useMemo(
+    () => ({
+      category: filters.category,
+      page: filters.page,
+      perPage: filters.perPage,
+      search: "",
+      sort: filters.sort,
+      status: filters.status,
+    }),
+    [
+      filters.category,
+      filters.page,
+      filters.perPage,
+      filters.sort,
+      filters.status,
+    ]
+  );
 
   const [importOpen, setImportOpen] = useState(false);
 
-  const { data: posts, isLoading } = useQuery({
+  const { data, isFetching, isLoading } = useQuery({
     queryKey: workspaceId
-      ? QUERY_KEYS.POSTS(workspaceId)
+      ? [...QUERY_KEYS.POSTS(workspaceId), apiFilters]
       : ["posts", "disabled"],
+    placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
       try {
-        const res = await fetch("/api/posts");
+        const res = await fetch(getPostApiUrl("/api/posts", apiFilters));
         if (!res.ok) {
           throw new Error("Failed to fetch posts");
         }
-        const data: Post[] = await res.json();
+        const data: {
+          hasAnyPosts: boolean;
+          pageCount: number;
+          posts: Post[];
+          totalCount: number;
+        } = await res.json();
         return data;
       } catch (error) {
         toast.error(
@@ -56,14 +81,20 @@ function PageClient() {
     enabled: Boolean(workspaceId) && !isFetchingWorkspace,
   });
 
-  if (isFetchingWorkspace || !workspaceId || isLoading) {
+  if (isFetchingWorkspace || !workspaceId || (isLoading && !data)) {
     return <PageLoader />;
   }
 
   return (
     <DashboardBody className="flex flex-col gap-8 pt-10 pb-16" size="compact">
-      {posts && posts.length > 0 ? (
-        <PostDataView columns={columns} data={posts} />
+      {data?.hasAnyPosts ? (
+        <PostDataView
+          columns={columns}
+          data={data.posts}
+          isFetching={isFetching}
+          pageCount={data.pageCount}
+          totalCount={data.totalCount}
+        />
       ) : (
         <>
           <DashboardBody className="grid h-full place-content-center">

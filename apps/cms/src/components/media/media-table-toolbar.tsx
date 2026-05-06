@@ -1,12 +1,9 @@
 "use client";
 
+import { FilterResetIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@marble/ui/components/button";
 import { Input } from "@marble/ui/components/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@marble/ui/components/popover";
 import {
   Select,
   SelectContent,
@@ -21,6 +18,7 @@ import {
 } from "@marble/ui/components/tooltip";
 import {
   FunnelSimpleIcon,
+  MagnifyingGlassIcon,
   PlusIcon,
   RowsIcon,
   SortAscendingIcon,
@@ -30,7 +28,8 @@ import {
 } from "@phosphor-icons/react";
 import type { Table } from "@tanstack/react-table";
 import { motion } from "motion/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useDebounce } from "@/hooks/use-debounce";
 import { useLocalStorage } from "@/hooks/use-localstorage";
 import { useMediaPageFilters } from "@/lib/search-params";
 import type { Media, MediaFilterType, MediaSort } from "@/types/media";
@@ -92,11 +91,12 @@ export function MediaTableToolbar({
     "table"
   );
   const [draftSearch, setDraftSearch] = useState(search);
-  const [draftType, setDraftType] = useState<MediaFilterType>(type);
+  const debouncedSearch = useDebounce(draftSearch.trim(), 300);
 
   const isDisabled = disabled || isUploading;
-  const activeFilterCount =
-    (search.trim() ? 1 : 0) + (toMediaType(type) ? 1 : 0);
+  const activeFilterCount = toMediaType(type) ? 1 : 0;
+  const hasActiveFilters =
+    search.trim() !== "" || type !== "all" || sort !== "createdAt_desc";
 
   const handleSortChange = (value: MediaSort | null) => {
     if (!(value && isMediaSort(value))) {
@@ -109,20 +109,24 @@ export function MediaTableToolbar({
     table.setSorting([{ id: nextSort.column, desc: nextSort.desc }]);
   };
 
-  const applyFilters = () => {
-    setSearchParams({
-      page: 1,
-      search: draftSearch.trim(),
-      type: draftType,
-    });
-  };
+  useEffect(() => {
+    setDraftSearch(search);
+  }, [search]);
+
+  useEffect(() => {
+    if (debouncedSearch === search) {
+      return;
+    }
+    setSearchParams({ page: 1, search: debouncedSearch });
+  }, [debouncedSearch, search, setSearchParams]);
 
   const resetFilters = () => {
     setDraftSearch("");
-    setDraftType("all");
+    table.setSorting([{ id: "createdAt", desc: true }]);
     setSearchParams({
       page: 1,
       search: "",
+      sort: "createdAt_desc",
       type: "all",
     });
   };
@@ -130,144 +134,114 @@ export function MediaTableToolbar({
   return (
     <section className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
       <div className="flex flex-wrap items-center gap-2">
-        <Popover>
-          <PopoverTrigger
-            render={
-              <Button
-                className="font-normal"
-                disabled={isDisabled}
-                size="sm"
-                type="button"
-                variant="outline"
-              >
-                <SortAscendingIcon className="text-muted-foreground" />
-                Sort
-                <span className="rounded-[4px] bg-muted px-1.5 py-0.5 font-mono text-[10px]">
-                  1
-                </span>
-              </Button>
-            }
+        <div className="relative">
+          <MagnifyingGlassIcon
+            className="-translate-y-1/2 absolute top-1/2 left-3 size-4 text-muted-foreground"
+            size={16}
           />
-          <PopoverContent align="start" className="w-64">
-            <div className="flex flex-col gap-3">
-              <div className="flex flex-col gap-1">
-                <p className="font-medium text-sm">Sort by</p>
-                <p className="text-muted-foreground text-xs">
-                  Organize media rows without changing the view.
-                </p>
-              </div>
-              <Select
-                aria-label="Sort media"
-                disabled={isDisabled}
-                items={sortOptions}
-                onValueChange={handleSortChange}
-                value={sort}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {sortOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </PopoverContent>
-        </Popover>
+          <Input
+            aria-label="Search media by name"
+            className="h-9 w-full rounded-[12px] px-8 shadow-none sm:w-72"
+            disabled={isDisabled}
+            onChange={(event) => setDraftSearch(event.target.value)}
+            placeholder="Search media..."
+            value={draftSearch}
+          />
+          {draftSearch && (
+            <button
+              className="-translate-y-1/2 absolute top-1/2 right-3"
+              disabled={isDisabled}
+              onClick={() => {
+                setDraftSearch("");
+                setSearchParams({ page: 1, search: "" });
+              }}
+              type="button"
+            >
+              <XIcon className="size-4" />
+              <span className="sr-only">Clear search</span>
+            </button>
+          )}
+        </div>
 
-        <Popover>
-          <PopoverTrigger
-            render={
-              <Button
-                className="font-normal"
-                disabled={isDisabled}
-                size="sm"
-                type="button"
-                variant="outline"
-              >
-                <FunnelSimpleIcon className="text-muted-foreground" />
-                Filter
-                {activeFilterCount > 0 && (
-                  <span className="rounded-[4px] bg-muted px-1.5 py-0.5 font-mono text-[10px]">
-                    {activeFilterCount}
-                  </span>
-                )}
-              </Button>
+        <Select
+          aria-label="Sort media"
+          disabled={isDisabled}
+          items={sortOptions}
+          onValueChange={handleSortChange}
+          value={sort}
+        >
+          <SelectTrigger className="h-9 rounded-[12px] font-normal shadow-none">
+            <SortAscendingIcon className="text-muted-foreground" />
+            <span>Sort</span>
+            <span className="rounded-[4px] bg-muted px-1.5 py-0.5 font-mono text-[10px]">
+              1
+            </span>
+          </SelectTrigger>
+          <SelectContent>
+            {sortOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select
+          aria-label="Filter by file type"
+          disabled={isDisabled}
+          items={typeOptions}
+          onValueChange={(value) => {
+            if (isMediaFilterType(value as MediaFilterType)) {
+              setSearchParams({
+                page: 1,
+                type: value as MediaFilterType,
+              });
             }
-          />
-          <PopoverContent align="start" className="w-72">
-            <div className="flex flex-col gap-3">
-              <div className="flex flex-col gap-1">
-                <p className="font-medium text-sm">Filter media</p>
-                <p className="text-muted-foreground text-xs">
-                  Search by name or narrow the list by file type.
-                </p>
-              </div>
-              <Input
-                aria-label="Search media by name"
-                disabled={isDisabled}
-                onChange={(event) => setDraftSearch(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") {
-                    applyFilters();
-                  }
-                }}
-                placeholder="Search file names..."
-                value={draftSearch}
-              />
-              <Select
-                aria-label="Filter by file type"
-                disabled={isDisabled}
-                items={typeOptions}
-                onValueChange={(value) => {
-                  if (isMediaFilterType(value as MediaFilterType)) {
-                    setDraftType(value as MediaFilterType);
-                  }
-                }}
-                value={draftType}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {typeOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <div className="flex items-center justify-between gap-2">
+          }}
+          value={type}
+        >
+          <SelectTrigger className="h-9 rounded-[12px] font-normal shadow-none">
+            <FunnelSimpleIcon className="text-muted-foreground" />
+            <span>Filter</span>
+            {activeFilterCount > 0 && (
+              <span className="rounded-[4px] bg-muted px-1.5 py-0.5 font-mono text-[10px]">
+                {activeFilterCount}
+              </span>
+            )}
+          </SelectTrigger>
+          <SelectContent>
+            {typeOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {hasActiveFilters && (
+          <Tooltip>
+            <TooltipTrigger
+              render={
                 <Button
-                  disabled={isDisabled || activeFilterCount === 0}
+                  aria-label="Reset filters"
+                  className="h-9 w-9 rounded-[12px] p-0 shadow-none"
+                  disabled={isDisabled}
                   onClick={resetFilters}
-                  size="sm"
                   type="button"
                   variant="outline"
                 >
-                  <XIcon />
-                  Reset
+                  <HugeiconsIcon icon={FilterResetIcon} size={16} />
                 </Button>
-                <Button
-                  disabled={isDisabled}
-                  onClick={applyFilters}
-                  size="sm"
-                  type="button"
-                >
-                  Apply
-                </Button>
-              </div>
-            </div>
-          </PopoverContent>
-        </Popover>
+              }
+            />
+            <TooltipContent side="top">Reset filters</TooltipContent>
+          </Tooltip>
+        )}
 
         {selectedCount > 0 && (
-          <div className="flex h-8 items-center gap-1 rounded-lg bg-surface p-0.5">
+          <div className="flex h-9 items-center gap-1 rounded-lg bg-surface p-0.5">
             <Button
-              className="h-7 rounded-md px-2 font-medium text-xs"
+              className="h-8 rounded-md px-2 font-medium text-xs"
               disabled={isDisabled}
               onClick={() => table.resetRowSelection()}
               size="xs"
@@ -282,10 +256,10 @@ export function MediaTableToolbar({
                 render={
                   <Button
                     aria-label={`Delete selected (${selectedCount})`}
-                    className="size-7 rounded-md"
+                    className="size-8 rounded-md"
                     disabled={isDisabled}
                     onClick={onBulkDelete}
-                    size="icon-xs"
+                    size="icon-sm"
                     type="button"
                     variant="destructive"
                   >
@@ -366,7 +340,7 @@ export function MediaTableToolbar({
         </div> */}
         {onUpload && (
           <FileUploadInput
-            className="w-full sm:w-auto"
+            className="h-9 w-full sm:w-auto"
             isUploading={isUploading}
             onUpload={onUpload}
             variant="icon"

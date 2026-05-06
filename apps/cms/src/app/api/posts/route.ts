@@ -1,9 +1,11 @@
 import { db } from "@marble/db";
 import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { getServerSession } from "@/lib/auth/session";
 import { invalidateCache } from "@/lib/cache/invalidate";
 import { resolveCustomFieldValues } from "@/lib/custom-fields";
+import { loadPostApiFilters } from "@/lib/search-params";
 import { postUpsertSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";
 import { dispatchWebhooks } from "@/lib/webhooks/dispatcher";
@@ -46,7 +48,22 @@ async function buildCustomFieldWrites(
   return resolveCustomFieldValues(fields, normalizedInput);
 }
 
-export async function GET() {
+const POST_SORT_FIELDS = new Set([
+  "createdAt",
+  "publishedAt",
+  "updatedAt",
+  "title",
+]);
+
+function splitPostSort(sort: string) {
+  const [field = "createdAt", direction = "desc"] = sort.split("_");
+  return {
+    field: POST_SORT_FIELDS.has(field) ? field : "createdAt",
+    direction: direction === "asc" ? "asc" : "desc",
+  } as const;
+}
+
+export async function GET(request: Request) {
   const sessionData = await getServerSession();
   const activeWorkspaceId = sessionData?.session.activeOrganizationId;
 
@@ -54,35 +71,76 @@ export async function GET() {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const posts = await db.post.findMany({
-    where: { workspaceId: activeWorkspaceId },
-    select: {
-      id: true,
-      title: true,
-      status: true,
-      featured: true,
-      publishedAt: true,
-      updatedAt: true,
-      category: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
-      authors: {
-        select: {
-          id: true,
-          name: true,
-          image: true,
-        },
-      },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+  const filters = loadPostApiFilters(request, { strict: true });
+  if (!z.number().int().min(1).safeParse(filters.page).success) {
+    return NextResponse.json({ error: "Invalid page" }, { status: 400 });
+  }
+  if (!z.number().int().min(1).max(100).safeParse(filters.perPage).success) {
+    return NextResponse.json({ error: "Invalid perPage" }, { status: 400 });
+  }
 
-  return NextResponse.json(posts);
+  const { category, page, perPage, search, sort, status } = filters;
+  const { direction, field } = splitPostSort(sort);
+  const trimmedSearch = search.trim();
+  const where = {
+    workspaceId: activeWorkspaceId,
+    ...(category !== "all" && { categoryId: category }),
+    ...(status !== "all" && { status }),
+    ...(trimmedSearch && {
+      title: {
+        contains: trimmedSearch,
+        mode: "insensitive" as const,
+      },
+    }),
+  };
+
+  const hasFilters = Boolean(
+    category !== "all" || status !== "all" || trimmedSearch
+  );
+  const [posts, totalCount, workspacePostCount] = await Promise.all([
+    db.post.findMany({
+      where,
+      skip: (page - 1) * perPage,
+      take: perPage,
+      select: {
+        id: true,
+        title: true,
+        coverImage: true,
+        status: true,
+        featured: true,
+        publishedAt: true,
+        updatedAt: true,
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        authors: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
+      },
+      orderBy: {
+        [field]: direction,
+      },
+    }),
+    db.post.count({ where }),
+    hasFilters
+      ? db.post.count({ where: { workspaceId: activeWorkspaceId } })
+      : null,
+  ]);
+
+  return NextResponse.json({
+    hasAnyPosts:
+      workspacePostCount === null ? totalCount > 0 : workspacePostCount > 0,
+    pageCount: Math.max(1, Math.ceil(totalCount / perPage)),
+    posts,
+    totalCount,
+  });
 }
 
 export async function POST(request: Request) {

@@ -15,7 +15,9 @@ interface DataTablePaginationProps {
   rowCount: number;
   selectedCount: number;
   totalCount: number;
-  mediaCount: number;
+  mediaCount?: number;
+  visibleCount?: number;
+  itemLabel?: string;
 }
 
 export function DataTablePagination({
@@ -24,16 +26,20 @@ export function DataTablePagination({
   onPageChange,
   pageCount,
   pageIndex,
+  rowCount,
   totalCount,
   mediaCount,
+  visibleCount,
+  itemLabel = "media item",
 }: DataTablePaginationProps) {
   const safePageCount = Math.max(1, pageCount);
   const safePageIndex = Math.min(Math.max(0, pageIndex), safePageCount - 1);
+  const itemCount = visibleCount ?? mediaCount ?? rowCount;
 
   return (
     <div className="flex items-center justify-between px-2">
       <p className="text-muted-foreground text-xs">
-        Showing {mediaCount} of {totalCount} media item
+        Showing {itemCount} of {totalCount} {itemLabel}
         {totalCount === 1 ? "" : "s"}.
       </p>
       {/* <div className="flex-1 text-muted-foreground text-xs">

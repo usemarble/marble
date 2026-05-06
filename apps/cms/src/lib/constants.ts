@@ -149,6 +149,7 @@ export const MEDIA_TYPES = ["image", "video", "audio", "document"] as const;
 export const MEDIA_FILTER_TYPES = ["all", ...MEDIA_TYPES] as const;
 
 export const MEDIA_LIMIT = 20;
+export const POST_LIMIT = 20;
 
 /**
  * Reserved workspace slugs that cannot be used for workspace creation

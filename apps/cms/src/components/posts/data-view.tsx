@@ -1,6 +1,6 @@
 "use client";
 
-import { FileImportIcon } from "@hugeicons/core-free-icons";
+import { FileImportIcon, FilterResetIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Button, buttonVariants } from "@marble/ui/components/button";
 import { Input } from "@marble/ui/components/input";
@@ -31,17 +31,22 @@ import {
   getCoreRowModel,
   getFilteredRowModel,
   getSortedRowModel,
+  type OnChangeFn,
+  type PaginationState,
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
 import { motion } from "motion/react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { type ComponentType, type JSX, useState } from "react";
+import { type ComponentType, type JSX, useMemo, useState } from "react";
+import { DataTablePagination } from "@/components/ui/data-table-pagination";
 import { useLocalStorage } from "@/hooks/use-localstorage";
 import { QUERY_KEYS } from "@/lib/queries/keys";
+import { POST_SORTS, usePostPageFilters } from "@/lib/search-params";
 import { useWorkspace } from "@/providers/workspace";
 import type { Post } from "./columns";
+import type { DataTableProps } from "./data-table";
 
 interface Category {
   id: string;
@@ -57,16 +62,8 @@ const DataGrid = dynamic(
 
 const DataTable = dynamic(
   () => import("./data-table").then((mod) => ({ default: mod.DataTable })),
-  {
-    ssr: false,
-  }
-) as <TData, TValue>(props: {
-  table: ReturnType<typeof useReactTable<TData>>;
-  rows: ReturnType<
-    ReturnType<typeof useReactTable<TData>>["getRowModel"]
-  >["rows"];
-  columns: ColumnDef<TData, TValue>[];
-}) => JSX.Element;
+  { ssr: false }
+) as <TData, TValue>(props: DataTableProps<TData, TValue>) => JSX.Element;
 
 const PostsImportModal = dynamic(
   () =>
@@ -77,6 +74,9 @@ const PostsImportModal = dynamic(
 interface DataViewProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  isFetching?: boolean;
+  pageCount: number;
+  totalCount: number;
 }
 
 type ViewType = "table" | "grid";
@@ -84,9 +84,18 @@ type ViewType = "table" | "grid";
 export function PostDataView<TData, TValue>({
   columns,
   data,
+  isFetching = false,
+  pageCount,
+  totalCount,
 }: DataViewProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [
+    { category, page, perPage, search: initialSearch, sort, status },
+    setSearchParams,
+  ] = usePostPageFilters();
+  const [search, setSearch] = useState(initialSearch);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
+    initialSearch ? [{ id: "title", value: initialSearch }] : []
+  );
   const [viewType, setViewType] = useLocalStorage<ViewType | null>(
     "viewType",
     "table"
@@ -94,7 +103,6 @@ export function PostDataView<TData, TValue>({
 
   const { activeWorkspace } = useWorkspace();
   const [importOpen, setImportOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const { data: categories = [] } = useQuery<Category[]>({
     queryKey: QUERY_KEYS.CATEGORIES(activeWorkspace?.id ?? ""),
@@ -107,17 +115,65 @@ export function PostDataView<TData, TValue>({
     },
     enabled: !!activeWorkspace?.id,
   });
+  const pagination = useMemo<PaginationState>(
+    () => ({
+      pageIndex: Math.max(0, page - 1),
+      pageSize: perPage,
+    }),
+    [page, perPage]
+  );
+
+  const sorting = useMemo<SortingState>(() => {
+    const [id, direction] = sort.split("_");
+    return [{ id: id ?? "createdAt", desc: direction !== "asc" }];
+  }, [sort]);
+
+  const onPaginationChange: OnChangeFn<PaginationState> = (updaterOrValue) => {
+    const nextPagination =
+      typeof updaterOrValue === "function"
+        ? updaterOrValue(pagination)
+        : updaterOrValue;
+
+    setSearchParams({
+      page: nextPagination.pageIndex + 1,
+      perPage: nextPagination.pageSize,
+    });
+  };
+
+  const onSortingChange: OnChangeFn<SortingState> = (updaterOrValue) => {
+    const nextSorting =
+      typeof updaterOrValue === "function"
+        ? updaterOrValue(sorting)
+        : updaterOrValue;
+    const [firstSort] = nextSorting;
+    const nextSort = firstSort
+      ? `${firstSort.id}_${firstSort.desc ? "desc" : "asc"}`
+      : "createdAt_desc";
+
+    setSearchParams({
+      page: 1,
+      sort: POST_SORTS.includes(nextSort as (typeof POST_SORTS)[number])
+        ? (nextSort as (typeof POST_SORTS)[number])
+        : "createdAt_desc",
+    });
+  };
+
   const table = useReactTable({
     data,
     columns,
-    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
-    onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    onColumnFiltersChange: setColumnFilters,
+    manualPagination: true,
+    manualSorting: true,
+    onPaginationChange,
+    onSortingChange,
+    pageCount,
     state: {
-      sorting,
       columnFilters,
+      pagination,
+      sorting,
     },
     initialState: {
       columnVisibility: {
@@ -130,21 +186,34 @@ export function PostDataView<TData, TValue>({
     { label: "All Categories", value: "all" },
     ...categories.map((c) => ({ label: c.name, value: c.id })),
   ];
+  const statusOptions = [
+    { label: "All Statuses", value: "all" },
+    { label: "Published", value: "published" },
+    { label: "Draft", value: "draft" },
+  ];
+  const hasActiveFilters =
+    category !== "all" ||
+    status !== "all" ||
+    sort !== "createdAt_desc" ||
+    search.trim() !== "";
+
+  const resetFilters = () => {
+    setSearch("");
+    table.getColumn("title")?.setFilterValue("");
+    setSearchParams({
+      category: "all",
+      page: 1,
+      search: "",
+      sort: "createdAt_desc",
+      status: "all",
+    });
+  };
 
   return (
     <div>
-      <div className="mb-4 flex flex-col gap-4 py-4 md:flex-row md:items-center md:justify-between">
+      {/* table controls */}
+      <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex flex-col gap-2">
-          <div className="text-muted-foreground text-xs">
-            {table.getFilteredRowModel().rows.length === data.length ? (
-              <span>Showing {data.length} posts</span>
-            ) : (
-              <span>
-                Showing {table.getFilteredRowModel().rows.length} of{" "}
-                {data.length} posts
-              </span>
-            )}
-          </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2">
             <div className="relative">
               <MagnifyingGlassIcon
@@ -152,19 +221,22 @@ export function PostDataView<TData, TValue>({
                 size={16}
               />
               <Input
-                className="w-full px-8 sm:w-72"
-                onChange={(event) =>
-                  table.getColumn("title")?.setFilterValue(event.target.value)
-                }
+                className="h-9 w-full rounded-[12px] px-8 shadow-none sm:w-72"
+                onChange={(event) => {
+                  const nextSearch = event.target.value;
+                  setSearch(nextSearch);
+                  table.getColumn("title")?.setFilterValue(nextSearch);
+                }}
                 placeholder="Search posts..."
-                value={
-                  (table.getColumn("title")?.getFilterValue() as string) ?? ""
-                }
+                value={search}
               />
-              {(table.getColumn("title")?.getFilterValue() as string) && (
+              {search && (
                 <button
-                  className="absolute top-2.5 right-3"
-                  onClick={() => table.getColumn("title")?.setFilterValue("")}
+                  className="-translate-y-1/2 absolute top-1/2 right-3"
+                  onClick={() => {
+                    setSearch("");
+                    table.getColumn("title")?.setFilterValue("");
+                  }}
                   type="button"
                 >
                   <XIcon className="size-4" />
@@ -175,13 +247,14 @@ export function PostDataView<TData, TValue>({
             <Select
               items={categoryOptions}
               onValueChange={(value) => {
-                const categoryValue = value === "all" ? null : value;
-                setSelectedCategory(categoryValue);
-                table.getColumn("category")?.setFilterValue(categoryValue);
+                setSearchParams({
+                  category: value,
+                  page: 1,
+                });
               }}
-              value={selectedCategory ?? "all"}
+              value={category}
             >
-              <SelectTrigger className="w-40 shadow-none">
+              <SelectTrigger className="h-9 w-36 rounded-[12px] shadow-none">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -192,39 +265,49 @@ export function PostDataView<TData, TValue>({
                 ))}
               </SelectContent>
             </Select>
+            <Select
+              items={statusOptions}
+              onValueChange={(value) => {
+                setSearchParams({
+                  page: 1,
+                  status: value as "all" | "published" | "draft",
+                });
+              }}
+              value={status}
+            >
+              <SelectTrigger className="h-9 w-32 rounded-[12px] shadow-none">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {statusOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {hasActiveFilters && (
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Button
+                      aria-label="Reset filters"
+                      className="h-9 w-9 rounded-[12px] p-0 shadow-none"
+                      onClick={resetFilters}
+                      type="button"
+                      variant="outline"
+                    >
+                      <HugeiconsIcon icon={FilterResetIcon} size={16} />
+                    </Button>
+                  }
+                />
+                <TooltipContent side="top">Reset filters</TooltipContent>
+              </Tooltip>
+            )}
           </div>
         </div>
         <div className="flex flex-wrap items-center justify-between gap-2 sm:justify-end">
           <div className="flex gap-0.5 rounded-xl bg-surface p-0.5 dark:bg-accent/50">
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <Button
-                    className="relative h-8 w-9 rounded-[10px]"
-                    onClick={() => setViewType("grid")}
-                    size="icon-sm"
-                    variant="ghost"
-                  >
-                    {viewType === "grid" && (
-                      <motion.div
-                        className="absolute inset-0 rounded-[10px] bg-background shadow-sm"
-                        layoutId="viewToggleHighlight"
-                        transition={{
-                          type: "spring",
-                          bounce: 0.2,
-                          duration: 0.4,
-                        }}
-                      />
-                    )}
-                    <SquaresFourIcon className="relative z-10" size={16} />
-                    <span className="sr-only">Grid View</span>
-                  </Button>
-                }
-              />
-              <TooltipContent>
-                <p>Grid View</p>
-              </TooltipContent>
-            </Tooltip>
             <Tooltip>
               <TooltipTrigger
                 render={
@@ -252,6 +335,35 @@ export function PostDataView<TData, TValue>({
               />
               <TooltipContent>
                 <p>Table View</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button
+                    className="relative h-8 w-9 rounded-[10px]"
+                    onClick={() => setViewType("grid")}
+                    size="icon-sm"
+                    variant="ghost"
+                  >
+                    {viewType === "grid" && (
+                      <motion.div
+                        className="absolute inset-0 rounded-[10px] bg-background shadow-sm"
+                        layoutId="viewToggleHighlight"
+                        transition={{
+                          type: "spring",
+                          bounce: 0.2,
+                          duration: 0.4,
+                        }}
+                      />
+                    )}
+                    <SquaresFourIcon className="relative z-10" size={16} />
+                    <span className="sr-only">Grid View</span>
+                  </Button>
+                }
+              />
+              <TooltipContent>
+                <p>Grid View</p>
               </TooltipContent>
             </Tooltip>
           </div>
@@ -285,21 +397,41 @@ export function PostDataView<TData, TValue>({
           </div>
         </div>
       </div>
-      {viewType === "table" ? (
-        <DataTable
-          columns={columns}
-          rows={table.getRowModel().rows}
-          table={table}
-        />
-      ) : (
-        <DataGrid
-          data={
-            table
-              .getFilteredRowModel()
-              .rows.map((row) => row.original) as Post[]
-          }
-        />
-      )}
+      {/* data table */}
+      <div
+        className={cn(
+          "transition-opacity duration-150",
+          isFetching && "pointer-events-none opacity-50"
+        )}
+      >
+        {viewType === "table" ? (
+          <div className="flex flex-col gap-3">
+            <DataTable
+              columns={columns}
+              rows={table.getRowModel().rows}
+              table={table}
+            />
+            <DataTablePagination
+              canNextPage={pagination.pageIndex + 1 < pageCount}
+              canPreviousPage={pagination.pageIndex > 0}
+              itemLabel="post"
+              onPageChange={(pageIndex) => {
+                setSearchParams({ page: pageIndex + 1 });
+              }}
+              pageCount={pageCount}
+              pageIndex={pagination.pageIndex}
+              rowCount={data.length}
+              selectedCount={0}
+              totalCount={totalCount}
+              visibleCount={table.getRowModel().rows.length}
+            />
+          </div>
+        ) : (
+          <DataGrid
+            data={table.getRowModel().rows.map((row) => row.original) as Post[]}
+          />
+        )}
+      </div>
       <PostsImportModal open={importOpen} setOpen={setImportOpen} />
     </div>
   );

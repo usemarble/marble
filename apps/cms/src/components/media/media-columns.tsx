@@ -1,7 +1,12 @@
 "use client";
 
-import { Copy01Icon, Delete02Icon } from "@hugeicons/core-free-icons";
+import {
+  Copy01Icon,
+  Delete02Icon,
+  MoreVerticalIcon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { Button } from "@marble/ui/components/button";
 import { Checkbox } from "@marble/ui/components/checkbox";
 import {
   DropdownMenu,
@@ -10,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
 import { toast } from "@marble/ui/components/sonner";
+import { cn } from "@marble/ui/lib/utils";
 import {
   DotsThreeVerticalIcon,
   FileAudioIcon,
@@ -210,14 +216,17 @@ export function getMediaColumns({
           <DropdownMenu>
             <DropdownMenuTrigger
               render={
-                <button
-                  aria-haspopup="menu"
-                  aria-label={`More actions for ${row.original.name}`}
-                  className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full outline-none transition-all hover:bg-surface-foreground/10 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-                  type="button"
+                <Button
+                  className="size-8 p-0"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                  }}
+                  variant="ghost"
                 >
-                  <DotsThreeVerticalIcon size={16} />
-                </button>
+                  <span className="sr-only">Open menu</span>
+                  <HugeiconsIcon icon={MoreVerticalIcon} size={16} />
+                </Button>
               }
             />
             <DropdownMenuContent align="end">
