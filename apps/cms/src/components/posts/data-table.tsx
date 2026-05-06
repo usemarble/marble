@@ -9,7 +9,6 @@ import {
   TableRow,
 } from "@marble/ui/components/table";
 import {
-  type ColumnDef,
   flexRender,
   type Row,
   type Table as TableType,
@@ -19,17 +18,12 @@ import type { MouseEvent } from "react";
 import { useWorkspace } from "@/providers/workspace";
 import type { Post } from "./columns";
 
-export interface DataTableProps<TData, TValue> {
+export interface DataTableProps<TData> {
   table: TableType<TData>;
   rows: Row<TData>[];
-  columns: ColumnDef<TData, TValue>[];
 }
 
-export function DataTable<TData, TValue>({
-  table,
-  rows,
-  columns,
-}: DataTableProps<TData, TValue>) {
+export function DataTable<TData>({ table, rows }: DataTableProps<TData>) {
   const router = useRouter();
   const { activeWorkspace } = useWorkspace();
 
@@ -110,7 +104,7 @@ export function DataTable<TData, TValue>({
             <TableRow className="border-0 bg-background">
               <TableCell
                 className="h-28 rounded-[14px] text-center text-muted-foreground text-sm"
-                colSpan={columns.length}
+                colSpan={table.getVisibleLeafColumns().length}
               >
                 No posts found. Try adjusting your filters.
               </TableCell>

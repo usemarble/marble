@@ -27,9 +27,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import {
   type ColumnDef,
-  type ColumnFiltersState,
   getCoreRowModel,
-  getFilteredRowModel,
   getSortedRowModel,
   type OnChangeFn,
   type PaginationState,
@@ -39,8 +37,15 @@ import {
 import { motion } from "motion/react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { type ComponentType, type JSX, useMemo, useState } from "react";
+import {
+  type ComponentType,
+  type JSX,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { DataTablePagination } from "@/components/ui/data-table-pagination";
+import { useDebounce } from "@/hooks/use-debounce";
 import { useLocalStorage } from "@/hooks/use-localstorage";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { POST_SORTS, usePostPageFilters } from "@/lib/search-params";
@@ -63,7 +68,7 @@ const DataGrid = dynamic(
 const DataTable = dynamic(
   () => import("./data-table").then((mod) => ({ default: mod.DataTable })),
   { ssr: false }
-) as <TData, TValue>(props: DataTableProps<TData, TValue>) => JSX.Element;
+) as <TData>(props: DataTableProps<TData>) => JSX.Element;
 
 const PostsImportModal = dynamic(
   () =>
@@ -93,9 +98,7 @@ export function PostDataView<TData, TValue>({
     setSearchParams,
   ] = usePostPageFilters();
   const [search, setSearch] = useState(initialSearch);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
-    initialSearch ? [{ id: "title", value: initialSearch }] : []
-  );
+  const debouncedSearch = useDebounce(search.trim(), 300);
   const [viewType, setViewType] = useLocalStorage<ViewType | null>(
     "viewType",
     "table"
@@ -103,6 +106,17 @@ export function PostDataView<TData, TValue>({
 
   const { activeWorkspace } = useWorkspace();
   const [importOpen, setImportOpen] = useState(false);
+
+  useEffect(() => {
+    setSearch(initialSearch);
+  }, [initialSearch]);
+
+  useEffect(() => {
+    if (debouncedSearch === initialSearch) {
+      return;
+    }
+    setSearchParams({ page: 1, search: debouncedSearch });
+  }, [debouncedSearch, initialSearch, setSearchParams]);
 
   const { data: categories = [] } = useQuery<Category[]>({
     queryKey: QUERY_KEYS.CATEGORIES(activeWorkspace?.id ?? ""),
@@ -162,16 +176,14 @@ export function PostDataView<TData, TValue>({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    onColumnFiltersChange: setColumnFilters,
+    manualFiltering: true,
     manualPagination: true,
     manualSorting: true,
     onPaginationChange,
     onSortingChange,
     pageCount,
     state: {
-      columnFilters,
       pagination,
       sorting,
     },
@@ -199,7 +211,6 @@ export function PostDataView<TData, TValue>({
 
   const resetFilters = () => {
     setSearch("");
-    table.getColumn("title")?.setFilterValue("");
     setSearchParams({
       category: "all",
       page: 1,
@@ -223,9 +234,7 @@ export function PostDataView<TData, TValue>({
               <Input
                 className="h-9 w-full rounded-[12px] px-8 shadow-none sm:w-72"
                 onChange={(event) => {
-                  const nextSearch = event.target.value;
-                  setSearch(nextSearch);
-                  table.getColumn("title")?.setFilterValue(nextSearch);
+                  setSearch(event.target.value);
                 }}
                 placeholder="Search posts..."
                 value={search}
@@ -235,7 +244,7 @@ export function PostDataView<TData, TValue>({
                   className="-translate-y-1/2 absolute top-1/2 right-3"
                   onClick={() => {
                     setSearch("");
-                    table.getColumn("title")?.setFilterValue("");
+                    setSearchParams({ page: 1, search: "" });
                   }}
                   type="button"
                 >
@@ -406,11 +415,7 @@ export function PostDataView<TData, TValue>({
       >
         {viewType === "table" ? (
           <div className="flex flex-col gap-3">
-            <DataTable
-              columns={columns}
-              rows={table.getRowModel().rows}
-              table={table}
-            />
+            <DataTable rows={table.getRowModel().rows} table={table} />
             <DataTablePagination
               canNextPage={pagination.pageIndex + 1 < pageCount}
               canPreviousPage={pagination.pageIndex > 0}

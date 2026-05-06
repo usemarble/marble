@@ -13,7 +13,6 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { toast } from "sonner";
 import { DashboardBody } from "@/components/layout/wrapper";
 import { columns, type Post } from "@/components/posts/columns";
 import { PostDataView } from "@/components/posts/data-view";
@@ -38,7 +37,7 @@ function PageClient() {
       category: filters.category,
       page: filters.page,
       perPage: filters.perPage,
-      search: "",
+      search: filters.search,
       sort: filters.sort,
       status: filters.status,
     }),
@@ -46,6 +45,7 @@ function PageClient() {
       filters.category,
       filters.page,
       filters.perPage,
+      filters.search,
       filters.sort,
       filters.status,
     ]
@@ -53,36 +53,39 @@ function PageClient() {
 
   const [importOpen, setImportOpen] = useState(false);
 
-  const { data, isFetching, isLoading } = useQuery({
+  const { data, error, isError, isFetching, isLoading } = useQuery({
     queryKey: workspaceId
       ? [...QUERY_KEYS.POSTS(workspaceId), apiFilters]
       : ["posts", "disabled"],
     placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 60,
     queryFn: async () => {
-      try {
-        const res = await fetch(getPostApiUrl("/api/posts", apiFilters));
-        if (!res.ok) {
-          throw new Error("Failed to fetch posts");
-        }
-        const data: {
-          hasAnyPosts: boolean;
-          pageCount: number;
-          posts: Post[];
-          totalCount: number;
-        } = await res.json();
-        return data;
-      } catch (error) {
-        toast.error(
-          error instanceof Error ? error.message : "Failed to fetch posts"
-        );
+      const res = await fetch(getPostApiUrl("/api/posts", apiFilters));
+      if (!res.ok) {
+        throw new Error("Failed to fetch posts");
       }
+      return (await res.json()) as {
+        hasAnyPosts: boolean;
+        pageCount: number;
+        posts: Post[];
+        totalCount: number;
+      };
     },
     enabled: Boolean(workspaceId) && !isFetchingWorkspace,
   });
 
   if (isFetchingWorkspace || !workspaceId || (isLoading && !data)) {
     return <PageLoader />;
+  }
+
+  if (isError && !data) {
+    return (
+      <DashboardBody className="grid min-h-[calc(100vh-56px)] place-items-center">
+        <p className="text-muted-foreground text-sm">
+          {error instanceof Error ? error.message : "Could not load posts."}
+        </p>
+      </DashboardBody>
+    );
   }
 
   return (
