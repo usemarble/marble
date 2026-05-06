@@ -432,9 +432,27 @@ export function PostDataView<TData, TValue>({
             />
           </div>
         ) : (
-          <DataGrid
-            data={table.getRowModel().rows.map((row) => row.original) as Post[]}
-          />
+          <div className="flex flex-col gap-3">
+            <DataGrid
+              data={
+                table.getRowModel().rows.map((row) => row.original) as Post[]
+              }
+            />
+            <DataTablePagination
+              canNextPage={pagination.pageIndex + 1 < pageCount}
+              canPreviousPage={pagination.pageIndex > 0}
+              itemLabel="post"
+              onPageChange={(pageIndex) => {
+                setSearchParams({ page: pageIndex + 1 });
+              }}
+              pageCount={pageCount}
+              pageIndex={pagination.pageIndex}
+              rowCount={data.length}
+              selectedCount={0}
+              totalCount={totalCount}
+              visibleCount={table.getRowModel().rows.length}
+            />
+          </div>
         )}
       </div>
       <PostsImportModal open={importOpen} setOpen={setImportOpen} />
