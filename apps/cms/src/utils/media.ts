@@ -1,5 +1,10 @@
 import type { MEDIA_SORT_BY, SORT_DIRECTIONS } from "@/lib/constants";
-import type { MediaFilterType, MediaSort, MediaType } from "@/types/media";
+import type {
+  Media,
+  MediaFilterType,
+  MediaSort,
+  MediaType,
+} from "@/types/media";
 
 export function getMediaType(mimeType: string): MediaType {
   if (mimeType.startsWith("image/")) {
@@ -50,9 +55,61 @@ export function splitMediaSort(sort: MediaSort) {
 export function isMediaFilterType(
   value: MediaFilterType
 ): value is MediaFilterType {
-  return ["all", "image", "video"].includes(value as string);
+  return ["all", "image", "video", "audio", "document"].includes(
+    value as string
+  );
 }
 
 export function toMediaType(value: MediaFilterType): MediaType | undefined {
   return value === "all" ? undefined : value;
+}
+
+export async function downloadMedia(media: Media) {
+  const response = await fetch(media.url);
+  if (!response.ok) {
+    throw new Error("Failed to download media");
+  }
+
+  const blob = await response.blob();
+  const objectUrl = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  try {
+    link.href = objectUrl;
+    link.download = media.name;
+    document.body.appendChild(link);
+    link.click();
+  } finally {
+    link.remove();
+    URL.revokeObjectURL(objectUrl);
+  }
+}
+
+export function formatMediaType(media: Media) {
+  return `${media.type.charAt(0).toUpperCase()}${media.type.slice(1)}`;
+}
+
+export function formatMediaDimensions(media: Media) {
+  if (media.width && media.height) {
+    return `${media.width} x ${media.height}`;
+  }
+  return "-";
+}
+
+export function formatMediaDuration(duration: number | null | undefined) {
+  if (duration == null) {
+    return "-";
+  }
+
+  const totalSeconds = Math.round(duration / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  const paddedMinutes = String(minutes).padStart(hours > 0 ? 2 : 1, "0");
+  const paddedSeconds = String(seconds).padStart(2, "0");
+
+  if (hours > 0) {
+    return `${hours}:${paddedMinutes}:${paddedSeconds}`;
+  }
+
+  return `${paddedMinutes}:${paddedSeconds}`;
 }

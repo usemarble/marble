@@ -20,6 +20,8 @@ import {
 } from "@phosphor-icons/react";
 import { format } from "date-fns";
 import Image from "next/image";
+import { type ElementType, useMemo } from "react";
+import { blurhashToDataUrl } from "@/lib/blurhash";
 import type { Media, MediaType } from "@/types/media";
 import { formatBytes } from "@/utils/string";
 import { VideoPlayer } from "./video-player";
@@ -31,14 +33,11 @@ interface MediaCardProps {
   onSelect: () => void;
 }
 
-const mediaTypeIcons: Record<
-  MediaType,
-  { icon: React.ElementType; color: string }
-> = {
-  image: { icon: FileImageIcon, color: "text-blue-500" },
-  video: { icon: FileVideoIcon, color: "text-red-500" },
-  audio: { icon: FileAudioIcon, color: "text-green-500" },
-  document: { icon: FileIcon, color: "text-gray-500" },
+const mediaTypeIcons: Record<MediaType, ElementType> = {
+  image: FileImageIcon,
+  video: FileVideoIcon,
+  audio: FileAudioIcon,
+  document: FileIcon,
 };
 
 export function MediaCard({
@@ -47,8 +46,14 @@ export function MediaCard({
   isSelected = false,
   onSelect,
 }: MediaCardProps) {
-  const { icon: Icon, color } =
-    mediaTypeIcons[media.type] || mediaTypeIcons.document;
+  const Icon = mediaTypeIcons[media.type];
+  const blurDataUrl = useMemo(() => {
+    if (media.type !== "image" || !media.blurHash) {
+      return undefined;
+    }
+
+    return blurhashToDataUrl(media.blurHash);
+  }, [media.blurHash, media.type]);
 
   const handleDownload = () => {
     window.open(media.url, "_blank", "noopener,noreferrer");
@@ -86,9 +91,11 @@ export function MediaCard({
             {media.type === "image" && (
               <div className="h-full w-full bg-background">
                 <Image
-                  alt={media.name}
+                  alt={media.alt || media.name}
+                  blurDataURL={blurDataUrl}
                   className="size-full object-cover"
                   height={160}
+                  placeholder={blurDataUrl ? "blur" : "empty"}
                   src={media.url}
                   unoptimized
                   width={250}

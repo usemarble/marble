@@ -25,7 +25,8 @@ import { cn } from "@marble/ui/lib/utils";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useMemo } from "react";
 import { useFormContext } from "react-hook-form";
-import type { MediaListResponse } from "@/types/media";
+import { getMediaEditorApiUrl } from "@/lib/search-params";
+import type { MediaCursorListResponse } from "@/types/media";
 import { generateSlug } from "@/utils/string";
 import { TextareaAutosize } from "./textarea-autosize";
 
@@ -75,14 +76,14 @@ function EditorPageContent() {
   const fetchMediaPage = useCallback(
     async (cursor?: string): Promise<MediaPage> => {
       try {
-        const url = cursor
-          ? `/api/media?cursor=${encodeURIComponent(cursor)}`
-          : "/api/media";
+        const url = getMediaEditorApiUrl("/api/media/editor", {
+          cursor: cursor || null,
+        });
         const response = await fetch(url);
         if (!response.ok) {
           return { media: [] };
         }
-        const data: MediaListResponse = await response.json();
+        const data: MediaCursorListResponse = await response.json();
         return {
           media: data.media.map((item) => ({
             id: item.id,

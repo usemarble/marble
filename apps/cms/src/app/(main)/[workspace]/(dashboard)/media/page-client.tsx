@@ -1,11 +1,10 @@
 "use client";
 
 import { toast } from "@marble/ui/components/sonner";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
-import { WorkspacePageWrapper } from "@/components/layout/wrapper";
-import { MediaControls } from "@/components/media/media-controls";
-import { MediaGallery } from "@/components/media/media-gallery";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { DashboardBody } from "@/components/layout/wrapper";
+import { MediaDataTable } from "@/components/media/media-data-table";
 import PageLoader from "@/components/shared/page-loader";
 import { useMediaActions } from "@/hooks/use-media-actions";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
@@ -13,39 +12,35 @@ import { uploadFile } from "@/lib/media/upload";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { getMediaApiUrl, useMediaPageFilters } from "@/lib/search-params";
 import { useWorkspace } from "@/providers/workspace";
-import type { Media, MediaListResponse, MediaQueryKey } from "@/types/media";
+import type {
+  Media,
+  MediaPaginatedListResponse,
+  MediaQueryKey,
+} from "@/types/media";
 import { toMediaType } from "@/utils/media";
 
 function PageClient() {
   const workspaceId = useWorkspaceId();
   const { isFetchingWorkspace } = useWorkspace();
-  const [{ type, sort }] = useMediaPageFilters();
+  const [{ page, perPage, search, sort, type }] = useMediaPageFilters();
   const normalizedType = toMediaType(type);
-  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [mediaToDelete, setMediaToDelete] = useState<Media[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
 
-  const {
-    data,
-    isLoading,
-    isFetching,
-    hasNextPage,
-    fetchNextPage,
-    isFetchingNextPage,
-  } = useInfiniteQuery({
+  const { data, error, isError, isLoading, isFetching } = useQuery({
     queryKey: [
       // biome-ignore lint/style/noNonNullAssertion: <>
       ...QUERY_KEYS.MEDIA(workspaceId!),
-      { type: normalizedType, sort },
+      { page, perPage, search, sort, type: normalizedType },
     ],
-    queryFn: async ({ pageParam }: { pageParam?: string }) => {
+    queryFn: async () => {
       try {
         const url = getMediaApiUrl("/api/media", {
+          page,
+          perPage,
+          search: search || null,
           sort,
           type: normalizedType,
-          cursor: pageParam,
         });
 
         const res = await fetch(url);
@@ -54,58 +49,33 @@ function PageClient() {
             `Failed to fetch media: ${res.status} ${res.statusText}`
           );
         }
-        const data: MediaListResponse = await res.json();
+        const data: MediaPaginatedListResponse = await res.json();
         return data;
       } catch (error) {
         toast.error(
           error instanceof Error ? error.message : "Failed to fetch media"
         );
-        return { media: [], nextCursor: undefined, hasAnyMedia: false };
+        throw error;
       }
     },
-    getNextPageParam: (lastPage) => lastPage.nextCursor || undefined,
-    initialPageParam: undefined,
     enabled: !!workspaceId && !isFetchingWorkspace,
-    placeholderData: (previous, previousQuery) => {
-      const previousWorkspaceId =
-        Array.isArray(previousQuery?.queryKey) &&
-        typeof previousQuery.queryKey[1] === "string"
-          ? previousQuery.queryKey[1]
-          : null;
-
-      return previousWorkspaceId === workspaceId ? previous : undefined;
-    },
+    placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 30,
   });
 
-  const mediaItems = data?.pages.flatMap((page) => page.media) ?? [];
-  const hasAnyMedia = data?.pages.at(0)?.hasAnyMedia ?? mediaItems.length > 0;
+  const mediaItems = data?.media ?? [];
+  const hasAnyMedia = data?.hasAnyMedia ?? mediaItems.length > 0;
+  const pageCount = data?.pageCount ?? 1;
+  const totalCount = data?.totalCount ?? mediaItems.length;
 
   const mediaQueryKey: MediaQueryKey = [
     // biome-ignore lint/style/noNonNullAssertion: <>
     ...QUERY_KEYS.MEDIA(workspaceId!),
-    { type: normalizedType, sort },
+    { page, perPage, search, type: normalizedType, sort },
   ];
 
   const { handleUploadComplete } = useMediaActions(mediaQueryKey);
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <>
-  useEffect(() => {
-    setSelectedItems(new Set());
-  }, [type, sort]);
-
-  const handleSelectAll = () => {
-    if (selectedItems.size === mediaItems.length) {
-      setSelectedItems(new Set());
-    } else {
-      setSelectedItems(new Set(mediaItems.map((item) => item.id)));
-    }
-  };
-
-  const handleDeselectAll = () => {
-    setSelectedItems(new Set());
-  };
 
   const handleFileUpload = async (files: FileList) => {
     if (!files?.length) {
@@ -135,7 +105,6 @@ function PageClient() {
           await uploadFile({ file, type: "media" });
           uploaded += 1;
         } catch (error) {
-          console.error(`Failed to upload ${file.name}:`, error);
           errors.push({
             file: file.name,
             error: error instanceof Error ? error.message : "Unknown error",
@@ -170,51 +139,32 @@ function PageClient() {
     return <PageLoader />;
   }
 
+  if (isError) {
+    return (
+      <DashboardBody className="grid min-h-[calc(100vh-56px)] place-items-center">
+        <p className="text-muted-foreground text-sm">
+          {error instanceof Error ? error.message : "Could not load media."}
+        </p>
+      </DashboardBody>
+    );
+  }
+
   return (
-    <WorkspacePageWrapper
-      className="flex flex-col gap-8 pt-10 pb-16"
-      size="compact"
-    >
+    <DashboardBody className="flex flex-col gap-8 pt-10 pb-16" size="compact">
       <div aria-atomic="true" aria-live="polite" className="sr-only">
         {statusMessage}
       </div>
-      {hasAnyMedia && (
-        <MediaControls
-          disabled={isFetching || isUploading}
-          isUploading={isUploading}
-          mediaLength={mediaItems.length}
-          onBulkDelete={() => {
-            const itemsToDelete = mediaItems.filter((item) =>
-              selectedItems.has(item.id)
-            );
-            setMediaToDelete(itemsToDelete);
-            setShowDeleteModal(true);
-          }}
-          onDeselectAll={handleDeselectAll}
-          onSelectAll={handleSelectAll}
-          onUpload={handleFileUpload}
-          selectedItems={selectedItems}
-        />
-      )}
-      <MediaGallery
+      <MediaDataTable
+        disabled={isFetching || isUploading}
         hasAnyMedia={hasAnyMedia}
-        hasNextPage={hasNextPage}
-        isFetching={isFetching}
-        isFetchingNextPage={isFetchingNextPage}
         isUploading={isUploading}
         media={mediaItems}
         mediaQueryKey={mediaQueryKey}
-        mediaToDelete={mediaToDelete}
-        onLoadMore={fetchNextPage}
-        onSelectItem={setSelectedItems}
         onUpload={handleFileUpload}
-        selectedItems={selectedItems}
-        setMediaToDelete={setMediaToDelete}
-        setShowDeleteModal={setShowDeleteModal}
-        showDeleteModal={showDeleteModal}
-        type={normalizedType}
+        pageCount={pageCount}
+        totalCount={totalCount}
       />
-    </WorkspacePageWrapper>
+    </DashboardBody>
   );
 }
 

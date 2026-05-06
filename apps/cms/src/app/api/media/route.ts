@@ -1,7 +1,7 @@
 import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
-import * as z from "zod";
+import { z } from "zod";
 import { getServerSession } from "@/lib/auth/session";
 import { R2_BUCKET_NAME, r2 } from "@/lib/r2";
 import { loadMediaApiFilters } from "@/lib/search-params";
@@ -26,84 +26,64 @@ export async function GET(request: Request) {
   }
 
   const filters = loadMediaApiFilters(request, { strict: true });
-  if (!z.number().int().min(1).max(100).safeParse(filters.limit).success) {
-    return NextResponse.json({ error: "Invalid limit" }, { status: 400 });
+  if (!z.number().int().min(1).safeParse(filters.page).success) {
+    return NextResponse.json({ error: "Invalid page" }, { status: 400 });
+  }
+  if (!z.number().int().min(1).max(100).safeParse(filters.perPage).success) {
+    return NextResponse.json({ error: "Invalid perPage" }, { status: 400 });
   }
   const { field, direction } = splitMediaSort(filters.sort);
-  const { limit, cursor, type } = filters;
+  const { page, perPage, search, type } = filters;
 
   try {
-    const hasAnyMedia =
-      (await db.media.count({
-        where: { workspaceId: orgId },
-      })) > 0;
-
-    // Parse the validated cursor (format: `${id}_${encodedValue}`)
-    let cursorId: string | null = null;
-    let parsedCursorValue: string | Date | null = null;
-    if (cursor) {
-      const [idPart, ...rest] = cursor.split("_");
-      const encodedValue = rest.join("_");
-      const valuePart = decodeURIComponent(encodedValue);
-      cursorId = idPart || null;
-      if (valuePart) {
-        parsedCursorValue =
-          field === "createdAt" ? new Date(valuePart) : valuePart;
-      }
-    }
+    const where = {
+      workspaceId: orgId,
+      ...(type && { type }),
+      ...(search?.trim() && {
+        name: {
+          contains: search.trim(),
+          mode: "insensitive" as const,
+        },
+      }),
+    };
 
     const orderBy = [{ [field]: direction }, { id: direction }];
+    const hasFilters = Boolean(type || search?.trim());
 
-    // Fetch one more than the requested limit to detect "hasNextPage"
-    const media = await db.media.findMany({
-      where: {
-        workspaceId: orgId,
-        ...(type && { type }),
-        ...(cursorId &&
-          parsedCursorValue !== null && {
-            OR: [
-              {
-                [field]: {
-                  [direction === "asc" ? "gt" : "lt"]: parsedCursorValue,
-                },
-              },
-              {
-                [field]: parsedCursorValue,
-                id: { [direction === "asc" ? "gt" : "lt"]: cursorId },
-              },
-            ],
-          }),
-      },
-      take: limit + 1,
-      orderBy,
-      select: {
-        id: true,
-        name: true,
-        url: true,
-        createdAt: true,
-        type: true,
-        size: true,
-      },
-    });
-
-    let nextCursor: typeof cursor | undefined;
-
-    // If more than "limit" items, drop the extra and set next cursor
-    if (media.length > limit) {
-      media.pop();
-      const lastItem = media.at(-1);
-
-      if (lastItem) {
-        const value =
-          field === "createdAt"
-            ? lastItem.createdAt.toISOString()
-            : lastItem.name;
-        nextCursor = `${lastItem.id}_${encodeURIComponent(value)}`;
-      }
-    }
+    const [media, totalCount, workspaceMediaCount] = await Promise.all([
+      db.media.findMany({
+        where,
+        skip: (page - 1) * perPage,
+        take: perPage,
+        orderBy,
+        select: {
+          id: true,
+          name: true,
+          url: true,
+          alt: true,
+          createdAt: true,
+          type: true,
+          size: true,
+          mimeType: true,
+          width: true,
+          height: true,
+          duration: true,
+          blurHash: true,
+        },
+      }),
+      db.media.count({ where }),
+      hasFilters ? db.media.count({ where: { workspaceId: orgId } }) : null,
+    ]);
+    const hasAnyMedia =
+      workspaceMediaCount === null ? totalCount > 0 : workspaceMediaCount > 0;
 
     return NextResponse.json(
-      { media, nextCursor, hasAnyMedia },
+      {
+        media,
+        pageCount: Math.max(1, Math.ceil(totalCount / perPage)),
+        totalCount,
+        hasAnyMedia,
+      },
       { status: 200 }
     );
   } catch (error) {

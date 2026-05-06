@@ -31,6 +31,30 @@ interface DeleteMediaModalProps {
   onDeleteComplete?: (deletedIds: string[]) => void;
 }
 
+function removeDeletedMediaFromPage(
+  page: MediaListResponse,
+  idsToDelete: Set<string>
+): MediaListResponse {
+  const removedCount = page.media.reduce(
+    (count, item) => count + (idsToDelete.has(item.id) ? 1 : 0),
+    0
+  );
+  const media = page.media.filter((item) => !idsToDelete.has(item.id));
+
+  if ("totalCount" in page) {
+    return {
+      ...page,
+      media,
+      totalCount: Math.max(0, page.totalCount - removedCount),
+    };
+  }
+
+  return {
+    ...page,
+    media,
+  };
+}
+
 export function DeleteMediaModal({
   isOpen,
   setIsOpen,
@@ -69,7 +93,7 @@ export function DeleteMediaModal({
 
       // Snapshot all media queries for rollback
       const previousQueries = queryClient.getQueriesData<
-        InfiniteData<MediaListResponse>
+        InfiniteData<MediaListResponse> | MediaListResponse
       >({
         queryKey: workspaceId ? QUERY_KEYS.MEDIA(workspaceId) : [],
       });
@@ -78,28 +102,25 @@ export function DeleteMediaModal({
 
       // Optimistically remove items from all media queries
       if (workspaceId) {
-        queryClient.setQueriesData<InfiniteData<MediaListResponse>>(
-          { queryKey: QUERY_KEYS.MEDIA(workspaceId) },
-          (oldData) => {
-            if (!oldData) {
-              return oldData;
-            }
+        queryClient.setQueriesData<
+          InfiniteData<MediaListResponse> | MediaListResponse
+        >({ queryKey: QUERY_KEYS.MEDIA(workspaceId) }, (oldData) => {
+          if (!oldData) {
+            return oldData;
+          }
+          if ("pages" in oldData) {
             return {
               ...oldData,
-              pages: oldData.pages.map((page) => ({
-                ...page,
-                media: page.media.filter((item) => !idsToDelete.has(item.id)),
-              })),
+              pages: oldData.pages.map((page) =>
+                removeDeletedMediaFromPage(page, idsToDelete)
+              ),
             };
           }
-        );
+          return removeDeletedMediaFromPage(oldData, idsToDelete);
+        });
       }
 
       setIsOpen(false);
-
-      if (onDeleteComplete) {
-        onDeleteComplete(mediaIds);
-      }
 
       const loadingMessage =
         mediaIds.length === 1
@@ -109,7 +130,7 @@ export function DeleteMediaModal({
 
       return { previousQueries, deletedCount: mediaIds.length };
     },
-    onSuccess: (_data, _variables, context) => {
+    onSuccess: (_data, mediaIds, context) => {
       const deletedCount = context?.deletedCount || 0;
       const message =
         deletedCount === 1
@@ -119,9 +140,14 @@ export function DeleteMediaModal({
 
       if (workspaceId) {
         queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.MEDIA(workspaceId),
+        });
+        queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.BILLING_USAGE(workspaceId),
         });
       }
+
+      onDeleteComplete?.(mediaIds);
     },
     onError: (error, _mediaIds, context) => {
       // Rollback to previous state on error

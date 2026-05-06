@@ -17,7 +17,7 @@ import { PRICING_PLANS } from "@marble/utils";
 import { ArrowUpRightIcon, CheckIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { WorkspacePageWrapper } from "@/components/layout/wrapper";
+import { DashboardBody } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
 import { AsyncButton } from "@/components/ui/async-button";
 import { usePlan } from "@/hooks/use-plan";
@@ -113,7 +113,7 @@ function PageClient() {
   };
 
   return (
-    <WorkspacePageWrapper className="flex flex-col gap-8 py-12" size="compact">
+    <DashboardBody className="flex flex-col gap-8 py-12" size="compact">
       {/* Current Plan Header */}
       <Card className="gap-0 rounded-[20px] border-none bg-surface p-1.5">
         <div className="flex items-center justify-between rounded-[12px] bg-background p-6 shadow-xs">
@@ -284,7 +284,7 @@ function PageClient() {
           </Table>
         </div>
       </Card>
-    </WorkspacePageWrapper>
+    </DashboardBody>
   );
 }
 

@@ -26,6 +26,7 @@ export function FileUploadInput({
   children,
   maxSize = MAX_MEDIA_FILE_SIZE,
 }: FileUploadInputProps) {
+  const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
   function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
@@ -53,7 +54,7 @@ export function FileUploadInput({
         aria-label="Upload File(s)"
         className="hidden"
         disabled={isUploadingProp}
-        id="file-upload-input"
+        id={inputId}
         onChange={handleFileUpload}
         ref={inputRef}
         type="file"
@@ -66,6 +67,7 @@ export function FileUploadInput({
         onClick={() => {
           inputRef.current?.click();
         }}
+        size="sm"
         type="button"
       >
         {children || (

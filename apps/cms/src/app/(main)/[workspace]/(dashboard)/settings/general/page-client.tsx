@@ -1,6 +1,6 @@
 "use client";
 
-import { WorkspacePageWrapper } from "@/components/layout/wrapper";
+import { DashboardBody } from "@/components/layout/wrapper";
 import { Delete } from "@/components/settings/fields/delete";
 import { Id } from "@/components/settings/fields/id";
 import { Logo } from "@/components/settings/fields/logo";
@@ -18,14 +18,14 @@ function PageClient() {
   }
 
   return (
-    <WorkspacePageWrapper className="flex flex-col gap-8 py-12" size="compact">
+    <DashboardBody className="flex flex-col gap-8 py-12" size="compact">
       <Name />
       <Slug />
       <Logo />
       <Timezone />
       <Id />
       <Delete />
-    </WorkspacePageWrapper>
+    </DashboardBody>
   );
 }
 

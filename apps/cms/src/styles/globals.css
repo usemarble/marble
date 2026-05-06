@@ -111,8 +111,8 @@
   --muted-foreground: hsl(0 0% 63.9%);
   --accent: hsl(0 0% 14.9%);
   --accent-foreground: hsl(0 0% 98%);
-  --destructive: hsl(358, 100%, 50%);
-  --destructive-foreground: hsl(0 0% 99%);
+  --destructive: hsl(0 84% 56%);
+  --destructive-foreground: hsl(0 0% 98%);
   --border: hsl(0, 1%, 17%);
   --input: hsl(0 0% 14.9%);
   --ring: hsl(244 100% 65%);
@@ -361,6 +361,20 @@
   @media (width >= 96rem) {
     .workspace-container-compact {
       max-width: 60rem;
+    }
+  }
+
+  .workspace-container-wide {
+    width: 100%;
+  }
+  @media (width >= 64rem) {
+    .workspace-container-wide {
+      max-width: var(--workspace-container-xl, 72rem);
+    }
+  }
+  @media (width >= 80rem) {
+    .workspace-container-wide {
+      max-width: var(--workspace-container-2xl, 80rem);
     }
   }
 }

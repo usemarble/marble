@@ -5,7 +5,7 @@ import { ApiUsageCard } from "@/components/home/api-usage-card";
 import { MediaUsageCard } from "@/components/home/media-usage-card";
 import { PublishingActivityCard } from "@/components/home/publishing-activity-card";
 import { WebhookUsageCard } from "@/components/home/webhook-usage-card";
-import { WorkspacePageWrapper } from "@/components/layout/wrapper";
+import { DashboardBody } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
@@ -44,10 +44,7 @@ export default function PageClient() {
   }
 
   return (
-    <WorkspacePageWrapper
-      className="flex flex-col gap-8 pt-10 pb-16"
-      size="compact"
-    >
+    <DashboardBody className="flex flex-col gap-8 pt-10 pb-16" size="compact">
       <div className="flex w-full flex-col gap-6 md:grid md:gap-x-10 md:gap-y-8">
         <ApiUsageCard data={data?.api} isLoading={isPending} />
         <div className="flex flex-col gap-6 lg:grid lg:grid-cols-2 lg:gap-8">
@@ -56,6 +53,6 @@ export default function PageClient() {
         </div>
         <PublishingActivityCard />
       </div>
-    </WorkspacePageWrapper>
+    </DashboardBody>
   );
 }

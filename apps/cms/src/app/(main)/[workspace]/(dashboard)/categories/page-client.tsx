@@ -10,7 +10,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { type Category, columns } from "@/components/categories/columns";
 import { DataTable } from "@/components/categories/data-table";
-import { WorkspacePageWrapper } from "@/components/layout/wrapper";
+import { DashboardBody } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
@@ -57,14 +57,14 @@ function PageClient() {
   return (
     <>
       {categories && categories.length > 0 ? (
-        <WorkspacePageWrapper
+        <DashboardBody
           className="flex flex-col gap-8 pt-10 pb-16"
           size="compact"
         >
           <DataTable columns={columns} data={categories} />
-        </WorkspacePageWrapper>
+        </DashboardBody>
       ) : (
-        <WorkspacePageWrapper
+        <DashboardBody
           className="grid h-full place-content-center"
           size="compact"
         >
@@ -83,7 +83,7 @@ function PageClient() {
               </Button>
             </div>
           </div>
-        </WorkspacePageWrapper>
+        </DashboardBody>
       )}
       <CategoryModal
         mode="create"

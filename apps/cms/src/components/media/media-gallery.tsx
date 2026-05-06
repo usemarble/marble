@@ -7,18 +7,9 @@ import { AnimatePresence, motion } from "motion/react";
 import { DeleteMediaModal } from "@/components/media/delete-modal";
 import { MediaCard } from "@/components/media/media-card";
 import { useMediaActions } from "@/hooks/use-media-actions";
-import type { MediaQueryKey, MediaType } from "@/types/media";
+import type { Media, MediaQueryKey, MediaType } from "@/types/media";
 import { getEmptyStateMessage } from "@/utils/media";
 import { FileUploadInput } from "./file-upload-input";
-
-interface Media {
-  id: string;
-  name: string;
-  url: string;
-  type: MediaType;
-  size: number;
-  createdAt: string;
-}
 
 interface MediaGalleryProps {
   media: Media[];

@@ -1,4 +1,4 @@
-import * as z from "zod";
+import { z } from "zod";
 import {
   ALLOWED_MIME_TYPES,
   ALLOWED_RASTER_MIME_TYPES,
@@ -87,20 +87,34 @@ export const completeLogoSchema = z.object({
   fileSize: z.coerce.number().int().positive().max(MAX_LOGO_FILE_SIZE),
 });
 
-export const completeMediaSchema = z.object({
-  type: z.literal("media"),
-  key: z
-    .string()
-    .min(3)
-    .max(1024)
-    .refine(
-      (k) => k.startsWith("media/") && !k.includes("..") && !k.startsWith("/"),
-      "Invalid key: must start with media/ and not contain path traversal"
-    ),
-  fileType: z.string().min(1),
-  fileSize: z.coerce.number().int().positive().max(MAX_MEDIA_FILE_SIZE),
-  name: z.string().min(1).max(255),
-});
+export const completeMediaSchema = z
+  .object({
+    type: z.literal("media"),
+    key: z
+      .string()
+      .min(3)
+      .max(1024)
+      .refine(
+        (k) =>
+          k.startsWith("media/") && !k.includes("..") && !k.startsWith("/"),
+        "Invalid key: must start with media/ and not contain path traversal"
+      ),
+    fileType: z.string().min(1),
+    fileSize: z.coerce.number().int().positive().max(MAX_MEDIA_FILE_SIZE),
+    name: z.string().min(1).max(255),
+    mimeType: z.string().min(1).max(255).optional(),
+    width: z.coerce.number().int().positive().optional(),
+    height: z.coerce.number().int().positive().optional(),
+    duration: z.coerce.number().int().nonnegative().optional(),
+    blurHash: z.string().min(6).max(128).optional(),
+  })
+  .refine(
+    ({ fileType, mimeType }) => mimeType === undefined || mimeType === fileType,
+    {
+      message: "mimeType must match fileType",
+      path: ["mimeType"],
+    }
+  );
 
 export const completeSchema = z.union([
   completeAvatarSchema,

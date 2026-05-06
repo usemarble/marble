@@ -7,7 +7,7 @@ import { cn } from "@marble/ui/lib/utils";
 import { ArrowUpRightIcon, PlusIcon } from "@phosphor-icons/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
-import { WorkspacePageWrapper } from "@/components/layout/wrapper";
+import { DashboardBody } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
@@ -67,7 +67,7 @@ export function PageClient() {
 
   if (isError) {
     return (
-      <WorkspacePageWrapper
+      <DashboardBody
         className="grid h-full place-content-center"
         size="compact"
       >
@@ -80,13 +80,13 @@ export function PageClient() {
           </p>
           <Button onClick={() => refetch()}>Retry</Button>
         </div>
-      </WorkspacePageWrapper>
+      </DashboardBody>
     );
   }
 
   if (fields?.length === 0) {
     return (
-      <WorkspacePageWrapper
+      <DashboardBody
         className="grid h-full place-content-center"
         size="compact"
       >
@@ -119,15 +119,12 @@ export function PageClient() {
             </div>
           </div>
         </div>
-      </WorkspacePageWrapper>
+      </DashboardBody>
     );
   }
 
   return (
-    <WorkspacePageWrapper
-      className="flex flex-col gap-8 pt-10 pb-16"
-      size="compact"
-    >
+    <DashboardBody className="flex flex-col gap-8 pt-10 pb-16" size="compact">
       <div className="flex flex-col gap-6">
         <div className="flex items-center justify-between">
           <div />
@@ -170,7 +167,7 @@ export function PageClient() {
           </table>
         </div>
       </div>
-    </WorkspacePageWrapper>
+    </DashboardBody>
   );
 }
 

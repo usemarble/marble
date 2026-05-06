@@ -18,6 +18,12 @@ export interface Media {
   url: string;
   type: MediaType;
   size: number;
+  alt: string | null;
+  mimeType: string | null;
+  width: number | null;
+  height: number | null;
+  duration: number | null;
+  blurHash: string | null;
   createdAt: string;
 }
 
@@ -25,14 +31,31 @@ export type MediaSort = (typeof MEDIA_SORTS)[number];
 
 export type MediaQueryKey = [
   ...ReturnType<typeof QUERY_KEYS.MEDIA>,
-  { type?: string; sort: MediaSort },
+  {
+    page?: number;
+    perPage?: number;
+    search?: string;
+    sort: MediaSort;
+    type?: string;
+  },
 ];
 
-export interface MediaListResponse {
+export interface MediaPaginatedListResponse {
+  media: Media[];
+  pageCount: number;
+  totalCount: number;
+  hasAnyMedia: boolean;
+}
+
+export interface MediaCursorListResponse {
   media: Media[];
   nextCursor?: string;
   hasAnyMedia: boolean;
 }
+
+export type MediaListResponse =
+  | MediaCursorListResponse
+  | MediaPaginatedListResponse;
 
 /** Response from POST /api/upload — returns a presigned URL and storage key */
 export interface PresignedUrlResponse {

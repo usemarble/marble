@@ -4,11 +4,17 @@ import { cn } from "@marble/ui/lib/utils";
 import type { VideoHTMLAttributes } from "react";
 import { useMemo, useRef } from "react";
 
-export type VideoPlayerProps = VideoHTMLAttributes<HTMLVideoElement>;
+export type VideoPlayerProps = VideoHTMLAttributes<HTMLVideoElement> & {
+  preview?: boolean;
+};
 
 const tRegex = /t=(\d+(?:\.\d+)?)/;
 
-export const VideoPlayer = ({ className, ...props }: VideoPlayerProps) => {
+export const VideoPlayer = ({
+  className,
+  preview = true,
+  ...props
+}: VideoPlayerProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const initialTime = useMemo(() => {
@@ -23,10 +29,18 @@ export const VideoPlayer = ({ className, ...props }: VideoPlayerProps) => {
   }, [props.src]);
 
   const handleMouseOver = () => {
+    if (!preview) {
+      return;
+    }
+
     videoRef.current?.play();
   };
 
   const handleMouseOut = () => {
+    if (!preview) {
+      return;
+    }
+
     if (videoRef.current) {
       videoRef.current.pause();
       videoRef.current.currentTime = initialTime;
@@ -34,10 +48,18 @@ export const VideoPlayer = ({ className, ...props }: VideoPlayerProps) => {
   };
 
   const handleFocus = () => {
+    if (!preview) {
+      return;
+    }
+
     videoRef.current?.play();
   };
 
   const handleBlur = () => {
+    if (!preview) {
+      return;
+    }
+
     if (videoRef.current) {
       videoRef.current.pause();
       videoRef.current.currentTime = initialTime;
@@ -47,13 +69,13 @@ export const VideoPlayer = ({ className, ...props }: VideoPlayerProps) => {
   return (
     <video
       className={cn(
-        "absolute inset-0 size-full object-cover",
+        preview ? "absolute inset-0 size-full object-cover" : "object-contain",
         "transition-opacity duration-200",
-        "group-hover:opacity-90",
+        preview && "group-hover:opacity-90",
         className
       )}
-      loop
-      muted
+      loop={preview}
+      muted={preview}
       onBlur={handleBlur}
       onFocus={handleFocus}
       onMouseOut={handleMouseOut}

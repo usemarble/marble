@@ -120,9 +120,9 @@ model Post {
   primaryAuthor   Author?  @relation("PrimaryAuthor", fields: [primaryAuthorId], references: [id], onDelete: SetNull)
   authors         Author[] @relation("PostToAuthor")
 
-  category   Category     @relation(fields: [categoryId], references: [id])
-  workspace  Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  tags        Tag[]           @relation("PostToTag")
+  category    Category     @relation(fields: [categoryId], references: [id])
+  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  tags        Tag[]        @relation("PostToTag")
   shareLinks  ShareLink[]
   fieldValues FieldValue[]
 
@@ -177,6 +177,11 @@ model Media {
   url         String
   size        Int
   alt         String?
+  mimeType    String?
+  width       Int?
+  height      Int?
+  duration    Int? // video length in milliseconds
+  blurHash    String?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   workspaceId String
@@ -506,17 +511,17 @@ enum FieldType {
 }
 
 model Field {
-  id          String         @id @default(cuid())
+  id          String        @id @default(cuid())
   workspaceId String
   key         String
   name        String
   description String?
   type        FieldType
-  required    Boolean        @default(false)
-  position    Int            @default(0)
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  required    Boolean       @default(false)
+  position    Int           @default(0)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  workspace   Organization  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   values      FieldValue[]
   options     FieldOption[]
 
@@ -528,7 +533,7 @@ model Field {
 
 model FieldOption {
   id          String       @id @default(cuid())
-  fieldId      String
+  fieldId     String
   workspaceId String
   value       String
   label       String

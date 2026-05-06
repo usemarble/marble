@@ -46,7 +46,8 @@ import { ErrorMessage } from "@/components/ui/error-message";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { uploadFile } from "@/lib/media/upload";
 import { QUERY_KEYS } from "@/lib/queries/keys";
-import type { Media, MediaListResponse } from "@/types/media";
+import { getMediaEditorApiUrl } from "@/lib/search-params";
+import type { Media, MediaCursorListResponse } from "@/types/media";
 import { FieldInfo } from "./field-info";
 
 const urlSchema = z.string().url({
@@ -110,11 +111,14 @@ export function CoverImageSelector<TFieldValues extends FieldValues>({
     ],
     staleTime: 1000 * 60 * 5,
     queryFn: async ({ pageParam }: { pageParam?: string }) => {
-      const url = pageParam
-        ? `/api/media?cursor=${encodeURIComponent(pageParam)}`
-        : "/api/media";
+      const url = getMediaEditorApiUrl("/api/media/editor", {
+        cursor: pageParam || null,
+      });
       const res = await fetch(url);
-      const data: MediaListResponse = await res.json();
+      if (!res.ok) {
+        throw new Error("Failed to load media");
+      }
+      const data: MediaCursorListResponse = await res.json();
       return data;
     },
     getNextPageParam: (lastPage) => lastPage.nextCursor || undefined,
