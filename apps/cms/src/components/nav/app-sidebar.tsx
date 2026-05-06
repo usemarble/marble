@@ -178,19 +178,29 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 }
 
 function SidebarCollapseTrigger() {
-  const { open, toggleSidebar } = useSidebar();
+  const { isMobile, open, toggleSidebar } = useSidebar();
+  const motionProps = isMobile
+    ? {
+        animate: { opacity: 1 },
+        exit: { opacity: 1 },
+        initial: { opacity: 1 },
+        transition: { duration: 0 },
+      }
+    : {
+        animate: { opacity: 1 },
+        exit: { opacity: 0 },
+        initial: { opacity: 0 },
+        transition: sidebarToggleTransition,
+      };
 
   return (
     <AnimatePresence initial={false} mode="popLayout">
       {open && (
         <motion.div
-          animate={{ opacity: 1 }}
           className="z-100 flex h-9 w-9 shrink-0 items-center justify-center"
-          exit={{ opacity: 0 }}
-          initial={{ opacity: 0 }}
           key="sidebar-sidebar-toggle"
-          layoutId="main-sidebar-toggle"
-          transition={sidebarToggleTransition}
+          layoutId={isMobile ? undefined : "main-sidebar-toggle"}
+          {...motionProps}
         >
           <Tooltip>
             <TooltipTrigger

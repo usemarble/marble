@@ -27,22 +27,32 @@ export function HeaderSidebarTrigger() {
   const showSidebarTrigger = isMobile || !open;
   const isSidebarOpen = isMobile ? openMobile : open;
   const sidebarActionLabel = isSidebarOpen ? "Close Sidebar" : "Open Sidebar";
+  const motionProps = isMobile
+    ? {
+        animate: { opacity: 1 },
+        exit: { opacity: 1 },
+        initial: { opacity: 1 },
+        transition: { duration: 0 },
+      }
+    : {
+        animate: { opacity: 1 },
+        exit: { opacity: 0 },
+        initial: { opacity: 0 },
+        transition: { duration: 0.15 },
+      };
 
   return (
     <AnimatePresence initial={false} mode="popLayout">
       {showSidebarTrigger && (
         <motion.div
-          animate={{ opacity: 1 }}
           className="z-100 flex items-center gap-2 px-4 md:px-0"
-          exit={{ opacity: 0 }}
-          initial={{ opacity: 0 }}
           key="header-sidebar-toggle"
-          transition={{ duration: 0.15 }}
+          {...motionProps}
         >
           <motion.div
             className="-ml-1 flex size-8 shrink-0 items-center justify-center"
-            layoutId="main-sidebar-toggle"
-            transition={sidebarToggleTransition}
+            layoutId={isMobile ? undefined : "main-sidebar-toggle"}
+            transition={isMobile ? { duration: 0 } : sidebarToggleTransition}
           >
             <Tooltip>
               <TooltipTrigger
