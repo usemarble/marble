@@ -80,17 +80,17 @@ export async function PATCH(
     );
   }
 
-  const body = await request.json();
-  const parsedBody = updateMediaSchema.safeParse(body);
-
-  if (!parsedBody.success) {
-    return NextResponse.json(
-      { error: "Invalid request body", details: parsedBody.error.issues },
-      { status: 400 }
-    );
-  }
-
   try {
+    const body = await request.json();
+    const parsedBody = updateMediaSchema.safeParse(body);
+
+    if (!parsedBody.success) {
+      return NextResponse.json(
+        { error: "Invalid request body", details: parsedBody.error.issues },
+        { status: 400 }
+      );
+    }
+
     const existingMedia = await db.media.findFirst({
       where: {
         id,
@@ -108,7 +108,6 @@ export async function PATCH(
     const updatedMedia = await db.media.update({
       where: {
         id,
-        workspaceId,
       },
       data: parsedBody.data,
       select: {

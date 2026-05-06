@@ -257,13 +257,6 @@ export function MediaDataTable({
                       }
                       openMediaDetail(row.original);
                     }}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter" || event.key === " ") {
-                        event.preventDefault();
-                        openMediaDetail(row.original);
-                      }
-                    }}
-                    tabIndex={0}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell

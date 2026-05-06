@@ -37,7 +37,7 @@ const mediaTypeIcons: Record<MediaType, ElementType> = {
 };
 
 function getMediaTypeLabel(media: Media) {
-  return media.type.charAt(0).toUpperCase() + media.type.slice(1);
+  return `${media.type.charAt(0).toUpperCase()}${media.type.slice(1)}`;
 }
 
 function getMediaDimensions(media: Media) {
@@ -100,6 +100,12 @@ export function getMediaColumns({
       id: "select",
       header: ({ table }) => (
         <Checkbox
+          aria-checked={
+            table.getIsSomePageRowsSelected() &&
+            !table.getIsAllPageRowsSelected()
+              ? "mixed"
+              : undefined
+          }
           aria-label={
             table.getIsAllPageRowsSelected() ? "Deselect all" : "Select all"
           }

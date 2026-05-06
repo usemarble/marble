@@ -38,13 +38,34 @@ export async function GET(request: Request) {
     let cursorId: string | null = null;
     let parsedCursorValue: string | Date | null = null;
     if (cursor) {
-      const [idPart, ...rest] = cursor.split("_");
-      const encodedValue = rest.join("_");
-      const valuePart = decodeURIComponent(encodedValue);
+      const separatorIndex = cursor.indexOf("_");
+      if (separatorIndex === -1) {
+        return NextResponse.json({ error: "Invalid cursor" }, { status: 400 });
+      }
+
+      const idPart = cursor.slice(0, separatorIndex);
+      const encodedValue = cursor.slice(separatorIndex + 1);
+      let valuePart: string;
+      try {
+        valuePart = decodeURIComponent(encodedValue);
+      } catch {
+        return NextResponse.json({ error: "Invalid cursor" }, { status: 400 });
+      }
+
       cursorId = idPart || null;
       if (valuePart) {
-        parsedCursorValue =
-          field === "createdAt" ? new Date(valuePart) : valuePart;
+        if (field === "createdAt") {
+          const date = new Date(valuePart);
+          if (Number.isNaN(date.getTime())) {
+            return NextResponse.json(
+              { error: "Invalid cursor" },
+              { status: 400 }
+            );
+          }
+          parsedCursorValue = date;
+        } else {
+          parsedCursorValue = valuePart;
+        }
       }
     }
 

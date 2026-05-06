@@ -24,7 +24,7 @@ function getBodySizeClassName(size: DashboardBodySize) {
     case "compact":
       return "workspace-container-compact";
     case "wide":
-      return "workspace-container";
+      return "workspace-container-wide";
     default:
       return "workspace-container";
   }
@@ -103,7 +103,6 @@ export function DashboardBody({
             </aside>
           ) : null}
         </div>
-        <div className="fixed right-8 bottom-8" />
       </section>
     </div>
   );

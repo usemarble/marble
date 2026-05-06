@@ -36,11 +36,6 @@ export async function GET(request: Request) {
   const { page, perPage, search, type } = filters;
 
   try {
-    const hasAnyMedia =
-      (await db.media.count({
-        where: { workspaceId: orgId },
-      })) > 0;
-
     const where = {
       workspaceId: orgId,
       ...(type && { type }),
@@ -53,8 +48,9 @@ export async function GET(request: Request) {
     };
 
     const orderBy = [{ [field]: direction }, { id: direction }];
+    const hasFilters = Boolean(type || search?.trim());
 
-    const [media, totalCount] = await Promise.all([
+    const [media, totalCount, workspaceMediaCount] = await Promise.all([
       db.media.findMany({
         where,
         skip: (page - 1) * perPage,
@@ -76,7 +72,10 @@ export async function GET(request: Request) {
         },
       }),
       db.media.count({ where }),
+      hasFilters ? db.media.count({ where: { workspaceId: orgId } }) : null,
     ]);
+    const hasAnyMedia =
+      workspaceMediaCount === null ? totalCount > 0 : workspaceMediaCount > 0;
 
     return NextResponse.json(
       {

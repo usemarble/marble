@@ -1,4 +1,22 @@
-import type { MediaType } from "./media";
+import type { Media, MediaType } from "./media";
+
+type DashboardRecentUpload = Pick<
+  Media,
+  | "alt"
+  | "blurHash"
+  | "duration"
+  | "height"
+  | "id"
+  | "mimeType"
+  | "name"
+  | "size"
+  | "type"
+  | "url"
+  | "width"
+> & {
+  createdAt: string;
+  type: MediaType;
+};
 
 export interface UsageDashboardData {
   api: {
@@ -30,20 +48,7 @@ export interface UsageDashboardData {
     last30Days: number;
     totalSize: number;
     lastUploadAt: string | null;
-    recentUploads: Array<{
-      id: string;
-      name: string;
-      size: number;
-      alt: string | null;
-      createdAt: string;
-      type: MediaType;
-      url: string;
-      mimeType: string | null;
-      width: number | null;
-      height: number | null;
-      duration: number | null;
-      blurHash: string | null;
-    }>;
+    recentUploads: DashboardRecentUpload[];
   };
 }
 

@@ -23,8 +23,10 @@ function getToggleSidebarShortcut() {
 }
 
 export function HeaderSidebarTrigger() {
-  const { isMobile, open } = useSidebar();
+  const { isMobile, open, openMobile } = useSidebar();
   const showSidebarTrigger = isMobile || !open;
+  const isSidebarOpen = isMobile ? openMobile : open;
+  const sidebarActionLabel = isSidebarOpen ? "Close Sidebar" : "Open Sidebar";
 
   return (
     <AnimatePresence initial={false} mode="popLayout">
@@ -53,7 +55,9 @@ export function HeaderSidebarTrigger() {
                 }
               />
               <TooltipContent>
-                <p>Open Sidebar ({getToggleSidebarShortcut()})</p>
+                <p>
+                  {sidebarActionLabel} ({getToggleSidebarShortcut()})
+                </p>
               </TooltipContent>
             </Tooltip>
           </motion.div>

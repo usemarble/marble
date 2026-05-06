@@ -157,6 +157,7 @@ export function MediaTableToolbar({
                 </p>
               </div>
               <Select
+                aria-label="Sort media"
                 disabled={isDisabled}
                 items={sortOptions}
                 onValueChange={handleSortChange}
@@ -206,6 +207,7 @@ export function MediaTableToolbar({
                 </p>
               </div>
               <Input
+                aria-label="Search media by name"
                 disabled={isDisabled}
                 onChange={(event) => setDraftSearch(event.target.value)}
                 onKeyDown={(event) => {
@@ -217,6 +219,7 @@ export function MediaTableToolbar({
                 value={draftSearch}
               />
               <Select
+                aria-label="Filter by file type"
                 disabled={isDisabled}
                 items={typeOptions}
                 onValueChange={(value) => {

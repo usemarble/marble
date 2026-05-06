@@ -6,7 +6,7 @@ import {
   Download01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Button, buttonVariants } from "@marble/ui/components/button";
+import { Button } from "@marble/ui/components/button";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
@@ -16,7 +16,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
-import { cn } from "@marble/ui/lib/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import Image from "next/image";
@@ -49,10 +48,13 @@ export default function MediaDetailPage({
   const workspaceId = useWorkspaceId();
   const queryClient = useQueryClient();
 
-  const { data: media, isLoading } = useQuery({
-    queryKey: workspaceId
-      ? QUERY_KEYS.MEDIA_DETAIL(workspaceId, id)
-      : ["media", "detail", id],
+  const {
+    data: media,
+    error,
+    isError,
+    isLoading,
+  } = useQuery({
+    queryKey: QUERY_KEYS.MEDIA_DETAIL(workspaceId ?? "", id),
     queryFn: async (): Promise<Media> => {
       const response = await fetch(`/api/media/${id}`);
       if (!response.ok) {
@@ -110,8 +112,20 @@ export default function MediaDetailPage({
     return blurhashToDataUrl(media.blurHash);
   }, [media?.blurHash, media?.type]);
 
-  if (isLoading || !media) {
+  if (isLoading) {
     return <PageLoader />;
+  }
+
+  if (isError || !media) {
+    return (
+      <DashboardBody showHeader={false}>
+        <div className="grid min-h-[calc(100vh-56px)] place-items-center p-8">
+          <p className="text-muted-foreground text-sm">
+            {error instanceof Error ? error.message : "Could not load media."}
+          </p>
+        </div>
+      </DashboardBody>
+    );
   }
 
   const copyMediaUrl = async () => {
@@ -183,20 +197,19 @@ export default function MediaDetailPage({
               <TooltipTrigger
                 delay={400}
                 render={
-                  <button
-                    className={cn(
-                      buttonVariants({ size: "icon-sm", variant: "ghost" })
-                    )}
+                  <Button
                     onClick={() => {
                       downloadMedia(media).catch(() => {
                         toast.error("Could not download media");
                       });
                     }}
+                    size="icon-sm"
                     type="button"
+                    variant="ghost"
                   >
                     <HugeiconsIcon className="size-4" icon={Download01Icon} />
                     <span className="sr-only">Download media</span>
-                  </button>
+                  </Button>
                 }
               />
               <TooltipContent>
@@ -210,7 +223,7 @@ export default function MediaDetailPage({
             <div className="flex h-full min-h-0 w-full items-center justify-center">
               {media.type === "image" ? (
                 <Image
-                  alt={media.alt ?? ""}
+                  alt={media.alt ?? media.name}
                   blurDataURL={blurDataUrl}
                   className="h-auto max-h-full w-auto max-w-[min(100%,_900px)] rounded-lg object-contain shadow-sm"
                   height={media.height ?? 900}

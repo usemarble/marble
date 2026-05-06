@@ -48,6 +48,7 @@ export function DataTablePagination({
             className="hidden h-8 w-8 p-0 lg:flex"
             disabled={!canPreviousPage}
             onClick={() => onPageChange(0)}
+            type="button"
             variant="outline"
           >
             <span className="sr-only">Go to first page</span>
@@ -57,6 +58,7 @@ export function DataTablePagination({
             className="h-8 w-8 p-0"
             disabled={!canPreviousPage}
             onClick={() => onPageChange(safePageIndex - 1)}
+            type="button"
             variant="outline"
           >
             <span className="sr-only">Go to previous page</span>
@@ -66,6 +68,7 @@ export function DataTablePagination({
             className="h-8 w-8 p-0"
             disabled={!canNextPage}
             onClick={() => onPageChange(safePageIndex + 1)}
+            type="button"
             variant="outline"
           >
             <span className="sr-only">Go to next page</span>
@@ -75,6 +78,7 @@ export function DataTablePagination({
             className="hidden h-8 w-8 p-0 lg:flex"
             disabled={!canNextPage}
             onClick={() => onPageChange(safePageCount - 1)}
+            type="button"
             variant="outline"
           >
             <span className="sr-only">Go to last page</span>

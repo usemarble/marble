@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@marble/ui/components/button";
 import { Card, CardContent, CardFooter } from "@marble/ui/components/card";
 import {
   DropdownMenu,
@@ -47,7 +46,7 @@ export function MediaCard({
   isSelected = false,
   onSelect,
 }: MediaCardProps) {
-  const Icon = mediaTypeIcons[media.type] || mediaTypeIcons.document;
+  const Icon = mediaTypeIcons[media.type];
   const blurDataUrl = useMemo(() => {
     if (media.type !== "image" || !media.blurHash) {
       return undefined;
@@ -92,7 +91,7 @@ export function MediaCard({
             {media.type === "image" && (
               <div className="h-full w-full bg-background">
                 <Image
-                  alt={media.name}
+                  alt={media.alt || media.name}
                   blurDataURL={blurDataUrl}
                   className="size-full object-cover"
                   height={160}

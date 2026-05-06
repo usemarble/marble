@@ -35,13 +35,17 @@ function removeDeletedMediaFromPage(
   page: MediaListResponse,
   idsToDelete: Set<string>
 ): MediaListResponse {
+  const removedCount = page.media.reduce(
+    (count, item) => count + (idsToDelete.has(item.id) ? 1 : 0),
+    0
+  );
   const media = page.media.filter((item) => !idsToDelete.has(item.id));
 
   if ("totalCount" in page) {
     return {
       ...page,
       media,
-      totalCount: Math.max(0, page.totalCount - idsToDelete.size),
+      totalCount: Math.max(0, page.totalCount - removedCount),
     };
   }
 
@@ -118,10 +122,6 @@ export function DeleteMediaModal({
 
       setIsOpen(false);
 
-      if (onDeleteComplete) {
-        onDeleteComplete(mediaIds);
-      }
-
       const loadingMessage =
         mediaIds.length === 1
           ? "Deleting media..."
@@ -130,7 +130,7 @@ export function DeleteMediaModal({
 
       return { previousQueries, deletedCount: mediaIds.length };
     },
-    onSuccess: (_data, _variables, context) => {
+    onSuccess: (_data, mediaIds, context) => {
       const deletedCount = context?.deletedCount || 0;
       const message =
         deletedCount === 1
@@ -140,9 +140,14 @@ export function DeleteMediaModal({
 
       if (workspaceId) {
         queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.MEDIA(workspaceId),
+        });
+        queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.BILLING_USAGE(workspaceId),
         });
       }
+
+      onDeleteComplete?.(mediaIds);
     },
     onError: (error, _mediaIds, context) => {
       // Rollback to previous state on error

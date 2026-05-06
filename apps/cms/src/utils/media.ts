@@ -73,16 +73,19 @@ export async function downloadMedia(media: Media) {
   const blob = await response.blob();
   const objectUrl = URL.createObjectURL(blob);
   const link = document.createElement("a");
-  link.href = objectUrl;
-  link.download = media.name;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(objectUrl);
+  try {
+    link.href = objectUrl;
+    link.download = media.name;
+    document.body.appendChild(link);
+    link.click();
+  } finally {
+    link.remove();
+    URL.revokeObjectURL(objectUrl);
+  }
 }
 
 export function formatMediaType(media: Media) {
-  return media.type.charAt(0).toUpperCase() + media.type.slice(1);
+  return `${media.type.charAt(0).toUpperCase()}${media.type.slice(1)}`;
 }
 
 export function formatMediaDimensions(media: Media) {
@@ -92,9 +95,21 @@ export function formatMediaDimensions(media: Media) {
   return "-";
 }
 
-export function formatMediaDuration(duration: number | null) {
-  if (duration === null) {
+export function formatMediaDuration(duration: number | null | undefined) {
+  if (duration == null) {
     return "-";
   }
-  return `${Math.round(duration / 1000)}s`;
+
+  const totalSeconds = Math.round(duration / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  const paddedMinutes = String(minutes).padStart(hours > 0 ? 2 : 1, "0");
+  const paddedSeconds = String(seconds).padStart(2, "0");
+
+  if (hours > 0) {
+    return `${hours}:${paddedMinutes}:${paddedSeconds}`;
+  }
+
+  return `${paddedMinutes}:${paddedSeconds}`;
 }

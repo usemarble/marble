@@ -1,6 +1,7 @@
 import { decode } from "blurhash";
 
 const cache = new Map<string, string>();
+const MAX_CACHE_ENTRIES = 200;
 
 const DEFAULT_WIDTH = 32;
 const DEFAULT_HEIGHT = 32;
@@ -19,6 +20,8 @@ export function blurhashToDataUrl(
   const cachedDataUrl = cache.get(cacheKey);
 
   if (cachedDataUrl) {
+    cache.delete(cacheKey);
+    cache.set(cacheKey, cachedDataUrl);
     return cachedDataUrl;
   }
 
@@ -39,6 +42,12 @@ export function blurhashToDataUrl(
     context.putImageData(imageData, 0, 0);
 
     const dataUrl = canvas.toDataURL("image/png");
+    if (cache.size >= MAX_CACHE_ENTRIES) {
+      const oldestKey = cache.keys().next().value;
+      if (oldestKey) {
+        cache.delete(oldestKey);
+      }
+    }
     cache.set(cacheKey, dataUrl);
     return dataUrl;
   } catch {

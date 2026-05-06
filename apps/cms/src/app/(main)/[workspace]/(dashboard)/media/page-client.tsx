@@ -27,7 +27,7 @@ function PageClient() {
   const [isUploading, setIsUploading] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
 
-  const { data, isLoading, isFetching } = useQuery({
+  const { data, error, isError, isLoading, isFetching } = useQuery({
     queryKey: [
       // biome-ignore lint/style/noNonNullAssertion: <>
       ...QUERY_KEYS.MEDIA(workspaceId!),
@@ -55,12 +55,7 @@ function PageClient() {
         toast.error(
           error instanceof Error ? error.message : "Failed to fetch media"
         );
-        return {
-          media: [],
-          pageCount: 1,
-          totalCount: 0,
-          hasAnyMedia: false,
-        };
+        throw error;
       }
     },
     enabled: !!workspaceId && !isFetchingWorkspace,
@@ -110,7 +105,6 @@ function PageClient() {
           await uploadFile({ file, type: "media" });
           uploaded += 1;
         } catch (error) {
-          console.error(`Failed to upload ${file.name}:`, error);
           errors.push({
             file: file.name,
             error: error instanceof Error ? error.message : "Unknown error",
@@ -143,6 +137,16 @@ function PageClient() {
 
   if (isFetchingWorkspace || !workspaceId || isLoading) {
     return <PageLoader />;
+  }
+
+  if (isError) {
+    return (
+      <DashboardBody className="grid min-h-[calc(100vh-56px)] place-items-center">
+        <p className="text-muted-foreground text-sm">
+          {error instanceof Error ? error.message : "Could not load media."}
+        </p>
+      </DashboardBody>
+    );
   }
 
   return (

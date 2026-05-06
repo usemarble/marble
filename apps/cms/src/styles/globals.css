@@ -363,4 +363,18 @@
       max-width: 60rem;
     }
   }
+
+  .workspace-container-wide {
+    width: 100%;
+  }
+  @media (width >= 64rem) {
+    .workspace-container-wide {
+      max-width: var(--workspace-container-xl, 72rem);
+    }
+  }
+  @media (width >= 80rem) {
+    .workspace-container-wide {
+      max-width: var(--workspace-container-2xl, 80rem);
+    }
+  }
 }

@@ -115,6 +115,9 @@ export function CoverImageSelector<TFieldValues extends FieldValues>({
         cursor: pageParam || null,
       });
       const res = await fetch(url);
+      if (!res.ok) {
+        throw new Error("Failed to load media");
+      }
       const data: MediaCursorListResponse = await res.json();
       return data;
     },
