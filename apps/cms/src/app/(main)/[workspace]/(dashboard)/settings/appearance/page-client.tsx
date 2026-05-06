@@ -1,12 +1,12 @@
 "use client";
 
 import { Card, CardDescription, CardTitle } from "@marble/ui/components/card";
-import { WorkspacePageWrapper } from "@/components/layout/wrapper";
+import { DashboardBody } from "@/components/layout/wrapper";
 import { ThemeSwitch } from "@/components/settings/theme";
 
 function PageClient() {
   return (
-    <WorkspacePageWrapper className="flex flex-col gap-8 py-12" size="compact">
+    <DashboardBody className="flex flex-col gap-8 py-12" size="compact">
       <Card className="gap-0 rounded-[20px] border-none bg-surface p-2">
         <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
           <div className="flex flex-col gap-1.5">
@@ -23,7 +23,7 @@ function PageClient() {
           </p>
         </div>
       </Card>
-    </WorkspacePageWrapper>
+    </DashboardBody>
   );
 }
 

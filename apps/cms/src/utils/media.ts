@@ -1,5 +1,10 @@
 import type { MEDIA_SORT_BY, SORT_DIRECTIONS } from "@/lib/constants";
-import type { MediaFilterType, MediaSort, MediaType } from "@/types/media";
+import type {
+  Media,
+  MediaFilterType,
+  MediaSort,
+  MediaType,
+} from "@/types/media";
 
 export function getMediaType(mimeType: string): MediaType {
   if (mimeType.startsWith("image/")) {
@@ -57,4 +62,39 @@ export function isMediaFilterType(
 
 export function toMediaType(value: MediaFilterType): MediaType | undefined {
   return value === "all" ? undefined : value;
+}
+
+export async function downloadMedia(media: Media) {
+  const response = await fetch(media.url);
+  if (!response.ok) {
+    throw new Error("Failed to download media");
+  }
+
+  const blob = await response.blob();
+  const objectUrl = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = objectUrl;
+  link.download = media.name;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(objectUrl);
+}
+
+export function formatMediaType(media: Media) {
+  return media.type.charAt(0).toUpperCase() + media.type.slice(1);
+}
+
+export function formatMediaDimensions(media: Media) {
+  if (media.width && media.height) {
+    return `${media.width} x ${media.height}`;
+  }
+  return "-";
+}
+
+export function formatMediaDuration(duration: number | null) {
+  if (duration === null) {
+    return "-";
+  }
+  return `${Math.round(duration / 1000)}s`;
 }

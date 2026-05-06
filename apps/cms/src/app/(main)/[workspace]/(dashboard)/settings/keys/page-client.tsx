@@ -12,7 +12,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { type APIKey, columns } from "@/components/keys/columns";
 import { DataTable } from "@/components/keys/data-table";
-import { WorkspacePageWrapper } from "@/components/layout/wrapper";
+import { DashboardBody } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
@@ -57,14 +57,14 @@ function PageClient() {
   return (
     <>
       {keys && keys.length > 0 ? (
-        <WorkspacePageWrapper
+        <DashboardBody
           className="flex flex-col gap-8 pt-10 pb-16"
           size="compact"
         >
           <DataTable columns={columns} data={keys} />
-        </WorkspacePageWrapper>
+        </DashboardBody>
       ) : (
-        <WorkspacePageWrapper
+        <DashboardBody
           className="grid h-full place-content-center"
           size="compact"
         >
@@ -101,7 +101,7 @@ function PageClient() {
               </div>
             </div>
           </div>
-        </WorkspacePageWrapper>
+        </DashboardBody>
       )}
       <CreateKeyModal
         mode="create"

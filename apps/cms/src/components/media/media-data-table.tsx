@@ -20,7 +20,8 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { useEffect, useMemo, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { type MouseEvent, useEffect, useMemo, useState } from "react";
 import { DataTablePagination } from "@/components/ui/data-table-pagination";
 import { useMediaActions } from "@/hooks/use-media-actions";
 import { useMediaPageFilters } from "@/lib/search-params";
@@ -67,6 +68,8 @@ export function MediaDataTable({
   pageCount,
   totalCount,
 }: MediaDataTableProps) {
+  const params = useParams<{ workspace: string }>();
+  const router = useRouter();
   const [{ page, perPage, search, sort, type }, setSearchParams] =
     useMediaPageFilters();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -164,6 +167,22 @@ export function MediaDataTable({
     setShowDeleteModal(true);
   };
 
+  const openMediaDetail = (item: Media) => {
+    router.push(`/${params.workspace}/media/${item.id}`);
+  };
+
+  const shouldIgnoreRowClick = (event: MouseEvent) => {
+    const target = event.target;
+    return (
+      target instanceof HTMLElement &&
+      Boolean(
+        target.closest(
+          "button, a, input, textarea, select, [data-no-row-click], [role='button'], [role='checkbox'], [role='menuitem']"
+        )
+      )
+    );
+  };
+
   if (!hasAnyMedia) {
     return (
       <>
@@ -229,13 +248,32 @@ export function MediaDataTable({
               {table.getRowModel().rows.length ? (
                 table.getRowModel().rows.map((row) => (
                   <TableRow
-                    className="border-0 bg-background hover:bg-background/80 data-[state=selected]:bg-background"
+                    className="cursor-pointer border-0 bg-background hover:bg-background/80 data-[state=selected]:bg-background"
                     data-state={row.getIsSelected() && "selected"}
                     key={row.id}
+                    onClick={(event) => {
+                      if (shouldIgnoreRowClick(event)) {
+                        return;
+                      }
+                      openMediaDetail(row.original);
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        openMediaDetail(row.original);
+                      }
+                    }}
+                    tabIndex={0}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell
                         className={getCellClassName(cell.column.id)}
+                        data-no-row-click={
+                          cell.column.id === "select" ||
+                          cell.column.id === "actions"
+                            ? true
+                            : undefined
+                        }
                         key={cell.id}
                       >
                         {flexRender(

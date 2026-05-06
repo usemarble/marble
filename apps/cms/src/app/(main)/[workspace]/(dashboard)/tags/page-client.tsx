@@ -8,7 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import { useState } from "react";
 import { toast } from "sonner";
-import { WorkspacePageWrapper } from "@/components/layout/wrapper";
+import { DashboardBody } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
 import { columns, type Tag } from "@/components/tags/columns";
 import { DataTable } from "@/components/tags/data-table";
@@ -53,14 +53,14 @@ function PageClient() {
   return (
     <>
       {tags && tags.length > 0 ? (
-        <WorkspacePageWrapper
+        <DashboardBody
           className="flex flex-col gap-8 pt-10 pb-16"
           size="compact"
         >
           <DataTable columns={columns} data={tags} />
-        </WorkspacePageWrapper>
+        </DashboardBody>
       ) : (
-        <WorkspacePageWrapper
+        <DashboardBody
           className="grid h-full place-content-center"
           size="compact"
         >
@@ -79,7 +79,7 @@ function PageClient() {
               </Button>
             </div>
           </div>
-        </WorkspacePageWrapper>
+        </DashboardBody>
       )}
       <TagModal
         mode="create"

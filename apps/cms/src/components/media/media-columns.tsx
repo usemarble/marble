@@ -1,5 +1,7 @@
 "use client";
 
+import { Copy01Icon, Delete02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Checkbox } from "@marble/ui/components/checkbox";
 import {
   DropdownMenu,
@@ -9,14 +11,11 @@ import {
 } from "@marble/ui/components/dropdown-menu";
 import { toast } from "@marble/ui/components/sonner";
 import {
-  CopyIcon,
   DotsThreeVerticalIcon,
-  DownloadSimpleIcon,
   FileAudioIcon,
   FileIcon,
   FileImageIcon,
   FileVideoIcon,
-  TrashIcon,
 } from "@phosphor-icons/react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
@@ -38,8 +37,7 @@ const mediaTypeIcons: Record<MediaType, ElementType> = {
 };
 
 function getMediaTypeLabel(media: Media) {
-  const mimeSubtype = media.mimeType?.split("/").at(1);
-  return (mimeSubtype || media.type).toUpperCase();
+  return media.type.charAt(0).toUpperCase() + media.type.slice(1);
 }
 
 function getMediaDimensions(media: Media) {
@@ -79,7 +77,7 @@ function MediaThumbnail({ media }: { media: Media }) {
   }
 
   return (
-    <div className="grid size-12 place-items-center rounded-lg bg-muted">
+    <div className="grid size-12 place-items-center rounded-lg border border-dashed bg-[length:8px_8px] bg-[linear-gradient(45deg,transparent_25%,rgba(0,0,0,0.05)_25%,rgba(0,0,0,0.05)_50%,transparent_50%,transparent_75%,rgba(0,0,0,0.05)_75%,rgba(0,0,0,0.05))] dark:bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.05)_25%,rgba(255,255,255,0.05)_50%,transparent_50%,transparent_75%,rgba(255,255,255,0.05)_75%,rgba(255,255,255,0.05))]">
       <Icon className="size-5 text-primary" weight="duotone" />
     </div>
   );
@@ -127,7 +125,7 @@ export function getMediaColumns({
       cell: ({ row }) => (
         <div className="flex min-w-64 items-center gap-3">
           <MediaThumbnail media={row.original} />
-          <div className="min-w-0">
+          <div className="min-w-0 max-w-48">
             <p className="truncate font-medium text-xs">{row.original.name}</p>
             <p className="text-muted-foreground text-xs">
               {getMediaTypeLabel(row.original)}
@@ -144,7 +142,7 @@ export function getMediaColumns({
       accessorKey: "alt",
       header: "Alt text",
       cell: ({ row }) => (
-        <p className="truncate text-muted-foreground text-xs">
+        <p className="max-w-32 truncate text-muted-foreground text-xs">
           {row.original.alt || "-"}
         </p>
       ),
@@ -222,26 +220,14 @@ export function getMediaColumns({
                   copyMediaUrl(row.original.url);
                 }}
               >
-                <CopyIcon className="mr-2" size={16} />
+                <HugeiconsIcon className="mr-2 size-4" icon={Copy01Icon} />
                 Copy link
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  window.open(
-                    row.original.url,
-                    "_blank",
-                    "noopener,noreferrer"
-                  );
-                }}
-              >
-                <DownloadSimpleIcon className="mr-2" size={16} />
-                Open
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => onDelete(row.original)}
                 variant="destructive"
               >
-                <TrashIcon className="mr-2" size={16} />
+                <HugeiconsIcon className="mr-2 size-4" icon={Delete02Icon} />
                 Delete
               </DropdownMenuItem>
             </DropdownMenuContent>

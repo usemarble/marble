@@ -43,5 +43,3 @@ yarn-error.log*
 .agent/skills/
 .cursor/skills/
 .claude/skills/
-
-tablecn-main

@@ -3,7 +3,7 @@
 import { toast } from "@marble/ui/components/sonner";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { WorkspacePageWrapper } from "@/components/layout/wrapper";
+import { DashboardBody } from "@/components/layout/wrapper";
 import { MediaDataTable } from "@/components/media/media-data-table";
 import PageLoader from "@/components/shared/page-loader";
 import { useMediaActions } from "@/hooks/use-media-actions";
@@ -146,10 +146,7 @@ function PageClient() {
   }
 
   return (
-    <WorkspacePageWrapper
-      className="flex flex-col gap-8 pt-10 pb-16"
-      size="compact"
-    >
+    <DashboardBody className="flex flex-col gap-8 pt-10 pb-16" size="compact">
       <div aria-atomic="true" aria-live="polite" className="sr-only">
         {statusMessage}
       </div>
@@ -163,7 +160,7 @@ function PageClient() {
         pageCount={pageCount}
         totalCount={totalCount}
       />
-    </WorkspacePageWrapper>
+    </DashboardBody>
   );
 }
 

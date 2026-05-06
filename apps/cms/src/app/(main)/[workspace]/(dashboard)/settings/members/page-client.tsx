@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useState } from "react";
-import { WorkspacePageWrapper } from "@/components/layout/wrapper";
+import { DashboardBody } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
 import { columns, type TeamMemberRow } from "@/components/team/columns";
 import { TeamDataTable } from "@/components/team/data-table";
@@ -45,7 +45,7 @@ function PageClient() {
   }));
 
   return (
-    <WorkspacePageWrapper size="compact">
+    <DashboardBody size="compact">
       <div className="space-y-6">
         <TeamDataTable
           columns={columns}
@@ -68,7 +68,7 @@ function PageClient() {
         open={showLeaveWorkspaceModal}
         setOpen={setShowLeaveWorkspaceModal}
       />
-    </WorkspacePageWrapper>
+    </DashboardBody>
   );
 }
 

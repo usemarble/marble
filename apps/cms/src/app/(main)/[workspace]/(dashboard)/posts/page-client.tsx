@@ -14,7 +14,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
-import { WorkspacePageWrapper } from "@/components/layout/wrapper";
+import { DashboardBody } from "@/components/layout/wrapper";
 import { columns, type Post } from "@/components/posts/columns";
 import { PostDataView } from "@/components/posts/data-view";
 import PageLoader from "@/components/shared/page-loader";
@@ -61,15 +61,12 @@ function PageClient() {
   }
 
   return (
-    <WorkspacePageWrapper
-      className="flex flex-col gap-8 pt-10 pb-16"
-      size="compact"
-    >
+    <DashboardBody className="flex flex-col gap-8 pt-10 pb-16" size="compact">
       {posts && posts.length > 0 ? (
         <PostDataView columns={columns} data={posts} />
       ) : (
         <>
-          <WorkspacePageWrapper className="grid h-full place-content-center">
+          <DashboardBody className="grid h-full place-content-center">
             <div className="flex max-w-80 flex-col items-center gap-4">
               <div className="p-2">
                 <HugeiconsIcon className="size-16" icon={Files01Icon} />
@@ -103,11 +100,11 @@ function PageClient() {
                 </div>
               </div>
             </div>
-          </WorkspacePageWrapper>
+          </DashboardBody>
           <PostsImportModal open={importOpen} setOpen={setImportOpen} />
         </>
       )}
-    </WorkspacePageWrapper>
+    </DashboardBody>
   );
 }
 

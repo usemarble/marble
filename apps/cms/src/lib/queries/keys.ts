@@ -19,6 +19,11 @@ export const QUERY_KEYS = {
   ],
 
   MEDIA: (workspaceId: string) => ["media", workspaceId],
+  MEDIA_DETAIL: (workspaceId: string, mediaId: string) => [
+    "media",
+    workspaceId,
+    mediaId,
+  ],
 
   TEAM: (workspaceId: string) => ["team", workspaceId],
   AUTHORS: (workspaceId: string) => ["authors", workspaceId],

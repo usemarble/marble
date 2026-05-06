@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { columns } from "@/components/authors/columns";
 import { AuthorDataTable } from "@/components/authors/data-table";
-import { WorkspacePageWrapper } from "@/components/layout/wrapper";
+import { DashboardBody } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
@@ -41,14 +41,11 @@ function PageClient() {
   }
 
   return (
-    <WorkspacePageWrapper
-      className="flex flex-col gap-8 pt-10 pb-16"
-      size="compact"
-    >
+    <DashboardBody className="flex flex-col gap-8 pt-10 pb-16" size="compact">
       <div className="space-y-6">
         <AuthorDataTable columns={columns} data={authors || []} />
       </div>
-    </WorkspacePageWrapper>
+    </DashboardBody>
   );
 }
 

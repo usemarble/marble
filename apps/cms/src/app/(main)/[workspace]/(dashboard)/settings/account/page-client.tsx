@@ -19,7 +19,7 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { WorkspacePageWrapper } from "@/components/layout/wrapper";
+import { DashboardBody } from "@/components/layout/wrapper";
 import { CropImageModal } from "@/components/media/crop-image-modal";
 import { DeleteAccountModal } from "@/components/settings/delete-account";
 import PageLoader from "@/components/shared/page-loader";
@@ -100,7 +100,7 @@ function PageClient() {
   }
 
   return (
-    <WorkspacePageWrapper className="flex flex-col gap-8 py-12" size="compact">
+    <DashboardBody className="flex flex-col gap-8 py-12" size="compact">
       <Card className="gap-0 rounded-[20px] border-none bg-surface p-2">
         <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
           <div className="flex flex-col gap-1.5">
@@ -266,7 +266,7 @@ function PageClient() {
           <DeleteAccountModal />
         </div>
       </Card>
-    </WorkspacePageWrapper>
+    </DashboardBody>
   );
 }
 
