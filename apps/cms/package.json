@@ -36,7 +36,7 @@
     "@upstash/redis": "^1.35.3",
     "@vvo/tzdb": "^6.176.0",
     "ai": "^5.0.108",
-    "axios": "^1.13.5",
+    "axios": "^1.15.2",
     "better-auth": "1.5.6",
     "blurhash": "^2.0.5",
     "canvas-confetti": "^1.9.3",
