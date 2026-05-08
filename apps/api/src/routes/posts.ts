@@ -2,11 +2,11 @@ import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { NodeHtmlMarkdown } from "node-html-markdown";
 import { cacheKey, createCacheClient, hashQueryParams } from "../lib/cache";
 import { createDbClient } from "../lib/db";
+import { buildFieldsObject, buildStatusFilter } from "../lib/posts";
 import { sanitizeHtml } from "../lib/sanitize";
 import { requireWorkspaceId } from "../lib/workspace";
 import {
   ConflictSchema,
-  ContentFormatSchema,
   DeleteResponseSchema,
   ErrorSchema,
   ForbiddenSchema,
@@ -17,252 +17,17 @@ import {
 import {
   CreatePostBodySchema,
   CreatePostResponseSchema,
+  PostParamsSchema,
   PostResponseSchema,
   PostsListResponseSchema,
+  PostsQuerySchema,
+  SinglePostQuerySchema,
   UpdatePostBodySchema,
   UpdatePostResponseSchema,
 } from "../schemas/posts";
 import type { Env } from "../types/env";
 
 const posts = new OpenAPIHono<{ Bindings: Env }>();
-
-/**
- * Build Prisma status filter based on status parameter
- */
-const buildStatusFilter = (status: "published" | "draft" | "all") =>
-  status === "all"
-    ? { status: { in: ["published", "draft"] as ("published" | "draft")[] } }
-    : { status };
-
-/**
- * Cast a stored field value string to the appropriate JS type based on field type.
- */
-function castFieldValue(
-  value: string,
-  type: string
-): string | number | boolean | string[] | null {
-  switch (type) {
-    case "number": {
-      const num = Number.parseFloat(value);
-      return Number.isNaN(num) ? null : num;
-    }
-    case "boolean":
-      return value === "true";
-    case "multiselect":
-      try {
-        return z.array(z.string()).parse(JSON.parse(value));
-      } catch {
-        return null;
-      }
-    default:
-      return value;
-  }
-}
-
-/**
- * Transform raw fieldValues from Prisma into a Record<key, castValue> object.
- * All workspace custom fields are represented; missing values are null.
- */
-function buildFieldsObject(
-  fieldValues: Array<{
-    value: string;
-    field: { key: string; type: string };
-  }>,
-  allFields?: Array<{ key: string; type: string }>
-): Record<string, string | number | boolean | string[] | null> {
-  const result: Record<string, string | number | boolean | string[] | null> =
-    {};
-
-  // Initialize all fields with null if allFields is provided
-  if (allFields) {
-    for (const f of allFields) {
-      result[f.key] = null;
-    }
-  }
-
-  // Override with actual values
-  for (const fv of fieldValues) {
-    result[fv.field.key] = castFieldValue(fv.value, fv.field.type);
-  }
-
-  return result;
-}
-
-const PostsQuerySchema = z.object({
-  limit: z.coerce
-    .number()
-    .int()
-    .min(1)
-    .max(100)
-    .optional()
-    .default(10)
-    .openapi({
-      param: { name: "limit", in: "query" },
-      type: "integer",
-      example: 10,
-      description: "Number of posts per page (1-100)",
-    }),
-  page: z.coerce
-    .number()
-    .int()
-    .min(1)
-    .optional()
-    .default(1)
-    .openapi({
-      param: { name: "page", in: "query" },
-      type: "integer",
-      example: 1,
-      description: "Page number",
-    }),
-  order: z
-    .enum(["asc", "desc"])
-    .optional()
-    .default("desc")
-    .openapi({
-      param: { name: "order", in: "query" },
-      example: "desc",
-      description: "Sort order by publishedAt",
-    }),
-  categories: z
-    .preprocess(
-      (val) =>
-        typeof val === "string"
-          ? val
-              .split(",")
-              .map((s) => s.trim())
-              .filter(Boolean)
-          : val,
-      z.array(z.string()).optional().default([])
-    )
-    .openapi({
-      param: { name: "categories", in: "query", style: "form", explode: false },
-      type: "array",
-      items: { type: "string" },
-      example: ["tech", "news"],
-      description: "Category slugs to include",
-    }),
-  excludeCategories: z
-    .preprocess(
-      (val) =>
-        typeof val === "string"
-          ? val
-              .split(",")
-              .map((s) => s.trim())
-              .filter(Boolean)
-          : val,
-      z.array(z.string()).optional().default([])
-    )
-    .openapi({
-      param: {
-        name: "excludeCategories",
-        in: "query",
-        style: "form",
-        explode: false,
-      },
-      type: "array",
-      items: { type: "string" },
-      example: ["changelog"],
-      description: "Category slugs to exclude",
-    }),
-  tags: z
-    .preprocess(
-      (val) =>
-        typeof val === "string"
-          ? val
-              .split(",")
-              .map((s) => s.trim())
-              .filter(Boolean)
-          : val,
-      z.array(z.string()).optional().default([])
-    )
-    .openapi({
-      param: { name: "tags", in: "query", style: "form", explode: false },
-      type: "array",
-      items: { type: "string" },
-      example: ["javascript", "react"],
-      description: "Tag slugs to include",
-    }),
-  excludeTags: z
-    .preprocess(
-      (val) =>
-        typeof val === "string"
-          ? val
-              .split(",")
-              .map((s) => s.trim())
-              .filter(Boolean)
-          : val,
-      z.array(z.string()).optional().default([])
-    )
-    .openapi({
-      param: {
-        name: "excludeTags",
-        in: "query",
-        style: "form",
-        explode: false,
-      },
-      type: "array",
-      items: { type: "string" },
-      example: ["outdated"],
-      description: "Tag slugs to exclude",
-    }),
-  query: z
-    .string()
-    .optional()
-    .openapi({
-      param: { name: "query", in: "query" },
-      example: "nextjs",
-      description: "Search query for title and content",
-    }),
-  format: ContentFormatSchema.optional().openapi({
-    param: { name: "format", in: "query" },
-    example: "html",
-    description: "Content format (html or markdown)",
-  }),
-  featured: z
-    .enum(["true", "false"])
-    .optional()
-    .openapi({
-      param: { name: "featured", in: "query" },
-      example: "true",
-      description: "Filter by featured status",
-    }),
-  status: z
-    .enum(["published", "draft", "all"])
-    .optional()
-    .default("published")
-    .openapi({
-      param: { name: "status", in: "query" },
-      example: "published",
-      description:
-        "Filter by post status. Use 'published' for live posts, 'draft' for unpublished posts, or 'all' for both.",
-    }),
-});
-
-const PostParamsSchema = z.object({
-  identifier: z.string().openapi({
-    param: { name: "identifier", in: "path" },
-    example: "my-post-slug",
-    description: "Post ID or slug",
-  }),
-});
-
-const SinglePostQuerySchema = z.object({
-  format: ContentFormatSchema.optional().openapi({
-    param: { name: "format", in: "query" },
-    example: "html",
-    description: "Content format (html or markdown)",
-  }),
-  status: z
-    .enum(["published", "draft", "all"])
-    .optional()
-    .default("published")
-    .openapi({
-      param: { name: "status", in: "query" },
-      example: "published",
-      description:
-        "Filter by post status. Use 'published' for live posts, 'draft' for unpublished posts, or 'all' for both.",
-    }),
-});
 
 const listPostsRoute = createRoute({
   method: "get",

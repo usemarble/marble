@@ -13,5 +13,22 @@
   "hyperdrive": [
     { "binding": "HYPERDRIVE", "id": "c0eea431cc454c9b96589cd52f70a009" }
   ],
-  "r2_buckets": [{ "binding": "STORAGE", "bucket_name": "marblecms" }]
+  "r2_buckets": [{ "binding": "STORAGE", "bucket_name": "marblecms" }],
+  "env": {
+    "development": {
+      "hyperdrive": [
+        {
+          "binding": "HYPERDRIVE",
+          "id": "d20494d3ce894268b67505bf684a2395"
+        }
+      ],
+      "r2_buckets": [
+        {
+          "binding": "STORAGE",
+          "bucket_name": "marbledev",
+          "remote": true
+        }
+      ]
+    }
+  }
 }

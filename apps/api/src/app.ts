@@ -2,7 +2,7 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { trimTrailingSlash } from "hono/trailing-slash";
-import { ROUTES } from "./lib/constants";
+import { FRAMER_PLUGIN_PATTERN, ROUTES } from "./lib/constants";
 import { analytics } from "./middleware/analytics";
 import { authorization } from "./middleware/authorization";
 import { cache } from "./middleware/cache";
@@ -14,14 +14,10 @@ import authorsRoutes from "./routes/authors";
 import cacheRoutes from "./routes/cache";
 import categoriesRoutes from "./routes/categories";
 import invalidateRoutes from "./routes/invalidate";
+import mediaRoutes from "./routes/media";
 import postsRoutes from "./routes/posts";
 import tagsRoutes from "./routes/tags";
 import type { ApiKeyApp, Env } from "./types/env";
-
-const FRAMER_PLUGIN_ID = "4pj5owtk2qcexo6c1yt9kicye";
-const FRAMER_PLUGIN_PATTERN = new RegExp(
-  `^https://${FRAMER_PLUGIN_ID}(-[a-zA-Z0-9]+)?\\.plugins\\.framercdn\\.com$`
-);
 
 const app = new OpenAPIHono<{ Bindings: Env }>();
 
@@ -95,6 +91,7 @@ apiKeyV1.route("/posts", postsRoutes);
 apiKeyV1.route("/categories", categoriesRoutes);
 apiKeyV1.route("/tags", tagsRoutes);
 apiKeyV1.route("/authors", authorsRoutes);
+apiKeyV1.route("/media", mediaRoutes);
 apiKeyV1.route("/cache/invalidate", invalidateRoutes);
 
 // Mount apiKeyV1 under /v1 to automatically merge OpenAPI specs

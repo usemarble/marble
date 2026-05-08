@@ -124,10 +124,11 @@ export function createCacheClient(url: string, token: string) {
 
         // Use SCAN to iterate through keys matching the pattern
         do {
-          const [nextCursor, keys] = await redis.scan(cursor, {
-            match: pattern,
-            count: batchSize,
-          });
+          const [nextCursor, keys]: [string | number, string[]] =
+            await redis.scan(cursor, {
+              match: pattern,
+              count: batchSize,
+            });
           cursor = nextCursor;
           if (Array.isArray(keys)) {
             allKeys.push(...keys);
@@ -166,7 +167,7 @@ export function createCacheClient(url: string, token: string) {
      */
     async invalidateResource(
       workspaceId: string,
-      resource: "posts" | "categories" | "tags" | "authors"
+      resource: "posts" | "categories" | "tags" | "authors" | "media"
     ): Promise<number> {
       return this.invalidate(`${CACHE_PREFIX}:${workspaceId}:${resource}:*`);
     },

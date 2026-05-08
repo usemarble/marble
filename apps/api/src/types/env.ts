@@ -1,6 +1,8 @@
 export interface Env {
   DATABASE_URL: string;
   HYPERDRIVE: { connectionString: string };
+  STORAGE: R2Bucket;
+  STORAGE_PUBLIC_URL?: string;
   REDIS_URL: string;
   REDIS_TOKEN: string;
   POLAR_ACCESS_TOKEN: string;

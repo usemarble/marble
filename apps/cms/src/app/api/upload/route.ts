@@ -46,19 +46,21 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: message }, { status: 400 });
   }
 
+  const workspaceId = sessionData.session.activeOrganizationId;
+  const userId = sessionData.user.id;
   const id = nanoid();
   const extension = fileType.split("/")[1];
   let key: string;
 
   switch (type) {
     case "avatar":
-      key = `avatars/${id}.${extension}`;
+      key = `avatars/${userId}/${id}.${extension}`;
       break;
     case "logo":
-      key = `logos/${id}.${extension}`;
+      key = `logos/${workspaceId}/${id}.${extension}`;
       break;
     case "media":
-      key = `media/${id}.${extension}`;
+      key = `media/${workspaceId}/${id}.${extension}`;
       break;
     default:
       return NextResponse.json(

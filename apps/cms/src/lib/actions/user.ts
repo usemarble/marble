@@ -31,7 +31,7 @@ export async function storeUserImageAction(user: User) {
     const buffer = Buffer.from(arrayBuffer);
 
     const extension = contentType.split("/")[1];
-    const key = `avatars/${nanoid()}.${extension}`;
+    const key = `avatars/${user.id}/${nanoid()}.${extension}`;
 
     await r2.send(
       new PutObjectCommand({

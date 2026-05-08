@@ -1,5 +1,5 @@
 import { z } from "@hono/zod-openapi";
-import { PaginationSchema } from "./common";
+import { ContentFormatSchema, PaginationSchema } from "./common";
 
 export const SocialRefSchema = z
   .object({
@@ -104,6 +104,182 @@ export const PostResponseSchema = z
     post: PostSchema,
   })
   .openapi("PostResponse");
+
+export const PostsQuerySchema = z.object({
+  limit: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(100)
+    .optional()
+    .default(10)
+    .openapi({
+      param: { name: "limit", in: "query" },
+      type: "integer",
+      example: 10,
+      description: "Number of posts per page (1-100)",
+    }),
+  page: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .optional()
+    .default(1)
+    .openapi({
+      param: { name: "page", in: "query" },
+      type: "integer",
+      example: 1,
+      description: "Page number",
+    }),
+  order: z
+    .enum(["asc", "desc"])
+    .optional()
+    .default("desc")
+    .openapi({
+      param: { name: "order", in: "query" },
+      example: "desc",
+      description: "Sort order by publishedAt",
+    }),
+  categories: z
+    .preprocess(
+      (val) =>
+        typeof val === "string"
+          ? val
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean)
+          : val,
+      z.array(z.string()).optional().default([])
+    )
+    .openapi({
+      param: { name: "categories", in: "query", style: "form", explode: false },
+      type: "array",
+      items: { type: "string" },
+      example: ["tech", "news"],
+      description: "Category slugs to include",
+    }),
+  excludeCategories: z
+    .preprocess(
+      (val) =>
+        typeof val === "string"
+          ? val
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean)
+          : val,
+      z.array(z.string()).optional().default([])
+    )
+    .openapi({
+      param: {
+        name: "excludeCategories",
+        in: "query",
+        style: "form",
+        explode: false,
+      },
+      type: "array",
+      items: { type: "string" },
+      example: ["changelog"],
+      description: "Category slugs to exclude",
+    }),
+  tags: z
+    .preprocess(
+      (val) =>
+        typeof val === "string"
+          ? val
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean)
+          : val,
+      z.array(z.string()).optional().default([])
+    )
+    .openapi({
+      param: { name: "tags", in: "query", style: "form", explode: false },
+      type: "array",
+      items: { type: "string" },
+      example: ["javascript", "react"],
+      description: "Tag slugs to include",
+    }),
+  excludeTags: z
+    .preprocess(
+      (val) =>
+        typeof val === "string"
+          ? val
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean)
+          : val,
+      z.array(z.string()).optional().default([])
+    )
+    .openapi({
+      param: {
+        name: "excludeTags",
+        in: "query",
+        style: "form",
+        explode: false,
+      },
+      type: "array",
+      items: { type: "string" },
+      example: ["outdated"],
+      description: "Tag slugs to exclude",
+    }),
+  query: z
+    .string()
+    .optional()
+    .openapi({
+      param: { name: "query", in: "query" },
+      example: "nextjs",
+      description: "Search query for title and content",
+    }),
+  format: ContentFormatSchema.optional().openapi({
+    param: { name: "format", in: "query" },
+    example: "html",
+    description: "Content format (html or markdown)",
+  }),
+  featured: z
+    .enum(["true", "false"])
+    .optional()
+    .openapi({
+      param: { name: "featured", in: "query" },
+      example: "true",
+      description: "Filter by featured status",
+    }),
+  status: z
+    .enum(["published", "draft", "all"])
+    .optional()
+    .default("published")
+    .openapi({
+      param: { name: "status", in: "query" },
+      example: "published",
+      description:
+        "Filter by post status. Use 'published' for live posts, 'draft' for unpublished posts, or 'all' for both.",
+    }),
+});
+
+export const PostParamsSchema = z.object({
+  identifier: z.string().openapi({
+    param: { name: "identifier", in: "path" },
+    example: "my-post-slug",
+    description: "Post ID or slug",
+  }),
+});
+
+export const SinglePostQuerySchema = z.object({
+  format: ContentFormatSchema.optional().openapi({
+    param: { name: "format", in: "query" },
+    example: "html",
+    description: "Content format (html or markdown)",
+  }),
+  status: z
+    .enum(["published", "draft", "all"])
+    .optional()
+    .default("published")
+    .openapi({
+      param: { name: "status", in: "query" },
+      example: "published",
+      description:
+        "Filter by post status. Use 'published' for live posts, 'draft' for unpublished posts, or 'all' for both.",
+    }),
+});
 
 export const CreatePostBodySchema = z
   .object({
