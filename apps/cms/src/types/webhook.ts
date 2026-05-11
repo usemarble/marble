@@ -1,7 +1,7 @@
 export interface Webhook {
   id: string;
   name: string;
-  endpoint: string;
+  url: string;
   secret: string;
   events: string[];
   enabled: boolean;

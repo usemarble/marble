@@ -69,7 +69,7 @@ export function WebhookDataTable({
       const webhook = row.original;
       return [
         webhook.name,
-        webhook.endpoint,
+        webhook.url,
         webhook.format,
         webhook.enabled ? "enabled" : "disabled",
       ].some((value) => value.toLowerCase().includes(search));

@@ -134,14 +134,14 @@ export async function dispatchWebhooks<K extends keyof WebhookEventMap>({
         (async () => {
           try {
             await client.send({
-              url: webhook.endpoint,
+              url: webhook.url,
               event: deliveryEvent,
               data,
               format: webhook.format,
             });
             await trackWebhookUsage({
               workspaceId,
-              endpoint: webhook.endpoint,
+              endpoint: webhook.url,
               event: deliveryEvent,
               webhookId: webhook.id,
               format: webhook.format,
@@ -149,7 +149,7 @@ export async function dispatchWebhooks<K extends keyof WebhookEventMap>({
             deliveredCount++;
           } catch (error) {
             console.error(
-              `[WebhookDispatcher] Failed to deliver ${deliveryEvent} webhook to ${webhook.endpoint}`,
+              `[WebhookDispatcher] Failed to deliver ${deliveryEvent} webhook to ${webhook.url}`,
               error
             );
           }

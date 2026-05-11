@@ -96,7 +96,7 @@ export function EditWebhookSheet({
     resolver: zodResolver(webhookSchema),
     defaultValues: {
       name: webhook.name,
-      endpoint: webhook.endpoint,
+      endpoint: webhook.url,
       events: webhook.events as WebhookEvent[],
       format: webhook.format as PayloadFormat,
     },
@@ -106,7 +106,7 @@ export function EditWebhookSheet({
     if (isOpen && webhook) {
       reset({
         name: webhook.name,
-        endpoint: webhook.endpoint,
+        endpoint: webhook.url,
         events: webhook.events as WebhookEvent[],
         format: webhook.format as PayloadFormat,
       });

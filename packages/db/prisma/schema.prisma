@@ -50,16 +50,16 @@ model Subscription {
 }
 
 model Organization {
-  id                String            @id @default(cuid())
+  id                String             @id @default(cuid())
   name              String
-  slug              String            @unique
+  slug              String             @unique
   logo              String?
   metadata          String?
   description       String?
-  subdomain         String?           @unique
-  updatedAt         DateTime          @updatedAt
-  createdAt         DateTime          @default(now())
-  timezone          String            @default("Europe/London")
+  subdomain         String?            @unique
+  updatedAt         DateTime           @updatedAt
+  createdAt         DateTime           @default(now())
+  timezone          String             @default("Europe/London")
   authors           Author[]
   categories        Category[]
   fields            Field[]
@@ -70,7 +70,7 @@ model Organization {
   subscriptions     Subscription[]
   tags              Tag[]
   fieldOptions      FieldOption[]
-  webhooks          Webhook[]
+  webhookEndpoints  WebhookEndpoint[]
   ShareLink         ShareLink[]
   usageEvents       UsageEvent[]
   ApiToken          ApiKey[]
@@ -192,10 +192,10 @@ model Category {
   @@map("category")
 }
 
-model Webhook {
+model WebhookEndpoint {
   id          String               @id @default(cuid())
   name        String
-  endpoint    String
+  url         String
   secret      String
   enabled     Boolean              @default(true)
   workspaceId String
@@ -208,7 +208,7 @@ model Webhook {
 
   @@index([workspaceId])
   @@index([workspaceId, enabled])
-  @@map("webhook")
+  @@map("webhook_endpoint")
 }
 
 model User {
@@ -485,7 +485,7 @@ enum WorkspaceEventType {
 }
 
 enum WorkspaceEventSource {
-  dashboard
+  cms
   api
   mcp
   workflow
@@ -664,7 +664,7 @@ model WebhookDelivery {
 
   event           WorkspaceEvent           @relation(fields: [eventId], references: [id], onDelete: Cascade)
   workspace       Organization             @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  webhookEndpoint Webhook                  @relation(fields: [webhookEndpointId], references: [id], onDelete: Cascade)
+  webhookEndpoint WebhookEndpoint          @relation(fields: [webhookEndpointId], references: [id], onDelete: Cascade)
   attempts        WebhookDeliveryAttempt[]
 
   @@index([eventId])

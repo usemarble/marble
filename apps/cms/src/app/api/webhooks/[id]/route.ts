@@ -33,8 +33,7 @@ export async function PATCH(
     );
   }
 
-  // Verify webhook exists and belongs to workspace
-  const existingWebhook = await db.webhook.findFirst({
+  const existingWebhook = await db.webhookEndpoint.findFirst({
     where: {
       id,
       workspaceId: session.session.activeOrganizationId,
@@ -45,10 +44,9 @@ export async function PATCH(
     return NextResponse.json({ error: "Webhook not found" }, { status: 404 });
   }
 
-  // Build update data conditionally, only including provided fields
   const updateData: {
     name?: string;
-    endpoint?: string;
+    url?: string;
     events?: WebhookEvent[];
     format?: PayloadFormat;
     enabled?: boolean;
@@ -58,7 +56,7 @@ export async function PATCH(
     updateData.name = body.data.name;
   }
   if (body.data.endpoint !== undefined) {
-    updateData.endpoint = body.data.endpoint;
+    updateData.url = body.data.endpoint;
   }
   if (body.data.events !== undefined) {
     updateData.events = body.data.events;
@@ -70,7 +68,7 @@ export async function PATCH(
     updateData.enabled = body.data.enabled;
   }
 
-  const webhook = await db.webhook.update({
+  const webhook = await db.webhookEndpoint.update({
     where: {
       id,
       workspaceId: session.session.activeOrganizationId,
@@ -97,7 +95,7 @@ export async function DELETE(
 
   const { id } = await params;
 
-  const existingWebhook = await db.webhook.findFirst({
+  const existingWebhook = await db.webhookEndpoint.findFirst({
     where: {
       id,
       workspaceId: session.session.activeOrganizationId,
@@ -108,7 +106,7 @@ export async function DELETE(
     return NextResponse.json({ error: "Webhook not found" }, { status: 404 });
   }
 
-  const deletedWebhook = await db.webhook.delete({
+  const deletedWebhook = await db.webhookEndpoint.delete({
     where: { id },
   });
 

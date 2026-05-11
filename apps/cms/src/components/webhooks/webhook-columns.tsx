@@ -67,11 +67,11 @@ export function getWebhookColumns({
       filterFn: "includesString",
     },
     {
-      accessorKey: "endpoint",
+      accessorKey: "url",
       header: "Endpoint",
       cell: ({ row }) => (
         <p className="max-w-80 truncate break-all font-mono text-muted-foreground text-xs">
-          {row.original.endpoint}
+          {row.original.url}
         </p>
       ),
       filterFn: "includesString",

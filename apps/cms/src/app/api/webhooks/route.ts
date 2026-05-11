@@ -11,7 +11,7 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const webhooks = await db.webhook.findMany({
+  const webhooks = await db.webhookEndpoint.findMany({
     where: {
       workspaceId: sessionData.session.activeOrganizationId,
     },
@@ -35,10 +35,10 @@ export async function POST(req: Request) {
 
   const secret = randomBytes(32).toString("hex");
 
-  const webhook = await db.webhook.create({
+  const webhook = await db.webhookEndpoint.create({
     data: {
       name: body.name,
-      endpoint: body.endpoint,
+      url: body.endpoint,
       events: body.events,
       secret,
       format: body.format,

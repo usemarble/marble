@@ -76,7 +76,7 @@ export async function POST(req: Request) {
   for (const webhook of await webhooks) {
     const webhookClient = new WebhookClient({ secret: webhook.secret });
     await webhookClient.send({
-      url: webhook.endpoint,
+      url: webhook.url,
       event: "tag.created",
       data: {
         id: tagCreated.id,

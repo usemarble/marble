@@ -72,7 +72,7 @@ export function WebhookCard({
                 {webhook.name}
               </CardTitle>
               <CardDescription className="line-clamp-1 break-all font-mono text-sm">
-                {webhook.endpoint}
+                {webhook.url}
               </CardDescription>
             </div>
             <DropdownMenu>

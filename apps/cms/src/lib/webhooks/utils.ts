@@ -84,13 +84,13 @@ export function getWebhooks(
   if (!workspaceId) {
     throw new Error("No active organization");
   }
-  return db.webhook.findMany({
+  return db.webhookEndpoint.findMany({
     where: {
       enabled: true,
       workspaceId,
       events: { has: event },
       ...where,
     },
-    select: { id: true, secret: true, endpoint: true, format: true, ...select },
+    select: { id: true, secret: true, url: true, format: true, ...select },
   });
 }
