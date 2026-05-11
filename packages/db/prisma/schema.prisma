@@ -485,7 +485,7 @@ enum WorkspaceEventType {
 }
 
 enum WorkspaceEventSource {
-  cms
+  dashboard
   api
   mcp
   workflow
