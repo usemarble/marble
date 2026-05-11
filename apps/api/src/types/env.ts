@@ -9,6 +9,7 @@ export interface Env {
   ENVIRONMENT?: string;
   SYSTEM_SECRET: string;
   RESEND_API_KEY: string;
+  EVENT_QUEUE: Queue;
 }
 
 // Context variables set by keyAuthorization middleware

@@ -1,0 +1,140 @@
+import { createDbClient } from "../lib/db";
+import { signPayload } from "../lib/signing";
+import type { Env } from "../types/env";
+
+interface DeliveryMessage {
+  deliveryId: string;
+}
+
+export async function handleWebhookDeliveryQueue(
+  batch: MessageBatch<DeliveryMessage>,
+  env: Env
+) {
+  const db = createDbClient(env);
+
+  for (const message of batch.messages) {
+    const { deliveryId } = message.body;
+
+    try {
+      await processDelivery(db, deliveryId);
+      message.ack();
+    } catch (error) {
+      console.error(
+        `[Delivery] Failed to deliver ${deliveryId}:`,
+        error instanceof Error ? error.message : error
+      );
+      message.retry();
+    }
+  }
+}
+
+async function processDelivery(
+  db: ReturnType<typeof createDbClient>,
+  deliveryId: string
+) {
+  const delivery = await db.webhookDelivery.findUnique({
+    where: { id: deliveryId },
+    include: {
+      event: true,
+      webhookEndpoint: true,
+    },
+  });
+
+  if (!delivery) {
+    console.error(`[Delivery] Delivery not found: ${deliveryId}`);
+    return;
+  }
+
+  const attemptNumber = delivery.attemptCount + 1;
+
+  await db.webhookDelivery.update({
+    where: { id: delivery.id },
+    data: {
+      status: "sending",
+      attemptCount: attemptNumber,
+      lastAttemptAt: new Date(),
+    },
+  });
+
+  const payload = {
+    id: delivery.event.id,
+    type: delivery.event.type,
+    createdAt: delivery.event.createdAt.toISOString(),
+    data: delivery.event.payload,
+  };
+
+  const body = JSON.stringify(payload);
+  const signature = await signPayload(body, delivery.webhookEndpoint.secret);
+  const startedAt = Date.now();
+
+  try {
+    const response = await fetch(delivery.url, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "user-agent": "Marble-Webhooks/1.0",
+        "x-marble-event": delivery.event.type,
+        "x-marble-delivery": delivery.id,
+        "x-marble-signature": `sha256=${signature}`,
+      },
+      body,
+    });
+
+    const responseBody = await response.text();
+    const durationMs = Date.now() - startedAt;
+
+    await db.webhookDeliveryAttempt.create({
+      data: {
+        deliveryId: delivery.id,
+        attemptNumber,
+        success: response.ok,
+        statusCode: response.status,
+        responseBody: responseBody.slice(0, 5000),
+        durationMs,
+      },
+    });
+
+    if (response.ok) {
+      await db.webhookDelivery.update({
+        where: { id: delivery.id },
+        data: {
+          status: "success",
+          deliveredAt: new Date(),
+        },
+      });
+      return;
+    }
+
+    throw new Error(`Webhook returned ${response.status}`);
+  } catch (error) {
+    const durationMs = Date.now() - startedAt;
+
+    await db.webhookDeliveryAttempt.create({
+      data: {
+        deliveryId: delivery.id,
+        attemptNumber,
+        success: false,
+        errorMessage: error instanceof Error ? error.message : String(error),
+        durationMs,
+      },
+    });
+
+    if (attemptNumber >= delivery.maxAttempts) {
+      await db.webhookDelivery.update({
+        where: { id: delivery.id },
+        data: {
+          status: "failed",
+          failedAt: new Date(),
+        },
+      });
+      return;
+    }
+
+    await db.webhookDelivery.update({
+      where: { id: delivery.id },
+      data: { status: "retrying" },
+    });
+
+    throw error;
+  }
+}

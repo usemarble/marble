@@ -13,6 +13,7 @@ import { systemAuth } from "./middleware/system";
 import authorsRoutes from "./routes/authors";
 import cacheRoutes from "./routes/cache";
 import categoriesRoutes from "./routes/categories";
+import eventsRoutes from "./routes/events";
 import invalidateRoutes from "./routes/invalidate";
 import mediaRoutes from "./routes/media";
 import postsRoutes from "./routes/posts";
@@ -45,6 +46,9 @@ app.use(trimTrailingSlash());
 // Internal System Routes (no API key, no analytics)
 app.use("/cache/invalidate", systemAuth());
 app.route("/cache/invalidate", cacheRoutes);
+
+app.use("/internal/events", systemAuth());
+app.route("/internal/events", eventsRoutes);
 
 // Legacy Workspace ID Routes (/v1/:workspaceId/*)
 // MUST be registered BEFORE apiKeyV1 to intercept workspace ID routes
