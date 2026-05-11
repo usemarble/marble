@@ -25,7 +25,7 @@ export async function handleEventQueue(
         continue;
       }
 
-      const webhooks = await db.webhook.findMany({
+      const webhooks = await db.webhookEndpoint.findMany({
         where: {
           workspaceId: event.workspaceId,
           enabled: true,
@@ -48,7 +48,7 @@ export async function handleEventQueue(
             eventId: event.id,
             workspaceId: event.workspaceId,
             webhookEndpointId: webhook.id,
-            url: webhook.endpoint,
+            url: webhook.url,
             status: "pending",
           },
         });
