@@ -45,11 +45,11 @@ events.post("/", async (c) => {
         resourceId: body.resourceId,
         actorType: body.actorType,
         actorId: body.actorId,
-        payload: JSON.stringify(body.payload),
+        payload: body.payload ?? {},
       },
     });
 
-    c.executionCtx.waitUntil(c.env.EVENT_QUEUE.send({ eventId: event.id }));
+    await c.env.EVENT_QUEUE.send({ eventId: event.id });
 
     return c.json({ ok: true, eventId: event.id });
   } catch (error) {

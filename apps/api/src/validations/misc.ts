@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { JsonObjectSchema } from "@/validations/json";
 
 export const WORKSPACE_EVENT_TYPES = [
   "post_created",
@@ -14,6 +15,9 @@ export const WORKSPACE_EVENT_TYPES = [
   "media_uploaded",
   "media_updated",
   "media_deleted",
+  "author_created",
+  "author_updated",
+  "author_deleted",
 ] as const;
 
 export const WORKSPACE_EVENT_SOURCES = [
@@ -43,12 +47,12 @@ export const WORKSPACE_EVENT_RESOURCE_TYPES = [
 export const InternalEventSchema = z.object({
   type: z.enum(WORKSPACE_EVENT_TYPES),
   workspaceId: z.string().min(1),
-  source: z.enum(WORKSPACE_EVENT_SOURCES).optional().default("dashboard"),
+  source: z.enum(["dashboard", "mcp"]).optional().default("dashboard"),
   resourceType: z.enum(WORKSPACE_EVENT_RESOURCE_TYPES).optional(),
   resourceId: z.string().min(1).optional(),
   actorType: z.enum(WORKSPACE_EVENT_ACTOR_TYPES).optional(),
   actorId: z.string().min(1).optional(),
-  payload: z.record(z.string(), z.unknown()).optional().default({}),
+  payload: JsonObjectSchema.optional().default({}),
 });
 
 export const BasicPaginationSchema = z.object({

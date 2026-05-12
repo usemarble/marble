@@ -26,6 +26,7 @@ import {
   UpdatePostResponseSchema,
 } from "@/schemas/posts";
 import type { Env } from "@/types/env";
+import { emitEvent } from "@/lib/events";
 
 const posts = new OpenAPIHono<{ Bindings: Env }>();
 
@@ -681,6 +682,34 @@ posts.openapi(createPostRoute, async (c) => {
     );
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
 
+    const apiKeyId = c.get("apiKeyId" as never) as string | undefined;
+    c.executionCtx.waitUntil(
+      emitEvent(db, c.env.EVENT_QUEUE, {
+        type: "post_created",
+        workspaceId,
+        resourceType: "post",
+        resourceId: postCreated.id,
+        actorType: "api_key",
+        actorId: apiKeyId,
+      }).catch((error) => {
+        console.error("[posts.create] Failed to emit post_created:", error);
+      })
+    );
+    if (postCreated.status === "published") {
+      c.executionCtx.waitUntil(
+        emitEvent(db, c.env.EVENT_QUEUE, {
+          type: "post_published",
+          workspaceId,
+          resourceType: "post",
+          resourceId: postCreated.id,
+          actorType: "api_key",
+          actorId: apiKeyId,
+        }).catch((error) => {
+          console.error("[posts.create] Failed to emit post_published:", error);
+        })
+      );
+    }
+
     return c.json({ post: postCreated }, 201 as const);
   } catch (error) {
     console.error("Error creating post:", error);
@@ -964,6 +993,38 @@ posts.openapi(updatePostRoute, async (c) => {
     );
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
 
+    // 8. Emit events
+    const apiKeyId = c.get("apiKeyId" as never) as string | undefined;
+    c.executionCtx.waitUntil(
+      emitEvent(db, c.env.EVENT_QUEUE, {
+        type: "post_updated",
+        workspaceId,
+        resourceType: "post",
+        resourceId: postUpdated.id,
+        actorType: "api_key",
+        actorId: apiKeyId,
+      }).catch((error) => {
+        console.error("[posts.update] Failed to emit post_updated:", error);
+      })
+    );
+    const wasPublished =
+      existingPost.status !== "published" &&
+      postUpdated.status === "published";
+    if (wasPublished) {
+      c.executionCtx.waitUntil(
+        emitEvent(db, c.env.EVENT_QUEUE, {
+          type: "post_published",
+          workspaceId,
+          resourceType: "post",
+          resourceId: postUpdated.id,
+          actorType: "api_key",
+          actorId: apiKeyId,
+        }).catch((error) => {
+          console.error("[posts.update] Failed to emit post_published:", error);
+        })
+      );
+    }
+
     return c.json({ post: postUpdated }, 200 as const);
   } catch (error) {
     console.error("Error updating post:", error);
@@ -1011,6 +1072,20 @@ posts.openapi(deletePostRoute, async (c) => {
       cache.invalidateResource(workspaceId, "categories")
     );
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
+
+    const apiKeyId = c.get("apiKeyId" as never) as string | undefined;
+    c.executionCtx.waitUntil(
+      emitEvent(db, c.env.EVENT_QUEUE, {
+        type: "post_deleted",
+        workspaceId,
+        resourceType: "post",
+        resourceId: existingPost.id,
+        actorType: "api_key",
+        actorId: apiKeyId,
+      }).catch((error) => {
+        console.error("[posts.delete] Failed to emit post_deleted:", error);
+      })
+    );
 
     return c.json({ id: existingPost.id }, 200 as const);
   } catch (error) {

@@ -28,6 +28,7 @@ import {
   UploadMediaBodySchema,
 } from "@/schemas/media";
 import type { ApiKeyApp } from "@/types/env";
+import { emitEvent } from "@/lib/events";
 
 const media = new OpenAPIHono<ApiKeyApp>();
 
@@ -327,6 +328,20 @@ media.openapi(updateMediaRoute, async (c) => {
     });
 
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "media"));
+
+    c.executionCtx.waitUntil(
+      emitEvent(db, c.env.EVENT_QUEUE, {
+        type: "media_updated",
+        workspaceId,
+        resourceType: "media",
+        resourceId: updated.id,
+        actorType: "api_key",
+        actorId: c.get("apiKeyId"),
+      }).catch((error) => {
+        console.error("[media.update] Failed to emit media_updated:", error);
+      })
+    );
+
     return c.json({ media: serializeMedia(updated) }, 200 as const);
   } catch (error) {
     console.error("Error updating media asset:", error);
@@ -365,6 +380,19 @@ media.openapi(deleteMediaRoute, async (c) => {
       c.executionCtx.waitUntil(c.env.STORAGE.delete(key));
     }
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "media"));
+
+    c.executionCtx.waitUntil(
+      emitEvent(db, c.env.EVENT_QUEUE, {
+        type: "media_deleted",
+        workspaceId,
+        resourceType: "media",
+        resourceId: id,
+        actorType: "api_key",
+        actorId: c.get("apiKeyId"),
+      }).catch((error) => {
+        console.error("[media.delete] Failed to emit media_deleted:", error);
+      })
+    );
 
     return c.json({ id }, 200 as const);
   } catch (error) {
@@ -465,6 +493,20 @@ media.openapi(uploadMediaRoute, async (c) => {
     }
 
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "media"));
+
+    c.executionCtx.waitUntil(
+      emitEvent(db, c.env.EVENT_QUEUE, {
+        type: "media_uploaded",
+        workspaceId,
+        resourceType: "media",
+        resourceId: created.id,
+        actorType: "api_key",
+        actorId: c.get("apiKeyId"),
+      }).catch((error) => {
+        console.error("[media.upload] Failed to emit media_uploaded:", error);
+      })
+    );
+
     return c.json({ media: serializeMedia(created) }, 201 as const);
   } catch (error) {
     console.error("Error uploading media asset:", error);

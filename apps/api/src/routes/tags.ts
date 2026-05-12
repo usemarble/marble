@@ -1,6 +1,7 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { cacheKey, createCacheClient, hashQueryParams } from "@/lib/cache";
 import { createDbClient } from "@/lib/db";
+import { emitEvent } from "@/lib/events";
 import { requireWorkspaceId } from "@/lib/workspace";
 import {
   ConflictSchema,
@@ -333,6 +334,20 @@ tags.openapi(createTagRoute, async (c) => {
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "tags"));
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
 
+    const apiKeyId = c.get("apiKeyId" as never) as string | undefined;
+    c.executionCtx.waitUntil(
+      emitEvent(db, c.env.EVENT_QUEUE, {
+        type: "tag_created",
+        workspaceId,
+        resourceType: "tag",
+        resourceId: tagCreated.id,
+        actorType: "api_key",
+        actorId: apiKeyId,
+      }).catch((error) => {
+        console.error("[tags.create] Failed to emit tag_created:", error);
+      })
+    );
+
     return c.json({ tag: tagCreated }, 201 as const);
   } catch (error) {
     console.error("Error creating tag:", error);
@@ -484,6 +499,20 @@ tags.openapi(updateTagRoute, async (c) => {
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "tags"));
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
 
+    const apiKeyId = c.get("apiKeyId" as never) as string | undefined;
+    c.executionCtx.waitUntil(
+      emitEvent(db, c.env.EVENT_QUEUE, {
+        type: "tag_updated",
+        workspaceId,
+        resourceType: "tag",
+        resourceId: tagUpdated.id,
+        actorType: "api_key",
+        actorId: apiKeyId,
+      }).catch((error) => {
+        console.error("[tags.update] Failed to emit tag_updated:", error);
+      })
+    );
+
     return c.json({ tag: tagUpdated }, 200 as const);
   } catch (error) {
     console.error("Error updating tag:", error);
@@ -527,6 +556,20 @@ tags.openapi(deleteTagRoute, async (c) => {
 
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "tags"));
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
+
+    const apiKeyId = c.get("apiKeyId" as never) as string | undefined;
+    c.executionCtx.waitUntil(
+      emitEvent(db, c.env.EVENT_QUEUE, {
+        type: "tag_deleted",
+        workspaceId,
+        resourceType: "tag",
+        resourceId: existingTag.id,
+        actorType: "api_key",
+        actorId: apiKeyId,
+      }).catch((error) => {
+        console.error("[tags.delete] Failed to emit tag_deleted:", error);
+      })
+    );
 
     return c.json({ id: existingTag.id }, 200 as const);
   } catch (error) {

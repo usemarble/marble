@@ -21,6 +21,7 @@ import {
   ServerErrorSchema,
 } from "@/schemas/common";
 import type { Env } from "@/types/env";
+import { emitEvent } from "@/lib/events";
 
 const categories = new OpenAPIHono<{ Bindings: Env }>();
 
@@ -338,6 +339,20 @@ categories.openapi(createCategoryRoute, async (c) => {
     );
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
 
+    const apiKeyId = c.get("apiKeyId" as never) as string | undefined;
+    c.executionCtx.waitUntil(
+      emitEvent(db, c.env.EVENT_QUEUE, {
+        type: "category_created",
+        workspaceId,
+        resourceType: "category",
+        resourceId: categoryCreated.id,
+        actorType: "api_key",
+        actorId: apiKeyId,
+      }).catch((error) => {
+        console.error("[categories.create] Failed to emit category_created:", error);
+      })
+    );
+
     return c.json({ category: categoryCreated }, 201 as const);
   } catch (error) {
     console.error("Error creating category:", error);
@@ -498,6 +513,20 @@ categories.openapi(updateCategoryRoute, async (c) => {
     );
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
 
+    const apiKeyId = c.get("apiKeyId" as never) as string | undefined;
+    c.executionCtx.waitUntil(
+      emitEvent(db, c.env.EVENT_QUEUE, {
+        type: "category_updated",
+        workspaceId,
+        resourceType: "category",
+        resourceId: categoryUpdated.id,
+        actorType: "api_key",
+        actorId: apiKeyId,
+      }).catch((error) => {
+        console.error("[categories.update] Failed to emit category_updated:", error);
+      })
+    );
+
     return c.json({ category: categoryUpdated }, 200 as const);
   } catch (error) {
     console.error("Error updating category:", error);
@@ -557,6 +586,20 @@ categories.openapi(deleteCategoryRoute, async (c) => {
       cache.invalidateResource(workspaceId, "categories")
     );
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
+
+    const apiKeyId = c.get("apiKeyId" as never) as string | undefined;
+    c.executionCtx.waitUntil(
+      emitEvent(db, c.env.EVENT_QUEUE, {
+        type: "category_deleted",
+        workspaceId,
+        resourceType: "category",
+        resourceId: existingCategory.id,
+        actorType: "api_key",
+        actorId: apiKeyId,
+      }).catch((error) => {
+        console.error("[categories.delete] Failed to emit category_deleted:", error);
+      })
+    );
 
     return c.json({ id: existingCategory.id }, 200 as const);
   } catch (error) {
