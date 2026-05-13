@@ -1,3 +1,4 @@
+import path from "node:path";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
@@ -11,6 +12,9 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
   experimental: {
     optimizePackageImports: ["@phosphor-icons/react"],
+  },
+  turbopack: {
+    root: path.resolve(__dirname, "../.."),
   },
   async redirects() {
     return [
