@@ -2,6 +2,7 @@
 
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
+import type { ChangeEvent } from "react";
 import {
   type Control,
   type FieldValues,
@@ -9,6 +10,7 @@ import {
   useController,
 } from "react-hook-form";
 import { ErrorMessage } from "@/components/ui/error-message";
+import { generateSlug } from "@/utils/string";
 import { FieldInfo } from "./field-info";
 
 interface SlugFieldProps<TFieldValues extends FieldValues> {
@@ -26,6 +28,10 @@ export function SlugField<TFieldValues extends FieldValues>({
     control,
   });
 
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    field.onChange(generateSlug(event.target.value));
+  };
+
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-1">
@@ -35,6 +41,7 @@ export function SlugField<TFieldValues extends FieldValues>({
       <Input
         id="slug"
         {...field}
+        onChange={handleChange}
         className="col-span-3 bg-editor-field"
         placeholder="my-awesome-post"
       />
