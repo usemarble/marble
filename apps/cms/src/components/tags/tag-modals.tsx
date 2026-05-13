@@ -195,8 +195,12 @@ export function TagModal({
                 id="tag-slug"
                 {...register("slug", {
                   onChange: (e) => {
-                    setValue("slug", generateSlug(e.target.value));
+                    setValue(
+                      "slug",
+                      generateSlug(e.target.value, { trimEdges: false })
+                    );
                   },
+                  
                 })}
                 placeholder="unique-identifier"
               />
