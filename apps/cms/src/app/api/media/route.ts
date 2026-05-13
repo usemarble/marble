@@ -1,12 +1,13 @@
 import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { db } from "@marble/db";
+import { toMediaPayload } from "@marble/events";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getServerSession } from "@/lib/auth/session";
+import { emitDashboardEvent } from "@/lib/events/fire";
 import { R2_BUCKET_NAME, r2 } from "@/lib/r2";
 import { loadMediaApiFilters } from "@/lib/search-params";
 import { DeleteSchema } from "@/lib/validations/upload";
-import { dispatchWebhooks } from "@/lib/webhooks/dispatcher";
 import { splitMediaSort } from "@/utils/media";
 
 export async function GET(request: Request) {
@@ -184,18 +185,16 @@ export async function DELETE(request: Request) {
 
       deletedIds.push(...mediaDeletedFromR2.map((item) => item.id));
 
-      dispatchWebhooks({
-        workspaceId,
-        validationEvent: "media_deleted",
-        deliveryEvent: "media.deleted",
-        payload: mediaDeletedFromR2.map(({ media }) => ({
-          id: media.id,
-          name: media.name,
-          userId: sessionData.user.id,
-        })),
-      }).catch((error) => {
-        console.error("[MediaDelete] Failed to dispatch webhooks:", error);
-      });
+      for (const { media } of mediaDeletedFromR2) {
+        emitDashboardEvent({
+          type: "media_deleted",
+          workspaceId,
+          resourceType: "media",
+          resourceId: media.id,
+          actorId: sessionData.user.id,
+          payload: toMediaPayload(media),
+        });
+      }
     }
 
     if (deletedIds.length === 0) {

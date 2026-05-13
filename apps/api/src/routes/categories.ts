@@ -1,6 +1,8 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import { toCategoryPayload, withChanges } from "@marble/events";
 import { cacheKey, createCacheClient, hashQueryParams } from "@/lib/cache";
 import { createDbClient } from "@/lib/db";
+import { emitEvent } from "@/lib/events";
 import { requireWorkspaceId } from "@/lib/workspace";
 import {
   CategoriesListResponseSchema,
@@ -21,7 +23,6 @@ import {
   ServerErrorSchema,
 } from "@/schemas/common";
 import type { Env } from "@/types/env";
-import { emitEvent } from "@/lib/events";
 
 const categories = new OpenAPIHono<{ Bindings: Env }>();
 
@@ -348,8 +349,12 @@ categories.openapi(createCategoryRoute, async (c) => {
         resourceId: categoryCreated.id,
         actorType: "api_key",
         actorId: apiKeyId,
+        payload: toCategoryPayload(categoryCreated),
       }).catch((error) => {
-        console.error("[categories.create] Failed to emit category_created:", error);
+        console.error(
+          "[categories.create] Failed to emit category_created:",
+          error
+        );
       })
     );
 
@@ -522,8 +527,15 @@ categories.openapi(updateCategoryRoute, async (c) => {
         resourceId: categoryUpdated.id,
         actorType: "api_key",
         actorId: apiKeyId,
+        payload: withChanges(
+          toCategoryPayload(categoryUpdated),
+          Object.keys(body)
+        ),
       }).catch((error) => {
-        console.error("[categories.update] Failed to emit category_updated:", error);
+        console.error(
+          "[categories.update] Failed to emit category_updated:",
+          error
+        );
       })
     );
 
@@ -596,8 +608,12 @@ categories.openapi(deleteCategoryRoute, async (c) => {
         resourceId: existingCategory.id,
         actorType: "api_key",
         actorId: apiKeyId,
+        payload: toCategoryPayload(existingCategory),
       }).catch((error) => {
-        console.error("[categories.delete] Failed to emit category_deleted:", error);
+        console.error(
+          "[categories.delete] Failed to emit category_deleted:",
+          error
+        );
       })
     );
 

@@ -1,6 +1,8 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import { toAuthorPayload, withChanges } from "@marble/events";
 import { cacheKey, createCacheClient, hashQueryParams } from "@/lib/cache";
 import { createDbClient } from "@/lib/db";
+import { emitEvent } from "@/lib/events";
 import { requireWorkspaceId } from "@/lib/workspace";
 import {
   AuthorResponseSchema,
@@ -21,7 +23,6 @@ import {
   ServerErrorSchema,
 } from "@/schemas/common";
 import type { Env } from "@/types/env";
-import { emitEvent } from "@/lib/events";
 
 const authors = new OpenAPIHono<{ Bindings: Env }>();
 
@@ -416,6 +417,7 @@ authors.openapi(createAuthorRoute, async (c) => {
         resourceId: author.id,
         actorType: "api_key",
         actorId: apiKeyId,
+        payload: toAuthorPayload(author),
       }).catch((error) => {
         console.error("[authors.create] Failed to emit author_created:", error);
       })
@@ -572,6 +574,7 @@ authors.openapi(updateAuthorRoute, async (c) => {
         resourceId: updatedAuthor.id,
         actorType: "api_key",
         actorId: apiKeyId,
+        payload: withChanges(toAuthorPayload(updatedAuthor), Object.keys(body)),
       }).catch((error) => {
         console.error("[authors.update] Failed to emit author_updated:", error);
       })
@@ -633,6 +636,11 @@ authors.openapi(deleteAuthorRoute, async (c) => {
         workspaceId,
         OR: [{ id: identifier }, { slug: identifier }],
       },
+      include: {
+        socials: {
+          select: { url: true, platform: true },
+        },
+      },
     });
 
     if (!existingAuthor) {
@@ -661,6 +669,7 @@ authors.openapi(deleteAuthorRoute, async (c) => {
         resourceId: existingAuthor.id,
         actorType: "api_key",
         actorId: apiKeyId,
+        payload: toAuthorPayload(existingAuthor),
       }).catch((error) => {
         console.error("[authors.delete] Failed to emit author_deleted:", error);
       })

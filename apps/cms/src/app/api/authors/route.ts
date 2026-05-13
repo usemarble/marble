@@ -1,7 +1,9 @@
 import { db } from "@marble/db";
+import { toAuthorPayload } from "@marble/events";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { invalidateCache } from "@/lib/cache/invalidate";
+import { emitDashboardEvent } from "@/lib/events/fire";
 import { getWorkspacePlan } from "@/lib/plans";
 import { authorSchema } from "@/lib/validations/authors";
 
@@ -185,6 +187,15 @@ export async function POST(request: Request) {
     // Invalidate cache for authors and posts (authors affect posts)
     invalidateCache(workspaceId, "authors");
     invalidateCache(workspaceId, "posts");
+
+    emitDashboardEvent({
+      type: "author_created",
+      workspaceId,
+      resourceType: "author",
+      resourceId: author.id,
+      actorId: sessionData.user.id,
+      payload: toAuthorPayload(author),
+    });
 
     return NextResponse.json(author, { status: 201 });
   } catch (error) {

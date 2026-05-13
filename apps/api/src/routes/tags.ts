@@ -1,4 +1,5 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import { toTagPayload, withChanges } from "@marble/events";
 import { cacheKey, createCacheClient, hashQueryParams } from "@/lib/cache";
 import { createDbClient } from "@/lib/db";
 import { emitEvent } from "@/lib/events";
@@ -343,6 +344,7 @@ tags.openapi(createTagRoute, async (c) => {
         resourceId: tagCreated.id,
         actorType: "api_key",
         actorId: apiKeyId,
+        payload: toTagPayload(tagCreated),
       }).catch((error) => {
         console.error("[tags.create] Failed to emit tag_created:", error);
       })
@@ -508,6 +510,7 @@ tags.openapi(updateTagRoute, async (c) => {
         resourceId: tagUpdated.id,
         actorType: "api_key",
         actorId: apiKeyId,
+        payload: withChanges(toTagPayload(tagUpdated), Object.keys(body)),
       }).catch((error) => {
         console.error("[tags.update] Failed to emit tag_updated:", error);
       })
@@ -566,6 +569,7 @@ tags.openapi(deleteTagRoute, async (c) => {
         resourceId: existingTag.id,
         actorType: "api_key",
         actorId: apiKeyId,
+        payload: toTagPayload(existingTag),
       }).catch((error) => {
         console.error("[tags.delete] Failed to emit tag_deleted:", error);
       })

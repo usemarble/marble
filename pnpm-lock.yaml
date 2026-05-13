@@ -51,6 +51,9 @@ importers:
       '@marble/email':
         specifier: workspace:*
         version: link:../../packages/email
+      '@marble/events':
+        specifier: workspace:*
+        version: link:../../packages/events
       '@marble/utils':
         specifier: workspace:*
         version: link:../../packages/utils
@@ -115,9 +118,6 @@ importers:
       '@databuddy/sdk':
         specifier: ^2.1.75
         version: 2.1.75(@types/react@19.2.14)(react@19.2.4)
-      '@discordjs/builders':
-        specifier: ^1.13.0
-        version: 1.13.0
       '@hookform/resolvers':
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.72.0(react@19.2.4))
@@ -136,6 +136,9 @@ importers:
       '@marble/email':
         specifier: workspace:*
         version: link:../../packages/email
+      '@marble/events':
+        specifier: workspace:*
+        version: link:../../packages/events
       '@marble/parser':
         specifier: workspace:*
         version: link:../../packages/parser
@@ -166,9 +169,6 @@ importers:
       '@tanstack/react-virtual':
         specifier: ^3.13.12
         version: 3.13.12(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      '@upstash/qstash':
-        specifier: ^2.8.2
-        version: 2.8.2
       '@upstash/ratelimit':
         specifier: ^2.0.5
         version: 2.0.5(@upstash/redis@1.35.3)
@@ -305,9 +305,6 @@ importers:
       babel-plugin-react-compiler:
         specifier: ^1.0.0
         version: 1.0.0
-      discord-api-types:
-        specifier: ^0.38.33
-        version: 0.38.33
       postcss:
         specifier: ^8.5.6
         version: 8.5.6
@@ -332,6 +329,9 @@ importers:
       '@marble/email':
         specifier: workspace:*
         version: link:../../packages/email
+      '@marble/events':
+        specifier: workspace:*
+        version: link:../../packages/events
       '@marble/utils':
         specifier: workspace:*
         version: link:../../packages/utils
@@ -626,6 +626,15 @@ importers:
       react-email:
         specifier: ^5.2.9
         version: 5.2.9(bufferutil@4.0.9)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
+  packages/events:
+    devDependencies:
+      '@marble/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -1522,18 +1531,6 @@ packages:
 
   '@date-fns/tz@1.4.1':
     resolution: {integrity: sha512-P5LUNhtbj6YfI3iJjw5EL9eUAG6OitD0W3fWQcpQjDRc/QIsL0tRNuO1PcDvPccWL1fSTXXdE1ds+l95DV/OFA==}
-
-  '@discordjs/builders@1.13.0':
-    resolution: {integrity: sha512-COK0uU6ZaJI+LA67H/rp8IbEkYwlZf3mAoBI5wtPh5G5cbEQGNhVpzINg2f/6+q/YipnNIKy6fJDg6kMUKUw4Q==}
-    engines: {node: '>=16.11.0'}
-
-  '@discordjs/formatters@0.6.1':
-    resolution: {integrity: sha512-5cnX+tASiPCqCWtFcFslxBVUaCetB0thvM/JyavhbXInP1HJIEU+Qv/zMrnuwSsX3yWH2lVXNJZeDK3EiP4HHg==}
-    engines: {node: '>=16.11.0'}
-
-  '@discordjs/util@1.1.1':
-    resolution: {integrity: sha512-eddz6UnOBEB1oITPinyrB2Pttej49M9FZQY8NxgEvc3tq6ZICZ19m70RsmzRdDHk80O9NoYN/25AqJl8vPVf/g==}
-    engines: {node: '>=18'}
 
   '@effect/platform@0.70.7':
     resolution: {integrity: sha512-TbNwj/mOJhycPygbmicGBS7CNtv5Z8WVheRbLUdP3oPAe/nbSOJVLc8ZPvOejhquF/1vJMKuqY5MWfkcBpvi/g==}
@@ -4241,10 +4238,6 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@sapphire/shapeshift@4.0.0':
-    resolution: {integrity: sha512-d9dUmWVA7MMiKobL3VpLF8P2aeanRTu6ypG2OIaEv/ZHH/SUQ2iHOVyi5wAPjQ+HmnMuL0whK9ez8I/raWbtIg==}
-    engines: {node: '>=v16'}
-
   '@selderee/plugin-htmlparser2@0.11.0':
     resolution: {integrity: sha512-P33hHGdldxGabLFjPPpaTxVolMrzrcegejx+0GxjrIb9Zv48D8yAIA/QTDR2dFl7Uz7urX8aX6+5bCZslr+gWQ==}
 
@@ -5300,9 +5293,6 @@ packages:
     resolution: {integrity: sha512-7qJHGxpQgQr9/vmeS1PktEwvNAF7TI4iJDi8Pu2CFZ9YUGHZH4fOP5TfYlZ4aVxfopnELiE4BS4FBjyK7V1/xQ==}
     engines: {node: '>=16.0.0'}
 
-  '@upstash/qstash@2.8.2':
-    resolution: {integrity: sha512-gQMCs2YXmRJWGh28t3fsWuPTzGgVFVRBd4o5QeWM9l3HW8TMNwt1qzv5wtzzSlG7hv1ylEy/PQCznkxGcAwTfw==}
-
   '@upstash/ratelimit@2.0.5':
     resolution: {integrity: sha512-1FRv0cs3ZlBjCNOCpCmKYmt9BYGIJf0J0R3pucOPE88R21rL7jNjXG+I+rN/BVOvYJhI9niRAS/JaSNjiSICxA==}
     peerDependencies:
@@ -6347,9 +6337,6 @@ packages:
   crossws@0.3.5:
     resolution: {integrity: sha512-ojKiDvcmByhwa8YYqbQI/hg7MEU0NC03+pSdEq4ZUnZR9xXpwk7E43SMNGkn+JxJGPFtNvQ48+vV2p+P1ml5PA==}
 
-  crypto-js@4.2.0:
-    resolution: {integrity: sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q==}
-
   css-select@5.2.2:
     resolution: {integrity: sha512-TizTzUddG/xYLA3NXodFM0fSbNizXjOKhqiQQwvhlspadZokn1KDy0NZFS0wuEubIYAV5/c1/lAr0TaaFXEXzw==}
 
@@ -6613,9 +6600,6 @@ packages:
   diff@8.0.3:
     resolution: {integrity: sha512-qejHi7bcSD4hQAZE0tNAawRK1ZtafHDmMTMkrrIGgSLl7hTnQHmKCeB45xAcbfTqK2zowkM3j3bHt/4b/ARbYQ==}
     engines: {node: '>=0.3.1'}
-
-  discord-api-types@0.38.33:
-    resolution: {integrity: sha512-oau1V7OzrNX8yNi+DfQpoLZCNCv7cTFmvPKwHfMrA/tewsO6iQKrMTzA7pa3iBSj0fED6NlklJ/1B/cC1kI08Q==}
 
   dlv@1.1.3:
     resolution: {integrity: sha512-+HlytyjlPKnIG8XuRG8WvmBP8xs8P71y+SKKS6ZXWoEgLuePxtDoUEiH7WkdePWrQ5JBpE6aoVqfZfJUQkjXwA==}
@@ -7789,9 +7773,6 @@ packages:
     resolution: {integrity: sha512-ekilCSN1jwRvIbgeg/57YFh8qQDNbwDb9xT/qu2DAHbFFZUicIl4ygVaAvzveMhMVr3LnpSKTNnwt8PoOfmKhQ==}
     hasBin: true
 
-  jose@5.10.0:
-    resolution: {integrity: sha512-s+3Al/p9g32Iq+oqXxkW//7jk2Vig6FF1CFqzVXoTUXt2qz89YWbL+OwS17NFYEvxC35n0FKeGO2LGYSxeM2Gg==}
-
   jose@6.2.2:
     resolution: {integrity: sha512-d7kPDd34KO/YnzaDOlikGpOurfF0ByC2sEV4cANCtdqLlTfBlw2p14O/5d/zv40gJPbIQxfES3nSx1/oYNyuZQ==}
 
@@ -8576,10 +8557,6 @@ packages:
   netmask@2.0.2:
     resolution: {integrity: sha512-dBpDMdxv9Irdq66304OLfEmQ9tbNRFnFTuZiLo+bD+r332bBmMJ8GBLXklIXXgxd3+v9+KUnZaUR5PJMa75Gsg==}
     engines: {node: '>= 0.4.0'}
-
-  neverthrow@7.2.0:
-    resolution: {integrity: sha512-iGBUfFB7yPczHHtA8dksKTJ9E8TESNTAx1UQWW6TzMF280vo9jdPYpLUXrMN1BCkPdHFdNG3fxOt2CUad8KhAw==}
-    engines: {node: '>=18'}
 
   next-mdx-remote-client@1.1.6:
     resolution: {integrity: sha512-O4HIpi44d6SismhfG5W78aTUfgxfbsj6FgoM4/G3o4Vtcobt0Ej439IiDPkv+IqsmtouVYG1tGAsz1DIuj9Tfg==}
@@ -10400,9 +10377,6 @@ packages:
 
   ts-interface-checker@0.1.13:
     resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
-
-  ts-mixer@6.0.4:
-    resolution: {integrity: sha512-ufKpbmrugz5Aou4wcr5Wc1UUFWOLhq+Fm6qa6P0w0K5Qw2yhaUoiWszhCVuNQyNwrlGiscHOmqYoAox1PtvgjA==}
 
   tsconfck@3.1.6:
     resolution: {integrity: sha512-ks6Vjr/jEw0P1gmOVwutM3B7fWxoWBL2KRDb1JfqGVawBmO5UsvmWOQFGHBPl5yxYz4eERr19E6L7NMv+Fej4w==}
@@ -12602,22 +12576,6 @@ snapshots:
       - '@types/react'
 
   '@date-fns/tz@1.4.1': {}
-
-  '@discordjs/builders@1.13.0':
-    dependencies:
-      '@discordjs/formatters': 0.6.1
-      '@discordjs/util': 1.1.1
-      '@sapphire/shapeshift': 4.0.0
-      discord-api-types: 0.38.33
-      fast-deep-equal: 3.1.3
-      ts-mixer: 6.0.4
-      tslib: 2.8.1
-
-  '@discordjs/formatters@0.6.1':
-    dependencies:
-      discord-api-types: 0.38.33
-
-  '@discordjs/util@1.1.1': {}
 
   '@effect/platform@0.70.7(effect@3.11.5)':
     dependencies:
@@ -15515,11 +15473,6 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.58.0':
     optional: true
 
-  '@sapphire/shapeshift@4.0.0':
-    dependencies:
-      fast-deep-equal: 3.1.3
-      lodash: 4.17.21
-
   '@selderee/plugin-htmlparser2@0.11.0':
     dependencies:
       domhandler: 5.0.3
@@ -16806,12 +16759,6 @@ snapshots:
     dependencies:
       '@upstash/redis': 1.36.4
 
-  '@upstash/qstash@2.8.2':
-    dependencies:
-      crypto-js: 4.2.0
-      jose: 5.10.0
-      neverthrow: 7.2.0
-
   '@upstash/ratelimit@2.0.5(@upstash/redis@1.35.3)':
     dependencies:
       '@upstash/core-analytics': 0.0.10
@@ -18017,8 +17964,6 @@ snapshots:
     dependencies:
       uncrypto: 0.1.3
 
-  crypto-js@4.2.0: {}
-
   css-select@5.2.2:
     dependencies:
       boolbase: 1.0.0
@@ -18232,8 +18177,6 @@ snapshots:
   didyoumean@1.2.2: {}
 
   diff@8.0.3: {}
-
-  discord-api-types@0.38.33: {}
 
   dlv@1.1.3: {}
 
@@ -19783,8 +19726,6 @@ snapshots:
 
   jiti@2.6.1: {}
 
-  jose@5.10.0: {}
-
   jose@6.2.2: {}
 
   jotai@2.10.1(@types/react@19.2.14)(react@19.2.4):
@@ -20833,8 +20774,6 @@ snapshots:
   neotraverse@0.6.18: {}
 
   netmask@2.0.2: {}
-
-  neverthrow@7.2.0: {}
 
   next-mdx-remote-client@1.1.6(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.3))(react@19.2.3)(unified@11.0.5):
     dependencies:
@@ -23134,8 +23073,6 @@ snapshots:
       zod: 4.3.6
 
   ts-interface-checker@0.1.13: {}
-
-  ts-mixer@6.0.4: {}
 
   tsconfck@3.1.6(typescript@5.9.3):
     optionalDependencies:

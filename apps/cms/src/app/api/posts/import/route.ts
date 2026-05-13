@@ -1,11 +1,12 @@
 import { db } from "@marble/db";
+import { toPostPayload } from "@marble/events";
 import { markdownToHtml, markdownToTiptap } from "@marble/parser/tiptap";
 import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
+import { emitDashboardEvent } from "@/lib/events/fire";
 import { postImportSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";
-import { dispatchWebhooks } from "@/lib/webhooks/dispatcher";
 import { sanitizeHtml } from "@/utils/editor";
 import { generateSlug } from "@/utils/string";
 
@@ -133,24 +134,15 @@ export async function POST(request: Request) {
     },
   });
 
-  if (postCreated.status === "published") {
-    dispatchWebhooks({
-      workspaceId: activeWorkspaceId,
-      validationEvent: "post_published",
-      deliveryEvent: "post.published",
-      payload: {
-        id: postCreated.id,
-        title: postCreated.title,
-        slug: postCreated.slug,
-        userId: sessionData.user.id,
-      },
-    }).catch((error) => {
-      console.error(
-        `[PostImport] Failed to dispatch webhooks: postId=${postCreated.id}`,
-        error
-      );
-    });
-  }
+  emitDashboardEvent({
+    type:
+      postCreated.status === "published" ? "post_published" : "post_created",
+    workspaceId: activeWorkspaceId,
+    resourceType: "post",
+    resourceId: postCreated.id,
+    actorId: sessionData.user.id,
+    payload: toPostPayload(postCreated),
+  });
 
   return NextResponse.json({ id: postCreated.id });
 }

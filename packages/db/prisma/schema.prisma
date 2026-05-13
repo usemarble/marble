@@ -464,6 +464,7 @@ enum SubscriptionStatus {
 enum WorkspaceEventType {
   post_created
   post_published
+  post_unpublished
   post_updated
   post_deleted
 
@@ -650,6 +651,7 @@ model WebhookDelivery {
 
   url    String
   status WebhookDeliveryStatus @default(pending)
+  isTest Boolean               @default(false)
 
   attemptCount Int @default(0)
   maxAttempts  Int @default(3)

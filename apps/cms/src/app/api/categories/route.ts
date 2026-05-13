@@ -1,9 +1,10 @@
 import { db } from "@marble/db";
+import { toCategoryPayload } from "@marble/events";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { invalidateCache } from "@/lib/cache/invalidate";
+import { emitDashboardEvent } from "@/lib/events/fire";
 import { categorySchema } from "@/lib/validations/workspace";
-import { dispatchWebhooks } from "@/lib/webhooks/dispatcher";
 
 export async function GET() {
   const sessionData = await getServerSession();
@@ -77,20 +78,13 @@ export async function POST(req: Request) {
     },
   });
 
-  dispatchWebhooks({
+  emitDashboardEvent({
+    type: "category_created",
     workspaceId,
-    validationEvent: "category_created",
-    deliveryEvent: "category.created",
-    payload: {
-      id: categoryCreated.id,
-      slug: categoryCreated.slug,
-      userId: sessionData.user.id,
-    },
-  }).catch((error) => {
-    console.error(
-      `[WebhookDelivery] Failed to dispatch webhooks for category_created: workspaceId=${workspaceId}, categoryId=${categoryCreated.id},`,
-      error
-    );
+    resourceType: "category",
+    resourceId: categoryCreated.id,
+    actorId: sessionData.user.id,
+    payload: toCategoryPayload(categoryCreated),
   });
 
   // Invalidate cache for categories and posts (categories affect posts)

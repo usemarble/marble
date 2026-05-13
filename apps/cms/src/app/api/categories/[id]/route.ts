@@ -1,9 +1,10 @@
 import { db } from "@marble/db";
+import { toCategoryPayload, withChanges } from "@marble/events";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { invalidateCache } from "@/lib/cache/invalidate";
+import { emitDashboardEvent } from "@/lib/events/fire";
 import { categorySchema } from "@/lib/validations/workspace";
-import { dispatchWebhooks } from "@/lib/webhooks/dispatcher";
 
 export async function PATCH(
   req: Request,
@@ -52,20 +53,16 @@ export async function PATCH(
     },
   });
 
-  dispatchWebhooks({
+  emitDashboardEvent({
+    type: "category_updated",
     workspaceId,
-    validationEvent: "category_updated",
-    deliveryEvent: "category.updated",
-    payload: {
-      id: updatedCategory.id,
-      slug: updatedCategory.slug,
-      userId: sessionData.user.id,
-    },
-  }).catch((error) => {
-    console.error(
-      `[CategoryUpdate] Failed to dispatch webhooks: categoryId=${updatedCategory.id}`,
-      error
-    );
+    resourceType: "category",
+    resourceId: updatedCategory.id,
+    actorId: sessionData.user.id,
+    payload: withChanges(
+      toCategoryPayload(updatedCategory),
+      Object.keys(body.data)
+    ),
   });
 
   // Invalidate cache for categories and posts (categories affect posts)
@@ -90,7 +87,7 @@ export async function DELETE(
 
   const category = await db.category.findFirst({
     where: { id, workspaceId },
-    select: { slug: true },
+    select: { id: true, name: true, slug: true, description: true },
   });
 
   if (!category) {
@@ -120,17 +117,13 @@ export async function DELETE(
       },
     });
 
-    // Fire and forget - don't block response
-    dispatchWebhooks({
+    emitDashboardEvent({
+      type: "category_deleted",
       workspaceId,
-      validationEvent: "category_deleted",
-      deliveryEvent: "category.deleted",
-      payload: { id, slug: category.slug, userId: sessionData.user.id },
-    }).catch((error) => {
-      console.error(
-        `[CategoryDelete] Failed to dispatch webhooks: categoryId=${id}`,
-        error
-      );
+      resourceType: "category",
+      resourceId: id,
+      actorId: sessionData.user.id,
+      payload: toCategoryPayload(category),
     });
 
     // Invalidate cache for categories and posts (categories affect posts)

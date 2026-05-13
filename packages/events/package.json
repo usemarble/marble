@@ -1,0 +1,11 @@
+{
+  "name": "@marble/events",
+  "version": "0.0.0",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "devDependencies": {
+    "@marble/tsconfig": "workspace:*",
+    "typescript": "^5.9.3"
+  }
+}

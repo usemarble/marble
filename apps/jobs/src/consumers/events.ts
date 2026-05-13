@@ -3,6 +3,8 @@ import type { Env } from "../types/env";
 
 interface EventMessage {
   eventId: string;
+  targetWebhookEndpointId?: string;
+  isTest?: boolean;
 }
 
 export async function handleEventQueue(
@@ -12,7 +14,7 @@ export async function handleEventQueue(
   const db = createDbClient(env);
 
   for (const message of batch.messages) {
-    const { eventId } = message.body;
+    const { eventId, targetWebhookEndpointId, isTest = false } = message.body;
 
     try {
       const event = await db.workspaceEvent.findUnique({
@@ -27,9 +29,10 @@ export async function handleEventQueue(
 
       const webhooks = await db.webhookEndpoint.findMany({
         where: {
+          ...(targetWebhookEndpointId && { id: targetWebhookEndpointId }),
           workspaceId: event.workspaceId,
           enabled: true,
-          events: { has: event.type },
+          ...(targetWebhookEndpointId ? {} : { events: { has: event.type } }),
         },
       });
 
@@ -50,6 +53,7 @@ export async function handleEventQueue(
             webhookEndpointId: webhook.id,
             url: webhook.url,
             status: "pending",
+            isTest,
           },
         });
 

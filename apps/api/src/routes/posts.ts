@@ -1,7 +1,9 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import { toPostPayload, withChanges } from "@marble/events";
 import { NodeHtmlMarkdown } from "node-html-markdown";
 import { cacheKey, createCacheClient, hashQueryParams } from "@/lib/cache";
 import { createDbClient } from "@/lib/db";
+import { emitEvent } from "@/lib/events";
 import { buildFieldsObject, buildStatusFilter } from "@/lib/posts";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { requireWorkspaceId } from "@/lib/workspace";
@@ -26,7 +28,6 @@ import {
   UpdatePostResponseSchema,
 } from "@/schemas/posts";
 import type { Env } from "@/types/env";
-import { emitEvent } from "@/lib/events";
 
 const posts = new OpenAPIHono<{ Bindings: Env }>();
 
@@ -683,32 +684,21 @@ posts.openapi(createPostRoute, async (c) => {
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
 
     const apiKeyId = c.get("apiKeyId" as never) as string | undefined;
+    const eventType =
+      postCreated.status === "published" ? "post_published" : "post_created";
     c.executionCtx.waitUntil(
       emitEvent(db, c.env.EVENT_QUEUE, {
-        type: "post_created",
+        type: eventType,
         workspaceId,
         resourceType: "post",
         resourceId: postCreated.id,
         actorType: "api_key",
         actorId: apiKeyId,
+        payload: toPostPayload(postCreated),
       }).catch((error) => {
-        console.error("[posts.create] Failed to emit post_created:", error);
+        console.error(`[posts.create] Failed to emit ${eventType}:`, error);
       })
     );
-    if (postCreated.status === "published") {
-      c.executionCtx.waitUntil(
-        emitEvent(db, c.env.EVENT_QUEUE, {
-          type: "post_published",
-          workspaceId,
-          resourceType: "post",
-          resourceId: postCreated.id,
-          actorType: "api_key",
-          actorId: apiKeyId,
-        }).catch((error) => {
-          console.error("[posts.create] Failed to emit post_published:", error);
-        })
-      );
-    }
 
     return c.json({ post: postCreated }, 201 as const);
   } catch (error) {
@@ -995,35 +985,30 @@ posts.openapi(updatePostRoute, async (c) => {
 
     // 8. Emit events
     const apiKeyId = c.get("apiKeyId" as never) as string | undefined;
+    const eventType =
+      existingPost.status !== "published" && postUpdated.status === "published"
+        ? "post_published"
+        : existingPost.status === "published" &&
+            postUpdated.status !== "published"
+          ? "post_unpublished"
+          : "post_updated";
+    const payload =
+      eventType === "post_updated"
+        ? withChanges(toPostPayload(postUpdated), Object.keys(body))
+        : toPostPayload(postUpdated);
     c.executionCtx.waitUntil(
       emitEvent(db, c.env.EVENT_QUEUE, {
-        type: "post_updated",
+        type: eventType,
         workspaceId,
         resourceType: "post",
         resourceId: postUpdated.id,
         actorType: "api_key",
         actorId: apiKeyId,
+        payload,
       }).catch((error) => {
-        console.error("[posts.update] Failed to emit post_updated:", error);
+        console.error(`[posts.update] Failed to emit ${eventType}:`, error);
       })
     );
-    const wasPublished =
-      existingPost.status !== "published" &&
-      postUpdated.status === "published";
-    if (wasPublished) {
-      c.executionCtx.waitUntil(
-        emitEvent(db, c.env.EVENT_QUEUE, {
-          type: "post_published",
-          workspaceId,
-          resourceType: "post",
-          resourceId: postUpdated.id,
-          actorType: "api_key",
-          actorId: apiKeyId,
-        }).catch((error) => {
-          console.error("[posts.update] Failed to emit post_published:", error);
-        })
-      );
-    }
 
     return c.json({ post: postUpdated }, 200 as const);
   } catch (error) {
@@ -1082,6 +1067,7 @@ posts.openapi(deletePostRoute, async (c) => {
         resourceId: existingPost.id,
         actorType: "api_key",
         actorId: apiKeyId,
+        payload: toPostPayload(existingPost),
       }).catch((error) => {
         console.error("[posts.delete] Failed to emit post_deleted:", error);
       })

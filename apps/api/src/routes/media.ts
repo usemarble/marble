@@ -1,7 +1,9 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
+import { toMediaPayload, withChanges } from "@marble/events";
 import { cacheKey, createCacheClient, hashQueryParams } from "@/lib/cache";
 import { ALLOWED_MEDIA_MIME_TYPES, MAX_UPLOAD_SIZE } from "@/lib/constants";
 import { createDbClient } from "@/lib/db";
+import { emitEvent } from "@/lib/events";
 import {
   extensionFromFile,
   getImageDimensions,
@@ -28,7 +30,6 @@ import {
   UploadMediaBodySchema,
 } from "@/schemas/media";
 import type { ApiKeyApp } from "@/types/env";
-import { emitEvent } from "@/lib/events";
 
 const media = new OpenAPIHono<ApiKeyApp>();
 
@@ -337,6 +338,7 @@ media.openapi(updateMediaRoute, async (c) => {
         resourceId: updated.id,
         actorType: "api_key",
         actorId: c.get("apiKeyId"),
+        payload: withChanges(toMediaPayload(updated), Object.keys(body)),
       }).catch((error) => {
         console.error("[media.update] Failed to emit media_updated:", error);
       })
@@ -389,6 +391,7 @@ media.openapi(deleteMediaRoute, async (c) => {
         resourceId: id,
         actorType: "api_key",
         actorId: c.get("apiKeyId"),
+        payload: toMediaPayload(existing),
       }).catch((error) => {
         console.error("[media.delete] Failed to emit media_deleted:", error);
       })
@@ -502,6 +505,7 @@ media.openapi(uploadMediaRoute, async (c) => {
         resourceId: created.id,
         actorType: "api_key",
         actorId: c.get("apiKeyId"),
+        payload: toMediaPayload(created),
       }).catch((error) => {
         console.error("[media.upload] Failed to emit media_uploaded:", error);
       })

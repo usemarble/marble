@@ -1,3 +1,4 @@
+import { buildWebhookPayload, serializeEventType } from "@marble/events";
 import { createDbClient } from "../lib/db";
 import { signPayload } from "../lib/signing";
 import type { Env } from "../types/env";
@@ -56,15 +57,12 @@ async function processDelivery(
     },
   });
 
-  const payload = {
-    id: delivery.event.id,
-    type: delivery.event.type,
-    createdAt: delivery.event.createdAt.toISOString(),
-    data: delivery.event.payload,
-  };
+  const payload = buildWebhookPayload(delivery.event);
 
   const body = JSON.stringify(payload);
   const signature = await signPayload(body, delivery.webhookEndpoint.secret);
+  const timestamp = Math.floor(Date.now() / 1000).toString();
+  const eventType = serializeEventType(delivery.event.type);
   const startedAt = Date.now();
 
   try {
@@ -73,8 +71,10 @@ async function processDelivery(
       headers: {
         "content-type": "application/json",
         "user-agent": "Marble-Webhooks/1.0",
-        "x-marble-event": delivery.event.type,
-        "x-marble-delivery": delivery.id,
+        "x-marble-event": eventType,
+        "x-marble-event-id": delivery.event.id,
+        "x-marble-delivery-id": delivery.id,
+        "x-marble-timestamp": timestamp,
         "x-marble-signature": `sha256=${signature}`,
       },
       body,
@@ -93,6 +93,20 @@ async function processDelivery(
         durationMs,
       },
     });
+
+    if (response.ok && !delivery.isTest) {
+      try {
+        await db.usageEvent.create({
+          data: {
+            type: "webhook_delivery",
+            workspaceId: delivery.workspaceId,
+            endpoint: delivery.url,
+          },
+        });
+      } catch (error) {
+        console.error("[Delivery] Failed to track webhook usage:", error);
+      }
+    }
 
     if (response.ok) {
       await db.webhookDelivery.update({

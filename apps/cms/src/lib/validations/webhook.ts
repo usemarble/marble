@@ -1,8 +1,9 @@
-import * as z from "zod";
+import { z } from "zod";
 import { VALID_DISCORD_DOMAINS, VALID_SLACK_DOMAINS } from "../constants";
 
 export const webhookEventEnum = z.enum([
   "post_published",
+  "post_unpublished",
   "post_updated",
   "post_deleted",
   "category_created",
@@ -12,7 +13,11 @@ export const webhookEventEnum = z.enum([
   "tag_updated",
   "tag_deleted",
   "media_uploaded",
+  "media_updated",
   "media_deleted",
+  "author_created",
+  "author_updated",
+  "author_deleted",
 ]);
 
 export const payloadFormatEnum = z.enum(["json", "discord", "slack"]);
@@ -148,6 +153,11 @@ export const webhookEvents: Array<{
     description: "When a post is published",
   },
   {
+    id: "post_unpublished",
+    label: "post.unpublished",
+    description: "When a post is unpublished",
+  },
+  {
     id: "post_updated",
     label: "post.updated",
     description: "When a post is updated",
@@ -193,8 +203,28 @@ export const webhookEvents: Array<{
     description: "When media is uploaded",
   },
   {
+    id: "media_updated",
+    label: "media.updated",
+    description: "When media is updated",
+  },
+  {
     id: "media_deleted",
     label: "media.deleted",
     description: "When media is deleted",
+  },
+  {
+    id: "author_created",
+    label: "author.created",
+    description: "When an author is created",
+  },
+  {
+    id: "author_updated",
+    label: "author.updated",
+    description: "When an author is updated",
+  },
+  {
+    id: "author_deleted",
+    label: "author.deleted",
+    description: "When an author is deleted",
   },
 ];

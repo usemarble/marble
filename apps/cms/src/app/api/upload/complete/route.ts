@@ -1,9 +1,10 @@
 import { db } from "@marble/db";
+import { toMediaPayload } from "@marble/events";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
+import { emitDashboardEvent } from "@/lib/events/fire";
 import { R2_PUBLIC_URL } from "@/lib/r2";
 import { completeSchema } from "@/lib/validations/upload";
-import { dispatchWebhooks } from "@/lib/webhooks/dispatcher";
 import { getMediaType } from "@/utils/media";
 import { trackMediaUpload } from "@/utils/usage/media";
 
@@ -62,22 +63,13 @@ export async function POST(request: Request) {
           console.error("[Media Upload] Failed to track upload:", err);
         });
 
-        dispatchWebhooks({
+        emitDashboardEvent({
+          type: "media_uploaded",
           workspaceId,
-          validationEvent: "media_uploaded",
-          deliveryEvent: "media.uploaded",
-          payload: {
-            id: media.id,
-            name: media.name,
-            userId: sessionData.user.id,
-            size: media.size,
-            type: media.type,
-          },
-        }).catch((error) => {
-          console.error(
-            `[MediaUpload] Failed to dispatch webhooks: mediaId=${media.id}`,
-            error
-          );
+          resourceType: "media",
+          resourceId: media.id,
+          actorId: sessionData.user.id,
+          payload: toMediaPayload(media),
         });
 
         const mediaResponse = {

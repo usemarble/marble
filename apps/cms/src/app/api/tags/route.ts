@@ -1,10 +1,10 @@
 import { db } from "@marble/db";
+import { toTagPayload } from "@marble/events";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { invalidateCache } from "@/lib/cache/invalidate";
+import { emitDashboardEvent } from "@/lib/events/fire";
 import { tagSchema } from "@/lib/validations/workspace";
-import { getWebhooks } from "@/lib/webhooks/utils";
-import { WebhookClient } from "@/lib/webhooks/webhook-client";
 
 export async function GET() {
   const sessionData = await getServerSession();
@@ -71,21 +71,14 @@ export async function POST(req: Request) {
     },
   });
 
-  const webhooks = getWebhooks(workspaceId, "tag_created");
-
-  for (const webhook of await webhooks) {
-    const webhookClient = new WebhookClient({ secret: webhook.secret });
-    await webhookClient.send({
-      url: webhook.url,
-      event: "tag.created",
-      data: {
-        id: tagCreated.id,
-        slug: tagCreated.slug,
-        userId: sessionData.user.id,
-      },
-      format: webhook.format,
-    });
-  }
+  emitDashboardEvent({
+    type: "tag_created",
+    workspaceId,
+    resourceType: "tag",
+    resourceId: tagCreated.id,
+    actorId: sessionData.user.id,
+    payload: toTagPayload(tagCreated),
+  });
 
   // Invalidate cache for tags and posts (tags affect posts)
   invalidateCache(workspaceId, "tags");

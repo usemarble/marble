@@ -9,6 +9,7 @@
   "dependencies": {
     "@marble/db": "workspace:*",
     "@marble/email": "workspace:*",
+    "@marble/events": "workspace:*",
     "@marble/utils": "workspace:*",
     "@upstash/redis": "^1.36.4",
     "hono": "^4.12.18"

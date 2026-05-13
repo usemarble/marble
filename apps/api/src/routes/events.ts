@@ -49,7 +49,11 @@ events.post("/", async (c) => {
       },
     });
 
-    await c.env.EVENT_QUEUE.send({ eventId: event.id });
+    await c.env.EVENT_QUEUE.send({
+      eventId: event.id,
+      targetWebhookEndpointId: body.targetWebhookEndpointId,
+      isTest: body.isTest,
+    });
 
     return c.json({ ok: true, eventId: event.id });
   } catch (error) {

@@ -1,4 +1,5 @@
 import { db } from "@marble/db";
+import { toPostPayload, withChanges } from "@marble/events";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { invalidateCache } from "@/lib/cache/invalidate";
@@ -6,9 +7,9 @@ import {
   type CustomFieldValidationDefinition,
   resolveCustomFieldValues,
 } from "@/lib/custom-fields";
+import { emitDashboardEvent } from "@/lib/events/fire";
 import { postUpsertSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";
-import { dispatchWebhooks } from "@/lib/webhooks/dispatcher";
 import { sanitizeHtml, sanitizeRichTextHtml } from "@/utils/editor";
 
 async function buildCustomFieldWrites(
@@ -287,38 +288,24 @@ export async function PATCH(
       return updatedPost;
     });
 
-    const data = {
-      id: postUpdated.id,
-      title: postUpdated.title,
-      slug: postUpdated.slug,
-      userId: sessionData.user.id,
-    };
+    const eventType =
+      post.status !== "published" && postUpdated.status === "published"
+        ? "post_published"
+        : post.status === "published" && postUpdated.status !== "published"
+          ? "post_unpublished"
+          : "post_updated";
+    const payload =
+      eventType === "post_updated"
+        ? withChanges(toPostPayload(postUpdated), Object.keys(values.data))
+        : toPostPayload(postUpdated);
 
-    // Fire and forget - don't block response
-    if (values.data.status === "published" && post.status === "draft") {
-      dispatchWebhooks({
-        workspaceId,
-        validationEvent: "post_published",
-        deliveryEvent: "post.published",
-        payload: data,
-      }).catch((error) => {
-        console.error(
-          `[PostPublish] Failed to dispatch webhooks: postId=${postUpdated.id}`,
-          error
-        );
-      });
-    }
-
-    dispatchWebhooks({
+    emitDashboardEvent({
+      type: eventType,
       workspaceId,
-      validationEvent: "post_updated",
-      deliveryEvent: "post.updated",
-      payload: data,
-    }).catch((error) => {
-      console.error(
-        `[PostUpdate] Failed to dispatch webhooks: postId=${postUpdated.id}`,
-        error
-      );
+      resourceType: "post",
+      resourceId: postUpdated.id,
+      actorId: sessionData.user.id,
+      payload,
     });
 
     // Invalidate cache for posts
@@ -357,17 +344,13 @@ export async function DELETE(
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
-    // Fire and forget - don't block response
-    dispatchWebhooks({
+    emitDashboardEvent({
+      type: "post_deleted",
       workspaceId,
-      validationEvent: "post_deleted",
-      deliveryEvent: "post.deleted",
-      payload: { id, slug: deletedPost.slug, userId: sessionData.user.id },
-    }).catch((error) => {
-      console.error(
-        `[PostDelete] Failed to dispatch webhooks: postId=${id}`,
-        error
-      );
+      resourceType: "post",
+      resourceId: id,
+      actorId: sessionData.user.id,
+      payload: toPostPayload(deletedPost),
     });
 
     // Invalidate cache for posts

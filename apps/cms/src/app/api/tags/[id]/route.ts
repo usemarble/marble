@@ -1,9 +1,10 @@
 import { db } from "@marble/db";
+import { toTagPayload, withChanges } from "@marble/events";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { invalidateCache } from "@/lib/cache/invalidate";
+import { emitDashboardEvent } from "@/lib/events/fire";
 import { tagSchema } from "@/lib/validations/workspace";
-import { dispatchWebhooks } from "@/lib/webhooks/dispatcher";
 
 export async function PATCH(
   req: Request,
@@ -51,20 +52,13 @@ export async function PATCH(
     },
   });
 
-  dispatchWebhooks({
+  emitDashboardEvent({
+    type: "tag_updated",
     workspaceId,
-    validationEvent: "tag_updated",
-    deliveryEvent: "tag.updated",
-    payload: {
-      id: updatedTag.id,
-      slug: updatedTag.slug,
-      userId: sessionData.user.id,
-    },
-  }).catch((error) => {
-    console.error(
-      `[TagUpdate] Failed to dispatch webhooks: tagId=${updatedTag.id}`,
-      error
-    );
+    resourceType: "tag",
+    resourceId: updatedTag.id,
+    actorId: sessionData.user.id,
+    payload: withChanges(toTagPayload(updatedTag), Object.keys(body)),
   });
 
   // Invalidate cache for tags and posts (tags affect posts)
@@ -88,7 +82,7 @@ export async function DELETE(
 
   const tag = await db.tag.findFirst({
     where: { id, workspaceId },
-    select: { slug: true },
+    select: { id: true, name: true, slug: true, description: true },
   });
 
   if (!tag) {
@@ -103,17 +97,13 @@ export async function DELETE(
       },
     });
 
-    // Fire and forget - don't block response
-    dispatchWebhooks({
+    emitDashboardEvent({
+      type: "tag_deleted",
       workspaceId,
-      validationEvent: "tag_deleted",
-      deliveryEvent: "tag.deleted",
-      payload: { id, slug: tag.slug, userId: sessionData.user.id },
-    }).catch((error) => {
-      console.error(
-        `[TagDelete] Failed to dispatch webhooks: tagId=${id}`,
-        error
-      );
+      resourceType: "tag",
+      resourceId: id,
+      actorId: sessionData.user.id,
+      payload: toTagPayload(tag),
     });
 
     // Invalidate cache for tags and posts (tags affect posts)
