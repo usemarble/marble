@@ -248,8 +248,8 @@ importers:
         specifier: ^2.15.3
         version: 2.15.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       resend:
-        specifier: ^6.9.3
-        version: 6.9.3(@react-email/render@2.0.8(react-dom@19.2.4(react@19.2.4))(react@19.2.4))
+        specifier: ^6.12.3
+        version: 6.12.3(@react-email/render@2.0.8(react-dom@19.2.4(react@19.2.4))(react@19.2.4))
       sanitize-html:
         specifier: ^2.17.0
         version: 2.17.0
@@ -8957,9 +8957,6 @@ packages:
     resolution: {integrity: sha512-/+5VFTchJDoVj3bhoqi6UeymcD00DAwb1nJwamzPvHEszJ4FpF6SNNbUbOS8yI56qHzdV8eK0qEfOSiodkTdxg==}
     engines: {node: '>= 0.4'}
 
-  postal-mime@2.7.3:
-    resolution: {integrity: sha512-MjhXadAJaWgYzevi46+3kLak8y6gbg0ku14O1gO/LNOuay8dO+1PtcSGvAdgDR0DoIsSaiIA8y/Ddw6MnrO0Tw==}
-
   postal-mime@2.7.4:
     resolution: {integrity: sha512-0WdnFQYUrPGGTFu1uOqD2s7omwua8xaeYGdO6rb88oD5yJ/4pPHDA4sdWqfD8wQVfCny563n/HQS7zTFft+f/g==}
 
@@ -9603,15 +9600,6 @@ packages:
       '@react-email/render':
         optional: true
 
-  resend@6.9.3:
-    resolution: {integrity: sha512-GRXjH9XZBJA+daH7bBVDuTShr22iWCxXA8P7t495G4dM/RC+d+3gHBK/6bz9K6Vpcq11zRQKmD+B+jECwQlyGQ==}
-    engines: {node: '>=20'}
-    peerDependencies:
-      '@react-email/render': '*'
-    peerDependenciesMeta:
-      '@react-email/render':
-        optional: true
-
   resolve-alpn@1.2.1:
     resolution: {integrity: sha512-0a1F4l73/ZFZOakJnQ3FvkJ2+gSTQWz/r2KE5OdDY0TxPm5h4GkqkWWfM47T7HsbnOtcJVEF4epCVy6u7Q3K+g==}
 
@@ -10093,9 +10081,6 @@ packages:
     resolution: {integrity: sha512-XDpWUOPC6FEibaLzjfe0ucaV0YrOjYotGJO1WpF0Zd+n6ZGEQUsSugaoLq9QkEZtAfQIxT42UChcssDVPP3+/w==}
     engines: {node: '>=16'}
     hasBin: true
-
-  svix@1.84.1:
-    resolution: {integrity: sha512-K8DPPSZaW/XqXiz1kEyzSHYgmGLnhB43nQCMeKjWGCUpLIpAMMM8kx3rVVOSm6Bo6EHyK1RQLPT4R06skM/MlQ==}
 
   svix@1.92.2:
     resolution: {integrity: sha512-ZmuA3UVvlnF9EgxlzmPtF7CKjQb64Z6OFlyfdDfU0sdcC7dJa+3aOYX5B9mA+RS6ch1AxBa4UP/l6KmqfGtWBQ==}
@@ -10703,11 +10688,6 @@ packages:
   utils-merge@1.0.1:
     resolution: {integrity: sha512-pMZTvIkT1d+TFGvDOqodOclx0QWkkgi6Tdoa8gC8ffGAAqz9pzPTZWAybbsHHoED/ztMtkv/VoYTYyShUn81hA==}
     engines: {node: '>= 0.4.0'}
-
-  uuid@10.0.0:
-    resolution: {integrity: sha512-8XkAphELsDnEGrDxUOHB3RGvXz6TeuYSGEZBOjtTtPm2lwhGBjLgOzLHB63IUWfBpNucQjND6d3AOudO+H3RWQ==}
-    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
-    hasBin: true
 
   uuid@11.1.0:
     resolution: {integrity: sha512-0/A9rDy9P7cJ+8w1c9WD9V//9Wj15Ce2MPz8Ri6032usz+NfePxx5AcN3bN+r6ZL6jEo066/yNYB3tn4pQEx+A==}
@@ -21118,8 +21098,6 @@ snapshots:
 
   possible-typed-array-names@1.1.0: {}
 
-  postal-mime@2.7.3: {}
-
   postal-mime@2.7.4: {}
 
   postcss-import@15.1.0(postcss@8.5.8):
@@ -22015,13 +21993,6 @@ snapshots:
     optionalDependencies:
       '@react-email/render': 2.0.8(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
 
-  resend@6.9.3(@react-email/render@2.0.8(react-dom@19.2.4(react@19.2.4))(react@19.2.4)):
-    dependencies:
-      postal-mime: 2.7.3
-      svix: 1.84.1
-    optionalDependencies:
-      '@react-email/render': 2.0.8(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-
   resolve-alpn@1.2.1: {}
 
   resolve-from@4.0.0: {}
@@ -22726,11 +22697,6 @@ snapshots:
       picocolors: 1.1.1
       sax: 1.6.0
 
-  svix@1.84.1:
-    dependencies:
-      standardwebhooks: 1.0.0
-      uuid: 10.0.0
-
   svix@1.92.2:
     dependencies:
       standardwebhooks: 1.0.0
@@ -23332,8 +23298,6 @@ snapshots:
   utility-types@3.11.0: {}
 
   utils-merge@1.0.1: {}
-
-  uuid@10.0.0: {}
 
   uuid@11.1.0: {}
 
