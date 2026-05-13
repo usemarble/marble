@@ -11,7 +11,7 @@ import {
   Section,
   Tailwind,
   Text,
-} from "@react-email/components";
+} from "react-email";
 
 import { EmailButton } from "../components/button";
 import { EmailFooter } from "../components/footer";
@@ -56,7 +56,7 @@ export const WelcomeEmail = ({
 
             <Section className="my-8">
               <Text className="mb-4 font-medium text-black text-sm">
-                📚 Get started
+                Get started
               </Text>
               <Text className="mb-6 text-[#737373] text-sm leading-relaxed">
                 Check out our{" "}
@@ -71,7 +71,7 @@ export const WelcomeEmail = ({
               </Text>
 
               <Text className="mb-4 font-medium text-black text-sm">
-                💬 Join the community
+                Join the community
               </Text>
               <Text className="mb-6 text-[#737373] text-sm leading-relaxed">
                 Have questions? Join our{" "}
@@ -85,7 +85,7 @@ export const WelcomeEmail = ({
               </Text>
 
               <Text className="mb-4 font-medium text-black text-sm">
-                🐦 Stay updated
+                Stay updated
               </Text>
               <Text className="mb-6 text-[#737373] text-sm leading-relaxed">
                 Follow us on{" "}
@@ -117,3 +117,5 @@ export const WelcomeEmail = ({
     </Html>
   );
 };
+
+export default WelcomeEmail;

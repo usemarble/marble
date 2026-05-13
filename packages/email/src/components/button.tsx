@@ -1,5 +1,5 @@
-import { Button as ReactEmailButton } from "@react-email/components";
 import type { ComponentProps } from "react";
+import { Button as ReactEmailButton } from "react-email";
 
 type EmailButtonProps = ComponentProps<typeof ReactEmailButton>;
 

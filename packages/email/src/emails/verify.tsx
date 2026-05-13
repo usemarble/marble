@@ -10,7 +10,7 @@ import {
   Section,
   Tailwind,
   Text,
-} from "@react-email/components";
+} from "react-email";
 
 import { EmailFooter } from "../components/footer";
 import { EMAIL_CONFIG } from "../lib/config";
@@ -82,3 +82,5 @@ export const VerifyUserEmail = ({
     </Html>
   );
 };
+
+export default VerifyUserEmail;

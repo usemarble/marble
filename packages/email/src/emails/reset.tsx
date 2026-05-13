@@ -10,7 +10,7 @@ import {
   Section,
   Tailwind,
   Text,
-} from "@react-email/components";
+} from "react-email";
 
 import { EmailButton } from "../components/button";
 import { EmailFooter } from "../components/footer";
@@ -71,3 +71,5 @@ export const ResetPasswordEmail = ({
     </Html>
   );
 };
+
+export default ResetPasswordEmail;

@@ -1,4 +1,4 @@
-import { Hr, Link, Section, Text } from "@react-email/components";
+import { Hr, Link, Section, Text } from "react-email";
 import { EMAIL_CONFIG } from "../lib/config";
 
 export const EmailFooter = () => {

@@ -8,7 +8,7 @@ import {
   Preview,
   Tailwind,
   Text,
-} from "@react-email/components";
+} from "react-email";
 
 import { EMAIL_CONFIG } from "../lib/config";
 
@@ -71,3 +71,5 @@ export const FounderEmail = ({ userEmail }: FounderEmailProps) => {
     </Html>
   );
 };
+
+export default FounderEmail;
