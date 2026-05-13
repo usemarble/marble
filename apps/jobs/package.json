@@ -12,7 +12,8 @@
     "@marble/events": "workspace:*",
     "@marble/utils": "workspace:*",
     "@upstash/redis": "^1.36.4",
-    "hono": "^4.12.18"
+    "hono": "^4.12.18",
+    "resend": "^6.12.3"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260508.1",

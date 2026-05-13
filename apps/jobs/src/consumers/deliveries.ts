@@ -1,6 +1,12 @@
 import { buildWebhookPayload, serializeEventType } from "@marble/events";
 import { createDbClient } from "../lib/db";
+import { buildWebhookRequestBody } from "../lib/formats";
 import { signPayload } from "../lib/signing";
+import {
+  checkWebhookUsage,
+  recordWebhookUsage,
+  sendWebhookUsageAlert,
+} from "../lib/usage";
 import type { Env } from "../types/env";
 
 interface DeliveryMessage {
@@ -17,7 +23,7 @@ export async function handleWebhookDeliveryQueue(
     const { deliveryId } = message.body;
 
     try {
-      await processDelivery(db, deliveryId);
+      await processDelivery(db, env, deliveryId);
       message.ack();
     } catch (error) {
       console.error(
@@ -31,18 +37,52 @@ export async function handleWebhookDeliveryQueue(
 
 async function processDelivery(
   db: ReturnType<typeof createDbClient>,
+  env: Env,
   deliveryId: string
 ) {
   const delivery = await db.webhookDelivery.findUnique({
     where: { id: deliveryId },
     include: {
       event: true,
-      webhookEndpoint: true,
+      webhookEndpoint: {
+        select: {
+          format: true,
+          secret: true,
+        },
+      },
     },
   });
 
   if (!delivery) {
     console.error(`[Delivery] Delivery not found: ${deliveryId}`);
+    return;
+  }
+
+  if (delivery.status === "success" || delivery.status === "failed") {
+    return;
+  }
+
+  const usage = delivery.isTest
+    ? null
+    : await checkWebhookUsage(db, delivery.workspaceId);
+
+  if (usage && !usage.allowed) {
+    await sendWebhookUsageAlert(db, {
+      resendApiKey: env.RESEND_API_KEY,
+      workspaceId: delivery.workspaceId,
+      threshold: 100,
+      usageAmount: usage.currentUsage,
+      limitAmount: usage.limit,
+      period: usage.period,
+    });
+
+    await db.webhookDelivery.update({
+      where: { id: delivery.id },
+      data: {
+        status: "failed",
+        failedAt: new Date(),
+      },
+    });
     return;
   }
 
@@ -58,15 +98,21 @@ async function processDelivery(
   });
 
   const payload = buildWebhookPayload(delivery.event);
+  const requestBody = buildWebhookRequestBody(
+    payload,
+    delivery.webhookEndpoint.format
+  );
 
-  const body = JSON.stringify(payload);
+  const body = JSON.stringify(requestBody);
   const signature = await signPayload(body, delivery.webhookEndpoint.secret);
   const timestamp = Math.floor(Date.now() / 1000).toString();
   const eventType = serializeEventType(delivery.event.type);
   const startedAt = Date.now();
 
+  let response: Response;
+
   try {
-    const response = await fetch(delivery.url, {
+    response = await fetch(delivery.url, {
       method: "POST",
       headers: {
         "content-type": "application/json",
@@ -79,47 +125,6 @@ async function processDelivery(
       },
       body,
     });
-
-    const responseBody = await response.text();
-    const durationMs = Date.now() - startedAt;
-
-    await db.webhookDeliveryAttempt.create({
-      data: {
-        deliveryId: delivery.id,
-        attemptNumber,
-        success: response.ok,
-        statusCode: response.status,
-        responseBody: responseBody.slice(0, 5000),
-        durationMs,
-      },
-    });
-
-    if (response.ok && !delivery.isTest) {
-      try {
-        await db.usageEvent.create({
-          data: {
-            type: "webhook_delivery",
-            workspaceId: delivery.workspaceId,
-            endpoint: delivery.url,
-          },
-        });
-      } catch (error) {
-        console.error("[Delivery] Failed to track webhook usage:", error);
-      }
-    }
-
-    if (response.ok) {
-      await db.webhookDelivery.update({
-        where: { id: delivery.id },
-        data: {
-          status: "success",
-          deliveredAt: new Date(),
-        },
-      });
-      return;
-    }
-
-    throw new Error(`Webhook returned ${response.status}`);
   } catch (error) {
     const durationMs = Date.now() - startedAt;
 
@@ -151,4 +156,66 @@ async function processDelivery(
 
     throw error;
   }
+
+  const responseBody = await response.text();
+  const durationMs = Date.now() - startedAt;
+
+  await db.webhookDeliveryAttempt.create({
+    data: {
+      deliveryId: delivery.id,
+      attemptNumber,
+      success: response.ok,
+      statusCode: response.status,
+      responseBody: responseBody.slice(0, 5000),
+      durationMs,
+    },
+  });
+
+  if (response.ok && !delivery.isTest) {
+    try {
+      await recordWebhookUsage(db, delivery.workspaceId, delivery.url);
+
+      if (usage?.thresholdCrossed) {
+        await sendWebhookUsageAlert(db, {
+          resendApiKey: env.RESEND_API_KEY,
+          workspaceId: delivery.workspaceId,
+          threshold: usage.thresholdCrossed,
+          usageAmount: usage.currentUsage + 1,
+          limitAmount: usage.limit,
+          period: usage.period,
+        });
+      }
+    } catch (error) {
+      console.error("[Delivery] Failed to track webhook usage:", error);
+    }
+  }
+
+  if (response.ok) {
+    await db.webhookDelivery.update({
+      where: { id: delivery.id },
+      data: {
+        status: "success",
+        deliveredAt: new Date(),
+      },
+    });
+    return;
+  }
+
+  if (attemptNumber >= delivery.maxAttempts) {
+    await db.webhookDelivery.update({
+      where: { id: delivery.id },
+      data: {
+        status: "failed",
+        failedAt: new Date(),
+      },
+    });
+    return;
+  }
+
+  await db.webhookDelivery.update({
+    where: { id: delivery.id },
+    data: { status: "retrying" },
+  });
+
+  throw new Error(`Webhook returned ${response.status}`);
 }

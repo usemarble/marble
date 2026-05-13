@@ -12,8 +12,10 @@ import {
   CheckCircle,
   CopyIcon,
   DotsThreeVerticalIcon,
+  PaperPlaneTiltIcon,
   PencilIcon,
   ProhibitIcon,
+  SpinnerIcon,
   TrashIcon,
 } from "@phosphor-icons/react";
 import dynamic from "next/dynamic";
@@ -47,10 +49,34 @@ export function WebhookActions({
 }: WebhookActionsProps) {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isSendingTest, setIsSendingTest] = useState(false);
 
   const handleCopySecret = () => {
     navigator.clipboard.writeText(webhook.secret);
     toast.success("Secret copied to clipboard");
+  };
+
+  const handleSendTest = async () => {
+    setIsSendingTest(true);
+
+    try {
+      const response = await fetch(`/api/webhooks/${webhook.id}/test`, {
+        method: "POST",
+      });
+      const result = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        throw new Error(result?.error ?? "Failed to send test webhook");
+      }
+
+      toast.success("Test webhook queued");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to send test webhook"
+      );
+    } finally {
+      setIsSendingTest(false);
+    }
   };
 
   return (
@@ -71,6 +97,17 @@ export function WebhookActions({
               Copy Secret
             </DropdownMenuItem>
           ) : undefined}
+          <DropdownMenuItem
+            disabled={isSendingTest || isToggling}
+            onClick={handleSendTest}
+          >
+            {isSendingTest ? (
+              <SpinnerIcon className="mr-1.5 size-4 animate-spin" />
+            ) : (
+              <PaperPlaneTiltIcon className="mr-1.5 size-4" />
+            )}
+            Send Test
+          </DropdownMenuItem>
           <DropdownMenuItem
             disabled={isToggling}
             onClick={() =>

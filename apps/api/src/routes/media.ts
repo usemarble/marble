@@ -33,6 +33,10 @@ import type { ApiKeyApp } from "@/types/env";
 
 const media = new OpenAPIHono<ApiKeyApp>();
 
+function isUploadedFile(value: unknown): value is File {
+  return value !== null && typeof value !== "string";
+}
+
 const listMediaRoute = createRoute({
   method: "get",
   path: "/",
@@ -417,9 +421,8 @@ media.openapi(uploadMediaRoute, async (c) => {
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const formData = await c.req.formData();
     const file = formData.get("file");
-    const isAFile = file instanceof File;
 
-    if (!isAFile) {
+    if (!isUploadedFile(file)) {
       return c.json(
         {
           error: "Invalid upload request",

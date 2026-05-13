@@ -2,6 +2,8 @@ import type { buildWebhookPayload } from "@marble/events";
 
 type WebhookPayload = ReturnType<typeof buildWebhookPayload>;
 
+type PayloadFormat = "json" | "discord" | "slack";
+
 type WebhookData = Record<string, unknown>;
 
 interface DiscordEmbedField {
@@ -95,6 +97,10 @@ function getDisplayFields(payload: WebhookPayload) {
   return fields;
 }
 
+/**
+ * Converts Marble's canonical webhook envelope into a Discord incoming webhook
+ * message body.
+ */
 export function buildDiscordWebhookBody(
   payload: WebhookPayload
 ): DiscordWebhookBody {
@@ -124,6 +130,10 @@ export function buildDiscordWebhookBody(
   };
 }
 
+/**
+ * Converts Marble's canonical webhook envelope into a Slack incoming webhook
+ * message body.
+ */
 export function buildSlackWebhookBody(
   payload: WebhookPayload
 ): SlackWebhookBody {
@@ -166,4 +176,23 @@ export function buildSlackWebhookBody(
       },
     ],
   };
+}
+
+/**
+ * Builds the exact JSON-serializable request body sent to a webhook endpoint.
+ * JSON endpoints receive the canonical envelope, while chat destinations receive
+ * platform-specific message payloads.
+ */
+export function buildWebhookRequestBody(
+  payload: WebhookPayload,
+  format: PayloadFormat
+) {
+  switch (format) {
+    case "discord":
+      return buildDiscordWebhookBody(payload);
+    case "slack":
+      return buildSlackWebhookBody(payload);
+    default:
+      return payload;
+  }
 }
