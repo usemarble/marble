@@ -27,9 +27,9 @@ import {
   UpdatePostBodySchema,
   UpdatePostResponseSchema,
 } from "@/schemas/posts";
-import type { Env } from "@/types/env";
+import type { ApiKeyApp } from "@/types/env";
 
-const posts = new OpenAPIHono<{ Bindings: Env }>();
+const posts = new OpenAPIHono<ApiKeyApp>();
 
 const listPostsRoute = createRoute({
   method: "get",
@@ -683,7 +683,7 @@ posts.openapi(createPostRoute, async (c) => {
     );
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
 
-    const apiKeyId = c.get("apiKeyId" as never) as string | undefined;
+    const apiKeyId = c.get("apiKeyId");
     const eventType =
       postCreated.status === "published" ? "post_published" : "post_created";
     c.executionCtx.waitUntil(
@@ -984,7 +984,7 @@ posts.openapi(updatePostRoute, async (c) => {
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
 
     // 8. Emit events
-    const apiKeyId = c.get("apiKeyId" as never) as string | undefined;
+    const apiKeyId = c.get("apiKeyId");
     let eventType: "post_published" | "post_unpublished" | "post_updated";
 
     if (
@@ -1067,7 +1067,7 @@ posts.openapi(deletePostRoute, async (c) => {
     );
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
 
-    const apiKeyId = c.get("apiKeyId" as never) as string | undefined;
+    const apiKeyId = c.get("apiKeyId");
     c.executionCtx.waitUntil(
       emitEvent(db, c.env.EVENT_QUEUE, {
         type: "post_deleted",

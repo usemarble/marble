@@ -22,9 +22,9 @@ import {
   TagsListResponseSchema,
   UpdateTagBodySchema,
 } from "@/schemas/tags";
-import type { Env } from "@/types/env";
+import type { ApiKeyApp } from "@/types/env";
 
-const tags = new OpenAPIHono<{ Bindings: Env }>();
+const tags = new OpenAPIHono<ApiKeyApp>();
 
 const TagsQuerySchema = z.object({
   limit: LimitQuerySchema,
@@ -335,7 +335,7 @@ tags.openapi(createTagRoute, async (c) => {
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "tags"));
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
 
-    const apiKeyId = c.get("apiKeyId" as never) as string | undefined;
+    const apiKeyId = c.get("apiKeyId");
     c.executionCtx.waitUntil(
       emitEvent(db, c.env.EVENT_QUEUE, {
         type: "tag_created",
@@ -501,7 +501,7 @@ tags.openapi(updateTagRoute, async (c) => {
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "tags"));
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
 
-    const apiKeyId = c.get("apiKeyId" as never) as string | undefined;
+    const apiKeyId = c.get("apiKeyId");
     c.executionCtx.waitUntil(
       emitEvent(db, c.env.EVENT_QUEUE, {
         type: "tag_updated",
@@ -560,7 +560,7 @@ tags.openapi(deleteTagRoute, async (c) => {
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "tags"));
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
 
-    const apiKeyId = c.get("apiKeyId" as never) as string | undefined;
+    const apiKeyId = c.get("apiKeyId");
     c.executionCtx.waitUntil(
       emitEvent(db, c.env.EVENT_QUEUE, {
         type: "tag_deleted",

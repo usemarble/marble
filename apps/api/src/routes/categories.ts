@@ -22,9 +22,9 @@ import {
   PageQuerySchema,
   ServerErrorSchema,
 } from "@/schemas/common";
-import type { Env } from "@/types/env";
+import type { ApiKeyApp } from "@/types/env";
 
-const categories = new OpenAPIHono<{ Bindings: Env }>();
+const categories = new OpenAPIHono<ApiKeyApp>();
 
 const CategoriesQuerySchema = z.object({
   limit: LimitQuerySchema,
@@ -340,7 +340,7 @@ categories.openapi(createCategoryRoute, async (c) => {
     );
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
 
-    const apiKeyId = c.get("apiKeyId" as never) as string | undefined;
+    const apiKeyId = c.get("apiKeyId");
     c.executionCtx.waitUntil(
       emitEvent(db, c.env.EVENT_QUEUE, {
         type: "category_created",
@@ -518,7 +518,7 @@ categories.openapi(updateCategoryRoute, async (c) => {
     );
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
 
-    const apiKeyId = c.get("apiKeyId" as never) as string | undefined;
+    const apiKeyId = c.get("apiKeyId");
     c.executionCtx.waitUntil(
       emitEvent(db, c.env.EVENT_QUEUE, {
         type: "category_updated",
@@ -599,7 +599,7 @@ categories.openapi(deleteCategoryRoute, async (c) => {
     );
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
 
-    const apiKeyId = c.get("apiKeyId" as never) as string | undefined;
+    const apiKeyId = c.get("apiKeyId");
     c.executionCtx.waitUntil(
       emitEvent(db, c.env.EVENT_QUEUE, {
         type: "category_deleted",

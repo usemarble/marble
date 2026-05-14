@@ -14,9 +14,9 @@ export interface Env {
 
 // Context variables set by keyAuthorization middleware
 export interface ApiKeyVariables {
-  workspaceId: string;
-  apiKeyId: string;
-  apiKeyType: "public" | "private";
+  workspaceId?: string;
+  apiKeyId?: string;
+  apiKeyType?: "public" | "private";
 }
 
 // Hono app type for API key authenticated routes

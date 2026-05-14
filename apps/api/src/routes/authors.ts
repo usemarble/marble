@@ -22,9 +22,9 @@ import {
   PageQuerySchema,
   ServerErrorSchema,
 } from "@/schemas/common";
-import type { Env } from "@/types/env";
+import type { ApiKeyApp } from "@/types/env";
 
-const authors = new OpenAPIHono<{ Bindings: Env }>();
+const authors = new OpenAPIHono<ApiKeyApp>();
 
 const AuthorsQuerySchema = z.object({
   limit: LimitQuerySchema,
@@ -408,7 +408,7 @@ authors.openapi(createAuthorRoute, async (c) => {
 
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
 
-    const apiKeyId = c.get("apiKeyId" as never) as string | undefined;
+    const apiKeyId = c.get("apiKeyId");
     c.executionCtx.waitUntil(
       emitEvent(db, c.env.EVENT_QUEUE, {
         type: "author_created",
@@ -565,7 +565,7 @@ authors.openapi(updateAuthorRoute, async (c) => {
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
 
-    const apiKeyId = c.get("apiKeyId" as never) as string | undefined;
+    const apiKeyId = c.get("apiKeyId");
     c.executionCtx.waitUntil(
       emitEvent(db, c.env.EVENT_QUEUE, {
         type: "author_updated",
@@ -660,7 +660,7 @@ authors.openapi(deleteAuthorRoute, async (c) => {
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
 
-    const apiKeyId = c.get("apiKeyId" as never) as string | undefined;
+    const apiKeyId = c.get("apiKeyId");
     c.executionCtx.waitUntil(
       emitEvent(db, c.env.EVENT_QUEUE, {
         type: "author_deleted",
