@@ -3,7 +3,7 @@ import { toAuthorPayload, withChanges } from "@marble/events";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { invalidateCache } from "@/lib/cache/invalidate";
-import { emitDashboardEvent } from "@/lib/events/fire";
+import { emitDashboardEvent, logDashboardEventError } from "@/lib/events/fire";
 import { authorSchema } from "@/lib/validations/authors";
 
 export async function DELETE(
@@ -51,14 +51,14 @@ export async function DELETE(
     invalidateCache(sessionData.session.activeOrganizationId, "authors");
     invalidateCache(sessionData.session.activeOrganizationId, "posts");
 
-    emitDashboardEvent({
+    await emitDashboardEvent({
       type: "author_deleted",
       workspaceId: sessionData.session.activeOrganizationId,
       resourceType: "author",
       resourceId: author.id,
       actorId: sessionData.user.id,
       payload: toAuthorPayload(author),
-    });
+    }).catch(logDashboardEventError);
 
     return NextResponse.json(deletedAuthor.id, { status: 200 });
   } catch (error) {
@@ -159,7 +159,7 @@ export async function PATCH(
     invalidateCache(workspaceId, "authors");
     invalidateCache(workspaceId, "posts");
 
-    emitDashboardEvent({
+    await emitDashboardEvent({
       type: "author_updated",
       workspaceId,
       resourceType: "author",
@@ -169,7 +169,7 @@ export async function PATCH(
         toAuthorPayload(updatedAuthor),
         Object.keys(parsedBody.data)
       ),
-    });
+    }).catch(logDashboardEventError);
 
     return NextResponse.json(updatedAuthor, { status: 200 });
   } catch (error) {

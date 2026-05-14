@@ -690,6 +690,7 @@ model WebhookDelivery {
   @@index([workspaceId, status])
   @@index([workspaceId, createdAt])
   @@index([webhookEndpointId])
+  @@unique([eventId, webhookEndpointId])
   @@map("webhook_delivery")
 }
 

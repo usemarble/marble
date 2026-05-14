@@ -2,7 +2,7 @@ import { db } from "@marble/db";
 import { toMediaPayload } from "@marble/events";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
-import { emitDashboardEvent } from "@/lib/events/fire";
+import { emitDashboardEvent, logDashboardEventError } from "@/lib/events/fire";
 import { R2_PUBLIC_URL } from "@/lib/r2";
 import { completeSchema } from "@/lib/validations/upload";
 import { getMediaType } from "@/utils/media";
@@ -63,14 +63,14 @@ export async function POST(request: Request) {
           console.error("[Media Upload] Failed to track upload:", err);
         });
 
-        emitDashboardEvent({
+        await emitDashboardEvent({
           type: "media_uploaded",
           workspaceId,
           resourceType: "media",
           resourceId: media.id,
           actorId: sessionData.user.id,
           payload: toMediaPayload(media),
-        });
+        }).catch(logDashboardEventError);
 
         const mediaResponse = {
           id: media.id,

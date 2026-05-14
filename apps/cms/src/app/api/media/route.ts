@@ -4,7 +4,7 @@ import { toMediaPayload } from "@marble/events";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getServerSession } from "@/lib/auth/session";
-import { emitDashboardEvent } from "@/lib/events/fire";
+import { emitDashboardEvent, logDashboardEventError } from "@/lib/events/fire";
 import { R2_BUCKET_NAME, r2 } from "@/lib/r2";
 import { loadMediaApiFilters } from "@/lib/search-params";
 import { DeleteSchema } from "@/lib/validations/upload";
@@ -186,14 +186,14 @@ export async function DELETE(request: Request) {
       deletedIds.push(...mediaDeletedFromR2.map((item) => item.id));
 
       for (const { media } of mediaDeletedFromR2) {
-        emitDashboardEvent({
+        await emitDashboardEvent({
           type: "media_deleted",
           workspaceId,
           resourceType: "media",
           resourceId: media.id,
           actorId: sessionData.user.id,
           payload: toMediaPayload(media),
-        });
+        }).catch(logDashboardEventError);
       }
     }
 

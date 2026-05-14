@@ -3,7 +3,7 @@ import { toCategoryPayload, withChanges } from "@marble/events";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { invalidateCache } from "@/lib/cache/invalidate";
-import { emitDashboardEvent } from "@/lib/events/fire";
+import { emitDashboardEvent, logDashboardEventError } from "@/lib/events/fire";
 import { categorySchema } from "@/lib/validations/workspace";
 
 export async function PATCH(
@@ -53,7 +53,7 @@ export async function PATCH(
     },
   });
 
-  emitDashboardEvent({
+  await emitDashboardEvent({
     type: "category_updated",
     workspaceId,
     resourceType: "category",
@@ -63,7 +63,7 @@ export async function PATCH(
       toCategoryPayload(updatedCategory),
       Object.keys(body.data)
     ),
-  });
+  }).catch(logDashboardEventError);
 
   // Invalidate cache for categories and posts (categories affect posts)
   invalidateCache(workspaceId, "categories");
@@ -117,14 +117,14 @@ export async function DELETE(
       },
     });
 
-    emitDashboardEvent({
+    await emitDashboardEvent({
       type: "category_deleted",
       workspaceId,
       resourceType: "category",
       resourceId: id,
       actorId: sessionData.user.id,
       payload: toCategoryPayload(category),
-    });
+    }).catch(logDashboardEventError);
 
     // Invalidate cache for categories and posts (categories affect posts)
     invalidateCache(workspaceId, "categories");

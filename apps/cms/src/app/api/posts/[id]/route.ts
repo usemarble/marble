@@ -7,7 +7,7 @@ import {
   type CustomFieldValidationDefinition,
   resolveCustomFieldValues,
 } from "@/lib/custom-fields";
-import { emitDashboardEvent } from "@/lib/events/fire";
+import { emitDashboardEvent, logDashboardEventError } from "@/lib/events/fire";
 import { postUpsertSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";
 import { sanitizeHtml, sanitizeRichTextHtml } from "@/utils/editor";
@@ -299,14 +299,14 @@ export async function PATCH(
         ? withChanges(toPostPayload(postUpdated), Object.keys(values.data))
         : toPostPayload(postUpdated);
 
-    emitDashboardEvent({
+    await emitDashboardEvent({
       type: eventType,
       workspaceId,
       resourceType: "post",
       resourceId: postUpdated.id,
       actorId: sessionData.user.id,
       payload,
-    });
+    }).catch(logDashboardEventError);
 
     // Invalidate cache for posts
     invalidateCache(workspaceId, "posts");
@@ -344,14 +344,14 @@ export async function DELETE(
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
-    emitDashboardEvent({
+    await emitDashboardEvent({
       type: "post_deleted",
       workspaceId,
       resourceType: "post",
       resourceId: id,
       actorId: sessionData.user.id,
       payload: toPostPayload(deletedPost),
-    });
+    }).catch(logDashboardEventError);
 
     // Invalidate cache for posts
     invalidateCache(workspaceId, "posts");

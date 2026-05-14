@@ -3,7 +3,7 @@ import { toAuthorPayload } from "@marble/events";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { invalidateCache } from "@/lib/cache/invalidate";
-import { emitDashboardEvent } from "@/lib/events/fire";
+import { emitDashboardEvent, logDashboardEventError } from "@/lib/events/fire";
 import { getWorkspacePlan } from "@/lib/plans";
 import { authorSchema } from "@/lib/validations/authors";
 
@@ -188,14 +188,14 @@ export async function POST(request: Request) {
     invalidateCache(workspaceId, "authors");
     invalidateCache(workspaceId, "posts");
 
-    emitDashboardEvent({
+    await emitDashboardEvent({
       type: "author_created",
       workspaceId,
       resourceType: "author",
       resourceId: author.id,
       actorId: sessionData.user.id,
       payload: toAuthorPayload(author),
-    });
+    }).catch(logDashboardEventError);
 
     return NextResponse.json(author, { status: 201 });
   } catch (error) {

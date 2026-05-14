@@ -6,7 +6,7 @@ import { z } from "zod";
 import { getServerSession } from "@/lib/auth/session";
 import { invalidateCache } from "@/lib/cache/invalidate";
 import { resolveCustomFieldValues } from "@/lib/custom-fields";
-import { emitDashboardEvent } from "@/lib/events/fire";
+import { emitDashboardEvent, logDashboardEventError } from "@/lib/events/fire";
 import { loadPostApiFilters } from "@/lib/search-params";
 import { postUpsertSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";
@@ -360,7 +360,7 @@ export async function POST(request: Request) {
       return createdPost;
     });
 
-    emitDashboardEvent({
+    await emitDashboardEvent({
       type:
         postCreated.status === "published" ? "post_published" : "post_created",
       workspaceId: activeWorkspaceId,
@@ -368,7 +368,7 @@ export async function POST(request: Request) {
       resourceId: postCreated.id,
       actorId: sessionData.user.id,
       payload: toPostPayload(postCreated),
-    });
+    }).catch(logDashboardEventError);
 
     invalidateCache(activeWorkspaceId, "posts");
 

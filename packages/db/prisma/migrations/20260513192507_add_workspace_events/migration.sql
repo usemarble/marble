@@ -124,6 +124,9 @@ CREATE INDEX "webhook_delivery_workspaceId_createdAt_idx" ON "webhook_delivery"(
 CREATE INDEX "webhook_delivery_webhookEndpointId_idx" ON "webhook_delivery"("webhookEndpointId");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "webhook_delivery_eventId_webhookEndpointId_key" ON "webhook_delivery"("eventId", "webhookEndpointId");
+
+-- CreateIndex
 CREATE INDEX "webhook_delivery_attempt_deliveryId_idx" ON "webhook_delivery_attempt"("deliveryId");
 
 -- CreateIndex

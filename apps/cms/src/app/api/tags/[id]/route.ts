@@ -3,7 +3,7 @@ import { toTagPayload, withChanges } from "@marble/events";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { invalidateCache } from "@/lib/cache/invalidate";
-import { emitDashboardEvent } from "@/lib/events/fire";
+import { emitDashboardEvent, logDashboardEventError } from "@/lib/events/fire";
 import { tagSchema } from "@/lib/validations/workspace";
 
 export async function PATCH(
@@ -52,14 +52,14 @@ export async function PATCH(
     },
   });
 
-  emitDashboardEvent({
+  await emitDashboardEvent({
     type: "tag_updated",
     workspaceId,
     resourceType: "tag",
     resourceId: updatedTag.id,
     actorId: sessionData.user.id,
     payload: withChanges(toTagPayload(updatedTag), Object.keys(body)),
-  });
+  }).catch(logDashboardEventError);
 
   // Invalidate cache for tags and posts (tags affect posts)
   invalidateCache(workspaceId, "tags");
@@ -97,14 +97,14 @@ export async function DELETE(
       },
     });
 
-    emitDashboardEvent({
+    await emitDashboardEvent({
       type: "tag_deleted",
       workspaceId,
       resourceType: "tag",
       resourceId: id,
       actorId: sessionData.user.id,
       payload: toTagPayload(tag),
-    });
+    }).catch(logDashboardEventError);
 
     // Invalidate cache for tags and posts (tags affect posts)
     invalidateCache(workspaceId, "tags");

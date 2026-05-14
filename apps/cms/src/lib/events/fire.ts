@@ -15,7 +15,11 @@ interface EmitDashboardEventArgs {
   payload?: EventPayload;
 }
 
-export function emitDashboardEvent({
+export function logDashboardEventError(error: unknown) {
+  console.error("[DashboardEvents] Failed to emit dashboard event:", error);
+}
+
+export async function emitDashboardEvent({
   type,
   workspaceId,
   resourceType,
@@ -34,7 +38,7 @@ export function emitDashboardEvent({
     return;
   }
 
-  fetch(`${apiUrl}/internal/events`, {
+  const response = await fetch(`${apiUrl}/internal/events`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -50,7 +54,11 @@ export function emitDashboardEvent({
       ...(actorId && { actorId }),
       payload,
     }),
-  }).catch((error) => {
-    console.error(`[DashboardEvents] Failed to emit ${type}:`, error);
   });
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to emit ${type}: ${response.status} ${response.statusText}`
+    );
+  }
 }

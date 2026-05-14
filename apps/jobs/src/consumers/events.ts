@@ -46,8 +46,14 @@ export async function handleEventQueue(
       }
 
       for (const webhook of webhooks) {
-        const delivery = await db.webhookDelivery.create({
-          data: {
+        const delivery = await db.webhookDelivery.upsert({
+          where: {
+            eventId_webhookEndpointId: {
+              eventId: event.id,
+              webhookEndpointId: webhook.id,
+            },
+          },
+          create: {
             eventId: event.id,
             workspaceId: event.workspaceId,
             webhookEndpointId: webhook.id,
@@ -55,6 +61,7 @@ export async function handleEventQueue(
             status: "pending",
             isTest,
           },
+          update: {},
         });
 
         await env.WEBHOOK_DELIVERY_QUEUE.send({

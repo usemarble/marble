@@ -3,7 +3,7 @@ import { toCategoryPayload } from "@marble/events";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { invalidateCache } from "@/lib/cache/invalidate";
-import { emitDashboardEvent } from "@/lib/events/fire";
+import { emitDashboardEvent, logDashboardEventError } from "@/lib/events/fire";
 import { categorySchema } from "@/lib/validations/workspace";
 
 export async function GET() {
@@ -78,14 +78,14 @@ export async function POST(req: Request) {
     },
   });
 
-  emitDashboardEvent({
+  await emitDashboardEvent({
     type: "category_created",
     workspaceId,
     resourceType: "category",
     resourceId: categoryCreated.id,
     actorId: sessionData.user.id,
     payload: toCategoryPayload(categoryCreated),
-  });
+  }).catch(logDashboardEventError);
 
   // Invalidate cache for categories and posts (categories affect posts)
   invalidateCache(workspaceId, "categories");

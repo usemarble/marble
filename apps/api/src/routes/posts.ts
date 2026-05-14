@@ -985,13 +985,22 @@ posts.openapi(updatePostRoute, async (c) => {
 
     // 8. Emit events
     const apiKeyId = c.get("apiKeyId" as never) as string | undefined;
-    const eventType =
-      existingPost.status !== "published" && postUpdated.status === "published"
-        ? "post_published"
-        : existingPost.status === "published" &&
-            postUpdated.status !== "published"
-          ? "post_unpublished"
-          : "post_updated";
+    let eventType: "post_published" | "post_unpublished" | "post_updated";
+
+    if (
+      existingPost.status !== "published" &&
+      postUpdated.status === "published"
+    ) {
+      eventType = "post_published";
+    } else if (
+      existingPost.status === "published" &&
+      postUpdated.status !== "published"
+    ) {
+      eventType = "post_unpublished";
+    } else {
+      eventType = "post_updated";
+    }
+
     const payload =
       eventType === "post_updated"
         ? withChanges(toPostPayload(postUpdated), Object.keys(body))
