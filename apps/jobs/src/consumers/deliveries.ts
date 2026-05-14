@@ -84,7 +84,7 @@ async function processDelivery(
     await sendWebhookUsageAlert(db, {
       resendApiKey: env.RESEND_API_KEY,
       workspaceId: delivery.workspaceId,
-      threshold: 100,
+      kind: "exhausted",
       usageAmount: usage.currentUsage,
       limitAmount: usage.limit,
       period: usage.period,
@@ -181,11 +181,11 @@ async function processDelivery(
     try {
       await recordWebhookUsage(db, delivery.workspaceId, delivery.url);
 
-      if (usage?.thresholdCrossed) {
+      if (usage?.alertKind) {
         await sendWebhookUsageAlert(db, {
           resendApiKey: env.RESEND_API_KEY,
           workspaceId: delivery.workspaceId,
-          threshold: usage.thresholdCrossed,
+          kind: usage.alertKind,
           usageAmount: usage.currentUsage + 1,
           limitAmount: usage.limit,
           period: usage.period,

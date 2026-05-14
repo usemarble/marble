@@ -10,6 +10,9 @@ CREATE TYPE "WorkspaceEventResourceType" AS ENUM ('post', 'category', 'tag', 'me
 -- CreateEnum
 CREATE TYPE "WebhookDeliveryStatus" AS ENUM ('pending', 'sending', 'success', 'retrying', 'failed');
 
+-- CreateEnum
+CREATE TYPE "UsageAlertKind" AS ENUM ('warning', 'critical', 'exhausted');
+
 -- AlterEnum
 -- This migration adds more than one value to an enum.
 -- With PostgreSQL versions 11 and earlier, this is not possible
@@ -31,7 +34,7 @@ CREATE TABLE "usage_alert" (
     "id" TEXT NOT NULL,
     "workspaceId" TEXT NOT NULL,
     "type" "UsageEventType" NOT NULL,
-    "threshold" INTEGER NOT NULL,
+    "kind" "UsageAlertKind" NOT NULL,
     "periodStart" TIMESTAMP(3) NOT NULL,
     "periodEnd" TIMESTAMP(3) NOT NULL,
     "emailSentTo" TEXT NOT NULL,
@@ -97,7 +100,7 @@ CREATE TABLE "webhook_delivery_attempt" (
 CREATE INDEX "usage_alert_workspaceId_type_periodStart_periodEnd_idx" ON "usage_alert"("workspaceId", "type", "periodStart", "periodEnd");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "usage_alert_workspaceId_type_threshold_periodStart_periodEn_key" ON "usage_alert"("workspaceId", "type", "threshold", "periodStart", "periodEnd");
+CREATE UNIQUE INDEX "usage_alert_workspaceId_type_kind_periodStart_periodEnd_key" ON "usage_alert"("workspaceId", "type", "kind", "periodStart", "periodEnd");
 
 -- CreateIndex
 CREATE INDEX "workspace_event_workspaceId_createdAt_idx" ON "workspace_event"("workspaceId", "createdAt");

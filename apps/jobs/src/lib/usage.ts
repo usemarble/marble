@@ -4,6 +4,13 @@ import { Resend } from "resend";
 import type { DbClient } from "./db";
 
 type UsageThreshold = 75 | 90 | 100;
+type UsageAlertKind = "warning" | "critical" | "exhausted";
+
+const USAGE_ALERT_THRESHOLDS = {
+  warning: 75,
+  critical: 90,
+  exhausted: 100,
+} as const satisfies Record<UsageAlertKind, UsageThreshold>;
 
 interface UsagePeriod {
   start: Date;
@@ -15,7 +22,7 @@ interface WebhookUsageCheck {
   currentUsage: number;
   limit: number;
   period: UsagePeriod;
-  thresholdCrossed?: UsageThreshold;
+  alertKind?: UsageAlertKind;
 }
 
 /**
@@ -115,11 +122,11 @@ async function getBillingPeriod(
  * Returns the first configured threshold crossed by moving from current usage
  * to the next counted usage value.
  */
-function getCrossedThreshold(
+function getCrossedAlertKind(
   currentUsage: number,
   nextUsage: number,
   limit: number
-): UsageThreshold | undefined {
+): UsageAlertKind | undefined {
   if (limit <= 0) {
     return;
   }
@@ -127,16 +134,25 @@ function getCrossedThreshold(
   const currentPercentage = (currentUsage / limit) * 100;
   const nextPercentage = (nextUsage / limit) * 100;
 
-  if (nextPercentage >= 100 && currentPercentage < 100) {
-    return 100;
+  if (
+    nextPercentage >= USAGE_ALERT_THRESHOLDS.exhausted &&
+    currentPercentage < USAGE_ALERT_THRESHOLDS.exhausted
+  ) {
+    return "exhausted";
   }
 
-  if (nextPercentage >= 90 && currentPercentage < 90) {
-    return 90;
+  if (
+    nextPercentage >= USAGE_ALERT_THRESHOLDS.critical &&
+    currentPercentage < USAGE_ALERT_THRESHOLDS.critical
+  ) {
+    return "critical";
   }
 
-  if (nextPercentage >= 75 && currentPercentage < 75) {
-    return 75;
+  if (
+    nextPercentage >= USAGE_ALERT_THRESHOLDS.warning &&
+    currentPercentage < USAGE_ALERT_THRESHOLDS.warning
+  ) {
+    return "warning";
   }
 }
 
@@ -181,11 +197,7 @@ export async function checkWebhookUsage(
     currentUsage,
     limit,
     period,
-    thresholdCrossed: getCrossedThreshold(
-      currentUsage,
-      currentUsage + 1,
-      limit
-    ),
+    alertKind: getCrossedAlertKind(currentUsage, currentUsage + 1, limit),
   };
 }
 
@@ -208,7 +220,7 @@ export async function recordWebhookUsage(
 }
 
 /**
- * Reserves and sends a webhook usage email once per threshold per billing
+ * Reserves and sends a webhook usage email once per alert kind per billing
  * period. The unique `usage_alert` row is created before sending so concurrent
  * deliveries cannot send duplicate emails. If the email send fails, the
  * reservation is removed so a later delivery can retry the alert.
@@ -218,14 +230,14 @@ export async function sendWebhookUsageAlert(
   {
     resendApiKey,
     workspaceId,
-    threshold,
+    kind,
     usageAmount,
     limitAmount,
     period,
   }: {
     resendApiKey?: string;
     workspaceId: string;
-    threshold: UsageThreshold;
+    kind: UsageAlertKind;
     usageAmount: number;
     limitAmount: number;
     period: UsagePeriod;
@@ -266,7 +278,7 @@ export async function sendWebhookUsageAlert(
       data: {
         workspaceId,
         type: "webhook_delivery",
-        threshold,
+        kind,
         periodStart: period.start,
         periodEnd: period.end,
         emailSentTo: owner.user.email,
@@ -294,7 +306,7 @@ export async function sendWebhookUsageAlert(
       workspaceId,
     });
     console.log(
-      `[WebhookUsage] Sent ${threshold}% threshold email for workspace ${workspaceId}`
+      `[WebhookUsage] Sent ${kind} usage email for workspace ${workspaceId}`
     );
   } catch (error) {
     await db.usageAlert

@@ -404,16 +404,22 @@ model UsageAlert {
   id          String         @id @default(cuid())
   workspaceId String
   type        UsageEventType
-  threshold   Int
+  kind        UsageAlertKind
   periodStart DateTime
   periodEnd   DateTime
   emailSentTo String
   sentAt      DateTime       @default(now())
   workspace   Organization   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
-  @@unique([workspaceId, type, threshold, periodStart, periodEnd])
+  @@unique([workspaceId, type, kind, periodStart, periodEnd])
   @@index([workspaceId, type, periodStart, periodEnd])
   @@map("usage_alert")
+}
+
+enum UsageAlertKind {
+  warning
+  critical
+  exhausted
 }
 
 model ApiKey {
