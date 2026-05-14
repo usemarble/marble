@@ -6,7 +6,14 @@ import { InternalEventSchema } from "@/validations/misc";
 const events = new Hono<{ Bindings: Env }>();
 
 events.post("/", async (c) => {
-  const rawBody = await c.req.json();
+  let rawBody: unknown;
+
+  try {
+    rawBody = await c.req.json();
+  } catch {
+    return c.json({ error: "Invalid JSON body" }, 400);
+  }
+
   const validation = InternalEventSchema.safeParse(rawBody);
 
   if (!validation.success) {

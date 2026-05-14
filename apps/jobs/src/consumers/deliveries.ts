@@ -9,6 +9,8 @@ import {
 } from "../lib/usage";
 import type { Env } from "../types/env";
 
+const WEBHOOK_DELIVERY_TIMEOUT_MS = 15_000;
+
 interface DeliveryMessage {
   deliveryId: string;
 }
@@ -40,6 +42,22 @@ async function processDelivery(
   env: Env,
   deliveryId: string
 ) {
+  const claim = await db.webhookDelivery.updateMany({
+    where: {
+      id: deliveryId,
+      status: { in: ["pending", "retrying"] },
+    },
+    data: {
+      status: "sending",
+      attemptCount: { increment: 1 },
+      lastAttemptAt: new Date(),
+    },
+  });
+
+  if (claim.count === 0) {
+    return;
+  }
+
   const delivery = await db.webhookDelivery.findUnique({
     where: { id: deliveryId },
     include: {
@@ -55,10 +73,6 @@ async function processDelivery(
 
   if (!delivery) {
     console.error(`[Delivery] Delivery not found: ${deliveryId}`);
-    return;
-  }
-
-  if (delivery.status === "success" || delivery.status === "failed") {
     return;
   }
 
@@ -86,16 +100,7 @@ async function processDelivery(
     return;
   }
 
-  const attemptNumber = delivery.attemptCount + 1;
-
-  await db.webhookDelivery.update({
-    where: { id: delivery.id },
-    data: {
-      status: "sending",
-      attemptCount: attemptNumber,
-      lastAttemptAt: new Date(),
-    },
-  });
+  const attemptNumber = delivery.attemptCount;
 
   const payload = buildWebhookPayload(delivery.event);
   const requestBody = buildWebhookRequestBody(
@@ -114,6 +119,7 @@ async function processDelivery(
   try {
     response = await fetch(delivery.url, {
       method: "POST",
+      signal: AbortSignal.timeout(WEBHOOK_DELIVERY_TIMEOUT_MS),
       headers: {
         "content-type": "application/json",
         "user-agent": "Marble-Webhooks/1.0",

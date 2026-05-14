@@ -27,6 +27,11 @@ export async function handleEventQueue(
         continue;
       }
 
+      if (event.processedAt) {
+        message.ack();
+        continue;
+      }
+
       const webhooks = await db.webhookEndpoint.findMany({
         where: {
           ...(targetWebhookEndpointId && { id: targetWebhookEndpointId }),

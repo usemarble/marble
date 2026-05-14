@@ -210,7 +210,8 @@ export async function recordWebhookUsage(
 /**
  * Reserves and sends a webhook usage email once per threshold per billing
  * period. The unique `usage_alert` row is created before sending so concurrent
- * deliveries cannot send duplicate emails.
+ * deliveries cannot send duplicate emails. If the email send fails, the
+ * reservation is removed so a later delivery can retry the alert.
  */
 export async function sendWebhookUsageAlert(
   db: DbClient,
@@ -258,8 +259,10 @@ export async function sendWebhookUsageAlert(
     return;
   }
 
+  let alert: { id: string };
+
   try {
-    await db.usageAlert.create({
+    alert = await db.usageAlert.create({
       data: {
         workspaceId,
         type: "webhook_delivery",
@@ -268,10 +271,14 @@ export async function sendWebhookUsageAlert(
         periodEnd: period.end,
         emailSentTo: owner.user.email,
       },
+      select: {
+        id: true,
+      },
     });
   } catch (error) {
     if (!isUniqueConstraintError(error)) {
       console.error("[WebhookUsage] Failed to reserve usage alert:", error);
+      return;
     }
     return;
   }
@@ -290,6 +297,17 @@ export async function sendWebhookUsageAlert(
       `[WebhookUsage] Sent ${threshold}% threshold email for workspace ${workspaceId}`
     );
   } catch (error) {
+    await db.usageAlert
+      .delete({
+        where: { id: alert.id },
+      })
+      .catch((deleteError) => {
+        console.error(
+          "[WebhookUsage] Failed to clear usage alert reservation:",
+          deleteError
+        );
+      });
+
     console.error("[WebhookUsage] Failed to send threshold email:", error);
   }
 }
