@@ -23,7 +23,7 @@ export async function handleEventQueue(
 
       if (!event) {
         console.error(`[Events] Event not found: ${eventId}`);
-        message.ack();
+        message.retry();
         continue;
       }
 
@@ -36,7 +36,7 @@ export async function handleEventQueue(
         where: {
           ...(targetWebhookEndpointId && { id: targetWebhookEndpointId }),
           workspaceId: event.workspaceId,
-          enabled: true,
+          ...(targetWebhookEndpointId ? {} : { enabled: true }),
           ...(targetWebhookEndpointId ? {} : { events: { has: event.type } }),
         },
       });
