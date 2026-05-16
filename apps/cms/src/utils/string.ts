@@ -14,12 +14,11 @@ export function formatCalendarDate(date: Date, formatStr: string) {
   return format(local, formatStr);
 }
 
-export function generateSlug(text: string, opts: { trimEdges?: boolean } = {}) {
-  const { trimEdges = true } = opts;
-
-  const normalizedText = trimEdges ? text.trim() : text;
-
-  const slug = normalizedText
+export function generateSlug(
+  text: string,
+  { trimEdges = true }: { trimEdges?: boolean } = {}
+) {
+  const slug = (trimEdges ? text.trim() : text)
     .toLowerCase()
     .replace(/\s+/g, "-")
     .replace(/[^a-z0-9-]/g, "") // Allow lowercase letters, digits, and hyphens

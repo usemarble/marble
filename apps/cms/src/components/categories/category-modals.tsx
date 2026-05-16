@@ -203,7 +203,8 @@ export const CategoryModal = ({
                   onChange: (e) => {
                     setValue(
                       "slug",
-                      generateSlug(e.target.value, { trimEdges: false })
+                      generateSlug(e.target.value, { trimEdges: false }),
+                      { shouldValidate: true, shouldDirty: true }
                     );
                   },
                 })}

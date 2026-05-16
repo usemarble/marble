@@ -193,7 +193,8 @@ export function TagModal({
                   onChange: (e) => {
                     setValue(
                       "slug",
-                      generateSlug(e.target.value, { trimEdges: false })
+                      generateSlug(e.target.value, { trimEdges: false }),
+                      { shouldValidate: true }
                     );
                   },
                 })}
