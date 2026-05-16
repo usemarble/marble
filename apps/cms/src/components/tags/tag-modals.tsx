@@ -1,7 +1,7 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert02Icon, Tag01Icon } from "@hugeicons/core-free-icons";
-
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   AlertDialog,
@@ -30,10 +30,7 @@ import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { Textarea } from "@marble/ui/components/textarea";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  useForm,
- 
-} from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
@@ -41,7 +38,6 @@ import { type CreateTagValues, tagSchema } from "@/lib/validations/workspace";
 import { generateSlug } from "@/utils/string";
 import { AsyncButton } from "../ui/async-button";
 import type { Tag } from "./columns";
-import { zodResolver } from "@hookform/resolvers/zod";
 
 export function TagModal({
   open,
@@ -200,7 +196,6 @@ export function TagModal({
                       generateSlug(e.target.value, { trimEdges: false })
                     );
                   },
-                  
                 })}
                 placeholder="unique-identifier"
               />

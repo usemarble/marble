@@ -14,10 +14,7 @@ export function formatCalendarDate(date: Date, formatStr: string) {
   return format(local, formatStr);
 }
 
-export function generateSlug(
-  text: string,
-  opts: { trimEdges?: boolean } = {}
-) {
+export function generateSlug(text: string, opts: { trimEdges?: boolean } = {}) {
   const { trimEdges = true } = opts;
 
   const normalizedText = trimEdges ? text.trim() : text;

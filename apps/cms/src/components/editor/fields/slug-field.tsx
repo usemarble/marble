@@ -29,7 +29,7 @@ export function SlugField<TFieldValues extends FieldValues>({
   });
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    field.onChange(generateSlug(event.target.value,  { trimEdges: false }));
+    field.onChange(generateSlug(event.target.value, { trimEdges: false }));
   };
 
   return (
@@ -41,8 +41,8 @@ export function SlugField<TFieldValues extends FieldValues>({
       <Input
         id="slug"
         {...field}
-        onChange={handleChange}
         className="col-span-3 bg-editor-field"
+        onChange={handleChange}
         placeholder="my-awesome-post"
       />
       {error && (
