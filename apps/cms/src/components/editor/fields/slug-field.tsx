@@ -39,9 +39,9 @@ export function SlugField<TFieldValues extends FieldValues>({
         <FieldInfo text="A url friendly string that can be used to access your post." />
       </div>
       <Input
-        id="slug"
         {...field}
         className="col-span-3 bg-editor-field"
+        id="slug"
         onChange={handleChange}
         placeholder="my-awesome-post"
       />
