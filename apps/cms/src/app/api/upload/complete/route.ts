@@ -2,7 +2,10 @@ import { db } from "@marble/db";
 import { toMediaPayload } from "@marble/events";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
-import { emitDashboardEvent, logDashboardEventError } from "@/lib/events/fire";
+import {
+  emitDashboardEvent,
+  logDashboardEventError,
+} from "@/lib/events/dispatch";
 import { R2_PUBLIC_URL } from "@/lib/r2";
 import { completeSchema } from "@/lib/validations/upload";
 import { getMediaType } from "@/utils/media";

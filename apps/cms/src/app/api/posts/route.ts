@@ -6,7 +6,10 @@ import { z } from "zod";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";
 import { resolveCustomFieldValues } from "@/lib/custom-fields";
-import { emitDashboardEvent, logDashboardEventError } from "@/lib/events/fire";
+import {
+  emitDashboardEvent,
+  logDashboardEventError,
+} from "@/lib/events/dispatch";
 import { loadPostApiFilters } from "@/lib/search-params";
 import { postUpsertSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";

@@ -4,7 +4,10 @@ import { toMediaPayload } from "@marble/events";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
-import { emitDashboardEvent, logDashboardEventError } from "@/lib/events/fire";
+import {
+  emitDashboardEvent,
+  logDashboardEventError,
+} from "@/lib/events/dispatch";
 import { R2_BUCKET_NAME, r2 } from "@/lib/r2";
 import { loadMediaApiFilters } from "@/lib/search-params";
 import { DeleteSchema } from "@/lib/validations/upload";

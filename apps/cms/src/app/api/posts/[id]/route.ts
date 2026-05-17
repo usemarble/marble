@@ -7,7 +7,10 @@ import {
   type CustomFieldValidationDefinition,
   resolveCustomFieldValues,
 } from "@/lib/custom-fields";
-import { emitDashboardEvent, logDashboardEventError } from "@/lib/events/fire";
+import {
+  emitDashboardEvent,
+  logDashboardEventError,
+} from "@/lib/events/dispatch";
 import { postUpsertSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";
 import { sanitizeHtml, sanitizeRichTextHtml } from "@/utils/editor";

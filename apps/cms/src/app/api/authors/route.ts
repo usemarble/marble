@@ -3,7 +3,10 @@ import { toAuthorPayload } from "@marble/events";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";
-import { emitDashboardEvent, logDashboardEventError } from "@/lib/events/fire";
+import {
+  emitDashboardEvent,
+  logDashboardEventError,
+} from "@/lib/events/dispatch";
 import { getWorkspacePlan } from "@/lib/plans";
 import { authorSchema } from "@/lib/validations/authors";
 
