@@ -27,6 +27,14 @@ interface UsageCheckResult {
   thresholdCrossed?: 75 | 90 | 100;
 }
 
+function redactWebhookEndpoint(endpoint: string) {
+  try {
+    return new URL(endpoint).host;
+  } catch {
+    return "unknown";
+  }
+}
+
 /**
  * Calculate the billing period for a workspace.
  * - Free users: Based on workspace creation date
@@ -266,6 +274,7 @@ export async function trackWebhookUsage({
     return { tracked: false };
   }
 
+  const redactedEndpoint = redactWebhookEndpoint(endpoint);
   const polarClient = createPolarClient();
 
   try {
@@ -273,7 +282,7 @@ export async function trackWebhookUsage({
       data: {
         type: "webhook_delivery",
         workspaceId,
-        endpoint,
+        endpoint: redactedEndpoint,
       },
     });
   } catch (error) {
@@ -314,7 +323,7 @@ export async function trackWebhookUsage({
             externalCustomerId: customerId,
             metadata: {
               workspaceId,
-              endpoint,
+              endpoint: redactedEndpoint,
               event,
               webhookId,
               format,

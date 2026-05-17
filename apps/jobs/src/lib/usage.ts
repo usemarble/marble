@@ -25,6 +25,14 @@ interface WebhookUsageCheck {
   alertKind?: UsageAlertKind;
 }
 
+function redactWebhookEndpoint(endpoint: string) {
+  try {
+    return new URL(endpoint).host;
+  } catch {
+    return "unknown";
+  }
+}
+
 /**
  * Detects Prisma unique constraint errors without importing Prisma runtime types
  * into the worker bundle.
@@ -210,11 +218,13 @@ export async function recordWebhookUsage(
   workspaceId: string,
   endpoint: string
 ) {
+  const redactedEndpoint = redactWebhookEndpoint(endpoint);
+
   await db.usageEvent.create({
     data: {
       type: "webhook_delivery",
       workspaceId,
-      endpoint,
+      endpoint: redactedEndpoint,
     },
   });
 }
