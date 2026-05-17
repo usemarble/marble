@@ -6,6 +6,14 @@ import { invalidateCache } from "@/lib/cache/invalidate";
 import { emitDashboardEvent, logDashboardEventError } from "@/lib/events/fire";
 import { tagSchema } from "@/lib/validations/workspace";
 
+async function parseTagRequest(req: Request) {
+  try {
+    return tagSchema.safeParse(await req.json());
+  } catch {
+    return tagSchema.safeParse(null);
+  }
+}
+
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -20,8 +28,14 @@ export async function PATCH(
 
   const { id } = await params;
 
-  const json = await req.json();
-  const body = tagSchema.parse(json);
+  const body = await parseTagRequest(req);
+
+  if (!body.success) {
+    return NextResponse.json(
+      { error: "Invalid request body", details: body.error.issues },
+      { status: 400 }
+    );
+  }
 
   const existing = await db.tag.findFirst({
     where: { id, workspaceId },
@@ -34,7 +48,7 @@ export async function PATCH(
 
   const existingTagWithSlug = await db.tag.findFirst({
     where: {
-      slug: body.slug,
+      slug: body.data.slug,
       workspaceId,
       id: { not: id },
     },
@@ -47,9 +61,9 @@ export async function PATCH(
   const updatedTag = await db.tag.update({
     where: { id },
     data: {
-      name: body.name,
-      slug: body.slug,
-      description: body.description,
+      name: body.data.name,
+      slug: body.data.slug,
+      description: body.data.description,
     },
   });
 
@@ -59,7 +73,7 @@ export async function PATCH(
     resourceType: "tag",
     resourceId: updatedTag.id,
     actorId: sessionData.user.id,
-    payload: withChanges(toTagPayload(updatedTag), Object.keys(body)),
+    payload: withChanges(toTagPayload(updatedTag), Object.keys(body.data)),
   }).catch(logDashboardEventError);
 
   // Invalidate cache for tags and posts (tags affect posts)
