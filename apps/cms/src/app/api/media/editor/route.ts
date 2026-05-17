@@ -118,8 +118,10 @@ export async function GET(request: Request) {
       { status: 200 }
     );
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to fetch media";
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("[MediaEditor] Failed to fetch media:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch media" },
+      { status: 500 }
+    );
   }
 }

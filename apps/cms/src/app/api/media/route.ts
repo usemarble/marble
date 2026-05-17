@@ -84,9 +84,11 @@ export async function GET(request: Request) {
       { status: 200 }
     );
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to fetch media";
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("[Media] Failed to fetch media:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch media" },
+      { status: 500 }
+    );
   }
 }
 
@@ -212,8 +214,10 @@ export async function DELETE(request: Request) {
       { status: 200 }
     );
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to delete media";
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("[Media] Failed to delete media:", error);
+    return NextResponse.json(
+      { error: "Failed to delete media" },
+      { status: 500 }
+    );
   }
 }

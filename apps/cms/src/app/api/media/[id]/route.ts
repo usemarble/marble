@@ -56,9 +56,11 @@ export async function GET(
 
     return NextResponse.json(media, { status: 200 });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to fetch media";
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("[Media] Failed to fetch media:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch media" },
+      { status: 500 }
+    );
   }
 }
 
@@ -130,8 +132,10 @@ export async function PATCH(
 
     return NextResponse.json(updatedMedia, { status: 200 });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to update media";
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("[Media] Failed to update media:", error);
+    return NextResponse.json(
+      { error: "Failed to update media" },
+      { status: 500 }
+    );
   }
 }
