@@ -8,6 +8,11 @@ import {
 } from "@polar-sh/better-auth";
 import { Polar } from "@polar-sh/sdk";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import {
+  APIError,
+  createAuthMiddleware,
+  getSessionFromCtx,
+} from "better-auth/api";
 import { betterAuth } from "better-auth/minimal";
 import { nextCookies } from "better-auth/next-js";
 import { emailOTP, organization } from "better-auth/plugins";
@@ -43,10 +48,57 @@ const polarClient = new Polar({
   server: process.env.NODE_ENV === "production" ? "production" : "sandbox",
 });
 
+function getCheckoutReferenceId(body: unknown) {
+  if (!(body && typeof body === "object" && "referenceId" in body)) {
+    return;
+  }
+
+  const { referenceId } = body as { referenceId?: unknown };
+  return typeof referenceId === "string" ? referenceId : undefined;
+}
+
 export const auth = betterAuth({
   database: prismaAdapter(db, {
     provider: "postgresql",
   }),
+  hooks: {
+    before: createAuthMiddleware(async (ctx) => {
+      if (ctx.path !== "/checkout") {
+        return;
+      }
+
+      const referenceId = getCheckoutReferenceId(ctx.body);
+
+      if (!referenceId) {
+        return;
+      }
+
+      const session = await getSessionFromCtx(ctx);
+
+      if (!session) {
+        throw new APIError("UNAUTHORIZED", {
+          message: "You must be logged in to checkout",
+        });
+      }
+
+      // Polar stores referenceId as checkout metadata, so verify the client-supplied workspace before it can attach a subscription there.
+      const member = await db.member.findFirst({
+        where: {
+          organizationId: referenceId,
+          userId: session.user.id,
+        },
+        select: {
+          role: true,
+        },
+      });
+
+      if (member?.role !== "owner") {
+        throw new APIError("FORBIDDEN", {
+          message: "Only workspace owners can start checkout",
+        });
+      }
+    }),
+  },
   experimental: {
     joins: true,
   },
