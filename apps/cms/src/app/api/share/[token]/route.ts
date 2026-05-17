@@ -1,6 +1,10 @@
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 
+const NO_STORE_HEADERS = {
+  "Cache-Control": "no-store",
+} as const;
+
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ token: string }> }
@@ -63,19 +67,22 @@ export async function GET(
   if (!shareLink) {
     return NextResponse.json(
       { error: "Share link not found" },
-      { status: 404 }
+      { headers: NO_STORE_HEADERS, status: 404 }
     );
   }
 
   if (shareLink.expiresAt < new Date()) {
     return NextResponse.json(
       { error: "Share link has expired" },
-      { status: 410 }
+      { headers: NO_STORE_HEADERS, status: 410 }
     );
   }
 
-  return NextResponse.json({
-    post: shareLink.post,
-    expiresAt: shareLink.expiresAt,
-  });
+  return NextResponse.json(
+    {
+      post: shareLink.post,
+      expiresAt: shareLink.expiresAt,
+    },
+    { headers: NO_STORE_HEADERS }
+  );
 }
