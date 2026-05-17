@@ -20,7 +20,7 @@ export default async function InvitePage(props: {
 }
 
 async function InvitePageComponent({ code }: { code: string }) {
-  const session = await getServerSession();
+  const session = await getServerSession({ allowUnverified: true });
 
   if (!session || !session.user) {
     return redirect(`/login/?from=/join/${code}`);
