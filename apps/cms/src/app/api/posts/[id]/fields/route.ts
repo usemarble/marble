@@ -97,72 +97,35 @@ export async function PUT(
 
   const json = payload.data;
 
-  // Validate all fieldIds belong to this workspace
-  const fieldIds = Object.keys(json);
-  if (fieldIds.length > 0) {
-    const validFields = await db.field.findMany({
-      where: {
-        id: { in: fieldIds },
-        workspaceId,
-      },
-      select: {
-        id: true,
-        key: true,
-        name: true,
-        type: true,
-        required: true,
-        options: {
-          select: {
-            value: true,
-            label: true,
-          },
-          orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+  const fields = await db.field.findMany({
+    where: {
+      workspaceId,
+    },
+    select: {
+      id: true,
+      key: true,
+      name: true,
+      type: true,
+      required: true,
+      options: {
+        select: {
+          value: true,
+          label: true,
         },
+        orderBy: [{ position: "asc" }, { createdAt: "asc" }],
       },
-    });
+    },
+  });
 
-    const resolvedValues = resolveCustomFieldValues(validFields, json);
+  const resolvedValues = resolveCustomFieldValues(fields, json);
 
-    if (!resolvedValues.success) {
-      return NextResponse.json(resolvedValues.error, { status: 400 });
-    }
+  if (!resolvedValues.success) {
+    return NextResponse.json(resolvedValues.error, { status: 400 });
+  }
 
-    const operations = resolvedValues.values.map(
-      ({ fieldId, fieldType, value }) => {
-        if (value === null) {
-          return db.fieldValue.deleteMany({
-            where: {
-              postId,
-              fieldId,
-              workspaceId,
-            },
-          });
-        }
-
-        return db.fieldValue.upsert({
-          where: {
-            postId_fieldId: { postId, fieldId },
-          },
-          update: {
-            value:
-              fieldType === "richtext" ? sanitizeRichTextHtml(value) : value,
-            workspaceId,
-          },
-          create: {
-            postId,
-            fieldId,
-            workspaceId,
-            value:
-              fieldType === "richtext" ? sanitizeRichTextHtml(value) : value,
-          },
-        });
-      }
-    );
-
-    await db.$transaction(operations);
-  } else {
-    const operations = Object.entries(json).map(([fieldId, value]) => {
-      if (value === null || value === "") {
+  const operations = resolvedValues.values.map(
+    ({ fieldId, fieldType, value }) => {
+      if (value === null) {
         return db.fieldValue.deleteMany({
           where: {
             postId,
@@ -177,18 +140,20 @@ export async function PUT(
           postId_fieldId: { postId, fieldId },
         },
         update: {
-          value: String(value),
+          value: fieldType === "richtext" ? sanitizeRichTextHtml(value) : value,
           workspaceId,
         },
         create: {
           postId,
           fieldId,
           workspaceId,
-          value: String(value),
+          value: fieldType === "richtext" ? sanitizeRichTextHtml(value) : value,
         },
       });
-    });
+    }
+  );
 
+  if (operations.length > 0) {
     await db.$transaction(operations);
   }
 

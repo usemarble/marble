@@ -3,10 +3,7 @@ import { toPostPayload, withChanges } from "@marble/events";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";
-import {
-  type CustomFieldValidationDefinition,
-  resolveCustomFieldValues,
-} from "@/lib/custom-fields";
+import { resolveCustomFieldValues } from "@/lib/custom-fields";
 import {
   emitDashboardEvent,
   logDashboardEventError,
@@ -19,22 +16,8 @@ async function buildCustomFieldWrites(
   workspaceId: string,
   input: Record<string, string | null | undefined>
 ): Promise<ReturnType<typeof resolveCustomFieldValues>> {
-  const fieldIds = Object.keys(input);
-
-  if (fieldIds.length === 0) {
-    return {
-      success: true,
-      values: [] as Array<{
-        fieldId: string;
-        fieldType: CustomFieldValidationDefinition["type"];
-        value: string | null;
-      }>,
-    };
-  }
-
   const fields = await db.field.findMany({
     where: {
-      id: { in: fieldIds },
       workspaceId,
     },
     select: {
@@ -53,10 +36,7 @@ async function buildCustomFieldWrites(
     },
   });
 
-  return resolveCustomFieldValues(
-    fields as CustomFieldValidationDefinition[],
-    input
-  );
+  return resolveCustomFieldValues(fields, input);
 }
 
 export async function GET(
