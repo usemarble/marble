@@ -1,4 +1,5 @@
 import { db } from "@marble/db";
+import { Prisma } from "@marble/db/browser";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { customFieldUpdateSchema } from "@/lib/validations/fields";
@@ -51,6 +52,14 @@ function isUniqueConstraintError(error: unknown) {
     Array.isArray(target) &&
     target.includes("workspaceId") &&
     target.includes("key")
+  );
+}
+
+function isTransactionConflict(error: unknown) {
+  return (
+    error instanceof Error &&
+    "code" in error &&
+    (error as Error & { code?: string }).code === "P2034"
   );
 }
 
@@ -158,15 +167,52 @@ export async function PATCH(
     );
   }
 
-  if (typeChanged || optionsChanged) {
-    const fieldValueCount = await db.fieldValue.count({
-      where: {
-        fieldId: id,
-        workspaceId,
-      },
-    });
+  try {
+    const field = await db.$transaction(
+      async (tx) => {
+        if (typeChanged || optionsChanged) {
+          const fieldValueCount = await tx.fieldValue.count({
+            where: {
+              fieldId: id,
+              workspaceId,
+            },
+          });
 
-    if (fieldValueCount > 0) {
+          if (fieldValueCount > 0) {
+            return null;
+          }
+        }
+
+        return tx.field.update({
+          where: {
+            id_workspaceId: {
+              id,
+              workspaceId,
+            },
+          },
+          data: {
+            ...updateData,
+            options:
+              body.data.options !== undefined || !requiresOptions
+                ? {
+                    deleteMany: {},
+                    create: requiresOptions
+                      ? buildFieldOptionWrites(body.data.options ?? [])
+                      : [],
+                  }
+                : undefined,
+          },
+          include: {
+            options: {
+              orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+            },
+          },
+        });
+      },
+      { isolationLevel: Prisma.TransactionIsolationLevel.Serializable }
+    );
+
+    if (!field) {
       return NextResponse.json(
         {
           error:
@@ -175,40 +221,22 @@ export async function PATCH(
         { status: 400 }
       );
     }
-  }
-
-  try {
-    const field = await db.field.update({
-      where: {
-        id_workspaceId: {
-          id,
-          workspaceId,
-        },
-      },
-      data: {
-        ...updateData,
-        options:
-          body.data.options !== undefined || !requiresOptions
-            ? {
-                deleteMany: {},
-                create: requiresOptions
-                  ? buildFieldOptionWrites(body.data.options ?? [])
-                  : [],
-              }
-            : undefined,
-      },
-      include: {
-        options: {
-          orderBy: [{ position: "asc" }, { createdAt: "asc" }],
-        },
-      },
-    });
 
     return NextResponse.json(field, { status: 200 });
   } catch (error) {
     if (isUniqueConstraintError(error)) {
       return NextResponse.json(
         { error: "A field with this key already exists in your workspace" },
+        { status: 409 }
+      );
+    }
+
+    if (isTransactionConflict(error)) {
+      return NextResponse.json(
+        {
+          error:
+            "This field was updated concurrently. Please retry your changes.",
+        },
         { status: 409 }
       );
     }
