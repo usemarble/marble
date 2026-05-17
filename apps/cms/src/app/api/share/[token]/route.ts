@@ -74,11 +74,6 @@ export async function GET(
     );
   }
 
-  await db.post.update({
-    where: { id: shareLink.post.id },
-    data: { views: { increment: 1 } },
-  });
-
   return NextResponse.json({
     post: shareLink.post,
     expiresAt: shareLink.expiresAt,
