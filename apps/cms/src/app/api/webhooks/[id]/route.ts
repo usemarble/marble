@@ -120,9 +120,9 @@ export async function DELETE(
     return NextResponse.json({ error: "Webhook not found" }, { status: 404 });
   }
 
-  const deletedWebhook = await db.webhookEndpoint.delete({
+  await db.webhookEndpoint.delete({
     where: { id },
   });
 
-  return NextResponse.json(deletedWebhook.id, { status: 204 });
+  return new NextResponse(null, { status: 204 });
 }
