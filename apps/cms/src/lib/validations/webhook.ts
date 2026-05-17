@@ -1,3 +1,4 @@
+import { isSafeWebhookUrl } from "@marble/utils";
 import { z } from "zod";
 import { VALID_DISCORD_DOMAINS, VALID_SLACK_DOMAINS } from "../constants";
 
@@ -40,7 +41,10 @@ export const webhookSchema = z
           }
         },
         { message: "Webhook URL must use HTTPS" }
-      ),
+      )
+      .refine((raw) => isSafeWebhookUrl(raw), {
+        message: "Webhook URL cannot target private or internal addresses",
+      }),
     events: z
       .array(webhookEventEnum)
       .min(1, { message: "Please select at least one event" }),
@@ -95,6 +99,9 @@ export const webhookUpdateSchema = z
         },
         { message: "Webhook URL must use HTTPS" }
       )
+      .refine((raw) => isSafeWebhookUrl(raw), {
+        message: "Webhook URL cannot target private or internal addresses",
+      })
       .optional(),
     events: z
       .array(webhookEventEnum)
