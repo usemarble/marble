@@ -48,8 +48,10 @@
     >
       <Container class="md:py-20 py-10 md:pb-24">
         <section class="max-w-3xl mx-auto mb-6 md:mb-10 space-y-6">
-          <div class="flex flex-col gap-4 max-w-2xl mx-auto">
-            <h1 class="text-3xl lg:text-4xl text-balance leading-[1.2] mb-2">
+          <div class="flex flex-col gap-4 mx-auto">
+            <h1
+              class="text-3xl lg:text-4xl font-medium text-balance leading-[1.2] mb-2"
+            >
               {entry.data.title}
             </h1>
             <div class="flex items-center gap-6 justify-btween">
@@ -65,7 +67,8 @@
               <div class="flex items-center gap-2">
                 <span class="h-4 w-0.5 bg-gray-300 shrink-0"></span>
                 <p class="text-muted-foreground text-sm sm:text-base">
-                  {readTime}minute read
+                  {readTime}
+                  {""}minute read
                 </p>
               </div>
             </div>
