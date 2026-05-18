@@ -5,7 +5,7 @@
   import HeaderComponent from "@/components/Header.astro";
   import ScrollToTop from "@/components/ScrollToTop.astro";
 
-  const { title, description, image, canonical } = Astro.props;
+  const { title, description, image, canonical, structuredData } = Astro.props;
 ---
 <!doctype html>
 <html lang="en">
@@ -15,6 +15,7 @@
       description={description}
       image={image}
       canonical={canonical}
+      structuredData={structuredData}
     />
   </head>
   <body>
