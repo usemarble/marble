@@ -18,7 +18,10 @@ export function jsonLd(schema: unknown) {
 }
 
 function stripHtml(html: string) {
-  return html.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
+  return html
+    .replace(/<[^>]*>/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 export function buildSiteJsonLd(site: {
