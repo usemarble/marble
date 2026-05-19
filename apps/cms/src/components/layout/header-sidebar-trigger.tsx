@@ -1,7 +1,11 @@
 "use client";
 
 import { Separator } from "@marble/ui/components/separator";
-import { SidebarTrigger, useSidebar } from "@marble/ui/components/sidebar";
+import {
+  getSidebarKeyboardShortcutLabel,
+  SidebarTrigger,
+  useSidebar,
+} from "@marble/ui/components/sidebar";
 import {
   Tooltip,
   TooltipContent,
@@ -14,13 +18,6 @@ const sidebarToggleTransition = {
   duration: 0.8,
   type: "spring",
 } as const;
-
-function getToggleSidebarShortcut() {
-  const isMac =
-    typeof navigator !== "undefined" &&
-    navigator.platform.toUpperCase().indexOf("MAC") >= 0;
-  return isMac ? "⌘K" : "Ctrl+K";
-}
 
 export function HeaderSidebarTrigger() {
   const { isMobile, open, openMobile } = useSidebar();
@@ -66,7 +63,7 @@ export function HeaderSidebarTrigger() {
               />
               <TooltipContent>
                 <p>
-                  {sidebarActionLabel} ({getToggleSidebarShortcut()})
+                  {sidebarActionLabel} ({getSidebarKeyboardShortcutLabel()})
                 </p>
               </TooltipContent>
             </Tooltip>

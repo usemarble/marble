@@ -7,7 +7,10 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Button, buttonVariants } from "@marble/ui/components/button";
-import { SidebarTrigger } from "@marble/ui/components/sidebar";
+import {
+  getSidebarKeyboardShortcutLabel,
+  SidebarTrigger,
+} from "@marble/ui/components/sidebar";
 import {
   Tooltip,
   TooltipContent,
@@ -17,13 +20,6 @@ import { cn } from "@marble/ui/lib/utils";
 import { SidebarSimpleIcon, XIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { ShareModal } from "./share-modal";
-
-function getToggleSidebarShortcut() {
-  const isMac =
-    typeof navigator !== "undefined" &&
-    navigator.platform.toUpperCase().indexOf("MAC") >= 0;
-  return isMac ? "⌘K" : "Ctrl+K";
-}
 
 interface EditorHeaderProps {
   postId?: string;
@@ -72,7 +68,7 @@ export function EditorHeader({ postId, workspace }: EditorHeaderProps) {
             }
           />
           <TooltipContent>
-            <p>Toggle Sidebar ({getToggleSidebarShortcut()})</p>
+            <p>Toggle Sidebar ({getSidebarKeyboardShortcutLabel()})</p>
           </TooltipContent>
         </Tooltip>
       </div>

@@ -7,6 +7,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
+  getSidebarKeyboardShortcutLabel,
   Sidebar,
   SidebarContent,
   SidebarFooter,
@@ -31,13 +32,6 @@ import { NavSettings } from "./nav-settings";
 import { SidebarFooterContent } from "./sidebar-footer-content";
 import { WhatsNewCard } from "./whats-new-card";
 import { WorkspaceSwitcher } from "./workspace-switcher";
-
-function getToggleSidebarShortcut() {
-  const isMac =
-    typeof navigator !== "undefined" &&
-    navigator.platform.toUpperCase().indexOf("MAC") >= 0;
-  return isMac ? "⌘K" : "Ctrl+K";
-}
 
 const sidebarToggleTransition = {
   bounce: 0.18,
@@ -217,7 +211,7 @@ function SidebarCollapseTrigger() {
               }
             />
             <TooltipContent>
-              <p>Collapse Sidebar ({getToggleSidebarShortcut()})</p>
+              <p>Collapse Sidebar ({getSidebarKeyboardShortcutLabel()})</p>
             </TooltipContent>
           </Tooltip>
         </motion.div>
