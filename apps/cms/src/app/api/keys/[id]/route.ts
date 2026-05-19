@@ -1,6 +1,6 @@
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth/session";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { updateApiKeySchema } from "@/lib/validations/keys";
 import type { ApiScope } from "@/utils/keys";
 
@@ -8,13 +8,14 @@ export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const sessionData = await getServerSession();
-  const workspaceId = sessionData?.session.activeOrganizationId;
+  const accessData = await requireActiveWorkspaceAccess();
   const { id } = await params;
 
-  if (!sessionData || !workspaceId) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
+
+  const { workspaceId } = accessData;
 
   const apiKey = await db.apiKey.findFirst({
     where: { id, workspaceId },
@@ -49,13 +50,14 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const sessionData = await getServerSession();
-  const workspaceId = sessionData?.session.activeOrganizationId;
+  const accessData = await requireActiveWorkspaceAccess();
   const { id } = await params;
 
-  if (!sessionData || !workspaceId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
+
+  const { workspaceId } = accessData;
 
   const json = await request.json();
   const body = updateApiKeySchema.safeParse(json);
@@ -129,13 +131,14 @@ export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const sessionData = await getServerSession();
-  const workspaceId = sessionData?.session.activeOrganizationId;
+  const accessData = await requireActiveWorkspaceAccess();
   const { id } = await params;
 
-  if (!sessionData || !workspaceId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
+
+  const { workspaceId } = accessData;
 
   const apiKey = await db.apiKey.findFirst({
     where: { id, workspaceId },

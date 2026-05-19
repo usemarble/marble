@@ -2,17 +2,19 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth/session";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { R2_BUCKET_NAME, r2 } from "@/lib/r2";
 import { rateLimitHeaders, userAvatarUploadRateLimiter } from "@/lib/ratelimit";
 import { uploadSchema, validateUpload } from "@/lib/validations/upload";
 
 export async function POST(request: Request) {
-  const sessionData = await getServerSession();
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData || !sessionData.session.activeOrganizationId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
+
+  const { sessionData, workspaceId } = accessData;
 
   const body = await request.json();
   const parsedBody = uploadSchema.safeParse(body);
@@ -46,7 +48,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: message }, { status: 400 });
   }
 
-  const workspaceId = sessionData.session.activeOrganizationId;
   const userId = sessionData.user.id;
   const id = nanoid();
   const extension = fileType.split("/")[1];

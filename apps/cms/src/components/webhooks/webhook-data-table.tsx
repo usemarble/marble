@@ -209,22 +209,19 @@ export function WebhookDataTable({
 
 export function WebhooksEmptyState() {
   return (
-    <div className="grid min-h-[50vh] place-content-center rounded-[20px] bg-surface p-6 text-center">
-      <div className="flex max-w-80 flex-col items-center gap-4">
-        <div className="grid size-16 place-items-center rounded-2xl bg-background">
-          <HugeiconsIcon
-            className="size-8 text-muted-foreground"
-            icon={WebhookIcon}
-          />
-        </div>
+    <div className="flex max-w-80 flex-col items-center gap-4">
+      <div>
+        <HugeiconsIcon className="size-16" icon={WebhookIcon} />
+      </div>
+      <div className="flex flex-col items-center gap-4 text-center">
         <p className="text-muted-foreground text-sm">
           Webhooks let you run actions on your server when events happen in your
           workspace.
         </p>
         <CreateWebhookSheet>
           <Button>
-            <PlusIcon className="size-4" />
-            New Webhook
+            <PlusIcon size={16} />
+            <span>New Webhook</span>
           </Button>
         </CreateWebhookSheet>
       </div>

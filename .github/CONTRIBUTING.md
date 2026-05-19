@@ -13,7 +13,6 @@ Before you start, make sure you have the following installed or available:
 - **Google** and **GitHub** OAuth apps (for authentication)
 - **Cloudflare** account with R2 enabled (for media uploads)
 - **Optional**: [Polar](https://sandbox.polar.sh) sandbox account if you want to test payments
-- **Optional**: [QStash](https://upstash.com/qstash) for reliable webhook delivery
 
 ---
 
@@ -115,8 +114,6 @@ Packages contain internal shared modules used across different applications:
    - Cloudflare R2 credentials for file uploads (see below)
 
    - Optional: If you want to test payments, set up a [Polar](https://sandbox.polar.sh) sandbox account and fill in the POLAR_* variables.
-
-   - Optional: If you want to test webhook delivery, set up [QStash](https://upstash.com/qstash) and fill in the QSTASH_TOKEN variable.
 
 4. Database Setup
 
@@ -286,27 +283,6 @@ Stop services when done:
 ```bash
 pnpm docker:down
 ```
-
-### Set up QStash (Optional)
-
-   QStash provides reliable webhook delivery with automatic retries. This is optional but recommended for production-like webhook testing. QStash is also from [Upstash](https://upstash.com).
-
-- Go to [Upstash Console](https://console.upstash.com) (same account as Redis)
-
-- Click on "QStash" in the sidebar
-
-- If you haven't enabled QStash yet, click "Enable QStash"
-
-- Once enabled, you'll see your QStash dashboard
-
-- Scroll down to the "Request Builder" section and find "Current Signing Keys"
-
-- Copy the signing key token and set it to `QSTASH_TOKEN` in your environment files
-
-   You'll need to add this to:
-   - `apps/cms/.env` → `QSTASH_TOKEN=<YOUR_TOKEN_HERE>`
-
-   Note: QStash is used for reliable webhook delivery with automatic retries. Without it, webhooks will still work but won't have retry functionality.
 
 ## Running the Apps
 

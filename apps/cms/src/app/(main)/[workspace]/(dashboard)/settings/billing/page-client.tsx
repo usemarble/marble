@@ -5,18 +5,12 @@ import { Button } from "@marble/ui/components/button";
 import { Card, CardDescription, CardTitle } from "@marble/ui/components/card";
 import { Label } from "@marble/ui/components/label";
 import { Switch } from "@marble/ui/components/switch";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@marble/ui/components/table";
 import { PRICING_PLANS } from "@marble/utils";
 import { ArrowUpRightIcon, CheckIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { invoiceTableColumns } from "@/components/invoice/columns";
+import { InvoiceDataTable } from "@/components/invoice/data-table";
 import { DashboardBody } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
 import { AsyncButton } from "@/components/ui/async-button";
@@ -115,8 +109,8 @@ function PageClient() {
   return (
     <DashboardBody className="flex flex-col gap-8 py-12" size="compact">
       {/* Current Plan Header */}
-      <Card className="gap-0 rounded-[20px] border-none bg-surface p-1.5">
-        <div className="flex items-center justify-between rounded-[12px] bg-background p-6 shadow-xs">
+      <Card className="gap-0 rounded-[20px] border-none bg-surface p-1">
+        <div className="flex items-center justify-between rounded-[16px] bg-background p-6 shadow-xs">
           <div className="flex flex-col gap-1">
             <CardTitle className="font-medium text-lg">Billing Plan</CardTitle>
             <CardDescription>View and manage your billing plan</CardDescription>
@@ -175,8 +169,8 @@ function PageClient() {
 
         <section className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {hobbyPlan && (
-            <Card className="relative gap-0 rounded-[20px] border-none bg-surface p-1.5">
-              <div className="flex h-full flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
+            <Card className="relative gap-0 rounded-[20px] border-none bg-surface p-1">
+              <div className="flex h-full flex-col gap-6 rounded-[16px] bg-background p-6 shadow-xs">
                 <div className="flex items-start justify-between">
                   <div>
                     <h3 className="font-semibold text-xl">{hobbyPlan.title}</h3>
@@ -214,8 +208,8 @@ function PageClient() {
           )}
 
           {proPlan && (
-            <Card className="relative gap-0 rounded-[20px] border-none bg-surface p-1.5">
-              <div className="flex h-full flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
+            <Card className="relative gap-0 rounded-[20px] border-none bg-surface p-1">
+              <div className="flex h-full flex-col gap-6 rounded-[16px] bg-background p-6 shadow-xs">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <h3 className="font-semibold text-xl">{proPlan.title}</h3>
@@ -255,35 +249,15 @@ function PageClient() {
         </section>
       </div>
 
-      <Card className="gap-0 rounded-[20px] border-none bg-surface p-1.5">
-        <div className="flex flex-col gap-6 rounded-[12px] bg-background p-6 shadow-xs">
-          <div className="flex flex-col gap-1">
-            <CardTitle className="font-medium text-lg">Invoices</CardTitle>
-            <CardDescription>View your billing history</CardDescription>
-          </div>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Invoice</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <TableRow>
-                <TableCell
-                  className="py-8 text-center text-muted-foreground"
-                  colSpan={5}
-                >
-                  No invoices yet
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
+      <div className="flex flex-col gap-4">
+        <div>
+          <h2 className="font-medium text-lg">Invoices</h2>
+          <p className="text-muted-foreground text-sm">
+            View your billing history and download receipts.
+          </p>
         </div>
-      </Card>
+        <InvoiceDataTable columns={invoiceTableColumns} data={[]} />
+      </div>
     </DashboardBody>
   );
 }

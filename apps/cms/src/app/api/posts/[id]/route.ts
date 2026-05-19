@@ -1,36 +1,23 @@
 import { db } from "@marble/db";
+import { toPostPayload, withChanges } from "@marble/events";
 import { NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth/session";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";
+import { resolveCustomFieldValues } from "@/lib/custom-fields";
 import {
-  type CustomFieldValidationDefinition,
-  resolveCustomFieldValues,
-} from "@/lib/custom-fields";
+  emitDashboardEvent,
+  logDashboardEventError,
+} from "@/lib/events/dispatch";
 import { postUpsertSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";
-import { dispatchWebhooks } from "@/lib/webhooks/dispatcher";
 import { sanitizeHtml, sanitizeRichTextHtml } from "@/utils/editor";
 
 async function buildCustomFieldWrites(
   workspaceId: string,
   input: Record<string, string | null | undefined>
 ): Promise<ReturnType<typeof resolveCustomFieldValues>> {
-  const fieldIds = Object.keys(input);
-
-  if (fieldIds.length === 0) {
-    return {
-      success: true,
-      values: [] as Array<{
-        fieldId: string;
-        fieldType: CustomFieldValidationDefinition["type"];
-        value: string | null;
-      }>,
-    };
-  }
-
   const fields = await db.field.findMany({
     where: {
-      id: { in: fieldIds },
       workspaceId,
     },
     select: {
@@ -49,26 +36,24 @@ async function buildCustomFieldWrites(
     },
   });
 
-  return resolveCustomFieldValues(
-    fields as CustomFieldValidationDefinition[],
-    input
-  );
+  return resolveCustomFieldValues(fields, input);
 }
 
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const sessionData = await getServerSession();
-  const activeWorkspaceId = sessionData?.session.activeOrganizationId;
+  const accessData = await requireActiveWorkspaceAccess();
   const { id } = await params;
 
-  if (!sessionData || !activeWorkspaceId) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
 
+  const { workspaceId } = accessData;
+
   const post = await db.post.findFirst({
-    where: { id, workspaceId: activeWorkspaceId },
+    where: { id, workspaceId },
     select: {
       id: true,
       slug: true,
@@ -116,13 +101,14 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const sessionData = await getServerSession();
-  const workspaceId = sessionData?.session.activeOrganizationId;
+  const accessData = await requireActiveWorkspaceAccess();
   const { id } = await params;
 
-  if (!sessionData || !workspaceId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
+
+  const { sessionData, workspaceId } = accessData;
 
   const body = await request.json();
 
@@ -287,39 +273,25 @@ export async function PATCH(
       return updatedPost;
     });
 
-    const data = {
-      id: postUpdated.id,
-      title: postUpdated.title,
-      slug: postUpdated.slug,
-      userId: sessionData.user.id,
-    };
+    const eventType =
+      post.status !== "published" && postUpdated.status === "published"
+        ? "post_published"
+        : post.status === "published" && postUpdated.status !== "published"
+          ? "post_unpublished"
+          : "post_updated";
+    const payload =
+      eventType === "post_updated"
+        ? withChanges(toPostPayload(postUpdated), Object.keys(values.data))
+        : toPostPayload(postUpdated);
 
-    // Fire and forget - don't block response
-    if (values.data.status === "published" && post.status === "draft") {
-      dispatchWebhooks({
-        workspaceId,
-        validationEvent: "post_published",
-        deliveryEvent: "post.published",
-        payload: data,
-      }).catch((error) => {
-        console.error(
-          `[PostPublish] Failed to dispatch webhooks: postId=${postUpdated.id}`,
-          error
-        );
-      });
-    }
-
-    dispatchWebhooks({
+    await emitDashboardEvent({
+      type: eventType,
       workspaceId,
-      validationEvent: "post_updated",
-      deliveryEvent: "post.updated",
-      payload: data,
-    }).catch((error) => {
-      console.error(
-        `[PostUpdate] Failed to dispatch webhooks: postId=${postUpdated.id}`,
-        error
-      );
-    });
+      resourceType: "post",
+      resourceId: postUpdated.id,
+      actorId: sessionData.user.id,
+      payload,
+    }).catch(logDashboardEventError);
 
     // Invalidate cache for posts
     invalidateCache(workspaceId, "posts");
@@ -338,15 +310,14 @@ export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const sessionData = await getServerSession();
+  const accessData = await requireActiveWorkspaceAccess();
 
-  const workspaceId = sessionData?.session.activeOrganizationId;
-  if (!sessionData || !workspaceId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
 
+  const { sessionData, workspaceId } = accessData;
   const { id } = await params;
-  const activeWorkspaceId = sessionData.session.activeOrganizationId;
 
   try {
     const deletedPost = await db.post.delete({
@@ -357,18 +328,14 @@ export async function DELETE(
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
-    // Fire and forget - don't block response
-    dispatchWebhooks({
+    await emitDashboardEvent({
+      type: "post_deleted",
       workspaceId,
-      validationEvent: "post_deleted",
-      deliveryEvent: "post.deleted",
-      payload: { id, slug: deletedPost.slug, userId: sessionData.user.id },
-    }).catch((error) => {
-      console.error(
-        `[PostDelete] Failed to dispatch webhooks: postId=${id}`,
-        error
-      );
-    });
+      resourceType: "post",
+      resourceId: id,
+      actorId: sessionData.user.id,
+      payload: toPostPayload(deletedPost),
+    }).catch(logDashboardEventError);
 
     // Invalidate cache for posts
     invalidateCache(workspaceId, "posts");

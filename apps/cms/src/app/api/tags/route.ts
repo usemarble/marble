@@ -1,18 +1,22 @@
 import { db } from "@marble/db";
+import { toTagPayload } from "@marble/events";
 import { NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth/session";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";
+import {
+  emitDashboardEvent,
+  logDashboardEventError,
+} from "@/lib/events/dispatch";
 import { tagSchema } from "@/lib/validations/workspace";
-import { getWebhooks } from "@/lib/webhooks/utils";
-import { WebhookClient } from "@/lib/webhooks/webhook-client";
 
 export async function GET() {
-  const sessionData = await getServerSession();
-  const workspaceId = sessionData?.session.activeOrganizationId;
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData || !workspaceId) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
+
+  const { workspaceId } = accessData;
 
   const tags = await db.tag.findMany({
     where: { workspaceId },
@@ -41,12 +45,13 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const sessionData = await getServerSession();
-  const workspaceId = sessionData?.session.activeOrganizationId;
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData || !workspaceId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
+
+  const { sessionData, workspaceId } = accessData;
 
   const json = await req.json();
   const body = tagSchema.parse(json);
@@ -71,21 +76,14 @@ export async function POST(req: Request) {
     },
   });
 
-  const webhooks = getWebhooks(workspaceId, "tag_created");
-
-  for (const webhook of await webhooks) {
-    const webhookClient = new WebhookClient({ secret: webhook.secret });
-    await webhookClient.send({
-      url: webhook.url,
-      event: "tag.created",
-      data: {
-        id: tagCreated.id,
-        slug: tagCreated.slug,
-        userId: sessionData.user.id,
-      },
-      format: webhook.format,
-    });
-  }
+  await emitDashboardEvent({
+    type: "tag_created",
+    workspaceId,
+    resourceType: "tag",
+    resourceId: tagCreated.id,
+    actorId: sessionData.user.id,
+    payload: toTagPayload(tagCreated),
+  }).catch(logDashboardEventError);
 
   // Invalidate cache for tags and posts (tags affect posts)
   invalidateCache(workspaceId, "tags");

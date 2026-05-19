@@ -19,22 +19,24 @@ export const postSchema = z.object({
   coverImage: z.string().nullable(),
   publishedAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
-  authors: z.array(
-    z.object({
-      id: z.string(),
-      name: z.string(),
-      image: z.string().nullable(),
-      bio: z.string().nullable(),
-      role: z.string().nullable(),
-      slug: z.string(),
-      socials: z.array(
-        z.object({
-          url: z.url(),
-          platform: z.string(),
-        })
-      ),
-    })
-  ),
+  authors: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        image: z.string().nullable(),
+        bio: z.string().nullable(),
+        role: z.string().nullable(),
+        slug: z.string(),
+        socials: z.array(
+          z.object({
+            url: z.url(),
+            platform: z.string(),
+          })
+        ),
+      })
+    )
+    .min(1),
   category: z
     .object({
       id: z.string(),

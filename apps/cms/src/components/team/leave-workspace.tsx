@@ -12,10 +12,12 @@ import {
   AlertDialogX,
 } from "@marble/ui/components/alert-dialog";
 import { toast } from "@marble/ui/components/sonner";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AsyncButton } from "@/components/ui/async-button";
 import { organization, useListOrganizations } from "@/lib/auth/client";
+import { QUERY_KEYS } from "@/lib/queries/keys";
 import { useWorkspace } from "@/providers/workspace";
 
 interface ListOrganizationResponse {
@@ -44,31 +46,37 @@ export function LeaveWorkspaceModal({
   const [isLeavingWorkspace, setIsLeavingWorkspace] = useState(false);
   const { updateActiveWorkspace } = useWorkspace();
   const { data: organizations } = useListOrganizations();
+  const queryClient = useQueryClient();
   const router = useRouter();
 
   const handleLeaveWorkspace = async () => {
     setIsLeavingWorkspace(true);
 
     try {
-      await organization.leave({
+      const { error } = await organization.leave({
         organizationId: id,
       });
 
+      if (error) {
+        throw new Error(error.message);
+      }
+
       toast.success("You have left the workspace.");
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.WORKSPACE_LIST,
+      });
 
       const remainingWorkspaces = organizations?.filter(
         (org: ListOrganizationResponse) => org.id !== id
       );
 
       if (!remainingWorkspaces || remainingWorkspaces.length === 0) {
-        setIsLeavingWorkspace(false);
         router.push("/new");
         return;
       }
 
       const nextWorkspace = remainingWorkspaces[0];
       if (!nextWorkspace) {
-        setIsLeavingWorkspace(false);
         router.push("/new");
         return;
       }
@@ -76,10 +84,13 @@ export function LeaveWorkspaceModal({
       await updateActiveWorkspace(nextWorkspace);
       router.push(`/${nextWorkspace.slug}`);
     } catch (error) {
-      console.error("Failed to delete workspace:", error);
-      toast.error("Failed to delete workspace.");
+      console.error("Failed to leave workspace:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to leave workspace."
+      );
+    } finally {
+      setIsLeavingWorkspace(false);
     }
-    setIsLeavingWorkspace(false);
   };
 
   return (

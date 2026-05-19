@@ -7,6 +7,7 @@
   import Layout from "@/layouts/Layout.astro";
   import { SITE } from "@/lib/constants/site";
   import { REGISTER_URL, TRACKING_EVENTS } from "@/lib/constants/tracking";
+  import { buildArticleJsonLd, cleanMetaDescription } from "@/lib/seo";
   import { calculateReadTime } from "@/lib/utils";
 
   const YOUTUBE_WATCH_URL = `https://www.youtube.com/watch?v=${YOUTUBE_VIDEO_ID}`;
@@ -34,11 +35,30 @@
   );
 
   const readTime = calculateReadTime(entry.data.content);
+  const description = cleanMetaDescription(
+    entry.data.description,
+    `Read ${entry.data.title} in the Marble changelog.`
+  );
+  const structuredData = buildArticleJsonLd({
+    type: "Article",
+    title: entry.data.title,
+    description,
+    url: new URL(Astro.url.pathname, SITE.URL).toString(),
+    image: entry.data.coverImage
+      ? new URL(entry.data.coverImage, SITE.URL).toString()
+      : undefined,
+    publishedAt: entry.data.publishedAt,
+    updatedAt: entry.data.updatedAt,
+    authors: entry.data.authors,
+    siteTitle: SITE.TITLE,
+    siteUrl: SITE.URL,
+  });
 ---
 <Layout
   title={`${entry.data.title} - ${SITE.TITLE}`}
-  description={entry.data.description}
+  description={description}
   image={entry.data.coverImage}
+  structuredData={structuredData}
 >
   <section
     class="min-h-[calc(100vh-88px)] sm:min-h-[calc(100vh-103px)] lg:min-h-[calc(100vh-120px)] border-y border-dashed"

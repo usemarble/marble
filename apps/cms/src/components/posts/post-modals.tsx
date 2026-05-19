@@ -34,10 +34,16 @@ export const DeletePostModal = ({
   const workspaceId = useWorkspaceId();
 
   const { mutate: deletePost, isPending } = useMutation({
-    mutationFn: (postId: string) =>
-      fetch(`/api/posts/${postId}`, {
+    mutationFn: async (postId: string) => {
+      const res = await fetch(`/api/posts/${postId}`, {
         method: "DELETE",
-      }),
+      });
+
+      if (!res.ok) {
+        const error = await res.json().catch(() => ({}));
+        throw new Error(error.error || "Failed to delete post");
+      }
+    },
     onSuccess: () => {
       toast.success("Post deleted");
       if (workspaceId) {
@@ -47,8 +53,10 @@ export const DeletePostModal = ({
       }
       setOpen(false);
     },
-    onError: () => {
-      toast.error("Failed to delete post.");
+    onError: (error) => {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to delete post."
+      );
     },
   });
 

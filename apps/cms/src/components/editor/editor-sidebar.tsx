@@ -23,10 +23,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { fetchAiReadabilitySuggestionsObject } from "@/lib/ai/readability";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { useWorkspace } from "@/providers/workspace";
-import {
-  calculateReadabilityScore,
-  generateSuggestions as generateLocalSuggestions,
-} from "@/utils/readability";
+import { calculateReadabilityScore } from "@/utils/readability";
 import { MetadataFooter } from "./footer/metadata-footer";
 import { MetadataTab } from "./tabs/metadata-tab";
 
@@ -120,22 +117,6 @@ export function EditorSidebar({ ...props }: EditorSidebarProps) {
   }, [editor, debouncedText]);
 
   const [hasFetchedAiOnce, setHasFetchedAiOnce] = useState(false);
-
-  const localSuggestions = useMemo(
-    () =>
-      generateLocalSuggestions({
-        wordCount: metrics.wordCount,
-        sentenceCount: metrics.sentenceCount,
-        wordsPerSentence: metrics.wordsPerSentence,
-        readabilityScore: metrics.readabilityScore,
-      }),
-    [
-      metrics.wordCount,
-      metrics.sentenceCount,
-      metrics.wordsPerSentence,
-      metrics.readabilityScore,
-    ]
-  );
 
   // biome-ignore lint/style/noNonNullAssertion: <>
   const workspaceId = activeWorkspace!.id;
@@ -244,10 +225,8 @@ export function EditorSidebar({ ...props }: EditorSidebarProps) {
             >
               <Suspense fallback={<TabLoadingSpinner />}>
                 <AnalysisTab
-                  aiEnabled
                   aiLoading={aiLoading}
                   aiSuggestions={aiData?.suggestions ?? []}
-                  localSuggestions={localSuggestions}
                   onRefreshAi={handleRefreshAi}
                 />
               </Suspense>

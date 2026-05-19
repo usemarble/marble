@@ -1,7 +1,7 @@
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { getServerSession } from "@/lib/auth/session";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 
 const updateMediaSchema = z.object({
   name: z.string().trim().min(1).max(255),
@@ -12,12 +12,13 @@ export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const sessionData = await getServerSession();
-  const workspaceId = sessionData?.session.activeOrganizationId;
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData || !workspaceId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
+
+  const { workspaceId } = accessData;
 
   const { id } = await params;
   if (!id) {
@@ -55,9 +56,11 @@ export async function GET(
 
     return NextResponse.json(media, { status: 200 });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to fetch media";
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("[Media] Failed to fetch media:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch media" },
+      { status: 500 }
+    );
   }
 }
 
@@ -65,12 +68,13 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const sessionData = await getServerSession();
-  const workspaceId = sessionData?.session.activeOrganizationId;
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData || !workspaceId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
+
+  const { workspaceId } = accessData;
 
   const { id } = await params;
   if (!id) {
@@ -128,8 +132,10 @@ export async function PATCH(
 
     return NextResponse.json(updatedMedia, { status: 200 });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to update media";
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("[Media] Failed to update media:", error);
+    return NextResponse.json(
+      { error: "Failed to update media" },
+      { status: 500 }
+    );
   }
 }

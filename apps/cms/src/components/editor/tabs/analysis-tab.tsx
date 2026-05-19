@@ -20,16 +20,12 @@ interface AnalysisTabProps {
   aiSuggestions?: ReadabilitySuggestion[];
   aiLoading?: boolean;
   onRefreshAi?: () => void;
-  aiEnabled?: boolean;
-  localSuggestions?: string[];
 }
 
 export function AnalysisTab({
   aiSuggestions,
   aiLoading,
   onRefreshAi,
-  aiEnabled,
-  localSuggestions,
 }: AnalysisTabProps) {
   const { editor } = useCurrentEditor();
 
@@ -120,7 +116,7 @@ export function AnalysisTab({
                     ? "Getting Started"
                     : "Suggestions"}
                 </h4>
-                {aiEnabled && textMetrics.wordCount > 0 ? (
+                {textMetrics.wordCount > 0 ? (
                   <Tooltip>
                     <TooltipTrigger
                       render={
@@ -138,37 +134,25 @@ export function AnalysisTab({
                   </Tooltip>
                 ) : null}
               </div>
-              {aiEnabled && (
-                <Button
-                  aria-label="Refresh suggestions"
-                  className="h-7 w-7 cursor-pointer"
-                  disabled={Boolean(aiLoading)}
-                  onClick={onRefreshAi}
-                  size="icon"
-                  type="button"
-                  variant="ghost"
-                >
-                  <ArrowClockwiseIcon
-                    className={aiLoading ? "h-4 w-4 animate-spin" : "h-4 w-4"}
-                  />
-                </Button>
-              )}
+              <Button
+                aria-label="Refresh suggestions"
+                className="h-7 w-7 cursor-pointer"
+                disabled={Boolean(aiLoading)}
+                onClick={onRefreshAi}
+                size="icon"
+                type="button"
+                variant="ghost"
+              >
+                <ArrowClockwiseIcon
+                  className={aiLoading ? "h-4 w-4 animate-spin" : "h-4 w-4"}
+                />
+              </Button>
             </div>
-            {aiEnabled ? (
-              <ReadabilitySuggestions
-                editor={editor ?? null}
-                isLoading={aiLoading}
-                suggestions={aiSuggestions ?? []}
-              />
-            ) : (
-              <div className="space-y-2 text-muted-foreground text-sm">
-                {(localSuggestions ?? textMetrics.suggestions).map(
-                  (suggestion) => (
-                    <p key={suggestion}>• {suggestion}</p>
-                  )
-                )}
-              </div>
-            )}
+            <ReadabilitySuggestions
+              editor={editor ?? null}
+              isLoading={aiLoading}
+              suggestions={aiSuggestions ?? []}
+            />
           </div>
         </div>
       </section>

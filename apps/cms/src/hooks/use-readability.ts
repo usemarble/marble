@@ -3,10 +3,6 @@
 import type { Editor } from "@marble/editor";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
-import { useDebounce } from "@/hooks/use-debounce";
-import { fetchAiReadabilitySuggestionsStrings } from "@/lib/ai/readability";
-import { QUERY_KEYS } from "@/lib/queries/keys";
-import { useWorkspace } from "@/providers/workspace";
 import {
   calculateReadabilityScore,
   generateSuggestions as generateLocalSuggestions,
@@ -28,9 +24,6 @@ export interface ReadabilityResult {
   readabilityLevel: ReadabilityLevel;
   readingTime: number;
   suggestions: string[];
-  isLoadingSuggestions: boolean;
-  aiEnabled: boolean;
-  debounceMs: number;
 }
 
 const READING_SPEED = 238;
@@ -107,57 +100,11 @@ function computeMetrics(text: string, editor?: Editor | null) {
   };
 }
 
-function buildContentKey(input: string): string {
-  const start = input.slice(0, 200);
-  const end = input.slice(-200);
-  return `${input.length}:${start}:${end}`;
-}
-
 export function useReadability({
   editor,
   text,
 }: UseReadabilityParams): ReadabilityResult {
-  const { activeWorkspace } = useWorkspace();
-  const aiEnabled = true;
-  const debounceMs = aiEnabled ? 1500 : 500;
-
-  const debouncedText = useDebounce(text, debounceMs);
-
   const metrics = useMemo(() => computeMetrics(text, editor), [text, editor]);
-
-  const debouncedMetrics = useMemo(() => {
-    const m = computeMetrics(debouncedText);
-    return {
-      wordCount: m.wordCount,
-      sentenceCount: m.sentenceCount,
-      wordsPerSentence: m.wordsPerSentence,
-      readabilityScore: m.readabilityScore,
-      readingTime: m.readingTime,
-    };
-  }, [debouncedText]);
-
-  const contentKey = useMemo(
-    () => buildContentKey(debouncedText),
-    [debouncedText]
-  );
-  const shouldQueryAi = aiEnabled && debouncedText.trim().length > 0;
-
-  const { data: aiSuggestions, isFetching: isFetchingAi } = useQuery<string[]>({
-    queryKey: QUERY_KEYS.AI_READABILITY_SUGGESTIONS(
-      activeWorkspace?.id ?? "no-workspace",
-      contentKey
-    ),
-    enabled: shouldQueryAi,
-    staleTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-    retry: 0,
-    queryFn: async () =>
-      fetchAiReadabilitySuggestionsStrings({
-        content: debouncedText,
-        metrics: debouncedMetrics,
-      }),
-  });
 
   const { data: localSuggestions = [] } = useQuery<string[]>({
     queryKey: [
@@ -180,15 +127,8 @@ export function useReadability({
       }),
   });
 
-  const suggestions = aiEnabled
-    ? (aiSuggestions ?? localSuggestions)
-    : localSuggestions;
-
   return {
     ...metrics,
-    suggestions,
-    isLoadingSuggestions: aiEnabled ? isFetchingAi : false,
-    aiEnabled,
-    debounceMs,
+    suggestions: localSuggestions,
   };
 }

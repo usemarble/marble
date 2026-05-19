@@ -1,21 +1,26 @@
 import { db } from "@marble/db";
+import { toPostPayload } from "@marble/events";
 import { markdownToHtml, markdownToTiptap } from "@marble/parser/tiptap";
 import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth/session";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
+import {
+  emitDashboardEvent,
+  logDashboardEventError,
+} from "@/lib/events/dispatch";
 import { postImportSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";
-import { dispatchWebhooks } from "@/lib/webhooks/dispatcher";
 import { sanitizeHtml } from "@/utils/editor";
 import { generateSlug } from "@/utils/string";
 
 export async function POST(request: Request) {
-  const sessionData = await getServerSession();
-  const activeWorkspaceId = sessionData?.session.activeOrganizationId;
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData || !activeWorkspaceId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
+
+  const { sessionData, workspaceId } = accessData;
 
   const body = await request.json();
   const values = postImportSchema.safeParse(body);
@@ -29,7 +34,7 @@ export async function POST(request: Request) {
   const existingPost = await db.post.findFirst({
     where: {
       slug: values.data.slug,
-      workspaceId: activeWorkspaceId,
+      workspaceId,
     },
   });
 
@@ -43,7 +48,7 @@ export async function POST(request: Request) {
   const primaryAuthor = await db.author.upsert({
     where: {
       workspaceId_userId: {
-        workspaceId: activeWorkspaceId,
+        workspaceId,
         userId: sessionData.user.id,
       },
     },
@@ -53,7 +58,7 @@ export async function POST(request: Request) {
       email: sessionData.user.email,
       slug: uniqueSlug,
       image: sessionData.user.image,
-      workspaceId: activeWorkspaceId,
+      workspaceId,
       userId: sessionData.user.id,
       role: "Writer",
     },
@@ -65,7 +70,7 @@ export async function POST(request: Request) {
 
   const tagValidation = await validateWorkspaceTags(
     values.data.tags,
-    activeWorkspaceId
+    workspaceId
   );
 
   if (!tagValidation.success) {
@@ -78,7 +83,7 @@ export async function POST(request: Request) {
     const category = await db.category.findFirst({
       where: {
         id: values.data.category,
-        workspaceId: activeWorkspaceId,
+        workspaceId,
       },
     });
 
@@ -96,7 +101,7 @@ export async function POST(request: Request) {
   const validAuthors = await db.author.findMany({
     where: {
       id: { in: authorIds },
-      workspaceId: activeWorkspaceId,
+      workspaceId,
     },
   });
 
@@ -120,7 +125,7 @@ export async function POST(request: Request) {
       coverImage: values.data.coverImage,
       publishedAt: values.data.publishedAt,
       description: values.data.description,
-      workspaceId: activeWorkspaceId,
+      workspaceId,
       tags:
         uniqueTagIds.length > 0
           ? {
@@ -133,24 +138,15 @@ export async function POST(request: Request) {
     },
   });
 
-  if (postCreated.status === "published") {
-    dispatchWebhooks({
-      workspaceId: activeWorkspaceId,
-      validationEvent: "post_published",
-      deliveryEvent: "post.published",
-      payload: {
-        id: postCreated.id,
-        title: postCreated.title,
-        slug: postCreated.slug,
-        userId: sessionData.user.id,
-      },
-    }).catch((error) => {
-      console.error(
-        `[PostImport] Failed to dispatch webhooks: postId=${postCreated.id}`,
-        error
-      );
-    });
-  }
+  await emitDashboardEvent({
+    type:
+      postCreated.status === "published" ? "post_published" : "post_created",
+    workspaceId,
+    resourceType: "post",
+    resourceId: postCreated.id,
+    actorId: sessionData.user.id,
+    payload: toPostPayload(postCreated),
+  }).catch(logDashboardEventError);
 
   return NextResponse.json({ id: postCreated.id });
 }

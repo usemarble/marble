@@ -6,11 +6,15 @@
   import Layout from "@/layouts/Layout.astro";
   import { PRICING_FAQS } from "@/lib/constants/faqs";
   import { SITE } from "@/lib/constants/site";
+  import { buildFaqJsonLd } from "@/lib/seo";
   import { cn } from "@/lib/utils";
+
+  const structuredData = buildFaqJsonLd(PRICING_FAQS);
 ---
 <Layout
   title={`Pricing - ${SITE.TITLE}`}
   description="Pricing plans for marble."
+  structuredData={structuredData}
 >
   <div class="divide-y divide-dashed">
     <section class="border-t border-dashed">

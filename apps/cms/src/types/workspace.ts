@@ -45,6 +45,7 @@ export interface Workspace {
 export interface WorkspaceContextType {
   activeWorkspace: Workspace | null;
   updateActiveWorkspace: (workspace: Partial<Workspace>) => Promise<void>;
+  refreshActiveWorkspace: () => Promise<void>;
   workspaceList: Workspace[] | null;
   isFetchingWorkspace: boolean;
   isOwner: boolean;

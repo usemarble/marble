@@ -1,20 +1,24 @@
 import { db } from "@marble/db";
+import { toMediaPayload } from "@marble/events";
 import { NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth/session";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
+import {
+  emitDashboardEvent,
+  logDashboardEventError,
+} from "@/lib/events/dispatch";
 import { R2_PUBLIC_URL } from "@/lib/r2";
 import { completeSchema } from "@/lib/validations/upload";
-import { dispatchWebhooks } from "@/lib/webhooks/dispatcher";
 import { getMediaType } from "@/utils/media";
 import { trackMediaUpload } from "@/utils/usage/media";
 
 export async function POST(request: Request) {
-  const sessionData = await getServerSession();
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData || !sessionData.session.activeOrganizationId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
 
-  const workspaceId = sessionData.session.activeOrganizationId;
+  const { sessionData, workspaceId } = accessData;
   const body = await request.json();
   const parsedBody = completeSchema.safeParse(body);
 
@@ -62,23 +66,14 @@ export async function POST(request: Request) {
           console.error("[Media Upload] Failed to track upload:", err);
         });
 
-        dispatchWebhooks({
+        await emitDashboardEvent({
+          type: "media_uploaded",
           workspaceId,
-          validationEvent: "media_uploaded",
-          deliveryEvent: "media.uploaded",
-          payload: {
-            id: media.id,
-            name: media.name,
-            userId: sessionData.user.id,
-            size: media.size,
-            type: media.type,
-          },
-        }).catch((error) => {
-          console.error(
-            `[MediaUpload] Failed to dispatch webhooks: mediaId=${media.id}`,
-            error
-          );
-        });
+          resourceType: "media",
+          resourceId: media.id,
+          actorId: sessionData.user.id,
+          payload: toMediaPayload(media),
+        }).catch(logDashboardEventError);
 
         const mediaResponse = {
           id: media.id,

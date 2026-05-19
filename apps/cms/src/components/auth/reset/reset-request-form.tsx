@@ -35,18 +35,26 @@ export default function ResetRequestForm() {
 
     setIsLoading(true);
     try {
-      await authClient.requestPasswordReset({
+      const { error } = await authClient.requestPasswordReset({
         email,
         redirectTo: "/reset",
       });
+
+      if (error) {
+        throw new Error(error.message || "Failed to request reset");
+      }
+
       toast.success("Password reset link sent to your inbox");
+      setWaitingSeconds(60);
+      setIsRequestSuccess(true);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to request reset");
+      toast.error(
+        err instanceof Error ? err.message : "Failed to request reset"
+      );
+    } finally {
+      setIsLoading(false);
     }
-    setWaitingSeconds(60);
-    setIsLoading(false);
-    setIsRequestSuccess(true);
   };
 
   return (

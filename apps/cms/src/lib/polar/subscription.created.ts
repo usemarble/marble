@@ -112,6 +112,7 @@ export async function handleSubscriptionCreated(
           : undefined,
         currency: subscription.currency || undefined,
         discountId: subscription.discountId || undefined,
+        lastPolarEventAt: payload.timestamp,
         recurringInterval,
       },
     });

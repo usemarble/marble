@@ -1,6 +1,6 @@
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth/session";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import {
   customFieldsPayloadSchema,
   resolveCustomFieldValues,
@@ -11,18 +11,19 @@ export async function GET(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await getServerSession();
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!session?.user || !session.session.activeOrganizationId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
 
+  const { workspaceId } = accessData;
   const { id: postId } = await params;
 
   const post = await db.post.findFirst({
     where: {
       id: postId,
-      workspaceId: session.session.activeOrganizationId,
+      workspaceId,
     },
     select: { id: true },
   });
@@ -34,7 +35,7 @@ export async function GET(
   // Fetch workspace custom field definitions and this post's values
   const [fields, values] = await Promise.all([
     db.field.findMany({
-      where: { workspaceId: session.session.activeOrganizationId },
+      where: { workspaceId },
       include: {
         options: {
           orderBy: [{ position: "asc" }, { createdAt: "asc" }],
@@ -45,7 +46,7 @@ export async function GET(
     db.fieldValue.findMany({
       where: {
         postId,
-        workspaceId: session.session.activeOrganizationId,
+        workspaceId,
       },
     }),
   ]);
@@ -63,18 +64,19 @@ export async function PUT(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await getServerSession();
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!session?.user || !session.session.activeOrganizationId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
 
+  const { workspaceId } = accessData;
   const { id: postId } = await params;
 
   const post = await db.post.findFirst({
     where: {
       id: postId,
-      workspaceId: session.session.activeOrganizationId,
+      workspaceId,
     },
     select: { id: true },
   });
@@ -85,7 +87,6 @@ export async function PUT(
 
   const requestJson = await req.json();
   const payload = customFieldsPayloadSchema.safeParse(requestJson);
-  const workspaceId = session.session.activeOrganizationId;
 
   if (!payload.success) {
     return NextResponse.json(
@@ -96,72 +97,35 @@ export async function PUT(
 
   const json = payload.data;
 
-  // Validate all fieldIds belong to this workspace
-  const fieldIds = Object.keys(json);
-  if (fieldIds.length > 0) {
-    const validFields = await db.field.findMany({
-      where: {
-        id: { in: fieldIds },
-        workspaceId,
-      },
-      select: {
-        id: true,
-        key: true,
-        name: true,
-        type: true,
-        required: true,
-        options: {
-          select: {
-            value: true,
-            label: true,
-          },
-          orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+  const fields = await db.field.findMany({
+    where: {
+      workspaceId,
+    },
+    select: {
+      id: true,
+      key: true,
+      name: true,
+      type: true,
+      required: true,
+      options: {
+        select: {
+          value: true,
+          label: true,
         },
+        orderBy: [{ position: "asc" }, { createdAt: "asc" }],
       },
-    });
+    },
+  });
 
-    const resolvedValues = resolveCustomFieldValues(validFields, json);
+  const resolvedValues = resolveCustomFieldValues(fields, json);
 
-    if (!resolvedValues.success) {
-      return NextResponse.json(resolvedValues.error, { status: 400 });
-    }
+  if (!resolvedValues.success) {
+    return NextResponse.json(resolvedValues.error, { status: 400 });
+  }
 
-    const operations = resolvedValues.values.map(
-      ({ fieldId, fieldType, value }) => {
-        if (value === null) {
-          return db.fieldValue.deleteMany({
-            where: {
-              postId,
-              fieldId,
-              workspaceId,
-            },
-          });
-        }
-
-        return db.fieldValue.upsert({
-          where: {
-            postId_fieldId: { postId, fieldId },
-          },
-          update: {
-            value:
-              fieldType === "richtext" ? sanitizeRichTextHtml(value) : value,
-            workspaceId,
-          },
-          create: {
-            postId,
-            fieldId,
-            workspaceId,
-            value:
-              fieldType === "richtext" ? sanitizeRichTextHtml(value) : value,
-          },
-        });
-      }
-    );
-
-    await db.$transaction(operations);
-  } else {
-    const operations = Object.entries(json).map(([fieldId, value]) => {
-      if (value === null || value === "") {
+  const operations = resolvedValues.values.map(
+    ({ fieldId, fieldType, value }) => {
+      if (value === null) {
         return db.fieldValue.deleteMany({
           where: {
             postId,
@@ -176,18 +140,20 @@ export async function PUT(
           postId_fieldId: { postId, fieldId },
         },
         update: {
-          value: String(value),
+          value: fieldType === "richtext" ? sanitizeRichTextHtml(value) : value,
           workspaceId,
         },
         create: {
           postId,
           fieldId,
           workspaceId,
-          value: String(value),
+          value: fieldType === "richtext" ? sanitizeRichTextHtml(value) : value,
         },
       });
-    });
+    }
+  );
 
+  if (operations.length > 0) {
     await db.$transaction(operations);
   }
 

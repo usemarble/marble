@@ -27,13 +27,13 @@ export const isRowGripSelected = ({
     return false;
   }
 
-  let container = node;
+  const element: Element | null =
+    node.nodeType === Node.ELEMENT_NODE
+      ? (node as Element)
+      : node.parentElement;
+  const cell = element?.closest?.("td, th") ?? null;
 
-  while (container && !["TD", "TH"].includes(container.tagName)) {
-    container = container.parentElement ?? container;
-  }
-
-  const gripRow = container?.querySelector?.("a.grip-row.selected");
+  const gripRow = cell?.querySelector?.("a.grip-row.selected");
 
   return !!gripRow;
 };

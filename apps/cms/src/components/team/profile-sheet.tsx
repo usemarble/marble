@@ -21,8 +21,9 @@ import {
 } from "@marble/ui/components/sheet";
 import { toast } from "@marble/ui/components/sonner";
 import { CalendarIcon } from "@phosphor-icons/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { organization } from "@/lib/auth/client";
+import { useWorkspace } from "@/providers/workspace";
 import { AsyncButton } from "../ui/async-button";
 import type { TeamMemberRow } from "./columns";
 
@@ -33,26 +34,38 @@ interface ProfileSheetProps {
 }
 
 export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
+  const { refreshActiveWorkspace } = useWorkspace();
   const [role, setRole] = useState(member.role);
   const [loading, setLoading] = useState(false);
 
   const settingsChanges = role !== member.role;
 
+  useEffect(() => {
+    setRole(member.role);
+  }, [member.role]);
+
   async function handleSave() {
     setLoading(true);
-    await organization.updateMemberRole({
-      memberId: member.id,
-      role,
-      fetchOptions: {
-        onSuccess: () => {
-          toast.success("Role updated");
-          setOpen(false);
-        },
-        onError: () => {
-          toast.error("Failed to update role");
-        },
-      },
-    });
+    try {
+      const { error } = await organization.updateMemberRole({
+        memberId: member.id,
+        role,
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      await refreshActiveWorkspace();
+      toast.success("Role updated");
+      setOpen(false);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to update role"
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (

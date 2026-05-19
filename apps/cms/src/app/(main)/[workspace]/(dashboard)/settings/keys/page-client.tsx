@@ -1,10 +1,9 @@
 "use client";
 
-import { Key01Icon } from "@hugeicons/core-free-icons";
+import { Key01Icon, PlusSignIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Button, buttonVariants } from "@marble/ui/components/button";
 import { cn } from "@marble/ui/lib/utils";
-import { PlusIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import Link from "next/link";
@@ -84,7 +83,12 @@ function PageClient() {
                   className="col-span-1"
                   onClick={() => setShowCreateModal(true)}
                 >
-                  Create API Key
+                  <HugeiconsIcon
+                    icon={PlusSignIcon}
+                    size={16}
+                    strokeWidth={2}
+                  />
+                  <span>Create API Key</span>
                 </Button>
                 <Link
                   className={cn(
@@ -94,6 +98,7 @@ function PageClient() {
                     })
                   )}
                   href="https://docs.marblecms.com"
+                  rel="noopener"
                   target="_blank"
                 >
                   Learn more

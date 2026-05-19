@@ -34,7 +34,7 @@ interface InviteSectionProps {
 }
 
 export function InviteSection({ invitations }: InviteSectionProps) {
-  const { activeWorkspace } = useWorkspace();
+  const { refreshActiveWorkspace } = useWorkspace();
   const queryClient = useQueryClient();
 
   const pendingInvitations = invitations.filter(
@@ -67,19 +67,15 @@ export function InviteSection({ invitations }: InviteSectionProps) {
         id: "resend-invitation",
       });
     },
-    onSuccess: (_data, _variables) => {
+    onSuccess: async (_data, _variables) => {
       toast.success("Invitation resent successfully", {
         id: "resend-invitation",
       });
 
-      if (activeWorkspace?.id && activeWorkspace?.slug) {
-        queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.WORKSPACE(activeWorkspace.id),
-        });
-        queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.WORKSPACE_BY_SLUG(activeWorkspace.slug),
-        });
-      }
+      await queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.WORKSPACE_LIST,
+      });
+      await refreshActiveWorkspace();
     },
     onError: (error, _variables) => {
       toast.error(
@@ -108,19 +104,15 @@ export function InviteSection({ invitations }: InviteSectionProps) {
         id: "cancel-invitation",
       });
     },
-    onSuccess: (_data, _variables) => {
+    onSuccess: async (_data, _variables) => {
       toast.success("Invitation canceled successfully", {
         id: "cancel-invitation",
       });
 
-      if (activeWorkspace?.id && activeWorkspace?.slug) {
-        queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.WORKSPACE(activeWorkspace.id),
-        });
-        queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.WORKSPACE_BY_SLUG(activeWorkspace.slug),
-        });
-      }
+      await queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.WORKSPACE_LIST,
+      });
+      await refreshActiveWorkspace();
     },
     onError: (error, _variables) => {
       toast.error(

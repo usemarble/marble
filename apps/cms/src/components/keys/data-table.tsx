@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  Cancel01Icon,
+  PlusSignIcon,
+  SearchIcon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@marble/ui/components/button";
 import { Input } from "@marble/ui/components/input";
 import {
@@ -10,7 +16,6 @@ import {
   TableHeader,
   TableRow,
 } from "@marble/ui/components/table";
-import { MagnifyingGlassIcon, PlusIcon, XIcon } from "@phosphor-icons/react";
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -54,9 +59,11 @@ export function DataTable<TData, TValue>({
     <div>
       <div className="flex flex-col gap-4 py-4 md:flex-row md:items-center md:justify-between">
         <div className="relative">
-          <MagnifyingGlassIcon
-            className="-translate-y-1/2 absolute top-1/2 left-3 size-4 text-muted-foreground"
+          <HugeiconsIcon
+            className="-translate-y-1/2 absolute top-1/2 left-3 text-muted-foreground"
+            icon={SearchIcon}
             size={16}
+            strokeWidth={2}
           />
           <Input
             className="w-full px-8 sm:w-72"
@@ -68,18 +75,18 @@ export function DataTable<TData, TValue>({
           />
           {(table.getColumn("name")?.getFilterValue() as string) && (
             <button
-              className="absolute top-3 right-3"
+              className="-translate-y-1/2 absolute top-1/2 right-3"
               onClick={() => table.getColumn("name")?.setFilterValue("")}
               type="button"
             >
-              <XIcon className="size-4" />
+              <HugeiconsIcon icon={Cancel01Icon} size={16} strokeWidth={2} />
               <span className="sr-only">Clear search</span>
             </button>
           )}
         </div>
         <div>
           <Button onClick={() => setShowCreateModal(true)}>
-            <PlusIcon size={16} />
+            <HugeiconsIcon icon={PlusSignIcon} size={16} strokeWidth={2} />
             <span>New API Key</span>
           </Button>
         </div>

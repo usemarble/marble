@@ -1,7 +1,9 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
+import { toMediaPayload, withChanges } from "@marble/events";
 import { cacheKey, createCacheClient, hashQueryParams } from "@/lib/cache";
 import { ALLOWED_MEDIA_MIME_TYPES, MAX_UPLOAD_SIZE } from "@/lib/constants";
 import { createDbClient } from "@/lib/db";
+import { emitEvent } from "@/lib/events";
 import {
   extensionFromFile,
   getImageDimensions,
@@ -30,6 +32,10 @@ import {
 import type { ApiKeyApp } from "@/types/env";
 
 const media = new OpenAPIHono<ApiKeyApp>();
+
+function isUploadedFile(value: unknown): value is File {
+  return value !== null && typeof value !== "string";
+}
 
 const listMediaRoute = createRoute({
   method: "get",
@@ -327,6 +333,21 @@ media.openapi(updateMediaRoute, async (c) => {
     });
 
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "media"));
+
+    c.executionCtx.waitUntil(
+      emitEvent(db, c.env.EVENT_QUEUE, {
+        type: "media_updated",
+        workspaceId,
+        resourceType: "media",
+        resourceId: updated.id,
+        actorType: "api_key",
+        actorId: c.get("apiKeyId"),
+        payload: withChanges(toMediaPayload(updated), Object.keys(body)),
+      }).catch((error) => {
+        console.error("[media.update] Failed to emit media_updated:", error);
+      })
+    );
+
     return c.json({ media: serializeMedia(updated) }, 200 as const);
   } catch (error) {
     console.error("Error updating media asset:", error);
@@ -366,6 +387,20 @@ media.openapi(deleteMediaRoute, async (c) => {
     }
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "media"));
 
+    c.executionCtx.waitUntil(
+      emitEvent(db, c.env.EVENT_QUEUE, {
+        type: "media_deleted",
+        workspaceId,
+        resourceType: "media",
+        resourceId: id,
+        actorType: "api_key",
+        actorId: c.get("apiKeyId"),
+        payload: toMediaPayload(existing),
+      }).catch((error) => {
+        console.error("[media.delete] Failed to emit media_deleted:", error);
+      })
+    );
+
     return c.json({ id }, 200 as const);
   } catch (error) {
     console.error("Error deleting media asset:", error);
@@ -386,9 +421,8 @@ media.openapi(uploadMediaRoute, async (c) => {
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const formData = await c.req.formData();
     const file = formData.get("file");
-    const isAFile = file instanceof File;
 
-    if (!isAFile) {
+    if (!isUploadedFile(file)) {
       return c.json(
         {
           error: "Invalid upload request",
@@ -465,6 +499,21 @@ media.openapi(uploadMediaRoute, async (c) => {
     }
 
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "media"));
+
+    c.executionCtx.waitUntil(
+      emitEvent(db, c.env.EVENT_QUEUE, {
+        type: "media_uploaded",
+        workspaceId,
+        resourceType: "media",
+        resourceId: created.id,
+        actorType: "api_key",
+        actorId: c.get("apiKeyId"),
+        payload: toMediaPayload(created),
+      }).catch((error) => {
+        console.error("[media.upload] Failed to emit media_uploaded:", error);
+      })
+    );
+
     return c.json({ media: serializeMedia(created) }, 201 as const);
   } catch (error) {
     console.error("Error uploading media asset:", error);

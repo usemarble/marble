@@ -14,12 +14,12 @@ export async function DELETE(
 
   const { id } = await params;
 
-  const deletedAccount = await db.account.delete({
+  await db.account.delete({
     where: {
       id,
       userId: session.user.id,
     },
   });
 
-  return NextResponse.json(deletedAccount.id, { status: 204 });
+  return new NextResponse(null, { status: 204 });
 }

@@ -110,6 +110,12 @@ export const AuthorSheet = ({
 
   const [pendingAvatarUrl, setPendingAvatarUrl] = useState<string | null>(null);
   const avatarUrl = pendingAvatarUrl ?? authorData.image ?? null;
+
+  const resetAuthorForm = () => {
+    setPendingAvatarUrl(null);
+    reset();
+  };
+
   const { mutate: uploadAvatar, isPending: isUploading } = useMutation({
     mutationFn: (file: File) => uploadFile({ file, type: "avatar" }),
     onSuccess: (data) => {
@@ -148,7 +154,7 @@ export const AuthorSheet = ({
       if (onAuthorCreated) {
         onAuthorCreated(data);
       }
-      reset();
+      resetAuthorForm();
     },
     onError: (error) => {
       toast.error(error.message);
@@ -177,6 +183,7 @@ export const AuthorSheet = ({
           queryKey: QUERY_KEYS.AUTHORS(workspaceId),
         });
       }
+      resetAuthorForm();
     },
     onError: (error) => {
       toast.error(error.message);
@@ -212,7 +219,15 @@ export const AuthorSheet = ({
   };
 
   return (
-    <Sheet onOpenChange={setOpen} open={open}>
+    <Sheet
+      onOpenChange={(nextOpen) => {
+        setOpen(nextOpen);
+        if (!nextOpen) {
+          resetAuthorForm();
+        }
+      }}
+      open={open}
+    >
       <SheetContent className="overflow-y-auto">
         <SheetHeader className="p-6">
           <SheetTitle className="font-medium text-xl">

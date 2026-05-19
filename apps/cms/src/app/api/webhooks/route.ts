@@ -1,19 +1,21 @@
 import { randomBytes } from "node:crypto";
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth/session";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { webhookSchema } from "@/lib/validations/webhook";
 
 export async function GET() {
-  const sessionData = await getServerSession();
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData || !sessionData.session.activeOrganizationId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
+
+  const { workspaceId } = accessData;
 
   const webhooks = await db.webhookEndpoint.findMany({
     where: {
-      workspaceId: sessionData.session.activeOrganizationId,
+      workspaceId,
     },
     orderBy: {
       createdAt: "desc",
@@ -24,11 +26,13 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const sessionData = await getServerSession();
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData || !sessionData.session.activeOrganizationId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
+
+  const { workspaceId } = accessData;
 
   const json = await req.json();
   const body = webhookSchema.parse(json);
@@ -42,7 +46,7 @@ export async function POST(req: Request) {
       events: body.events,
       secret,
       format: body.format,
-      workspaceId: sessionData.session.activeOrganizationId,
+      workspaceId,
     },
   });
 

@@ -6,6 +6,7 @@ import {
   getPlanType,
   getRecurringInterval,
   getSubscriptionStatus,
+  isStalePolarEvent,
 } from "./utils";
 
 export async function handleSubscriptionUpdated(
@@ -20,6 +21,15 @@ export async function handleSubscriptionUpdated(
   if (!existingSubscription) {
     console.error(
       `subscription.updated webhook received for a subscription that does not exist: ${subscription.id}`
+    );
+    return;
+  }
+
+  if (
+    isStalePolarEvent(existingSubscription.lastPolarEventAt, payload.timestamp)
+  ) {
+    console.log(
+      `Ignoring stale subscription.updated webhook for subscription ${subscription.id}`
     );
     return;
   }
@@ -50,8 +60,14 @@ export async function handleSubscriptionUpdated(
   );
 
   try {
-    await db.subscription.update({
-      where: { polarId: subscription.id },
+    const result = await db.subscription.updateMany({
+      where: {
+        polarId: subscription.id,
+        OR: [
+          { lastPolarEventAt: null },
+          { lastPolarEventAt: { lte: payload.timestamp } },
+        ],
+      },
       data: {
         plan,
         status,
@@ -72,9 +88,17 @@ export async function handleSubscriptionUpdated(
           : undefined,
         currency: subscription.currency || undefined,
         discountId: subscription.discountId || undefined,
+        lastPolarEventAt: payload.timestamp,
         recurringInterval,
       },
     });
+
+    if (result.count === 0) {
+      console.log(
+        `Ignoring stale subscription.updated webhook for subscription ${subscription.id}`
+      );
+      return;
+    }
 
     console.log(
       `Successfully updated subscription ${subscription.id} for workspace ${existingSubscription.workspaceId}`

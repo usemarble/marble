@@ -1,6 +1,21 @@
 import * as z from "zod";
 import { RESERVED_WORKSPACE_SLUGS, timezones } from "@/lib/constants";
 
+const workspaceSlugField = z
+  .string()
+  .min(4, { message: "Slug must be at least 4 characters" })
+  .max(32, { message: "Slug cannot be more than 32 characters" })
+  .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
+    message:
+      "Slug can only contain lowercase letters, numbers, and single hyphens",
+  })
+  .refine(
+    (slug) => !(RESERVED_WORKSPACE_SLUGS as readonly string[]).includes(slug),
+    {
+      message: "This slug is not available",
+    }
+  );
+
 // Tag Schema
 export const tagSchema = z.object({
   name: z.string().trim().min(1, { message: "Name cannot be empty" }),
@@ -23,17 +38,7 @@ export const workspaceSchema = z.object({
     .string()
     .min(1, { message: "Name cannot be empty" })
     .max(32, { message: "Name cannot be more than 32 characters" }),
-  slug: z
-    .string()
-    .slugify()
-    .min(4, { message: "Slug must be at least 4 characters" })
-    .max(32, { message: "Slug cannot be more than 32 characters" })
-    .refine(
-      (slug) => !(RESERVED_WORKSPACE_SLUGS as readonly string[]).includes(slug),
-      {
-        message: "This slug is not available",
-      }
-    ),
+  slug: workspaceSlugField,
   timezone: z
     .enum(timezones as [string, ...string[]], {
       message: "Please select a valid timezone",
@@ -54,17 +59,7 @@ export type NameValues = z.infer<typeof nameSchema>;
 
 // Workspace Slug Update Schema
 export const slugSchema = z.object({
-  slug: z
-    .string()
-    .slugify()
-    .min(4, { message: "Slug must be at least 4 characters" })
-    .max(32, { message: "Slug cannot be more than 32 characters" })
-    .refine(
-      (slug) => !(RESERVED_WORKSPACE_SLUGS as readonly string[]).includes(slug),
-      {
-        message: "This slug is not available",
-      }
-    ),
+  slug: workspaceSlugField,
 });
 export type SlugValues = z.infer<typeof slugSchema>;
 

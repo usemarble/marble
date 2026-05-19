@@ -2,18 +2,18 @@ import { db } from "@marble/db";
 import { UsageEventType } from "@marble/db/browser";
 import { addDays, format, startOfDay, subDays, subHours } from "date-fns";
 import { NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth/session";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 
 const CHART_DAYS = 30;
 
 export async function GET() {
-  const sessionData = await getServerSession();
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData || !sessionData.session.activeOrganizationId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
 
-  const workspaceId = sessionData.session.activeOrganizationId;
+  const { workspaceId } = accessData;
   const now = new Date();
   const today = startOfDay(now);
   const chartStart = subDays(today, CHART_DAYS - 1);

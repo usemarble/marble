@@ -1,29 +1,26 @@
 import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { db } from "@marble/db";
+import { toMediaPayload } from "@marble/events";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { getServerSession } from "@/lib/auth/session";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
+import {
+  emitDashboardEvent,
+  logDashboardEventError,
+} from "@/lib/events/dispatch";
 import { R2_BUCKET_NAME, r2 } from "@/lib/r2";
 import { loadMediaApiFilters } from "@/lib/search-params";
 import { DeleteSchema } from "@/lib/validations/upload";
-import { dispatchWebhooks } from "@/lib/webhooks/dispatcher";
 import { splitMediaSort } from "@/utils/media";
 
 export async function GET(request: Request) {
-  const sessionData = await getServerSession();
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
 
-  const orgId = sessionData.session?.activeOrganizationId;
-
-  if (!orgId) {
-    return NextResponse.json(
-      { error: "Active workspace not found in session" },
-      { status: 400 }
-    );
-  }
+  const { workspaceId } = accessData;
 
   const filters = loadMediaApiFilters(request, { strict: true });
   if (!z.number().int().min(1).safeParse(filters.page).success) {
@@ -37,7 +34,7 @@ export async function GET(request: Request) {
 
   try {
     const where = {
-      workspaceId: orgId,
+      workspaceId,
       ...(type && { type }),
       ...(search?.trim() && {
         name: {
@@ -72,7 +69,7 @@ export async function GET(request: Request) {
         },
       }),
       db.media.count({ where }),
-      hasFilters ? db.media.count({ where: { workspaceId: orgId } }) : null,
+      hasFilters ? db.media.count({ where: { workspaceId } }) : null,
     ]);
     const hasAnyMedia =
       workspaceMediaCount === null ? totalCount > 0 : workspaceMediaCount > 0;
@@ -87,20 +84,22 @@ export async function GET(request: Request) {
       { status: 200 }
     );
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to fetch media";
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("[Media] Failed to fetch media:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch media" },
+      { status: 500 }
+    );
   }
 }
 
 export async function DELETE(request: Request) {
-  const sessionData = await getServerSession();
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData || !sessionData.session.activeOrganizationId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
 
-  const workspaceId = sessionData.session.activeOrganizationId;
+  const { sessionData, workspaceId } = accessData;
 
   const parsedBody = await request.json();
 
@@ -184,18 +183,16 @@ export async function DELETE(request: Request) {
 
       deletedIds.push(...mediaDeletedFromR2.map((item) => item.id));
 
-      dispatchWebhooks({
-        workspaceId,
-        validationEvent: "media_deleted",
-        deliveryEvent: "media.deleted",
-        payload: mediaDeletedFromR2.map(({ media }) => ({
-          id: media.id,
-          name: media.name,
-          userId: sessionData.user.id,
-        })),
-      }).catch((error) => {
-        console.error("[MediaDelete] Failed to dispatch webhooks:", error);
-      });
+      for (const { media } of mediaDeletedFromR2) {
+        await emitDashboardEvent({
+          type: "media_deleted",
+          workspaceId,
+          resourceType: "media",
+          resourceId: media.id,
+          actorId: sessionData.user.id,
+          payload: toMediaPayload(media),
+        }).catch(logDashboardEventError);
+      }
     }
 
     if (deletedIds.length === 0) {
@@ -217,8 +214,10 @@ export async function DELETE(request: Request) {
       { status: 200 }
     );
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to delete media";
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("[Media] Failed to delete media:", error);
+    return NextResponse.json(
+      { error: "Failed to delete media" },
+      { status: 500 }
+    );
   }
 }

@@ -1,6 +1,8 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import { toCategoryPayload, withChanges } from "@marble/events";
 import { cacheKey, createCacheClient, hashQueryParams } from "@/lib/cache";
 import { createDbClient } from "@/lib/db";
+import { emitEvent } from "@/lib/events";
 import { requireWorkspaceId } from "@/lib/workspace";
 import {
   CategoriesListResponseSchema,
@@ -20,9 +22,9 @@ import {
   PageQuerySchema,
   ServerErrorSchema,
 } from "@/schemas/common";
-import type { Env } from "@/types/env";
+import type { ApiKeyApp } from "@/types/env";
 
-const categories = new OpenAPIHono<{ Bindings: Env }>();
+const categories = new OpenAPIHono<ApiKeyApp>();
 
 const CategoriesQuerySchema = z.object({
   limit: LimitQuerySchema,
@@ -338,6 +340,24 @@ categories.openapi(createCategoryRoute, async (c) => {
     );
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
 
+    const apiKeyId = c.get("apiKeyId");
+    c.executionCtx.waitUntil(
+      emitEvent(db, c.env.EVENT_QUEUE, {
+        type: "category_created",
+        workspaceId,
+        resourceType: "category",
+        resourceId: categoryCreated.id,
+        actorType: "api_key",
+        actorId: apiKeyId,
+        payload: toCategoryPayload(categoryCreated),
+      }).catch((error) => {
+        console.error(
+          "[categories.create] Failed to emit category_created:",
+          error
+        );
+      })
+    );
+
     return c.json({ category: categoryCreated }, 201 as const);
   } catch (error) {
     console.error("Error creating category:", error);
@@ -498,6 +518,27 @@ categories.openapi(updateCategoryRoute, async (c) => {
     );
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
 
+    const apiKeyId = c.get("apiKeyId");
+    c.executionCtx.waitUntil(
+      emitEvent(db, c.env.EVENT_QUEUE, {
+        type: "category_updated",
+        workspaceId,
+        resourceType: "category",
+        resourceId: categoryUpdated.id,
+        actorType: "api_key",
+        actorId: apiKeyId,
+        payload: withChanges(
+          toCategoryPayload(categoryUpdated),
+          Object.keys(body)
+        ),
+      }).catch((error) => {
+        console.error(
+          "[categories.update] Failed to emit category_updated:",
+          error
+        );
+      })
+    );
+
     return c.json({ category: categoryUpdated }, 200 as const);
   } catch (error) {
     console.error("Error updating category:", error);
@@ -557,6 +598,24 @@ categories.openapi(deleteCategoryRoute, async (c) => {
       cache.invalidateResource(workspaceId, "categories")
     );
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
+
+    const apiKeyId = c.get("apiKeyId");
+    c.executionCtx.waitUntil(
+      emitEvent(db, c.env.EVENT_QUEUE, {
+        type: "category_deleted",
+        workspaceId,
+        resourceType: "category",
+        resourceId: existingCategory.id,
+        actorType: "api_key",
+        actorId: apiKeyId,
+        payload: toCategoryPayload(existingCategory),
+      }).catch((error) => {
+        console.error(
+          "[categories.delete] Failed to emit category_deleted:",
+          error
+        );
+      })
+    );
 
     return c.json({ id: existingCategory.id }, 200 as const);
   } catch (error) {

@@ -27,6 +27,26 @@ export const fieldOptionsSchema = z
   .array(fieldOptionSchema)
   .max(100, { message: "Fields cannot have more than 100 options" });
 
+function validateUniqueOptionValues(
+  options: Array<{ value: string; label: string }>,
+  ctx: z.RefinementCtx
+) {
+  const seenValues = new Set<string>();
+
+  for (const [index, option] of options.entries()) {
+    if (seenValues.has(option.value)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Option values must be unique",
+        path: ["options", index, "value"],
+      });
+      continue;
+    }
+
+    seenValues.add(option.value);
+  }
+}
+
 function validateFieldOptions(
   type: FieldType,
   options: Array<{ value: string; label: string }>,
@@ -50,20 +70,7 @@ function validateFieldOptions(
     });
   }
 
-  const seenValues = new Set<string>();
-
-  for (const [index, option] of options.entries()) {
-    if (seenValues.has(option.value)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Option values must be unique",
-        path: ["options", index, "value"],
-      });
-      continue;
-    }
-
-    seenValues.add(option.value);
-  }
+  validateUniqueOptionValues(options, ctx);
 }
 
 export const customFieldSchema = z
@@ -94,29 +101,35 @@ export const customFieldSchema = z
 
 export type CustomFieldFormValues = z.infer<typeof customFieldSchema>;
 
-export const customFieldUpdateSchema = z.object({
-  name: z
-    .string()
-    .min(1, { message: "Name cannot be empty" })
-    .max(50, { message: "Name cannot be more than 50 characters" })
-    .optional(),
-  description: z
-    .string()
-    .max(280, { message: "Description cannot be more than 280 characters" })
-    .optional(),
-  key: z
-    .string()
-    .min(1, { message: "Key cannot be empty" })
-    .max(50, { message: "Key cannot be more than 50 characters" })
-    .regex(/^[a-z0-9_]+$/, {
-      message:
-        "Key can only contain lowercase letters, numbers, and underscores",
-    })
-    .optional(),
-  type: fieldTypeEnum.optional(),
-  required: z.boolean().optional(),
-  options: fieldOptionsSchema.optional(),
-});
+export const customFieldUpdateSchema = z
+  .object({
+    name: z
+      .string()
+      .min(1, { message: "Name cannot be empty" })
+      .max(50, { message: "Name cannot be more than 50 characters" })
+      .optional(),
+    description: z
+      .string()
+      .max(280, { message: "Description cannot be more than 280 characters" })
+      .optional(),
+    key: z
+      .string()
+      .min(1, { message: "Key cannot be empty" })
+      .max(50, { message: "Key cannot be more than 50 characters" })
+      .regex(/^[a-z0-9_]+$/, {
+        message:
+          "Key can only contain lowercase letters, numbers, and underscores",
+      })
+      .optional(),
+    type: fieldTypeEnum.optional(),
+    required: z.boolean().optional(),
+    options: fieldOptionsSchema.optional(),
+  })
+  .superRefine((value, ctx) => {
+    if (value.options !== undefined) {
+      validateUniqueOptionValues(value.options, ctx);
+    }
+  });
 
 export type CustomFieldUpdateValues = z.infer<typeof customFieldUpdateSchema>;
 

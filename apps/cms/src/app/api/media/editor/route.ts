@@ -1,25 +1,18 @@
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { getServerSession } from "@/lib/auth/session";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { loadMediaEditorApiFilters } from "@/lib/search-params";
 import { splitMediaSort } from "@/utils/media";
 
 export async function GET(request: Request) {
-  const sessionData = await getServerSession();
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
 
-  const orgId = sessionData.session?.activeOrganizationId;
-
-  if (!orgId) {
-    return NextResponse.json(
-      { error: "Active workspace not found in session" },
-      { status: 400 }
-    );
-  }
+  const { workspaceId } = accessData;
 
   const filters = loadMediaEditorApiFilters(request, { strict: true });
   if (!z.number().int().min(1).max(100).safeParse(filters.limit).success) {
@@ -32,7 +25,7 @@ export async function GET(request: Request) {
   try {
     const hasAnyMedia =
       (await db.media.count({
-        where: { workspaceId: orgId },
+        where: { workspaceId },
       })) > 0;
 
     let cursorId: string | null = null;
@@ -71,7 +64,7 @@ export async function GET(request: Request) {
 
     const media = await db.media.findMany({
       where: {
-        workspaceId: orgId,
+        workspaceId,
         ...(cursorId &&
           parsedCursorValue !== null && {
             OR: [
@@ -125,8 +118,10 @@ export async function GET(request: Request) {
       { status: 200 }
     );
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to fetch media";
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("[MediaEditor] Failed to fetch media:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch media" },
+      { status: 500 }
+    );
   }
 }

@@ -1,5 +1,16 @@
 "use client";
 
+import {
+  CancelCircleIcon,
+  CheckmarkCircle02Icon,
+  Copy01Icon,
+  Delete02Icon,
+  Loading03Icon,
+  MailSend01Icon,
+  MoreVerticalIcon,
+  PencilEdit02Icon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@marble/ui/components/button";
 import {
   DropdownMenu,
@@ -8,14 +19,6 @@ import {
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
 import { toast } from "@marble/ui/components/sonner";
-import {
-  CheckCircle,
-  CopyIcon,
-  DotsThreeVerticalIcon,
-  PencilIcon,
-  ProhibitIcon,
-  TrashIcon,
-} from "@phosphor-icons/react";
 import dynamic from "next/dynamic";
 import { useState } from "react";
 import type { Webhook } from "@/types/webhook";
@@ -47,10 +50,34 @@ export function WebhookActions({
 }: WebhookActionsProps) {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isSendingTest, setIsSendingTest] = useState(false);
 
   const handleCopySecret = () => {
     navigator.clipboard.writeText(webhook.secret);
     toast.success("Secret copied to clipboard");
+  };
+
+  const handleSendTest = async () => {
+    setIsSendingTest(true);
+
+    try {
+      const response = await fetch(`/api/webhooks/${webhook.id}/test`, {
+        method: "POST",
+      });
+      const result = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        throw new Error(result?.error ?? "Failed to send test webhook");
+      }
+
+      toast.success("Test webhook queued");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to send test webhook"
+      );
+    } finally {
+      setIsSendingTest(false);
+    }
   };
 
   return (
@@ -60,17 +87,35 @@ export function WebhookActions({
           render={
             <Button className="size-8 p-0" variant="ghost">
               <span className="sr-only">Open webhook actions</span>
-              <DotsThreeVerticalIcon className="size-5 text-muted-foreground" />
+              <HugeiconsIcon icon={MoreVerticalIcon} size={16} />
             </Button>
           }
         />
-        <DropdownMenuContent align="end">
+        <DropdownMenuContent
+          align="end"
+          className="text-muted-foreground shadow-sm"
+        >
           {webhook.format === "json" ? (
             <DropdownMenuItem onClick={handleCopySecret}>
-              <CopyIcon className="mr-1.5 size-4" />
-              Copy Secret
+              <HugeiconsIcon icon={Copy01Icon} size={16} />
+              <span>Copy Secret</span>
             </DropdownMenuItem>
           ) : undefined}
+          <DropdownMenuItem
+            disabled={isSendingTest || isToggling}
+            onClick={handleSendTest}
+          >
+            {isSendingTest ? (
+              <HugeiconsIcon
+                className="animate-spin"
+                icon={Loading03Icon}
+                size={16}
+              />
+            ) : (
+              <HugeiconsIcon icon={MailSend01Icon} size={16} />
+            )}
+            <span>Send Test</span>
+          </DropdownMenuItem>
           <DropdownMenuItem
             disabled={isToggling}
             onClick={() =>
@@ -78,26 +123,26 @@ export function WebhookActions({
             }
           >
             {webhook.enabled ? (
-              <ProhibitIcon className="mr-1.5 size-4" />
+              <HugeiconsIcon icon={CancelCircleIcon} size={16} />
             ) : (
-              <CheckCircle className="mr-1.5 size-4" />
+              <HugeiconsIcon icon={CheckmarkCircle02Icon} size={16} />
             )}
-            {webhook.enabled ? "Disable" : "Enable"}
+            <span>{webhook.enabled ? "Disable" : "Enable"}</span>
           </DropdownMenuItem>
           <DropdownMenuItem
             disabled={isToggling}
             onClick={() => setIsEditOpen(true)}
           >
-            <PencilIcon className="mr-1.5 size-4" />
-            Edit
+            <HugeiconsIcon icon={PencilEdit02Icon} size={16} />
+            <span>Edit</span>
           </DropdownMenuItem>
           <DropdownMenuItem
             disabled={isToggling}
             onClick={() => setIsDeleteOpen(true)}
             variant="destructive"
           >
-            <TrashIcon className="mr-1.5 size-4 text-inherit" />
-            Delete
+            <HugeiconsIcon icon={Delete02Icon} size={16} />
+            <span>Delete</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

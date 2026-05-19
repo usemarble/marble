@@ -1,3 +1,4 @@
+import { Redis } from "@upstash/redis/cloudflare";
 import { Hono } from "hono";
 import { createCacheClient } from "@/lib/cache";
 import type { ApiKeyApp } from "@/types/env";
@@ -17,6 +18,11 @@ const invalidate = new Hono<ApiKeyApp>();
  */
 invalidate.post("/", async (c) => {
   const workspaceId = c.get("workspaceId");
+
+  if (!workspaceId) {
+    return c.json({ error: "Workspace ID is required" }, 400);
+  }
+
   const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
 
   try {
@@ -41,7 +47,7 @@ invalidate.post("/", async (c) => {
     let invalidatedCount: number;
 
     if (resource === "usage") {
-      const redis = new (await import("@upstash/redis/cloudflare")).Redis({
+      const redis = new Redis({
         url: c.env.REDIS_URL,
         token: c.env.REDIS_TOKEN,
       });

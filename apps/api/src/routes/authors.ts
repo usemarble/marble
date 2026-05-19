@@ -1,6 +1,8 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import { toAuthorPayload, withChanges } from "@marble/events";
 import { cacheKey, createCacheClient, hashQueryParams } from "@/lib/cache";
 import { createDbClient } from "@/lib/db";
+import { emitEvent } from "@/lib/events";
 import { requireWorkspaceId } from "@/lib/workspace";
 import {
   AuthorResponseSchema,
@@ -20,9 +22,9 @@ import {
   PageQuerySchema,
   ServerErrorSchema,
 } from "@/schemas/common";
-import type { Env } from "@/types/env";
+import type { ApiKeyApp } from "@/types/env";
 
-const authors = new OpenAPIHono<{ Bindings: Env }>();
+const authors = new OpenAPIHono<ApiKeyApp>();
 
 const AuthorsQuerySchema = z.object({
   limit: LimitQuerySchema,
@@ -406,6 +408,21 @@ authors.openapi(createAuthorRoute, async (c) => {
 
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
 
+    const apiKeyId = c.get("apiKeyId");
+    c.executionCtx.waitUntil(
+      emitEvent(db, c.env.EVENT_QUEUE, {
+        type: "author_created",
+        workspaceId,
+        resourceType: "author",
+        resourceId: author.id,
+        actorType: "api_key",
+        actorId: apiKeyId,
+        payload: toAuthorPayload(author),
+      }).catch((error) => {
+        console.error("[authors.create] Failed to emit author_created:", error);
+      })
+    );
+
     return c.json({ author }, 201 as const);
   } catch (error) {
     console.error("Error creating author:", error);
@@ -548,6 +565,21 @@ authors.openapi(updateAuthorRoute, async (c) => {
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
 
+    const apiKeyId = c.get("apiKeyId");
+    c.executionCtx.waitUntil(
+      emitEvent(db, c.env.EVENT_QUEUE, {
+        type: "author_updated",
+        workspaceId,
+        resourceType: "author",
+        resourceId: updatedAuthor.id,
+        actorType: "api_key",
+        actorId: apiKeyId,
+        payload: withChanges(toAuthorPayload(updatedAuthor), Object.keys(body)),
+      }).catch((error) => {
+        console.error("[authors.update] Failed to emit author_updated:", error);
+      })
+    );
+
     return c.json({ author: updatedAuthor }, 200 as const);
   } catch (error) {
     console.error("Error updating author:", error);
@@ -604,6 +636,11 @@ authors.openapi(deleteAuthorRoute, async (c) => {
         workspaceId,
         OR: [{ id: identifier }, { slug: identifier }],
       },
+      include: {
+        socials: {
+          select: { url: true, platform: true },
+        },
+      },
     });
 
     if (!existingAuthor) {
@@ -622,6 +659,21 @@ authors.openapi(deleteAuthorRoute, async (c) => {
 
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
+
+    const apiKeyId = c.get("apiKeyId");
+    c.executionCtx.waitUntil(
+      emitEvent(db, c.env.EVENT_QUEUE, {
+        type: "author_deleted",
+        workspaceId,
+        resourceType: "author",
+        resourceId: existingAuthor.id,
+        actorType: "api_key",
+        actorId: apiKeyId,
+        payload: toAuthorPayload(existingAuthor),
+      }).catch((error) => {
+        console.error("[authors.delete] Failed to emit author_deleted:", error);
+      })
+    );
 
     return c.json({ id: existingAuthor.id }, 200 as const);
   } catch (error) {

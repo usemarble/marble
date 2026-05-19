@@ -38,6 +38,10 @@ export async function readJsonApi(
   return requestJsonApi(apiBaseUrl, apiKey, "GET", path, { query });
 }
 
+export async function validateApiKey(apiBaseUrl: string, apiKey: string) {
+  await readJsonApi(apiBaseUrl, apiKey, "/v1/media", { limit: 1 });
+}
+
 /**
  * Sends JSON to the Marble API with the caller's API key and returns the parsed
  * JSON body. Used by create/update tools that require private Marble API keys.

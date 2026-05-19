@@ -1,10 +1,14 @@
 {
   "tailwindCSS.experimental.configFile": {
+    "./apps/web/src/styles/globals.css": ["./apps/web/src/**"],
     "./packages/ui/src/styles/globals.css": [
       "./packages/ui/src/**",
       "./packages/editor/src/**",
       "./apps/cms/src/**"
     ]
+  },
+  "tailwindCSS.includeLanguages": {
+    "astro": "html"
   },
   "tailwindCSS.classFunctions": ["cn", "clsx"],
   "files.associations": {

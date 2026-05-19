@@ -1,17 +1,22 @@
 import { db } from "@marble/db";
+import { toCategoryPayload } from "@marble/events";
 import { NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth/session";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";
+import {
+  emitDashboardEvent,
+  logDashboardEventError,
+} from "@/lib/events/dispatch";
 import { categorySchema } from "@/lib/validations/workspace";
-import { dispatchWebhooks } from "@/lib/webhooks/dispatcher";
 
 export async function GET() {
-  const sessionData = await getServerSession();
-  const workspaceId = sessionData?.session.activeOrganizationId;
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData || !workspaceId) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
+
+  const { workspaceId } = accessData;
 
   const categories = await db.category.findMany({
     where: { workspaceId },
@@ -40,12 +45,13 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const sessionData = await getServerSession();
-  const workspaceId = sessionData?.session.activeOrganizationId;
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData || !workspaceId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
+
+  const { sessionData, workspaceId } = accessData;
 
   const json = await req.json();
   const body = categorySchema.safeParse(json);
@@ -77,21 +83,14 @@ export async function POST(req: Request) {
     },
   });
 
-  dispatchWebhooks({
+  await emitDashboardEvent({
+    type: "category_created",
     workspaceId,
-    validationEvent: "category_created",
-    deliveryEvent: "category.created",
-    payload: {
-      id: categoryCreated.id,
-      slug: categoryCreated.slug,
-      userId: sessionData.user.id,
-    },
-  }).catch((error) => {
-    console.error(
-      `[WebhookDelivery] Failed to dispatch webhooks for category_created: workspaceId=${workspaceId}, categoryId=${categoryCreated.id},`,
-      error
-    );
-  });
+    resourceType: "category",
+    resourceId: categoryCreated.id,
+    actorId: sessionData.user.id,
+    payload: toCategoryPayload(categoryCreated),
+  }).catch(logDashboardEventError);
 
   // Invalidate cache for categories and posts (categories affect posts)
   invalidateCache(workspaceId, "categories");

@@ -1,7 +1,7 @@
 import { db } from "@marble/db";
 import type { FieldType as PrismaFieldType } from "@marble/db/browser";
 import { NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth/session";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { customFieldSchema } from "@/lib/validations/fields";
 
 function buildFieldOptionWrites(
@@ -38,16 +38,17 @@ function isUniqueFieldKeyConflict(error: unknown) {
 }
 
 export async function GET() {
-  const sessionData = await getServerSession();
-  const activeOrganizationId = sessionData?.session.activeOrganizationId;
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData || !activeOrganizationId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
+
+  const { workspaceId } = accessData;
 
   const fields = await db.field.findMany({
     where: {
-      workspaceId: activeOrganizationId,
+      workspaceId,
     },
     include: {
       options: {
@@ -71,12 +72,13 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const sessionData = await getServerSession();
-  const activeOrganizationId = sessionData?.session.activeOrganizationId;
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData || !activeOrganizationId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
+
+  const { workspaceId } = accessData;
 
   const json = await req.json();
   const body = customFieldSchema.safeParse(json);
@@ -91,7 +93,7 @@ export async function POST(req: Request) {
   // Check key uniqueness within workspace
   const existing = await db.field.findFirst({
     where: {
-      workspaceId: activeOrganizationId,
+      workspaceId,
       key: body.data.key,
     },
   });
@@ -106,7 +108,7 @@ export async function POST(req: Request) {
   // Get the next position value
   const maxPosition = await db.field.aggregate({
     where: {
-      workspaceId: activeOrganizationId,
+      workspaceId,
     },
     _max: {
       position: true,
@@ -122,7 +124,7 @@ export async function POST(req: Request) {
         type: body.data.type as PrismaFieldType,
         required: body.data.required ?? false,
         position: (maxPosition._max.position ?? -1) + 1,
-        workspaceId: activeOrganizationId,
+        workspaceId,
         options:
           (body.data.options ?? []).length > 0
             ? {

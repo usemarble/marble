@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AsyncButton } from "@/components/ui/async-button";
 import { authClient } from "@/lib/auth/client";
+import { safeRedirectPath } from "@/lib/auth/redirect";
 import Container from "../shared/container";
 
 interface VerifyFormProps {
@@ -21,6 +22,7 @@ interface VerifyFormProps {
 }
 
 export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
+  const safeCallbackUrl = safeRedirectPath(callbackUrl);
   const [otp, setOtp] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isResendLoading, setIsResendLoading] = useState(false);
@@ -67,7 +69,7 @@ export function VerifyForm({ email, callbackUrl }: VerifyFormProps) {
 
       if (result.data) {
         toast.success("Email verified successfully!");
-        router.push(callbackUrl);
+        router.push(safeCallbackUrl);
       } else {
         toast.error("Invalid verification code");
       }

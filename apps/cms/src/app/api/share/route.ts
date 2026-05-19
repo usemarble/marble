@@ -2,19 +2,20 @@ import { db } from "@marble/db";
 import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
 import { checkWorkspaceSubscriptionAction } from "@/lib/actions/checks";
-import { getServerSession } from "@/lib/auth/session";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { shareLinkSchema } from "@/lib/validations/post";
 
 export async function POST(request: Request) {
-  const sessionData = await getServerSession();
-  const activeWorkspaceId = sessionData?.session.activeOrganizationId;
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData || !activeWorkspaceId) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
 
+  const { workspaceId } = accessData;
+
   const hasValidSubscription =
-    await checkWorkspaceSubscriptionAction(activeWorkspaceId);
+    await checkWorkspaceSubscriptionAction(workspaceId);
 
   if (!hasValidSubscription) {
     return NextResponse.json(
@@ -36,7 +37,7 @@ export async function POST(request: Request) {
   const post = await db.post.findFirst({
     where: {
       id: postId,
-      workspaceId: activeWorkspaceId,
+      workspaceId,
     },
     select: {
       id: true,
@@ -75,7 +76,7 @@ export async function POST(request: Request) {
     data: {
       token,
       postId,
-      workspaceId: activeWorkspaceId,
+      workspaceId,
       expiresAt,
     },
   });

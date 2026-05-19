@@ -11,14 +11,17 @@
   import { FEATURES, REVIEWS, USERS } from "@/lib/constants/landing";
   import { SITE } from "@/lib/constants/site";
   import { REGISTER_URL, TRACKING_EVENTS } from "@/lib/constants/tracking";
+  import { buildFaqJsonLd } from "@/lib/seo";
   import { HERO } from "@/lib/site";
   import { cn } from "@/lib/utils";
 
   const YOUTUBE_WATCH_URL = `https://www.youtube.com/watch?v=${YOUTUBE_VIDEO_ID}`;
+  const structuredData = buildFaqJsonLd(FAQs);
 ---
 <Layout
   title={`${SITE.TITLE} - Super Simple Headless CMS`}
   description={SITE.DESCRIPTION}
+  structuredData={structuredData}
 >
   <div class="divide-y divide-dashed">
     <!-- Hero section -->

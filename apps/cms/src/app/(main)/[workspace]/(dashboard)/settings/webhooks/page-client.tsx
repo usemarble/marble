@@ -106,7 +106,10 @@ export function PageClient() {
 
   if (webhooks?.length === 0) {
     return (
-      <DashboardBody className="pt-10 pb-16" size="compact">
+      <DashboardBody
+        className="grid h-full place-content-center"
+        size="compact"
+      >
         <WebhooksEmptyState />
       </DashboardBody>
     );

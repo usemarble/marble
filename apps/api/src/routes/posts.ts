@@ -1,7 +1,9 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import { toPostPayload, withChanges } from "@marble/events";
 import { NodeHtmlMarkdown } from "node-html-markdown";
 import { cacheKey, createCacheClient, hashQueryParams } from "@/lib/cache";
 import { createDbClient } from "@/lib/db";
+import { emitEvent } from "@/lib/events";
 import { buildFieldsObject, buildStatusFilter } from "@/lib/posts";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { requireWorkspaceId } from "@/lib/workspace";
@@ -25,9 +27,9 @@ import {
   UpdatePostBodySchema,
   UpdatePostResponseSchema,
 } from "@/schemas/posts";
-import type { Env } from "@/types/env";
+import type { ApiKeyApp } from "@/types/env";
 
-const posts = new OpenAPIHono<{ Bindings: Env }>();
+const posts = new OpenAPIHono<ApiKeyApp>();
 
 const listPostsRoute = createRoute({
   method: "get",
@@ -681,6 +683,23 @@ posts.openapi(createPostRoute, async (c) => {
     );
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
 
+    const apiKeyId = c.get("apiKeyId");
+    const eventType =
+      postCreated.status === "published" ? "post_published" : "post_created";
+    c.executionCtx.waitUntil(
+      emitEvent(db, c.env.EVENT_QUEUE, {
+        type: eventType,
+        workspaceId,
+        resourceType: "post",
+        resourceId: postCreated.id,
+        actorType: "api_key",
+        actorId: apiKeyId,
+        payload: toPostPayload(postCreated),
+      }).catch((error) => {
+        console.error(`[posts.create] Failed to emit ${eventType}:`, error);
+      })
+    );
+
     return c.json({ post: postCreated }, 201 as const);
   } catch (error) {
     console.error("Error creating post:", error);
@@ -964,6 +983,42 @@ posts.openapi(updatePostRoute, async (c) => {
     );
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
 
+    // 8. Emit events
+    const apiKeyId = c.get("apiKeyId");
+    let eventType: "post_published" | "post_unpublished" | "post_updated";
+
+    if (
+      existingPost.status !== "published" &&
+      postUpdated.status === "published"
+    ) {
+      eventType = "post_published";
+    } else if (
+      existingPost.status === "published" &&
+      postUpdated.status !== "published"
+    ) {
+      eventType = "post_unpublished";
+    } else {
+      eventType = "post_updated";
+    }
+
+    const payload =
+      eventType === "post_updated"
+        ? withChanges(toPostPayload(postUpdated), Object.keys(body))
+        : toPostPayload(postUpdated);
+    c.executionCtx.waitUntil(
+      emitEvent(db, c.env.EVENT_QUEUE, {
+        type: eventType,
+        workspaceId,
+        resourceType: "post",
+        resourceId: postUpdated.id,
+        actorType: "api_key",
+        actorId: apiKeyId,
+        payload,
+      }).catch((error) => {
+        console.error(`[posts.update] Failed to emit ${eventType}:`, error);
+      })
+    );
+
     return c.json({ post: postUpdated }, 200 as const);
   } catch (error) {
     console.error("Error updating post:", error);
@@ -1011,6 +1066,21 @@ posts.openapi(deletePostRoute, async (c) => {
       cache.invalidateResource(workspaceId, "categories")
     );
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
+
+    const apiKeyId = c.get("apiKeyId");
+    c.executionCtx.waitUntil(
+      emitEvent(db, c.env.EVENT_QUEUE, {
+        type: "post_deleted",
+        workspaceId,
+        resourceType: "post",
+        resourceId: existingPost.id,
+        actorType: "api_key",
+        actorId: apiKeyId,
+        payload: toPostPayload(existingPost),
+      }).catch((error) => {
+        console.error("[posts.delete] Failed to emit post_deleted:", error);
+      })
+    );
 
     return c.json({ id: existingPost.id }, 200 as const);
   } catch (error) {

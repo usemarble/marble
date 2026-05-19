@@ -5,6 +5,7 @@ import { toast } from "@marble/ui/components/sonner";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { authClient } from "@/lib/auth/client";
+import { safeRedirectPath } from "@/lib/auth/redirect";
 import Container from "../../shared/container";
 import { AsyncButton } from "../../ui/async-button";
 
@@ -14,6 +15,7 @@ interface ResetFormProps {
 }
 
 export function ResetForm({ callbackUrl, token }: ResetFormProps) {
+  const safeCallbackUrl = safeRedirectPath(callbackUrl, "/login");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -31,18 +33,25 @@ export function ResetForm({ callbackUrl, token }: ResetFormProps) {
 
     setIsLoading(true);
     try {
-      await authClient.resetPassword({
+      const { error } = await authClient.resetPassword({
         token,
         newPassword: password,
       });
 
+      if (error) {
+        throw new Error(error.message);
+      }
+
       toast.success("Password has been reset");
-      router.push(callbackUrl);
+      router.push(safeCallbackUrl);
     } catch (error) {
       console.error("Password reset failed:", error);
-      toast.error("Password reset failed");
+      toast.error(
+        error instanceof Error ? error.message : "Password reset failed"
+      );
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   return (

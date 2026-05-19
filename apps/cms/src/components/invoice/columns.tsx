@@ -15,8 +15,12 @@ export interface Invoice {
 
 export const invoiceTableColumns: ColumnDef<Invoice>[] = [
   {
-    accessorKey: "plan",
-    header: "Plan",
+    accessorKey: "date",
+    header: "Date",
+    cell: ({ row }) => {
+      const date = row.getValue("date") as string;
+      return new Date(date).toLocaleDateString();
+    },
   },
   {
     accessorKey: "amount",
@@ -36,7 +40,7 @@ export const invoiceTableColumns: ColumnDef<Invoice>[] = [
       const status = row.original.status;
       return (
         <Badge
-          className={cn("w-full justify-center rounded-[6px] text-center", {
+          className={cn("rounded-[6px] text-xs", {
             "border-emerald-300 bg-emerald-50 text-emerald-500":
               status === "Success",
             "border-red-300 bg-red-50 text-red-500": status === "Failed",
@@ -49,23 +53,16 @@ export const invoiceTableColumns: ColumnDef<Invoice>[] = [
     },
   },
   {
-    accessorKey: "date",
-    header: "Date",
-    cell: ({ row }) => {
-      const date = row.getValue("date") as string;
-      return new Date(date).toLocaleDateString();
-    },
-  },
-  {
     id: "actions",
-    header: () => <div className="flex justify-end pr-10">Actions</div>,
+    header: () => <span className="sr-only">Actions</span>,
     cell: ({ row }) => {
       const invoice = row.original;
       return (
-        <div className="flex justify-end pr-10">
+        <div className="flex justify-end">
           <TableActions {...invoice} />
         </div>
       );
     },
+    enableSorting: false,
   },
 ];

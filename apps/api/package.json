@@ -2,15 +2,16 @@
   "name": "api",
   "version": "0.1.0",
   "scripts": {
-    "dev": "dotenv -e .dev.vars -- wrangler dev",
+    "dev": "wrangler dev",
     "deploy": "wrangler deploy --minify",
-    "env": "dotenv -e .dev.vars"
+    "cf-typegen": "wrangler types --env-interface CloudflareBindings"
   },
   "dependencies": {
     "@hono/zod-openapi": "^1.3.0",
     "@hono/zod-validator": "^0.7.6",
     "@marble/db": "workspace:*",
     "@marble/email": "workspace:*",
+    "@marble/events": "workspace:*",
     "@marble/utils": "workspace:*",
     "@polar-sh/sdk": "^0.42.5",
     "@upstash/ratelimit": "^2.0.8",
@@ -25,7 +26,6 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260508.1",
     "@types/sanitize-html": "^2.16.1",
-    "dotenv-cli": "^11.0.0",
     "wrangler": "^4.90.0"
   }
 }

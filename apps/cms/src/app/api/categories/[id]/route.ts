@@ -1,20 +1,25 @@
 import { db } from "@marble/db";
+import { toCategoryPayload, withChanges } from "@marble/events";
 import { NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth/session";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";
+import {
+  emitDashboardEvent,
+  logDashboardEventError,
+} from "@/lib/events/dispatch";
 import { categorySchema } from "@/lib/validations/workspace";
-import { dispatchWebhooks } from "@/lib/webhooks/dispatcher";
 
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const sessionData = await getServerSession();
-  const workspaceId = sessionData?.session.activeOrganizationId;
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData || !workspaceId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
+
+  const { sessionData, workspaceId } = accessData;
 
   const { id } = await params;
 
@@ -52,21 +57,17 @@ export async function PATCH(
     },
   });
 
-  dispatchWebhooks({
+  await emitDashboardEvent({
+    type: "category_updated",
     workspaceId,
-    validationEvent: "category_updated",
-    deliveryEvent: "category.updated",
-    payload: {
-      id: updatedCategory.id,
-      slug: updatedCategory.slug,
-      userId: sessionData.user.id,
-    },
-  }).catch((error) => {
-    console.error(
-      `[CategoryUpdate] Failed to dispatch webhooks: categoryId=${updatedCategory.id}`,
-      error
-    );
-  });
+    resourceType: "category",
+    resourceId: updatedCategory.id,
+    actorId: sessionData.user.id,
+    payload: withChanges(
+      toCategoryPayload(updatedCategory),
+      Object.keys(body.data)
+    ),
+  }).catch(logDashboardEventError);
 
   // Invalidate cache for categories and posts (categories affect posts)
   invalidateCache(workspaceId, "categories");
@@ -79,18 +80,19 @@ export async function DELETE(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const sessionData = await getServerSession();
-  const workspaceId = sessionData?.session.activeOrganizationId;
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData || !workspaceId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
+
+  const { sessionData, workspaceId } = accessData;
 
   const { id } = await params;
 
   const category = await db.category.findFirst({
     where: { id, workspaceId },
-    select: { slug: true },
+    select: { id: true, name: true, slug: true, description: true },
   });
 
   if (!category) {
@@ -120,18 +122,14 @@ export async function DELETE(
       },
     });
 
-    // Fire and forget - don't block response
-    dispatchWebhooks({
+    await emitDashboardEvent({
+      type: "category_deleted",
       workspaceId,
-      validationEvent: "category_deleted",
-      deliveryEvent: "category.deleted",
-      payload: { id, slug: category.slug, userId: sessionData.user.id },
-    }).catch((error) => {
-      console.error(
-        `[CategoryDelete] Failed to dispatch webhooks: categoryId=${id}`,
-        error
-      );
-    });
+      resourceType: "category",
+      resourceId: id,
+      actorId: sessionData.user.id,
+      payload: toCategoryPayload(category),
+    }).catch(logDashboardEventError);
 
     // Invalidate cache for categories and posts (categories affect posts)
     invalidateCache(workspaceId, "categories");

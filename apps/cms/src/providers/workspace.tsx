@@ -32,6 +32,7 @@ const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
 export function WorkspaceProvider({
   children,
   initialWorkspace,
+  workspaceSlug,
 }: WorkspaceProviderProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -113,6 +114,13 @@ export function WorkspaceProvider({
     [updateActiveWorkspaceMutation]
   );
 
+  const refreshActiveWorkspace = useCallback(async () => {
+    const response = await request<Workspace | null>(
+      `workspaces/${workspaceSlug}`
+    );
+    setActiveWorkspace(response.data);
+  }, [workspaceSlug]);
+
   useEffect(() => {
     setActiveWorkspace(initialWorkspace);
     setIsSwitchingWorkspace(false);
@@ -129,6 +137,7 @@ export function WorkspaceProvider({
       value={{
         activeWorkspace,
         updateActiveWorkspace,
+        refreshActiveWorkspace,
         isFetchingWorkspace,
         workspaceList: usersWorkspaces ?? null,
         isOwner,

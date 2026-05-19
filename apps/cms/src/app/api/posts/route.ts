@@ -1,14 +1,18 @@
 import { db } from "@marble/db";
+import { toPostPayload } from "@marble/events";
 import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { getServerSession } from "@/lib/auth/session";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";
 import { resolveCustomFieldValues } from "@/lib/custom-fields";
+import {
+  emitDashboardEvent,
+  logDashboardEventError,
+} from "@/lib/events/dispatch";
 import { loadPostApiFilters } from "@/lib/search-params";
 import { postUpsertSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";
-import { dispatchWebhooks } from "@/lib/webhooks/dispatcher";
 import { sanitizeHtml, sanitizeRichTextHtml } from "@/utils/editor";
 import { generateSlug } from "@/utils/string";
 
@@ -64,12 +68,13 @@ function splitPostSort(sort: string) {
 }
 
 export async function GET(request: Request) {
-  const sessionData = await getServerSession();
-  const activeWorkspaceId = sessionData?.session.activeOrganizationId;
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData || !activeWorkspaceId) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
+
+  const { workspaceId } = accessData;
 
   const filters = loadPostApiFilters(request, { strict: true });
   if (!z.number().int().min(1).safeParse(filters.page).success) {
@@ -83,7 +88,7 @@ export async function GET(request: Request) {
   const { direction, field } = splitPostSort(sort);
   const trimmedSearch = search.trim();
   const where = {
-    workspaceId: activeWorkspaceId,
+    workspaceId,
     ...(category !== "all" && { categoryId: category }),
     ...(status !== "all" && { status }),
     ...(trimmedSearch && {
@@ -129,9 +134,7 @@ export async function GET(request: Request) {
       },
     }),
     db.post.count({ where }),
-    hasFilters
-      ? db.post.count({ where: { workspaceId: activeWorkspaceId } })
-      : null,
+    hasFilters ? db.post.count({ where: { workspaceId } }) : null,
   ]);
 
   return NextResponse.json({
@@ -144,12 +147,13 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const sessionData = await getServerSession();
-  const activeWorkspaceId = sessionData?.session.activeOrganizationId;
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData || !activeWorkspaceId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
+
+  const { sessionData, workspaceId } = accessData;
 
   let body: unknown;
 
@@ -176,7 +180,7 @@ export async function POST(request: Request) {
   const existingPost = await db.post.findFirst({
     where: {
       slug: values.data.slug,
-      workspaceId: activeWorkspaceId,
+      workspaceId,
     },
   });
 
@@ -188,7 +192,7 @@ export async function POST(request: Request) {
   let primaryAuthor = await db.author.findUnique({
     where: {
       workspaceId_userId: {
-        workspaceId: activeWorkspaceId,
+        workspaceId,
         userId: sessionData.user.id,
       },
     },
@@ -198,7 +202,7 @@ export async function POST(request: Request) {
   if (!primaryAuthor) {
     primaryAuthor = await db.author.findFirst({
       where: {
-        workspaceId: activeWorkspaceId,
+        workspaceId,
       },
       orderBy: {
         createdAt: "asc",
@@ -218,7 +222,7 @@ export async function POST(request: Request) {
           email: sessionData.user.email,
           slug: uniqueSlug,
           image: sessionData.user.image,
-          workspaceId: activeWorkspaceId,
+          workspaceId,
           userId: sessionData.user.id,
           role: "Writer",
         },
@@ -237,7 +241,7 @@ export async function POST(request: Request) {
 
   const tagValidation = await validateWorkspaceTags(
     values.data.tags,
-    activeWorkspaceId
+    workspaceId
   );
 
   if (!tagValidation.success) {
@@ -250,7 +254,7 @@ export async function POST(request: Request) {
     const category = await db.category.findFirst({
       where: {
         id: values.data.category,
-        workspaceId: activeWorkspaceId,
+        workspaceId,
       },
     });
 
@@ -270,7 +274,7 @@ export async function POST(request: Request) {
   const validAuthors = await db.author.findMany({
     where: {
       id: { in: authorIds },
-      workspaceId: activeWorkspaceId,
+      workspaceId,
     },
   });
 
@@ -296,7 +300,7 @@ export async function POST(request: Request) {
           coverImage: values.data.coverImage,
           publishedAt: values.data.publishedAt,
           description: values.data.description,
-          workspaceId: activeWorkspaceId,
+          workspaceId,
           tags:
             uniqueTagIds.length > 0
               ? {
@@ -310,7 +314,7 @@ export async function POST(request: Request) {
       });
 
       const customFieldWrites = await buildCustomFieldWrites(
-        activeWorkspaceId,
+        workspaceId,
         values.data.customFields
       );
 
@@ -326,7 +330,7 @@ export async function POST(request: Request) {
                 where: {
                   postId: createdPost.id,
                   fieldId,
-                  workspaceId: activeWorkspaceId,
+                  workspaceId,
                 },
               });
             }
@@ -336,7 +340,7 @@ export async function POST(request: Request) {
                 postId_fieldId: { postId: createdPost.id, fieldId },
               },
               update: {
-                workspaceId: activeWorkspaceId,
+                workspaceId,
                 value:
                   fieldType === "richtext"
                     ? sanitizeRichTextHtml(value)
@@ -345,7 +349,7 @@ export async function POST(request: Request) {
               create: {
                 postId: createdPost.id,
                 fieldId,
-                workspaceId: activeWorkspaceId,
+                workspaceId,
                 value:
                   fieldType === "richtext"
                     ? sanitizeRichTextHtml(value)
@@ -359,26 +363,17 @@ export async function POST(request: Request) {
       return createdPost;
     });
 
-    if (postCreated.status === "published") {
-      dispatchWebhooks({
-        workspaceId: activeWorkspaceId,
-        validationEvent: "post_published",
-        deliveryEvent: "post.published",
-        payload: {
-          id: postCreated.id,
-          title: postCreated.title,
-          slug: postCreated.slug,
-          userId: sessionData.user.id,
-        },
-      }).catch((error) => {
-        console.error(
-          `[PostCreate] Failed to dispatch webhooks: postId=${postCreated.id}`,
-          error
-        );
-      });
-    }
+    await emitDashboardEvent({
+      type:
+        postCreated.status === "published" ? "post_published" : "post_created",
+      workspaceId,
+      resourceType: "post",
+      resourceId: postCreated.id,
+      actorId: sessionData.user.id,
+      payload: toPostPayload(postCreated),
+    }).catch(logDashboardEventError);
 
-    invalidateCache(activeWorkspaceId, "posts");
+    invalidateCache(workspaceId, "posts");
 
     return NextResponse.json({ id: postCreated.id });
   } catch (error) {

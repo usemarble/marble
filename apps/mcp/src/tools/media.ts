@@ -4,9 +4,15 @@ import {
   deleteJsonApi,
   readJsonApi,
   uploadMediaApi,
+  validateApiKey,
   writeJsonApi,
 } from "@/lib/api";
 import { toolResult } from "@/lib/mcp";
+import {
+  assertPrivateApiKey,
+  fetchRemoteMedia,
+  filenameFromUrl,
+} from "@/lib/media";
 import {
   destructiveAnnotations,
   paginationInput,
@@ -27,16 +33,6 @@ const updateMediaBody = {
     .optional()
     .describe("Updated image alt text. Use null to clear it."),
 };
-
-function filenameFromUrl(url: string) {
-  try {
-    const pathname = new URL(url).pathname;
-    const filename = pathname.split("/").filter(Boolean).at(-1);
-    return filename || "media-upload";
-  } catch {
-    return "media-upload";
-  }
-}
 
 export function registerMediaTools(
   server: McpServer,
@@ -97,12 +93,10 @@ export function registerMediaTools(
       },
     },
     async ({ url, filename }) => {
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch media URL: ${response.status}`);
-      }
+      assertPrivateApiKey(apiKey);
+      await validateApiKey(apiBaseUrl, apiKey);
 
-      const blob = await response.blob();
+      const blob = await fetchRemoteMedia(url);
       return toolResult(
         await uploadMediaApi(
           apiBaseUrl,

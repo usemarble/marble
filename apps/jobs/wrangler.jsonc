@@ -1,0 +1,54 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "marble-jobs",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-05-11",
+  "compatibility_flags": ["nodejs_compat"],
+  "keep_vars": true,
+  "placement": { "mode": "smart" },
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+  "hyperdrive": [
+    { "binding": "HYPERDRIVE", "id": "c0eea431cc454c9b96589cd52f70a009" }
+  ],
+  "queues": {
+    "producers": [
+      {
+        "binding": "EVENT_QUEUE",
+        "queue": "marble-events"
+      },
+      {
+        "binding": "WEBHOOK_DELIVERY_QUEUE",
+        "queue": "marble-webhook-deliveries"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "marble-events",
+        "max_batch_size": 10,
+        "max_retries": 3,
+        "retry_delay": 60,
+        "dead_letter_queue": "marble-events-dlq"
+      },
+      {
+        "queue": "marble-webhook-deliveries",
+        "max_batch_size": 10,
+        "max_retries": 3,
+        "retry_delay": 60,
+        "dead_letter_queue": "marble-webhook-deliveries-dlq"
+      }
+    ]
+  },
+  "env": {
+    "development": {
+      "hyperdrive": [
+        {
+          "binding": "HYPERDRIVE",
+          "id": "d20494d3ce894268b67505bf684a2395"
+        }
+      ]
+    }
+  }
+}

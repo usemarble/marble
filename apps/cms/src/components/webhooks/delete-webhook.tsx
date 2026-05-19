@@ -1,13 +1,17 @@
 "use client";
 
+import { Alert02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import {
   AlertDialog,
+  AlertDialogBody,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogX,
 } from "@marble/ui/components/alert-dialog";
 import { toast } from "@marble/ui/components/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -55,30 +59,43 @@ export function DeleteWebhookModal({
 
   return (
     <AlertDialog onOpenChange={onOpenChange} open={isOpen}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Delete webhook?</AlertDialogTitle>
-          <AlertDialogDescription>
-            Are you sure you want to delete <strong>"{webhookName}"</strong>?
-            This action cannot be undone.
-          </AlertDialogDescription>
+      <AlertDialogContent className="sm:max-w-md" variant="card">
+        <AlertDialogHeader className="flex-row items-center justify-between px-4 py-2">
+          <div className="flex flex-1 items-center gap-2">
+            <HugeiconsIcon
+              className="text-destructive"
+              icon={Alert02Icon}
+              size={18}
+              strokeWidth={2}
+            />
+            <AlertDialogTitle className="font-medium text-muted-foreground text-sm">
+              Delete "{webhookName}"?
+            </AlertDialogTitle>
+          </div>
+          <AlertDialogX />
         </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel className="min-w-20" disabled={isPending}>
-            Cancel
-          </AlertDialogCancel>
-          <AsyncButton
-            className="min-w-20"
-            disabled={isPending}
-            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-              e.preventDefault();
-              deleteWebhook();
-            }}
-            variant="destructive"
-          >
-            Delete webhook
-          </AsyncButton>
-        </AlertDialogFooter>
+        <AlertDialogBody>
+          <AlertDialogDescription>
+            This will permanently delete this webhook from your workspace and
+            stop delivering events to its URL.
+          </AlertDialogDescription>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isPending} size="sm">
+              Cancel
+            </AlertDialogCancel>
+            <AsyncButton
+              isLoading={isPending}
+              onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                e.preventDefault();
+                deleteWebhook();
+              }}
+              size="sm"
+              variant="destructive"
+            >
+              Delete
+            </AsyncButton>
+          </AlertDialogFooter>
+        </AlertDialogBody>
       </AlertDialogContent>
     </AlertDialog>
   );

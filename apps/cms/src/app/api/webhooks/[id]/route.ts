@@ -1,9 +1,10 @@
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth/session";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import {
   type PayloadFormat,
   type WebhookEvent,
+  webhookSchema,
   webhookUpdateSchema,
 } from "@/lib/validations/webhook";
 
@@ -11,15 +12,13 @@ export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await getServerSession();
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
 
-  if (!session?.session.activeOrganizationId) {
-    return NextResponse.json({ error: "No active workspace" }, { status: 400 });
-  }
+  const { workspaceId } = accessData;
 
   const { id } = await params;
 
@@ -36,12 +35,29 @@ export async function PATCH(
   const existingWebhook = await db.webhookEndpoint.findFirst({
     where: {
       id,
-      workspaceId: session.session.activeOrganizationId,
+      workspaceId,
     },
   });
 
   if (!existingWebhook) {
     return NextResponse.json({ error: "Webhook not found" }, { status: 404 });
+  }
+
+  const effectiveWebhook = webhookSchema.safeParse({
+    name: body.data.name ?? existingWebhook.name,
+    endpoint: body.data.endpoint ?? existingWebhook.url,
+    events: body.data.events ?? existingWebhook.events,
+    format: body.data.format ?? existingWebhook.format,
+  });
+
+  if (!effectiveWebhook.success) {
+    return NextResponse.json(
+      {
+        error: "Invalid request body",
+        details: effectiveWebhook.error.issues,
+      },
+      { status: 400 }
+    );
   }
 
   const updateData: {
@@ -71,7 +87,7 @@ export async function PATCH(
   const webhook = await db.webhookEndpoint.update({
     where: {
       id,
-      workspaceId: session.session.activeOrganizationId,
+      workspaceId,
     },
     data: updateData,
   });
@@ -83,22 +99,20 @@ export async function DELETE(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await getServerSession();
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
 
-  if (!session?.session.activeOrganizationId) {
-    return NextResponse.json({ error: "No active workspace" }, { status: 400 });
-  }
+  const { workspaceId } = accessData;
 
   const { id } = await params;
 
   const existingWebhook = await db.webhookEndpoint.findFirst({
     where: {
       id,
-      workspaceId: session.session.activeOrganizationId,
+      workspaceId,
     },
   });
 
@@ -106,9 +120,9 @@ export async function DELETE(
     return NextResponse.json({ error: "Webhook not found" }, { status: 404 });
   }
 
-  const deletedWebhook = await db.webhookEndpoint.delete({
+  await db.webhookEndpoint.delete({
     where: { id },
   });
 
-  return NextResponse.json(deletedWebhook.id, { status: 204 });
+  return new NextResponse(null, { status: 204 });
 }

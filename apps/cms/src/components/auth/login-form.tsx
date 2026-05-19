@@ -12,6 +12,7 @@ import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { useLocalStorage } from "@/hooks/use-localstorage";
 import { authClient } from "@/lib/auth/client";
+import { safeRedirectPath } from "@/lib/auth/redirect";
 import { type CredentialData, credentialSchema } from "@/lib/validations/auth";
 import type { AuthMethod } from "@/types/misc";
 import { Github, Google } from "../icons/social";
@@ -34,7 +35,7 @@ export function LoginForm() {
     useLocalStorage<AuthMethod | null>("lastUsedAuthMethod", null);
   const searchParams = useSearchParams();
   const router = useRouter();
-  const callbackURL = searchParams?.get("from") || "/";
+  const callbackURL = safeRedirectPath(searchParams?.get("from"));
 
   async function onSubmit(data: CredentialData) {
     setIsCredentialsLoading(true);

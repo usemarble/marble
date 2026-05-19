@@ -1,16 +1,10 @@
 import { sendUsageLimitEmail } from "@marble/email";
+import { getWorkspacePlan, PLAN_LIMITS, type PlanType } from "@marble/utils";
 import { Redis } from "@upstash/redis/cloudflare";
 import { Resend } from "resend";
 import type { createDbClient } from "@/lib/db";
 
 type DbClient = ReturnType<typeof createDbClient>;
-
-type PlanType = "pro" | "hobby";
-
-const PLAN_LIMITS: Record<PlanType, { maxApiRequests: number }> = {
-  hobby: { maxApiRequests: 10_000 },
-  pro: { maxApiRequests: 50_000 },
-};
 
 const USAGE_KEY_PREFIX = "usage:api";
 const USAGE_META_PREFIX = "usage:meta";
@@ -21,33 +15,6 @@ interface UsageMeta {
   limit: number;
   plan: PlanType;
   periodEnd: string;
-}
-
-function getWorkspacePlan(
-  subscription?: {
-    plan?: string;
-    status?: string;
-    cancelAtPeriodEnd?: boolean;
-    currentPeriodEnd?: Date | null;
-  } | null
-): PlanType {
-  if (!subscription?.plan) {
-    return "hobby";
-  }
-
-  const isActive =
-    subscription.status === "active" ||
-    subscription.status === "trialing" ||
-    (subscription.status === "canceled" &&
-      subscription.cancelAtPeriodEnd &&
-      subscription.currentPeriodEnd &&
-      subscription.currentPeriodEnd > new Date());
-
-  if (!isActive) {
-    return "hobby";
-  }
-
-  return subscription.plan.toLowerCase() === "pro" ? "pro" : "hobby";
 }
 
 interface BillingPeriod {

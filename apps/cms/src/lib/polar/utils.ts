@@ -4,6 +4,13 @@ import {
   SubscriptionStatus,
 } from "@marble/db/browser";
 
+export function isStalePolarEvent(
+  lastPolarEventAt: Date | null | undefined,
+  eventTimestamp: Date
+): boolean {
+  return !!lastPolarEventAt && lastPolarEventAt > eventTimestamp;
+}
+
 export function getPlanType(productName: string): PlanType | null {
   const plan = productName.toLowerCase();
   if (plan === "pro") {

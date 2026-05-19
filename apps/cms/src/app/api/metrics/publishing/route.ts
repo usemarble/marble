@@ -1,16 +1,16 @@
 import { db } from "@marble/db";
 import { eachDayOfInterval, endOfYear, format, startOfYear } from "date-fns";
 import { NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth/session";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 
 export async function GET() {
-  const sessionData = await getServerSession();
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData || !sessionData.session.activeOrganizationId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
 
-  const workspaceId = sessionData.session.activeOrganizationId;
+  const { workspaceId } = accessData;
 
   const now = new Date();
   const startOfCurrentYear = startOfYear(now);

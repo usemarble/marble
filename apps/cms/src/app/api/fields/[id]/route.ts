@@ -1,6 +1,7 @@
 import { db } from "@marble/db";
+import { Prisma } from "@marble/db/browser";
 import { NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth/session";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { customFieldUpdateSchema } from "@/lib/validations/fields";
 
 function buildFieldOptionWrites(
@@ -54,19 +55,25 @@ function isUniqueConstraintError(error: unknown) {
   );
 }
 
+function isTransactionConflict(error: unknown) {
+  return (
+    error instanceof Error &&
+    "code" in error &&
+    (error as Error & { code?: string }).code === "P2034"
+  );
+}
+
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await getServerSession();
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
 
-  if (!session?.session.activeOrganizationId) {
-    return NextResponse.json({ error: "No active workspace" }, { status: 400 });
-  }
+  const { workspaceId } = accessData;
 
   const { id } = await params;
 
@@ -84,7 +91,7 @@ export async function PATCH(
   const existingField = await db.field.findFirst({
     where: {
       id,
-      workspaceId: session.session.activeOrganizationId,
+      workspaceId,
     },
     include: {
       options: {
@@ -101,7 +108,7 @@ export async function PATCH(
   if (body.data.key && body.data.key !== existingField.key) {
     const keyConflict = await db.field.findFirst({
       where: {
-        workspaceId: session.session.activeOrganizationId,
+        workspaceId,
         key: body.data.key,
         id: { not: id },
       },
@@ -160,15 +167,52 @@ export async function PATCH(
     );
   }
 
-  if (typeChanged || optionsChanged) {
-    const fieldValueCount = await db.fieldValue.count({
-      where: {
-        fieldId: id,
-        workspaceId: session.session.activeOrganizationId,
-      },
-    });
+  try {
+    const field = await db.$transaction(
+      async (tx) => {
+        if (typeChanged || optionsChanged) {
+          const fieldValueCount = await tx.fieldValue.count({
+            where: {
+              fieldId: id,
+              workspaceId,
+            },
+          });
 
-    if (fieldValueCount > 0) {
+          if (fieldValueCount > 0) {
+            return null;
+          }
+        }
+
+        return tx.field.update({
+          where: {
+            id_workspaceId: {
+              id,
+              workspaceId,
+            },
+          },
+          data: {
+            ...updateData,
+            options:
+              body.data.options !== undefined || !requiresOptions
+                ? {
+                    deleteMany: {},
+                    create: requiresOptions
+                      ? buildFieldOptionWrites(body.data.options ?? [])
+                      : [],
+                  }
+                : undefined,
+          },
+          include: {
+            options: {
+              orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+            },
+          },
+        });
+      },
+      { isolationLevel: Prisma.TransactionIsolationLevel.Serializable }
+    );
+
+    if (!field) {
       return NextResponse.json(
         {
           error:
@@ -177,40 +221,22 @@ export async function PATCH(
         { status: 400 }
       );
     }
-  }
-
-  try {
-    const field = await db.field.update({
-      where: {
-        id_workspaceId: {
-          id,
-          workspaceId: session.session.activeOrganizationId,
-        },
-      },
-      data: {
-        ...updateData,
-        options:
-          body.data.options !== undefined || !requiresOptions
-            ? {
-                deleteMany: {},
-                create: requiresOptions
-                  ? buildFieldOptionWrites(body.data.options ?? [])
-                  : [],
-              }
-            : undefined,
-      },
-      include: {
-        options: {
-          orderBy: [{ position: "asc" }, { createdAt: "asc" }],
-        },
-      },
-    });
 
     return NextResponse.json(field, { status: 200 });
   } catch (error) {
     if (isUniqueConstraintError(error)) {
       return NextResponse.json(
         { error: "A field with this key already exists in your workspace" },
+        { status: 409 }
+      );
+    }
+
+    if (isTransactionConflict(error)) {
+      return NextResponse.json(
+        {
+          error:
+            "This field was updated concurrently. Please retry your changes.",
+        },
         { status: 409 }
       );
     }
@@ -223,22 +249,20 @@ export async function DELETE(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await getServerSession();
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
 
-  if (!session?.session.activeOrganizationId) {
-    return NextResponse.json({ error: "No active workspace" }, { status: 400 });
-  }
+  const { workspaceId } = accessData;
 
   const { id } = await params;
 
   const existingField = await db.field.findFirst({
     where: {
       id,
-      workspaceId: session.session.activeOrganizationId,
+      workspaceId,
     },
   });
 
@@ -250,7 +274,7 @@ export async function DELETE(
     where: {
       id_workspaceId: {
         id,
-        workspaceId: session.session.activeOrganizationId,
+        workspaceId,
       },
     },
   });

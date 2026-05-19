@@ -1,15 +1,15 @@
 import { db } from "@marble/db";
-import { headers as nextHeaders } from "next/headers";
 import { NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth/session";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 
 export async function GET() {
-  const sessionData = await getServerSession();
-  const orgId = sessionData?.session?.activeOrganizationId;
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData || !sessionData.user || !orgId) {
-    return NextResponse.json(null, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
+
+  const { sessionData, workspaceId } = accessData;
 
   const user = await db.user.findUnique({
     where: { id: sessionData.user.id },
@@ -23,7 +23,7 @@ export async function GET() {
       updatedAt: true,
       members: {
         where: {
-          organizationId: orgId,
+          organizationId: workspaceId,
         },
         select: {
           role: true,
@@ -55,12 +55,13 @@ export async function GET() {
 }
 
 export async function PATCH(request: Request) {
-  const sessionData = await getServerSession();
-  const orgId = sessionData?.session?.activeOrganizationId;
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData || !orgId) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
+
+  const { sessionData, workspaceId } = accessData;
 
   try {
     const body = await request.json();
@@ -93,7 +94,7 @@ export async function PATCH(request: Request) {
         updatedAt: true,
         members: {
           where: {
-            organizationId: orgId,
+            organizationId: workspaceId,
           },
           select: {
             role: true,

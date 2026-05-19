@@ -41,7 +41,7 @@ export const InviteModal = ({
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
-  const { activeWorkspace } = useWorkspace();
+  const { refreshActiveWorkspace } = useWorkspace();
   const queryClient = useQueryClient();
 
   const {
@@ -70,18 +70,14 @@ export const InviteModal = ({
 
       return result;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success("Invitation sent successfully");
       setOpen(false);
       reset();
-      if (activeWorkspace?.id && activeWorkspace?.slug) {
-        queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.WORKSPACE(activeWorkspace.id),
-        });
-        queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.WORKSPACE_BY_SLUG(activeWorkspace.slug),
-        });
-      }
+      await queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.WORKSPACE_LIST,
+      });
+      await refreshActiveWorkspace();
     },
     onError: (error) => {
       toast.error(

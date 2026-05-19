@@ -1,6 +1,6 @@
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth/session";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { DEFAULT_NOTIFICATION_PREFERENCES } from "@/lib/notifications";
 
 async function getNotificationPreferences(
@@ -43,27 +43,27 @@ async function getNotificationPreferences(
 }
 
 export async function GET() {
-  const session = await getServerSession();
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!session?.user) {
-    return NextResponse.json(null, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
 
-  const orgId = session.session?.activeOrganizationId;
+  const { sessionData, workspaceId } = accessData;
 
   return NextResponse.json(
-    await getNotificationPreferences(session.user.id, orgId)
+    await getNotificationPreferences(sessionData.user.id, workspaceId)
   );
 }
 
 export async function PATCH(request: Request) {
-  const session = await getServerSession();
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!session?.user) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
 
-  const orgId = session.session?.activeOrganizationId;
+  const { member, sessionData, workspaceId } = accessData;
 
   try {
     const body = await request.json();
@@ -101,43 +101,25 @@ export async function PATCH(request: Request) {
       }
 
       await db.userNotificationPreferences.upsert({
-        where: { userId: session.user.id },
+        where: { userId: sessionData.user.id },
         create: {
-          userId: session.user.id,
+          userId: sessionData.user.id,
           ...data,
         },
         update: data,
       });
 
       return NextResponse.json(
-        await getNotificationPreferences(session.user.id, orgId)
+        await getNotificationPreferences(sessionData.user.id, workspaceId)
       );
     }
 
     if (scope === "workspace") {
-      if (!orgId) {
-        return NextResponse.json(
-          { error: "No active workspace" },
-          { status: 400 }
-        );
-      }
-
       const allowedKeys = ["usageAlerts", "subscriptions"] as const;
       type WorkspaceKey = (typeof allowedKeys)[number];
 
       if (!allowedKeys.includes(key as WorkspaceKey)) {
         return NextResponse.json({ error: "Invalid key" }, { status: 400 });
-      }
-
-      const member = await db.member.findFirst({
-        where: { userId: session.user.id, organizationId: orgId },
-      });
-
-      if (!member) {
-        return NextResponse.json(
-          { error: "Not a member of this workspace" },
-          { status: 403 }
-        );
       }
 
       await db.workspaceNotificationPreferences.upsert({
@@ -150,7 +132,7 @@ export async function PATCH(request: Request) {
       });
 
       return NextResponse.json(
-        await getNotificationPreferences(session.user.id, orgId)
+        await getNotificationPreferences(sessionData.user.id, workspaceId)
       );
     }
 

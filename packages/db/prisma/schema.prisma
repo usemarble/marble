@@ -39,6 +39,7 @@ model Subscription {
   amount             Int                           @default(20)
   currency           String                        @default("USD")
   discountId         String?
+  lastPolarEventAt   DateTime?
   recurringInterval  SubscriptionRecurringInterval @default(month)
   user               User                          @relation(fields: [userId], references: [id], onDelete: Cascade)
   workspace          Organization                  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
@@ -50,31 +51,34 @@ model Subscription {
 }
 
 model Organization {
-  id            String         @id @default(cuid())
-  name          String
-  slug          String         @unique
-  logo          String?
-  metadata      String?
-  description   String?
-  subdomain     String?        @unique
-  updatedAt     DateTime       @updatedAt
-  createdAt     DateTime       @default(now())
-  timezone      String         @default("Europe/London")
-  authors       Author[]
-  categories    Category[]
-  fields        Field[]
-  invitations   Invitation[]
-  media         Media[]
-  members       Member[]
-  posts         Post[]
-  subscriptions Subscription[]
-  tags          Tag[]
-  fieldOptions  FieldOption[]
-  webhookEndpoints WebhookEndpoint[]
-  ShareLink     ShareLink[]
-  usageEvents   UsageEvent[]
-  ApiToken      ApiKey[]
-  fieldValues   FieldValue[]
+  id                String            @id @default(cuid())
+  name              String
+  slug              String            @unique
+  logo              String?
+  metadata          String?
+  description       String?
+  subdomain         String?           @unique
+  updatedAt         DateTime          @updatedAt
+  createdAt         DateTime          @default(now())
+  timezone          String            @default("Europe/London")
+  authors           Author[]
+  categories        Category[]
+  fields            Field[]
+  invitations       Invitation[]
+  media             Media[]
+  members           Member[]
+  posts             Post[]
+  subscriptions     Subscription[]
+  tags              Tag[]
+  fieldOptions      FieldOption[]
+  webhookEndpoints  WebhookEndpoint[]
+  ShareLink         ShareLink[]
+  usageEvents       UsageEvent[]
+  ApiToken          ApiKey[]
+  fieldValues       FieldValue[]
+  workspaceEvents   WorkspaceEvent[]
+  webhookDeliveries WebhookDelivery[]
+  usageAlerts       UsageAlert[]
 
   @@map("workspace")
 }
@@ -202,6 +206,7 @@ model WebhookEndpoint {
   events      WorkspaceEventType[]
   format      PayloadFormat        @default(json)
   workspace   Organization         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  deliveries  WebhookDelivery[]
 
   @@index([workspaceId])
   @@index([workspaceId, enabled])
@@ -396,6 +401,28 @@ model UsageEvent {
   @@map("usage_event")
 }
 
+model UsageAlert {
+  id          String         @id @default(cuid())
+  workspaceId String
+  type        UsageEventType
+  kind        UsageAlertKind
+  periodStart DateTime
+  periodEnd   DateTime
+  emailSentTo String
+  sentAt      DateTime       @default(now())
+  workspace   Organization   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, type, kind, periodStart, periodEnd])
+  @@index([workspaceId, type, periodStart, periodEnd])
+  @@map("usage_alert")
+}
+
+enum UsageAlertKind {
+  warning
+  critical
+  exhausted
+}
+
 model ApiKey {
   id           String     @id @default(cuid())
   workspaceId  String
@@ -461,6 +488,7 @@ enum SubscriptionStatus {
 enum WorkspaceEventType {
   post_created
   post_published
+  post_unpublished
   post_updated
   post_deleted
 
@@ -479,6 +507,30 @@ enum WorkspaceEventType {
   author_created
   author_updated
   author_deleted
+}
+
+enum WorkspaceEventSource {
+  dashboard
+  api
+  mcp
+  workflow
+  system
+}
+
+enum WorkspaceEventActorType {
+  user
+  api_key
+  mcp
+  system
+}
+
+enum WorkspaceEventResourceType {
+  post
+  category
+  tag
+  media
+  author
+  workspace
 }
 
 enum PayloadFormat {
@@ -586,4 +638,91 @@ model FieldValue {
   @@index([fieldId])
   @@index([workspaceId])
   @@map("field_value")
+}
+
+model WorkspaceEvent {
+  id          String               @id @default(cuid())
+  workspaceId String
+  type        WorkspaceEventType
+  source      WorkspaceEventSource @default(dashboard)
+
+  resourceType WorkspaceEventResourceType?
+  resourceId   String?
+
+  actorType WorkspaceEventActorType?
+  actorId   String?
+
+  payload     Json      @default("{}")
+  processedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  workspace  Organization      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  deliveries WebhookDelivery[]
+
+  @@index([workspaceId, createdAt])
+  @@index([workspaceId, type])
+  @@index([workspaceId, resourceType, resourceId])
+  @@index([workspaceId, processedAt])
+  @@map("workspace_event")
+}
+
+model WebhookDelivery {
+  id                String @id @default(cuid())
+  eventId           String
+  workspaceId       String
+  webhookEndpointId String
+
+  url    String
+  status WebhookDeliveryStatus @default(pending)
+  isTest Boolean               @default(false)
+
+  attemptCount Int @default(0)
+  maxAttempts  Int @default(3)
+
+  nextRetryAt   DateTime?
+  lastAttemptAt DateTime?
+  deliveredAt   DateTime?
+  failedAt      DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  event           WorkspaceEvent           @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  workspace       Organization             @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  webhookEndpoint WebhookEndpoint          @relation(fields: [webhookEndpointId], references: [id], onDelete: Cascade)
+  attempts        WebhookDeliveryAttempt[]
+
+  @@index([eventId])
+  @@index([workspaceId, status])
+  @@index([workspaceId, createdAt])
+  @@index([webhookEndpointId])
+  @@unique([eventId, webhookEndpointId])
+  @@map("webhook_delivery")
+}
+
+model WebhookDeliveryAttempt {
+  id            String   @id @default(cuid())
+  deliveryId    String
+  attemptNumber Int
+  success       Boolean  @default(false)
+  statusCode    Int?
+  responseBody  String?
+  errorMessage  String?
+  durationMs    Int?
+  createdAt     DateTime @default(now())
+
+  delivery WebhookDelivery @relation(fields: [deliveryId], references: [id], onDelete: Cascade)
+
+  @@unique([deliveryId, attemptNumber])
+  @@index([deliveryId])
+  @@map("webhook_delivery_attempt")
+}
+
+enum WebhookDeliveryStatus {
+  pending
+  sending
+  success
+  retrying
+  failed
 }

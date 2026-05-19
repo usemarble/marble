@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { NodeHtmlMarkdown } from "node-html-markdown";
-import { getServerSession } from "@/lib/auth/session";
+import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { aiSuggestionsRateLimiter, rateLimitHeaders } from "@/lib/ratelimit";
 import { redis } from "@/lib/redis";
 import {
@@ -43,13 +43,13 @@ function createContentHash(
 }
 
 export async function POST(request: Request) {
-  const sessionData = await getServerSession();
+  const accessData = await requireActiveWorkspaceAccess();
 
-  if (!sessionData || !sessionData.session.activeOrganizationId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!accessData.ok) {
+    return accessData.response;
   }
 
-  const workspaceId = sessionData.session.activeOrganizationId;
+  const { workspaceId } = accessData;
 
   const bypassCache = request.headers.get("x-bypass-cache") === "true";
 

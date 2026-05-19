@@ -72,7 +72,7 @@ export const TwitterComp = ({
     [validateAndSubmit, onCancel]
   );
 
-  const isValidUrl = isValidTwitterUrl(url) !== null;
+  const isValidUrl = isValidTwitterUrl(url);
 
   return (
     <Card className="col-span-full gap-4 rounded-[20px] border-none bg-surface p-2">
