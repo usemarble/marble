@@ -6,7 +6,6 @@ import { EditorHeader } from "@/components/editor/editor-header";
 import { EditorSidebar } from "@/components/editor/editor-sidebar";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { HiddenScrollbar } from "@/components/ui/hidden-scrollbar";
-import { useDebounce } from "@/hooks/use-debounce";
 import { MAX_MEDIA_FILE_SIZE } from "@/lib/constants";
 import { uploadFile } from "@/lib/media/upload";
 import type { PostEditorValues } from "@/lib/validations/post";
@@ -23,7 +22,7 @@ import { SidebarInset, useSidebar } from "@marble/ui/components/sidebar";
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
 import { useParams } from "next/navigation";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useFormContext } from "react-hook-form";
 import { getMediaEditorApiUrl } from "@/lib/search-params";
 import type { MediaCursorListResponse } from "@/types/media";
@@ -43,19 +42,7 @@ function EditorPageContent() {
     watch,
   } = useFormContext<PostEditorValues>();
 
-  const title = watch("title");
   const content = watch("content");
-  const debouncedTitle = useDebounce(title || "", 300);
-
-  useEffect(() => {
-    if (debouncedTitle && mode === "create") {
-      const slug = generateSlug(debouncedTitle);
-      setValue("slug", slug, {
-        shouldDirty: true,
-      });
-      clearErrors("slug");
-    }
-  }, [clearErrors, debouncedTitle, mode, setValue]);
 
   const handleImageUpload = useCallback(async (file: File): Promise<string> => {
     const result = await uploadFile({ file, type: "media" });
@@ -193,7 +180,16 @@ function EditorPageContent() {
                 <TextareaAutosize
                   id="title"
                   placeholder="Title"
-                  {...register("title")}
+                  {...register("title", {
+                    onChange: (e) => {
+                      if (mode === "create") {
+                        setValue("slug", generateSlug(e.target.value), {
+                          shouldDirty: true,
+                        });
+                        clearErrors("slug");
+                      }
+                    },
+                  })}
                   className="scrollbar-hide mb-2 w-full resize-none bg-transparent font-semibold prose-headings:font-semibold text-4xl focus:outline-hidden focus:ring-0 sm:px-4"
                   onEnterPress={() => {
                     editor

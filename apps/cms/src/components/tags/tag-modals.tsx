@@ -2,7 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert02Icon, Tag01Icon } from "@hugeicons/core-free-icons";
-
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   AlertDialog,
@@ -190,7 +189,15 @@ export function TagModal({
               <Label htmlFor="tag-slug">Slug</Label>
               <Input
                 id="tag-slug"
-                {...register("slug")}
+                {...register("slug", {
+                  onChange: (e) => {
+                    setValue(
+                      "slug",
+                      generateSlug(e.target.value, { trimEdges: false }),
+                      { shouldValidate: true }
+                    );
+                  },
+                })}
                 placeholder="unique-identifier"
               />
               {errors.slug && (

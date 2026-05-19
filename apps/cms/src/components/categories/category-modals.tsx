@@ -199,7 +199,15 @@ export const CategoryModal = ({
               <Label htmlFor="category-slug">Slug</Label>
               <Input
                 id="category-slug"
-                {...register("slug")}
+                {...register("slug", {
+                  onChange: (e) => {
+                    setValue(
+                      "slug",
+                      generateSlug(e.target.value, { trimEdges: false }),
+                      { shouldValidate: true, shouldDirty: true }
+                    );
+                  },
+                })}
                 placeholder="unique-identifier"
               />
               {errors.slug && (
