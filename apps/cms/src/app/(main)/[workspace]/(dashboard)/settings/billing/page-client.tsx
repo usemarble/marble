@@ -222,7 +222,7 @@ function PageClient() {
                   ) : null}
                 </div>
 
-                <div className="border-border border-t border-dashed pt-4">
+                <div>
                   <span className="font-bold text-3xl">
                     {isYearly ? yearlyPrice : monthlyPrice}
                   </span>
