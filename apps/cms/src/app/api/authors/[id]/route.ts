@@ -98,11 +98,9 @@ export async function PATCH(
       );
     }
 
-    const { name, bio, role, email, image, userId, slug, socials } =
-      parsedBody.data;
+    const { name, bio, role, email, image, slug, socials } = parsedBody.data;
 
     const validEmail = email === "" ? null : email;
-    const validUserId = userId ? userId : null;
 
     const author = await db.author.findFirst({
       where: {
@@ -142,7 +140,6 @@ export async function PATCH(
         email: validEmail,
         image,
         slug,
-        userId: validUserId,
         ...(typeof socials !== "undefined" && {
           socials: {
             deleteMany: {},

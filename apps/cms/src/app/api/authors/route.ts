@@ -134,12 +134,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const { name, bio, role, email, image, slug, userId, socials } =
-      parsedBody.data;
+    const { name, bio, role, email, image, slug, socials } = parsedBody.data;
 
     const validEmail = email === "" ? null : email;
-
-    const validUserId = userId ? userId : null;
 
     // const slug = generateSlug(name);
 
@@ -168,7 +165,6 @@ export async function POST(request: Request) {
         email: validEmail,
         image,
         workspaceId,
-        userId: validUserId,
         ...(socials &&
           socials.length > 0 && {
             socials: {

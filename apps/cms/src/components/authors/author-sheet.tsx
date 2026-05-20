@@ -64,7 +64,6 @@ export const AuthorSheet = ({
     bio: "",
     email: "",
     image: null,
-    userId: null,
     socials: [],
   },
   onAuthorCreated,
@@ -88,7 +87,6 @@ export const AuthorSheet = ({
       bio: authorData.bio || "",
       email: authorData.email || "",
       image: authorData.image || null,
-      userId: authorData.userId || null,
       socials:
         authorData.socials && authorData.socials.length > 0
           ? authorData.socials.map((social) => ({
