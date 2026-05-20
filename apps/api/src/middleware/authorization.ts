@@ -1,6 +1,8 @@
 import type { Context, MiddlewareHandler, Next } from "hono";
 import { createDbClient, type DbClient } from "@/lib/db";
 
+const READ_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
+
 export const authorization =
   (): MiddlewareHandler => async (c: Context, next: Next) => {
     let db: DbClient;
@@ -15,6 +17,17 @@ export const authorization =
     if (!workspaceId) {
       console.error("[Authorization] Workspace ID not found");
       return c.json({ error: "Workspace ID is required" }, 400);
+    }
+
+    if (!READ_METHODS.has(c.req.method)) {
+      return c.json(
+        {
+          error: "API key required",
+          message:
+            "Legacy workspace ID routes are read-only. Use a private API key with the /v1 API routes for write operations.",
+        },
+        403
+      );
     }
 
     try {
