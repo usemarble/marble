@@ -2,12 +2,12 @@ import "server-only";
 
 import {
   sendDevEmail,
-  sendFounderEmail,
-  sendInviteEmail,
-  sendResetPassword,
-  sendUsageLimitEmail,
-  sendVerificationEmail,
-  sendWelcomeEmail,
+  sendFounderEmail as sendFounderEmailViaResend,
+  sendInviteEmail as sendInviteEmailViaResend,
+  sendResetPassword as sendResetPasswordViaResend,
+  sendUsageLimitEmail as sendUsageLimitEmailViaResend,
+  sendVerificationEmail as sendVerificationEmailViaResend,
+  sendWelcomeEmail as sendWelcomeEmailViaResend,
 } from "@marble/email";
 import { Resend } from "resend";
 import { getServerSession } from "./auth/session";
@@ -25,7 +25,7 @@ interface SendInviteEmailProps {
   inviteLink: string;
 }
 
-export async function sendInviteEmailHelper({
+export async function sendInviteEmail({
   inviteeEmail,
   inviterName,
   inviterEmail,
@@ -62,7 +62,7 @@ export async function sendInviteEmailHelper({
   }
 
   try {
-    await sendInviteEmail(resend, {
+    await sendInviteEmailViaResend(resend, {
       inviteeEmail,
       inviterName,
       inviterEmail,
@@ -77,7 +77,7 @@ export async function sendInviteEmailHelper({
   }
 }
 
-export async function sendVerificationEmailHelper({
+export async function sendVerificationEmail({
   userEmail,
   otp,
   type,
@@ -104,7 +104,7 @@ export async function sendVerificationEmailHelper({
   }
 
   try {
-    await sendVerificationEmail(resend, {
+    await sendVerificationEmailViaResend(resend, {
       userEmail,
       otp,
       type,
@@ -117,7 +117,7 @@ export async function sendVerificationEmailHelper({
   }
 }
 
-export async function sendResetPasswordHelper({
+export async function sendResetPassword({
   userEmail,
   resetLink,
 }: {
@@ -139,7 +139,7 @@ export async function sendResetPasswordHelper({
   }
 
   try {
-    await sendResetPassword(resend, {
+    await sendResetPasswordViaResend(resend, {
       userEmail,
       resetLink,
     });
@@ -151,11 +151,7 @@ export async function sendResetPasswordHelper({
   }
 }
 
-export async function sendWelcomeEmailHelper({
-  userEmail,
-}: {
-  userEmail: string;
-}) {
+export async function sendWelcomeEmail({ userEmail }: { userEmail: string }) {
   if (!resend && isDevelopment) {
     return sendDevEmail({
       from: "Marble <emails@marblecms.com>",
@@ -171,7 +167,7 @@ export async function sendWelcomeEmailHelper({
   }
 
   try {
-    await sendWelcomeEmail(resend, {
+    await sendWelcomeEmailViaResend(resend, {
       userEmail,
     });
 
@@ -182,7 +178,7 @@ export async function sendWelcomeEmailHelper({
   }
 }
 
-export async function sendUsageLimitEmailHelper({
+export async function sendUsageLimitEmail({
   userEmail,
   userName,
   featureName = "Webhooks",
@@ -222,7 +218,7 @@ export async function sendUsageLimitEmailHelper({
   }
 
   try {
-    await sendUsageLimitEmail(resend, {
+    await sendUsageLimitEmailViaResend(resend, {
       userEmail,
       userName,
       featureName,
@@ -238,7 +234,7 @@ export async function sendUsageLimitEmailHelper({
   }
 }
 
-export async function sendFounderEmailHelper({
+export async function sendFounderEmail({
   userEmail,
   scheduledAt,
 }: {
@@ -263,7 +259,7 @@ export async function sendFounderEmailHelper({
   }
 
   try {
-    await sendFounderEmail(resend, {
+    await sendFounderEmailViaResend(resend, {
       userEmail,
       scheduledAt,
     });

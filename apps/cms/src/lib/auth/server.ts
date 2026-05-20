@@ -19,11 +19,11 @@ import { emailOTP, organization } from "better-auth/plugins";
 import { customAlphabet } from "nanoid";
 import { storeUserImageAction } from "@/lib/actions/user";
 import {
-  sendFounderEmailHelper,
-  sendInviteEmailHelper,
-  sendResetPasswordHelper,
-  sendVerificationEmailHelper,
-  sendWelcomeEmailHelper,
+  sendFounderEmail,
+  sendInviteEmail,
+  sendResetPassword,
+  sendVerificationEmail,
+  sendWelcomeEmail,
 } from "@/lib/email";
 import { handleCustomerCreated } from "@/lib/polar/customer.created";
 import { handleSubscriptionCanceled } from "@/lib/polar/subscription.canceled";
@@ -122,7 +122,7 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     sendResetPassword: async ({ user, url }, _request) => {
-      await sendResetPasswordHelper({
+      await sendResetPassword({
         userEmail: user.email,
         resetLink: url,
       });
@@ -213,7 +213,7 @@ export const auth = betterAuth({
       },
       async sendInvitationEmail(data) {
         const inviteLink = `${process.env.NEXT_PUBLIC_APP_URL}/join/${data.id}`;
-        await sendInviteEmailHelper({
+        await sendInviteEmail({
           inviteeEmail: data.email,
           inviterName: data.inviter.user.name,
           inviterEmail: data.inviter.user.email,
@@ -262,7 +262,7 @@ export const auth = betterAuth({
     }),
     emailOTP({
       async sendVerificationOTP({ email, otp, type }) {
-        await sendVerificationEmailHelper({
+        await sendVerificationEmail({
           userEmail: email,
           otp,
           type,
@@ -302,7 +302,7 @@ export const auth = betterAuth({
 
           if (user.email) {
             try {
-              await sendWelcomeEmailHelper({
+              await sendWelcomeEmail({
                 userEmail: user.email,
               });
             } catch (err) {
@@ -311,7 +311,7 @@ export const auth = betterAuth({
 
             try {
               const scheduledAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
-              await sendFounderEmailHelper({
+              await sendFounderEmail({
                 userEmail: user.email,
                 scheduledAt,
               });
