@@ -17,14 +17,14 @@ import { betterAuth } from "better-auth/minimal";
 import { nextCookies } from "better-auth/next-js";
 import { emailOTP, organization } from "better-auth/plugins";
 import { customAlphabet } from "nanoid";
-import {
-  sendFounderEmailAction,
-  sendInviteEmailAction,
-  sendResetPasswordAction,
-  sendVerificationEmailAction,
-  sendWelcomeEmailAction,
-} from "@/lib/actions/email";
 import { storeUserImageAction } from "@/lib/actions/user";
+import {
+  sendFounderEmailHelper,
+  sendInviteEmailHelper,
+  sendResetPasswordHelper,
+  sendVerificationEmailHelper,
+  sendWelcomeEmailHelper,
+} from "@/lib/email";
 import { handleCustomerCreated } from "@/lib/polar/customer.created";
 import { handleSubscriptionCanceled } from "@/lib/polar/subscription.canceled";
 import { handleSubscriptionCreated } from "@/lib/polar/subscription.created";
@@ -122,7 +122,7 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     sendResetPassword: async ({ user, url }, _request) => {
-      await sendResetPasswordAction({
+      await sendResetPasswordHelper({
         userEmail: user.email,
         resetLink: url,
       });
@@ -213,7 +213,7 @@ export const auth = betterAuth({
       },
       async sendInvitationEmail(data) {
         const inviteLink = `${process.env.NEXT_PUBLIC_APP_URL}/join/${data.id}`;
-        await sendInviteEmailAction({
+        await sendInviteEmailHelper({
           inviteeEmail: data.email,
           inviterName: data.inviter.user.name,
           inviterEmail: data.inviter.user.email,
@@ -262,7 +262,7 @@ export const auth = betterAuth({
     }),
     emailOTP({
       async sendVerificationOTP({ email, otp, type }) {
-        await sendVerificationEmailAction({
+        await sendVerificationEmailHelper({
           userEmail: email,
           otp,
           type,
@@ -302,7 +302,7 @@ export const auth = betterAuth({
 
           if (user.email) {
             try {
-              await sendWelcomeEmailAction({
+              await sendWelcomeEmailHelper({
                 userEmail: user.email,
               });
             } catch (err) {
@@ -311,7 +311,7 @@ export const auth = betterAuth({
 
             try {
               const scheduledAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
-              await sendFounderEmailAction({
+              await sendFounderEmailHelper({
                 userEmail: user.email,
                 scheduledAt,
               });

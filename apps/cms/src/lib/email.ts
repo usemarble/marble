@@ -1,4 +1,4 @@
-"use server";
+import "server-only";
 
 import {
   sendDevEmail,
@@ -10,7 +10,7 @@ import {
   sendWelcomeEmail,
 } from "@marble/email";
 import { Resend } from "resend";
-import { getServerSession } from "../auth/session";
+import { getServerSession } from "./auth/session";
 
 const resendApiKey = process.env.RESEND_API_KEY;
 const isDevelopment = process.env.NODE_ENV === "development";
@@ -25,7 +25,7 @@ interface SendInviteEmailProps {
   inviteLink: string;
 }
 
-export async function sendInviteEmailAction({
+export async function sendInviteEmailHelper({
   inviteeEmail,
   inviterName,
   inviterEmail,
@@ -77,7 +77,7 @@ export async function sendInviteEmailAction({
   }
 }
 
-export async function sendVerificationEmailAction({
+export async function sendVerificationEmailHelper({
   userEmail,
   otp,
   type,
@@ -117,7 +117,7 @@ export async function sendVerificationEmailAction({
   }
 }
 
-export async function sendResetPasswordAction({
+export async function sendResetPasswordHelper({
   userEmail,
   resetLink,
 }: {
@@ -151,7 +151,7 @@ export async function sendResetPasswordAction({
   }
 }
 
-export async function sendWelcomeEmailAction({
+export async function sendWelcomeEmailHelper({
   userEmail,
 }: {
   userEmail: string;
@@ -182,7 +182,7 @@ export async function sendWelcomeEmailAction({
   }
 }
 
-export async function sendUsageLimitEmailAction({
+export async function sendUsageLimitEmailHelper({
   userEmail,
   userName,
   featureName = "Webhooks",
@@ -238,7 +238,7 @@ export async function sendUsageLimitEmailAction({
   }
 }
 
-export async function sendFounderEmailAction({
+export async function sendFounderEmailHelper({
   userEmail,
   scheduledAt,
 }: {
