@@ -70,7 +70,7 @@ export default async function RootLayout({
         {process.env.NODE_ENV === "development" && (
           <Script
             crossOrigin="anonymous"
-            src="https://unpkg.com/react-grab@0.1.34/dist/index.global.js"
+            src="//unpkg.com/react-scan/dist/auto.global.js"
             strategy="beforeInteractive"
           />
         )}
