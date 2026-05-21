@@ -39,7 +39,12 @@ const sidebarToggleTransition = {
   type: "spring",
 } as const;
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({
+  isWhatsNewDismissed = false,
+  ...props
+}: React.ComponentProps<typeof Sidebar> & {
+  isWhatsNewDismissed?: boolean;
+}) {
   const pathname = usePathname();
   const params = useParams<{ workspace: string }>();
   const { open } = useSidebar();
@@ -144,7 +149,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <NavMain />
             </SidebarContent>
             <SidebarFooter className="gap-0 p-0">
-              <WhatsNewCard />
+              <WhatsNewCard initialDismissed={isWhatsNewDismissed} />
               <SidebarGroup className="px-3">
                 <SidebarMenu>
                   <SidebarMenuButton

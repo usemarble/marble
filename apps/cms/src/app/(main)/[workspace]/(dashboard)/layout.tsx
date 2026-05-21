@@ -1,12 +1,8 @@
 import { SidebarInset, SidebarProvider } from "@marble/ui/components/sidebar";
+import { cookies } from "next/headers";
 import { AppSidebar } from "@/components/nav/app-sidebar";
-import type { Workspace } from "@/types/workspace";
-import { request } from "@/utils/fetch/client";
 
-const _getWorkspaceData = async (workspace: string) => {
-  const res = await request<Workspace | null>(`workspaces/${workspace}`);
-  return res.data;
-};
+const CUSTOM_FIELDS_UPDATE_CARD_DISMISSED = "custom_fields_update_card_dismissed";
 
 export const metadata = {
   title: {
@@ -21,6 +17,10 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const cookieStore = await cookies();
+  const isWhatsNewDismissed =
+    cookieStore.get(CUSTOM_FIELDS_UPDATE_CARD_DISMISSED)?.value === "true";
+
   return (
     <SidebarProvider
       className="overflow-y-hidden"
@@ -30,7 +30,7 @@ export default async function DashboardLayout({
         } as React.CSSProperties
       }
     >
-      <AppSidebar />
+      <AppSidebar isWhatsNewDismissed={isWhatsNewDismissed} />
       <SidebarInset className="relative overflow-y-auto peer-data-[variant=inset]:border-l md:peer-data-[variant=inset]:shadow-none">
         {children}
       </SidebarInset>

@@ -9,16 +9,21 @@ import { motion, useReducedMotion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useRef } from "react";
-import { useLocalStorage } from "@/hooks/use-localstorage";
+import { useEffect, useRef, useState } from "react";
 
-export function WhatsNewCard() {
+export const WHATS_NEW_CARD_DISMISSED_COOKIE =
+  "sidebar_whats_new_custom_fields_dismissed";
+
+const WHATS_NEW_CARD_DISMISSED_MAX_AGE = 60 * 60 * 24 * 365;
+
+export function WhatsNewCard({
+  initialDismissed = false,
+}: {
+  initialDismissed?: boolean;
+}) {
   const { state } = useSidebar();
   const params = useParams<{ workspace: string }>();
-  const [isDismissed, setIsDismissed] = useLocalStorage(
-    "sidebar-whats-new-custom-fields-dismissed",
-    false
-  );
+  const [isDismissed, setIsDismissed] = useState(initialDismissed);
   const isCollapsed = state === "collapsed";
   const shouldReduceMotion = useReducedMotion();
 
@@ -29,6 +34,12 @@ export function WhatsNewCard() {
   useEffect(() => {
     wasCollapsed.current = isCollapsed;
   }, [isCollapsed]);
+
+  const dismissCard = () => {
+    setIsDismissed(true);
+    // biome-ignore lint/suspicious/noDocumentCookie: persist a tiny SSR-readable UI preference
+    document.cookie = `${WHATS_NEW_CARD_DISMISSED_COOKIE}=true; path=/; max-age=${WHATS_NEW_CARD_DISMISSED_MAX_AGE}; SameSite=Lax`;
+  };
 
   if (isCollapsed || isDismissed) {
     return null;
@@ -47,7 +58,7 @@ export function WhatsNewCard() {
         <Button
           aria-label="Dismiss what’s new card"
           className="absolute top-3 right-3 z-20 size-6 text-foreground"
-          onClick={() => setIsDismissed(true)}
+          onClick={dismissCard}
           size="icon-xs"
           type="button"
           variant="ghost"
