@@ -57,6 +57,30 @@ function getCheckoutReferenceId(body: unknown) {
   return typeof referenceId === "string" ? referenceId : undefined;
 }
 
+async function sendOnboardingEmails(user: { email?: string | null }) {
+  if (!user.email) {
+    return;
+  }
+
+  try {
+    await sendWelcomeEmail({
+      userEmail: user.email,
+    });
+  } catch (err) {
+    console.error("Failed to send welcome email:", err);
+  }
+
+  try {
+    const scheduledAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    await sendFounderEmail({
+      userEmail: user.email,
+      scheduledAt,
+    });
+  } catch (err) {
+    console.error("Failed to schedule founder email:", err);
+  }
+}
+
 export const auth = betterAuth({
   database: prismaAdapter(db, {
     provider: "postgresql",
@@ -133,6 +157,11 @@ export const auth = betterAuth({
     // problem is after otp verification user has to login again and
     // I don't really like the experience so we'll allow session creation
     // but block unverified users via the middleware
+  },
+  emailVerification: {
+    afterEmailVerification: async (user) => {
+      await sendOnboardingEmails(user);
+    },
   },
   socialProviders: {
     google: {
@@ -300,24 +329,8 @@ export const auth = betterAuth({
         after: async (user) => {
           await storeUserImageAction(user);
 
-          if (user.email) {
-            try {
-              await sendWelcomeEmail({
-                userEmail: user.email,
-              });
-            } catch (err) {
-              console.error("Failed to send welcome email:", err);
-            }
-
-            try {
-              const scheduledAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
-              await sendFounderEmail({
-                userEmail: user.email,
-                scheduledAt,
-              });
-            } catch (err) {
-              console.error("Failed to schedule founder email:", err);
-            }
+          if (user.emailVerified) {
+            await sendOnboardingEmails(user);
           }
 
           const email = user.email || "";
