@@ -10,11 +10,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-
-export const WHATS_NEW_CARD_DISMISSED_COOKIE =
-  "sidebar_whats_new_custom_fields_dismissed";
-
-const WHATS_NEW_CARD_DISMISSED_MAX_AGE = 60 * 60 * 24 * 365;
+import {
+  WHATS_NEW_CARD_DISMISSED_COOKIE,
+  WHATS_NEW_CARD_DISMISSED_MAX_AGE,
+} from "./cookies";
 
 export function WhatsNewCard({
   initialDismissed = false,
@@ -37,7 +36,7 @@ export function WhatsNewCard({
 
   const dismissCard = () => {
     setIsDismissed(true);
-    // biome-ignore lint/suspicious/noDocumentCookie: persist a tiny SSR-readable UI preference
+    // biome-ignore lint/suspicious/noDocumentCookie: match the sidebar's client-side UI preference persistence
     document.cookie = `${WHATS_NEW_CARD_DISMISSED_COOKIE}=true; path=/; max-age=${WHATS_NEW_CARD_DISMISSED_MAX_AGE}; SameSite=Lax`;
   };
 

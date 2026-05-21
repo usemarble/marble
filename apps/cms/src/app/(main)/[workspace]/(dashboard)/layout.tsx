@@ -1,9 +1,10 @@
 import { SidebarInset, SidebarProvider } from "@marble/ui/components/sidebar";
 import { cookies } from "next/headers";
 import { AppSidebar } from "@/components/nav/app-sidebar";
-
-const CUSTOM_FIELDS_UPDATE_CARD_DISMISSED =
-  "custom_fields_update_card_dismissed";
+import {
+  SIDEBAR_STATE_COOKIE,
+  WHATS_NEW_CARD_DISMISSED_COOKIE,
+} from "@/components/nav/cookies";
 
 export const metadata = {
   title: {
@@ -20,11 +21,14 @@ export default async function DashboardLayout({
 }) {
   const cookieStore = await cookies();
   const isWhatsNewDismissed =
-    cookieStore.get(CUSTOM_FIELDS_UPDATE_CARD_DISMISSED)?.value === "true";
+    cookieStore.get(WHATS_NEW_CARD_DISMISSED_COOKIE)?.value === "true";
+  const defaultSidebarOpen =
+    cookieStore.get(SIDEBAR_STATE_COOKIE)?.value !== "false";
 
   return (
     <SidebarProvider
       className="overflow-y-hidden"
+      defaultOpen={defaultSidebarOpen}
       style={
         {
           "--sidebar-width-icon": "3.5rem",
