@@ -2,7 +2,8 @@ import { SidebarInset, SidebarProvider } from "@marble/ui/components/sidebar";
 import { cookies } from "next/headers";
 import { AppSidebar } from "@/components/nav/app-sidebar";
 
-const CUSTOM_FIELDS_UPDATE_CARD_DISMISSED = "custom_fields_update_card_dismissed";
+const CUSTOM_FIELDS_UPDATE_CARD_DISMISSED =
+  "custom_fields_update_card_dismissed";
 
 export const metadata = {
   title: {
