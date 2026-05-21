@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { LoginForm } from "@/components/auth/login-form";
 import MarbleIcon from "@/components/icons/marble";
+import { safeRedirectPath } from "@/lib/auth/redirect";
 import { SITE_CONFIG } from "@/utils/site";
 
 export const metadata: Metadata = {
@@ -22,7 +23,10 @@ interface PageProps {
 
 export default async function LoginPage(props: PageProps) {
   const searchParams = await props.searchParams;
-  const from = searchParams.from;
+  const from = safeRedirectPath(
+    Array.isArray(searchParams.from) ? searchParams.from[0] : searchParams.from
+  );
+  const encodedFrom = encodeURIComponent(from);
 
   return (
     <div className="h-screen w-full md:grid md:grid-cols-2">
@@ -57,7 +61,7 @@ export default async function LoginPage(props: PageProps) {
               <Link
                 className="underline underline-offset-2 hover:text-primary"
                 href={
-                  from && from !== "/reset" ? `/reset?from=${from}` : "/reset"
+                  from !== "/reset" ? `/reset?from=${encodedFrom}` : "/reset"
                 }
               >
                 Forgot password?
@@ -71,7 +75,7 @@ export default async function LoginPage(props: PageProps) {
               <Link
                 className="underline underline-offset-2 hover:text-primary"
                 href={
-                  from && from !== "/" ? `/register?from=${from}` : "/register"
+                  from !== "/" ? `/register?from=${encodedFrom}` : "/register"
                 }
               >
                 Register

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { RegisterForm } from "@/components/auth/register-form";
 import MarbleIcon from "@/components/icons/marble";
+import { safeRedirectPath } from "@/lib/auth/redirect";
 import { SITE_CONFIG } from "@/utils/site";
 
 export const metadata: Metadata = {
@@ -21,7 +22,10 @@ interface PageProps {
 
 export default async function RegisterPage(props: PageProps) {
   const searchParams = await props.searchParams;
-  const from = searchParams.from;
+  const from = safeRedirectPath(
+    Array.isArray(searchParams.from) ? searchParams.from[0] : searchParams.from
+  );
+  const encodedFrom = encodeURIComponent(from);
 
   return (
     <div className="h-screen w-full md:grid md:grid-cols-2">
@@ -55,7 +59,7 @@ export default async function RegisterPage(props: PageProps) {
             Already have an account?{" "}
             <Link
               className="underline underline-offset-2 hover:text-primary"
-              href={from && from !== "/" ? `/login?from=${from}` : "/login"}
+              href={from !== "/" ? `/login?from=${encodedFrom}` : "/login"}
             >
               Login
             </Link>
