@@ -43,9 +43,9 @@ Create a serverless function that listens for a `post.published` event from a Ma
   <Step title="Create a New Webhook">
     Click **Create Webhook** and fill in the required details: - **Name**: A
     descriptive name for your webhook - **URL**: The endpoint where the webhook
-    payload will be sent - **Format**: Choose the payload format (currently only
-    JSON is supported) - **Events**: Select the events you want to listen for
-    (e.g., `post.published`, `post.updated`)
+    payload will be sent - **Format**: Choose JSON, Discord, or Slack -
+    **Events**: Select the events you want to listen for (e.g.,
+    `post.published`, `post.updated`)
   </Step>
 
   <Step title="Save and Copy Secret">
@@ -67,7 +67,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import type { PostEventData } from "@/types/blog";
 
 export async function handleWebhookEvent(payload: PostEventData) {
-  const event = payload.event;
+  const event = payload.type;
   const data = payload.data;
 
   // Handle any post.* events (published, updated, deleted, etc.)
@@ -141,7 +141,7 @@ export async function POST(request: Request) {
   }
 
   const payload = JSON.parse(bodyText) as PostEventData;
-  if (!payload.event || !payload.data) {
+  if (!payload.type || !payload.data) {
     return Response.json(
       { error: "Invalid payload structure" },
       { status: 400 }
@@ -170,42 +170,62 @@ Marble will send the signature in the `x-marble-signature` header of the request
 
 ### Request Payload
 
-When a webhook is triggered, Marble sends a POST request to the specified URL with a JSON payload. The payload structure varies depending on the event type. We try to keep the payloads as minimal as possible, only including relevant data.
+When a webhook is triggered, Marble sends a POST request to the specified URL with a JSON payload. JSON webhooks receive a stable envelope that includes the event metadata, the affected resource, the actor when available, and event-specific data.
 
-For `post.published` and `post.updated` events, the payload includes the post title along with the standard fields. Here's an example payload for a `post.published` event:
+Webhook requests include these headers:
+
+- `x-marble-event`: The event type, such as `post.updated`.
+- `x-marble-event-id`: The ID of the workspace event.
+- `x-marble-delivery-id`: The ID of the delivery attempt.
+- `x-marble-timestamp`: The Unix timestamp for the request.
+- `x-marble-signature`: The HMAC SHA-256 signature for the request body.
+
+Here's an example payload for a `post.updated` event:
 
 ```json
 {
-  "event": "post.published",
+  "id": "evt_cmf3d1gsv11469tlkp53bcutv",
+  "type": "post.updated",
+  "createdAt": "2026-05-22T14:42:31.120Z",
+  "workspaceId": "org_cms96emp70001l60415sft0i5",
+  "resource": {
+    "type": "post",
+    "id": "post_cmf3d1gsv11469tlkp53bcutv"
+  },
+  "actor": {
+    "type": "api_key",
+    "id": "key_cmf3cp0nz0001l604a8c7h2sc"
+  },
   "data": {
-    "id": "cmf3d1gsv11469tlkp53bcutv",
-    "slug": "getting-started-with-marble",
+    "id": "post_cmf3d1gsv11469tlkp53bcutv",
     "title": "Getting Started with Marble CMS",
-    "userId": "cms96emp70001l60415sft0i5"
+    "slug": "getting-started-with-marble",
+    "description": "Learn how to publish your first post with Marble.",
+    "coverImage": "https://cdn.marblecms.com/images/getting-started.png",
+    "status": "published",
+    "featured": false,
+    "categoryId": "cat_cmf3cujdp0003l604w7h3whg9",
+    "primaryAuthorId": "author_cmf3cvj1e0004l604x7m6g6fa",
+    "publishedAt": "2026-05-22T14:00:00.000Z",
+    "createdAt": "2026-05-21T18:12:09.431Z",
+    "updatedAt": "2026-05-22T14:42:30.951Z",
+    "changes": ["title", "description"]
   }
 }
 ```
 
-Here's an example payload for a `tag.deleted` event:
+The top-level envelope is the same for `post.published`, `post.deleted`, `tag.created`, `category.updated`, `author.deleted`, and other JSON events. The `type`, `resource`, and `data` fields change to match the event.
 
-```json
-{
-  "event": "tag.deleted",
-  "data": {
-    "id": "cmf3d1gsv11469tlkp53bcutv",
-    "slug": "news-and-updates",
-    "userId": "cms96emp70001l60415sft0i5"
-  }
-}
-```
+Post payloads include `id`, `title`, `slug`, `description`, `coverImage`, `status`, `featured`, `categoryId`, `primaryAuthorId`, `publishedAt`, `createdAt`, and `updatedAt`. Update events also include `changes`, an array of field names that changed.
 
-This structure is consistent across almost all different event types, with an exeption for `media.*` events, which include a `name` field instead of the `slug`.
+Category and tag payloads include `id`, `name`, `slug`, `description`, `createdAt`, and `updatedAt`. Author payloads include profile fields such as `name`, `slug`, `bio`, `role`, `image`, `email`, and `socials`. Media payloads use `name` and media metadata such as `url`, `alt`, `type`, `size`, `mimeType`, dimensions, duration, and `blurHash`.
 
 ## Event Types
 
 Marble supports a variety of event types that you can listen for with webhooks. Here are the currently available events:
 
 - `post.published`: Triggered when a post is published.
+- `post.unpublished`: Triggered when a post is unpublished.
 - `post.updated`: Triggered when a post is updated.
 - `post.deleted`: Triggered when a post is deleted.
 - `tag.created`: Triggered when a new tag is created.
@@ -214,6 +234,11 @@ Marble supports a variety of event types that you can listen for with webhooks. 
 - `category.created`: Triggered when a new category is created.
 - `category.updated`: Triggered when a category is updated.
 - `category.deleted`: Triggered when a category is deleted.
+- `media.uploaded`: Triggered when a media file is uploaded.
+- `media.updated`: Triggered when a media file is updated.
 - `media.deleted`: Triggered when a media file is deleted.
+- `author.created`: Triggered when a new author is created.
+- `author.updated`: Triggered when an author is updated.
+- `author.deleted`: Triggered when an author is deleted.
 
 With more events planned for the future, you can stay tuned for updates in the Marble documentation.
