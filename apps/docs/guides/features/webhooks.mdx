@@ -5,27 +5,13 @@ description: Using webhooks to trigger builds and automate workflows.
 
 Webhooks provide a powerful way to keep your site's content fresh and automate workflows. When an event occurs in your Marble workspace (like publishing a post), we can send an HTTP POST payload to a URL you configure. Webhooks are powered by [Upstash QStash](https://upstash.com?utm_source=marble-docs), ensuring reliable delivery of events.
 
-## Use cases
-
-<CardGroup cols={2}>
-  <Card title="Content Revalidation" icon="rotate">
-    For statically generated sites (SSG) built with frameworks like Next.js,
-    Astro, or Nuxt, content is fetched when you build your site. Webhooks allow
-    you to trigger instant revalidation when content changes.
-  </Card>
-  <Card title="Automating Workflows" icon="bolt">
-    Automate tasks like sending newsletters, sharing on social media, or syncing
-    content to other services when posts are published or updated.
-  </Card>
-</CardGroup>
-
-### Content revalidation
+## Content revalidation
 
 For statically generated sites, content is fetched at build time. If you update a post in Marble, the change won't be live until you trigger a new deployment.
 
 Frameworks like Next.js provide built-in solutions for this, such as [Incremental Static Regeneration (ISR)](https://nextjs.org/docs/app/guides/incremental-static-regeneration), which can be triggered on-demand by a webhook for instant updates.
 
-### Automating workflows
+## Automating workflows
 
 Create a serverless function that listens for a `post.published` event from a Marble webhook. When triggered, your function can:
 
@@ -180,8 +166,43 @@ Webhook requests include these headers:
 - `x-marble-timestamp`: The Unix timestamp for the request.
 - `x-marble-signature`: The HMAC SHA-256 signature for the request body.
 
-Here's an example payload for a `post.updated` event:
+Here are a few post event examples:
 
+<Tabs>
+<Tab title="Published">
+```json
+{
+  "id": "evt_cmf3d1gsv11469tlkp53bcutv",
+  "type": "post.published",
+  "createdAt": "2026-05-22T14:42:31.120Z",
+  "workspaceId": "org_cms96emp70001l60415sft0i5",
+  "resource": {
+    "type": "post",
+    "id": "post_cmf3d1gsv11469tlkp53bcutv"
+  },
+  "actor": {
+    "type": "api_key",
+    "id": "key_cmf3cp0nz0001l604a8c7h2sc"
+  },
+  "data": {
+    "id": "post_cmf3d1gsv11469tlkp53bcutv",
+    "title": "Getting Started with Marble CMS",
+    "slug": "getting-started-with-marble",
+    "description": "Learn how to publish your first post with Marble.",
+    "coverImage": "https://cdn.marblecms.com/images/getting-started.png",
+    "status": "published",
+    "featured": false,
+    "categoryId": "cat_cmf3cujdp0003l604w7h3whg9",
+    "primaryAuthorId": "author_cmf3cvj1e0004l604x7m6g6fa",
+    "publishedAt": "2026-05-22T14:00:00.000Z",
+    "createdAt": "2026-05-21T18:12:09.431Z",
+    "updatedAt": "2026-05-22T14:42:30.951Z"
+  }
+}
+```
+</Tab>
+
+<Tab title="Updated">
 ```json
 {
   "id": "evt_cmf3d1gsv11469tlkp53bcutv",
@@ -213,8 +234,43 @@ Here's an example payload for a `post.updated` event:
   }
 }
 ```
+</Tab>
 
-The top-level envelope is the same for `post.published`, `post.deleted`, `tag.created`, `category.updated`, `author.deleted`, and other JSON events. The `type`, `resource`, and `data` fields change to match the event.
+<Tab title="Deleted">
+```json
+{
+  "id": "evt_cmf3d1gsv11469tlkp53bcutv",
+  "type": "post.deleted",
+  "createdAt": "2026-05-22T14:42:31.120Z",
+  "workspaceId": "org_cms96emp70001l60415sft0i5",
+  "resource": {
+    "type": "post",
+    "id": "post_cmf3d1gsv11469tlkp53bcutv"
+  },
+  "actor": {
+    "type": "api_key",
+    "id": "key_cmf3cp0nz0001l604a8c7h2sc"
+  },
+  "data": {
+    "id": "post_cmf3d1gsv11469tlkp53bcutv",
+    "title": "Getting Started with Marble CMS",
+    "slug": "getting-started-with-marble",
+    "description": "Learn how to publish your first post with Marble.",
+    "coverImage": "https://cdn.marblecms.com/images/getting-started.png",
+    "status": "published",
+    "featured": false,
+    "categoryId": "cat_cmf3cujdp0003l604w7h3whg9",
+    "primaryAuthorId": "author_cmf3cvj1e0004l604x7m6g6fa",
+    "publishedAt": "2026-05-22T14:00:00.000Z",
+    "createdAt": "2026-05-21T18:12:09.431Z",
+    "updatedAt": "2026-05-22T14:42:30.951Z"
+  }
+}
+```
+</Tab>
+</Tabs>
+
+The top-level envelope is the same for `post.published`, `post.updated`, `post.deleted`, `tag.created`, `category.updated`, `author.deleted`, and other JSON events. The `type`, `resource`, and `data` fields change to match the event.
 
 Post payloads include `id`, `title`, `slug`, `description`, `coverImage`, `status`, `featured`, `categoryId`, `primaryAuthorId`, `publishedAt`, `createdAt`, and `updatedAt`. Update events also include `changes`, an array of field names that changed.
 
