@@ -100,7 +100,7 @@ function PageClient() {
         />
       ) : (
         <>
-          <DashboardBody className="grid h-full place-content-center">
+          <div className="grid min-h-[calc(100vh-220px)] place-content-center">
             <div className="flex max-w-80 flex-col items-center gap-4">
               <div className="p-2">
                 <HugeiconsIcon className="size-16" icon={Files01Icon} />
@@ -134,7 +134,7 @@ function PageClient() {
                 </div>
               </div>
             </div>
-          </DashboardBody>
+          </div>
           <PostsImportModal open={importOpen} setOpen={setImportOpen} />
         </>
       )}
