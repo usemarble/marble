@@ -31,7 +31,7 @@ import { handleSubscriptionCreated } from "@/lib/polar/subscription.created";
 import { handleSubscriptionRevoked } from "@/lib/polar/subscription.revoked";
 import { handleSubscriptionUpdated } from "@/lib/polar/subscription.updated";
 import { getLastActiveWorkspaceOrNewOneToSetAsActive } from "@/lib/queries/workspace";
-import { guardWorkspaceSubscriptionAction } from "../actions/checks";
+import { guardWorkspaceSubscription } from "@/lib/subscription/access";
 import {
   createAuthor,
   validateWorkspaceName,
@@ -276,13 +276,13 @@ export const auth = betterAuth({
           }
         },
         beforeCreateInvitation: async ({ organization }) => {
-          await guardWorkspaceSubscriptionAction(
+          await guardWorkspaceSubscription(
             organization.id,
             "Upgrade to Pro to invite team members"
           );
         },
         // beforeAddMember: async ({ organization }) => {
-        //   await guardWorkspaceSubscriptionAction(
+        //   await guardWorkspaceSubscription(
         //     organization.id,
         //     "Upgrade to Pro to add team members"
         //   );

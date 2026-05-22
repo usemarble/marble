@@ -1,8 +1,8 @@
 import { db } from "@marble/db";
 import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
-import { checkWorkspaceSubscriptionAction } from "@/lib/actions/checks";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
+import { checkWorkspaceSubscription } from "@/lib/subscription/access";
 import { shareLinkSchema } from "@/lib/validations/post";
 
 export async function POST(request: Request) {
@@ -14,8 +14,7 @@ export async function POST(request: Request) {
 
   const { workspaceId } = accessData;
 
-  const hasValidSubscription =
-    await checkWorkspaceSubscriptionAction(workspaceId);
+  const hasValidSubscription = await checkWorkspaceSubscription(workspaceId);
 
   if (!hasValidSubscription) {
     return NextResponse.json(
