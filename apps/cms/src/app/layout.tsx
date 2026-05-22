@@ -53,6 +53,13 @@ function DatabuddyAnalytics() {
         <Databuddy
           clientId={process.env.NEXT_PUBLIC_DATABUDDY_CLIENT_ID}
           enableBatching={true}
+          skipPatterns={[
+            "/reset",
+            "/reset/**",
+            "/verify",
+            "/verify/**",
+            "/share/**",
+          ]}
         />
       )}
     </>

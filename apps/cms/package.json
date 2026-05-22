@@ -13,7 +13,7 @@
     "@aws-sdk/lib-storage": "^3.758.0",
     "@aws-sdk/s3-request-presigner": "^3.758.0",
     "@better-fetch/fetch": "^1.1.21",
-    "@databuddy/sdk": "^2.1.75",
+    "@databuddy/sdk": "^2.4.20",
     "@hookform/resolvers": "^5.2.2",
     "@hugeicons/core-free-icons": "^3.1.1",
     "@hugeicons/react": "^1.1.4",

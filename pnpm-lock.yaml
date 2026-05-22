@@ -113,8 +113,8 @@ importers:
         specifier: ^1.1.21
         version: 1.1.21
       '@databuddy/sdk':
-        specifier: ^2.1.75
-        version: 2.1.75(@types/react@19.2.14)(react@19.2.4)
+        specifier: ^2.4.20
+        version: 2.4.20(react@19.2.4)
       '@hookform/resolvers':
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.72.0(react@19.2.4))
@@ -1522,8 +1522,8 @@ packages:
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
     engines: {node: '>=12'}
 
-  '@databuddy/sdk@2.1.75':
-    resolution: {integrity: sha512-6It3a7p3Ur4TxSlIA2+gSI6BWnxPF3sHGS+OC6OeiPr1tdGfhanPlPwY6p77HdtprHOb+KrqPfnVIgQnS+RnMw==}
+  '@databuddy/sdk@2.4.20':
+    resolution: {integrity: sha512-gp8PLX7ZlVP7nKey0OuVtSKAdmDm5RcZbcpW5cmUqRoDcKQ6CnF0U3vi9fh7GwtXABIACq8FWunJthT1NmcTfQ==}
     peerDependencies:
       react: '>=18'
       vue: '>=3'
@@ -7994,18 +7994,6 @@ packages:
   jose@6.2.2:
     resolution: {integrity: sha512-d7kPDd34KO/YnzaDOlikGpOurfF0ByC2sEV4cANCtdqLlTfBlw2p14O/5d/zv40gJPbIQxfES3nSx1/oYNyuZQ==}
 
-  jotai@2.10.1:
-    resolution: {integrity: sha512-4FycO+BOTl2auLyF2Chvi6KTDqdsdDDtpaL/WHQMs8f3KS1E3loiUShQzAzFA/sMU5cJ0hz/RT1xum9YbG/zaA==}
-    engines: {node: '>=12.20.0'}
-    peerDependencies:
-      '@types/react': 19.2.14
-      react: '>=17.0.0'
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
-      react:
-        optional: true
-
   js-base64@3.7.8:
     resolution: {integrity: sha512-hNngCeKxIUQiEUN3GPJOkz4wF/YvdUdbNL9hsBcMQTkKzboD7T/q3OYOuuPZLUE6dBxSGpwhk5mwuDud7JVAow==}
 
@@ -12858,13 +12846,9 @@ snapshots:
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
 
-  '@databuddy/sdk@2.1.75(@types/react@19.2.14)(react@19.2.4)':
-    dependencies:
-      jotai: 2.10.1(@types/react@19.2.14)(react@19.2.4)
+  '@databuddy/sdk@2.4.20(react@19.2.4)':
     optionalDependencies:
       react: 19.2.4
-    transitivePeerDependencies:
-      - '@types/react'
 
   '@date-fns/tz@1.4.1': {}
 
@@ -20137,11 +20121,6 @@ snapshots:
   jiti@2.6.1: {}
 
   jose@6.2.2: {}
-
-  jotai@2.10.1(@types/react@19.2.14)(react@19.2.4):
-    optionalDependencies:
-      '@types/react': 19.2.14
-      react: 19.2.4
 
   js-base64@3.7.8: {}
 
