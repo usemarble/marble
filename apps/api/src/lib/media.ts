@@ -1,5 +1,8 @@
 import { imageSize } from "image-size";
+import type { createDbClient } from "@/lib/db";
 import { DEFAULT_CDN_URL } from "./constants";
+
+type DbClient = ReturnType<typeof createDbClient>;
 
 export type MediaType = "image" | "video" | "audio" | "document";
 
@@ -85,4 +88,18 @@ export function getImageDimensions(buffer: ArrayBuffer) {
     console.warn("Failed to read image dimensions:", error);
     return {};
   }
+}
+
+export async function trackMediaUploadUsage(
+  db: DbClient,
+  workspaceId: string,
+  fileSize: number
+) {
+  await db.usageEvent.create({
+    data: {
+      type: "media_upload",
+      workspaceId,
+      size: fileSize,
+    },
+  });
 }

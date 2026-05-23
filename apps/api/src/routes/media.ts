@@ -12,6 +12,7 @@ import {
   publicUrl,
   serializeMedia,
 } from "@/lib/media";
+import { trackMediaUploadUsage } from "@/lib/media";
 import { requireWorkspaceId } from "@/lib/workspace";
 import {
   DeleteResponseSchema,
@@ -499,6 +500,12 @@ media.openapi(uploadMediaRoute, async (c) => {
     }
 
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "media"));
+
+    c.executionCtx.waitUntil(
+      trackMediaUploadUsage(db, workspaceId, file.size).catch((error) => {
+        console.error("[media.upload] Failed to track media usage:", error);
+      })
+    );
 
     c.executionCtx.waitUntil(
       emitEvent(db, c.env.EVENT_QUEUE, {
