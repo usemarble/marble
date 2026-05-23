@@ -11,8 +11,8 @@ import {
   objectKeyFromUrl,
   publicUrl,
   serializeMedia,
+  trackMediaUploadUsage,
 } from "@/lib/media";
-import { trackMediaUploadUsage } from "@/lib/media";
 import { requireWorkspaceId } from "@/lib/workspace";
 import {
   DeleteResponseSchema,
