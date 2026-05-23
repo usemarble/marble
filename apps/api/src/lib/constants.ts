@@ -20,7 +20,6 @@ export const ALLOWED_IMAGE_MIME_TYPES = [
   "image/gif",
   "image/webp",
   "image/avif",
-  "image/svg+xml",
 ] as const;
 
 export const ALLOWED_VIDEO_MIME_TYPES = [

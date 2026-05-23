@@ -18,7 +18,7 @@ export const IMAGE_DROPZONE_ACCEPT = [
 ];
 
 export const MEDIA_DROPZONE_ACCEPT = {
-  "image/*": [".jpeg", ".jpg", ".png", ".gif", ".webp", ".avif", ".svg"],
+  "image/*": [".jpeg", ".jpg", ".png", ".gif", ".webp", ".avif"],
   "video/*": [
     ".mp4",
     ".mov",
@@ -50,7 +50,6 @@ export const ALLOWED_VIDEO_MIME_TYPES = [
 
 export const ALLOWED_MIME_TYPES = [
   ...ALLOWED_RASTER_MIME_TYPES,
-  "image/svg+xml",
   ...ALLOWED_VIDEO_MIME_TYPES,
 ] as const;
 
