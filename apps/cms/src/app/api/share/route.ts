@@ -2,7 +2,7 @@ import { db } from "@marble/db";
 import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
-import { checkWorkspaceSubscription } from "@/lib/subscription/access";
+import { canPerformAction, getWorkspacePlan } from "@/lib/plans";
 import { shareLinkSchema } from "@/lib/validations/post";
 
 export async function POST(request: Request) {
@@ -14,11 +14,26 @@ export async function POST(request: Request) {
 
   const { workspaceId } = accessData;
 
-  const hasValidSubscription = await checkWorkspaceSubscription(workspaceId);
+  const activeSubscription = await db.subscription.findFirst({
+    where: {
+      workspaceId,
+      OR: [
+        { status: "active" },
+        { status: "trialing" },
+        {
+          status: "canceled",
+          cancelAtPeriodEnd: true,
+          currentPeriodEnd: { gt: new Date() },
+        },
+      ],
+    },
+    orderBy: { createdAt: "desc" },
+  });
 
-  if (!hasValidSubscription) {
+  const plan = getWorkspacePlan(activeSubscription);
+  if (!canPerformAction(plan, "shareDrafts")) {
     return NextResponse.json(
-      { error: "Upgrade to Pro to share drafts" },
+      { error: "Upgrade to Hobby to share drafts" },
       { status: 403 }
     );
   }

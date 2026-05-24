@@ -192,11 +192,15 @@ export const auth = betterAuth({
         checkout({
           products: [
             {
-              productId: process.env.POLAR_HOBBY_PRODUCT_ID || "",
+              productId: process.env.POLAR_HOBBY_MONTHLY_PRODUCT_ID || "",
               slug: "hobby",
             },
             {
-              productId: process.env.POLAR_PRO_PRODUCT_ID || "",
+              productId: process.env.POLAR_HOBBY_YEARLY_PRODUCT_ID || "",
+              slug: "hobby-yearly",
+            },
+            {
+              productId: process.env.POLAR_PRO_MONTHLY_PRODUCT_ID || "",
               slug: "pro",
             },
             {

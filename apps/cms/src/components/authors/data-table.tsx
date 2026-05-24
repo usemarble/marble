@@ -40,7 +40,7 @@ export function AuthorDataTable({ columns, data }: AuthorDataTableProps) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  const { isHobbyPlan } = usePlan();
+  const { planLimits } = usePlan();
 
   const table = useReactTable({
     data,
@@ -54,8 +54,7 @@ export function AuthorDataTable({ columns, data }: AuthorDataTableProps) {
   });
 
   const handleAddAuthor = () => {
-    // Free plan is limited to 1 author
-    if (isHobbyPlan && data.length >= 1) {
+    if (data.length >= planLimits.maxAuthors) {
       setShowUpgradeModal(true);
       return;
     }

@@ -111,7 +111,7 @@ export function registerAuthorTools(
     {
       title: "Create Author",
       description:
-        "Create a new author. Requires a private Marble API key. Hobby plan is limited to 1 author.",
+        "Create a new author. Requires a private Marble API key. Plan limits apply.",
       inputSchema: {
         body: z.object(authorBody),
       },

@@ -20,27 +20,47 @@ import { useWorkspace } from "@/providers/workspace";
 
 function PageClient() {
   const [checkoutLoading, setCheckoutLoading] = useState<
-    "pro" | "pro-yearly" | "hobby" | null
+    "hobby" | "hobby-yearly" | "pro" | "pro-yearly" | null
   >(null);
   const [isYearly, setIsYearly] = useState(true);
   const { activeWorkspace, isFetchingWorkspace, isOwner } = useWorkspace();
-  const { currentPlan, isProPlan } = usePlan();
+  const { currentPlan, isFreePlan, isProPlan } = usePlan();
 
+  const freePlan = PRICING_PLANS.find((p) => p.id === "free");
   const hobbyPlan = PRICING_PLANS.find((p) => p.id === "hobby");
   const proPlan = PRICING_PLANS.find((p) => p.id === "pro");
 
   const getPlanDisplayName = () => {
-    return currentPlan === "pro" ? "Pro" : "Hobby";
+    if (currentPlan === "pro") {
+      return "Pro";
+    }
+    if (currentPlan === "hobby") {
+      return "Hobby";
+    }
+    return "Free";
   };
 
-  const monthlyPrice = "$20";
-  const yearlyPrice = "$200";
+  const getDisplayPrice = (plan?: (typeof PRICING_PLANS)[number]) => {
+    if (!plan) {
+      return "";
+    }
+    return isYearly ? plan.price.yearly : plan.price.monthly;
+  };
+
+  const getCheckoutSlug = (planId: "hobby" | "pro") => {
+    if (planId === "hobby") {
+      return isYearly ? "hobby-yearly" : "hobby";
+    }
+    return isYearly ? "pro-yearly" : "pro";
+  };
 
   if (isFetchingWorkspace || !activeWorkspace) {
     return <PageLoader />;
   }
 
-  const handleCheckout = async (plan: "pro" | "pro-yearly" | "hobby") => {
+  const handleCheckout = async (
+    plan: "hobby" | "hobby-yearly" | "pro" | "pro-yearly"
+  ) => {
     if (!activeWorkspace?.id) {
       return;
     }
@@ -67,7 +87,7 @@ function PageClient() {
     }
   };
 
-  const renderPlanButton = (planId: "hobby" | "pro") => {
+  const renderPlanButton = (planId: "free" | "hobby" | "pro") => {
     const isCurrentPlan = currentPlan === planId;
 
     if (isCurrentPlan) {
@@ -78,7 +98,7 @@ function PageClient() {
       );
     }
 
-    if (planId === "hobby" && isProPlan) {
+    if (planId === "free" || (planId === "hobby" && isProPlan)) {
       return (
         <Button
           className="w-full"
@@ -91,8 +111,7 @@ function PageClient() {
       );
     }
 
-    const isUpgrade = planId === "pro" && currentPlan === "hobby";
-    const checkoutSlug = isYearly ? "pro-yearly" : "pro";
+    const checkoutSlug = getCheckoutSlug(planId);
 
     return (
       <AsyncButton
@@ -101,7 +120,7 @@ function PageClient() {
         onClick={() => handleCheckout(checkoutSlug)}
         variant="default"
       >
-        Upgrade to Pro
+        Upgrade to {planId === "hobby" ? "Hobby" : "Pro"}
       </AsyncButton>
     );
   };
@@ -124,7 +143,7 @@ function PageClient() {
                 <span className="font-medium">{getPlanDisplayName()}</span>
               </div>
             )}
-            {isOwner && isProPlan && (
+            {isOwner && !isFreePlan && (
               <Button
                 onClick={() => redirectCustomerPortal()}
                 variant="outline"
@@ -167,7 +186,46 @@ function PageClient() {
           </div>
         </div>
 
-        <section className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <section className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          {freePlan && (
+            <Card className="relative gap-0 rounded-[20px] border-none bg-surface p-1">
+              <div className="flex h-full flex-col gap-6 rounded-[16px] bg-background p-6 shadow-xs">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h3 className="font-semibold text-xl">{freePlan.title}</h3>
+                    <p className="mt-1 text-muted-foreground text-sm">
+                      {freePlan.description}
+                    </p>
+                  </div>
+                  {currentPlan === "free" && (
+                    <Badge variant="secondary">Current Plan</Badge>
+                  )}
+                </div>
+
+                <div>
+                  <span className="font-bold text-3xl">
+                    {freePlan.price.monthly}
+                  </span>
+                  <span className="text-muted-foreground"> / month</span>
+                </div>
+
+                {isOwner && renderPlanButton("free")}
+
+                <ul className="flex flex-col gap-2">
+                  {freePlan.features.map((feature) => (
+                    <li
+                      className="flex items-center gap-2 text-sm"
+                      key={feature}
+                    >
+                      <CheckIcon className="size-4 text-green-500" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </Card>
+          )}
+
           {hobbyPlan && (
             <Card className="relative gap-0 rounded-[20px] border-none bg-surface p-1">
               <div className="flex h-full flex-col gap-6 rounded-[16px] bg-background p-6 shadow-xs">
@@ -185,9 +243,11 @@ function PageClient() {
 
                 <div>
                   <span className="font-bold text-3xl">
-                    {hobbyPlan.price.monthly}
+                    {getDisplayPrice(hobbyPlan)}
                   </span>
-                  <span className="text-muted-foreground"> / month</span>
+                  <span className="text-muted-foreground">
+                    {isYearly ? " / year" : " / month"}
+                  </span>
                 </div>
 
                 {isOwner && renderPlanButton("hobby")}
@@ -224,7 +284,7 @@ function PageClient() {
 
                 <div>
                   <span className="font-bold text-3xl">
-                    {isYearly ? yearlyPrice : monthlyPrice}
+                    {getDisplayPrice(proPlan)}
                   </span>
                   <span className="text-muted-foreground">
                     {isYearly ? " / year" : " / month"}

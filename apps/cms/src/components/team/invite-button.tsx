@@ -18,7 +18,7 @@ interface InviteButtonProps {
 
 export function InviteButton({ onInvite }: InviteButtonProps) {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  const { canInvite, remainingSlots, isHobbyPlan, planLimits } = usePlan();
+  const { canInvite, remainingSlots, isFreePlan } = usePlan();
 
   const handleInviteClick = () => {
     if (canInvite) {
@@ -43,9 +43,9 @@ export function InviteButton({ onInvite }: InviteButtonProps) {
             delay={0}
             render={
               <Button
-                className={isHobbyPlan ? "" : "opacity-50"}
+                className={isFreePlan ? "" : "opacity-50"}
                 onClick={handleInviteClick}
-                variant={isHobbyPlan ? "default" : "outline"}
+                variant={isFreePlan ? "default" : "outline"}
               >
                 <PlusIcon className="size-4" />
                 Invite

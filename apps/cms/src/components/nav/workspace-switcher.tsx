@@ -112,9 +112,9 @@ export function WorkspaceSwitcher() {
                         </span>
                         <Badge
                           className="shrink-0 px-1.5 py-0 text-[10px] capitalize"
-                          variant={currentPlan === "pro" ? "paid" : "free"}
+                          variant={currentPlan === "free" ? "free" : "paid"}
                         >
-                          {currentPlan === "hobby" ? "free" : currentPlan}
+                          {currentPlan}
                         </Badge>
                       </div>
                       <HugeiconsIcon

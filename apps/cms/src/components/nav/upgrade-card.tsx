@@ -2,6 +2,7 @@
 
 import { Button } from "@marble/ui/components/button";
 import { useSidebar } from "@marble/ui/components/sidebar";
+import { PRICING_PLANS } from "@marble/utils";
 import { motion, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { AsyncButton } from "@/components/ui/async-button";
@@ -11,11 +12,15 @@ import { useWorkspace } from "@/providers/workspace";
 
 export function UpgradeCard() {
   const { state } = useSidebar();
-  const { isHobbyPlan } = usePlan();
+  const { isFreePlan, isHobbyPlan } = usePlan();
   const { isOwner, activeWorkspace } = useWorkspace();
   const [isLoading, setIsLoading] = useState(false);
   const isCollapsed = state === "collapsed";
   const shouldReduceMotion = useReducedMotion();
+  const hobbyPlan = PRICING_PLANS.find((plan) => plan.id === "hobby");
+  const freeUpgradeLabel = hobbyPlan
+    ? `Upgrade for ${hobbyPlan.price.monthly}/month`
+    : "Upgrade";
 
   const wasCollapsed = useRef(isCollapsed);
   const shouldAnimate =
@@ -25,7 +30,7 @@ export function UpgradeCard() {
     wasCollapsed.current = isCollapsed;
   }, [isCollapsed]);
 
-  if (!isHobbyPlan || !isOwner || isCollapsed) {
+  if ((!isFreePlan && !isHobbyPlan) || !isOwner || isCollapsed) {
     return null;
   }
 
@@ -38,7 +43,7 @@ export function UpgradeCard() {
 
     try {
       await checkout({
-        slug: "pro",
+        slug: isFreePlan ? "hobby" : "pro",
         referenceId: activeWorkspace.id,
       });
     } catch (error) {
@@ -58,7 +63,7 @@ export function UpgradeCard() {
         <div className="relative z-10 flex flex-col gap-3">
           <div className="space-y-2.5">
             <h4 className="font-medium text-sm leading-none tracking-tight">
-              Upgrade to Pro
+              Upgrade to {isFreePlan ? "Hobby" : "Pro"}
             </h4>
             <p className="text-muted-foreground text-xs leading-tight">
               Unlock higher limits, invite team members, and get more storage.
@@ -70,7 +75,7 @@ export function UpgradeCard() {
             onClick={handleUpgrade}
             size="xs"
           >
-            Start 3 day free trial
+            {isFreePlan ? freeUpgradeLabel : "Start 3 day free trial"}
           </AsyncButton>
         </div>
       </div>
