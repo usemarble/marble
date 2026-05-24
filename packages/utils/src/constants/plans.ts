@@ -1,12 +1,14 @@
-export type PlanType = "pro" | "hobby";
+export type PlanType = "free" | "hobby" | "pro";
 
 export interface PlanLimits {
+  maxAuthors: number;
   maxMembers: number;
   maxMediaStorage: number;
   maxApiRequests: number;
   maxWebhookEvents: number;
   features: {
     inviteMembers: boolean;
+    shareDrafts: boolean;
     advancedReadability: boolean;
     keywordOptimization: boolean;
     unlimitedPosts: boolean;
@@ -14,25 +16,43 @@ export interface PlanLimits {
 }
 
 export const PLAN_LIMITS: Record<PlanType, PlanLimits> = {
-  hobby: {
+  free: {
+    maxAuthors: 1,
     maxMembers: 1,
     maxMediaStorage: 1024,
-    maxApiRequests: 10_000,
+    maxApiRequests: 5000,
     maxWebhookEvents: 100,
     features: {
       inviteMembers: true,
+      shareDrafts: false,
+      advancedReadability: false,
+      keywordOptimization: false,
+      unlimitedPosts: true,
+    },
+  },
+  hobby: {
+    maxAuthors: 5,
+    maxMembers: 5,
+    maxMediaStorage: 5120,
+    maxApiRequests: 25_000,
+    maxWebhookEvents: 500,
+    features: {
+      inviteMembers: true,
+      shareDrafts: true,
       advancedReadability: false,
       keywordOptimization: false,
       unlimitedPosts: true,
     },
   },
   pro: {
-    maxMembers: 5,
+    maxAuthors: Number.MAX_SAFE_INTEGER,
+    maxMembers: 10,
     maxMediaStorage: 10_240,
     maxApiRequests: 50_000,
     maxWebhookEvents: 1000,
     features: {
       inviteMembers: true,
+      shareDrafts: true,
       advancedReadability: true,
       keywordOptimization: false,
       unlimitedPosts: true,
@@ -85,10 +105,15 @@ export function getWorkspacePlan(
   } | null
 ): PlanType {
   if (!subscription?.plan || !isSubscriptionActive(subscription)) {
-    return "hobby";
+    return "free";
   }
 
-  return subscription.plan.toLowerCase() === "pro" ? "pro" : "hobby";
+  const plan = subscription.plan.toLowerCase();
+  if (plan === "pro" || plan === "hobby") {
+    return plan;
+  }
+
+  return "free";
 }
 
 /**
@@ -137,6 +162,7 @@ export function getPlanLimits(plan: PlanType): PlanLimits {
 export function isOverLimit(
   plan: PlanType,
   usage: {
+    authors?: number;
     members?: number;
     mediaStorage?: number;
     apiRequests?: number;
@@ -152,6 +178,12 @@ export function isOverLimit(
   if (usage.members && usage.members > limits.maxMembers) {
     violations.push(
       `Member count (${usage.members}) exceeds limit (${limits.maxMembers})`
+    );
+  }
+
+  if (usage.authors && usage.authors > limits.maxAuthors) {
+    violations.push(
+      `Author count (${usage.authors}) exceeds limit (${limits.maxAuthors})`
     );
   }
 

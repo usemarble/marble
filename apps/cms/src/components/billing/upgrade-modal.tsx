@@ -37,7 +37,7 @@ const FEATURE_CONTENT: Record<
   "team-members": {
     title: "Invite team members",
     description:
-      "Upgrade to invite up to 5 team members to collaborate on your workspace.",
+      "Upgrade to invite more team members to collaborate on your workspace.",
   },
   storage: {
     title: "Get more storage",

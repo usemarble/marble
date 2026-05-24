@@ -16,9 +16,9 @@ export interface PricingPlan {
 
 export const PRICING_PLANS: PricingPlan[] = [
   {
-    id: "hobby",
-    title: "Hobby",
-    description: "For solo creators",
+    id: "free",
+    title: "Free",
+    description: "For getting started",
     price: {
       monthly: "$0",
       yearly: "$0",
@@ -28,13 +28,36 @@ export const PRICING_PLANS: PricingPlan[] = [
       "1 Author",
       "1GB media storage",
       "AI Readability insights",
-      "10k API requests per month",
+      "5k API requests per month",
       "100 webhook events per month",
       "1 team member",
     ],
     button: {
       href: "https://app.marblecms.com",
       label: "Start for free",
+    },
+  },
+  {
+    id: "hobby",
+    title: "Hobby",
+    description: "For hobbyists",
+    price: {
+      monthly: "$5",
+      yearly: "$60",
+    },
+    features: [
+      "Unlimited posts",
+      "5 Authors",
+      "5GB media storage",
+      "AI Readability insights",
+      "25k API requests per month",
+      "500 webhook events per month",
+      "5 team members",
+      "Share post drafts",
+    ],
+    button: {
+      href: "https://app.marblecms.com",
+      label: "Upgrade to Hobby",
     },
   },
   {
@@ -53,7 +76,7 @@ export const PRICING_PLANS: PricingPlan[] = [
       "AI Readability insights",
       "50k API requests per month",
       "1k webhook events per month",
-      "5 team members",
+      "10 team members",
       "Share post drafts",
     ],
     button: {

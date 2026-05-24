@@ -36,7 +36,7 @@ export function ShareModal({ postId }: ShareModalProps) {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
 
-  const { isHobbyPlan } = usePlan();
+  const { canUseFeature } = usePlan();
 
   const { mutate: generateShareLink, isPending } = useMutation({
     mutationFn: async () => {
@@ -85,10 +85,10 @@ export function ShareModal({ postId }: ShareModalProps) {
   };
 
   const handleShareClick = () => {
-    if (isHobbyPlan) {
-      setShowUpgradeModal(true);
-    } else {
+    if (canUseFeature("shareDrafts")) {
       setShowShareDialog(true);
+    } else {
+      setShowUpgradeModal(true);
     }
   };
 

@@ -7,7 +7,7 @@ import {
   emitDashboardEvent,
   logDashboardEventError,
 } from "@/lib/events/dispatch";
-import { getWorkspacePlan } from "@/lib/plans";
+import { getWorkspacePlan, PLAN_LIMITS } from "@/lib/plans";
 import { authorSchema } from "@/lib/validations/authors";
 
 export async function GET() {
@@ -70,7 +70,7 @@ export async function POST(request: Request) {
   const { sessionData, workspaceId } = accessData;
 
   try {
-    // Check plan limits for author creation (only hobby plan is limited to 1 author)
+    // Check plan limits before creating another author.
     const workspace = await db.organization.findUnique({
       where: { id: workspaceId },
       select: {
@@ -104,8 +104,8 @@ export async function POST(request: Request) {
     const activeSubscription = workspace?.subscriptions[0] || null;
     const currentPlan = getWorkspacePlan(activeSubscription);
 
-    // Hobby plan is limited to 1 author
-    if (currentPlan === "hobby") {
+    const planLimits = PLAN_LIMITS[currentPlan];
+    if (planLimits.maxAuthors !== Number.MAX_SAFE_INTEGER) {
       const existingAuthorsCount = await db.author.count({
         where: {
           workspaceId,
@@ -116,8 +116,7 @@ export async function POST(request: Request) {
       if (existingAuthorsCount >= 1) {
         return NextResponse.json(
           {
-            error:
-              "Author limit reached. Upgrade to Pro plan to create more authors.",
+            error: `Author limit reached. Your current plan allows ${planLimits.maxAuthors} author${planLimits.maxAuthors === 1 ? "" : "s"}.`,
           },
           { status: 403 }
         );

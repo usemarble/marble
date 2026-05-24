@@ -1,5 +1,6 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { toAuthorPayload, withChanges } from "@marble/events";
+import { getWorkspacePlan, PLAN_LIMITS } from "@marble/utils";
 import { cacheKey, createCacheClient, hashQueryParams } from "@/lib/cache";
 import { createDbClient } from "@/lib/db";
 import { emitEvent } from "@/lib/events";
@@ -277,7 +278,7 @@ const createAuthorRoute = createRoute({
   tags: ["Authors"],
   summary: "Create author",
   description:
-    "Create a new author. Requires a private API key. Hobby plan is limited to 1 author.",
+    "Create a new author. Requires a private API key. Plan limits apply.",
   request: {
     body: {
       content: { "application/json": { schema: CreateAuthorBodySchema } },
@@ -316,7 +317,7 @@ authors.openapi(createAuthorRoute, async (c) => {
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const body = c.req.valid("json");
 
-    // Check plan limits — hobby plan limited to 1 author
+    // Check plan limits before creating another author.
     const workspace = await db.organization.findUnique({
       where: { id: workspaceId },
       select: {
@@ -334,25 +335,30 @@ authors.openapi(createAuthorRoute, async (c) => {
           },
           orderBy: { createdAt: "desc" },
           take: 1,
-          select: { plan: true },
+          select: {
+            plan: true,
+            status: true,
+            cancelAtPeriodEnd: true,
+            currentPeriodEnd: true,
+          },
         },
       },
     });
 
     const activeSub = workspace?.subscriptions[0];
-    const plan = activeSub?.plan?.toLowerCase() === "pro" ? "pro" : "hobby";
+    const plan = getWorkspacePlan(activeSub);
+    const planLimits = PLAN_LIMITS[plan];
 
-    if (plan === "hobby") {
+    if (planLimits.maxAuthors !== Number.MAX_SAFE_INTEGER) {
       const existingCount = await db.author.count({
         where: { workspaceId, isActive: true },
       });
 
-      if (existingCount >= 1) {
+      if (existingCount >= planLimits.maxAuthors) {
         return c.json(
           {
             error: "Author limit reached",
-            message:
-              "Hobby plan is limited to 1 author. Upgrade to Pro to create more.",
+            message: `Your current plan allows ${planLimits.maxAuthors} author${planLimits.maxAuthors === 1 ? "" : "s"}.`,
           },
           403 as const
         );

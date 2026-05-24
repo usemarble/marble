@@ -111,7 +111,7 @@ export const PRICING_FAQS: {
   {
     question: "Can I have multiple workspaces on one plan?",
     answer:
-      "Each workspace requires its own subscription. If you want multiple workspaces on a paid plan, you'll need to subscribe separately for each workspace. However, you can have unlimited workspaces on the free Hobby plan.",
+      "Each workspace requires its own subscription. If you want multiple workspaces on a paid plan, you'll need to subscribe separately for each workspace. However, you can have unlimited workspaces on the Free plan.",
   },
   {
     question: "Is there a discount for annual billing?",
