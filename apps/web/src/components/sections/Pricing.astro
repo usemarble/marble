@@ -25,12 +25,12 @@
           id="billing-toggle"
           type="button"
           role="switch"
-          aria-checked="true"
-          class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-accent transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          aria-checked="false"
+          class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-muted transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           <span
             id="toggle-thumb"
-            class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-5"
+            class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-0"
           ></span>
         </button>
         <span class="text-sm text-muted-foreground">Yearly</span>
@@ -53,10 +53,10 @@
                       <div>
                         <p>
                           <span class="font-bold text-2xl" data-plan-id={plan.id} data-monthly={plan.price.monthly} data-yearly={plan.price.yearly}>
-                            {plan.price.yearly}
+                            {plan.price.monthly}
                           </span>{' '}
                           <span class="text-muted-foreground" data-plan-period={plan.id} data-monthly="/ month" data-yearly="/ year">
-                            / year
+                            / month
                           </span>
                         </p>
                       </div>
@@ -92,10 +92,10 @@
                     <div>
                       <p>
                         <span class="font-bold text-2xl" data-plan-id={plan.id} data-monthly={plan.price.monthly} data-yearly={plan.price.yearly}>
-                          {plan.price.yearly}
+                          {plan.price.monthly}
                         </span>{' '}
                         <span class="text-muted-foreground" data-plan-period={plan.id} data-monthly="/ month" data-yearly="/ year">
-                          / year
+                          / month
                         </span>
                       </p>
                     </div>
@@ -137,7 +137,7 @@
     const priceElements = document.querySelectorAll("[data-plan-id]");
     const periodElements = document.querySelectorAll("[data-plan-period]");
 
-    let isYearly = true;
+    let isYearly = false;
 
     toggle?.addEventListener("click", () => {
       isYearly = !isYearly;
