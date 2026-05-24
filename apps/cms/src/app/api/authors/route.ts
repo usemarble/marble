@@ -113,7 +113,7 @@ export async function POST(request: Request) {
         },
       });
 
-      if (existingAuthorsCount >= 1) {
+      if (existingAuthorsCount >= planLimits.maxAuthors) {
         return NextResponse.json(
           {
             error: `Author limit reached. Your current plan allows ${planLimits.maxAuthors} author${planLimits.maxAuthors === 1 ? "" : "s"}.`,

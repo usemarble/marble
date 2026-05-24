@@ -13,10 +13,10 @@ export function isStalePolarEvent(
 
 export function getPlanType(productName: string): PlanType | null {
   const plan = productName.toLowerCase();
-  if (plan === "pro" || plan.startsWith("pro ")) {
+  if (/^pro($|[ _-])/.test(plan)) {
     return PlanType.pro;
   }
-  if (plan === "hobby" || plan.startsWith("hobby ")) {
+  if (/^hobby($|[ _-])/.test(plan)) {
     return PlanType.hobby;
   }
   return null;

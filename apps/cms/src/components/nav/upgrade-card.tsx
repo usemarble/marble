@@ -2,6 +2,7 @@
 
 import { Button } from "@marble/ui/components/button";
 import { useSidebar } from "@marble/ui/components/sidebar";
+import { PRICING_PLANS } from "@marble/utils";
 import { motion, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { AsyncButton } from "@/components/ui/async-button";
@@ -16,6 +17,10 @@ export function UpgradeCard() {
   const [isLoading, setIsLoading] = useState(false);
   const isCollapsed = state === "collapsed";
   const shouldReduceMotion = useReducedMotion();
+  const hobbyPlan = PRICING_PLANS.find((plan) => plan.id === "hobby");
+  const freeUpgradeLabel = hobbyPlan
+    ? `Upgrade for ${hobbyPlan.price.monthly}/month`
+    : "Upgrade";
 
   const wasCollapsed = useRef(isCollapsed);
   const shouldAnimate =
@@ -70,7 +75,7 @@ export function UpgradeCard() {
             onClick={handleUpgrade}
             size="xs"
           >
-            {isFreePlan ? "Upgrade for $5/month" : "Start 3 day free trial"}
+            {isFreePlan ? freeUpgradeLabel : "Start 3 day free trial"}
           </AsyncButton>
         </div>
       </div>

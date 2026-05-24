@@ -40,11 +40,18 @@ function PageClient() {
     return "Free";
   };
 
-  const getDisplayPrice = (planId: "hobby" | "pro") => {
-    if (planId === "hobby") {
-      return isYearly ? "$60" : "$5";
+  const getDisplayPrice = (plan?: (typeof PRICING_PLANS)[number]) => {
+    if (!plan) {
+      return "";
     }
-    return isYearly ? "$200" : "$20";
+    return isYearly ? plan.price.yearly : plan.price.monthly;
+  };
+
+  const getCheckoutSlug = (planId: "hobby" | "pro") => {
+    if (planId === "hobby") {
+      return isYearly ? "hobby-yearly" : "hobby";
+    }
+    return isYearly ? "pro-yearly" : "pro";
   };
 
   if (isFetchingWorkspace || !activeWorkspace) {
@@ -104,14 +111,7 @@ function PageClient() {
       );
     }
 
-    const checkoutSlug =
-      planId === "hobby"
-        ? isYearly
-          ? "hobby-yearly"
-          : "hobby"
-        : isYearly
-          ? "pro-yearly"
-          : "pro";
+    const checkoutSlug = getCheckoutSlug(planId);
 
     return (
       <AsyncButton
@@ -243,7 +243,7 @@ function PageClient() {
 
                 <div>
                   <span className="font-bold text-3xl">
-                    {getDisplayPrice("hobby")}
+                    {getDisplayPrice(hobbyPlan)}
                   </span>
                   <span className="text-muted-foreground">
                     {isYearly ? " / year" : " / month"}
@@ -284,7 +284,7 @@ function PageClient() {
 
                 <div>
                   <span className="font-bold text-3xl">
-                    {getDisplayPrice("pro")}
+                    {getDisplayPrice(proPlan)}
                   </span>
                   <span className="text-muted-foreground">
                     {isYearly ? " / year" : " / month"}
