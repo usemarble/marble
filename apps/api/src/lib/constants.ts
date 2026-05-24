@@ -13,6 +13,7 @@ export const ROUTES = [
 
 export const MAX_UPLOAD_SIZE = 5 * 1024 * 1024;
 export const DEFAULT_CDN_URL = "https://cdn.marblecms.com";
+export const EMPTY_TIPTAP_DOC = { type: "doc", content: [] };
 
 export const ALLOWED_IMAGE_MIME_TYPES = [
   "image/jpeg",

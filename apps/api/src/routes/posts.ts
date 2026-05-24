@@ -2,6 +2,7 @@ import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { toPostPayload, withChanges } from "@marble/events";
 import { NodeHtmlMarkdown } from "node-html-markdown";
 import { cacheKey, createCacheClient, hashQueryParams } from "@/lib/cache";
+import { EMPTY_TIPTAP_DOC } from "@/lib/constants";
 import { createDbClient } from "@/lib/db";
 import { emitEvent } from "@/lib/events";
 import { buildFieldsObject, buildStatusFilter } from "@/lib/posts";
@@ -646,7 +647,7 @@ posts.openapi(createPostRoute, async (c) => {
       data: {
         title: body.title,
         content: sanitizeHtml(body.content),
-        contentJson: {}, // API users send HTML, not TipTap JSON
+        contentJson: EMPTY_TIPTAP_DOC, // API users send HTML, not TipTap JSON
         description: body.description,
         slug: body.slug,
         categoryId: body.categoryId,
