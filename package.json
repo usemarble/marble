@@ -31,7 +31,7 @@
     "@commitlint/config-conventional": "^19.8.1",
     "@marble/tsconfig": "workspace:*",
     "husky": "^9.1.7",
-    "turbo": "^2.7.2",
+    "turbo": "^2.9.14",
     "typescript": "^5.9.3",
     "ultracite": "7.0.3"
   },
