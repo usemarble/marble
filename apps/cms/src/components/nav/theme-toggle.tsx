@@ -54,9 +54,9 @@ export function ThemeToggle() {
 
     switch (theme) {
       case "light":
-        return "Light mode";
+        return "Light theme";
       case "dark":
-        return "Dark mode";
+        return "Dark theme";
       default:
         return "System theme";
     }
