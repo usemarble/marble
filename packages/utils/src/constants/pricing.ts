@@ -27,7 +27,6 @@ export const PRICING_PLANS: PricingPlan[] = [
       "Unlimited posts",
       "1 Author",
       "1GB media storage",
-      "AI Readability insights",
       "5k API requests per month",
       "100 webhook events per month",
       "1 team member",
