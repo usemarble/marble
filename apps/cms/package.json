@@ -36,7 +36,7 @@
     "@vvo/tzdb": "^6.176.0",
     "ai": "^5.0.108",
     "axios": "^1.16.0",
-    "better-auth": "1.5.6",
+    "better-auth": "1.6.2",
     "blurhash": "^2.0.5",
     "canvas-confetti": "^1.9.3",
     "class-variance-authority": "^0.7.0",
