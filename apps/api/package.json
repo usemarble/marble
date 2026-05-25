@@ -14,7 +14,7 @@
     "@marble/events": "workspace:*",
     "@marble/parser": "workspace:*",
     "@marble/utils": "workspace:*",
-    "@polar-sh/sdk": "^0.42.5",
+    "@polar-sh/sdk": "^0.47.1",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.36.4",
     "hono": "^4.12.14",
