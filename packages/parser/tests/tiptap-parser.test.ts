@@ -1,6 +1,55 @@
 import type { Tokens } from "marked";
 import { describe, expect, it } from "vitest";
-import { MarkdownToTiptapParser, markdownToTiptap } from "../src/tiptap";
+import {
+  EMPTY_TIPTAP_DOC,
+  htmlToTiptap,
+  MarkdownToTiptapParser,
+  markdownToTiptap,
+} from "../src/tiptap";
+
+describe("htmlToTiptap", () => {
+  it("converts HTML into Tiptap JSON", () => {
+    const result = htmlToTiptap("<h2>Hello</h2><p>World</p>");
+
+    expect(result).toEqual({
+      type: "doc",
+      content: [
+        {
+          type: "heading",
+          attrs: { textAlign: null, level: 2 },
+          content: [{ type: "text", text: "Hello" }],
+        },
+        {
+          type: "paragraph",
+          attrs: { textAlign: null },
+          content: [{ type: "text", text: "World" }],
+        },
+      ],
+    });
+  });
+
+  it("parses Marble media figures", () => {
+    const result = htmlToTiptap(
+      '<figure data-width="75" data-align="left"><img src="https://example.com/image.png" alt="Alt text"><figcaption>Caption</figcaption></figure>'
+    );
+
+    expect(result.content?.[0]).toEqual({
+      type: "figure",
+      attrs: {
+        src: "https://example.com/image.png",
+        alt: "Alt text",
+        caption: "Caption",
+        href: null,
+        width: "75",
+        align: "left",
+      },
+    });
+  });
+
+  it("returns an empty doc for empty HTML", () => {
+    expect(htmlToTiptap("   ")).toEqual(EMPTY_TIPTAP_DOC);
+  });
+});
 
 describe("MarkdownToTiptapParser static inline parsers", () => {
   it("parseStrong adds bold mark to inner content", () => {

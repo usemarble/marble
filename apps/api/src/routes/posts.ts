@@ -1,8 +1,8 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { toPostPayload, withChanges } from "@marble/events";
+import { EMPTY_TIPTAP_DOC, htmlToTiptap } from "@marble/parser/tiptap";
 import { NodeHtmlMarkdown } from "node-html-markdown";
 import { cacheKey, createCacheClient, hashQueryParams } from "@/lib/cache";
-import { EMPTY_TIPTAP_DOC } from "@/lib/constants";
 import { createDbClient } from "@/lib/db";
 import { emitEvent } from "@/lib/events";
 import { buildFieldsObject, buildStatusFilter } from "@/lib/posts";
@@ -643,11 +643,21 @@ posts.openapi(createPostRoute, async (c) => {
       : new Date();
 
     // 6. Create the post
+    const sanitizedContent = sanitizeHtml(body.content);
+    let contentJson = EMPTY_TIPTAP_DOC;
+
+    try {
+      contentJson = htmlToTiptap(sanitizedContent);
+    } catch (error) {
+      console.error("[Posts] Failed to convert HTML to TipTap JSON:", error);
+      contentJson = EMPTY_TIPTAP_DOC;
+    }
+
     const postCreated = await db.post.create({
       data: {
         title: body.title,
-        content: sanitizeHtml(body.content),
-        contentJson: EMPTY_TIPTAP_DOC, // API users send HTML, not TipTap JSON
+        content: sanitizedContent,
+        contentJson,
         description: body.description,
         slug: body.slug,
         categoryId: body.categoryId,

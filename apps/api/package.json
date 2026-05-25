@@ -12,6 +12,7 @@
     "@marble/db": "workspace:*",
     "@marble/email": "workspace:*",
     "@marble/events": "workspace:*",
+    "@marble/parser": "workspace:*",
     "@marble/utils": "workspace:*",
     "@polar-sh/sdk": "^0.42.5",
     "@upstash/ratelimit": "^2.0.8",
