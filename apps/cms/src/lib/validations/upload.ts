@@ -60,6 +60,7 @@ const maxSizeByType = {
 
 export const completeAvatarSchema = z.object({
   type: z.literal("avatar"),
+  token: z.string().min(1).optional(),
   key: z
     .string()
     .min(3)
@@ -75,6 +76,7 @@ export const completeAvatarSchema = z.object({
 
 export const completeLogoSchema = z.object({
   type: z.literal("logo"),
+  token: z.string().min(1).optional(),
   key: z
     .string()
     .min(3)
@@ -90,6 +92,7 @@ export const completeLogoSchema = z.object({
 export const completeMediaSchema = z
   .object({
     type: z.literal("media"),
+    token: z.string().min(1),
     key: z
       .string()
       .min(3)

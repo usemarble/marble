@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { R2_BUCKET_NAME, r2 } from "@/lib/r2";
 import { rateLimitHeaders, userAvatarUploadRateLimiter } from "@/lib/ratelimit";
+import { createUploadToken } from "@/lib/upload-token";
 import { uploadSchema, validateUpload } from "@/lib/validations/upload";
 
 export async function POST(request: Request) {
@@ -81,5 +82,11 @@ export async function POST(request: Request) {
     { expiresIn: 3600 }
   );
 
-  return NextResponse.json({ url: presignedUrl, key });
+  const token = createUploadToken({
+    key,
+    type,
+    workspaceId,
+  });
+
+  return NextResponse.json({ url: presignedUrl, key, token });
 }

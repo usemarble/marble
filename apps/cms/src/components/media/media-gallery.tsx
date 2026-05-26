@@ -3,6 +3,7 @@
 import { Image02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Skeleton } from "@marble/ui/components/skeleton";
+import { PlusIcon } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "motion/react";
 import { DeleteMediaModal } from "@/components/media/delete-modal";
 import { MediaCard } from "@/components/media/media-card";
@@ -10,6 +11,40 @@ import { useMediaActions } from "@/hooks/use-media-actions";
 import type { Media, MediaQueryKey, MediaType } from "@/types/media";
 import { getEmptyStateMessage } from "@/utils/media";
 import { FileUploadInput } from "./file-upload-input";
+
+interface MediaEmptyStateProps {
+  isUploading?: boolean;
+  message: string;
+  onUpload?: (files: FileList) => void;
+}
+
+export function MediaEmptyState({
+  isUploading = false,
+  message,
+  onUpload,
+}: MediaEmptyStateProps) {
+  return (
+    <div className="flex max-w-80 flex-col items-center gap-4">
+      <div>
+        <HugeiconsIcon className="size-16" icon={Image02Icon} />
+      </div>
+      <div className="flex flex-col items-center gap-4 text-center">
+        <p className="text-muted-foreground text-sm">{message}</p>
+        {onUpload && (
+          <FileUploadInput
+            isUploading={isUploading}
+            onUpload={onUpload}
+            size="default"
+            variant="icon"
+          >
+            <PlusIcon className="size-4" />
+            <span>Upload Media</span>
+          </FileUploadInput>
+        )}
+      </div>
+    </div>
+  );
+}
 
 interface MediaGalleryProps {
   media: Media[];
@@ -114,22 +149,11 @@ export function MediaGallery({
           </ul>
         ) : media.length === 0 && !hasAnyMedia ? (
           <div className="grid h-full place-content-center">
-            <div className="flex max-w-80 flex-col items-center gap-4">
-              <div className="p-2">
-                <HugeiconsIcon className="size-16" icon={Image02Icon} />
-              </div>
-              <div className="flex flex-col items-center gap-4 text-center">
-                <p className="text-muted-foreground text-sm">
-                  {getEmptyStateMessage(type, hasAnyMedia)}
-                </p>
-                {onUpload && (
-                  <FileUploadInput
-                    isUploading={isUploading}
-                    onUpload={onUpload}
-                  />
-                )}
-              </div>
-            </div>
+            <MediaEmptyState
+              isUploading={isUploading}
+              message={getEmptyStateMessage(type, hasAnyMedia)}
+              onUpload={onUpload}
+            />
           </div>
         ) : media.length === 0 ? (
           <motion.div

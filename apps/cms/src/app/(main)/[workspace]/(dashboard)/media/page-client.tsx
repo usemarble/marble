@@ -149,8 +149,17 @@ function PageClient() {
     );
   }
 
+  const isEmpty = !hasAnyMedia;
+
   return (
-    <DashboardBody className="flex flex-col gap-8 pt-10 pb-16" size="compact">
+    <DashboardBody
+      className={
+        isEmpty
+          ? "grid h-full place-content-center"
+          : "flex flex-col gap-8 pt-10 pb-16"
+      }
+      size="compact"
+    >
       <div aria-atomic="true" aria-live="polite" className="sr-only">
         {statusMessage}
       </div>

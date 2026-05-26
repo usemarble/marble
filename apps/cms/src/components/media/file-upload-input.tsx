@@ -12,6 +12,7 @@ interface FileUploadInputProps {
   accept?: string;
   multiple?: boolean;
   variant?: "default" | "icon";
+  size?: React.ComponentProps<typeof Button>["size"];
   className?: string;
   children?: React.ReactNode;
   maxSize?: number;
@@ -22,6 +23,7 @@ export function FileUploadInput({
   isUploading: isUploadingProp = false,
   accept = ALLOWED_MIME_TYPES.join(","),
   variant = "default",
+  size = "sm",
   className,
   children,
   maxSize = MAX_MEDIA_FILE_SIZE,
@@ -67,7 +69,7 @@ export function FileUploadInput({
         onClick={() => {
           inputRef.current?.click();
         }}
-        size="sm"
+        size={size}
         type="button"
       >
         {children || (

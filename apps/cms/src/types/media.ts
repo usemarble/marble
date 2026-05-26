@@ -61,6 +61,7 @@ export type MediaListResponse =
 export interface PresignedUrlResponse {
   url: string;
   key: string;
+  token: string;
 }
 
 /** Response from POST /api/upload/complete for non-media types (avatar, logo) */

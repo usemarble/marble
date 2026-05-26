@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@marble/ui/components/button";
 import {
   Table,
   TableBody,
@@ -10,7 +9,6 @@ import {
   TableRow,
 } from "@marble/ui/components/table";
 import { cn } from "@marble/ui/lib/utils";
-import { FileImageIcon } from "@phosphor-icons/react";
 import {
   flexRender,
   getCoreRowModel,
@@ -23,7 +21,6 @@ import {
 import { useParams, useRouter } from "next/navigation";
 import {
   type MouseEvent,
-  memo,
   useCallback,
   useEffect,
   useMemo,
@@ -33,10 +30,10 @@ import { DataTablePagination } from "@/components/ui/data-table-pagination";
 import { useMediaActions } from "@/hooks/use-media-actions";
 import { useMediaPageFilters } from "@/lib/search-params";
 import type { Media, MediaQueryKey, MediaSort } from "@/types/media";
-import { isMediaFilterType, isMediaSort, toMediaType } from "@/utils/media";
+import { isMediaSort } from "@/utils/media";
 import { DeleteMediaModal } from "./delete-modal";
-import { FileUploadInput } from "./file-upload-input";
 import { getMediaColumns } from "./media-columns";
+import { MediaEmptyState } from "./media-gallery";
 import { MediaTableToolbar } from "./media-table-toolbar";
 
 interface MediaDataTableProps {
@@ -188,18 +185,12 @@ export function MediaDataTable({
   if (!hasAnyMedia) {
     return (
       <>
-        <div className="grid min-h-[50vh] place-content-center rounded-[20px] bg-surface p-6 text-center">
-          <div className="flex max-w-80 flex-col items-center gap-4">
-            <div className="grid size-16 place-items-center rounded-2xl bg-background">
-              <FileImageIcon className="size-8 text-muted-foreground" />
-            </div>
-            <p className="text-muted-foreground text-sm">
-              Media you upload in this workspace will appear here.
-            </p>
-            {onUpload && (
-              <FileUploadInput isUploading={isUploading} onUpload={onUpload} />
-            )}
-          </div>
+        <div className="grid h-full place-content-center text-center">
+          <MediaEmptyState
+            isUploading={isUploading}
+            message="Media you upload in this workspace will appear here."
+            onUpload={onUpload}
+          />
         </div>
         <DeleteMediaModal
           isOpen={showDeleteModal}

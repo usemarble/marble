@@ -7,9 +7,31 @@ import {
   logDashboardEventError,
 } from "@/lib/events/dispatch";
 import { R2_PUBLIC_URL } from "@/lib/r2";
+import { verifyUploadToken } from "@/lib/upload-token";
 import { completeSchema } from "@/lib/validations/upload";
 import { getMediaType } from "@/utils/media";
 import { trackMediaUpload } from "@/utils/usage/media";
+
+function getExpectedKeyPrefix({
+  type,
+  userId,
+  workspaceId,
+}: {
+  type: "avatar" | "logo" | "media";
+  userId: string;
+  workspaceId: string;
+}) {
+  switch (type) {
+    case "avatar":
+      return `avatars/${userId}/`;
+    case "logo":
+      return `logos/${workspaceId}/`;
+    case "media":
+      return `media/${workspaceId}/`;
+    default:
+      return "";
+  }
+}
 
 export async function POST(request: Request) {
   const accessData = await requireActiveWorkspaceAccess();
@@ -30,6 +52,38 @@ export async function POST(request: Request) {
   }
 
   const { type, key, fileType, fileSize } = parsedBody.data;
+  const expectedKeyPrefix = getExpectedKeyPrefix({
+    type,
+    userId: sessionData.user.id,
+    workspaceId,
+  });
+
+  if (!key.startsWith(expectedKeyPrefix)) {
+    return NextResponse.json({ error: "Invalid upload key" }, { status: 400 });
+  }
+
+  if (type === "media") {
+    try {
+      const tokenPayload = verifyUploadToken(parsedBody.data.token);
+
+      if (
+        tokenPayload.workspaceId !== workspaceId ||
+        tokenPayload.type !== type ||
+        tokenPayload.key !== key
+      ) {
+        return NextResponse.json(
+          { error: "Invalid upload token" },
+          { status: 400 }
+        );
+      }
+    } catch {
+      return NextResponse.json(
+        { error: "Invalid upload token" },
+        { status: 400 }
+      );
+    }
+  }
+
   const url = `${R2_PUBLIC_URL}/${key}`;
 
   try {

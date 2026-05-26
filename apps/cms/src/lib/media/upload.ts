@@ -59,6 +59,7 @@ async function uploadToR2(presignedUrl: string, file: File) {
  */
 async function completeUpload(
   key: string,
+  token: string,
   file: File,
   type: UploadType,
   metadata: UploadMetadata
@@ -79,15 +80,17 @@ async function completeUpload(
 
   const sluggedName = generateSlug(truncatedBaseName);
   const mediaName = `${sluggedName}.${extension}`;
-
-  const response = await axios.post("/api/upload/complete", {
+  const body = {
     type,
     key,
+    token,
     fileType: file.type,
     fileSize: file.size,
     name: mediaName,
     ...metadata,
-  });
+  };
+
+  const response = await axios.post("/api/upload/complete", body);
 
   if (response.status !== 200) {
     throw new Error(response.data.error);
@@ -219,10 +222,10 @@ export async function uploadFile({
   type: UploadType;
 }) {
   try {
-    const { url: presignedUrl, key } = await getPresignedUrl(file, type);
+    const { url: presignedUrl, key, token } = await getPresignedUrl(file, type);
     const metadata = await getUploadMetadata(file);
     await uploadToR2(presignedUrl, file);
-    const result = await completeUpload(key, file, type, metadata);
+    const result = await completeUpload(key, token, file, type, metadata);
     return result;
   } catch (error) {
     console.error("Upload failed:", error);
