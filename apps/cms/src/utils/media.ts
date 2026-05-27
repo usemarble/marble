@@ -21,7 +21,7 @@ export function getMediaType(mimeType: string): MediaType {
 
 export function getEmptyStateMessage(type?: MediaType, hasAnyMedia?: boolean) {
   if (!hasAnyMedia) {
-    return "Media you upload in this workspace will appear here.";
+    return "Images and Videos you upload in this workspace will appear here.";
   }
   switch (type) {
     case "image":
