@@ -4,6 +4,7 @@ import {
   ImageIcon,
   ListBulletsIcon,
   ListNumbersIcon,
+  MinusIcon,
   QuotesIcon,
   TableIcon,
   TextAlignLeftIcon,
@@ -132,6 +133,14 @@ export const defaultSlashSuggestions: SuggestionOptions<SuggestionItem>["items"]
       icon: CodeIcon,
       command: ({ editor, range }) =>
         editor.chain().focus().deleteRange(range).toggleCodeBlock().run(),
+    },
+    {
+      title: "Divider",
+      description: "Separate sections with a horizontal line.",
+      searchTerms: ["separator", "horizontal", "rule", "line", "hr"],
+      icon: MinusIcon,
+      command: ({ editor, range }) =>
+        editor.chain().focus().deleteRange(range).setHorizontalRule().run(),
     },
     {
       title: "Table",
