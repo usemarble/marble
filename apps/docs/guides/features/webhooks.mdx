@@ -3,7 +3,9 @@ title: Webhooks
 description: Using webhooks to trigger builds and automate workflows.
 ---
 
-Webhooks provide a powerful way to keep your site's content fresh and automate workflows. When an event occurs in your Marble workspace (like publishing a post), we can send an HTTP POST payload to a URL you configure. Webhooks are powered by [Upstash QStash](https://upstash.com?utm_source=marble-docs), ensuring reliable delivery of events.
+Webhooks provide a powerful way to keep your site's content fresh and automate workflows. When an event occurs in your Marble workspace, such as publishing a post, Marble sends an HTTP POST payload to a URL you configure.
+
+Webhooks are processed asynchronously by Marble's background jobs worker. Marble records events, retries failed deliveries, and stores delivery attempts so webhook activity can be inspected later.
 
 ## Content revalidation
 
@@ -23,15 +25,18 @@ Create a serverless function that listens for a `post.published` event from a Ma
 
 <Steps>
   <Step title="Navigate to Webhooks">
-    On the Marble dashboard, go to the **Webhooks** section.
+    In the Marble dashboard, open your workspace, go to **Settings**, then
+    choose **Webhooks** under the Developers section.
   </Step>
 
   <Step title="Create a New Webhook">
-    Click **Create Webhook** and fill in the required details: - **Name**: A
-    descriptive name for your webhook - **URL**: The endpoint where the webhook
-    payload will be sent - **Format**: Choose JSON, Discord, or Slack -
-    **Events**: Select the events you want to listen for (e.g.,
-    `post.published`, `post.updated`)
+    Click **Create Webhook** and fill in the required details:
+
+    - **Name**: A descriptive name for your webhook.
+    - **URL**: The endpoint where the webhook payload will be sent.
+    - **Format**: Choose JSON, Discord, or Slack.
+    - **Events**: Select the events you want to listen for, such as
+      `post.published` or `post.updated`.
   </Step>
 
   <Step title="Save and Copy Secret">
@@ -126,9 +131,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
-  const payload = JSON.parse(bodyText) as PostEventData;
+  let payload: PostEventData;
+
+  try {
+    payload = JSON.parse(bodyText) as PostEventData;
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+
   if (!payload.type || !payload.data) {
-    return Response.json(
+    return NextResponse.json(
       { error: "Invalid payload structure" },
       { status: 400 }
     );
