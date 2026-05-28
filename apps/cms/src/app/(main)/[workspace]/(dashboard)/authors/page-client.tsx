@@ -31,6 +31,9 @@ function PageClient({ initialAuthors }: { initialAuthors?: Author[] }) {
         toast.error(
           error instanceof Error ? error.message : "Failed to fetch authors"
         );
+        throw error instanceof Error
+          ? error
+          : new Error("Failed to fetch authors");
       }
     },
     enabled: Boolean(workspaceId) && !isFetchingWorkspace,

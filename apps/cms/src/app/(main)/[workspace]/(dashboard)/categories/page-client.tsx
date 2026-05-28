@@ -45,6 +45,9 @@ function PageClient({ initialCategories }: { initialCategories?: Category[] }) {
         toast.error(
           error instanceof Error ? error.message : "Failed to fetch categories"
         );
+        throw error instanceof Error
+          ? error
+          : new Error("Failed to fetch categories");
       }
     },
     enabled: !!workspaceId && !isFetchingWorkspace,

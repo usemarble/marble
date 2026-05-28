@@ -290,6 +290,7 @@ export async function getDashboardApiKeys(
       type: true,
       scopes: true,
       enabled: true,
+      requestCount: true,
       lastUsed: true,
       expiresAt: true,
       createdAt: true,
@@ -303,7 +304,6 @@ export async function getDashboardApiKeys(
     ...key,
     type: key.type as APIKey["type"],
     scopes: key.scopes as ApiScope[],
-    requestCount: 0,
   }));
 }
 

@@ -64,18 +64,14 @@ export function prefetchDashboardRoute(
         queryFn: () => fetchJson("/api/tags"),
         staleTime: ONE_HOUR,
       });
-    case "media":
+    case "media": {
+      const mediaFilters = { ...defaultMediaFilters, search: null };
       return queryClient.prefetchQuery({
-        queryKey: [...QUERY_KEYS.MEDIA(workspaceId), defaultMediaFilters],
-        queryFn: () =>
-          fetchJson(
-            getMediaApiUrl("/api/media", {
-              ...defaultMediaFilters,
-              search: null,
-            })
-          ),
+        queryKey: [...QUERY_KEYS.MEDIA(workspaceId), mediaFilters],
+        queryFn: () => fetchJson(getMediaApiUrl("/api/media", mediaFilters)),
         staleTime: FIVE_MINUTES,
       });
+    }
     case "authors":
       return queryClient.prefetchQuery({
         queryKey: QUERY_KEYS.AUTHORS(workspaceId),

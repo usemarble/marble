@@ -28,14 +28,26 @@ async function Page({
     notFound();
   }
 
+  const mediaKey = {
+    page: filters.page,
+    perPage: filters.perPage,
+    search: filters.search,
+    sort: filters.sort,
+    type: toMediaType(filters.type),
+  };
   const media = await getDashboardMedia(workspaceId, {
     page: filters.page,
     perPage: filters.perPage,
     search: filters.search || null,
     sort: filters.sort,
-    type: toMediaType(filters.type),
+    type: mediaKey.type,
   });
-  return <PageClient initialMedia={media} />;
+  return (
+    <PageClient
+      initialMedia={media}
+      initialMediaKey={JSON.stringify(mediaKey)}
+    />
+  );
 }
 
 export default Page;

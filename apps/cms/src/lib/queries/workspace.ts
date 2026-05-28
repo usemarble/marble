@@ -210,7 +210,7 @@ export async function getWorkspaceLayoutData(workspaceSlug?: string): Promise<{
       } as Workspace,
     };
   } catch (error) {
-    console.error("Error fetching workspace layout data:", error);
+    console.error("Error fetching initial workspace data:", error);
     return null;
   }
 }

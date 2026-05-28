@@ -43,7 +43,9 @@ function PageClient({ initialKeys }: { initialKeys?: APIKey[] }) {
         toast.error(
           error instanceof Error ? error.message : "Failed to fetch keys"
         );
-        return [];
+        throw error instanceof Error
+          ? error
+          : new Error("Failed to fetch keys");
       }
     },
     enabled: !!workspaceId && !isFetchingWorkspace,

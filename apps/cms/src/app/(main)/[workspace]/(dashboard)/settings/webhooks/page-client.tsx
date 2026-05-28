@@ -40,6 +40,9 @@ export function PageClient({
         toast.error(
           error instanceof Error ? error.message : "Failed to fetch webhooks"
         );
+        throw error instanceof Error
+          ? error
+          : new Error("Failed to fetch webhooks");
       }
     },
     enabled: !!workspaceId && !isFetchingWorkspace,

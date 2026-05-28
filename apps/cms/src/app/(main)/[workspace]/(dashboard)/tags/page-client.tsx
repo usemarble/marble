@@ -41,6 +41,9 @@ function PageClient({ initialTags }: { initialTags?: Tag[] }) {
         toast.error(
           error instanceof Error ? error.message : "Failed to fetch tags"
         );
+        throw error instanceof Error
+          ? error
+          : new Error("Failed to fetch tags");
       }
     },
     enabled: !!workspaceId && !isFetchingWorkspace,

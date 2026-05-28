@@ -28,7 +28,12 @@ async function Page({
   }
 
   const posts = await getDashboardPosts(workspaceId, filters);
-  return <PageClient initialPosts={posts} />;
+  return (
+    <PageClient
+      initialPosts={posts}
+      initialPostsKey={JSON.stringify(filters)}
+    />
+  );
 }
 
 export default Page;

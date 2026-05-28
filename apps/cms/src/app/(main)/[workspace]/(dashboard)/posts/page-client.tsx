@@ -29,7 +29,13 @@ const PostsImportModal = dynamic(
   { ssr: false }
 );
 
-function PageClient({ initialPosts }: { initialPosts?: PostListResponse }) {
+function PageClient({
+  initialPosts,
+  initialPostsKey,
+}: {
+  initialPosts?: PostListResponse;
+  initialPostsKey?: string;
+}) {
   const workspaceId = useWorkspaceId();
   const { activeWorkspace, isFetchingWorkspace } = useWorkspace();
   const [filters] = usePostPageFilters();
@@ -53,6 +59,7 @@ function PageClient({ initialPosts }: { initialPosts?: PostListResponse }) {
   );
 
   const [importOpen, setImportOpen] = useState(false);
+  const currentPostsKey = JSON.stringify(apiFilters);
 
   const { data, error, isError, isFetching, isLoading } = useQuery({
     queryKey: workspaceId
@@ -73,7 +80,7 @@ function PageClient({ initialPosts }: { initialPosts?: PostListResponse }) {
       };
     },
     enabled: Boolean(workspaceId) && !isFetchingWorkspace,
-    initialData: initialPosts,
+    initialData: initialPostsKey === currentPostsKey ? initialPosts : undefined,
   });
 
   if (isFetchingWorkspace || !workspaceId || (isLoading && !data)) {
