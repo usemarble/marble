@@ -160,7 +160,7 @@ model Media {
   id          String       @id @default(cuid())
   name        String
   url         String
-  storageKey  String?     // R2 storage key
+  storageKey  String      // R2 storage key
   size        Int
   alt         String?
   mimeType    String?

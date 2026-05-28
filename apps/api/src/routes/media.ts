@@ -8,7 +8,7 @@ import {
   extensionFromFile,
   getImageDimensions,
   getMediaType,
-  objectKeyFromUrl,
+  isSafeMediaStorageKey,
   publicUrl,
   serializeMedia,
   trackMediaUploadUsage,
@@ -380,13 +380,19 @@ media.openapi(deleteMediaRoute, async (c) => {
       );
     }
 
+    if (!isSafeMediaStorageKey(existing.storageKey)) {
+      return c.json(
+        {
+          error: "Invalid media storage key",
+          message: "The media asset does not reference a valid storage object",
+        },
+        500 as const
+      );
+    }
+
     await db.media.delete({ where: { id } });
 
-    const key = objectKeyFromUrl(existing.url);
-    const storageKey = existing.storageKey ?? key;
-    if (storageKey) {
-      c.executionCtx.waitUntil(c.env.STORAGE.delete(storageKey));
-    }
+    c.executionCtx.waitUntil(c.env.STORAGE.delete(existing.storageKey));
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "media"));
 
     c.executionCtx.waitUntil(
