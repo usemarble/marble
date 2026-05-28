@@ -1,5 +1,69 @@
 import { db } from "@marble/db";
+import { getWorkspacePlan, PLAN_LIMITS } from "@/lib/plans";
 import { createPolarClient } from "@/lib/polar/client";
+
+const BYTES_PER_MB = 1024 * 1024;
+
+/**
+ * Returns the total bytes currently stored by media records in a workspace.
+ */
+export async function getWorkspaceMediaUsageBytes(
+  workspaceId: string
+): Promise<number> {
+  const result = await db.media.aggregate({
+    where: { workspaceId },
+    _sum: { size: true },
+  });
+
+  return result._sum.size ?? 0;
+}
+
+/**
+ * Returns the active plan's media storage limit for a workspace in bytes.
+ */
+export async function getWorkspaceMediaStorageLimitBytes(
+  workspaceId: string
+): Promise<number> {
+  const activeSubscription = await db.subscription.findFirst({
+    where: {
+      workspaceId,
+      OR: [
+        { status: "active" },
+        { status: "trialing" },
+        {
+          status: "canceled",
+          cancelAtPeriodEnd: true,
+          currentPeriodEnd: { gt: new Date() },
+        },
+      ],
+    },
+    orderBy: { createdAt: "desc" },
+    select: {
+      plan: true,
+      status: true,
+      cancelAtPeriodEnd: true,
+      currentPeriodEnd: true,
+    },
+  });
+
+  const plan = getWorkspacePlan(activeSubscription);
+  return PLAN_LIMITS[plan].maxMediaStorage * BYTES_PER_MB;
+}
+
+/**
+ * Checks whether a new stored media upload would fit within workspace storage limits.
+ */
+export async function canStoreMediaUpload(
+  workspaceId: string,
+  fileSize: number
+): Promise<boolean> {
+  const [currentUsage, storageLimit] = await Promise.all([
+    getWorkspaceMediaUsageBytes(workspaceId),
+    getWorkspaceMediaStorageLimitBytes(workspaceId),
+  ]);
+
+  return currentUsage + fileSize <= storageLimit;
+}
 
 /**
  * Gets the customer ID for a workspace by finding the owner's user ID.

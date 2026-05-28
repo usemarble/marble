@@ -25,3 +25,17 @@ export const userAvatarUploadRateLimiter = new Ratelimit({
   ephemeralCache: new Map(),
   prefix: "user-avatar-upload-rate-limit",
 });
+
+export const workspaceLogoUploadRateLimiter = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(10, "30 m"),
+  ephemeralCache: new Map(),
+  prefix: "workspace-logo-upload-rate-limit",
+});
+
+export const workspaceMediaUploadRateLimiter = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(60, "60 m"),
+  ephemeralCache: new Map(),
+  prefix: "workspace-media-upload-rate-limit",
+});

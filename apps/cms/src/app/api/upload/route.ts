@@ -4,9 +4,15 @@ import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { R2_BUCKET_NAME, r2 } from "@/lib/r2";
-import { rateLimitHeaders, userAvatarUploadRateLimiter } from "@/lib/ratelimit";
+import {
+  rateLimitHeaders,
+  userAvatarUploadRateLimiter,
+  workspaceLogoUploadRateLimiter,
+  workspaceMediaUploadRateLimiter,
+} from "@/lib/ratelimit";
 import { createUploadToken } from "@/lib/upload-token";
 import { uploadSchema, validateUpload } from "@/lib/validations/upload";
+import { canStoreMediaUpload } from "@/utils/usage/media";
 
 export async function POST(request: Request) {
   const accessData = await requireActiveWorkspaceAccess();
@@ -41,12 +47,51 @@ export async function POST(request: Request) {
     }
   }
 
+  if (type === "logo") {
+    const { success, limit, remaining, reset } =
+      await workspaceLogoUploadRateLimiter.limit(
+        `${workspaceId}:${sessionData.user.id}`
+      );
+
+    if (!success) {
+      return NextResponse.json(
+        { error: "Too Many Requests", remaining },
+        { status: 429, headers: rateLimitHeaders(limit, remaining, reset) }
+      );
+    }
+  }
+
+  if (type === "media") {
+    const { success, limit, remaining, reset } =
+      await workspaceMediaUploadRateLimiter.limit(
+        `${workspaceId}:${sessionData.user.id}`
+      );
+
+    if (!success) {
+      return NextResponse.json(
+        { error: "Too Many Requests", remaining },
+        { status: 429, headers: rateLimitHeaders(limit, remaining, reset) }
+      );
+    }
+  }
+
   try {
     validateUpload({ type, fileType, fileSize });
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Invalid file type";
     return NextResponse.json({ error: message }, { status: 400 });
+  }
+
+  if (type === "media") {
+    const canStoreUpload = await canStoreMediaUpload(workspaceId, fileSize);
+
+    if (!canStoreUpload) {
+      return NextResponse.json(
+        { error: "Media storage limit reached" },
+        { status: 403 }
+      );
+    }
   }
 
   const userId = sessionData.user.id;
