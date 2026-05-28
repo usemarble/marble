@@ -1,6 +1,6 @@
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth/session";
+import { requireWorkspaceAccess } from "@/lib/auth/access";
 import { getWorkspacePlan } from "@/lib/plans";
 
 export async function GET(
@@ -9,15 +9,15 @@ export async function GET(
 ) {
   const slug = (await params).slug;
 
-  const sessionData = await getServerSession();
-
-  if (!sessionData) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  const accessData = await requireWorkspaceAccess(slug);
+  if (!accessData.ok) {
+    return accessData.response;
   }
 
-  const workspace = await db.organization.findUnique({
+  const workspace = await db.organization.findFirst({
     where: {
       slug,
+      id: accessData.workspaceId,
     },
     select: {
       id: true,
@@ -78,20 +78,9 @@ export async function GET(
     return NextResponse.json({ error: "Workspace not found" }, { status: 404 });
   }
 
-  // check is user is member of the workspace
-  const isUserMember = workspace.members.some(
-    (member) => member.userId === sessionData.user.id
-  );
-  if (!isUserMember) {
-    return NextResponse.json(
-      { error: "User is not a member of the workspace" },
-      { status: 403 }
-    );
-  }
-
   // Find current user's role in this workspace
   const currentUserMember = workspace.members.find(
-    (member) => member.userId === sessionData.user.id
+    (member) => member.userId === accessData.sessionData.user.id
   );
 
   const currentUserRole = currentUserMember?.role || null;

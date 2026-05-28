@@ -29,6 +29,7 @@ import {
   workspaceSchema,
 } from "@/lib/validations/workspace";
 import { generateSlug } from "@/utils/string";
+import { workspacePath } from "@/utils/workspace/url";
 
 interface CreateWorkspaceDialogProps {
   open: boolean;
@@ -82,7 +83,7 @@ export const CreateWorkspaceDialog = (props: CreateWorkspaceDialogProps) => {
         });
         props.setOpen(false);
         reset();
-        router.push(`/${data.slug}`);
+        router.push(workspacePath(data.slug));
         toast.success("Workspace created");
       }
     } catch (error) {

@@ -19,6 +19,7 @@ import {
 import { cn } from "@marble/ui/lib/utils";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
+import { workspacePath } from "@/utils/workspace/url";
 
 const items = [
   {
@@ -70,7 +71,7 @@ export function NavMain() {
               : "hover:text-accent-foreground"
           )}
           render={
-            <Link href={`/${params.workspace}`}>
+            <Link href={workspacePath(params.workspace)}>
               <HugeiconsIcon icon={Home01Icon} />
               {open && <span>Home</span>}
             </Link>
@@ -88,7 +89,7 @@ export function NavMain() {
             )}
             key={item.name}
             render={
-              <Link href={`/${params.workspace}/${item.url}`}>
+              <Link href={workspacePath(params.workspace, item.url)}>
                 <HugeiconsIcon icon={item.icon} />
                 {open && <span>{item.name}</span>}
               </Link>

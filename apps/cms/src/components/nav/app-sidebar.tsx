@@ -26,6 +26,7 @@ import { cn } from "@marble/ui/lib/utils";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
+import { workspacePath } from "@/utils/workspace/url";
 import { NavExtra } from "./nav-extra";
 import { NavMain } from "./nav-main";
 import { NavSettings } from "./nav-settings";
@@ -102,7 +103,7 @@ export function AppSidebar({
                       !open && "justify-center gap-0"
                     )}
                     render={
-                      <Link href={`/${params.workspace}`}>
+                      <Link href={workspacePath(params.workspace)}>
                         <HugeiconsIcon icon={ArrowLeft01Icon} />
                         {open && <span>Back</span>}
                       </Link>
@@ -158,7 +159,12 @@ export function AppSidebar({
                       !open && "justify-center gap-0"
                     )}
                     render={
-                      <Link href={`/${params.workspace}/settings/general`}>
+                      <Link
+                        href={workspacePath(
+                          params.workspace,
+                          "settings/general"
+                        )}
+                      >
                         <HugeiconsIcon icon={Settings01Icon} />
                         {open && <span>Settings</span>}
                       </Link>

@@ -22,6 +22,7 @@ import {
 import { cn } from "@marble/ui/lib/utils";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
+import { workspacePath } from "@/utils/workspace/url";
 
 const accountItems = [
   {
@@ -101,7 +102,7 @@ export function NavSettings() {
               )}
               key={item.name}
               render={
-                <Link href={`/${params.workspace}/${item.url}`}>
+                <Link href={workspacePath(params.workspace, item.url)}>
                   <HugeiconsIcon icon={item.icon} />
                   {open && <span>{item.name}</span>}
                 </Link>
@@ -127,7 +128,7 @@ export function NavSettings() {
               )}
               key={item.name}
               render={
-                <Link href={`/${params.workspace}/${item.url}`}>
+                <Link href={workspacePath(params.workspace, item.url)}>
                   <HugeiconsIcon icon={item.icon} />
                   {open && <span>{item.name}</span>}
                 </Link>
@@ -153,7 +154,7 @@ export function NavSettings() {
               )}
               key={item.name}
               render={
-                <Link href={`/${params.workspace}/${item.url}`}>
+                <Link href={workspacePath(params.workspace, item.url)}>
                   <HugeiconsIcon icon={item.icon} />
                   {open && <span>{item.name}</span>}
                 </Link>

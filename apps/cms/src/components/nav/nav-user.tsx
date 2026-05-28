@@ -20,6 +20,7 @@ import { SignOutIcon, UserIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useUser } from "@/providers/user";
+import { workspacePath } from "@/utils/workspace/url";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
@@ -77,7 +78,7 @@ export function NavUser() {
           <DropdownMenuItem>
             <Link
               className="flex w-full items-center gap-4"
-              href={`/${params.workspace}/settings/account`}
+              href={workspacePath(params.workspace, "settings/account")}
             >
               <UserIcon className="size-4" />
               Account
