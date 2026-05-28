@@ -52,6 +52,14 @@ export async function POST(request: Request) {
   }
 
   const { type, key, fileType, fileSize } = parsedBody.data;
+
+  if (type === "logo" && accessData.member.role !== "owner") {
+    return NextResponse.json(
+      { error: "Only workspace owners can update the logo" },
+      { status: 403 }
+    );
+  }
+
   const expectedKeyPrefix = getExpectedKeyPrefix({
     type,
     userId: sessionData.user.id,

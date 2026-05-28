@@ -35,6 +35,13 @@ export async function POST(request: Request) {
 
   const { type, fileType, fileSize } = parsedBody.data;
 
+  if (type === "logo" && accessData.member.role !== "owner") {
+    return NextResponse.json(
+      { error: "Only workspace owners can update the logo" },
+      { status: 403 }
+    );
+  }
+
   if (type === "avatar") {
     const { success, limit, remaining, reset } =
       await userAvatarUploadRateLimiter.limit(sessionData.user.id);
