@@ -113,6 +113,7 @@ export async function POST(request: Request) {
           data: {
             name: mediaName,
             url,
+            storageKey: key,
             size: fileSize,
             mimeType: parsedBody.data.mimeType ?? fileType,
             width: parsedBody.data.width,

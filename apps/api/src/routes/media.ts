@@ -383,8 +383,9 @@ media.openapi(deleteMediaRoute, async (c) => {
     await db.media.delete({ where: { id } });
 
     const key = objectKeyFromUrl(existing.url);
-    if (key) {
-      c.executionCtx.waitUntil(c.env.STORAGE.delete(key));
+    const storageKey = existing.storageKey ?? key;
+    if (storageKey) {
+      c.executionCtx.waitUntil(c.env.STORAGE.delete(storageKey));
     }
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "media"));
 
@@ -486,6 +487,7 @@ media.openapi(uploadMediaRoute, async (c) => {
           name,
           alt,
           url: publicUrl(c.env.STORAGE_PUBLIC_URL, key),
+          storageKey: key,
           size: file.size,
           mimeType: contentType,
           width: dimensions.width,

@@ -136,9 +136,11 @@ export async function DELETE(request: Request) {
     for (const media of existingMedia) {
       if (media.url) {
         try {
-          const rawPath = media.url.startsWith("http")
-            ? new URL(media.url).pathname
-            : media.url;
+          const rawPath =
+            media.storageKey ??
+            (media.url.startsWith("http")
+              ? new URL(media.url).pathname
+              : media.url);
           let key = decodeURIComponent(rawPath).replace(/^\/+/, "");
           if (key.startsWith(`${R2_BUCKET_NAME}/`)) {
             key = key.slice(R2_BUCKET_NAME.length + 1);
