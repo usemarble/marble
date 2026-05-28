@@ -7,6 +7,7 @@ import {
   emitDashboardEvent,
   logDashboardEventError,
 } from "@/lib/events/dispatch";
+import { getDashboardTags } from "@/lib/queries/dashboard";
 import { tagSchema } from "@/lib/validations/workspace";
 
 export async function GET() {
@@ -18,30 +19,9 @@ export async function GET() {
 
   const { workspaceId } = accessData;
 
-  const tags = await db.tag.findMany({
-    where: { workspaceId },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      description: true,
-      _count: {
-        select: {
-          posts: true,
-        },
-      },
-    },
+  return NextResponse.json(await getDashboardTags(workspaceId), {
+    status: 200,
   });
-
-  const transformedTags = tags.map((tag) => {
-    const { _count, ...rest } = tag;
-    return {
-      ...rest,
-      postsCount: _count.posts,
-    };
-  });
-
-  return NextResponse.json(transformedTags, { status: 200 });
 }
 
 export async function POST(req: Request) {

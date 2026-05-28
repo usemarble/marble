@@ -22,7 +22,7 @@ const CategoryModal = dynamic(() =>
   )
 );
 
-function PageClient() {
+function PageClient({ initialCategories }: { initialCategories?: Category[] }) {
   const workspaceId = useWorkspaceId();
   const { isFetchingWorkspace } = useWorkspace();
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -48,6 +48,7 @@ function PageClient() {
       }
     },
     enabled: !!workspaceId && !isFetchingWorkspace,
+    initialData: initialCategories,
   });
 
   if (isFetchingWorkspace || !workspaceId || isLoading) {

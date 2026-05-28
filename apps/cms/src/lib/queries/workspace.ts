@@ -102,18 +102,28 @@ export async function getLastActiveWorkspaceOrNewOneToSetAsActive(
 export async function getInitialWorkspaceData(
   workspaceSlug?: string
 ): Promise<Workspace | null> {
+  const data = await getWorkspaceLayoutData(workspaceSlug);
+  return data?.workspace ?? null;
+}
+
+export async function getWorkspaceLayoutData(workspaceSlug?: string): Promise<{
+  activeOrganizationId: string | null;
+  workspace: Workspace | null;
+} | null> {
   try {
     const session = await getServerSession();
-    const activeOrganizationId = session?.session?.activeOrganizationId;
+    const activeOrganizationId = session?.session?.activeOrganizationId ?? null;
 
     if (!session?.user || (!activeOrganizationId && !workspaceSlug)) {
       return null;
     }
 
+    const workspaceWhere = workspaceSlug
+      ? { slug: workspaceSlug }
+      : { id: activeOrganizationId as string };
+
     const workspace = await db.organization.findUnique({
-      where: workspaceSlug
-        ? { slug: workspaceSlug }
-        : { id: activeOrganizationId as string },
+      where: workspaceWhere,
       select: {
         id: true,
         name: true,
@@ -172,7 +182,7 @@ export async function getInitialWorkspaceData(
     });
 
     if (!workspace) {
-      return null;
+      return { activeOrganizationId, workspace: null };
     }
 
     const currentUserMember = workspace.members.find(
@@ -180,24 +190,27 @@ export async function getInitialWorkspaceData(
     );
 
     if (!currentUserMember) {
-      return null;
+      return { activeOrganizationId, workspace: null };
     }
 
     const activeSubscription = workspace.subscriptions[0] || null;
     const activePlan = getWorkspacePlan(activeSubscription);
 
     return {
-      ...workspace,
-      currentUserRole: currentUserMember?.role || null,
-      subscription: activeSubscription
-        ? {
-            ...activeSubscription,
-            activePlan,
-          }
-        : null,
-    } as Workspace;
+      activeOrganizationId,
+      workspace: {
+        ...workspace,
+        currentUserRole: currentUserMember.role || null,
+        subscription: activeSubscription
+          ? {
+              ...activeSubscription,
+              activePlan,
+            }
+          : null,
+      } as Workspace,
+    };
   } catch (error) {
-    console.error("Error fetching initial workspace data:", error);
+    console.error("Error fetching workspace layout data:", error);
     return null;
   }
 }

@@ -18,6 +18,7 @@ import { columns, type Post } from "@/components/posts/columns";
 import { PostDataView } from "@/components/posts/data-view";
 import PageLoader from "@/components/shared/page-loader";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import type { PostListResponse } from "@/lib/queries/dashboard";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { getPostApiUrl, usePostPageFilters } from "@/lib/search-params";
 import { useWorkspace } from "@/providers/workspace";
@@ -28,7 +29,7 @@ const PostsImportModal = dynamic(
   { ssr: false }
 );
 
-function PageClient() {
+function PageClient({ initialPosts }: { initialPosts?: PostListResponse }) {
   const workspaceId = useWorkspaceId();
   const { activeWorkspace, isFetchingWorkspace } = useWorkspace();
   const [filters] = usePostPageFilters();
@@ -72,6 +73,7 @@ function PageClient() {
       };
     },
     enabled: Boolean(workspaceId) && !isFetchingWorkspace,
+    initialData: initialPosts,
   });
 
   if (isFetchingWorkspace || !workspaceId || (isLoading && !data)) {

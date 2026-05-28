@@ -19,7 +19,11 @@ import type {
 } from "@/types/media";
 import { toMediaType } from "@/utils/media";
 
-function PageClient() {
+function PageClient({
+  initialMedia,
+}: {
+  initialMedia?: MediaPaginatedListResponse;
+}) {
   const workspaceId = useWorkspaceId();
   const { isFetchingWorkspace } = useWorkspace();
   const [{ page, perPage, search, sort, type }] = useMediaPageFilters();
@@ -60,6 +64,7 @@ function PageClient() {
     },
     enabled: !!workspaceId && !isFetchingWorkspace,
     placeholderData: keepPreviousData,
+    initialData: initialMedia,
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 30,
   });

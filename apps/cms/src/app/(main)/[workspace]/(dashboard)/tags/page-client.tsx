@@ -20,7 +20,7 @@ const TagModal = dynamic(() =>
   import("@/components/tags/tag-modals").then((mod) => mod.TagModal)
 );
 
-function PageClient() {
+function PageClient({ initialTags }: { initialTags?: Tag[] }) {
   const workspaceId = useWorkspaceId();
   const { isFetchingWorkspace } = useWorkspace();
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -44,6 +44,7 @@ function PageClient() {
       }
     },
     enabled: !!workspaceId && !isFetchingWorkspace,
+    initialData: initialTags,
   });
 
   if (isFetchingWorkspace || !workspaceId || isLoading) {

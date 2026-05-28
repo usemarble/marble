@@ -7,6 +7,7 @@ import {
   emitDashboardEvent,
   logDashboardEventError,
 } from "@/lib/events/dispatch";
+import { getDashboardCategories } from "@/lib/queries/dashboard";
 import { categorySchema } from "@/lib/validations/workspace";
 
 export async function GET() {
@@ -18,30 +19,9 @@ export async function GET() {
 
   const { workspaceId } = accessData;
 
-  const categories = await db.category.findMany({
-    where: { workspaceId },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      description: true,
-      _count: {
-        select: {
-          posts: true,
-        },
-      },
-    },
+  return NextResponse.json(await getDashboardCategories(workspaceId), {
+    status: 200,
   });
-
-  const transformedCategories = categories.map((category) => {
-    const { _count, ...rest } = category;
-    return {
-      ...rest,
-      postsCount: _count.posts,
-    };
-  });
-
-  return NextResponse.json(transformedCategories, { status: 200 });
 }
 
 export async function POST(req: Request) {

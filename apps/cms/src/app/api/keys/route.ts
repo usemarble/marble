@@ -2,6 +2,7 @@ import { db } from "@marble/db";
 import { generateApiKey } from "@marble/utils";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
+import { getDashboardApiKeys } from "@/lib/queries/dashboard";
 import { createApiKeySchema } from "@/lib/validations/keys";
 import { DEFAULT_PRIVATE_SCOPES, DEFAULT_PUBLIC_SCOPES } from "@/utils/keys";
 
@@ -14,25 +15,9 @@ export async function GET() {
 
   const { workspaceId } = accessData;
 
-  const keys = await db.apiKey.findMany({
-    where: { workspaceId },
-    select: {
-      id: true,
-      name: true,
-      preview: true,
-      type: true,
-      scopes: true,
-      enabled: true,
-      lastUsed: true,
-      expiresAt: true,
-      createdAt: true,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
+  return NextResponse.json(await getDashboardApiKeys(workspaceId), {
+    status: 200,
   });
-
-  return NextResponse.json(keys, { status: 200 });
 }
 
 export async function POST(request: Request) {

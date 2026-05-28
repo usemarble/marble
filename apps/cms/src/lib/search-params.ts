@@ -48,6 +48,8 @@ const mediaPageSearchParams = {
 export const useMediaPageFilters = (options: Options = {}) =>
   useQueryStates(mediaPageSearchParams, options);
 
+export const loadMediaPageFilters = createLoader(mediaPageSearchParams);
+
 // React Query API endpoint level search params
 const mediaApiSearchParams = {
   sort: sortParser,

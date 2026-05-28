@@ -13,7 +13,11 @@ import { QUERY_KEYS } from "@/lib/queries/keys";
 import { useWorkspace } from "@/providers/workspace";
 import type { Webhook } from "@/types/webhook";
 
-export function PageClient() {
+export function PageClient({
+  initialWebhooks,
+}: {
+  initialWebhooks?: Webhook[];
+}) {
   const workspaceId = useWorkspaceId();
   const { isFetchingWorkspace } = useWorkspace();
   const queryClient = useQueryClient();
@@ -39,6 +43,7 @@ export function PageClient() {
       }
     },
     enabled: !!workspaceId && !isFetchingWorkspace,
+    initialData: initialWebhooks,
   });
 
   const {

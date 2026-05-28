@@ -1,3 +1,10 @@
+import { notFound } from "next/navigation";
+import {
+  getDashboardMedia,
+  getDashboardWorkspaceId,
+} from "@/lib/queries/dashboard";
+import { loadMediaPageFilters } from "@/lib/search-params";
+import { toMediaType } from "@/utils/media";
 import PageClient from "./page-client";
 
 export const metadata = {
@@ -5,8 +12,30 @@ export const metadata = {
   description: "Manage your media",
 };
 
-function Page() {
-  return <PageClient />;
+async function Page({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ workspace: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const [{ workspace }, filters] = await Promise.all([
+    params,
+    searchParams.then((paramsValue) => loadMediaPageFilters(paramsValue)),
+  ]);
+  const workspaceId = await getDashboardWorkspaceId(workspace);
+  if (!workspaceId) {
+    notFound();
+  }
+
+  const media = await getDashboardMedia(workspaceId, {
+    page: filters.page,
+    perPage: filters.perPage,
+    search: filters.search || null,
+    sort: filters.sort,
+    type: toMediaType(filters.type),
+  });
+  return <PageClient initialMedia={media} />;
 }
 
 export default Page;

@@ -17,8 +17,15 @@ import {
   useSidebar,
 } from "@marble/ui/components/sidebar";
 import { cn } from "@marble/ui/lib/utils";
+import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
-import { useParams, usePathname } from "next/navigation";
+import {
+  useParams,
+  useRouter,
+  useSelectedLayoutSegments,
+} from "next/navigation";
+import { prefetchDashboardRoute } from "@/lib/dashboard-prefetch";
+import { useWorkspace } from "@/providers/workspace";
 import { workspacePath } from "@/utils/workspace/url";
 
 const items = [
@@ -50,13 +57,27 @@ const items = [
 ];
 
 export function NavMain() {
-  const pathname = usePathname();
+  const segments = useSelectedLayoutSegments();
+  const router = useRouter();
   const params = useParams<{ workspace: string }>();
+  const queryClient = useQueryClient();
+  const { activeWorkspace } = useWorkspace();
   const { open } = useSidebar();
 
-  const isActive = (url: string) => pathname === `/${params.workspace}/${url}`;
+  const activeSegment = segments.find((segment) => !segment.startsWith("("));
+  const isActive = (url: string) => activeSegment === url;
 
-  const isOverviewActive = pathname === `/${params.workspace}`;
+  const isOverviewActive = !activeSegment;
+  const prefetchRoute = (url = "") => {
+    const href = workspacePath(params.workspace, url);
+    router.prefetch(href);
+
+    if (activeWorkspace?.id) {
+      prefetchDashboardRoute(queryClient, activeWorkspace.id, url).catch(
+        () => undefined
+      );
+    }
+  };
 
   return (
     <SidebarGroup className="px-3">
@@ -71,7 +92,11 @@ export function NavMain() {
               : "hover:text-accent-foreground"
           )}
           render={
-            <Link href={workspacePath(params.workspace)}>
+            <Link
+              href={workspacePath(params.workspace)}
+              onFocus={() => prefetchRoute()}
+              onMouseEnter={() => prefetchRoute()}
+            >
               <HugeiconsIcon icon={Home01Icon} />
               {open && <span>Home</span>}
             </Link>
@@ -89,7 +114,11 @@ export function NavMain() {
             )}
             key={item.name}
             render={
-              <Link href={workspacePath(params.workspace, item.url)}>
+              <Link
+                href={workspacePath(params.workspace, item.url)}
+                onFocus={() => prefetchRoute(item.url)}
+                onMouseEnter={() => prefetchRoute(item.url)}
+              >
                 <HugeiconsIcon icon={item.icon} />
                 {open && <span>{item.name}</span>}
               </Link>
