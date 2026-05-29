@@ -151,12 +151,12 @@ async function getUsageMeta(
   return meta;
 }
 
-async function seedUsageCounter(
+async function seedUsageCounterIfMissing(
   redis: Redis,
   db: DbClient,
   workspaceId: string,
   periodEnd: Date
-): Promise<number> {
+): Promise<void> {
   const period = await getBillingPeriod(db, workspaceId);
   const count = await db.usageEvent.count({
     where: {
@@ -171,9 +171,7 @@ async function seedUsageCounter(
     1,
     Math.floor((periodEnd.getTime() - Date.now()) / 1000)
   );
-  await redis.set(counterKey, count, { ex: ttl });
-
-  return count;
+  await redis.set(counterKey, count, { ex: ttl, nx: true });
 }
 
 export async function checkApiUsage(
@@ -201,12 +199,14 @@ export async function checkApiUsage(
       currentUsage = await redis.incr(counterKey);
       currentUsage -= 1;
     } else {
-      currentUsage = await seedUsageCounter(
+      await seedUsageCounterIfMissing(
         redis,
         db,
         workspaceId,
         new Date(meta.periodEnd)
       );
+      currentUsage = await redis.incr(counterKey);
+      currentUsage -= 1;
     }
 
     const percentage = meta.limit > 0 ? (currentUsage / meta.limit) * 100 : 0;
