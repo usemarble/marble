@@ -69,12 +69,14 @@ export function publicUrl(envUrl: string | undefined, key: string) {
   return `${base}/${key}`;
 }
 
-export function objectKeyFromUrl(url: string) {
-  try {
-    return new URL(url).pathname.replace(/^\/+/, "");
-  } catch {
-    return null;
-  }
+export function isSafeMediaStorageKey(key: string) {
+  return (
+    key.startsWith("media/") &&
+    !key
+      .replace(/\/{2,}/g, "/")
+      .split("/")
+      .some((segment) => ["", ".", ".."].includes(segment))
+  );
 }
 
 export function getImageDimensions(buffer: ArrayBuffer) {

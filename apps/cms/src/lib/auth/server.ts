@@ -17,7 +17,14 @@ import { betterAuth } from "better-auth/minimal";
 import { nextCookies } from "better-auth/next-js";
 import { emailOTP, organization } from "better-auth/plugins";
 import { customAlphabet } from "nanoid";
-import { storeUserImageAction } from "@/lib/actions/user";
+import {
+  createAuthor,
+  storeUserImage,
+  validateWorkspaceName,
+  validateWorkspaceSchema,
+  validateWorkspaceSlug,
+  validateWorkspaceTimezone,
+} from "@/lib/auth/hooks";
 import {
   sendFounderEmail,
   sendInviteEmail,
@@ -32,13 +39,6 @@ import { handleSubscriptionRevoked } from "@/lib/polar/subscription.revoked";
 import { handleSubscriptionUpdated } from "@/lib/polar/subscription.updated";
 import { getLastActiveWorkspaceOrNewOneToSetAsActive } from "@/lib/queries/workspace";
 import { guardWorkspaceSubscription } from "@/lib/subscription/access";
-import {
-  createAuthor,
-  validateWorkspaceName,
-  validateWorkspaceSchema,
-  validateWorkspaceSlug,
-  validateWorkspaceTimezone,
-} from "../actions/workspace";
 import { redis } from "../redis";
 
 const nanoid = customAlphabet("abcdefghijklmnopqrstuvwxyz0123456789", 6);
@@ -331,7 +331,7 @@ export const auth = betterAuth({
     user: {
       create: {
         after: async (user) => {
-          await storeUserImageAction(user);
+          await storeUserImage(user);
 
           if (user.emailVerified) {
             await sendOnboardingEmails(user);
