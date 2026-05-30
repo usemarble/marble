@@ -12,6 +12,9 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
   experimental: {
     optimizePackageImports: ["@phosphor-icons/react"],
+    staleTimes: {
+      dynamic: 60,
+    },
   },
   turbopack: {
     root: path.resolve(__dirname, "../.."),
@@ -47,6 +50,10 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "media.marblecms.com",
+      },
+      {
+        protocol: "https",
+        hostname: "cdn.marblecms.com",
       },
     ],
     qualities: [20, 40, 60, 80, 100],

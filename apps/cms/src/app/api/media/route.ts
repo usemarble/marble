@@ -8,10 +8,10 @@ import {
   emitDashboardEvent,
   logDashboardEventError,
 } from "@/lib/events/dispatch";
+import { getDashboardMedia } from "@/lib/queries/dashboard/media";
 import { R2_BUCKET_NAME, r2 } from "@/lib/r2";
 import { loadMediaApiFilters } from "@/lib/search-params";
 import { DeleteSchema } from "@/lib/validations/upload";
-import { splitMediaSort } from "@/utils/media";
 
 export async function GET(request: Request) {
   const accessData = await requireActiveWorkspaceAccess();
@@ -29,60 +29,10 @@ export async function GET(request: Request) {
   if (!z.number().int().min(1).max(100).safeParse(filters.perPage).success) {
     return NextResponse.json({ error: "Invalid perPage" }, { status: 400 });
   }
-  const { field, direction } = splitMediaSort(filters.sort);
-  const { page, perPage, search, type } = filters;
-
   try {
-    const where = {
-      workspaceId,
-      ...(type && { type }),
-      ...(search?.trim() && {
-        name: {
-          contains: search.trim(),
-          mode: "insensitive" as const,
-        },
-      }),
-    };
-
-    const orderBy = [{ [field]: direction }, { id: direction }];
-    const hasFilters = Boolean(type || search?.trim());
-
-    const [media, totalCount, workspaceMediaCount] = await Promise.all([
-      db.media.findMany({
-        where,
-        skip: (page - 1) * perPage,
-        take: perPage,
-        orderBy,
-        select: {
-          id: true,
-          name: true,
-          url: true,
-          alt: true,
-          createdAt: true,
-          type: true,
-          size: true,
-          mimeType: true,
-          width: true,
-          height: true,
-          duration: true,
-          blurHash: true,
-        },
-      }),
-      db.media.count({ where }),
-      hasFilters ? db.media.count({ where: { workspaceId } }) : null,
-    ]);
-    const hasAnyMedia =
-      workspaceMediaCount === null ? totalCount > 0 : workspaceMediaCount > 0;
-
-    return NextResponse.json(
-      {
-        media,
-        pageCount: Math.max(1, Math.ceil(totalCount / perPage)),
-        totalCount,
-        hasAnyMedia,
-      },
-      { status: 200 }
-    );
+    return NextResponse.json(await getDashboardMedia(workspaceId, filters), {
+      status: 200,
+    });
   } catch (error) {
     console.error("[Media] Failed to fetch media:", error);
     return NextResponse.json(

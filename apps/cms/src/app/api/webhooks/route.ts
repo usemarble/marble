@@ -2,6 +2,7 @@ import { randomBytes } from "node:crypto";
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
+import { getDashboardWebhooks } from "@/lib/queries/dashboard/settings";
 import { webhookSchema } from "@/lib/validations/webhook";
 
 export async function GET() {
@@ -13,16 +14,9 @@ export async function GET() {
 
   const { workspaceId } = accessData;
 
-  const webhooks = await db.webhookEndpoint.findMany({
-    where: {
-      workspaceId,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
+  return NextResponse.json(await getDashboardWebhooks(workspaceId), {
+    status: 200,
   });
-
-  return NextResponse.json(webhooks, { status: 200 });
 }
 
 export async function POST(req: Request) {

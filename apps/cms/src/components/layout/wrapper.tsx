@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@marble/ui/lib/utils";
+import { motion, useReducedMotion } from "motion/react";
 import type { ReactNode } from "react";
 import { PageHeader } from "@/components/layout/page-header";
 
@@ -42,19 +43,36 @@ export function DashboardBody({
   size = "default",
   title,
 }: DashboardBodyProps) {
+  const shouldReduceMotion = useReducedMotion();
+  const fadeInProps = {
+    animate: { opacity: 1 },
+    initial: shouldReduceMotion ? false : { opacity: 0 },
+    transition: { duration: shouldReduceMotion ? 0 : 0.3, ease: "easeOut" },
+  } as const;
+  const contextViewFadeInProps = {
+    animate: { opacity: 1 },
+    initial: shouldReduceMotion ? false : { opacity: 0 },
+    transition: {
+      delay: shouldReduceMotion ? 0 : 0.1,
+      duration: shouldReduceMotion ? 0 : 0.3,
+      ease: "easeOut",
+    },
+  } as const;
+
   if (flush) {
     return (
       <div className="flex h-svh max-h-svh w-full flex-col overflow-hidden bg-background">
         {showHeader ? (header ?? <PageHeader title={title} />) : null}
         <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden lg:flex-row">
-          <div
+          <motion.div
             className={cn(
               "flex min-h-0 w-full min-w-0 flex-1 flex-col",
               className
             )}
+            {...fadeInProps}
           >
             {children}
-          </div>
+          </motion.div>
           {contextView ? (
             <aside
               className={cn(
@@ -62,7 +80,12 @@ export function DashboardBody({
                 contextViewClassName
               )}
             >
-              {contextView}
+              <motion.div
+                className="flex h-full min-h-0 flex-col"
+                {...contextViewFadeInProps}
+              >
+                {contextView}
+              </motion.div>
             </aside>
           ) : null}
         </div>
@@ -82,15 +105,16 @@ export function DashboardBody({
               contextView ? "lg:mx-0" : "mx-auto"
             )}
           >
-            <div
+            <motion.div
               className={cn(
                 "flex w-full flex-col",
                 className,
                 contentClassName
               )}
+              {...fadeInProps}
             >
               {children}
-            </div>
+            </motion.div>
           </div>
           {contextView ? (
             <aside
@@ -99,7 +123,12 @@ export function DashboardBody({
                 contextViewClassName
               )}
             >
-              {contextView}
+              <motion.div
+                className="flex h-full min-h-0 flex-col"
+                {...contextViewFadeInProps}
+              >
+                {contextView}
+              </motion.div>
             </aside>
           ) : null}
         </div>

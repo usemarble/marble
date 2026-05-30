@@ -21,7 +21,7 @@ import {
 } from "@marble/ui/components/sidebar";
 import { cn } from "@marble/ui/lib/utils";
 import Link from "next/link";
-import { useParams, usePathname } from "next/navigation";
+import { useParams, useSelectedLayoutSegments } from "next/navigation";
 import { workspacePath } from "@/utils/workspace/url";
 
 const accountItems = [
@@ -79,11 +79,14 @@ const developerItems = [
 ];
 
 export function NavSettings() {
-  const pathname = usePathname();
+  const segments = useSelectedLayoutSegments();
   const params = useParams<{ workspace: string }>();
   const { open } = useSidebar();
 
-  const isActive = (url: string) => pathname === `/${params.workspace}/${url}`;
+  const activeUrl = segments
+    .filter((segment) => !segment.startsWith("("))
+    .join("/");
+  const isActive = (url: string) => activeUrl === url;
 
   return (
     <>

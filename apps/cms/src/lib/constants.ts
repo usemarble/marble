@@ -73,6 +73,7 @@ export const WORKSPACE_SCOPED_PREFIXES = [
   "media",
   "webhooks",
   "keys",
+  "custom-fields",
 ] as const;
 
 export type WorkspaceScopedPrefix = (typeof WORKSPACE_SCOPED_PREFIXES)[number];

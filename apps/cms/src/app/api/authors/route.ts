@@ -8,6 +8,7 @@ import {
   logDashboardEventError,
 } from "@/lib/events/dispatch";
 import { getWorkspacePlan, PLAN_LIMITS } from "@/lib/plans";
+import { getDashboardAuthors } from "@/lib/queries/dashboard/authors";
 import { authorSchema } from "@/lib/validations/authors";
 
 export async function GET() {
@@ -20,37 +21,9 @@ export async function GET() {
   const { workspaceId } = accessData;
 
   try {
-    const authors = await db.author.findMany({
-      where: {
-        workspaceId,
-        isActive: true,
-      },
-      select: {
-        id: true,
-        name: true,
-        image: true,
-        role: true,
-        bio: true,
-        slug: true,
-        email: true,
-        userId: true,
-        isActive: true,
-        createdAt: true,
-        updatedAt: true,
-        socials: {
-          select: {
-            id: true,
-            url: true,
-            platform: true,
-          },
-        },
-      },
-      orderBy: {
-        name: "asc",
-      },
+    return NextResponse.json(await getDashboardAuthors(workspaceId), {
+      status: 200,
     });
-
-    return NextResponse.json(authors, { status: 200 });
   } catch (error) {
     console.error("Failed to fetch authors:", error);
     return NextResponse.json(

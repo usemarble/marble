@@ -18,7 +18,7 @@ import {
 } from "@marble/ui/components/sidebar";
 import { cn } from "@marble/ui/lib/utils";
 import Link from "next/link";
-import { useParams, usePathname } from "next/navigation";
+import { useParams, useSelectedLayoutSegments } from "next/navigation";
 import { workspacePath } from "@/utils/workspace/url";
 
 const items = [
@@ -50,13 +50,14 @@ const items = [
 ];
 
 export function NavMain() {
-  const pathname = usePathname();
+  const segments = useSelectedLayoutSegments();
   const params = useParams<{ workspace: string }>();
   const { open } = useSidebar();
 
-  const isActive = (url: string) => pathname === `/${params.workspace}/${url}`;
+  const activeSegment = segments.find((segment) => !segment.startsWith("("));
+  const isActive = (url: string) => activeSegment === url;
 
-  const isOverviewActive = pathname === `/${params.workspace}`;
+  const isOverviewActive = !activeSegment;
 
   return (
     <SidebarGroup className="px-3">

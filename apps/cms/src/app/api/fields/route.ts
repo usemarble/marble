@@ -2,6 +2,7 @@ import { db } from "@marble/db";
 import type { FieldType as PrismaFieldType } from "@marble/db/browser";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
+import { getDashboardCustomFields } from "@/lib/queries/dashboard/settings";
 import { customFieldSchema } from "@/lib/validations/fields";
 
 function buildFieldOptionWrites(
@@ -46,29 +47,9 @@ export async function GET() {
 
   const { workspaceId } = accessData;
 
-  const fields = await db.field.findMany({
-    where: {
-      workspaceId,
-    },
-    include: {
-      options: {
-        orderBy: [{ position: "asc" }, { createdAt: "asc" }],
-      },
-      _count: {
-        select: {
-          values: true,
-        },
-      },
-    },
-    orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+  return NextResponse.json(await getDashboardCustomFields(workspaceId), {
+    status: 200,
   });
-
-  const fieldsWithUsage = fields.map(({ _count, ...field }) => ({
-    ...field,
-    hasValues: _count.values > 0,
-  }));
-
-  return NextResponse.json(fieldsWithUsage, { status: 200 });
 }
 
 export async function POST(req: Request) {

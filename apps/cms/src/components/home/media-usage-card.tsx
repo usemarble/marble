@@ -190,7 +190,7 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
             </p>
           </div>
           <p className="font-medium text-muted-foreground text-xl leading-none tracking-tight">
-            {formatBytes(data?.totalSize ?? 0)}
+            {formatBytes(data?.recentUploadsSize ?? 0)}
           </p>
         </div>
       </div>

@@ -33,7 +33,11 @@ const fieldTypeLabels: Record<string, string> = {
   multiselect: "Multi Select",
 };
 
-export function PageClient() {
+export function PageClient({
+  initialFields,
+}: {
+  initialFields?: CustomField[];
+}) {
   const workspaceId = useWorkspaceId();
   const queryClient = useQueryClient();
   const docsHref = "https://docs.marblecms.com/guides/features/custom-fields";
@@ -59,6 +63,7 @@ export function PageClient() {
       return data;
     },
     enabled: !!workspaceId,
+    initialData: initialFields,
   });
 
   if (!workspaceId || isLoading) {

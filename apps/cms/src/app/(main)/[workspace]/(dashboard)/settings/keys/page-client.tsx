@@ -21,7 +21,7 @@ const CreateKeyModal = dynamic(() =>
   import("@/components/keys/api-key-modal").then((mod) => mod.ApiKeyModal)
 );
 
-function PageClient() {
+function PageClient({ initialKeys }: { initialKeys?: APIKey[] }) {
   const workspaceId = useWorkspaceId();
   const { isFetchingWorkspace } = useWorkspace();
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -43,10 +43,13 @@ function PageClient() {
         toast.error(
           error instanceof Error ? error.message : "Failed to fetch keys"
         );
-        return [];
+        throw error instanceof Error
+          ? error
+          : new Error("Failed to fetch keys");
       }
     },
     enabled: !!workspaceId && !isFetchingWorkspace,
+    initialData: initialKeys,
   });
 
   if (isFetchingWorkspace || !workspaceId || isLoading) {

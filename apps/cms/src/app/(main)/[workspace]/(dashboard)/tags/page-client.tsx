@@ -20,7 +20,7 @@ const TagModal = dynamic(() =>
   import("@/components/tags/tag-modals").then((mod) => mod.TagModal)
 );
 
-function PageClient() {
+function PageClient({ initialTags }: { initialTags?: Tag[] }) {
   const workspaceId = useWorkspaceId();
   const { isFetchingWorkspace } = useWorkspace();
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -41,9 +41,13 @@ function PageClient() {
         toast.error(
           error instanceof Error ? error.message : "Failed to fetch tags"
         );
+        throw error instanceof Error
+          ? error
+          : new Error("Failed to fetch tags");
       }
     },
     enabled: !!workspaceId && !isFetchingWorkspace,
+    initialData: initialTags,
   });
 
   if (isFetchingWorkspace || !workspaceId || isLoading) {

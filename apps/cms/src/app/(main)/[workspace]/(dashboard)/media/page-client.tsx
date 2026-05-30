@@ -19,13 +19,26 @@ import type {
 } from "@/types/media";
 import { toMediaType } from "@/utils/media";
 
-function PageClient() {
+function PageClient({
+  initialMedia,
+  initialMediaKey,
+}: {
+  initialMedia?: MediaPaginatedListResponse;
+  initialMediaKey?: string;
+}) {
   const workspaceId = useWorkspaceId();
   const { isFetchingWorkspace } = useWorkspace();
   const [{ page, perPage, search, sort, type }] = useMediaPageFilters();
   const normalizedType = toMediaType(type);
   const [isUploading, setIsUploading] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
+  const currentMediaKey = JSON.stringify({
+    page,
+    perPage,
+    search,
+    sort,
+    type: normalizedType,
+  });
 
   const { data, error, isError, isLoading, isFetching } = useQuery({
     queryKey: [
@@ -60,6 +73,7 @@ function PageClient() {
     },
     enabled: !!workspaceId && !isFetchingWorkspace,
     placeholderData: keepPreviousData,
+    initialData: initialMediaKey === currentMediaKey ? initialMedia : undefined,
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 30,
   });

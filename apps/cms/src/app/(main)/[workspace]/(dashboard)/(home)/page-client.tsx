@@ -12,7 +12,11 @@ import { QUERY_KEYS } from "@/lib/queries/keys";
 import { useWorkspace } from "@/providers/workspace";
 import type { UsageDashboardData } from "@/types/dashboard";
 
-export default function PageClient() {
+export default function PageClient({
+  initialUsage,
+}: {
+  initialUsage?: UsageDashboardData;
+}) {
   const workspaceId = useWorkspaceId();
   const { isFetchingWorkspace } = useWorkspace();
 
@@ -28,6 +32,7 @@ export default function PageClient() {
       return response.json();
     },
     enabled: Boolean(workspaceId) && !isFetchingWorkspace,
+    initialData: initialUsage,
     staleTime: 1000 * 60 * 10,
   });
 

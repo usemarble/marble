@@ -13,7 +13,11 @@ import { QUERY_KEYS } from "@/lib/queries/keys";
 import { useWorkspace } from "@/providers/workspace";
 import type { Webhook } from "@/types/webhook";
 
-export function PageClient() {
+export function PageClient({
+  initialWebhooks,
+}: {
+  initialWebhooks?: Webhook[];
+}) {
   const workspaceId = useWorkspaceId();
   const { isFetchingWorkspace } = useWorkspace();
   const queryClient = useQueryClient();
@@ -36,9 +40,13 @@ export function PageClient() {
         toast.error(
           error instanceof Error ? error.message : "Failed to fetch webhooks"
         );
+        throw error instanceof Error
+          ? error
+          : new Error("Failed to fetch webhooks");
       }
     },
     enabled: !!workspaceId && !isFetchingWorkspace,
+    initialData: initialWebhooks,
   });
 
   const {

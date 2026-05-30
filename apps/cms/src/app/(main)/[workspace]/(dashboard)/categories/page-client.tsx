@@ -22,7 +22,7 @@ const CategoryModal = dynamic(() =>
   )
 );
 
-function PageClient() {
+function PageClient({ initialCategories }: { initialCategories?: Category[] }) {
   const workspaceId = useWorkspaceId();
   const { isFetchingWorkspace } = useWorkspace();
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -45,9 +45,13 @@ function PageClient() {
         toast.error(
           error instanceof Error ? error.message : "Failed to fetch categories"
         );
+        throw error instanceof Error
+          ? error
+          : new Error("Failed to fetch categories");
       }
     },
     enabled: !!workspaceId && !isFetchingWorkspace,
+    initialData: initialCategories,
   });
 
   if (isFetchingWorkspace || !workspaceId || isLoading) {

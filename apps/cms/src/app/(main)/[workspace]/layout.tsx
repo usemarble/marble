@@ -1,10 +1,7 @@
 // app/(main)/[workspace]/layout.tsx
 import { notFound } from "next/navigation";
 import { setActiveWorkspace } from "@/lib/auth/workspace";
-import {
-  getInitialWorkspaceData,
-  validateWorkspaceAccess,
-} from "@/lib/queries/workspace";
+import { getWorkspaceLayoutData } from "@/lib/queries/workspace";
 import { WorkspaceProvider } from "@/providers/workspace";
 import { SetWorkspaceCookie } from "./set-workspace-cookie";
 
@@ -17,15 +14,14 @@ export default async function WorkspaceLayout({
 }) {
   const { workspace: workspaceSlug } = await params;
 
-  const workspaceExists = await validateWorkspaceAccess(workspaceSlug);
-  if (!workspaceExists) {
+  const layoutData = await getWorkspaceLayoutData(workspaceSlug);
+  const initialWorkspace = layoutData?.workspace;
+  if (!layoutData || !initialWorkspace) {
     notFound();
   }
 
-  await setActiveWorkspace(workspaceSlug);
-  const initialWorkspace = await getInitialWorkspaceData(workspaceSlug);
-  if (!initialWorkspace) {
-    notFound();
+  if (layoutData.activeOrganizationId !== initialWorkspace.id) {
+    await setActiveWorkspace(workspaceSlug);
   }
 
   return (
