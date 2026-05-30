@@ -3,21 +3,10 @@
 import { Badge } from "@marble/ui/components/badge";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import type { ApiScope } from "@/utils/keys";
+import type { APIKey } from "@/types/dashboard";
 import TableActions from "./table-actions";
 
-export interface APIKey {
-  id: string;
-  name: string;
-  preview: string;
-  type: "public" | "private";
-  scopes: ApiScope[];
-  requestCount: number;
-  enabled: boolean;
-  lastUsed: Date | null;
-  expiresAt: Date | null;
-  createdAt: Date;
-}
+export type { APIKey } from "@/types/dashboard";
 
 export const columns: ColumnDef<APIKey>[] = [
   {

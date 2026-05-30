@@ -2,7 +2,7 @@ import { randomBytes } from "node:crypto";
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
-import { getDashboardWebhooks } from "@/lib/queries/dashboard";
+import { getDashboardWebhooks } from "@/lib/queries/dashboard/settings";
 import { webhookSchema } from "@/lib/validations/webhook";
 
 export async function GET() {

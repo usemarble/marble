@@ -10,7 +10,7 @@ import {
   emitDashboardEvent,
   logDashboardEventError,
 } from "@/lib/events/dispatch";
-import { getDashboardPosts } from "@/lib/queries/dashboard";
+import { getDashboardPosts } from "@/lib/queries/dashboard/posts";
 import { loadPostApiFilters } from "@/lib/search-params";
 import { postUpsertSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";

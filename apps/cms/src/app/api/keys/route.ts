@@ -2,7 +2,7 @@ import { db } from "@marble/db";
 import { generateApiKey } from "@marble/utils";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
-import { getDashboardApiKeys } from "@/lib/queries/dashboard";
+import { getDashboardApiKeys } from "@/lib/queries/dashboard/settings";
 import { createApiKeySchema } from "@/lib/validations/keys";
 import { DEFAULT_PRIVATE_SCOPES, DEFAULT_PUBLIC_SCOPES } from "@/utils/keys";
 

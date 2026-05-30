@@ -1,8 +1,6 @@
 import { notFound } from "next/navigation";
-import {
-  getDashboardCategories,
-  getDashboardWorkspaceId,
-} from "@/lib/queries/dashboard";
+import { getDashboardCategories } from "@/lib/queries/dashboard/taxonomy";
+import { getDashboardWorkspaceId } from "@/lib/queries/dashboard/workspace";
 import PageClient from "./page-client";
 
 export const metadata = {

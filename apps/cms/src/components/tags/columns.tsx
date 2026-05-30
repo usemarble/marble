@@ -1,15 +1,10 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
+import type { Tag } from "@/types/dashboard";
 import TableActions from "./table-actions";
 
-export interface Tag {
-  id: string;
-  name: string;
-  slug: string;
-  description?: string | null;
-  postsCount: number;
-}
+export type { Tag } from "@/types/dashboard";
 
 export const columns: ColumnDef<Tag>[] = [
   {

@@ -19,11 +19,7 @@ import {
 import { cn } from "@marble/ui/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
-import {
-  useParams,
-  useRouter,
-  useSelectedLayoutSegments,
-} from "next/navigation";
+import { useParams, useSelectedLayoutSegments } from "next/navigation";
 import { prefetchDashboardRoute } from "@/lib/dashboard-prefetch";
 import { useWorkspace } from "@/providers/workspace";
 import { workspacePath } from "@/utils/workspace/url";
@@ -58,7 +54,6 @@ const items = [
 
 export function NavMain() {
   const segments = useSelectedLayoutSegments();
-  const router = useRouter();
   const params = useParams<{ workspace: string }>();
   const queryClient = useQueryClient();
   const { activeWorkspace } = useWorkspace();
@@ -69,9 +64,6 @@ export function NavMain() {
 
   const isOverviewActive = !activeSegment;
   const prefetchRoute = (url = "") => {
-    const href = workspacePath(params.workspace, url);
-    router.prefetch(href);
-
     if (activeWorkspace?.id) {
       prefetchDashboardRoute(queryClient, activeWorkspace.id, url).catch(
         () => undefined

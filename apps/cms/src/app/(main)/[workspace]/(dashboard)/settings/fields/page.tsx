@@ -1,8 +1,6 @@
 import { notFound } from "next/navigation";
-import {
-  getDashboardCustomFields,
-  getDashboardWorkspaceId,
-} from "@/lib/queries/dashboard";
+import { getDashboardCustomFields } from "@/lib/queries/dashboard/settings";
+import { getDashboardWorkspaceId } from "@/lib/queries/dashboard/workspace";
 import { PageClient } from "./page-client";
 
 export const metadata = {

@@ -1,8 +1,6 @@
 import { notFound } from "next/navigation";
-import {
-  getDashboardWebhooks,
-  getDashboardWorkspaceId,
-} from "@/lib/queries/dashboard";
+import { getDashboardWebhooks } from "@/lib/queries/dashboard/settings";
+import { getDashboardWorkspaceId } from "@/lib/queries/dashboard/workspace";
 import { PageClient } from "./page-client";
 
 export const metadata = {

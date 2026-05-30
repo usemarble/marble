@@ -1,8 +1,6 @@
 import { notFound } from "next/navigation";
-import {
-  getDashboardPosts,
-  getDashboardWorkspaceId,
-} from "@/lib/queries/dashboard";
+import { getDashboardPosts } from "@/lib/queries/dashboard/posts";
+import { getDashboardWorkspaceId } from "@/lib/queries/dashboard/workspace";
 import { loadPostApiFilters } from "@/lib/search-params";
 import PageClient from "./page-client";
 

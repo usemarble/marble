@@ -6,27 +6,11 @@ import { CaretUpDownIcon, ImageIcon } from "@phosphor-icons/react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import Image from "next/image";
+import type { Post } from "@/types/dashboard";
 import { formatCalendarDate } from "@/utils/string";
 import PostActions from "./post-actions";
 
-export interface Post {
-  id: string;
-  title: string;
-  coverImage: string | null;
-  status: "published" | "draft";
-  featured: boolean;
-  publishedAt: Date;
-  updatedAt: Date;
-  category: {
-    id: string;
-    name: string;
-  };
-  authors: Array<{
-    id: string;
-    name: string;
-    image: string | null;
-  }>;
-}
+export type { Post } from "@/types/dashboard";
 
 export const columns: ColumnDef<Post>[] = [
   {

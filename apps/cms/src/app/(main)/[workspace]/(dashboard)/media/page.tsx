@@ -1,8 +1,6 @@
 import { notFound } from "next/navigation";
-import {
-  getDashboardMedia,
-  getDashboardWorkspaceId,
-} from "@/lib/queries/dashboard";
+import { getDashboardMedia } from "@/lib/queries/dashboard/media";
+import { getDashboardWorkspaceId } from "@/lib/queries/dashboard/workspace";
 import { loadMediaPageFilters } from "@/lib/search-params";
 import { toMediaType } from "@/utils/media";
 import PageClient from "./page-client";

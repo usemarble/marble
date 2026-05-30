@@ -8,7 +8,7 @@ import {
   logDashboardEventError,
 } from "@/lib/events/dispatch";
 import { getWorkspacePlan, PLAN_LIMITS } from "@/lib/plans";
-import { getDashboardAuthors } from "@/lib/queries/dashboard";
+import { getDashboardAuthors } from "@/lib/queries/dashboard/authors";
 import { authorSchema } from "@/lib/validations/authors";
 
 export async function GET() {

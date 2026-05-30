@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
-import { getDashboardUsageMetrics } from "@/lib/queries/dashboard";
+import { getDashboardUsageMetrics } from "@/lib/queries/dashboard/usage";
 
 export async function GET() {
   const accessData = await requireActiveWorkspaceAccess();

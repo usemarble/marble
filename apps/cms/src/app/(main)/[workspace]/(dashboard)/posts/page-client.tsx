@@ -18,7 +18,7 @@ import { columns, type Post } from "@/components/posts/columns";
 import { PostDataView } from "@/components/posts/data-view";
 import PageLoader from "@/components/shared/page-loader";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import type { PostListResponse } from "@/lib/queries/dashboard";
+import type { PostListResponse } from "@/lib/queries/dashboard/posts";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { getPostApiUrl, usePostPageFilters } from "@/lib/search-params";
 import { useWorkspace } from "@/providers/workspace";

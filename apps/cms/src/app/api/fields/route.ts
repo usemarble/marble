@@ -2,7 +2,7 @@ import { db } from "@marble/db";
 import type { FieldType as PrismaFieldType } from "@marble/db/browser";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
-import { getDashboardCustomFields } from "@/lib/queries/dashboard";
+import { getDashboardCustomFields } from "@/lib/queries/dashboard/settings";
 import { customFieldSchema } from "@/lib/validations/fields";
 
 function buildFieldOptionWrites(

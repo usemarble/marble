@@ -8,7 +8,7 @@ import {
   emitDashboardEvent,
   logDashboardEventError,
 } from "@/lib/events/dispatch";
-import { getDashboardMedia } from "@/lib/queries/dashboard";
+import { getDashboardMedia } from "@/lib/queries/dashboard/media";
 import { R2_BUCKET_NAME, r2 } from "@/lib/r2";
 import { loadMediaApiFilters } from "@/lib/search-params";
 import { DeleteSchema } from "@/lib/validations/upload";

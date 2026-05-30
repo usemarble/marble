@@ -1,15 +1,10 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
+import type { Category } from "@/types/dashboard";
 import TableActions from "./table-actions";
 
-export interface Category {
-  id: string;
-  name: string;
-  slug: string;
-  description?: string | null;
-  postsCount: number;
-}
+export type { Category } from "@/types/dashboard";
 
 export const columns: ColumnDef<Category>[] = [
   {

@@ -7,7 +7,7 @@ import {
   emitDashboardEvent,
   logDashboardEventError,
 } from "@/lib/events/dispatch";
-import { getDashboardCategories } from "@/lib/queries/dashboard";
+import { getDashboardCategories } from "@/lib/queries/dashboard/taxonomy";
 import { categorySchema } from "@/lib/validations/workspace";
 
 export async function GET() {

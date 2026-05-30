@@ -1,0 +1,13 @@
+.segment {
+  animation: fade 1.2s linear infinite;
+}
+
+@keyframes fade {
+  0% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}

@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import {
-  getDashboardAuthors,
-  getDashboardWorkspaceId,
-} from "@/lib/queries/dashboard";
+import { getDashboardAuthors } from "@/lib/queries/dashboard/authors";
+import { getDashboardWorkspaceId } from "@/lib/queries/dashboard/workspace";
 import PageClient from "./page-client";
 
 export const metadata: Metadata = {
