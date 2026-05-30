@@ -47,7 +47,16 @@ export function DashboardBody({
   const fadeInProps = {
     animate: { opacity: 1 },
     initial: shouldReduceMotion ? false : { opacity: 0 },
-    transition: { duration: shouldReduceMotion ? 0 : 0.2, ease: "easeOut" },
+    transition: { duration: shouldReduceMotion ? 0 : 0.3, ease: "easeOut" },
+  } as const;
+  const contextViewFadeInProps = {
+    animate: { opacity: 1 },
+    initial: shouldReduceMotion ? false : { opacity: 0 },
+    transition: {
+      delay: shouldReduceMotion ? 0 : 0.1,
+      duration: shouldReduceMotion ? 0 : 0.3,
+      ease: "easeOut",
+    },
   } as const;
 
   if (flush) {
@@ -71,7 +80,12 @@ export function DashboardBody({
                 contextViewClassName
               )}
             >
-              {contextView}
+              <motion.div
+                className="flex h-full min-h-0 flex-col"
+                {...contextViewFadeInProps}
+              >
+                {contextView}
+              </motion.div>
             </aside>
           ) : null}
         </div>
@@ -109,7 +123,12 @@ export function DashboardBody({
                 contextViewClassName
               )}
             >
-              {contextView}
+              <motion.div
+                className="flex h-full min-h-0 flex-col"
+                {...contextViewFadeInProps}
+              >
+                {contextView}
+              </motion.div>
             </aside>
           ) : null}
         </div>

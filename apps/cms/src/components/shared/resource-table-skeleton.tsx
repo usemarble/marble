@@ -12,7 +12,7 @@ const rows = [
   "row-8",
 ];
 
-export default function Loading() {
+export function ResourceTableSkeleton() {
   return (
     <DashboardBody className="flex flex-col gap-8 pt-10 pb-16" size="compact">
       <div>
