@@ -83,9 +83,7 @@ export async function getDashboardPosts(
           },
         },
       },
-      orderBy: {
-        [field]: direction,
-      },
+      orderBy: [{ [field]: direction }, { id: direction }],
     }),
     db.post.count({ where }),
     hasFilters ? db.post.count({ where: { workspaceId } }) : null,

@@ -95,7 +95,7 @@ export interface UsageDashboardData {
   media: {
     total: number;
     last30Days: number;
-    totalSize: number;
+    recentUploadsSize: number;
     lastUploadAt: string | null;
     recentUploads: DashboardRecentUpload[];
   };

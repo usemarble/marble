@@ -193,7 +193,10 @@ export async function getDashboardUsageMetrics(
     media: {
       total: mediaTotals,
       last30Days: mediaLast30,
-      totalSize: recentMediaUploads.reduce((sum, media) => sum + media.size, 0),
+      recentUploadsSize: recentMediaUploads.reduce(
+        (sum, media) => sum + media.size,
+        0
+      ),
       lastUploadAt: mediaLastUpload?.createdAt.toISOString() ?? null,
       recentUploads: recentMediaUploads.map((media) => ({
         id: media.id,
