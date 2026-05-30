@@ -17,11 +17,8 @@ import {
   useSidebar,
 } from "@marble/ui/components/sidebar";
 import { cn } from "@marble/ui/lib/utils";
-import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useParams, useSelectedLayoutSegments } from "next/navigation";
-import { prefetchDashboardRoute } from "@/lib/dashboard-prefetch";
-import { useWorkspace } from "@/providers/workspace";
 import { workspacePath } from "@/utils/workspace/url";
 
 const items = [
@@ -55,21 +52,12 @@ const items = [
 export function NavMain() {
   const segments = useSelectedLayoutSegments();
   const params = useParams<{ workspace: string }>();
-  const queryClient = useQueryClient();
-  const { activeWorkspace } = useWorkspace();
   const { open } = useSidebar();
 
   const activeSegment = segments.find((segment) => !segment.startsWith("("));
   const isActive = (url: string) => activeSegment === url;
 
   const isOverviewActive = !activeSegment;
-  const prefetchRoute = (url = "") => {
-    if (activeWorkspace?.id) {
-      prefetchDashboardRoute(queryClient, activeWorkspace.id, url).catch(
-        () => undefined
-      );
-    }
-  };
 
   return (
     <SidebarGroup className="px-3">
@@ -84,11 +72,7 @@ export function NavMain() {
               : "hover:text-accent-foreground"
           )}
           render={
-            <Link
-              href={workspacePath(params.workspace)}
-              onFocus={() => prefetchRoute()}
-              onMouseEnter={() => prefetchRoute()}
-            >
+            <Link href={workspacePath(params.workspace)}>
               <HugeiconsIcon icon={Home01Icon} />
               {open && <span>Home</span>}
             </Link>
@@ -106,11 +90,7 @@ export function NavMain() {
             )}
             key={item.name}
             render={
-              <Link
-                href={workspacePath(params.workspace, item.url)}
-                onFocus={() => prefetchRoute(item.url)}
-                onMouseEnter={() => prefetchRoute(item.url)}
-              >
+              <Link href={workspacePath(params.workspace, item.url)}>
                 <HugeiconsIcon icon={item.icon} />
                 {open && <span>{item.name}</span>}
               </Link>

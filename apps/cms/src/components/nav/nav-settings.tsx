@@ -20,11 +20,8 @@ import {
   useSidebar,
 } from "@marble/ui/components/sidebar";
 import { cn } from "@marble/ui/lib/utils";
-import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useParams, useSelectedLayoutSegments } from "next/navigation";
-import { prefetchDashboardRoute } from "@/lib/dashboard-prefetch";
-import { useWorkspace } from "@/providers/workspace";
 import { workspacePath } from "@/utils/workspace/url";
 
 const accountItems = [
@@ -84,21 +81,12 @@ const developerItems = [
 export function NavSettings() {
   const segments = useSelectedLayoutSegments();
   const params = useParams<{ workspace: string }>();
-  const queryClient = useQueryClient();
-  const { activeWorkspace } = useWorkspace();
   const { open } = useSidebar();
 
   const activeUrl = segments
     .filter((segment) => !segment.startsWith("("))
     .join("/");
   const isActive = (url: string) => activeUrl === url;
-  const prefetchRoute = (url: string) => {
-    if (activeWorkspace?.id) {
-      prefetchDashboardRoute(queryClient, activeWorkspace.id, url).catch(
-        () => undefined
-      );
-    }
-  };
 
   return (
     <>
@@ -117,11 +105,7 @@ export function NavSettings() {
               )}
               key={item.name}
               render={
-                <Link
-                  href={workspacePath(params.workspace, item.url)}
-                  onFocus={() => prefetchRoute(item.url)}
-                  onMouseEnter={() => prefetchRoute(item.url)}
-                >
+                <Link href={workspacePath(params.workspace, item.url)}>
                   <HugeiconsIcon icon={item.icon} />
                   {open && <span>{item.name}</span>}
                 </Link>
@@ -147,11 +131,7 @@ export function NavSettings() {
               )}
               key={item.name}
               render={
-                <Link
-                  href={workspacePath(params.workspace, item.url)}
-                  onFocus={() => prefetchRoute(item.url)}
-                  onMouseEnter={() => prefetchRoute(item.url)}
-                >
+                <Link href={workspacePath(params.workspace, item.url)}>
                   <HugeiconsIcon icon={item.icon} />
                   {open && <span>{item.name}</span>}
                 </Link>
@@ -177,11 +157,7 @@ export function NavSettings() {
               )}
               key={item.name}
               render={
-                <Link
-                  href={workspacePath(params.workspace, item.url)}
-                  onFocus={() => prefetchRoute(item.url)}
-                  onMouseEnter={() => prefetchRoute(item.url)}
-                >
+                <Link href={workspacePath(params.workspace, item.url)}>
                   <HugeiconsIcon icon={item.icon} />
                   {open && <span>{item.name}</span>}
                 </Link>

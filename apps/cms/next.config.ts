@@ -12,6 +12,9 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
   experimental: {
     optimizePackageImports: ["@phosphor-icons/react"],
+    staleTimes: {
+      dynamic: 60,
+    },
   },
   turbopack: {
     root: path.resolve(__dirname, "../.."),
