@@ -4,6 +4,7 @@ import { markdownToHtml, markdownToTiptap } from "@marble/parser/tiptap";
 import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
+import { invalidateCache } from "@/lib/cache/invalidate";
 import {
   emitDashboardEvent,
   logDashboardEventError,
@@ -137,6 +138,8 @@ export async function POST(request: Request) {
       },
     },
   });
+
+  invalidateCache(workspaceId, "posts");
 
   await emitDashboardEvent({
     type:
