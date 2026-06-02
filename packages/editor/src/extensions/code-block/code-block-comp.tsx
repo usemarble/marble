@@ -24,7 +24,9 @@ import { useCallback, useRef, useState } from "react";
 const LANGUAGES = [
   { value: "text", label: "Text" },
   { value: "javascript", label: "JavaScript" },
+  { value: "jsx", label: "JSX" },
   { value: "typescript", label: "TypeScript" },
+  { value: "tsx", label: "TSX" },
   { value: "python", label: "Python" },
   { value: "html", label: "HTML" },
   { value: "css", label: "CSS" },
@@ -38,9 +40,7 @@ const LANGUAGES = [
 /** Common aliases that map to a supported language value. */
 const LANGUAGE_ALIASES: Record<string, string> = {
   js: "javascript",
-  jsx: "javascript",
   ts: "typescript",
-  tsx: "typescript",
   py: "python",
   sh: "bash",
   shell: "bash",
