@@ -20,7 +20,7 @@ import {
   TrashIcon,
 } from "@phosphor-icons/react";
 import { useCurrentEditor } from "@tiptap/react";
-import type { FormEventHandler } from "react";
+import type { FormEventHandler, MouseEventHandler } from "react";
 import { useEffect, useRef, useState } from "react";
 
 export interface EditorLinkSelectorProps {
@@ -125,6 +125,10 @@ export const EditorLinkSelector = ({
     applyLink();
   };
 
+  const preserveSelection: MouseEventHandler<HTMLButtonElement> = (event) => {
+    event.preventDefault();
+  };
+
   return (
     <Popover modal onOpenChange={setIsOpen} open={isOpen}>
       <PopoverTrigger
@@ -155,6 +159,7 @@ export const EditorLinkSelector = ({
             className="h-8"
             disabled={!url || !getUrlFromString(url)}
             onClick={applyLink}
+            onMouseDown={preserveSelection}
             size="icon"
             type="button"
             variant="secondary"
@@ -171,7 +176,8 @@ export const EditorLinkSelector = ({
               render={
                 <Button
                   className="h-8 rounded-sm"
-                  onClick={() => setOpenInNewTab(!openInNewTab)}
+                  onClick={() => setOpenInNewTab((current) => !current)}
+                  onMouseDown={preserveSelection}
                   size="icon"
                   type="button"
                   variant="ghost"
@@ -199,6 +205,7 @@ export const EditorLinkSelector = ({
                     editor.chain().focus().unsetLink().run();
                     setUrl("");
                   }}
+                  onMouseDown={preserveSelection}
                   size="icon"
                   type="button"
                   variant="ghost"
@@ -226,6 +233,7 @@ export const EditorLinkSelector = ({
                       window.open(href, "_blank", "noopener,noreferrer");
                     }
                   }}
+                  onMouseDown={preserveSelection}
                   size="icon"
                   type="button"
                   variant="ghost"
