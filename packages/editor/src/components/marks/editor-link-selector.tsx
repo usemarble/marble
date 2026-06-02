@@ -20,7 +20,7 @@ import {
   TrashIcon,
 } from "@phosphor-icons/react";
 import { useCurrentEditor } from "@tiptap/react";
-import type { FormEventHandler, MouseEventHandler } from "react";
+import type { FormEventHandler } from "react";
 import { useEffect, useRef, useState } from "react";
 
 export interface EditorLinkSelectorProps {
@@ -125,10 +125,6 @@ export const EditorLinkSelector = ({
     applyLink();
   };
 
-  const preserveSelection: MouseEventHandler<HTMLButtonElement> = (event) => {
-    event.preventDefault();
-  };
-
   return (
     <Popover modal onOpenChange={setIsOpen} open={isOpen}>
       <PopoverTrigger
@@ -145,7 +141,15 @@ export const EditorLinkSelector = ({
         }
       />
       <PopoverContent align="start" className="w-fit p-0" sideOffset={10}>
-        <form className="flex items-center gap-0.5 p-1" onSubmit={handleSubmit}>
+        <form
+          className="flex items-center gap-0.5 p-1"
+          onMouseDown={(e) => {
+            if (e.target !== inputReference.current) {
+              e.preventDefault();
+            }
+          }}
+          onSubmit={handleSubmit}
+        >
           <input
             aria-label="Link URL"
             className="min-w-[200px] flex-1 bg-background px-2 py-1 text-sm outline-none"
@@ -159,7 +163,6 @@ export const EditorLinkSelector = ({
             className="h-8"
             disabled={!url || !getUrlFromString(url)}
             onClick={applyLink}
-            onMouseDown={preserveSelection}
             size="icon"
             type="button"
             variant="secondary"
@@ -177,7 +180,6 @@ export const EditorLinkSelector = ({
                 <Button
                   className="h-8 rounded-sm"
                   onClick={() => setOpenInNewTab((current) => !current)}
-                  onMouseDown={preserveSelection}
                   size="icon"
                   type="button"
                   variant="ghost"
@@ -205,7 +207,6 @@ export const EditorLinkSelector = ({
                     editor.chain().focus().unsetLink().run();
                     setUrl("");
                   }}
-                  onMouseDown={preserveSelection}
                   size="icon"
                   type="button"
                   variant="ghost"
@@ -233,7 +234,6 @@ export const EditorLinkSelector = ({
                       window.open(href, "_blank", "noopener,noreferrer");
                     }
                   }}
-                  onMouseDown={preserveSelection}
                   size="icon"
                   type="button"
                   variant="ghost"
