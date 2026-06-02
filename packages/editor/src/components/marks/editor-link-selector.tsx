@@ -55,6 +55,13 @@ export const EditorLinkSelector = ({
   const setIsOpen = controlledOnOpenChange ?? setInternalOpen;
 
   const isValidUrl = (text: string): boolean => {
+    if (
+      text.startsWith("#") ||
+      (text.startsWith("/") && !text.startsWith("//"))
+    ) {
+      return true;
+    }
+
     try {
       new URL(text);
       return true;
