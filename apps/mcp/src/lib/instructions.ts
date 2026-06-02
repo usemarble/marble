@@ -44,7 +44,7 @@ When creating or updating posts, send clean HTML in the **content** field. Prefe
 
 Allowed content tags include: p, h1, h2, h3, h4, h5, h6, strong, b, em, i, u, s, sub, sup, a, ul, ol, li, blockquote, pre, code, table, thead, tbody, tfoot, tr, th, td, img, figure, figcaption, video, track, iframe, div, span, mark, small, input, label, and hr.
 
-Allowed URL schemes are **http**, **https**, **ftp**, and **mailto**. Images may use **http**, **https**, or **data** URLs. Videos may use **http** or **https** URLs. Iframes must use **https** and are restricted to YouTube hosts: **www.youtube.com** and **www.youtube-nocookie.com**.
+Anchor **href** values may use **http**, **https**, **ftp**, or **mailto** URLs, same-page fragments such as **#introduction**, or root-relative internal paths such as **/pricing**. Do not use scheme-relative links such as **//example.com**. Images may use **http**, **https**, or **data** URLs. Videos may use **http** or **https** URLs. Iframes must use **https** and are restricted to YouTube hosts: **www.youtube.com** and **www.youtube-nocookie.com**.
 
 Avoid class names, ids, JavaScript event handlers, scripts, arbitrary data attributes, and unknown inline styles — Marble strips unsupported markup before storing.
 
