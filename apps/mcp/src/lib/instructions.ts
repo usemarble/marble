@@ -123,7 +123,7 @@ Useful allowed attributes include:
 - **a**: href, target
 - **img**: src, alt
 - **iframe**: src, allowfullscreen, style, width, height
-- **figure**: src, alt, data-width, caption, data-align, data-type
+- **figure**: data-width, data-align, data-type
 - **video**: src, controls, preload, muted, loop, playsinline
 - **track**: kind, src, srclang, label
 - **code**: class
