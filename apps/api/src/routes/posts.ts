@@ -1,7 +1,11 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { toPostPayload, withChanges } from "@marble/events";
-import { EMPTY_TIPTAP_DOC, htmlToTiptap } from "@marble/parser/tiptap";
-import { NodeHtmlMarkdown } from "node-html-markdown";
+import {
+  EMPTY_TIPTAP_DOC,
+  htmlToMarkdown,
+  htmlToTiptap,
+  normalizePostContent,
+} from "@marble/parser";
 import { cacheKey, createCacheClient, hashQueryParams } from "@/lib/cache";
 import { createDbClient } from "@/lib/db";
 import { emitEvent } from "@/lib/events";
@@ -325,7 +329,7 @@ posts.openapi(listPostsRoute, async (c) => {
       format === "markdown"
         ? postsData.map((post) => ({
             ...post,
-            content: NodeHtmlMarkdown.translate(post.content || ""),
+            content: htmlToMarkdown(post.content || ""),
           }))
         : postsData;
 
@@ -477,7 +481,7 @@ posts.openapi(getPostRoute, async (c) => {
       format === "markdown"
         ? {
             ...post,
-            content: NodeHtmlMarkdown.translate(post.content || ""),
+            content: htmlToMarkdown(post.content || ""),
           }
         : post;
 
@@ -643,7 +647,8 @@ posts.openapi(createPostRoute, async (c) => {
       : new Date();
 
     // 6. Create the post
-    const sanitizedContent = sanitizeHtml(body.content);
+    const normalizedContent = await normalizePostContent(body.content);
+    const sanitizedContent = sanitizeHtml(normalizedContent.html);
     let contentJson = EMPTY_TIPTAP_DOC;
 
     try {
@@ -939,7 +944,19 @@ posts.openapi(updatePostRoute, async (c) => {
       updateData.title = body.title;
     }
     if (body.content !== undefined) {
-      updateData.content = sanitizeHtml(body.content);
+      const normalizedContent = await normalizePostContent(body.content);
+      const sanitizedContent = sanitizeHtml(normalizedContent.html);
+      updateData.content = sanitizedContent;
+
+      try {
+        updateData.contentJson = htmlToTiptap(sanitizedContent);
+      } catch (error) {
+        console.error(
+          "[Posts] Failed to convert updated HTML to TipTap JSON:",
+          error
+        );
+        updateData.contentJson = EMPTY_TIPTAP_DOC;
+      }
     }
     if (body.description !== undefined) {
       updateData.description = body.description;

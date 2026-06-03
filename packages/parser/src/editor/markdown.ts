@@ -1,269 +1,13 @@
-import {
-  getSchema,
-  type JSONContent,
-  mergeAttributes,
-  Node as TiptapNode,
-} from "@tiptap/core";
-import { Highlight } from "@tiptap/extension-highlight";
-import { Image } from "@tiptap/extension-image";
-import { TaskItem, TaskList } from "@tiptap/extension-list";
-import { Subscript } from "@tiptap/extension-subscript";
-import { Superscript } from "@tiptap/extension-superscript";
-import {
-  Table,
-  TableCell,
-  TableHeader,
-  TableRow,
-} from "@tiptap/extension-table";
-import { TextAlign } from "@tiptap/extension-text-align";
-import { TextStyleKit } from "@tiptap/extension-text-style";
-import Typography from "@tiptap/extension-typography";
-import { Youtube } from "@tiptap/extension-youtube";
-import StarterKit from "@tiptap/starter-kit";
-import { parseHTML } from "linkedom";
+import type { JSONContent } from "@tiptap/core";
 import { marked, type Token, type Tokens } from "marked";
-import { DOMParser as PMDOMParser } from "prosemirror-model";
 
-export const EMPTY_TIPTAP_DOC: JSONContent = { type: "doc", content: [] };
-
-type ParseableElement = HTMLElement & {
-  querySelector: (selector: string) => ParseableElement | null;
-  textContent: string | null;
-};
-
-const queryHtml = (element: HTMLElement, selector: string) =>
-  (element as ParseableElement).querySelector(selector);
-
-const ServerFigure = TiptapNode.create({
-  name: "figure",
-  group: "block",
-  content: "",
-  draggable: true,
-  selectable: true,
-  isolating: true,
-
-  addAttributes() {
-    return {
-      src: {
-        default: null,
-        parseHTML: (element) =>
-          queryHtml(element, "img")?.getAttribute("src") ||
-          queryHtml(element, "a img")?.getAttribute("src"),
-        renderHTML: (attributes) => ({ src: attributes.src }),
-      },
-      alt: {
-        default: "",
-        parseHTML: (element) =>
-          queryHtml(element, "img")?.getAttribute("alt") ||
-          queryHtml(element, "a img")?.getAttribute("alt") ||
-          "",
-        renderHTML: (attributes) => ({ alt: attributes.alt }),
-      },
-      caption: {
-        default: "",
-        parseHTML: (element) =>
-          queryHtml(element, "figcaption")?.textContent || "",
-        renderHTML: (attributes) => ({ caption: attributes.caption }),
-      },
-      href: {
-        default: null,
-        parseHTML: (element) =>
-          queryHtml(element, "a")?.getAttribute("href") || null,
-        renderHTML: (attributes) => ({ href: attributes.href }),
-      },
-      width: {
-        default: "100",
-        parseHTML: (element) => element.getAttribute("data-width") || "100",
-        renderHTML: (attributes) => ({ "data-width": attributes.width }),
-      },
-      align: {
-        default: "center",
-        parseHTML: (element) => element.getAttribute("data-align") || "center",
-        renderHTML: (attributes) => ({ "data-align": attributes.align }),
-      },
-    };
-  },
-
-  parseHTML() {
-    return [
-      {
-        tag: "figure",
-        getAttrs: (element) => {
-          if (typeof element === "string") {
-            return false;
-          }
-          return queryHtml(element, "img") ? {} : false;
-        },
-      },
-    ];
-  },
-
-  renderHTML({ HTMLAttributes }) {
-    const { src, alt, href, caption, ...figureAttrs } = HTMLAttributes;
-    const imgAttrs: Record<string, string> = {};
-
-    if (src) {
-      imgAttrs.src = src;
-    }
-    if (alt) {
-      imgAttrs.alt = alt;
-    }
-
-    const image = href ? ["a", { href }, ["img", imgAttrs]] : ["img", imgAttrs];
-
-    return [
-      "figure",
-      mergeAttributes(figureAttrs),
-      image,
-      ["figcaption", {}, caption || ""],
-    ];
-  },
-});
-
-const ServerVideo = TiptapNode.create({
-  name: "video",
-  group: "block",
-  content: "",
-  draggable: true,
-  selectable: true,
-  isolating: true,
-
-  addAttributes() {
-    return {
-      src: {
-        default: null,
-        parseHTML: (element) =>
-          queryHtml(element, "video")?.getAttribute("src") ||
-          queryHtml(element, "video source")?.getAttribute("src") ||
-          element.getAttribute("src"),
-        renderHTML: (attributes) => ({ src: attributes.src }),
-      },
-      caption: {
-        default: "",
-        parseHTML: (element) =>
-          queryHtml(element, "figcaption")?.textContent || "",
-        renderHTML: (attributes) => ({ caption: attributes.caption }),
-      },
-      width: {
-        default: "100",
-        parseHTML: (element) => element.getAttribute("data-width") || "100",
-        renderHTML: (attributes) => ({ "data-width": attributes.width }),
-      },
-      align: {
-        default: "center",
-        parseHTML: (element) => element.getAttribute("data-align") || "center",
-        renderHTML: (attributes) => ({ "data-align": attributes.align }),
-      },
-    };
-  },
-
-  parseHTML() {
-    return [
-      {
-        tag: "figure",
-        getAttrs: (element) => {
-          if (typeof element === "string") {
-            return false;
-          }
-          return queryHtml(element, "video") ? {} : false;
-        },
-      },
-      { tag: "video" },
-    ];
-  },
-
-  renderHTML({ HTMLAttributes }) {
-    const { src, caption, ...figureAttrs } = HTMLAttributes;
-    const videoAttrs: Record<string, string> = { controls: "true" };
-
-    if (src) {
-      videoAttrs.src = src;
-    }
-
-    return [
-      "figure",
-      mergeAttributes({ "data-type": "video" }, figureAttrs),
-      ["video", videoAttrs],
-      ["figcaption", {}, caption || ""],
-    ];
-  },
-});
-
-const ServerTwitter = TiptapNode.create({
-  name: "twitter",
-  group: "block",
-  draggable: true,
-
-  addAttributes() {
-    return {
-      src: {
-        default: null,
-        parseHTML: (element) => element.getAttribute("data-src"),
-        renderHTML: (attributes) =>
-          attributes.src ? { "data-src": attributes.src } : {},
-      },
-    };
-  },
-
-  parseHTML() {
-    return [{ tag: "div[data-twitter]" }];
-  },
-
-  renderHTML({ HTMLAttributes }) {
-    return ["div", mergeAttributes({ "data-twitter": "" }, HTMLAttributes)];
-  },
-});
-
-const htmlExtensions = [
-  StarterKit.configure({
-    link: {
-      openOnClick: false,
-    },
-  }),
-  Typography,
-  Highlight,
-  TextStyleKit,
-  TextAlign.configure({
-    types: ["heading", "paragraph"],
-  }),
-  Superscript,
-  Subscript,
-  Table,
-  TableRow,
-  TableCell,
-  TableHeader,
-  Youtube.configure({
-    controls: true,
-    nocookie: false,
-  }),
-  Image.configure({
-    inline: false,
-    allowBase64: false,
-  }),
-  ServerFigure,
-  ServerVideo,
-  ServerTwitter,
-  TaskList,
-  TaskItem.configure({
-    nested: true,
-  }),
-];
-
-export function htmlToTiptap(html: string): JSONContent {
-  if (!html.trim()) {
-    return EMPTY_TIPTAP_DOC;
-  }
-
-  const schema = getSchema(htmlExtensions);
-  const { document } = parseHTML(
-    `<!doctype html><html><body>${html}</body></html>`
-  );
-
-  return PMDOMParser.fromSchema(schema)
-    .parse(document.body as unknown as Node)
-    .toJSON();
-}
-
+/**
+ * Converts Markdown tokens into Tiptap JSON for the CMS import flow.
+ *
+ * This parser intentionally mirrors the existing import behavior instead of
+ * claiming full CommonMark fidelity. Rich Marble-only nodes should be handled
+ * through HTML parsing or future editor-aware Markdown rules.
+ */
 export class MarkdownToTiptapParser {
   private tokens: Token[] = [];
 
@@ -386,9 +130,6 @@ export class MarkdownToTiptapParser {
     const parser = new MarkdownToTiptapParser();
     let content = parser.parseTokens(item.tokens || []);
 
-    // In tight lists, marked doesn't wrap content in paragraphs
-    // If the content is empty but we have text, or if content exists without paragraph wrapping
-    // Check if we need to wrap in a paragraph
     if (
       content.length > 0 &&
       content.every(
@@ -398,17 +139,14 @@ export class MarkdownToTiptapParser {
           node.type !== "blockquote"
       )
     ) {
-      // Content exists but isn't block-level, wrap it in a paragraph
       content = [{ type: "paragraph", content }];
     } else if (content.length === 0 && item.text) {
-      // Fallback: parse the text as markdown if tokens are empty
       const textTokens = marked.lexer(item.text);
       content = parser.parseTokens(textTokens);
       if (
         content.length === 0 ||
         content.every((node) => node.type !== "paragraph")
       ) {
-        // Still no paragraph, create one from the raw text
         content = [
           { type: "paragraph", content: [{ type: "text", text: item.text }] },
         ];
@@ -594,11 +332,18 @@ export class MarkdownToTiptapParser {
   }
 }
 
+/**
+ * Converts Markdown into Tiptap JSON for the post import endpoint.
+ */
 export function markdownToTiptap(markdown: string): JSONContent {
   const parser = new MarkdownToTiptapParser();
   return parser.parse(markdown);
 }
 
+/**
+ * Converts Markdown to HTML using the same GFM/breaks settings as the import
+ * JSON parser. The result should still be sanitized before storage.
+ */
 export async function markdownToHtml(markdown: string): Promise<string> {
   marked.setOptions({ gfm: true, breaks: true });
   return await marked(markdown);

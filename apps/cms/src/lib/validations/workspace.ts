@@ -1,4 +1,4 @@
-import * as z from "zod";
+import { z } from "zod";
 import { RESERVED_WORKSPACE_SLUGS, timezones } from "@/lib/constants";
 
 const workspaceSlugField = z

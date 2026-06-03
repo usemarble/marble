@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { db } from "@marble/db";
+import { htmlToMarkdown } from "@marble/parser";
 import { NextResponse } from "next/server";
-import { NodeHtmlMarkdown } from "node-html-markdown";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { aiSuggestionsRateLimiter, rateLimitHeaders } from "@/lib/ratelimit";
 import { redis } from "@/lib/redis";
@@ -122,7 +122,7 @@ export async function POST(request: Request) {
         role: "user",
         content: `
         <CONTENT>
-        ${NodeHtmlMarkdown.translate(parsedBody.data.content)}
+        ${htmlToMarkdown(parsedBody.data.content)}
         </CONTENT>
         `,
       },
