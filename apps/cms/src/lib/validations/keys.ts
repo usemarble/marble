@@ -1,4 +1,4 @@
-import * as z from "zod";
+import { z } from "zod";
 import { type ApiScope, VALID_SCOPES } from "@/utils/keys";
 
 export const apiKeyTypeEnum = z.enum(["public", "private"]);

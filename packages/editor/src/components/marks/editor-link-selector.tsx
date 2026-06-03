@@ -141,15 +141,7 @@ export const EditorLinkSelector = ({
         }
       />
       <PopoverContent align="start" className="w-fit p-0" sideOffset={10}>
-        <form
-          className="flex items-center gap-0.5 p-1"
-          onMouseDown={(e) => {
-            if (e.target !== inputReference.current) {
-              e.preventDefault();
-            }
-          }}
-          onSubmit={handleSubmit}
-        >
+        <form className="flex items-center gap-0.5 p-1" onSubmit={handleSubmit}>
           <input
             aria-label="Link URL"
             className="min-w-[200px] flex-1 bg-background px-2 py-1 text-sm outline-none"

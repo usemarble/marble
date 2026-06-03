@@ -1,11 +1,14 @@
 import type { Tokens } from "marked";
 import { describe, expect, it } from "vitest";
 import {
+  detectPostContentFormat,
   EMPTY_TIPTAP_DOC,
+  htmlToMarkdown,
   htmlToTiptap,
   MarkdownToTiptapParser,
   markdownToTiptap,
-} from "../src/tiptap";
+  normalizePostContent,
+} from "../src";
 
 describe("htmlToTiptap", () => {
   it("converts HTML into Tiptap JSON", () => {
@@ -48,6 +51,106 @@ describe("htmlToTiptap", () => {
 
   it("returns an empty doc for empty HTML", () => {
     expect(htmlToTiptap("   ")).toEqual(EMPTY_TIPTAP_DOC);
+  });
+});
+
+describe("htmlToMarkdown", () => {
+  it("preserves Marble media figures as raw HTML", () => {
+    const html =
+      '<figure data-width="75" data-align="left"><img src="https://example.com/image.png" alt="Alt text"><figcaption>Caption</figcaption></figure>';
+
+    expect(htmlToMarkdown(html)).toBe(
+      '<figure data-width="75" data-align="left"><img src="https://example.com/image.png" alt="Alt text"><figcaption>Caption</figcaption></figure>'
+    );
+  });
+
+  it("preserves embeds as raw HTML and converts task lists", () => {
+    const html =
+      '<div data-youtube-video><iframe src="https://www.youtube.com/embed/video"></iframe></div><div data-twitter data-src="https://x.com/usemarble/status/1"></div><ul><li><input type="checkbox" checked="checked">Done</li><li><input type="checkbox">Todo</li></ul>';
+
+    expect(htmlToMarkdown(html)).toBe(
+      '<div data-youtube-video=""><iframe src="https://www.youtube.com/embed/video"></iframe></div>\n\n<div data-twitter="" data-src="https://x.com/usemarble/status/1"></div>\n\n- [x] Done\n- [ ] Todo'
+    );
+  });
+
+  it("does not emit indentation from formatted HTML text nodes", () => {
+    const html = `<h1>Title</h1>
+<p>Body</p>
+<ul>
+<li>One</li>
+<li>Two</li>
+</ul>
+<pre><code class="language-ts">const value = 42;
+</code></pre>`;
+
+    expect(htmlToMarkdown(html)).toBe(
+      "# Title\n\nBody\n\n- One\n- Two\n\n```ts\nconst value = 42;\n```"
+    );
+  });
+
+  it("preserves nested list structure", () => {
+    const html =
+      "<ul><li>Parent<ul><li>Child</li></ul></li><li>Sibling</li></ul>";
+
+    expect(htmlToMarkdown(html)).toBe("- Parent\n  - Child\n- Sibling");
+  });
+});
+
+describe("normalizePostContent", () => {
+  it("detects obvious markdown and converts it to HTML", async () => {
+    expect(detectPostContentFormat("# Title\n\nSome **bold** text")).toBe(
+      "markdown"
+    );
+
+    const result = await normalizePostContent("# Title\n\nSome **bold** text");
+
+    expect(result.detectedFormat).toBe("markdown");
+    expect(result.html.trim()).toBe(
+      "<h1>Title</h1>\n<p>Some <strong>bold</strong> text</p>"
+    );
+    expect(result.contentJson.content?.[0]?.type).toBe("heading");
+  });
+
+  it("detects single-list markdown writes", async () => {
+    expect(detectPostContentFormat("- item")).toBe("markdown");
+
+    const result = await normalizePostContent("- item");
+
+    expect(result.detectedFormat).toBe("markdown");
+    expect(result.html.trim()).toBe("<ul>\n<li>item</li>\n</ul>");
+    expect(result.contentJson.content?.[0]?.type).toBe("bulletList");
+  });
+
+  it("treats HTML with markdown-looking text as HTML", async () => {
+    expect(detectPostContentFormat("<p># Not a heading</p>")).toBe("html");
+
+    const result = await normalizePostContent("<p># Not a heading</p>");
+
+    expect(result.detectedFormat).toBe("html");
+    expect(result.html).toBe("<p># Not a heading</p>");
+    expect(result.contentJson.content?.[0]).toMatchObject({
+      type: "paragraph",
+      content: [{ type: "text", text: "# Not a heading" }],
+    });
+  });
+
+  it("preserves raw editor HTML embedded inside markdown", async () => {
+    const result = await normalizePostContent(
+      '# Title\n\n<figure data-width="75" data-align="left"><img src="https://example.com/image.png" alt="Alt text"><figcaption>Caption</figcaption></figure>'
+    );
+
+    expect(result.detectedFormat).toBe("markdown");
+    expect(result.html).toContain("<figure");
+    expect(result.contentJson.content?.[1]).toMatchObject({
+      type: "figure",
+      attrs: {
+        src: "https://example.com/image.png",
+        alt: "Alt text",
+        caption: "Caption",
+        width: "75",
+        align: "left",
+      },
+    });
   });
 });
 
