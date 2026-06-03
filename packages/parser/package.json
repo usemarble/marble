@@ -2,7 +2,7 @@
   "name": "@marble/parser",
   "version": "0.0.0",
   "exports": {
-    "./tiptap": "./src/tiptap.ts"
+    ".": "./src/index.ts"
   },
   "scripts": {
     "test": "vitest run"

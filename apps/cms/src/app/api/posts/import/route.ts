@@ -1,6 +1,6 @@
 import { db } from "@marble/db";
 import { toPostPayload } from "@marble/events";
-import { markdownToHtml, markdownToTiptap } from "@marble/parser/tiptap";
+import { markdownToHtml, markdownToTiptap } from "@marble/parser";
 import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
