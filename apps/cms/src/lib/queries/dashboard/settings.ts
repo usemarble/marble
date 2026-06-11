@@ -3,7 +3,7 @@ import "server-only";
 import { db } from "@marble/db";
 import type { APIKey } from "@/types/dashboard";
 import type { CustomField } from "@/types/fields";
-import type { Webhook } from "@/types/webhook";
+import type { WebhookListItem } from "@/types/webhook";
 import type { ApiScope } from "@/utils/keys";
 
 export async function getDashboardApiKeys(
@@ -37,15 +37,31 @@ export async function getDashboardApiKeys(
 
 export async function getDashboardWebhooks(
   workspaceId: string
-): Promise<Webhook[]> {
-  return db.webhookEndpoint.findMany({
+): Promise<WebhookListItem[]> {
+  const webhooks = await db.webhookEndpoint.findMany({
     where: {
       workspaceId,
+    },
+    select: {
+      id: true,
+      name: true,
+      url: true,
+      events: true,
+      enabled: true,
+      format: true,
+      createdAt: true,
+      updatedAt: true,
     },
     orderBy: {
       createdAt: "desc",
     },
   });
+
+  return webhooks.map((webhook) => ({
+    ...webhook,
+    createdAt: webhook.createdAt.toISOString(),
+    updatedAt: webhook.updatedAt.toISOString(),
+  }));
 }
 
 export async function getDashboardCustomFields(

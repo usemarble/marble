@@ -21,38 +21,32 @@ import {
   type RowSelectionState,
   useReactTable,
 } from "@tanstack/react-table";
-import { useMemo, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { type MouseEvent, useCallback, useMemo, useState } from "react";
 import CreateWebhookSheet from "@/components/webhooks/create-webhook";
-import type { Webhook } from "@/types/webhook";
+import type { WebhookListItem } from "@/types/webhook";
 import { getWebhookColumns } from "./webhook-columns";
 
 interface WebhookDataTableProps {
-  isToggling: boolean;
   onDelete: () => void;
-  onToggle: (data: { id: string; enabled: boolean }) => void;
-  toggleVariables?: { id: string; enabled: boolean };
-  webhooks: Webhook[];
+  webhooks: WebhookListItem[];
 }
 
 export function WebhookDataTable({
-  isToggling,
   onDelete,
-  onToggle,
-  toggleVariables,
   webhooks,
 }: WebhookDataTableProps) {
+  const params = useParams<{ workspace: string }>();
+  const router = useRouter();
   const [globalFilter, setGlobalFilter] = useState("");
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   const columns = useMemo(
     () =>
       getWebhookColumns({
-        isToggling,
         onDelete,
-        onToggle,
-        toggleVariables,
       }),
-    [isToggling, onDelete, onToggle, toggleVariables]
+    [onDelete]
   );
 
   const table = useReactTable({
@@ -84,6 +78,12 @@ export function WebhookDataTable({
 
   const rows = table.getRowModel().rows;
   const selectedCount = table.getSelectedRowModel().rows.length;
+  const openWebhookDetail = useCallback(
+    (webhook: WebhookListItem) => {
+      router.push(`/${params.workspace}/settings/webhooks/${webhook.id}`);
+    },
+    [params.workspace, router]
+  );
 
   return (
     <div className="flex flex-col gap-4">
@@ -166,9 +166,16 @@ export function WebhookDataTable({
             {rows.length ? (
               rows.map((row) => (
                 <TableRow
-                  className="border-0 bg-background hover:bg-background/80 data-[state=selected]:bg-background"
+                  className="cursor-pointer border-0 bg-background hover:bg-background/80 data-[state=selected]:bg-background"
                   data-state={row.getIsSelected() && "selected"}
                   key={row.id}
+                  onClick={(event) => {
+                    if (shouldIgnoreRowClick(event)) {
+                      return;
+                    }
+
+                    openWebhookDetail(row.original);
+                  }}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
@@ -181,6 +188,10 @@ export function WebhookDataTable({
                           : undefined
                       }
                       key={cell.id}
+                      {...(cell.column.id === "actions" && {
+                        "data-actions-cell": "true",
+                        onClick: (event: MouseEvent) => event.stopPropagation(),
+                      })}
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
@@ -204,6 +215,18 @@ export function WebhookDataTable({
         </Table>
       </div>
     </div>
+  );
+}
+
+function shouldIgnoreRowClick(event: MouseEvent) {
+  const target = event.target;
+  return (
+    target instanceof HTMLElement &&
+    Boolean(
+      target.closest(
+        "button, a, input, textarea, select, [data-no-row-click], [role='button'], [role='checkbox'], [role='menuitem']"
+      )
+    )
   );
 }
 

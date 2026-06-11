@@ -1,7 +1,7 @@
 "use client";
 
 import { toast } from "@marble/ui/components/sonner";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { DashboardBody } from "@/components/layout/wrapper";
 import PageLoader from "@/components/shared/page-loader";
 import {
@@ -11,12 +11,12 @@ import {
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { useWorkspace } from "@/providers/workspace";
-import type { Webhook } from "@/types/webhook";
+import type { WebhookListItem } from "@/types/webhook";
 
 export function PageClient({
   initialWebhooks,
 }: {
-  initialWebhooks?: Webhook[];
+  initialWebhooks?: WebhookListItem[];
 }) {
   const workspaceId = useWorkspaceId();
   const { isFetchingWorkspace } = useWorkspace();
@@ -34,7 +34,7 @@ export function PageClient({
             `Failed to fetch webhooks: ${res.status} ${res.statusText}`
           );
         }
-        const data: Webhook[] = await res.json();
+        const data: WebhookListItem[] = await res.json();
         return data;
       } catch (error) {
         toast.error(
@@ -47,65 +47,6 @@ export function PageClient({
     },
     enabled: !!workspaceId && !isFetchingWorkspace,
     initialData: initialWebhooks,
-  });
-
-  const {
-    mutate: toggleWebhook,
-    variables: toggleVariables,
-    isPending: isToggling,
-  } = useMutation({
-    mutationFn: async ({ id, enabled }: { id: string; enabled: boolean }) => {
-      const response = await fetch(`/api/webhooks/${id}`, {
-        method: "PATCH",
-        body: JSON.stringify({ enabled }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update webhook");
-      }
-
-      return response.json();
-    },
-    onMutate: async (newWebhookData) => {
-      if (!workspaceId) {
-        return;
-      }
-
-      await queryClient.cancelQueries({
-        queryKey: QUERY_KEYS.WEBHOOKS(workspaceId),
-      });
-      const previousWebhooks = queryClient.getQueryData<Webhook[]>(
-        QUERY_KEYS.WEBHOOKS(workspaceId)
-      );
-
-      queryClient.setQueryData<Webhook[]>(
-        QUERY_KEYS.WEBHOOKS(workspaceId),
-        (old) =>
-          old?.map((webhook) =>
-            webhook.id === newWebhookData.id
-              ? { ...webhook, enabled: newWebhookData.enabled }
-              : webhook
-          ) ?? []
-      );
-
-      return { previousWebhooks };
-    },
-    onError: (_err, _newWebhook, context) => {
-      if (context?.previousWebhooks && workspaceId) {
-        queryClient.setQueryData(
-          QUERY_KEYS.WEBHOOKS(workspaceId),
-          context.previousWebhooks
-        );
-      }
-      toast.error("Failed to update");
-    },
-    onSettled: () => {
-      if (workspaceId) {
-        queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.WEBHOOKS(workspaceId),
-        });
-      }
-    },
   });
 
   if (isFetchingWorkspace || !workspaceId || isLoading) {
@@ -126,14 +67,11 @@ export function PageClient({
   return (
     <DashboardBody className="flex flex-col gap-8 pt-10 pb-16" size="compact">
       <WebhookDataTable
-        isToggling={isToggling}
         onDelete={() => {
           queryClient.invalidateQueries({
             queryKey: QUERY_KEYS.WEBHOOKS(workspaceId),
           });
         }}
-        onToggle={toggleWebhook}
-        toggleVariables={toggleVariables}
         webhooks={webhooks ?? []}
       />
     </DashboardBody>

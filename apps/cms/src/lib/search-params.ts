@@ -114,3 +114,54 @@ export const loadPostApiFilters = createLoader(postPageSearchParams);
 export const getPostApiUrl = createSerializer(postPageSearchParams, {
   clearOnDefault: false,
 });
+
+// Webhook deliveries (URL + React Query API share the same shape)
+const WEBHOOK_DELIVERY_STATUSES = [
+  "all",
+  "pending",
+  "sending",
+  "success",
+  "retrying",
+  "failed",
+] as const;
+
+const WEBHOOK_RESPONSE_FILTERS = [
+  "all",
+  "2xx",
+  "3xx",
+  "4xx",
+  "5xx",
+  "no_response",
+] as const;
+
+type WebhookDeliveryStatus = (typeof WEBHOOK_DELIVERY_STATUSES)[number];
+type WebhookResponseFilter = (typeof WEBHOOK_RESPONSE_FILTERS)[number];
+
+export const isWebhookDeliveryStatus = (
+  value: string
+): value is WebhookDeliveryStatus =>
+  WEBHOOK_DELIVERY_STATUSES.includes(value as WebhookDeliveryStatus);
+
+export const isWebhookResponseFilter = (
+  value: string
+): value is WebhookResponseFilter =>
+  WEBHOOK_RESPONSE_FILTERS.includes(value as WebhookResponseFilter);
+
+const webhookDeliveriesSearchParams = {
+  page: parseAsInteger.withDefault(1),
+  perPage: parseAsInteger.withDefault(20),
+  status: parseAsStringLiteral(WEBHOOK_DELIVERY_STATUSES).withDefault("all"),
+  response: parseAsStringLiteral(WEBHOOK_RESPONSE_FILTERS).withDefault("all"),
+  // Event ids are dynamic (depend on the webhook), so a plain string parser.
+  event: parseAsString.withDefault("all"),
+  search: parseAsString.withDefault(""),
+};
+
+export const useWebhookDeliveriesFilters = (options: Options = {}) =>
+  useQueryStates(webhookDeliveriesSearchParams, options);
+
+// Defaults ("all", "", page 1, perPage 20) are cleared, so the serialized
+// query only carries active filters — exactly what the GET handler expects.
+export const getWebhookDeliveriesApiUrl = createSerializer(
+  webhookDeliveriesSearchParams
+);

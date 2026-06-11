@@ -1,12 +1,7 @@
 "use client";
 
 import {
-  CancelCircleIcon,
-  CheckmarkCircle02Icon,
-  Copy01Icon,
   Delete02Icon,
-  Loading03Icon,
-  MailSend01Icon,
   MoreVerticalIcon,
   PencilEdit02Icon,
 } from "@hugeicons/core-free-icons";
@@ -18,10 +13,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
-import { toast } from "@marble/ui/components/sonner";
 import dynamic from "next/dynamic";
+import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
-import type { Webhook } from "@/types/webhook";
+import type { WebhookListItem } from "@/types/webhook";
 
 const DeleteWebhookModal = dynamic(() =>
   import("@/components/webhooks/delete-webhook").then(
@@ -29,56 +24,15 @@ const DeleteWebhookModal = dynamic(() =>
   )
 );
 
-const EditWebhookSheet = dynamic(() =>
-  import("@/components/webhooks/edit-webhook").then(
-    (mod) => mod.EditWebhookSheet
-  )
-);
-
 interface WebhookActionsProps {
-  webhook: Webhook;
-  isToggling: boolean;
+  webhook: WebhookListItem;
   onDelete: () => void;
-  onToggle: (data: { id: string; enabled: boolean }) => void;
 }
 
-export function WebhookActions({
-  webhook,
-  isToggling,
-  onDelete,
-  onToggle,
-}: WebhookActionsProps) {
+export function WebhookActions({ webhook, onDelete }: WebhookActionsProps) {
+  const params = useParams<{ workspace: string }>();
+  const router = useRouter();
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [isEditOpen, setIsEditOpen] = useState(false);
-  const [isSendingTest, setIsSendingTest] = useState(false);
-
-  const handleCopySecret = () => {
-    navigator.clipboard.writeText(webhook.secret);
-    toast.success("Secret copied to clipboard");
-  };
-
-  const handleSendTest = async () => {
-    setIsSendingTest(true);
-
-    try {
-      const response = await fetch(`/api/webhooks/${webhook.id}/test`, {
-        method: "POST",
-      });
-      const result = await response.json().catch(() => null);
-
-      if (!response.ok) {
-        throw new Error(result?.error ?? "Failed to send test webhook");
-      }
-
-      toast.success("Test webhook queued");
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to send test webhook"
-      );
-    } finally {
-      setIsSendingTest(false);
-    }
-  };
 
   return (
     <>
@@ -95,49 +49,17 @@ export function WebhookActions({
           align="end"
           className="text-muted-foreground shadow-sm"
         >
-          {webhook.format === "json" ? (
-            <DropdownMenuItem onClick={handleCopySecret}>
-              <HugeiconsIcon icon={Copy01Icon} size={16} />
-              <span>Copy Secret</span>
-            </DropdownMenuItem>
-          ) : undefined}
           <DropdownMenuItem
-            disabled={isSendingTest || isToggling}
-            onClick={handleSendTest}
-          >
-            {isSendingTest ? (
-              <HugeiconsIcon
-                className="animate-spin"
-                icon={Loading03Icon}
-                size={16}
-              />
-            ) : (
-              <HugeiconsIcon icon={MailSend01Icon} size={16} />
-            )}
-            <span>Send Test</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            disabled={isToggling}
             onClick={() =>
-              onToggle({ id: webhook.id, enabled: !webhook.enabled })
+              router.push(
+                `/${params.workspace}/settings/webhooks/${webhook.id}`
+              )
             }
           >
-            {webhook.enabled ? (
-              <HugeiconsIcon icon={CancelCircleIcon} size={16} />
-            ) : (
-              <HugeiconsIcon icon={CheckmarkCircle02Icon} size={16} />
-            )}
-            <span>{webhook.enabled ? "Disable" : "Enable"}</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            disabled={isToggling}
-            onClick={() => setIsEditOpen(true)}
-          >
             <HugeiconsIcon icon={PencilEdit02Icon} size={16} />
-            <span>Edit</span>
+            <span>Details</span>
           </DropdownMenuItem>
           <DropdownMenuItem
-            disabled={isToggling}
             onClick={() => setIsDeleteOpen(true)}
             variant="destructive"
           >
@@ -146,11 +68,6 @@ export function WebhookActions({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <EditWebhookSheet
-        isOpen={isEditOpen}
-        onOpenChange={setIsEditOpen}
-        webhook={webhook}
-      />
       <DeleteWebhookModal
         isOpen={isDeleteOpen}
         onDelete={onDelete}
