@@ -236,7 +236,7 @@ export default function WebhookDetailPage({
                 </div>
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   <div className="flex min-w-0 items-center gap-4">
-                    <div className="flex h-9 min-w-0 max-w-xs items-center gap-2 rounded-lg border pr-1 pl-3">
+                    <div className="flex h-9 min-w-0 max-w-xs items-center gap-2 rounded-lg border bg-background pr-1 pl-3 dark:border-input dark:bg-input/30">
                       <p className="min-w-0 truncate font-mono text-muted-foreground text-xs">
                         {webhook.secret}
                       </p>
@@ -624,7 +624,7 @@ function WebhookSettingsPanel({
         <h2 className="font-medium text-lg">Edit webhook</h2>
       </div>
       <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto p-5">
-        <div className="flex items-center justify-between gap-4 rounded-[14px] border px-3 py-2">
+        <div className="flex items-center justify-between gap-4 rounded-[14px] border border-input bg-transparent px-3 py-2 dark:bg-input/30">
           <Label className="text-sm" htmlFor="webhook-enabled">
             Enabled
           </Label>
