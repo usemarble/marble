@@ -218,7 +218,7 @@ export default function MediaDetailPage({
             </Tooltip>
           </div>
         </div>
-        <main className="min-h-0 flex-1 overflow-hidden bg-background p-4 md:p-8">
+        <section className="min-h-0 flex-1 overflow-hidden bg-background p-4 md:p-8">
           <div className="grid h-full min-h-0 place-items-center">
             <div className="flex h-full min-h-0 w-full items-center justify-center">
               {media.type === "image" ? (
@@ -248,7 +248,7 @@ export default function MediaDetailPage({
               )}
             </div>
           </div>
-        </main>
+        </section>
       </div>
     </DashboardBody>
   );
