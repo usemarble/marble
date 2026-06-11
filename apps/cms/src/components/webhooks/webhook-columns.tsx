@@ -4,14 +4,11 @@ import { Badge } from "@marble/ui/components/badge";
 import { Checkbox } from "@marble/ui/components/checkbox";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import type { Webhook } from "@/types/webhook";
+import type { WebhookListItem } from "@/types/webhook";
 import { WebhookActions } from "./webhook-actions";
 
 interface WebhookColumnsOptions {
-  isToggling: boolean;
   onDelete: () => void;
-  onToggle: (data: { id: string; enabled: boolean }) => void;
-  toggleVariables?: { id: string; enabled: boolean };
 }
 
 function formatWebhookFormat(formatValue: string) {
@@ -19,11 +16,8 @@ function formatWebhookFormat(formatValue: string) {
 }
 
 export function getWebhookColumns({
-  isToggling,
   onDelete,
-  onToggle,
-  toggleVariables,
-}: WebhookColumnsOptions): ColumnDef<Webhook>[] {
+}: WebhookColumnsOptions): ColumnDef<WebhookListItem>[] {
   return [
     {
       id: "select",
@@ -100,22 +94,11 @@ export function getWebhookColumns({
     },
     {
       id: "actions",
-      cell: ({ row }) => {
-        const webhook = row.original;
-        const isCurrentlyToggling =
-          isToggling && toggleVariables?.id === webhook.id;
-
-        return (
-          <div className="flex justify-end">
-            <WebhookActions
-              isToggling={isCurrentlyToggling}
-              onDelete={onDelete}
-              onToggle={onToggle}
-              webhook={webhook}
-            />
-          </div>
-        );
-      },
+      cell: ({ row }) => (
+        <div className="flex justify-end">
+          <WebhookActions onDelete={onDelete} webhook={row.original} />
+        </div>
+      ),
       enableHiding: false,
       enableSorting: false,
       size: 48,
