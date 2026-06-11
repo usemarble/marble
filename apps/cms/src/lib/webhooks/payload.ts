@@ -41,7 +41,11 @@ function stringify(value: unknown) {
     return String(value);
   }
 
-  return JSON.stringify(value);
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return String(value);
+  }
 }
 
 function getDisplayFields(payload: WebhookPayload) {

@@ -5,8 +5,8 @@ export interface WebhookListItem {
   events: string[];
   enabled: boolean;
   format: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Webhook extends WebhookListItem {

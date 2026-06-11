@@ -38,7 +38,7 @@ export async function getDashboardApiKeys(
 export async function getDashboardWebhooks(
   workspaceId: string
 ): Promise<WebhookListItem[]> {
-  return db.webhookEndpoint.findMany({
+  const webhooks = await db.webhookEndpoint.findMany({
     where: {
       workspaceId,
     },
@@ -56,6 +56,12 @@ export async function getDashboardWebhooks(
       createdAt: "desc",
     },
   });
+
+  return webhooks.map((webhook) => ({
+    ...webhook,
+    createdAt: webhook.createdAt.toISOString(),
+    updatedAt: webhook.updatedAt.toISOString(),
+  }));
 }
 
 export async function getDashboardCustomFields(

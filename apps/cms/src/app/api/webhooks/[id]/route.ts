@@ -26,6 +26,8 @@ const VALID_RESPONSE_FILTERS = [
   "no_response",
 ] as const;
 
+type ResponseFilter = (typeof VALID_RESPONSE_FILTERS)[number];
+
 type WebhookDeliveryCountArgs = NonNullable<
   Parameters<typeof db.webhookDelivery.count>[0]
 >;
@@ -72,33 +74,31 @@ function toPositiveInteger(value: string | null, fallback: number) {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
 
-function getResponseWhere(response: string | null) {
-  if (!response || !VALID_RESPONSE_FILTERS.includes(response as never)) {
-    return {};
+function getResponseFilter(response: string | null): ResponseFilter | null {
+  return response && VALID_RESPONSE_FILTERS.includes(response as ResponseFilter)
+    ? (response as ResponseFilter)
+    : null;
+}
+
+function latestAttemptMatchesResponse(
+  latestAttempt: WebhookDeliveryWithRelations["attempts"][number] | null,
+  responseFilter: ResponseFilter
+) {
+  if (responseFilter === "no_response") {
+    return !latestAttempt || latestAttempt.statusCode === null;
   }
 
-  if (response === "no_response") {
-    return {
-      attempts: {
-        some: {
-          statusCode: null,
-        },
-      },
-    };
+  if (
+    latestAttempt?.statusCode === null ||
+    latestAttempt?.statusCode === undefined
+  ) {
+    return false;
   }
 
-  const start = Number.parseInt(response[0] ?? "0", 10) * 100;
-
-  return {
-    attempts: {
-      some: {
-        statusCode: {
-          gte: start,
-          lt: start + 100,
-        },
-      },
-    },
-  };
+  const start = Number.parseInt(responseFilter[0] ?? "0", 10) * 100;
+  return (
+    latestAttempt.statusCode >= start && latestAttempt.statusCode < start + 100
+  );
 }
 
 export async function GET(
@@ -122,7 +122,7 @@ export async function GET(
   );
   const status = searchParams.get("status");
   const event = searchParams.get("event");
-  const response = searchParams.get("response");
+  const responseFilter = getResponseFilter(searchParams.get("response"));
   const search = searchParams.get("search")?.trim();
 
   const webhook = await db.webhookEndpoint.findFirst({
@@ -148,7 +148,6 @@ export async function GET(
       ? { status: status as never }
       : {}),
     ...eventFilter,
-    ...getResponseWhere(response),
     ...(search
       ? {
           OR: [
@@ -164,25 +163,47 @@ export async function GET(
       : {}),
   };
 
-  const [totalCount, deliveries] = await Promise.all([
-    db.webhookDelivery.count({ where }),
-    db.webhookDelivery.findMany({
-      where,
-      include: {
-        event: true,
-        attempts: {
-          orderBy: {
-            attemptNumber: "desc",
-          },
-        },
-      },
+  const deliveryInclude = {
+    event: true,
+    attempts: {
       orderBy: {
-        createdAt: "desc",
+        attemptNumber: "desc",
       },
-      skip: (page - 1) * perPage,
-      take: perPage,
-    }) as unknown as Promise<WebhookDeliveryWithRelations[]>,
-  ]);
+    },
+  } as const;
+
+  let totalCount: number;
+  let deliveries: WebhookDeliveryWithRelations[];
+
+  if (responseFilter) {
+    const matchingDeliveries = (
+      (await db.webhookDelivery.findMany({
+        where,
+        include: deliveryInclude,
+        orderBy: {
+          createdAt: "desc",
+        },
+      })) as unknown as WebhookDeliveryWithRelations[]
+    ).filter((delivery) =>
+      latestAttemptMatchesResponse(delivery.attempts[0] ?? null, responseFilter)
+    );
+
+    totalCount = matchingDeliveries.length;
+    deliveries = matchingDeliveries.slice((page - 1) * perPage, page * perPage);
+  } else {
+    [totalCount, deliveries] = await Promise.all([
+      db.webhookDelivery.count({ where }),
+      db.webhookDelivery.findMany({
+        where,
+        include: deliveryInclude,
+        orderBy: {
+          createdAt: "desc",
+        },
+        skip: (page - 1) * perPage,
+        take: perPage,
+      }) as unknown as Promise<WebhookDeliveryWithRelations[]>,
+    ]);
+  }
 
   const pageCount = Math.max(1, Math.ceil(totalCount / perPage));
 
