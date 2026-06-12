@@ -28,7 +28,7 @@ import {
 import { cn } from "@marble/ui/lib/utils";
 import { CaretUpDownIcon, CheckIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import {
   type Control,
   type FieldValues,
@@ -78,7 +78,6 @@ export function AuthorSelector<TFieldValues extends FieldValues>({
 
   const { user } = useUser();
   const workspaceId = useWorkspaceId();
-  const isNewPost = defaultAuthors.length === 0;
 
   const { data: authors = [], isLoading } = useQuery<AuthorOptions[]>({
     // biome-ignore lint/style/noNonNullAssertion: <>
@@ -110,36 +109,6 @@ export function AuthorSelector<TFieldValues extends FieldValues>({
     }
     return [];
   }, [authors, isLoading, selectedAuthorIds]);
-
-  // Auto-select current user's author profile on initial load for better UX
-  // This makes it obvious who is creating the content and saves them from
-  // having to manually select themselves for original content.
-  // The user can always remove themselves from the list if they want to.
-  // In a case where they are publishing on behalf of another author, they can select them from the list.
-  // This auto select is only for new posts, not when editing.
-  // Check the post creation route to see how this is handled.
-  useEffect(() => {
-    if (
-      authors.length > 0 &&
-      derivedPrimaryAuthor &&
-      selectedAuthorIds.length === 0 &&
-      !isLoading &&
-      isNewPost
-    ) {
-      onChange([derivedPrimaryAuthor.id] as PathValue<
-        TFieldValues,
-        Path<TFieldValues>
-      >);
-      // console.log("auto selected primary author", derivedPrimaryAuthor);
-    }
-  }, [
-    authors,
-    derivedPrimaryAuthor,
-    isLoading,
-    isNewPost,
-    onChange,
-    selectedAuthorIds.length,
-  ]);
 
   const addOrRemoveAuthor = (authorToAdd: string) => {
     const currentValues = selectedAuthorIds;
