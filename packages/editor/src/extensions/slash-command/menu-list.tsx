@@ -1,23 +1,51 @@
+import { cn } from "@marble/ui/lib/utils";
 import {
-  Command,
-  CommandEmpty,
-  CommandItem,
-  CommandList,
-} from "@marble/ui/components/command";
-import { useRef } from "react";
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
 import type { EditorSlashMenuProps } from "../../types";
 
 /**
- * Menu list component for slash commands
- * Displays available commands in a dropdown menu
- * Uses cmdk's built-in keyboard navigation (ArrowUp, ArrowDown, Enter)
+ * Imperative handle exposed to the suggestion plugin so keyboard events
+ * are forwarded directly instead of re-dispatching synthetic DOM events.
  */
-export const EditorSlashMenu = ({
-  items,
-  editor,
-  range,
-}: EditorSlashMenuProps) => {
-  const commandRef = useRef<HTMLDivElement>(null);
+export interface EditorSlashMenuHandle {
+  onKeyDown: (props: { event: KeyboardEvent }) => boolean;
+}
+
+/**
+ * Menu list component for slash commands
+ * Displays available commands in a Notion-style dropdown menu.
+ * Keyboard navigation (ArrowUp, ArrowDown, Enter) is handled via the
+ * imperative handle; hover and click work like a regular menu.
+ */
+export const EditorSlashMenu = forwardRef<
+  EditorSlashMenuHandle,
+  EditorSlashMenuProps
+>(({ items, editor, range }, ref) => {
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const listRef = useRef<HTMLDivElement>(null);
+  // Tracks whether the last selection change came from the keyboard so we
+  // only auto-scroll the list for keyboard navigation, not hover.
+  const navigatedByKeyboard = useRef(false);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: reset highlight when the result set changes
+  useEffect(() => {
+    setSelectedIndex(0);
+  }, [items]);
+
+  useEffect(() => {
+    if (!navigatedByKeyboard.current) {
+      return;
+    }
+    const selectedElement = listRef.current?.querySelector(
+      `[data-index="${selectedIndex}"]`
+    );
+    selectedElement?.scrollIntoView({ block: "nearest" });
+  }, [selectedIndex]);
 
   const selectItem = (index: number) => {
     const item = items.at(index);
@@ -26,87 +54,89 @@ export const EditorSlashMenu = ({
     }
   };
 
-  return (
-    <Command
-      className="border shadow"
-      id="slash-command"
-      loop
-      ref={commandRef}
-      shouldFilter={false}
-    >
-      <CommandEmpty className="flex w-full items-center justify-center p-4 text-muted-foreground text-sm">
-        <p>No results</p>
-      </CommandEmpty>
-      <CommandList className="p-1">
-        {items.map((item, index) => (
-          <CommandItem
-            className="flex items-center gap-3 pr-3"
-            key={item.title}
-            onSelect={() => selectItem(index)}
-            value={item.title}
-          >
-            <div className="flex size-9 shrink-0 items-center justify-center rounded border bg-secondary">
-              <item.icon className="text-muted-foreground" size={16} />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-medium text-sm">{item.title}</span>
-              <span className="text-muted-foreground text-xs">
-                {item.description}
-              </span>
-            </div>
-          </CommandItem>
-        ))}
-      </CommandList>
-    </Command>
-  );
-};
-
-/**
- * Handle keyboard navigation for slash command menu
- */
-export const handleCommandNavigation = (event: KeyboardEvent) => {
-  if (["ArrowUp", "ArrowDown", "Enter"].includes(event.key)) {
-    const slashCommand = document.querySelector<HTMLElement>("#slash-command");
-
-    if (slashCommand) {
-      // For Enter key, find and trigger the selected item directly
-      if (event.key === "Enter") {
-        const selectedItem = slashCommand.querySelector<HTMLElement>(
-          '[data-selected="true"], [cmdk-item][aria-selected="true"], [cmdk-item][data-state="selected"]'
-        );
-
-        if (selectedItem) {
-          event.preventDefault();
-          event.stopPropagation();
-          selectedItem.click();
-          return true;
-        }
-
-        // If no item is selected, select the first item
-        const firstItem =
-          slashCommand.querySelector<HTMLElement>("[cmdk-item]");
-        if (firstItem) {
-          event.preventDefault();
-          event.stopPropagation();
-          firstItem.click();
-          return true;
-        }
+  useImperativeHandle(ref, () => ({
+    onKeyDown: ({ event }) => {
+      if (items.length === 0) {
+        return false;
       }
 
-      // For ArrowUp/ArrowDown, dispatch the event to cmdk
-      const keyboardEvent = new KeyboardEvent("keydown", {
-        key: event.key,
-        cancelable: true,
-        bubbles: true,
-      });
+      if (event.key === "ArrowDown") {
+        navigatedByKeyboard.current = true;
+        setSelectedIndex((index) => (index + 1) % items.length);
+        return true;
+      }
 
-      slashCommand.dispatchEvent(keyboardEvent);
-      event.preventDefault();
-      event.stopPropagation();
+      if (event.key === "ArrowUp") {
+        navigatedByKeyboard.current = true;
+        setSelectedIndex((index) => (index - 1 + items.length) % items.length);
+        return true;
+      }
 
-      return true;
-    }
-  }
+      if (event.key === "Enter" || event.key === "Tab") {
+        selectItem(selectedIndex);
+        return true;
+      }
 
-  return false;
-};
+      return false;
+    },
+  }));
+
+  return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: mousedown is prevented so the editor keeps focus
+    // biome-ignore lint/a11y/noNoninteractiveElementInteractions: mousedown is prevented so the editor keeps focus
+    <div
+      className="w-72 overflow-hidden rounded-lg border bg-popover text-popover-foreground shadow-lg"
+      id="slash-command"
+      onMouseDown={(event) => {
+        // Keep focus inside the editor so the suggestion stays active
+        // while interacting with the menu.
+        event.preventDefault();
+      }}
+    >
+      {items.length === 0 ? (
+        <p className="px-3 py-6 text-center text-muted-foreground text-sm">
+          No results
+        </p>
+      ) : (
+        <div
+          className="max-h-[330px] overflow-y-auto p-1"
+          ref={listRef}
+          role="listbox"
+        >
+          {items.map((item, index) => (
+            <button
+              aria-selected={index === selectedIndex}
+              className={cn(
+                "flex w-full items-center gap-3 rounded-md px-2 py-1.5 text-left",
+                index === selectedIndex && "bg-accent text-accent-foreground"
+              )}
+              data-index={index}
+              key={item.title}
+              onClick={() => selectItem(index)}
+              onPointerMove={() => {
+                if (index !== selectedIndex) {
+                  navigatedByKeyboard.current = false;
+                  setSelectedIndex(index);
+                }
+              }}
+              role="option"
+              type="button"
+            >
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-md border bg-background">
+                <item.icon className="text-muted-foreground" size={16} />
+              </span>
+              <span className="flex min-w-0 flex-col">
+                <span className="font-medium text-sm">{item.title}</span>
+                <span className="truncate text-muted-foreground text-xs">
+                  {item.description}
+                </span>
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+});
+
+EditorSlashMenu.displayName = "EditorSlashMenu";

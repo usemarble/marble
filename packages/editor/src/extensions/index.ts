@@ -16,11 +16,7 @@ export {
 export { Figure } from "./figure";
 export { ImageUpload } from "./image-upload";
 export { MarkdownInput } from "./markdown-input";
-export {
-  configureSlashCommand,
-  handleCommandNavigation,
-  SlashCommand,
-} from "./slash-command";
+export { configureSlashCommand, SlashCommand } from "./slash-command";
 export {
   Table,
   TableCell,

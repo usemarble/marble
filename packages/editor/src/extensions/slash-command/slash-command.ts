@@ -9,12 +9,16 @@ import {
 import { mergeAttributes, Node } from "@tiptap/core";
 import type { DOMOutputSpec, Node as ProseMirrorNode } from "@tiptap/pm/model";
 import { PluginKey } from "@tiptap/pm/state";
-import { ReactRenderer } from "@tiptap/react";
-import Suggestion, { type SuggestionOptions } from "@tiptap/suggestion";
+import Suggestion, {
+  type SuggestionOptions,
+  type SuggestionProps,
+} from "@tiptap/suggestion";
 import Fuse from "fuse.js";
-import type { EditorSlashMenuProps, SlashNodeAttrs } from "../../types";
+import { createElement } from "react";
+import { createRoot, type Root } from "react-dom/client";
+import type { SlashNodeAttrs, SuggestionItem } from "../../types";
 import { defaultSlashSuggestions } from "./groups";
-import { EditorSlashMenu, handleCommandNavigation } from "./menu-list";
+import { EditorSlashMenu, type EditorSlashMenuHandle } from "./menu-list";
 
 const SlashPluginKey = new PluginKey("slash");
 
@@ -302,84 +306,152 @@ export const configureSlashCommand = () =>
       },
       char: "/",
       render: () => {
-        let component: ReactRenderer<EditorSlashMenuProps>;
-        let cleanup: (() => void) | undefined;
+        // The menu is rendered into its own React root, detached from the
+        // app's React tree. Rendering it through `ReactRenderer` makes it a
+        // portal owned by `<EditorContent />`, so any re-render/remount of
+        // the consuming app could silently unmount the menu while the
+        // suggestion plugin still thinks it is open.
+        let element: HTMLDivElement | null = null;
+        let root: Root | null = null;
+        let stopPositioning: (() => void) | undefined;
+        let latestProps: SuggestionProps<SuggestionItem> | null = null;
+        let lastRect: DOMRect | null = null;
+        const menuHandle: { current: EditorSlashMenuHandle | null } = {
+          current: null,
+        };
+
+        const getReferenceRect = () => {
+          const rect = latestProps?.clientRect?.();
+          // Keep the last known caret position instead of jumping to (0, 0)
+          // when the decoration is briefly unavailable.
+          if (rect && (rect.width || rect.height || rect.x || rect.y)) {
+            lastRect = rect;
+          }
+          return lastRect ?? new DOMRect(-9999, -9999, 0, 0);
+        };
+
+        const renderMenu = () => {
+          if (!(root && latestProps)) {
+            return;
+          }
+          root.render(
+            createElement(EditorSlashMenu, {
+              editor: latestProps.editor,
+              items: latestProps.items,
+              range: latestProps.range,
+              ref: (handle: EditorSlashMenuHandle | null) => {
+                menuHandle.current = handle;
+              },
+            })
+          );
+        };
+
+        const updatePosition = () => {
+          if (!element) {
+            return;
+          }
+          const referenceElement = {
+            getBoundingClientRect: getReferenceRect,
+            contextElement: latestProps?.editor.view.dom,
+          };
+          computePosition(referenceElement, element, {
+            placement: "bottom-start",
+            middleware: [
+              offset(6),
+              flip({ padding: 8 }),
+              shift({ padding: 8 }),
+            ],
+          }).then(({ x, y }) => {
+            if (element) {
+              Object.assign(element.style, {
+                left: `${x}px`,
+                top: `${y}px`,
+              });
+            }
+          });
+        };
+
+        const unmount = () => {
+          stopPositioning?.();
+          stopPositioning = undefined;
+          element?.remove();
+          element = null;
+          menuHandle.current = null;
+          latestProps = null;
+          lastRect = null;
+          const currentRoot = root;
+          root = null;
+          if (currentRoot) {
+            // Avoid unmounting synchronously in case the suggestion plugin
+            // fired during a React render.
+            queueMicrotask(() => currentRoot.unmount());
+          }
+        };
+
+        const mount = (props: SuggestionProps<SuggestionItem>) => {
+          unmount();
+          latestProps = props;
+
+          element = document.createElement("div");
+          Object.assign(element.style, {
+            position: "absolute",
+            top: "0",
+            left: "0",
+            width: "max-content",
+            zIndex: "50",
+          });
+
+          root = createRoot(element);
+          renderMenu();
+          document.body.appendChild(element);
+
+          const referenceElement = {
+            getBoundingClientRect: getReferenceRect,
+            contextElement: props.editor.view.dom,
+          };
+          stopPositioning = autoUpdate(
+            referenceElement,
+            element,
+            updatePosition
+          );
+        };
 
         return {
           onStart: (onStartProps) => {
-            // Clean up any existing component first (prevents double rendering in Strict Mode)
-            if (component) {
-              if (cleanup) {
-                cleanup();
-              }
-              if (component.element.parentNode) {
-                component.element.parentNode.removeChild(component.element);
-              }
-              component.destroy();
-            }
-
-            component = new ReactRenderer(EditorSlashMenu, {
-              props: onStartProps,
-              editor: onStartProps.editor,
-            });
-
-            const referenceElement = {
-              getBoundingClientRect: () =>
-                onStartProps.clientRect?.() || new DOMRect(),
-            };
-
-            // Use Floating UI for positioning (Tiptap v3)
-            cleanup = autoUpdate(
-              referenceElement as any,
-              component.element,
-              () => {
-                computePosition(referenceElement as any, component.element, {
-                  placement: "bottom-start",
-                  middleware: [offset(6), flip(), shift({ padding: 8 })],
-                }).then(({ x, y }) => {
-                  Object.assign(component.element.style, {
-                    left: `${x}px`,
-                    top: `${y}px`,
-                    position: "absolute",
-                  });
-                });
-              }
-            );
-
-            // Only append if not already in DOM (prevents duplicates)
-            if (!component.element.parentNode) {
-              document.body.appendChild(component.element);
-            }
+            mount(onStartProps as SuggestionProps<SuggestionItem>);
           },
 
           onUpdate(onUpdateProps) {
-            component.updateProps(onUpdateProps);
+            const props = onUpdateProps as SuggestionProps<SuggestionItem>;
+            if (!(element && root)) {
+              // Self-heal: if the menu got torn down while the suggestion is
+              // still active, bring it back on the next update.
+              mount(props);
+              return;
+            }
+            latestProps = props;
+            renderMenu();
+            if (!element.isConnected) {
+              document.body.appendChild(element);
+            }
+            updatePosition();
           },
 
           onKeyDown(onKeyDownProps) {
             if (onKeyDownProps.event.key === "Escape") {
-              if (cleanup) {
-                cleanup();
-              }
-              if (component.element.parentNode) {
-                component.element.parentNode.removeChild(component.element);
-              }
-              component.destroy();
-
+              // The suggestion plugin dispatches the exit itself; teardown
+              // happens in onExit.
               return true;
             }
 
-            return handleCommandNavigation(onKeyDownProps.event) ?? false;
+            return (
+              menuHandle.current?.onKeyDown({ event: onKeyDownProps.event }) ??
+              false
+            );
           },
 
           onExit() {
-            if (cleanup) {
-              cleanup();
-            }
-            if (component.element.parentNode) {
-              component.element.parentNode.removeChild(component.element);
-            }
-            component.destroy();
+            unmount();
           },
         };
       },

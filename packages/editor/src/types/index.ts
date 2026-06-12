@@ -51,7 +51,6 @@ export interface EditorButtonProps {
  */
 export interface EditorSlashMenuProps {
   items: SuggestionItem[];
-  command: (item: SuggestionItem) => void;
   editor: Editor;
   range: Range;
 }

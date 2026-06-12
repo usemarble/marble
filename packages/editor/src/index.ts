@@ -86,7 +86,6 @@ export {
   CodeBlock,
   configureSlashCommand,
   Figure,
-  handleCommandNavigation,
   ImageUpload,
   SlashCommand,
   Table,

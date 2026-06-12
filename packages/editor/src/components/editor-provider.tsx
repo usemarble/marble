@@ -7,7 +7,6 @@ import {
   useEditor,
 } from "@tiptap/react";
 import { ExtensionKit } from "../extensions/extension-kit";
-import { handleCommandNavigation } from "../extensions/slash-command";
 
 function deduplicateExtensions(
   defaults: AnyExtension[],
@@ -61,11 +60,6 @@ export const EditorProvider = ({
 
   return (
     <TiptapEditorProvider
-      editorProps={{
-        handleKeyDown: (_view, event) => {
-          handleCommandNavigation(event);
-        },
-      }}
       extensions={deduplicateExtensions(defaultExtensions, extensions ?? [])}
       immediatelyRender={false}
       onUpdate={onUpdate}
@@ -79,7 +73,7 @@ export { EditorContext, useCurrentEditor, useEditor } from "@tiptap/react";
 
 /**
  * Hook to create a Marble editor instance with default extensions and configuration.
- * This is a convenience hook that sets up the editor with ExtensionKit and handleCommandNavigation.
+ * This is a convenience hook that sets up the editor with ExtensionKit.
  *
  * Use this with EditorContext.Provider to avoid layout issues:
  *
@@ -107,12 +101,6 @@ export function useMarbleEditor(options: UseMarbleEditorOptions) {
 
   return useEditor({
     immediatelyRender: false,
-    editorProps: {
-      handleKeyDown: (_view, event) => {
-        handleCommandNavigation(event);
-      },
-      ...restOptions.editorProps,
-    },
     extensions: deduplicateExtensions(defaultExtensions, extensions),
     ...restOptions,
   });

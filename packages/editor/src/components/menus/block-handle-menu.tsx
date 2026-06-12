@@ -1,6 +1,6 @@
 "use client";
 
-import { offset } from "@floating-ui/dom";
+import { type ComputePositionConfig, offset } from "@floating-ui/dom";
 import { PlusSignIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@marble/ui/components/button";
@@ -108,6 +108,14 @@ const CLEAR_FORMATTING_TYPES = new Set([
 const HANDLE_CONTROL_CLASSNAME =
   "flex size-6.5 items-center justify-center rounded-md bg-transparent text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground";
 
+// Must be referentially stable: DragHandle re-registers its ProseMirror
+// plugin when this prop changes, and `editor.unregisterPlugin` destroys and
+// recreates every plugin view (closing the slash command menu, among others).
+const HANDLE_POSITION_CONFIG: ComputePositionConfig = {
+  middleware: [offset(12)],
+  placement: "left-start",
+};
+
 function getFocusPos(target: TargetBlock) {
   return target.node.isTextblock ? target.pos + 1 : target.pos;
 }
@@ -173,6 +181,14 @@ export function EditorBlockHandleMenu({
   const [target, setTarget] = useState<TargetBlock | null>(null);
   const menuHandle = useMemo(() => createDropdownMenuHandle(), []);
   const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
+  // Read by handleNodeChange so the callback identity stays stable; an
+  // identity change re-registers the DragHandle plugin, which tears down
+  // every plugin view (see HANDLE_POSITION_CONFIG).
+  const menuOpenRef = useRef(menuOpen);
+
+  useEffect(() => {
+    menuOpenRef.current = menuOpen;
+  }, [menuOpen]);
 
   useEffect(() => {
     if (!editor) {
@@ -208,16 +224,25 @@ export function EditorBlockHandleMenu({
   const handleNodeChange = useCallback(
     ({ node, pos }: { node: ProseMirrorNode | null; pos: number }) => {
       if (!editor || !editor.isEditable || !isSupportedNode(node)) {
-        if (!menuOpen) {
+        if (!menuOpenRef.current) {
           setTarget(null);
         }
         return;
       }
 
-      setTarget({ node, pos });
+      // Avoid re-render churn while the pointer moves within the same block
+      setTarget((previous) =>
+        previous && previous.node === node && previous.pos === pos
+          ? previous
+          : { node, pos }
+      );
     },
-    [editor, menuOpen]
+    [editor]
   );
+
+  const handleElementDragStart = useCallback(() => {
+    setMenuOpen(false);
+  }, []);
 
   const selectTargetNode = useCallback(() => {
     if (!editor || !target) {
@@ -476,14 +501,9 @@ export function EditorBlockHandleMenu({
   return (
     <DragHandle
       className={cn("z-40", className)}
-      computePositionConfig={{
-        middleware: [offset(12)],
-        placement: "left-start",
-      }}
+      computePositionConfig={HANDLE_POSITION_CONFIG}
       editor={editor}
-      onElementDragStart={() => {
-        setMenuOpen(false);
-      }}
+      onElementDragStart={handleElementDragStart}
       onNodeChange={handleNodeChange}
       pluginKey={HANDLE_PLUGIN_KEY}
     >
