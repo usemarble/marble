@@ -35,15 +35,13 @@
       <span class="text-sm text-muted-foreground">Yearly</span>
     </div>
 
-    <ul
-      class="flex flex-col items-center md:items-stretch justify-center gap-5 md:flex-row"
-    >
+    <ul class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
       {PRICING_PLANS.map((plan, index) => (
-          <li class={cn("min-w-[300px] w-full max-w-[350px] rounded-xl", index === 2 && 'sm:col-span-2 lg:col-span-1 sm:h-fit')}>
-            <div class={cn("flex flex-col gap-5 rounded-xl bg-white w-full px-4 py-6", index === 2 ? 'sm:flex-row sm:px-14 sm:py-10 lg:py-6 sm:justify-center sm:gap-20 lg:gap-4 lg:px-4 lg:flex-col min-h-96 sm:min-h-fit lg:min-h-96' : 'min-h-96 h-full')}>
+          <li class={cn("w-full rounded-xl", index === 2 && 'md:col-span-2 xl:col-span-1 md:h-fit xl:h-auto')}>
+            <div class={cn("flex flex-col gap-5 rounded-xl bg-white w-full px-4 py-6", index === 2 ? 'md:flex-row md:px-14 md:py-10 xl:py-6 md:justify-center md:gap-20 xl:gap-4 xl:px-4 xl:flex-col min-h-96 md:min-h-fit xl:min-h-96' : 'min-h-96 h-full')}>
               {index === 2 ? (
                 <>
-                  <div class="flex flex-col gap-5 sm:min-w-60 lg:min-w-0">
+                  <div class="flex flex-col gap-5 md:min-w-60 xl:min-w-0">
                     <div class="flex flex-col gap-4">
                       <div class="space-y-1">
                         <h3 class="text-medium text-xl">{plan.title}</h3>
