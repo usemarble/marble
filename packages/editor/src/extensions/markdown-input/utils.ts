@@ -1,5 +1,16 @@
 import type { JSONContent } from "@tiptap/core";
 
+function captionContent(caption?: string): JSONContent[] {
+  return caption
+    ? [
+        {
+          type: "paragraph",
+          content: [{ type: "text", text: caption }],
+        },
+      ]
+    : [{ type: "paragraph" }];
+}
+
 /**
  * Checks if text looks like markdown by detecting common markdown patterns
  */
@@ -71,9 +82,10 @@ export function transformImageToFigure(
         attrs: {
           src: image?.attrs?.src || "",
           alt: image?.attrs?.alt || "",
-          caption: image?.attrs?.alt || "",
+          caption: null,
           href: href || null,
         },
+        content: captionContent(image?.attrs?.alt),
       };
     }
   }
@@ -91,9 +103,10 @@ export function transformImageToFigure(
       attrs: {
         src: content.attrs?.src || "",
         alt: content.attrs?.alt || "",
-        caption: content.attrs?.alt || "", // Use alt text as caption
+        caption: null,
         href: null,
       },
+      content: captionContent(content.attrs?.alt),
     };
   }
 

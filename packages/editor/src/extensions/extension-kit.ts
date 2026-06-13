@@ -52,6 +52,8 @@ export const ExtensionKit = ({
       },
     },
     link: {
+      autolink: false,
+      linkOnPaste: true,
       openOnClick: false,
     },
     orderedList: {
@@ -90,9 +92,15 @@ export const ExtensionKit = ({
   Typography,
 
   Placeholder.configure({
-    placeholder: ({ editor }) => {
+    includeChildren: true,
+    placeholder: ({ editor, node, pos }) => {
       if (!editor) {
         return placeholder ?? "";
+      }
+
+      const parent = editor.state.doc.resolve(pos).parent;
+      if (parent.type.name === "figure" && node.type.name === "paragraph") {
+        return "";
       }
 
       // Hide placeholder inside tables, blockquotes, code blocks, and lists

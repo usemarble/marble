@@ -1,6 +1,29 @@
 import type { Editor } from "@tiptap/core";
 import { isTextSelection } from "@tiptap/core";
 
+export function isFigureTextSelection(editor: Editor | null): boolean {
+  if (!editor || !isTextSelection(editor.state.selection)) {
+    return false;
+  }
+
+  const { $from, $to } = editor.state.selection;
+
+  if ($from.parent !== $to.parent || $from.parent.type.name !== "paragraph") {
+    return false;
+  }
+
+  for (let depth = $from.depth - 1; depth > 0; depth--) {
+    const fromNode = $from.node(depth);
+    const toNode = $to.node(depth);
+
+    if (fromNode.type.name === "figure" && fromNode === toNode) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 /**
  * Check if a table grip is selected
  */
@@ -47,6 +70,26 @@ export function isCustomNodeSelected(
     "video",
     "videoUpload",
   ];
+
+  if (isFigureTextSelection(editor)) {
+    return isTableGripSelected(node);
+  }
+
+  const { from, to } = editor.state.selection;
+  let selectionContainsCustomNode = false;
+
+  editor.state.doc.nodesBetween(from, to, (currentNode) => {
+    if (customNodes.includes(currentNode.type.name)) {
+      selectionContainsCustomNode = true;
+      return false;
+    }
+
+    return !selectionContainsCustomNode;
+  });
+
+  if (selectionContainsCustomNode) {
+    return true;
+  }
 
   const isCustomNodeActive = customNodes.some((type) => editor.isActive(type));
 

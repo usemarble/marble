@@ -9,10 +9,9 @@ import {
   TextAlignCenterIcon,
   TextAlignLeftIcon,
   TextAlignRightIcon,
-  XIcon,
 } from "@phosphor-icons/react";
 import type { NodeViewProps } from "@tiptap/core";
-import { NodeViewWrapper } from "@tiptap/react";
+import { NodeViewContent, NodeViewWrapper } from "@tiptap/react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 export const FigureView = ({
@@ -20,16 +19,14 @@ export const FigureView = ({
   updateAttributes,
   selected,
 }: NodeViewProps) => {
-  const { src, alt, caption, width, align } = node.attrs as {
+  const { src, alt, width, align } = node.attrs as {
     src: string;
     alt: string;
-    caption: string;
     width: string;
     align: "left" | "center" | "right";
   };
 
   const [altValue, setAltValue] = useState(alt || "");
-  const [captionValue, setCaptionValue] = useState(caption || "");
   const [widthValue, setWidthValue] = useState(width || "100");
   const [alignValue, setAlignValue] = useState<"left" | "center" | "right">(
     align || "center"
@@ -44,19 +41,16 @@ export const FigureView = ({
   const resizeSideRef = useRef<"left" | "right">("right");
 
   const altId = useId();
-  const captionId = useId();
 
-  const [prevAttrs, setPrevAttrs] = useState({ alt, caption, width, align });
+  const [prevAttrs, setPrevAttrs] = useState({ alt, width, align });
 
   if (
     alt !== prevAttrs.alt ||
-    caption !== prevAttrs.caption ||
     width !== prevAttrs.width ||
     align !== prevAttrs.align
   ) {
-    setPrevAttrs({ alt, caption, width, align });
+    setPrevAttrs({ alt, width, align });
     setAltValue(alt || "");
-    setCaptionValue(caption || "");
     setWidthValue(width || "100");
     setAlignValue(align || "center");
   }
@@ -96,15 +90,6 @@ export const FigureView = ({
       const newAlt = e.target.value;
       setAltValue(newAlt);
       updateAttributes({ alt: newAlt });
-    },
-    [updateAttributes]
-  );
-
-  const handleCaptionChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const newCaption = e.target.value;
-      setCaptionValue(newCaption);
-      updateAttributes({ caption: newCaption });
     },
     [updateAttributes]
   );
@@ -174,7 +159,8 @@ export const FigureView = ({
     marginRight: alignValue === "right" ? 0 : "auto",
   };
 
-  const showToolbar = selected || isHovered || showSettings;
+  const isCaptionEmpty = node.textContent.trim().length === 0;
+  const showToolbar = isHovered || showSettings;
 
   const handleSettingsClick = useCallback(
     (e: React.MouseEvent) => {
@@ -186,153 +172,139 @@ export const FigureView = ({
   );
 
   return (
-    <NodeViewWrapper className="my-5" data-drag-handle>
-      <figure
-        aria-label="Image figure"
-        className={cn(
-          "relative",
-          selected && "outline-2 outline-primary outline-offset-2"
-        )}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        ref={figureRef}
-        style={alignmentStyles}
-      >
-        {/* biome-ignore lint: Tiptap NodeView requires standard img element */}
-        <img
-          alt={altValue}
-          className="h-auto w-full rounded-md border border-muted"
-          src={src}
-        />
+    <NodeViewWrapper
+      aria-label="Image figure"
+      as="figure"
+      className={cn(
+        "relative my-5",
+        selected && "outline-2 outline-primary outline-offset-2"
+      )}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      ref={figureRef}
+      style={alignmentStyles}
+    >
+      {/* biome-ignore lint: Tiptap NodeView requires standard img element */}
+      <img
+        alt={altValue}
+        className="h-auto w-full rounded-md border border-muted"
+        data-drag-handle
+        src={src}
+      />
 
-        {showToolbar && (
-          <div className="absolute top-2 right-2 z-30 flex items-center gap-0.5 rounded-lg border bg-background p-1 shadow">
-            <Button
-              className={cn(
-                "size-7 p-0",
-                alignValue === "left" && "bg-accent text-accent-foreground"
-              )}
-              onClick={() => handleAlignChange("left")}
-              size="icon"
-              title="Align left"
-              type="button"
-              variant="ghost"
-            >
-              <TextAlignLeftIcon className="size-3.5" />
-            </Button>
-            <Button
-              className={cn(
-                "size-7 p-0",
-                alignValue === "center" && "bg-accent text-accent-foreground"
-              )}
-              onClick={() => handleAlignChange("center")}
-              size="icon"
-              title="Align center"
-              type="button"
-              variant="ghost"
-            >
-              <TextAlignCenterIcon className="size-3.5" />
-            </Button>
-            <Button
-              className={cn(
-                "size-7 p-0",
-                alignValue === "right" && "bg-accent text-accent-foreground"
-              )}
-              onClick={() => handleAlignChange("right")}
-              size="icon"
-              title="Align right"
-              type="button"
-              variant="ghost"
-            >
-              <TextAlignRightIcon className="size-3.5" />
-            </Button>
-
-            {/* Divider */}
-            <div className="mx-0.5 h-5 w-px bg-border" />
-
-            <button
-              className={cn(
-                "flex size-7 items-center justify-center rounded-lg transition-colors hover:bg-accent hover:text-accent-foreground",
-                showSettings && "bg-accent text-accent-foreground"
-              )}
-              data-settings-trigger
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setShowSettings((prev) => !prev);
-              }}
-              onMouseDown={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-              }}
-              title="Image settings"
-              type="button"
-            >
-              <FadersHorizontalIcon className="size-3.5" />
-            </button>
-          </div>
-        )}
-
-        {showSettings && (
-          <div
-            className="absolute top-14 right-2 z-40 flex w-72 flex-col gap-3 rounded-md border bg-popover p-3 text-popover-foreground shadow-md"
-            ref={settingsPanelRef}
+      {showToolbar && (
+        <div className="absolute top-2 right-2 z-30 flex items-center gap-0.5 rounded-lg border bg-background p-1 shadow">
+          <Button
+            className={cn(
+              "size-7 p-0",
+              alignValue === "left" && "bg-accent text-accent-foreground"
+            )}
+            onClick={() => handleAlignChange("left")}
+            size="icon"
+            title="Align left"
+            type="button"
+            variant="ghost"
           >
-            {/* Alt Text */}
-            <div className="space-y-1.5">
-              <Label className="font-medium text-xs" htmlFor={altId}>
-                Alt Text
-              </Label>
-              <Input
-                className="h-8 text-sm"
-                id={altId}
-                onChange={handleAltChange}
-                placeholder="Describe the image..."
-                type="text"
-                value={altValue}
-              />
-            </div>
+            <TextAlignLeftIcon className="size-3.5" />
+          </Button>
+          <Button
+            className={cn(
+              "size-7 p-0",
+              alignValue === "center" && "bg-accent text-accent-foreground"
+            )}
+            onClick={() => handleAlignChange("center")}
+            size="icon"
+            title="Align center"
+            type="button"
+            variant="ghost"
+          >
+            <TextAlignCenterIcon className="size-3.5" />
+          </Button>
+          <Button
+            className={cn(
+              "size-7 p-0",
+              alignValue === "right" && "bg-accent text-accent-foreground"
+            )}
+            onClick={() => handleAlignChange("right")}
+            size="icon"
+            title="Align right"
+            type="button"
+            variant="ghost"
+          >
+            <TextAlignRightIcon className="size-3.5" />
+          </Button>
 
-            {/* Caption */}
-            <div className="space-y-1.5">
-              <Label className="font-medium text-xs" htmlFor={captionId}>
-                Caption
-              </Label>
-              <Input
-                className="h-8 text-sm"
-                id={captionId}
-                onChange={handleCaptionChange}
-                placeholder="Add a caption..."
-                type="text"
-                value={captionValue}
-              />
-            </div>
+          {/* Divider */}
+          <div className="mx-0.5 h-5 w-px bg-border" />
+
+          <button
+            className={cn(
+              "flex size-7 items-center justify-center rounded-lg transition-colors hover:bg-accent hover:text-accent-foreground",
+              showSettings && "bg-accent text-accent-foreground"
+            )}
+            data-settings-trigger
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setShowSettings((prev) => !prev);
+            }}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+            title="Image settings"
+            type="button"
+          >
+            <FadersHorizontalIcon className="size-3.5" />
+          </button>
+        </div>
+      )}
+
+      {showSettings && (
+        <div
+          className="absolute top-14 right-2 z-40 flex w-72 flex-col gap-3 rounded-md border bg-popover p-3 text-popover-foreground shadow-md"
+          ref={settingsPanelRef}
+        >
+          {/* Alt Text */}
+          <div className="space-y-1.5">
+            <Label className="font-medium text-xs" htmlFor={altId}>
+              Alt Text
+            </Label>
+            <Input
+              className="h-8 text-sm"
+              id={altId}
+              onChange={handleAltChange}
+              placeholder="Describe the image..."
+              type="text"
+              value={altValue}
+            />
           </div>
-        )}
+        </div>
+      )}
 
-        {showToolbar && (
-          <>
-            <button
-              className="-translate-y-1/2 absolute top-1/2 left-2 z-20 h-8 w-1 cursor-ew-resize rounded-full border border-foreground border-white bg-background transition-all"
-              onMouseDown={handleResizeStart("left")}
-              title="Drag to resize"
-              type="button"
-            />
-            <button
-              className="-translate-y-1/2 absolute top-1/2 right-2 z-20 h-8 w-1 cursor-ew-resize rounded-full border border-foreground border-white bg-background transition-all"
-              onMouseDown={handleResizeStart("right")}
-              title="Drag to resize"
-              type="button"
-            />
-          </>
-        )}
+      {showToolbar && (
+        <>
+          <button
+            className="-translate-y-1/2 absolute top-1/2 left-2 z-20 h-8 w-1 cursor-ew-resize rounded-full border border-foreground border-white bg-background transition-all"
+            onMouseDown={handleResizeStart("left")}
+            title="Drag to resize"
+            type="button"
+          />
+          <button
+            className="-translate-y-1/2 absolute top-1/2 right-2 z-20 h-8 w-1 cursor-ew-resize rounded-full border border-foreground border-white bg-background transition-all"
+            onMouseDown={handleResizeStart("right")}
+            title="Drag to resize"
+            type="button"
+          />
+        </>
+      )}
 
-        {captionValue && (
-          <figcaption className="mt-2 text-center text-muted-foreground text-sm italic">
-            <p>{captionValue}</p>
-          </figcaption>
-        )}
-      </figure>
+      <NodeViewContent<"figcaption">
+        as="figcaption"
+        className="marble-figure-caption mt-2 min-h-5 cursor-text text-center text-muted-foreground text-sm outline-none [&_a]:text-primary [&_a]:underline [&_a]:underline-offset-2 [&_p]:m-0 [&_p]:text-center"
+        data-empty={isCaptionEmpty ? "true" : undefined}
+        data-placeholder="Describe this image..."
+      />
     </NodeViewWrapper>
   );
 };

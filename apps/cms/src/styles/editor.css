@@ -49,3 +49,16 @@ mark[style] > strong {
 .prose .bg-sidebar {
   background-color: var(--color-sidebar) !important;
 }
+
+.ProseMirror .marble-figure-caption {
+  position: relative;
+}
+
+.ProseMirror .marble-figure-caption[data-empty="true"]::after {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  color: color-mix(in oklab, var(--muted-foreground) 70%, transparent);
+  text-align: center;
+  content: attr(data-placeholder);
+}

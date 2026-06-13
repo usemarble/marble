@@ -41,11 +41,92 @@ describe("htmlToTiptap", () => {
       attrs: {
         src: "https://example.com/image.png",
         alt: "Alt text",
-        caption: "Caption",
+        caption: null,
         href: null,
         width: "75",
         align: "left",
       },
+      content: [
+        {
+          type: "paragraph",
+          attrs: { textAlign: null },
+          content: [{ type: "text", text: "Caption" }],
+        },
+      ],
+    });
+  });
+
+  it("preserves links inside figure captions", () => {
+    const result = htmlToTiptap(
+      '<figure data-width="75" data-align="left"><img src="https://example.com/image.png" alt="Alt text"><figcaption>Image by <a href="https://example.com/source">Source</a></figcaption></figure>'
+    );
+
+    expect(result.content?.[0]).toEqual({
+      type: "figure",
+      attrs: {
+        src: "https://example.com/image.png",
+        alt: "Alt text",
+        caption: null,
+        href: null,
+        width: "75",
+        align: "left",
+      },
+      content: [
+        {
+          type: "paragraph",
+          attrs: { textAlign: null },
+          content: [
+            { type: "text", text: "Image by " },
+            {
+              type: "text",
+              marks: [
+                {
+                  type: "link",
+                  attrs: {
+                    class: "",
+                    href: "https://example.com/source",
+                    rel: "noopener noreferrer nofollow",
+                    target: "_blank",
+                    title: null,
+                  },
+                },
+              ],
+              text: "Source",
+            },
+          ],
+        },
+      ],
+    });
+  });
+
+  it("keeps image links separate from caption links", () => {
+    const result = htmlToTiptap(
+      '<figure><a href="https://example.com/full"><img src="https://example.com/image.png" alt="Alt text"></a><figcaption>Image by <a href="https://example.com/source">Source</a></figcaption></figure>'
+    );
+
+    expect(result.content?.[0]).toMatchObject({
+      type: "figure",
+      attrs: {
+        href: "https://example.com/full",
+      },
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            { type: "text", text: "Image by " },
+            {
+              type: "text",
+              marks: [
+                {
+                  type: "link",
+                  attrs: { href: "https://example.com/source" },
+                },
+              ],
+              text: "Source",
+            },
+          ],
+        },
+      ],
     });
   });
 
@@ -146,10 +227,16 @@ describe("normalizePostContent", () => {
       attrs: {
         src: "https://example.com/image.png",
         alt: "Alt text",
-        caption: "Caption",
+        caption: null,
         width: "75",
         align: "left",
       },
+      content: [
+        {
+          type: "paragraph",
+          content: [{ type: "text", text: "Caption" }],
+        },
+      ],
     });
   });
 });

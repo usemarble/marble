@@ -117,7 +117,7 @@ function EditorPageContent() {
     editorProps: {
       attributes: {
         class:
-          "prose dark:prose-invert min-h-96 h-full sm:px-4 focus:outline-hidden max-w-full prose-blockquote:border-border",
+          "prose dark:prose-invert min-h-96 h-full sm:px-4 focus:outline-hidden max-w-full prose-blockquote:border-border prose-figcaption:not-italic",
       },
       transformPastedHTML(html) {
         const cleaned = html

@@ -24,6 +24,13 @@ import type { ParseableElement } from "./types";
 const queryHtml = (element: HTMLElement, selector: string) =>
   (element as ParseableElement).querySelector(selector);
 
+const linkedMediaHref = (element: HTMLElement, selector: string) => {
+  const media = queryHtml(element, selector);
+  const parent = media?.parentElement;
+
+  return parent?.tagName === "A" ? parent.getAttribute("href") : null;
+};
+
 /**
  * Server-side version of Marble's editor figure node.
  *
@@ -34,7 +41,7 @@ const queryHtml = (element: HTMLElement, selector: string) =>
 const ServerFigure = TiptapNode.create({
   name: "figure",
   group: "block",
-  content: "",
+  content: "paragraph?",
   draggable: true,
   selectable: true,
   isolating: true,
@@ -57,15 +64,12 @@ const ServerFigure = TiptapNode.create({
         renderHTML: (attributes) => ({ alt: attributes.alt }),
       },
       caption: {
-        default: "",
-        parseHTML: (element) =>
-          queryHtml(element, "figcaption")?.textContent || "",
-        renderHTML: (attributes) => ({ caption: attributes.caption }),
+        default: null,
+        renderHTML: () => null,
       },
       href: {
         default: null,
-        parseHTML: (element) =>
-          queryHtml(element, "a")?.getAttribute("href") || null,
+        parseHTML: (element) => linkedMediaHref(element, "img"),
         renderHTML: (attributes) => ({ href: attributes.href }),
       },
       width: {
@@ -85,6 +89,7 @@ const ServerFigure = TiptapNode.create({
     return [
       {
         tag: "figure",
+        contentElement: "figcaption",
         getAttrs: (element) => {
           if (typeof element === "string") {
             return false;
@@ -95,8 +100,9 @@ const ServerFigure = TiptapNode.create({
     ];
   },
 
-  renderHTML({ HTMLAttributes }) {
-    const { src, alt, href, caption, ...figureAttrs } = HTMLAttributes;
+  renderHTML({ HTMLAttributes, node }) {
+    const { src, alt, href, ...figureAttrs } = HTMLAttributes;
+    const caption = node.attrs.caption;
     const imgAttrs: Record<string, string> = {};
 
     if (src) {
@@ -108,11 +114,20 @@ const ServerFigure = TiptapNode.create({
 
     const image = href ? ["a", { href }, ["img", imgAttrs]] : ["img", imgAttrs];
 
+    if (node.content.size === 0) {
+      return [
+        "figure",
+        mergeAttributes(figureAttrs),
+        image,
+        ["figcaption", {}, caption || ""],
+      ];
+    }
+
     return [
       "figure",
       mergeAttributes(figureAttrs),
       image,
-      ["figcaption", {}, caption || ""],
+      ["figcaption", {}, 0],
     ];
   },
 });

@@ -3,6 +3,16 @@ import { mergeAttributes, Node } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import { FigureView } from "./figure-view";
 
+const captionToContent = (caption?: string) =>
+  caption
+    ? [
+        {
+          type: "paragraph",
+          content: [{ type: "text", text: caption }],
+        },
+      ]
+    : [{ type: "paragraph" }];
+
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     figure: {
@@ -28,7 +38,7 @@ declare module "@tiptap/core" {
 export const Figure = Node.create({
   name: "figure",
   group: "block",
-  content: "",
+  content: "paragraph?",
   draggable: true,
   selectable: true,
   isolating: true,
@@ -59,19 +69,17 @@ export const Figure = Node.create({
         },
       },
       caption: {
-        default: "",
-        parseHTML: (element) =>
-          element.querySelector("figcaption")?.textContent || "",
-        renderHTML: (attributes) => {
-          // Return attribute to make it available in HTMLAttributes
-          // Main renderHTML will use it for figcaption content
-          return { caption: attributes.caption };
-        },
+        default: null,
+        renderHTML: () => null,
       },
       href: {
         default: null,
-        parseHTML: (element) =>
-          element.querySelector("a")?.getAttribute("href") || null,
+        parseHTML: (element) => {
+          const img = element.querySelector("img");
+          const parent = img?.parentElement;
+
+          return parent?.tagName === "A" ? parent.getAttribute("href") : null;
+        },
         renderHTML: (attributes) => {
           // Return attribute to make it available in HTMLAttributes
           // Main renderHTML will apply it to anchor element
@@ -99,6 +107,7 @@ export const Figure = Node.create({
     return [
       {
         tag: "figure",
+        contentElement: "figcaption",
         getAttrs: (element) => {
           if (typeof element === "string") {
             return false;
@@ -110,8 +119,9 @@ export const Figure = Node.create({
     ];
   },
 
-  renderHTML({ HTMLAttributes }) {
-    const { src, alt, href, caption, ...figureAttrs } = HTMLAttributes;
+  renderHTML({ HTMLAttributes, node }) {
+    const { src, alt, href, ...figureAttrs } = HTMLAttributes;
+    const caption = node.attrs.caption;
 
     // Prepare img attributes
     const imgAttrs: Record<string, string> = {};
@@ -122,16 +132,24 @@ export const Figure = Node.create({
       imgAttrs.alt = alt;
     }
 
-    // Prepare figcaption content
-    const figcaptionContent = caption || "";
-
     // If href exists, wrap img in anchor tag
+    const image = href ? ["a", { href }, ["img", imgAttrs]] : ["img", imgAttrs];
+
+    if (node.content.size === 0) {
+      return [
+        "figure",
+        mergeAttributes(figureAttrs),
+        image,
+        ["figcaption", {}, caption || ""],
+      ];
+    }
+
     if (href) {
       return [
         "figure",
         mergeAttributes(figureAttrs),
-        ["a", { href }, ["img", imgAttrs]],
-        ["figcaption", {}, figcaptionContent],
+        image,
+        ["figcaption", {}, 0],
       ];
     }
 
@@ -139,8 +157,8 @@ export const Figure = Node.create({
     return [
       "figure",
       mergeAttributes(figureAttrs),
-      ["img", imgAttrs],
-      ["figcaption", {}, figcaptionContent],
+      image,
+      ["figcaption", {}, 0],
     ];
   },
 
@@ -151,7 +169,11 @@ export const Figure = Node.create({
         ({ commands }: CommandProps) =>
           commands.insertContent({
             type: this.name,
-            attrs: options,
+            attrs: {
+              ...options,
+              caption: null,
+            },
+            content: captionToContent(options.caption),
           }),
       updateFigure:
         (attrs) =>
@@ -160,7 +182,8 @@ export const Figure = Node.create({
           const node = tr.doc.nodeAt(selection.from);
 
           if (node?.type.name === this.name) {
-            return commands.updateAttributes(this.name, attrs);
+            const { caption: _caption, ...nodeAttrs } = attrs;
+            return commands.updateAttributes(this.name, nodeAttrs);
           }
 
           return false;
