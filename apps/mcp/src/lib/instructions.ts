@@ -143,6 +143,16 @@ Standalone images fit best wrapped for the editor:
 
 \`<figure data-width="100" data-align="center"><img src="https://example.com/image.jpg" alt="Descriptive alt text"><figcaption>Optional caption</figcaption></figure>\`
 
+Captions may contain inline links and inline formatting tags: \`<a>\`, \`<strong>\`, \`<b>\`, \`<em>\`, \`<i>\`, \`<s>\`, \`<u>\`, \`<code>\`, \`<span>\`, and \`<mark>\`. Use this for image credits or source attribution:
+
+\`<figure data-width="100" data-align="center"><img src="https://example.com/image.jpg" alt="Mountain village at sunrise"><figcaption>Image by <a href="https://example.com/author">Author Name</a> on <a href="https://unsplash.com">Unsplash</a></figcaption></figure>\`
+
+Inline formatting example:
+
+\`<figure data-width="100" data-align="center"><img src="https://example.com/image.jpg" alt="Code editor screenshot"><figcaption><strong>Screenshot:</strong> command output from <code>marble dev</code></figcaption></figure>\`
+
+Keep caption content inline; do not put headings, lists, tables, or other block structures inside \`<figcaption>\`.
+
 Video:
 
 \`<figure data-type="video" data-width="100" data-align="center"><video src="https://example.com/video.mp4" controls></video><figcaption>Optional caption</figcaption></figure>\`
