@@ -61,11 +61,9 @@
   structuredData={structuredData}
 >
   <section
-    class="min-h-[calc(100vh-88px)] sm:min-h-[calc(100vh-103px)] lg:min-h-[calc(100vh-120px)] border-t border-dashed"
+    class="min-h-[calc(100vh-88px)] sm:min-h-[calc(100vh-103px)] lg:min-h-[calc(100vh-120px)]"
   >
-    <div
-      class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto h-full"
-    >
+    <div class="h-full">
       <Container class="md:py-20 py-10 md:pb-24">
         <section class="max-w-3xl mx-auto mb-6 md:mb-10 space-y-6">
           <div class="flex flex-col gap-4 mx-auto">
@@ -113,46 +111,44 @@
       </Container>
     </div>
   </section>
-  <section class="border-y border-dashed">
-    <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
-      <Container class="py-12 md:py-20">
-        <div class="flex flex-col items-center space-y-6">
-          <div class="space-y-4 text-center">
-            <h2
-              class="relative text-center text-balance text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl"
-            >
-              Try Marble today.
-            </h2>
-            <p
-              class="mx-auto max-w-2xl text-muted-foreground md:text-lg text-balance"
-            >
-              A simpler way to publish articles and manage your blog.
-            </p>
-          </div>
-
-          <div
-            class="flex flex-col sm:flex-row w-full items-center justify-center gap-4"
+  <section>
+    <Container class="py-12 md:py-20">
+      <div class="flex flex-col items-center space-y-6">
+        <div class="space-y-4 text-center">
+          <h2
+            class="relative text-center text-balance text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl"
           >
-            <ButtonComponent
-              href={REGISTER_URL}
-              target="_blank"
-              class="w-full sm:w-auto"
-              data-track={TRACKING_EVENTS.signupClicked}
-              data-context="blog_post_cta"
-              data-label="Try Marble for free"
-            >
-              Try Marble for free
-            </ButtonComponent>
-            <ButtonComponent
-              href={YOUTUBE_WATCH_URL}
-              variant="secondary"
-              class="w-full sm:w-auto"
-            >
-              Watch Demo
-            </ButtonComponent>
-          </div>
+            Try Marble today.
+          </h2>
+          <p
+            class="mx-auto max-w-2xl text-muted-foreground md:text-lg text-balance"
+          >
+            A simpler way to publish articles and manage your blog.
+          </p>
         </div>
-      </Container>
-    </div>
+
+        <div
+          class="flex flex-col sm:flex-row w-full items-center justify-center gap-4"
+        >
+          <ButtonComponent
+            href={REGISTER_URL}
+            target="_blank"
+            class="w-full sm:w-auto"
+            data-track={TRACKING_EVENTS.signupClicked}
+            data-context="blog_post_cta"
+            data-label="Try Marble for free"
+          >
+            Try Marble for free
+          </ButtonComponent>
+          <ButtonComponent
+            href={YOUTUBE_WATCH_URL}
+            variant="secondary"
+            class="w-full sm:w-auto"
+          >
+            Watch Demo
+          </ButtonComponent>
+        </div>
+      </div>
+    </Container>
   </section>
 </Layout>

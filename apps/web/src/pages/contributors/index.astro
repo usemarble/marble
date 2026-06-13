@@ -193,66 +193,62 @@
   title={`Contributors & Community - ${SITE.TITLE}`}
   description="Meet the amazing developers and contributors who help build Marble. Explore our open source projects, contribute to issues, and join our growing community."
 >
-  <div class="divide-y divide-dashed">
-    <section class="border-t border-dashed">
-      <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
-        <Container class="space-y-12 lg:space-y-20 pt-12 pb-20 lg:py-24">
-          <div
-            class="relative flex flex-col items-center space-y-4 text-center"
+  <div>
+    <section>
+      <Container class="space-y-12 lg:space-y-20 pt-12 pb-20 lg:py-24">
+        <div class="relative flex flex-col items-center space-y-4 text-center">
+          <h1
+            class="relative text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-[25ch] mx-auto"
           >
-            <h1
-              class="relative text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-[25ch] mx-auto"
-            >
-              Contributors & Community
-            </h1>
-            <p class="mx-auto max-w-[60ch] md:text-lg text-muted-foreground">
-              Meet the amazing developers and contributors who help build
-              Marble.
+            Contributors & Community
+          </h1>
+          <p class="mx-auto max-w-[60ch] md:text-lg text-muted-foreground">
+            Meet the amazing developers and contributors who help build Marble.
+          </p>
+        </div>
+
+        <div class="grid gap-6 grid-cols-2 md:grid-cols-4 text-center">
+          <div class="space-y-2">
+            <div class="text-3xl md:text-4xl font-bold text-primary">
+              {githubData.stats.totalContributors}
+            </div>
+            <div class="text-sm text-muted-foreground">Contributors</div>
+          </div>
+          <div class="space-y-2">
+            <div class="text-3xl md:text-4xl font-bold text-primary">
+              {githubData.stats.totalStars}
+            </div>
+            <div class="text-sm text-muted-foreground">Stars</div>
+          </div>
+          <div class="space-y-2">
+            <div class="text-3xl md:text-4xl font-bold text-primary">
+              {githubData.stats.totalForks}
+            </div>
+            <div class="text-sm text-muted-foreground">Forks</div>
+          </div>
+          <div class="space-y-2">
+            <div class="text-3xl md:text-4xl font-bold text-primary">
+              {githubData.stats.totalIssues}
+            </div>
+            <div class="text-sm text-muted-foreground">Open Issues</div>
+          </div>
+        </div>
+
+        <div class="space-y-8">
+          <div class="text-center">
+            <h2 class="text-2xl md:text-3xl mb-4">
+              Our Contributors<span class="text-accent">.</span>
+            </h2>
+            <p class="text-muted-foreground max-w-[50ch] mx-auto">
+              Thank you to all the amazing people who have contributed to
+              Marble!
             </p>
           </div>
 
-          <div class="grid gap-6 grid-cols-2 md:grid-cols-4 text-center">
-            <div class="space-y-2">
-              <div class="text-3xl md:text-4xl font-bold text-primary">
-                {githubData.stats.totalContributors}
-              </div>
-              <div class="text-sm text-muted-foreground">Contributors</div>
-            </div>
-            <div class="space-y-2">
-              <div class="text-3xl md:text-4xl font-bold text-primary">
-                {githubData.stats.totalStars}
-              </div>
-              <div class="text-sm text-muted-foreground">Stars</div>
-            </div>
-            <div class="space-y-2">
-              <div class="text-3xl md:text-4xl font-bold text-primary">
-                {githubData.stats.totalForks}
-              </div>
-              <div class="text-sm text-muted-foreground">Forks</div>
-            </div>
-            <div class="space-y-2">
-              <div class="text-3xl md:text-4xl font-bold text-primary">
-                {githubData.stats.totalIssues}
-              </div>
-              <div class="text-sm text-muted-foreground">Open Issues</div>
-            </div>
-          </div>
-
-          <div class="space-y-8">
-            <div class="text-center">
-              <h2 class="text-2xl md:text-3xl mb-4">
-                Our Contributors<span class="text-accent">.</span>
-              </h2>
-              <p class="text-muted-foreground max-w-[50ch] mx-auto">
-                Thank you to all the amazing people who have contributed to
-                Marble!
-              </p>
-            </div>
-
-            <div
-              class="grid gap-4 grid-cols-3 md:grid-cols-6 lg:grid-cols-8 max-w-4xl mx-auto"
-            >
-              {githubData.contributors.map((contributor) => (
+          <div
+            class="grid gap-4 grid-cols-3 md:grid-cols-6 lg:grid-cols-8 max-w-4xl mx-auto"
+          >
+            {githubData.contributors.map((contributor) => (
                 <a
                   href={contributor.html_url}
                   target="_blank"
@@ -271,37 +267,37 @@
                   </span>
                 </a>
               ))}
-            </div>
           </div>
+        </div>
 
-          <div class="grid gap-8 lg:gap-12 grid-cols-1 lg:grid-cols-2">
-            <div class="space-y-6">
-              <div class="flex items-center justify-between">
-                <h2 class="text-xl md:text-2xl">Open Issues</h2>
-                <a
-                  href="https://github.com/usemarble/marble/issues"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="text-sm font-medium text-accent flex items-center gap-1 group"
+        <div class="grid gap-8 lg:gap-12 grid-cols-1 lg:grid-cols-2">
+          <div class="space-y-6">
+            <div class="flex items-center justify-between">
+              <h2 class="text-xl md:text-2xl">Open Issues</h2>
+              <a
+                href="https://github.com/usemarble/marble/issues"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-sm font-medium text-accent flex items-center gap-1 group"
+              >
+                View all
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  class="w-4 h-4 transition-transform group-hover:translate-x-1"
                 >
-                  View all
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    class="w-4 h-4 transition-transform group-hover:translate-x-1"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                </a>
-              </div>
+                  <path
+                    fill-rule="evenodd"
+                    d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </a>
+            </div>
 
-              <div class="space-y-3">
-                {githubData.issues.length === 0 ? (
+            <div class="space-y-3">
+              {githubData.issues.length === 0 ? (
                   <div class="text-center py-8 text-muted-foreground">
                     No open issues at the moment
                   </div>
@@ -309,7 +305,7 @@
                   githubData.issues.map((issue) => {
                     const issueType = getIssueTypeFromLabels(issue.labels);
                     return (
-                      <div class="bg-white rounded-xl p-4 border border-dashed hover:shadow-sm transition-all duration-300">
+                      <div class="bg-white rounded-xl p-4 hover:shadow-sm transition-all duration-300">
                         <div class="flex items-start gap-3">
                           <img
                             src={issue.user.avatar_url}
@@ -343,42 +339,42 @@
                     );
                   })
                 )}
-              </div>
+            </div>
+          </div>
+
+          <div class="space-y-6">
+            <div class="flex items-center justify-between">
+              <h2 class="text-xl md:text-2xl">Open Pull Requests</h2>
+              <a
+                href="https://github.com/usemarble/marble/pulls"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-sm font-medium text-accent flex items-center gap-1 group"
+              >
+                View all
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  class="w-4 h-4 transition-transform group-hover:translate-x-1"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </a>
             </div>
 
-            <div class="space-y-6">
-              <div class="flex items-center justify-between">
-                <h2 class="text-xl md:text-2xl">Open Pull Requests</h2>
-                <a
-                  href="https://github.com/usemarble/marble/pulls"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="text-sm font-medium text-accent flex items-center gap-1 group"
-                >
-                  View all
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    class="w-4 h-4 transition-transform group-hover:translate-x-1"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                </a>
-              </div>
-
-              <div class="space-y-3">
-                {githubData.prs.length === 0 ? (
+            <div class="space-y-3">
+              {githubData.prs.length === 0 ? (
                   <div class="text-center py-8 text-muted-foreground">
                     No open pull requests at the moment
                   </div>
                 ) : (
                   githubData.prs.map((pr) => (
-                    <div class="bg-white rounded-xl p-4 border border-dashed hover:shadow-sm transition-all duration-300">
+                    <div class="bg-white rounded-xl p-4 hover:shadow-sm transition-all duration-300">
                       <div class="flex items-start gap-3">
                         <img
                           src={pr.user.avatar_url}
@@ -411,56 +407,52 @@
                     </div>
                   ))
                 )}
-              </div>
             </div>
           </div>
-        </Container>
-      </div>
+        </div>
+      </Container>
     </section>
 
     <!-- CTA -->
-    <section class="border-b border-dashed">
-      <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
-        <Container class="py-12 md:py-20">
-          <div class="flex flex-col items-center space-y-6">
-            <div class="space-y-4 text-center">
-              <h2
-                class="relative text-center text-balance text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl"
-              >
-                Get started today.
-              </h2>
-              <p
-                class="mx-auto max-w-2xl text-muted-foreground md:text-lg text-balance"
-              >
-                Create and manage content, so you can focus on what matters
-                most.
-              </p>
-            </div>
-
-            <div
-              class="flex flex-col sm:flex-row w-full items-center justify-center gap-4"
+    <section>
+      <Container class="py-12 md:py-20">
+        <div class="flex flex-col items-center space-y-6">
+          <div class="space-y-4 text-center">
+            <h2
+              class="relative text-center text-balance text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl"
             >
-              <ButtonComponent
-                href={REGISTER_URL}
-                target="_blank"
-                class="w-full sm:w-auto"
-                data-track={TRACKING_EVENTS.signupClicked}
-                data-context="contributors_cta"
-                data-label="Try Marble for free"
-              >
-                Try Marble for free
-              </ButtonComponent>
-              <ButtonComponent
-                href={YOUTUBE_WATCH_URL}
-                variant="secondary"
-                class="w-full sm:w-auto"
-              >
-                Watch Demo
-              </ButtonComponent>
-            </div>
+              Get started today.
+            </h2>
+            <p
+              class="mx-auto max-w-2xl text-muted-foreground md:text-lg text-balance"
+            >
+              Create and manage content, so you can focus on what matters most.
+            </p>
           </div>
-        </Container>
-      </div>
+
+          <div
+            class="flex flex-col sm:flex-row w-full items-center justify-center gap-4"
+          >
+            <ButtonComponent
+              href={REGISTER_URL}
+              target="_blank"
+              class="w-full sm:w-auto"
+              data-track={TRACKING_EVENTS.signupClicked}
+              data-context="contributors_cta"
+              data-label="Try Marble for free"
+            >
+              Try Marble for free
+            </ButtonComponent>
+            <ButtonComponent
+              href={YOUTUBE_WATCH_URL}
+              variant="secondary"
+              class="w-full sm:w-auto"
+            >
+              Watch Demo
+            </ButtonComponent>
+          </div>
+        </div>
+      </Container>
     </section>
   </div>
 </Layout>

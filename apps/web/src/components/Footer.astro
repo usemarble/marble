@@ -10,73 +10,64 @@
   const copyright = `© ${year} all rights reserved`;
 ---
 <footer>
-  <div
-    class="lg:border-x border-dashed md:w-[calc(100%-140px)] bg-white mx-auto"
-  >
-    <Container class="py-12 sm:py-20 md:py-36">
-      <section class="md:min-h-[420px] flex flex-col justify-between gap-5">
-        <div class="flex flex-col justify-between gap-10 md:flex-row">
-          <div class="sm:col-span-3">
-            <a
-              href="/"
-              class="mb-2 flex items-center gap-2 tracking-widest w-fit font-medium"
-            >
-              <WordMark/>
-              <span class="sr-only">marblecms</span>
-            </a>
-            <!-- <p class="mb-1 text-sm text-muted-foreground tracking-wider">
-              Content simplified.
-            </p> -->
-          </div>
+  <Container class="max-w-[90rem] py-12 sm:py-20 md:py-36">
+    <section class="md:min-h-[420px] flex flex-col justify-between gap-5">
+      <div class="flex flex-col justify-between gap-10 md:flex-row">
+        <div class="sm:col-span-3">
+          <a
+            href="/"
+            class="mb-2 flex items-center gap-2 tracking-widest w-fit font-medium"
+          >
+            <WordMark/>
+            <span class="sr-only">marblecms</span>
+          </a>
+          <!-- <p class="mb-1 text-sm text-muted-foreground tracking-wider">
+            Content simplified.
+          </p> -->
+        </div>
 
-          <div class="grid grid-cols-1 gap-8 md:grid-cols-4 lg:gap-14">
-            {FOOTER_SECTIONS.map((section) => (
-              <div class="flex flex-col gap-4 text-sm">
-                <p class="font-medium mb-2">{section.title}</p>
-                {section.links.map((link) => (
-                  <a
-                    href={link.href}
-                    target={link.target}
-                    rel={link.rel}
-                    class="text-muted-foreground underline-offset-2 hover:underline"
-                  >
-                    {link.label}
-                  </a>
-                ))}
-              </div>
-            ))}
-          </div>
+        <div class="grid grid-cols-1 gap-8 md:grid-cols-4 lg:gap-14">
+          {FOOTER_SECTIONS.map((section) => (
+            <div class="flex flex-col gap-4 text-sm">
+              <p class="font-medium mb-2">{section.title}</p>
+              {section.links.map((link) => (
+                <a
+                  href={link.href}
+                  target={link.target}
+                  rel={link.rel}
+                  class="text-muted-foreground underline-offset-2 hover:underline"
+                >
+                  {link.label}
+                </a>
+              ))}
+            </div>
+          ))}
         </div>
-        <div
-          class="flex gap-6 flex-col items-center justify-center md:flex-row lg:items-end lg:justify-between mt-10 lg:mt-20"
-        >
-          <ul class="flex gap-6">
-            {FOOTER_SOCIAL_LINKS.map((link) => {
-              const IconComponent = link.icon;
-              return (
-                <li>
-                  <a
-                    href={link.href}
-                    target={link.target}
-                    rel={link.rel}
-                    aria-label={`${link.label} link to Marble`}
-                    class="text-muted-foreground hover:text-primary transition duration-300"
-                  >
-                    <span class="sr-only">{link.label}</span>
-                    {IconComponent && <IconComponent />}
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
-          <p class="text-xs text-muted-foreground">{copyright}</p>
-        </div>
-      </section>
-    </Container>
-  </div>
-  <div aria-hidden={true} class="h-16 border-t border-dashed">
-    <div
-      class="mx-auto sm:w-[calc(100%-140px)] px-8 md:px-12 lg:px-16 lg:border-x border-dashed h-full"
-    ></div>
-  </div>
+      </div>
+      <div
+        class="flex gap-6 flex-col items-center justify-center md:flex-row lg:items-end lg:justify-between mt-10 lg:mt-20"
+      >
+        <ul class="flex gap-6">
+          {FOOTER_SOCIAL_LINKS.map((link) => {
+            const IconComponent = link.icon;
+            return (
+              <li>
+                <a
+                  href={link.href}
+                  target={link.target}
+                  rel={link.rel}
+                  aria-label={`${link.label} link to Marble`}
+                  class="text-muted-foreground hover:text-primary transition duration-300"
+                >
+                  <span class="sr-only">{link.label}</span>
+                  {IconComponent && <IconComponent />}
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+        <p class="text-xs text-muted-foreground">{copyright}</p>
+      </div>
+    </section>
+  </Container>
 </footer>

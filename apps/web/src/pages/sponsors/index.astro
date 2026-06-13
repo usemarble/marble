@@ -41,29 +41,26 @@
   title={`Our Sponsors & Supporters - ${SITE.TITLE}`}
   description="Meet the amazing companies and individuals that support the development of Marble."
 >
-  <div class="divide-y divide-dashed">
-    <section class="border-t border-dashed">
-      <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
-        <Container class="space-y-10 lg:space-y-16 pt-12 pb-20 lg:py-24">
-          <div
-            class="relative flex flex-col items-center space-y-6 text-center"
+  <div>
+    <section>
+      <Container class="space-y-10 lg:space-y-16 pt-12 pb-20 lg:py-24">
+        <div class="relative flex flex-col items-center space-y-6 text-center">
+          <h1
+            class="relative text-2xl sm:text-3xl md:text-4xl max-w-[25ch] mx-auto"
           >
-            <h1
-              class="relative text-2xl sm:text-3xl md:text-4xl max-w-[25ch] mx-auto"
-            >
-              Our Sponsors & Supporters
-            </h1>
-            <p class="mx-auto max-w-[60ch] md:text-lg text-muted-foreground">
-              We're grateful to the amazing companies and organizations that
-              support the development of Marble.
-            </p>
-          </div>
+            Our Sponsors & Supporters
+          </h1>
+          <p class="mx-auto max-w-[60ch] md:text-lg text-muted-foreground">
+            We're grateful to the amazing companies and organizations that
+            support the development of Marble.
+          </p>
+        </div>
 
-          <ul
-            class="grid gap-8 md:gap-10 grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto"
-          >
-            {sponsorsData.map((sponsor) => (
-              <li class="bg-white p-8 rounded-xl flex flex-col justify-between gap-8 border border-dashed">
+        <ul
+          class="grid gap-8 md:gap-10 grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto"
+        >
+          {sponsorsData.map((sponsor) => (
+              <li class="bg-white p-8 rounded-xl flex flex-col justify-between gap-8">
                 <div class="space-y-6 text-center">
                   <div class="flex items-center justify-center">
                     <a 
@@ -80,7 +77,7 @@
                     {sponsor.description}
                   </p>
                 </div>
-                <div class="pt-6 border-t border-dashed text-center">
+                <div class="pt-6 text-center">
                   <a
                     href={sponsor.url}
                     target="_blank" 
@@ -96,50 +93,47 @@
                 </div>
               </li>
             ))}
-          </ul>
-        </Container>
-      </div>
+        </ul>
+      </Container>
     </section>
 
     <!-- CTA -->
-    <section class="border-b border-dashed">
-      <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
-        <Container class="py-12 md:py-20">
-          <div class="flex flex-col items-center space-y-6">
-            <div class="space-y-4 text-center">
-              <h2
-                class="relative text-center text-balance text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl"
-              >
-                Want to support Marble?
-              </h2>
-              <p
-                class="mx-auto max-w-2xl text-muted-foreground md:text-lg text-balance"
-              >
-                If you would like to support Marble, feel free to reach out.
-              </p>
-            </div>
-
-            <div
-              class="flex flex-col sm:flex-row w-full items-center justify-center gap-4"
+    <section>
+      <Container class="py-12 md:py-20">
+        <div class="flex flex-col items-center space-y-6">
+          <div class="space-y-4 text-center">
+            <h2
+              class="relative text-center text-balance text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl"
             >
-              <ButtonComponent
-                href="https://twitter.com/usemarblecms"
-                target="_blank"
-                class="w-full sm:w-auto"
-              >
-                Reach out on Twitter
-              </ButtonComponent>
-              <ButtonComponent
-                href={SITE.DISCORD_URL}
-                variant="secondary"
-                class="w-full sm:w-auto"
-              >
-                Join the Discord
-              </ButtonComponent>
-            </div>
+              Want to support Marble?
+            </h2>
+            <p
+              class="mx-auto max-w-2xl text-muted-foreground md:text-lg text-balance"
+            >
+              If you would like to support Marble, feel free to reach out.
+            </p>
           </div>
-        </Container>
-      </div>
+
+          <div
+            class="flex flex-col sm:flex-row w-full items-center justify-center gap-4"
+          >
+            <ButtonComponent
+              href="https://twitter.com/usemarblecms"
+              target="_blank"
+              class="w-full sm:w-auto"
+            >
+              Reach out on Twitter
+            </ButtonComponent>
+            <ButtonComponent
+              href={SITE.DISCORD_URL}
+              variant="secondary"
+              class="w-full sm:w-auto"
+            >
+              Join the Discord
+            </ButtonComponent>
+          </div>
+        </div>
+      </Container>
     </section>
   </div>
 </Layout>

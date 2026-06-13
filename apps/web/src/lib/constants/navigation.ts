@@ -77,6 +77,20 @@ export const FOOTER_SECTIONS: FooterSection[] = [
         rel: "noopener",
       },
       {
+        label: "API Reference",
+        href: "https://docs.marblecms.com/api/introduction",
+        external: true,
+        target: "_blank",
+        rel: "noopener",
+      },
+      {
+        label: "MCP Server",
+        href: "https://docs.marblecms.com/guides/mcp",
+        external: true,
+        target: "_blank",
+        rel: "noopener",
+      },
+      {
         label: "Framer Plugin",
         href: "https://www.framer.com/marketplace/plugins/marble",
         external: true,

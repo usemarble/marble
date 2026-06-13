@@ -23,12 +23,10 @@
   description={SITE.DESCRIPTION}
   structuredData={structuredData}
 >
-  <div class="divide-y divide-dashed">
+  <div>
     <!-- Hero section -->
-    <section class="border-t border-dashed">
-      <div
-        class="lg:border-x border-dashed md:w-[calc(100%-140px)] flex flex-col justify-center h-full mx-auto"
-      >
+    <section>
+      <div class="flex h-full flex-col justify-center">
         <Container
           class="py-24 md:py-28 w-full lg:py-36 flex flex-col gap-14 md:gap-28"
         >
@@ -87,21 +85,20 @@
 
     <!--  Social Proof -->
     <section>
-      <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
-        <Container class="py-12">
-          <div class="sr-only">
-            <h2
-              class="relative text-center text-balance text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl"
-            >
-              Trusted by
-            </h2>
-          </div>
-          <ul
-            class="grid gap-4"
-            style="grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));"
+      <Container class="py-12">
+        <div class="sr-only">
+          <h2
+            class="relative text-center text-balance text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl"
           >
-            {USERS.map((user) => (
-              <li class="h-24 rounded-xl bg-white border border-transparent border-dashed hover:border-border transition-colors">
+            Trusted by
+          </h2>
+        </div>
+        <ul
+          class="grid gap-4"
+          style="grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));"
+        >
+          {USERS.map((user) => (
+              <li class="h-24 rounded-xl bg-white transition-colors">
                 <a
                   href={user.url + "?utm_source=marble"}
                   target="_blank"
@@ -121,30 +118,26 @@
                 </a>
               </li>
             ))}
-          </ul>
-        </Container>
-      </div>
+        </ul>
+      </Container>
     </section>
 
     <!-- Features section -->
     <section>
-      <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
-        <Container class="space-y-10 lg:space-y-14 py-20">
-          <div
-            class="relative flex flex-col items-center space-y-3 text-balance"
+      <Container class="space-y-10 lg:space-y-14 py-20">
+        <div class="relative flex flex-col items-center space-y-3 text-balance">
+          <h2
+            class="relative text-center text-balance text-acc text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl"
           >
-            <h2
-              class="relative text-center text-balance text-acc text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl"
-            >
-              Everything you need to publish.
-            </h2>
-            <!-- <p class="max-w-prose md:text-lg text-muted-foreground text-center">
+            Everything you need to publish.
+          </h2>
+          <!-- <p class="max-w-prose md:text-lg text-muted-foreground text-center">
               Everything you need to manage your content.
             </p> -->
-          </div>
+        </div>
 
-          <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
-            {FEATURES.map((feature, index) => (
+        <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
+          {FEATURES.map((feature, index) => (
               <li class="bg-white p-3 rounded-[16px] flex flex-col gap-4 h-full">
                 <div class="overflow-hidden w-full rounded-lg bg-background">
                   <Image
@@ -172,27 +165,23 @@
                 </div>
               </li>
             ))}
-          </ul>
-        </Container>
-      </div>
+        </ul>
+      </Container>
     </section>
 
     <!-- Reviews section -->
     <section>
-      <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
-        <Container class="space-y-10 lg:space-y-14 pt-12 pb-20">
-          <div
-            class="relative flex flex-col items-center space-y-3 text-balance"
+      <Container class="space-y-10 lg:space-y-14 pt-12 pb-20">
+        <div class="relative flex flex-col items-center space-y-3 text-balance">
+          <h2
+            class="relative text-center text-balance text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl"
           >
-            <h2
-              class="relative text-center text-balance text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl"
-            >
-              What people are saying
-            </h2>
-          </div>
+            What people are saying
+          </h2>
+        </div>
 
-          <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {REVIEWS.map((review) => (
+        <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {REVIEWS.map((review) => (
               <li>
                 <a href={review.link} target="_blank" class="bg-white p-6 rounded-xl flex flex-col justify-between gap-8 h-full">
                   <p class="text-muted-foreground leading-relaxed">
@@ -220,9 +209,8 @@
                 </a>
               </li>
             ))}
-          </ul>
-        </Container>
-      </div>
+        </ul>
+      </Container>
     </section>
 
     <!-- Pricing section -->
@@ -230,78 +218,74 @@
 
     <!-- FAQ -->
     <section>
-      <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
-        <Container class="pt-12 pb-20">
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-20">
-            <div
-              class="flex flex-col items-center lg:items-start space-y-4 text-center lg:text-left"
+      <Container class="pt-12 pb-20">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-20">
+          <div
+            class="flex flex-col items-center lg:items-start space-y-4 text-center lg:text-left"
+          >
+            <h2
+              class="relative text-center text-balance text-2xl tracking-tight md:text-3xl lg:text-4xl lg:text-left  md max-w-4xl"
             >
-              <h2
-                class="relative text-center text-balance text-2xl tracking-tight md:text-3xl lg:text-4xl lg:text-left  md max-w-4xl"
-              >
-                Frequently asked Questions
-              </h2>
-              <p
-                class="max-w-prose md:text-lg text-muted-foreground text-balance"
-              >
-                Answers to common questions about marblecms.
-              </p>
-            </div>
+              Frequently asked Questions
+            </h2>
+            <p
+              class="max-w-prose md:text-lg text-muted-foreground text-balance"
+            >
+              Answers to common questions about marblecms.
+            </p>
+          </div>
 
-            <div class="lg:col-span-2 divide-y divide-dashed">
-              {FAQs.map(faq => (
+          <div class="lg:col-span-2">
+            {FAQs.map(faq => (
               <AccordionItem name="details" title={faq.question}>
                 <p class="text-sm faq-answer text-muted-foreground pb-2" set:html={faq.answer} />
               </AccordionItem>
             ))}
-            </div>
           </div>
-        </Container>
-      </div>
+        </div>
+      </Container>
     </section>
 
     <!-- CTA -->
-    <section class="border-b border-dashed">
-      <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
-        <Container class="py-12 md:py-20">
-          <div class="flex flex-col items-center space-y-6">
-            <div class="space-y-4 text-center">
-              <h2
-                class="relative text-center text-balance text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl"
-              >
-                Try Marble today.
-              </h2>
-              <p
-                class="mx-auto max-w-2xl text-muted-foreground md:text-lg text-balance"
-              >
-                A simpler way to publish articles and manage your blog.
-              </p>
-            </div>
-
-            <div
-              class="flex flex-col sm:flex-row w-full items-center justify-center gap-4"
+    <section>
+      <Container class="py-12 md:py-20">
+        <div class="flex flex-col items-center space-y-6">
+          <div class="space-y-4 text-center">
+            <h2
+              class="relative text-center text-balance text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl"
             >
-              <ButtonComponent
-                href={REGISTER_URL}
-                target="_blank"
-                class="w-full sm:w-auto"
-                data-track={TRACKING_EVENTS.signupClicked}
-                data-context="home_bottom_cta"
-                data-label="Try Marble for free"
-              >
-                Try Marble for free
-              </ButtonComponent>
-              <ButtonComponent
-                href={YOUTUBE_WATCH_URL}
-                variant="secondary"
-                class="w-full sm:w-auto"
-              >
-                Watch Demo
-              </ButtonComponent>
-            </div>
+              Try Marble today.
+            </h2>
+            <p
+              class="mx-auto max-w-2xl text-muted-foreground md:text-lg text-balance"
+            >
+              A simpler way to publish articles and manage your blog.
+            </p>
           </div>
-        </Container>
-      </div>
+
+          <div
+            class="flex flex-col sm:flex-row w-full items-center justify-center gap-4"
+          >
+            <ButtonComponent
+              href={REGISTER_URL}
+              target="_blank"
+              class="w-full sm:w-auto"
+              data-track={TRACKING_EVENTS.signupClicked}
+              data-context="home_bottom_cta"
+              data-label="Try Marble for free"
+            >
+              Try Marble for free
+            </ButtonComponent>
+            <ButtonComponent
+              href={YOUTUBE_WATCH_URL}
+              variant="secondary"
+              class="w-full sm:w-auto"
+            >
+              Watch Demo
+            </ButtonComponent>
+          </div>
+        </div>
+      </Container>
     </section>
   </div>
 </Layout>

@@ -16,10 +16,8 @@
   title={`Changelog - ${SITE.TITLE}`}
   description="Follow Marble product updates, feature releases, and improvements."
 >
-  <section class="lg:border-y border-dashed min-h-[calc(100vh-140px)]">
-    <div
-      class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto h-full"
-    >
+  <section class="min-h-[calc(100vh-140px)]">
+    <div class="h-full">
       <Container class="py-20 lg:py-24 h-full">
         <div class="mb-16 space-y-4 max-w-2xl">
           <h1
@@ -31,7 +29,11 @@
             Product improvements and updates.
           </p>
         </div>
-        <ul class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 auto-rows-fr">
+        <ul class="relative flex max-w-4xl flex-col gap-10 md:gap-12">
+          <li
+            aria-hidden="true"
+            class="absolute top-2 bottom-2 left-1.5 w-px bg-border md:left-[11rem]"
+          ></li>
           {entries.map((entry) => (
               <ChangelogCard entry={entry} />
             ))}

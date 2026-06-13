@@ -1,5 +1,4 @@
 ---
-  import { Image } from "astro:assets";
   import type { CollectionEntry } from "astro:content";
 
   interface Props {
@@ -7,7 +6,7 @@
   }
 
   const { entry } = Astro.props as Props;
-  const { title, coverImage, publishedAt, authors, slug, tags } = entry.data;
+  const { title, description, publishedAt, slug, tags } = entry.data;
 
   const formattedDate = new Date(publishedAt).toLocaleDateString("en-US", {
     day: "2-digit",
@@ -16,57 +15,38 @@
     timeZone: "UTC",
   });
 ---
-<li>
-  <a
-    href={`/changelog/${slug}`}
-    class="flex flex-col h-full bg-white border border-dashed rounded-2xl p-1.5 hover:shadow-xs transition-all duration-300 group"
+<li
+  class="relative pl-8 md:grid md:grid-cols-[11rem_minmax(0,1fr)] md:items-start md:gap-7 md:pl-0"
+>
+  <div
+    aria-hidden="true"
+    class="absolute top-1.5 left-0 size-3 rounded-full bg-accent ring-4 ring-background md:left-[10.625rem]"
+  ></div>
+  <time
+    datetime={publishedAt.toISOString()}
+    class="mb-3 block text-muted-foreground text-sm md:pt-1"
   >
-    <div class="w-full aspect-video overflow-hidden rounded-xl bg-gray-50">
-      {coverImage && (
-        <Image
-          src={coverImage}
-           alt={title}
-           loading="eager"
-          inferSize
-          class='w-full h-full object-cover group-hover:scale-105 transition-transform duration-500'
-        />
-      )}
-    </div>
-    <div class="flex flex-col gap-4 px-3 py-4 flex-1">
+    {formattedDate}
+  </time>
+  <a href={`/changelog/${slug}`} class="group px-5 transition-colors md:px-6">
+    <div class="flex flex-col gap-4">
       <div class="space-y-2">
-        <h2 class="text-xl font-medium leading-snug">{title}</h2>
-        <!-- <p class='text-muted-foreground text-sm line-clamp-2'>{description}</p> -->
+        <h2
+          class="text-xl font-medium leading-snug transition-colors group-hover:text-accent"
+        >
+          {title}
+        </h2>
+        <p class="text-muted-foreground text-sm leading-relaxed md:text-base">
+          {description}
+        </p>
       </div>
-      <div class="flex items-center flex-wrap gap-3 justify-between mt-auto">
-        <div class="flex items-center gap-2">
-          <div class="flex items-center gap-2">
-            <Image
-              src={authors[0].image || "/og-blog.jpg"}
-              alt={authors[0].name}
-              class="size-6 rounded-full ring-1 ring-border"
-              inferSize
-            />
-            <p class="text-muted-foreground sr-only text-xs font-medium">
-              {authors[0].name}
-            </p>
-          </div>
-          <span class="h-3 w-px bg-border shrink-0"></span>
-          <time
-            datetime={publishedAt.toString()}
-            class="text-muted-foreground text-xs font-medium"
-          >
-            {formattedDate}
-          </time>
-        </div>
-
-        <div class="flex items-center gap-2">
-          {tags.map((tag) => (
-            <span class="text-muted-foreground text-xs bg-secondary px-2 py-0.5 rounded-md border border-transparent group-hover:border-border transition-colors">
-              #
-              {tag.name}
-            </span>
-          ))}
-        </div>
+      <div class="flex flex-wrap items-center gap-3">
+        {tags.map((tag) => (
+          <span class="rounded-md bg-secondary px-2 py-0.5 text-muted-foreground text-xs">
+            #
+            {tag.name}
+          </span>
+        ))}
       </div>
     </div>
   </a>

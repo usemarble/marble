@@ -5,41 +5,40 @@
   import { cn } from "@/lib/utils";
 ---
 <section>
-  <div class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto">
-    <Container class="space-y-10 lg:space-y-14 py-20">
-      <div class="relative flex flex-col items-center space-y-4">
-        <h2
-          class="relative text-center text-balance text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl"
-        >
-          Simple Pricing
-        </h2>
-        <p class="max-w-prose md:text-lg text-muted-foreground text-center">
-          Choose a plan that fits your needs.
-        </p>
-      </div>
-
-      <!-- Billing Toggle -->
-      <div class="flex items-center justify-center gap-3">
-        <span class="text-sm text-muted-foreground">Monthly</span>
-        <button
-          id="billing-toggle"
-          type="button"
-          role="switch"
-          aria-checked="false"
-          class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-muted transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-        >
-          <span
-            id="toggle-thumb"
-            class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-0"
-          ></span>
-        </button>
-        <span class="text-sm text-muted-foreground">Yearly</span>
-      </div>
-
-      <ul
-        class="flex flex-col items-center md:items-stretch justify-center gap-5 md:flex-row"
+  <Container class="space-y-10 lg:space-y-14 py-20">
+    <div class="relative flex flex-col items-center space-y-4">
+      <h2
+        class="relative text-center text-balance text-2xl tracking-tight md:text-3xl lg:text-4xl max-w-4xl"
       >
-        {PRICING_PLANS.map((plan, index) => (
+        Simple Pricing
+      </h2>
+      <p class="max-w-prose md:text-lg text-muted-foreground text-center">
+        Choose a plan that fits your needs.
+      </p>
+    </div>
+
+    <!-- Billing Toggle -->
+    <div class="flex items-center justify-center gap-3">
+      <span class="text-sm text-muted-foreground">Monthly</span>
+      <button
+        id="billing-toggle"
+        type="button"
+        role="switch"
+        aria-checked="false"
+        class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-muted transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      >
+        <span
+          id="toggle-thumb"
+          class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-0"
+        ></span>
+      </button>
+      <span class="text-sm text-muted-foreground">Yearly</span>
+    </div>
+
+    <ul
+      class="flex flex-col items-center md:items-stretch justify-center gap-5 md:flex-row"
+    >
+      {PRICING_PLANS.map((plan, index) => (
           <li class={cn("min-w-[300px] w-full max-w-[350px] rounded-xl", index === 2 && 'sm:col-span-2 lg:col-span-1 sm:h-fit')}>
             <div class={cn("flex flex-col gap-5 rounded-xl bg-white w-full px-4 py-6", index === 2 ? 'sm:flex-row sm:px-14 sm:py-10 lg:py-6 sm:justify-center sm:gap-20 lg:gap-4 lg:px-4 lg:flex-col min-h-96 sm:min-h-fit lg:min-h-96' : 'min-h-96 h-full')}>
               {index === 2 ? (
@@ -61,7 +60,7 @@
                         </p>
                       </div>
                     </div>
-                    <div class="border-y border-dashed py-4">
+                    <div class="py-4">
                       <Button 
                         href={plan.button.href}
                         target="_blank"
@@ -100,7 +99,7 @@
                       </p>
                     </div>
                   </div>
-                  <div class="border-y border-dashed py-4">
+                  <div class="py-4">
                     <Button 
                       href={plan.button.href}
                       target="_blank"
@@ -125,9 +124,8 @@
             </div>
           </li>
         ))}
-      </ul>
-    </Container>
-  </div>
+    </ul>
+  </Container>
 </section>
 
 <script>

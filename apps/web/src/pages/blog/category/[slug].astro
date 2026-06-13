@@ -26,19 +26,14 @@
 
   const categoriesEntries = await getCollection("categories");
   const { result } = await marble.posts.list({ categories: [entry.data.slug] });
-  const fillers = Array.from({
-    length: (3 - (result.posts.length % 3)) % 3,
-  });
 ---
 <Layout
   title={`${entry.data.name} - ${SITE.TITLE}`}
   description={entry.data.description}
   canonical="/blog"
 >
-  <section class="lg:border-y border-dashed min-h-[calc(100vh-140px)]">
-    <div
-      class="lg:border-x border-dashed md:w-[calc(100%-140px)] mx-auto h-full"
-    >
+  <section class="min-h-[calc(100vh-140px)]">
+    <div class="h-full">
       <Container class="py-20 lg:py-24 h-full">
         <div
           class="mb-16 flex flex-col items-start gap-4 md:flex-row md:items-end md:justify-between"
@@ -58,15 +53,12 @@
           </div>
         </div>
         {result.posts.length > 0 ? (
-          <ul class='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-t border-l border-dashed'>
+          <ul class='grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 lg:gap-6'>
             {
               result.posts.map((post) => (
                 <CategoryCard entry={post} />
               ))
             }
-            {fillers.map(() => (
-              <li class="border-b border-r border-dashed bg-white hidden md:block h-full" />
-            ))}
           </ul>
         ) : (
           <p class='text-muted-foreground text-center text-sm md:text-base'>No posts found</p>
