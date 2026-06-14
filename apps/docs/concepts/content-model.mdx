@@ -1,0 +1,141 @@
+---
+title: "Content Model"
+description: "How Marble structures content — posts, authors, categories, and tags — and how each maps to the API."
+---
+
+Marble's content model is intentionally small. Everything centers on the **post**, which is connected to **authors**, a **category**, **tags**, and optional **custom fields**. Understanding how these relate makes it straightforward to query and render content from your frontend.
+
+## The entities at a glance
+
+| Entity | What it is | Relationship to a post |
+| ------ | ---------- | ---------------------- |
+| **Post** | A single piece of content (an article, a changelog entry, a page). | The core entity. |
+| **Author** | A byline — name, bio, avatar, and social links. | A post has one or more authors. |
+| **Category** | A single primary grouping for a post. | A post belongs to exactly one category. |
+| **Tag** | A lightweight, flexible label. | A post can have many tags. |
+| **Custom field** | Workspace-defined metadata. | Optional extra values on a post. |
+
+<Note>
+  Every entity is scoped to a [workspace](/concepts/workspaces) and has a
+  URL-friendly `slug` that's unique within that workspace. You can fetch most
+  resources by either their `id` or their `slug`.
+</Note>
+
+## Posts
+
+A post is the unit of content you write in the [editor](/features/editor). Beyond its title and body, a post carries the metadata your frontend needs to render and route it.
+
+Key fields returned by the API:
+
+| Field | Description |
+| ----- | ----------- |
+| `id` | Unique identifier. |
+| `slug` | URL-friendly identifier, unique per workspace. |
+| `title` | The post title. |
+| `description` | Short summary, useful for previews and SEO meta tags. |
+| `content` | The body, returned as HTML or Markdown (see [content format](#content-format)). |
+| `status` | `published` or `draft`. |
+| `featured` | Whether the post is flagged as featured. |
+| `coverImage` | URL of the cover image, or `null`. |
+| `publishedAt` | Publish timestamp (ISO 8601, UTC). |
+| `updatedAt` | Last-updated timestamp. |
+| `authors` | Array of author objects. |
+| `category` | The post's single category. |
+| `tags` | Array of tag objects. |
+| `fields` | Custom field values, keyed by field key. |
+
+### Content format
+
+Post content can be delivered as **HTML** (default) or **Markdown** using the `format` query parameter — useful if you'd rather render Markdown yourself on the frontend:
+
+```bash
+curl -H "Authorization: YOUR_API_KEY" \
+  "https://api.marblecms.com/v1/posts?format=markdown"
+```
+
+### Status and drafts
+
+A post is either `published` or `draft`. By default the API returns only published posts. Pass `status=draft` or `status=all` to include unpublished content — handy for building a preview environment.
+
+## Authors
+
+An **author** is a byline you attach to posts. Authors are managed at the workspace level and reused across posts, so updating an author's bio updates it everywhere.
+
+An author includes `name`, `slug`, `bio`, `image`, `role`, and an array of `socials` (each with a `platform` and `url`). A post can have **multiple authors**, with one designated as the primary author.
+
+<Tip>
+  Authors are distinct from workspace **members**. A member has dashboard access;
+  an author is a byline that may or may not correspond to a member. See
+  [Workspaces & Teams](/concepts/workspaces#team-members-and-roles).
+</Tip>
+
+## Categories
+
+A **category** is the single, primary grouping for a post — think "Engineering", "Product", or "Changelog". Each post belongs to **exactly one** category, which makes categories ideal for top-level sections and routing (e.g. `/blog/[category]/[slug]`).
+
+A category has a `name`, `slug`, and optional `description`. You can filter posts by category, or exclude categories, when listing posts:
+
+```bash
+# Only posts in the "engineering" or "product" categories
+curl -H "Authorization: YOUR_API_KEY" \
+  "https://api.marblecms.com/v1/posts?categories=engineering,product"
+
+# Everything except the "changelog" category
+curl -H "Authorization: YOUR_API_KEY" \
+  "https://api.marblecms.com/v1/posts?excludeCategories=changelog"
+```
+
+## Tags
+
+A **tag** is a lightweight, flexible label. Unlike categories, a post can have **many tags**, making them well suited to cross-cutting topics like "javascript", "tutorial", or "release". Tags have the same shape as categories (`name`, `slug`, `description`) and support the same include/exclude filtering via the `tags` and `excludeTags` parameters.
+
+<Info>
+  **Category vs. tag:** use a single **category** for the primary section a post
+  belongs to, and **tags** for the many topics it touches.
+</Info>
+
+## Custom fields
+
+Custom fields let you extend the post schema with workspace-specific metadata — a release date, a priority score, a list of related links — without changing your code on the CMS side. Field values come back on each post under `fields`, keyed by the field's key. See [Custom Fields](/features/custom-fields) for setup and the full list of field types.
+
+## How it maps to the API
+
+When you fetch a post, the related entities are embedded directly in the response, so a single request gives you everything you need to render it:
+
+```json
+{
+  "post": {
+    "id": "cryitfjp5678mn09qrstuvwx",
+    "slug": "getting-started-with-nextjs",
+    "title": "Getting Started with Next.js",
+    "status": "published",
+    "description": "A beginner's guide to Next.js",
+    "coverImage": "https://media.marblecms.com/cover.jpg",
+    "publishedAt": "2024-01-15T10:00:00Z",
+    "authors": [
+      { "name": "John Doe", "slug": "john-doe", "image": "...", "socials": [] }
+    ],
+    "category": { "name": "Engineering", "slug": "engineering" },
+    "tags": [{ "name": "Next.js", "slug": "nextjs" }],
+    "fields": { "release_date": "2024-01-15" },
+    "content": "<p>Hello world</p>"
+  }
+}
+```
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Custom Fields" href="/features/custom-fields" icon="sliders">
+    Extend posts with your own metadata.
+  </Card>
+  <Card title="Filtering" href="/api/filtering" icon="filter">
+    Query posts by category, tag, and search.
+  </Card>
+  <Card title="API Reference" href="/api/introduction" icon="code">
+    Full endpoint reference for every resource.
+  </Card>
+  <Card title="TypeScript SDK" href="/tools/sdk" icon="wrench">
+    Typed access to posts, authors, categories, and tags.
+  </Card>
+</CardGroup>

@@ -2,9 +2,10 @@
   "name": "docs",
   "private": true,
   "scripts": {
-    "dev": "mint dev"
+    "dev": "mint dev --port 3005 --no-open",
+    "open": "mint dev --port 3005"
   },
   "devDependencies": {
-    "mint": "^4.2.0"
+    "mint": "^4.2.616"
   }
 }

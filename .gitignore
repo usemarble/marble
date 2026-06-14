@@ -47,7 +47,7 @@ yarn-error.log*
 .cursor/skills/
 .claude/skills/
 
-docs
+/docs
 
 # Local only references
 school/

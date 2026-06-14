@@ -1,0 +1,98 @@
+---
+title: "What Is a Headless CMS?"
+sidebarTitle: "Headless CMS"
+description: "What a headless CMS is, how it differs from traditional platforms, and where Marble fits."
+---
+
+A **headless CMS** is a content management system that stores and organizes your content, then delivers it over an API — without dictating how or where that content is displayed. The "head" (the frontend that visitors see) is decoupled from the "body" (the place you write and manage content).
+
+Marble is a headless CMS: you write posts in a clean dashboard, and your content is served as JSON through a [REST API](/api/introduction) that any frontend can consume.
+
+## Traditional vs. headless
+
+In a **traditional (or monolithic) CMS** like WordPress, the editing experience, the database, and the public website are all bundled into one system. The CMS renders your pages and ships the HTML to the browser. This is convenient, but it ties your content to a specific stack, theming system, and hosting model.
+
+A **headless CMS** splits these concerns apart:
+
+<CardGroup cols={2}>
+  <Card title="Traditional CMS" icon="server">
+    Content + presentation are coupled. The CMS renders and serves the final
+    HTML. You build with its themes and plugins.
+  </Card>
+  <Card title="Headless CMS" icon="plug">
+    Content is delivered as data over an API. You build the frontend with any
+    framework and fetch content into it.
+  </Card>
+</CardGroup>
+
+## Why go headless?
+
+<CardGroup cols={2}>
+  <Card title="Use any framework" icon="code">
+    Pull the same content into Next.js, Astro, TanStack Start, a mobile app, or
+    anything that can call an API.
+  </Card>
+  <Card title="Better performance" icon="gauge">
+    Statically generate or cache pages on your own frontend instead of rendering
+    on every request.
+  </Card>
+  <Card title="Own your frontend" icon="paintbrush">
+    No theme system to fight. Your design, your components, your stack.
+  </Card>
+  <Card title="Content everywhere" icon="arrows-split-up-and-left">
+    One source of content can power a website, a newsletter, and an app at once.
+  </Card>
+</CardGroup>
+
+### Trade-offs to know
+
+A headless CMS hands you flexibility, but you bring your own frontend. There's no built-in theme that renders pages for you — you fetch content and decide how to display it. For developers building custom sites, that's the point. If you only need a templated blog with zero code, a traditional CMS may be simpler.
+
+## When to choose Marble
+
+Marble is a good fit when you want:
+
+- A **clean writing experience** for yourself or a team, without a bloated admin.
+- To build your site with a **modern framework** and just need a content source.
+- A **simple, predictable API** instead of GraphQL schemas and complex configuration.
+
+<Info>
+  Marble keeps content and presentation cleanly separated — you manage posts in
+  the dashboard, and your frontend stays entirely yours.
+</Info>
+
+## How content flows in Marble
+
+<Steps>
+  <Step title="Write in the dashboard">
+    Create posts in the [editor](/features/editor) and organize them with
+    authors, categories, and tags.
+  </Step>
+  <Step title="Publish">
+    Set a post's status to published. It becomes available through the API.
+  </Step>
+  <Step title="Fetch from your frontend">
+    Call the [REST API](/api/introduction) or use the
+    [TypeScript SDK](/tools/sdk) to pull content into your app.
+  </Step>
+  <Step title="Render however you like">
+    Display the returned JSON with your own components and design.
+  </Step>
+</Steps>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Workspaces & Teams" href="/concepts/workspaces" icon="users">
+    How Marble organizes content and collaborators.
+  </Card>
+  <Card title="Content Model" href="/concepts/content-model" icon="diagram-project">
+    Posts, authors, categories, and tags explained.
+  </Card>
+  <Card title="Quickstart" href="/quickstart" icon="rocket">
+    Set up your workspace and publish your first post.
+  </Card>
+  <Card title="API Reference" href="/api/introduction" icon="code">
+    Explore the endpoints that deliver your content.
+  </Card>
+</CardGroup>

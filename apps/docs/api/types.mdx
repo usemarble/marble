@@ -4,7 +4,7 @@ description: "TypeScript type definitions for Marble API responses."
 ---
 
 <Tip>
-  **We recommend using the [TypeScript SDK](/guides/sdk)** for the best
+  **We recommend using the [TypeScript SDK](/tools/sdk)** for the best
   developer experience. The SDK is fully type-safe and exports all up-to-date
   types automatically.
 </Tip>
@@ -42,15 +42,18 @@ export type Post = {
   id: string;
   slug: string;
   title: string;
+  status: "published" | "draft";
   content: string;
   featured: boolean;
   description: string;
-  coverImage: string;
+  coverImage: string | null;
   publishedAt: Date;
   updatedAt: Date;
   authors: Author[];
   category: Omit<Category, "count">;
   tags: Omit<Tag, "count">[];
+  // Custom field values, keyed by field key
+  fields: Record<string, string | number | boolean | string[] | null>;
 };
 
 export type Pagination = {
@@ -116,6 +119,10 @@ export type Author = {
   bio: string | null;
   role: string | null;
   socials: Social[];
+  // Present on list/detail endpoints, omitted when embedded in a post
+  count?: {
+    posts: number;
+  };
 };
 
 export type Social = {
@@ -125,6 +132,7 @@ export type Social = {
 
 export type SocialPlatform =
   | "x"
+  | "twitter"
   | "github"
   | "facebook"
   | "instagram"
@@ -182,10 +190,11 @@ const PostSchema = z.object({
   id: z.string(),
   slug: z.string(),
   title: z.string(),
+  status: z.enum(["published", "draft"]),
   content: z.string(),
   featured: z.boolean(),
   description: z.string(),
-  coverImage: z.string().url(),
+  coverImage: z.string().url().nullable(),
   publishedAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
   authors: z.array(
@@ -213,6 +222,16 @@ const PostSchema = z.object({
       description: z.string().nullable(),
     })
   ),
+  fields: z.record(
+    z.string(),
+    z.union([
+      z.string(),
+      z.number(),
+      z.boolean(),
+      z.array(z.string()),
+      z.null(),
+    ])
+  ),
 });
 
 const PaginationSchema = z.object({
@@ -231,6 +250,7 @@ export const SocialSchema = z.object({
 
 export const SocialPlatformSchema = z.enum([
   "x",
+  "twitter",
   "github",
   "facebook",
   "instagram",

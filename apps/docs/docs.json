@@ -43,49 +43,62 @@
       "mcp"
     ]
   },
+  "redirects": [
+    { "source": "/guides/introduction", "destination": "/introduction" },
+    { "source": "/guides/quickstart", "destination": "/quickstart" },
+    { "source": "/guides/sdk", "destination": "/tools/sdk" },
+    { "source": "/guides/mcp", "destination": "/tools/mcp" },
+    { "source": "/guides/features/:slug*", "destination": "/features/:slug*" },
+    {
+      "source": "/guides/integrations/:slug*",
+      "destination": "/integrations/:slug*"
+    },
+    { "source": "/guides/recipes/:slug*", "destination": "/recipes/:slug*" },
+    { "source": "/api/getting-started", "destination": "/api/quickstart" }
+  ],
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Documentation",
         "groups": [
           {
-            "group": "Get Started",
-            "icon": "rocket",
-            "pages": [
-              "guides/introduction",
-              "guides/quickstart",
-              "guides/sdk",
-              "guides/mcp"
-            ]
+            "group": "Getting Started",
+            "pages": ["introduction", "quickstart"]
           },
           {
-            "group": "Integrations",
-            "icon": "plug",
+            "group": "Concepts",
             "pages": [
-              "guides/integrations/astro",
-              "guides/integrations/framer",
-              "guides/integrations/nextjs",
-              "guides/integrations/tanstack"
+              "concepts/headless-cms",
+              "concepts/workspaces",
+              "concepts/content-model"
             ]
           },
           {
             "group": "Features",
-            "icon": "sparkles",
             "pages": [
-              "guides/features/editor",
-              "guides/features/custom-fields",
-              "guides/features/media",
-              "guides/features/webhooks",
-              "guides/features/import"
+              "features/editor",
+              "features/custom-fields",
+              "features/media",
+              "features/webhooks",
+              "features/import"
             ]
           },
           {
-            "group": "Recipes",
-            "icon": "book-open",
+            "group": "Integrations",
             "pages": [
-              "guides/recipes/reading-time",
-              "guides/recipes/code-highlighting"
+              "integrations/nextjs",
+              "integrations/astro",
+              "integrations/tanstack",
+              "integrations/framer"
             ]
+          },
+          {
+            "group": "Tools",
+            "pages": ["tools/sdk", "tools/mcp"]
+          },
+          {
+            "group": "Recipes",
+            "pages": ["recipes/reading-time", "recipes/code-highlighting"]
           }
         ]
       },
@@ -94,11 +107,10 @@
         "openapi": "https://api.marblecms.com/openapi.json",
         "groups": [
           {
-            "group": "Get Started",
-            "icon": "rocket",
+            "group": "Getting Started",
             "pages": [
               "api/introduction",
-              "api/getting-started",
+              "api/quickstart",
               "api/pagination",
               "api/filtering",
               "api/rate-limits",
@@ -107,7 +119,6 @@
           },
           {
             "group": "Posts",
-            "icon": "file-text",
             "pages": [
               "GET /v1/posts",
               "GET /v1/posts/{identifier}",
@@ -118,7 +129,6 @@
           },
           {
             "group": "Authors",
-            "icon": "users",
             "pages": [
               "GET /v1/authors",
               "GET /v1/authors/{identifier}",
@@ -129,7 +139,6 @@
           },
           {
             "group": "Categories",
-            "icon": "folder",
             "pages": [
               "GET /v1/categories",
               "GET /v1/categories/{identifier}",
@@ -140,7 +149,6 @@
           },
           {
             "group": "Tags",
-            "icon": "tag",
             "pages": [
               "GET /v1/tags",
               "GET /v1/tags/{identifier}",
@@ -151,7 +159,6 @@
           },
           {
             "group": "Media",
-            "icon": "image",
             "pages": [
               "GET /v1/media",
               "GET /v1/media/{id}",

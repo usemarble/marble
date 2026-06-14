@@ -26,7 +26,7 @@ export const FEATURES = [
       "Upload, organize, and manage your images and videos in one place. media files are served from a globally distributed CDN for instant loading.",
     link: {
       text: "Learn more",
-      href: "https://docs.marblecms.com/guides/features/media",
+      href: "https://docs.marblecms.com/features/media",
     },
     image: mediaImage,
   },
@@ -36,7 +36,7 @@ export const FEATURES = [
       "Trigger external workflows instantly when your content changes. Integrate with your favorite tools.",
     link: {
       text: "Learn more",
-      href: "https://docs.marblecms.com/guides/features/webhooks",
+      href: "https://docs.marblecms.com/features/webhooks",
     },
     image: webhooksImage,
   },
@@ -46,7 +46,7 @@ export const FEATURES = [
       "Get Real-time readability scores, and optimization tips powered by AI to improve your writing.",
     link: {
       text: "Learn more",
-      href: "https://docs.marblecms.com/guides/features/editor#analysis-tab",
+      href: "https://docs.marblecms.com/features/editor#analysis-tab",
     },
     image: contentIntelImage,
   },

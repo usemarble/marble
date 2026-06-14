@@ -1,0 +1,60 @@
+---
+title: "Framer Integration"
+sidebarTitle: "Framer"
+description: "Sync Marble content to Framer CMS with the Marble plugin."
+---
+
+The Marble plugin syncs content from your Marble workspace into Framer CMS collections. No code required—you install the plugin from the Framer Marketplace, connect your workspace, and import with one click.
+
+<Frame>
+  <video autoPlay loop muted playsInline controls className="w-full aspect-video rounded-xl">
+    <source src="/images/framer-setup.mp4" type="video/mp4" />
+  </video>
+</Frame>
+
+<Card title="Open Plugin" icon="plug" href="https://www.framer.com/marketplace/plugins/marble/">
+  Install the Marble plugin from the Framer Marketplace.
+</Card>
+
+## Before you start
+
+- A Marble workspace with at least one published post
+- A Framer project and account
+- The Marble plugin installed from the Framer Marketplace
+
+<Steps>
+<Step title="Create an API key">
+Sign in at [marblecms.com](https://marblecms.com), go to **Settings → API Keys**, and create an API key.
+
+<Tip>
+A **public (read-only)** key is all Framer needs, since the plugin only reads your content. Keep the key private—you'll enter it in the Framer plugin UI when configuring the connection.
+</Tip>
+</Step>
+
+<Step title="Add the plugin in Framer">
+Add a CMS collection in your Framer project and attach the Marble plugin from the [Framer Marketplace](https://www.framer.com/marketplace/plugins/marble/). The plugin creates a **managed collection**—it controls the field structure and items, so there's no manual CMS setup.
+</Step>
+
+<Step title="Configure and import">
+Enter your API key, choose a source (Posts, Categories, Tags, Authors, or Media), then map Marble fields to your CMS fields. You can keep the defaults, exclude fields you don't need, or rename them in Framer. Click **Import** when you're done.
+
+<Tip>
+For posts, map the Marble **slug** to your Framer slug field. This keeps your Framer URLs aligned with the slugs you already manage in Marble.
+</Tip>
+</Step>
+</Steps>
+
+## Features
+
+- One-click sync via the CMS toolbar
+- Map posts, categories, tags, authors, and media to CMS fields
+- Support for rich text, images, dates, and more
+- Simple workspace connection and field mapping
+
+## Keeping content in sync
+
+Re-run the plugin whenever you add or update content in Marble. The plugin matches items by ID, so each sync **updates** existing entries, **adds** new ones, and **removes** items that no longer exist in your workspace.
+
+<Card title="Full walkthrough on the blog" icon="newspaper" href="https://marblecms.com/blog/marble-framer">
+  Prefer a detailed, step-by-step writeup? Read the complete Framer setup guide.
+</Card>

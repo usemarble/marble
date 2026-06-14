@@ -1,0 +1,78 @@
+---
+title: "Workspaces & Teams"
+sidebarTitle: "Workspaces & Teams"
+description: "How Marble organizes content into workspaces and manages team members and roles."
+---
+
+A **workspace** is the top-level container for everything in Marble. Each workspace holds its own posts, media, authors, categories, tags, custom fields, API keys, and team members — fully isolated from every other workspace.
+
+<Note>
+  Think of a workspace as a single project: a personal blog, a company website,
+  or a documentation site. If you manage multiple sites, create a separate
+  workspace for each.
+</Note>
+
+## What lives in a workspace
+
+<CardGroup cols={2}>
+  <Card title="Content" icon="file-lines">
+    Posts, authors, categories, and tags — see the
+    [content model](/concepts/content-model).
+  </Card>
+  <Card title="Media" icon="image">
+    Images and video uploaded to the workspace's [media library](/features/media).
+  </Card>
+  <Card title="Custom fields" icon="sliders">
+    Workspace-specific [metadata fields](/features/custom-fields) added to posts.
+  </Card>
+  <Card title="API keys" icon="key">
+    Keys that scope API access to this workspace's content.
+  </Card>
+</CardGroup>
+
+## Workspaces and the API
+
+A workspace is also the **boundary for API access**. Every API key belongs to a single workspace, so a key only ever returns content from that workspace. This keeps your projects cleanly separated — there's no way for one site's key to read another site's posts.
+
+Create and manage keys from **Settings → API Keys** in your dashboard. See [API Authentication](/api/quickstart) to make your first request.
+
+## Team members and roles
+
+Invite collaborators to a workspace from **Settings → Members**. Each member has a role that determines what they can do:
+
+| Role | Description |
+| ---- | ----------- |
+| **Owner** | Full control of the workspace, including billing, deleting the workspace, and managing the logo and members. There is one owner per workspace. |
+| **Admin** | Manage content and members, but cannot perform owner-only actions like deleting the workspace. |
+| **Member** | Write, edit, and publish content within the workspace. |
+
+<Steps>
+  <Step title="Open member settings">
+    Go to your workspace dashboard and open **Settings → Members**.
+  </Step>
+  <Step title="Send an invite">
+    Enter the person's email and choose a role. They'll receive an invitation to
+    join.
+  </Step>
+  <Step title="They accept and start writing">
+    Once accepted, they appear in the members list and can collaborate on
+    content.
+  </Step>
+</Steps>
+
+<Tip>
+  Workspace members and **authors** are related but distinct. A member is someone
+  with dashboard access; an author is a byline attached to posts. See the
+  [content model](/concepts/content-model#authors) for how they connect.
+</Tip>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Content Model" href="/concepts/content-model" icon="diagram-project">
+    How posts, authors, categories, and tags fit together.
+  </Card>
+  <Card title="API Keys" href="/api/quickstart" icon="key">
+    Create a key and make your first request.
+  </Card>
+</CardGroup>

@@ -1,21 +1,16 @@
 ---
-title: "TanStack Start"
-description: "Integrate Marble in your TanStack Start application"
+title: "Next.js Integration"
+sidebarTitle: "Next.js"
+description: "Add a headless CMS to your Next.js app — fetch, render, and revalidate Marble content."
 ---
 
-Getting your content to your TanStack Start site is as simple as using the Marble SDK. This guide will walk you through setting up a blog with Marble and TanStack Start.
+Getting your content to your Next.js site is as simple as using the Marble SDK. This guide will walk you through setting up a blog with Marble and Next.js.
 
-If you want to get started quickly, you can clone our [TanStack Start blog template](https://github.com/usemarble/tanstack-start-example).
-
-To create a new TanStack Start project, run:
-
-```bash
-npx create-start-app@latest
-```
+If you want to get started quickly, you can clone our [Next.js blog template](https://github.com/usemarble/nextjs-example).
 
 <Steps>
 <Step title="Install the SDK">
-Install the Marble SDK in your TanStack Start project:
+Install the Marble SDK in your Next.js project:
 
 <CodeGroup>
 ```bash npm
@@ -38,9 +33,9 @@ bun add @usemarble/sdk
 </Step>
 
 <Step title="Set up environment variables">
-Add your Marble API key to your environment variables. Create a `.env` file in the root of your TanStack Start project:
+Add your Marble API key to your environment variables. Create a `.env.local` file in the root of your Next.js project:
 
-```bash .env
+```bash .env.local
 MARBLE_API_KEY=your_api_key_here
 ```
 
@@ -69,35 +64,27 @@ export const marble = new Marble({
 </Step>
 
 <Step title="Display a list of posts">
-Use the Marble client in a TanStack Start route to fetch and display your posts. Create a file at `src/routes/posts/index.tsx`:
+Use the Marble client in a Next.js page to fetch and display your posts:
 
-```tsx src/routes/posts/index.tsx
-import { createFileRoute, Link } from "@tanstack/react-router";
+```tsx app/blog/page.tsx
 import { marble } from "@/lib/marble";
 
-export const Route = createFileRoute("/posts/")({
-  component: PostsPage,
-  loader: async () => {
-    const result = await marble.posts.list({ limit: 10 });
-    const data = await result.next();
-    return { posts: data.value?.posts ?? [] };
-  },
-});
+// Revalidate this page every hour
+export const revalidate = 3600;
 
-function PostsPage() {
-  const { posts } = Route.useLoaderData();
+export default async function BlogPage() {
+  const result = await marble.posts.list({ limit: 10 });
 
-  if (!posts.length) return <div>No posts found</div>;
+  // Get the first page of results
+  const data = await result.next();
+  const posts = data.value?.posts ?? [];
 
   return (
     <section>
-      <h1>Posts</h1>
       <ul>
         {posts.map((post) => (
           <li key={post.id}>
-            <Link to="/posts/$slug" params={{ slug: post.slug }}>
-              {post.title}
-            </Link>
+            <a href={`/blog/${post.slug}`}>{post.title}</a>
           </li>
         ))}
       </ul>
@@ -109,23 +96,18 @@ function PostsPage() {
 </Step>
 
 <Step title="Display a single post">
-Create a dynamic route at `src/routes/posts/$slug.tsx` to display individual posts:
+Create a dynamic route at `app/blog/[slug]/page.tsx` to display individual posts:
 
-```tsx src/routes/posts/$slug.tsx
-import { createFileRoute } from "@tanstack/react-router";
+```tsx app/blog/[slug]/page.tsx
 import { marble } from "@/lib/marble";
 
-export const Route = createFileRoute("/posts/$slug")({
-  component: PostPage,
-  loader: async ({ params }) => {
-    return await marble.posts.get({ identifier: params.slug });
-  },
-});
-
-function PostPage() {
-  const { post } = Route.useLoaderData();
-
-  if (!post) return <div>Post not found</div>;
+export default async function PostPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const { post } = await marble.posts.get({ identifier: slug });
 
   return (
     <div>
@@ -154,7 +136,7 @@ npm install -D @tailwindcss/typography
 
 Add it to your Tailwind CSS configuration. If you're using Tailwind CSS v4:
 
-```css src/styles.css
+```css app/globals.css
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 ```
@@ -173,9 +155,9 @@ module.exports = {
 };
 ```
 
-Now create a `Prose` component that you can use to style your content. Create `components/Prose.tsx`:
+Now create a `Prose` component that you can use to style your content. Create `components/prose.tsx`:
 
-```tsx components/Prose.tsx
+```tsx components/prose.tsx
 import { cn } from "@/lib/utils";
 import type { HTMLAttributes } from "react";
 
@@ -206,22 +188,17 @@ export function Prose({ children, html, className }: ProseProps) {
 
 Now you can update your post page to use the `Prose` component:
 
-```tsx src/routes/posts/$slug.tsx
-import { createFileRoute } from "@tanstack/react-router";
+```tsx app/blog/[slug]/page.tsx
 import { marble } from "@/lib/marble";
-import { Prose } from "@/components/Prose";
+import { Prose } from "@/components/prose";
 
-export const Route = createFileRoute("/posts/$slug")({
-  component: PostPage,
-  loader: async ({ params }) => {
-    return await marble.posts.get({ identifier: params.slug });
-  },
-});
-
-function PostPage() {
-  const { post } = Route.useLoaderData();
-
-  if (!post) return <div>Post not found</div>;
+export default async function PostPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const { post } = await marble.posts.get({ identifier: slug });
 
   return (
     <div>

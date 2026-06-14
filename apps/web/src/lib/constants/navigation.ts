@@ -85,7 +85,7 @@ export const FOOTER_SECTIONS: FooterSection[] = [
       },
       {
         label: "MCP Server",
-        href: "https://docs.marblecms.com/guides/mcp",
+        href: "https://docs.marblecms.com/tools/mcp",
         external: true,
         target: "_blank",
         rel: "noopener",
