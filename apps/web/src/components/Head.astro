@@ -42,7 +42,7 @@
     description: SITE.DESCRIPTION,
     url: SITE.URL,
     twitterUrl: SITE.TWITTER_URL,
-    githubUrl: "https://github.com/usemarble",
+    githubUrl: SITE.GITHUB_URL,
     logoUrl: new URL("/logo.svg", SITE.URL).toString(),
   });
   const navigationStructuredData = buildSiteNavigationJsonLd([
@@ -86,8 +86,16 @@
 <meta property="twitter:description" content={description}>
 <meta property="twitter:image" content={imageURL}>
 
-<script is:inline type="application/ld+json" set:html={jsonLd(siteStructuredData)}/>
-<script is:inline type="application/ld+json" set:html={jsonLd(navigationStructuredData)}/>
+<script
+  is:inline
+  type="application/ld+json"
+  set:html={jsonLd(siteStructuredData)}
+/>
+<script
+  is:inline
+  type="application/ld+json"
+  set:html={jsonLd(navigationStructuredData)}
+/>
 
 {structuredData && (
   <script is:inline type="application/ld+json" set:html={jsonLd(structuredData)} />
