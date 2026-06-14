@@ -7,7 +7,11 @@
   import Layout from "@/layouts/Layout.astro";
   import { SITE } from "@/lib/constants/site";
   import { REGISTER_URL, TRACKING_EVENTS } from "@/lib/constants/tracking";
-  import { buildArticleJsonLd, cleanMetaDescription } from "@/lib/seo";
+  import {
+    buildArticleJsonLd,
+    buildBreadcrumbJsonLd,
+    cleanMetaDescription,
+  } from "@/lib/seo";
   import { calculateReadTime } from "@/lib/utils";
 
   const YOUTUBE_WATCH_URL = `https://www.youtube.com/watch?v=${YOUTUBE_VIDEO_ID}`;
@@ -39,11 +43,12 @@
     entry.data.description,
     `Read ${entry.data.title} in the Marble changelog.`
   );
-  const structuredData = buildArticleJsonLd({
+  const changelogUrl = new URL(Astro.url.pathname, SITE.URL).toString();
+  const articleJsonLd = buildArticleJsonLd({
     type: "Article",
     title: entry.data.title,
     description,
-    url: new URL(Astro.url.pathname, SITE.URL).toString(),
+    url: changelogUrl,
     image: entry.data.coverImage
       ? new URL(entry.data.coverImage, SITE.URL).toString()
       : undefined,
@@ -53,12 +58,23 @@
     siteTitle: SITE.TITLE,
     siteUrl: SITE.URL,
   });
+  const breadcrumbJsonLd = buildBreadcrumbJsonLd([
+    { name: "Home", url: SITE.URL },
+    { name: "Changelog", url: new URL("/changelog", SITE.URL).toString() },
+    { name: entry.data.title, url: changelogUrl },
+  ]);
+  const structuredData = [articleJsonLd, breadcrumbJsonLd];
 ---
 <Layout
   title={`${entry.data.title} - ${SITE.TITLE}`}
   description={description}
   image={entry.data.coverImage}
+  imageAlt={entry.data.title}
   structuredData={structuredData}
+  ogType="article"
+  publishedTime={entry.data.publishedAt.toISOString()}
+  modifiedTime={entry.data.updatedAt.toISOString()}
+  articleAuthors={entry.data.authors.map((author) => author.name)}
 >
   <section
     class="min-h-[calc(100vh-88px)] sm:min-h-[calc(100vh-103px)] lg:min-h-[calc(100vh-120px)]"

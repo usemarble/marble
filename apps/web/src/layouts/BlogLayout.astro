@@ -5,7 +5,19 @@
   import HeadComponent from "@/components/Head.astro";
   import ScrollToTop from "@/components/ScrollToTop.astro";
 
-  const { title, description, image, noindex, structuredData } = Astro.props;
+  const {
+    title,
+    description,
+    image,
+    imageAlt,
+    canonical,
+    noindex,
+    structuredData,
+    ogType,
+    publishedTime,
+    modifiedTime,
+    articleAuthors,
+  } = Astro.props;
 ---
 <!doctype html>
 <html lang="en">
@@ -14,8 +26,14 @@
       title={title}
       description={description}
       image={image}
+      imageAlt={imageAlt}
+      canonical={canonical}
       noindex={noindex}
       structuredData={structuredData}
+      ogType={ogType}
+      publishedTime={publishedTime}
+      modifiedTime={modifiedTime}
+      articleAuthors={articleAuthors}
     />
     <SpeedInsights/>
   </head>

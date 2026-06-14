@@ -5,6 +5,7 @@ export interface Site {
   URL: string;
   APP_URL: string;
   TWITTER_URL: string;
+  TWITTER_HANDLE: string;
   GITHUB_URL: string;
   DISCORD_URL: string;
 }
@@ -16,6 +17,7 @@ export const SITE: Site = {
   URL: "https://marblecms.com",
   APP_URL: "https://app.marblecms.com",
   TWITTER_URL: "https://x.com/usemarblecms",
+  TWITTER_HANDLE: "@usemarblecms",
   GITHUB_URL: "https://github.com/usemarble/marble",
   DISCORD_URL: "https://discord.gg/gU44Pmwqkx",
 };

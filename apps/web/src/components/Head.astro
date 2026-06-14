@@ -14,19 +14,34 @@
     title: string;
     description: string;
     image?: string;
+    imageAlt?: string;
     canonical?: string;
     noindex?: boolean;
     structuredData?: unknown;
+    ogType?: "website" | "article";
+    publishedTime?: string;
+    modifiedTime?: string;
+    articleAuthors?: string[];
   }
+
+  const DEFAULT_IMAGE = "/og.webp";
 
   const {
     title,
     description,
-    image = "/og.webp",
+    image = DEFAULT_IMAGE,
+    imageAlt,
     canonical,
     noindex = false,
     structuredData,
+    ogType = "website",
+    publishedTime,
+    modifiedTime,
+    articleAuthors = [],
   } = Astro.props;
+
+  const isDefaultImage = image === DEFAULT_IMAGE;
+  const resolvedImageAlt = imageAlt ?? title;
 
   const canonicalURL = canonical
     ? new URL(canonical, Astro.site)
@@ -72,19 +87,39 @@
 <meta name="description" content={description}>
 <meta name="robots" content={robotsContent}>
 
-<meta property="og:type" content="website">
+<meta property="og:type" content={ogType}>
 <meta property="og:url" content={canonicalURL}>
 <meta property="og:title" content={title}>
 <meta property="og:site_name" content={SITE.TITLE}>
 <meta property="og:description" content={description}>
 <meta property="og:image" content={imageURL}>
+<meta property="og:image:alt" content={resolvedImageAlt}>
+{isDefaultImage && (
+  <Fragment>
+    <meta property="og:image:width" content="4800">
+    <meta property="og:image:height" content="2520">
+  </Fragment>
+)}
 <meta property="og:locale" content="en_US">
 
+{ogType === "article" && (
+  <Fragment>
+    {publishedTime && <meta property="article:published_time" content={publishedTime}>}
+    {modifiedTime && <meta property="article:modified_time" content={modifiedTime}>}
+    {articleAuthors.map((author) => (
+      <meta property="article:author" content={author}>
+    ))}
+  </Fragment>
+)}
+
 <meta property="twitter:card" content="summary_large_image">
+<meta property="twitter:site" content={SITE.TWITTER_HANDLE}>
+<meta property="twitter:creator" content={SITE.TWITTER_HANDLE}>
 <meta property="twitter:url" content={canonicalURL}>
 <meta property="twitter:title" content={title}>
 <meta property="twitter:description" content={description}>
 <meta property="twitter:image" content={imageURL}>
+<meta property="twitter:image:alt" content={resolvedImageAlt}>
 
 <script
   is:inline
