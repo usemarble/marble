@@ -1,6 +1,10 @@
 ---
   import { SITE } from "@/lib/constants/site";
-  import { buildSiteJsonLd, jsonLd } from "@/lib/seo";
+  import {
+    buildSiteJsonLd,
+    buildSiteNavigationJsonLd,
+    jsonLd,
+  } from "@/lib/seo";
   import "@/styles/globals.css";
   import { Font } from "astro:assets";
   import { getSecret } from "astro:env/server";
@@ -11,6 +15,7 @@
     description: string;
     image?: string;
     canonical?: string;
+    noindex?: boolean;
     structuredData?: unknown;
   }
 
@@ -19,12 +24,17 @@
     description,
     image = "/og.webp",
     canonical,
+    noindex = false,
     structuredData,
   } = Astro.props;
 
   const canonicalURL = canonical
     ? new URL(canonical, Astro.site)
     : new URL(Astro.url.pathname, Astro.site);
+  const imageURL = new URL(image, Astro.site);
+  const robotsContent = noindex
+    ? "noindex, nofollow"
+    : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1";
 
   const databuddyClientId = getSecret("DATABUDDY_CLIENT_ID");
   const siteStructuredData = buildSiteJsonLd({
@@ -32,7 +42,16 @@
     description: SITE.DESCRIPTION,
     url: SITE.URL,
     twitterUrl: SITE.TWITTER_URL,
+    githubUrl: "https://github.com/usemarble",
+    logoUrl: new URL("/logo.svg", SITE.URL).toString(),
   });
+  const navigationStructuredData = buildSiteNavigationJsonLd([
+    { name: "Pricing", url: new URL("/pricing", SITE.URL).toString() },
+    { name: "Blog", url: new URL("/blog", SITE.URL).toString() },
+    { name: "Changelog", url: new URL("/changelog", SITE.URL).toString() },
+    { name: "Documentation", url: "https://docs.marblecms.com" },
+    { name: "Log in", url: new URL("/login", SITE.APP_URL).toString() },
+  ]);
 ---
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -42,7 +61,8 @@
 <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
 <link rel="shortcut icon" href="/favicon.ico">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<meta name="apple-mobile-web-app-title" content="MyWebSite">
+<meta name="apple-mobile-web-app-title" content={SITE.TITLE}>
+<meta name="theme-color" content="#ffffff">
 <link rel="manifest" href="/site.webmanifest">
 
 <link rel="canonical" href={canonicalURL}>
@@ -50,24 +70,27 @@
 <title>{title}</title>
 <meta name="title" content={title}>
 <meta name="description" content={description}>
+<meta name="robots" content={robotsContent}>
 
 <meta property="og:type" content="website">
-<meta property="og:url" content={Astro.url}>
+<meta property="og:url" content={canonicalURL}>
 <meta property="og:title" content={title}>
 <meta property="og:site_name" content={SITE.TITLE}>
 <meta property="og:description" content={description}>
-<meta property="og:image" content={new URL(image, Astro.url)}>
+<meta property="og:image" content={imageURL}>
+<meta property="og:locale" content="en_US">
 
 <meta property="twitter:card" content="summary_large_image">
-<meta property="twitter:url" content={Astro.url}>
+<meta property="twitter:url" content={canonicalURL}>
 <meta property="twitter:title" content={title}>
 <meta property="twitter:description" content={description}>
-<meta property="twitter:image" content={new URL(image, Astro.url)}>
+<meta property="twitter:image" content={imageURL}>
 
-<script type="application/ld+json" set:html={jsonLd(siteStructuredData)}/>
+<script is:inline type="application/ld+json" set:html={jsonLd(siteStructuredData)}/>
+<script is:inline type="application/ld+json" set:html={jsonLd(navigationStructuredData)}/>
 
 {structuredData && (
-  <script type="application/ld+json" set:html={jsonLd(structuredData)} />
+  <script is:inline type="application/ld+json" set:html={jsonLd(structuredData)} />
 )}
 
 <link rel="sitemap" href="/sitemap-index.xml">

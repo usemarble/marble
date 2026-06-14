@@ -29,20 +29,27 @@ export function buildSiteJsonLd(site: {
   description: string;
   url: string;
   twitterUrl?: string;
+  githubUrl?: string;
+  logoUrl?: string;
 }) {
+  const sameAs = [site.twitterUrl, site.githubUrl].filter(Boolean);
+
   return [
     {
       "@context": "https://schema.org",
       "@type": "Organization",
       name: site.title,
+      alternateName: ["Marble CMS", "MarbleCMS"],
       url: site.url,
       description: site.description,
-      sameAs: [site.twitterUrl].filter(Boolean),
+      sameAs,
+      ...(site.logoUrl && { logo: site.logoUrl }),
     },
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
       name: site.title,
+      alternateName: ["Marble CMS", "MarbleCMS"],
       url: site.url,
       description: site.description,
       publisher: {
@@ -51,6 +58,21 @@ export function buildSiteJsonLd(site: {
       },
     },
   ];
+}
+
+export function buildSiteNavigationJsonLd(
+  items: Array<{ name: string; url: string }>
+) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    itemListElement: items.map((item, index) => ({
+      "@type": "SiteNavigationElement",
+      position: index + 1,
+      name: item.name,
+      url: item.url,
+    })),
+  };
 }
 
 export function buildFaqJsonLd(
