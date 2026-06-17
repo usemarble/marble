@@ -12,6 +12,8 @@ export const API_KEY_READ_SCOPES = [
   "fields_read",
 ] as const;
 
+export const API_KEY_DRAFT_READ_SCOPES = ["posts_read_drafts"] as const;
+
 export const API_KEY_WRITE_SCOPES = [
   "posts_write",
   "authors_write",
@@ -21,9 +23,14 @@ export const API_KEY_WRITE_SCOPES = [
   "fields_write",
 ] as const;
 
+export const API_KEY_PRIVATE_ONLY_SCOPES = [
+  ...API_KEY_DRAFT_READ_SCOPES,
+  ...API_KEY_WRITE_SCOPES,
+] as const;
+
 export const API_KEY_SCOPES = [
   ...API_KEY_READ_SCOPES,
-  ...API_KEY_WRITE_SCOPES,
+  ...API_KEY_PRIVATE_ONLY_SCOPES,
 ] as const;
 
 export type ApiScope = (typeof API_KEY_SCOPES)[number];
@@ -34,6 +41,7 @@ export const DEFAULT_PRIVATE_API_KEY_SCOPES = API_KEY_SCOPES;
 export const API_KEY_SCOPE_BY_RESOURCE = {
   posts: {
     read: "posts_read",
+    readDrafts: "posts_read_drafts",
     write: "posts_write",
   },
   authors: {
@@ -56,4 +64,7 @@ export const API_KEY_SCOPE_BY_RESOURCE = {
     read: "fields_read",
     write: "fields_write",
   },
-} as const satisfies Record<string, { read: ApiScope; write: ApiScope }>;
+} as const satisfies Record<
+  string,
+  { read: ApiScope; readDrafts?: ApiScope; write: ApiScope }
+>;

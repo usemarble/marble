@@ -30,30 +30,55 @@ function hasScope(scopes: readonly ApiScope[], scope: ApiScope): boolean {
   return scopes.includes(scope);
 }
 
-function isDraftPostRead(method: string, pathname: string, status?: string) {
+function getDraftPostReadScope(
+  method: string,
+  pathname: string,
+  status?: string
+): ApiScope | null {
   if (!READ_METHODS.has(method) || status === undefined) {
-    return false;
+    return null;
   }
 
   const [resource] = getRouteSegments(pathname);
-  return resource === "posts" && (status === "draft" || status === "all");
+  if (resource !== "posts" || (status !== "draft" && status !== "all")) {
+    return null;
+  }
+
+  return API_KEY_SCOPE_BY_RESOURCE.posts.readDrafts;
 }
 
 export const scopeAuthorization =
   (): MiddlewareHandler<ApiKeyApp> => async (c, next) => {
     const scopes = c.get("apiKeyScopes") ?? [];
+    const draftPostReadScope = getDraftPostReadScope(
+      c.req.method,
+      c.req.path,
+      c.req.query("status")
+    );
 
-    if (
-      isDraftPostRead(c.req.method, c.req.path, c.req.query("status")) &&
-      c.get("apiKeyType") !== "private"
-    ) {
-      return c.json(
-        {
-          error: "Forbidden",
-          message: "Reading draft or all posts requires a private API key.",
-        },
-        403
-      );
+    if (draftPostReadScope) {
+      if (c.get("apiKeyType") !== "private") {
+        return c.json(
+          {
+            error: "Forbidden",
+            message: "Reading draft or all posts requires a private API key.",
+          },
+          403
+        );
+      }
+
+      if (!hasScope(scopes, draftPostReadScope)) {
+        return c.json(
+          {
+            error: "Forbidden",
+            message: `API key missing required scope: ${draftPostReadScope}`,
+          },
+          403
+        );
+      }
+
+      await next();
+      return;
     }
 
     const requiredScope = getRequiredScope(c.req.method, c.req.path);

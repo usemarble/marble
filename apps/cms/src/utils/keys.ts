@@ -1,5 +1,6 @@
 import type { ApiScope } from "@marble/utils";
 import {
+  API_KEY_PRIVATE_ONLY_SCOPES,
   API_KEY_SCOPES,
   API_KEY_WRITE_SCOPES,
   DEFAULT_PRIVATE_API_KEY_SCOPES,
@@ -24,6 +25,7 @@ export const DEFAULT_PUBLIC_SCOPES = DEFAULT_PUBLIC_API_KEY_SCOPES;
 export const DEFAULT_PRIVATE_SCOPES = DEFAULT_PRIVATE_API_KEY_SCOPES;
 
 export const WRITE_SCOPES = API_KEY_WRITE_SCOPES;
+export const PRIVATE_ONLY_SCOPES = API_KEY_PRIVATE_ONLY_SCOPES;
 
 /**
  * Validates if an API key has a valid prefix
@@ -83,7 +85,11 @@ export function validateScopes(scopes: string[]): boolean {
 }
 
 export function getPublicKeyWriteScopes(scopes: ApiScope[]): ApiScope[] {
-  return scopes.filter((scope) =>
-    WRITE_SCOPES.includes(scope as (typeof API_KEY_WRITE_SCOPES)[number])
-  );
+  const writeScopes: readonly ApiScope[] = WRITE_SCOPES;
+  return scopes.filter((scope) => writeScopes.includes(scope));
+}
+
+export function getPublicKeyForbiddenScopes(scopes: ApiScope[]): ApiScope[] {
+  const privateOnlyScopes: readonly ApiScope[] = PRIVATE_ONLY_SCOPES;
+  return scopes.filter((scope) => privateOnlyScopes.includes(scope));
 }

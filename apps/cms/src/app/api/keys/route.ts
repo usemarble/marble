@@ -7,7 +7,7 @@ import { createApiKeySchema } from "@/lib/validations/keys";
 import {
   DEFAULT_PRIVATE_SCOPES,
   DEFAULT_PUBLIC_SCOPES,
-  getPublicKeyWriteScopes,
+  getPublicKeyForbiddenScopes,
 } from "@/utils/keys";
 
 export async function GET() {
@@ -53,12 +53,12 @@ export async function POST(request: Request) {
       : [...DEFAULT_PRIVATE_SCOPES]);
 
   if (body.data.type === "public") {
-    const writeScopes = getPublicKeyWriteScopes(scopesToSet);
-    if (writeScopes.length > 0) {
+    const forbiddenScopes = getPublicKeyForbiddenScopes(scopesToSet);
+    if (forbiddenScopes.length > 0) {
       return NextResponse.json(
         {
-          error: "Public API keys cannot include write scopes",
-          details: writeScopes,
+          error: "Public API keys cannot include private-only scopes",
+          details: forbiddenScopes,
         },
         { status: 400 }
       );

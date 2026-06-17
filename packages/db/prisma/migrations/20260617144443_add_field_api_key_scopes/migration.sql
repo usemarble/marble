@@ -6,5 +6,6 @@
 -- the enum.
 
 
+ALTER TYPE "ApiScope" ADD VALUE 'posts_read_drafts';
 ALTER TYPE "ApiScope" ADD VALUE 'fields_read';
 ALTER TYPE "ApiScope" ADD VALUE 'fields_write';

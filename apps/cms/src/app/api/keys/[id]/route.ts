@@ -2,7 +2,7 @@ import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { updateApiKeySchema } from "@/lib/validations/keys";
-import { type ApiScope, getPublicKeyWriteScopes } from "@/utils/keys";
+import { type ApiScope, getPublicKeyForbiddenScopes } from "@/utils/keys";
 
 export async function GET(
   _request: Request,
@@ -90,12 +90,12 @@ export async function PATCH(
   }
   if (body.data.scopes !== undefined) {
     if (existingKey.type === "public") {
-      const writeScopes = getPublicKeyWriteScopes(body.data.scopes);
-      if (writeScopes.length > 0) {
+      const forbiddenScopes = getPublicKeyForbiddenScopes(body.data.scopes);
+      if (forbiddenScopes.length > 0) {
         return NextResponse.json(
           {
-            error: "Public API keys cannot include write scopes",
-            details: writeScopes,
+            error: "Public API keys cannot include private-only scopes",
+            details: forbiddenScopes,
           },
           { status: 400 }
         );
