@@ -1,6 +1,6 @@
 ---
 title: Webhooks
-description: "Trigger site rebuilds and automate workflows when your content changes."
+description: "Configure Marble webhooks to revalidate static sites, automate workflows, verify signatures, and inspect deliveries when content changes."
 ---
 
 Webhooks provide a powerful way to keep your site's content fresh and automate workflows. When an event occurs in your Marble workspace, such as publishing a post, Marble sends an HTTP POST payload to a URL you configure.
@@ -40,10 +40,57 @@ Create a serverless function that listens for a `post.published` event from a Ma
   </Step>
 
   <Step title="Save and Copy Secret">
-    Save your webhook, then click the 3 dots on the top right and select **Copy
-    secret**. You'll need this to verify the authenticity of incoming requests.
+    Save your webhook, then open it from the list by clicking the 3 dots and
+    selecting **Details**. On the webhook details page, click **Copy secret**
+    next to the masked secret value. You'll need this to verify the
+    authenticity of incoming requests.
   </Step>
 </Steps>
+
+## Inspecting webhook deliveries
+
+Every time an event matches a webhook's subscription, Marble queues a delivery and stores the result. You can inspect this history from the webhook details page in the dashboard.
+
+To open it, go to **Settings → Webhooks**, click the 3 dots on the webhook's row, and choose **Details**.
+
+The details page is split into two parts:
+
+- **Webhook settings** (side panel): edit the webhook's name, URL, payload format, enabled state, and subscribed events. Changes apply to future deliveries only.
+- **Deliveries**: a paginated table of every delivery attempted for this webhook, with filters and expandable rows.
+
+### Filtering deliveries
+
+Above the deliveries table you can filter by:
+
+- **Status**: `pending`, `sending`, `success`, `retrying`, or `failed`.
+- **HTTP response**: `2xx`, `3xx`, `4xx`, `5xx`, or `No response` (the endpoint never responded, for example on a network error or timeout).
+- **Event type**: any of the events the webhook is subscribed to, such as `post.published` or `tag.created`.
+
+Filters can be combined and the results are paginated.
+
+### Reading a delivery
+
+Click a row to expand it and see the full delivery record:
+
+- **Event ID** and **event timestamp**: identify the workspace event that triggered the delivery.
+- **Delivery ID**: matches the `x-marble-delivery-id` header your endpoint received.
+- **Sent at**: when the most recent attempt was sent.
+- **HTTP response**: the status code returned by your endpoint, or `No response` if the request never completed.
+- **Duration**: how long the latest attempt took, in milliseconds.
+- **Error message**: shown when the latest attempt failed, for example with a connection error or non-2xx response body.
+- **Payload**: the exact JSON body that was sent. Use **Copy payload** to copy it for replay or debugging.
+
+Use this view to confirm whether your endpoint received an event, what it returned, and what payload it was given.
+
+### Sending a test webhook
+
+To verify that your endpoint is reachable and that your signature verification works without waiting for a real content event, click **Send test webhook** on the details page. Marble queues a test delivery against the webhook's configured URL, and a new row appears in the deliveries table once it is sent.
+
+This is useful when:
+
+- You've just created a webhook and want to confirm the URL and secret are wired up correctly.
+- You've changed your endpoint's deployment or signature verification code.
+- A previous delivery failed and you want to retry against the current endpoint without editing real content.
 
 ### Verifying webhook requests
 
