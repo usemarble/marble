@@ -1,3 +1,5 @@
+import type { ApiScope } from "@marble/utils/api-key-scopes";
+
 export interface Env {
   DATABASE_URL: string;
   HYPERDRIVE: { connectionString: string };
@@ -17,6 +19,7 @@ export interface ApiKeyVariables {
   workspaceId?: string;
   apiKeyId?: string;
   apiKeyType?: "public" | "private";
+  apiKeyScopes?: ApiScope[];
 }
 
 // Hono app type for API key authenticated routes

@@ -1,5 +1,13 @@
-import { API_KEY_PREFIXES as PREFIXES } from "@marble/utils";
+import type { ApiScope } from "@marble/utils";
+import {
+  API_KEY_SCOPES,
+  API_KEY_WRITE_SCOPES,
+  DEFAULT_PRIVATE_API_KEY_SCOPES,
+  DEFAULT_PUBLIC_API_KEY_SCOPES,
+  API_KEY_PREFIXES as PREFIXES,
+} from "@marble/utils";
 
+export type { ApiScope } from "@marble/utils";
 // biome-ignore lint/performance/noBarrelFile: <>
 export { API_KEY_PREFIXES } from "@marble/utils";
 
@@ -8,29 +16,14 @@ export type ApiKeyPrefix = (typeof PREFIXES)[keyof typeof PREFIXES];
 /**
  * Default scopes for public API keys (read-only access)
  */
-export const DEFAULT_PUBLIC_SCOPES = [
-  "posts_read",
-  "authors_read",
-  "categories_read",
-  "tags_read",
-  "media_read",
-] as const;
+export const DEFAULT_PUBLIC_SCOPES = DEFAULT_PUBLIC_API_KEY_SCOPES;
 
 /**
  * Default scopes for private API keys (full access)
  */
-export const DEFAULT_PRIVATE_SCOPES = [
-  "posts_read",
-  "posts_write",
-  "authors_read",
-  "authors_write",
-  "categories_read",
-  "categories_write",
-  "tags_read",
-  "tags_write",
-  "media_read",
-  "media_write",
-] as const;
+export const DEFAULT_PRIVATE_SCOPES = DEFAULT_PRIVATE_API_KEY_SCOPES;
+
+export const WRITE_SCOPES = API_KEY_WRITE_SCOPES;
 
 /**
  * Validates if an API key has a valid prefix
@@ -50,20 +43,7 @@ export function getApiKeyType(key: string): "public" | "private" | null {
 /**
  * Valid scope values matching the ApiScope enum
  */
-export const VALID_SCOPES = [
-  "posts_read",
-  "posts_write",
-  "authors_read",
-  "authors_write",
-  "categories_read",
-  "categories_write",
-  "tags_read",
-  "tags_write",
-  "media_read",
-  "media_write",
-] as const;
-
-export type ApiScope = (typeof VALID_SCOPES)[number];
+export const VALID_SCOPES = API_KEY_SCOPES;
 
 /**
  * Parse permissions string (comma-separated) into scopes array
@@ -100,4 +80,10 @@ export function hasScope(scopes: ApiScope[], scope: ApiScope): boolean {
  */
 export function validateScopes(scopes: string[]): boolean {
   return scopes.every((scope) => VALID_SCOPES.includes(scope as ApiScope));
+}
+
+export function getPublicKeyWriteScopes(scopes: ApiScope[]): ApiScope[] {
+  return scopes.filter((scope) =>
+    WRITE_SCOPES.includes(scope as (typeof API_KEY_WRITE_SCOPES)[number])
+  );
 }
