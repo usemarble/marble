@@ -560,6 +560,7 @@ enum ApiKeyType {
 
 enum ApiScope {
   posts_read
+  posts_read_drafts
   posts_write
   authors_read
   authors_write
@@ -569,6 +570,8 @@ enum ApiScope {
   tags_write
   media_read
   media_write
+  fields_read
+  fields_write
 }
 
 enum FieldType {

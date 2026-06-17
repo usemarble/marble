@@ -4,7 +4,11 @@ import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { getDashboardApiKeys } from "@/lib/queries/dashboard/settings";
 import { createApiKeySchema } from "@/lib/validations/keys";
-import { DEFAULT_PRIVATE_SCOPES, DEFAULT_PUBLIC_SCOPES } from "@/utils/keys";
+import {
+  DEFAULT_PRIVATE_SCOPES,
+  DEFAULT_PUBLIC_SCOPES,
+  getPublicKeyForbiddenScopes,
+} from "@/utils/keys";
 
 export async function GET() {
   const accessData = await requireActiveWorkspaceAccess();
@@ -47,6 +51,19 @@ export async function POST(request: Request) {
     (body.data.type === "public"
       ? [...DEFAULT_PUBLIC_SCOPES]
       : [...DEFAULT_PRIVATE_SCOPES]);
+
+  if (body.data.type === "public") {
+    const forbiddenScopes = getPublicKeyForbiddenScopes(scopesToSet);
+    if (forbiddenScopes.length > 0) {
+      return NextResponse.json(
+        {
+          error: "Public API keys cannot include private-only scopes",
+          details: forbiddenScopes,
+        },
+        { status: 400 }
+      );
+    }
+  }
 
   const apiKey = await db.apiKey.create({
     data: {

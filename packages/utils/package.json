@@ -2,7 +2,8 @@
   "name": "@marble/utils",
   "version": "0.0.0",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./api-key-scopes": "./src/constants/api-key.ts"
   },
   "dependencies": {
     "nanoid": "^5.0.9",

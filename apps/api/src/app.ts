@@ -9,12 +9,12 @@ import { cache } from "./middleware/cache";
 import { keyAuthorization } from "./middleware/key-authorization";
 import { legacyAnalytics } from "./middleware/legacy-analytics";
 import { ratelimit } from "./middleware/ratelimit";
+import { scopeAuthorization } from "./middleware/scope-authorization";
 import { systemAuth } from "./middleware/system";
 import authorsRoutes from "./routes/authors";
 import cacheRoutes from "./routes/cache";
 import categoriesRoutes from "./routes/categories";
 import eventsRoutes from "./routes/events";
-import invalidateRoutes from "./routes/invalidate";
 import mediaRoutes from "./routes/media";
 import postsRoutes from "./routes/posts";
 import tagsRoutes from "./routes/tags";
@@ -88,6 +88,7 @@ app.use("/v1/:workspaceId/*", async (c, next) => {
 const apiKeyV1 = new OpenAPIHono<ApiKeyApp>();
 apiKeyV1.use("*", ratelimit("apiKey"));
 apiKeyV1.use("*", keyAuthorization());
+apiKeyV1.use("*", scopeAuthorization());
 apiKeyV1.use("*", analytics());
 
 // Mount routes with proper OpenAPIHono to enable spec merging
@@ -96,7 +97,6 @@ apiKeyV1.route("/categories", categoriesRoutes);
 apiKeyV1.route("/tags", tagsRoutes);
 apiKeyV1.route("/authors", authorsRoutes);
 apiKeyV1.route("/media", mediaRoutes);
-apiKeyV1.route("/cache/invalidate", invalidateRoutes);
 
 // Mount apiKeyV1 under /v1 to automatically merge OpenAPI specs
 app.route("/v1", apiKeyV1);
