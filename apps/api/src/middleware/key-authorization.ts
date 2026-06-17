@@ -99,6 +99,7 @@ export const keyAuthorization =
       c.set("workspaceId", key.workspaceId);
       c.set("apiKeyId", key.id);
       c.set("apiKeyType", key.type);
+      c.set("apiKeyScopes", key.scopes);
 
       if (c.req.method !== "GET" && key.type !== "private") {
         return c.json(
