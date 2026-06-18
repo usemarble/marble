@@ -25,13 +25,24 @@ curl -H "Authorization: YOUR_API_KEY" https://api.marblecms.com/v1/posts
 
 <Step title="Create a new key">
   Click **Create API Key**, give it a descriptive name (e.g., "Production
-  Website"), and select the appropriate permissions.
+  Website"), and choose a key type and permissions (see below).
 </Step>
 
 <Step title="Copy your key">
   Your API key will only be shown once. Copy it and store it securely.
 </Step>
 </Steps>
+
+### Choosing a key type
+
+- **Public key** (`mpk_…`) — read-only. Pick this for client-side code, static site generators, or anywhere the key may be observed. Public keys can only hold the read scopes: `posts_read`, `authors_read`, `categories_read`, `tags_read`, `media_read`, and `fields_read`.
+- **Private key** (`msk_…`) — full access. Use it from trusted server-side environments. Private keys can additionally hold write scopes (`posts_write`, `authors_write`, `categories_write`, `tags_write`, `media_write`, `fields_write`) and `posts_read_drafts` for reading unpublished posts.
+
+### Choosing permissions
+
+When creating a key, the **Permissions** section lists every available scope. Grant only the scopes the integration needs — for example, a website that lists published posts and authors needs `posts_read` and `authors_read` and nothing else. To read drafts via `GET /v1/posts?status=draft` or `?status=all`, create a private key and include the `posts_read_drafts` scope; otherwise the request returns `403 Forbidden`.
+
+See [Authentication](/api/introduction#authentication) for the full scope reference and the `403 "API key missing required scope: <scope>"` response.
 
 <Frame>
   <video autoPlay loop muted playsInline controls className="w-full aspect-video rounded-xl">
@@ -40,10 +51,11 @@ curl -H "Authorization: YOUR_API_KEY" https://api.marblecms.com/v1/posts
 </Frame>
 
 <Warning>
-  API keys should be kept secure. While public keys are read-only, exposing them
-  in client-side code can lead to your [rate limits](/api/rate-limits) being
-  consumed by others. We recommend performing API requests on the server-side
-  whenever possible.
+  API keys should be kept secure. Public keys are scoped to read operations
+  only, but exposing them in client-side code can lead to your [rate
+  limits](/api/rate-limits) being consumed by others. Never ship a private key
+  to the client — it can write to your workspace and read drafts. We recommend
+  performing API requests on the server-side whenever possible.
 </Warning>
 
 ## Authentication
