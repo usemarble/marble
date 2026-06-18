@@ -1,7 +1,7 @@
 ---
 title: "Marble API Reference"
 sidebarTitle: "Introduction"
-description: "Overview of the Marble REST API — base URL, authentication, and response format."
+description: "Overview of the Marble REST API: base URL, API key authentication, scope-based permissions, JSON response format, and HTTP error codes."
 ---
 
 The Marble API is organized around REST. Our API has predictable resource-oriented URLs, accepts form-encoded request bodies, returns JSON-encoded responses, and uses standard HTTP response codes and verbs.
@@ -32,10 +32,37 @@ Alternatively, you can pass the API key as a query parameter:
 curl "https://api.marblecms.com/v1/posts?key=YOUR_API_KEY"
 ```
 
+### API key types and scopes
+
+Every API key carries a set of **scopes** that determine which resources and operations it can access. The API checks the key's scopes on every request and returns `403 Forbidden` if a required scope is missing.
+
+There are two key types:
+
+- **Public keys** (`mpk_…`) can only hold read scopes. They are safe to use from environments where the key may be observed, such as build pipelines for static sites.
+- **Private keys** (`msk_…`) can hold any scope, including write scopes and `posts_read_drafts`. Use them only from trusted server-side environments.
+
+The full list of scopes:
+
+| Scope                | Key types       | Grants                                                  |
+| -------------------- | --------------- | ------------------------------------------------------- |
+| `posts_read`         | public, private | Read published posts                                    |
+| `posts_read_drafts`  | private         | Read drafts via `?status=draft` or `?status=all`        |
+| `posts_write`        | private         | Create, update, and delete posts                        |
+| `authors_read`       | public, private | Read authors                                            |
+| `authors_write`      | private         | Create, update, and delete authors                      |
+| `categories_read`    | public, private | Read categories                                         |
+| `categories_write`   | private         | Create, update, and delete categories                   |
+| `tags_read`          | public, private | Read tags                                               |
+| `tags_write`         | private         | Create, update, and delete tags                         |
+| `media_read`         | public, private | Read media assets                                       |
+| `media_write`        | private         | Upload, update, and delete media assets                 |
+| `fields_read`        | public, private | Read custom fields                                      |
+| `fields_write`       | private         | Create, update, and delete custom fields                |
+
 <Warning>
-  While public API keys currently only provide read-only access, they should
-  still be handled with care. Exposing your key in client-side code allows
-  anyone to make requests on your behalf, which can lead to your [rate
+  Public API keys are scoped to read operations only, but they should still be
+  handled with care. Exposing your key in client-side code allows anyone to
+  make requests on your behalf, which can lead to your [rate
   limits](/api/rate-limits) being exhausted. We recommend using keys on the
   server-side whenever possible.
 </Warning>
@@ -44,6 +71,21 @@ curl "https://api.marblecms.com/v1/posts?key=YOUR_API_KEY"
   **Best Practice:** Use the `Authorization` header for all requests. Query
   parameters may be logged in server access logs.
 </Tip>
+
+### Reading drafts
+
+By default, `GET /v1/posts` returns only published posts. To include drafts you must:
+
+1. Use a **private** API key, and
+2. Grant it the `posts_read_drafts` scope, and
+3. Pass `?status=draft` (drafts only) or `?status=all` (drafts + published).
+
+```bash
+curl -H "Authorization: msk_…" \
+  "https://api.marblecms.com/v1/posts?status=draft"
+```
+
+Requests for drafts using a public key, or a private key without `posts_read_drafts`, return `403 Forbidden`.
 
 ## Response Format
 
@@ -55,14 +97,15 @@ All responses are returned as JSON. Successful responses include the requested d
 
 The API uses conventional HTTP response codes to indicate the success or failure of a request:
 
-| Code  | Description                               |
-| ----- | ----------------------------------------- |
-| `200` | Success                                   |
-| `400` | Bad Request - Invalid parameters          |
-| `401` | Unauthorized - Invalid or missing API key |
-| `404` | Not Found - Resource doesn't exist        |
-| `429` | Too Many Requests - Rate limit exceeded   |
-| `500` | Internal Server Error                     |
+| Code  | Description                                            |
+| ----- | ------------------------------------------------------ |
+| `200` | Success                                                |
+| `400` | Bad Request - Invalid parameters                       |
+| `401` | Unauthorized - Invalid or missing API key              |
+| `403` | Forbidden - API key is missing a required scope        |
+| `404` | Not Found - Resource doesn't exist                     |
+| `429` | Too Many Requests - Rate limit exceeded                |
+| `500` | Internal Server Error                                  |
 
 Example error response:
 
@@ -72,3 +115,14 @@ Example error response:
   "message": "API key required. Provide via Authorization header or ?key= query parameter"
 }
 ```
+
+When the key is valid but lacks the scope required for the endpoint, the API returns `403` with a message naming the missing scope:
+
+```json
+{
+  "error": "Forbidden",
+  "message": "API key missing required scope: posts_write"
+}
+```
+
+To resolve this, edit the key in **Settings > API Keys** and grant the missing scope, or use a different key that already has it. Remember that public keys cannot be granted write scopes or `posts_read_drafts`.
