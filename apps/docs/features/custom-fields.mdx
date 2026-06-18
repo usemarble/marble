@@ -30,6 +30,11 @@ Custom fields let you add your own metadata to every post in a workspace. Instea
   </Step>
 </Steps>
 
+You can also manage field definitions through the API, SDK, or MCP server.
+Agents should call `get_fields` before writing post field values, create any
+missing field with `create_field`, then pass values under `fields` when creating
+or updating a post.
+
 ## Field types
 
 | Type | Input in Marble | API value |
@@ -44,8 +49,44 @@ Custom fields let you add your own metadata to every post in a workspace. Instea
 
 <Note>
   `select` and `multiselect` fields require predefined options. Option values
-  are what you receive in the API.
+  are what you receive in the API and what you send when writing post values.
 </Note>
+
+## Writing fields through the API
+
+Create field definitions first:
+
+```json
+{
+  "key": "audience",
+  "name": "Audience",
+  "type": "multiselect",
+  "required": false,
+  "options": [
+    { "value": "developers", "label": "Developers" },
+    { "value": "founders", "label": "Founders" }
+  ]
+}
+```
+
+Then pass values by field key when creating or updating posts:
+
+```json
+{
+  "title": "Launch Notes",
+  "content": "<p>Hello world</p>",
+  "description": "What changed this week",
+  "slug": "launch-notes",
+  "categoryId": "cat_123",
+  "status": "draft",
+  "fields": {
+    "audience": ["developers", "founders"]
+  }
+}
+```
+
+Unknown field keys, wrong value types, and option values that do not match a
+configured `select` or `multiselect` option are rejected with `400` responses.
 
 ## API response shape
 
@@ -87,5 +128,7 @@ If a field exists in your workspace but a post has no value for it yet, Marble r
 ## Important behavior
 
 - Field keys are workspace-scoped and must be unique.
+- Post writes never create fields implicitly. Create or update field definitions
+  first, then write values to posts.
 - Field type and options are effectively schema choices. Plan them early to avoid migration work later.
 - Deleting a field removes that field and its stored values from all posts.

@@ -92,6 +92,28 @@ export const PostSchema = z
   })
   .openapi("Post");
 
+const CustomFieldWriteValueSchema = z.union([
+  z.string(),
+  z.number(),
+  z.boolean(),
+  z.array(z.string()),
+  z.null(),
+]);
+
+const CustomFieldsWriteSchema = z
+  .record(z.string(), CustomFieldWriteValueSchema)
+  .openapi({
+    description:
+      "Custom field values keyed by field key. Select values must use option values; multiselect values must be arrays of option values. Use null to clear optional fields.",
+    example: {
+      release_date: "2024-01-15",
+      priority_score: 5,
+      audience: ["developers", "founders"],
+      featured_customer: true,
+      subtitle: null,
+    },
+  });
+
 export const PostsListResponseSchema = z
   .object({
     posts: z.array(PostSchema),
@@ -330,6 +352,7 @@ export const CreatePostBodySchema = z
       example: "2024-01-15T10:00:00Z",
       description: "ISO 8601 datetime. Defaults to current time if omitted.",
     }),
+    fields: CustomFieldsWriteSchema.optional(),
   })
   .openapi("CreatePostBody");
 
@@ -405,6 +428,7 @@ export const UpdatePostBodySchema = z
       .datetime()
       .optional()
       .openapi({ example: "2024-02-01T10:00:00Z" }),
+    fields: CustomFieldsWriteSchema.optional(),
   })
   .openapi("UpdatePostBody");
 
