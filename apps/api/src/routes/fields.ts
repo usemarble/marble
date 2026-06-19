@@ -1,4 +1,5 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import { Prisma } from "@marble/db/workers";
 import { createCacheClient } from "@/lib/cache";
 import { createDbClient } from "@/lib/db";
 import { requireWorkspaceId } from "@/lib/workspace";
@@ -83,6 +84,14 @@ function isUniqueFieldKeyConflict(error: unknown) {
     error instanceof Error &&
     "code" in error &&
     (error as Error & { code?: string }).code === "P2002"
+  );
+}
+
+function isTransactionConflict(error: unknown) {
+  return (
+    error instanceof Error &&
+    "code" in error &&
+    (error as Error & { code?: string }).code === "P2034"
   );
 }
 
@@ -461,52 +470,55 @@ fields.openapi(updateFieldRoute, async (c) => {
       }
     }
 
-    const field = await db.$transaction(async (tx) => {
-      if (typeChanged || optionsChanged) {
-        const fieldValueCount = await tx.fieldValue.count({
+    const field = await db.$transaction(
+      async (tx) => {
+        if (typeChanged || optionsChanged) {
+          const fieldValueCount = await tx.fieldValue.count({
+            where: {
+              fieldId: existingField.id,
+              workspaceId,
+            },
+          });
+
+          if (fieldValueCount > 0) {
+            return null;
+          }
+        }
+
+        return tx.field.update({
           where: {
-            fieldId: existingField.id,
-            workspaceId,
+            id_workspaceId: {
+              id: existingField.id,
+              workspaceId,
+            },
+          },
+          data: {
+            ...(body.key !== undefined ? { key: body.key } : {}),
+            ...(body.name !== undefined ? { name: body.name } : {}),
+            ...(body.description !== undefined
+              ? { description: body.description?.trim() || null }
+              : {}),
+            ...(body.type !== undefined ? { type: body.type } : {}),
+            ...(body.required !== undefined ? { required: body.required } : {}),
+            options:
+              body.options !== undefined || !requiresOptions
+                ? {
+                    deleteMany: {},
+                    create: requiresOptions
+                      ? buildFieldOptionWrites(effectiveOptions)
+                      : [],
+                  }
+                : undefined,
+          },
+          include: {
+            options: {
+              orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+            },
           },
         });
-
-        if (fieldValueCount > 0) {
-          return null;
-        }
-      }
-
-      return tx.field.update({
-        where: {
-          id_workspaceId: {
-            id: existingField.id,
-            workspaceId,
-          },
-        },
-        data: {
-          ...(body.key !== undefined ? { key: body.key } : {}),
-          ...(body.name !== undefined ? { name: body.name } : {}),
-          ...(body.description !== undefined
-            ? { description: body.description?.trim() || null }
-            : {}),
-          ...(body.type !== undefined ? { type: body.type } : {}),
-          ...(body.required !== undefined ? { required: body.required } : {}),
-          options:
-            body.options !== undefined || !requiresOptions
-              ? {
-                  deleteMany: {},
-                  create: requiresOptions
-                    ? buildFieldOptionWrites(effectiveOptions)
-                    : [],
-                }
-              : undefined,
-        },
-        include: {
-          options: {
-            orderBy: [{ position: "asc" }, { createdAt: "asc" }],
-          },
-        },
-      });
-    });
+      },
+      { isolationLevel: Prisma.TransactionIsolationLevel.Serializable }
+    );
 
     if (!field) {
       return c.json(
@@ -529,6 +541,16 @@ fields.openapi(updateFieldRoute, async (c) => {
         {
           error: "Field key already in use",
           message: "A field with this key already exists in this workspace",
+        },
+        409 as const
+      );
+    }
+
+    if (isTransactionConflict(error)) {
+      return c.json(
+        {
+          error: "Field update conflict",
+          message: "This field was updated concurrently. Please retry.",
         },
         409 as const
       );

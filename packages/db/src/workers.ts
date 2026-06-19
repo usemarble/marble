@@ -1,5 +1,10 @@
 import { PrismaNeon } from "@prisma/adapter-neon";
-import { PrismaClient } from "./generated/workerd/client";
+import {
+  PrismaClient,
+  Prisma as WorkerdPrisma,
+} from "./generated/workerd/client";
+
+const Prisma = WorkerdPrisma;
 
 const createClient = (url: string) => {
   const connectionString =
@@ -12,4 +17,4 @@ const createClient = (url: string) => {
   const adapter = new PrismaNeon({ connectionString });
   return new PrismaClient({ adapter });
 };
-export { createClient };
+export { createClient, Prisma };
