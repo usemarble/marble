@@ -133,6 +133,7 @@ export const CreateFieldBodySchema = z
       .openapi({ example: "audience" }),
     name: z
       .string()
+      .trim()
       .min(1, "Name cannot be empty")
       .max(50, "Name cannot be more than 50 characters")
       .openapi({ example: "Audience" }),
@@ -171,6 +172,7 @@ export const UpdateFieldBodySchema = z
       .openapi({ example: "audience" }),
     name: z
       .string()
+      .trim()
       .min(1, "Name cannot be empty")
       .max(50, "Name cannot be more than 50 characters")
       .optional()

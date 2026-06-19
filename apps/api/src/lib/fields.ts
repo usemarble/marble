@@ -191,14 +191,14 @@ function validateFieldValue(
         };
       }
 
-      const value = rawValue.trim();
-      if (value === "" || isRichTextContentEmpty(value)) {
+      const sanitized = sanitizeHtml(rawValue).trim();
+      if (sanitized === "" || isRichTextContentEmpty(sanitized)) {
         return field.required
           ? { success: false, message: `${field.name} is required.` }
           : { success: true, value: null };
       }
 
-      return { success: true, value: sanitizeHtml(value) };
+      return { success: true, value: sanitized };
     }
     case "select": {
       if (typeof rawValue !== "string") {
@@ -277,7 +277,10 @@ export function resolveCustomFieldValuesByKey(
           .filter((field) => field !== undefined);
 
   for (const field of fieldsToValidate) {
-    const validation = validateFieldValue(field, json[field.key]);
+    const rawValue = Object.hasOwn(json, field.key)
+      ? json[field.key]
+      : undefined;
+    const validation = validateFieldValue(field, rawValue);
 
     if (!validation.success) {
       return {
