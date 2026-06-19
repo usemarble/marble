@@ -248,6 +248,16 @@ Tool badges describe how clients may present or approve tool calls:
     | `update_media` | Update media metadata such as name and alt text. Requires a private API key. | `DESTRUCTIVE` |
     | `delete_media` | Delete a media asset and its stored file. Requires a private API key. | `DESTRUCTIVE` |
   </Accordion>
+
+  <Accordion title="Fields">
+    | Tool | Description | Badges |
+    | --- | --- | --- |
+    | `get_fields` | Get all custom field definitions, including select and multiselect options. | `READ-ONLY` |
+    | `get_field` | Get a single custom field by ID or key. | `READ-ONLY` |
+    | `create_field` | Create a custom field definition. Requires a private API key. |  |
+    | `update_field` | Update a custom field by ID or key. Type and options cannot be changed after values have been saved. Requires a private API key. | `DESTRUCTIVE` |
+    | `delete_field` | Delete a custom field and its saved values. Requires a private API key. | `DESTRUCTIVE` |
+  </Accordion>
 </AccordionGroup>
 
 ## Authentication

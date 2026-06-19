@@ -9,6 +9,7 @@ import {
 import { cacheKey, createCacheClient, hashQueryParams } from "@/lib/cache";
 import { createDbClient } from "@/lib/db";
 import { emitEvent } from "@/lib/events";
+import { resolveCustomFieldValuesByKey } from "@/lib/fields";
 import { buildFieldsObject, buildStatusFilter } from "@/lib/posts";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { requireWorkspaceId } from "@/lib/workspace";
@@ -641,12 +642,41 @@ posts.openapi(createPostRoute, async (c) => {
     // The first author in the list becomes the primary author
     const primaryAuthorId = authorIds[0];
 
-    // 5. Determine publishedAt
+    // 5. Resolve custom fields by field key
+    const customFieldDefinitions = await db.field.findMany({
+      where: { workspaceId },
+      select: {
+        id: true,
+        key: true,
+        name: true,
+        type: true,
+        required: true,
+        options: {
+          select: {
+            value: true,
+            label: true,
+          },
+          orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+        },
+      },
+    });
+
+    const customFieldWrites = resolveCustomFieldValuesByKey(
+      customFieldDefinitions,
+      body.fields,
+      "create"
+    );
+
+    if (!customFieldWrites.success) {
+      return c.json(customFieldWrites.error, 400 as const);
+    }
+
+    // 6. Determine publishedAt
     const publishedAt = body.publishedAt
       ? new Date(body.publishedAt)
       : new Date();
 
-    // 6. Create the post
+    // 7. Create the post
     const normalizedContent = await normalizePostContent(body.content);
     const sanitizedContent = sanitizeHtml(normalizedContent.html);
     let contentJson = EMPTY_TIPTAP_DOC;
@@ -658,40 +688,59 @@ posts.openapi(createPostRoute, async (c) => {
       contentJson = EMPTY_TIPTAP_DOC;
     }
 
-    const postCreated = await db.post.create({
-      data: {
-        title: body.title,
-        content: sanitizedContent,
-        contentJson,
-        description: body.description,
-        slug: body.slug,
-        categoryId: body.categoryId,
-        status: body.status,
-        featured: body.featured ?? false,
-        coverImage: body.coverImage ?? null,
-        publishedAt,
-        workspaceId,
-        primaryAuthorId,
-        tags:
-          validTagIds.length > 0
-            ? { connect: validTagIds.map((id) => ({ id })) }
-            : undefined,
-        authors: {
-          connect: authorIds.map((id) => ({ id })),
+    const postCreated = await db.$transaction(async (tx) => {
+      const createdPost = await tx.post.create({
+        data: {
+          title: body.title,
+          content: sanitizedContent,
+          contentJson,
+          description: body.description,
+          slug: body.slug,
+          categoryId: body.categoryId,
+          status: body.status,
+          featured: body.featured ?? false,
+          coverImage: body.coverImage ?? null,
+          publishedAt,
+          workspaceId,
+          primaryAuthorId,
+          tags:
+            validTagIds.length > 0
+              ? { connect: validTagIds.map((id) => ({ id })) }
+              : undefined,
+          authors: {
+            connect: authorIds.map((id) => ({ id })),
+          },
         },
-      },
-      select: {
-        id: true,
-        slug: true,
-        title: true,
-        status: true,
-        featured: true,
-        publishedAt: true,
-        createdAt: true,
-      },
+        select: {
+          id: true,
+          slug: true,
+          title: true,
+          status: true,
+          featured: true,
+          publishedAt: true,
+          createdAt: true,
+        },
+      });
+
+      for (const { fieldId, value } of customFieldWrites.values) {
+        if (value === null) {
+          continue;
+        }
+
+        await tx.fieldValue.create({
+          data: {
+            postId: createdPost.id,
+            fieldId,
+            workspaceId,
+            value,
+          },
+        });
+      }
+
+      return createdPost;
     });
 
-    // 7. Invalidate cache
+    // 8. Invalidate cache
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "tags"));
     c.executionCtx.waitUntil(
@@ -938,7 +987,44 @@ posts.openapi(updatePostRoute, async (c) => {
       primaryAuthorId = orderedAuthorIds[0];
     }
 
-    // 6. Build update data
+    // 6. Resolve custom fields by field key when provided
+    let customFieldWrites:
+      | { fieldId: string; fieldType: string; value: string | null }[]
+      | undefined;
+
+    if (body.fields !== undefined) {
+      const customFieldDefinitions = await db.field.findMany({
+        where: { workspaceId },
+        select: {
+          id: true,
+          key: true,
+          name: true,
+          type: true,
+          required: true,
+          options: {
+            select: {
+              value: true,
+              label: true,
+            },
+            orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+          },
+        },
+      });
+
+      const resolvedCustomFields = resolveCustomFieldValuesByKey(
+        customFieldDefinitions,
+        body.fields,
+        "update"
+      );
+
+      if (!resolvedCustomFields.success) {
+        return c.json(resolvedCustomFields.error, 400 as const);
+      }
+
+      customFieldWrites = resolvedCustomFields.values;
+    }
+
+    // 7. Build update data
     const updateData: Record<string, unknown> = {};
     if (body.title !== undefined) {
       updateData.title = body.title;
@@ -988,22 +1074,61 @@ posts.openapi(updatePostRoute, async (c) => {
     if (primaryAuthorId) {
       updateData.primaryAuthorId = primaryAuthorId;
     }
+    if (customFieldWrites !== undefined) {
+      updateData.updatedAt = new Date();
+    }
 
-    const postUpdated = await db.post.update({
-      where: { id: existingPost.id },
-      data: updateData,
-      select: {
-        id: true,
-        slug: true,
-        title: true,
-        status: true,
-        featured: true,
-        publishedAt: true,
-        updatedAt: true,
-      },
+    const postUpdated = await db.$transaction(async (tx) => {
+      const updatedPost = await tx.post.update({
+        where: { id: existingPost.id },
+        data: updateData,
+        select: {
+          id: true,
+          slug: true,
+          title: true,
+          status: true,
+          featured: true,
+          publishedAt: true,
+          updatedAt: true,
+        },
+      });
+
+      for (const { fieldId, value } of customFieldWrites ?? []) {
+        if (value === null) {
+          await tx.fieldValue.deleteMany({
+            where: {
+              postId: existingPost.id,
+              fieldId,
+              workspaceId,
+            },
+          });
+          continue;
+        }
+
+        await tx.fieldValue.upsert({
+          where: {
+            postId_fieldId: {
+              postId: existingPost.id,
+              fieldId,
+            },
+          },
+          update: {
+            value,
+            workspaceId,
+          },
+          create: {
+            postId: existingPost.id,
+            fieldId,
+            workspaceId,
+            value,
+          },
+        });
+      }
+
+      return updatedPost;
     });
 
-    // 7. Invalidate cache
+    // 8. Invalidate cache
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "tags"));
     c.executionCtx.waitUntil(
@@ -1011,7 +1136,7 @@ posts.openapi(updatePostRoute, async (c) => {
     );
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
 
-    // 8. Emit events
+    // 9. Emit events
     const apiKeyId = c.get("apiKeyId");
     let eventType: "post_published" | "post_unpublished" | "post_updated";
 

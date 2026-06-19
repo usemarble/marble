@@ -167,7 +167,7 @@ export function createCacheClient(url: string, token: string) {
      */
     async invalidateResource(
       workspaceId: string,
-      resource: "posts" | "categories" | "tags" | "authors" | "media"
+      resource: "posts" | "categories" | "tags" | "authors" | "media" | "fields"
     ): Promise<number> {
       return this.invalidate(`${CACHE_PREFIX}:${workspaceId}:${resource}:*`);
     },

@@ -15,6 +15,7 @@ import authorsRoutes from "./routes/authors";
 import cacheRoutes from "./routes/cache";
 import categoriesRoutes from "./routes/categories";
 import eventsRoutes from "./routes/events";
+import fieldsRoutes from "./routes/fields";
 import mediaRoutes from "./routes/media";
 import postsRoutes from "./routes/posts";
 import tagsRoutes from "./routes/tags";
@@ -62,6 +63,7 @@ legacyV1.route("/:workspaceId/tags", tagsRoutes);
 legacyV1.route("/:workspaceId/categories", categoriesRoutes);
 legacyV1.route("/:workspaceId/posts", postsRoutes);
 legacyV1.route("/:workspaceId/authors", authorsRoutes);
+legacyV1.route("/:workspaceId/fields", fieldsRoutes);
 
 // Mount legacy routes dispatcher - intercepts /v1/:workspaceId/* BEFORE apiKeyV1
 app.use("/v1/:workspaceId/*", async (c, next) => {
@@ -97,6 +99,7 @@ apiKeyV1.route("/categories", categoriesRoutes);
 apiKeyV1.route("/tags", tagsRoutes);
 apiKeyV1.route("/authors", authorsRoutes);
 apiKeyV1.route("/media", mediaRoutes);
+apiKeyV1.route("/fields", fieldsRoutes);
 
 // Mount apiKeyV1 under /v1 to automatically merge OpenAPI specs
 app.route("/v1", apiKeyV1);

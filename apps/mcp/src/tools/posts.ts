@@ -38,6 +38,20 @@ const postFilters = {
     .describe("Tag IDs or slugs to exclude."),
 };
 
+const customFieldValue = z.union([
+  z.string(),
+  z.number(),
+  z.boolean(),
+  z.array(z.string()),
+  z.null(),
+]);
+
+const customFields = z
+  .record(z.string(), customFieldValue)
+  .describe(
+    "Custom field values keyed by field key. Call get_fields first. Select values must use option values, multiselect values must be arrays of option values, and null clears optional fields."
+  );
+
 const postBody = {
   title: z.string().min(1).describe("Post title."),
   content: z
@@ -75,6 +89,7 @@ const postBody = {
     .datetime()
     .optional()
     .describe("ISO 8601 datetime. Defaults to current time if omitted."),
+  fields: customFields.optional(),
 };
 
 const updatePostBody = {
@@ -121,6 +136,7 @@ const updatePostBody = {
     .datetime()
     .optional()
     .describe("Updated ISO 8601 publication datetime."),
+  fields: customFields.optional(),
 };
 
 export function registerPostTools(
