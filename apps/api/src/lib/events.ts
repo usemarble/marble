@@ -1,3 +1,4 @@
+import type { EventMessage } from "@marble/events";
 import type { createDbClient } from "@/lib/db";
 import type { JsonObject } from "@/validations/json";
 import type {
@@ -20,7 +21,7 @@ interface EmitEventOptions {
 
 export async function emitEvent(
   db: ReturnType<typeof createDbClient>,
-  queue: Queue,
+  queue: Queue<EventMessage>,
   options: EmitEventOptions
 ) {
   const event = await db.workspaceEvent.create({
@@ -36,7 +37,7 @@ export async function emitEvent(
     },
   });
 
-  await queue.send({ eventId: event.id });
+  await queue.send({ type: "event.fanout", eventId: event.id });
 
   return event;
 }

@@ -1,5 +1,6 @@
 /** biome-ignore-all lint/performance/noBarrelFile: package public API */
 
+export * from "./queue";
 export * from "./types";
 export * from "./utils/demo";
 export * from "./utils/envelope";

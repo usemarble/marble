@@ -1,3 +1,4 @@
+import type { EventMessage, QueueMessage, WebhookMessage } from "@marble/events";
 import { handleWebhookDeliveryQueue } from "./consumers/deliveries";
 import { handleDeadLetterQueue } from "./consumers/dlq";
 import { handleEventQueue } from "./consumers/events";
@@ -12,20 +13,16 @@ export default {
   async queue(batch: MessageBatch, env: Env, _ctx: ExecutionContext) {
     switch (batch.queue) {
       case "marble-events":
-        await handleEventQueue(batch as MessageBatch<{ eventId: string }>, env);
+        await handleEventQueue(batch as MessageBatch<EventMessage>, env);
         break;
       case "marble-webhook-deliveries":
         await handleWebhookDeliveryQueue(
-          batch as MessageBatch<{ deliveryId: string }>,
+          batch as MessageBatch<WebhookMessage>,
           env
         );
         break;
-      case "marble-events-dlq":
-      case "marble-webhook-deliveries-dlq":
-        await handleDeadLetterQueue(
-          batch as MessageBatch<{ eventId?: string; deliveryId?: string }>,
-          env
-        );
+      case "marble-dlq":
+        await handleDeadLetterQueue(batch as MessageBatch<QueueMessage>, env);
         break;
       default:
         console.error(`[Jobs] Unknown queue: ${batch.queue}`);

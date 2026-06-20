@@ -57,6 +57,7 @@ events.post("/", async (c) => {
     });
 
     await c.env.EVENT_QUEUE.send({
+      type: "event.fanout",
       eventId: event.id,
       targetWebhookEndpointId: body.targetWebhookEndpointId,
       isTest: body.isTest,

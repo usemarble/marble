@@ -1,11 +1,5 @@
 import { createDbClient } from "../lib/db";
-import type { Env } from "../types/env";
-
-interface EventMessage {
-  eventId: string;
-  targetWebhookEndpointId?: string;
-  isTest?: boolean;
-}
+import type { Env, EventMessage } from "../types/env";
 
 export async function handleEventQueue(
   batch: MessageBatch<EventMessage>,
@@ -70,6 +64,7 @@ export async function handleEventQueue(
         });
 
         await env.WEBHOOK_DELIVERY_QUEUE.send({
+          type: "webhook.delivery",
           deliveryId: delivery.id,
         });
       }

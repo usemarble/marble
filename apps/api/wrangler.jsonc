@@ -19,6 +19,10 @@
       {
         "binding": "EVENT_QUEUE",
         "queue": "marble-events"
+      },
+      {
+        "binding": "TASK_QUEUE",
+        "queue": "marble-tasks"
       }
     ]
   },

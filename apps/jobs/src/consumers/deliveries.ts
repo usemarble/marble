@@ -7,16 +7,12 @@ import {
   recordWebhookUsage,
   sendWebhookUsageAlert,
 } from "../lib/usage";
-import type { Env } from "../types/env";
+import type { Env, WebhookMessage } from "../types/env";
 
 const WEBHOOK_DELIVERY_TIMEOUT_MS = 15_000;
 
-interface DeliveryMessage {
-  deliveryId: string;
-}
-
 export async function handleWebhookDeliveryQueue(
-  batch: MessageBatch<DeliveryMessage>,
+  batch: MessageBatch<WebhookMessage>,
   env: Env
 ) {
   const db = createDbClient(env);
