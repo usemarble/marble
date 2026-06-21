@@ -114,10 +114,9 @@ async function fetchWithRetry(url, options, maxRetries = 3) {
 
 <Tip>
   - **Cache responses**: Store API responses where possible to reduce API calls.
-  - **Batch operations**: Process items sequentially with delays rather than
-  parallel requests. - **Monitor headers**: Track `X-RateLimit-Remaining` and
-  slow down before hitting limits. - **Use webhooks**: For real-time updates,
-  consider webhooks instead of polling the API.
+  - **Batch operations**: Process items sequentially with delays rather than parallel requests.
+  - **Monitor headers**: Track `X-RateLimit-Remaining` and slow down before hitting limits.
+  - **Use webhooks**: For real-time updates, consider webhooks instead of polling the API.
 </Tip>
 
 <Note>
