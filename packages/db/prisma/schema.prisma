@@ -79,6 +79,9 @@ model Organization {
   workspaceEvents   WorkspaceEvent[]
   webhookDeliveries WebhookDelivery[]
   usageAlerts       UsageAlert[]
+  exportJobs        ExportJob[]
+  importJobs        ImportJob[]
+  importItems       ImportItem[]
 
   @@map("workspace")
 }
@@ -230,6 +233,8 @@ model User {
   subscriptions           Subscription[]
   ApiKey                  ApiKey[]
   notificationPreferences UserNotificationPreferences?
+  exportJobs              ExportJob[]
+  importJobs              ImportJob[]
 
   @@map("user")
 }
@@ -728,5 +733,163 @@ enum WebhookDeliveryStatus {
   sending
   success
   retrying
+  failed
+}
+
+model ExportJob {
+  id          String          @id @default(cuid())
+  workspaceId String
+  status      ExportJobStatus @default(queued)
+  format      ExportFormat    @default(json)
+
+  // Snapshot of requested export options: resource list, filters, media mode, etc.
+  scope Json
+
+  // Result artifact (set once ready)
+  storageKey        String? // R2 key of the generated archive
+  fileSize          Int? // bytes
+  downloadTokenHash String? // hashed token backing the signed download link
+  expiresAt         DateTime?
+
+  startedAt    DateTime?
+  completedAt  DateTime?
+  failedAt     DateTime?
+  errorMessage String?
+  emailSentAt  DateTime?
+  attemptCount Int       @default(0)
+
+  createdById String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  workspace Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdBy User?        @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([workspaceId, status])
+  @@index([workspaceId, createdAt])
+  @@index([expiresAt])
+  @@map("export_job")
+}
+
+model ImportJob {
+  id          String          @id @default(cuid())
+  workspaceId String
+  source      ImportSource
+  status      ImportJobStatus @default(queued)
+  format      ImportFormat?
+
+  sourceUrl String? // for source = url
+  uploadKey String? // for source = file: R2 key of the uploaded archive/file
+
+  // Counters surfaced in the review UI and result report
+  totalItems    Int @default(0)
+  readyItems    Int @default(0)
+  errorItems    Int @default(0)
+  importedItems Int @default(0)
+
+  // User-confirmed category/tag/author mappings applied at create time
+  mapping Json?
+
+  startedAt    DateTime?
+  completedAt  DateTime?
+  failedAt     DateTime?
+  errorMessage String?
+
+  createdById String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  workspace Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdBy User?        @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  items     ImportItem[]
+
+  @@unique([id, workspaceId])
+  @@index([workspaceId, status])
+  @@index([workspaceId, createdAt])
+  @@map("import_job")
+}
+
+// A staging row per discovered post. Nearly everything is optional: it is a
+// pre-validation draft, not a Post. raw* holds values as discovered; resolved*
+// holds values after the user confirms mappings in the review step.
+model ImportItem {
+  id          String         @id @default(cuid())
+  importJobId String
+  workspaceId String
+  status      ImportItemStatus @default(pending)
+
+  sourceRef String? // original URL or filename
+
+  // Parsed content (staged)
+  title       String?
+  slug        String?
+  content     String?
+  contentJson Json?
+  description String?
+  coverImage  String?
+
+  // As discovered, before mapping
+  rawCategory String?
+  rawTags     Json?
+  rawAuthor   String?
+
+  // After the user maps taxonomies in review
+  resolvedCategoryId String?
+  resolvedTagIds     Json?
+
+  postId String? // set once the draft Post is created (plain pointer, no FK)
+  errors Json? // validation errors/warnings for this item
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  job       ImportJob    @relation(fields: [importJobId, workspaceId], references: [id, workspaceId], onDelete: Cascade)
+  workspace Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([importJobId, status])
+  @@index([workspaceId])
+  @@map("import_item")
+}
+
+enum ExportJobStatus {
+  queued
+  processing
+  ready
+  failed
+  expired
+}
+
+enum ExportFormat {
+  json
+  markdown
+}
+
+enum ImportSource {
+  file
+  url
+}
+
+enum ImportJobStatus {
+  queued
+  discovering
+  processing
+  review
+  importing
+  completed
+  failed
+}
+
+enum ImportFormat {
+  markdown
+  json
+  wordpress
+}
+
+enum ImportItemStatus {
+  pending
+  ready
+  needs_review
+  skipped
+  imported
   failed
 }

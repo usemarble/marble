@@ -62,3 +62,18 @@ export const SystemCacheInvalidateSchema = z.object({
     .enum(["posts", "categories", "tags", "authors", "usage"])
     .optional(),
 });
+
+export const taskSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("export.process"),
+    jobId: z.string().min(1),
+  }),
+  z.object({
+    type: z.literal("import.process"),
+    jobId: z.string().min(1),
+  }),
+  z.object({
+    type: z.literal("import.create"),
+    jobId: z.string().min(1),
+  }),
+]);

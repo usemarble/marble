@@ -10,6 +10,9 @@
     "enabled": true,
     "head_sampling_rate": 1
   },
+  "triggers": {
+    "crons": ["0 * * * *"]
+  },
   "hyperdrive": [
     { "binding": "HYPERDRIVE", "id": "c0eea431cc454c9b96589cd52f70a009" }
   ],
@@ -66,7 +69,59 @@
           "binding": "HYPERDRIVE",
           "id": "d20494d3ce894268b67505bf684a2395"
         }
-      ]
+      ],
+      "r2_buckets": [
+        {
+          "binding": "STORAGE",
+          "bucket_name": "marbledev",
+          "remote": true
+        }
+      ],
+      "queues": {
+        "producers": [
+          {
+            "binding": "EVENT_QUEUE",
+            "queue": "marble-events"
+          },
+          {
+            "binding": "WEBHOOK_DELIVERY_QUEUE",
+            "queue": "marble-webhook-deliveries"
+          },
+          {
+            "binding": "TASK_QUEUE",
+            "queue": "marble-tasks"
+          }
+        ],
+        "consumers": [
+          {
+            "queue": "marble-events",
+            "max_batch_size": 10,
+            "max_retries": 3,
+            "retry_delay": 60,
+            "dead_letter_queue": "marble-dlq"
+          },
+          {
+            "queue": "marble-webhook-deliveries",
+            "max_batch_size": 10,
+            "max_retries": 3,
+            "retry_delay": 60,
+            "dead_letter_queue": "marble-dlq"
+          },
+          {
+            "queue": "marble-tasks",
+            "max_batch_size": 1,
+            "max_retries": 3,
+            "retry_delay": 60,
+            "dead_letter_queue": "marble-dlq"
+          },
+          {
+            "queue": "marble-dlq",
+            "max_batch_size": 10,
+            "max_retries": 1,
+            "retry_delay": 60
+          }
+        ]
+      }
     }
   }
 }

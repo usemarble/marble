@@ -1,7 +1,13 @@
-import type { EventMessage, QueueMessage, WebhookMessage } from "@marble/events";
+import type {
+  EventMessage,
+  QueueMessage,
+  TaskMessage,
+  WebhookMessage,
+} from "@marble/events";
 import { handleWebhookDeliveryQueue } from "./consumers/deliveries";
 import { handleDeadLetterQueue } from "./consumers/dlq";
 import { handleEventQueue } from "./consumers/events";
+import { handleTaskQueue } from "./consumers/tasks";
 import { handleCleanup } from "./scheduled/cleanup";
 import type { Env } from "./types/env";
 
@@ -20,6 +26,9 @@ export default {
           batch as MessageBatch<WebhookMessage>,
           env
         );
+        break;
+      case "marble-tasks":
+        await handleTaskQueue(batch as MessageBatch<TaskMessage>, env);
         break;
       case "marble-dlq":
         await handleDeadLetterQueue(batch as MessageBatch<QueueMessage>, env);

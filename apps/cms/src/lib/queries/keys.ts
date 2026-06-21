@@ -30,6 +30,8 @@ export const QUERY_KEYS = {
 
   WEBHOOKS: (workspaceId: string) => ["webhooks", workspaceId],
 
+  EXPORTS: (workspaceId: string) => ["exports", workspaceId],
+
   CUSTOM_FIELDS: (workspaceId: string) => ["custom-fields", workspaceId],
 
   KEYS: (workspaceId: string) => ["keys", workspaceId],

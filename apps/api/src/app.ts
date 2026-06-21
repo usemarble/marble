@@ -19,6 +19,7 @@ import fieldsRoutes from "./routes/fields";
 import mediaRoutes from "./routes/media";
 import postsRoutes from "./routes/posts";
 import tagsRoutes from "./routes/tags";
+import tasksRoutes from "./routes/tasks";
 import type { ApiKeyApp, Env } from "./types/env";
 
 const app = new OpenAPIHono<{ Bindings: Env }>();
@@ -50,6 +51,9 @@ app.route("/cache/invalidate", cacheRoutes);
 
 app.use("/internal/events", systemAuth());
 app.route("/internal/events", eventsRoutes);
+
+app.use("/internal/tasks", systemAuth());
+app.route("/internal/tasks", tasksRoutes);
 
 // Legacy Workspace ID Routes (/v1/:workspaceId/*)
 // MUST be registered BEFORE apiKeyV1 to intercept workspace ID routes

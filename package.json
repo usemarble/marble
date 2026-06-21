@@ -20,6 +20,7 @@
     "web:dev": "turbo run dev --filter=web",
     "cms:dev": "turbo run dev --filter=cms",
     "api:dev": "turbo run dev --filter=api",
+    "workers:dev": "pnpm --filter api exec wrangler dev -c wrangler.jsonc -c ../jobs/wrangler.jsonc --env development --persist-to ../../.wrangler/state",
     "docs:dev": "turbo run dev --filter=docs",
     "mcp:dev": "turbo run dev --filter=mcp",
     "test": "turbo run test",
