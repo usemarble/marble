@@ -1,10 +1,9 @@
 import { sendExportReadyEmail } from "@marble/email";
 import { Resend } from "resend";
-import type { Env } from "../types/env";
-import type { DbClient } from "./db";
-import { buildZipArchive, stringifyJsonFile } from "./files";
-
-const EXPORT_TTL_MS = 24 * 60 * 60 * 1000;
+import { EXPORT_TTL_MS, getAppUrl } from "@/lib/constants";
+import type { DbClient } from "@/lib/db";
+import { buildZipArchive, stringifyJsonFile } from "@/lib/files";
+import type { Env } from "@/types/env";
 
 function generateToken() {
   const bytes = new Uint8Array(32);
@@ -22,10 +21,6 @@ async function sha256Hex(value: string) {
   return Array.from(new Uint8Array(digest))
     .map((byte) => byte.toString(16).padStart(2, "0"))
     .join("");
-}
-
-function getAppUrl(env: Env) {
-  return env.APP_URL || "https://app.marblecms.com";
 }
 
 function getExportReadyEmailRecipients(job: {

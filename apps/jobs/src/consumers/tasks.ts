@@ -1,7 +1,7 @@
-import { createDbClient } from "../lib/db";
-import { runExport } from "../lib/export";
-import { runImportCreate, runImportProcess } from "../lib/import";
-import type { Env, TaskMessage } from "../types/env";
+import { createDbClient } from "@/lib/db";
+import { runExport } from "@/lib/export";
+import { runImportCreate, runImportProcess } from "@/lib/import";
+import type { Env, TaskMessage } from "@/types/env";
 
 /**
  * Consumer for the shared `marble-tasks` queue (max_batch_size: 1).

@@ -1,6 +1,6 @@
 import type { QueueMessage } from "@marble/events";
-import { createDbClient } from "../lib/db";
-import type { Env } from "../types/env";
+import { createDbClient } from "@/lib/db";
+import type { Env } from "@/types/env";
 
 /**
  * Single consumer for the shared `marble-dlq`. The DLQ receives the original

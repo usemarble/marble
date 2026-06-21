@@ -1,5 +1,5 @@
-import type { DbClient } from "../lib/db";
-import type { Env } from "../types/env";
+import type { DbClient } from "@/lib/db";
+import type { Env } from "@/types/env";
 
 export async function cleanupExpiredExports({
   db,

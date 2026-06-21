@@ -1,15 +1,14 @@
 import { buildWebhookPayload, serializeEventType } from "@marble/events";
-import { createDbClient } from "../lib/db";
-import { buildWebhookRequestBody } from "../lib/formats";
-import { signPayload } from "../lib/signing";
+import { WEBHOOK_DELIVERY_TIMEOUT_MS } from "@/lib/constants";
+import { createDbClient } from "@/lib/db";
+import { buildWebhookRequestBody } from "@/lib/formats";
+import { signPayload } from "@/lib/signing";
 import {
   checkWebhookUsage,
   recordWebhookUsage,
   sendWebhookUsageAlert,
-} from "../lib/usage";
-import type { Env, WebhookMessage } from "../types/env";
-
-const WEBHOOK_DELIVERY_TIMEOUT_MS = 15_000;
+} from "@/lib/usage";
+import type { Env, WebhookMessage } from "@/types/env";
 
 export async function handleWebhookDeliveryQueue(
   batch: MessageBatch<WebhookMessage>,

@@ -1,5 +1,5 @@
-import { createDbClient } from "../lib/db";
-import type { Env, EventMessage } from "../types/env";
+import { createDbClient } from "@/lib/db";
+import type { Env, EventMessage } from "@/types/env";
 
 export async function handleEventQueue(
   batch: MessageBatch<EventMessage>,

@@ -1,5 +1,5 @@
 import { createClient } from "@marble/db/hyperdrive";
-import type { Env } from "../types/env";
+import type { Env } from "@/types/env";
 
 export type DbClient = ReturnType<typeof createDbClient>;
 

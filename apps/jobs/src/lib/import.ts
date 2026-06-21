@@ -1,5 +1,5 @@
-import type { Env } from "../types/env";
-import type { DbClient } from "./db";
+import type { DbClient } from "@/lib/db";
+import type { Env } from "@/types/env";
 
 /**
  * Phase 1 of an import: parse/discover source content into ImportItem rows for

@@ -4,12 +4,12 @@ import type {
   TaskMessage,
   WebhookMessage,
 } from "@marble/events";
-import { handleWebhookDeliveryQueue } from "./consumers/deliveries";
-import { handleDeadLetterQueue } from "./consumers/dlq";
-import { handleEventQueue } from "./consumers/events";
-import { handleTaskQueue } from "./consumers/tasks";
-import { handleCleanup } from "./scheduled/cleanup";
-import type { Env } from "./types/env";
+import { handleWebhookDeliveryQueue } from "@/consumers/deliveries";
+import { handleDeadLetterQueue } from "@/consumers/dlq";
+import { handleEventQueue } from "@/consumers/events";
+import { handleTaskQueue } from "@/consumers/tasks";
+import { handleCleanup } from "@/scheduled/cleanup";
+import type { Env } from "@/types/env";
 
 export default {
   async fetch() {

@@ -1,4 +1,5 @@
 import type { buildWebhookPayload } from "@marble/events";
+import { MARBLE_AVATAR_URL, MARBLE_COLOR } from "@/lib/constants";
 
 type WebhookPayload = ReturnType<typeof buildWebhookPayload>;
 
@@ -38,9 +39,6 @@ export interface SlackWebhookBody {
   text: string;
   blocks: Record<string, unknown>[];
 }
-
-const MARBLE_COLOR = 5_786_879;
-const MARBLE_AVATAR_URL = "https://marblecms.com/logo.svg";
 
 function formatEvent(input: string) {
   return (

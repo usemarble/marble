@@ -1,7 +1,7 @@
-import { createDbClient } from "../lib/db";
-import type { Env } from "../types/env";
-import { cleanupOldWebhookDeliveries } from "./deliveries";
-import { cleanupExpiredExports } from "./exports";
+import { createDbClient } from "@/lib/db";
+import { cleanupOldWebhookDeliveries } from "@/scheduled/deliveries";
+import { cleanupExpiredExports } from "@/scheduled/exports";
+import type { Env } from "@/types/env";
 
 export async function handleCleanup(
   _event: ScheduledEvent,

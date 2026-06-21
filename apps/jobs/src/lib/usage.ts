@@ -1,16 +1,10 @@
 import { sendUsageLimitEmail } from "@marble/email";
 import { getWorkspacePlan, PLAN_LIMITS } from "@marble/utils";
 import { Resend } from "resend";
-import type { DbClient } from "./db";
+import { USAGE_ALERT_THRESHOLDS } from "@/lib/constants";
+import type { DbClient } from "@/lib/db";
 
-type UsageThreshold = 75 | 90 | 100;
-type UsageAlertKind = "warning" | "critical" | "exhausted";
-
-const USAGE_ALERT_THRESHOLDS = {
-  warning: 75,
-  critical: 90,
-  exhausted: 100,
-} as const satisfies Record<UsageAlertKind, UsageThreshold>;
+type UsageAlertKind = keyof typeof USAGE_ALERT_THRESHOLDS;
 
 interface UsagePeriod {
   start: Date;

@@ -8,6 +8,7 @@ export interface Env {
   STORAGE: R2Bucket;
   RESEND_API_KEY: string;
   APP_URL?: string;
+  ENVIRONMENT?: string;
 }
 
 // Re-exported so consumers can keep importing message contracts from the local

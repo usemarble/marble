@@ -1,6 +1,8 @@
-import type { DbClient } from "../lib/db";
-
-const WEBHOOK_DELIVERY_RETENTION_DAYS = 30;
+import {
+  MILLISECONDS_IN_DAY,
+  WEBHOOK_DELIVERY_RETENTION_DAYS,
+} from "@/lib/constants";
+import type { DbClient } from "@/lib/db";
 
 export async function cleanupOldWebhookDeliveries({
   db,
@@ -10,7 +12,7 @@ export async function cleanupOldWebhookDeliveries({
   now: Date;
 }) {
   const cutoff = new Date(
-    now.getTime() - WEBHOOK_DELIVERY_RETENTION_DAYS * 24 * 60 * 60 * 1000
+    now.getTime() - WEBHOOK_DELIVERY_RETENTION_DAYS * MILLISECONDS_IN_DAY
   );
 
   const result = await db.webhookDelivery.deleteMany({
