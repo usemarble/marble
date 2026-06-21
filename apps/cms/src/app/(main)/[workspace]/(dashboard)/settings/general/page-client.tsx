@@ -2,6 +2,7 @@
 
 import { DashboardBody } from "@/components/layout/wrapper";
 import { Delete } from "@/components/settings/fields/delete";
+import { Export } from "@/components/settings/fields/export";
 import { Id } from "@/components/settings/fields/id";
 import { Logo } from "@/components/settings/fields/logo";
 import { Name } from "@/components/settings/fields/name";
@@ -24,6 +25,7 @@ function PageClient() {
       <Logo />
       <Timezone />
       <Id />
+      <Export />
       <Delete />
     </DashboardBody>
   );

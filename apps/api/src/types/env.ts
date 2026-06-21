@@ -1,4 +1,4 @@
-import type { EventMessage } from "@marble/events";
+import type { EventMessage, TaskMessage } from "@marble/events";
 import type { ApiScope } from "@marble/utils/api-key-scopes";
 
 export interface Env {
@@ -13,7 +13,7 @@ export interface Env {
   SYSTEM_SECRET: string;
   RESEND_API_KEY: string;
   EVENT_QUEUE: Queue<EventMessage>;
-  TASK_QUEUE: Queue;
+  TASK_QUEUE: Queue<TaskMessage>;
 }
 
 // Context variables set by keyAuthorization middleware

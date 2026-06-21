@@ -20,5 +20,16 @@ export interface WebhookMessage {
   deliveryId: string;
 }
 
+/**
+ * marble-tasks: heavy user-requested jobs (export / import).
+ * Import runs in two phases around a human review pause: `import.process`
+ * parses into ImportItems for review; `import.create` turns confirmed items
+ * into draft posts.
+ */
+export type TaskMessage =
+  | { type: "export.process"; jobId: string }
+  | { type: "import.process"; jobId: string }
+  | { type: "import.create"; jobId: string };
+
 /** Any message that can land in the shared `marble-dlq`. */
-export type QueueMessage = EventMessage | WebhookMessage;
+export type QueueMessage = EventMessage | WebhookMessage | TaskMessage;

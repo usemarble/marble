@@ -31,6 +31,25 @@ export async function handleDeadLetterQueue(
             `[DLQ] Marked delivery as permanently failed: ${body.deliveryId}`
           );
           break;
+        case "export.process":
+          await db.exportJob.update({
+            where: { id: body.jobId },
+            data: { status: "failed", failedAt: new Date() },
+          });
+          console.error(
+            `[DLQ] Marked export as permanently failed: ${body.jobId}`
+          );
+          break;
+        case "import.process":
+        case "import.create":
+          await db.importJob.update({
+            where: { id: body.jobId },
+            data: { status: "failed", failedAt: new Date() },
+          });
+          console.error(
+            `[DLQ] Marked import as permanently failed: ${body.jobId}`
+          );
+          break;
         case "event.fanout":
           // WorkspaceEvent has no failure state — log only.
           console.error(

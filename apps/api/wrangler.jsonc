@@ -40,7 +40,19 @@
           "bucket_name": "marbledev",
           "remote": true
         }
-      ]
+      ],
+      "queues": {
+        "producers": [
+          {
+            "binding": "EVENT_QUEUE",
+            "queue": "marble-events"
+          },
+          {
+            "binding": "TASK_QUEUE",
+            "queue": "marble-tasks"
+          }
+        ]
+      }
     }
   }
 }

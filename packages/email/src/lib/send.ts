@@ -1,4 +1,5 @@
 import type { Resend } from "resend";
+import { ExportReadyEmail } from "../emails/export-ready";
 import { FounderEmail } from "../emails/founder";
 import { InviteUserEmail } from "../emails/invite";
 import { ResetPasswordEmail } from "../emails/reset";
@@ -160,5 +161,35 @@ export async function sendFounderEmail(
       userEmail,
     }),
     ...(scheduledAt && { scheduledAt: scheduledAt.toISOString() }),
+  });
+}
+
+export async function sendExportReadyEmail(
+  resend: Resend,
+  {
+    userEmail,
+    userName,
+    workspaceName,
+    downloadUrl,
+    expiresAt,
+  }: {
+    userEmail: string;
+    userName?: string;
+    workspaceName: string;
+    downloadUrl: string;
+    expiresAt: Date;
+  }
+) {
+  return await resend.emails.send({
+    from: EMAIL_CONFIG.from,
+    replyTo: EMAIL_CONFIG.replyTo,
+    to: userEmail,
+    subject: `Your ${workspaceName} export is ready`,
+    react: ExportReadyEmail({
+      userName,
+      workspaceName,
+      downloadUrl,
+      expiresAt: expiresAt.toUTCString(),
+    }),
   });
 }
