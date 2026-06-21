@@ -28,7 +28,7 @@ export async function handleDeadLetterQueue(
             data: { status: "failed", failedAt: new Date() },
           });
           console.error(
-            `[DLQ] Marked delivery as permanently failed: ${body.deliveryId}`
+            `[DLQ] [${body.type}] marked delivery as permanently failed: ${body.deliveryId}`
           );
           break;
         case "export.process":
@@ -37,7 +37,7 @@ export async function handleDeadLetterQueue(
             data: { status: "failed", failedAt: new Date() },
           });
           console.error(
-            `[DLQ] Marked export as permanently failed: ${body.jobId}`
+            `[DLQ] [${body.type}] marked export as permanently failed: ${body.jobId}`
           );
           break;
         case "import.process":
@@ -47,13 +47,13 @@ export async function handleDeadLetterQueue(
             data: { status: "failed", failedAt: new Date() },
           });
           console.error(
-            `[DLQ] Marked import as permanently failed: ${body.jobId}`
+            `[DLQ] type=${body.type} marked import as permanently failed: ${body.jobId}`
           );
           break;
         case "event.fanout":
           // WorkspaceEvent has no failure state — log only.
           console.error(
-            `[DLQ] Event fanout permanently failed: ${body.eventId}`
+            `[DLQ] [${body.type}] event fanout permanently failed: ${body.eventId}`
           );
           break;
         default:
@@ -62,8 +62,10 @@ export async function handleDeadLetterQueue(
 
       message.ack();
     } catch (error) {
-      console.error("[DLQ] Failed to process DLQ message:", error);
-      // Already dead-lettered — never retry it.
+      console.error(
+        `[DLQ] Failed to process message type=${body.type}:`,
+        error
+      );
       message.ack();
     }
   }

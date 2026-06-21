@@ -6,6 +6,9 @@ export const EXPORT_TTL_MS = MILLISECONDS_IN_DAY;
 
 export const WEBHOOK_DELIVERY_RETENTION_DAYS = 30;
 export const WEBHOOK_DELIVERY_TIMEOUT_MS = 15_000;
+// The dashboard currently renders a 30-day chart plus the previous 30-day
+// comparison from raw API request rows.
+export const API_REQUEST_RETENTION_DAYS = 60;
 
 export const USAGE_ALERT_THRESHOLDS = {
   warning: 75,
