@@ -9,6 +9,9 @@
 
 type ZipFileMap = Record<string, string>;
 
+const ZIP_UINT16_MAX = 0xff_ff;
+const ZIP_UINT32_MAX = 0xff_ff_ff_ff;
+
 function writeUint16(buffer: Uint8Array, offset: number, value: number) {
   buffer[offset] = value & 0xff;
   buffer[offset + 1] = (value >>> 8) & 0xff;
@@ -57,11 +60,31 @@ export function buildZipArchive(files: ZipFileMap) {
     data: encoder.encode(content),
   }));
 
+  if (entries.length > ZIP_UINT16_MAX) {
+    throw new Error("ZIP archive contains too many files");
+  }
+
   let localSize = 0;
   let centralSize = 0;
   for (const entry of entries) {
+    if (entry.nameBytes.length > ZIP_UINT16_MAX) {
+      throw new Error("ZIP file name is too long");
+    }
+
+    if (entry.data.length > ZIP_UINT32_MAX) {
+      throw new Error("ZIP file is too large");
+    }
+
     localSize += 30 + entry.nameBytes.length + entry.data.length;
     centralSize += 46 + entry.nameBytes.length;
+  }
+
+  if (
+    localSize > ZIP_UINT32_MAX ||
+    centralSize > ZIP_UINT32_MAX ||
+    localSize + centralSize + 22 > ZIP_UINT32_MAX
+  ) {
+    throw new Error("ZIP archive is too large");
   }
 
   const archive = new Uint8Array(localSize + centralSize + 22);

@@ -33,7 +33,7 @@ export async function handleTaskQueue(
           await runImportCreate(db, env, body.jobId);
           break;
         default:
-          console.error("[Tasks] Unknown task type:", JSON.stringify(body));
+          throw new Error(`Unknown task type: ${JSON.stringify(body)}`);
       }
 
       message.ack();

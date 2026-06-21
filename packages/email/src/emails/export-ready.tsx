@@ -33,7 +33,7 @@ export const ExportReadyEmail = ({
   const greeting = userName ? `Hi ${userName},` : "Hi there,";
 
   return (
-    <Html>
+    <Html lang="en">
       <Head />
       <Preview>Your Marble export is ready to download</Preview>
       <Tailwind>

@@ -3,8 +3,9 @@ import type { DbClient } from "./db";
 
 /**
  * Phase 1 of an import: parse/discover source content into ImportItem rows for
- * the user to review. Ends with the job in "review". Idempotent: only runs from
- * a fresh ("queued") job.
+ * the user to review. Ends with the job in "review". Idempotent: starts from a
+ * fresh ("queued") job and keeps retrying if the queue redelivers while the job
+ * is already "processing".
  */
 export async function runImportProcess(db: DbClient, _env: Env, jobId: string) {
   const job = await db.importJob.findUnique({ where: { id: jobId } });
@@ -14,14 +15,16 @@ export async function runImportProcess(db: DbClient, _env: Env, jobId: string) {
     return;
   }
 
-  if (job.status !== "queued") {
+  if (job.status !== "queued" && job.status !== "processing") {
     return;
   }
 
-  await db.importJob.update({
-    where: { id: job.id },
-    data: { status: "processing", startedAt: job.startedAt ?? new Date() },
-  });
+  if (job.status === "queued") {
+    await db.importJob.update({
+      where: { id: job.id },
+      data: { status: "processing", startedAt: job.startedAt ?? new Date() },
+    });
+  }
 
   // TODO(import:process):
   //   - source = file: fetch job.uploadKey from env.STORAGE, parse entries.

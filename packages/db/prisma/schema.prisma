@@ -803,6 +803,7 @@ model ImportJob {
   createdBy User?        @relation(fields: [createdById], references: [id], onDelete: SetNull)
   items     ImportItem[]
 
+  @@unique([id, workspaceId])
   @@index([workspaceId, status])
   @@index([workspaceId, createdAt])
   @@map("import_job")
@@ -842,7 +843,7 @@ model ImportItem {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  job       ImportJob    @relation(fields: [importJobId], references: [id], onDelete: Cascade)
+  job       ImportJob    @relation(fields: [importJobId, workspaceId], references: [id, workspaceId], onDelete: Cascade)
   workspace Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@index([importJobId, status])

@@ -298,7 +298,7 @@ export async function runExport(db: DbClient, env: Env, jobId: string) {
   const claim = await db.exportJob.updateMany({
     where: {
       id: job.id,
-      status: { in: ["queued", "processing"] },
+      status: "queued",
     },
     data: {
       status: "processing",
@@ -391,6 +391,7 @@ export async function runExport(db: DbClient, env: Env, jobId: string) {
     await db.exportJob.update({
       where: { id: job.id },
       data: {
+        status: "queued",
         errorMessage:
           error instanceof Error ? error.message : "Failed to process export",
       },

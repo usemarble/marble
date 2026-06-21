@@ -1,4 +1,7 @@
-import { GetObjectCommand } from "@aws-sdk/client-s3";
+import {
+  GetObjectCommand,
+  type GetObjectCommandOutput,
+} from "@aws-sdk/client-s3";
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
@@ -18,22 +21,18 @@ async function sha256Hex(value: string) {
     .join("");
 }
 
-async function streamToArrayBuffer(stream: unknown): Promise<ArrayBuffer> {
+function streamToResponseBody(stream: unknown): ReadableStream {
   if (stream instanceof ReadableStream) {
-    return new Response(stream).arrayBuffer();
+    return stream;
   }
 
   if (
     stream &&
     typeof stream === "object" &&
-    "transformToByteArray" in stream &&
-    typeof stream.transformToByteArray === "function"
+    "transformToWebStream" in stream &&
+    typeof stream.transformToWebStream === "function"
   ) {
-    const bytes = await stream.transformToByteArray();
-    return bytes.buffer.slice(
-      bytes.byteOffset,
-      bytes.byteOffset + bytes.byteLength
-    );
+    return stream.transformToWebStream();
   }
 
   throw new Error("Unsupported export body stream");
@@ -85,26 +84,39 @@ export async function GET(request: Request, context: RouteContext) {
     }
   }
 
-  const object = await r2.send(
-    new GetObjectCommand({
-      Bucket: R2_BUCKET_NAME,
-      Key: job.storageKey,
-    })
-  );
+  let object: GetObjectCommandOutput;
+
+  try {
+    object = await r2.send(
+      new GetObjectCommand({
+        Bucket: R2_BUCKET_NAME,
+        Key: job.storageKey,
+      })
+    );
+  } catch (error) {
+    console.error("[Exports] Failed to fetch export file:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch export file" },
+      { headers: { "cache-control": "no-store" }, status: 500 }
+    );
+  }
 
   if (!object.Body) {
     return NextResponse.json({ error: "Export file missing" }, { status: 404 });
   }
 
-  const body = await streamToArrayBuffer(object.Body);
+  const body = streamToResponseBody(object.Body);
   const createdAt = job.createdAt.toISOString().slice(0, 10);
   const filename = `marble-${job.workspace.slug}-export-${createdAt}.zip`;
-
-  return new Response(body, {
-    headers: {
-      "content-disposition": `attachment; filename="${filename}"`,
-      "content-length": String(body.byteLength),
-      "content-type": "application/zip",
-    },
+  const headers = new Headers({
+    "cache-control": "no-store",
+    "content-disposition": `attachment; filename="${filename}"`,
+    "content-type": "application/zip",
   });
+
+  if (object.ContentLength != null) {
+    headers.set("content-length", String(object.ContentLength));
+  }
+
+  return new Response(body, { headers });
 }

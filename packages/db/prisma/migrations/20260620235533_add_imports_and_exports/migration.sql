@@ -107,6 +107,9 @@ CREATE INDEX "import_job_workspaceId_status_idx" ON "import_job"("workspaceId", 
 CREATE INDEX "import_job_workspaceId_createdAt_idx" ON "import_job"("workspaceId", "createdAt");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "import_job_id_workspaceId_key" ON "import_job"("id", "workspaceId");
+
+-- CreateIndex
 CREATE INDEX "import_item_importJobId_status_idx" ON "import_item"("importJobId", "status");
 
 -- CreateIndex
@@ -125,7 +128,7 @@ ALTER TABLE "import_job" ADD CONSTRAINT "import_job_workspaceId_fkey" FOREIGN KE
 ALTER TABLE "import_job" ADD CONSTRAINT "import_job_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "import_item" ADD CONSTRAINT "import_item_importJobId_fkey" FOREIGN KEY ("importJobId") REFERENCES "import_job"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "import_item" ADD CONSTRAINT "import_item_importJobId_workspaceId_fkey" FOREIGN KEY ("importJobId", "workspaceId") REFERENCES "import_job"("id", "workspaceId") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "import_item" ADD CONSTRAINT "import_item_workspaceId_fkey" FOREIGN KEY ("workspaceId") REFERENCES "workspace"("id") ON DELETE CASCADE ON UPDATE CASCADE;

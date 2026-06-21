@@ -10,6 +10,7 @@ export async function enqueueTask(message: TaskMessage) {
 
   const response = await fetch(`${apiUrl}/internal/tasks`, {
     method: "POST",
+    signal: AbortSignal.timeout(5000),
     headers: {
       "Content-Type": "application/json",
       "X-System-Secret": systemSecret,

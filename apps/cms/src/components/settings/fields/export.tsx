@@ -43,7 +43,7 @@ function formatDate(value: string | null) {
 
 function getStatusLabel(job: ExportJob) {
   if (job.status === "ready") {
-    const size = job.fileSize ? formatBytes(job.fileSize) : null;
+    const size = job.fileSize != null ? formatBytes(job.fileSize) : null;
     return size ? `Ready · ${size}` : "Ready";
   }
 
