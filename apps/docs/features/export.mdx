@@ -1,0 +1,62 @@
+---
+title: "Exporting Content"
+sidebarTitle: "Export"
+description: "Download a JSON archive of your workspace content, including posts, taxonomies, authors, media metadata, and custom fields."
+---
+
+You can export your entire workspace as a downloadable JSON archive. Exports are useful for taking backups, migrating to another Marble workspace, or piping your content into another tool.
+
+## What's in an export
+
+Each export is a single `.zip` archive containing one JSON file per resource plus a manifest:
+
+| File              | Contents                                                                 |
+| ----------------- | ------------------------------------------------------------------------ |
+| `manifest.json`   | Provider, schema version, format, export timestamp, workspace, and resource counts. |
+| `posts.json`      | Every post with its content, status, category, tags, and authors.        |
+| `categories.json` | All categories.                                                          |
+| `tags.json`       | All tags.                                                                |
+| `authors.json`    | Authors with bios and social links.                                      |
+| `media.json`      | Metadata for every media item (URL, mime type, dimensions, size).        |
+| `fields.json`     | Custom fields and their options.                                         |
+
+<Note>
+  Exports include media **metadata** — not the underlying media files. Media URLs in `media.json` continue to point to the originally hosted files.
+</Note>
+
+## Starting an export
+
+1. Open **Settings → General** in your workspace.
+2. Find the **Export Workspace Data** section.
+3. Click **Start Export**.
+
+Marble queues the export and starts building the archive in the background. You can leave the page while it runs — the status updates automatically when you return.
+
+## Job lifecycle
+
+Each export moves through a few states:
+
+| Status       | Meaning                                                                |
+| ------------ | ---------------------------------------------------------------------- |
+| `queued`     | The export has been requested and is waiting to be picked up.          |
+| `processing` | A worker is collecting your content and packaging the archive.        |
+| `ready`      | The archive is built and available to download.                        |
+| `failed`     | Something went wrong. The error reason is shown next to the job.       |
+| `expired`    | The 24-hour download window has passed and the archive has been removed. |
+
+## Downloading the archive
+
+Once a job is `ready`, a **Download** button appears next to it in the export list. The most recent three exports are shown, and any finished export remains downloadable for **24 hours**. After that window the file is deleted and the job is marked `expired` — start a new export to get a fresh copy.
+
+## Email notification
+
+When an export finishes, Marble sends an **"Your export is ready"** email containing the download link and its expiry time. The email goes to:
+
+- The workspace member who started the export.
+- All workspace **owners**.
+
+This means owners always have a record of completed exports, even if someone else triggered them.
+
+<Check>
+  Use exports to back up your workspace, hand off content to another team, or seed a new Marble workspace with your existing data. The JSON layout is stable across exports (`schemaVersion: 1`), so you can safely script against it.
+</Check>

@@ -80,7 +80,8 @@
               "features/custom-fields",
               "features/media",
               "features/webhooks",
-              "features/import"
+              "features/import",
+              "features/export"
             ]
           },
           {
