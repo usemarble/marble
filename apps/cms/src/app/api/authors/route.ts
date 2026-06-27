@@ -3,12 +3,12 @@ import { toAuthorPayload } from "@marble/events";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";
+import { getWorkspacePlan, PLAN_LIMITS } from "@/lib/plans";
+import { getDashboardAuthors } from "@/lib/queries/dashboard/authors";
 import {
   emitDashboardEvent,
   logDashboardEventError,
-} from "@/lib/events/dispatch";
-import { getWorkspacePlan, PLAN_LIMITS } from "@/lib/plans";
-import { getDashboardAuthors } from "@/lib/queries/dashboard/authors";
+} from "@/lib/queues/events";
 import { authorSchema } from "@/lib/validations/authors";
 
 export async function GET() {

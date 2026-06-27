@@ -6,7 +6,7 @@ import { invalidateCache } from "@/lib/cache/invalidate";
 import {
   emitDashboardEvent,
   logDashboardEventError,
-} from "@/lib/events/dispatch";
+} from "@/lib/queues/events";
 import { authorSchema } from "@/lib/validations/authors";
 
 export async function DELETE(

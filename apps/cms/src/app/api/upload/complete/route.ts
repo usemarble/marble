@@ -5,7 +5,7 @@ import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import {
   emitDashboardEvent,
   logDashboardEventError,
-} from "@/lib/events/dispatch";
+} from "@/lib/queues/events";
 import { R2_PUBLIC_URL } from "@/lib/r2";
 import { verifyUploadToken } from "@/lib/upload-token";
 import { completeSchema } from "@/lib/validations/upload";

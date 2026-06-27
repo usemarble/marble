@@ -41,7 +41,6 @@ export async function handleDeadLetterQueue(
           );
           break;
         case "import.process":
-        case "import.create":
           await db.importJob.update({
             where: { id: body.jobId },
             data: { status: "failed", failedAt: new Date() },

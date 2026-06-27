@@ -1,5 +1,5 @@
+import { sanitizeHtml } from "@marble/utils/sanitize";
 import { z } from "zod";
-import { sanitizeHtml } from "@/lib/sanitize";
 
 export const CustomFieldValueSchema = z.union([
   z.string(),

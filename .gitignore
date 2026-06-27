@@ -2,6 +2,7 @@
 
 # Dependencies
 node_modules
+.pnpm-store/
 .pnp
 .pnp.js
 
@@ -23,6 +24,7 @@ coverage
 
 # Cloudflare
 .wrangler
+apps/jobs/worker-configuration.d.ts
 
 # Build Outputs
 .next/

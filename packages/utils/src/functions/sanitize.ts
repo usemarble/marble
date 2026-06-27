@@ -1,15 +1,10 @@
 import sanitize, { defaults } from "sanitize-html";
 
 /**
- * Sanitize HTML content to prevent XSS attacks.
- * Uses the same configuration as the CMS editor to ensure consistency.
- *
- * - Strips `<script>` tags and `on*` event handlers
- * - Whitelists safe HTML tags and attributes
- * - Only allows safe URL schemes (blocks `javascript:` in hrefs)
- * - Restricts iframe sources to YouTube only
+ * Sanitizes full post/body HTML while preserving the tags and attributes
+ * supported by Marble's editor and rendered content surfaces.
  */
-export const sanitizeHtml = (content: string): string => {
+export function sanitizeHtml(content: string): string {
   return sanitize(content, {
     allowedTags: [
       "b",
@@ -58,10 +53,9 @@ export const sanitizeHtml = (content: string): string => {
     allowedAttributes: {
       ...defaults.allowedAttributes,
       "*": ["style"],
-      code: ["class"],
       a: ["href", "target"],
-      iframe: ["src", "allowfullscreen", "style", "width", "height"],
-      input: ["type", "checked"],
+      code: ["class"],
+      div: ["data-twitter", "data-src", "data-youtube-video"],
       figure: [
         "src",
         "alt",
@@ -70,21 +64,22 @@ export const sanitizeHtml = (content: string): string => {
         "data-align",
         "data-type",
       ],
-      video: ["src", "controls", "preload", "muted", "loop", "playsinline"],
-      track: ["kind", "src", "srclang", "label"],
-      div: ["data-twitter", "data-src", "data-youtube-video"],
-      span: ["style", "data-color"],
+      iframe: ["src", "allowfullscreen", "style", "width", "height"],
+      input: ["type", "checked"],
       mark: ["style", "data-color"],
+      span: ["style", "data-color"],
+      track: ["kind", "src", "srclang", "label"],
+      video: ["src", "controls", "preload", "muted", "loop", "playsinline"],
     },
     allowedStyles: {
       "*": {
-        color: [
+        "background-color": [
           /^#[\da-fA-F]{3,6}$/,
           /^rgb\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*\)$/,
           /^rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*[\d.]+\s*\)$/,
           /^[a-zA-Z]+$/,
         ],
-        "background-color": [
+        color: [
           /^#[\da-fA-F]{3,6}$/,
           /^rgb\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*\)$/,
           /^rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*[\d.]+\s*\)$/,
@@ -93,21 +88,23 @@ export const sanitizeHtml = (content: string): string => {
         "text-decoration": [/^line-through$/, /^underline$/, /^none$/],
       },
     },
+    allowedIframeHostnames: ["www.youtube.com", "www.youtube-nocookie.com"],
     allowedSchemes: ["http", "https", "ftp", "mailto"],
     allowedSchemesByTag: {
-      img: ["http", "https", "data"],
-      video: ["http", "https"],
       a: ["http", "https", "ftp", "mailto"],
       iframe: ["https"],
+      img: ["http", "https", "data"],
+      video: ["http", "https"],
     },
-    allowedIframeHostnames: ["www.youtube.com", "www.youtube-nocookie.com"],
     exclusiveFilter: (frame) => {
       if (frame.tag === "script") {
         return true;
       }
+
       if (frame.tag === "input" && frame.attribs?.type !== "checkbox") {
         return true;
       }
+
       if (frame.attribs) {
         for (const attr in frame.attribs) {
           if (/^on/i.test(attr)) {
@@ -115,7 +112,49 @@ export const sanitizeHtml = (content: string): string => {
           }
         }
       }
+
       return false;
     },
   });
-};
+}
+
+/**
+ * Sanitizes custom rich-text field HTML, which supports a smaller inline
+ * formatting surface than full post content.
+ */
+export function sanitizeRichTextHtml(content: string): string {
+  return sanitize(content, {
+    allowedAttributes: {
+      a: ["href", "target", "rel"],
+    },
+    allowedSchemes: ["http", "https", "mailto"],
+    allowedTags: [
+      "a",
+      "b",
+      "br",
+      "em",
+      "i",
+      "li",
+      "ol",
+      "p",
+      "strong",
+      "u",
+      "ul",
+    ],
+    exclusiveFilter: (frame) => {
+      if (frame.tag === "script") {
+        return true;
+      }
+
+      if (frame.attribs) {
+        for (const attr in frame.attribs) {
+          if (/^on/i.test(attr)) {
+            return true;
+          }
+        }
+      }
+
+      return false;
+    },
+  });
+}

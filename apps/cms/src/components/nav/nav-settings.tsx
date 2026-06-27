@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  CloudUploadIcon,
   CreditCardIcon,
   DatabaseIcon,
   Key01Icon,
@@ -52,6 +53,11 @@ const workspaceItems = [
     name: "Members",
     url: "settings/members",
     icon: UserMultipleIcon,
+  },
+  {
+    name: "Data",
+    url: "settings/data",
+    icon: CloudUploadIcon,
   },
   {
     name: "Billing",

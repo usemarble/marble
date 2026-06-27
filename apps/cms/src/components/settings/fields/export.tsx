@@ -67,7 +67,7 @@ export function Export() {
     enabled: !!workspaceId,
     queryKey: workspaceId ? QUERY_KEYS.EXPORTS(workspaceId) : ["exports"],
     queryFn: async () => {
-      const response = await fetch("/api/exports");
+      const response = await fetch("/api/data/export");
       if (!response.ok) {
         throw new Error("Failed to load exports");
       }
@@ -85,7 +85,7 @@ export function Export() {
 
   const { mutate: startExport, isPending } = useMutation({
     mutationFn: async () => {
-      const response = await fetch("/api/exports", { method: "POST" });
+      const response = await fetch("/api/data/export", { method: "POST" });
       if (!response.ok) {
         const body = await response.json().catch(() => ({}));
         throw new Error(body.error || "Failed to start export");
@@ -152,7 +152,7 @@ export function Export() {
                 <Button
                   nativeButton={false}
                   render={
-                    <a href={`/api/exports/${job.id}/download`}>
+                    <a href={`/api/data/export/${job.id}/download`}>
                       <DownloadSimpleIcon className="size-4" />
                       Download
                     </a>

@@ -389,9 +389,10 @@ export function PostDataView<TData, TValue>({
               <TooltipTrigger
                 render={
                   <Button
-                    aria-label="Upload"
+                    aria-label="Import"
                     onClick={() => setImportOpen(true)}
-                    variant="default"
+                    size="icon"
+                    variant="secondary"
                   >
                     <HugeiconsIcon
                       icon={FileImportIcon}
@@ -401,7 +402,7 @@ export function PostDataView<TData, TValue>({
                   </Button>
                 }
               />
-              <TooltipContent side="top">Upload</TooltipContent>
+              <TooltipContent side="top">Import</TooltipContent>
             </Tooltip>
           </div>
         </div>

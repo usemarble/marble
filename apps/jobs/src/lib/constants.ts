@@ -4,6 +4,8 @@ export const MILLISECONDS_IN_DAY = 24 * 60 * 60 * 1000;
 
 export const EXPORT_TTL_MS = MILLISECONDS_IN_DAY;
 
+export const IMPORT_JOB_RETENTION_DAYS = 30;
+export const IMPORT_STALE_JOB_DAYS = 1;
 export const WEBHOOK_DELIVERY_RETENTION_DAYS = 30;
 export const WEBHOOK_DELIVERY_TIMEOUT_MS = 15_000;
 // The dashboard currently renders a 30-day chart plus the previous 30-day

@@ -3,11 +3,11 @@ import { toCategoryPayload } from "@marble/events";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";
+import { getDashboardCategories } from "@/lib/queries/dashboard/taxonomy";
 import {
   emitDashboardEvent,
   logDashboardEventError,
-} from "@/lib/events/dispatch";
-import { getDashboardCategories } from "@/lib/queries/dashboard/taxonomy";
+} from "@/lib/queues/events";
 import { categorySchema } from "@/lib/validations/workspace";
 
 export async function GET() {

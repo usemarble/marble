@@ -6,7 +6,7 @@ import { invalidateCache } from "@/lib/cache/invalidate";
 import {
   emitDashboardEvent,
   logDashboardEventError,
-} from "@/lib/events/dispatch";
+} from "@/lib/queues/events";
 import { tagSchema } from "@/lib/validations/workspace";
 
 async function parseTagRequest(req: Request) {

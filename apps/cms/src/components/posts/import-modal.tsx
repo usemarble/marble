@@ -11,35 +11,31 @@ import {
   DialogTitle,
   DialogX,
 } from "@marble/ui/components/dialog";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@marble/ui/components/tabs";
+import { Textarea } from "@marble/ui/components/textarea";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import matter from "gray-matter";
+import { useRouter } from "next/navigation";
 import { type Dispatch, type SetStateAction, useState } from "react";
 import { toast } from "sonner";
-import { z } from "zod";
 import { Dropzone } from "@/components/shared/dropzone";
-import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { AsyncButton } from "@/components/ui/async-button";
 import { QUERY_KEYS } from "@/lib/queries/keys";
-import type { PostImportValues } from "@/lib/validations/post";
-import { ImportItemForm } from "./import-item-form";
+import { MAX_IMPORT_SIZE } from "@/lib/validations/import";
+import { useWorkspace } from "@/providers/workspace";
+import { formatBytes } from "@/utils/string";
 
-const parseSchema = z.object({
-  title: z.string().optional(),
-  slug: z.string().optional(),
-  description: z.string().optional(),
-  status: z.preprocess(
-    (val) => (val === "published" ? "published" : "draft"),
-    z.enum(["published", "draft"])
-  ),
-  publishedAt: z.union([z.string(), z.number(), z.date()]).optional(),
-  category: z.string().optional(),
-});
-
-interface ImportState {
-  file: File | null;
-  status: "idle" | "parsing" | "ready" | "error";
-  error?: string;
-  parsedData?: Partial<PostImportValues>;
-}
+// Worker parses these; the client just hands the file off.
+const IMPORT_DROPZONE_ACCEPT = {
+  "text/markdown": [".md", ".mdx"],
+  "application/zip": [".zip"],
+  "application/x-zip-compressed": [".zip"],
+};
+type ImportSource = { file: File } | { url: string };
 
 export function PostsImportModal({
   open,
@@ -48,112 +44,66 @@ export function PostsImportModal({
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
 }) {
-  const [importState, setImportState] = useState<ImportState>({
-    file: null,
-    status: "idle",
-  });
-  const workspaceId = useWorkspaceId();
+  const [file, setFile] = useState<File | null>(null);
   const queryClient = useQueryClient();
+  const router = useRouter();
+  const { activeWorkspace } = useWorkspace();
 
-  const { mutate: importPost, isPending: isImporting } = useMutation({
-    mutationFn: async (payload: PostImportValues) => {
-      try {
-        const res = await fetch("/api/posts/import", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
+  const { mutate: startImport, isPending } = useMutation({
+    mutationFn: async (source: ImportSource) => {
+      const init: RequestInit =
+        "file" in source
+          ? (() => {
+              const body = new FormData();
+              body.append("file", source.file);
+              return { method: "POST", body };
+            })()
+          : {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ url: source.url }),
+            };
 
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          throw new Error(err.error || "Failed to import post");
-        }
+      const res = await fetch("/api/data/import", init);
 
-        const responseData = await res.json();
-        return responseData;
-      } catch (error) {
-        throw new Error(
-          error instanceof Error ? error.message : "Failed to import post"
-        );
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Failed to start import");
       }
+
+      return (await res.json()) as { id: string };
     },
     onSuccess: async () => {
-      toast.success("Post created");
-      if (workspaceId) {
+      toast.success("Import started");
+      setOpen(false);
+      setFile(null);
+      if (activeWorkspace?.id) {
         await queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.POSTS(workspaceId),
+          queryKey: QUERY_KEYS.IMPORTS(activeWorkspace.id),
         });
       }
-      setOpen(false);
-      setImportState({ file: null, status: "idle" });
+      if (activeWorkspace?.slug) {
+        router.push(`/${activeWorkspace.slug}/settings/data`);
+      }
     },
     onError: (error: Error) => {
       toast.error(error.message);
-      updateImportState({ status: "error", error: error.message });
     },
   });
 
-  function updateImportState(patch: Partial<ImportState>) {
-    setImportState((prev) => ({ ...prev, ...patch }));
-  }
-
-  async function parseFile(file: File) {
-    const ext = (file.name.split(".").pop() || "").toLowerCase();
-
-    try {
-      updateImportState({ status: "parsing" });
-
-      const raw = await file.text();
-      let parsedData: Partial<PostImportValues> = {
-        status: "draft",
-        publishedAt: new Date(),
-      };
-
-      if (ext === "md" || ext === "mdx") {
-        const parsed = matter(raw);
-        const fm = parsed.data ?? {};
-
-        const validated = parseSchema.safeParse(fm);
-        if (!validated.success) {
-          updateImportState({
-            status: "error",
-            error: `Invalid frontmatter: ${validated.error.issues[0]?.message}`,
-          });
-          return;
-        }
-
-        const data = validated.data;
-        parsedData = {
-          title: data.title || "",
-          slug: data.slug || "",
-          description: data.description || "",
-          content: parsed.content || "",
-          status: data.status || "draft",
-          publishedAt: data.publishedAt
-            ? new Date(data.publishedAt)
-            : new Date(),
-          category: data.category || "",
-        };
-      } else {
-        updateImportState({ status: "error", error: "Unsupported file type" });
-        return;
-      }
-
-      updateImportState({ status: "ready", parsedData });
-    } catch (e) {
-      const message = e instanceof Error ? e.message : "Failed to process file";
-      updateImportState({ status: "error", error: message });
-    }
-  }
-
   return (
-    <Dialog onOpenChange={setOpen} open={open}>
-      <DialogContent
-        className="grid grid-rows-[auto_1fr] sm:h-[580px] sm:max-w-4xl"
-        variant="card"
-      >
+    <Dialog
+      onOpenChange={(next) => {
+        setOpen(next);
+        if (!next) {
+          setFile(null);
+        }
+      }}
+      open={open}
+    >
+      <DialogContent variant="card">
         <DialogHeader className="flex-row items-center justify-between px-4 py-2">
-          <div className="flex flex-1 items-center gap-2">
+          <div className="flex items-center gap-2">
             <HugeiconsIcon
               className="text-muted-foreground"
               icon={FileImportIcon}
@@ -161,71 +111,95 @@ export function PostsImportModal({
               strokeWidth={2}
             />
             <DialogTitle className="font-medium text-muted-foreground text-sm">
-              {importState.status === "ready"
-                ? "Review Metadata"
-                : "Import Content"}
+              Import content
             </DialogTitle>
           </div>
-          <DialogX />
+          <DialogX className="text-muted-foreground" />
         </DialogHeader>
         <DialogDescription className="sr-only">
-          {importState.status === "ready" && importState.file
-            ? `We've parsed metadata from your file. Please review and complete the details.`
-            : "Import content into your workspace. You can import a .md/.mdx file."}
+          Import posts into your workspace from a file or another site. Imported
+          posts are created as drafts.
         </DialogDescription>
-        <DialogBody className="overflow-hidden">
-          {importState.status === "idle" && (
-            <Dropzone
-              accept={{
-                "text/markdown": [".md", ".mdx"],
-              }}
-              className="flex h-full w-full flex-1 cursor-pointer items-center justify-center rounded-md border border-dashed bg-editor-field"
-              onFilesAccepted={(accepted) => {
-                if (accepted.length > 0) {
-                  const file = accepted[0];
-                  if (file) {
-                    updateImportState({ file, status: "parsing" });
-                    parseFile(file);
-                  }
-                }
-              }}
-              placeholder={{
-                idle: "Drag & drop a .md/.mdx file, or click to select",
-                active: "Drop the file here...",
-                subtitle: "We will parse frontmatter and content",
-              }}
-            />
-          )}
-          {importState.status !== "idle" && (
-            <div className="scrollbar-custom flex flex-col gap-4 overflow-y-auto pt-4">
-              {importState.status === "parsing" && (
-                <div className="flex items-center justify-center py-8">
-                  <div className="text-muted-foreground text-sm">
-                    Parsing file...
-                  </div>
-                </div>
-              )}
 
-              {importState.status === "error" && (
-                <div className="flex items-center justify-center py-8">
-                  <div className="text-destructive text-sm">
-                    {importState.error ?? "Error processing file"}
-                  </div>
-                </div>
-              )}
+        <DialogBody>
+          <Tabs defaultValue="upload">
+            <TabsList className="w-full">
+              <TabsTrigger className="flex-1" value="upload">
+                Upload
+              </TabsTrigger>
+              <TabsTrigger className="flex-1" value="url">
+                From URL
+              </TabsTrigger>
+            </TabsList>
 
-              {importState.status === "ready" &&
-                importState.parsedData &&
-                importState.file && (
-                  <ImportItemForm
-                    initialData={importState.parsedData}
-                    isImporting={isImporting}
-                    name={importState.file.name}
-                    onImport={importPost}
-                  />
-                )}
-            </div>
-          )}
+            <TabsContent className="pt-4" value="upload">
+              {file ? (
+                <div className="flex items-center justify-between rounded-md border bg-editor-field px-3 py-3 text-sm">
+                  <div className="min-w-0">
+                    <p className="truncate font-medium">{file.name}</p>
+                    <p className="text-muted-foreground text-xs">
+                      {formatBytes(file.size)}
+                    </p>
+                  </div>
+                  <button
+                    className="text-muted-foreground text-xs hover:text-foreground"
+                    onClick={() => setFile(null)}
+                    type="button"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <Dropzone
+                  accept={IMPORT_DROPZONE_ACCEPT}
+                  className="flex h-40 w-full cursor-pointer items-center justify-center rounded-md border border-dashed bg-editor-field transition-colors hover:bg-editor-field/70"
+                  maxSize={MAX_IMPORT_SIZE}
+                  onFilesAccepted={(accepted) => {
+                    const next = accepted[0];
+                    if (next) {
+                      setFile(next);
+                    }
+                  }}
+                  onFilesRejected={(rejections) => {
+                    const code = rejections[0]?.errors[0]?.code;
+                    if (code === "file-too-large") {
+                      toast.error(
+                        `File is too large. Maximum size is ${formatBytes(MAX_IMPORT_SIZE)}.`
+                      );
+                    } else if (code === "file-invalid-type") {
+                      toast.error(
+                        "Unsupported file type. Upload a .md, .mdx, or .zip file."
+                      );
+                    } else {
+                      toast.error("That file couldn't be added.");
+                    }
+                  }}
+                  placeholder={{
+                    idle: "Drag & drop a file, or click to select",
+                    active: "Drop the file here...",
+                    subtitle: "Supports .md, .mdx, or a .zip of them",
+                  }}
+                />
+              )}
+            </TabsContent>
+
+            <TabsContent className="pt-4" value="url">
+              <Textarea
+                className="h-40 resize-none"
+                disabled
+                placeholder="Importing from a URL isn't available yet."
+              />
+            </TabsContent>
+          </Tabs>
+
+          <AsyncButton
+            className="w-full"
+            disabled={!file}
+            isLoading={isPending}
+            onClick={() => file && startImport({ file })}
+          >
+            Import
+          </AsyncButton>
         </DialogBody>
       </DialogContent>
     </Dialog>

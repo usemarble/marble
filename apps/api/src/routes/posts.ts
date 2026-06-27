@@ -6,12 +6,12 @@ import {
   htmlToTiptap,
   normalizePostContent,
 } from "@marble/parser";
+import { sanitizeHtml } from "@marble/utils/sanitize";
 import { cacheKey, createCacheClient, hashQueryParams } from "@/lib/cache";
 import { createDbClient } from "@/lib/db";
 import { emitEvent } from "@/lib/events";
 import { resolveCustomFieldValuesByKey } from "@/lib/fields";
 import { buildFieldsObject, buildStatusFilter } from "@/lib/posts";
-import { sanitizeHtml } from "@/lib/sanitize";
 import { requireWorkspaceId } from "@/lib/workspace";
 import {
   ConflictSchema,
