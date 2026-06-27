@@ -82,9 +82,6 @@ importers:
         specifier: ^4.3.6
         version: 4.4.3
     devDependencies:
-      '@cloudflare/workers-types':
-        specifier: ^4.20260508.1
-        version: 4.20260626.1
       wrangler:
         specifier: ^4.90.0
         version: 4.105.0(@cloudflare/workers-types@4.20260626.1)(bufferutil@4.1.0)
