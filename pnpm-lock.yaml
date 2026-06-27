@@ -336,6 +336,9 @@ importers:
         specifier: ^6.12.3
         version: 6.16.0(@react-email/render@2.0.9(react-dom@19.2.7(react@19.2.7))(react@19.2.7))
     devDependencies:
+      '@cloudflare/workers-types':
+        specifier: ^4.20260508.1
+        version: 4.20260626.1
       wrangler:
         specifier: ^4.90.0
         version: 4.105.0(@cloudflare/workers-types@4.20260626.1)(bufferutil@4.1.0)
