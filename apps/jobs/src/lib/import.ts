@@ -121,15 +121,17 @@ export async function runImport(db: DbClient, env: Env, jobId: string) {
     return;
   }
 
-  if (job.status !== "queued" && job.status !== "processing") {
+  if (job.status !== "queued") {
     return;
   }
 
-  if (job.status === "queued") {
-    await db.importJob.update({
-      where: { id: job.id },
-      data: { status: "processing", startedAt: job.startedAt ?? new Date() },
-    });
+  const claim = await db.importJob.updateMany({
+    where: { id: job.id, status: "queued" },
+    data: { status: "processing", startedAt: job.startedAt ?? new Date() },
+  });
+
+  if (claim.count === 0) {
+    return;
   }
 
   if (job.source === "url") {
