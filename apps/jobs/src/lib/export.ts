@@ -338,7 +338,7 @@ export async function runExport(db: DbClient, env: Env, jobId: string) {
 
     if (emailRecipients.length > 0 && env.RESEND_API_KEY) {
       try {
-        const downloadUrl = `${getAppUrl(env)}/api/exports/${job.id}/download?token=${token}`;
+        const downloadUrl = `${getAppUrl(env)}/api/data/export/${job.id}/download?token=${token}`;
         const resend = new Resend(env.RESEND_API_KEY);
         let sentCount = 0;
 

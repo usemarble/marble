@@ -1,11 +1,11 @@
 import { db } from "@marble/db";
+import { sanitizeRichTextHtml } from "@marble/utils/sanitize";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import {
   customFieldsPayloadSchema,
   resolveCustomFieldValues,
 } from "@/lib/custom-fields";
-import { sanitizeRichTextHtml } from "@/utils/editor";
 
 export async function GET(
   _req: Request,

@@ -3,15 +3,18 @@
   "version": "0.0.0",
   "exports": {
     ".": "./src/index.ts",
-    "./api-key-scopes": "./src/constants/api-key.ts"
+    "./api-key-scopes": "./src/constants/api-key.ts",
+    "./sanitize": "./src/functions/sanitize.ts"
   },
   "dependencies": {
     "nanoid": "^5.0.9",
+    "sanitize-html": "^2.17.1",
     "shiki": "^3.12.2"
   },
   "devDependencies": {
     "@marble/tsconfig": "workspace:*",
     "@types/node": "^22.9.0",
+    "@types/sanitize-html": "^2.16.1",
     "typescript": "^5.9.3"
   }
 }

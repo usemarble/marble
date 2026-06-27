@@ -1,6 +1,6 @@
 import { createDbClient } from "@/lib/db";
 import { runExport } from "@/lib/export";
-import { runImportCreate, runImportProcess } from "@/lib/import";
+import { runImport } from "@/lib/import";
 import type { Env, TaskMessage } from "@/types/env";
 
 /**
@@ -27,10 +27,7 @@ export async function handleTaskQueue(
           await runExport(db, env, body.jobId);
           break;
         case "import.process":
-          await runImportProcess(db, env, body.jobId);
-          break;
-        case "import.create":
-          await runImportCreate(db, env, body.jobId);
+          await runImport(db, env, body.jobId);
           break;
         default:
           throw new Error(`Unknown task type: ${JSON.stringify(body)}`);

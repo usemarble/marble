@@ -72,8 +72,4 @@ export const taskSchema = z.discriminatedUnion("type", [
     type: z.literal("import.process"),
     jobId: z.string().min(1),
   }),
-  z.object({
-    type: z.literal("import.create"),
-    jobId: z.string().min(1),
-  }),
 ]);

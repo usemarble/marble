@@ -1,20 +1,20 @@
 import { db } from "@marble/db";
 import { toPostPayload } from "@marble/events";
+import { sanitizeHtml, sanitizeRichTextHtml } from "@marble/utils/sanitize";
 import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";
 import { resolveCustomFieldValues } from "@/lib/custom-fields";
+import { getDashboardPosts } from "@/lib/queries/dashboard/posts";
 import {
   emitDashboardEvent,
   logDashboardEventError,
-} from "@/lib/events/dispatch";
-import { getDashboardPosts } from "@/lib/queries/dashboard/posts";
+} from "@/lib/queues/events";
 import { loadPostApiFilters } from "@/lib/search-params";
 import { postUpsertSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";
-import { sanitizeHtml, sanitizeRichTextHtml } from "@/utils/editor";
 import { generateSlug } from "@/utils/string";
 
 async function buildCustomFieldWrites(

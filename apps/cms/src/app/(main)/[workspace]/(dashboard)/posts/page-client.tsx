@@ -1,6 +1,6 @@
 "use client";
 
-import { Files01Icon } from "@hugeicons/core-free-icons";
+import { FileImportIcon, Files01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Button, buttonVariants } from "@marble/ui/components/button";
 import {
@@ -8,7 +8,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
-import { PlusIcon, UploadSimpleIcon } from "@phosphor-icons/react";
+import { PlusIcon } from "@phosphor-icons/react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import Link from "next/link";
@@ -130,15 +130,20 @@ function PageClient({
                     <TooltipTrigger
                       render={
                         <Button
-                          aria-label="Upload"
+                          aria-label="Import"
                           onClick={() => setImportOpen(true)}
-                          variant="default"
+                          size="icon"
+                          variant="secondary"
                         >
-                          <UploadSimpleIcon className="size-4" />
+                          <HugeiconsIcon
+                            icon={FileImportIcon}
+                            size={16}
+                            strokeWidth={2}
+                          />
                         </Button>
                       }
                     />
-                    <TooltipContent side="top">Upload</TooltipContent>
+                    <TooltipContent side="top">Import</TooltipContent>
                   </Tooltip>
                 </div>
               </div>

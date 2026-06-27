@@ -1,7 +1,7 @@
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
-import { enqueueTask } from "@/lib/tasks/dispatch";
+import { enqueueTask } from "@/lib/queues/tasks";
 
 const DEFAULT_EXPORT_SCOPE = {
   schemaVersion: 1,

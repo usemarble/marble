@@ -24,6 +24,7 @@ export const PageHeader = ({ title }: { title?: ReactNode }) => {
         const subsectionMap: Record<string, string> = {
           general: "General",
           members: "Members",
+          data: "Data",
           billing: "Billing",
           editor: "Editor",
         };

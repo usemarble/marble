@@ -2,6 +2,7 @@ import { createDbClient } from "@/lib/db";
 import { cleanupStaleApiRequests } from "@/scheduled/api-requests";
 import { cleanupOldWebhookDeliveries } from "@/scheduled/deliveries";
 import { cleanupExpiredExports } from "@/scheduled/exports";
+import { cleanupStaleImports } from "@/scheduled/imports";
 import type { Env } from "@/types/env";
 
 export async function handleCleanup(
@@ -18,6 +19,7 @@ export async function handleCleanup(
 
   const results = await Promise.allSettled([
     cleanupExpiredExports({ db, env, now }),
+    cleanupStaleImports({ db, env, now }),
     cleanupOldWebhookDeliveries({ db, now }),
     cleanupStaleApiRequests({ db, now }),
   ]);

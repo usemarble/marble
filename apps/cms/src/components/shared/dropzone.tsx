@@ -3,11 +3,34 @@
 import { Image02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { cn } from "@marble/ui/lib/utils";
-import { type DropzoneOptions, useDropzone } from "react-dropzone";
+import {
+  type DropzoneOptions,
+  type FileRejection,
+  useDropzone,
+} from "react-dropzone";
 import { IMAGE_DROPZONE_ACCEPT, MEDIA_DROPZONE_ACCEPT } from "@/lib/constants";
+import { formatBytes } from "@/utils/string";
+
+function rejectionMessage(
+  file: File,
+  rejection: FileRejection["errors"][number] | undefined,
+  maxSize?: number
+) {
+  if (rejection?.code === "file-invalid-type") {
+    const ext = file.name.split(".").pop();
+    return `File type ".${ext}" is not supported.`;
+  }
+
+  if (rejection?.code === "file-too-large" && maxSize) {
+    return `File is larger than ${formatBytes(maxSize)}.`;
+  }
+
+  return rejection?.message ?? "File could not be added.";
+}
 
 interface DropzoneProps {
   onFilesAccepted: (files: File[]) => void;
+  onFilesRejected?: (rejections: FileRejection[]) => void;
   className?: string;
   multiple?: boolean;
   accept?: DropzoneOptions["accept"];
@@ -23,6 +46,7 @@ interface DropzoneProps {
 
 export function Dropzone({
   onFilesAccepted,
+  onFilesRejected,
   className,
   multiple = false,
   accept,
@@ -46,9 +70,12 @@ export function Dropzone({
     multiple,
     maxSize,
     disabled,
-    onDrop: (acceptedFiles) => {
+    onDrop: (acceptedFiles, rejectedFiles) => {
       if (acceptedFiles.length > 0) {
         onFilesAccepted(acceptedFiles);
+      }
+      if (rejectedFiles.length > 0) {
+        onFilesRejected?.(rejectedFiles);
       }
     },
   });
@@ -95,11 +122,7 @@ export function Dropzone({
       {hasErrors && (
         <div className="mt-2 space-y-1 text-destructive text-sm">
           {fileRejections.map(({ file, errors }) => {
-            const fileType = file.name.split(".").pop();
-            const message =
-              errors[0]?.code === "file-invalid-type"
-                ? `File type ".${fileType}" is not supported.`
-                : errors[0]?.message;
+            const message = rejectionMessage(file, errors[0], maxSize);
 
             return (
               <p key={file.name}>

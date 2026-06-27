@@ -1,5 +1,6 @@
 import { db } from "@marble/db";
 import { toPostPayload, withChanges } from "@marble/events";
+import { sanitizeHtml, sanitizeRichTextHtml } from "@marble/utils/sanitize";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";
@@ -7,10 +8,9 @@ import { resolveCustomFieldValues } from "@/lib/custom-fields";
 import {
   emitDashboardEvent,
   logDashboardEventError,
-} from "@/lib/events/dispatch";
+} from "@/lib/queues/events";
 import { postUpsertSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";
-import { sanitizeHtml, sanitizeRichTextHtml } from "@/utils/editor";
 
 async function buildCustomFieldWrites(
   workspaceId: string,

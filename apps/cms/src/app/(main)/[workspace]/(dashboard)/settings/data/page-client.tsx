@@ -1,12 +1,8 @@
 "use client";
 
 import { DashboardBody } from "@/components/layout/wrapper";
-import { Delete } from "@/components/settings/fields/delete";
-import { Id } from "@/components/settings/fields/id";
-import { Logo } from "@/components/settings/fields/logo";
-import { Name } from "@/components/settings/fields/name";
-import { Slug } from "@/components/settings/fields/slug";
-import { Timezone } from "@/components/settings/fields/timezone";
+import { Export } from "@/components/settings/fields/export";
+import { Import } from "@/components/settings/fields/import";
 import PageLoader from "@/components/shared/page-loader";
 import { useWorkspace } from "@/providers/workspace";
 
@@ -19,12 +15,8 @@ function PageClient() {
 
   return (
     <DashboardBody className="flex flex-col gap-8 py-12" size="compact">
-      <Name />
-      <Slug />
-      <Logo />
-      <Timezone />
-      <Id />
-      <Delete />
+      <Import />
+      <Export />
     </DashboardBody>
   );
 }
