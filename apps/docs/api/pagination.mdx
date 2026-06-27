@@ -1,6 +1,6 @@
 ---
 title: "Pagination"
-description: "Learn how to use pagination in the Marble API."
+description: "Paginate list endpoints in the Marble API with the limit and page query parameters, response metadata, async iteration, and error handling examples."
 ---
 
 Marble API uses offset-based pagination for endpoints that return multiple items. Pagination metadata is included in every response to help you navigate through large datasets efficiently.
@@ -301,8 +301,9 @@ The following endpoints support pagination:
 </Accordion>
 
 <Accordion title="Invalid limit value">
-  - Values below 1 will default to 1 - Values above 200 will be capped at 200 -
-  Non-numeric values will default to 10
+  - Values below 1 will default to 1
+  - Values above 200 will be capped at 200
+  - Non-numeric values will default to 10
 </Accordion>
 
 <Accordion title="Empty datasets">

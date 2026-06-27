@@ -1,6 +1,6 @@
 ---
 title: "Rate Limits"
-description: "Understand how Marble API rate limiting works and what quotas apply to your requests."
+description: "Marble API rate limits, X-RateLimit response headers, 429 error handling, and an exponential backoff pattern to keep clients within per-API-key quotas."
 ---
 
 Marble applies rate limits to protect the stability of the API for all users. This page explains the limits, how they are calculated, and how to design your integration to handle them gracefully.
@@ -114,10 +114,9 @@ async function fetchWithRetry(url, options, maxRetries = 3) {
 
 <Tip>
   - **Cache responses**: Store API responses where possible to reduce API calls.
-  - **Batch operations**: Process items sequentially with delays rather than
-  parallel requests. - **Monitor headers**: Track `X-RateLimit-Remaining` and
-  slow down before hitting limits. - **Use webhooks**: For real-time updates,
-  consider webhooks instead of polling the API.
+  - **Batch operations**: Process items sequentially with delays rather than parallel requests.
+  - **Monitor headers**: Track `X-RateLimit-Remaining` and slow down before hitting limits.
+  - **Use webhooks**: For real-time updates, consider webhooks instead of polling the API.
 </Tip>
 
 <Note>
