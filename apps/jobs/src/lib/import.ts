@@ -11,8 +11,11 @@ import {
   failImportJob,
   getImportAuthor,
   getImportJob,
+  getSlugAttempt,
   getUncategorizedCategory,
   getUniquePostSlug,
+  isUniqueConstraintError,
+  MAX_UNIQUE_SLUG_ATTEMPTS,
 } from "@/utils/import-records";
 
 type ImportJob = NonNullable<Awaited<ReturnType<typeof getImportJob>>>;
@@ -34,61 +37,76 @@ async function importMarkdownFile({
 }) {
   try {
     const parsed = parseMarkdownImport(file.sourceRef, file.content);
-    const slug = await getUniquePostSlug(db, job.workspaceId, parsed.slug);
     const htmlContent = await markdownToHtml(parsed.content);
     const contentJson = markdownToTiptap(parsed.content);
     const cleanContent = sanitizeHtml(htmlContent);
 
-    await db.$transaction(async (tx) => {
-      const item = await tx.importItem.create({
-        data: {
-          importJobId: job.id,
-          workspaceId: job.workspaceId,
-          sourceRef: parsed.sourceRef,
-          status: "pending",
-          title: parsed.title,
-          slug,
-          content: cleanContent,
-          contentJson,
-          description: parsed.description,
-          rawCategory: parsed.rawCategory,
-          rawTags: parsed.rawTags,
-          rawAuthor: parsed.rawAuthor,
-          resolvedCategoryId: categoryId,
-        },
-        select: { id: true },
-      });
+    for (let attempt = 0; attempt < MAX_UNIQUE_SLUG_ATTEMPTS; attempt += 1) {
+      const slug = await getUniquePostSlug(
+        db,
+        job.workspaceId,
+        getSlugAttempt(parsed.slug, attempt, "post")
+      );
 
-      const post = await tx.post.create({
-        data: {
-          primaryAuthorId: authorId,
-          title: parsed.title,
-          slug,
-          status: "draft",
-          featured: false,
-          content: cleanContent,
-          contentJson,
-          description: parsed.description,
-          categoryId,
-          publishedAt: now,
-          workspaceId: job.workspaceId,
-          authors: {
-            connect: [{ id: authorId }],
-          },
-        },
-        select: { id: true },
-      });
+      try {
+        await db.$transaction(async (tx) => {
+          const item = await tx.importItem.create({
+            data: {
+              importJobId: job.id,
+              workspaceId: job.workspaceId,
+              sourceRef: parsed.sourceRef,
+              status: "pending",
+              title: parsed.title,
+              slug,
+              content: cleanContent,
+              contentJson,
+              description: parsed.description,
+              rawCategory: parsed.rawCategory,
+              rawTags: parsed.rawTags,
+              rawAuthor: parsed.rawAuthor,
+              resolvedCategoryId: categoryId,
+            },
+            select: { id: true },
+          });
 
-      await tx.importItem.update({
-        where: { id: item.id },
-        data: {
-          status: "imported",
-          postId: post.id,
-        },
-      });
-    });
+          const post = await tx.post.create({
+            data: {
+              primaryAuthorId: authorId,
+              title: parsed.title,
+              slug,
+              status: "draft",
+              featured: false,
+              content: cleanContent,
+              contentJson,
+              description: parsed.description,
+              categoryId,
+              publishedAt: now,
+              workspaceId: job.workspaceId,
+              authors: {
+                connect: [{ id: authorId }],
+              },
+            },
+            select: { id: true },
+          });
 
-    return "imported" as const;
+          await tx.importItem.update({
+            where: { id: item.id },
+            data: {
+              status: "imported",
+              postId: post.id,
+            },
+          });
+        });
+
+        return "imported" as const;
+      } catch (error) {
+        if (!isUniqueConstraintError(error)) {
+          throw error;
+        }
+      }
+    }
+
+    throw new Error("Could not create an imported post with a unique slug");
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Failed to import Markdown file";

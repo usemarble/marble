@@ -6,6 +6,28 @@ const UNCATEGORIZED_CATEGORY = {
   slug: "uncategorized",
 };
 
+export const MAX_UNIQUE_SLUG_ATTEMPTS = 25;
+
+/** Detects Prisma unique constraint errors without importing runtime types. */
+export function isUniqueConstraintError(error: unknown) {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    error.code === "P2002"
+  );
+}
+
+/** Returns a bounded slug candidate for retrying raced unique writes. */
+export function getSlugAttempt(
+  preferredSlug: string,
+  attempt: number,
+  fallbackSlug: string
+) {
+  const baseSlug = preferredSlug || fallbackSlug;
+  return attempt === 0 ? baseSlug : `${baseSlug}-${attempt + 1}`;
+}
+
 /** Marks an import job as failed with a user-visible error message. */
 export async function failImportJob({
   db,
@@ -80,31 +102,42 @@ export async function getImportAuthor(
   if (job.createdBy) {
     const userSlugBase =
       generateSlug(job.createdBy.name) || generateSlug(job.createdBy.email);
-    const slug = await getUniqueAuthorSlug(
-      db,
-      job.workspaceId,
-      userSlugBase || "imported-author"
-    );
 
-    return await db.author.upsert({
-      where: {
-        workspaceId_userId: {
-          workspaceId: job.workspaceId,
-          userId: job.createdBy.id,
-        },
-      },
-      update: {},
-      create: {
-        name: job.createdBy.name,
-        email: job.createdBy.email,
-        slug,
-        image: job.createdBy.image,
-        workspaceId: job.workspaceId,
-        userId: job.createdBy.id,
-        role: "Writer",
-      },
-      select: { id: true },
-    });
+    for (let attempt = 0; attempt < MAX_UNIQUE_SLUG_ATTEMPTS; attempt += 1) {
+      const slug = await getUniqueAuthorSlug(
+        db,
+        job.workspaceId,
+        getSlugAttempt(userSlugBase || "", attempt, "imported-author")
+      );
+
+      try {
+        return await db.author.upsert({
+          where: {
+            workspaceId_userId: {
+              workspaceId: job.workspaceId,
+              userId: job.createdBy.id,
+            },
+          },
+          update: {},
+          create: {
+            name: job.createdBy.name,
+            email: job.createdBy.email,
+            slug,
+            image: job.createdBy.image,
+            workspaceId: job.workspaceId,
+            userId: job.createdBy.id,
+            role: "Writer",
+          },
+          select: { id: true },
+        });
+      } catch (error) {
+        if (!isUniqueConstraintError(error)) {
+          throw error;
+        }
+      }
+    }
+
+    throw new Error("Could not create an import author with a unique slug");
   }
 
   return await db.author.upsert({

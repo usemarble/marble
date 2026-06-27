@@ -85,7 +85,12 @@ export async function getImportRequestSource(
     return parsed.data;
   }
 
-  const formData = await request.formData();
+  const formData = await request.formData().catch(() => null);
+
+  if (!formData) {
+    return { error: "Invalid import payload" };
+  }
+
   const file = formData.get("file");
   const url = formData.get("url");
 

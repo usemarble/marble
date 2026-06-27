@@ -150,7 +150,7 @@ function isMdxImportStart(line: string) {
 
 /** Returns true when a line starts top-level MDX export/module syntax. */
 function isMdxExportStart(line: string) {
-  return /^\s*export\s+(?:const|let|var|function|class|default|type|interface)\b/.test(
+  return /^\s*export\s+(?:(?:const|let|var|function|class|default|type|interface)\b|\*|\{)/.test(
     line
   );
 }
@@ -164,6 +164,10 @@ function isLikelyMdxModuleEnd(line: string) {
   }
 
   if (trimmed.endsWith(";")) {
+    return true;
+  }
+
+  if (/^(?:import|export)\s+.*(?:from\s+["'][^"']+["']|\})\s*$/.test(trimmed)) {
     return true;
   }
 
@@ -244,32 +248,50 @@ export function parseMarkdownImport(filename: string, markdown: string) {
 
 /** Extracts supported Markdown files from a zip archive in deterministic order. */
 function parseMarkdownZipImport(bytes: Uint8Array) {
-  const entries = unzipSync(bytes);
-  const files = Object.entries(entries)
-    .filter(([filename]) => {
-      return isMarkdownImportFile(filename) && !isIgnoredZipEntry(filename);
-    })
-    .sort(([a], [b]) => a.localeCompare(b));
+  let extractedBytes = 0;
+  let markdownEntries = 0;
+  let rejectedForSize = false;
+  let rejectedForCount = false;
 
-  if (files.length === 0) {
-    throw new Error("Zip file must contain at least one .md or .mdx file");
-  }
+  const entries = unzipSync(bytes, {
+    filter: (file) => {
+      if (!isMarkdownImportFile(file.name) || isIgnoredZipEntry(file.name)) {
+        return false;
+      }
 
-  if (files.length > MAX_ZIP_MARKDOWN_FILES) {
+      markdownEntries += 1;
+
+      if (markdownEntries > MAX_ZIP_MARKDOWN_FILES) {
+        rejectedForCount = true;
+        return false;
+      }
+
+      if (extractedBytes + file.originalSize > MAX_ZIP_EXTRACTED_BYTES) {
+        rejectedForSize = true;
+        return false;
+      }
+
+      extractedBytes += file.originalSize;
+      return true;
+    },
+  });
+  const files = Object.entries(entries).sort(([a], [b]) => a.localeCompare(b));
+
+  if (rejectedForCount) {
     throw new Error(
       `Zip file contains too many Markdown files. Maximum is ${MAX_ZIP_MARKDOWN_FILES}.`
     );
   }
 
-  let extractedBytes = 0;
+  if (rejectedForSize) {
+    throw new Error("Extracted Markdown files are too large");
+  }
+
+  if (files.length === 0) {
+    throw new Error("Zip file must contain at least one .md or .mdx file");
+  }
 
   return files.map(([sourceRef, contentBytes]) => {
-    extractedBytes += contentBytes.byteLength;
-
-    if (extractedBytes > MAX_ZIP_EXTRACTED_BYTES) {
-      throw new Error("Extracted Markdown files are too large");
-    }
-
     return {
       sourceRef,
       content: strFromU8(contentBytes),

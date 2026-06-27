@@ -1,4 +1,4 @@
-import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { db } from "@marble/db";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
@@ -60,84 +60,101 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: importSource.error }, { status: 400 });
   }
 
-  let jobData:
-    | {
-        source: "file";
-        format: ImportFormat;
-        uploadKey: string;
-      }
-    | {
-        source: "url";
-        sourceUrl: string;
-      };
-
-  if (importSource.source === "file") {
-    const { file } = importSource;
-    const format = getImportFormat(file);
-
-    if (!format) {
-      return NextResponse.json(
-        { error: "Import file must be a .md, .mdx, or .zip file" },
-        { status: 400 }
-      );
-    }
-
-    const extension = getImportExtension(file);
-    const uploadKey = `imports/${workspaceId}/${crypto.randomUUID()}.${extension}`;
-
-    try {
-      await r2.send(
-        new PutObjectCommand({
-          Bucket: R2_BUCKET_NAME,
-          Key: uploadKey,
-          Body: new Uint8Array(await file.arrayBuffer()),
-          ContentLength: file.size,
-          ContentType: file.type || "application/octet-stream",
-        })
-      );
-    } catch (error) {
-      console.error("[Imports] Failed to upload import file:", error);
-      return NextResponse.json(
-        { error: "Failed to upload import file" },
-        { status: 500 }
-      );
-    }
-
-    jobData = {
-      source: "file",
-      format,
-      uploadKey,
-    };
-  } else {
-    jobData = {
-      source: "url",
-      sourceUrl: importSource.url,
-    };
+  if (importSource.source === "url") {
+    return NextResponse.json(
+      { error: "URL imports aren't supported yet" },
+      { status: 400 }
+    );
   }
 
-  const job = await db.importJob.create({
-    data: {
-      workspaceId,
-      createdById: sessionData.user.id,
-      ...jobData,
-    },
-    select: {
-      id: true,
-      source: true,
-      status: true,
-      format: true,
-      sourceUrl: true,
-      totalItems: true,
-      readyItems: true,
-      errorItems: true,
-      importedItems: true,
-      startedAt: true,
-      completedAt: true,
-      failedAt: true,
-      errorMessage: true,
-      createdAt: true,
-    },
-  });
+  const { file } = importSource;
+  const format = getImportFormat(file);
+
+  if (!format) {
+    return NextResponse.json(
+      { error: "Import file must be a .md, .mdx, or .zip file" },
+      { status: 400 }
+    );
+  }
+
+  const extension = getImportExtension(file);
+  const uploadKey = `imports/${workspaceId}/${crypto.randomUUID()}.${extension}`;
+
+  try {
+    await r2.send(
+      new PutObjectCommand({
+        Bucket: R2_BUCKET_NAME,
+        Key: uploadKey,
+        Body: new Uint8Array(await file.arrayBuffer()),
+        ContentLength: file.size,
+        ContentType: file.type || "application/octet-stream",
+      })
+    );
+  } catch (error) {
+    console.error("[Imports] Failed to upload import file:", error);
+    return NextResponse.json(
+      { error: "Failed to upload import file" },
+      { status: 500 }
+    );
+  }
+
+  const jobData = {
+    source: "file",
+    format,
+    uploadKey,
+  } satisfies {
+    source: "file";
+    format: ImportFormat;
+    uploadKey: string;
+  };
+
+  let job: Parameters<typeof serializeImportJob>[0];
+
+  try {
+    job = await db.importJob.create({
+      data: {
+        workspaceId,
+        createdById: sessionData.user.id,
+        ...jobData,
+      },
+      select: {
+        id: true,
+        source: true,
+        status: true,
+        format: true,
+        sourceUrl: true,
+        totalItems: true,
+        readyItems: true,
+        errorItems: true,
+        importedItems: true,
+        startedAt: true,
+        completedAt: true,
+        failedAt: true,
+        errorMessage: true,
+        createdAt: true,
+      },
+    });
+  } catch (error) {
+    try {
+      await r2.send(
+        new DeleteObjectCommand({
+          Bucket: R2_BUCKET_NAME,
+          Key: uploadKey,
+        })
+      );
+    } catch (cleanupError) {
+      console.error(
+        `[Imports] Failed to delete orphaned import upload ${uploadKey}:`,
+        cleanupError
+      );
+    }
+
+    console.error("[Imports] Failed to create import job:", error);
+    return NextResponse.json(
+      { error: "Failed to create import job" },
+      { status: 500 }
+    );
+  }
 
   try {
     await enqueueTask({ type: "import.process", jobId: job.id });

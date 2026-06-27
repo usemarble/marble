@@ -7,6 +7,14 @@ import type { DbClient } from "@/lib/db";
 import type { Env } from "@/types/env";
 
 const IMPORT_CLEANUP_BATCH_SIZE = 100;
+type ActiveImportStatus = "queued" | "discovering" | "processing" | "importing";
+
+const ACTIVE_IMPORT_STATUSES: ActiveImportStatus[] = [
+  "queued",
+  "discovering",
+  "processing",
+  "importing",
+];
 
 async function deleteImportUpload({
   env,
@@ -49,7 +57,7 @@ export async function cleanupStaleImports({
   const staleJobs = await db.importJob.findMany({
     where: {
       createdAt: { lt: staleCutoff },
-      status: { in: ["queued", "discovering", "processing", "importing"] },
+      status: { in: ACTIVE_IMPORT_STATUSES },
     },
     select: {
       id: true,
@@ -61,6 +69,25 @@ export async function cleanupStaleImports({
   let staleCount = 0;
 
   for (const job of staleJobs) {
+    const staleUpdate = await db.importJob.updateMany({
+      where: {
+        id: job.id,
+        createdAt: { lt: staleCutoff },
+        status: { in: ACTIVE_IMPORT_STATUSES },
+      },
+      data: {
+        status: "failed",
+        failedAt: now,
+        errorMessage: "Import timed out before it could complete",
+      },
+    });
+
+    if (staleUpdate.count === 0) {
+      continue;
+    }
+
+    staleCount += 1;
+
     const uploadDeleted = await deleteImportUpload({
       env,
       id: job.id,
@@ -71,16 +98,12 @@ export async function cleanupStaleImports({
       continue;
     }
 
-    await db.importJob.update({
+    await db.importJob.updateMany({
       where: { id: job.id },
       data: {
-        status: "failed",
-        failedAt: now,
-        errorMessage: "Import timed out before it could complete",
         uploadKey: null,
       },
     });
-    staleCount += 1;
   }
 
   const oldJobs = await db.importJob.findMany({

@@ -17,6 +17,7 @@ interface ImportJob {
   source: "file" | "url";
   status:
     | "queued"
+    | "discovering"
     | "processing"
     | "review"
     | "importing"
@@ -71,13 +72,22 @@ function getImportStatusLabel(job: ImportJob) {
   return job.status === "queued" ? "Queued" : "Processing";
 }
 
+function isActiveImportStatus(status: ImportJob["status"]) {
+  return (
+    status === "queued" ||
+    status === "discovering" ||
+    status === "processing" ||
+    status === "importing"
+  );
+}
+
 export function Import() {
   const [open, setOpen] = useState(false);
   const { activeWorkspace } = useWorkspace();
   const workspaceId = activeWorkspace?.id;
   const workspaceSlug = activeWorkspace?.slug;
 
-  const { data } = useQuery({
+  const { data, isError } = useQuery({
     enabled: !!workspaceId,
     queryKey: workspaceId ? QUERY_KEYS.IMPORTS(workspaceId) : ["imports"],
     queryFn: async () => {
@@ -89,12 +99,7 @@ export function Import() {
     },
     refetchInterval: (query) => {
       const jobs = query.state.data?.jobs ?? [];
-      return jobs.some(
-        (job) =>
-          job.status === "queued" ||
-          job.status === "processing" ||
-          job.status === "importing"
-      )
+      return jobs.some((job) => isActiveImportStatus(job.status))
         ? 1000
         : false;
     },
@@ -132,10 +137,7 @@ export function Import() {
 
           {latestJobs.slice(0, 3).map((job) => {
             const createdAt = formatDate(job.createdAt);
-            const isActive =
-              job.status === "queued" ||
-              job.status === "processing" ||
-              job.status === "importing";
+            const isActive = isActiveImportStatus(job.status);
 
             return (
               <div
@@ -170,7 +172,15 @@ export function Import() {
             );
           })}
 
-          {latestJobs.length === 0 && (
+          {isError && (
+            <div className="rounded-[14px] bg-background px-4 py-3.5">
+              <p className="text-[13px] text-destructive">
+                Failed to load imports.
+              </p>
+            </div>
+          )}
+
+          {latestJobs.length === 0 && !isError && (
             <div className="rounded-[14px] bg-background px-4 py-3.5">
               <p className="text-[13px] text-muted-foreground">
                 Imports will appear here once started.
