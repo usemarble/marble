@@ -40,6 +40,11 @@ interface ImportListResponse {
   jobs: ImportJob[];
 }
 
+interface Category {
+  id: string;
+  slug: string;
+}
+
 function formatDate(value: string | null) {
   if (!value) {
     return null;
@@ -81,6 +86,16 @@ function isActiveImportStatus(status: ImportJob["status"]) {
   );
 }
 
+function getImportedPostsHref(workspaceSlug: string, categoryId?: string) {
+  const params = new URLSearchParams({ status: "draft" });
+
+  if (categoryId) {
+    params.set("category", categoryId);
+  }
+
+  return `/${workspaceSlug}/posts?${params.toString()}`;
+}
+
 export function Import() {
   const [open, setOpen] = useState(false);
   const { activeWorkspace } = useWorkspace();
@@ -105,7 +120,24 @@ export function Import() {
     },
   });
 
+  const { data: categories = [] } = useQuery({
+    enabled: !!workspaceId,
+    queryKey: workspaceId
+      ? QUERY_KEYS.CATEGORIES(workspaceId)
+      : ["categories", "imports"],
+    queryFn: async () => {
+      const response = await fetch("/api/categories");
+      if (!response.ok) {
+        throw new Error("Failed to load categories");
+      }
+      return (await response.json()) as Category[];
+    },
+  });
+
   const latestJobs = data?.jobs ?? [];
+  const uncategorizedCategoryId = categories.find(
+    (category) => category.slug === "uncategorized"
+  )?.id;
 
   return (
     <>
@@ -162,7 +194,14 @@ export function Import() {
                   <Button
                     nativeButton={false}
                     render={
-                      <Link href={`/${workspaceSlug}/posts`}>View posts</Link>
+                      <Link
+                        href={getImportedPostsHref(
+                          workspaceSlug,
+                          uncategorizedCategoryId
+                        )}
+                      >
+                        View posts
+                      </Link>
                     }
                     size="sm"
                     variant="secondary"
