@@ -8,6 +8,7 @@ import { redis } from "@/lib/redis";
 import {
   aiReadabilityBodySchema,
   aiReadabilityResponseSchema,
+  MAX_AI_READABILITY_MODEL_CONTENT_LENGTH,
 } from "@/lib/validations/editor";
 import { systemPrompt } from "./prompt";
 
@@ -42,6 +43,17 @@ function createContentHash(
   return `${contentHash}:${metricsHash}`;
 }
 
+function getClientIp(request: Request): string {
+  const forwardedFor = request.headers.get("x-forwarded-for");
+  const forwardedIp = forwardedFor?.split(",").at(0)?.trim();
+  return (
+    forwardedIp ||
+    request.headers.get("cf-connecting-ip") ||
+    request.headers.get("x-real-ip") ||
+    "unknown"
+  );
+}
+
 export async function POST(request: Request) {
   const accessData = await requireActiveWorkspaceAccess();
 
@@ -49,7 +61,7 @@ export async function POST(request: Request) {
     return accessData.response;
   }
 
-  const { workspaceId } = accessData;
+  const { sessionData, workspaceId } = accessData;
 
   const bypassCache = request.headers.get("x-bypass-cache") === "true";
 
@@ -99,17 +111,34 @@ export async function POST(request: Request) {
     }
   }
 
-  const { success, limit, remaining, reset } =
-    await aiSuggestionsRateLimiter.limit(workspaceId);
+  const userRateLimitKey = `${workspaceId}:${sessionData.user.id}`;
+  const ipRateLimitKey = `${workspaceId}:ip:${getClientIp(request)}`;
+  const [userRateLimit, ipRateLimit] = await Promise.all([
+    aiSuggestionsRateLimiter.limit(userRateLimitKey),
+    aiSuggestionsRateLimiter.limit(ipRateLimitKey),
+  ]);
 
-  if (!success) {
+  const rateLimit = userRateLimit.success ? ipRateLimit : userRateLimit;
+
+  if (!(userRateLimit.success && ipRateLimit.success)) {
     return NextResponse.json(
-      { error: "Too Many Requests", remaining },
-      { status: 429, headers: rateLimitHeaders(limit, remaining, reset) }
+      { error: "Too Many Requests", remaining: rateLimit.remaining },
+      {
+        status: 429,
+        headers: rateLimitHeaders(
+          rateLimit.limit,
+          rateLimit.remaining,
+          rateLimit.reset
+        ),
+      }
     );
   }
 
   const { generateObject } = await import("ai");
+  const modelContent = htmlToMarkdown(parsedBody.data.content).slice(
+    0,
+    MAX_AI_READABILITY_MODEL_CONTENT_LENGTH
+  );
 
   const result = await generateObject({
     model: "openai/gpt-5.1-instant",
@@ -122,7 +151,7 @@ export async function POST(request: Request) {
         role: "user",
         content: `
         <CONTENT>
-        ${htmlToMarkdown(parsedBody.data.content)}
+        ${modelContent}
         </CONTENT>
         `,
       },

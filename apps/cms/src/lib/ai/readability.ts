@@ -1,4 +1,7 @@
-import { aiReadabilityResponseSchema } from "@/lib/validations/editor";
+import {
+  aiReadabilityResponseSchema,
+  MAX_AI_READABILITY_CONTENT_LENGTH,
+} from "@/lib/validations/editor";
 
 export interface ReadabilityMetrics {
   wordCount: number;
@@ -15,6 +18,7 @@ export async function fetchAiReadabilityRaw(params: {
   bypassCache?: boolean;
 }): Promise<string> {
   const { content, metrics, postId, bypassCache } = params;
+  const boundedContent = content.slice(0, MAX_AI_READABILITY_CONTENT_LENGTH);
   const headers: HeadersInit = { "Content-Type": "application/json" };
   if (bypassCache) {
     headers["x-bypass-cache"] = "true";
@@ -22,7 +26,7 @@ export async function fetchAiReadabilityRaw(params: {
   const response = await fetch("/api/ai/suggestions", {
     method: "POST",
     headers,
-    body: JSON.stringify({ content, metrics, postId }),
+    body: JSON.stringify({ content: boundedContent, metrics, postId }),
   });
 
   if (!response.ok) {
