@@ -1,10 +1,51 @@
 ---
 title: "Importing Content"
 sidebarTitle: "Import"
-description: "Migrate existing content into Marble from Markdown and MDX files, with a syntax compatibility table covering which elements are preserved on import."
+description: "Bring existing Markdown and MDX files into Marble as draft posts using the queued import workflow, with a syntax compatibility reference."
 ---
 
-You can bring your existing `.md` and `.mdx` files into Marble. During import, Marble preserves the most commonly used Markdown and MDX syntax so you do not have to rewrite your content.
+You can bring your existing `.md` and `.mdx` files into Marble as draft posts. Marble imports happen asynchronously: you upload a file, Marble queues a job, a worker parses the content in the background, and the created drafts show up in your posts list when the job completes.
+
+## Starting an import
+
+1. Open **Settings → Data** in your workspace.
+2. Find the **Import Content** section.
+3. Click **Import**.
+4. Upload a single Markdown file or a ZIP archive (see [Supported uploads](#supported-uploads)).
+
+Marble queues the import and starts processing it in the background. You can leave the page while it runs — the status updates automatically when you return.
+
+<Note>
+  Imports are capped at **4 MB per upload**. Each ZIP archive may contain up to **100** Markdown files and **20 MB** of extracted content. Entries that are not `.md` or `.mdx` are skipped.
+</Note>
+
+## Supported uploads
+
+| Upload type      | Behavior                                                                                   |
+| ---------------- | ------------------------------------------------------------------------------------------ |
+| `.md` / `.mdx`   | Creates a single draft post from the file.                                                 |
+| `.zip` archive   | Creates one draft post per `.md` or `.mdx` file in the archive. Other entries are skipped. |
+
+For each file Marble pulls the title from frontmatter when available, otherwise from the first heading, otherwise from the filename. Imported posts are always created as **drafts** so you can review them before publishing.
+
+<Warning>
+  URL-based imports are **not supported**. You must upload a file or ZIP archive.
+</Warning>
+
+## Job lifecycle
+
+Each import moves through these states:
+
+| Status        | Meaning                                                                       |
+| ------------- | ----------------------------------------------------------------------------- |
+| `queued`      | The import has been requested and is waiting to be picked up.                 |
+| `discovering` | A worker is reading the upload and listing the files inside.                  |
+| `processing`  | The worker is parsing each file and preparing draft records.                  |
+| `importing`   | Drafts are being written to your workspace.                                   |
+| `completed`   | All drafts are created. The number of imported posts is shown next to the job. |
+| `failed`      | Something went wrong. The error reason is shown next to the job.              |
+
+The most recent imports are listed under **Import Content**, with a **View posts** link once a job completes.
 
 ## Supported Markdown syntax
 
@@ -36,8 +77,8 @@ If your content uses MDX, Marble will keep JSX-style components and custom MDX s
 However:
 
 - ❌ **Custom components will not render inside the Marble editor preview.**
-- ❌ **Marble does not execute or parse your components for you.** You need to parse the imported MDX inside your own codebase (for example, using your framework’s MDX pipeline) for those components to work at runtime.
+- ❌ **Marble does not execute or parse your components for you.** You need to parse the imported MDX inside your own codebase (for example, using your framework's MDX pipeline) for those components to work at runtime.
 
 <Check>
-You can safely import your existing Markdown (`.md`) and MDX (`.mdx`) files into Marble. The supported Markdown syntax above is preserved during import, and MDX components remain in the source so they continue to work when parsed in your own application.
+You can safely import your existing Markdown (`.md`) and MDX (`.mdx`) files into Marble. Each file becomes a draft post you can review before publishing, and any MDX components remain in the source so they continue to work when parsed in your own application.
 </Check>
