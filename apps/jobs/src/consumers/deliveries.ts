@@ -1,5 +1,8 @@
 import { buildWebhookPayload, serializeEventType } from "@marble/events";
-import { WEBHOOK_DELIVERY_TIMEOUT_MS } from "@/lib/constants";
+import {
+  WEBHOOK_DELIVERY_STALE_SENDING_MS,
+  WEBHOOK_DELIVERY_TIMEOUT_MS,
+} from "@/lib/constants";
 import { createDbClient } from "@/lib/db";
 import { buildWebhookRequestBody } from "@/lib/formats";
 import { signPayload } from "@/lib/signing";
@@ -37,19 +40,9 @@ async function processDelivery(
   env: Env,
   deliveryId: string
 ) {
-  const claim = await db.webhookDelivery.updateMany({
-    where: {
-      id: deliveryId,
-      status: { in: ["pending", "retrying"] },
-    },
-    data: {
-      status: "sending",
-      attemptCount: { increment: 1 },
-      lastAttemptAt: new Date(),
-    },
-  });
+  const claimed = await claimWebhookDeliveryAttempt(db, deliveryId);
 
-  if (claim.count === 0) {
+  if (!claimed) {
     return;
   }
 
@@ -219,4 +212,57 @@ async function processDelivery(
   });
 
   throw new Error(`Webhook returned ${response.status}`);
+}
+
+export async function claimWebhookDeliveryAttempt(
+  db: ReturnType<typeof createDbClient>,
+  deliveryId: string,
+  now = new Date()
+) {
+  const claim = await db.webhookDelivery.updateMany({
+    where: {
+      id: deliveryId,
+      status: { in: ["pending", "retrying"] },
+    },
+    data: {
+      status: "sending",
+      attemptCount: { increment: 1 },
+      lastAttemptAt: now,
+    },
+  });
+
+  if (claim.count > 0) {
+    return true;
+  }
+
+  const staleCutoff = new Date(
+    now.getTime() - WEBHOOK_DELIVERY_STALE_SENDING_MS
+  );
+  const staleClaim = await db.webhookDelivery.updateMany({
+    where: {
+      id: deliveryId,
+      status: "sending",
+      OR: [{ lastAttemptAt: { lt: staleCutoff } }, { lastAttemptAt: null }],
+    },
+    data: {
+      status: "sending",
+      attemptCount: { increment: 1 },
+      lastAttemptAt: now,
+    },
+  });
+
+  if (staleClaim.count > 0) {
+    return true;
+  }
+
+  const delivery = await db.webhookDelivery.findUnique({
+    where: { id: deliveryId },
+    select: { status: true },
+  });
+
+  if (delivery?.status === "sending") {
+    throw new Error(`Webhook delivery ${deliveryId} is already sending`);
+  }
+
+  return false;
 }
