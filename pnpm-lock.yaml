@@ -339,6 +339,9 @@ importers:
       '@cloudflare/workers-types':
         specifier: ^4.20260508.1
         version: 4.20260626.1
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.6(@types/debug@4.1.13)(@types/node@24.13.2)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0)
       wrangler:
         specifier: ^4.90.0
         version: 4.105.0(@cloudflare/workers-types@4.20260626.1)(bufferutil@4.1.0)
