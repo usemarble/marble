@@ -24,6 +24,21 @@ import type { ApiKeyApp, Env } from "./types/env";
 
 const app = new OpenAPIHono<{ Bindings: Env }>();
 
+const OPENAPI_CACHE_CONTROL =
+  "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800";
+
+const openApiDocument = {
+  openapi: "3.1.0",
+  info: {
+    title: "Marble API",
+    version: "1.0.0",
+    description:
+      "A headless CMS API for managing and delivering content programmatically.",
+  },
+  servers: [{ url: "https://api.marblecms.com", description: "Production" }],
+  security: [{ apiKey: [] }],
+};
+
 // Global middleware — CORS must be first so preflight and cross-origin responses work
 app.use(
   "*",
@@ -151,17 +166,15 @@ app.use("/*", async (c, next) => {
 app.get("/", (c) => c.text("Hello from marble"));
 app.get("/status", (c) => c.json({ status: "ok" }));
 
-app.doc("/openapi.json", {
-  openapi: "3.1.0",
-  info: {
-    title: "Marble API",
-    version: "1.0.0",
-    description:
-      "A headless CMS API for managing and delivering content programmatically.",
-  },
-  servers: [{ url: "https://api.marblecms.com", description: "Production" }],
-  security: [{ apiKey: [] }],
+app.use("/openapi.json", async (c, next) => {
+  await next();
+
+  if (c.res.status < 400) {
+    c.header("Cache-Control", OPENAPI_CACHE_CONTROL);
+  }
 });
+
+app.doc("/openapi.json", openApiDocument);
 
 app.openAPIRegistry.registerComponent("securitySchemes", "apiKey", {
   type: "apiKey",
