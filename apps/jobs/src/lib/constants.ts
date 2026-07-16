@@ -8,6 +8,10 @@ export const IMPORT_JOB_RETENTION_DAYS = 30;
 export const IMPORT_STALE_JOB_DAYS = 1;
 export const WEBHOOK_DELIVERY_RETENTION_DAYS = 30;
 export const WEBHOOK_DELIVERY_TIMEOUT_MS = 15_000;
+
+// Keep this longer than the outbound request timeout but shorter than the
+// queue's 60-second retry delay, so each retry can recover an abandoned claim.
+export const WEBHOOK_DELIVERY_LEASE_MS = WEBHOOK_DELIVERY_TIMEOUT_MS + 30_000;
 // The dashboard currently renders a 30-day chart plus the previous 30-day
 // comparison from raw API request rows.
 export const API_REQUEST_RETENTION_DAYS = 60;

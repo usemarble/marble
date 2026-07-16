@@ -8,6 +8,12 @@ import {
   recordWebhookUsage,
   sendWebhookUsageAlert,
 } from "@/lib/usage";
+import {
+  claimWebhookDeliveryAttempt,
+  renewWebhookDeliveryLease,
+  updateWebhookDeliveryForLease,
+  webhookDeliveryLeaseWhere,
+} from "@/lib/webhook-delivery-lease";
 import type { Env, WebhookMessage } from "@/types/env";
 
 export async function handleWebhookDeliveryQueue(
@@ -37,24 +43,14 @@ async function processDelivery(
   env: Env,
   deliveryId: string
 ) {
-  const claim = await db.webhookDelivery.updateMany({
-    where: {
-      id: deliveryId,
-      status: { in: ["pending", "retrying"] },
-    },
-    data: {
-      status: "sending",
-      attemptCount: { increment: 1 },
-      lastAttemptAt: new Date(),
-    },
-  });
+  let lease = await claimWebhookDeliveryAttempt(db, deliveryId);
 
-  if (claim.count === 0) {
+  if (!lease) {
     return;
   }
 
-  const delivery = await db.webhookDelivery.findUnique({
-    where: { id: deliveryId },
+  const delivery = await db.webhookDelivery.findFirst({
+    where: webhookDeliveryLeaseWhere(lease),
     include: {
       event: true,
       webhookEndpoint: {
@@ -76,26 +72,30 @@ async function processDelivery(
     : await checkWebhookUsage(db, delivery.workspaceId);
 
   if (usage && !usage.allowed) {
-    await sendWebhookUsageAlert(db, {
-      resendApiKey: env.RESEND_API_KEY,
-      workspaceId: delivery.workspaceId,
-      kind: "exhausted",
-      usageAmount: usage.currentUsage,
-      limitAmount: usage.limit,
-      period: usage.period,
+    const transition = await updateWebhookDeliveryForLease(db, lease, {
+      status: "failed",
+      failedAt: new Date(),
     });
 
-    await db.webhookDelivery.update({
-      where: { id: delivery.id },
-      data: {
-        status: "failed",
-        failedAt: new Date(),
-      },
-    });
+    if (transition.count > 0) {
+      try {
+        await sendWebhookUsageAlert(db, {
+          resendApiKey: env.RESEND_API_KEY,
+          workspaceId: delivery.workspaceId,
+          kind: "exhausted",
+          usageAmount: usage.currentUsage,
+          limitAmount: usage.limit,
+          period: usage.period,
+        });
+      } catch (error) {
+        console.error("[Delivery] Failed to send webhook usage alert:", error);
+      }
+    }
+
     return;
   }
 
-  const attemptNumber = delivery.attemptCount;
+  const attemptNumber = lease.attemptNumber;
 
   const payload = buildWebhookPayload(delivery.event);
   const requestBody = buildWebhookRequestBody(
@@ -107,6 +107,13 @@ async function processDelivery(
   const signature = await signPayload(body, delivery.webhookEndpoint.secret);
   const timestamp = Math.floor(Date.now() / 1000).toString();
   const eventType = serializeEventType(delivery.event.type);
+
+  const renewedLease = await renewWebhookDeliveryLease(db, lease);
+  if (!renewedLease) {
+    return;
+  }
+  lease = renewedLease;
+
   const startedAt = Date.now();
 
   let response: Response;
@@ -140,22 +147,22 @@ async function processDelivery(
     });
 
     if (attemptNumber >= delivery.maxAttempts) {
-      await db.webhookDelivery.update({
-        where: { id: delivery.id },
-        data: {
-          status: "failed",
-          failedAt: new Date(),
-        },
+      await updateWebhookDeliveryForLease(db, lease, {
+        status: "failed",
+        failedAt: new Date(),
       });
       return;
     }
 
-    await db.webhookDelivery.update({
-      where: { id: delivery.id },
-      data: { status: "retrying" },
+    const transition = await updateWebhookDeliveryForLease(db, lease, {
+      status: "retrying",
     });
 
-    throw error;
+    if (transition.count > 0) {
+      throw error;
+    }
+
+    return;
   }
 
   const responseBody = await response.text();
@@ -172,51 +179,47 @@ async function processDelivery(
     },
   });
 
-  if (response.ok && !delivery.isTest) {
-    try {
-      await recordWebhookUsage(db, delivery.workspaceId, delivery.url);
-
-      if (usage?.alertKind) {
-        await sendWebhookUsageAlert(db, {
-          resendApiKey: env.RESEND_API_KEY,
-          workspaceId: delivery.workspaceId,
-          kind: usage.alertKind,
-          usageAmount: usage.currentUsage + 1,
-          limitAmount: usage.limit,
-          period: usage.period,
-        });
-      }
-    } catch (error) {
-      console.error("[Delivery] Failed to track webhook usage:", error);
-    }
-  }
-
   if (response.ok) {
-    await db.webhookDelivery.update({
-      where: { id: delivery.id },
-      data: {
-        status: "success",
-        deliveredAt: new Date(),
-      },
+    const transition = await updateWebhookDeliveryForLease(db, lease, {
+      status: "success",
+      deliveredAt: new Date(),
     });
+
+    if (transition.count > 0 && !delivery.isTest) {
+      try {
+        await recordWebhookUsage(db, delivery.workspaceId, delivery.url);
+
+        if (usage?.alertKind) {
+          await sendWebhookUsageAlert(db, {
+            resendApiKey: env.RESEND_API_KEY,
+            workspaceId: delivery.workspaceId,
+            kind: usage.alertKind,
+            usageAmount: usage.currentUsage + 1,
+            limitAmount: usage.limit,
+            period: usage.period,
+          });
+        }
+      } catch (error) {
+        console.error("[Delivery] Failed to track webhook usage:", error);
+      }
+    }
+
     return;
   }
 
   if (attemptNumber >= delivery.maxAttempts) {
-    await db.webhookDelivery.update({
-      where: { id: delivery.id },
-      data: {
-        status: "failed",
-        failedAt: new Date(),
-      },
+    await updateWebhookDeliveryForLease(db, lease, {
+      status: "failed",
+      failedAt: new Date(),
     });
     return;
   }
 
-  await db.webhookDelivery.update({
-    where: { id: delivery.id },
-    data: { status: "retrying" },
+  const transition = await updateWebhookDeliveryForLease(db, lease, {
+    status: "retrying",
   });
 
-  throw new Error(`Webhook returned ${response.status}`);
+  if (transition.count > 0) {
+    throw new Error(`Webhook returned ${response.status}`);
+  }
 }
