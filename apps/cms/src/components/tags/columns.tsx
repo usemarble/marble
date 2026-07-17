@@ -24,12 +24,11 @@ export const columns: ColumnDef<Tag>[] = [
   },
   {
     id: "actions",
-    header: () => <div className="flex justify-end pr-10">Actions</div>,
     cell: ({ row }) => {
       const tag = row.original;
 
       return (
-        <div className="flex justify-end pr-10">
+        <div className="flex justify-end">
           <TableActions {...tag} />
         </div>
       );

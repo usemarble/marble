@@ -24,12 +24,11 @@ export const columns: ColumnDef<Category>[] = [
   },
   {
     id: "actions",
-    header: () => <div className="flex justify-end pr-10">Actions</div>,
     cell: ({ row }) => {
       const category = row.original;
 
       return (
-        <div className="flex justify-end pr-10">
+        <div className="flex justify-end">
           <TableActions {...category} />
         </div>
       );

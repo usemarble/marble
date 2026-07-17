@@ -48,12 +48,11 @@ export const columns: ColumnDef<APIKey>[] = [
   },
   {
     id: "actions",
-    header: () => <div className="flex justify-end pr-10">Actions</div>,
     cell: ({ row }) => {
       const apiKey = row.original;
 
       return (
-        <div className="flex justify-end pr-10">
+        <div className="flex justify-end">
           <TableActions {...apiKey} />
         </div>
       );
