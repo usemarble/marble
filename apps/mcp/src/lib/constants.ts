@@ -91,4 +91,27 @@ export const MCP_TOOL_GROUPS = [
       { name: "delete_media", description: "Delete a media asset by ID." },
     ],
   },
+  {
+    name: "Fields",
+    description: "Manage custom fields in your Marble workspace.",
+    tools: [
+      {
+        name: "get_fields",
+        description: "Get all custom field definitions.",
+      },
+      {
+        name: "get_field",
+        description: "Get a single custom field by ID or key.",
+      },
+      { name: "create_field", description: "Create a custom field." },
+      {
+        name: "update_field",
+        description: "Update a custom field by ID or key.",
+      },
+      {
+        name: "delete_field",
+        description: "Delete a custom field by ID or key.",
+      },
+    ],
+  },
 ] as const;
