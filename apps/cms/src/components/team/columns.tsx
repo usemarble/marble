@@ -61,14 +61,13 @@ export const columns: ColumnDef<TeamMemberRow>[] = [
   },
   {
     id: "actions",
-    header: () => <div className="flex justify-end pr-10">Actions</div>,
     cell: ({ row, table }) => {
       const meta = table.options.meta as {
         currentUserRole: UserRole | undefined;
         currentUserId: string | undefined;
       };
       return (
-        <div className="flex justify-end pr-10">
+        <div className="flex justify-end">
           <TableActions
             {...row.original}
             currentUserId={meta?.currentUserId}

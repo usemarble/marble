@@ -51,9 +51,8 @@ export const columns: ColumnDef<Author>[] = [
   },
   {
     id: "actions",
-    header: () => <div className="flex justify-end pr-10">Actions</div>,
     cell: ({ row }) => (
-      <div className="flex justify-end pr-10">
+      <div className="flex justify-end">
         <AuthorTableActions author={row.original} />
       </div>
     ),
