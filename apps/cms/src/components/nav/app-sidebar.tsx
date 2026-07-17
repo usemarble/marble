@@ -31,7 +31,6 @@ import { NavExtra } from "./nav-extra";
 import { NavMain } from "./nav-main";
 import { NavSettings } from "./nav-settings";
 import { SidebarFooterContent } from "./sidebar-footer-content";
-import { WhatsNewCard } from "./whats-new-card";
 import { WorkspaceSwitcher } from "./workspace-switcher";
 
 const sidebarToggleTransition = {
@@ -150,7 +149,6 @@ export function AppSidebar({
               <NavMain />
             </SidebarContent>
             <SidebarFooter className="gap-0 p-0">
-              <WhatsNewCard initialDismissed={isWhatsNewDismissed} />
               <SidebarGroup className="px-3">
                 <SidebarMenu>
                   <SidebarMenuButton
