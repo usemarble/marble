@@ -64,12 +64,14 @@ export function AppSidebar({
   const settingsVariants = {
     initial: shouldReduceMotion
       ? { opacity: 1, x: 0 }
-      : { opacity: 0, x: "100%" },
-    animate: { opacity: 1, x: 0 },
-    exit: shouldReduceMotion ? { opacity: 1, x: 0 } : { opacity: 0, x: "100%" },
+      : { opacity: 0, x: "100%", filter: "blur(4px)" },
+    animate: { opacity: 1, x: 0, filter: "blur(0px)" },
+    exit: shouldReduceMotion
+      ? { opacity: 1, x: 0 }
+      : { opacity: 0, x: "100%", filter: "blur(4px)" },
   };
 
-  const transition = { duration: 0.3, type: "spring", bounce: 0.15 };
+  const transition = { duration: 0.4, type: "spring", bounce: 0 };
 
   return (
     <Sidebar
