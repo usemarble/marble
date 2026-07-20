@@ -2,11 +2,11 @@ import contentIntelImage from "../../assets/images/content-intelligence.png";
 import apiImage from "../../assets/images/headless-api.png";
 import mediaImage from "../../assets/images/media-management.png";
 import webhooksImage from "../../assets/images/webhooks.png";
-import Bounty from "../../components/icons/brand/Bounty.astro";
 import Candle from "../../components/icons/brand/Candle.astro";
 import Databuddy from "../../components/icons/brand/Databuddy.astro";
 import Helix from "../../components/icons/brand/Helix.astro";
 import Ia from "../../components/icons/brand/Ia.astro";
+import Notra from "../../components/icons/brand/Notra.astro";
 import Opencut from "../../components/icons/brand/Opencut.astro";
 
 export const FEATURES = [
@@ -74,9 +74,9 @@ export const USERS = [
     showWordmark: true,
   },
   {
-    name: "Bounty",
-    url: "https://bounty.new",
-    component: Bounty,
+    name: "Notra",
+    url: "https://www.usenotra.com",
+    component: Notra,
     showWordmark: false,
   },
   {
@@ -89,7 +89,7 @@ export const USERS = [
     name: "Databuddy",
     url: "https://databuddy.cc",
     component: Databuddy,
-    showWordmark: true,
+    showWordmark: false,
   },
   {
     name: "Candle",
