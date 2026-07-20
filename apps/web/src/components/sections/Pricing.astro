@@ -38,7 +38,7 @@
     <ul class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
       {PRICING_PLANS.map((plan, index) => (
           <li class={cn("w-full rounded-xl", index === 2 && 'md:col-span-2 xl:col-span-1 md:h-fit xl:h-auto')}>
-            <div class={cn("flex flex-col gap-5 rounded-xl bg-white w-full px-4 py-6", index === 2 ? 'md:flex-row md:px-14 md:py-10 xl:py-6 md:justify-center md:gap-20 xl:gap-4 xl:px-4 xl:flex-col min-h-96 md:min-h-fit xl:min-h-96' : 'min-h-96 h-full')}>
+            <div class={cn("flex flex-col gap-5 rounded-xl bg-surface w-full px-4 py-6", index === 2 ? 'md:flex-row md:px-14 md:py-10 xl:py-6 md:justify-center md:gap-20 xl:gap-4 xl:px-4 xl:flex-col min-h-96 md:min-h-fit xl:min-h-96' : 'min-h-96 h-full')}>
               {index === 2 ? (
                 <>
                   <div class="flex flex-col gap-5 md:min-w-60 xl:min-w-0">
@@ -143,12 +143,12 @@
       if (isYearly) {
         thumb?.classList.add("translate-x-5");
         thumb?.classList.remove("translate-x-0");
-        toggle.classList.add("bg-accent");
+        toggle.classList.add("bg-primary");
         toggle.classList.remove("bg-muted");
       } else {
         thumb?.classList.remove("translate-x-5");
         thumb?.classList.add("translate-x-0");
-        toggle.classList.remove("bg-accent");
+        toggle.classList.remove("bg-primary");
         toggle.classList.add("bg-muted");
       }
 

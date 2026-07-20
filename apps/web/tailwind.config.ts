@@ -11,12 +11,18 @@ export default {
       typography: () => ({
         marble: {
           css: {
+            "--tw-prose-body": "var(--muted-foreground)",
+            "--tw-prose-headings": "var(--foreground)",
+            "--tw-prose-lead": "var(--muted-foreground)",
+            "--tw-prose-links": "var(--accent)",
             "--tw-prose-bold": "var(--foreground)",
-            "--tw-prose-counters": "var(--foreground)",
+            "--tw-prose-counters": "var(--muted-foreground)",
             "--tw-prose-bullets": "var(--muted-foreground)",
+            "--tw-prose-hr": "var(--border)",
             "--tw-prose-quotes": "var(--foreground)",
             "--tw-prose-quote-borders": "var(--border)",
             "--tw-prose-captions": "var(--muted-foreground)",
+            "--tw-prose-kbd": "var(--foreground)",
             "--tw-prose-code": "var(--foreground)",
             "--tw-prose-code-bg": "var(--muted)",
             "--tw-prose-pre-code": "var(--color-zinc-100)",

@@ -4,6 +4,7 @@
   import HeadComponent from "@/components/Head.astro";
   import HeaderComponent from "@/components/Header.astro";
   import ScrollToTop from "@/components/ScrollToTop.astro";
+  import ThemeScript from "@/components/ThemeScript.astro";
 
   const {
     title,
@@ -35,6 +36,7 @@
       modifiedTime={modifiedTime}
       articleAuthors={articleAuthors}
     />
+    <ThemeScript/>
   </head>
   <body>
     <HeaderComponent/>

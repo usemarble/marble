@@ -60,7 +60,7 @@
           class="grid gap-8 md:gap-10 grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto"
         >
           {sponsorsData.map((sponsor) => (
-              <li class="bg-white p-8 rounded-xl flex flex-col justify-between gap-8">
+              <li class="bg-surface p-8 rounded-xl flex flex-col justify-between gap-8">
                 <div class="space-y-6 text-center">
                   <div class="flex items-center justify-center">
                     <a 
@@ -70,7 +70,7 @@
                       class="flex items-center gap-3 group hover:scale-105 transition-transform duration-200"
                     >
                       <sponsor.icon class="h-8 w-8" />
-                      <span class="text-2xl font-medium text-gray-900 group-hover:text-primary-background/70 transition-colors">{sponsor.name}</span>
+                      <span class="text-2xl font-medium text-foreground group-hover:text-primary/70 transition-colors">{sponsor.name}</span>
                     </a>
                   </div>
                   <p class="text-muted-foreground text-sm lg:text-base leading-relaxed">
@@ -82,7 +82,7 @@
                     href={sponsor.url}
                     target="_blank" 
                     rel="noopener noreferrer"
-                    class="inline-flex items-center text-sm text-primary-background/70 font-medium hover:underline transition-all duration-300 ease-in-out"
+                    class="inline-flex items-center text-sm text-primary/70 font-medium hover:text-primary hover:underline transition-all duration-300 ease-in-out"
                   >
                     Learn more about {sponsor.name}
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 ml-1">

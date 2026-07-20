@@ -19,7 +19,7 @@
   <li>
     <ButtonComponent
       href="/blog"
-      variant={currentPath === "/blog" ? "primary" : "outline"}
+      variant={currentPath === "/blog" ? "secondary" : "outline"}
       size="sm"
       class={cn("px-5 py-1.5", currentPath !== "/blog" && "hover:bg-muted/50 hover:text-foreground")}
     >
@@ -33,7 +33,7 @@
           <li>
             <ButtonComponent
               href={link}
-              variant={isActive ? "primary" : "outline"}
+              variant={isActive ? "secondary" : "outline"}
               size="sm"
               class={cn("px-4 py-1.5", !isActive && "hover:bg-muted/50 hover:text-foreground")}
             >

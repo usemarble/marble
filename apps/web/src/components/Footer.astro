@@ -5,6 +5,7 @@
   } from "@/lib/constants/navigation";
   import Container from "./Container.astro";
   import WordMark from "./icons/WordMark.astro";
+  import ThemeToggle from "./ThemeToggle.astro";
 
   const year = new Date().getFullYear();
   const copyright = `© ${year} all rights reserved`;
@@ -66,7 +67,10 @@
             );
           })}
         </ul>
-        <p class="text-xs text-muted-foreground">{copyright}</p>
+        <div class="flex flex-col items-center gap-4 sm:flex-row sm:gap-6">
+          <p class="text-xs text-muted-foreground">{copyright}</p>
+          <ThemeToggle/>
+        </div>
       </div>
     </section>
   </Container>

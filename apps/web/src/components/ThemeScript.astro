@@ -1,0 +1,28 @@
+<script is:inline>
+  (() => {
+    const storageKey = "theme";
+    const validThemes = ["light", "system", "dark"];
+    const root = document.documentElement;
+    let theme = "system";
+
+    try {
+      const storedTheme = window.localStorage.getItem(storageKey);
+      if (storedTheme && validThemes.includes(storedTheme)) {
+        theme = storedTheme;
+      }
+    } catch {
+      // Use the system preference when storage is unavailable.
+    }
+
+    const isDark =
+      theme === "dark" ||
+      (theme === "system" &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches);
+
+    root.classList.toggle("dark", isDark);
+    root.dataset.theme = theme;
+
+    const themeColor = document.querySelector('meta[name="theme-color"]');
+    themeColor?.setAttribute("content", isDark ? "#10100f" : "#fafaf9");
+  })();
+</script>

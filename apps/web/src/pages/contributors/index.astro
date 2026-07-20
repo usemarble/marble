@@ -253,7 +253,7 @@
                   href={contributor.html_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="group flex flex-col items-center space-y-2 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                  class="group flex flex-col items-center space-y-2 p-3 rounded-lg hover:bg-muted/50 transition-colors"
                   title={`${contributor.login} - ${contributor.contributions} contributions`}
                 >
                   <img
@@ -305,7 +305,7 @@
                   githubData.issues.map((issue) => {
                     const issueType = getIssueTypeFromLabels(issue.labels);
                     return (
-                      <div class="bg-white rounded-xl p-4 hover:shadow-sm transition-all duration-300">
+                      <div class="bg-surface rounded-xl p-4 hover:shadow-sm transition-all duration-300">
                         <div class="flex items-start gap-3">
                           <img
                             src={issue.user.avatar_url}
@@ -374,7 +374,7 @@
                   </div>
                 ) : (
                   githubData.prs.map((pr) => (
-                    <div class="bg-white rounded-xl p-4 hover:shadow-sm transition-all duration-300">
+                    <div class="bg-surface rounded-xl p-4 hover:shadow-sm transition-all duration-300">
                       <div class="flex items-start gap-3">
                         <img
                           src={pr.user.avatar_url}

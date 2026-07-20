@@ -98,13 +98,13 @@
           style="grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));"
         >
           {USERS.map((user) => (
-              <li class="h-24 rounded-xl bg-white transition-colors">
+              <li class="h-24 rounded-xl bg-surface transition-colors">
                 <a
                   href={user.url + "?utm_source=marble"}
                   target="_blank"
                   rel="noopener"
                   class={cn(
-                    "flex items-center justify-center h-full w-full rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+                    "flex items-center justify-center h-full w-full rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
                     user.showWordmark && "gap-2"
                   )}
                 >
@@ -138,7 +138,7 @@
 
         <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
           {FEATURES.map((feature, index) => (
-              <li class="bg-white p-3 rounded-[16px] flex flex-col gap-4 h-full">
+              <li class="bg-surface p-3 rounded-[16px] flex flex-col gap-4 h-full">
                 <div class="overflow-hidden w-full rounded-lg bg-background">
                   <Image
                     src={feature.image}
@@ -175,12 +175,12 @@
         <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {REVIEWS.map((review) => (
               <li>
-                <a href={review.link} target="_blank" class="bg-white p-6 rounded-xl flex flex-col justify-between gap-8 h-full">
+                <a href={review.link} target="_blank" class="bg-surface p-6 rounded-xl flex flex-col justify-between gap-8 h-full">
                   <p class="text-muted-foreground leading-relaxed">
                     {review.text}
                   </p>
                   <div class="flex items-center gap-3">
-                    <div class="size-10 rounded-full bg-gray-100 flex items-center justify-center text-xs font-medium text-gray-500">
+                    <div class="size-10 rounded-full bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground">
                       <Image
                         src={review.avatar}
                         alt={review.author}
@@ -242,7 +242,7 @@
     <section>
       <Container class="py-12 md:py-20">
         <div
-          class="flex w-full flex-col items-center space-y-6 rounded-xl bg-white px-6 py-10 md:px-10 md:py-14"
+          class="flex w-full flex-col items-center space-y-6 rounded-xl bg-surface px-6 py-10 md:px-10 md:py-14"
         >
           <div class="space-y-4 text-center">
             <h2

@@ -1,22 +1,46 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:is(.dark *));
+
 /* Plugins (and related config) */
 @plugin "@tailwindcss/typography";
 @config "../../tailwind.config.ts";
 
 :root {
+  color-scheme: light;
   --background: hsl(60 11% 98%);
   --foreground: hsl(240 15% 14%);
-  --primary: hsl(240 10% 14%);
+  --primary: hsl(244 100% 65%);
   --primary-foreground: hsl(0 0% 98%);
-  --muted: hsl(0, 0%, 92%);
-  --muted-foreground: hsl(0, 0%, 25%);
+  --secondary: hsl(0 0% 92%);
+  --secondary-foreground: hsl(240 10% 14%);
+  --muted: hsl(0 0% 92%);
+  --muted-foreground: hsl(0 0% 25%);
   --accent: hsl(244 100% 65%);
-  --accent-foreground: hsl(0 0% 9%);
+  --accent-foreground: hsl(0 0% 98%);
+  --surface: hsl(0 0% 100%);
+  --surface-foreground: hsl(240 15% 14%);
   --border: hsl(0 0% 86%);
 
   /* radius */
   --radius: 0.7rem;
+}
+
+.dark {
+  color-scheme: dark;
+  --background: hsl(60 3% 6%);
+  --foreground: hsl(0 0% 96%);
+  --primary: hsl(244 100% 65%);
+  --primary-foreground: hsl(0 0% 98%);
+  --secondary: hsl(240 4% 16%);
+  --secondary-foreground: hsl(0 0% 96%);
+  --muted: hsl(240 4% 15%);
+  --muted-foreground: hsl(0 0% 68%);
+  --accent: hsl(244 100% 65%);
+  --accent-foreground: hsl(0 0% 98%);
+  --surface: hsl(240 5% 10%);
+  --surface-foreground: hsl(0 0% 94%);
+  --border: hsl(240 4% 24%);
 }
 
 @theme inline {
@@ -39,11 +63,17 @@
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
 
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
 
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+
+  --color-surface: var(--surface);
+  --color-surface-foreground: var(--surface-foreground);
 
   --color-border: var(--border);
 }
@@ -64,6 +94,12 @@
   ::file-selector-button {
     border-color: var(--color-gray-200, currentcolor);
   }
+}
+
+html.theme-changing *,
+html.theme-changing *::before,
+html.theme-changing *::after {
+  transition: none !important;
 }
 
 @utility prose {
