@@ -1,5 +1,6 @@
 ---
   import Container from "@/components/Container.astro";
+  import ButtonComponent from "@/components/ui/Button.astro";
   import Layout from "@/layouts/Layout.astro";
   import { SITE } from "@/lib/constants/site";
 ---
@@ -15,10 +16,7 @@
       <h1 class="text-5xl font-bold">404</h1>
       <p class="mt-2 text-2xl mb-6">Page not found</p>
 
-      <a
-        href="/"
-        class="bg-primary text-primary-foreground rounded flex items-center gap-2 py-2 px-4 text-sm hover:ring-offset-2 hover:ring-primary hover:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary focus-visible:ring-2 transition-all duration-300 ease-out"
-      >
+      <ButtonComponent href="/" class="gap-2">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="16"
@@ -29,13 +27,13 @@
           stroke-width="2"
           stroke-linecap="round"
           stroke-linejoin="round"
-          class="mr-2 shrink-0"
+          class="shrink-0"
         >
           <path d="M3 7v6h6"></path>
           <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path>
         </svg>
         Go back home
-      </a>
+      </ButtonComponent>
     </Container>
   </div>
 </Layout>
