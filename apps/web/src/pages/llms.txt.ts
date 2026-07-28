@@ -23,6 +23,7 @@ Use this file as a compact guide to Marble's public product documentation and ma
 - [API Authentication](https://docs.marblecms.com/api/quickstart): Create public or private API keys and make an authenticated request.
 - [OpenAPI document](https://api.marblecms.com/openapi.json): Machine-readable OpenAPI 3.1 specification for the Marble REST API.
 - [Root OpenAPI document](https://marblecms.com/openapi.json): Root-domain alias for the Marble OpenAPI document.
+- [API catalog](https://marblecms.com/.well-known/api-catalog): RFC 9727 linkset for Marble's REST API and MCP server.
 - [Integrations manifest](https://marblecms.com/.well-known/integrations.json): Owner-published integration surfaces and shared credential metadata.
 
 ## AI and Developer Tools

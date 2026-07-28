@@ -6,7 +6,6 @@ const CACHE_CONTROL =
 const SOURCE = "https://marblecms.com/.well-known/integrations.json";
 
 const manifest = {
-  domain: "marblecms.com",
   version: 3,
   summary:
     "Marble exposes a REST API at api.marblecms.com/v1 and a remote MCP server at mcp.marblecms.com/mcp; both are authenticated with a scoped Marble API key.",
@@ -24,7 +23,8 @@ const manifest = {
     {
       slug: "marble-rest-api",
       name: "Marble REST API",
-      type: "openapi",
+      type: "http",
+      url: "https://api.marblecms.com/v1",
       spec: "https://api.marblecms.com/openapi.json",
       docs: "https://docs.marblecms.com/api/introduction",
       basis: {
@@ -71,7 +71,7 @@ const manifest = {
               {
                 id: "marble_api_key",
                 mechanics: {
-                  source: "inline",
+                  source: "http",
                   in: "header",
                   headerName: "Mcp-Marble-Api-Key",
                 },
@@ -87,7 +87,7 @@ const manifest = {
               {
                 id: "marble_api_key",
                 mechanics: {
-                  source: "inline",
+                  source: "http",
                   in: "header",
                   headerName: "Authorization",
                   scheme: "Bearer",
