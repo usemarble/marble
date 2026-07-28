@@ -1,0 +1,20 @@
+---
+  import type { HTMLAttributes } from "astro/types";
+
+  interface Props extends HTMLAttributes<"svg"> {}
+
+  const { class: classNames, ...attrs } = Astro.props;
+---
+<svg
+  aria-hidden="true"
+  viewBox="0 0 16 16"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.5"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  class={classNames}
+  {...attrs}
+>
+  <path d="M2.75 8h10.5m-4-4 4 4-4 4"></path>
+</svg>

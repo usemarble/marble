@@ -61,7 +61,9 @@
     logoUrl: new URL("/logo.svg", SITE.URL).toString(),
   });
   const navigationStructuredData = buildSiteNavigationJsonLd([
+    { name: "Features", url: new URL("/features", SITE.URL).toString() },
     { name: "Pricing", url: new URL("/pricing", SITE.URL).toString() },
+    { name: "MCP Server", url: new URL("/mcp", SITE.URL).toString() },
     { name: "Blog", url: new URL("/blog", SITE.URL).toString() },
     { name: "Changelog", url: new URL("/changelog", SITE.URL).toString() },
     { name: "Documentation", url: "https://docs.marblecms.com" },

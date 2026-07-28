@@ -40,6 +40,10 @@ export const FOOTER_SECTIONS: FooterSection[] = [
         href: SITE.APP_URL,
       },
       {
+        label: "Features",
+        href: "/features",
+      },
+      {
         label: "Pricing",
         href: "/pricing",
       },
@@ -85,10 +89,7 @@ export const FOOTER_SECTIONS: FooterSection[] = [
       },
       {
         label: "MCP Server",
-        href: "https://docs.marblecms.com/tools/mcp",
-        external: true,
-        target: "_blank",
-        rel: "noopener",
+        href: "/mcp",
       },
       {
         label: "Framer Plugin",

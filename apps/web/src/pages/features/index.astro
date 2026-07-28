@@ -1,0 +1,244 @@
+---
+  import { Image } from "astro:assets";
+  import heroImage from "@/assets/images/hero.png";
+  import Container from "@/components/Container.astro";
+  import ArrowRight from "@/components/icons/ArrowRight.astro";
+  import ButtonComponent from "@/components/ui/Button.astro";
+  import Layout from "@/layouts/Layout.astro";
+  import { FEATURES } from "@/lib/constants/landing";
+  import { SITE } from "@/lib/constants/site";
+  import { REGISTER_URL, TRACKING_EVENTS } from "@/lib/constants/tracking";
+  import { buildBreadcrumbJsonLd } from "@/lib/seo";
+  import { cn } from "@/lib/utils";
+
+  const DOCS_URL = "https://docs.marblecms.com";
+
+  const MORE_FEATURES = [
+    {
+      title: "Flexible content model",
+      description:
+        "Organize posts with authors, categories, tags, and custom fields that fit your publication.",
+      href: "https://docs.marblecms.com/concepts/content-model",
+      label: "Explore the content model",
+    },
+    {
+      title: "MCP for AI agents",
+      description:
+        "Let Codex, Claude, Cursor, and other compatible agents work with your content through scoped tools.",
+      href: "/mcp",
+      label: "Explore Marble MCP",
+    },
+    {
+      title: "Framework freedom",
+      description:
+        "Use Marble with Next.js, Astro, TanStack Start, Framer, or any frontend that can call an API.",
+      href: "https://docs.marblecms.com/integrations/nextjs",
+      label: "View integrations",
+    },
+  ];
+
+  const structuredData = buildBreadcrumbJsonLd([
+    { name: "Marble", url: SITE.URL },
+    { name: "Features", url: new URL("/features", SITE.URL).toString() },
+  ]);
+---
+<Layout
+  title={`Features - ${SITE.TITLE}`}
+  description="Explore Marble's headless API, media library, webhooks, content intelligence, flexible content model, and MCP server for AI agents."
+  structuredData={structuredData}
+>
+  <div>
+    <section>
+      <Container
+        class="flex w-full flex-col gap-14 py-24 md:gap-20 md:py-28 lg:py-36"
+      >
+        <div class="flex flex-col gap-8">
+          <div class="relative mx-auto flex flex-col gap-6 text-center">
+            <h1
+              class="relative mx-auto max-w-[25ch] text-4xl font-medium tracking-tight md:text-5xl"
+            >
+              Everything you need to publish.
+            </h1>
+            <p class="mx-auto max-w-[52ch] text-muted-foreground md:text-lg">
+              Create, organize, and deliver content without adding complexity to
+              your stack.
+            </p>
+          </div>
+          <div
+            class="flex w-full flex-col items-center justify-center gap-4 sm:flex-row"
+          >
+            <ButtonComponent
+              href={REGISTER_URL}
+              target="_blank"
+              class="w-full sm:w-auto"
+              data-track={TRACKING_EVENTS.signupClicked}
+              data-context="features_hero"
+              data-label="Start for free"
+            >
+              Start for free
+            </ButtonComponent>
+            <ButtonComponent
+              href={DOCS_URL}
+              target="_blank"
+              rel="noopener"
+              variant="secondary"
+              class="w-full sm:w-auto"
+            >
+              Read the docs
+            </ButtonComponent>
+          </div>
+        </div>
+
+        <div class="w-full overflow-hidden rounded-lg">
+          <Image
+            src={heroImage}
+            inferSize
+            alt="Marble dashboard with workspace analytics and recently uploaded media"
+            loading="eager"
+            class="h-auto w-full"
+          />
+        </div>
+      </Container>
+    </section>
+
+    <section>
+      <Container class="space-y-10 py-16 md:py-24 lg:space-y-14">
+        <div class="max-w-2xl space-y-4">
+          <h2
+            class="text-2xl tracking-tight text-balance md:text-3xl lg:text-4xl"
+          >
+            Simple tools for your whole content workflow.
+          </h2>
+          <p class="text-muted-foreground md:text-lg">
+            Write in Marble, keep assets organized, and deliver every update
+            through the tools your site already uses.
+          </p>
+        </div>
+
+        <ul class="space-y-8 md:space-y-12">
+          {FEATURES.map((feature, index) => (
+            <li
+              class={cn(
+                "grid gap-8 rounded-2xl bg-surface p-3 md:min-h-[440px] md:grid-cols-[0.75fr_1.25fr] md:items-center md:p-4 lg:gap-10",
+                index % 2 === 1 &&
+                  "md:grid-cols-[1.25fr_0.75fr]"
+              )}
+            >
+              <div
+                class={cn(
+                  "flex flex-col items-start px-1 py-4 md:px-2",
+                  index % 2 === 1 && "md:order-2"
+                )}
+              >
+                <h3 class="text-lg font-medium md:text-2xl">
+                  {feature.title}
+                </h3>
+                <p
+                  class="mt-3 max-w-[42ch] leading-relaxed text-muted-foreground md:text-lg"
+                >
+                  {feature.description}
+                </p>
+                <a
+                  href={feature.link.href}
+                  target="_blank"
+                  rel="noopener"
+                  class="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-primary transition-opacity hover:opacity-70"
+                >
+                  {feature.link.text}
+                  <ArrowRight class="size-3.5 shrink-0" />
+                </a>
+              </div>
+              <div
+                class={cn(
+                  "w-full overflow-hidden rounded-[4px] bg-background md:rounded-none",
+                  index % 2 === 1 && "md:order-1"
+                )}
+              >
+                <Image
+                  src={feature.image}
+                  alt={feature.title}
+                  inferSize
+                  class="h-auto w-full"
+                />
+              </div>
+            </li>
+          ))}
+        </ul>
+      </Container>
+    </section>
+
+    <section>
+      <Container class="space-y-10 py-16 md:py-24 lg:space-y-14">
+        <div class="max-w-2xl space-y-4">
+          <h2
+            class="text-2xl tracking-tight text-balance md:text-3xl lg:text-4xl"
+          >
+            Simple by design.
+          </h2>
+          <p class="text-muted-foreground md:text-lg">
+            Model your content, connect AI agents, and publish with any
+            frontend.
+          </p>
+        </div>
+
+        <ul class="grid gap-4 md:grid-cols-3">
+          {MORE_FEATURES.map((feature) => (
+            <li class="flex flex-col rounded-xl bg-surface p-6">
+              <h3 class="text-lg font-medium md:text-xl">{feature.title}</h3>
+              <p class="mt-3 leading-relaxed text-muted-foreground">
+                {feature.description}
+              </p>
+              <a
+                href={feature.href}
+                target={feature.href.startsWith("http") ? "_blank" : undefined}
+                rel={feature.href.startsWith("http") ? "noopener" : undefined}
+                class="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-primary transition-opacity hover:opacity-70"
+              >
+                {feature.label}
+                <ArrowRight class="size-3.5 shrink-0" />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </Container>
+    </section>
+
+    <section>
+      <Container class="py-12 md:py-20">
+        <div
+          class="flex w-full flex-col items-center gap-6 rounded-xl bg-surface px-6 py-12 text-center md:px-10 md:py-16"
+        >
+          <div class="space-y-4">
+            <h2
+              class="text-2xl tracking-tight text-balance md:text-3xl lg:text-4xl"
+            >
+              Start publishing with Marble.
+            </h2>
+            <p class="mx-auto max-w-2xl text-muted-foreground md:text-lg">
+              Create a workspace and publish your first post for free.
+            </p>
+          </div>
+          <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+            <ButtonComponent
+              href={REGISTER_URL}
+              target="_blank"
+              class="w-full sm:w-auto"
+              data-track={TRACKING_EVENTS.signupClicked}
+              data-context="features_cta"
+              data-label="Start for free"
+            >
+              Start for free
+            </ButtonComponent>
+            <ButtonComponent
+              href="/pricing"
+              variant="secondary"
+              class="w-full sm:w-auto"
+            >
+              View pricing
+            </ButtonComponent>
+          </div>
+        </div>
+      </Container>
+    </section>
+  </div>
+</Layout>

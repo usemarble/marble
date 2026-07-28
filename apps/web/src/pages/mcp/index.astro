@@ -1,0 +1,495 @@
+---
+  import Container from "@/components/Container.astro";
+  import AccordionItem from "@/components/ui/AccordionItem.astro";
+  import ButtonComponent from "@/components/ui/Button.astro";
+  import Layout from "@/layouts/Layout.astro";
+  import { SITE } from "@/lib/constants/site";
+  import { REGISTER_URL, TRACKING_EVENTS } from "@/lib/constants/tracking";
+  import { buildBreadcrumbJsonLd, buildFaqJsonLd } from "@/lib/seo";
+
+  const MCP_ENDPOINT = "https://mcp.marblecms.com/mcp";
+  const MCP_DOCS = "https://docs.marblecms.com/tools/mcp";
+  const MCP_INSTALL_ARGS = `add-mcp https://mcp.marblecms.com/mcp --header 'Authorization: Bearer \${MARBLE_API_KEY}'`;
+  const MCP_INSTALL_COMMAND = `npx ${MCP_INSTALL_ARGS}`;
+
+  const CAPABILITIES = [
+    {
+      title: "Posts",
+      description:
+        "Find, read, create, update, and delete posts without leaving your agent.",
+      tools: "6 tools",
+    },
+    {
+      title: "Media",
+      description:
+        "Browse assets, upload from a public URL, and keep names and alt text organized.",
+      tools: "5 tools",
+    },
+    {
+      title: "Categories",
+      description:
+        "Create and maintain the categories that keep your publication organized.",
+      tools: "5 tools",
+    },
+    {
+      title: "Tags",
+      description:
+        "Find, add, update, and remove tags through natural-language workflows.",
+      tools: "5 tools",
+    },
+    {
+      title: "Authors",
+      description:
+        "Look up contributors and manage the authors attached to your content.",
+      tools: "5 tools",
+    },
+    {
+      title: "Custom fields",
+      description:
+        "Inspect your content model before reading or writing structured field values.",
+      tools: "5 tools",
+    },
+  ];
+
+  const MCP_FAQS = [
+    {
+      question: "What is Marble's MCP server?",
+      answer:
+        "Marble's MCP server is a hosted Model Context Protocol endpoint that gives compatible AI agents tools for working with content in your Marble workspace. Agents can search and read content with a public key, while scoped private keys unlock approved write operations.",
+    },
+    {
+      question: "Do I need to run or host an MCP server?",
+      answer:
+        "No. Marble provides a remote Streamable HTTP server at https://mcp.marblecms.com/mcp. Add the URL and your Marble API key to a compatible client; there is no CMS server package or database for you to operate.",
+    },
+    {
+      question: "What can an agent do in Marble?",
+      answer:
+        "Agents can work with posts, categories, tags, authors, media, and custom fields. Available tools include search and read operations as well as scoped create, update, upload, and delete operations.",
+    },
+    {
+      question: "Can an agent publish or delete content?",
+      answer:
+        "Write and delete tools require a private Marble API key with the necessary scopes. MCP clients can identify destructive tools and ask for confirmation according to the approval settings you choose in that client.",
+    },
+    {
+      question: "Which AI clients work with Marble MCP?",
+      answer:
+        "Marble documents setup for Cursor, Claude Code, Codex, and VS Code. Other MCP clients can connect when they support remote Streamable HTTP servers and custom authentication headers.",
+    },
+    {
+      question: "Should I use MCP or the REST API?",
+      answer:
+        "Use MCP when an AI agent needs to discover and call Marble tools. Use the REST API or TypeScript SDK when you are building a deterministic application integration and want direct control over requests and responses.",
+    },
+  ];
+
+  const structuredData = [
+    buildBreadcrumbJsonLd([
+      { name: "Marble", url: SITE.URL },
+      { name: "MCP Server", url: new URL("/mcp", SITE.URL).toString() },
+    ]),
+    buildFaqJsonLd(MCP_FAQS),
+  ];
+---
+<Layout
+  title={`MCP Server for a Headless CMS - ${SITE.TITLE}`}
+  description="Connect AI agents to Marble with a hosted MCP server. Search, create, update, and manage blog content from Cursor, Claude Code, Codex, and VS Code."
+  structuredData={structuredData}
+>
+  <div>
+    <section>
+      <Container
+        class="flex w-full flex-col gap-14 py-24 md:gap-20 md:py-28 lg:py-36"
+      >
+        <div class="flex flex-col gap-8">
+          <div class="relative mx-auto flex flex-col gap-6 text-center">
+            <h1
+              class="relative mx-auto max-w-[25ch] text-4xl font-medium tracking-tight md:text-5xl"
+            >
+              Manage your content with AI agents.
+            </h1>
+            <p
+              class="mx-auto max-w-[50ch] leading-relaxed text-muted-foreground md:text-lg"
+            >
+              Let your AI agent search, create, and manage your publication
+              through one hosted MCP connection.
+            </p>
+          </div>
+          <div
+            class="flex w-full flex-col items-center justify-center gap-4 sm:flex-row"
+          >
+            <ButtonComponent
+              href={REGISTER_URL}
+              target="_blank"
+              class="w-full sm:w-auto"
+              data-track={TRACKING_EVENTS.signupClicked}
+              data-context="mcp_hero"
+              data-label="Connect Marble"
+            >
+              Connect Marble
+            </ButtonComponent>
+            <ButtonComponent
+              href={MCP_DOCS}
+              target="_blank"
+              rel="noopener"
+              variant="secondary"
+              class="w-full sm:w-auto"
+            >
+              Read the setup guide
+            </ButtonComponent>
+          </div>
+        </div>
+
+        <div
+          class="mx-auto w-full max-w-5xl overflow-hidden rounded-xl border border-border bg-surface text-sm text-muted-foreground"
+          aria-label="Example Marble MCP workflow"
+        >
+          <div
+            class="relative flex h-11 items-center border-b border-border bg-muted/30 px-4"
+          >
+            <div class="flex items-center gap-2">
+              <span class="size-2.5 rounded-full bg-muted-foreground/30"></span>
+              <span class="size-2.5 rounded-full bg-muted-foreground/30"></span>
+              <span class="size-2.5 rounded-full bg-muted-foreground/30"></span>
+            </div>
+            <p
+              class="absolute left-1/2 -translate-x-1/2 font-mono text-[11px] text-muted-foreground"
+            >
+              codex — marble-mcp
+            </p>
+          </div>
+          <div
+            class="space-y-4 p-5 font-mono text-xs leading-6 sm:p-6 sm:text-sm sm:leading-7"
+          >
+            <div class="flex gap-2">
+              <span class="text-primary">&gt;</span>
+              <p class="text-foreground">
+                Find me a post that mentions structured content for AI agents.
+              </p>
+            </div>
+
+            <div class="flex gap-3">
+              <span class="text-primary">—</span>
+              <div class="min-w-0 flex-1 border-l border-border pl-4">
+                <p>
+                  <span class="font-medium text-primary"
+                    >marble-mcp::search_posts</span
+                  >
+                  <span> → 1 post found</span>
+                </p>
+              </div>
+            </div>
+
+            <div class="flex gap-3">
+              <span class="text-primary">—</span>
+              <div class="min-w-0 flex-1">
+                <p>Found one match.</p>
+                <dl
+                  class="mt-3 grid grid-cols-[3.5rem_minmax(0,1fr)] gap-x-3 border-l-2 border-primary pl-4"
+                >
+                  <dt class="text-muted-foreground">Title</dt>
+                  <dd class="font-medium text-foreground">
+                    Your CMS for AI agents
+                  </dd>
+                  <dt class="text-muted-foreground">Slug</dt>
+                  <dd>/cms-for-ai-agents</dd>
+                  <dt class="text-muted-foreground">Status</dt>
+                  <dd>draft</dd>
+                </dl>
+              </div>
+            </div>
+
+            <div class="flex gap-2">
+              <span class="text-primary">&gt;</span>
+              <p class="text-foreground">
+                Open it and make the first paragraph clearer.
+              </p>
+            </div>
+
+            <div class="flex gap-3">
+              <span class="text-primary">—</span>
+              <div class="min-w-0 flex-1 space-y-3">
+                <div class="space-y-1 border-l border-border pl-4">
+                  <p>
+                    <span class="font-medium text-primary"
+                      >marble-mcp::get_post</span
+                    >
+                    <span> → draft loaded</span>
+                  </p>
+                  <p>
+                    <span class="font-medium text-primary"
+                      >codex::prepare_edit</span
+                    >
+                    <span> → diff ready</span>
+                  </p>
+                </div>
+                <p>I tightened the opening and kept the original meaning.</p>
+                <div
+                  class="rounded-lg border border-border bg-muted/20 px-4 py-3"
+                >
+                  <p class="text-muted-foreground">
+                    <span class="mr-2">−</span>
+                    Your content should be available across many channels.
+                  </p>
+                  <p class="mt-1 text-foreground">
+                    <span class="mr-2 text-primary">+</span>
+                    Publish structured content once, then deliver it to every
+                    site, app, and AI agent.
+                  </p>
+                </div>
+                <p>
+                  The change is ready for your approval. The draft has not been
+                  updated yet.
+                </p>
+              </div>
+            </div>
+
+            <p class="flex items-center gap-2">
+              <span class="text-primary">&gt;</span>
+              <span
+                class="mcp-terminal-caret inline-block h-5 w-2 bg-primary"
+                aria-hidden="true"
+              ></span>
+            </p>
+          </div>
+        </div>
+      </Container>
+    </section>
+
+    <section>
+      <Container class="py-16 md:py-24">
+        <div class="mb-10 max-w-2xl space-y-4 md:mb-14">
+          <p class="text-sm text-primary">Content operations</p>
+          <h2
+            class="text-2xl tracking-tight text-balance md:text-3xl lg:text-4xl"
+          >
+            All your content operations, available to your agent.
+          </h2>
+          <p class="text-muted-foreground md:text-lg">
+            Search, create, update, and organize everything in your Marble
+            workspace.
+          </p>
+        </div>
+        <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {CAPABILITIES.map((capability) => (
+            <li
+              class="flex min-h-56 flex-col justify-between rounded-xl bg-surface p-6"
+            >
+              <div class="flex justify-end">
+                <span
+                  class="rounded-full bg-background px-2.5 py-1 text-[11px] text-muted-foreground"
+                >
+                  {capability.tools}
+                </span>
+              </div>
+              <div class="space-y-2">
+                <h3 class="text-xl font-medium">{capability.title}</h3>
+                <p class="text-sm leading-relaxed text-muted-foreground">
+                  {capability.description}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </Container>
+    </section>
+
+    <section>
+      <Container class="py-16 md:py-24">
+        <div class="max-w-5xl space-y-8">
+          <div class="max-w-2xl space-y-4">
+            <p class="text-sm text-primary">Setup</p>
+            <h2
+              class="text-2xl tracking-tight text-balance md:text-3xl lg:text-4xl"
+            >
+              Connect Marble in one command.
+            </h2>
+            <p class="leading-relaxed text-muted-foreground md:text-lg">
+              Run the open-source add-mcp CLI, choose your agent, and enter a
+              Marble API key when prompted.
+            </p>
+          </div>
+          <div class="space-y-3">
+            <div
+              class="flex flex-col gap-4 rounded-xl bg-surface p-4 sm:flex-row sm:items-center"
+            >
+              <code
+                class="min-w-0 flex-1 overflow-x-auto whitespace-nowrap px-2 font-mono text-xs sm:text-sm"
+              >
+                <span class="text-primary">npx</span>
+                {MCP_INSTALL_ARGS}
+              </code>
+              <button
+                type="button"
+                data-copy-command
+                data-command={MCP_INSTALL_COMMAND}
+                class="h-9 shrink-0 rounded-full bg-background px-4 text-xs font-medium transition-colors hover:bg-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              >
+                Copy command
+              </button>
+            </div>
+            <p class="text-sm text-muted-foreground">
+              Works with Codex, Claude Code, Cursor, VS Code, and other
+              supported clients.
+              <a
+                href={MCP_DOCS}
+                target="_blank"
+                rel="noopener"
+                class="ml-1 font-medium text-foreground underline underline-offset-4 hover:text-primary"
+              >
+                View setup options
+              </a>
+            </p>
+          </div>
+        </div>
+      </Container>
+    </section>
+
+    <section>
+      <Container class="py-16 md:py-24">
+        <div class="max-w-2xl space-y-4">
+          <p class="text-sm text-primary">Scoped access</p>
+          <h2
+            class="text-2xl tracking-tight text-balance md:text-3xl lg:text-4xl"
+          >
+            The agent only gets the access you give it.
+          </h2>
+        </div>
+        <div class="mt-10 grid gap-4 sm:grid-cols-2 md:mt-14">
+          <article class="rounded-xl bg-surface p-6 md:p-8">
+            <p class="mb-8 font-mono text-xs text-muted-foreground">mpk_...</p>
+            <h3 class="text-xl font-medium">Public key</h3>
+            <p class="mt-2 max-w-[48ch] leading-relaxed text-muted-foreground">
+              Read-only access for finding and retrieving published content.
+            </p>
+          </article>
+          <article class="rounded-xl bg-surface p-6 md:p-8">
+            <p class="mb-8 font-mono text-xs text-muted-foreground">msk_...</p>
+            <h3 class="text-xl font-medium">Private key</h3>
+            <p class="mt-2 max-w-[48ch] leading-relaxed text-muted-foreground">
+              Scoped access for the create, update, upload, and delete tools you
+              approve.
+            </p>
+          </article>
+        </div>
+      </Container>
+    </section>
+
+    <section>
+      <Container class="py-16 md:py-24">
+        <div class="grid grid-cols-1 gap-10 lg:grid-cols-3 lg:gap-20">
+          <div class="space-y-4">
+            <h2
+              class="text-2xl tracking-tight text-balance md:text-3xl lg:text-4xl"
+            >
+              Frequently asked questions
+            </h2>
+            <p class="text-muted-foreground">
+              Everything you need to know about connecting AI agents to Marble.
+            </p>
+          </div>
+          <div class="lg:col-span-2">
+            {MCP_FAQS.map((faq) => (
+              <AccordionItem name="mcp-faq" title={faq.question}>
+                <p class="pb-2 text-sm leading-relaxed text-muted-foreground">
+                  {faq.answer}
+                </p>
+              </AccordionItem>
+            ))}
+          </div>
+        </div>
+      </Container>
+    </section>
+
+    <section>
+      <Container class="py-12 md:py-20">
+        <div
+          class="flex w-full flex-col items-center gap-6 rounded-xl bg-surface px-6 py-12 text-center md:px-10 md:py-16"
+        >
+          <div class="space-y-4">
+            <h2
+              class="text-2xl tracking-tight text-balance md:text-3xl lg:text-4xl"
+            >
+              Hand your publication to your agent.
+            </h2>
+            <p class="mx-auto max-w-2xl text-muted-foreground md:text-lg">
+              Create a workspace, generate the right API key, and connect Marble
+              to the MCP client you already use.
+            </p>
+          </div>
+          <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+            <ButtonComponent
+              href={REGISTER_URL}
+              target="_blank"
+              class="w-full sm:w-auto"
+              data-track={TRACKING_EVENTS.signupClicked}
+              data-context="mcp_cta"
+              data-label="Start for free"
+            >
+              Start for free
+            </ButtonComponent>
+            <ButtonComponent
+              href={MCP_ENDPOINT}
+              target="_blank"
+              rel="noopener"
+              variant="secondary"
+              class="w-full sm:w-auto"
+            >
+              View the MCP server
+            </ButtonComponent>
+          </div>
+        </div>
+      </Container>
+    </section>
+  </div>
+</Layout>
+
+<script>
+  function initCommandCopy() {
+    const button = document.querySelector<HTMLButtonElement>(
+      "[data-copy-command]"
+    );
+
+    button?.addEventListener("click", async () => {
+      const command = button.dataset.command;
+      if (!command) {
+        return;
+      }
+
+      await navigator.clipboard.writeText(command);
+      button.textContent = "Copied";
+
+      window.setTimeout(() => {
+        button.textContent = "Copy command";
+      }, 1800);
+    });
+  }
+
+  initCommandCopy();
+  document.addEventListener("astro:after-swap", initCommandCopy);
+</script>
+
+<style>
+  .mcp-terminal-caret {
+    animation: mcp-caret-blink 700ms step-end infinite;
+  }
+
+  @keyframes mcp-caret-blink {
+    0%,
+    45% {
+      opacity: 1;
+    }
+
+    46%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mcp-terminal-caret {
+      animation: none;
+    }
+  }
+</style>

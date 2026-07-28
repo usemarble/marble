@@ -29,12 +29,14 @@ Use this file as a compact guide to Marble's public product documentation and ma
 ## AI and Developer Tools
 
 - [Marble MCP Server](https://docs.marblecms.com/tools/mcp): Connect Claude, Cursor, VS Code, Codex, and other MCP clients to a Marble workspace.
+- [MCP for AI Agents](https://marblecms.com/mcp): Product overview, supported content operations, permissions, clients, and setup links for Marble's hosted MCP server.
 - [MCP server card](https://marblecms.com/.well-known/mcp/server-card.json): Root-domain server card for the Marble remote MCP server.
 - [Remote MCP endpoint](https://mcp.marblecms.com/mcp): Streamable HTTP MCP endpoint. Requires a Marble API key in a supported header.
 - [Marble TypeScript SDK](https://docs.marblecms.com/tools/sdk): Official SDK with type safety, retries, pagination helpers, and framework-agnostic access.
 
 ## Features
 
+- [Marble Features](https://marblecms.com/features): Product overview of Marble's headless API, media library, webhooks, content intelligence, content model, framework integrations, and MCP server.
 - [Marble's Editor](https://docs.marblecms.com/features/editor): Writing interface, embeds, metadata, and readability analysis.
 - [Media and Image Hosting](https://docs.marblecms.com/features/media): Upload and serve images, video, audio, and documents through Marble's media library and CDN.
 - [Custom Fields](https://docs.marblecms.com/features/custom-fields): Add structured workspace-specific metadata to posts.

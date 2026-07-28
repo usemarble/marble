@@ -15,7 +15,7 @@ export const FEATURES = [
     description:
       "Pull your content into any framework. Works seamlessly with Next.js, Astro, Nuxt, and more.",
     link: {
-      text: "Learn more",
+      text: "Explore the API",
       href: "https://docs.marblecms.com/api/introduction",
     },
     image: apiImage,
@@ -23,9 +23,9 @@ export const FEATURES = [
   {
     title: "Media Management",
     description:
-      "Upload, organize, and manage your images and videos in one place. media files are served from a globally distributed CDN for instant loading.",
+      "Upload, organize, and manage images and videos in one place. Every asset is served from a global CDN for fast delivery.",
     link: {
-      text: "Learn more",
+      text: "Learn about media management",
       href: "https://docs.marblecms.com/features/media",
     },
     image: mediaImage,
@@ -35,7 +35,7 @@ export const FEATURES = [
     description:
       "Trigger external workflows instantly when your content changes. Integrate with your favorite tools.",
     link: {
-      text: "Learn more",
+      text: "Explore webhooks",
       href: "https://docs.marblecms.com/features/webhooks",
     },
     image: webhooksImage,
@@ -43,9 +43,9 @@ export const FEATURES = [
   {
     title: "Content Intelligence",
     description:
-      "Get Real-time readability scores, and optimization tips powered by AI to improve your writing.",
+      "Get real-time readability scores and AI-powered optimization tips to improve your writing.",
     link: {
-      text: "Learn more",
+      text: "Learn about content intelligence",
       href: "https://docs.marblecms.com/features/editor#analysis-tab",
     },
     image: contentIntelImage,
