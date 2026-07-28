@@ -35,7 +35,7 @@ export const FAQs: {
   {
     question: "Is there a limit on API requests?",
     answer:
-      "Free accounts include 10.000 API requests per month. We implement fair usage policies to prevent abuse but typical usage patterns are well within our limits.",
+      "Free accounts include 5,000 API requests per month. We implement fair usage policies to prevent abuse, but typical usage patterns are well within our limits.",
   },
   {
     question: "Can I import content from elsewhere?",
