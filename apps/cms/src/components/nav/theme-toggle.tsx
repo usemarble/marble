@@ -6,12 +6,9 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
-import { DesktopIcon, MoonIcon, SunIcon } from "@phosphor-icons/react";
+import { MoonIcon, SunIcon } from "@phosphor-icons/react";
 import { useTheme } from "next-themes";
 import { useSyncExternalStore } from "react";
-
-const themes = ["light", "dark", "system"] as const;
-type Theme = (typeof themes)[number];
 
 const emptySubscribe = () => () => {
   return;
@@ -26,10 +23,7 @@ export function ThemeToggle() {
   );
 
   const cycleTheme = () => {
-    const currentIndex = themes.indexOf(theme as Theme);
-    const nextIndex = (currentIndex + 1) % themes.length;
-    const nextTheme = themes[nextIndex] || "system";
-    setTheme(nextTheme);
+    setTheme(theme === "dark" ? "light" : "dark");
   };
 
   const getIcon = () => {
@@ -43,7 +37,7 @@ export function ThemeToggle() {
       case "dark":
         return <MoonIcon className="size-4" />;
       default:
-        return <DesktopIcon className="size-4" />;
+        return <SunIcon className="size-4" />;
     }
   };
 
@@ -58,7 +52,7 @@ export function ThemeToggle() {
       case "dark":
         return "Dark theme";
       default:
-        return "System theme";
+        return "Light theme";
     }
   };
 

@@ -19,7 +19,11 @@ const queryClient = new QueryClient({
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider attribute="class" disableTransitionOnChange enableSystem>
+      <ThemeProvider
+        attribute="class"
+        disableTransitionOnChange
+        enableSystem={false}
+      >
         <TooltipProvider>
           <NuqsAdapter>{children}</NuqsAdapter>
           <Toaster position="top-center" />

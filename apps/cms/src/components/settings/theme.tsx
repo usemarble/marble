@@ -19,21 +19,18 @@ const themes = [
     name: "Dark",
     label: "Dark",
   },
-  {
-    name: "System",
-    label: "System",
-  },
 ];
 
 export function ThemeSwitch() {
   const { setTheme, theme } = useTheme();
+  const selectedTheme = theme === "dark" ? "dark" : "light";
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
           <Button variant="outline">
-            <span className="capitalize">{theme}</span>
+            <span className="capitalize">{selectedTheme}</span>
             <CaretDownIcon className="ml-2 size-4 text-muted-foreground" />
           </Button>
         }
