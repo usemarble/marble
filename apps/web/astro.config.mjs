@@ -15,7 +15,11 @@ export default defineConfig({
   site: "https://marblecms.com",
   trailingSlash: "never",
   image: {
-    domains: ["images.marblecms.com", "media.marblecms.com"],
+    domains: [
+      "images.marblecms.com",
+      "media.marblecms.com",
+      "cdn.marblecms.com",
+    ],
   },
   adapter: vercel({
     webAnalytics: {
