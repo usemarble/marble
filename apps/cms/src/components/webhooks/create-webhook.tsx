@@ -265,7 +265,7 @@ function CreateWebhookSheet({ children }: CreateWebhookSheetProps) {
                 <Label>Events</Label>
                 <a
                   className="ml-2 flex cursor-pointer items-center text-primary text-xs hover:underline"
-                  href="https://docs.marblecms.com/guides/features/webhooks"
+                  href="https://docs.marblecms.com/features/webhooks"
                   rel="noopener noreferrer"
                   target="_blank"
                 >

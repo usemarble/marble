@@ -40,7 +40,7 @@ export function PageClient({
 }) {
   const workspaceId = useWorkspaceId();
   const queryClient = useQueryClient();
-  const docsHref = "https://docs.marblecms.com/guides/features/custom-fields";
+  const docsHref = "https://docs.marblecms.com/features/custom-fields";
 
   const {
     data: fields,

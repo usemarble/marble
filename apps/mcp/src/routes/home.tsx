@@ -44,7 +44,7 @@ homeRoute.get("/", (c) => {
               <h1>Marble MCP</h1>
               <p>Connect AI agents and MCP clients to your Marble workspace.</p>
             </div>
-            <a class="button" href="https://docs.marblecms.com/guides/mcp">
+            <a class="button" href="https://docs.marblecms.com/tools/mcp">
               Documentation
             </a>
           </section>
