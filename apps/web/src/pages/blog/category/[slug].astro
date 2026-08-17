@@ -26,11 +26,15 @@
 
   const categoriesEntries = await getCollection("categories");
   const { result } = await marble.posts.list({ categories: [entry.data.slug] });
+  const categoryDescription =
+    entry.data.description ??
+    `Explore ${entry.data.name.toLowerCase()} articles from the Marble team.`;
+  const canonicalUrl = new URL(Astro.url.pathname, SITE.URL).toString();
 ---
 <Layout
   title={`${entry.data.name} - ${SITE.TITLE}`}
-  description={entry.data.description}
-  canonical="/blog"
+  description={categoryDescription}
+  canonical={canonicalUrl}
 >
   <section class="min-h-[calc(100vh-140px)]">
     <div class="h-full">
@@ -42,10 +46,10 @@
             <h1
               class="text-2xl tracking-tight md:text-3xl lg:text-4xl font-medium"
             >
-              Blog
+              {entry.data.name}
             </h1>
             <p class="max-w-prose md:text-lg text-muted-foreground">
-              {entry.data.description || "Updates, news, and guides from the team."}
+              Updates, news, and articles.
             </p>
           </div>
           <div class="w-full md:w-auto">
@@ -53,15 +57,15 @@
           </div>
         </div>
         {result.posts.length > 0 ? (
-          <ul class='grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 lg:gap-6'>
-            {
-              result.posts.map((post) => (
-                <CategoryCard entry={post} />
-              ))
-            }
+          <ul class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 lg:gap-6">
+            {result.posts.map((post) => (
+              <CategoryCard entry={post} />
+            ))}
           </ul>
         ) : (
-          <p class='text-muted-foreground text-center text-sm md:text-base'>No posts found</p>
+          <p class="text-muted-foreground text-center text-sm md:text-base">
+            No posts found
+          </p>
         )}
       </Container>
     </div>
