@@ -1,13 +1,16 @@
 import { createHighlighter } from "shiki";
 
-// Create highlighter instance
-// Should be a singleton
+// Cache the initialization promise, not just the resolved highlighter. This
+// prevents concurrent callers from creating multiple instances while the
+// first highlighter is still loading.
 // https://shiki.style/guide/install#highlighter-usage
-let highlighter: Awaited<ReturnType<typeof createHighlighter>> | null = null;
+let highlighterPromise:
+  | Promise<Awaited<ReturnType<typeof createHighlighter>>>
+  | undefined;
 
-async function getHighlighter() {
-  if (!highlighter) {
-    highlighter = await createHighlighter({
+function getHighlighter() {
+  if (!highlighterPromise) {
+    highlighterPromise = createHighlighter({
       themes: ["github-dark", "github-light"],
       langs: [
         "javascript",
@@ -41,7 +44,7 @@ async function getHighlighter() {
       ],
     });
   }
-  return highlighter;
+  return highlighterPromise;
 }
 
 /**
