@@ -1,5 +1,2 @@
 User-agent: *
-Disallow: /terms
-Disallow: /privacy
-
 Sitemap: https://marblecms.com/sitemap-index.xml
