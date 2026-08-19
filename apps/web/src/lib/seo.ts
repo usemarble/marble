@@ -39,7 +39,6 @@ export function buildSiteJsonLd(site: {
       "@context": "https://schema.org",
       "@type": "Organization",
       name: site.title,
-      alternateName: ["Marble CMS", "MarbleCMS"],
       url: site.url,
       description: site.description,
       sameAs,
@@ -49,7 +48,6 @@ export function buildSiteJsonLd(site: {
       "@context": "https://schema.org",
       "@type": "WebSite",
       name: site.title,
-      alternateName: ["Marble CMS", "MarbleCMS"],
       url: site.url,
       description: site.description,
       publisher: {
