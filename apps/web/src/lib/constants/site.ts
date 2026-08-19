@@ -12,7 +12,8 @@ export interface Site {
 
 export const SITE: Site = {
   TITLE: "Marble",
-  DESCRIPTION: "A simple headless CMS for managing your blog and media files.",
+  DESCRIPTION:
+    "Marble is a simple way to manage your blog and media. Write, upload, and publish with a clean interface and simple API.",
   EMAIL: "support@marblecms.com",
   URL: "https://marblecms.com",
   APP_URL: "https://app.marblecms.com",
