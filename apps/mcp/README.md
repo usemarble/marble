@@ -29,12 +29,18 @@ If that port is already in use, Wrangler may choose another port.
 
 ### Authentication
 
-MCP clients must send a Marble API key using one of these headers:
+MCP clients should send a Marble API key using the standard API header:
+
+```txt
+Authorization: <key>
+```
+
+The MCP server also accepts these compatibility aliases for clients that need
+custom headers:
 
 ```txt
 Mcp-Marble-Api-Key: <key>
 X-Marble-Api-Key: <key>
-Authorization: Bearer <key>
 ```
 
 The MCP server forwards the key to the Marble API.
@@ -56,7 +62,7 @@ For clients that require a local stdio command, use `mcp-remote`:
     "mcp-remote",
     "http://localhost:8787/mcp",
     "--header",
-    "Mcp-Marble-Api-Key:${MCP_MARBLE_API_KEY}"
+    "Authorization: ${MCP_MARBLE_API_KEY}"
   ],
   "env": {
     "MCP_MARBLE_API_KEY": "<your-api-key>"

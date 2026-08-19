@@ -1,21 +1,16 @@
 /**
- * Reads the Marble API key from the headers MCP clients can realistically send.
- * Cursor and mcp-remote support custom headers, while some clients prefer the
- * standard Authorization header.
+ * Reads the Marble API key from the standard API header first, then falls back
+ * to custom headers for MCP clients that need them.
  */
 export function getApiKey(request: Request) {
   const authorization = request.headers.get("authorization");
   const apiKey =
+    parseAuthorizationHeader(authorization) ??
     request.headers.get("mcp-marble-api-key") ??
-    request.headers.get("x-marble-api-key") ??
-    parseAuthorizationHeader(authorization);
+    request.headers.get("x-marble-api-key");
 
   if (!apiKey) {
-    throw new Error(
-      authorization
-        ? "Unsupported Authorization header. Use Authorization: Bearer <key>."
-        : "Missing Marble API key."
-    );
+    throw new Error("Missing Marble API key.");
   }
 
   return apiKey;
@@ -45,6 +40,11 @@ function parseAuthorizationHeader(header: string | null) {
     return null;
   }
 
-  const match = /^Bearer\s+(.+)$/i.exec(header.trim());
-  return match?.[1] ?? null;
+  const value = header.trim();
+  if (!value) {
+    return null;
+  }
+
+  const match = /^Bearer\s+(.+)$/i.exec(value);
+  return match?.[1] ?? value;
 }

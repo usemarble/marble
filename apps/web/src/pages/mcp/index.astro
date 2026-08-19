@@ -9,7 +9,7 @@
 
   const MCP_ENDPOINT = "https://mcp.marblecms.com/mcp";
   const MCP_DOCS = "https://docs.marblecms.com/tools/mcp";
-  const MCP_INSTALL_ARGS = `add-mcp https://mcp.marblecms.com/mcp --header 'Authorization: Bearer \${MARBLE_API_KEY}'`;
+  const MCP_INSTALL_ARGS = `add-mcp https://mcp.marblecms.com/mcp --header 'Authorization: \${MARBLE_API_KEY}'`;
   const MCP_INSTALL_COMMAND = `npx ${MCP_INSTALL_ARGS}`;
 
   const CAPABILITIES = [

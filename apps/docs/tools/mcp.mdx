@@ -14,24 +14,34 @@ content in your workspace through the Marble API.
 
 ## Installation
 
-The quickest way to add Marble to supported MCP clients is with the `add-mcp`
-CLI.
+The quickest way to add Marble to supported MCP clients is with the open-source
+[`add-mcp` CLI](https://github.com/neon-solutions/add-mcp). It detects supported
+agents and writes each client's native MCP configuration.
+
+<Note>
+  `add-mcp` is maintained separately from Marble and writes configuration files
+  on your machine. By default it writes project-level configuration; `-g`
+  writes user-level configuration. Review the agents and scope it selects
+  before confirming.
+</Note>
 
 ```bash
 npx add-mcp https://mcp.marblecms.com/mcp \
-  --header "Mcp-Marble-Api-Key: $MCP_MARBLE_API_KEY" \
+  --header 'Authorization: ${MCP_MARBLE_API_KEY}' \
   -g
 ```
 
-This installs Marble globally for the agents you select. Without `-g`,
-`add-mcp` writes project-level MCP config.
+Leave the placeholder in single quotes so your shell does not expand it before
+`add-mcp` runs. Because the command is interactive, the CLI prompts for the
+key and the selected agents. Use `-a <agent>` to target specific clients, or
+omit `-g` to install at project scope.
 
 <Tabs>
   <Tab title="Cursor">
     <Card
       title="Install in Cursor"
       icon="/images/cursor.svg"
-      href="cursor://anysphere.cursor-deeplink/mcp/install?name=marble&config=eyJ0eXBlIjoic3RyZWFtYWJsZUh0dHAiLCJ1cmwiOiJodHRwczovL21jcC5tYXJibGVjbXMuY29tL21jcCIsImhlYWRlcnMiOnsiTWNwLU1hcmJsZS1BcGktS2V5IjoiJHtNQ1BfTUFSQkxFX0FQSV9LRVl9In19"
+      href="cursor://anysphere.cursor-deeplink/mcp/install?name=marble&config=eyJ0eXBlIjoic3RyZWFtYWJsZUh0dHAiLCJ1cmwiOiJodHRwczovL21jcC5tYXJibGVjbXMuY29tL21jcCIsImhlYWRlcnMiOnsiQXV0aG9yaXphdGlvbiI6IkJlYXJlciAke01DUF9NQVJCTEVfQVBJX0tFWX0ifX0="
       arrow={false}
     >
       Open Cursor with the Marble MCP server pre-filled.
@@ -46,7 +56,7 @@ This installs Marble globally for the agents you select. Without `-g`,
         Cursor installs the server with this header:
 
         ```txt
-        Mcp-Marble-Api-Key: ${MCP_MARBLE_API_KEY}
+        Authorization: ${MCP_MARBLE_API_KEY}
         ```
 
         Set `MCP_MARBLE_API_KEY` in your environment before starting Cursor.
@@ -67,7 +77,7 @@ This installs Marble globally for the agents you select. Without `-g`,
           "type": "streamableHttp",
           "url": "https://mcp.marblecms.com/mcp",
           "headers": {
-            "Mcp-Marble-Api-Key": "${MCP_MARBLE_API_KEY}"
+            "Authorization": "${MCP_MARBLE_API_KEY}"
           }
         }
       }
@@ -79,7 +89,7 @@ This installs Marble globally for the agents you select. Without `-g`,
     <Card
       title="Install in VS Code"
       icon="/images/vscode.svg"
-      href="vscode:mcp/install?%7B%22name%22%3A%22marble%22%2C%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fmcp.marblecms.com%2Fmcp%22%2C%22headers%22%3A%7B%22Mcp-Marble-Api-Key%22%3A%22%24%7BMCP_MARBLE_API_KEY%7D%22%7D%7D"
+      href="vscode:mcp/install?%7B%22name%22%3A%22marble%22%2C%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fmcp.marblecms.com%2Fmcp%22%2C%22headers%22%3A%7B%22Authorization%22%3A%22%24%7BMCP_MARBLE_API_KEY%7D%22%7D%7D"
       arrow={false}
     >
       Open VS Code with the Marble MCP server pre-filled.
@@ -108,7 +118,7 @@ This installs Marble globally for the agents you select. Without `-g`,
           "type": "http",
           "url": "https://mcp.marblecms.com/mcp",
           "headers": {
-            "Mcp-Marble-Api-Key": "${MCP_MARBLE_API_KEY}"
+            "Authorization": "${MCP_MARBLE_API_KEY}"
           }
         }
       }
@@ -121,7 +131,7 @@ This installs Marble globally for the agents you select. Without `-g`,
 
     ```bash
     claude mcp add --transport http marble https://mcp.marblecms.com/mcp \
-      --header "Mcp-Marble-Api-Key: ${MCP_MARBLE_API_KEY}"
+      --header 'Authorization: ${MCP_MARBLE_API_KEY}'
     ```
 
     Set your API key in your shell before starting Claude Code:
@@ -141,7 +151,7 @@ This installs Marble globally for the agents you select. Without `-g`,
       "mcp-remote",
       "https://mcp.marblecms.com/mcp",
       "--header",
-      "Mcp-Marble-Api-Key:${MCP_MARBLE_API_KEY}"
+      "Authorization: ${MCP_MARBLE_API_KEY}"
     ]
 
     [mcp_servers.marble.env]
@@ -159,7 +169,7 @@ This installs Marble globally for the agents you select. Without `-g`,
           "type": "streamableHttp",
           "url": "https://mcp.marblecms.com/mcp",
           "headers": {
-            "Mcp-Marble-Api-Key": "${MCP_MARBLE_API_KEY}"
+            "Authorization": "${MCP_MARBLE_API_KEY}"
           }
         }
       }
@@ -178,7 +188,7 @@ This installs Marble globally for the agents you select. Without `-g`,
             "mcp-remote",
             "https://mcp.marblecms.com/mcp",
             "--header",
-            "Mcp-Marble-Api-Key:${MCP_MARBLE_API_KEY}"
+            "Authorization: ${MCP_MARBLE_API_KEY}"
           ],
           "env": {
             "MCP_MARBLE_API_KEY": "<your-api-key>"
@@ -262,12 +272,20 @@ Tool badges describe how clients may present or approve tool calls:
 
 ## Authentication
 
-The MCP server accepts your Marble API key through one of these headers:
+The MCP server accepts your Marble API key through the standard API header:
+
+```txt
+Authorization: <your-api-key>
+```
+
+The `Bearer` prefix is also accepted, but is not required by Marble.
+
+For clients that need a custom header, these compatibility aliases are also
+accepted:
 
 ```txt
 Mcp-Marble-Api-Key: <your-api-key>
 X-Marble-Api-Key: <your-api-key>
-Authorization: Bearer <your-api-key>
 ```
 
 <Warning>

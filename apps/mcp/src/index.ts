@@ -13,7 +13,7 @@ const serverCard = {
   url: "https://mcp.marblecms.com/mcp",
   authentication: {
     type: "api_key",
-    headers: ["Mcp-Marble-Api-Key", "X-Marble-Api-Key", "Authorization"],
+    headers: ["Authorization", "Mcp-Marble-Api-Key", "X-Marble-Api-Key"],
   },
 };
 
