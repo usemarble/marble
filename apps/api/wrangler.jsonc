@@ -7,8 +7,13 @@
   "keep_vars": true,
   "placement": { "mode": "smart" },
   "observability": {
-    "enabled": true,
-    "head_sampling_rate": 1
+    "logs": {
+      "enabled": true,
+      "invocation_logs": true
+    },
+    "traces": {
+      "enabled": false
+    }
   },
   "hyperdrive": [
     { "binding": "HYPERDRIVE", "id": "c0eea431cc454c9b96589cd52f70a009" }
