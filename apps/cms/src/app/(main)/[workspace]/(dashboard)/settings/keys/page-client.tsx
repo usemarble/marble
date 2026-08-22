@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { type APIKey, columns } from "@/components/keys/columns";
 import { DataTable } from "@/components/keys/data-table";
 import { DashboardBody } from "@/components/layout/wrapper";
-import PageLoader from "@/components/shared/page-loader";
+import { ApiKeysSettingsSkeleton } from "@/components/settings/loading-skeletons";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { useWorkspace } from "@/providers/workspace";
@@ -53,7 +53,7 @@ function PageClient({ initialKeys }: { initialKeys?: APIKey[] }) {
   });
 
   if (isFetchingWorkspace || !workspaceId || isLoading) {
-    return <PageLoader />;
+    return <ApiKeysSettingsSkeleton />;
   }
 
   return (

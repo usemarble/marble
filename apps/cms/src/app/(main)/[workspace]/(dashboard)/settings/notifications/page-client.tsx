@@ -4,7 +4,7 @@ import { toast } from "@marble/ui/components/sonner";
 import { Switch } from "@marble/ui/components/switch";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { DashboardBody } from "@/components/layout/wrapper";
-import PageLoader from "@/components/shared/page-loader";
+import { NotificationsSettingsSkeleton } from "@/components/settings/loading-skeletons";
 import {
   DEFAULT_NOTIFICATION_PREFERENCES,
   type NotificationPreferences,
@@ -178,7 +178,7 @@ function PageClient() {
   };
 
   if (isLoading) {
-    return <PageLoader />;
+    return <NotificationsSettingsSkeleton />;
   }
 
   return (

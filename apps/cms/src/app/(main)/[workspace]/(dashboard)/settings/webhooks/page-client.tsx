@@ -3,7 +3,7 @@
 import { toast } from "@marble/ui/components/sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { DashboardBody } from "@/components/layout/wrapper";
-import PageLoader from "@/components/shared/page-loader";
+import { WebhooksSettingsSkeleton } from "@/components/settings/loading-skeletons";
 import {
   WebhookDataTable,
   WebhooksEmptyState,
@@ -50,7 +50,7 @@ export function PageClient({
   });
 
   if (isFetchingWorkspace || !workspaceId || isLoading) {
-    return <PageLoader />;
+    return <WebhooksSettingsSkeleton />;
   }
 
   if (webhooks?.length === 0) {

@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { invoiceTableColumns } from "@/components/invoice/columns";
 import { InvoiceDataTable } from "@/components/invoice/data-table";
 import { DashboardBody } from "@/components/layout/wrapper";
-import PageLoader from "@/components/shared/page-loader";
+import { BillingSettingsSkeleton } from "@/components/settings/loading-skeletons";
 import { AsyncButton } from "@/components/ui/async-button";
 import { usePlan } from "@/hooks/use-plan";
 import { authClient, checkout } from "@/lib/auth/client";
@@ -55,7 +55,7 @@ function PageClient() {
   };
 
   if (isFetchingWorkspace || !activeWorkspace) {
-    return <PageLoader />;
+    return <BillingSettingsSkeleton />;
   }
 
   const handleCheckout = async (

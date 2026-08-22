@@ -43,7 +43,7 @@ import { useRouter } from "next/navigation";
 import { Fragment, useEffect, useState } from "react";
 import { HeaderSidebarTrigger } from "@/components/layout/header-sidebar-trigger";
 import { DashboardBody } from "@/components/layout/wrapper";
-import PageLoader from "@/components/shared/page-loader";
+import { WebhookDetailSettingsSkeleton } from "@/components/settings/loading-skeletons";
 import { DataTablePagination } from "@/components/ui/data-table-pagination";
 import { DeleteWebhookModal } from "@/components/webhooks/delete-webhook";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
@@ -160,7 +160,7 @@ export default function WebhookDetailPage({
   };
 
   if (isLoading && !data) {
-    return <PageLoader />;
+    return <WebhookDetailSettingsSkeleton />;
   }
 
   if (isError || !data || !webhook) {

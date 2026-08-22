@@ -3,12 +3,27 @@
 import { DatabaseIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Button, buttonVariants } from "@marble/ui/components/button";
+import { Input } from "@marble/ui/components/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@marble/ui/components/table";
 import { cn } from "@marble/ui/lib/utils";
-import { ArrowUpRightIcon, PlusIcon } from "@phosphor-icons/react";
+import {
+  ArrowUpRightIcon,
+  MagnifyingGlassIcon,
+  PlusIcon,
+  XIcon,
+} from "@phosphor-icons/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
+import { useState } from "react";
 import { DashboardBody } from "@/components/layout/wrapper";
-import PageLoader from "@/components/shared/page-loader";
+import { FieldsSettingsSkeleton } from "@/components/settings/loading-skeletons";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import type { CustomField } from "@/types/fields";
@@ -41,6 +56,7 @@ export function PageClient({
   const workspaceId = useWorkspaceId();
   const queryClient = useQueryClient();
   const docsHref = "https://docs.marblecms.com/features/custom-fields";
+  const [search, setSearch] = useState("");
 
   const {
     data: fields,
@@ -67,7 +83,7 @@ export function PageClient({
   });
 
   if (!workspaceId || isLoading) {
-    return <PageLoader />;
+    return <FieldsSettingsSkeleton />;
   }
 
   if (isError) {
@@ -128,11 +144,40 @@ export function PageClient({
     );
   }
 
+  const normalizedSearch = search.trim().toLowerCase();
+  const filteredFields = normalizedSearch
+    ? (fields?.filter((field) =>
+        field.name.toLowerCase().includes(normalizedSearch)
+      ) ?? [])
+    : (fields ?? []);
+
   return (
     <DashboardBody className="flex flex-col gap-8 pt-10 pb-16" size="compact">
       <div className="flex flex-col gap-6">
-        <div className="flex items-center justify-between">
-          <div />
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div className="relative">
+            <MagnifyingGlassIcon
+              className="-translate-y-1/2 absolute top-1/2 left-3 size-4 text-muted-foreground"
+              size={16}
+            />
+            <Input
+              aria-label="Search custom fields"
+              className="h-9 w-full rounded-[12px] px-8 shadow-none sm:w-72"
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search custom fields..."
+              value={search}
+            />
+            {search ? (
+              <button
+                aria-label="Clear search"
+                className="-translate-y-1/2 absolute top-1/2 right-3"
+                onClick={() => setSearch("")}
+                type="button"
+              >
+                <XIcon className="size-4" />
+              </button>
+            ) : null}
+          </div>
           <CreateCustomFieldSheet>
             <Button>
               <PlusIcon className="size-4" />
@@ -141,35 +186,52 @@ export function PageClient({
           </CreateCustomFieldSheet>
         </div>
 
-        <div className="rounded-lg border">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b text-muted-foreground text-sm">
-                <th className="px-4 py-3 text-left font-medium">Name</th>
-                <th className="px-4 py-3 text-left font-medium">Key</th>
-                <th className="px-4 py-3 text-left font-medium">Type</th>
-                <th className="px-4 py-3 text-right font-medium">
+        <div className="overflow-hidden rounded-[20px] bg-surface p-1 [&_[data-slot=table-container]]:overflow-x-auto [&_[data-slot=table-container]]:overflow-y-hidden">
+          <Table className="-mb-1 h-fit min-w-[640px] border-separate border-spacing-y-1">
+            <TableHeader>
+              <TableRow className="border-0 text-[13px] hover:bg-transparent">
+                <TableHead className="px-3 text-muted-foreground">
+                  Name
+                </TableHead>
+                <TableHead className="px-3 text-muted-foreground">
+                  Key
+                </TableHead>
+                <TableHead className="px-3 text-muted-foreground">
+                  Type
+                </TableHead>
+                <TableHead className="w-12 px-3 text-right text-muted-foreground">
                   <span className="sr-only">Actions</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {fields?.map((field) => (
-                <CustomFieldRow
-                  field={field}
-                  fieldTypeLabels={fieldTypeLabels}
-                  key={field.id}
-                  onDelete={() => {
-                    if (workspaceId) {
-                      queryClient.invalidateQueries({
-                        queryKey: QUERY_KEYS.CUSTOM_FIELDS(workspaceId),
-                      });
-                    }
-                  }}
-                />
-              ))}
-            </tbody>
-          </table>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredFields.length > 0 ? (
+                filteredFields.map((field) => (
+                  <CustomFieldRow
+                    field={field}
+                    fieldTypeLabels={fieldTypeLabels}
+                    key={field.id}
+                    onDelete={() => {
+                      if (workspaceId) {
+                        queryClient.invalidateQueries({
+                          queryKey: QUERY_KEYS.CUSTOM_FIELDS(workspaceId),
+                        });
+                      }
+                    }}
+                  />
+                ))
+              ) : (
+                <TableRow className="border-0 bg-background">
+                  <TableCell
+                    className="h-28 rounded-[14px] text-center text-muted-foreground text-sm"
+                    colSpan={4}
+                  >
+                    No custom fields match your search.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
         </div>
       </div>
     </DashboardBody>

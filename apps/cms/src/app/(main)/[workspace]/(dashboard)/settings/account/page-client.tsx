@@ -23,8 +23,8 @@ import { useForm } from "react-hook-form";
 import { DashboardBody } from "@/components/layout/wrapper";
 import { CropImageModal } from "@/components/media/crop-image-modal";
 import { DeleteAccountModal } from "@/components/settings/delete-account";
+import { AccountSettingsSkeleton } from "@/components/settings/loading-skeletons";
 import { SettingsSection } from "@/components/settings/section";
-import PageLoader from "@/components/shared/page-loader";
 import { AsyncButton } from "@/components/ui/async-button";
 import { CopyButton } from "@/components/ui/copy-button";
 import { ErrorMessage } from "@/components/ui/error-message";
@@ -98,7 +98,7 @@ function PageClient() {
   };
 
   if (isFetchingUser) {
-    return <PageLoader />;
+    return <AccountSettingsSkeleton />;
   }
 
   return (

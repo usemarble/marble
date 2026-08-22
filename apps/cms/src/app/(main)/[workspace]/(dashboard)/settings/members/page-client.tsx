@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import { useState } from "react";
 import { DashboardBody } from "@/components/layout/wrapper";
-import PageLoader from "@/components/shared/page-loader";
+import { MembersSettingsSkeleton } from "@/components/settings/loading-skeletons";
 import { columns, type TeamMemberRow } from "@/components/team/columns";
 import { TeamDataTable } from "@/components/team/data-table";
 import { InviteSection } from "@/components/team/invite-section";
@@ -29,7 +29,7 @@ function PageClient() {
   const [showLeaveWorkspaceModal, setShowLeaveWorkspaceModal] = useState(false);
 
   if (isFetchingWorkspace || !activeWorkspace || !user) {
-    return <PageLoader />;
+    return <MembersSettingsSkeleton />;
   }
 
   const data: TeamMemberRow[] = activeWorkspace.members.map((member) => ({

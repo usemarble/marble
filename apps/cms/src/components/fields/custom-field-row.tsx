@@ -7,6 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@marble/ui/components/dropdown-menu";
+import { TableCell, TableRow } from "@marble/ui/components/table";
 import {
   DotsThreeVerticalIcon,
   PencilSimpleLineIcon,
@@ -33,17 +34,19 @@ export function CustomFieldRow({
 
   return (
     <>
-      <tr className="border-b transition-colors last:border-b-0 hover:bg-muted/50">
-        <td className="px-4 py-3 font-medium text-sm">{field.name}</td>
-        <td className="px-4 py-3 text-sm">
+      <TableRow className="h-[60px] border-0 bg-background hover:bg-background/80 data-[state=selected]:bg-background">
+        <TableCell className="rounded-l-[14px] px-3 py-2 font-medium text-sm">
+          {field.name}
+        </TableCell>
+        <TableCell className="px-3 py-2 text-sm">
           <code className="rounded bg-muted px-1.5 py-0.5 text-xs">
             {field.key}
           </code>
-        </td>
-        <td className="px-4 py-3 text-muted-foreground text-sm">
+        </TableCell>
+        <TableCell className="px-3 py-2 text-muted-foreground text-sm">
           {fieldTypeLabels[field.type] || field.type}
-        </td>
-        <td className="px-4 py-3 text-right">
+        </TableCell>
+        <TableCell className="rounded-r-[14px] px-3 py-2 text-right">
           <DropdownMenu>
             <DropdownMenuTrigger
               render={
@@ -66,8 +69,8 @@ export function CustomFieldRow({
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        </td>
-      </tr>
+        </TableCell>
+      </TableRow>
 
       {isEditOpen && (
         <EditCustomFieldSheet
