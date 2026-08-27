@@ -1,12 +1,21 @@
-import { db, createRecordId, isFieldWorkspaceKeyConflict } from "@marble/drizzle";
+import { db } from "@marble/drizzle";
 import { field, fieldOption } from "@marble/drizzle/schema";
-
+import { createRecordId, isFieldWorkspaceKeyConflict } from "@marble/drizzle";
 import { and, asc, desc, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import { buildFieldOptionWrites } from "@/lib/fields/helpers";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { getDashboardCustomFields } from "@/lib/queries/dashboard/settings";
 import { customFieldSchema } from "@/lib/validations/fields";
+
+function buildFieldOptionWrites(
+  options: Array<{ value: string; label: string }>
+) {
+  return options.map((option, index) => ({
+    value: option.value,
+    label: option.label,
+    position: index,
+  }));
+}
 
 export async function GET() {
   const accessData = await requireActiveWorkspaceAccess();

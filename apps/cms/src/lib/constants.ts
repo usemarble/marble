@@ -124,13 +124,6 @@ export const SOCIAL_PLATFORMS = {
 
 export type SocialPlatform = keyof typeof SOCIAL_PLATFORMS;
 
-export function parseSocialPlatform(platform: string): SocialPlatform {
-  if (platform in SOCIAL_PLATFORMS) {
-    return platform as SocialPlatform;
-  }
-  return "website";
-}
-
 export const PLATFORM_DOMAINS = {
   x: ["twitter.com", "x.com"],
   github: ["github.com"],

@@ -1,13 +1,12 @@
-import { db, createRecordId } from "@marble/drizzle";
-import { author, authorSocial } from "@marble/drizzle/schema";
+import { db } from "@marble/drizzle";
+import { author, authorSocial, subscription } from "@marble/drizzle/schema";
 import { toAuthorPayload } from "@marble/events";
-
-import { and, count, eq } from "drizzle-orm";
+import { createRecordId } from "@marble/drizzle";
+import { and, count, desc, eq, gt, or } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";
 import { getWorkspacePlan, PLAN_LIMITS } from "@/lib/plans";
-import { findActiveWorkspaceSubscription } from "@/lib/subscription/active-subscription";
 import { getDashboardAuthors } from "@/lib/queries/dashboard/authors";
 import {
   emitDashboardEvent,
@@ -47,7 +46,35 @@ export async function POST(request: Request) {
   const { sessionData, workspaceId } = accessData;
 
   try {
-    const activeSubscription = await findActiveWorkspaceSubscription(workspaceId);
+    const subscriptions = await db
+      .select({
+        id: subscription.id,
+        status: subscription.status,
+        plan: subscription.plan,
+        currentPeriodStart: subscription.currentPeriodStart,
+        currentPeriodEnd: subscription.currentPeriodEnd,
+        cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
+        canceledAt: subscription.canceledAt,
+      })
+      .from(subscription)
+      .where(
+        and(
+          eq(subscription.workspaceId, workspaceId),
+          or(
+            eq(subscription.status, "active"),
+            eq(subscription.status, "trialing"),
+            and(
+              eq(subscription.status, "canceled"),
+              eq(subscription.cancelAtPeriodEnd, true),
+              gt(subscription.currentPeriodEnd, new Date())
+            )
+          )
+        )
+      )
+      .orderBy(desc(subscription.createdAt))
+      .limit(1);
+
+    const activeSubscription = subscriptions[0] || null;
     const currentPlan = getWorkspacePlan(activeSubscription);
 
     const planLimits = PLAN_LIMITS[currentPlan];

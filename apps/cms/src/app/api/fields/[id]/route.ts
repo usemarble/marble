@@ -1,14 +1,42 @@
-import { db, createRecordId, isFieldWorkspaceKeyConflict, isPgSerializationFailure } from "@marble/drizzle";
+import { db } from "@marble/drizzle";
 import { field, fieldOption, fieldValue } from "@marble/drizzle/schema";
-
+import {
+  createRecordId,
+  isFieldWorkspaceKeyConflict,
+  isPgSerializationFailure,
+} from "@marble/drizzle";
 import { and, asc, count, eq, ne } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import {
-  areFieldOptionsEqual,
-  buildFieldOptionWrites,
-} from "@/lib/fields/helpers";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { customFieldUpdateSchema } from "@/lib/validations/fields";
+
+function buildFieldOptionWrites(
+  options: Array<{ value: string; label: string }>
+) {
+  return options.map((option, index) => ({
+    value: option.value,
+    label: option.label,
+    position: index,
+  }));
+}
+
+function areFieldOptionsEqual(
+  nextOptions: Array<{ value: string; label: string }>,
+  currentOptions: Array<{ value: string; label: string }>
+) {
+  if (nextOptions.length !== currentOptions.length) {
+    return false;
+  }
+
+  return nextOptions.every((option, index) => {
+    const currentOption = currentOptions[index];
+    return (
+      currentOption !== undefined &&
+      option.value === currentOption.value &&
+      option.label === currentOption.label
+    );
+  });
+}
 
 export async function PATCH(
   req: Request,

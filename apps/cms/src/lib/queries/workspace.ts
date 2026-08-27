@@ -1,11 +1,16 @@
 import { db } from "@marble/drizzle";
 import { member, subscription, workspace } from "@marble/drizzle/schema";
-import { activeSubscriptionWhere } from "@/lib/subscription/active-subscription";
-import { and, desc, eq } from "drizzle-orm";
+import {
+  and,
+  desc,
+  eq,
+  gt,
+  or,
+} from "drizzle-orm";
 import type { RequestCookies } from "next/dist/compiled/@edge-runtime/cookies";
 import { getServerSession } from "@/lib/auth/session";
+import { getWorkspacePlan } from "@/lib/plans";
 import type { Workspace } from "@/types/workspace";
-import { mapWorkspaceToView } from "@/lib/queries/workspace-view";
 import { getLastVisitedWorkspace } from "@/utils/workspace/client";
 
 /**
@@ -152,7 +157,15 @@ export async function getWorkspaceLayoutData(workspaceSlug?: string): Promise<{
           },
         },
         subscriptions: {
-          where: activeSubscriptionWhere(),
+          where: or(
+            eq(subscription.status, "active"),
+            eq(subscription.status, "trialing"),
+            and(
+              eq(subscription.status, "canceled"),
+              eq(subscription.cancelAtPeriodEnd, true),
+              gt(subscription.currentPeriodEnd, new Date())
+            )
+          ),
           orderBy: desc(subscription.createdAt),
           limit: 1,
           columns: {
@@ -172,11 +185,29 @@ export async function getWorkspaceLayoutData(workspaceSlug?: string): Promise<{
       return { activeOrganizationId, workspace: null };
     }
 
-    const workspaceView = mapWorkspaceToView(foundWorkspace, session.user.id);
+    const currentUserMember = foundWorkspace.members.find(
+      (entry) => entry.userId === session.user.id
+    );
+
+    if (!currentUserMember) {
+      return { activeOrganizationId, workspace: null };
+    }
+
+    const activeSubscription = foundWorkspace.subscriptions[0] || null;
+    const activePlan = getWorkspacePlan(activeSubscription);
 
     return {
       activeOrganizationId,
-      workspace: workspaceView,
+      workspace: {
+        ...foundWorkspace,
+        currentUserRole: currentUserMember.role || null,
+        subscription: activeSubscription
+          ? {
+              ...activeSubscription,
+              activePlan,
+            }
+          : null,
+      } as Workspace,
     };
   } catch (error) {
     console.error("Error fetching initial workspace data:", error);

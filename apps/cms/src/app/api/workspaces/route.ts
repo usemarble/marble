@@ -1,10 +1,23 @@
 import { db } from "@marble/drizzle";
-import { member, subscription, workspace } from "@marble/drizzle/schema";
-import { activeSubscriptionWhere } from "@/lib/subscription/active-subscription";
-import { desc, eq, inArray } from "drizzle-orm";
+import {
+  member,
+  subscription,
+  workspace,
+} from "@marble/drizzle/schema";
+import { and, desc, eq, gt, inArray, or } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
-import { mapWorkspaceListItem } from "@/lib/queries/workspace-view";
+import { getWorkspacePlan } from "@/lib/plans";
+
+const activeSubscriptionFilter = or(
+  eq(subscription.status, "active"),
+  eq(subscription.status, "trialing"),
+  and(
+    eq(subscription.status, "canceled"),
+    eq(subscription.cancelAtPeriodEnd, true),
+    gt(subscription.currentPeriodEnd, new Date())
+  )
+);
 
 export async function GET() {
   const sessionData = await getServerSession();
@@ -61,7 +74,7 @@ export async function GET() {
         },
       },
       subscriptions: {
-        where: activeSubscriptionWhere(),
+        where: activeSubscriptionFilter,
         orderBy: desc(subscription.createdAt),
         limit: 1,
         columns: {
@@ -78,9 +91,22 @@ export async function GET() {
     orderBy: desc(workspace.createdAt),
   });
 
-  const workspacesWithRole = workspaces.flatMap((foundWorkspace) => {
-    const mapped = mapWorkspaceListItem(foundWorkspace, sessionData.user.id);
-    return mapped ? [mapped] : [];
+  const workspacesWithRole = workspaces.map((foundWorkspace) => {
+    const currentUserMember = foundWorkspace.members.find(
+      (entry) => entry.userId === sessionData.user.id
+    );
+    const activeSubscription = foundWorkspace.subscriptions[0] || null;
+    const activePlan = getWorkspacePlan(activeSubscription);
+    return {
+      ...foundWorkspace,
+      currentUserRole: currentUserMember?.role || null,
+      subscription: activeSubscription
+        ? {
+            ...activeSubscription,
+            activePlan,
+          }
+        : null,
+    };
   });
 
   return NextResponse.json(workspacesWithRole);

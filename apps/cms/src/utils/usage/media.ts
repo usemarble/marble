@@ -1,10 +1,9 @@
-import { db, createRecordId } from "@marble/drizzle";
-import { media, member, usageEvent, workspace } from "@marble/drizzle/schema";
-
-import { and, eq, sum } from "drizzle-orm";
+import { db } from "@marble/drizzle";
+import { media, member, subscription, usageEvent, workspace } from "@marble/drizzle/schema";
+import { createRecordId } from "@marble/drizzle";
+import { and, desc, eq, gt, or, sum } from "drizzle-orm";
 import { getWorkspacePlan, PLAN_LIMITS } from "@/lib/plans";
 import { createPolarClient } from "@/lib/polar/client";
-import { findActiveWorkspaceSubscriptionPlanFields } from "@/lib/subscription/active-subscription";
 
 const BYTES_PER_MB = 1024 * 1024;
 
@@ -22,8 +21,32 @@ export async function getWorkspaceMediaUsageBytes(
 export async function getWorkspaceMediaStorageLimitBytes(
   workspaceId: string
 ): Promise<number> {
-  const activeSubscription =
-    await findActiveWorkspaceSubscriptionPlanFields(workspaceId);
+  const subscriptions = await db
+    .select({
+      plan: subscription.plan,
+      status: subscription.status,
+      cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
+      currentPeriodEnd: subscription.currentPeriodEnd,
+    })
+    .from(subscription)
+    .where(
+      and(
+        eq(subscription.workspaceId, workspaceId),
+        or(
+          eq(subscription.status, "active"),
+          eq(subscription.status, "trialing"),
+          and(
+            eq(subscription.status, "canceled"),
+            eq(subscription.cancelAtPeriodEnd, true),
+            gt(subscription.currentPeriodEnd, new Date())
+          )
+        )
+      )
+    )
+    .orderBy(desc(subscription.createdAt))
+    .limit(1);
+
+  const activeSubscription = subscriptions[0] ?? null;
   const plan = getWorkspacePlan(activeSubscription);
   return PLAN_LIMITS[plan].maxMediaStorage * BYTES_PER_MB;
 }
