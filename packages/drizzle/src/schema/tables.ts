@@ -9,6 +9,7 @@ import {
   timestamp,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
+import { createId } from "@paralleldrive/cuid2";
 import {
   apiKeyTypeEnum,
   apiScopeEnum,
@@ -36,38 +37,51 @@ import {
 
 /** Better Auth organization → physical `workspace` table */
 export const workspace = pgTable("workspace", {
-  id: text("id").primaryKey().notNull(),
+  id: text("id").primaryKey().$defaultFn(createId).notNull(),
   name: text("name").notNull(),
   slug: text("slug").notNull().unique(),
   logo: text("logo"),
   metadata: text("metadata"),
   description: text("description"),
   subdomain: text("subdomain").unique(),
-  updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" }).notNull(),
+  updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" })
+    .$defaultFn(() => new Date())
+    .$onUpdateFn(() => new Date())
+    .notNull(),
   createdAt: timestamp("createdAt", { precision: 3, mode: "date" })
-    .defaultNow()
+    .$defaultFn(() => new Date())
     .notNull(),
   timezone: text("timezone").default("Europe/London").notNull(),
 });
 
 export const user = pgTable("user", {
-  id: text("id").primaryKey().notNull(),
+  id: text("id").primaryKey().$defaultFn(createId).notNull(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   emailVerified: boolean("emailVerified").notNull(),
   image: text("image"),
-  createdAt: timestamp("createdAt", { precision: 3, mode: "date" }).notNull(),
-  updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" }).notNull(),
+  createdAt: timestamp("createdAt", { precision: 3, mode: "date" })
+    .$defaultFn(() => new Date())
+    .notNull(),
+  updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" })
+    .$defaultFn(() => new Date())
+    .$onUpdateFn(() => new Date())
+    .notNull(),
 });
 
 export const session = pgTable(
   "session",
   {
-    id: text("id").primaryKey().notNull(),
+    id: text("id").primaryKey().$defaultFn(createId).notNull(),
     expiresAt: timestamp("expiresAt", { precision: 3, mode: "date" }).notNull(),
     token: text("token").notNull().unique(),
-    createdAt: timestamp("createdAt", { precision: 3, mode: "date" }).notNull(),
-    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" }).notNull(),
+    createdAt: timestamp("createdAt", { precision: 3, mode: "date" })
+      .$defaultFn(() => new Date())
+      .notNull(),
+    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" })
+      .$defaultFn(() => new Date())
+      .$onUpdateFn(() => new Date())
+      .notNull(),
     ipAddress: text("ipAddress"),
     userAgent: text("userAgent"),
     userId: text("userId")
@@ -85,7 +99,7 @@ export const session = pgTable(
 export const account = pgTable(
   "account",
   {
-    id: text("id").primaryKey().notNull(),
+    id: text("id").primaryKey().$defaultFn(createId).notNull(),
     accountId: text("accountId").notNull(),
     providerId: text("providerId").notNull(),
     userId: text("userId")
@@ -104,8 +118,13 @@ export const account = pgTable(
     }),
     scope: text("scope"),
     password: text("password"),
-    createdAt: timestamp("createdAt", { precision: 3, mode: "date" }).notNull(),
-    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" }).notNull(),
+    createdAt: timestamp("createdAt", { precision: 3, mode: "date" })
+      .$defaultFn(() => new Date())
+      .notNull(),
+    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" })
+      .$defaultFn(() => new Date())
+      .$onUpdateFn(() => new Date())
+      .notNull(),
   },
   (table) => [
     index("account_userId_idx").on(table.userId),
@@ -119,12 +138,15 @@ export const account = pgTable(
 export const verification = pgTable(
   "verification",
   {
-    id: text("id").primaryKey().notNull(),
+    id: text("id").primaryKey().$defaultFn(createId).notNull(),
     identifier: text("identifier").notNull(),
     value: text("value").notNull(),
     expiresAt: timestamp("expiresAt", { precision: 3, mode: "date" }).notNull(),
-    createdAt: timestamp("createdAt", { precision: 3, mode: "date" }),
-    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" }),
+    createdAt: timestamp("createdAt", { precision: 3, mode: "date" })
+      .$defaultFn(() => new Date()),
+    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" })
+      .$defaultFn(() => new Date())
+      .$onUpdateFn(() => new Date()),
   },
   (table) => [index("verification_identifier_idx").on(table.identifier)]
 );
@@ -132,7 +154,7 @@ export const verification = pgTable(
 export const member = pgTable(
   "member",
   {
-    id: text("id").primaryKey().notNull(),
+    id: text("id").primaryKey().$defaultFn(createId).notNull(),
     organizationId: text("organizationId")
       .notNull()
       .references(() => workspace.id, { onDelete: "cascade" }),
@@ -140,7 +162,9 @@ export const member = pgTable(
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
     role: text("role"),
-    createdAt: timestamp("createdAt", { precision: 3, mode: "date" }).notNull(),
+    createdAt: timestamp("createdAt", { precision: 3, mode: "date" })
+      .$defaultFn(() => new Date())
+      .notNull(),
   },
   (table) => [
     index("member_userId_idx").on(table.userId),
@@ -155,7 +179,7 @@ export const member = pgTable(
 export const invitation = pgTable(
   "invitation",
   {
-    id: text("id").primaryKey().notNull(),
+    id: text("id").primaryKey().$defaultFn(createId).notNull(),
     organizationId: text("organizationId")
       .notNull()
       .references(() => workspace.id, { onDelete: "cascade" }),
@@ -167,7 +191,7 @@ export const invitation = pgTable(
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
     createdAt: timestamp("createdAt", { precision: 3, mode: "date" })
-      .defaultNow()
+      .$defaultFn(() => new Date())
       .notNull(),
   },
   (table) => [
@@ -180,7 +204,7 @@ export const invitation = pgTable(
 export const userNotificationPreferences = pgTable(
   "user_notification_preferences",
   {
-    id: text("id").primaryKey().notNull(),
+    id: text("id").primaryKey().$defaultFn(createId).notNull(),
     userId: text("userId")
       .notNull()
       .unique()
@@ -197,16 +221,19 @@ export const userNotificationPreferences = pgTable(
       mode: "date",
     }),
     createdAt: timestamp("createdAt", { precision: 3, mode: "date" })
-      .defaultNow()
+      .$defaultFn(() => new Date())
       .notNull(),
-    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" }).notNull(),
+    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" })
+      .$defaultFn(() => new Date())
+      .$onUpdateFn(() => new Date())
+      .notNull(),
   }
 );
 
 export const workspaceNotificationPreferences = pgTable(
   "workspace_notification_preferences",
   {
-    id: text("id").primaryKey().notNull(),
+    id: text("id").primaryKey().$defaultFn(createId).notNull(),
     memberId: text("memberId")
       .notNull()
       .unique()
@@ -214,26 +241,32 @@ export const workspaceNotificationPreferences = pgTable(
     usageAlerts: boolean("usageAlerts").default(true).notNull(),
     subscriptions: boolean("subscriptions").default(true).notNull(),
     createdAt: timestamp("createdAt", { precision: 3, mode: "date" })
-      .defaultNow()
+      .$defaultFn(() => new Date())
       .notNull(),
-    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" }).notNull(),
+    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" })
+      .$defaultFn(() => new Date())
+      .$onUpdateFn(() => new Date())
+      .notNull(),
   }
 );
 
 export const subscription = pgTable(
   "subscription",
   {
-    id: text("id").primaryKey().notNull(),
+    id: text("id").primaryKey().$defaultFn(createId).notNull(),
     userId: text("userId")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
     plan: planTypeEnum("plan").notNull(),
     status: subscriptionStatusEnum("status").notNull(),
-    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" }).notNull(),
+    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" })
+      .$defaultFn(() => new Date())
+      .$onUpdateFn(() => new Date())
+      .notNull(),
     cancelAtPeriodEnd: boolean("cancelAtPeriodEnd").notNull(),
     canceledAt: timestamp("canceledAt", { precision: 3, mode: "date" }),
     createdAt: timestamp("createdAt", { precision: 3, mode: "date" })
-      .defaultNow()
+      .$defaultFn(() => new Date())
       .notNull(),
     currentPeriodEnd: timestamp("currentPeriodEnd", {
       precision: 3,
@@ -275,7 +308,7 @@ export const subscription = pgTable(
 export const author = pgTable(
   "author",
   {
-    id: text("id").primaryKey().notNull(),
+    id: text("id").primaryKey().$defaultFn(createId).notNull(),
     name: text("name").notNull(),
     email: text("email"),
     bio: text("bio"),
@@ -288,9 +321,12 @@ export const author = pgTable(
     userId: text("userId").references(() => user.id, { onDelete: "set null" }),
     isActive: boolean("isActive").default(true).notNull(),
     createdAt: timestamp("createdAt", { precision: 3, mode: "date" })
-      .defaultNow()
+      .$defaultFn(() => new Date())
       .notNull(),
-    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" }).notNull(),
+    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" })
+      .$defaultFn(() => new Date())
+      .$onUpdateFn(() => new Date())
+      .notNull(),
   },
   (table) => [
     uniqueIndex("author_workspaceId_userId_key").on(
@@ -312,16 +348,19 @@ export const author = pgTable(
 export const authorSocial = pgTable(
   "author_social",
   {
-    id: text("id").primaryKey().notNull(),
+    id: text("id").primaryKey().$defaultFn(createId).notNull(),
     authorId: text("authorId")
       .notNull()
       .references(() => author.id, { onDelete: "cascade" }),
     platform: text("platform").notNull(),
     url: text("url").notNull(),
     createdAt: timestamp("createdAt", { precision: 3, mode: "date" })
-      .defaultNow()
+      .$defaultFn(() => new Date())
       .notNull(),
-    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" }).notNull(),
+    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" })
+      .$defaultFn(() => new Date())
+      .$onUpdateFn(() => new Date())
+      .notNull(),
   },
   (table) => [index("author_social_authorId_idx").on(table.authorId)]
 );
@@ -329,14 +368,17 @@ export const authorSocial = pgTable(
 export const category = pgTable(
   "category",
   {
-    id: text("id").primaryKey().notNull(),
+    id: text("id").primaryKey().$defaultFn(createId).notNull(),
     name: text("name").notNull(),
     description: text("description"),
     slug: text("slug").notNull(),
     createdAt: timestamp("createdAt", { precision: 3, mode: "date" })
-      .defaultNow()
+      .$defaultFn(() => new Date())
       .notNull(),
-    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" }).notNull(),
+    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" })
+      .$defaultFn(() => new Date())
+      .$onUpdateFn(() => new Date())
+      .notNull(),
     workspaceId: text("workspaceId")
       .notNull()
       .references(() => workspace.id, { onDelete: "cascade" }),
@@ -353,14 +395,17 @@ export const category = pgTable(
 export const tag = pgTable(
   "tag",
   {
-    id: text("id").primaryKey().notNull(),
+    id: text("id").primaryKey().$defaultFn(createId).notNull(),
     name: text("name").notNull(),
     description: text("description"),
     slug: text("slug").notNull(),
     createdAt: timestamp("createdAt", { precision: 3, mode: "date" })
-      .defaultNow()
+      .$defaultFn(() => new Date())
       .notNull(),
-    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" }).notNull(),
+    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" })
+      .$defaultFn(() => new Date())
+      .$onUpdateFn(() => new Date())
+      .notNull(),
     workspaceId: text("workspaceId")
       .notNull()
       .references(() => workspace.id, { onDelete: "cascade" }),
@@ -374,7 +419,7 @@ export const tag = pgTable(
 export const post = pgTable(
   "post",
   {
-    id: text("id").primaryKey().notNull(),
+    id: text("id").primaryKey().$defaultFn(createId).notNull(),
     title: text("title").notNull(),
     content: text("content").notNull(),
     coverImage: text("coverImage"),
@@ -390,9 +435,12 @@ export const post = pgTable(
       .references(() => category.id),
     status: postStatusEnum("status").default("draft").notNull(),
     featured: boolean("featured").default(false).notNull(),
-    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" }).notNull(),
+    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" })
+      .$defaultFn(() => new Date())
+      .$onUpdateFn(() => new Date())
+      .notNull(),
     createdAt: timestamp("createdAt", { precision: 3, mode: "date" })
-      .defaultNow()
+      .$defaultFn(() => new Date())
       .notNull(),
     publishedAt: timestamp("publishedAt", {
       precision: 3,
@@ -461,7 +509,7 @@ export const postToAuthor = pgTable(
 export const shareLink = pgTable(
   "ShareLink",
   {
-    id: text("id").primaryKey().notNull(),
+    id: text("id").primaryKey().$defaultFn(createId).notNull(),
     token: text("token").notNull().unique(),
     postId: text("postId")
       .notNull()
@@ -473,9 +521,12 @@ export const shareLink = pgTable(
     expiresAt: timestamp("expiresAt", { precision: 3, mode: "date" }).notNull(),
     isActive: boolean("isActive").default(true).notNull(),
     createdAt: timestamp("createdAt", { precision: 3, mode: "date" })
-      .defaultNow()
+      .$defaultFn(() => new Date())
       .notNull(),
-    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" }).notNull(),
+    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" })
+      .$defaultFn(() => new Date())
+      .$onUpdateFn(() => new Date())
+      .notNull(),
   },
   (table) => [
     index("ShareLink_postId_idx").on(table.postId),
@@ -488,7 +539,7 @@ export const shareLink = pgTable(
 export const media = pgTable(
   "media",
   {
-    id: text("id").primaryKey().notNull(),
+    id: text("id").primaryKey().$defaultFn(createId).notNull(),
     name: text("name").notNull(),
     url: text("url").notNull(),
     storageKey: text("storageKey").notNull(),
@@ -500,9 +551,12 @@ export const media = pgTable(
     duration: integer("duration"),
     blurHash: text("blurHash"),
     createdAt: timestamp("createdAt", { precision: 3, mode: "date" })
-      .defaultNow()
+      .$defaultFn(() => new Date())
       .notNull(),
-    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" }).notNull(),
+    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" })
+      .$defaultFn(() => new Date())
+      .$onUpdateFn(() => new Date())
+      .notNull(),
     workspaceId: text("workspaceId")
       .notNull()
       .references(() => workspace.id, { onDelete: "cascade" }),
@@ -520,7 +574,7 @@ export const media = pgTable(
 export const field = pgTable(
   "field",
   {
-    id: text("id").primaryKey().notNull(),
+    id: text("id").primaryKey().$defaultFn(createId).notNull(),
     workspaceId: text("workspaceId")
       .notNull()
       .references(() => workspace.id, { onDelete: "cascade" }),
@@ -531,9 +585,12 @@ export const field = pgTable(
     required: boolean("required").default(false).notNull(),
     position: integer("position").default(0).notNull(),
     createdAt: timestamp("createdAt", { precision: 3, mode: "date" })
-      .defaultNow()
+      .$defaultFn(() => new Date())
       .notNull(),
-    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" }).notNull(),
+    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" })
+      .$defaultFn(() => new Date())
+      .$onUpdateFn(() => new Date())
+      .notNull(),
   },
   (table) => [
     uniqueIndex("field_workspaceId_key_key").on(table.workspaceId, table.key),
@@ -545,7 +602,7 @@ export const field = pgTable(
 export const fieldOption = pgTable(
   "field_option",
   {
-    id: text("id").primaryKey().notNull(),
+    id: text("id").primaryKey().$defaultFn(createId).notNull(),
     fieldId: text("fieldId").notNull(),
     workspaceId: text("workspaceId")
       .notNull()
@@ -554,9 +611,12 @@ export const fieldOption = pgTable(
     label: text("label").notNull(),
     position: integer("position").default(0).notNull(),
     createdAt: timestamp("createdAt", { precision: 3, mode: "date" })
-      .defaultNow()
+      .$defaultFn(() => new Date())
       .notNull(),
-    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" }).notNull(),
+    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" })
+      .$defaultFn(() => new Date())
+      .$onUpdateFn(() => new Date())
+      .notNull(),
   },
   (table) => [
     foreignKey({
@@ -584,7 +644,7 @@ export const fieldOption = pgTable(
 export const fieldValue = pgTable(
   "field_value",
   {
-    id: text("id").primaryKey().notNull(),
+    id: text("id").primaryKey().$defaultFn(createId).notNull(),
     postId: text("postId").notNull(),
     fieldId: text("fieldId").notNull(),
     workspaceId: text("workspaceId")
@@ -592,9 +652,12 @@ export const fieldValue = pgTable(
       .references(() => workspace.id, { onDelete: "cascade" }),
     value: text("value").notNull(),
     createdAt: timestamp("createdAt", { precision: 3, mode: "date" })
-      .defaultNow()
+      .$defaultFn(() => new Date())
       .notNull(),
-    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" }).notNull(),
+    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" })
+      .$defaultFn(() => new Date())
+      .$onUpdateFn(() => new Date())
+      .notNull(),
   },
   (table) => [
     foreignKey({
@@ -620,7 +683,7 @@ export const fieldValue = pgTable(
 export const apiKey = pgTable(
   "api_key",
   {
-    id: text("id").primaryKey().notNull(),
+    id: text("id").primaryKey().$defaultFn(createId).notNull(),
     workspaceId: text("workspaceId")
       .notNull()
       .references(() => workspace.id, { onDelete: "cascade" }),
@@ -639,9 +702,12 @@ export const apiKey = pgTable(
     lastUsed: timestamp("lastUsed", { precision: 3, mode: "date" }),
     expiresAt: timestamp("expiresAt", { precision: 3, mode: "date" }),
     createdAt: timestamp("createdAt", { precision: 3, mode: "date" })
-      .defaultNow()
+      .$defaultFn(() => new Date())
       .notNull(),
-    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" }).notNull(),
+    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" })
+      .$defaultFn(() => new Date())
+      .$onUpdateFn(() => new Date())
+      .notNull(),
   },
   (table) => [
     index("api_key_workspaceId_idx").on(table.workspaceId),
@@ -661,7 +727,7 @@ export const apiKey = pgTable(
 export const webhookEndpoint = pgTable(
   "webhook_endpoint",
   {
-    id: text("id").primaryKey().notNull(),
+    id: text("id").primaryKey().$defaultFn(createId).notNull(),
     name: text("name").notNull(),
     url: text("url").notNull(),
     secret: text("secret").notNull(),
@@ -670,9 +736,12 @@ export const webhookEndpoint = pgTable(
       .notNull()
       .references(() => workspace.id, { onDelete: "cascade" }),
     createdAt: timestamp("createdAt", { precision: 3, mode: "date" })
-      .defaultNow()
+      .$defaultFn(() => new Date())
       .notNull(),
-    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" }).notNull(),
+    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" })
+      .$defaultFn(() => new Date())
+      .$onUpdateFn(() => new Date())
+      .notNull(),
     events: workspaceEventTypeEnum("events").array().notNull(),
     format: payloadFormatEnum("format").default("json").notNull(),
   },
@@ -688,7 +757,7 @@ export const webhookEndpoint = pgTable(
 export const workspaceEvent = pgTable(
   "workspace_event",
   {
-    id: text("id").primaryKey().notNull(),
+    id: text("id").primaryKey().$defaultFn(createId).notNull(),
     workspaceId: text("workspaceId")
       .notNull()
       .references(() => workspace.id, { onDelete: "cascade" }),
@@ -701,7 +770,7 @@ export const workspaceEvent = pgTable(
     payload: jsonb("payload").default({}).notNull(),
     processedAt: timestamp("processedAt", { precision: 3, mode: "date" }),
     createdAt: timestamp("createdAt", { precision: 3, mode: "date" })
-      .defaultNow()
+      .$defaultFn(() => new Date())
       .notNull(),
   },
   (table) => [
@@ -728,7 +797,7 @@ export const workspaceEvent = pgTable(
 export const webhookDelivery = pgTable(
   "webhook_delivery",
   {
-    id: text("id").primaryKey().notNull(),
+    id: text("id").primaryKey().$defaultFn(createId).notNull(),
     eventId: text("eventId")
       .notNull()
       .references(() => workspaceEvent.id, { onDelete: "cascade" }),
@@ -748,9 +817,12 @@ export const webhookDelivery = pgTable(
     deliveredAt: timestamp("deliveredAt", { precision: 3, mode: "date" }),
     failedAt: timestamp("failedAt", { precision: 3, mode: "date" }),
     createdAt: timestamp("createdAt", { precision: 3, mode: "date" })
-      .defaultNow()
+      .$defaultFn(() => new Date())
       .notNull(),
-    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" }).notNull(),
+    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" })
+      .$defaultFn(() => new Date())
+      .$onUpdateFn(() => new Date())
+      .notNull(),
   },
   (table) => [
     index("webhook_delivery_eventId_idx").on(table.eventId),
@@ -773,7 +845,7 @@ export const webhookDelivery = pgTable(
 export const webhookDeliveryAttempt = pgTable(
   "webhook_delivery_attempt",
   {
-    id: text("id").primaryKey().notNull(),
+    id: text("id").primaryKey().$defaultFn(createId).notNull(),
     deliveryId: text("deliveryId")
       .notNull()
       .references(() => webhookDelivery.id, { onDelete: "cascade" }),
@@ -784,7 +856,7 @@ export const webhookDeliveryAttempt = pgTable(
     errorMessage: text("errorMessage"),
     durationMs: integer("durationMs"),
     createdAt: timestamp("createdAt", { precision: 3, mode: "date" })
-      .defaultNow()
+      .$defaultFn(() => new Date())
       .notNull(),
   },
   (table) => [
@@ -799,7 +871,7 @@ export const webhookDeliveryAttempt = pgTable(
 export const usageEvent = pgTable(
   "usage_event",
   {
-    id: text("id").primaryKey().notNull(),
+    id: text("id").primaryKey().$defaultFn(createId).notNull(),
     type: usageEventTypeEnum("type").notNull(),
     workspaceId: text("workspaceId")
       .notNull()
@@ -807,7 +879,7 @@ export const usageEvent = pgTable(
     endpoint: text("endpoint"),
     size: integer("size"),
     createdAt: timestamp("createdAt", { precision: 3, mode: "date" })
-      .defaultNow()
+      .$defaultFn(() => new Date())
       .notNull(),
   },
   (table) => [
@@ -826,7 +898,7 @@ export const usageEvent = pgTable(
 export const usageAlert = pgTable(
   "usage_alert",
   {
-    id: text("id").primaryKey().notNull(),
+    id: text("id").primaryKey().$defaultFn(createId).notNull(),
     workspaceId: text("workspaceId")
       .notNull()
       .references(() => workspace.id, { onDelete: "cascade" }),
@@ -839,7 +911,7 @@ export const usageAlert = pgTable(
     periodEnd: timestamp("periodEnd", { precision: 3, mode: "date" }).notNull(),
     emailSentTo: text("emailSentTo").notNull(),
     sentAt: timestamp("sentAt", { precision: 3, mode: "date" })
-      .defaultNow()
+      .$defaultFn(() => new Date())
       .notNull(),
   },
   (table) => [
@@ -864,7 +936,7 @@ export const usageAlert = pgTable(
 export const exportJob = pgTable(
   "export_job",
   {
-    id: text("id").primaryKey().notNull(),
+    id: text("id").primaryKey().$defaultFn(createId).notNull(),
     workspaceId: text("workspaceId")
       .notNull()
       .references(() => workspace.id, { onDelete: "cascade" }),
@@ -885,9 +957,12 @@ export const exportJob = pgTable(
       onDelete: "set null",
     }),
     createdAt: timestamp("createdAt", { precision: 3, mode: "date" })
-      .defaultNow()
+      .$defaultFn(() => new Date())
       .notNull(),
-    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" }).notNull(),
+    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" })
+      .$defaultFn(() => new Date())
+      .$onUpdateFn(() => new Date())
+      .notNull(),
   },
   (table) => [
     index("export_job_workspaceId_status_idx").on(
@@ -905,7 +980,7 @@ export const exportJob = pgTable(
 export const importJob = pgTable(
   "import_job",
   {
-    id: text("id").primaryKey().notNull(),
+    id: text("id").primaryKey().$defaultFn(createId).notNull(),
     workspaceId: text("workspaceId")
       .notNull()
       .references(() => workspace.id, { onDelete: "cascade" }),
@@ -927,9 +1002,12 @@ export const importJob = pgTable(
       onDelete: "set null",
     }),
     createdAt: timestamp("createdAt", { precision: 3, mode: "date" })
-      .defaultNow()
+      .$defaultFn(() => new Date())
       .notNull(),
-    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" }).notNull(),
+    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" })
+      .$defaultFn(() => new Date())
+      .$onUpdateFn(() => new Date())
+      .notNull(),
   },
   (table) => [
     uniqueIndex("import_job_id_workspaceId_key").on(
@@ -950,7 +1028,7 @@ export const importJob = pgTable(
 export const importItem = pgTable(
   "import_item",
   {
-    id: text("id").primaryKey().notNull(),
+    id: text("id").primaryKey().$defaultFn(createId).notNull(),
     importJobId: text("importJobId").notNull(),
     workspaceId: text("workspaceId")
       .notNull()
@@ -971,9 +1049,12 @@ export const importItem = pgTable(
     postId: text("postId"),
     errors: jsonb("errors"),
     createdAt: timestamp("createdAt", { precision: 3, mode: "date" })
-      .defaultNow()
+      .$defaultFn(() => new Date())
       .notNull(),
-    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" }).notNull(),
+    updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" })
+      .$defaultFn(() => new Date())
+      .$onUpdateFn(() => new Date())
+      .notNull(),
   },
   (table) => [
     foreignKey({

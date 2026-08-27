@@ -1,5 +1,6 @@
-import { db, createRecordId } from "@marble/drizzle";
 "use server";
+
+import { db, createRecordId } from "@marble/drizzle";
 
 import { subscription, user, workspace } from "@marble/drizzle/schema";
 

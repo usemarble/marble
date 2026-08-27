@@ -14,6 +14,8 @@
     "db:studio": "pnpm --filter @marble/db db:studio",
     "db:push": "pnpm --filter @marble/db db:push",
     "build": "turbo run build",
+    "web:build": "turbo run build --filter=web",
+    "cms:build": "turbo run build --filter=cms",
     "dev": "turbo run dev",
     "lint": "pnpx ultracite@latest check",
     "format": "pnpx ultracite@latest fix",
@@ -38,16 +40,6 @@
   },
   "engines": {
     "node": ">=22.12.0"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild",
-      "puppeteer"
-    ],
-    "overrides": {
-      "@types/react": "19.2.14",
-      "@types/react-dom": "19.2.3"
-    }
   },
   "packageManager": "pnpm@11.24.0"
 }

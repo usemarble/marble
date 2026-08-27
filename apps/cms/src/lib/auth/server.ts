@@ -1,5 +1,5 @@
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
-import { db } from "@marble/drizzle";
+import { createRecordId, db } from "@marble/drizzle";
 import {
   account,
   accountRelations,
@@ -206,7 +206,8 @@ export const auth = betterAuth({
   },
   advanced: {
     database: {
-      generateId: false,
+      // Prisma applied @default(cuid()) in the client; Drizzle has no DB default.
+      generateId: () => createRecordId(),
       joins: true,
     },
   },
