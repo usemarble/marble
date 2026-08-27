@@ -1,4 +1,6 @@
-import { db } from "@marble/db";
+import { db } from "@marble/drizzle";
+import { member, workspace } from "@marble/drizzle/schema";
+import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getServerSession } from "./session";
 
@@ -23,12 +25,12 @@ export async function requireActiveWorkspaceAccess() {
       } as const;
     }
 
-    const member = await db.member.findFirst({
-      where: {
-        organizationId: workspaceId,
-        userId: sessionData.user.id,
-      },
-      select: {
+    const foundMember = await db.query.member.findFirst({
+      where: and(
+        eq(member.organizationId, workspaceId),
+        eq(member.userId, sessionData.user.id)
+      ),
+      columns: {
         id: true,
         role: true,
         userId: true,
@@ -36,7 +38,7 @@ export async function requireActiveWorkspaceAccess() {
       },
     });
 
-    if (!member) {
+    if (!foundMember) {
       return {
         ok: false,
         response: NextResponse.json(
@@ -48,7 +50,7 @@ export async function requireActiveWorkspaceAccess() {
 
     return {
       ok: true,
-      member,
+      member: foundMember,
       sessionData,
       workspaceId,
     } as const;
@@ -86,22 +88,26 @@ export async function requireWorkspaceAccess(workspaceSlug: string) {
       } as const;
     }
 
-    const member = await db.member.findFirst({
-      where: {
-        userId: sessionData.user.id,
-        organization: {
-          slug: workspaceSlug,
-        },
-      },
-      select: {
-        id: true,
-        role: true,
-        userId: true,
-        organizationId: true,
-      },
-    });
+    const rows = await db
+      .select({
+        id: member.id,
+        role: member.role,
+        userId: member.userId,
+        organizationId: member.organizationId,
+      })
+      .from(member)
+      .innerJoin(workspace, eq(member.organizationId, workspace.id))
+      .where(
+        and(
+          eq(member.userId, sessionData.user.id),
+          eq(workspace.slug, workspaceSlug)
+        )
+      )
+      .limit(1);
 
-    if (!member) {
+    const foundMember = rows[0];
+
+    if (!foundMember) {
       return {
         ok: false,
         response: NextResponse.json(
@@ -113,9 +119,9 @@ export async function requireWorkspaceAccess(workspaceSlug: string) {
 
     return {
       ok: true,
-      member,
+      member: foundMember,
       sessionData,
-      workspaceId: member.organizationId,
+      workspaceId: foundMember.organizationId,
     } as const;
   } catch (error) {
     console.error("Error requiring workspace access", error);

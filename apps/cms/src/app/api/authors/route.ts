@@ -1,5 +1,8 @@
-import { db } from "@marble/db";
+import { db } from "@marble/drizzle";
+import { author, authorSocial, subscription } from "@marble/drizzle/schema";
 import { toAuthorPayload } from "@marble/events";
+import { createId } from "@paralleldrive/cuid2";
+import { and, count, desc, eq, gt, or } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";
@@ -43,48 +46,47 @@ export async function POST(request: Request) {
   const { sessionData, workspaceId } = accessData;
 
   try {
-    // Check plan limits before creating another author.
-    const workspace = await db.organization.findUnique({
-      where: { id: workspaceId },
-      select: {
-        subscriptions: {
-          where: {
-            OR: [
-              { status: "active" },
-              { status: "trialing" },
-              {
-                status: "canceled",
-                cancelAtPeriodEnd: true,
-                currentPeriodEnd: { gt: new Date() },
-              },
-            ],
-          },
-          orderBy: { createdAt: "desc" },
-          take: 1,
-          select: {
-            id: true,
-            status: true,
-            plan: true,
-            currentPeriodStart: true,
-            currentPeriodEnd: true,
-            cancelAtPeriodEnd: true,
-            canceledAt: true,
-          },
-        },
-      },
-    });
+    const subscriptions = await db
+      .select({
+        id: subscription.id,
+        status: subscription.status,
+        plan: subscription.plan,
+        currentPeriodStart: subscription.currentPeriodStart,
+        currentPeriodEnd: subscription.currentPeriodEnd,
+        cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
+        canceledAt: subscription.canceledAt,
+      })
+      .from(subscription)
+      .where(
+        and(
+          eq(subscription.workspaceId, workspaceId),
+          or(
+            eq(subscription.status, "active"),
+            eq(subscription.status, "trialing"),
+            and(
+              eq(subscription.status, "canceled"),
+              eq(subscription.cancelAtPeriodEnd, true),
+              gt(subscription.currentPeriodEnd, new Date())
+            )
+          )
+        )
+      )
+      .orderBy(desc(subscription.createdAt))
+      .limit(1);
 
-    const activeSubscription = workspace?.subscriptions[0] || null;
+    const activeSubscription = subscriptions[0] || null;
     const currentPlan = getWorkspacePlan(activeSubscription);
 
     const planLimits = PLAN_LIMITS[currentPlan];
     if (planLimits.maxAuthors !== Number.MAX_SAFE_INTEGER) {
-      const existingAuthorsCount = await db.author.count({
-        where: {
-          workspaceId,
-          isActive: true,
-        },
-      });
+      const [authorsCount] = await db
+        .select({ value: count() })
+        .from(author)
+        .where(
+          and(eq(author.workspaceId, workspaceId), eq(author.isActive, true))
+        );
+
+      const existingAuthorsCount = authorsCount?.value ?? 0;
 
       if (existingAuthorsCount >= planLimits.maxAuthors) {
         return NextResponse.json(
@@ -110,15 +112,8 @@ export async function POST(request: Request) {
 
     const validEmail = email === "" ? null : email;
 
-    // const slug = generateSlug(name);
-
-    const existingAuthor = await db.author.findUnique({
-      where: {
-        workspaceId_slug: {
-          workspaceId,
-          slug,
-        },
-      },
+    const existingAuthor = await db.query.author.findFirst({
+      where: and(eq(author.workspaceId, workspaceId), eq(author.slug, slug)),
     });
 
     if (existingAuthor) {
@@ -128,28 +123,47 @@ export async function POST(request: Request) {
       );
     }
 
-    const author = await db.author.create({
-      data: {
-        name,
-        slug,
-        bio,
-        role,
-        email: validEmail,
-        image,
-        workspaceId,
-        ...(socials &&
-          socials.length > 0 && {
-            socials: {
-              create: socials.map((social) => ({
-                url: social.url,
-                platform: social.platform,
-              })),
-            },
-          }),
-      },
-      include: {
-        socials: true,
-      },
+    const now = new Date();
+    const authorId = createId();
+
+    const createdAuthor = await db.transaction(async (tx) => {
+      const [authorRow] = await tx
+        .insert(author)
+        .values({
+          id: authorId,
+          name,
+          slug,
+          bio,
+          role,
+          email: validEmail,
+          image,
+          workspaceId,
+          updatedAt: now,
+        })
+        .returning();
+
+      if (!authorRow) {
+        throw new Error("Failed to create author");
+      }
+
+      let socialRows: (typeof authorSocial.$inferSelect)[] = [];
+
+      if (socials && socials.length > 0) {
+        socialRows = await tx
+          .insert(authorSocial)
+          .values(
+            socials.map((social) => ({
+              id: createId(),
+              authorId,
+              url: social.url,
+              platform: social.platform,
+              updatedAt: now,
+            }))
+          )
+          .returning();
+      }
+
+      return { ...authorRow, socials: socialRows };
     });
 
     // Invalidate cache for authors and posts (authors affect posts)
@@ -160,12 +174,12 @@ export async function POST(request: Request) {
       type: "author_created",
       workspaceId,
       resourceType: "author",
-      resourceId: author.id,
+      resourceId: createdAuthor.id,
       actorId: sessionData.user.id,
-      payload: toAuthorPayload(author),
+      payload: toAuthorPayload(createdAuthor),
     }).catch(logDashboardEventError);
 
-    return NextResponse.json(author, { status: 201 });
+    return NextResponse.json(createdAuthor, { status: 201 });
   } catch (error) {
     console.error("Failed to create author:", error);
     return NextResponse.json(
