@@ -1,7 +1,23 @@
-import { db } from "@marble/db";
+import { db } from "@marble/drizzle";
+import {
+  member,
+  subscription,
+  workspace,
+} from "@marble/drizzle/schema";
+import { and, desc, eq, gt, inArray, or } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { getWorkspacePlan } from "@/lib/plans";
+
+const activeSubscriptionFilter = or(
+  eq(subscription.status, "active"),
+  eq(subscription.status, "trialing"),
+  and(
+    eq(subscription.status, "canceled"),
+    eq(subscription.cancelAtPeriodEnd, true),
+    gt(subscription.currentPeriodEnd, new Date())
+  )
+);
 
 export async function GET() {
   const sessionData = await getServerSession();
@@ -10,33 +26,44 @@ export async function GET() {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const workspaces = await db.organization.findMany({
-    where: {
-      members: {
-        some: {
-          userId: sessionData.user.id,
-        },
-      },
-    },
-    select: {
+  const memberRows = await db
+    .select({ organizationId: member.organizationId })
+    .from(member)
+    .where(eq(member.userId, sessionData.user.id));
+
+  const workspaceIds = memberRows.map((row) => row.organizationId);
+
+  if (workspaceIds.length === 0) {
+    return NextResponse.json([]);
+  }
+
+  const workspaces = await db.query.workspace.findMany({
+    where: inArray(workspace.id, workspaceIds),
+    columns: {
       id: true,
       name: true,
       slug: true,
       logo: true,
       timezone: true,
       createdAt: true,
+    },
+    with: {
       members: {
-        select: {
+        columns: {
           id: true,
           role: true,
           organizationId: true,
           createdAt: true,
           userId: true,
-          user: { select: { id: true, name: true, email: true, image: true } },
+        },
+        with: {
+          user: {
+            columns: { id: true, name: true, email: true, image: true },
+          },
         },
       },
       invitations: {
-        select: {
+        columns: {
           id: true,
           email: true,
           role: true,
@@ -47,20 +74,10 @@ export async function GET() {
         },
       },
       subscriptions: {
-        where: {
-          OR: [
-            { status: "active" },
-            { status: "trialing" },
-            {
-              status: "canceled",
-              cancelAtPeriodEnd: true,
-              currentPeriodEnd: { gt: new Date() },
-            },
-          ],
-        },
-        orderBy: { createdAt: "desc" },
-        take: 1,
-        select: {
+        where: activeSubscriptionFilter,
+        orderBy: desc(subscription.createdAt),
+        limit: 1,
+        columns: {
           id: true,
           status: true,
           plan: true,
@@ -71,19 +88,17 @@ export async function GET() {
         },
       },
     },
-    orderBy: {
-      createdAt: "desc",
-    },
+    orderBy: desc(workspace.createdAt),
   });
 
-  const workspacesWithRole = workspaces.map((workspace) => {
-    const currentUserMember = workspace.members.find(
-      (member) => member.userId === sessionData.user.id
+  const workspacesWithRole = workspaces.map((foundWorkspace) => {
+    const currentUserMember = foundWorkspace.members.find(
+      (entry) => entry.userId === sessionData.user.id
     );
-    const activeSubscription = workspace.subscriptions[0] || null;
+    const activeSubscription = foundWorkspace.subscriptions[0] || null;
     const activePlan = getWorkspacePlan(activeSubscription);
     return {
-      ...workspace,
+      ...foundWorkspace,
       currentUserRole: currentUserMember?.role || null,
       subscription: activeSubscription
         ? {

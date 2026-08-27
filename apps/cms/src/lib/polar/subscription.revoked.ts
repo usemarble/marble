@@ -1,22 +1,23 @@
 "use server";
 
-import { db } from "@marble/db";
-import { SubscriptionStatus } from "@marble/db/browser";
+import { db } from "@marble/drizzle";
+import { subscription } from "@marble/drizzle/schema";
+import { and, eq, isNull, lte, or } from "drizzle-orm";
 import type { WebhookSubscriptionRevokedPayload } from "@polar-sh/sdk/models/components/webhooksubscriptionrevokedpayload.js";
 import { isStalePolarEvent } from "./utils";
 
 export async function handleSubscriptionRevoked(
   payload: WebhookSubscriptionRevokedPayload
 ) {
-  const { data: subscription } = payload;
+  const { data: subscriptionData } = payload;
 
-  const existingSubscription = await db.subscription.findUnique({
-    where: { polarId: subscription.id },
+  const existingSubscription = await db.query.subscription.findFirst({
+    where: eq(subscription.polarId, subscriptionData.id),
   });
 
   if (!existingSubscription) {
     console.error(
-      `subscription.revoked webhook received for a subscription that does not exist: ${subscription.id}`
+      `subscription.revoked webhook received for a subscription that does not exist: ${subscriptionData.id}`
     );
     return;
   }
@@ -25,38 +26,42 @@ export async function handleSubscriptionRevoked(
     isStalePolarEvent(existingSubscription.lastPolarEventAt, payload.timestamp)
   ) {
     console.log(
-      `Ignoring stale subscription.revoked webhook for subscription ${subscription.id}`
+      `Ignoring stale subscription.revoked webhook for subscription ${subscriptionData.id}`
     );
     return;
   }
 
   try {
-    const result = await db.subscription.updateMany({
-      where: {
-        polarId: subscription.id,
-        OR: [
-          { lastPolarEventAt: null },
-          { lastPolarEventAt: { lte: payload.timestamp } },
-        ],
-      },
-      data: {
-        status: SubscriptionStatus.expired,
-        endedAt: subscription.endedAt
-          ? new Date(subscription.endedAt)
+    const updated = await db
+      .update(subscription)
+      .set({
+        status: "expired",
+        endedAt: subscriptionData.endedAt
+          ? new Date(subscriptionData.endedAt)
           : new Date(),
         lastPolarEventAt: payload.timestamp,
-      },
-    });
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(subscription.polarId, subscriptionData.id),
+          or(
+            isNull(subscription.lastPolarEventAt),
+            lte(subscription.lastPolarEventAt, payload.timestamp)
+          )
+        )
+      )
+      .returning({ id: subscription.id });
 
-    if (result.count === 0) {
+    if (updated.length === 0) {
       console.log(
-        `Ignoring stale subscription.revoked webhook for subscription ${subscription.id}`
+        `Ignoring stale subscription.revoked webhook for subscription ${subscriptionData.id}`
       );
       return;
     }
 
     console.log(
-      `Successfully marked subscription ${subscription.id} as revoked/expired for workspace ${existingSubscription.workspaceId}`
+      `Successfully marked subscription ${subscriptionData.id} as revoked/expired for workspace ${existingSubscription.workspaceId}`
     );
   } catch (error) {
     console.error("Error updating subscription to revoked in DB:", error);

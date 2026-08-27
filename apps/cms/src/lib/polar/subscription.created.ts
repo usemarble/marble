@@ -1,6 +1,9 @@
 "use server";
 
-import { db } from "@marble/db";
+import { db } from "@marble/drizzle";
+import { subscription, user, workspace } from "@marble/drizzle/schema";
+import { createId } from "@paralleldrive/cuid2";
+import { eq } from "drizzle-orm";
 import type { WebhookSubscriptionCreatedPayload } from "@polar-sh/sdk/models/components/webhooksubscriptioncreatedpayload.js";
 import {
   getPlanType,
@@ -11,9 +14,9 @@ import {
 export async function handleSubscriptionCreated(
   payload: WebhookSubscriptionCreatedPayload
 ) {
-  const { data: subscription } = payload;
-  const workspaceId = subscription.metadata?.referenceId;
-  const userId = subscription.customer.externalId;
+  const { data: subscriptionData } = payload;
+  const workspaceId = subscriptionData.metadata?.referenceId;
+  const userId = subscriptionData.customer.externalId;
 
   if (typeof workspaceId !== "string") {
     console.error(
@@ -29,96 +32,95 @@ export async function handleSubscriptionCreated(
     return;
   }
 
-  if (!subscription.currentPeriodStart) {
+  if (!subscriptionData.currentPeriodStart) {
     console.error(
       "subscription.created webhook received without a currentPeriodStart"
     );
     return;
   }
 
-  if (!subscription.currentPeriodEnd) {
+  if (!subscriptionData.currentPeriodEnd) {
     console.error(
       "subscription.created webhook received without a currentPeriodEnd"
     );
     return;
   }
 
-  // Store validated dates to satisfy TypeScript
-  const currentPeriodStart = subscription.currentPeriodStart;
-  const currentPeriodEnd = subscription.currentPeriodEnd;
+  const currentPeriodStart = subscriptionData.currentPeriodStart;
+  const currentPeriodEnd = subscriptionData.currentPeriodEnd;
 
-  const userExists = await db.user.findUnique({ where: { id: userId } });
+  const userExists = await db.query.user.findFirst({
+    where: eq(user.id, userId),
+  });
   if (!userExists) {
     console.error(`User with id ${userId} not found.`);
     return;
   }
 
-  const workspaceExists = await db.organization.findUnique({
-    where: { id: workspaceId },
+  const workspaceExists = await db.query.workspace.findFirst({
+    where: eq(workspace.id, workspaceId),
   });
   if (!workspaceExists) {
     console.error(`Workspace with id ${workspaceId} not found.`);
     return;
   }
 
-  const plan = getPlanType(subscription.product.name);
+  const plan = getPlanType(subscriptionData.product.name);
   if (!plan) {
-    console.error(`Unknown plan: ${subscription.product.name}`);
+    console.error(`Unknown plan: ${subscriptionData.product.name}`);
     return;
   }
 
-  const status = getSubscriptionStatus(subscription.status);
+  const status = getSubscriptionStatus(subscriptionData.status);
   if (!status) {
     console.error(
-      `Unknown subscription status from Polar: ${subscription.status}`
+      `Unknown subscription status from Polar: ${subscriptionData.status}`
     );
     return;
   }
 
   const recurringInterval = getRecurringInterval(
-    subscription.recurringInterval
+    subscriptionData.recurringInterval
   );
 
   try {
-    // Check if subscription already exists (upsert pattern)
-    const existingSubscription = await db.subscription.findUnique({
-      where: { polarId: subscription.id },
+    const existingSubscription = await db.query.subscription.findFirst({
+      where: eq(subscription.polarId, subscriptionData.id),
     });
 
     if (existingSubscription) {
       console.log(
-        `Subscription ${subscription.id} already exists, skipping creation`
+        `Subscription ${subscriptionData.id} already exists, skipping creation`
       );
       return;
     }
 
-    // Create new subscription (allow multiple subscriptions per workspace)
-    await db.subscription.create({
-      data: {
-        polarId: subscription.id,
-        plan,
-        status,
-        currentPeriodStart: new Date(currentPeriodStart),
-        currentPeriodEnd: new Date(currentPeriodEnd),
-        cancelAtPeriodEnd: subscription.cancelAtPeriodEnd || false,
-        userId,
-        workspaceId,
-        startedAt: subscription.startedAt
-          ? new Date(subscription.startedAt)
-          : null,
-        productId: subscription.productId || undefined,
-        amount: subscription.amount
-          ? Math.round(subscription.amount)
-          : undefined,
-        currency: subscription.currency || undefined,
-        discountId: subscription.discountId || undefined,
-        lastPolarEventAt: payload.timestamp,
-        recurringInterval,
-      },
+    await db.insert(subscription).values({
+      id: createId(),
+      polarId: subscriptionData.id,
+      plan,
+      status,
+      currentPeriodStart: new Date(currentPeriodStart),
+      currentPeriodEnd: new Date(currentPeriodEnd),
+      cancelAtPeriodEnd: subscriptionData.cancelAtPeriodEnd || false,
+      userId,
+      workspaceId,
+      startedAt: subscriptionData.startedAt
+        ? new Date(subscriptionData.startedAt)
+        : null,
+      productId: subscriptionData.productId || undefined,
+      amount: subscriptionData.amount
+        ? Math.round(subscriptionData.amount)
+        : undefined,
+      currency: subscriptionData.currency || undefined,
+      discountId: subscriptionData.discountId || undefined,
+      lastPolarEventAt: payload.timestamp,
+      recurringInterval,
+      updatedAt: new Date(),
     });
 
     console.log(
-      `Successfully created subscription ${subscription.id} for workspace ${workspaceId}`
+      `Successfully created subscription ${subscriptionData.id} for workspace ${workspaceId}`
     );
   } catch (error) {
     console.error("Error creating subscription in DB:", error);

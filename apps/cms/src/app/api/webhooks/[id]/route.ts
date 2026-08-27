@@ -1,5 +1,21 @@
-import { db } from "@marble/db";
+import { db } from "@marble/drizzle";
+import {
+  webhookDelivery,
+  webhookDeliveryAttempt,
+  webhookEndpoint,
+  workspaceEvent,
+} from "@marble/drizzle/schema";
 import { buildWebhookPayload, serializeEventType } from "@marble/events";
+import {
+  and,
+  count,
+  desc,
+  eq,
+  ilike,
+  inArray,
+  or,
+  type SQL,
+} from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import {
@@ -26,11 +42,8 @@ const VALID_RESPONSE_FILTERS = [
   "no_response",
 ] as const;
 
+type DeliveryStatus = (typeof VALID_DELIVERY_STATUSES)[number];
 type ResponseFilter = (typeof VALID_RESPONSE_FILTERS)[number];
-
-type WebhookDeliveryCountArgs = NonNullable<
-  Parameters<typeof db.webhookDelivery.count>[0]
->;
 
 interface WebhookDeliveryWithRelations {
   id: string;
@@ -101,6 +114,144 @@ function latestAttemptMatchesResponse(
   );
 }
 
+function buildDeliveryConditions(
+  webhookEndpointId: string,
+  workspaceId: string,
+  status: string | null,
+  eventType: WebhookEvent | null,
+  search: string | undefined,
+  joinEvent: boolean
+): SQL | undefined {
+  const conditions: SQL[] = [
+    eq(webhookDelivery.webhookEndpointId, webhookEndpointId),
+    eq(webhookDelivery.workspaceId, workspaceId),
+  ];
+
+  if (status && VALID_DELIVERY_STATUSES.includes(status as DeliveryStatus)) {
+    conditions.push(eq(webhookDelivery.status, status as DeliveryStatus));
+  }
+
+  if (joinEvent && eventType) {
+    conditions.push(eq(workspaceEvent.type, eventType));
+  }
+
+  if (joinEvent && search) {
+    conditions.push(
+      or(
+        ilike(webhookDelivery.id, `%${search}%`),
+        ilike(webhookDelivery.eventId, `%${search}%`),
+        ilike(workspaceEvent.id, `%${search}%`)
+      )!
+    );
+  } else if (search) {
+    conditions.push(
+      or(
+        ilike(webhookDelivery.id, `%${search}%`),
+        ilike(webhookDelivery.eventId, `%${search}%`)
+      )!
+    );
+  }
+
+  return and(...conditions);
+}
+
+async function fetchDeliveriesWithRelations(deliveryIds: string[]) {
+  if (deliveryIds.length === 0) {
+    return [];
+  }
+
+  const deliveries = await db.query.webhookDelivery.findMany({
+    where: inArray(webhookDelivery.id, deliveryIds),
+    with: {
+      event: true,
+      attempts: {
+        orderBy: desc(webhookDeliveryAttempt.attemptNumber),
+      },
+    },
+  });
+
+  const deliveryMap = new Map(deliveries.map((delivery) => [delivery.id, delivery]));
+
+  return deliveryIds.flatMap((deliveryId) => {
+    const delivery = deliveryMap.get(deliveryId);
+    return delivery ? [delivery] : [];
+  });
+}
+
+async function listDeliveries(
+  webhookEndpointId: string,
+  workspaceId: string,
+  status: string | null,
+  eventType: WebhookEvent | null,
+  search: string | undefined,
+  page: number,
+  perPage: number
+) {
+  const joinEvent = Boolean(eventType || search);
+
+  const where = buildDeliveryConditions(
+    webhookEndpointId,
+    workspaceId,
+    status,
+    eventType,
+    search,
+    joinEvent
+  );
+
+  if (joinEvent) {
+    const [countRow, idRows] = await Promise.all([
+      db
+        .select({ count: count() })
+        .from(webhookDelivery)
+        .innerJoin(
+          workspaceEvent,
+          eq(webhookDelivery.eventId, workspaceEvent.id)
+        )
+        .where(where),
+      db
+        .select({ id: webhookDelivery.id })
+        .from(webhookDelivery)
+        .innerJoin(
+          workspaceEvent,
+          eq(webhookDelivery.eventId, workspaceEvent.id)
+        )
+        .where(where)
+        .orderBy(desc(webhookDelivery.createdAt))
+        .limit(perPage)
+        .offset((page - 1) * perPage),
+    ]);
+
+    const deliveries = await fetchDeliveriesWithRelations(
+      idRows.map((row) => row.id)
+    );
+
+    return {
+      totalCount: countRow[0]?.count ?? 0,
+      deliveries,
+    };
+  }
+
+  const [countRow, idRows] = await Promise.all([
+    db.select({ count: count() }).from(webhookDelivery).where(where),
+    db
+      .select({ id: webhookDelivery.id })
+      .from(webhookDelivery)
+      .where(where)
+      .orderBy(desc(webhookDelivery.createdAt))
+      .limit(perPage)
+      .offset((page - 1) * perPage),
+  ]);
+
+  const deliveries = await fetchDeliveriesWithRelations(
+    idRows.map((row) => row.id)
+  );
+
+  return {
+    totalCount: countRow[0]?.count ?? 0,
+    deliveries,
+  };
+}
+
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -125,84 +276,81 @@ export async function GET(
   const responseFilter = getResponseFilter(searchParams.get("response"));
   const search = searchParams.get("search")?.trim();
 
-  const webhook = await db.webhookEndpoint.findFirst({
-    where: {
-      id,
-      workspaceId,
-    },
+  const webhook = await db.query.webhookEndpoint.findFirst({
+    where: and(
+      eq(webhookEndpoint.id, id),
+      eq(webhookEndpoint.workspaceId, workspaceId)
+    ),
   });
 
   if (!webhook) {
     return NextResponse.json({ error: "Webhook not found" }, { status: 404 });
   }
 
-  const eventFilter =
+  const eventType =
     event && webhook.events.includes(event as WebhookEvent)
-      ? { event: { type: event as WebhookEvent } }
-      : {};
-
-  const where: WebhookDeliveryCountArgs["where"] = {
-    webhookEndpointId: id,
-    workspaceId,
-    ...(status && VALID_DELIVERY_STATUSES.includes(status as never)
-      ? { status: status as never }
-      : {}),
-    ...eventFilter,
-    ...(search
-      ? {
-          OR: [
-            { id: { contains: search, mode: "insensitive" as const } },
-            { eventId: { contains: search, mode: "insensitive" as const } },
-            {
-              event: {
-                id: { contains: search, mode: "insensitive" as const },
-              },
-            },
-          ],
-        }
-      : {}),
-  };
-
-  const deliveryInclude = {
-    event: true,
-    attempts: {
-      orderBy: {
-        attemptNumber: "desc",
-      },
-    },
-  } as const;
+      ? (event as WebhookEvent)
+      : null;
 
   let totalCount: number;
-  let deliveries: WebhookDeliveryWithRelations[];
+  let deliveries: Awaited<ReturnType<typeof fetchDeliveriesWithRelations>>;
 
   if (responseFilter) {
-    const matchingDeliveries = (
-      (await db.webhookDelivery.findMany({
-        where,
-        include: deliveryInclude,
-        orderBy: {
-          createdAt: "desc",
-        },
-      })) as unknown as WebhookDeliveryWithRelations[]
-    ).filter((delivery) =>
-      latestAttemptMatchesResponse(delivery.attempts[0] ?? null, responseFilter)
+    const joinEvent = Boolean(eventType || search);
+    const where = buildDeliveryConditions(
+      id,
+      workspaceId,
+      status,
+      eventType,
+      search,
+      joinEvent
     );
 
-    totalCount = matchingDeliveries.length;
-    deliveries = matchingDeliveries.slice((page - 1) * perPage, page * perPage);
+    const matchingDeliveries = joinEvent
+      ? await fetchDeliveriesWithRelations(
+          (
+            await db
+              .select({ id: webhookDelivery.id })
+              .from(webhookDelivery)
+              .innerJoin(
+                workspaceEvent,
+                eq(webhookDelivery.eventId, workspaceEvent.id)
+              )
+              .where(where)
+              .orderBy(desc(webhookDelivery.createdAt))
+          ).map((row) => row.id)
+        )
+      : await fetchDeliveriesWithRelations(
+          (
+            await db
+              .select({ id: webhookDelivery.id })
+              .from(webhookDelivery)
+              .where(where)
+              .orderBy(desc(webhookDelivery.createdAt))
+          ).map((row) => row.id)
+        );
+
+    const filteredDeliveries = matchingDeliveries.filter((delivery) =>
+      latestAttemptMatchesResponse(
+        delivery.attempts[0] ?? null,
+        responseFilter
+      )
+    );
+
+    totalCount = filteredDeliveries.length;
+    deliveries = filteredDeliveries.slice((page - 1) * perPage, page * perPage);
   } else {
-    [totalCount, deliveries] = await Promise.all([
-      db.webhookDelivery.count({ where }),
-      db.webhookDelivery.findMany({
-        where,
-        include: deliveryInclude,
-        orderBy: {
-          createdAt: "desc",
-        },
-        skip: (page - 1) * perPage,
-        take: perPage,
-      }) as unknown as Promise<WebhookDeliveryWithRelations[]>,
-    ]);
+    const result = await listDeliveries(
+      id,
+      workspaceId,
+      status,
+      eventType,
+      search,
+      page,
+      perPage
+    );
+    totalCount = result.totalCount;
+    deliveries = result.deliveries;
   }
 
   const pageCount = Math.max(1, Math.ceil(totalCount / perPage));
@@ -289,11 +437,11 @@ export async function PATCH(
     );
   }
 
-  const existingWebhook = await db.webhookEndpoint.findFirst({
-    where: {
-      id,
-      workspaceId,
-    },
+  const existingWebhook = await db.query.webhookEndpoint.findFirst({
+    where: and(
+      eq(webhookEndpoint.id, id),
+      eq(webhookEndpoint.workspaceId, workspaceId)
+    ),
   });
 
   if (!existingWebhook) {
@@ -323,7 +471,10 @@ export async function PATCH(
     events?: WebhookEvent[];
     format?: PayloadFormat;
     enabled?: boolean;
-  } = {};
+    updatedAt: Date;
+  } = {
+    updatedAt: new Date(),
+  };
 
   if (body.data.name !== undefined) {
     updateData.name = body.data.name;
@@ -341,13 +492,15 @@ export async function PATCH(
     updateData.enabled = body.data.enabled;
   }
 
-  const webhook = await db.webhookEndpoint.update({
-    where: {
-      id,
-      workspaceId,
-    },
-    data: updateData,
-  });
+  const [webhook] = await db
+    .update(webhookEndpoint)
+    .set(updateData)
+    .where(and(eq(webhookEndpoint.id, id), eq(webhookEndpoint.workspaceId, workspaceId)))
+    .returning();
+
+  if (!webhook) {
+    return NextResponse.json({ error: "Webhook not found" }, { status: 404 });
+  }
 
   return NextResponse.json(webhook, { status: 200 });
 }
@@ -366,20 +519,18 @@ export async function DELETE(
 
   const { id } = await params;
 
-  const existingWebhook = await db.webhookEndpoint.findFirst({
-    where: {
-      id,
-      workspaceId,
-    },
+  const existingWebhook = await db.query.webhookEndpoint.findFirst({
+    where: and(
+      eq(webhookEndpoint.id, id),
+      eq(webhookEndpoint.workspaceId, workspaceId)
+    ),
   });
 
   if (!existingWebhook) {
     return NextResponse.json({ error: "Webhook not found" }, { status: 404 });
   }
 
-  await db.webhookEndpoint.delete({
-    where: { id },
-  });
+  await db.delete(webhookEndpoint).where(eq(webhookEndpoint.id, id));
 
   return new NextResponse(null, { status: 204 });
 }

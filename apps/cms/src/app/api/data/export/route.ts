@@ -1,4 +1,7 @@
-import { db } from "@marble/db";
+import { db } from "@marble/drizzle";
+import { exportJob } from "@marble/drizzle/schema";
+import { createId } from "@paralleldrive/cuid2";
+import { and, desc, eq, ne } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { enqueueTask } from "@/lib/queues/tasks";
@@ -8,6 +11,18 @@ const DEFAULT_EXPORT_SCOPE = {
   resources: ["posts", "categories", "tags", "authors", "media", "fields"],
   includeMediaFiles: false,
   postStatuses: ["draft", "published"],
+} as const;
+
+const exportJobSelect = {
+  id: exportJob.id,
+  status: exportJob.status,
+  format: exportJob.format,
+  fileSize: exportJob.fileSize,
+  expiresAt: exportJob.expiresAt,
+  createdAt: exportJob.createdAt,
+  completedAt: exportJob.completedAt,
+  failedAt: exportJob.failedAt,
+  errorMessage: exportJob.errorMessage,
 } as const;
 
 function serializeExportJob(job: {
@@ -41,25 +56,17 @@ export async function GET() {
     return accessData.response;
   }
 
-  const jobs = await db.exportJob.findMany({
-    where: {
-      workspaceId: accessData.workspaceId,
-      status: { not: "expired" },
-    },
-    orderBy: { createdAt: "desc" },
-    take: 10,
-    select: {
-      id: true,
-      status: true,
-      format: true,
-      fileSize: true,
-      expiresAt: true,
-      createdAt: true,
-      completedAt: true,
-      failedAt: true,
-      errorMessage: true,
-    },
-  });
+  const jobs = await db
+    .select(exportJobSelect)
+    .from(exportJob)
+    .where(
+      and(
+        eq(exportJob.workspaceId, accessData.workspaceId),
+        ne(exportJob.status, "expired")
+      )
+    )
+    .orderBy(desc(exportJob.createdAt))
+    .limit(10);
 
   return NextResponse.json({ jobs: jobs.map(serializeExportJob) });
 }
@@ -72,39 +79,40 @@ export async function POST() {
   }
 
   const { sessionData, workspaceId } = accessData;
+  const now = new Date();
 
-  const job = await db.exportJob.create({
-    data: {
+  const [job] = await db
+    .insert(exportJob)
+    .values({
+      id: createId(),
       workspaceId,
       createdById: sessionData.user.id,
       format: "json",
       scope: DEFAULT_EXPORT_SCOPE,
-    },
-    select: {
-      id: true,
-      status: true,
-      format: true,
-      fileSize: true,
-      expiresAt: true,
-      createdAt: true,
-      completedAt: true,
-      failedAt: true,
-      errorMessage: true,
-    },
-  });
+      updatedAt: now,
+    })
+    .returning(exportJobSelect);
+
+  if (!job) {
+    return NextResponse.json(
+      { error: "Failed to create export job" },
+      { status: 500 }
+    );
+  }
 
   try {
     await enqueueTask({ type: "export.process", jobId: job.id });
   } catch (error) {
-    await db.exportJob.update({
-      where: { id: job.id },
-      data: {
+    await db
+      .update(exportJob)
+      .set({
         status: "failed",
         failedAt: new Date(),
         errorMessage:
           error instanceof Error ? error.message : "Failed to enqueue export",
-      },
-    });
+        updatedAt: new Date(),
+      })
+      .where(eq(exportJob.id, job.id));
 
     return NextResponse.json(
       { error: "Failed to start export" },

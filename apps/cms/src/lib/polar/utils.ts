@@ -1,8 +1,20 @@
-import {
-  PlanType,
-  type SubscriptionRecurringInterval,
-  SubscriptionStatus,
-} from "@marble/db/browser";
+export type PlanType = "hobby" | "pro";
+
+export type SubscriptionRecurringInterval =
+  | "day"
+  | "week"
+  | "month"
+  | "year";
+
+export type SubscriptionStatus =
+  | "active"
+  | "expired"
+  | "trialing"
+  | "past_due"
+  | "incomplete"
+  | "incomplete_expired"
+  | "unpaid"
+  | "canceled";
 
 export function isStalePolarEvent(
   lastPolarEventAt: Date | null | undefined,
@@ -14,10 +26,10 @@ export function isStalePolarEvent(
 export function getPlanType(productName: string): PlanType | null {
   const plan = productName.toLowerCase();
   if (/^pro($|[ _-])/.test(plan)) {
-    return PlanType.pro;
+    return "pro";
   }
   if (/^hobby($|[ _-])/.test(plan)) {
-    return PlanType.hobby;
+    return "hobby";
   }
   return null;
 }
@@ -27,17 +39,17 @@ export function getSubscriptionStatus(
 ): SubscriptionStatus | null {
   switch (polarStatus) {
     case "active":
-      return SubscriptionStatus.active;
+      return "active";
     case "trialing":
-      return SubscriptionStatus.trialing;
+      return "trialing";
     case "canceled":
-      return SubscriptionStatus.canceled;
+      return "canceled";
     case "past_due":
     case "incomplete":
     case "unpaid":
-      return SubscriptionStatus.past_due;
+      return "past_due";
     case "incomplete_expired":
-      return SubscriptionStatus.expired;
+      return "expired";
     default:
       return null;
   }

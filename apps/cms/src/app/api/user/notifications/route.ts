@@ -1,4 +1,11 @@
-import { db } from "@marble/db";
+import { db } from "@marble/drizzle";
+import {
+  member,
+  userNotificationPreferences,
+  workspaceNotificationPreferences,
+} from "@marble/drizzle/schema";
+import { createId } from "@paralleldrive/cuid2";
+import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { DEFAULT_NOTIFICATION_PREFERENCES } from "@/lib/notifications";
@@ -7,9 +14,9 @@ async function getNotificationPreferences(
   userId: string,
   organizationId?: string | null
 ) {
-  const preferences = await db.userNotificationPreferences.findUnique({
-    where: { userId },
-    select: {
+  const preferences = await db.query.userNotificationPreferences.findFirst({
+    where: eq(userNotificationPreferences.userId, userId),
+    columns: {
       marketing: true,
       product: true,
     },
@@ -21,18 +28,21 @@ async function getNotificationPreferences(
   } | null = null;
 
   if (organizationId) {
-    const member = await db.member.findFirst({
-      where: { userId, organizationId },
-      select: {
+    const foundMember = await db.query.member.findFirst({
+      where: and(
+        eq(member.userId, userId),
+        eq(member.organizationId, organizationId)
+      ),
+      with: {
         notificationPreferences: {
-          select: {
+          columns: {
             usageAlerts: true,
             subscriptions: true,
           },
         },
       },
     });
-    workspacePreferences = member?.notificationPreferences ?? null;
+    workspacePreferences = foundMember?.notificationPreferences ?? null;
   }
 
   return {
@@ -63,7 +73,7 @@ export async function PATCH(request: Request) {
     return accessData.response;
   }
 
-  const { member, sessionData, workspaceId } = accessData;
+  const { member: foundMember, sessionData, workspaceId } = accessData;
 
   try {
     const body = await request.json();
@@ -88,26 +98,41 @@ export async function PATCH(request: Request) {
         return NextResponse.json({ error: "Invalid key" }, { status: 400 });
       }
 
-      const data: Record<string, unknown> = { [key]: value };
+      const now = new Date();
+      const data: Record<string, unknown> = { [key]: value, updatedAt: now };
 
       if (key === "marketing") {
         if (value) {
-          data.marketingConsentedAt = new Date();
+          data.marketingConsentedAt = now;
           data.marketingConsentSource = "settings";
           data.marketingUnsubscribedAt = null;
         } else {
-          data.marketingUnsubscribedAt = new Date();
+          data.marketingUnsubscribedAt = now;
         }
       }
 
-      await db.userNotificationPreferences.upsert({
-        where: { userId: sessionData.user.id },
-        create: {
+      await db
+        .insert(userNotificationPreferences)
+        .values({
+          id: createId(),
           userId: sessionData.user.id,
-          ...data,
-        },
-        update: data,
-      });
+          marketing: key === "marketing" ? value : false,
+          product: key === "product" ? value : true,
+          ...(key === "marketing" && value
+            ? {
+                marketingConsentedAt: now,
+                marketingConsentSource: "settings",
+              }
+            : {}),
+          ...(key === "marketing" && !value
+            ? { marketingUnsubscribedAt: now }
+            : {}),
+          updatedAt: now,
+        })
+        .onConflictDoUpdate({
+          target: userNotificationPreferences.userId,
+          set: data,
+        });
 
       return NextResponse.json(
         await getNotificationPreferences(sessionData.user.id, workspaceId)
@@ -122,14 +147,24 @@ export async function PATCH(request: Request) {
         return NextResponse.json({ error: "Invalid key" }, { status: 400 });
       }
 
-      await db.workspaceNotificationPreferences.upsert({
-        where: { memberId: member.id },
-        create: {
-          memberId: member.id,
-          [key]: value,
-        },
-        update: { [key]: value },
-      });
+      const now = new Date();
+
+      await db
+        .insert(workspaceNotificationPreferences)
+        .values({
+          id: createId(),
+          memberId: foundMember.id,
+          usageAlerts: key === "usageAlerts" ? value : true,
+          subscriptions: key === "subscriptions" ? value : true,
+          updatedAt: now,
+        })
+        .onConflictDoUpdate({
+          target: workspaceNotificationPreferences.memberId,
+          set: {
+            [key]: value,
+            updatedAt: now,
+          },
+        });
 
       return NextResponse.json(
         await getNotificationPreferences(sessionData.user.id, workspaceId)

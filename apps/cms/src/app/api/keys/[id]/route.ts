@@ -1,8 +1,28 @@
-import { db } from "@marble/db";
+import { db } from "@marble/drizzle";
+import { apiKey } from "@marble/drizzle/schema";
+import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { updateApiKeySchema } from "@/lib/validations/keys";
 import { type ApiScope, getPublicKeyForbiddenScopes } from "@/utils/keys";
+
+const apiKeySelect = {
+  id: apiKey.id,
+  name: apiKey.name,
+  prefix: apiKey.prefix,
+  preview: apiKey.preview,
+  type: apiKey.type,
+  scopes: apiKey.scopes,
+  requestCount: apiKey.requestCount,
+  enabled: apiKey.enabled,
+  lastUsed: apiKey.lastUsed,
+  expiresAt: apiKey.expiresAt,
+  createdAt: apiKey.createdAt,
+  updatedAt: apiKey.updatedAt,
+  rateLimitTimeWindow: apiKey.rateLimitTimeWindow,
+  rateLimitMax: apiKey.rateLimitMax,
+  lastRequest: apiKey.lastRequest,
+} as const;
 
 export async function GET(
   _request: Request,
@@ -17,9 +37,9 @@ export async function GET(
 
   const { workspaceId } = accessData;
 
-  const apiKey = await db.apiKey.findFirst({
-    where: { id, workspaceId },
-    select: {
+  const foundApiKey = await db.query.apiKey.findFirst({
+    where: and(eq(apiKey.id, id), eq(apiKey.workspaceId, workspaceId)),
+    columns: {
       id: true,
       name: true,
       prefix: true,
@@ -35,15 +55,14 @@ export async function GET(
       rateLimitTimeWindow: true,
       rateLimitMax: true,
       lastRequest: true,
-      // Never return 'key' field - it's hashed
     },
   });
 
-  if (!apiKey) {
+  if (!foundApiKey) {
     return NextResponse.json({ error: "API key not found" }, { status: 404 });
   }
 
-  return NextResponse.json(apiKey, { status: 200 });
+  return NextResponse.json(foundApiKey, { status: 200 });
 }
 
 export async function PATCH(
@@ -69,9 +88,8 @@ export async function PATCH(
     );
   }
 
-  // Verify the key exists and belongs to the workspace
-  const existingKey = await db.apiKey.findFirst({
-    where: { id, workspaceId },
+  const existingKey = await db.query.apiKey.findFirst({
+    where: and(eq(apiKey.id, id), eq(apiKey.workspaceId, workspaceId)),
   });
 
   if (!existingKey) {
@@ -83,7 +101,10 @@ export async function PATCH(
     scopes?: ApiScope[];
     expiresAt?: Date | null;
     enabled?: boolean;
-  } = {};
+    updatedAt: Date;
+  } = {
+    updatedAt: new Date(),
+  };
 
   if (body.data.name !== undefined) {
     updateData.name = body.data.name;
@@ -110,31 +131,15 @@ export async function PATCH(
     updateData.enabled = body.data.enabled;
   }
 
-  const updatedKey = await db.apiKey.update({
-    where: {
-      id,
-      workspaceId,
-    },
-    data: updateData,
-    select: {
-      id: true,
-      name: true,
-      prefix: true,
-      preview: true,
-      type: true,
-      scopes: true,
-      requestCount: true,
-      enabled: true,
-      lastUsed: true,
-      expiresAt: true,
-      createdAt: true,
-      updatedAt: true,
-      rateLimitTimeWindow: true,
-      rateLimitMax: true,
-      lastRequest: true,
-      // Never return 'key' field - it's hashed
-    },
-  });
+  const [updatedKey] = await db
+    .update(apiKey)
+    .set(updateData)
+    .where(and(eq(apiKey.id, id), eq(apiKey.workspaceId, workspaceId)))
+    .returning(apiKeySelect);
+
+  if (!updatedKey) {
+    return NextResponse.json({ error: "API key not found" }, { status: 404 });
+  }
 
   return NextResponse.json(updatedKey, { status: 200 });
 }
@@ -152,21 +157,18 @@ export async function DELETE(
 
   const { workspaceId } = accessData;
 
-  const apiKey = await db.apiKey.findFirst({
-    where: { id, workspaceId },
+  const foundApiKey = await db.query.apiKey.findFirst({
+    where: and(eq(apiKey.id, id), eq(apiKey.workspaceId, workspaceId)),
   });
 
-  if (!apiKey) {
+  if (!foundApiKey) {
     return NextResponse.json({ error: "API key not found" }, { status: 404 });
   }
 
   try {
-    await db.apiKey.delete({
-      where: {
-        id,
-        workspaceId,
-      },
-    });
+    await db
+      .delete(apiKey)
+      .where(and(eq(apiKey.id, id), eq(apiKey.workspaceId, workspaceId)));
 
     return new NextResponse(null, { status: 204 });
   } catch (_e) {

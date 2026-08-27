@@ -1,5 +1,8 @@
 import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
-import { db } from "@marble/db";
+import { db } from "@marble/drizzle";
+import { importJob } from "@marble/drizzle/schema";
+import { createId } from "@paralleldrive/cuid2";
+import { desc, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { enqueueTask } from "@/lib/queues/tasks";
@@ -12,6 +15,23 @@ import {
   serializeImportJob,
 } from "@/utils/import";
 
+const importJobSelect = {
+  id: importJob.id,
+  source: importJob.source,
+  status: importJob.status,
+  format: importJob.format,
+  sourceUrl: importJob.sourceUrl,
+  totalItems: importJob.totalItems,
+  readyItems: importJob.readyItems,
+  errorItems: importJob.errorItems,
+  importedItems: importJob.importedItems,
+  startedAt: importJob.startedAt,
+  completedAt: importJob.completedAt,
+  failedAt: importJob.failedAt,
+  errorMessage: importJob.errorMessage,
+  createdAt: importJob.createdAt,
+} as const;
+
 export async function GET() {
   const accessData = await requireActiveWorkspaceAccess();
 
@@ -19,29 +39,12 @@ export async function GET() {
     return accessData.response;
   }
 
-  const jobs = await db.importJob.findMany({
-    where: {
-      workspaceId: accessData.workspaceId,
-    },
-    orderBy: { createdAt: "desc" },
-    take: 10,
-    select: {
-      id: true,
-      source: true,
-      status: true,
-      format: true,
-      sourceUrl: true,
-      totalItems: true,
-      readyItems: true,
-      errorItems: true,
-      importedItems: true,
-      startedAt: true,
-      completedAt: true,
-      failedAt: true,
-      errorMessage: true,
-      createdAt: true,
-    },
-  });
+  const jobs = await db
+    .select(importJobSelect)
+    .from(importJob)
+    .where(eq(importJob.workspaceId, accessData.workspaceId))
+    .orderBy(desc(importJob.createdAt))
+    .limit(10);
 
   return NextResponse.json({ jobs: jobs.map(serializeImportJob) });
 }
@@ -111,29 +114,22 @@ export async function POST(request: Request) {
   let job: Parameters<typeof serializeImportJob>[0];
 
   try {
-    job = await db.importJob.create({
-      data: {
+    const [createdJob] = await db
+      .insert(importJob)
+      .values({
+        id: createId(),
         workspaceId,
         createdById: sessionData.user.id,
+        updatedAt: new Date(),
         ...jobData,
-      },
-      select: {
-        id: true,
-        source: true,
-        status: true,
-        format: true,
-        sourceUrl: true,
-        totalItems: true,
-        readyItems: true,
-        errorItems: true,
-        importedItems: true,
-        startedAt: true,
-        completedAt: true,
-        failedAt: true,
-        errorMessage: true,
-        createdAt: true,
-      },
-    });
+      })
+      .returning(importJobSelect);
+
+    if (!createdJob) {
+      throw new Error("Failed to create import job");
+    }
+
+    job = createdJob;
   } catch (error) {
     try {
       await r2.send(
@@ -159,15 +155,16 @@ export async function POST(request: Request) {
   try {
     await enqueueTask({ type: "import.process", jobId: job.id });
   } catch (error) {
-    await db.importJob.update({
-      where: { id: job.id },
-      data: {
+    await db
+      .update(importJob)
+      .set({
         status: "failed",
         failedAt: new Date(),
         errorMessage:
           error instanceof Error ? error.message : "Failed to enqueue import",
-      },
-    });
+        updatedAt: new Date(),
+      })
+      .where(eq(importJob.id, job.id));
 
     return NextResponse.json(
       { error: "Failed to start import" },

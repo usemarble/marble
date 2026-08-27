@@ -2,7 +2,9 @@ import {
   GetObjectCommand,
   type GetObjectCommandOutput,
 } from "@aws-sdk/client-s3";
-import { db } from "@marble/db";
+import { db } from "@marble/drizzle";
+import { exportJob } from "@marble/drizzle/schema";
+import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { R2_BUCKET_NAME, r2 } from "@/lib/r2";
@@ -42,11 +44,11 @@ export async function GET(request: Request, context: RouteContext) {
   const { id } = await context.params;
   const token = new URL(request.url).searchParams.get("token");
 
-  const job = await db.exportJob.findUnique({
-    where: { id },
-    include: {
+  const job = await db.query.exportJob.findFirst({
+    where: eq(exportJob.id, id),
+    with: {
       workspace: {
-        select: {
+        columns: {
           id: true,
           slug: true,
         },

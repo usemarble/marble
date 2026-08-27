@@ -1,4 +1,6 @@
-import { db } from "@marble/db";
+import { db } from "@marble/drizzle";
+import { post } from "@marble/drizzle/schema";
+import { and, asc, eq, gte, lte } from "drizzle-orm";
 import { eachDayOfInterval, endOfYear, format, startOfYear } from "date-fns";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
@@ -16,28 +18,24 @@ export async function GET() {
   const startOfCurrentYear = startOfYear(now);
   const endOfCurrentYear = endOfYear(now);
 
-  const posts = await db.post.findMany({
-    where: {
-      workspaceId,
-      status: "published",
-      publishedAt: {
-        gte: startOfCurrentYear,
-        lte: endOfCurrentYear,
-      },
-    },
-    select: {
-      publishedAt: true,
-    },
-    orderBy: {
-      publishedAt: "asc",
-    },
-  });
+  const posts = await db
+    .select({ publishedAt: post.publishedAt })
+    .from(post)
+    .where(
+      and(
+        eq(post.workspaceId, workspaceId),
+        eq(post.status, "published"),
+        gte(post.publishedAt, startOfCurrentYear),
+        lte(post.publishedAt, endOfCurrentYear)
+      )
+    )
+    .orderBy(asc(post.publishedAt));
 
   const dateCountMap = new Map<string, number>();
 
-  for (const post of posts) {
-    if (post.publishedAt) {
-      const dateKey = format(post.publishedAt, "yyyy-MM-dd");
+  for (const entry of posts) {
+    if (entry.publishedAt) {
+      const dateKey = format(entry.publishedAt, "yyyy-MM-dd");
       dateCountMap.set(dateKey, (dateCountMap.get(dateKey) || 0) + 1);
     }
   }

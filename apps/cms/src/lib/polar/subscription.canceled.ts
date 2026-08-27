@@ -1,22 +1,23 @@
 "use server";
 
-import { db } from "@marble/db";
-import { SubscriptionStatus } from "@marble/db/browser";
+import { db } from "@marble/drizzle";
+import { subscription } from "@marble/drizzle/schema";
+import { and, eq, isNull, lte, or } from "drizzle-orm";
 import type { WebhookSubscriptionCanceledPayload } from "@polar-sh/sdk/models/components/webhooksubscriptioncanceledpayload.js";
 import { isStalePolarEvent } from "./utils";
 
 export async function handleSubscriptionCanceled(
   payload: WebhookSubscriptionCanceledPayload
 ) {
-  const { data: subscription } = payload;
+  const { data: subscriptionData } = payload;
 
-  const existingSubscription = await db.subscription.findUnique({
-    where: { polarId: subscription.id },
+  const existingSubscription = await db.query.subscription.findFirst({
+    where: eq(subscription.polarId, subscriptionData.id),
   });
 
   if (!existingSubscription) {
     console.error(
-      `subscription.canceled webhook received for a subscription that does not exist: ${subscription.id}`
+      `subscription.canceled webhook received for a subscription that does not exist: ${subscriptionData.id}`
     );
     return;
   }
@@ -25,40 +26,44 @@ export async function handleSubscriptionCanceled(
     isStalePolarEvent(existingSubscription.lastPolarEventAt, payload.timestamp)
   ) {
     console.log(
-      `Ignoring stale subscription.canceled webhook for subscription ${subscription.id}`
+      `Ignoring stale subscription.canceled webhook for subscription ${subscriptionData.id}`
     );
     return;
   }
 
   try {
-    const result = await db.subscription.updateMany({
-      where: {
-        polarId: subscription.id,
-        OR: [
-          { lastPolarEventAt: null },
-          { lastPolarEventAt: { lte: payload.timestamp } },
-        ],
-      },
-      data: {
-        status: SubscriptionStatus.canceled,
-        cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
-        canceledAt: subscription.canceledAt
-          ? new Date(subscription.canceledAt)
+    const updated = await db
+      .update(subscription)
+      .set({
+        status: "canceled",
+        cancelAtPeriodEnd: subscriptionData.cancelAtPeriodEnd,
+        canceledAt: subscriptionData.canceledAt
+          ? new Date(subscriptionData.canceledAt)
           : new Date(),
-        endsAt: subscription.endsAt ? new Date(subscription.endsAt) : null,
+        endsAt: subscriptionData.endsAt ? new Date(subscriptionData.endsAt) : null,
         lastPolarEventAt: payload.timestamp,
-      },
-    });
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(subscription.polarId, subscriptionData.id),
+          or(
+            isNull(subscription.lastPolarEventAt),
+            lte(subscription.lastPolarEventAt, payload.timestamp)
+          )
+        )
+      )
+      .returning({ id: subscription.id });
 
-    if (result.count === 0) {
+    if (updated.length === 0) {
       console.log(
-        `Ignoring stale subscription.canceled webhook for subscription ${subscription.id}`
+        `Ignoring stale subscription.canceled webhook for subscription ${subscriptionData.id}`
       );
       return;
     }
 
     console.log(
-      `Successfully marked subscription ${subscription.id} as canceled for workspace ${existingSubscription.workspaceId}`
+      `Successfully marked subscription ${subscriptionData.id} as canceled for workspace ${existingSubscription.workspaceId}`
     );
   } catch (error) {
     console.error("Error updating subscription to canceled in DB:", error);
