@@ -1,7 +1,6 @@
 {
   "extends": "@marble/tsconfig/base.json",
   "compilerOptions": {
-    "baseUrl": ".",
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "target": "ES2023"
