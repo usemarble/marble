@@ -1,8 +1,8 @@
 import { db } from "@marble/drizzle";
 import { field, fieldOption, fieldValue, post } from "@marble/drizzle/schema";
 import { sanitizeRichTextHtml } from "@marble/utils/sanitize";
-import { createId } from "@paralleldrive/cuid2";
-import { and, asc, eq } from "drizzle-orm";
+import { createRecordId } from "@marble/drizzle/create-id";
+import { and, asc, eq } from "@marble/drizzle/operators";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import {
@@ -143,7 +143,7 @@ export async function PUT(
           await tx
             .insert(fieldValue)
             .values({
-              id: createId(),
+              id: createRecordId(),
               postId,
               fieldId,
               workspaceId,

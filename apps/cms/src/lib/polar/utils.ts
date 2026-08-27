@@ -1,20 +1,10 @@
-export type PlanType = "hobby" | "pro";
+import type {
+  PlanType,
+  SubscriptionRecurringInterval,
+  SubscriptionStatus,
+} from "@marble/drizzle/types";
 
-export type SubscriptionRecurringInterval =
-  | "day"
-  | "week"
-  | "month"
-  | "year";
-
-export type SubscriptionStatus =
-  | "active"
-  | "expired"
-  | "trialing"
-  | "past_due"
-  | "incomplete"
-  | "incomplete_expired"
-  | "unpaid"
-  | "canceled";
+export type { PlanType, SubscriptionRecurringInterval, SubscriptionStatus };
 
 export function isStalePolarEvent(
   lastPolarEventAt: Date | null | undefined,

@@ -10,7 +10,7 @@ import {
   eq,
   ilike,
   type SQL,
-} from "drizzle-orm";
+} from "@marble/drizzle/operators";
 import type { Post } from "@/types/dashboard";
 
 export interface PostListFilters {

@@ -2,8 +2,8 @@ import "server-only";
 
 import { db } from "@marble/drizzle";
 import { author } from "@marble/drizzle/schema";
-import { and, asc, eq } from "drizzle-orm";
-import type { SocialPlatform } from "@/lib/constants";
+import { and, asc, eq } from "@marble/drizzle/operators";
+import { parseSocialPlatform } from "@/lib/constants";
 import type { Author } from "@/types/author";
 
 export async function getDashboardAuthors(
@@ -40,7 +40,7 @@ export async function getDashboardAuthors(
     ...entry,
     socials: entry.socials.map((social) => ({
       ...social,
-      platform: social.platform as SocialPlatform,
+      platform: parseSocialPlatform(social.platform),
     })),
   }));
 }

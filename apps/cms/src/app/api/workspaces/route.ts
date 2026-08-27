@@ -1,23 +1,10 @@
 import { db } from "@marble/drizzle";
-import {
-  member,
-  subscription,
-  workspace,
-} from "@marble/drizzle/schema";
-import { and, desc, eq, gt, inArray, or } from "drizzle-orm";
+import { member, subscription, workspace } from "@marble/drizzle/schema";
+import { activeSubscriptionWhere } from "@marble/drizzle/subscription-filters";
+import { desc, eq, inArray } from "@marble/drizzle/operators";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
-import { getWorkspacePlan } from "@/lib/plans";
-
-const activeSubscriptionFilter = or(
-  eq(subscription.status, "active"),
-  eq(subscription.status, "trialing"),
-  and(
-    eq(subscription.status, "canceled"),
-    eq(subscription.cancelAtPeriodEnd, true),
-    gt(subscription.currentPeriodEnd, new Date())
-  )
-);
+import { mapWorkspaceListItem } from "@/lib/queries/workspace-view";
 
 export async function GET() {
   const sessionData = await getServerSession();
@@ -74,7 +61,7 @@ export async function GET() {
         },
       },
       subscriptions: {
-        where: activeSubscriptionFilter,
+        where: activeSubscriptionWhere(),
         orderBy: desc(subscription.createdAt),
         limit: 1,
         columns: {
@@ -91,22 +78,9 @@ export async function GET() {
     orderBy: desc(workspace.createdAt),
   });
 
-  const workspacesWithRole = workspaces.map((foundWorkspace) => {
-    const currentUserMember = foundWorkspace.members.find(
-      (entry) => entry.userId === sessionData.user.id
-    );
-    const activeSubscription = foundWorkspace.subscriptions[0] || null;
-    const activePlan = getWorkspacePlan(activeSubscription);
-    return {
-      ...foundWorkspace,
-      currentUserRole: currentUserMember?.role || null,
-      subscription: activeSubscription
-        ? {
-            ...activeSubscription,
-            activePlan,
-          }
-        : null,
-    };
+  const workspacesWithRole = workspaces.flatMap((foundWorkspace) => {
+    const mapped = mapWorkspaceListItem(foundWorkspace, sessionData.user.id);
+    return mapped ? [mapped] : [];
   });
 
   return NextResponse.json(workspacesWithRole);

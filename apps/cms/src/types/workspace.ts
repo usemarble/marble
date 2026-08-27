@@ -10,7 +10,7 @@ export interface Workspace {
   currentUserRole: string | null;
   members: Array<{
     id: string;
-    role: string;
+    role: string | null;
     organizationId: string;
     createdAt: Date | string;
     userId: string;

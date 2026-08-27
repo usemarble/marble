@@ -1,6 +1,6 @@
 import { db } from "@marble/drizzle";
 import { member, user } from "@marble/drizzle/schema";
-import { and, eq } from "drizzle-orm";
+import { and, eq } from "@marble/drizzle/operators";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 

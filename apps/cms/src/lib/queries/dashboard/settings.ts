@@ -2,11 +2,11 @@ import "server-only";
 
 import { db } from "@marble/drizzle";
 import { apiKey, field, fieldOption, fieldValue, webhookEndpoint } from "@marble/drizzle/schema";
-import { asc, count, desc, eq } from "drizzle-orm";
+import { asc, count, desc, eq } from "@marble/drizzle/operators";
+import { mapDashboardApiKey } from "@/lib/db/map-api-key";
 import type { APIKey } from "@/types/dashboard";
 import type { CustomField } from "@/types/fields";
 import type { WebhookListItem } from "@/types/webhook";
-import type { ApiScope } from "@/utils/keys";
 
 export async function getDashboardApiKeys(
   workspaceId: string
@@ -28,11 +28,7 @@ export async function getDashboardApiKeys(
     .where(eq(apiKey.workspaceId, workspaceId))
     .orderBy(desc(apiKey.createdAt));
 
-  return keys.map((key) => ({
-    ...key,
-    type: key.type as APIKey["type"],
-    scopes: key.scopes as ApiScope[],
-  }));
+  return keys.map(mapDashboardApiKey);
 }
 
 export async function getDashboardWebhooks(

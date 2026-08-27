@@ -1,12 +1,13 @@
 import { db } from "@marble/drizzle";
-import { author, authorSocial, subscription } from "@marble/drizzle/schema";
+import { author, authorSocial } from "@marble/drizzle/schema";
 import { toAuthorPayload } from "@marble/events";
-import { createId } from "@paralleldrive/cuid2";
-import { and, count, desc, eq, gt, or } from "drizzle-orm";
+import { createRecordId } from "@marble/drizzle/create-id";
+import { and, count, eq } from "@marble/drizzle/operators";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";
 import { getWorkspacePlan, PLAN_LIMITS } from "@/lib/plans";
+import { findActiveWorkspaceSubscription } from "@/lib/subscription/active-subscription";
 import { getDashboardAuthors } from "@/lib/queries/dashboard/authors";
 import {
   emitDashboardEvent,
@@ -46,35 +47,7 @@ export async function POST(request: Request) {
   const { sessionData, workspaceId } = accessData;
 
   try {
-    const subscriptions = await db
-      .select({
-        id: subscription.id,
-        status: subscription.status,
-        plan: subscription.plan,
-        currentPeriodStart: subscription.currentPeriodStart,
-        currentPeriodEnd: subscription.currentPeriodEnd,
-        cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
-        canceledAt: subscription.canceledAt,
-      })
-      .from(subscription)
-      .where(
-        and(
-          eq(subscription.workspaceId, workspaceId),
-          or(
-            eq(subscription.status, "active"),
-            eq(subscription.status, "trialing"),
-            and(
-              eq(subscription.status, "canceled"),
-              eq(subscription.cancelAtPeriodEnd, true),
-              gt(subscription.currentPeriodEnd, new Date())
-            )
-          )
-        )
-      )
-      .orderBy(desc(subscription.createdAt))
-      .limit(1);
-
-    const activeSubscription = subscriptions[0] || null;
+    const activeSubscription = await findActiveWorkspaceSubscription(workspaceId);
     const currentPlan = getWorkspacePlan(activeSubscription);
 
     const planLimits = PLAN_LIMITS[currentPlan];
@@ -124,7 +97,7 @@ export async function POST(request: Request) {
     }
 
     const now = new Date();
-    const authorId = createId();
+    const authorId = createRecordId();
 
     const createdAuthor = await db.transaction(async (tx) => {
       const [authorRow] = await tx
@@ -153,7 +126,7 @@ export async function POST(request: Request) {
           .insert(authorSocial)
           .values(
             socials.map((social) => ({
-              id: createId(),
+              id: createRecordId(),
               authorId,
               url: social.url,
               platform: social.platform,

@@ -1,62 +1,18 @@
 import { db } from "@marble/drizzle";
 import { field, fieldOption, fieldValue } from "@marble/drizzle/schema";
-import { createId } from "@paralleldrive/cuid2";
-import { and, asc, count, eq, ne } from "drizzle-orm";
+import { createRecordId } from "@marble/drizzle/create-id";
+import {
+  isFieldWorkspaceKeyConflict,
+  isPgSerializationFailure,
+} from "@marble/drizzle/pg-errors";
+import { and, asc, count, eq, ne } from "@marble/drizzle/operators";
 import { NextResponse } from "next/server";
+import {
+  areFieldOptionsEqual,
+  buildFieldOptionWrites,
+} from "@/lib/fields/helpers";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { customFieldUpdateSchema } from "@/lib/validations/fields";
-
-function buildFieldOptionWrites(
-  options: Array<{ value: string; label: string }>
-) {
-  return options.map((option, index) => ({
-    value: option.value,
-    label: option.label,
-    position: index,
-  }));
-}
-
-function areFieldOptionsEqual(
-  nextOptions: Array<{ value: string; label: string }>,
-  currentOptions: Array<{ value: string; label: string }>
-) {
-  if (nextOptions.length !== currentOptions.length) {
-    return false;
-  }
-
-  return nextOptions.every((option, index) => {
-    const currentOption = currentOptions[index];
-    return (
-      currentOption !== undefined &&
-      option.value === currentOption.value &&
-      option.label === currentOption.label
-    );
-  });
-}
-
-function isUniqueConstraintError(error: unknown) {
-  if (!(error instanceof Error)) {
-    return false;
-  }
-
-  const candidate = error as Error & {
-    code?: string;
-    constraint?: string;
-  };
-
-  return (
-    candidate.code === "23505" &&
-    candidate.constraint === "field_workspaceId_key_key"
-  );
-}
-
-function isTransactionConflict(error: unknown) {
-  return (
-    error instanceof Error &&
-    "code" in error &&
-    (error as Error & { code?: string }).code === "40001"
-  );
-}
 
 export async function PATCH(
   req: Request,
@@ -200,7 +156,7 @@ export async function PATCH(
           if (nextOptions.length > 0) {
             await tx.insert(fieldOption).values(
               nextOptions.map((option) => ({
-                id: createId(),
+                id: createRecordId(),
                 fieldId: id,
                 workspaceId,
                 value: option.value,
@@ -242,14 +198,14 @@ export async function PATCH(
 
     return NextResponse.json(fieldWithOptions, { status: 200 });
   } catch (error) {
-    if (isUniqueConstraintError(error)) {
+    if (isFieldWorkspaceKeyConflict(error)) {
       return NextResponse.json(
         { error: "A field with this key already exists in your workspace" },
         { status: 409 }
       );
     }
 
-    if (isTransactionConflict(error)) {
+    if (isPgSerializationFailure(error)) {
       return NextResponse.json(
         {
           error:

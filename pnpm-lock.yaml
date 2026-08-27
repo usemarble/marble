@@ -121,9 +121,6 @@ importers:
       '@hugeicons/react':
         specifier: ^1.1.4
         version: 1.1.9(react@19.2.8)
-      '@marble/db':
-        specifier: workspace:*
-        version: link:../../packages/db
       '@marble/drizzle':
         specifier: workspace:*
         version: link:../../packages/drizzle
@@ -145,9 +142,6 @@ importers:
       '@marble/utils':
         specifier: workspace:*
         version: link:../../packages/utils
-      '@paralleldrive/cuid2':
-        specifier: ^3.3.0
-        version: 3.3.0
       '@phosphor-icons/react':
         specifier: ^2.1.10
         version: 2.1.10(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -202,9 +196,6 @@ importers:
       date-fns:
         specifier: ^4.1.0
         version: 4.4.0
-      drizzle-orm:
-        specifier: ^0.45.2
-        version: 0.45.2(@cloudflare/workers-types@4.20260702.1)(@electric-sql/pglite@0.4.3)(@neondatabase/serverless@1.1.0)(@opentelemetry/api@1.9.0)(@prisma/client@7.9.1(prisma@7.9.1(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(magicast@0.5.4)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@5.9.3))(typescript@5.9.3))(@types/pg@8.21.0)(@upstash/redis@1.38.2)(kysely@0.28.17)(mysql2@3.15.3)(pg@8.23.0)(postgres@3.4.7)(prisma@7.9.1(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(magicast@0.5.4)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@5.9.3))
       gray-matter:
         specifier: ^4.0.3
         version: 4.0.3
@@ -477,6 +468,9 @@ importers:
       '@neondatabase/serverless':
         specifier: ^1.0.1
         version: 1.1.0
+      '@paralleldrive/cuid2':
+        specifier: ^3.3.0
+        version: 3.3.0
       drizzle-orm:
         specifier: ^0.45.2
         version: 0.45.2(@cloudflare/workers-types@4.20260702.1)(@electric-sql/pglite@0.4.3)(@neondatabase/serverless@1.1.0)(@opentelemetry/api@1.9.0)(@prisma/client@7.9.1(prisma@7.9.1(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(magicast@0.5.4)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@5.9.3))(typescript@5.9.3))(@types/pg@8.21.0)(@upstash/redis@1.38.2)(kysely@0.28.17)(mysql2@3.15.3)(pg@8.23.0)(postgres@3.4.7)(prisma@7.9.1(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(magicast@0.5.4)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@5.9.3))

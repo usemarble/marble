@@ -5,7 +5,12 @@
   "exports": {
     ".": "./src/index.ts",
     "./schema": "./src/schema/index.ts",
+    "./types": "./src/types.ts",
     "./enums": "./src/schema/enums.ts",
+    "./operators": "./src/operators.ts",
+    "./create-id": "./src/create-id.ts",
+    "./pg-errors": "./src/pg-errors.ts",
+    "./subscription-filters": "./src/subscription-filters.ts",
     "./hyperdrive": "./src/hyperdrive.ts"
   },
   "scripts": {
@@ -15,6 +20,7 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.1",
+    "@paralleldrive/cuid2": "^3.3.0",
     "drizzle-orm": "^0.45.2",
     "pg": "^8.18.0",
     "ws": "^8.18.0"

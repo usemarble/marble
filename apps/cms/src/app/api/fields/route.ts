@@ -1,37 +1,13 @@
 import { db } from "@marble/drizzle";
 import { field, fieldOption } from "@marble/drizzle/schema";
-import { createId } from "@paralleldrive/cuid2";
-import { and, asc, desc, eq } from "drizzle-orm";
+import { createRecordId } from "@marble/drizzle/create-id";
+import { isFieldWorkspaceKeyConflict } from "@marble/drizzle/pg-errors";
+import { and, asc, desc, eq } from "@marble/drizzle/operators";
 import { NextResponse } from "next/server";
+import { buildFieldOptionWrites } from "@/lib/fields/helpers";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { getDashboardCustomFields } from "@/lib/queries/dashboard/settings";
 import { customFieldSchema } from "@/lib/validations/fields";
-
-function buildFieldOptionWrites(
-  options: Array<{ value: string; label: string }>
-) {
-  return options.map((option, index) => ({
-    value: option.value,
-    label: option.label,
-    position: index,
-  }));
-}
-
-function isUniqueFieldKeyConflict(error: unknown) {
-  if (!(error instanceof Error)) {
-    return false;
-  }
-
-  const candidate = error as Error & {
-    code?: string;
-    constraint?: string;
-  };
-
-  return (
-    candidate.code === "23505" &&
-    candidate.constraint === "field_workspaceId_key_key"
-  );
-}
 
 export async function GET() {
   const accessData = await requireActiveWorkspaceAccess();
@@ -88,7 +64,7 @@ export async function POST(req: Request) {
     .limit(1);
 
   try {
-    const fieldId = createId();
+    const fieldId = createRecordId();
     const now = new Date();
     const optionWrites = buildFieldOptionWrites(body.data.options ?? []);
 
@@ -108,7 +84,7 @@ export async function POST(req: Request) {
       if (optionWrites.length > 0) {
         await tx.insert(fieldOption).values(
           optionWrites.map((option) => ({
-            id: createId(),
+            id: createRecordId(),
             fieldId,
             workspaceId,
             value: option.value,
@@ -138,7 +114,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json(createdField, { status: 201 });
   } catch (error) {
-    if (isUniqueFieldKeyConflict(error)) {
+    if (isFieldWorkspaceKeyConflict(error)) {
       return NextResponse.json(
         { error: "A field with this key already exists in your workspace" },
         { status: 409 }

@@ -1,8 +1,8 @@
 import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { db } from "@marble/drizzle";
 import { importJob } from "@marble/drizzle/schema";
-import { createId } from "@paralleldrive/cuid2";
-import { desc, eq } from "drizzle-orm";
+import { createRecordId } from "@marble/drizzle/create-id";
+import { desc, eq } from "@marble/drizzle/operators";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { enqueueTask } from "@/lib/queues/tasks";
@@ -117,7 +117,7 @@ export async function POST(request: Request) {
     const [createdJob] = await db
       .insert(importJob)
       .values({
-        id: createId(),
+        id: createRecordId(),
         workspaceId,
         createdById: sessionData.user.id,
         updatedAt: new Date(),

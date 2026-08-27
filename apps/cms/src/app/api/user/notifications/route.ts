@@ -4,11 +4,12 @@ import {
   userNotificationPreferences,
   workspaceNotificationPreferences,
 } from "@marble/drizzle/schema";
-import { createId } from "@paralleldrive/cuid2";
-import { and, eq } from "drizzle-orm";
+import { createRecordId } from "@marble/drizzle/create-id";
+import { and, eq } from "@marble/drizzle/operators";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { DEFAULT_NOTIFICATION_PREFERENCES } from "@/lib/notifications";
+import { notificationPreferencePatchSchema } from "@/lib/validations/notifications";
 
 async function getNotificationPreferences(
   userId: string,
@@ -76,102 +77,97 @@ export async function PATCH(request: Request) {
   const { member: foundMember, sessionData, workspaceId } = accessData;
 
   try {
-    const body = await request.json();
-    const { scope, key, value } = body as {
-      scope: "user" | "workspace";
-      key: string;
-      value: boolean;
-    };
+    const parsed = notificationPreferencePatchSchema.safeParse(
+      await request.json()
+    );
 
-    if (typeof value !== "boolean") {
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Value must be a boolean" },
+        { error: "Invalid request body", details: parsed.error.issues },
         { status: 400 }
       );
     }
 
-    if (scope === "user") {
-      const allowedKeys = ["marketing", "product"] as const;
-      type UserKey = (typeof allowedKeys)[number];
+    const now = new Date();
+    const patch = parsed.data;
 
-      if (!allowedKeys.includes(key as UserKey)) {
-        return NextResponse.json({ error: "Invalid key" }, { status: 400 });
-      }
-
-      const now = new Date();
-      const data: Record<string, unknown> = { [key]: value, updatedAt: now };
-
-      if (key === "marketing") {
-        if (value) {
-          data.marketingConsentedAt = now;
-          data.marketingConsentSource = "settings";
-          data.marketingUnsubscribedAt = null;
-        } else {
-          data.marketingUnsubscribedAt = now;
-        }
-      }
-
-      await db
-        .insert(userNotificationPreferences)
-        .values({
-          id: createId(),
-          userId: sessionData.user.id,
-          marketing: key === "marketing" ? value : false,
-          product: key === "product" ? value : true,
-          ...(key === "marketing" && value
-            ? {
-                marketingConsentedAt: now,
-                marketingConsentSource: "settings",
-              }
-            : {}),
-          ...(key === "marketing" && !value
-            ? { marketingUnsubscribedAt: now }
-            : {}),
-          updatedAt: now,
-        })
-        .onConflictDoUpdate({
-          target: userNotificationPreferences.userId,
-          set: data,
-        });
-
-      return NextResponse.json(
-        await getNotificationPreferences(sessionData.user.id, workspaceId)
-      );
-    }
-
-    if (scope === "workspace") {
-      const allowedKeys = ["usageAlerts", "subscriptions"] as const;
-      type WorkspaceKey = (typeof allowedKeys)[number];
-
-      if (!allowedKeys.includes(key as WorkspaceKey)) {
-        return NextResponse.json({ error: "Invalid key" }, { status: 400 });
-      }
-
-      const now = new Date();
-
-      await db
-        .insert(workspaceNotificationPreferences)
-        .values({
-          id: createId(),
-          memberId: foundMember.id,
-          usageAlerts: key === "usageAlerts" ? value : true,
-          subscriptions: key === "subscriptions" ? value : true,
-          updatedAt: now,
-        })
-        .onConflictDoUpdate({
-          target: workspaceNotificationPreferences.memberId,
-          set: {
-            [key]: value,
+    if (patch.scope === "user") {
+      if (patch.key === "marketing") {
+        await db
+          .insert(userNotificationPreferences)
+          .values({
+            id: createRecordId(),
+            userId: sessionData.user.id,
+            marketing: patch.value,
+            product: true,
+            ...(patch.value
+              ? {
+                  marketingConsentedAt: now,
+                  marketingConsentSource: "settings",
+                }
+              : { marketingUnsubscribedAt: now }),
             updatedAt: now,
-          },
-        });
+          })
+          .onConflictDoUpdate({
+            target: userNotificationPreferences.userId,
+            set: patch.value
+              ? {
+                  marketing: true,
+                  marketingConsentedAt: now,
+                  marketingConsentSource: "settings",
+                  marketingUnsubscribedAt: null,
+                  updatedAt: now,
+                }
+              : {
+                  marketing: false,
+                  marketingUnsubscribedAt: now,
+                  updatedAt: now,
+                },
+          });
+      } else {
+        await db
+          .insert(userNotificationPreferences)
+          .values({
+            id: createRecordId(),
+            userId: sessionData.user.id,
+            marketing: false,
+            product: patch.value,
+            updatedAt: now,
+          })
+          .onConflictDoUpdate({
+            target: userNotificationPreferences.userId,
+            set: {
+              product: patch.value,
+              updatedAt: now,
+            },
+          });
+      }
 
       return NextResponse.json(
         await getNotificationPreferences(sessionData.user.id, workspaceId)
       );
     }
 
-    return NextResponse.json({ error: "Invalid scope" }, { status: 400 });
+    await db
+      .insert(workspaceNotificationPreferences)
+      .values({
+        id: createRecordId(),
+        memberId: foundMember.id,
+        usageAlerts: patch.key === "usageAlerts" ? patch.value : true,
+        subscriptions: patch.key === "subscriptions" ? patch.value : true,
+        updatedAt: now,
+      })
+      .onConflictDoUpdate({
+        target: workspaceNotificationPreferences.memberId,
+        set:
+          patch.key === "usageAlerts"
+            ? { usageAlerts: patch.value, updatedAt: now }
+            : { subscriptions: patch.value, updatedAt: now },
+      });
+
+    return NextResponse.json(
+      await getNotificationPreferences(sessionData.user.id, workspaceId)
+    );
   } catch (error) {
     console.error("Error updating notification preferences:", error);
     return NextResponse.json(

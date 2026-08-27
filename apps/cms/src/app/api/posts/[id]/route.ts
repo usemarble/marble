@@ -1,4 +1,5 @@
 import { db } from "@marble/drizzle";
+import type { TransactionClient } from "@marble/drizzle";
 import {
   author,
   category,
@@ -11,8 +12,8 @@ import {
 } from "@marble/drizzle/schema";
 import { toPostPayload, withChanges } from "@marble/events";
 import { sanitizeHtml, sanitizeRichTextHtml } from "@marble/utils/sanitize";
-import { createId } from "@paralleldrive/cuid2";
-import { and, asc, eq, inArray, ne } from "drizzle-orm";
+import { createRecordId } from "@marble/drizzle/create-id";
+import { and, asc, eq, inArray, ne } from "@marble/drizzle/operators";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";
@@ -52,7 +53,7 @@ async function buildCustomFieldWrites(
 }
 
 async function writeCustomFieldValues(
-  tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
+  tx: TransactionClient,
   workspaceId: string,
   postId: string,
   writes: Extract<
@@ -87,7 +88,7 @@ async function writeCustomFieldValues(
       await tx
         .insert(fieldValue)
         .values({
-          id: createId(),
+          id: createRecordId(),
           postId,
           fieldId,
           workspaceId,

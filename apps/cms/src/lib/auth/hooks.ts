@@ -5,8 +5,8 @@ import { db } from "@marble/drizzle";
 import { author, user as userTable } from "@marble/drizzle/schema";
 import type { User } from "better-auth";
 import { APIError } from "better-auth/api";
-import { createId } from "@paralleldrive/cuid2";
-import { and, eq } from "drizzle-orm";
+import { createRecordId } from "@marble/drizzle/create-id";
+import { and, eq } from "@marble/drizzle/operators";
 import { nanoid } from "nanoid";
 import { isAllowedAvatarUrl } from "@/lib/constants";
 import { R2_BUCKET_NAME, R2_PUBLIC_URL, r2 } from "@/lib/r2";
@@ -47,7 +47,7 @@ export async function createAuthor(user: User, organization: Organization) {
     const [createdAuthor] = await db
       .insert(author)
       .values({
-        id: createId(),
+        id: createRecordId(),
         name: user.name,
         email: user.email,
         slug: uniqueSlug,

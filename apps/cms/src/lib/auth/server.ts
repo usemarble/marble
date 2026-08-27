@@ -24,7 +24,7 @@ import {
   webhooks,
 } from "@polar-sh/better-auth";
 import { Polar } from "@polar-sh/sdk";
-import { and, eq } from "drizzle-orm";
+import { and, eq } from "@marble/drizzle/operators";
 import {
   APIError,
   createAuthMiddleware,

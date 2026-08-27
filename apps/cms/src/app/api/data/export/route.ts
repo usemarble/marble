@@ -1,7 +1,7 @@
 import { db } from "@marble/drizzle";
 import { exportJob } from "@marble/drizzle/schema";
-import { createId } from "@paralleldrive/cuid2";
-import { and, desc, eq, ne } from "drizzle-orm";
+import { createRecordId } from "@marble/drizzle/create-id";
+import { and, desc, eq, ne } from "@marble/drizzle/operators";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { enqueueTask } from "@/lib/queues/tasks";
@@ -84,7 +84,7 @@ export async function POST() {
   const [job] = await db
     .insert(exportJob)
     .values({
-      id: createId(),
+      id: createRecordId(),
       workspaceId,
       createdById: sessionData.user.id,
       format: "json",

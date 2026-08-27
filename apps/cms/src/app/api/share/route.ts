@@ -1,11 +1,12 @@
 import { db } from "@marble/drizzle";
-import { post, shareLink, subscription } from "@marble/drizzle/schema";
-import { createId } from "@paralleldrive/cuid2";
-import { and, desc, eq, gt, or } from "drizzle-orm";
+import { post, shareLink } from "@marble/drizzle/schema";
+import { createRecordId } from "@marble/drizzle/create-id";
+import { and, eq, gt } from "@marble/drizzle/operators";
 import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { canPerformAction, getWorkspacePlan } from "@/lib/plans";
+import { findActiveWorkspaceSubscription } from "@/lib/subscription/active-subscription";
 import { shareLinkSchema } from "@/lib/validations/post";
 
 export async function POST(request: Request) {
@@ -17,27 +18,7 @@ export async function POST(request: Request) {
 
   const { workspaceId } = accessData;
 
-  const subscriptions = await db
-    .select()
-    .from(subscription)
-    .where(
-      and(
-        eq(subscription.workspaceId, workspaceId),
-        or(
-          eq(subscription.status, "active"),
-          eq(subscription.status, "trialing"),
-          and(
-            eq(subscription.status, "canceled"),
-            eq(subscription.cancelAtPeriodEnd, true),
-            gt(subscription.currentPeriodEnd, new Date())
-          )
-        )
-      )
-    )
-    .orderBy(desc(subscription.createdAt))
-    .limit(1);
-
-  const activeSubscription = subscriptions[0] ?? null;
+  const activeSubscription = await findActiveWorkspaceSubscription(workspaceId);
   const plan = getWorkspacePlan(activeSubscription);
   if (!canPerformAction(plan, "shareDrafts")) {
     return NextResponse.json(
@@ -93,7 +74,7 @@ export async function POST(request: Request) {
   const [createdShareLink] = await db
     .insert(shareLink)
     .values({
-      id: createId(),
+      id: createRecordId(),
       token,
       postId,
       workspaceId,

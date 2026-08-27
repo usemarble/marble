@@ -1,21 +1,14 @@
 import { db } from "@marble/drizzle";
 import { subscription } from "@marble/drizzle/schema";
-import { and, desc, eq, gt, or } from "drizzle-orm";
+import { activeSubscriptionWhere } from "@marble/drizzle/subscription-filters";
+import { and, desc, eq } from "@marble/drizzle/operators";
 import { APIError } from "better-auth/api";
 
 export async function checkWorkspaceSubscription(workspaceId: string) {
   const foundSubscription = await db.query.subscription.findFirst({
     where: and(
       eq(subscription.workspaceId, workspaceId),
-      or(
-        eq(subscription.status, "active"),
-        eq(subscription.status, "trialing"),
-        and(
-          eq(subscription.status, "canceled"),
-          eq(subscription.cancelAtPeriodEnd, true),
-          gt(subscription.currentPeriodEnd, new Date())
-        )
-      )
+      activeSubscriptionWhere()
     ),
     orderBy: desc(subscription.createdAt),
   });

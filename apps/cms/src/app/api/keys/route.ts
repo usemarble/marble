@@ -1,8 +1,8 @@
 import { db } from "@marble/drizzle";
 import { apiKey } from "@marble/drizzle/schema";
 import { generateApiKey } from "@marble/utils";
-import { createId } from "@paralleldrive/cuid2";
-import { and, eq } from "drizzle-orm";
+import { createRecordId } from "@marble/drizzle/create-id";
+import { and, eq } from "@marble/drizzle/operators";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { getDashboardApiKeys } from "@/lib/queries/dashboard/settings";
@@ -86,7 +86,7 @@ export async function POST(request: Request) {
   const [createdApiKey] = await db
     .insert(apiKey)
     .values({
-      id: createId(),
+      id: createRecordId(),
       name: body.data.name,
       workspaceId,
       key: hash,

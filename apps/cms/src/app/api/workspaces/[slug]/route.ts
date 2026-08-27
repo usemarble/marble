@@ -1,19 +1,10 @@
 import { db } from "@marble/drizzle";
 import { subscription, workspace } from "@marble/drizzle/schema";
-import { and, desc, eq, gt, or } from "drizzle-orm";
+import { activeSubscriptionWhere } from "@marble/drizzle/subscription-filters";
+import { and, desc, eq } from "@marble/drizzle/operators";
 import { NextResponse } from "next/server";
 import { requireWorkspaceAccess } from "@/lib/auth/access";
-import { getWorkspacePlan } from "@/lib/plans";
-
-const activeSubscriptionFilter = or(
-  eq(subscription.status, "active"),
-  eq(subscription.status, "trialing"),
-  and(
-    eq(subscription.status, "canceled"),
-    eq(subscription.cancelAtPeriodEnd, true),
-    gt(subscription.currentPeriodEnd, new Date())
-  )
-);
+import { mapWorkspaceListItem } from "@/lib/queries/workspace-view";
 
 export async function GET(
   _request: Request,
@@ -63,7 +54,7 @@ export async function GET(
         },
       },
       subscriptions: {
-        where: activeSubscriptionFilter,
+        where: activeSubscriptionWhere(),
         orderBy: desc(subscription.createdAt),
         limit: 1,
         columns: {
@@ -83,24 +74,14 @@ export async function GET(
     return NextResponse.json({ error: "Workspace not found" }, { status: 404 });
   }
 
-  const currentUserMember = foundWorkspace.members.find(
-    (entry) => entry.userId === accessData.sessionData.user.id
+  const workspaceWithUserRole = mapWorkspaceListItem(
+    foundWorkspace,
+    accessData.sessionData.user.id
   );
 
-  const currentUserRole = currentUserMember?.role || null;
-  const activeSubscription = foundWorkspace.subscriptions[0] || null;
-  const activePlan = getWorkspacePlan(activeSubscription);
-
-  const workspaceWithUserRole = {
-    ...foundWorkspace,
-    currentUserRole,
-    subscription: activeSubscription
-      ? {
-          ...activeSubscription,
-          activePlan,
-        }
-      : null,
-  };
+  if (!workspaceWithUserRole) {
+    return NextResponse.json({ error: "Workspace not found" }, { status: 404 });
+  }
 
   return NextResponse.json(workspaceWithUserRole);
 }

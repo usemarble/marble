@@ -1,8 +1,8 @@
 import { db } from "@marble/drizzle";
 import { media, organization } from "@marble/drizzle/schema";
 import { toMediaPayload } from "@marble/events";
-import { createId } from "@paralleldrive/cuid2";
-import { eq } from "drizzle-orm";
+import { createRecordId } from "@marble/drizzle/create-id";
+import { eq } from "@marble/drizzle/operators";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import {
@@ -116,7 +116,7 @@ export async function POST(request: Request) {
         const [createdMedia] = await db
           .insert(media)
           .values({
-            id: createId(),
+            id: createRecordId(),
             name: mediaName,
             url,
             storageKey: key,

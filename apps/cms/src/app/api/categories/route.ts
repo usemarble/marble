@@ -1,8 +1,8 @@
 import { db } from "@marble/drizzle";
 import { category } from "@marble/drizzle/schema";
 import { toCategoryPayload } from "@marble/events";
-import { createId } from "@paralleldrive/cuid2";
-import { and, eq } from "drizzle-orm";
+import { createRecordId } from "@marble/drizzle/create-id";
+import { and, eq } from "@marble/drizzle/operators";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";
@@ -60,7 +60,7 @@ export async function POST(req: Request) {
   const [categoryCreated] = await db
     .insert(category)
     .values({
-      id: createId(),
+      id: createRecordId(),
       name: body.data.name,
       slug: body.data.slug,
       description: body.data.description,

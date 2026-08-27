@@ -36,3 +36,6 @@ if (process.env.NODE_ENV === "production") {
 
 export { db };
 export type { DrizzleDb };
+export type TransactionClient = Parameters<
+  Parameters<DrizzleDb["transaction"]>[0]
+>[0];

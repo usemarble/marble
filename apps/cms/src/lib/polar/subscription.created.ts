@@ -2,8 +2,8 @@
 
 import { db } from "@marble/drizzle";
 import { subscription, user, workspace } from "@marble/drizzle/schema";
-import { createId } from "@paralleldrive/cuid2";
-import { eq } from "drizzle-orm";
+import { createRecordId } from "@marble/drizzle/create-id";
+import { eq } from "@marble/drizzle/operators";
 import type { WebhookSubscriptionCreatedPayload } from "@polar-sh/sdk/models/components/webhooksubscriptioncreatedpayload.js";
 import {
   getPlanType,
@@ -96,7 +96,7 @@ export async function handleSubscriptionCreated(
     }
 
     await db.insert(subscription).values({
-      id: createId(),
+      id: createRecordId(),
       polarId: subscriptionData.id,
       plan,
       status,

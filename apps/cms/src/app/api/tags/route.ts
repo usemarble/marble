@@ -1,8 +1,8 @@
 import { db } from "@marble/drizzle";
 import { tag } from "@marble/drizzle/schema";
 import { toTagPayload } from "@marble/events";
-import { createId } from "@paralleldrive/cuid2";
-import { and, eq } from "drizzle-orm";
+import { createRecordId } from "@marble/drizzle/create-id";
+import { and, eq } from "@marble/drizzle/operators";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";
@@ -50,7 +50,7 @@ export async function POST(req: Request) {
   const [tagCreated] = await db
     .insert(tag)
     .values({
-      id: createId(),
+      id: createRecordId(),
       name: body.name,
       slug: body.slug,
       description: body.description,

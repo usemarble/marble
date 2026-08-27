@@ -1,4 +1,5 @@
 import { db } from "@marble/drizzle";
+import type { TransactionClient } from "@marble/drizzle";
 import {
   author,
   category,
@@ -11,8 +12,8 @@ import {
 } from "@marble/drizzle/schema";
 import { toPostPayload } from "@marble/events";
 import { sanitizeHtml, sanitizeRichTextHtml } from "@marble/utils/sanitize";
-import { createId } from "@paralleldrive/cuid2";
-import { and, asc, eq, inArray } from "drizzle-orm";
+import { createRecordId } from "@marble/drizzle/create-id";
+import { and, asc, eq, inArray } from "@marble/drizzle/operators";
 import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
 import { z } from "zod";
@@ -66,7 +67,7 @@ async function buildCustomFieldWrites(
 }
 
 async function writeCustomFieldValues(
-  tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
+  tx: TransactionClient,
   workspaceId: string,
   postId: string,
   writes: Extract<
@@ -101,7 +102,7 @@ async function writeCustomFieldValues(
       await tx
         .insert(fieldValue)
         .values({
-          id: createId(),
+          id: createRecordId(),
           postId,
           fieldId,
           workspaceId,
@@ -205,7 +206,7 @@ export async function POST(request: Request) {
       const [createdAuthor] = await db
         .insert(author)
         .values({
-          id: createId(),
+          id: createRecordId(),
           name: sessionData.user.name || "Member",
           email: sessionData.user.email,
           slug: uniqueSlug,
@@ -281,7 +282,7 @@ export async function POST(request: Request) {
 
   try {
     const postCreated = await db.transaction(async (tx) => {
-      const postId = createId();
+      const postId = createRecordId();
       const now = new Date();
 
       const [createdPost] = await tx

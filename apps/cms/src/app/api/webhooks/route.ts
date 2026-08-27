@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { db } from "@marble/drizzle";
 import { webhookEndpoint } from "@marble/drizzle/schema";
-import { createId } from "@paralleldrive/cuid2";
+import { createRecordId } from "@marble/drizzle/create-id";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { getDashboardWebhooks } from "@/lib/queries/dashboard/settings";
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
   const [webhook] = await db
     .insert(webhookEndpoint)
     .values({
-      id: createId(),
+      id: createRecordId(),
       name: body.name,
       url: body.endpoint,
       events: body.events,

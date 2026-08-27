@@ -1,8 +1,8 @@
 import { db } from "@marble/drizzle";
 import { author, authorSocial } from "@marble/drizzle/schema";
 import { toAuthorPayload, withChanges } from "@marble/events";
-import { createId } from "@paralleldrive/cuid2";
-import { and, eq, ne } from "drizzle-orm";
+import { createRecordId } from "@marble/drizzle/create-id";
+import { and, eq, ne } from "@marble/drizzle/operators";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";
@@ -160,7 +160,7 @@ export async function PATCH(
             .insert(authorSocial)
             .values(
               socials.map((social) => ({
-                id: createId(),
+                id: createRecordId(),
                 authorId: id,
                 url: social.url,
                 platform: social.platform,

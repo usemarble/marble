@@ -1,7 +1,8 @@
 import { db } from "@marble/drizzle";
 import { shareLink } from "@marble/drizzle/schema";
-import { and, eq } from "drizzle-orm";
+import { and, eq } from "@marble/drizzle/operators";
 import { NextResponse } from "next/server";
+import { formatSharedPostPayload } from "@/lib/share/shared-post";
 
 const NO_STORE_HEADERS = {
   "Cache-Control": "no-store",
@@ -87,26 +88,9 @@ export async function GET(
     );
   }
 
-  const { post: postRow } = shareLinkRow;
-
   return NextResponse.json(
     {
-      post: {
-        id: postRow.id,
-        title: postRow.title,
-        content: postRow.content,
-        contentJson: postRow.contentJson,
-        description: postRow.description,
-        coverImage: postRow.coverImage,
-        status: postRow.status,
-        createdAt: postRow.createdAt,
-        updatedAt: postRow.updatedAt,
-        publishedAt: postRow.publishedAt,
-        authors: postRow.authors.map((entry) => entry.author),
-        category: postRow.category,
-        tags: postRow.tags.map((entry) => entry.tag),
-        workspace: postRow.workspace,
-      },
+      post: formatSharedPostPayload(shareLinkRow.post),
       expiresAt: shareLinkRow.expiresAt,
     },
     { headers: NO_STORE_HEADERS }
