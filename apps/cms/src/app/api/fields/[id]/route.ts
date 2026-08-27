@@ -1,5 +1,7 @@
-import { db } from "@marble/db";
-import { Prisma } from "@marble/db/browser";
+import { db } from "@marble/drizzle";
+import { field, fieldOption, fieldValue } from "@marble/drizzle/schema";
+import { createId } from "@paralleldrive/cuid2";
+import { and, asc, count, eq, ne } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { customFieldUpdateSchema } from "@/lib/validations/fields";
@@ -39,19 +41,12 @@ function isUniqueConstraintError(error: unknown) {
 
   const candidate = error as Error & {
     code?: string;
-    meta?: { target?: unknown };
+    constraint?: string;
   };
 
-  if (candidate.code !== "P2002") {
-    return false;
-  }
-
-  const target = candidate.meta?.target;
-
   return (
-    Array.isArray(target) &&
-    target.includes("workspaceId") &&
-    target.includes("key")
+    candidate.code === "23505" &&
+    candidate.constraint === "field_workspaceId_key_key"
   );
 }
 
@@ -59,7 +54,7 @@ function isTransactionConflict(error: unknown) {
   return (
     error instanceof Error &&
     "code" in error &&
-    (error as Error & { code?: string }).code === "P2034"
+    (error as Error & { code?: string }).code === "40001"
   );
 }
 
@@ -87,15 +82,11 @@ export async function PATCH(
     );
   }
 
-  // Verify field exists and belongs to workspace
-  const existingField = await db.field.findFirst({
-    where: {
-      id,
-      workspaceId,
-    },
-    include: {
+  const existingField = await db.query.field.findFirst({
+    where: and(eq(field.id, id), eq(field.workspaceId, workspaceId)),
+    with: {
       options: {
-        orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+        orderBy: [asc(fieldOption.position), asc(fieldOption.createdAt)],
       },
     },
   });
@@ -104,14 +95,13 @@ export async function PATCH(
     return NextResponse.json({ error: "Field not found" }, { status: 404 });
   }
 
-  // If key is being changed, check uniqueness
   if (body.data.key && body.data.key !== existingField.key) {
-    const keyConflict = await db.field.findFirst({
-      where: {
-        workspaceId,
-        key: body.data.key,
-        id: { not: id },
-      },
+    const keyConflict = await db.query.field.findFirst({
+      where: and(
+        eq(field.workspaceId, workspaceId),
+        eq(field.key, body.data.key),
+        ne(field.id, id)
+      ),
     });
 
     if (keyConflict) {
@@ -122,7 +112,7 @@ export async function PATCH(
     }
   }
 
-  const updateData: Record<string, unknown> = {};
+  const updateData: Partial<typeof field.$inferInsert> = {};
   if (body.data.name !== undefined) {
     updateData.name = body.data.name;
   }
@@ -168,51 +158,66 @@ export async function PATCH(
   }
 
   try {
-    const field = await db.$transaction(
+    const updatedFieldId = await db.transaction(
       async (tx) => {
         if (typeChanged || optionsChanged) {
-          const fieldValueCount = await tx.fieldValue.count({
-            where: {
-              fieldId: id,
-              workspaceId,
-            },
-          });
+          const [fieldValueCount] = await tx
+            .select({ value: count() })
+            .from(fieldValue)
+            .where(
+              and(eq(fieldValue.fieldId, id), eq(fieldValue.workspaceId, workspaceId))
+            );
 
-          if (fieldValueCount > 0) {
+          if ((fieldValueCount?.value ?? 0) > 0) {
             return null;
           }
         }
 
-        return tx.field.update({
-          where: {
-            id_workspaceId: {
-              id,
-              workspaceId,
-            },
-          },
-          data: {
+        const now = new Date();
+        const shouldRewriteOptions =
+          body.data.options !== undefined || !requiresOptions;
+
+        const [updatedField] = await tx
+          .update(field)
+          .set({
             ...updateData,
-            options:
-              body.data.options !== undefined || !requiresOptions
-                ? {
-                    deleteMany: {},
-                    create: requiresOptions
-                      ? buildFieldOptionWrites(body.data.options ?? [])
-                      : [],
-                  }
-                : undefined,
-          },
-          include: {
-            options: {
-              orderBy: [{ position: "asc" }, { createdAt: "asc" }],
-            },
-          },
-        });
+            updatedAt: now,
+          })
+          .where(and(eq(field.id, id), eq(field.workspaceId, workspaceId)))
+          .returning({ id: field.id });
+
+        if (!updatedField) {
+          return null;
+        }
+
+        if (shouldRewriteOptions) {
+          await tx.delete(fieldOption).where(eq(fieldOption.fieldId, id));
+
+          const nextOptions = requiresOptions
+            ? buildFieldOptionWrites(body.data.options ?? [])
+            : [];
+
+          if (nextOptions.length > 0) {
+            await tx.insert(fieldOption).values(
+              nextOptions.map((option) => ({
+                id: createId(),
+                fieldId: id,
+                workspaceId,
+                value: option.value,
+                label: option.label,
+                position: option.position,
+                updatedAt: now,
+              }))
+            );
+          }
+        }
+
+        return updatedField.id;
       },
-      { isolationLevel: Prisma.TransactionIsolationLevel.Serializable }
+      { isolationLevel: "serializable" }
     );
 
-    if (!field) {
+    if (!updatedFieldId) {
       return NextResponse.json(
         {
           error:
@@ -222,7 +227,20 @@ export async function PATCH(
       );
     }
 
-    return NextResponse.json(field, { status: 200 });
+    const fieldWithOptions = await db.query.field.findFirst({
+      where: eq(field.id, updatedFieldId),
+      with: {
+        options: {
+          orderBy: [asc(fieldOption.position), asc(fieldOption.createdAt)],
+        },
+      },
+    });
+
+    if (!fieldWithOptions) {
+      return NextResponse.json({ error: "Field not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(fieldWithOptions, { status: 200 });
   } catch (error) {
     if (isUniqueConstraintError(error)) {
       return NextResponse.json(
@@ -259,25 +277,17 @@ export async function DELETE(
 
   const { id } = await params;
 
-  const existingField = await db.field.findFirst({
-    where: {
-      id,
-      workspaceId,
-    },
+  const existingField = await db.query.field.findFirst({
+    where: and(eq(field.id, id), eq(field.workspaceId, workspaceId)),
   });
 
   if (!existingField) {
     return NextResponse.json({ error: "Field not found" }, { status: 404 });
   }
 
-  await db.field.delete({
-    where: {
-      id_workspaceId: {
-        id,
-        workspaceId,
-      },
-    },
-  });
+  await db
+    .delete(field)
+    .where(and(eq(field.id, id), eq(field.workspaceId, workspaceId)));
 
   return NextResponse.json({ id }, { status: 200 });
 }

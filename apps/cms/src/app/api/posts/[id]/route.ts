@@ -1,6 +1,18 @@
-import { db } from "@marble/db";
+import { db } from "@marble/drizzle";
+import {
+  author,
+  category,
+  field,
+  fieldOption,
+  fieldValue,
+  post,
+  postToAuthor,
+  postToTag,
+} from "@marble/drizzle/schema";
 import { toPostPayload, withChanges } from "@marble/events";
 import { sanitizeHtml, sanitizeRichTextHtml } from "@marble/utils/sanitize";
+import { createId } from "@paralleldrive/cuid2";
+import { and, asc, eq, inArray, ne } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";
@@ -16,27 +28,82 @@ async function buildCustomFieldWrites(
   workspaceId: string,
   input: Record<string, string | null | undefined>
 ): Promise<ReturnType<typeof resolveCustomFieldValues>> {
-  const fields = await db.field.findMany({
-    where: {
-      workspaceId,
-    },
-    select: {
+  const fields = await db.query.field.findMany({
+    where: eq(field.workspaceId, workspaceId),
+    columns: {
       id: true,
       key: true,
       name: true,
       type: true,
       required: true,
+    },
+    with: {
       options: {
-        select: {
+        columns: {
           value: true,
           label: true,
         },
-        orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+        orderBy: [asc(fieldOption.position), asc(fieldOption.createdAt)],
       },
     },
   });
 
   return resolveCustomFieldValues(fields, input);
+}
+
+async function writeCustomFieldValues(
+  tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
+  workspaceId: string,
+  postId: string,
+  writes: Extract<
+    Awaited<ReturnType<typeof resolveCustomFieldValues>>,
+    { success: true }
+  >
+) {
+  if (writes.values.length === 0) {
+    return;
+  }
+
+  const now = new Date();
+
+  await Promise.all(
+    writes.values.map(async ({ fieldId, fieldType, value }) => {
+      if (value === null) {
+        await tx
+          .delete(fieldValue)
+          .where(
+            and(
+              eq(fieldValue.postId, postId),
+              eq(fieldValue.fieldId, fieldId),
+              eq(fieldValue.workspaceId, workspaceId)
+            )
+          );
+        return;
+      }
+
+      const storedValue =
+        fieldType === "richtext" ? sanitizeRichTextHtml(value) : value;
+
+      await tx
+        .insert(fieldValue)
+        .values({
+          id: createId(),
+          postId,
+          fieldId,
+          workspaceId,
+          value: storedValue,
+          updatedAt: now,
+        })
+        .onConflictDoUpdate({
+          target: [fieldValue.postId, fieldValue.fieldId],
+          set: {
+            workspaceId,
+            value: storedValue,
+            updatedAt: now,
+          },
+        });
+    })
+  );
 }
 
 export async function GET(
@@ -52,9 +119,9 @@ export async function GET(
 
   const { workspaceId } = accessData;
 
-  const post = await db.post.findFirst({
-    where: { id, workspaceId },
-    select: {
+  const postRow = await db.query.post.findFirst({
+    where: and(eq(post.id, id), eq(post.workspaceId, workspaceId)),
+    columns: {
       id: true,
       slug: true,
       title: true,
@@ -66,32 +133,37 @@ export async function GET(
       publishedAt: true,
       contentJson: true,
       categoryId: true,
-      tags: {
-        select: { id: true },
-      },
-      authors: {
-        select: { id: true },
-      },
     },
   });
 
-  if (!post) {
+  if (!postRow) {
     return NextResponse.json({ error: "Post not found" }, { status: 404 });
   }
 
+  const [tagLinks, authorLinks] = await Promise.all([
+    db
+      .select({ id: postToTag.b })
+      .from(postToTag)
+      .where(eq(postToTag.a, id)),
+    db
+      .select({ id: postToAuthor.a })
+      .from(postToAuthor)
+      .where(eq(postToAuthor.b, id)),
+  ]);
+
   const structuredData = {
-    slug: post.slug,
-    title: post.title,
-    status: post.status,
-    featured: post.featured,
-    content: post.content,
-    coverImage: post.coverImage,
-    description: post.description,
-    publishedAt: post.publishedAt,
-    contentJson: JSON.stringify(post.contentJson),
-    tags: post.tags.map((tag) => tag.id),
-    category: post.categoryId,
-    authors: post.authors.map((author) => author.id),
+    slug: postRow.slug,
+    title: postRow.title,
+    status: postRow.status,
+    featured: postRow.featured,
+    content: postRow.content,
+    coverImage: postRow.coverImage,
+    description: postRow.description,
+    publishedAt: postRow.publishedAt,
+    contentJson: JSON.stringify(postRow.contentJson),
+    tags: tagLinks.map((tag) => tag.id),
+    category: postRow.categoryId,
+    authors: authorLinks.map((authorRow) => authorRow.id),
   };
 
   return NextResponse.json(structuredData, { status: 200 });
@@ -121,12 +193,12 @@ export async function PATCH(
     );
   }
 
-  const existingPostWithSlug = await db.post.findFirst({
-    where: {
-      slug: values.data.slug,
-      workspaceId,
-      id: { not: id },
-    },
+  const existingPostWithSlug = await db.query.post.findFirst({
+    where: and(
+      eq(post.slug, values.data.slug),
+      eq(post.workspaceId, workspaceId),
+      ne(post.id, id)
+    ),
   });
 
   if (existingPostWithSlug) {
@@ -148,14 +220,14 @@ export async function PATCH(
   const { uniqueTagIds } = tagValidation;
 
   if (values.data.category) {
-    const category = await db.category.findFirst({
-      where: {
-        id: values.data.category,
-        workspaceId,
-      },
+    const categoryRow = await db.query.category.findFirst({
+      where: and(
+        eq(category.id, values.data.category),
+        eq(category.workspaceId, workspaceId)
+      ),
     });
 
-    if (!category) {
+    if (!categoryRow) {
       return NextResponse.json(
         { error: "Invalid category provided" },
         { status: 400 }
@@ -163,12 +235,13 @@ export async function PATCH(
     }
   }
 
-  // Find all authors for the provided author IDs
-  const validAuthors = await db.author.findMany({
-    where: {
-      id: { in: values.data.authors },
-      workspaceId,
-    },
+  const authorIds = values.data.authors ?? [];
+
+  const validAuthors = await db.query.author.findMany({
+    where: and(
+      inArray(author.id, authorIds),
+      eq(author.workspaceId, workspaceId)
+    ),
   });
 
   if (validAuthors.length === 0) {
@@ -178,23 +251,21 @@ export async function PATCH(
     );
   }
 
-  // Use the first valid author as primary
   const primaryAuthor = validAuthors[0];
 
   if (!primaryAuthor) {
-    // This should never happen since validAuthors.length > 0
     return NextResponse.json(
       { error: "Unable to determine primary author" },
       { status: 500 }
     );
   }
 
-  const post = await db.post.findFirst({
-    where: { id, workspaceId },
-    select: { status: true },
+  const existingPost = await db.query.post.findFirst({
+    where: and(eq(post.id, id), eq(post.workspaceId, workspaceId)),
+    columns: { status: true },
   });
 
-  if (!post) {
+  if (!existingPost) {
     return NextResponse.json({ error: "Post not found" }, { status: 404 });
   }
 
@@ -208,10 +279,13 @@ export async function PATCH(
       return NextResponse.json(customFieldWrites.error, { status: 400 });
     }
 
-    const postUpdated = await db.$transaction(async (tx) => {
-      const updatedPost = await tx.post.update({
-        where: { id },
-        data: {
+    const postUpdated = await db.transaction(async (tx) => {
+      const now = new Date();
+
+      const [updatedPost] = await tx
+        .update(post)
+        .set({
+          primaryAuthorId: primaryAuthor.id,
           contentJson,
           slug: values.data.slug,
           title: values.data.title,
@@ -223,60 +297,46 @@ export async function PATCH(
           description: values.data.description,
           publishedAt: values.data.publishedAt,
           workspaceId,
-          tags: values.data.tags
-            ? { set: uniqueTagIds.map((tagId) => ({ id: tagId })) }
-            : undefined,
-          authors: {
-            set: validAuthors.map((author) => ({ id: author.id })),
-          },
-        },
-      });
+          updatedAt: now,
+        })
+        .where(and(eq(post.id, id), eq(post.workspaceId, workspaceId)))
+        .returning();
 
-      if (customFieldWrites.values.length > 0) {
-        await Promise.all(
-          customFieldWrites.values.map(({ fieldId, fieldType, value }) => {
-            if (value === null) {
-              return tx.fieldValue.deleteMany({
-                where: {
-                  postId: id,
-                  fieldId,
-                  workspaceId,
-                },
-              });
-            }
-
-            return tx.fieldValue.upsert({
-              where: {
-                postId_fieldId: { postId: id, fieldId },
-              },
-              update: {
-                workspaceId,
-                value:
-                  fieldType === "richtext"
-                    ? sanitizeRichTextHtml(value)
-                    : value,
-              },
-              create: {
-                postId: id,
-                fieldId,
-                workspaceId,
-                value:
-                  fieldType === "richtext"
-                    ? sanitizeRichTextHtml(value)
-                    : value,
-              },
-            });
-          })
-        );
+      if (!updatedPost) {
+        throw new Error("Post not found");
       }
+
+      if (values.data.tags) {
+        await tx.delete(postToTag).where(eq(postToTag.a, id));
+
+        if (uniqueTagIds.length > 0) {
+          await tx.insert(postToTag).values(
+            uniqueTagIds.map((tagId) => ({
+              a: id,
+              b: tagId,
+            }))
+          );
+        }
+      }
+
+      await tx.delete(postToAuthor).where(eq(postToAuthor.b, id));
+      await tx.insert(postToAuthor).values(
+        validAuthors.map((authorRow) => ({
+          a: authorRow.id,
+          b: id,
+        }))
+      );
+
+      await writeCustomFieldValues(tx, workspaceId, id, customFieldWrites);
 
       return updatedPost;
     });
 
     const eventType =
-      post.status !== "published" && postUpdated.status === "published"
+      existingPost.status !== "published" && postUpdated.status === "published"
         ? "post_published"
-        : post.status === "published" && postUpdated.status !== "published"
+        : existingPost.status === "published" &&
+            postUpdated.status !== "published"
           ? "post_unpublished"
           : "post_updated";
     const payload =
@@ -293,7 +353,6 @@ export async function PATCH(
       payload,
     }).catch(logDashboardEventError);
 
-    // Invalidate cache for posts
     invalidateCache(workspaceId, "posts");
 
     return NextResponse.json({ id: postUpdated.id }, { status: 200 });
@@ -320,9 +379,10 @@ export async function DELETE(
   const { id } = await params;
 
   try {
-    const deletedPost = await db.post.delete({
-      where: { id, workspaceId },
-    });
+    const [deletedPost] = await db
+      .delete(post)
+      .where(and(eq(post.id, id), eq(post.workspaceId, workspaceId)))
+      .returning();
 
     if (!deletedPost) {
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
@@ -337,7 +397,6 @@ export async function DELETE(
       payload: toPostPayload(deletedPost),
     }).catch(logDashboardEventError);
 
-    // Invalidate cache for posts
     invalidateCache(workspaceId, "posts");
 
     return NextResponse.json({ id: deletedPost.id }, { status: 200 });

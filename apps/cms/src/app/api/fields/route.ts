@@ -1,5 +1,7 @@
-import { db } from "@marble/db";
-import type { FieldType as PrismaFieldType } from "@marble/db/browser";
+import { db } from "@marble/drizzle";
+import { field, fieldOption } from "@marble/drizzle/schema";
+import { createId } from "@paralleldrive/cuid2";
+import { and, asc, desc, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { getDashboardCustomFields } from "@/lib/queries/dashboard/settings";
@@ -22,19 +24,12 @@ function isUniqueFieldKeyConflict(error: unknown) {
 
   const candidate = error as Error & {
     code?: string;
-    meta?: { target?: unknown };
+    constraint?: string;
   };
 
-  if (candidate.code !== "P2002") {
-    return false;
-  }
-
-  const target = candidate.meta?.target;
-
   return (
-    Array.isArray(target) &&
-    target.includes("workspaceId") &&
-    target.includes("key")
+    candidate.code === "23505" &&
+    candidate.constraint === "field_workspaceId_key_key"
   );
 }
 
@@ -71,12 +66,11 @@ export async function POST(req: Request) {
     );
   }
 
-  // Check key uniqueness within workspace
-  const existing = await db.field.findFirst({
-    where: {
-      workspaceId,
-      key: body.data.key,
-    },
+  const existing = await db.query.field.findFirst({
+    where: and(
+      eq(field.workspaceId, workspaceId),
+      eq(field.key, body.data.key)
+    ),
   });
 
   if (existing) {
@@ -86,41 +80,63 @@ export async function POST(req: Request) {
     );
   }
 
-  // Get the next position value
-  const maxPosition = await db.field.aggregate({
-    where: {
-      workspaceId,
-    },
-    _max: {
-      position: true,
-    },
-  });
+  const [maxPositionRow] = await db
+    .select({ position: field.position })
+    .from(field)
+    .where(eq(field.workspaceId, workspaceId))
+    .orderBy(desc(field.position))
+    .limit(1);
 
   try {
-    const field = await db.field.create({
-      data: {
+    const fieldId = createId();
+    const now = new Date();
+    const optionWrites = buildFieldOptionWrites(body.data.options ?? []);
+
+    await db.transaction(async (tx) => {
+      await tx.insert(field).values({
+        id: fieldId,
         name: body.data.name,
         description: body.data.description?.trim() || null,
         key: body.data.key,
-        type: body.data.type as PrismaFieldType,
+        type: body.data.type,
         required: body.data.required ?? false,
-        position: (maxPosition._max.position ?? -1) + 1,
+        position: (maxPositionRow?.position ?? -1) + 1,
         workspaceId,
-        options:
-          (body.data.options ?? []).length > 0
-            ? {
-                create: buildFieldOptionWrites(body.data.options ?? []),
-              }
-            : undefined,
-      },
-      include: {
+        updatedAt: now,
+      });
+
+      if (optionWrites.length > 0) {
+        await tx.insert(fieldOption).values(
+          optionWrites.map((option) => ({
+            id: createId(),
+            fieldId,
+            workspaceId,
+            value: option.value,
+            label: option.label,
+            position: option.position,
+            updatedAt: now,
+          }))
+        );
+      }
+    });
+
+    const createdField = await db.query.field.findFirst({
+      where: eq(field.id, fieldId),
+      with: {
         options: {
-          orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+          orderBy: [asc(fieldOption.position), asc(fieldOption.createdAt)],
         },
       },
     });
 
-    return NextResponse.json(field, { status: 201 });
+    if (!createdField) {
+      return NextResponse.json(
+        { error: "Failed to create field" },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json(createdField, { status: 201 });
   } catch (error) {
     if (isUniqueFieldKeyConflict(error)) {
       return NextResponse.json(
