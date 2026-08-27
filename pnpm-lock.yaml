@@ -103,6 +103,9 @@ importers:
       '@aws-sdk/s3-request-presigner':
         specifier: ^3.758.0
         version: 3.1111.0
+      '@better-auth/drizzle-adapter':
+        specifier: 1.6.11
+        version: 1.6.11(@better-auth/core@1.6.11(@better-auth/utils@0.4.0)(@better-fetch/fetch@1.1.21)(@cloudflare/workers-types@4.20260702.1)(@opentelemetry/api@1.9.0)(better-call@1.3.5(zod@4.4.3))(jose@6.2.9)(kysely@0.28.17)(nanostores@1.5.1))(@better-auth/utils@0.4.0)(drizzle-orm@0.45.2(@cloudflare/workers-types@4.20260702.1)(@electric-sql/pglite@0.4.3)(@neondatabase/serverless@1.1.0)(@opentelemetry/api@1.9.0)(@prisma/client@7.9.1(prisma@7.9.1(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(magicast@0.5.4)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@5.9.3))(typescript@5.9.3))(@types/pg@8.21.0)(@upstash/redis@1.38.2)(kysely@0.28.17)(mysql2@3.15.3)(pg@8.23.0)(postgres@3.4.7)(prisma@7.9.1(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(magicast@0.5.4)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@5.9.3)))
       '@better-fetch/fetch':
         specifier: 1.1.21
         version: 1.1.21
