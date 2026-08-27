@@ -50,6 +50,11 @@ yarn-error.log*
 .claude/skills/
 
 /docs
+!/docs/
+!/docs/drizzle-parity/
+!/docs/drizzle-parity/**
+!/docs/drizzle-migration/
+!/docs/drizzle-migration/**
 
 # Local only references
 school/
