@@ -1,0 +1,895 @@
+generator client {
+  provider               = "prisma-client"
+  output                 = "../src/generated/node"
+  moduleFormat           = "esm"
+  generatedFileExtension = "ts"
+  importFileExtension    = "ts"
+}
+
+generator client_workers {
+  provider               = "prisma-client"
+  runtime                = "workerd"
+  output                 = "../src/generated/workerd"
+  moduleFormat           = "esm"
+  generatedFileExtension = "ts"
+  importFileExtension    = "ts"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Subscription {
+  id                 String                        @id @default(cuid())
+  userId             String
+  plan               PlanType
+  status             SubscriptionStatus
+  updatedAt          DateTime                      @updatedAt
+  cancelAtPeriodEnd  Boolean
+  canceledAt         DateTime?
+  createdAt          DateTime                      @default(now())
+  currentPeriodEnd   DateTime
+  currentPeriodStart DateTime
+  endedAt            DateTime?
+  endsAt             DateTime?
+  polarId            String                        @unique
+  workspaceId        String
+  startedAt          DateTime?
+  productId          String?
+  amount             Int                           @default(20)
+  currency           String                        @default("USD")
+  discountId         String?
+  lastPolarEventAt   DateTime?
+  recurringInterval  SubscriptionRecurringInterval @default(month)
+  user               User                          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace          Organization                  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@index([workspaceId, status])
+  @@map("subscription")
+}
+
+model Organization {
+  id                String            @id @default(cuid())
+  name              String
+  slug              String            @unique
+  logo              String?
+  metadata          String?
+  description       String?
+  subdomain         String?           @unique
+  updatedAt         DateTime          @updatedAt
+  createdAt         DateTime          @default(now())
+  timezone          String            @default("Europe/London")
+  authors           Author[]
+  categories        Category[]
+  fields            Field[]
+  invitations       Invitation[]
+  media             Media[]
+  members           Member[]
+  posts             Post[]
+  subscriptions     Subscription[]
+  tags              Tag[]
+  fieldOptions      FieldOption[]
+  webhookEndpoints  WebhookEndpoint[]
+  ShareLink         ShareLink[]
+  usageEvents       UsageEvent[]
+  ApiToken          ApiKey[]
+  fieldValues       FieldValue[]
+  workspaceEvents   WorkspaceEvent[]
+  webhookDeliveries WebhookDelivery[]
+  usageAlerts       UsageAlert[]
+  exportJobs        ExportJob[]
+  importJobs        ImportJob[]
+  importItems       ImportItem[]
+
+  @@map("workspace")
+}
+
+model Post {
+  id          String     @id @default(cuid())
+  title       String
+  content     String
+  coverImage  String?
+  contentJson Json
+  description String
+  views       Int        @default(0)
+  workspaceId String
+  slug        String
+  categoryId  String
+  status      PostStatus @default(draft)
+  featured    Boolean    @default(false)
+  updatedAt   DateTime   @updatedAt
+  createdAt   DateTime   @default(now())
+  publishedAt DateTime
+  attribution Json?
+
+  primaryAuthorId String?
+  primaryAuthor   Author?  @relation("PrimaryAuthor", fields: [primaryAuthorId], references: [id], onDelete: SetNull)
+  authors         Author[] @relation("PostToAuthor")
+
+  category    Category     @relation(fields: [categoryId], references: [id])
+  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  tags        Tag[]        @relation("PostToTag")
+  shareLinks  ShareLink[]
+  fieldValues FieldValue[]
+
+  @@unique([workspaceId, slug])
+  @@unique([id, workspaceId])
+  @@index([workspaceId, status])
+  @@index([workspaceId, createdAt])
+  @@index([workspaceId, status, publishedAt])
+  @@index([categoryId])
+  @@map("post")
+}
+
+model ShareLink {
+  id          String   @id @default(cuid())
+  token       String   @unique
+  postId      String
+  workspaceId String
+  password    String?
+  expiresAt   DateTime
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  post      Post         @relation(fields: [postId], references: [id], onDelete: Cascade)
+  workspace Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@index([workspaceId])
+  @@index([expiresAt])
+  @@index([isActive])
+}
+
+model Tag {
+  id          String       @id @default(cuid())
+  name        String
+  description String?
+  slug        String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  workspaceId String
+  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  posts       Post[]       @relation("PostToTag")
+
+  @@unique([workspaceId, slug])
+  @@index([workspaceId])
+  @@map("tag")
+}
+
+model Media {
+  id          String       @id @default(cuid())
+  name        String
+  url         String
+  storageKey  String      // R2 storage key
+  size        Int
+  alt         String?
+  mimeType    String?
+  width       Int?
+  height      Int?
+  duration    Int? // video length in milliseconds
+  blurHash    String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  workspaceId String
+  type        MediaType    @default(image)
+  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, createdAt])
+  @@index([workspaceId, type])
+  @@map("media")
+}
+
+model Category {
+  id          String       @id @default(cuid())
+  name        String
+  description String?
+  slug        String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  workspaceId String
+  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  posts       Post[]
+
+  @@unique([workspaceId, slug])
+  @@index([workspaceId])
+  @@map("category")
+}
+
+model WebhookEndpoint {
+  id          String               @id @default(cuid())
+  name        String
+  url         String
+  secret      String
+  enabled     Boolean              @default(true)
+  workspaceId String
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  events      WorkspaceEventType[]
+  format      PayloadFormat        @default(json)
+  workspace   Organization         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  deliveries  WebhookDelivery[]
+
+  @@index([workspaceId])
+  @@index([workspaceId, enabled])
+  @@map("webhook_endpoint")
+}
+
+model User {
+  id                      String                       @id @default(cuid())
+  name                    String
+  email                   String                       @unique
+  emailVerified           Boolean
+  image                   String?
+  createdAt               DateTime
+  updatedAt               DateTime
+  accounts                Account[]
+  authors                 Author[]
+  invitations             Invitation[]
+  members                 Member[]
+  sessions                Session[]
+  subscriptions           Subscription[]
+  ApiKey                  ApiKey[]
+  notificationPreferences UserNotificationPreferences?
+  exportJobs              ExportJob[]
+  importJobs              ImportJob[]
+
+  @@map("user")
+}
+
+model UserNotificationPreferences {
+  id                      String    @id @default(cuid())
+  userId                  String    @unique
+  marketing               Boolean   @default(false)
+  product                 Boolean   @default(true)
+  marketingConsentedAt    DateTime?
+  marketingConsentSource  String?
+  marketingUnsubscribedAt DateTime?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+  user                    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_notification_preferences")
+}
+
+model Author {
+  id          String         @id @default(cuid())
+  name        String
+  email       String?
+  bio         String?
+  image       String?
+  role        String?
+  slug        String
+  socials     AuthorSocial[]
+  workspaceId String
+  userId      String?
+  isActive    Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  workspace       Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user            User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  primaryPosts    Post[]       @relation("PrimaryAuthor")
+  coAuthoredPosts Post[]       @relation("PostToAuthor")
+
+  @@unique([workspaceId, userId])
+  @@unique([workspaceId, slug])
+  @@index([workspaceId, isActive])
+  @@index([userId])
+  @@map("author")
+}
+
+model AuthorSocial {
+  id        String   @id @default(cuid())
+  authorId  String
+  platform  String
+  url       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  author Author @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([authorId])
+  @@map("author_social")
+}
+
+model Session {
+  id                   String   @id @default(cuid())
+  expiresAt            DateTime
+  token                String   @unique
+  createdAt            DateTime
+  updatedAt            DateTime
+  ipAddress            String?
+  userAgent            String?
+  userId               String
+  activeOrganizationId String?
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@index([activeOrganizationId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([providerId, accountId])
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+model Member {
+  id                      String                            @id @default(cuid())
+  organizationId          String
+  userId                  String
+  role                    String?
+  createdAt               DateTime
+  notificationPreferences WorkspaceNotificationPreferences?
+  organization            Organization                      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user                    User                              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([organizationId])
+  @@index([organizationId, userId])
+  @@map("member")
+}
+
+model WorkspaceNotificationPreferences {
+  id            String   @id @default(cuid())
+  memberId      String   @unique
+  usageAlerts   Boolean  @default(true)
+  subscriptions Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  member        Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@map("workspace_notification_preferences")
+}
+
+model Invitation {
+  id             String       @id @default(cuid())
+  organizationId String
+  email          String
+  role           String?
+  status         String
+  expiresAt      DateTime
+  inviterId      String
+  user           User         @relation(fields: [inviterId], references: [id], onDelete: Cascade)
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([organizationId])
+  @@index([email])
+  @@index([inviterId])
+  @@map("invitation")
+}
+
+model UsageEvent {
+  id          String         @id @default(cuid())
+  type        UsageEventType
+  workspaceId String
+  endpoint    String?
+  size        Int?
+  createdAt   DateTime       @default(now())
+  workspace   Organization   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, type, createdAt])
+  @@index([workspaceId, createdAt])
+  @@map("usage_event")
+}
+
+model UsageAlert {
+  id          String         @id @default(cuid())
+  workspaceId String
+  type        UsageEventType
+  kind        UsageAlertKind
+  periodStart DateTime
+  periodEnd   DateTime
+  emailSentTo String
+  sentAt      DateTime       @default(now())
+  workspace   Organization   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, type, kind, periodStart, periodEnd])
+  @@index([workspaceId, type, periodStart, periodEnd])
+  @@map("usage_alert")
+}
+
+enum UsageAlertKind {
+  warning
+  critical
+  exhausted
+}
+
+model ApiKey {
+  id           String     @id @default(cuid())
+  workspaceId  String
+  userId       String?
+  name         String
+  prefix       String?
+  key          String     @unique // SHA-256 hash of the API key
+  preview      String
+  type         ApiKeyType @default(public)
+  scopes       ApiScope[] @default([])
+  requestCount Int        @default(0)
+  enabled      Boolean    @default(true)
+
+  // Rate limiting fields
+  rateLimitTimeWindow Int? // milliseconds (e.g., 86400000 for 24 hours)
+  rateLimitMax        Int? // max requests per window
+  lastRequest         DateTime? // for rate limit window tracking
+
+  lastUsed  DateTime?
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  workspace Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([workspaceId])
+  @@index([workspaceId, createdAt])
+  @@index([workspaceId, enabled])
+  @@index([workspaceId, type])
+  @@index([key])
+  @@map("api_key")
+}
+
+enum PostStatus {
+  published
+  draft
+}
+
+enum PlanType {
+  hobby
+  pro
+}
+
+enum SubscriptionRecurringInterval {
+  day
+  week
+  month
+  year
+}
+
+enum SubscriptionStatus {
+  active // Active subscription
+  expired // End of period
+  trialing // Still in a trial period
+  past_due // Payment failed, unpaid, or incomplete
+  incomplete // Created, but with unpaid invoice
+  incomplete_expired // Created, but never made a payment and now expired
+  unpaid // Payment failed and is unpaid
+  canceled // Canceled (Polar uses American spelling)
+}
+
+enum WorkspaceEventType {
+  post_created
+  post_published
+  post_unpublished
+  post_updated
+  post_deleted
+
+  category_created
+  category_updated
+  category_deleted
+
+  tag_created
+  tag_updated
+  tag_deleted
+
+  media_uploaded
+  media_updated
+  media_deleted
+
+  author_created
+  author_updated
+  author_deleted
+}
+
+enum WorkspaceEventSource {
+  dashboard
+  api
+  mcp
+  workflow
+  system
+}
+
+enum WorkspaceEventActorType {
+  user
+  api_key
+  mcp
+  system
+}
+
+enum WorkspaceEventResourceType {
+  post
+  category
+  tag
+  media
+  author
+  workspace
+}
+
+enum PayloadFormat {
+  json
+  discord
+  slack
+}
+
+enum MediaType {
+  image
+  video
+  audio
+  document
+}
+
+enum UsageEventType {
+  api_request
+  media_upload
+  webhook_delivery
+}
+
+enum ApiKeyType {
+  public
+  private
+}
+
+enum ApiScope {
+  posts_read
+  posts_read_drafts
+  posts_write
+  authors_read
+  authors_write
+  categories_read
+  categories_write
+  tags_read
+  tags_write
+  media_read
+  media_write
+  fields_read
+  fields_write
+}
+
+enum FieldType {
+  text
+  number
+  boolean
+  date
+  richtext
+  select
+  multiselect
+}
+
+model Field {
+  id          String        @id @default(cuid())
+  workspaceId String
+  key         String
+  name        String
+  description String?
+  type        FieldType
+  required    Boolean       @default(false)
+  position    Int           @default(0)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  workspace   Organization  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  values      FieldValue[]
+  options     FieldOption[]
+
+  @@unique([workspaceId, key])
+  @@unique([id, workspaceId])
+  @@index([workspaceId])
+  @@map("field")
+}
+
+model FieldOption {
+  id          String       @id @default(cuid())
+  fieldId     String
+  workspaceId String
+  value       String
+  label       String
+  position    Int          @default(0)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  field       Field        @relation(fields: [fieldId, workspaceId], references: [id, workspaceId], onDelete: Cascade)
+  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([fieldId, value])
+  @@unique([id, workspaceId])
+  @@index([fieldId])
+  @@index([workspaceId])
+  @@index([fieldId, position])
+  @@map("field_option")
+}
+
+model FieldValue {
+  id          String       @id @default(cuid())
+  postId      String
+  fieldId     String
+  workspaceId String
+  value       String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  post        Post         @relation(fields: [postId, workspaceId], references: [id, workspaceId], onDelete: Cascade)
+  field       Field        @relation(fields: [fieldId, workspaceId], references: [id, workspaceId], onDelete: Cascade)
+  workspace   Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, fieldId])
+  @@index([postId])
+  @@index([fieldId])
+  @@index([workspaceId])
+  @@map("field_value")
+}
+
+model WorkspaceEvent {
+  id          String               @id @default(cuid())
+  workspaceId String
+  type        WorkspaceEventType
+  source      WorkspaceEventSource @default(dashboard)
+
+  resourceType WorkspaceEventResourceType?
+  resourceId   String?
+
+  actorType WorkspaceEventActorType?
+  actorId   String?
+
+  payload     Json      @default("{}")
+  processedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  workspace  Organization      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  deliveries WebhookDelivery[]
+
+  @@index([workspaceId, createdAt])
+  @@index([workspaceId, type])
+  @@index([workspaceId, resourceType, resourceId])
+  @@index([workspaceId, processedAt])
+  @@map("workspace_event")
+}
+
+model WebhookDelivery {
+  id                String @id @default(cuid())
+  eventId           String
+  workspaceId       String
+  webhookEndpointId String
+
+  url    String
+  status WebhookDeliveryStatus @default(pending)
+  isTest Boolean               @default(false)
+
+  attemptCount Int @default(0)
+  maxAttempts  Int @default(3)
+
+  nextRetryAt   DateTime?
+  lastAttemptAt DateTime?
+  deliveredAt   DateTime?
+  failedAt      DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  event           WorkspaceEvent           @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  workspace       Organization             @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  webhookEndpoint WebhookEndpoint          @relation(fields: [webhookEndpointId], references: [id], onDelete: Cascade)
+  attempts        WebhookDeliveryAttempt[]
+
+  @@index([eventId])
+  @@index([workspaceId, status])
+  @@index([workspaceId, createdAt])
+  @@index([webhookEndpointId])
+  @@unique([eventId, webhookEndpointId])
+  @@map("webhook_delivery")
+}
+
+model WebhookDeliveryAttempt {
+  id            String   @id @default(cuid())
+  deliveryId    String
+  attemptNumber Int
+  success       Boolean  @default(false)
+  statusCode    Int?
+  responseBody  String?
+  errorMessage  String?
+  durationMs    Int?
+  createdAt     DateTime @default(now())
+
+  delivery WebhookDelivery @relation(fields: [deliveryId], references: [id], onDelete: Cascade)
+
+  @@unique([deliveryId, attemptNumber])
+  @@index([deliveryId])
+  @@map("webhook_delivery_attempt")
+}
+
+enum WebhookDeliveryStatus {
+  pending
+  sending
+  success
+  retrying
+  failed
+}
+
+model ExportJob {
+  id          String          @id @default(cuid())
+  workspaceId String
+  status      ExportJobStatus @default(queued)
+  format      ExportFormat    @default(json)
+
+  // Snapshot of requested export options: resource list, filters, media mode, etc.
+  scope Json
+
+  // Result artifact (set once ready)
+  storageKey        String? // R2 key of the generated archive
+  fileSize          Int? // bytes
+  downloadTokenHash String? // hashed token backing the signed download link
+  expiresAt         DateTime?
+
+  startedAt    DateTime?
+  completedAt  DateTime?
+  failedAt     DateTime?
+  errorMessage String?
+  emailSentAt  DateTime?
+  attemptCount Int       @default(0)
+
+  createdById String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  workspace Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdBy User?        @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([workspaceId, status])
+  @@index([workspaceId, createdAt])
+  @@index([expiresAt])
+  @@map("export_job")
+}
+
+model ImportJob {
+  id          String          @id @default(cuid())
+  workspaceId String
+  source      ImportSource
+  status      ImportJobStatus @default(queued)
+  format      ImportFormat?
+
+  sourceUrl String? // for source = url
+  uploadKey String? // for source = file: R2 key of the uploaded archive/file
+
+  // Counters surfaced in the review UI and result report
+  totalItems    Int @default(0)
+  readyItems    Int @default(0)
+  errorItems    Int @default(0)
+  importedItems Int @default(0)
+
+  // User-confirmed category/tag/author mappings applied at create time
+  mapping Json?
+
+  startedAt    DateTime?
+  completedAt  DateTime?
+  failedAt     DateTime?
+  errorMessage String?
+
+  createdById String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  workspace Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdBy User?        @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  items     ImportItem[]
+
+  @@unique([id, workspaceId])
+  @@index([workspaceId, status])
+  @@index([workspaceId, createdAt])
+  @@map("import_job")
+}
+
+// A staging row per discovered post. Nearly everything is optional: it is a
+// pre-validation draft, not a Post. raw* holds values as discovered; resolved*
+// holds values after the user confirms mappings in the review step.
+model ImportItem {
+  id          String         @id @default(cuid())
+  importJobId String
+  workspaceId String
+  status      ImportItemStatus @default(pending)
+
+  sourceRef String? // original URL or filename
+
+  // Parsed content (staged)
+  title       String?
+  slug        String?
+  content     String?
+  contentJson Json?
+  description String?
+  coverImage  String?
+
+  // As discovered, before mapping
+  rawCategory String?
+  rawTags     Json?
+  rawAuthor   String?
+
+  // After the user maps taxonomies in review
+  resolvedCategoryId String?
+  resolvedTagIds     Json?
+
+  postId String? // set once the draft Post is created (plain pointer, no FK)
+  errors Json? // validation errors/warnings for this item
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  job       ImportJob    @relation(fields: [importJobId, workspaceId], references: [id, workspaceId], onDelete: Cascade)
+  workspace Organization @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([importJobId, status])
+  @@index([workspaceId])
+  @@map("import_item")
+}
+
+enum ExportJobStatus {
+  queued
+  processing
+  ready
+  failed
+  expired
+}
+
+enum ExportFormat {
+  json
+  markdown
+}
+
+enum ImportSource {
+  file
+  url
+}
+
+enum ImportJobStatus {
+  queued
+  discovering
+  processing
+  review
+  importing
+  completed
+  failed
+}
+
+enum ImportFormat {
+  markdown
+  json
+  wordpress
+}
+
+enum ImportItemStatus {
+  pending
+  ready
+  needs_review
+  skipped
+  imported
+  failed
+}
