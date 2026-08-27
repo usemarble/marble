@@ -1,7 +1,16 @@
 import "server-only";
 
-import { db } from "@marble/db";
-import { UsageEventType } from "@marble/db/browser";
+import { db } from "@marble/drizzle";
+import { media, usageEvent } from "@marble/drizzle/schema";
+import {
+  and,
+  count,
+  desc,
+  eq,
+  gte,
+  isNotNull,
+  lt,
+} from "drizzle-orm";
 import { addDays, format, startOfDay, subDays, subHours } from "date-fns";
 import type { UsageDashboardData } from "@/types/dashboard";
 
@@ -15,32 +24,42 @@ export async function getDashboardUsageMetrics(
   const chartStart = subDays(today, CHART_DAYS - 1);
   const previousPeriodStart = subDays(chartStart, CHART_DAYS);
 
-  const [apiEvents, apiPrevPeriodCount, apiTotalCount] = await Promise.all([
-    db.usageEvent.findMany({
-      where: {
-        workspaceId,
-        type: UsageEventType.api_request,
-        createdAt: { gte: chartStart },
-      },
-      select: { createdAt: true },
-    }),
-    db.usageEvent.count({
-      where: {
-        workspaceId,
-        type: UsageEventType.api_request,
-        createdAt: {
-          gte: previousPeriodStart,
-          lt: chartStart,
-        },
-      },
-    }),
-    db.usageEvent.count({
-      where: {
-        workspaceId,
-        type: UsageEventType.api_request,
-      },
-    }),
-  ]);
+  const [apiEvents, apiPrevPeriodCountResult, apiTotalCountResult] =
+    await Promise.all([
+      db
+        .select({ createdAt: usageEvent.createdAt })
+        .from(usageEvent)
+        .where(
+          and(
+            eq(usageEvent.workspaceId, workspaceId),
+            eq(usageEvent.type, "api_request"),
+            gte(usageEvent.createdAt, chartStart)
+          )
+        ),
+      db
+        .select({ count: count() })
+        .from(usageEvent)
+        .where(
+          and(
+            eq(usageEvent.workspaceId, workspaceId),
+            eq(usageEvent.type, "api_request"),
+            gte(usageEvent.createdAt, previousPeriodStart),
+            lt(usageEvent.createdAt, chartStart)
+          )
+        ),
+      db
+        .select({ count: count() })
+        .from(usageEvent)
+        .where(
+          and(
+            eq(usageEvent.workspaceId, workspaceId),
+            eq(usageEvent.type, "api_request")
+          )
+        ),
+    ]);
+
+  const apiPrevPeriodCount = apiPrevPeriodCountResult[0]?.count ?? 0;
+  const apiTotalCount = apiTotalCountResult[0]?.count ?? 0;
 
   const chartBuckets = new Map<string, number>();
   for (let i = 0; i < CHART_DAYS; i += 1) {
@@ -53,10 +72,10 @@ export async function getDashboardUsageMetrics(
   }
 
   const apiChart = Array.from(chartBuckets.entries()).map(
-    ([dateKey, count]) => ({
+    ([dateKey, chartCount]) => ({
       date: dateKey,
       label: format(new Date(dateKey), "MMM d"),
-      value: count,
+      value: chartCount,
     })
   );
 
@@ -73,87 +92,124 @@ export async function getDashboardUsageMetrics(
 
   const webhookChartStart = subDays(today, CHART_DAYS - 1);
   const [
-    webhookTotal,
-    webhookWeek,
-    webhookDay,
+    webhookTotalResult,
+    webhookWeekResult,
+    webhookDayResult,
     webhookTopEndpoint,
     webhookEvents,
-    mediaTotals,
-    mediaLast30,
+    mediaTotalsResult,
+    mediaLast30Result,
     mediaLastUpload,
     recentMediaUploads,
   ] = await Promise.all([
-    db.usageEvent.count({
-      where: { workspaceId, type: UsageEventType.webhook_delivery },
+    db
+      .select({ count: count() })
+      .from(usageEvent)
+      .where(
+        and(
+          eq(usageEvent.workspaceId, workspaceId),
+          eq(usageEvent.type, "webhook_delivery")
+        )
+      ),
+    db
+      .select({ count: count() })
+      .from(usageEvent)
+      .where(
+        and(
+          eq(usageEvent.workspaceId, workspaceId),
+          eq(usageEvent.type, "webhook_delivery"),
+          gte(usageEvent.createdAt, subDays(now, 6))
+        )
+      ),
+    db
+      .select({ count: count() })
+      .from(usageEvent)
+      .where(
+        and(
+          eq(usageEvent.workspaceId, workspaceId),
+          eq(usageEvent.type, "webhook_delivery"),
+          gte(usageEvent.createdAt, subHours(now, 24))
+        )
+      ),
+    db
+      .select({
+        endpoint: usageEvent.endpoint,
+        count: count(),
+      })
+      .from(usageEvent)
+      .where(
+        and(
+          eq(usageEvent.workspaceId, workspaceId),
+          eq(usageEvent.type, "webhook_delivery"),
+          isNotNull(usageEvent.endpoint)
+        )
+      )
+      .groupBy(usageEvent.endpoint)
+      .orderBy(desc(count()))
+      .limit(1),
+    db
+      .select({ createdAt: usageEvent.createdAt })
+      .from(usageEvent)
+      .where(
+        and(
+          eq(usageEvent.workspaceId, workspaceId),
+          eq(usageEvent.type, "webhook_delivery"),
+          gte(usageEvent.createdAt, webhookChartStart)
+        )
+      ),
+    db
+      .select({ count: count() })
+      .from(usageEvent)
+      .where(
+        and(
+          eq(usageEvent.workspaceId, workspaceId),
+          eq(usageEvent.type, "media_upload")
+        )
+      ),
+    db
+      .select({ count: count() })
+      .from(usageEvent)
+      .where(
+        and(
+          eq(usageEvent.workspaceId, workspaceId),
+          eq(usageEvent.type, "media_upload"),
+          gte(usageEvent.createdAt, subDays(now, 29))
+        )
+      ),
+    db.query.usageEvent.findFirst({
+      where: and(
+        eq(usageEvent.workspaceId, workspaceId),
+        eq(usageEvent.type, "media_upload")
+      ),
+      orderBy: desc(usageEvent.createdAt),
+      columns: { createdAt: true },
     }),
-    db.usageEvent.count({
-      where: {
-        workspaceId,
-        type: UsageEventType.webhook_delivery,
-        createdAt: { gte: subDays(now, 6) },
-      },
-    }),
-    db.usageEvent.count({
-      where: {
-        workspaceId,
-        type: UsageEventType.webhook_delivery,
-        createdAt: { gte: subHours(now, 24) },
-      },
-    }),
-    db.usageEvent.groupBy({
-      by: ["endpoint"],
-      where: {
-        workspaceId,
-        type: UsageEventType.webhook_delivery,
-        endpoint: { not: null },
-      },
-      _count: { endpoint: true },
-      orderBy: { _count: { endpoint: "desc" } },
-      take: 1,
-    }),
-    db.usageEvent.findMany({
-      where: {
-        workspaceId,
-        type: UsageEventType.webhook_delivery,
-        createdAt: { gte: webhookChartStart },
-      },
-      select: { createdAt: true },
-    }),
-    db.usageEvent.count({
-      where: { workspaceId, type: UsageEventType.media_upload },
-    }),
-    db.usageEvent.count({
-      where: {
-        workspaceId,
-        type: UsageEventType.media_upload,
-        createdAt: { gte: subDays(now, 29) },
-      },
-    }),
-    db.usageEvent.findFirst({
-      where: { workspaceId, type: UsageEventType.media_upload },
-      orderBy: { createdAt: "desc" },
-      select: { createdAt: true },
-    }),
-    db.media.findMany({
-      where: { workspaceId },
-      orderBy: { createdAt: "desc" },
-      take: 10,
-      select: {
-        id: true,
-        name: true,
-        size: true,
-        alt: true,
-        createdAt: true,
-        type: true,
-        url: true,
-        mimeType: true,
-        width: true,
-        height: true,
-        duration: true,
-        blurHash: true,
-      },
-    }),
+    db
+      .select({
+        id: media.id,
+        name: media.name,
+        size: media.size,
+        alt: media.alt,
+        createdAt: media.createdAt,
+        type: media.type,
+        url: media.url,
+        mimeType: media.mimeType,
+        width: media.width,
+        height: media.height,
+        duration: media.duration,
+        blurHash: media.blurHash,
+      })
+      .from(media)
+      .where(eq(media.workspaceId, workspaceId))
+      .orderBy(desc(media.createdAt))
+      .limit(10),
   ]);
+
+  const webhookTotal = webhookTotalResult[0]?.count ?? 0;
+  const webhookWeek = webhookWeekResult[0]?.count ?? 0;
+  const webhookDay = webhookDayResult[0]?.count ?? 0;
+  const mediaTotals = mediaTotalsResult[0]?.count ?? 0;
+  const mediaLast30 = mediaLast30Result[0]?.count ?? 0;
 
   const webhookChartBuckets = new Map<string, number>();
   for (let i = 0; i < CHART_DAYS; i += 1) {
@@ -166,10 +222,10 @@ export async function getDashboardUsageMetrics(
   }
 
   const webhookChart = Array.from(webhookChartBuckets.entries()).map(
-    ([dateKey, count]) => ({
+    ([dateKey, chartCount]) => ({
       date: dateKey,
       label: format(new Date(dateKey), "MMM d"),
-      value: count,
+      value: chartCount,
     })
   );
 
@@ -187,30 +243,30 @@ export async function getDashboardUsageMetrics(
       last7Days: webhookWeek,
       last24Hours: webhookDay,
       topEndpoint: webhookTopEndpoint[0]?.endpoint ?? null,
-      topEndpointCount: webhookTopEndpoint[0]?._count.endpoint ?? 0,
+      topEndpointCount: webhookTopEndpoint[0]?.count ?? 0,
       chart: webhookChart,
     },
     media: {
       total: mediaTotals,
       last30Days: mediaLast30,
       recentUploadsSize: recentMediaUploads.reduce(
-        (sum, media) => sum + media.size,
+        (sum, item) => sum + item.size,
         0
       ),
       lastUploadAt: mediaLastUpload?.createdAt.toISOString() ?? null,
-      recentUploads: recentMediaUploads.map((media) => ({
-        id: media.id,
-        name: media.name,
-        size: media.size,
-        alt: media.alt,
-        createdAt: media.createdAt.toISOString(),
-        type: media.type,
-        url: media.url,
-        mimeType: media.mimeType,
-        width: media.width,
-        height: media.height,
-        duration: media.duration,
-        blurHash: media.blurHash,
+      recentUploads: recentMediaUploads.map((item) => ({
+        id: item.id,
+        name: item.name,
+        size: item.size,
+        alt: item.alt,
+        createdAt: item.createdAt.toISOString(),
+        type: item.type,
+        url: item.url,
+        mimeType: item.mimeType,
+        width: item.width,
+        height: item.height,
+        duration: item.duration,
+        blurHash: item.blurHash,
       })),
     },
   };

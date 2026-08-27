@@ -1,4 +1,6 @@
-import { db } from "@marble/db";
+import { db } from "@marble/drizzle";
+import { member, user } from "@marble/drizzle/schema";
+import { and, eq } from "drizzle-orm";
 import { getServerSession } from "@/lib/auth/session";
 
 export async function getInitialUserData() {
@@ -9,11 +11,11 @@ export async function getInitialUserData() {
       return { user: null, isAuthenticated: false };
     }
 
-    const user = await db.user.findUnique({
-      where: { id: sessionData.user.id },
+    const foundUser = await db.query.user.findFirst({
+      where: eq(user.id, sessionData.user.id),
     });
 
-    if (!user) {
+    if (!foundUser) {
       return { user: null, isAuthenticated: false };
     }
 
@@ -27,15 +29,15 @@ export async function getInitialUserData() {
       return { user: null, isAuthenticated: true };
     }
 
-    const member = activeOrganizationId
-      ? await db.member.findFirst({
-          where: {
-            organizationId: activeOrganizationId,
-            userId: user.id,
-          },
-          include: {
+    const foundMember = activeOrganizationId
+      ? await db.query.member.findFirst({
+          where: and(
+            eq(member.organizationId, activeOrganizationId),
+            eq(member.userId, foundUser.id)
+          ),
+          with: {
             organization: {
-              select: {
+              columns: {
                 id: true,
                 name: true,
                 slug: true,
@@ -46,9 +48,9 @@ export async function getInitialUserData() {
       : null;
 
     const userWithRole = {
-      ...user,
-      workspaceRole: member?.role || null,
-      activeWorkspace: member?.organization || null,
+      ...foundUser,
+      workspaceRole: foundMember?.role || null,
+      activeWorkspace: foundMember?.organization || null,
     };
 
     return { user: userWithRole, isAuthenticated: true };

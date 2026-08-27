@@ -1,6 +1,16 @@
 import "server-only";
 
-import { db } from "@marble/db";
+import { db } from "@marble/drizzle";
+import { post } from "@marble/drizzle/schema";
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  ilike,
+  type SQL,
+} from "drizzle-orm";
 import type { Post } from "@/types/dashboard";
 
 export interface PostListFilters {
@@ -26,12 +36,41 @@ const POST_SORT_FIELDS = new Set([
   "title",
 ]);
 
+const postSortColumns = {
+  createdAt: post.createdAt,
+  publishedAt: post.publishedAt,
+  updatedAt: post.updatedAt,
+  title: post.title,
+} as const;
+
 export function splitPostSort(sort: string) {
   const [field = "createdAt", direction = "desc"] = sort.split("_");
   return {
     field: POST_SORT_FIELDS.has(field) ? field : "createdAt",
     direction: direction === "asc" ? "asc" : "desc",
   } as const;
+}
+
+function buildPostFilters(
+  workspaceId: string,
+  filters: Pick<PostListFilters, "category" | "search" | "status">
+): SQL | undefined {
+  const trimmedSearch = filters.search.trim();
+  const conditions: SQL[] = [eq(post.workspaceId, workspaceId)];
+
+  if (filters.category !== "all") {
+    conditions.push(eq(post.categoryId, filters.category));
+  }
+
+  if (filters.status !== "all") {
+    conditions.push(eq(post.status, filters.status));
+  }
+
+  if (trimmedSearch) {
+    conditions.push(ilike(post.title, `%${trimmedSearch}%`));
+  }
+
+  return and(...conditions);
 }
 
 export async function getDashboardPosts(
@@ -41,27 +80,24 @@ export async function getDashboardPosts(
   const { category, page, perPage, search, sort, status } = filters;
   const { direction, field } = splitPostSort(sort);
   const trimmedSearch = search.trim();
-  const where = {
-    workspaceId,
-    ...(category !== "all" && { categoryId: category }),
-    ...(status !== "all" && { status }),
-    ...(trimmedSearch && {
-      title: {
-        contains: trimmedSearch,
-        mode: "insensitive" as const,
-      },
-    }),
-  };
+  const where = buildPostFilters(workspaceId, { category, search, status });
 
   const hasFilters = Boolean(
     category !== "all" || status !== "all" || trimmedSearch
   );
-  const [posts, totalCount, workspacePostCount] = await Promise.all([
-    db.post.findMany({
+
+  const sortColumn =
+    postSortColumns[field as keyof typeof postSortColumns] ??
+    postSortColumns.createdAt;
+  const orderBy =
+    direction === "asc"
+      ? [asc(sortColumn), asc(post.id)]
+      : [desc(sortColumn), desc(post.id)];
+
+  const [rows, totalCountResult, workspacePostCountResult] = await Promise.all([
+    db.query.post.findMany({
       where,
-      skip: (page - 1) * perPage,
-      take: perPage,
-      select: {
+      columns: {
         id: true,
         title: true,
         coverImage: true,
@@ -69,25 +105,53 @@ export async function getDashboardPosts(
         featured: true,
         publishedAt: true,
         updatedAt: true,
+      },
+      with: {
         category: {
-          select: {
+          columns: {
             id: true,
             name: true,
           },
         },
         authors: {
-          select: {
-            id: true,
-            name: true,
-            image: true,
+          with: {
+            author: {
+              columns: {
+                id: true,
+                name: true,
+                image: true,
+              },
+            },
           },
         },
       },
-      orderBy: [{ [field]: direction }, { id: direction }],
+      orderBy,
+      limit: perPage,
+      offset: (page - 1) * perPage,
     }),
-    db.post.count({ where }),
-    hasFilters ? db.post.count({ where: { workspaceId } }) : null,
+    db.select({ count: count() }).from(post).where(where),
+    hasFilters
+      ? db
+          .select({ count: count() })
+          .from(post)
+          .where(eq(post.workspaceId, workspaceId))
+      : null,
   ]);
+
+  const totalCount = totalCountResult[0]?.count ?? 0;
+  const workspacePostCount = workspacePostCountResult?.[0]?.count ?? null;
+
+  const posts: Post[] = rows.map((row) => ({
+    id: row.id,
+    title: row.title,
+    coverImage: row.coverImage,
+    status: row.status,
+    featured: row.featured,
+    publishedAt: row.publishedAt,
+    updatedAt: row.updatedAt,
+    category: row.category,
+    authors: row.authors.map((entry) => entry.author),
+  }));
 
   return {
     hasAnyPosts:
