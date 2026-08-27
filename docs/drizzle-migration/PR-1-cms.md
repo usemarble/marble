@@ -16,10 +16,10 @@ Ship a correct ORM swap for the CMS that behaves like today on the **same Neon P
 - `@marble/drizzle` beside `@marble/db` (Prisma remains schema owner during coexistence)
 - CMS driver stays **neon-serverless WebSocket** (same class of transport as Prisma today)
 - Interactive transactions preserved for post/field writes
-- Better Auth moved from `prismaAdapter` → `drizzleAdapter` with correct `workspace` mapping
+- Better Auth moved from `prismaAdapter` → `@better-auth/drizzle-adapter` (`drizzleAdapter`) with provider `"pg"` and correct `workspace` mapping
 - Agent-runnable parity tests (schema / reads / writes+tx / auth soak)
 
-**Not a goal of PR1:** removing Prisma, migrating workers, Redis query cache, neon-http, or schema redesign.
+**Not a goal of PR1:** removing Prisma, migrating workers, Redis query cache, neon-http (CMS stays on neon-serverless WebSocket), or schema redesign.
 
 ---
 
@@ -32,7 +32,7 @@ Ship a correct ORM swap for the CMS that behaves like today on the **same Neon P
 | Phase 0 | Import inventory, live schema baseline under `docs/drizzle-parity/baseline/`, parity harness skeleton, frozen IDs |
 | Phase 1 | Create `packages/drizzle` (`@marble/drizzle`); `drizzle-kit pull --init` against snapshotted DB; schema modules; CMS neon-serverless client export; schema-check green |
 | Phase 2 | Add `@marble/drizzle` to CMS; migrate query domains incrementally with Prisma-vs-Drizzle tests before each route swap |
-| Phase 3 | Swap Better Auth to `drizzleAdapter`; staging auth soak; golden paths |
+| Phase 3 | Swap Better Auth to `@better-auth/drizzle-adapter`; staging auth soak; golden paths |
 | Docs | Inventory + this PR1 brief; baseline artifacts committed |
 
 Approximate CMS surface from inventory: **~52 runtime files** importing `@marble/db` / `@marble/db/browser`, **4 `$transaction` sites**, Better Auth `prismaAdapter` in `apps/cms/src/lib/auth/server.ts`.
@@ -46,7 +46,7 @@ Approximate CMS surface from inventory: **~52 runtime files** importing `@marble
 | **Removing `@marble/db` / Prisma** | Phase 5 — only after CMS + API + jobs are off Prisma |
 | **Drizzle Kit as schema owner** | Phase 5 handoff; while both ORMs coexist, **only Prisma may migrate** |
 | **Redis / Drizzle query cache** | Post-v1 polish |
-| **Switching CMS to neon-http** | Would break interactive transactions; post-migration experiment only |
+| **Switching CMS to neon-http** | Breaks interactive transactions — use neon-serverless **WebSocket** (`drizzle-orm/neon-serverless`), not neon-http; see [Connect to Neon](https://orm.drizzle.team/docs/connect-neon). Post-migration experiment only |
 | **Schema redesign / renaming tables** | Zero physical name changes during cutover (`Organization` stays mapped to `workspace`, `ShareLink` stays PascalCase, etc.) |
 | **Rewriting txs to HTTP `batch()`** | Keep interactive callbacks |
 | **Flushing Redis or truncating `session` / `user`** | Forbidden for green auth tests |
@@ -59,8 +59,8 @@ Approximate CMS surface from inventory: **~52 runtime files** importing `@marble
 | PR | Scope |
 | --- | --- |
 | **1 (this PR)** | Phase 0–3: baseline + `@marble/drizzle` + **CMS only** (queries → Better Auth) |
-| **2** | `apps/api` + `apps/jobs` Hyperdrive → Drizzle |
-| **3** | Remove `@marble/db` / Prisma; Drizzle owns migrations |
+| **2** | `apps/api` + `apps/jobs` Hyperdrive → Drizzle (`docs/drizzle-migration/PR-2-api-jobs.md`) |
+| **3** | Remove `@marble/db` / Prisma; Drizzle owns migrations (`docs/drizzle-migration/PR-3-remove-prisma.md`) |
 | **4+** | Cache / neon-http / query polish |
 
 Prisma stays installed through PR1–2 for rollback and for apps not yet migrated.
@@ -93,7 +93,7 @@ Prisma stays installed through PR1–2 for rollback and for apps not yet migrate
 - `pnpm drizzle-kit pull --init` on the **same** DB that was snapshotted
 - Organize schema under `packages/drizzle/src/schema/`
 - Fix Better Auth naming: physical `workspace` must map to organization expectations (same as Prisma `Organization` + `@@map("workspace")`)
-- Export CMS client: `drizzle-orm/neon-serverless` (`Pool` + `ws`), mirroring `packages/db/src/index.ts`
+- Export CMS client: `drizzle-orm/neon-serverless` (`Pool` + `ws`), mirroring `packages/db/src/index.ts` — **not** `drizzle-orm/neon-http` ([Neon + Drizzle](https://orm.drizzle.team/docs/connect-neon); HTTP cannot run interactive transactions)
 - Run `schema-check.test.ts` vs Phase 0 baseline (only allowed extra: Drizzle journal table)
 
 **Phase 1 exit:** schema-check green; **no CMS routes switched**.
@@ -124,10 +124,13 @@ Per slice:
 
 In `apps/cms/src/lib/auth/server.ts`:
 
-- `prismaAdapter` → `drizzleAdapter`
-- Explicit schema with physical names: `user`, `session`, `account`, `verification`, `workspace` (organization), `member`, `invitation`
-- Keep Redis `secondaryStorage` unchanged
-- Same neon-serverless CMS Drizzle client
+- Replace `better-auth/adapters/prisma` (`prismaAdapter`) with **`@better-auth/drizzle-adapter`** (`drizzleAdapter`)
+- Configure the adapter with provider **`"pg"`** (Postgres)
+- Map Better Auth **organization → physical `workspace` table** (same as today’s `organization: { modelName: "workspace" }` / Prisma `Organization` + `@@map("workspace")`)
+- Pass an explicit schema with physical names: `user`, `session`, `account`, `verification`, `workspace` (organization), `member`, `invitation`
+- Keep Redis **`secondaryStorage` unchanged** (do not flush Redis; sessions must survive the swap)
+- Use the same CMS Drizzle client: **neon-serverless WebSocket** (`drizzle-orm/neon-serverless`), **not** neon-http
+- When swapping, move `experimental: { joins: true }` → **`advanced.database.joins: true`** (merge with the existing `advanced.database.generateId: false` block)
 
 **Phase 3 exit:** `auth-soak.test.ts` + golden paths; **existing sessions survive**; no Redis flush.
 
@@ -141,7 +144,7 @@ PR1 is done when all of the following hold:
 2. **Package** — `@marble/drizzle` published in-workspace with CMS neon-serverless client and schema modules.
 3. **CMS queries** — No remaining runtime `@marble/db` query usage in CMS app routes/libs **except** what is required only until the auth swap lands in the same PR; end state is CMS on Drizzle for queries + auth.
 4. **Transactions** — All four CMS `$transaction` sites have Drizzle equivalents with happy-path + rollback parity tests.
-5. **Auth** — Better Auth on `drizzleAdapter`; soak user session still works after swap; login / OTP / org create / invite / org switch covered.
+5. **Auth** — Better Auth on `@better-auth/drizzle-adapter` (provider `"pg"`, organization→`workspace`); soak user session still works after swap; login / OTP / org create / invite / org switch covered; `experimental.joins` migrated to `advanced.database.joins`.
 6. **Golden paths** (CMS-relevant) pass on staging:
    - login / session restore
    - create workspace
@@ -179,8 +182,13 @@ PR1 is done when all of the following hold:
 
 ## References
 
+- Index: `docs/drizzle-migration/README.md`
+- PR2: `docs/drizzle-migration/PR-2-api-jobs.md`
+- PR3: `docs/drizzle-migration/PR-3-remove-prisma.md`
 - Migration plan: Prisma → Drizzle (Phase 0–5)
 - Inventory: `docs/drizzle-parity/inventory.md`
 - Schema: `packages/db/prisma/schema.prisma`
 - CMS auth: `apps/cms/src/lib/auth/server.ts`
 - CMS Prisma client: `@marble/db` → `packages/db/src/index.ts` (neon-serverless)
+- Better Auth Drizzle adapter: `@better-auth/drizzle-adapter` (provider `"pg"`)
+- Neon + Drizzle (use WebSocket / `neon-serverless`, not neon-http, for interactive transactions): https://orm.drizzle.team/docs/connect-neon
