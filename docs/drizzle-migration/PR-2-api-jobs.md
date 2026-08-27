@@ -4,8 +4,6 @@ Working title for the second migration PR: **`apps/api` + `apps/jobs` on Drizzle
 
 This document summarizes PR2 prerequisites, scope, client factory changes, parity checks, exit criteria, and out-of-scope items. It assumes PR1 (CMS + `@marble/drizzle` foundation) is already merged.
 
-Companion inventory: [`docs/drizzle-parity/inventory.md`](../drizzle-parity/inventory.md) (CMS-focused; extend or add worker-specific notes as needed during PR2).
-
 Index: [`README.md`](./README.md).
 
 ---
@@ -143,7 +141,6 @@ PR2 is done when all of the following hold:
 - Index: `docs/drizzle-migration/README.md`
 - PR1: `docs/drizzle-migration/PR-1-cms.md`
 - PR3: `docs/drizzle-migration/PR-3-remove-prisma.md`
-- Inventory: `docs/drizzle-parity/inventory.md`
 - API factory: `apps/api/src/lib/db.ts`
 - Jobs factory: `apps/jobs/src/lib/db.ts`
 - Prisma Hyperdrive entry: `packages/db/src/hyperdrive.ts`

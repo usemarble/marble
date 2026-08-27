@@ -4,8 +4,7 @@ import { defineConfig } from "drizzle-kit";
  * Local / staging inspection only.
  *
  * Prisma remains the schema owner. Do NOT run drizzle-kit generate or migrate
- * against production. Prefer drizzle-kit pull on a staging clone after dumping
- * information_schema baselines (see docs/drizzle-parity/baseline/).
+ * against production. Prefer drizzle-kit pull on a staging clone first.
  */
 export default defineConfig({
   dialect: "postgresql",

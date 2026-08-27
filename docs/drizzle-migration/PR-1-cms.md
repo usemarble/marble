@@ -4,8 +4,6 @@ Working title for the first migration PR: **foundation + `apps/cms` only**.
 
 This document summarizes PR1 scope, phases, exit criteria, and out-of-scope items. It follows the safe Prisma → Drizzle migration plan and the hazard analysis that keeps API/jobs out of the first PR.
 
-Companion inventory: [`docs/drizzle-parity/inventory.md`](../drizzle-parity/inventory.md).
-
 ---
 
 ## Goal
@@ -29,7 +27,7 @@ Ship a correct ORM swap for the CMS that behaves like today on the **same Neon P
 
 | Area | Detail |
 | --- | --- |
-| Phase 0 | Import inventory, live schema baseline under `docs/drizzle-parity/baseline/`, parity harness skeleton, frozen IDs |
+| Phase 0 | Import inventory, live schema baseline, parity checks |
 | Phase 1 | Create `packages/drizzle` (`@marble/drizzle`); `drizzle-kit pull --init` against snapshotted DB; schema modules; CMS neon-serverless client export; schema-check green |
 | Phase 2 | Add `@marble/drizzle` to CMS; migrate query domains incrementally with Prisma-vs-Drizzle tests before each route swap |
 | Phase 3 | Swap Better Auth to `@better-auth/drizzle-adapter`; staging auth soak; golden paths |
@@ -73,13 +71,13 @@ Prisma stays installed through PR1–2 for rollback and for apps not yet migrate
 
 **Do before** creating `packages/drizzle` behavior and **before** any `drizzle-kit` command.
 
-1. Record inventory (done in `docs/drizzle-parity/inventory.md`):
+1. Record inventory:
    - every `@marble/db` / `@marble/db/browser` import
    - every `$transaction` (and confirm no raw SQL in CMS)
    - Better Auth models + `@@map` names
    - golden paths
-2. Snapshot the staging/branch DB into `docs/drizzle-parity/baseline/` (`prisma-schema.prisma`, `information_schema` JSON dumps, `pg_dump --schema-only`, row counts).
-3. Freeze real IDs into `docs/drizzle-parity/ids.ts`.
+2. Snapshot the staging/branch DB (`prisma-schema.prisma`, `information_schema` dumps, `pg_dump --schema-only`, row counts).
+3. Freeze real IDs for parity checks if needed.
 4. Lay out parity harness (later copied to `packages/drizzle/src/__parity__/`).
 
 **Phase 0 exit:** baseline files committed; inventory complete; harness layout defined. No Drizzle package required yet for the inventory/baseline commits, but no `drizzle-kit` until baseline exists.
@@ -186,7 +184,6 @@ PR1 is done when all of the following hold:
 - PR2: `docs/drizzle-migration/PR-2-api-jobs.md`
 - PR3: `docs/drizzle-migration/PR-3-remove-prisma.md`
 - Migration plan: Prisma → Drizzle (Phase 0–5)
-- Inventory: `docs/drizzle-parity/inventory.md`
 - Schema: `packages/db/prisma/schema.prisma`
 - CMS auth: `apps/cms/src/lib/auth/server.ts`
 - CMS Prisma client: `@marble/db` → `packages/db/src/index.ts` (neon-serverless)

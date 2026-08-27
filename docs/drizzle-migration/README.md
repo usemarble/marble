@@ -12,12 +12,6 @@ Sequenced plans for moving Marble off Prisma onto Drizzle **on the same Neon Pos
 
 Later polish (not scheduled in these briefs): Redis / Drizzle query cache, CMS neon-http experiments, query refactors.
 
-## Companion artifacts
-
-- **Import / tx / auth inventory (CMS):** [`docs/drizzle-parity/inventory.md`](../drizzle-parity/inventory.md)
-- **Phase 0 baseline** (when committed): `docs/drizzle-parity/baseline/`
-- **Frozen IDs / parity harness:** see PR1 Phase 0
-
 ## Sequencing
 
 1. **PR1** — Baseline + package + CMS cutover (neon-serverless **WebSocket**, not neon-http). Prove Better Auth + interactive transactions first.

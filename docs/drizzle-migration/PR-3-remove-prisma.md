@@ -51,7 +51,7 @@ Any remaining hits must be non-runtime (comments, historical docs) or fixed befo
 
 ### 3. Archive Prisma migrations
 
-- Move `packages/db/prisma/migrations/` (and related Prisma migration history artifacts) to an **archive** location, e.g. `docs/drizzle-parity/archive/prisma-migrations/` or `packages/db/_archived_prisma/migrations/`.
+- Move `packages/db/prisma/migrations/` (and related Prisma migration history artifacts) to an **archive** location, e.g. `packages/db/_archived_prisma/migrations/`.
 - Keep the archive **read-only historical record** — do not run `prisma migrate` against shared environments after cutover.
 - Preserve enough context (README in the archive folder) to explain that production tables were created under Prisma and ownership moved to Drizzle Kit as of PR3.
 
@@ -121,5 +121,4 @@ Any remaining hits must be non-runtime (comments, historical docs) or fixed befo
 - Index: `docs/drizzle-migration/README.md`
 - PR1: `docs/drizzle-migration/PR-1-cms.md`
 - PR2: `docs/drizzle-migration/PR-2-api-jobs.md`
-- Inventory: `docs/drizzle-parity/inventory.md`
 - Prisma schema (pre-removal): `packages/db/prisma/schema.prisma`
