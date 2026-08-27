@@ -1,5 +1,8 @@
-import { db } from "@marble/db";
+import { db } from "@marble/drizzle";
+import { media, organization } from "@marble/drizzle/schema";
 import { toMediaPayload } from "@marble/events";
+import { createId } from "@paralleldrive/cuid2";
+import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import {
@@ -100,17 +103,20 @@ export async function POST(request: Request) {
         return NextResponse.json({ url });
       }
       case "logo": {
-        await db.organization.update({
-          where: { id: workspaceId },
-          data: { logo: url },
-        });
+        await db
+          .update(organization)
+          .set({ logo: url, updatedAt: new Date() })
+          .where(eq(organization.id, workspaceId));
         return NextResponse.json({ url });
       }
       case "media": {
         const mediaName = parsedBody.data.name;
         const mediaType = getMediaType(fileType);
-        const media = await db.media.create({
-          data: {
+        const now = new Date();
+        const [createdMedia] = await db
+          .insert(media)
+          .values({
+            id: createId(),
             name: mediaName,
             url,
             storageKey: key,
@@ -122,8 +128,17 @@ export async function POST(request: Request) {
             blurHash: parsedBody.data.blurHash,
             type: mediaType,
             workspaceId,
-          },
-        });
+            createdAt: now,
+            updatedAt: now,
+          })
+          .returning();
+
+        if (!createdMedia) {
+          return NextResponse.json(
+            { error: "Failed to complete upload" },
+            { status: 500 }
+          );
+        }
 
         trackMediaUpload(workspaceId, fileSize, mediaType).catch((err) => {
           console.error("[Media Upload] Failed to track upload:", err);
@@ -133,24 +148,24 @@ export async function POST(request: Request) {
           type: "media_uploaded",
           workspaceId,
           resourceType: "media",
-          resourceId: media.id,
+          resourceId: createdMedia.id,
           actorId: sessionData.user.id,
-          payload: toMediaPayload(media),
+          payload: toMediaPayload(createdMedia),
         }).catch(logDashboardEventError);
 
         const mediaResponse = {
-          id: media.id,
-          name: media.name,
-          url: media.url,
-          alt: media.alt,
-          size: media.size,
-          mimeType: media.mimeType,
-          width: media.width,
-          height: media.height,
-          duration: media.duration,
-          blurHash: media.blurHash,
-          type: media.type,
-          createdAt: media.createdAt.toISOString(),
+          id: createdMedia.id,
+          name: createdMedia.name,
+          url: createdMedia.url,
+          alt: createdMedia.alt,
+          size: createdMedia.size,
+          mimeType: createdMedia.mimeType,
+          width: createdMedia.width,
+          height: createdMedia.height,
+          duration: createdMedia.duration,
+          blurHash: createdMedia.blurHash,
+          type: createdMedia.type,
+          createdAt: createdMedia.createdAt.toISOString(),
         };
         return NextResponse.json(mediaResponse);
       }

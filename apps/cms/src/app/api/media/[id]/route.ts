@@ -1,4 +1,6 @@
-import { db } from "@marble/db";
+import { db } from "@marble/drizzle";
+import { media } from "@marble/drizzle/schema";
+import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
@@ -7,6 +9,21 @@ const updateMediaSchema = z.object({
   name: z.string().trim().min(1).max(255),
   alt: z.string().trim().max(1000).nullable(),
 });
+
+const mediaColumns = {
+  id: media.id,
+  name: media.name,
+  url: media.url,
+  alt: media.alt,
+  createdAt: media.createdAt,
+  type: media.type,
+  size: media.size,
+  mimeType: media.mimeType,
+  width: media.width,
+  height: media.height,
+  duration: media.duration,
+  blurHash: media.blurHash,
+} as const;
 
 export async function GET(
   _request: Request,
@@ -29,32 +46,17 @@ export async function GET(
   }
 
   try {
-    const media = await db.media.findFirst({
-      where: {
-        id,
-        workspaceId,
-      },
-      select: {
-        id: true,
-        name: true,
-        url: true,
-        alt: true,
-        createdAt: true,
-        type: true,
-        size: true,
-        mimeType: true,
-        width: true,
-        height: true,
-        duration: true,
-        blurHash: true,
-      },
-    });
+    const [mediaItem] = await db
+      .select(mediaColumns)
+      .from(media)
+      .where(and(eq(media.id, id), eq(media.workspaceId, workspaceId)))
+      .limit(1);
 
-    if (!media) {
+    if (!mediaItem) {
       return NextResponse.json({ error: "Media not found" }, { status: 404 });
     }
 
-    return NextResponse.json(media, { status: 200 });
+    return NextResponse.json(mediaItem, { status: 200 });
   } catch (error) {
     console.error("[Media] Failed to fetch media:", error);
     return NextResponse.json(
@@ -95,40 +97,28 @@ export async function PATCH(
       );
     }
 
-    const existingMedia = await db.media.findFirst({
-      where: {
-        id,
-        workspaceId,
-      },
-      select: {
-        id: true,
-      },
-    });
+    const [existingMedia] = await db
+      .select({ id: media.id })
+      .from(media)
+      .where(and(eq(media.id, id), eq(media.workspaceId, workspaceId)))
+      .limit(1);
 
     if (!existingMedia) {
       return NextResponse.json({ error: "Media not found" }, { status: 404 });
     }
 
-    const updatedMedia = await db.media.update({
-      where: {
-        id,
-      },
-      data: parsedBody.data,
-      select: {
-        id: true,
-        name: true,
-        url: true,
-        alt: true,
-        createdAt: true,
-        type: true,
-        size: true,
-        mimeType: true,
-        width: true,
-        height: true,
-        duration: true,
-        blurHash: true,
-      },
-    });
+    const [updatedMedia] = await db
+      .update(media)
+      .set({
+        ...parsedBody.data,
+        updatedAt: new Date(),
+      })
+      .where(eq(media.id, id))
+      .returning(mediaColumns);
+
+    if (!updatedMedia) {
+      return NextResponse.json({ error: "Media not found" }, { status: 404 });
+    }
 
     return NextResponse.json(updatedMedia, { status: 200 });
   } catch (error) {

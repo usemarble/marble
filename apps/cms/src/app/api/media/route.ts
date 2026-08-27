@@ -1,6 +1,8 @@
 import { DeleteObjectCommand } from "@aws-sdk/client-s3";
-import { db } from "@marble/db";
+import { db } from "@marble/drizzle";
+import { media } from "@marble/drizzle/schema";
 import { toMediaPayload } from "@marble/events";
+import { and, eq, inArray } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
@@ -64,14 +66,14 @@ export async function DELETE(request: Request) {
     const deletedIds: string[] = [];
     const failedIds: string[] = [];
 
-    const existingMedia = await db.media.findMany({
-      where: {
-        id: { in: mediaIds },
-        workspaceId,
-      },
-    });
+    const existingMedia = await db
+      .select()
+      .from(media)
+      .where(
+        and(inArray(media.id, mediaIds), eq(media.workspaceId, workspaceId))
+      );
 
-    const existingIds = existingMedia.map((media) => media.id);
+    const existingIds = existingMedia.map((item) => item.id);
     for (const id of mediaIds) {
       if (!existingIds.includes(id)) {
         failedIds.push(id);
@@ -83,10 +85,10 @@ export async function DELETE(request: Request) {
       media: (typeof existingMedia)[0];
     }> = [];
 
-    for (const media of existingMedia) {
-      if (media.url) {
+    for (const mediaItem of existingMedia) {
+      if (mediaItem.url) {
         try {
-          const rawPath = media.storageKey;
+          const rawPath = mediaItem.storageKey;
           let key = decodeURIComponent(rawPath).replace(/^\/+/, "");
           if (key.startsWith(`${R2_BUCKET_NAME}/`)) {
             key = key.slice(R2_BUCKET_NAME.length + 1);
@@ -107,39 +109,40 @@ export async function DELETE(request: Request) {
               Key: key,
             })
           );
-          mediaDeletedFromR2.push({ id: media.id, media });
+          mediaDeletedFromR2.push({ id: mediaItem.id, media: mediaItem });
         } catch (error) {
           console.error(
-            `Failed to delete media object from R2 for media ID ${media.id}. URL: ${media.url}`,
+            `Failed to delete media object from R2 for media ID ${mediaItem.id}. URL: ${mediaItem.url}`,
             error
           );
-          failedIds.push(media.id);
+          failedIds.push(mediaItem.id);
         }
       } else {
         console.error(
-          `Media with ID ${media.id} has no URL. Deleting database record only.`
+          `Media with ID ${mediaItem.id} has no URL. Deleting database record only.`
         );
-        mediaDeletedFromR2.push({ id: media.id, media });
+        mediaDeletedFromR2.push({ id: mediaItem.id, media: mediaItem });
       }
     }
 
     if (mediaDeletedFromR2.length > 0) {
-      await db.media.deleteMany({
-        where: {
-          id: { in: mediaDeletedFromR2.map((item) => item.id) },
-        },
-      });
+      await db.delete(media).where(
+        inArray(
+          media.id,
+          mediaDeletedFromR2.map((item) => item.id)
+        )
+      );
 
       deletedIds.push(...mediaDeletedFromR2.map((item) => item.id));
 
-      for (const { media } of mediaDeletedFromR2) {
+      for (const { media: mediaItem } of mediaDeletedFromR2) {
         await emitDashboardEvent({
           type: "media_deleted",
           workspaceId,
           resourceType: "media",
-          resourceId: media.id,
+          resourceId: mediaItem.id,
           actorId: sessionData.user.id,
-          payload: toMediaPayload(media),
+          payload: toMediaPayload(mediaItem),
         }).catch(logDashboardEventError);
       }
     }

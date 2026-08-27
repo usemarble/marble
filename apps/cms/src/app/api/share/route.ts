@@ -1,4 +1,7 @@
-import { db } from "@marble/db";
+import { db } from "@marble/drizzle";
+import { post, shareLink, subscription } from "@marble/drizzle/schema";
+import { createId } from "@paralleldrive/cuid2";
+import { and, desc, eq, gt, or } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
@@ -14,22 +17,27 @@ export async function POST(request: Request) {
 
   const { workspaceId } = accessData;
 
-  const activeSubscription = await db.subscription.findFirst({
-    where: {
-      workspaceId,
-      OR: [
-        { status: "active" },
-        { status: "trialing" },
-        {
-          status: "canceled",
-          cancelAtPeriodEnd: true,
-          currentPeriodEnd: { gt: new Date() },
-        },
-      ],
-    },
-    orderBy: { createdAt: "desc" },
-  });
+  const subscriptions = await db
+    .select()
+    .from(subscription)
+    .where(
+      and(
+        eq(subscription.workspaceId, workspaceId),
+        or(
+          eq(subscription.status, "active"),
+          eq(subscription.status, "trialing"),
+          and(
+            eq(subscription.status, "canceled"),
+            eq(subscription.cancelAtPeriodEnd, true),
+            gt(subscription.currentPeriodEnd, new Date())
+          )
+        )
+      )
+    )
+    .orderBy(desc(subscription.createdAt))
+    .limit(1);
 
+  const activeSubscription = subscriptions[0] ?? null;
   const plan = getWorkspacePlan(activeSubscription);
   if (!canPerformAction(plan, "shareDrafts")) {
     return NextResponse.json(
@@ -48,30 +56,25 @@ export async function POST(request: Request) {
 
   const { postId } = values.data;
 
-  const post = await db.post.findFirst({
-    where: {
-      id: postId,
-      workspaceId,
-    },
-    select: {
+  const postRow = await db.query.post.findFirst({
+    where: and(eq(post.id, postId), eq(post.workspaceId, workspaceId)),
+    columns: {
       id: true,
       title: true,
       status: true,
     },
   });
 
-  if (!post) {
+  if (!postRow) {
     return NextResponse.json({ error: "Post not found" }, { status: 404 });
   }
 
-  const existingShareLink = await db.shareLink.findFirst({
-    where: {
-      postId,
-      isActive: true,
-      expiresAt: {
-        gt: new Date(),
-      },
-    },
+  const existingShareLink = await db.query.shareLink.findFirst({
+    where: and(
+      eq(shareLink.postId, postId),
+      eq(shareLink.isActive, true),
+      gt(shareLink.expiresAt, new Date())
+    ),
   });
 
   if (existingShareLink) {
@@ -86,17 +89,29 @@ export async function POST(request: Request) {
   const expiresAt = new Date();
   expiresAt.setHours(expiresAt.getHours() + 24);
 
-  const shareLink = await db.shareLink.create({
-    data: {
+  const now = new Date();
+  const [createdShareLink] = await db
+    .insert(shareLink)
+    .values({
+      id: createId(),
       token,
       postId,
       workspaceId,
       expiresAt,
-    },
-  });
+      createdAt: now,
+      updatedAt: now,
+    })
+    .returning();
+
+  if (!createdShareLink) {
+    return NextResponse.json(
+      { error: "Failed to create share link" },
+      { status: 500 }
+    );
+  }
 
   return NextResponse.json({
-    shareLink: `${process.env.NEXT_PUBLIC_APP_URL}/share/${shareLink.token}`,
-    expiresAt: shareLink.expiresAt,
+    shareLink: `${process.env.NEXT_PUBLIC_APP_URL}/share/${createdShareLink.token}`,
+    expiresAt: createdShareLink.expiresAt,
   });
 }
