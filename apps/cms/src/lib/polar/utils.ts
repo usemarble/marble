@@ -2,7 +2,7 @@ import type {
   PlanType,
   SubscriptionRecurringInterval,
   SubscriptionStatus,
-} from "@marble/drizzle/types";
+} from "@marble/drizzle";
 
 export type { PlanType, SubscriptionRecurringInterval, SubscriptionStatus };
 

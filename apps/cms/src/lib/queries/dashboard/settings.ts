@@ -2,7 +2,7 @@ import "server-only";
 
 import { db } from "@marble/drizzle";
 import { apiKey, field, fieldOption, fieldValue, webhookEndpoint } from "@marble/drizzle/schema";
-import { asc, count, desc, eq } from "@marble/drizzle/operators";
+import { asc, count, desc, eq } from "drizzle-orm";
 import { mapDashboardApiKey } from "@/lib/db/map-api-key";
 import type { APIKey } from "@/types/dashboard";
 import type { CustomField } from "@/types/fields";

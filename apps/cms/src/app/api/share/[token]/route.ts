@@ -1,6 +1,6 @@
 import { db } from "@marble/drizzle";
 import { shareLink } from "@marble/drizzle/schema";
-import { and, eq } from "@marble/drizzle/operators";
+import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { formatSharedPostPayload } from "@/lib/share/shared-post";
 

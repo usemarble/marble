@@ -1,4 +1,4 @@
-import { db } from "@marble/drizzle";
+import { db, createRecordId } from "@marble/drizzle";
 import type { TransactionClient } from "@marble/drizzle";
 import {
   author,
@@ -12,8 +12,8 @@ import {
 } from "@marble/drizzle/schema";
 import { toPostPayload, withChanges } from "@marble/events";
 import { sanitizeHtml, sanitizeRichTextHtml } from "@marble/utils/sanitize";
-import { createRecordId } from "@marble/drizzle/create-id";
-import { and, asc, eq, inArray, ne } from "@marble/drizzle/operators";
+
+import { and, asc, eq, inArray, ne } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";

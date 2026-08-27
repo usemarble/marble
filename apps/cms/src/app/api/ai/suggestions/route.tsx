@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { db } from "@marble/drizzle";
 import { post } from "@marble/drizzle/schema";
 import { htmlToMarkdown } from "@marble/parser";
-import { and, eq } from "@marble/drizzle/operators";
+import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { aiSuggestionsRateLimiter, rateLimitHeaders } from "@/lib/ratelimit";

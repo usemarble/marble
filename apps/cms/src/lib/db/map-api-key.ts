@@ -1,4 +1,4 @@
-import type { ApiKeyType, ApiScope as DrizzleApiScope } from "@marble/drizzle/types";
+import type { ApiKeyType, ApiScope as DrizzleApiScope } from "@marble/drizzle";
 import type { APIKey } from "@/types/dashboard";
 import type { ApiScope } from "@/utils/keys";
 

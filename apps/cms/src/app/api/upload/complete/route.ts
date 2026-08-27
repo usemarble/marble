@@ -1,8 +1,8 @@
-import { db } from "@marble/drizzle";
+import { db, createRecordId } from "@marble/drizzle";
 import { media, organization } from "@marble/drizzle/schema";
 import { toMediaPayload } from "@marble/events";
-import { createRecordId } from "@marble/drizzle/create-id";
-import { eq } from "@marble/drizzle/operators";
+
+import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import {

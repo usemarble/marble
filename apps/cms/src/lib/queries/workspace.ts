@@ -1,7 +1,7 @@
 import { db } from "@marble/drizzle";
 import { member, subscription, workspace } from "@marble/drizzle/schema";
-import { activeSubscriptionWhere } from "@marble/drizzle/subscription-filters";
-import { and, desc, eq } from "@marble/drizzle/operators";
+import { activeSubscriptionWhere } from "@/lib/subscription/active-subscription";
+import { and, desc, eq } from "drizzle-orm";
 import type { RequestCookies } from "next/dist/compiled/@edge-runtime/cookies";
 import { getServerSession } from "@/lib/auth/session";
 import type { Workspace } from "@/types/workspace";

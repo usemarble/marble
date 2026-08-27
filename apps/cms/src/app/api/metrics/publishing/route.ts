@@ -1,6 +1,6 @@
 import { db } from "@marble/drizzle";
 import { post } from "@marble/drizzle/schema";
-import { and, asc, eq, gte, lte } from "@marble/drizzle/operators";
+import { and, asc, eq, gte, lte } from "drizzle-orm";
 import { eachDayOfInterval, endOfYear, format, startOfYear } from "date-fns";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";

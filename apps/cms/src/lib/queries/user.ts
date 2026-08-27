@@ -1,6 +1,6 @@
 import { db } from "@marble/drizzle";
 import { member, user } from "@marble/drizzle/schema";
-import { and, eq } from "@marble/drizzle/operators";
+import { and, eq } from "drizzle-orm";
 import { getServerSession } from "@/lib/auth/session";
 
 export async function getInitialUserData() {

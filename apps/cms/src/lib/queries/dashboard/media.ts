@@ -10,7 +10,7 @@ import {
   eq,
   ilike,
   type SQL,
-} from "@marble/drizzle/operators";
+} from "drizzle-orm";
 import type {
   MediaPaginatedListResponse,
   MediaSort,

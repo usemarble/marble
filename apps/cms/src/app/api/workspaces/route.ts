@@ -1,7 +1,7 @@
 import { db } from "@marble/drizzle";
 import { member, subscription, workspace } from "@marble/drizzle/schema";
-import { activeSubscriptionWhere } from "@marble/drizzle/subscription-filters";
-import { desc, eq, inArray } from "@marble/drizzle/operators";
+import { activeSubscriptionWhere } from "@/lib/subscription/active-subscription";
+import { desc, eq, inArray } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { mapWorkspaceListItem } from "@/lib/queries/workspace-view";

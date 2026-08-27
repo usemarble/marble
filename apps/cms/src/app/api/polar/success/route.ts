@@ -1,6 +1,6 @@
 import { db } from "@marble/drizzle";
 import { workspace } from "@marble/drizzle/schema";
-import { eq } from "@marble/drizzle/operators";
+import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";

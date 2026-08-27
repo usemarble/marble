@@ -1,4 +1,4 @@
-import type { PlanType, SubscriptionStatus } from "@marble/drizzle/types";
+import type { PlanType, SubscriptionStatus } from "@marble/drizzle";
 import { getWorkspacePlan } from "@/lib/plans";
 import type { Workspace } from "@/types/workspace";
 

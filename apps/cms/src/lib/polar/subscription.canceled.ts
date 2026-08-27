@@ -2,7 +2,7 @@
 
 import { db } from "@marble/drizzle";
 import { subscription } from "@marble/drizzle/schema";
-import { and, eq, isNull, lte, or } from "@marble/drizzle/operators";
+import { and, eq, isNull, lte, or } from "drizzle-orm";
 import type { WebhookSubscriptionCanceledPayload } from "@polar-sh/sdk/models/components/webhooksubscriptioncanceledpayload.js";
 import { isStalePolarEvent } from "./utils";
 

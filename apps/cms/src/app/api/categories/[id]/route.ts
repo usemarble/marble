@@ -1,7 +1,7 @@
 import { db } from "@marble/drizzle";
 import { category, post } from "@marble/drizzle/schema";
 import { toCategoryPayload, withChanges } from "@marble/events";
-import { and, eq, ne } from "@marble/drizzle/operators";
+import { and, eq, ne } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";

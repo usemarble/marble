@@ -1,12 +1,13 @@
+import { db, createRecordId } from "@marble/drizzle";
 import "server-only";
 
 import { PutObjectCommand } from "@aws-sdk/client-s3";
-import { db } from "@marble/drizzle";
+
 import { author, user as userTable } from "@marble/drizzle/schema";
 import type { User } from "better-auth";
 import { APIError } from "better-auth/api";
-import { createRecordId } from "@marble/drizzle/create-id";
-import { and, eq } from "@marble/drizzle/operators";
+
+import { and, eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { isAllowedAvatarUrl } from "@/lib/constants";
 import { R2_BUCKET_NAME, R2_PUBLIC_URL, r2 } from "@/lib/r2";

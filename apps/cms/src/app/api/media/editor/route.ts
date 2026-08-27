@@ -10,7 +10,7 @@ import {
   lt,
   or,
   type SQL,
-} from "@marble/drizzle/operators";
+} from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";

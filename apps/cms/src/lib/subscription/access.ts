@@ -1,7 +1,7 @@
 import { db } from "@marble/drizzle";
 import { subscription } from "@marble/drizzle/schema";
-import { activeSubscriptionWhere } from "@marble/drizzle/subscription-filters";
-import { and, desc, eq } from "@marble/drizzle/operators";
+import { activeSubscriptionWhere } from "@/lib/subscription/active-subscription";
+import { and, desc, eq } from "drizzle-orm";
 import { APIError } from "better-auth/api";
 
 export async function checkWorkspaceSubscription(workspaceId: string) {

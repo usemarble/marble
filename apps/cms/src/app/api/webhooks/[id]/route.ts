@@ -15,7 +15,7 @@ import {
   inArray,
   or,
   type SQL,
-} from "@marble/drizzle/operators";
+} from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import {

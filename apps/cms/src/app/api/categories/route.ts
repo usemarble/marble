@@ -1,8 +1,8 @@
-import { db } from "@marble/drizzle";
+import { db, createRecordId } from "@marble/drizzle";
 import { category } from "@marble/drizzle/schema";
 import { toCategoryPayload } from "@marble/events";
-import { createRecordId } from "@marble/drizzle/create-id";
-import { and, eq } from "@marble/drizzle/operators";
+
+import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";

@@ -1,7 +1,18 @@
 import { db } from "@marble/drizzle";
 import { subscription } from "@marble/drizzle/schema";
-import { activeSubscriptionWhere } from "@marble/drizzle/subscription-filters";
-import { and, desc, eq } from "@marble/drizzle/operators";
+import { and, desc, eq, gt, or } from "drizzle-orm";
+
+export function activeSubscriptionWhere(referenceDate = new Date()) {
+  return or(
+    eq(subscription.status, "active"),
+    eq(subscription.status, "trialing"),
+    and(
+      eq(subscription.status, "canceled"),
+      eq(subscription.cancelAtPeriodEnd, true),
+      gt(subscription.currentPeriodEnd, referenceDate)
+    )
+  );
+}
 
 const activeSubscriptionColumns = {
   id: subscription.id,
@@ -26,7 +37,9 @@ export async function findActiveWorkspaceSubscription(workspaceId: string) {
   return rows[0] ?? null;
 }
 
-export async function findActiveWorkspaceSubscriptionPlanFields(workspaceId: string) {
+export async function findActiveWorkspaceSubscriptionPlanFields(
+  workspaceId: string
+) {
   const rows = await db
     .select({
       plan: subscription.plan,

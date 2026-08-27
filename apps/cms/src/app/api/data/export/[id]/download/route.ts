@@ -4,7 +4,7 @@ import {
 } from "@aws-sdk/client-s3";
 import { db } from "@marble/drizzle";
 import { exportJob } from "@marble/drizzle/schema";
-import { eq } from "@marble/drizzle/operators";
+import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { R2_BUCKET_NAME, r2 } from "@/lib/r2";

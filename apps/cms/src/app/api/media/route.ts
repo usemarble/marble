@@ -2,7 +2,7 @@ import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { db } from "@marble/drizzle";
 import { media } from "@marble/drizzle/schema";
 import { toMediaPayload } from "@marble/events";
-import { and, eq, inArray } from "@marble/drizzle/operators";
+import { and, eq, inArray } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";

@@ -1,7 +1,7 @@
-import { db } from "@marble/drizzle";
+import { db, createRecordId } from "@marble/drizzle";
 import { post, shareLink } from "@marble/drizzle/schema";
-import { createRecordId } from "@marble/drizzle/create-id";
-import { and, eq, gt } from "@marble/drizzle/operators";
+
+import { and, eq, gt } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
