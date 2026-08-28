@@ -17,9 +17,7 @@ export function useLocalStorage<T>(
   key: string,
   initialValue: T
 ): [T, (value: T) => void] {
-  const [storedValue, setStoredValue] = useState(
-    getItemFromLocalStorage(key) ?? initialValue
-  );
+  const [storedValue, setStoredValue] = useState(initialValue);
 
   useEffect(() => {
     // Retrieve from localStorage
