@@ -3,7 +3,7 @@ import { defineConfig } from "drizzle-kit";
 
 /**
  * `schema` → ./src/schema/ (source of truth)
- * `out` → ./drizzle (migrations: meta/ + *.sql)
+ * `out` → ./drizzle (migrations land here once Drizzle owns them)
  *
  * `pnpm db:pull` introspects Neon into drizzle/ temporarily — merge into src/schema manually.
  */
