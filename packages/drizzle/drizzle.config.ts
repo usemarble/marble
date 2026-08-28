@@ -1,10 +1,11 @@
+import "dotenv/config";
 import { defineConfig } from "drizzle-kit";
 
 /**
- * Local / staging inspection only.
+ * `schema` → ./src/schema/ (source of truth)
+ * `out` → ./drizzle (migrations: meta/ + *.sql)
  *
- * Prisma remains the schema owner. Do NOT run drizzle-kit generate or migrate
- * against production. Prefer drizzle-kit pull on a staging clone first.
+ * `pnpm db:pull` introspects Neon into drizzle/ temporarily — merge into src/schema manually.
  */
 export default defineConfig({
   dialect: "postgresql",

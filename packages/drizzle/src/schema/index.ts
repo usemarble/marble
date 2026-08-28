@@ -2,3 +2,4 @@
 export * from "./enums";
 export * from "./relations";
 export * from "./tables";
+export { workspace as organization } from "./tables";

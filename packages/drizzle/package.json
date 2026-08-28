@@ -8,6 +8,7 @@
     "./hyperdrive": "./src/hyperdrive.ts"
   },
   "scripts": {
+    "db:pull": "drizzle-kit pull",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit"
