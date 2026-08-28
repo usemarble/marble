@@ -437,22 +437,22 @@ export async function PATCH(
     );
   }
 
-  const existingWebhook = await db.query.webhookEndpoint.findFirst({
+  const foundWebhook = await db.query.webhookEndpoint.findFirst({
     where: and(
       eq(webhookEndpoint.id, id),
       eq(webhookEndpoint.workspaceId, workspaceId)
     ),
   });
 
-  if (!existingWebhook) {
+  if (!foundWebhook) {
     return NextResponse.json({ error: "Webhook not found" }, { status: 404 });
   }
 
   const effectiveWebhook = webhookSchema.safeParse({
-    name: body.data.name ?? existingWebhook.name,
-    endpoint: body.data.endpoint ?? existingWebhook.url,
-    events: body.data.events ?? existingWebhook.events,
-    format: body.data.format ?? existingWebhook.format,
+    name: body.data.name ?? foundWebhook.name,
+    endpoint: body.data.endpoint ?? foundWebhook.url,
+    events: body.data.events ?? foundWebhook.events,
+    format: body.data.format ?? foundWebhook.format,
   });
 
   if (!effectiveWebhook.success) {
@@ -519,14 +519,14 @@ export async function DELETE(
 
   const { id } = await params;
 
-  const existingWebhook = await db.query.webhookEndpoint.findFirst({
+  const foundWebhook = await db.query.webhookEndpoint.findFirst({
     where: and(
       eq(webhookEndpoint.id, id),
       eq(webhookEndpoint.workspaceId, workspaceId)
     ),
   });
 
-  if (!existingWebhook) {
+  if (!foundWebhook) {
     return NextResponse.json({ error: "Webhook not found" }, { status: 404 });
   }
 

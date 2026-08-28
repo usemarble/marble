@@ -1,7 +1,10 @@
-import { db } from "@marble/drizzle";
-import { author, authorSocial, subscription } from "@marble/drizzle/schema";
+import { createRecordId, db } from "@marble/drizzle";
+import {
+  author as authorTable,
+  authorSocial,
+  subscription,
+} from "@marble/drizzle/schema";
 import { toAuthorPayload } from "@marble/events";
-import { createRecordId } from "@marble/drizzle";
 import { and, count, desc, eq, gt, or } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
@@ -81,9 +84,12 @@ export async function POST(request: Request) {
     if (planLimits.maxAuthors !== Number.MAX_SAFE_INTEGER) {
       const [authorsCount] = await db
         .select({ value: count() })
-        .from(author)
+        .from(authorTable)
         .where(
-          and(eq(author.workspaceId, workspaceId), eq(author.isActive, true))
+          and(
+            eq(authorTable.workspaceId, workspaceId),
+            eq(authorTable.isActive, true)
+          )
         );
 
       const existingAuthorsCount = authorsCount?.value ?? 0;
@@ -112,25 +118,25 @@ export async function POST(request: Request) {
 
     const validEmail = email === "" ? null : email;
 
-    const existingAuthor = await db.query.author.findFirst({
-      where: and(eq(author.workspaceId, workspaceId), eq(author.slug, slug)),
+    const author = await db.query.author.findFirst({
+      where: and(
+        eq(authorTable.workspaceId, workspaceId),
+        eq(authorTable.slug, slug)
+      ),
     });
 
-    if (existingAuthor) {
+    if (author) {
       return NextResponse.json(
         { error: "Author with this name already exists" },
         { status: 409 }
       );
     }
 
-    const now = new Date();
-    const authorId = createRecordId();
-
     const createdAuthor = await db.transaction(async (tx) => {
       const [authorRow] = await tx
-        .insert(author)
+        .insert(authorTable)
         .values({
-          id: authorId,
+          id: createRecordId(),
           name,
           slug,
           bio,
@@ -138,7 +144,7 @@ export async function POST(request: Request) {
           email: validEmail,
           image,
           workspaceId,
-          updatedAt: now,
+          updatedAt: new Date(),
         })
         .returning();
 
@@ -146,27 +152,25 @@ export async function POST(request: Request) {
         throw new Error("Failed to create author");
       }
 
-      let socialRows: (typeof authorSocial.$inferSelect)[] = [];
-
-      if (socials && socials.length > 0) {
-        socialRows = await tx
-          .insert(authorSocial)
-          .values(
-            socials.map((social) => ({
-              id: createRecordId(),
-              authorId,
-              url: social.url,
-              platform: social.platform,
-              updatedAt: now,
-            }))
-          )
-          .returning();
-      }
+      const socialRows =
+        socials && socials.length > 0
+          ? await tx
+              .insert(authorSocial)
+              .values(
+                socials.map((social) => ({
+                  id: createRecordId(),
+                  authorId: authorRow.id,
+                  url: social.url,
+                  platform: social.platform,
+                  updatedAt: new Date(),
+                }))
+              )
+              .returning()
+          : [];
 
       return { ...authorRow, socials: socialRows };
     });
 
-    // Invalidate cache for authors and posts (authors affect posts)
     invalidateCache(workspaceId, "authors");
     invalidateCache(workspaceId, "posts");
 

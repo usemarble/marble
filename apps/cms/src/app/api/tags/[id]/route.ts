@@ -1,5 +1,5 @@
 import { db } from "@marble/drizzle";
-import { tag } from "@marble/drizzle/schema";
+import { tag as tagTable } from "@marble/drizzle/schema";
 import { toTagPayload, withChanges } from "@marble/events";
 import { and, eq, ne } from "drizzle-orm";
 import { NextResponse } from "next/server";
@@ -42,36 +42,36 @@ export async function PATCH(
     );
   }
 
-  const existing = await db.query.tag.findFirst({
-    where: and(eq(tag.id, id), eq(tag.workspaceId, workspaceId)),
+  const tag = await db.query.tag.findFirst({
+    where: and(eq(tagTable.id, id), eq(tagTable.workspaceId, workspaceId)),
     columns: { id: true },
   });
 
-  if (!existing) {
+  if (!tag) {
     return NextResponse.json({ error: "Tag not found" }, { status: 404 });
   }
 
-  const existingTagWithSlug = await db.query.tag.findFirst({
+  const tagWithSlug = await db.query.tag.findFirst({
     where: and(
-      eq(tag.slug, body.data.slug),
-      eq(tag.workspaceId, workspaceId),
-      ne(tag.id, id)
+      eq(tagTable.slug, body.data.slug),
+      eq(tagTable.workspaceId, workspaceId),
+      ne(tagTable.id, id)
     ),
   });
 
-  if (existingTagWithSlug) {
+  if (tagWithSlug) {
     return NextResponse.json({ error: "Slug already in use" }, { status: 409 });
   }
 
   const [updatedTag] = await db
-    .update(tag)
+    .update(tagTable)
     .set({
       name: body.data.name,
       slug: body.data.slug,
       description: body.data.description,
       updatedAt: new Date(),
     })
-    .where(eq(tag.id, id))
+    .where(eq(tagTable.id, id))
     .returning();
 
   if (!updatedTag) {
@@ -87,7 +87,6 @@ export async function PATCH(
     payload: withChanges(toTagPayload(updatedTag), Object.keys(body.data)),
   }).catch(logDashboardEventError);
 
-  // Invalidate cache for tags and posts (tags affect posts)
   invalidateCache(workspaceId, "tags");
   invalidateCache(workspaceId, "posts");
 
@@ -108,19 +107,19 @@ export async function DELETE(
 
   const { id } = await params;
 
-  const existingTag = await db.query.tag.findFirst({
-    where: and(eq(tag.id, id), eq(tag.workspaceId, workspaceId)),
+  const tag = await db.query.tag.findFirst({
+    where: and(eq(tagTable.id, id), eq(tagTable.workspaceId, workspaceId)),
     columns: { id: true, name: true, slug: true, description: true },
   });
 
-  if (!existingTag) {
+  if (!tag) {
     return NextResponse.json({ error: "Tag not found" }, { status: 404 });
   }
 
   try {
     await db
-      .delete(tag)
-      .where(and(eq(tag.id, id), eq(tag.workspaceId, workspaceId)));
+      .delete(tagTable)
+      .where(and(eq(tagTable.id, id), eq(tagTable.workspaceId, workspaceId)));
 
     await emitDashboardEvent({
       type: "tag_deleted",
@@ -128,17 +127,16 @@ export async function DELETE(
       resourceType: "tag",
       resourceId: id,
       actorId: sessionData.user.id,
-      payload: toTagPayload(existingTag),
+      payload: toTagPayload(tag),
     }).catch(logDashboardEventError);
 
-    // Invalidate cache for tags and posts (tags affect posts)
     invalidateCache(workspaceId, "tags");
     invalidateCache(workspaceId, "posts");
 
     return new NextResponse(null, { status: 204 });
   } catch (_e) {
     return NextResponse.json(
-      { error: "Failed to delete post" },
+      { error: "Failed to delete tag" },
       { status: 500 }
     );
   }

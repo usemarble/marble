@@ -6,7 +6,7 @@ import {
   field,
   fieldOption,
   fieldValue,
-  post,
+  post as postTable,
   postToAuthor,
   postToTag,
 } from "@marble/drizzle/schema";
@@ -121,7 +121,7 @@ export async function GET(
   const { workspaceId } = accessData;
 
   const postRow = await db.query.post.findFirst({
-    where: and(eq(post.id, id), eq(post.workspaceId, workspaceId)),
+    where: and(eq(postTable.id, id), eq(postTable.workspaceId, workspaceId)),
     columns: {
       id: true,
       slug: true,
@@ -194,15 +194,15 @@ export async function PATCH(
     );
   }
 
-  const existingPostWithSlug = await db.query.post.findFirst({
+  const postWithSlug = await db.query.post.findFirst({
     where: and(
-      eq(post.slug, values.data.slug),
-      eq(post.workspaceId, workspaceId),
-      ne(post.id, id)
+      eq(postTable.slug, values.data.slug),
+      eq(postTable.workspaceId, workspaceId),
+      ne(postTable.id, id)
     ),
   });
 
-  if (existingPostWithSlug) {
+  if (postWithSlug) {
     return NextResponse.json({ error: "Slug already in use" }, { status: 409 });
   }
 
@@ -261,12 +261,12 @@ export async function PATCH(
     );
   }
 
-  const existingPost = await db.query.post.findFirst({
-    where: and(eq(post.id, id), eq(post.workspaceId, workspaceId)),
+  const post = await db.query.post.findFirst({
+    where: and(eq(postTable.id, id), eq(postTable.workspaceId, workspaceId)),
     columns: { status: true },
   });
 
-  if (!existingPost) {
+  if (!post) {
     return NextResponse.json({ error: "Post not found" }, { status: 404 });
   }
 
@@ -284,7 +284,7 @@ export async function PATCH(
       const now = new Date();
 
       const [updatedPost] = await tx
-        .update(post)
+        .update(postTable)
         .set({
           primaryAuthorId: primaryAuthor.id,
           contentJson,
@@ -300,7 +300,7 @@ export async function PATCH(
           workspaceId,
           updatedAt: now,
         })
-        .where(and(eq(post.id, id), eq(post.workspaceId, workspaceId)))
+        .where(and(eq(postTable.id, id), eq(postTable.workspaceId, workspaceId)))
         .returning();
 
       if (!updatedPost) {
@@ -334,9 +334,9 @@ export async function PATCH(
     });
 
     const eventType =
-      existingPost.status !== "published" && postUpdated.status === "published"
+      post.status !== "published" && postUpdated.status === "published"
         ? "post_published"
-        : existingPost.status === "published" &&
+        : post.status === "published" &&
             postUpdated.status !== "published"
           ? "post_unpublished"
           : "post_updated";
@@ -381,8 +381,8 @@ export async function DELETE(
 
   try {
     const [deletedPost] = await db
-      .delete(post)
-      .where(and(eq(post.id, id), eq(post.workspaceId, workspaceId)))
+      .delete(postTable)
+      .where(and(eq(postTable.id, id), eq(postTable.workspaceId, workspaceId)))
       .returning();
 
     if (!deletedPost) {

@@ -1,5 +1,5 @@
-import { db, createRecordId } from "@marble/drizzle";
-import { tag } from "@marble/drizzle/schema";
+import { createRecordId, db } from "@marble/drizzle";
+import { tag as tagTable } from "@marble/drizzle/schema";
 import { toTagPayload } from "@marble/events";
 
 import { and, eq } from "drizzle-orm";
@@ -37,23 +37,30 @@ export async function POST(req: Request) {
   const { sessionData, workspaceId } = accessData;
 
   const json = await req.json();
-  const body = tagSchema.parse(json);
+  const body = tagSchema.safeParse(json);
 
-  const existingTag = await db.query.tag.findFirst({
-    where: and(eq(tag.slug, body.slug), eq(tag.workspaceId, workspaceId)),
+  if (!body.success) {
+    return NextResponse.json(
+      { error: "Invalid request body", details: body.error.issues },
+      { status: 400 }
+    );
+  }
+
+  const tag = await db.query.tag.findFirst({
+    where: and(eq(tagTable.slug, body.data.slug), eq(tagTable.workspaceId, workspaceId)),
   });
 
-  if (existingTag) {
+  if (tag) {
     return NextResponse.json({ error: "Slug already in use" }, { status: 409 });
   }
 
   const [tagCreated] = await db
-    .insert(tag)
+    .insert(tagTable)
     .values({
       id: createRecordId(),
-      name: body.name,
-      slug: body.slug,
-      description: body.description,
+      name: body.data.name,
+      slug: body.data.slug,
+      description: body.data.description,
       workspaceId,
       updatedAt: new Date(),
     })
@@ -72,7 +79,6 @@ export async function POST(req: Request) {
     payload: toTagPayload(tagCreated),
   }).catch(logDashboardEventError);
 
-  // Invalidate cache for tags and posts (tags affect posts)
   invalidateCache(workspaceId, "tags");
   invalidateCache(workspaceId, "posts");
 

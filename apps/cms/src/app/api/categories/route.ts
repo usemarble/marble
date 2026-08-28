@@ -1,5 +1,5 @@
-import { db, createRecordId } from "@marble/drizzle";
-import { category } from "@marble/drizzle/schema";
+import { createRecordId, db } from "@marble/drizzle";
+import { category as categoryTable } from "@marble/drizzle/schema";
 import { toCategoryPayload } from "@marble/events";
 
 import { and, eq } from "drizzle-orm";
@@ -46,19 +46,19 @@ export async function POST(req: Request) {
     );
   }
 
-  const existingCategory = await db.query.category.findFirst({
+  const category = await db.query.category.findFirst({
     where: and(
-      eq(category.slug, body.data.slug),
-      eq(category.workspaceId, workspaceId)
+      eq(categoryTable.slug, body.data.slug),
+      eq(categoryTable.workspaceId, workspaceId)
     ),
   });
 
-  if (existingCategory) {
+  if (category) {
     return NextResponse.json({ error: "Slug already in use" }, { status: 409 });
   }
 
   const [categoryCreated] = await db
-    .insert(category)
+    .insert(categoryTable)
     .values({
       id: createRecordId(),
       name: body.data.name,

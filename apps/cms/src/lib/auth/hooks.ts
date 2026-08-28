@@ -3,7 +3,7 @@ import "server-only";
 
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 
-import { author, user as userTable } from "@marble/drizzle/schema";
+import { author as authorTable, user as userTable } from "@marble/drizzle/schema";
 import type { User } from "better-auth";
 import { APIError } from "better-auth/api";
 
@@ -25,28 +25,28 @@ import type { Organization } from "./types";
  */
 export async function createAuthor(user: User, organization: Organization) {
   try {
-    const existingAuthor = await db.query.author.findFirst({
+    const author = await db.query.author.findFirst({
       where: and(
-        eq(author.workspaceId, organization.id),
-        eq(author.userId, user.id)
+        eq(authorTable.workspaceId, organization.id),
+        eq(authorTable.userId, user.id)
       ),
     });
 
-    if (existingAuthor) {
+    if (author) {
       console.log(
         "Author already exists for user",
         user.id,
         "in workspace",
         organization.id
       );
-      return existingAuthor;
+      return author;
     }
 
     const baseSlug = generateSlug(user.name || user.email || "user");
     const uniqueSlug = `${baseSlug}-${nanoid(6)}`;
 
     const [createdAuthor] = await db
-      .insert(author)
+      .insert(authorTable)
       .values({
         id: createRecordId(),
         name: user.name,

@@ -6,7 +6,7 @@ import {
   field,
   fieldOption,
   fieldValue,
-  post,
+  post as postTable,
   postToAuthor,
   postToTag,
 } from "@marble/drizzle/schema";
@@ -172,14 +172,14 @@ export async function POST(request: Request) {
     );
   }
 
-  const existingPost = await db.query.post.findFirst({
+  const post = await db.query.post.findFirst({
     where: and(
-      eq(post.slug, values.data.slug),
-      eq(post.workspaceId, workspaceId)
+      eq(postTable.slug, values.data.slug),
+      eq(postTable.workspaceId, workspaceId)
     ),
   });
 
-  if (existingPost) {
+  if (post) {
     return NextResponse.json({ error: "Slug already in use" }, { status: 409 });
   }
 
@@ -286,7 +286,7 @@ export async function POST(request: Request) {
       const now = new Date();
 
       const [createdPost] = await tx
-        .insert(post)
+        .insert(postTable)
         .values({
           id: postId,
           primaryAuthorId: primaryAuthor.id,

@@ -1,5 +1,5 @@
-import { db, createRecordId } from "@marble/drizzle";
-import { author, authorSocial } from "@marble/drizzle/schema";
+import { createRecordId, db } from "@marble/drizzle";
+import { author as authorTable, authorSocial } from "@marble/drizzle/schema";
 import { toAuthorPayload, withChanges } from "@marble/events";
 
 import { and, eq, ne } from "drizzle-orm";
@@ -33,27 +33,26 @@ export async function DELETE(
   }
 
   try {
-    const existingAuthor = await db.query.author.findFirst({
-      where: and(eq(author.id, id), eq(author.workspaceId, workspaceId)),
+    const author = await db.query.author.findFirst({
+      where: and(eq(authorTable.id, id), eq(authorTable.workspaceId, workspaceId)),
       with: {
         socials: true,
       },
     });
 
-    if (!existingAuthor) {
+    if (!author) {
       return NextResponse.json({ error: "Author not found" }, { status: 404 });
     }
 
     const [deletedAuthor] = await db
-      .delete(author)
-      .where(and(eq(author.id, id), eq(author.workspaceId, workspaceId)))
+      .delete(authorTable)
+      .where(and(eq(authorTable.id, id), eq(authorTable.workspaceId, workspaceId)))
       .returning();
 
     if (!deletedAuthor) {
       return NextResponse.json({ error: "Author not found" }, { status: 404 });
     }
 
-    // Invalidate cache for authors and posts (authors affect posts)
     invalidateCache(workspaceId, "authors");
     invalidateCache(workspaceId, "posts");
 
@@ -61,9 +60,9 @@ export async function DELETE(
       type: "author_deleted",
       workspaceId,
       resourceType: "author",
-      resourceId: existingAuthor.id,
+      resourceId: author.id,
       actorId: sessionData.user.id,
-      payload: toAuthorPayload(existingAuthor),
+      payload: toAuthorPayload(author),
     }).catch(logDashboardEventError);
 
     return NextResponse.json(deletedAuthor.id, { status: 200 });
@@ -104,34 +103,32 @@ export async function PATCH(
 
     const validEmail = email === "" ? null : email;
 
-    const existingAuthor = await db.query.author.findFirst({
-      where: and(eq(author.id, id), eq(author.workspaceId, workspaceId)),
+    const author = await db.query.author.findFirst({
+      where: and(eq(authorTable.id, id), eq(authorTable.workspaceId, workspaceId)),
     });
 
-    if (!existingAuthor) {
+    if (!author) {
       return NextResponse.json({ error: "Author not found" }, { status: 404 });
     }
 
-    const existingAuthorWithSlug = await db.query.author.findFirst({
+    const authorWithSlug = await db.query.author.findFirst({
       where: and(
-        eq(author.slug, slug),
-        eq(author.workspaceId, workspaceId),
-        ne(author.id, id)
+        eq(authorTable.slug, slug),
+        eq(authorTable.workspaceId, workspaceId),
+        ne(authorTable.id, id)
       ),
     });
 
-    if (existingAuthorWithSlug) {
+    if (authorWithSlug) {
       return NextResponse.json(
         { error: "Slug already in use" },
         { status: 409 }
       );
     }
 
-    const now = new Date();
-
     const updatedAuthor = await db.transaction(async (tx) => {
       const [authorRow] = await tx
-        .update(author)
+        .update(authorTable)
         .set({
           name,
           bio,
@@ -139,47 +136,47 @@ export async function PATCH(
           email: validEmail,
           image,
           slug,
-          updatedAt: now,
+          updatedAt: new Date(),
         })
-        .where(and(eq(author.id, id), eq(author.workspaceId, workspaceId)))
+        .where(and(eq(authorTable.id, id), eq(authorTable.workspaceId, workspaceId)))
         .returning();
 
       if (!authorRow) {
         throw new Error("Author not found");
       }
 
-      let socialRows: (typeof authorSocial.$inferSelect)[] = [];
-
       if (typeof socials !== "undefined") {
         await tx
           .delete(authorSocial)
           .where(eq(authorSocial.authorId, id));
 
-        if (socials.length > 0) {
-          socialRows = await tx
-            .insert(authorSocial)
-            .values(
-              socials.map((social) => ({
-                id: createRecordId(),
-                authorId: id,
-                url: social.url,
-                platform: social.platform,
-                updatedAt: now,
-              }))
-            )
-            .returning();
-        }
-      } else {
-        socialRows = await tx
-          .select()
-          .from(authorSocial)
-          .where(eq(authorSocial.authorId, id));
+        const socialRows =
+          socials.length > 0
+            ? await tx
+                .insert(authorSocial)
+                .values(
+                  socials.map((social) => ({
+                    id: createRecordId(),
+                    authorId: id,
+                    url: social.url,
+                    platform: social.platform,
+                    updatedAt: new Date(),
+                  }))
+                )
+                .returning()
+            : [];
+
+        return { ...authorRow, socials: socialRows };
       }
+
+      const socialRows = await tx
+        .select()
+        .from(authorSocial)
+        .where(eq(authorSocial.authorId, id));
 
       return { ...authorRow, socials: socialRows };
     });
 
-    // Invalidate cache for authors and posts (authors affect posts)
     invalidateCache(workspaceId, "authors");
     invalidateCache(workspaceId, "posts");
 

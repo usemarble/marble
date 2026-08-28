@@ -1,5 +1,5 @@
 import { db } from "@marble/drizzle";
-import { field, fieldOption, fieldValue } from "@marble/drizzle/schema";
+import { field as fieldTable, fieldOption, fieldValue } from "@marble/drizzle/schema";
 import {
   createRecordId,
   isFieldWorkspaceKeyConflict,
@@ -62,8 +62,8 @@ export async function PATCH(
     );
   }
 
-  const existingField = await db.query.field.findFirst({
-    where: and(eq(field.id, id), eq(field.workspaceId, workspaceId)),
+  const field = await db.query.field.findFirst({
+    where: and(eq(fieldTable.id, id), eq(fieldTable.workspaceId, workspaceId)),
     with: {
       options: {
         orderBy: [asc(fieldOption.position), asc(fieldOption.createdAt)],
@@ -71,16 +71,16 @@ export async function PATCH(
     },
   });
 
-  if (!existingField) {
+  if (!field) {
     return NextResponse.json({ error: "Field not found" }, { status: 404 });
   }
 
-  if (body.data.key && body.data.key !== existingField.key) {
+  if (body.data.key && body.data.key !== field.key) {
     const keyConflict = await db.query.field.findFirst({
       where: and(
-        eq(field.workspaceId, workspaceId),
-        eq(field.key, body.data.key),
-        ne(field.id, id)
+        eq(fieldTable.workspaceId, workspaceId),
+        eq(fieldTable.key, body.data.key),
+        ne(fieldTable.id, id)
       ),
     });
 
@@ -92,7 +92,7 @@ export async function PATCH(
     }
   }
 
-  const updateData: Partial<typeof field.$inferInsert> = {};
+  const updateData: Partial<typeof fieldTable.$inferInsert> = {};
   if (body.data.name !== undefined) {
     updateData.name = body.data.name;
   }
@@ -109,16 +109,16 @@ export async function PATCH(
     updateData.required = body.data.required;
   }
 
-  const effectiveType = body.data.type ?? existingField.type;
-  const effectiveOptions = body.data.options ?? existingField.options;
+  const effectiveType = body.data.type ?? field.type;
+  const effectiveOptions = body.data.options ?? field.options;
   const requiresOptions =
     effectiveType === "select" || effectiveType === "multiselect";
-  const existingOptions = existingField.options.map((option) => ({
+  const existingOptions = field.options.map((option) => ({
     value: option.value,
     label: option.label,
   }));
   const typeChanged =
-    body.data.type !== undefined && body.data.type !== existingField.type;
+    body.data.type !== undefined && body.data.type !== field.type;
   const optionsChanged =
     body.data.options !== undefined &&
     !areFieldOptionsEqual(body.data.options, existingOptions);
@@ -158,13 +158,13 @@ export async function PATCH(
           body.data.options !== undefined || !requiresOptions;
 
         const [updatedField] = await tx
-          .update(field)
+          .update(fieldTable)
           .set({
             ...updateData,
             updatedAt: now,
           })
-          .where(and(eq(field.id, id), eq(field.workspaceId, workspaceId)))
-          .returning({ id: field.id });
+          .where(and(eq(fieldTable.id, id), eq(fieldTable.workspaceId, workspaceId)))
+          .returning({ id: fieldTable.id });
 
         if (!updatedField) {
           return null;
@@ -208,7 +208,7 @@ export async function PATCH(
     }
 
     const fieldWithOptions = await db.query.field.findFirst({
-      where: eq(field.id, updatedFieldId),
+      where: eq(fieldTable.id, updatedFieldId),
       with: {
         options: {
           orderBy: [asc(fieldOption.position), asc(fieldOption.createdAt)],
@@ -257,17 +257,17 @@ export async function DELETE(
 
   const { id } = await params;
 
-  const existingField = await db.query.field.findFirst({
-    where: and(eq(field.id, id), eq(field.workspaceId, workspaceId)),
+  const field = await db.query.field.findFirst({
+    where: and(eq(fieldTable.id, id), eq(fieldTable.workspaceId, workspaceId)),
   });
 
-  if (!existingField) {
+  if (!field) {
     return NextResponse.json({ error: "Field not found" }, { status: 404 });
   }
 
   await db
-    .delete(field)
-    .where(and(eq(field.id, id), eq(field.workspaceId, workspaceId)));
+    .delete(fieldTable)
+    .where(and(eq(fieldTable.id, id), eq(fieldTable.workspaceId, workspaceId)));
 
   return NextResponse.json({ id }, { status: 200 });
 }
