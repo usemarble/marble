@@ -1,9 +1,12 @@
-import { db, createRecordId } from "@marble/drizzle";
+import { createRecordId, db } from "@marble/drizzle";
 import "server-only";
 
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 
-import { author as authorTable, user as userTable } from "@marble/drizzle/schema";
+import {
+  author as authorTable,
+  user as userTable,
+} from "@marble/drizzle/schema";
 import type { User } from "better-auth";
 import { APIError } from "better-auth/api";
 

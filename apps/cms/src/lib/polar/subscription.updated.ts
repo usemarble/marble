@@ -2,8 +2,8 @@
 
 import { db } from "@marble/drizzle";
 import { subscription } from "@marble/drizzle/schema";
-import { and, eq, isNull, lte, or } from "drizzle-orm";
 import type { WebhookSubscriptionUpdatedPayload } from "@polar-sh/sdk/models/components/webhooksubscriptionupdatedpayload.js";
+import { and, eq, isNull, lte, or } from "drizzle-orm";
 import {
   getPlanType,
   getRecurringInterval,
@@ -50,7 +50,10 @@ export async function handleSubscriptionUpdated(
     return;
   }
 
-  if (!subscriptionData.currentPeriodStart || !subscriptionData.currentPeriodEnd) {
+  if (
+    !subscriptionData.currentPeriodStart ||
+    !subscriptionData.currentPeriodEnd
+  ) {
     console.error(
       "subscription.updated webhook received without currentPeriodStart or currentPeriodEnd"
     );
@@ -76,7 +79,9 @@ export async function handleSubscriptionUpdated(
         endedAt: subscriptionData.endedAt
           ? new Date(subscriptionData.endedAt)
           : null,
-        endsAt: subscriptionData.endsAt ? new Date(subscriptionData.endsAt) : null,
+        endsAt: subscriptionData.endsAt
+          ? new Date(subscriptionData.endsAt)
+          : null,
         startedAt: subscriptionData.startedAt
           ? new Date(subscriptionData.startedAt)
           : null,

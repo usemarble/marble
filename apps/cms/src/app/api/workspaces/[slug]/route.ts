@@ -29,7 +29,10 @@ export async function GET(
   }
 
   const foundWorkspace = await db.query.workspace.findFirst({
-    where: and(eq(workspace.slug, slug), eq(workspace.id, accessData.workspaceId)),
+    where: and(
+      eq(workspace.slug, slug),
+      eq(workspace.id, accessData.workspaceId)
+    ),
     columns: {
       id: true,
       name: true,

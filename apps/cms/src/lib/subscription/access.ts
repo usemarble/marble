@@ -1,7 +1,7 @@
 import { db } from "@marble/drizzle";
 import { subscription } from "@marble/drizzle/schema";
-import { and, desc, eq, gt, or } from "drizzle-orm";
 import { APIError } from "better-auth/api";
+import { and, desc, eq, gt, or } from "drizzle-orm";
 
 export async function checkWorkspaceSubscription(workspaceId: string) {
   const foundSubscription = await db.query.subscription.findFirst({

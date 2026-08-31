@@ -24,7 +24,6 @@ import {
   webhooks,
 } from "@polar-sh/better-auth";
 import { Polar } from "@polar-sh/sdk";
-import { and, eq } from "drizzle-orm";
 import {
   APIError,
   createAuthMiddleware,
@@ -33,6 +32,7 @@ import {
 import { betterAuth } from "better-auth/minimal";
 import { nextCookies } from "better-auth/next-js";
 import { emailOTP, organization } from "better-auth/plugins";
+import { and, eq } from "drizzle-orm";
 import { customAlphabet } from "nanoid";
 import {
   createAuthor,

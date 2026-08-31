@@ -2,8 +2,8 @@
 
 import { db } from "@marble/drizzle";
 import { subscription } from "@marble/drizzle/schema";
-import { and, eq, isNull, lte, or } from "drizzle-orm";
 import type { WebhookSubscriptionRevokedPayload } from "@polar-sh/sdk/models/components/webhooksubscriptionrevokedpayload.js";
+import { and, eq, isNull, lte, or } from "drizzle-orm";
 import { isStalePolarEvent } from "./utils";
 
 export async function handleSubscriptionRevoked(

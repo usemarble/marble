@@ -2,8 +2,8 @@
 
 import { db } from "@marble/drizzle";
 import { subscription } from "@marble/drizzle/schema";
-import { and, eq, isNull, lte, or } from "drizzle-orm";
 import type { WebhookSubscriptionCanceledPayload } from "@polar-sh/sdk/models/components/webhooksubscriptioncanceledpayload.js";
+import { and, eq, isNull, lte, or } from "drizzle-orm";
 import { isStalePolarEvent } from "./utils";
 
 export async function handleSubscriptionCanceled(
@@ -40,7 +40,9 @@ export async function handleSubscriptionCanceled(
         canceledAt: subscriptionData.canceledAt
           ? new Date(subscriptionData.canceledAt)
           : new Date(),
-        endsAt: subscriptionData.endsAt ? new Date(subscriptionData.endsAt) : null,
+        endsAt: subscriptionData.endsAt
+          ? new Date(subscriptionData.endsAt)
+          : null,
         lastPolarEventAt: payload.timestamp,
         updatedAt: new Date(),
       })

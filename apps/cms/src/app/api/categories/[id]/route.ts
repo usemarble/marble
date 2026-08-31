@@ -55,7 +55,9 @@ export async function PATCH(
       description: body.data.description,
       updatedAt: new Date(),
     })
-    .where(and(eq(categoryTable.id, id), eq(categoryTable.workspaceId, workspaceId)))
+    .where(
+      and(eq(categoryTable.id, id), eq(categoryTable.workspaceId, workspaceId))
+    )
     .returning();
 
   if (!updatedCategory) {
@@ -95,7 +97,10 @@ export async function DELETE(
   const { id } = await params;
 
   const category = await db.query.category.findFirst({
-    where: and(eq(categoryTable.id, id), eq(categoryTable.workspaceId, workspaceId)),
+    where: and(
+      eq(categoryTable.id, id),
+      eq(categoryTable.workspaceId, workspaceId)
+    ),
     columns: { id: true, name: true, slug: true, description: true },
   });
 
@@ -118,7 +123,12 @@ export async function DELETE(
   try {
     await db
       .delete(categoryTable)
-      .where(and(eq(categoryTable.id, id), eq(categoryTable.workspaceId, workspaceId)));
+      .where(
+        and(
+          eq(categoryTable.id, id),
+          eq(categoryTable.workspaceId, workspaceId)
+        )
+      );
 
     await emitDashboardEvent({
       type: "category_deleted",

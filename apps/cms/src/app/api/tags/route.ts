@@ -47,7 +47,10 @@ export async function POST(req: Request) {
   }
 
   const tag = await db.query.tag.findFirst({
-    where: and(eq(tagTable.slug, body.data.slug), eq(tagTable.workspaceId, workspaceId)),
+    where: and(
+      eq(tagTable.slug, body.data.slug),
+      eq(tagTable.workspaceId, workspaceId)
+    ),
   });
 
   if (tag) {
@@ -67,7 +70,10 @@ export async function POST(req: Request) {
     .returning();
 
   if (!tagCreated) {
-    return NextResponse.json({ error: "Failed to create tag" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to create tag" },
+      { status: 500 }
+    );
   }
 
   await emitDashboardEvent({

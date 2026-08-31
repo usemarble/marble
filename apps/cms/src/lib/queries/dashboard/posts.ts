@@ -2,15 +2,7 @@ import "server-only";
 
 import { db } from "@marble/drizzle";
 import { post } from "@marble/drizzle/schema";
-import {
-  and,
-  asc,
-  count,
-  desc,
-  eq,
-  ilike,
-  type SQL,
-} from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, type SQL } from "drizzle-orm";
 import type { Post } from "@/types/dashboard";
 
 export interface PostListFilters {

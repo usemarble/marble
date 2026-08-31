@@ -34,14 +34,14 @@ import {
   workspaceNotificationPreferences,
 } from "./tables";
 
-export const shareLinkRelations = relations(shareLink, ({one}) => ({
+export const shareLinkRelations = relations(shareLink, ({ one }) => ({
   post: one(post, {
     fields: [shareLink.postId],
-    references: [post.id]
+    references: [post.id],
   }),
   workspace: one(workspace, {
     fields: [shareLink.workspaceId],
-    references: [workspace.id]
+    references: [workspace.id],
   }),
 }));
 
@@ -65,7 +65,7 @@ export const postRelations = relations(post, ({ one, many }) => ({
   authors: many(postToAuthor),
 }));
 
-export const workspaceRelations = relations(workspace, ({many}) => ({
+export const workspaceRelations = relations(workspace, ({ many }) => ({
   shareLinks: many(shareLink),
   usageEvents: many(usageEvent),
   apiKeys: many(apiKey),
@@ -89,17 +89,17 @@ export const workspaceRelations = relations(workspace, ({many}) => ({
   authors: many(author),
 }));
 
-export const usageEventRelations = relations(usageEvent, ({one}) => ({
+export const usageEventRelations = relations(usageEvent, ({ one }) => ({
   workspace: one(workspace, {
     fields: [usageEvent.workspaceId],
-    references: [workspace.id]
+    references: [workspace.id],
   }),
 }));
 
-export const authorSocialRelations = relations(authorSocial, ({one}) => ({
+export const authorSocialRelations = relations(authorSocial, ({ one }) => ({
   author: one(author, {
     fields: [authorSocial.authorId],
-    references: [author.id]
+    references: [author.id],
   }),
 }));
 
@@ -117,14 +117,14 @@ export const authorRelations = relations(author, ({ one, many }) => ({
   }),
 }));
 
-export const apiKeyRelations = relations(apiKey, ({one}) => ({
+export const apiKeyRelations = relations(apiKey, ({ one }) => ({
   workspace: one(workspace, {
     fields: [apiKey.workspaceId],
-    references: [workspace.id]
+    references: [workspace.id],
   }),
   user: one(user, {
     fields: [apiKey.userId],
-    references: [user.id]
+    references: [user.id],
   }),
 }));
 
@@ -144,14 +144,14 @@ export const userRelations = relations(user, ({ many, one }) => ({
   authors: many(author),
 }));
 
-export const subscriptionRelations = relations(subscription, ({one}) => ({
+export const subscriptionRelations = relations(subscription, ({ one }) => ({
   user: one(user, {
     fields: [subscription.userId],
-    references: [user.id]
+    references: [user.id],
   }),
   workspace: one(workspace, {
     fields: [subscription.workspaceId],
-    references: [workspace.id]
+    references: [workspace.id],
   }),
 }));
 
@@ -190,12 +190,15 @@ export const fieldValueRelations = relations(fieldValue, ({ one }) => ({
   }),
 }));
 
-export const workspaceNotificationPreferencesRelations = relations(workspaceNotificationPreferences, ({one}) => ({
-  member: one(member, {
-    fields: [workspaceNotificationPreferences.memberId],
-    references: [member.id]
-  }),
-}));
+export const workspaceNotificationPreferencesRelations = relations(
+  workspaceNotificationPreferences,
+  ({ one }) => ({
+    member: one(member, {
+      fields: [workspaceNotificationPreferences.memberId],
+      references: [member.id],
+    }),
+  })
+);
 
 export const memberRelations = relations(member, ({ one }) => ({
   organization: one(workspace, {
@@ -212,51 +215,63 @@ export const memberRelations = relations(member, ({ one }) => ({
   }),
 }));
 
-export const mediaRelations = relations(media, ({one}) => ({
+export const mediaRelations = relations(media, ({ one }) => ({
   workspace: one(workspace, {
     fields: [media.workspaceId],
-    references: [workspace.id]
-  }),
-}));
-
-export const userNotificationPreferencesRelations = relations(userNotificationPreferences, ({one}) => ({
-  user: one(user, {
-    fields: [userNotificationPreferences.userId],
-    references: [user.id]
-  }),
-}));
-
-export const workspaceEventRelations = relations(workspaceEvent, ({one, many}) => ({
-  workspace: one(workspace, {
-    fields: [workspaceEvent.workspaceId],
-    references: [workspace.id]
-  }),
-  webhookDeliveries: many(webhookDelivery),
-}));
-
-export const webhookDeliveryRelations = relations(webhookDelivery, ({ one, many }) => ({
-  event: one(workspaceEvent, {
-    fields: [webhookDelivery.eventId],
-    references: [workspaceEvent.id],
-  }),
-  workspace: one(workspace, {
-    fields: [webhookDelivery.workspaceId],
-    references: [workspace.id],
-  }),
-  webhookEndpoint: one(webhookEndpoint, {
-    fields: [webhookDelivery.webhookEndpointId],
-    references: [webhookEndpoint.id],
-  }),
-  attempts: many(webhookDeliveryAttempt),
-}));
-
-export const webhookEndpointRelations = relations(webhookEndpoint, ({ one, many }) => ({
-  deliveries: many(webhookDelivery),
-  workspace: one(workspace, {
-    fields: [webhookEndpoint.workspaceId],
     references: [workspace.id],
   }),
 }));
+
+export const userNotificationPreferencesRelations = relations(
+  userNotificationPreferences,
+  ({ one }) => ({
+    user: one(user, {
+      fields: [userNotificationPreferences.userId],
+      references: [user.id],
+    }),
+  })
+);
+
+export const workspaceEventRelations = relations(
+  workspaceEvent,
+  ({ one, many }) => ({
+    workspace: one(workspace, {
+      fields: [workspaceEvent.workspaceId],
+      references: [workspace.id],
+    }),
+    webhookDeliveries: many(webhookDelivery),
+  })
+);
+
+export const webhookDeliveryRelations = relations(
+  webhookDelivery,
+  ({ one, many }) => ({
+    event: one(workspaceEvent, {
+      fields: [webhookDelivery.eventId],
+      references: [workspaceEvent.id],
+    }),
+    workspace: one(workspace, {
+      fields: [webhookDelivery.workspaceId],
+      references: [workspace.id],
+    }),
+    webhookEndpoint: one(webhookEndpoint, {
+      fields: [webhookDelivery.webhookEndpointId],
+      references: [webhookEndpoint.id],
+    }),
+    attempts: many(webhookDeliveryAttempt),
+  })
+);
+
+export const webhookEndpointRelations = relations(
+  webhookEndpoint,
+  ({ one, many }) => ({
+    deliveries: many(webhookDelivery),
+    workspace: one(workspace, {
+      fields: [webhookEndpoint.workspaceId],
+      references: [workspace.id],
+    }),
+  })
+);
 
 export const webhookDeliveryAttemptRelations = relations(
   webhookDeliveryAttempt,
@@ -268,10 +283,10 @@ export const webhookDeliveryAttemptRelations = relations(
   })
 );
 
-export const usageAlertRelations = relations(usageAlert, ({one}) => ({
+export const usageAlertRelations = relations(usageAlert, ({ one }) => ({
   workspace: one(workspace, {
     fields: [usageAlert.workspaceId],
-    references: [workspace.id]
+    references: [workspace.id],
   }),
 }));
 
@@ -309,10 +324,10 @@ export const exportJobRelations = relations(exportJob, ({ one }) => ({
   }),
 }));
 
-export const categoryRelations = relations(category, ({one, many}) => ({
+export const categoryRelations = relations(category, ({ one, many }) => ({
   workspace: one(workspace, {
     fields: [category.workspaceId],
-    references: [workspace.id]
+    references: [workspace.id],
   }),
   posts: many(post),
 }));
@@ -325,17 +340,17 @@ export const tagRelations = relations(tag, ({ one, many }) => ({
   posts: many(postToTag),
 }));
 
-export const sessionRelations = relations(session, ({one}) => ({
+export const sessionRelations = relations(session, ({ one }) => ({
   user: one(user, {
     fields: [session.userId],
-    references: [user.id]
+    references: [user.id],
   }),
 }));
 
-export const accountRelations = relations(account, ({one}) => ({
+export const accountRelations = relations(account, ({ one }) => ({
   user: one(user, {
     fields: [account.userId],
-    references: [user.id]
+    references: [user.id],
   }),
 }));
 
@@ -351,25 +366,25 @@ export const invitationRelations = relations(invitation, ({ one }) => ({
   }),
 }));
 
-export const postToTagRelations = relations(postToTag, ({one}) => ({
+export const postToTagRelations = relations(postToTag, ({ one }) => ({
   post: one(post, {
     fields: [postToTag.a],
-    references: [post.id]
+    references: [post.id],
   }),
   tag: one(tag, {
     fields: [postToTag.b],
-    references: [tag.id]
+    references: [tag.id],
   }),
 }));
 
-export const postToAuthorRelations = relations(postToAuthor, ({one}) => ({
+export const postToAuthorRelations = relations(postToAuthor, ({ one }) => ({
   author: one(author, {
     fields: [postToAuthor.a],
-    references: [author.id]
+    references: [author.id],
   }),
   post: one(post, {
     fields: [postToAuthor.b],
-    references: [post.id]
+    references: [post.id],
   }),
 }));
 export const verificationRelations = relations(verification, () => ({}));

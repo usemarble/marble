@@ -1,7 +1,7 @@
 import { createRecordId, db } from "@marble/drizzle";
 import {
-  author as authorTable,
   authorSocial,
+  author as authorTable,
   subscription,
 } from "@marble/drizzle/schema";
 import { toAuthorPayload } from "@marble/events";

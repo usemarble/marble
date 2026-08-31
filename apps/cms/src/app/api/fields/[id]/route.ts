@@ -1,10 +1,14 @@
-import { db } from "@marble/drizzle";
-import { field as fieldTable, fieldOption, fieldValue } from "@marble/drizzle/schema";
 import {
   createRecordId,
+  db,
   isFieldWorkspaceKeyConflict,
   isPgSerializationFailure,
 } from "@marble/drizzle";
+import {
+  fieldOption,
+  field as fieldTable,
+  fieldValue,
+} from "@marble/drizzle/schema";
 import { and, asc, count, eq, ne } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
@@ -145,7 +149,10 @@ export async function PATCH(
             .select({ value: count() })
             .from(fieldValue)
             .where(
-              and(eq(fieldValue.fieldId, id), eq(fieldValue.workspaceId, workspaceId))
+              and(
+                eq(fieldValue.fieldId, id),
+                eq(fieldValue.workspaceId, workspaceId)
+              )
             );
 
           if ((fieldValueCount?.value ?? 0) > 0) {
@@ -163,7 +170,9 @@ export async function PATCH(
             ...updateData,
             updatedAt: now,
           })
-          .where(and(eq(fieldTable.id, id), eq(fieldTable.workspaceId, workspaceId)))
+          .where(
+            and(eq(fieldTable.id, id), eq(fieldTable.workspaceId, workspaceId))
+          )
           .returning({ id: fieldTable.id });
 
         if (!updatedField) {

@@ -1,5 +1,5 @@
 import { createRecordId, db } from "@marble/drizzle";
-import { author as authorTable, authorSocial } from "@marble/drizzle/schema";
+import { authorSocial, author as authorTable } from "@marble/drizzle/schema";
 import { toAuthorPayload, withChanges } from "@marble/events";
 
 import { and, eq, ne } from "drizzle-orm";
@@ -34,7 +34,10 @@ export async function DELETE(
 
   try {
     const author = await db.query.author.findFirst({
-      where: and(eq(authorTable.id, id), eq(authorTable.workspaceId, workspaceId)),
+      where: and(
+        eq(authorTable.id, id),
+        eq(authorTable.workspaceId, workspaceId)
+      ),
       with: {
         socials: true,
       },
@@ -46,7 +49,9 @@ export async function DELETE(
 
     const [deletedAuthor] = await db
       .delete(authorTable)
-      .where(and(eq(authorTable.id, id), eq(authorTable.workspaceId, workspaceId)))
+      .where(
+        and(eq(authorTable.id, id), eq(authorTable.workspaceId, workspaceId))
+      )
       .returning();
 
     if (!deletedAuthor) {
@@ -104,7 +109,10 @@ export async function PATCH(
     const validEmail = email === "" ? null : email;
 
     const author = await db.query.author.findFirst({
-      where: and(eq(authorTable.id, id), eq(authorTable.workspaceId, workspaceId)),
+      where: and(
+        eq(authorTable.id, id),
+        eq(authorTable.workspaceId, workspaceId)
+      ),
     });
 
     if (!author) {
@@ -138,7 +146,9 @@ export async function PATCH(
           slug,
           updatedAt: new Date(),
         })
-        .where(and(eq(authorTable.id, id), eq(authorTable.workspaceId, workspaceId)))
+        .where(
+          and(eq(authorTable.id, id), eq(authorTable.workspaceId, workspaceId))
+        )
         .returning();
 
       if (!authorRow) {
@@ -146,9 +156,7 @@ export async function PATCH(
       }
 
       if (typeof socials !== "undefined") {
-        await tx
-          .delete(authorSocial)
-          .where(eq(authorSocial.authorId, id));
+        await tx.delete(authorSocial).where(eq(authorSocial.authorId, id));
 
         const socialRows =
           socials.length > 0
