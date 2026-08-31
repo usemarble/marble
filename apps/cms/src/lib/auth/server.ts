@@ -1,4 +1,21 @@
-import { db } from "@marble/db";
+import { drizzleAdapter } from "@better-auth/drizzle-adapter";
+import { createRecordId, db } from "@marble/drizzle";
+import {
+  account,
+  accountRelations,
+  invitation,
+  invitationRelations,
+  member,
+  memberRelations,
+  session,
+  sessionRelations,
+  user,
+  userRelations,
+  verification,
+  verificationRelations,
+  workspace,
+  workspaceRelations,
+} from "@marble/drizzle/schema";
 import {
   checkout,
   polar,
@@ -7,7 +24,6 @@ import {
   webhooks,
 } from "@polar-sh/better-auth";
 import { Polar } from "@polar-sh/sdk";
-import { prismaAdapter } from "better-auth/adapters/prisma";
 import {
   APIError,
   createAuthMiddleware,
@@ -16,6 +32,7 @@ import {
 import { betterAuth } from "better-auth/minimal";
 import { nextCookies } from "better-auth/next-js";
 import { emailOTP, organization } from "better-auth/plugins";
+import { and, eq } from "drizzle-orm";
 import { customAlphabet } from "nanoid";
 import {
   createAuthor,
@@ -82,8 +99,25 @@ async function sendOnboardingEmails(user: { email?: string | null }) {
 }
 
 export const auth = betterAuth({
-  database: prismaAdapter(db, {
-    provider: "postgresql",
+  database: drizzleAdapter(db, {
+    provider: "pg",
+    schema: {
+      user,
+      session,
+      account,
+      verification,
+      workspace,
+      organization: workspace,
+      member,
+      invitation,
+      userRelations,
+      sessionRelations,
+      accountRelations,
+      verificationRelations,
+      workspaceRelations,
+      memberRelations,
+      invitationRelations,
+    },
   }),
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
@@ -106,25 +140,22 @@ export const auth = betterAuth({
       }
 
       // Polar stores referenceId as checkout metadata, so verify the client-supplied workspace before it can attach a subscription there.
-      const member = await db.member.findFirst({
-        where: {
-          organizationId: referenceId,
-          userId: session.user.id,
-        },
-        select: {
+      const memberRecord = await db.query.member.findFirst({
+        where: and(
+          eq(member.organizationId, referenceId),
+          eq(member.userId, session.user.id)
+        ),
+        columns: {
           role: true,
         },
       });
 
-      if (member?.role !== "owner") {
+      if (memberRecord?.role !== "owner") {
         throw new APIError("FORBIDDEN", {
           message: "Only workspace owners can start checkout",
         });
       }
     }),
-  },
-  experimental: {
-    joins: true,
   },
   secondaryStorage: {
     get: async (key) => await redis.get(key),
@@ -175,7 +206,9 @@ export const auth = betterAuth({
   },
   advanced: {
     database: {
-      generateId: false,
+      // Prisma applied @default(cuid()) in the client; Drizzle has no DB default.
+      generateId: () => createRecordId(),
+      joins: true,
     },
   },
   organization: {

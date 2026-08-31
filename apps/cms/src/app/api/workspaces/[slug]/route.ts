@@ -1,7 +1,21 @@
-import { db } from "@marble/db";
+import { db } from "@marble/drizzle";
+import { subscription, workspace } from "@marble/drizzle/schema";
+import { and, desc, eq, gt, or } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireWorkspaceAccess } from "@/lib/auth/access";
 import { getWorkspacePlan } from "@/lib/plans";
+
+function activeSubscriptionFilter() {
+  return or(
+    eq(subscription.status, "active"),
+    eq(subscription.status, "trialing"),
+    and(
+      eq(subscription.status, "canceled"),
+      eq(subscription.cancelAtPeriodEnd, true),
+      gt(subscription.currentPeriodEnd, new Date())
+    )
+  );
+}
 
 export async function GET(
   _request: Request,
@@ -14,30 +28,36 @@ export async function GET(
     return accessData.response;
   }
 
-  const workspace = await db.organization.findFirst({
-    where: {
-      slug,
-      id: accessData.workspaceId,
-    },
-    select: {
+  const foundWorkspace = await db.query.workspace.findFirst({
+    where: and(
+      eq(workspace.slug, slug),
+      eq(workspace.id, accessData.workspaceId)
+    ),
+    columns: {
       id: true,
       name: true,
       slug: true,
       logo: true,
       createdAt: true,
       timezone: true,
+    },
+    with: {
       members: {
-        select: {
+        columns: {
           id: true,
           role: true,
           organizationId: true,
           createdAt: true,
           userId: true,
-          user: { select: { id: true, name: true, email: true, image: true } },
+        },
+        with: {
+          user: {
+            columns: { id: true, name: true, email: true, image: true },
+          },
         },
       },
       invitations: {
-        select: {
+        columns: {
           id: true,
           email: true,
           role: true,
@@ -48,20 +68,10 @@ export async function GET(
         },
       },
       subscriptions: {
-        where: {
-          OR: [
-            { status: "active" },
-            { status: "trialing" },
-            {
-              status: "canceled",
-              cancelAtPeriodEnd: true,
-              currentPeriodEnd: { gt: new Date() },
-            },
-          ],
-        },
-        orderBy: { createdAt: "desc" },
-        take: 1,
-        select: {
+        where: activeSubscriptionFilter(),
+        orderBy: desc(subscription.createdAt),
+        limit: 1,
+        columns: {
           id: true,
           status: true,
           plan: true,
@@ -74,21 +84,20 @@ export async function GET(
     },
   });
 
-  if (!workspace) {
+  if (!foundWorkspace) {
     return NextResponse.json({ error: "Workspace not found" }, { status: 404 });
   }
 
-  // Find current user's role in this workspace
-  const currentUserMember = workspace.members.find(
-    (member) => member.userId === accessData.sessionData.user.id
+  const currentUserMember = foundWorkspace.members.find(
+    (entry) => entry.userId === accessData.sessionData.user.id
   );
 
   const currentUserRole = currentUserMember?.role || null;
-  const activeSubscription = workspace.subscriptions[0] || null;
+  const activeSubscription = foundWorkspace.subscriptions.at(0) || null;
   const activePlan = getWorkspacePlan(activeSubscription);
 
   const workspaceWithUserRole = {
-    ...workspace,
+    ...foundWorkspace,
     currentUserRole,
     subscription: activeSubscription
       ? {

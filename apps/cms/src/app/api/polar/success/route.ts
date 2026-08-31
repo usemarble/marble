@@ -1,4 +1,6 @@
-import { db } from "@marble/db";
+import { db } from "@marble/drizzle";
+import { workspace } from "@marble/drizzle/schema";
+import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";
@@ -17,17 +19,17 @@ export async function GET(request: Request) {
 
   const { workspaceId } = accessData;
 
-  const workspace = await db.organization.findUnique({
-    where: { id: workspaceId },
-    select: { slug: true },
+  const foundWorkspace = await db.query.workspace.findFirst({
+    where: eq(workspace.id, workspaceId),
+    columns: { slug: true },
   });
 
   invalidateCache(workspaceId, "usage");
 
-  if (workspace) {
+  if (foundWorkspace) {
     return NextResponse.redirect(
       new URL(
-        `/${workspace.slug}/settings/billing?success=true`,
+        `/${foundWorkspace.slug}/settings/billing?success=true`,
         process.env.NEXT_PUBLIC_APP_URL
       )
     );

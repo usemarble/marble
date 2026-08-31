@@ -1,4 +1,6 @@
-import { db } from "@marble/db";
+import { db } from "@marble/drizzle";
+import { account, user } from "@marble/drizzle/schema";
+import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 
@@ -10,29 +12,24 @@ export async function GET() {
   }
 
   try {
-    const userAccountDetails = await db.account.findMany({
-      where: {
-        userId: sessionData.user.id,
-      },
-      select: {
-        id: true,
-        createdAt: true,
-        providerId: true,
-        accountId: true,
-        user: {
-          select: {
-            email: true,
-          },
-        },
-      },
-    });
+    const userAccountDetails = await db
+      .select({
+        id: account.id,
+        createdAt: account.createdAt,
+        providerId: account.providerId,
+        accountId: account.accountId,
+        email: user.email,
+      })
+      .from(account)
+      .innerJoin(user, eq(account.userId, user.id))
+      .where(eq(account.userId, sessionData.user.id));
 
-    const accountDetails = userAccountDetails.map((account) => ({
-      id: account.id,
-      createdAt: account.createdAt,
-      providerId: account.providerId,
-      accountId: account.accountId,
-      email: account.user.email,
+    const accountDetails = userAccountDetails.map((accountRow) => ({
+      id: accountRow.id,
+      createdAt: accountRow.createdAt,
+      providerId: accountRow.providerId,
+      accountId: accountRow.accountId,
+      email: accountRow.email,
     }));
 
     return NextResponse.json(accountDetails, { status: 200 });

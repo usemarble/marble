@@ -1,58 +1,61 @@
-import { db } from "@marble/db";
+import { createRecordId, db } from "@marble/drizzle";
+import {
+  media,
+  member,
+  subscription,
+  usageEvent,
+  workspace,
+} from "@marble/drizzle/schema";
+import { and, desc, eq, gt, or, sum } from "drizzle-orm";
 import { getWorkspacePlan, PLAN_LIMITS } from "@/lib/plans";
 import { createPolarClient } from "@/lib/polar/client";
 
 const BYTES_PER_MB = 1024 * 1024;
 
-/**
- * Returns the total bytes currently stored by media records in a workspace.
- */
 export async function getWorkspaceMediaUsageBytes(
   workspaceId: string
 ): Promise<number> {
-  const result = await db.media.aggregate({
-    where: { workspaceId },
-    _sum: { size: true },
-  });
+  const [result] = await db
+    .select({ total: sum(media.size) })
+    .from(media)
+    .where(eq(media.workspaceId, workspaceId));
 
-  return result._sum.size ?? 0;
+  return Number(result?.total ?? 0);
 }
 
-/**
- * Returns the active plan's media storage limit for a workspace in bytes.
- */
 export async function getWorkspaceMediaStorageLimitBytes(
   workspaceId: string
 ): Promise<number> {
-  const activeSubscription = await db.subscription.findFirst({
-    where: {
-      workspaceId,
-      OR: [
-        { status: "active" },
-        { status: "trialing" },
-        {
-          status: "canceled",
-          cancelAtPeriodEnd: true,
-          currentPeriodEnd: { gt: new Date() },
-        },
-      ],
-    },
-    orderBy: { createdAt: "desc" },
-    select: {
-      plan: true,
-      status: true,
-      cancelAtPeriodEnd: true,
-      currentPeriodEnd: true,
-    },
-  });
+  const subscriptions = await db
+    .select({
+      plan: subscription.plan,
+      status: subscription.status,
+      cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
+      currentPeriodEnd: subscription.currentPeriodEnd,
+    })
+    .from(subscription)
+    .where(
+      and(
+        eq(subscription.workspaceId, workspaceId),
+        or(
+          eq(subscription.status, "active"),
+          eq(subscription.status, "trialing"),
+          and(
+            eq(subscription.status, "canceled"),
+            eq(subscription.cancelAtPeriodEnd, true),
+            gt(subscription.currentPeriodEnd, new Date())
+          )
+        )
+      )
+    )
+    .orderBy(desc(subscription.createdAt))
+    .limit(1);
 
+  const activeSubscription = subscriptions.at(0) ?? null;
   const plan = getWorkspacePlan(activeSubscription);
   return PLAN_LIMITS[plan].maxMediaStorage * BYTES_PER_MB;
 }
 
-/**
- * Checks whether a new stored media upload would fit within workspace storage limits.
- */
 export async function canStoreMediaUpload(
   workspaceId: string,
   fileSize: number
@@ -65,21 +68,17 @@ export async function canStoreMediaUpload(
   return currentUsage + fileSize <= storageLimit;
 }
 
-/**
- * Gets the customer ID for a workspace by finding the owner's user ID.
- * Falls back to workspaceId if lookup fails or no owner is found.
- */
 export async function getCustomerIdForWorkspace(
   workspaceId: string
 ): Promise<string> {
   try {
-    const organization = await db.organization.findFirst({
-      where: { id: workspaceId },
-      select: {
+    const organization = await db.query.workspace.findFirst({
+      where: eq(workspace.id, workspaceId),
+      with: {
         members: {
-          where: { role: "owner" },
-          select: { userId: true },
-          take: 1,
+          where: eq(member.role, "owner"),
+          columns: { userId: true },
+          limit: 1,
         },
       },
     });
@@ -96,25 +95,18 @@ export async function getCustomerIdForWorkspace(
   }
 }
 
-/**
- * Tracks media upload in the database by creating a usage event.
- */
 export async function trackMediaUploadInDB(
   workspaceId: string,
   fileSize: number
 ): Promise<void> {
-  await db.usageEvent.create({
-    data: {
-      type: "media_upload",
-      workspaceId,
-      size: fileSize,
-    },
+  await db.insert(usageEvent).values({
+    id: createRecordId(),
+    type: "media_upload",
+    workspaceId,
+    size: fileSize,
   });
 }
 
-/**
- * Tracks media upload in Polar analytics.
- */
 export async function trackMediaUploadInPolar(
   customerId: string,
   fileSize: number,
@@ -139,10 +131,6 @@ export async function trackMediaUploadInPolar(
   });
 }
 
-/**
- * Orchestrates all media upload tracking operations.
- * Each operation is independent and failures don't block others.
- */
 export async function trackMediaUpload(
   workspaceId: string,
   fileSize: number,

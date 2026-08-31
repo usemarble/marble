@@ -1,6 +1,8 @@
 import { createHash } from "node:crypto";
-import { db } from "@marble/db";
+import { db } from "@marble/drizzle";
+import { post } from "@marble/drizzle/schema";
 import { htmlToMarkdown } from "@marble/parser";
+import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { aiSuggestionsRateLimiter, rateLimitHeaders } from "@/lib/ratelimit";
@@ -78,17 +80,14 @@ export async function POST(request: Request) {
   const postId = parsedBody.data.postId;
 
   if (postId) {
-    const post = await db.post.findFirst({
-      where: {
-        id: postId,
-        workspaceId,
-      },
-      select: {
+    const foundPost = await db.query.post.findFirst({
+      where: and(eq(post.id, postId), eq(post.workspaceId, workspaceId)),
+      columns: {
         id: true,
       },
     });
 
-    if (!post) {
+    if (!foundPost) {
       return NextResponse.json(
         { error: "Post not found or does not belong to this workspace" },
         { status: 404 }

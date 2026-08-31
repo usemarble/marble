@@ -1,12 +1,24 @@
-import { db } from "@marble/db";
+import { createRecordId, db } from "@marble/drizzle";
+import {
+  author,
+  category,
+  post as postTable,
+  postToAuthor,
+  postToTag,
+} from "@marble/drizzle/schema";
 import { toPostPayload } from "@marble/events";
-import { sanitizeHtml, sanitizeRichTextHtml } from "@marble/utils/sanitize";
+import { sanitizeHtml } from "@marble/utils/sanitize";
+
+import { and, asc, eq, inArray } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";
-import { resolveCustomFieldValues } from "@/lib/custom-fields";
+import {
+  buildCustomFieldWrites,
+  writeCustomFieldValues,
+} from "@/lib/custom-fields";
 import { getDashboardPosts } from "@/lib/queries/dashboard/posts";
 import {
   emitDashboardEvent,
@@ -16,42 +28,6 @@ import { loadPostApiFilters } from "@/lib/search-params";
 import { postUpsertSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";
 import { generateSlug } from "@/utils/string";
-
-async function buildCustomFieldWrites(
-  workspaceId: string,
-  input: Record<string, string | null | undefined>
-): Promise<ReturnType<typeof resolveCustomFieldValues>> {
-  const fields = await db.field.findMany({
-    where: {
-      workspaceId,
-    },
-    select: {
-      id: true,
-      key: true,
-      name: true,
-      type: true,
-      required: true,
-      options: {
-        select: {
-          value: true,
-          label: true,
-        },
-        orderBy: [{ position: "asc" }, { createdAt: "asc" }],
-      },
-    },
-  });
-
-  const normalizedInput: Record<string, string | null | undefined> = {
-    ...input,
-  };
-  for (const field of fields) {
-    if (!(field.id in normalizedInput)) {
-      normalizedInput[field.id] = undefined;
-    }
-  }
-
-  return resolveCustomFieldValues(fields, normalizedInput);
-}
 
 export async function GET(request: Request) {
   const accessData = await requireActiveWorkspaceAccess();
@@ -104,47 +80,41 @@ export async function POST(request: Request) {
     );
   }
 
-  const existingPost = await db.post.findFirst({
-    where: {
-      slug: values.data.slug,
-      workspaceId,
-    },
+  const post = await db.query.post.findFirst({
+    where: and(
+      eq(postTable.slug, values.data.slug),
+      eq(postTable.workspaceId, workspaceId)
+    ),
   });
 
-  if (existingPost) {
+  if (post) {
     return NextResponse.json({ error: "Slug already in use" }, { status: 409 });
   }
 
-  // Try to find an existing author profile for this user
-  let primaryAuthor = await db.author.findUnique({
-    where: {
-      workspaceId_userId: {
-        workspaceId,
-        userId: sessionData.user.id,
-      },
-    },
+  let primaryAuthor = await db.query.author.findFirst({
+    where: and(
+      eq(author.workspaceId, workspaceId),
+      eq(author.userId, sessionData.user.id)
+    ),
   });
 
-  // If no author profile exists for this user fallback to the first available author in the workspace.
   if (!primaryAuthor) {
-    primaryAuthor = await db.author.findFirst({
-      where: {
-        workspaceId,
-      },
-      orderBy: {
-        createdAt: "asc",
-      },
+    primaryAuthor = await db.query.author.findFirst({
+      where: eq(author.workspaceId, workspaceId),
+      orderBy: asc(author.createdAt),
     });
   }
 
-  // If STILL no author exists then we create one for the current user to proceed.
   if (!primaryAuthor) {
     try {
       const baseSlug = generateSlug(sessionData.user.name || "user");
       const uniqueSlug = `${baseSlug}-${nanoid(6)}`;
+      const now = new Date();
 
-      primaryAuthor = await db.author.create({
-        data: {
+      const [createdAuthor] = await db
+        .insert(author)
+        .values({
+          id: createRecordId(),
           name: sessionData.user.name || "Member",
           email: sessionData.user.email,
           slug: uniqueSlug,
@@ -152,8 +122,11 @@ export async function POST(request: Request) {
           workspaceId,
           userId: sessionData.user.id,
           role: "Writer",
-        },
-      });
+          updatedAt: now,
+        })
+        .returning();
+
+      primaryAuthor = createdAuthor;
     } catch (error) {
       console.error("[PostCreate] Failed to generate fallback author:", error);
       return NextResponse.json(
@@ -162,6 +135,15 @@ export async function POST(request: Request) {
       );
     }
   }
+
+  if (!primaryAuthor) {
+    return NextResponse.json(
+      { error: "Failed to create author profile for post" },
+      { status: 500 }
+    );
+  }
+
+  const resolvedPrimaryAuthor = primaryAuthor;
 
   const contentJson = JSON.parse(values.data.contentJson);
   const cleanContent = sanitizeHtml(values.data.content);
@@ -178,14 +160,14 @@ export async function POST(request: Request) {
   const { uniqueTagIds } = tagValidation;
 
   if (values.data.category) {
-    const category = await db.category.findFirst({
-      where: {
-        id: values.data.category,
-        workspaceId,
-      },
+    const categoryRow = await db.query.category.findFirst({
+      where: and(
+        eq(category.id, values.data.category),
+        eq(category.workspaceId, workspaceId)
+      ),
     });
 
-    if (!category) {
+    if (!categoryRow) {
       return NextResponse.json(
         { error: "Invalid category provided" },
         { status: 400 }
@@ -193,16 +175,12 @@ export async function POST(request: Request) {
     }
   }
 
-  // Find all authors for the provided author IDs, this may or may not include the primary author
-  // if the list of authors selected by the user doesnt include their own author profile
-  // it will not be added to the list as this is what is returned to users via the public api
-  // however for internal tracking they will be saved as the primary author
-  const authorIds = values.data.authors || [primaryAuthor.id];
-  const validAuthors = await db.author.findMany({
-    where: {
-      id: { in: authorIds },
-      workspaceId,
-    },
+  const authorIds = values.data.authors || [resolvedPrimaryAuthor.id];
+  const validAuthors = await db.query.author.findMany({
+    where: and(
+      inArray(author.id, authorIds),
+      eq(author.workspaceId, workspaceId)
+    ),
   });
 
   if (validAuthors.length === 0) {
@@ -213,10 +191,15 @@ export async function POST(request: Request) {
   }
 
   try {
-    const postCreated = await db.$transaction(async (tx) => {
-      const createdPost = await tx.post.create({
-        data: {
-          primaryAuthorId: primaryAuthor.id,
+    const postCreated = await db.transaction(async (tx) => {
+      const postId = createRecordId();
+      const now = new Date();
+
+      const [createdPost] = await tx
+        .insert(postTable)
+        .values({
+          id: postId,
+          primaryAuthorId: resolvedPrimaryAuthor.id,
           contentJson,
           slug: values.data.slug,
           title: values.data.title,
@@ -228,17 +211,29 @@ export async function POST(request: Request) {
           publishedAt: values.data.publishedAt,
           description: values.data.description,
           workspaceId,
-          tags:
-            uniqueTagIds.length > 0
-              ? {
-                  connect: uniqueTagIds.map((id) => ({ id })),
-                }
-              : undefined,
-          authors: {
-            connect: validAuthors.map((author) => ({ id: author.id })),
-          },
-        },
-      });
+          updatedAt: now,
+        })
+        .returning();
+
+      if (!createdPost) {
+        throw new Error("Failed to create post");
+      }
+
+      if (uniqueTagIds.length > 0) {
+        await tx.insert(postToTag).values(
+          uniqueTagIds.map((tagId) => ({
+            a: createdPost.id,
+            b: tagId,
+          }))
+        );
+      }
+
+      await tx.insert(postToAuthor).values(
+        validAuthors.map((authorRow) => ({
+          a: authorRow.id,
+          b: createdPost.id,
+        }))
+      );
 
       const customFieldWrites = await buildCustomFieldWrites(
         workspaceId,
@@ -249,43 +244,12 @@ export async function POST(request: Request) {
         throw new Error(JSON.stringify(customFieldWrites.error));
       }
 
-      if (customFieldWrites.values.length > 0) {
-        await Promise.all(
-          customFieldWrites.values.map(({ fieldId, fieldType, value }) => {
-            if (value === null) {
-              return tx.fieldValue.deleteMany({
-                where: {
-                  postId: createdPost.id,
-                  fieldId,
-                  workspaceId,
-                },
-              });
-            }
-
-            return tx.fieldValue.upsert({
-              where: {
-                postId_fieldId: { postId: createdPost.id, fieldId },
-              },
-              update: {
-                workspaceId,
-                value:
-                  fieldType === "richtext"
-                    ? sanitizeRichTextHtml(value)
-                    : value,
-              },
-              create: {
-                postId: createdPost.id,
-                fieldId,
-                workspaceId,
-                value:
-                  fieldType === "richtext"
-                    ? sanitizeRichTextHtml(value)
-                    : value,
-              },
-            });
-          })
-        );
-      }
+      await writeCustomFieldValues(
+        tx,
+        workspaceId,
+        createdPost.id,
+        customFieldWrites
+      );
 
       return createdPost;
     });

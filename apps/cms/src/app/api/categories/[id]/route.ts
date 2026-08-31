@@ -1,5 +1,7 @@
-import { db } from "@marble/db";
+import { db } from "@marble/drizzle";
+import { category as categoryTable, post } from "@marble/drizzle/schema";
 import { toCategoryPayload, withChanges } from "@marble/events";
+import { and, eq, ne } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";
@@ -33,29 +35,34 @@ export async function PATCH(
     );
   }
 
-  const existingCategoryWithSlug = await db.category.findFirst({
-    where: {
-      slug: body.data.slug,
-      workspaceId,
-      id: { not: id },
-    },
+  const categoryWithSlug = await db.query.category.findFirst({
+    where: and(
+      eq(categoryTable.slug, body.data.slug),
+      eq(categoryTable.workspaceId, workspaceId),
+      ne(categoryTable.id, id)
+    ),
   });
 
-  if (existingCategoryWithSlug) {
+  if (categoryWithSlug) {
     return NextResponse.json({ error: "Slug already in use" }, { status: 409 });
   }
 
-  const updatedCategory = await db.category.update({
-    where: {
-      id,
-      workspaceId,
-    },
-    data: {
+  const [updatedCategory] = await db
+    .update(categoryTable)
+    .set({
       name: body.data.name,
       slug: body.data.slug,
       description: body.data.description,
-    },
-  });
+      updatedAt: new Date(),
+    })
+    .where(
+      and(eq(categoryTable.id, id), eq(categoryTable.workspaceId, workspaceId))
+    )
+    .returning();
+
+  if (!updatedCategory) {
+    throw new Error("Record to update not found.");
+  }
 
   await emitDashboardEvent({
     type: "category_updated",
@@ -69,7 +76,6 @@ export async function PATCH(
     ),
   }).catch(logDashboardEventError);
 
-  // Invalidate cache for categories and posts (categories affect posts)
   invalidateCache(workspaceId, "categories");
   invalidateCache(workspaceId, "posts");
 
@@ -90,21 +96,21 @@ export async function DELETE(
 
   const { id } = await params;
 
-  const category = await db.category.findFirst({
-    where: { id, workspaceId },
-    select: { id: true, name: true, slug: true, description: true },
+  const category = await db.query.category.findFirst({
+    where: and(
+      eq(categoryTable.id, id),
+      eq(categoryTable.workspaceId, workspaceId)
+    ),
+    columns: { id: true, name: true, slug: true, description: true },
   });
 
   if (!category) {
     return NextResponse.json({ error: "Category not found" }, { status: 404 });
   }
 
-  const postsWithCategory = await db.post.findFirst({
-    where: {
-      categoryId: id,
-      workspaceId,
-    },
-    select: { id: true },
+  const postsWithCategory = await db.query.post.findFirst({
+    where: and(eq(post.categoryId, id), eq(post.workspaceId, workspaceId)),
+    columns: { id: true },
   });
 
   if (postsWithCategory) {
@@ -115,12 +121,14 @@ export async function DELETE(
   }
 
   try {
-    await db.category.delete({
-      where: {
-        id,
-        workspaceId,
-      },
-    });
+    await db
+      .delete(categoryTable)
+      .where(
+        and(
+          eq(categoryTable.id, id),
+          eq(categoryTable.workspaceId, workspaceId)
+        )
+      );
 
     await emitDashboardEvent({
       type: "category_deleted",
@@ -131,7 +139,6 @@ export async function DELETE(
       payload: toCategoryPayload(category),
     }).catch(logDashboardEventError);
 
-    // Invalidate cache for categories and posts (categories affect posts)
     invalidateCache(workspaceId, "categories");
     invalidateCache(workspaceId, "posts");
 

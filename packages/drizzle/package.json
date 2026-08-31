@@ -1,0 +1,32 @@
+{
+  "name": "@marble/drizzle",
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/schema/index.ts",
+    "./hyperdrive": "./src/hyperdrive.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.1",
+    "@paralleldrive/cuid2": "^3.3.0",
+    "drizzle-orm": "^0.45.2",
+    "pg": "^8.18.0",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@marble/tsconfig": "workspace:*",
+    "@types/node": "^22.9.0",
+    "@types/pg": "^8.11.11",
+    "@types/ws": "^8.5.13",
+    "dotenv": "^16.4.7",
+    "drizzle-kit": "^0.31.10",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}

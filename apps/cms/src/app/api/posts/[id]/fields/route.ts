@@ -1,5 +1,8 @@
-import { db } from "@marble/db";
+import { createRecordId, db } from "@marble/drizzle";
+import { field, fieldOption, fieldValue, post } from "@marble/drizzle/schema";
 import { sanitizeRichTextHtml } from "@marble/utils/sanitize";
+
+import { and, asc, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import {
@@ -20,41 +23,36 @@ export async function GET(
   const { workspaceId } = accessData;
   const { id: postId } = await params;
 
-  const post = await db.post.findFirst({
-    where: {
-      id: postId,
-      workspaceId,
-    },
-    select: { id: true },
+  const postRow = await db.query.post.findFirst({
+    where: and(eq(post.id, postId), eq(post.workspaceId, workspaceId)),
+    columns: { id: true },
   });
 
-  if (!post) {
+  if (!postRow) {
     return NextResponse.json({ error: "Post not found" }, { status: 404 });
   }
 
-  // Fetch workspace custom field definitions and this post's values
   const [fields, values] = await Promise.all([
-    db.field.findMany({
-      where: { workspaceId },
-      include: {
+    db.query.field.findMany({
+      where: eq(field.workspaceId, workspaceId),
+      with: {
         options: {
-          orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+          orderBy: [asc(fieldOption.position), asc(fieldOption.createdAt)],
         },
       },
-      orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+      orderBy: [asc(field.position), asc(field.createdAt)],
     }),
-    db.fieldValue.findMany({
-      where: {
-        postId,
-        workspaceId,
-      },
+    db.query.fieldValue.findMany({
+      where: and(
+        eq(fieldValue.postId, postId),
+        eq(fieldValue.workspaceId, workspaceId)
+      ),
     }),
   ]);
 
-  // Build a map of fieldId -> value for easy lookup
   const valueMap: Record<string, string> = {};
-  for (const v of values) {
-    valueMap[v.fieldId] = v.value;
+  for (const value of values) {
+    valueMap[value.fieldId] = value.value;
   }
 
   return NextResponse.json({ fields, values: valueMap }, { status: 200 });
@@ -73,15 +71,12 @@ export async function PUT(
   const { workspaceId } = accessData;
   const { id: postId } = await params;
 
-  const post = await db.post.findFirst({
-    where: {
-      id: postId,
-      workspaceId,
-    },
-    select: { id: true },
+  const postRow = await db.query.post.findFirst({
+    where: and(eq(post.id, postId), eq(post.workspaceId, workspaceId)),
+    columns: { id: true },
   });
 
-  if (!post) {
+  if (!postRow) {
     return NextResponse.json({ error: "Post not found" }, { status: 404 });
   }
 
@@ -97,22 +92,22 @@ export async function PUT(
 
   const json = payload.data;
 
-  const fields = await db.field.findMany({
-    where: {
-      workspaceId,
-    },
-    select: {
+  const fields = await db.query.field.findMany({
+    where: eq(field.workspaceId, workspaceId),
+    columns: {
       id: true,
       key: true,
       name: true,
       type: true,
       required: true,
+    },
+    with: {
       options: {
-        select: {
+        columns: {
           value: true,
           label: true,
         },
-        orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+        orderBy: [asc(fieldOption.position), asc(fieldOption.createdAt)],
       },
     },
   });
@@ -123,38 +118,49 @@ export async function PUT(
     return NextResponse.json(resolvedValues.error, { status: 400 });
   }
 
-  const operations = resolvedValues.values.map(
-    ({ fieldId, fieldType, value }) => {
-      if (value === null) {
-        return db.fieldValue.deleteMany({
-          where: {
-            postId,
-            fieldId,
-            workspaceId,
-          },
-        });
-      }
+  if (resolvedValues.values.length > 0) {
+    await db.transaction(async (tx) => {
+      const now = new Date();
 
-      return db.fieldValue.upsert({
-        where: {
-          postId_fieldId: { postId, fieldId },
-        },
-        update: {
-          value: fieldType === "richtext" ? sanitizeRichTextHtml(value) : value,
-          workspaceId,
-        },
-        create: {
-          postId,
-          fieldId,
-          workspaceId,
-          value: fieldType === "richtext" ? sanitizeRichTextHtml(value) : value,
-        },
-      });
-    }
-  );
+      await Promise.all(
+        resolvedValues.values.map(async ({ fieldId, fieldType, value }) => {
+          if (value === null) {
+            await tx
+              .delete(fieldValue)
+              .where(
+                and(
+                  eq(fieldValue.postId, postId),
+                  eq(fieldValue.fieldId, fieldId),
+                  eq(fieldValue.workspaceId, workspaceId)
+                )
+              );
+            return;
+          }
 
-  if (operations.length > 0) {
-    await db.$transaction(operations);
+          const storedValue =
+            fieldType === "richtext" ? sanitizeRichTextHtml(value) : value;
+
+          await tx
+            .insert(fieldValue)
+            .values({
+              id: createRecordId(),
+              postId,
+              fieldId,
+              workspaceId,
+              value: storedValue,
+              updatedAt: now,
+            })
+            .onConflictDoUpdate({
+              target: [fieldValue.postId, fieldValue.fieldId],
+              set: {
+                value: storedValue,
+                workspaceId,
+                updatedAt: now,
+              },
+            });
+        })
+      );
+    });
   }
 
   return NextResponse.json({ success: true }, { status: 200 });

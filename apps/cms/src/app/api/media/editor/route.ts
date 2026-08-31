@@ -1,9 +1,16 @@
-import { db } from "@marble/db";
+import { db } from "@marble/drizzle";
+import { media } from "@marble/drizzle/schema";
+import { and, asc, count, desc, eq, gt, lt, or, type SQL } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { loadMediaEditorApiFilters } from "@/lib/search-params";
 import { splitMediaSort } from "@/utils/media";
+
+const mediaSortColumns = {
+  createdAt: media.createdAt,
+  name: media.name,
+} as const;
 
 export async function GET(request: Request) {
   const accessData = await requireActiveWorkspaceAccess();
@@ -23,10 +30,12 @@ export async function GET(request: Request) {
   const { cursor, limit } = filters;
 
   try {
-    const hasAnyMedia =
-      (await db.media.count({
-        where: { workspaceId },
-      })) > 0;
+    const [mediaCountResult] = await db
+      .select({ count: count() })
+      .from(media)
+      .where(eq(media.workspaceId, workspaceId));
+
+    const hasAnyMedia = (mediaCountResult?.count ?? 0) > 0;
 
     let cursorId: string | null = null;
     let parsedCursorValue: string | Date | null = null;
@@ -62,47 +71,55 @@ export async function GET(request: Request) {
       }
     }
 
-    const media = await db.media.findMany({
-      where: {
-        workspaceId,
-        ...(cursorId &&
-          parsedCursorValue !== null && {
-            OR: [
-              {
-                [field]: {
-                  [direction === "asc" ? "gt" : "lt"]: parsedCursorValue,
-                },
-              },
-              {
-                [field]: parsedCursorValue,
-                id: { [direction === "asc" ? "gt" : "lt"]: cursorId },
-              },
-            ],
-          }),
-      },
-      take: limit + 1,
-      orderBy: [{ [field]: direction }, { id: direction }],
-      select: {
-        id: true,
-        name: true,
-        url: true,
-        alt: true,
-        createdAt: true,
-        type: true,
-        size: true,
-        mimeType: true,
-        width: true,
-        height: true,
-        duration: true,
-        blurHash: true,
-      },
-    });
+    const sortColumn =
+      mediaSortColumns[field as keyof typeof mediaSortColumns] ??
+      mediaSortColumns.createdAt;
+
+    const conditions: SQL[] = [eq(media.workspaceId, workspaceId)];
+
+    if (cursorId && parsedCursorValue !== null) {
+      const fieldCompare = direction === "asc" ? gt : lt;
+      const idCompare = direction === "asc" ? gt : lt;
+
+      const cursorFilter = or(
+        fieldCompare(sortColumn, parsedCursorValue),
+        and(eq(sortColumn, parsedCursorValue), idCompare(media.id, cursorId))
+      );
+      if (cursorFilter) {
+        conditions.push(cursorFilter);
+      }
+    }
+
+    const orderBy =
+      direction === "asc"
+        ? [asc(sortColumn), asc(media.id)]
+        : [desc(sortColumn), desc(media.id)];
+
+    const rows = await db
+      .select({
+        id: media.id,
+        name: media.name,
+        url: media.url,
+        alt: media.alt,
+        createdAt: media.createdAt,
+        type: media.type,
+        size: media.size,
+        mimeType: media.mimeType,
+        width: media.width,
+        height: media.height,
+        duration: media.duration,
+        blurHash: media.blurHash,
+      })
+      .from(media)
+      .where(and(...conditions))
+      .orderBy(...orderBy)
+      .limit(limit + 1);
 
     let nextCursor: string | undefined;
 
-    if (media.length > limit) {
-      media.pop();
-      const lastItem = media.at(-1);
+    if (rows.length > limit) {
+      rows.pop();
+      const lastItem = rows.at(-1);
 
       if (lastItem) {
         const value =
@@ -114,7 +131,7 @@ export async function GET(request: Request) {
     }
 
     return NextResponse.json(
-      { media, nextCursor, hasAnyMedia },
+      { media: rows, nextCursor, hasAnyMedia },
       { status: 200 }
     );
   } catch (error) {

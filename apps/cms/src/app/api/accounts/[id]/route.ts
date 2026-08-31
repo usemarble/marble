@@ -1,4 +1,6 @@
-import { db } from "@marble/db";
+import { db } from "@marble/drizzle";
+import { account } from "@marble/drizzle/schema";
+import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 
@@ -14,12 +16,9 @@ export async function DELETE(
 
   const { id } = await params;
 
-  await db.account.delete({
-    where: {
-      id,
-      userId: session.user.id,
-    },
-  });
+  await db
+    .delete(account)
+    .where(and(eq(account.id, id), eq(account.userId, session.user.id)));
 
   return new NextResponse(null, { status: 204 });
 }

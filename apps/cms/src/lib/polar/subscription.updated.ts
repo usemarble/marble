@@ -1,7 +1,9 @@
 "use server";
 
-import { db } from "@marble/db";
+import { db } from "@marble/drizzle";
+import { subscription } from "@marble/drizzle/schema";
 import type { WebhookSubscriptionUpdatedPayload } from "@polar-sh/sdk/models/components/webhooksubscriptionupdatedpayload.js";
+import { and, eq, isNull, lte, or } from "drizzle-orm";
 import {
   getPlanType,
   getRecurringInterval,
@@ -12,15 +14,15 @@ import {
 export async function handleSubscriptionUpdated(
   payload: WebhookSubscriptionUpdatedPayload
 ) {
-  const { data: subscription } = payload;
+  const { data: subscriptionData } = payload;
 
-  const existingSubscription = await db.subscription.findUnique({
-    where: { polarId: subscription.id },
+  const existingSubscription = await db.query.subscription.findFirst({
+    where: eq(subscription.polarId, subscriptionData.id),
   });
 
   if (!existingSubscription) {
     console.error(
-      `subscription.updated webhook received for a subscription that does not exist: ${subscription.id}`
+      `subscription.updated webhook received for a subscription that does not exist: ${subscriptionData.id}`
     );
     return;
   }
@@ -29,26 +31,29 @@ export async function handleSubscriptionUpdated(
     isStalePolarEvent(existingSubscription.lastPolarEventAt, payload.timestamp)
   ) {
     console.log(
-      `Ignoring stale subscription.updated webhook for subscription ${subscription.id}`
+      `Ignoring stale subscription.updated webhook for subscription ${subscriptionData.id}`
     );
     return;
   }
 
-  const plan = getPlanType(subscription.product.name);
+  const plan = getPlanType(subscriptionData.product.name);
   if (!plan) {
-    console.error(`Unknown plan: ${subscription.product.name}`);
+    console.error(`Unknown plan: ${subscriptionData.product.name}`);
     return;
   }
 
-  const status = getSubscriptionStatus(subscription.status);
+  const status = getSubscriptionStatus(subscriptionData.status);
   if (!status) {
     console.error(
-      `Unknown subscription status from Polar: ${subscription.status}`
+      `Unknown subscription status from Polar: ${subscriptionData.status}`
     );
     return;
   }
 
-  if (!subscription.currentPeriodStart || !subscription.currentPeriodEnd) {
+  if (
+    !subscriptionData.currentPeriodStart ||
+    !subscriptionData.currentPeriodEnd
+  ) {
     console.error(
       "subscription.updated webhook received without currentPeriodStart or currentPeriodEnd"
     );
@@ -56,52 +61,60 @@ export async function handleSubscriptionUpdated(
   }
 
   const recurringInterval = getRecurringInterval(
-    subscription.recurringInterval
+    subscriptionData.recurringInterval
   );
 
   try {
-    const result = await db.subscription.updateMany({
-      where: {
-        polarId: subscription.id,
-        OR: [
-          { lastPolarEventAt: null },
-          { lastPolarEventAt: { lte: payload.timestamp } },
-        ],
-      },
-      data: {
+    const updated = await db
+      .update(subscription)
+      .set({
         plan,
         status,
-        currentPeriodStart: new Date(subscription.currentPeriodStart),
-        currentPeriodEnd: new Date(subscription.currentPeriodEnd),
-        cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
-        canceledAt: subscription.canceledAt
-          ? new Date(subscription.canceledAt)
+        currentPeriodStart: new Date(subscriptionData.currentPeriodStart),
+        currentPeriodEnd: new Date(subscriptionData.currentPeriodEnd),
+        cancelAtPeriodEnd: subscriptionData.cancelAtPeriodEnd,
+        canceledAt: subscriptionData.canceledAt
+          ? new Date(subscriptionData.canceledAt)
           : null,
-        endedAt: subscription.endedAt ? new Date(subscription.endedAt) : null,
-        endsAt: subscription.endsAt ? new Date(subscription.endsAt) : null,
-        startedAt: subscription.startedAt
-          ? new Date(subscription.startedAt)
+        endedAt: subscriptionData.endedAt
+          ? new Date(subscriptionData.endedAt)
           : null,
-        productId: subscription.productId || undefined,
-        amount: subscription.amount
-          ? Math.round(subscription.amount)
+        endsAt: subscriptionData.endsAt
+          ? new Date(subscriptionData.endsAt)
+          : null,
+        startedAt: subscriptionData.startedAt
+          ? new Date(subscriptionData.startedAt)
+          : null,
+        productId: subscriptionData.productId || undefined,
+        amount: subscriptionData.amount
+          ? Math.round(subscriptionData.amount)
           : undefined,
-        currency: subscription.currency || undefined,
-        discountId: subscription.discountId || undefined,
+        currency: subscriptionData.currency || undefined,
+        discountId: subscriptionData.discountId || undefined,
         lastPolarEventAt: payload.timestamp,
         recurringInterval,
-      },
-    });
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(subscription.polarId, subscriptionData.id),
+          or(
+            isNull(subscription.lastPolarEventAt),
+            lte(subscription.lastPolarEventAt, payload.timestamp)
+          )
+        )
+      )
+      .returning({ id: subscription.id });
 
-    if (result.count === 0) {
+    if (updated.length === 0) {
       console.log(
-        `Ignoring stale subscription.updated webhook for subscription ${subscription.id}`
+        `Ignoring stale subscription.updated webhook for subscription ${subscriptionData.id}`
       );
       return;
     }
 
     console.log(
-      `Successfully updated subscription ${subscription.id} for workspace ${existingSubscription.workspaceId}`
+      `Successfully updated subscription ${subscriptionData.id} for workspace ${existingSubscription.workspaceId}`
     );
   } catch (error) {
     console.error("Error updating subscription in DB:", error);

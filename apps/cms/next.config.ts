@@ -4,7 +4,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   transpilePackages: [
-    "@marble/db",
+    "@marble/drizzle",
     "@marble/ui",
     "@marble/parser",
     "@marble/email",

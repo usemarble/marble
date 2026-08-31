@@ -1,5 +1,8 @@
-import { db } from "@marble/db";
+import { createRecordId, db } from "@marble/drizzle";
+import { apiKey } from "@marble/drizzle/schema";
 import { generateApiKey } from "@marble/utils";
+
+import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { getDashboardApiKeys } from "@/lib/queries/dashboard/settings";
@@ -9,6 +12,20 @@ import {
   DEFAULT_PUBLIC_SCOPES,
   getPublicKeyForbiddenScopes,
 } from "@/utils/keys";
+
+const apiKeySelect = {
+  id: apiKey.id,
+  name: apiKey.name,
+  prefix: apiKey.prefix,
+  preview: apiKey.preview,
+  type: apiKey.type,
+  scopes: apiKey.scopes,
+  requestCount: apiKey.requestCount,
+  enabled: apiKey.enabled,
+  lastUsed: apiKey.lastUsed,
+  expiresAt: apiKey.expiresAt,
+  createdAt: apiKey.createdAt,
+} as const;
 
 export async function GET() {
   const accessData = await requireActiveWorkspaceAccess();
@@ -45,7 +62,6 @@ export async function POST(request: Request) {
 
   const { key, hash, prefix, preview } = generateApiKey(body.data.type);
 
-  // Set default scopes based on type if not provided
   const scopesToSet =
     body.data.scopes ??
     (body.data.type === "public"
@@ -65,8 +81,12 @@ export async function POST(request: Request) {
     }
   }
 
-  const apiKey = await db.apiKey.create({
-    data: {
+  const now = new Date();
+
+  const [createdApiKey] = await db
+    .insert(apiKey)
+    .values({
+      id: createRecordId(),
       name: body.data.name,
       workspaceId,
       key: hash,
@@ -75,25 +95,18 @@ export async function POST(request: Request) {
       type: body.data.type,
       scopes: scopesToSet,
       expiresAt: body.data.expiresAt ?? null,
-      // Automatically set default rate limits: 1000 requests per 24 hours
-      rateLimitTimeWindow: 86_400_000, // 24 hours in ms
+      rateLimitTimeWindow: 86_400_000,
       rateLimitMax: 1000,
-    },
-    select: {
-      id: true,
-      name: true,
-      prefix: true,
-      preview: true,
-      type: true,
-      scopes: true,
-      requestCount: true,
-      enabled: true,
-      lastUsed: true,
-      expiresAt: true,
-      createdAt: true,
-    },
-  });
+      updatedAt: now,
+    })
+    .returning(apiKeySelect);
 
-  // Return with plaintext key (only time it's visible)
-  return NextResponse.json({ ...apiKey, key }, { status: 201 });
+  if (!createdApiKey) {
+    return NextResponse.json(
+      { error: "Failed to create API key" },
+      { status: 500 }
+    );
+  }
+
+  return NextResponse.json({ ...createdApiKey, key }, { status: 201 });
 }

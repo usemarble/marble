@@ -1,9 +1,16 @@
+import { createRecordId, db } from "@marble/drizzle";
 import "server-only";
 
 import { PutObjectCommand } from "@aws-sdk/client-s3";
-import { db } from "@marble/db";
+
+import {
+  author as authorTable,
+  user as userTable,
+} from "@marble/drizzle/schema";
 import type { User } from "better-auth";
 import { APIError } from "better-auth/api";
+
+import { and, eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { isAllowedAvatarUrl } from "@/lib/constants";
 import { R2_BUCKET_NAME, R2_PUBLIC_URL, r2 } from "@/lib/r2";
@@ -21,30 +28,24 @@ import type { Organization } from "./types";
  */
 export async function createAuthor(user: User, organization: Organization) {
   try {
-    const existingAuthor = await db.author.findUnique({
-      where: {
-        workspaceId_userId: {
-          workspaceId: organization.id,
-          userId: user.id,
-        },
-      },
+    const author = await db.query.author.findFirst({
+      where: and(
+        eq(authorTable.workspaceId, organization.id),
+        eq(authorTable.userId, user.id)
+      ),
     });
 
-    if (existingAuthor) {
-      console.log(
-        "Author already exists for user",
-        user.id,
-        "in workspace",
-        organization.id
-      );
-      return existingAuthor;
+    if (author) {
+      return author;
     }
 
     const baseSlug = generateSlug(user.name || user.email || "user");
     const uniqueSlug = `${baseSlug}-${nanoid(6)}`;
 
-    const author = await db.author.create({
-      data: {
+    const [createdAuthor] = await db
+      .insert(authorTable)
+      .values({
+        id: createRecordId(),
         name: user.name,
         email: user.email,
         slug: uniqueSlug,
@@ -52,16 +53,15 @@ export async function createAuthor(user: User, organization: Organization) {
         workspaceId: organization.id,
         userId: user.id,
         role: "Member",
-      },
-    });
+        updatedAt: new Date(),
+      })
+      .returning();
 
-    console.log(
-      "Created author for user",
-      user.id,
-      "in workspace",
-      organization.id
-    );
-    return author;
+    if (!createdAuthor) {
+      throw new Error("Failed to create author");
+    }
+
+    return createdAuthor;
   } catch (error) {
     console.error("Failed to create author:", error);
     throw new APIError("INTERNAL_SERVER_ERROR", {
@@ -108,14 +108,12 @@ export async function storeUserImage(user: User) {
 
     const avatarUrl = `${R2_PUBLIC_URL}/${key}`;
 
-    await db.user.update({
-      where: {
-        id: user.id,
-      },
-      data: {
+    await db
+      .update(userTable)
+      .set({
         image: avatarUrl,
-      },
-    });
+      })
+      .where(eq(userTable.id, user.id));
 
     return { avatarUrl };
   } catch (error) {

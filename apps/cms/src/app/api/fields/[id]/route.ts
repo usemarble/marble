@@ -1,5 +1,15 @@
-import { db } from "@marble/db";
-import { Prisma } from "@marble/db/browser";
+import {
+  createRecordId,
+  db,
+  isFieldWorkspaceKeyConflict,
+  isPgSerializationFailure,
+} from "@marble/drizzle";
+import {
+  fieldOption,
+  field as fieldTable,
+  fieldValue,
+} from "@marble/drizzle/schema";
+import { and, asc, count, eq, ne } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { customFieldUpdateSchema } from "@/lib/validations/fields";
@@ -32,37 +42,6 @@ function areFieldOptionsEqual(
   });
 }
 
-function isUniqueConstraintError(error: unknown) {
-  if (!(error instanceof Error)) {
-    return false;
-  }
-
-  const candidate = error as Error & {
-    code?: string;
-    meta?: { target?: unknown };
-  };
-
-  if (candidate.code !== "P2002") {
-    return false;
-  }
-
-  const target = candidate.meta?.target;
-
-  return (
-    Array.isArray(target) &&
-    target.includes("workspaceId") &&
-    target.includes("key")
-  );
-}
-
-function isTransactionConflict(error: unknown) {
-  return (
-    error instanceof Error &&
-    "code" in error &&
-    (error as Error & { code?: string }).code === "P2034"
-  );
-}
-
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -87,31 +66,26 @@ export async function PATCH(
     );
   }
 
-  // Verify field exists and belongs to workspace
-  const existingField = await db.field.findFirst({
-    where: {
-      id,
-      workspaceId,
-    },
-    include: {
+  const field = await db.query.field.findFirst({
+    where: and(eq(fieldTable.id, id), eq(fieldTable.workspaceId, workspaceId)),
+    with: {
       options: {
-        orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+        orderBy: [asc(fieldOption.position), asc(fieldOption.createdAt)],
       },
     },
   });
 
-  if (!existingField) {
+  if (!field) {
     return NextResponse.json({ error: "Field not found" }, { status: 404 });
   }
 
-  // If key is being changed, check uniqueness
-  if (body.data.key && body.data.key !== existingField.key) {
-    const keyConflict = await db.field.findFirst({
-      where: {
-        workspaceId,
-        key: body.data.key,
-        id: { not: id },
-      },
+  if (body.data.key && body.data.key !== field.key) {
+    const keyConflict = await db.query.field.findFirst({
+      where: and(
+        eq(fieldTable.workspaceId, workspaceId),
+        eq(fieldTable.key, body.data.key),
+        ne(fieldTable.id, id)
+      ),
     });
 
     if (keyConflict) {
@@ -122,7 +96,7 @@ export async function PATCH(
     }
   }
 
-  const updateData: Record<string, unknown> = {};
+  const updateData: Partial<typeof fieldTable.$inferInsert> = {};
   if (body.data.name !== undefined) {
     updateData.name = body.data.name;
   }
@@ -139,16 +113,16 @@ export async function PATCH(
     updateData.required = body.data.required;
   }
 
-  const effectiveType = body.data.type ?? existingField.type;
-  const effectiveOptions = body.data.options ?? existingField.options;
+  const effectiveType = body.data.type ?? field.type;
+  const effectiveOptions = body.data.options ?? field.options;
   const requiresOptions =
     effectiveType === "select" || effectiveType === "multiselect";
-  const existingOptions = existingField.options.map((option) => ({
+  const existingOptions = field.options.map((option) => ({
     value: option.value,
     label: option.label,
   }));
   const typeChanged =
-    body.data.type !== undefined && body.data.type !== existingField.type;
+    body.data.type !== undefined && body.data.type !== field.type;
   const optionsChanged =
     body.data.options !== undefined &&
     !areFieldOptionsEqual(body.data.options, existingOptions);
@@ -168,51 +142,71 @@ export async function PATCH(
   }
 
   try {
-    const field = await db.$transaction(
+    const updatedFieldId = await db.transaction(
       async (tx) => {
         if (typeChanged || optionsChanged) {
-          const fieldValueCount = await tx.fieldValue.count({
-            where: {
-              fieldId: id,
-              workspaceId,
-            },
-          });
+          const [fieldValueCount] = await tx
+            .select({ value: count() })
+            .from(fieldValue)
+            .where(
+              and(
+                eq(fieldValue.fieldId, id),
+                eq(fieldValue.workspaceId, workspaceId)
+              )
+            );
 
-          if (fieldValueCount > 0) {
+          if ((fieldValueCount?.value ?? 0) > 0) {
             return null;
           }
         }
 
-        return tx.field.update({
-          where: {
-            id_workspaceId: {
-              id,
-              workspaceId,
-            },
-          },
-          data: {
+        const now = new Date();
+        const shouldRewriteOptions =
+          body.data.options !== undefined || !requiresOptions;
+
+        const [updatedField] = await tx
+          .update(fieldTable)
+          .set({
             ...updateData,
-            options:
-              body.data.options !== undefined || !requiresOptions
-                ? {
-                    deleteMany: {},
-                    create: requiresOptions
-                      ? buildFieldOptionWrites(body.data.options ?? [])
-                      : [],
-                  }
-                : undefined,
-          },
-          include: {
-            options: {
-              orderBy: [{ position: "asc" }, { createdAt: "asc" }],
-            },
-          },
-        });
+            updatedAt: now,
+          })
+          .where(
+            and(eq(fieldTable.id, id), eq(fieldTable.workspaceId, workspaceId))
+          )
+          .returning({ id: fieldTable.id });
+
+        if (!updatedField) {
+          return null;
+        }
+
+        if (shouldRewriteOptions) {
+          await tx.delete(fieldOption).where(eq(fieldOption.fieldId, id));
+
+          const nextOptions = requiresOptions
+            ? buildFieldOptionWrites(body.data.options ?? [])
+            : [];
+
+          if (nextOptions.length > 0) {
+            await tx.insert(fieldOption).values(
+              nextOptions.map((option) => ({
+                id: createRecordId(),
+                fieldId: id,
+                workspaceId,
+                value: option.value,
+                label: option.label,
+                position: option.position,
+                updatedAt: now,
+              }))
+            );
+          }
+        }
+
+        return updatedField.id;
       },
-      { isolationLevel: Prisma.TransactionIsolationLevel.Serializable }
+      { isolationLevel: "serializable" }
     );
 
-    if (!field) {
+    if (!updatedFieldId) {
       return NextResponse.json(
         {
           error:
@@ -222,16 +216,29 @@ export async function PATCH(
       );
     }
 
-    return NextResponse.json(field, { status: 200 });
+    const fieldWithOptions = await db.query.field.findFirst({
+      where: eq(fieldTable.id, updatedFieldId),
+      with: {
+        options: {
+          orderBy: [asc(fieldOption.position), asc(fieldOption.createdAt)],
+        },
+      },
+    });
+
+    if (!fieldWithOptions) {
+      return NextResponse.json({ error: "Field not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(fieldWithOptions, { status: 200 });
   } catch (error) {
-    if (isUniqueConstraintError(error)) {
+    if (isFieldWorkspaceKeyConflict(error)) {
       return NextResponse.json(
         { error: "A field with this key already exists in your workspace" },
         { status: 409 }
       );
     }
 
-    if (isTransactionConflict(error)) {
+    if (isPgSerializationFailure(error)) {
       return NextResponse.json(
         {
           error:
@@ -259,25 +266,17 @@ export async function DELETE(
 
   const { id } = await params;
 
-  const existingField = await db.field.findFirst({
-    where: {
-      id,
-      workspaceId,
-    },
+  const field = await db.query.field.findFirst({
+    where: and(eq(fieldTable.id, id), eq(fieldTable.workspaceId, workspaceId)),
   });
 
-  if (!existingField) {
+  if (!field) {
     return NextResponse.json({ error: "Field not found" }, { status: 404 });
   }
 
-  await db.field.delete({
-    where: {
-      id_workspaceId: {
-        id,
-        workspaceId,
-      },
-    },
-  });
+  await db
+    .delete(fieldTable)
+    .where(and(eq(fieldTable.id, id), eq(fieldTable.workspaceId, workspaceId)));
 
   return NextResponse.json({ id }, { status: 200 });
 }

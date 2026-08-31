@@ -1,5 +1,6 @@
-import { db } from "@marble/db";
-import { SubscriptionStatus } from "@marble/db/browser";
+import { db } from "@marble/drizzle";
+import { member, subscription, workspace } from "@marble/drizzle/schema";
+import { and, desc, eq, gt, or } from "drizzle-orm";
 import type { RequestCookies } from "next/dist/compiled/@edge-runtime/cookies";
 import { getServerSession } from "@/lib/auth/session";
 import { getWorkspacePlan } from "@/lib/plans";
@@ -28,41 +29,36 @@ export async function getLastActiveWorkspaceOrNewOneToSetAsActive(
   if (cookies) {
     const lastVisitedWorkspaceSlug = getLastVisitedWorkspace(cookies);
     if (lastVisitedWorkspaceSlug) {
-      // Check if user still has access to this workspace
-      const workspace = await db.organization.findFirst({
-        where: {
-          slug: lastVisitedWorkspaceSlug,
-          members: {
-            some: {
-              userId,
-            },
-          },
-        },
-        select: { slug: true, id: true },
-      });
+      const rows = await db
+        .select({ slug: workspace.slug, id: workspace.id })
+        .from(workspace)
+        .innerJoin(member, eq(member.organizationId, workspace.id))
+        .where(
+          and(
+            eq(workspace.slug, lastVisitedWorkspaceSlug),
+            eq(member.userId, userId)
+          )
+        )
+        .limit(1);
 
-      if (workspace) {
+      const foundWorkspace = rows.at(0);
+      if (foundWorkspace) {
         return {
-          slug: workspace.slug,
-          id: workspace.id,
+          slug: foundWorkspace.slug,
+          id: foundWorkspace.id,
         };
       }
     }
   }
 
-  // If no last visited workspace or user lost access, try to find a workspace where user is owner
-  const ownerWorkspace = await db.organization.findFirst({
-    where: {
-      members: {
-        some: {
-          userId,
-          role: "owner",
-        },
-      },
-    },
-    select: { slug: true, id: true },
-  });
+  const ownerRows = await db
+    .select({ slug: workspace.slug, id: workspace.id })
+    .from(workspace)
+    .innerJoin(member, eq(member.organizationId, workspace.id))
+    .where(and(eq(member.userId, userId), eq(member.role, "owner")))
+    .limit(1);
 
+  const ownerWorkspace = ownerRows.at(0);
   if (ownerWorkspace) {
     return {
       slug: ownerWorkspace.slug,
@@ -70,18 +66,14 @@ export async function getLastActiveWorkspaceOrNewOneToSetAsActive(
     };
   }
 
-  // If no owner workspace, check for any workspace user is a member of
-  const memberWorkspace = await db.organization.findFirst({
-    where: {
-      members: {
-        some: {
-          userId,
-        },
-      },
-    },
-    select: { slug: true, id: true },
-  });
+  const memberRows = await db
+    .select({ slug: workspace.slug, id: workspace.id })
+    .from(workspace)
+    .innerJoin(member, eq(member.organizationId, workspace.id))
+    .where(eq(member.userId, userId))
+    .limit(1);
 
+  const memberWorkspace = memberRows.at(0);
   if (memberWorkspace) {
     return {
       slug: memberWorkspace.slug,
@@ -119,32 +111,36 @@ export async function getWorkspaceLayoutData(workspaceSlug?: string): Promise<{
     }
 
     const workspaceWhere = workspaceSlug
-      ? { slug: workspaceSlug }
-      : { id: activeOrganizationId as string };
+      ? eq(workspace.slug, workspaceSlug)
+      : eq(workspace.id, activeOrganizationId as string);
 
-    const workspace = await db.organization.findUnique({
+    const foundWorkspace = await db.query.workspace.findFirst({
       where: workspaceWhere,
-      select: {
+      columns: {
         id: true,
         name: true,
         slug: true,
         logo: true,
         timezone: true,
         createdAt: true,
+      },
+      with: {
         members: {
-          select: {
+          columns: {
             id: true,
             role: true,
             userId: true,
             organizationId: true,
             createdAt: true,
+          },
+          with: {
             user: {
-              select: { id: true, name: true, email: true, image: true },
+              columns: { id: true, name: true, email: true, image: true },
             },
           },
         },
         invitations: {
-          select: {
+          columns: {
             id: true,
             email: true,
             role: true,
@@ -155,20 +151,18 @@ export async function getWorkspaceLayoutData(workspaceSlug?: string): Promise<{
           },
         },
         subscriptions: {
-          where: {
-            OR: [
-              { status: SubscriptionStatus.active },
-              { status: SubscriptionStatus.trialing },
-              {
-                status: SubscriptionStatus.canceled,
-                cancelAtPeriodEnd: true,
-                currentPeriodEnd: { gt: new Date() },
-              },
-            ],
-          },
-          orderBy: { createdAt: "desc" },
-          take: 1,
-          select: {
+          where: or(
+            eq(subscription.status, "active"),
+            eq(subscription.status, "trialing"),
+            and(
+              eq(subscription.status, "canceled"),
+              eq(subscription.cancelAtPeriodEnd, true),
+              gt(subscription.currentPeriodEnd, new Date())
+            )
+          ),
+          orderBy: desc(subscription.createdAt),
+          limit: 1,
+          columns: {
             id: true,
             status: true,
             plan: true,
@@ -181,25 +175,25 @@ export async function getWorkspaceLayoutData(workspaceSlug?: string): Promise<{
       },
     });
 
-    if (!workspace) {
+    if (!foundWorkspace) {
       return { activeOrganizationId, workspace: null };
     }
 
-    const currentUserMember = workspace.members.find(
-      (member) => member.userId === session.user.id
+    const currentUserMember = foundWorkspace.members.find(
+      (entry) => entry.userId === session.user.id
     );
 
     if (!currentUserMember) {
       return { activeOrganizationId, workspace: null };
     }
 
-    const activeSubscription = workspace.subscriptions[0] || null;
+    const activeSubscription = foundWorkspace.subscriptions.at(0) || null;
     const activePlan = getWorkspacePlan(activeSubscription);
 
     return {
       activeOrganizationId,
       workspace: {
-        ...workspace,
+        ...foundWorkspace,
         currentUserRole: currentUserMember.role || null,
         subscription: activeSubscription
           ? {
@@ -227,13 +221,12 @@ export async function validateWorkspaceAccess(slug: string): Promise<boolean> {
     return false;
   }
 
-  const workspace = await db.organization.findFirst({
-    where: {
-      slug,
-      members: { some: { userId: session.user.id } },
-    },
-    select: { id: true },
-  });
+  const rows = await db
+    .select({ id: workspace.id })
+    .from(workspace)
+    .innerJoin(member, eq(member.organizationId, workspace.id))
+    .where(and(eq(workspace.slug, slug), eq(member.userId, session.user.id)))
+    .limit(1);
 
-  return Boolean(workspace);
+  return Boolean(rows.at(0));
 }

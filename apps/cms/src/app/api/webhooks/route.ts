@@ -1,5 +1,8 @@
 import { randomBytes } from "node:crypto";
-import { db } from "@marble/db";
+import { createRecordId, db } from "@marble/drizzle";
+
+import { webhookEndpoint } from "@marble/drizzle/schema";
+
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { getDashboardWebhooks } from "@/lib/queries/dashboard/settings";
@@ -32,17 +35,28 @@ export async function POST(req: Request) {
   const body = webhookSchema.parse(json);
 
   const secret = randomBytes(32).toString("hex");
+  const now = new Date();
 
-  const webhook = await db.webhookEndpoint.create({
-    data: {
+  const [webhook] = await db
+    .insert(webhookEndpoint)
+    .values({
+      id: createRecordId(),
       name: body.name,
       url: body.endpoint,
       events: body.events,
       secret,
       format: body.format,
       workspaceId,
-    },
-  });
+      updatedAt: now,
+    })
+    .returning();
+
+  if (!webhook) {
+    return NextResponse.json(
+      { error: "Failed to create webhook" },
+      { status: 500 }
+    );
+  }
 
   return NextResponse.json(webhook, { status: 201 });
 }

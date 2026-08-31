@@ -1,6 +1,52 @@
-import { db } from "@marble/db";
+import { db } from "@marble/drizzle";
+import { member, user } from "@marble/drizzle/schema";
+import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
+
+async function getUserWithWorkspaceRole(userId: string, workspaceId: string) {
+  const foundUser = await db.query.user.findFirst({
+    where: eq(user.id, userId),
+    columns: {
+      id: true,
+      name: true,
+      email: true,
+      image: true,
+      emailVerified: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+
+  if (!foundUser) {
+    return null;
+  }
+
+  const foundMember = await db.query.member.findFirst({
+    where: and(
+      eq(member.userId, userId),
+      eq(member.organizationId, workspaceId)
+    ),
+    columns: {
+      role: true,
+    },
+    with: {
+      organization: {
+        columns: {
+          id: true,
+          name: true,
+          slug: true,
+        },
+      },
+    },
+  });
+
+  return {
+    ...foundUser,
+    workspaceRole: foundMember?.role || null,
+    activeWorkspace: foundMember?.organization || null,
+  };
+}
 
 export async function GET() {
   const accessData = await requireActiveWorkspaceAccess();
@@ -11,45 +57,14 @@ export async function GET() {
 
   const { sessionData, workspaceId } = accessData;
 
-  const user = await db.user.findUnique({
-    where: { id: sessionData.user.id },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      image: true,
-      emailVerified: true,
-      createdAt: true,
-      updatedAt: true,
-      members: {
-        where: {
-          organizationId: workspaceId,
-        },
-        select: {
-          role: true,
-          organization: {
-            select: {
-              id: true,
-              name: true,
-              slug: true,
-            },
-          },
-        },
-        take: 1,
-      },
-    },
-  });
+  const userWithRole = await getUserWithWorkspaceRole(
+    sessionData.user.id,
+    workspaceId
+  );
 
-  if (!user) {
+  if (!userWithRole) {
     return NextResponse.json(null, { status: 401 });
   }
-
-  const userWithRole = {
-    ...user,
-    workspaceRole: user.members[0]?.role || null,
-    activeWorkspace: user.members[0]?.organization || null,
-    members: undefined,
-  };
 
   return NextResponse.json(userWithRole, { status: 200 });
 }
@@ -67,7 +82,9 @@ export async function PATCH(request: Request) {
     const body = await request.json();
     const { name, image } = body;
 
-    const updateData: { name?: string; image?: string } = {};
+    const updateData: { name?: string; image?: string; updatedAt: Date } = {
+      updatedAt: new Date(),
+    };
 
     if (
       name !== undefined &&
@@ -81,42 +98,19 @@ export async function PATCH(request: Request) {
       updateData.image = image;
     }
 
-    const updatedUser = await db.user.update({
-      where: { id: sessionData.user.id },
-      data: updateData,
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        image: true,
-        emailVerified: true,
-        createdAt: true,
-        updatedAt: true,
-        members: {
-          where: {
-            organizationId: workspaceId,
-          },
-          select: {
-            role: true,
-            organization: {
-              select: {
-                id: true,
-                name: true,
-                slug: true,
-              },
-            },
-          },
-          take: 1,
-        },
-      },
-    });
+    await db
+      .update(user)
+      .set(updateData)
+      .where(eq(user.id, sessionData.user.id));
 
-    const userWithRole = {
-      ...updatedUser,
-      workspaceRole: updatedUser.members[0]?.role || null,
-      activeWorkspace: updatedUser.members[0]?.organization || null,
-      members: undefined,
-    };
+    const userWithRole = await getUserWithWorkspaceRole(
+      sessionData.user.id,
+      workspaceId
+    );
+
+    if (!userWithRole) {
+      return NextResponse.json(null, { status: 401 });
+    }
 
     return NextResponse.json(userWithRole, { status: 200 });
   } catch (error) {

@@ -1,4 +1,6 @@
-import { db } from "@marble/db";
+import { db } from "@marble/drizzle";
+import { tag } from "@marble/drizzle/schema";
+import { and, eq, inArray } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
 /**
@@ -17,13 +19,12 @@ export async function validateWorkspaceTags(
   const uniqueTagIds = Array.from(new Set(tagIds ?? []));
 
   if (uniqueTagIds.length) {
-    const valid = await db.tag.findMany({
-      where: {
-        id: { in: uniqueTagIds },
-        workspaceId,
-      },
-      select: { id: true },
-    });
+    const valid = await db
+      .select({ id: tag.id })
+      .from(tag)
+      .where(
+        and(inArray(tag.id, uniqueTagIds), eq(tag.workspaceId, workspaceId))
+      );
 
     if (valid.length !== uniqueTagIds.length) {
       return {
