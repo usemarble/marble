@@ -47,7 +47,7 @@ export async function getLastActiveWorkspaceOrNewOneToSetAsActive(
         )
         .limit(1);
 
-      const foundWorkspace = rows[0];
+      const foundWorkspace = rows.at(0);
       if (foundWorkspace) {
         return {
           slug: foundWorkspace.slug,
@@ -64,7 +64,7 @@ export async function getLastActiveWorkspaceOrNewOneToSetAsActive(
     .where(and(eq(member.userId, userId), eq(member.role, "owner")))
     .limit(1);
 
-  const ownerWorkspace = ownerRows[0];
+  const ownerWorkspace = ownerRows.at(0);
   if (ownerWorkspace) {
     return {
       slug: ownerWorkspace.slug,
@@ -79,7 +79,7 @@ export async function getLastActiveWorkspaceOrNewOneToSetAsActive(
     .where(eq(member.userId, userId))
     .limit(1);
 
-  const memberWorkspace = memberRows[0];
+  const memberWorkspace = memberRows.at(0);
   if (memberWorkspace) {
     return {
       slug: memberWorkspace.slug,
@@ -193,7 +193,7 @@ export async function getWorkspaceLayoutData(workspaceSlug?: string): Promise<{
       return { activeOrganizationId, workspace: null };
     }
 
-    const activeSubscription = foundWorkspace.subscriptions[0] || null;
+    const activeSubscription = foundWorkspace.subscriptions.at(0) || null;
     const activePlan = getWorkspacePlan(activeSubscription);
 
     return {
@@ -234,5 +234,5 @@ export async function validateWorkspaceAccess(slug: string): Promise<boolean> {
     .where(and(eq(workspace.slug, slug), eq(member.userId, session.user.id)))
     .limit(1);
 
-  return Boolean(rows[0]);
+  return Boolean(rows.at(0));
 }

@@ -229,7 +229,7 @@ export const subscription = pgTable("subscription", {
 	uniqueIndex("subscription_polarId_key").using("btree", table.polarId.asc().nullsLast().op("text_ops")),
 	index("subscription_status_idx").using("btree", table.status.asc().nullsLast().op("enum_ops")),
 	index("subscription_userId_idx").using("btree", table.userId.asc().nullsLast().op("text_ops")),
-	index("subscription_workspaceId_status_idx").using("btree", table.workspaceId.asc().nullsLast().op("enum_ops"), table.status.asc().nullsLast().op("enum_ops")),
+	index("subscription_workspaceId_status_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.status.asc().nullsLast().op("enum_ops")),
 	foreignKey({
 			columns: [table.userId],
 			foreignColumns: [user.id],
@@ -346,8 +346,9 @@ export const post = pgTable("post", {
 	index("post_categoryId_idx").using("btree", table.categoryId.asc().nullsLast().op("text_ops")),
 	index("post_workspaceId_createdAt_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.createdAt.asc().nullsLast().op("timestamp_ops")),
 	uniqueIndex("post_workspaceId_slug_key").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.slug.asc().nullsLast().op("text_ops")),
-	index("post_workspaceId_status_idx").using("btree", table.workspaceId.asc().nullsLast().op("enum_ops"), table.status.asc().nullsLast().op("enum_ops")),
-	index("post_workspaceId_status_publishedAt_idx").using("btree", table.workspaceId.asc().nullsLast().op("timestamp_ops"), table.status.asc().nullsLast().op("timestamp_ops"), table.publishedAt.asc().nullsLast().op("text_ops")),
+	index("post_workspaceId_status_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.status.asc().nullsLast().op("enum_ops")),
+	index("post_workspaceId_status_publishedAt_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.status.asc().nullsLast().op("enum_ops"), table.publishedAt.asc().nullsLast().op("timestamp_ops")),
+	uniqueIndex("post_id_workspaceId_key").using("btree", table.id.asc().nullsLast().op("text_ops"), table.workspaceId.asc().nullsLast().op("text_ops")),
 	foreignKey({
 			columns: [table.categoryId],
 			foreignColumns: [category.id],
@@ -446,8 +447,8 @@ export const media = pgTable("media", {
 	width: integer("width"),
 	storageKey: text("storageKey").notNull(),
 }, (table) => [
-	index("media_workspaceId_createdAt_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.createdAt.asc().nullsLast().op("text_ops")),
-	index("media_workspaceId_type_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.type.asc().nullsLast().op("text_ops")),
+	index("media_workspaceId_createdAt_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.createdAt.asc().nullsLast().op("timestamp_ops")),
+	index("media_workspaceId_type_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.type.asc().nullsLast().op("enum_ops")),
 	foreignKey({
 			columns: [table.workspaceId],
 			foreignColumns: [workspace.id],
@@ -469,6 +470,7 @@ export const field = pgTable("field", {
 }, (table) => [
 	index("field_workspaceId_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops")),
 	uniqueIndex("field_workspaceId_key_key").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.key.asc().nullsLast().op("text_ops")),
+	uniqueIndex("field_id_workspaceId_key").using("btree", table.id.asc().nullsLast().op("text_ops"), table.workspaceId.asc().nullsLast().op("text_ops")),
 	foreignKey({
 			columns: [table.workspaceId],
 			foreignColumns: [workspace.id],
@@ -487,7 +489,7 @@ export const fieldOption = pgTable("field_option", {
 	updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
 }, (table) => [
 	index("field_option_fieldId_idx").using("btree", table.fieldId.asc().nullsLast().op("text_ops")),
-	index("field_option_fieldId_position_idx").using("btree", table.fieldId.asc().nullsLast().op("int4_ops"), table.position.asc().nullsLast().op("int4_ops")),
+	index("field_option_fieldId_position_idx").using("btree", table.fieldId.asc().nullsLast().op("text_ops"), table.position.asc().nullsLast().op("int4_ops")),
 	uniqueIndex("field_option_fieldId_value_key").using("btree", table.fieldId.asc().nullsLast().op("text_ops"), table.value.asc().nullsLast().op("text_ops")),
 	uniqueIndex("field_option_id_workspaceId_key").using("btree", table.id.asc().nullsLast().op("text_ops"), table.workspaceId.asc().nullsLast().op("text_ops")),
 	index("field_option_workspaceId_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops")),
@@ -555,10 +557,10 @@ export const apiKey = pgTable("api_key", {
 }, (table) => [
 	index("api_key_key_idx").using("btree", table.key.asc().nullsLast().op("text_ops")),
 	uniqueIndex("api_key_key_key").using("btree", table.key.asc().nullsLast().op("text_ops")),
-	index("api_key_workspaceId_createdAt_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.createdAt.asc().nullsLast().op("text_ops")),
-	index("api_key_workspaceId_enabled_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.enabled.asc().nullsLast().op("text_ops")),
+	index("api_key_workspaceId_createdAt_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.createdAt.asc().nullsLast().op("timestamp_ops")),
+	index("api_key_workspaceId_enabled_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.enabled.asc().nullsLast().op("bool_ops")),
 	index("api_key_workspaceId_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops")),
-	index("api_key_workspaceId_type_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.type.asc().nullsLast().op("text_ops")),
+	index("api_key_workspaceId_type_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.type.asc().nullsLast().op("enum_ops")),
 	foreignKey({
 			columns: [table.workspaceId],
 			foreignColumns: [workspace.id],
@@ -583,7 +585,7 @@ export const webhookEndpoint = pgTable("webhook_endpoint", {
 	events: workspaceEventTypeEnum("events").array().notNull(),
 	format: payloadFormatEnum().default('json').notNull(),
 }, (table) => [
-	index("webhook_endpoint_workspaceId_enabled_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.enabled.asc().nullsLast().op("text_ops")),
+	index("webhook_endpoint_workspaceId_enabled_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.enabled.asc().nullsLast().op("bool_ops")),
 	index("webhook_endpoint_workspaceId_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops")),
 	foreignKey({
 			columns: [table.workspaceId],
@@ -605,10 +607,10 @@ export const workspaceEvent = pgTable("workspace_event", {
 	processedAt: timestamp({ precision: 3, mode: "date" }),
 	createdAt: timestamp("createdAt", { precision: 3, mode: "date" }).$defaultFn(() => new Date()).notNull(),
 }, (table) => [
-	index("workspace_event_workspaceId_createdAt_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.createdAt.asc().nullsLast().op("text_ops")),
+	index("workspace_event_workspaceId_createdAt_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.createdAt.asc().nullsLast().op("timestamp_ops")),
 	index("workspace_event_workspaceId_processedAt_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.processedAt.asc().nullsLast().op("timestamp_ops")),
-	index("workspace_event_workspaceId_resourceType_resourceId_idx").using("btree", table.workspaceId.asc().nullsLast().op("enum_ops"), table.resourceType.asc().nullsLast().op("text_ops"), table.resourceId.asc().nullsLast().op("enum_ops")),
-	index("workspace_event_workspaceId_type_idx").using("btree", table.workspaceId.asc().nullsLast().op("enum_ops"), table.type.asc().nullsLast().op("text_ops")),
+	index("workspace_event_workspaceId_resourceType_resourceId_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.resourceType.asc().nullsLast().op("enum_ops"), table.resourceId.asc().nullsLast().op("text_ops")),
+	index("workspace_event_workspaceId_type_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.type.asc().nullsLast().op("enum_ops")),
 	foreignKey({
 			columns: [table.workspaceId],
 			foreignColumns: [workspace.id],
@@ -637,7 +639,7 @@ export const webhookDelivery = pgTable("webhook_delivery", {
 	uniqueIndex("webhook_delivery_eventId_webhookEndpointId_key").using("btree", table.eventId.asc().nullsLast().op("text_ops"), table.webhookEndpointId.asc().nullsLast().op("text_ops")),
 	index("webhook_delivery_webhookEndpointId_idx").using("btree", table.webhookEndpointId.asc().nullsLast().op("text_ops")),
 	index("webhook_delivery_workspaceId_createdAt_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.createdAt.asc().nullsLast().op("timestamp_ops")),
-	index("webhook_delivery_workspaceId_status_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.status.asc().nullsLast().op("text_ops")),
+	index("webhook_delivery_workspaceId_status_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.status.asc().nullsLast().op("enum_ops")),
 	foreignKey({
 			columns: [table.eventId],
 			foreignColumns: [workspaceEvent.id],
@@ -666,7 +668,7 @@ export const webhookDeliveryAttempt = pgTable("webhook_delivery_attempt", {
 	durationMs: integer("durationMs"),
 	createdAt: timestamp("createdAt", { precision: 3, mode: "date" }).$defaultFn(() => new Date()).notNull(),
 }, (table) => [
-	uniqueIndex("webhook_delivery_attempt_deliveryId_attemptNumber_key").using("btree", table.deliveryId.asc().nullsLast().op("int4_ops"), table.attemptNumber.asc().nullsLast().op("int4_ops")),
+	uniqueIndex("webhook_delivery_attempt_deliveryId_attemptNumber_key").using("btree", table.deliveryId.asc().nullsLast().op("text_ops"), table.attemptNumber.asc().nullsLast().op("int4_ops")),
 	index("webhook_delivery_attempt_deliveryId_idx").using("btree", table.deliveryId.asc().nullsLast().op("text_ops")),
 	foreignKey({
 			columns: [table.deliveryId],
@@ -684,7 +686,7 @@ export const usageEvent = pgTable("usage_event", {
 	createdAt: timestamp("createdAt", { precision: 3, mode: "date" }).$defaultFn(() => new Date()).notNull(),
 }, (table) => [
 	index("usage_event_workspaceId_createdAt_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.createdAt.asc().nullsLast().op("timestamp_ops")),
-	index("usage_event_workspaceId_type_createdAt_idx").using("btree", table.workspaceId.asc().nullsLast().op("timestamp_ops"), table.type.asc().nullsLast().op("timestamp_ops"), table.createdAt.asc().nullsLast().op("timestamp_ops")),
+	index("usage_event_workspaceId_type_createdAt_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.type.asc().nullsLast().op("enum_ops"), table.createdAt.asc().nullsLast().op("timestamp_ops")),
 	foreignKey({
 			columns: [table.workspaceId],
 			foreignColumns: [workspace.id],
@@ -702,8 +704,8 @@ export const usageAlert = pgTable("usage_alert", {
 	emailSentTo: text("emailSentTo").notNull(),
 	sentAt: timestamp("sentAt", { precision: 3, mode: "date" }).$defaultFn(() => new Date()).notNull(),
 }, (table) => [
-	uniqueIndex("usage_alert_workspaceId_type_kind_periodStart_periodEnd_key").using("btree", table.workspaceId.asc().nullsLast().op("timestamp_ops"), table.type.asc().nullsLast().op("text_ops"), table.kind.asc().nullsLast().op("timestamp_ops"), table.periodStart.asc().nullsLast().op("timestamp_ops"), table.periodEnd.asc().nullsLast().op("enum_ops")),
-	index("usage_alert_workspaceId_type_periodStart_periodEnd_idx").using("btree", table.workspaceId.asc().nullsLast().op("enum_ops"), table.type.asc().nullsLast().op("timestamp_ops"), table.periodStart.asc().nullsLast().op("enum_ops"), table.periodEnd.asc().nullsLast().op("enum_ops")),
+	uniqueIndex("usage_alert_workspaceId_type_kind_periodStart_periodEnd_key").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.type.asc().nullsLast().op("enum_ops"), table.kind.asc().nullsLast().op("enum_ops"), table.periodStart.asc().nullsLast().op("timestamp_ops"), table.periodEnd.asc().nullsLast().op("timestamp_ops")),
+	index("usage_alert_workspaceId_type_periodStart_periodEnd_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.type.asc().nullsLast().op("enum_ops"), table.periodStart.asc().nullsLast().op("timestamp_ops"), table.periodEnd.asc().nullsLast().op("timestamp_ops")),
 	foreignKey({
 			columns: [table.workspaceId],
 			foreignColumns: [workspace.id],
@@ -732,8 +734,8 @@ export const exportJob = pgTable("export_job", {
 	updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
 }, (table) => [
 	index("export_job_expiresAt_idx").using("btree", table.expiresAt.asc().nullsLast().op("timestamp_ops")),
-	index("export_job_workspaceId_createdAt_idx").using("btree", table.workspaceId.asc().nullsLast().op("timestamp_ops"), table.createdAt.asc().nullsLast().op("timestamp_ops")),
-	index("export_job_workspaceId_status_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.status.asc().nullsLast().op("text_ops")),
+	index("export_job_workspaceId_createdAt_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.createdAt.asc().nullsLast().op("timestamp_ops")),
+	index("export_job_workspaceId_status_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.status.asc().nullsLast().op("enum_ops")),
 	foreignKey({
 			columns: [table.workspaceId],
 			foreignColumns: [workspace.id],
@@ -767,8 +769,9 @@ export const importJob = pgTable("import_job", {
 	createdAt: timestamp("createdAt", { precision: 3, mode: "date" }).$defaultFn(() => new Date()).notNull(),
 	updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
 }, (table) => [
-	index("import_job_workspaceId_createdAt_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.createdAt.asc().nullsLast().op("text_ops")),
-	index("import_job_workspaceId_status_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.status.asc().nullsLast().op("text_ops")),
+	index("import_job_workspaceId_createdAt_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.createdAt.asc().nullsLast().op("timestamp_ops")),
+	index("import_job_workspaceId_status_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops"), table.status.asc().nullsLast().op("enum_ops")),
+	uniqueIndex("import_job_id_workspaceId_key").using("btree", table.id.asc().nullsLast().op("text_ops"), table.workspaceId.asc().nullsLast().op("text_ops")),
 	foreignKey({
 			columns: [table.workspaceId],
 			foreignColumns: [workspace.id],
@@ -803,7 +806,7 @@ export const importItem = pgTable("import_item", {
 	createdAt: timestamp("createdAt", { precision: 3, mode: "date" }).$defaultFn(() => new Date()).notNull(),
 	updatedAt: timestamp("updatedAt", { precision: 3, mode: "date" }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
 }, (table) => [
-	index("import_item_importJobId_status_idx").using("btree", table.importJobId.asc().nullsLast().op("text_ops"), table.status.asc().nullsLast().op("text_ops")),
+	index("import_item_importJobId_status_idx").using("btree", table.importJobId.asc().nullsLast().op("text_ops"), table.status.asc().nullsLast().op("enum_ops")),
 	index("import_item_workspaceId_idx").using("btree", table.workspaceId.asc().nullsLast().op("text_ops")),
 	foreignKey({
 			columns: [table.importJobId, table.workspaceId],

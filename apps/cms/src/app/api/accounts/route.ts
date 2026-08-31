@@ -24,12 +24,12 @@ export async function GET() {
       .innerJoin(user, eq(account.userId, user.id))
       .where(eq(account.userId, sessionData.user.id));
 
-    const accountDetails = userAccountDetails.map((account) => ({
-      id: account.id,
-      createdAt: account.createdAt,
-      providerId: account.providerId,
-      accountId: account.accountId,
-      email: account.email,
+    const accountDetails = userAccountDetails.map((accountRow) => ({
+      id: accountRow.id,
+      createdAt: accountRow.createdAt,
+      providerId: accountRow.providerId,
+      accountId: accountRow.accountId,
+      email: accountRow.email,
     }));
 
     return NextResponse.json(accountDetails, { status: 200 });

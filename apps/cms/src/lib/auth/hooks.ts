@@ -33,12 +33,6 @@ export async function createAuthor(user: User, organization: Organization) {
     });
 
     if (author) {
-      console.log(
-        "Author already exists for user",
-        user.id,
-        "in workspace",
-        organization.id
-      );
       return author;
     }
 
@@ -64,12 +58,6 @@ export async function createAuthor(user: User, organization: Organization) {
       throw new Error("Failed to create author");
     }
 
-    console.log(
-      "Created author for user",
-      user.id,
-      "in workspace",
-      organization.id
-    );
     return createdAuthor;
   } catch (error) {
     console.error("Failed to create author:", error);

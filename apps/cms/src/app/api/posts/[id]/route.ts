@@ -1,111 +1,28 @@
-import { db, createRecordId } from "@marble/drizzle";
-import type { TransactionClient } from "@marble/drizzle";
+import { db } from "@marble/drizzle";
 import {
   author,
   category,
-  field,
-  fieldOption,
-  fieldValue,
   post as postTable,
   postToAuthor,
   postToTag,
 } from "@marble/drizzle/schema";
 import { toPostPayload, withChanges } from "@marble/events";
-import { sanitizeHtml, sanitizeRichTextHtml } from "@marble/utils/sanitize";
+import { sanitizeHtml } from "@marble/utils/sanitize";
 
-import { and, asc, eq, inArray, ne } from "drizzle-orm";
+import { and, eq, inArray, ne } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";
-import { resolveCustomFieldValues } from "@/lib/custom-fields";
+import {
+  buildCustomFieldWrites,
+  writeCustomFieldValues,
+} from "@/lib/custom-fields";
 import {
   emitDashboardEvent,
   logDashboardEventError,
 } from "@/lib/queues/events";
 import { postUpsertSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";
-
-async function buildCustomFieldWrites(
-  workspaceId: string,
-  input: Record<string, string | null | undefined>
-): Promise<ReturnType<typeof resolveCustomFieldValues>> {
-  const fields = await db.query.field.findMany({
-    where: eq(field.workspaceId, workspaceId),
-    columns: {
-      id: true,
-      key: true,
-      name: true,
-      type: true,
-      required: true,
-    },
-    with: {
-      options: {
-        columns: {
-          value: true,
-          label: true,
-        },
-        orderBy: [asc(fieldOption.position), asc(fieldOption.createdAt)],
-      },
-    },
-  });
-
-  return resolveCustomFieldValues(fields, input);
-}
-
-async function writeCustomFieldValues(
-  tx: TransactionClient,
-  workspaceId: string,
-  postId: string,
-  writes: Extract<
-    Awaited<ReturnType<typeof resolveCustomFieldValues>>,
-    { success: true }
-  >
-) {
-  if (writes.values.length === 0) {
-    return;
-  }
-
-  const now = new Date();
-
-  await Promise.all(
-    writes.values.map(async ({ fieldId, fieldType, value }) => {
-      if (value === null) {
-        await tx
-          .delete(fieldValue)
-          .where(
-            and(
-              eq(fieldValue.postId, postId),
-              eq(fieldValue.fieldId, fieldId),
-              eq(fieldValue.workspaceId, workspaceId)
-            )
-          );
-        return;
-      }
-
-      const storedValue =
-        fieldType === "richtext" ? sanitizeRichTextHtml(value) : value;
-
-      await tx
-        .insert(fieldValue)
-        .values({
-          id: createRecordId(),
-          postId,
-          fieldId,
-          workspaceId,
-          value: storedValue,
-          updatedAt: now,
-        })
-        .onConflictDoUpdate({
-          target: [fieldValue.postId, fieldValue.fieldId],
-          set: {
-            workspaceId,
-            value: storedValue,
-            updatedAt: now,
-          },
-        });
-    })
-  );
-}
 
 export async function GET(
   _request: Request,
@@ -142,10 +59,7 @@ export async function GET(
   }
 
   const [tagLinks, authorLinks] = await Promise.all([
-    db
-      .select({ id: postToTag.b })
-      .from(postToTag)
-      .where(eq(postToTag.a, id)),
+    db.select({ id: postToTag.b }).from(postToTag).where(eq(postToTag.a, id)),
     db
       .select({ id: postToAuthor.a })
       .from(postToAuthor)
@@ -300,7 +214,9 @@ export async function PATCH(
           workspaceId,
           updatedAt: now,
         })
-        .where(and(eq(postTable.id, id), eq(postTable.workspaceId, workspaceId)))
+        .where(
+          and(eq(postTable.id, id), eq(postTable.workspaceId, workspaceId))
+        )
         .returning();
 
       if (!updatedPost) {
@@ -336,8 +252,7 @@ export async function PATCH(
     const eventType =
       post.status !== "published" && postUpdated.status === "published"
         ? "post_published"
-        : post.status === "published" &&
-            postUpdated.status !== "published"
+        : post.status === "published" && postUpdated.status !== "published"
           ? "post_unpublished"
           : "post_updated";
     const payload =

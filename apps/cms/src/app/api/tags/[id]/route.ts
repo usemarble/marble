@@ -71,7 +71,7 @@ export async function PATCH(
       description: body.data.description,
       updatedAt: new Date(),
     })
-    .where(eq(tagTable.id, id))
+    .where(and(eq(tagTable.id, id), eq(tagTable.workspaceId, workspaceId)))
     .returning();
 
   if (!updatedTag) {

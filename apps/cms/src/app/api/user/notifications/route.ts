@@ -1,10 +1,9 @@
-import { db } from "@marble/drizzle";
+import { createRecordId, db } from "@marble/drizzle";
 import {
   member,
   userNotificationPreferences,
   workspaceNotificationPreferences,
 } from "@marble/drizzle/schema";
-import { createRecordId } from "@marble/drizzle";
 import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
@@ -99,17 +98,25 @@ export async function PATCH(request: Request) {
       }
 
       const now = new Date();
-      const data: Record<string, unknown> = { [key]: value, updatedAt: now };
-
-      if (key === "marketing") {
-        if (value) {
-          data.marketingConsentedAt = now;
-          data.marketingConsentSource = "settings";
-          data.marketingUnsubscribedAt = null;
-        } else {
-          data.marketingUnsubscribedAt = now;
-        }
-      }
+      const data =
+        key === "marketing"
+          ? value
+            ? {
+                marketing: value,
+                updatedAt: now,
+                marketingConsentedAt: now,
+                marketingConsentSource: "settings" as const,
+                marketingUnsubscribedAt: null,
+              }
+            : {
+                marketing: value,
+                updatedAt: now,
+                marketingUnsubscribedAt: now,
+              }
+          : {
+              product: value,
+              updatedAt: now,
+            };
 
       await db
         .insert(userNotificationPreferences)

@@ -1,4 +1,9 @@
-# PR3 — Remove Prisma; Drizzle Kit owns schema
+---
+title: "PR3 — Remove Prisma; Drizzle Kit owns schema"
+description: "Hand schema ownership to Drizzle Kit, archive Prisma migrations outside packages/db, and remove the Prisma stack."
+---
+
+## PR3 — Remove Prisma; Drizzle Kit owns schema
 
 Working title for the third migration PR: **schema ownership handoff + delete `@marble/db` / Prisma**.
 
@@ -8,7 +13,7 @@ Index: [`README.md`](./README.md).
 
 ---
 
-## Goal
+### Goal
 
 Make **Drizzle Kit** the sole schema and migration owner, and remove the Prisma stack (`@marble/db`, Prisma Client, Prisma CLI) from the monorepo — without changing physical tables or requiring a data migration.
 
@@ -16,7 +21,7 @@ Make **Drizzle Kit** the sole schema and migration owner, and remove the Prisma 
 
 ---
 
-## Gates (do not start without these)
+### Gates (do not start without these)
 
 PR3 is blocked until **all** of the following are true:
 
@@ -36,47 +41,46 @@ Any remaining hits must be non-runtime (comments, historical docs) or fixed befo
 
 ---
 
-## Steps
+### Steps
 
-### 1. Freeze Prisma as non-owner
-
+<Steps>
+<Step title="Freeze Prisma as non-owner">
 - Confirm no open PRs still adding Prisma migrations or `@marble/db` imports.
 - Document that **new** DDL goes through Drizzle Kit only from this PR forward.
-
-### 2. Baseline Drizzle migrations from the live schema
-
+</Step>
+<Step title="Baseline Drizzle migrations from the live schema">
 - Ensure `packages/drizzle` schema modules match production / staging (from PR1 `pull --init` + any coexistence Prisma migrates that were re-baselined).
 - Initialize or finalize Drizzle Kit migration journal so the next `drizzle-kit generate` / `migrate` is incremental, not a blind recreate of existing tables.
 - Prefer `drizzle-kit pull` / journal alignment over generating a full “create everything” migration against a DB that already has Prisma-built tables.
-
-### 3. Archive Prisma migrations
-
-- Move `packages/db/prisma/migrations/` (and related Prisma migration history artifacts) to an **archive** location, e.g. `packages/db/_archived_prisma/migrations/`.
+</Step>
+<Step title="Archive Prisma migrations">
+- Move `packages/db/prisma/migrations/` (and related Prisma migration history artifacts) to a durable archive outside `packages/db`, e.g. `docs/drizzle-migration/archived-prisma/migrations/`.
 - Keep the archive **read-only historical record** — do not run `prisma migrate` against shared environments after cutover.
 - Preserve enough context (README in the archive folder) to explain that production tables were created under Prisma and ownership moved to Drizzle Kit as of PR3.
-
-### 4. Point tooling at Drizzle Kit
-
+- Do **not** delete this archive when removing `packages/db` in later steps.
+</Step>
+<Step title="Point tooling at Drizzle Kit">
 - CI / scripts that invoked Prisma migrate or `packages/db` generate switch to `drizzle-kit` from `@marble/drizzle`.
 - Env docs: `DATABASE_URL` / `DIRECT_URL` (or project equivalents) documented for Drizzle Kit only.
 - Remove Prisma from root/workspace tooling (`prisma` CLI scripts, `prisma.config.ts` consumers, etc.).
-
-### 5. Remove `@marble/db` / Prisma packages
-
+</Step>
+<Step title="Remove `@marble/db` / Prisma packages">
 - Delete or gut `packages/db` after dependents are gone (prefer delete once nothing imports it).
+- Leave `docs/drizzle-migration/archived-prisma/` intact — package deletion must not remove the archived Prisma migration history.
 - Remove workspace dependencies on `@marble/db`, `@prisma/client`, Prisma adapters, and related Workers/Hyperdrive Prisma shims.
 - Drop `transpilePackages: ["@marble/db"]` (and similar) from CMS/Next config.
 - Update lockfile / `pnpm` workspace list.
-
-### 6. Docs and inventory
-
+</Step>
+<Step title="Docs and inventory">
 - Mark PR1–PR2 complete in [`README.md`](./README.md).
 - Note in inventory / migration docs that Prisma is archived and Drizzle Kit is the schema owner.
-- Link to the archived Prisma migrations path.
+- Link to the archived Prisma migrations path (`docs/drizzle-migration/archived-prisma/`).
+</Step>
+</Steps>
 
 ---
 
-## Exit criteria (PR3 complete)
+### Exit criteria (PR3 complete)
 
 1. **Gates satisfied** — zero `@marble/db` runtime imports in cms / api / jobs before package removal; still zero after.
 2. **Drizzle Kit owns DDL** — new migrations are generated and applied via Drizzle Kit; Prisma migrate is not used.
@@ -87,7 +91,7 @@ Any remaining hits must be non-runtime (comments, historical docs) or fixed befo
 
 ---
 
-## Out of scope
+### Out of scope
 
 | Item | Notes |
 | --- | --- |
@@ -98,7 +102,7 @@ Any remaining hits must be non-runtime (comments, historical docs) or fixed befo
 
 ---
 
-## Safety rules
+### Safety rules
 
 1. Do not delete Prisma while any app still imports `@marble/db` at runtime.
 2. Do not `drizzle-kit drop` / recreate production tables to “clean” history.
@@ -108,7 +112,7 @@ Any remaining hits must be non-runtime (comments, historical docs) or fixed befo
 
 ---
 
-## Risk notes
+### Risk notes
 
 - **Latent type-only imports** from `@marble/db/browser` can block deletion — replace with Drizzle-inferred types or shared enums in `@marble/drizzle` before removal.
 - **CI scripts** that still call `prisma generate` / `migrate` will fail the handoff if not updated in the same PR.
@@ -116,7 +120,7 @@ Any remaining hits must be non-runtime (comments, historical docs) or fixed befo
 
 ---
 
-## References
+### References
 
 - Index: `docs/drizzle-migration/README.md`
 - PR1: `docs/drizzle-migration/PR-1-cms.md`

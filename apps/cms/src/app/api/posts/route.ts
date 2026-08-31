@@ -1,17 +1,13 @@
-import { db, createRecordId } from "@marble/drizzle";
-import type { TransactionClient } from "@marble/drizzle";
+import { createRecordId, db } from "@marble/drizzle";
 import {
   author,
   category,
-  field,
-  fieldOption,
-  fieldValue,
   post as postTable,
   postToAuthor,
   postToTag,
 } from "@marble/drizzle/schema";
 import { toPostPayload } from "@marble/events";
-import { sanitizeHtml, sanitizeRichTextHtml } from "@marble/utils/sanitize";
+import { sanitizeHtml } from "@marble/utils/sanitize";
 
 import { and, asc, eq, inArray } from "drizzle-orm";
 import { nanoid } from "nanoid";
@@ -19,7 +15,10 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";
-import { resolveCustomFieldValues } from "@/lib/custom-fields";
+import {
+  buildCustomFieldWrites,
+  writeCustomFieldValues,
+} from "@/lib/custom-fields";
 import { getDashboardPosts } from "@/lib/queries/dashboard/posts";
 import {
   emitDashboardEvent,
@@ -29,97 +28,6 @@ import { loadPostApiFilters } from "@/lib/search-params";
 import { postUpsertSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";
 import { generateSlug } from "@/utils/string";
-
-async function buildCustomFieldWrites(
-  workspaceId: string,
-  input: Record<string, string | null | undefined>
-): Promise<ReturnType<typeof resolveCustomFieldValues>> {
-  const fields = await db.query.field.findMany({
-    where: eq(field.workspaceId, workspaceId),
-    columns: {
-      id: true,
-      key: true,
-      name: true,
-      type: true,
-      required: true,
-    },
-    with: {
-      options: {
-        columns: {
-          value: true,
-          label: true,
-        },
-        orderBy: [asc(fieldOption.position), asc(fieldOption.createdAt)],
-      },
-    },
-  });
-
-  const normalizedInput: Record<string, string | null | undefined> = {
-    ...input,
-  };
-  for (const fieldRow of fields) {
-    if (!(fieldRow.id in normalizedInput)) {
-      normalizedInput[fieldRow.id] = undefined;
-    }
-  }
-
-  return resolveCustomFieldValues(fields, normalizedInput);
-}
-
-async function writeCustomFieldValues(
-  tx: TransactionClient,
-  workspaceId: string,
-  postId: string,
-  writes: Extract<
-    Awaited<ReturnType<typeof resolveCustomFieldValues>>,
-    { success: true }
-  >
-) {
-  if (writes.values.length === 0) {
-    return;
-  }
-
-  const now = new Date();
-
-  await Promise.all(
-    writes.values.map(async ({ fieldId, fieldType, value }) => {
-      if (value === null) {
-        await tx
-          .delete(fieldValue)
-          .where(
-            and(
-              eq(fieldValue.postId, postId),
-              eq(fieldValue.fieldId, fieldId),
-              eq(fieldValue.workspaceId, workspaceId)
-            )
-          );
-        return;
-      }
-
-      const storedValue =
-        fieldType === "richtext" ? sanitizeRichTextHtml(value) : value;
-
-      await tx
-        .insert(fieldValue)
-        .values({
-          id: createRecordId(),
-          postId,
-          fieldId,
-          workspaceId,
-          value: storedValue,
-          updatedAt: now,
-        })
-        .onConflictDoUpdate({
-          target: [fieldValue.postId, fieldValue.fieldId],
-          set: {
-            workspaceId,
-            value: storedValue,
-            updatedAt: now,
-          },
-        });
-    })
-  );
-}
 
 export async function GET(request: Request) {
   const accessData = await requireActiveWorkspaceAccess();
@@ -235,6 +143,8 @@ export async function POST(request: Request) {
     );
   }
 
+  const resolvedPrimaryAuthor = primaryAuthor;
+
   const contentJson = JSON.parse(values.data.contentJson);
   const cleanContent = sanitizeHtml(values.data.content);
 
@@ -265,7 +175,7 @@ export async function POST(request: Request) {
     }
   }
 
-  const authorIds = values.data.authors || [primaryAuthor.id];
+  const authorIds = values.data.authors || [resolvedPrimaryAuthor.id];
   const validAuthors = await db.query.author.findMany({
     where: and(
       inArray(author.id, authorIds),
@@ -289,7 +199,7 @@ export async function POST(request: Request) {
         .insert(postTable)
         .values({
           id: postId,
-          primaryAuthorId: primaryAuthor.id,
+          primaryAuthorId: resolvedPrimaryAuthor.id,
           contentJson,
           slug: values.data.slug,
           title: values.data.title,

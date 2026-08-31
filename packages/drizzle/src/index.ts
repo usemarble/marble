@@ -1,10 +1,8 @@
 import { neonConfig, Pool } from "@neondatabase/serverless";
+import { createId as createRecordId } from "@paralleldrive/cuid2";
 import { drizzle } from "drizzle-orm/neon-serverless";
 import ws from "ws";
-import { createId as createRecordId } from "@paralleldrive/cuid2";
-// Drizzle relational queries require the full schema object.
-// biome-ignore lint/performance/noNamespaceImport: pass schema map to drizzle()
-import * as schema from "./schema";
+import { schema } from "./schema";
 
 neonConfig.webSocketConstructor = ws;
 

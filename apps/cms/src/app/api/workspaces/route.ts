@@ -9,15 +9,17 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";
 import { getWorkspacePlan } from "@/lib/plans";
 
-const activeSubscriptionFilter = or(
-  eq(subscription.status, "active"),
-  eq(subscription.status, "trialing"),
-  and(
-    eq(subscription.status, "canceled"),
-    eq(subscription.cancelAtPeriodEnd, true),
-    gt(subscription.currentPeriodEnd, new Date())
-  )
-);
+function activeSubscriptionFilter() {
+  return or(
+    eq(subscription.status, "active"),
+    eq(subscription.status, "trialing"),
+    and(
+      eq(subscription.status, "canceled"),
+      eq(subscription.cancelAtPeriodEnd, true),
+      gt(subscription.currentPeriodEnd, new Date())
+    )
+  );
+}
 
 export async function GET() {
   const sessionData = await getServerSession();
@@ -74,7 +76,7 @@ export async function GET() {
         },
       },
       subscriptions: {
-        where: activeSubscriptionFilter,
+        where: activeSubscriptionFilter(),
         orderBy: desc(subscription.createdAt),
         limit: 1,
         columns: {
@@ -95,7 +97,7 @@ export async function GET() {
     const currentUserMember = foundWorkspace.members.find(
       (entry) => entry.userId === sessionData.user.id
     );
-    const activeSubscription = foundWorkspace.subscriptions[0] || null;
+    const activeSubscription = foundWorkspace.subscriptions.at(0) || null;
     const activePlan = getWorkspacePlan(activeSubscription);
     return {
       ...foundWorkspace,

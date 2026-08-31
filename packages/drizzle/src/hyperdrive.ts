@@ -1,7 +1,6 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
-// biome-ignore lint/performance/noNamespaceImport: pass schema map to drizzle()
-import * as schema from "./schema";
+import { schema } from "./schema";
 
 /**
  * Placeholder Hyperdrive / node-postgres client factory for PR2 (api/jobs).

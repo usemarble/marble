@@ -1,4 +1,9 @@
-# PR1 — CMS Prisma → Drizzle cutover
+---
+title: "PR1 — CMS Prisma → Drizzle cutover"
+description: "Foundation package and apps/cms-only Prisma to Drizzle cutover scope, phases, and exit criteria."
+---
+
+## PR1 — CMS Prisma → Drizzle cutover
 
 Working title for the first migration PR: **foundation + `apps/cms` only**.
 
@@ -6,7 +11,7 @@ This document summarizes PR1 scope, phases, exit criteria, and out-of-scope item
 
 ---
 
-## Goal
+### Goal
 
 Ship a correct ORM swap for the CMS that behaves like today on the **same Neon Postgres database**:
 
@@ -21,9 +26,9 @@ Ship a correct ORM swap for the CMS that behaves like today on the **same Neon P
 
 ---
 
-## Scope
+### Scope
 
-### In scope
+#### In scope
 
 | Area | Detail |
 | --- | --- |
@@ -35,7 +40,7 @@ Ship a correct ORM swap for the CMS that behaves like today on the **same Neon P
 
 Approximate CMS surface from inventory: **~52 runtime files** importing `@marble/db` / `@marble/db/browser`, **4 `$transaction` sites**, Better Auth `prismaAdapter` in `apps/cms/src/lib/auth/server.ts`.
 
-### Out of scope (explicit)
+#### Out of scope (explicit)
 
 | Item | Why deferred |
 | --- | --- |
@@ -52,7 +57,7 @@ Approximate CMS surface from inventory: **~52 runtime files** importing `@marble
 
 ---
 
-## Recommended PR sequence (context)
+### Recommended PR sequence (context)
 
 | PR | Scope |
 | --- | --- |
@@ -65,24 +70,33 @@ Prisma stays installed through PR1–2 for rollback and for apps not yet migrate
 
 ---
 
-## Phases (PR1)
+### Phases (PR1)
 
-### Phase 0 — Inventory, original-DB snapshot, parity harness
+#### Phase 0 — Inventory, original-DB snapshot, parity harness
 
 **Do before** creating `packages/drizzle` behavior and **before** any `drizzle-kit` command.
 
-1. Record inventory:
-   - every `@marble/db` / `@marble/db/browser` import
-   - every `$transaction` (and confirm no raw SQL in CMS)
-   - Better Auth models + `@@map` names
-   - golden paths
-2. Snapshot the staging/branch DB (`prisma-schema.prisma`, `information_schema` dumps, `pg_dump --schema-only`, row counts).
-3. Freeze real IDs for parity checks if needed.
-4. Lay out parity harness (later copied to `packages/drizzle/src/__parity__/`).
+<Steps>
+<Step title="Record inventory">
+- every `@marble/db` / `@marble/db/browser` import
+- every `$transaction` (and confirm no raw SQL in CMS)
+- Better Auth models + `@@map` names
+- golden paths
+</Step>
+<Step title="Snapshot the staging/branch DB">
+Snapshot `prisma-schema.prisma`, `information_schema` dumps, `pg_dump --schema-only`, and row counts.
+</Step>
+<Step title="Freeze real IDs">
+Freeze real IDs for parity checks if needed.
+</Step>
+<Step title="Lay out parity harness">
+Lay out parity harness (later copied to `packages/drizzle/src/__parity__/`).
+</Step>
+</Steps>
 
 **Phase 0 exit:** baseline files committed; inventory complete; harness layout defined. No Drizzle package required yet for the inventory/baseline commits, but no `drizzle-kit` until baseline exists.
 
-### Phase 1 — Stand up `@marble/drizzle` (no CMS behavior change)
+#### Phase 1 — Stand up `@marble/drizzle` (no CMS behavior change)
 
 **Gate:** Phase 0 baseline in git.
 
@@ -96,29 +110,57 @@ Prisma stays installed through PR1–2 for rollback and for apps not yet migrate
 
 **Phase 1 exit:** schema-check green; **no CMS routes switched**.
 
-### Phase 2 — CMS query migration (Prisma + Drizzle coexist)
+#### Phase 2 — CMS query migration (Prisma + Drizzle coexist)
 
 Add `@marble/drizzle` to CMS. Migrate **one domain at a time**, auth last:
 
-1. Read-only dashboard queries (`apps/cms/src/lib/queries/`)
-2. Taxonomy (tags / categories / authors)
-3. Media / share links
-4. Posts + custom fields — port `$transaction` → `db.transaction` on WS client (all 4 sites)
-5. Workspaces / members / invitations (auth-adjacent app queries)
-6. Billing / Polar / usage
-7. Import / export jobs
-8. Better Auth → Phase 3
+<Steps>
+<Step title="Read-only dashboard queries">
+Migrate `apps/cms/src/lib/queries/`.
+</Step>
+<Step title="Taxonomy">
+Migrate tags / categories / authors.
+</Step>
+<Step title="Media / share links">
+Migrate media and share link domains.
+</Step>
+<Step title="Posts + custom fields">
+Port `$transaction` → `db.transaction` on WS client (all 4 sites).
+</Step>
+<Step title="Workspaces / members / invitations">
+Migrate auth-adjacent app queries.
+</Step>
+<Step title="Billing / Polar / usage">
+Migrate billing, Polar, and usage domains.
+</Step>
+<Step title="Import / export jobs">
+Migrate import and export job domains.
+</Step>
+<Step title="Better Auth → Phase 3">
+Hand off to the Better Auth adapter swap.
+</Step>
+</Steps>
 
 Per slice:
 
-1. Add `__parity__/reads/<domain>.test.ts` (and writes/tx if mutating)
-2. Implement Drizzle until tests match Prisma on frozen IDs
-3. Swap the route/query module; keep HTTP/JSON shapes identical
-4. Rollback = revert the change (Prisma package still present)
+<Steps>
+<Step title="Add parity tests">
+Add `__parity__/reads/<domain>.test.ts` (and writes/tx if mutating).
+</Step>
+<Step title="Implement Drizzle until parity">
+Implement Drizzle until tests match Prisma on frozen IDs.
+</Step>
+<Step title="Swap the route/query module">
+Swap the route/query module; keep HTTP/JSON shapes identical.
+</Step>
+<Step title="Keep rollback available">
+Rollback = revert the change (Prisma package still present).
+</Step>
+</Steps>
 
 **Phase 2 exit:** CMS application queries on Drizzle except Better Auth adapter; parity tests green per domain; interactive txs proven (commit + mid-callback rollback).
 
-### Phase 3 — Better Auth adapter swap
+#### Phase 3 — Better Auth adapter swap
 
 In `apps/cms/src/lib/auth/server.ts`:
 
@@ -134,7 +176,7 @@ In `apps/cms/src/lib/auth/server.ts`:
 
 ---
 
-## Exit criteria (PR1 complete)
+### Exit criteria (PR1 complete)
 
 PR1 is done when all of the following hold:
 
@@ -156,7 +198,7 @@ PR1 is done when all of the following hold:
 
 ---
 
-## Safety rules (enforce in review)
+### Safety rules (enforce in review)
 
 1. Database does not move; no dumps/dual-writes/renames for cutover.
 2. Do not rename `packages/db` mid-flight.
@@ -169,7 +211,7 @@ PR1 is done when all of the following hold:
 
 ---
 
-## Risk notes specific to PR1
+### Risk notes specific to PR1
 
 - **Highest risk:** Better Auth adapter + `Organization` → `workspace` mapping + Redis secondary storage session survival.
 - **Highest complexity queries:** posts + custom fields (nested M2M `_PostToTag` / `_PostToAuthor`, fieldValue upserts, Serializable field update tx).
@@ -178,7 +220,7 @@ PR1 is done when all of the following hold:
 
 ---
 
-## References
+### References
 
 - Index: `docs/drizzle-migration/README.md`
 - PR2: `docs/drizzle-migration/PR-2-api-jobs.md`
@@ -188,4 +230,4 @@ PR1 is done when all of the following hold:
 - CMS auth: `apps/cms/src/lib/auth/server.ts`
 - CMS Prisma client: `@marble/db` → `packages/db/src/index.ts` (neon-serverless)
 - Better Auth Drizzle adapter: `@better-auth/drizzle-adapter` (provider `"pg"`)
-- Neon + Drizzle (use WebSocket / `neon-serverless`, not neon-http, for interactive transactions): https://orm.drizzle.team/docs/connect-neon
+- Neon + Drizzle (use WebSocket / `neon-serverless`, not neon-http, for interactive transactions): [Connect to Neon](https://orm.drizzle.team/docs/connect-neon)

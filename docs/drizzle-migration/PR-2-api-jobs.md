@@ -1,4 +1,9 @@
-# PR2 — API + Jobs Hyperdrive Prisma → Drizzle
+---
+title: "PR2 — API + Jobs Hyperdrive Prisma → Drizzle"
+description: "Cut over apps/api and apps/jobs from Prisma Hyperdrive clients to Drizzle with node-postgres via Hyperdrive."
+---
+
+## PR2 — API + Jobs Hyperdrive Prisma → Drizzle
 
 Working title for the second migration PR: **`apps/api` + `apps/jobs` on Drizzle via Hyperdrive**.
 
@@ -8,7 +13,7 @@ Index: [`README.md`](./README.md).
 
 ---
 
-## Prerequisites
+### Prerequisites
 
 PR2 **must not start** until:
 
@@ -20,7 +25,7 @@ Prisma stays installed through PR2 for rollback and until PR3 removes it.
 
 ---
 
-## Goal
+### Goal
 
 Cut over Cloudflare Workers apps (`apps/api`, `apps/jobs`) from Prisma Hyperdrive clients to **Drizzle + node-postgres (`pg`) via Hyperdrive**, on the **same Neon Postgres database**:
 
@@ -34,20 +39,20 @@ Cut over Cloudflare Workers apps (`apps/api`, `apps/jobs`) from Prisma Hyperdriv
 
 ---
 
-## Scope
+### Scope
 
-### In scope
+#### In scope
 
 | Area | Detail |
 | --- | --- |
 | `apps/api` | Replace Prisma Hyperdrive client factory; migrate all `@marble/db` / `@marble/db/workers` / `@marble/db/hyperdrive` runtime usage to `@marble/drizzle` |
 | `apps/jobs` | Same Hyperdrive → Drizzle `pg` cutover for import / webhook / pipeline DB access |
 | Client factories | Rewrite `apps/api/src/lib/db.ts` and `apps/jobs/src/lib/db.ts` (see below) |
-| Package export | Ensure `@marble/drizzle` exports a Hyperdrive-friendly factory (e.g. `drizzle-orm/node-postgres` + `pg.Pool` / Client wired to `env.HYPERDRIVE.connectionString`) |
+| Package export | Ensure `@marble/drizzle` exports a Hyperdrive-friendly factory (e.g. `drizzle-orm/node-postgres` + request-scoped `pg.Client` wired to `env.HYPERDRIVE.connectionString`) |
 | Parity | API golden paths (incl. API key auth), jobs smoke for import/webhook persistence |
 | Docs | This PR2 brief; update inventory notes for api/jobs if useful |
 
-### Out of scope (explicit)
+#### Out of scope (explicit)
 
 | Item | Why deferred |
 | --- | --- |
@@ -60,7 +65,7 @@ Cut over Cloudflare Workers apps (`apps/api`, `apps/jobs`) from Prisma Hyperdriv
 
 ---
 
-## Client factory changes
+### Client factory changes
 
 Today both apps build Prisma clients from Hyperdrive:
 
@@ -69,26 +74,52 @@ Today both apps build Prisma clients from Hyperdrive:
 | `apps/api/src/lib/db.ts` | `createHyperdriveClient` from `@marble/db/hyperdrive` (and unused/alternate `@marble/db/workers` import) via `env.HYPERDRIVE.connectionString` |
 | `apps/jobs/src/lib/db.ts` | `createClient` from `@marble/db/hyperdrive` via `env.HYPERDRIVE.connectionString` |
 
-### Target pattern
+#### Target pattern
 
-1. **Connection string** — Keep `getConnectionString(env)` (or equivalent) resolving `env.HYPERDRIVE.connectionString`; fail fast if missing.
-2. **Driver** — Use **node-postgres (`pg`)** with Drizzle (`drizzle-orm/node-postgres`), not Prisma `PrismaPg` and not neon-serverless inside Workers Hyperdrive path.
-3. **Factory** — Something like `createDbClient(env)` → `drizzle(pool, { schema })` where `pool` is constructed from the Hyperdrive connection string (shared helper may live in `@marble/drizzle` and be re-exported from each app’s `lib/db.ts`).
-4. **Lifecycle** — Match Workers expectations: create per-request / per-invocation as today; do not assume a long-lived global Prisma singleton behavior beyond what Hyperdrive already provides.
-5. **Types** — Replace `DbClient = ReturnType<typeof createDbClient>` with the Drizzle DB type from `@marble/drizzle`.
-6. **Cleanup** — Remove `@marble/db/hyperdrive` / `@marble/db/workers` imports from api/jobs once call sites are migrated; leave package present until PR3.
+<Steps>
+<Step title="Connection string">
+Keep `getConnectionString(env)` (or equivalent) resolving `env.HYPERDRIVE.connectionString`; fail fast if missing.
+</Step>
+<Step title="Driver">
+Use **node-postgres (`pg`)** with Drizzle (`drizzle-orm/node-postgres`), not Prisma `PrismaPg` and not neon-serverless inside Workers Hyperdrive path.
+</Step>
+<Step title="Factory">
+Something like `createDbClient(env)` → `drizzle(client, { schema })` where `client` is a request-scoped `pg.Client` constructed from the Hyperdrive connection string (shared helper may live in `@marble/drizzle` and be re-exported from each app’s `lib/db.ts`). Prefer `pg.Client` over `pg.Pool` for Hyperdrive connections.
+</Step>
+<Step title="Lifecycle">
+Match Workers expectations: create per-request / per-invocation as today; do not assume a long-lived global Prisma singleton behavior beyond what Hyperdrive already provides. Each invocation must explicitly commit or roll back transactions and close the client during cleanup.
+</Step>
+<Step title="Types">
+Replace `DbClient = ReturnType<typeof createDbClient>` with the Drizzle DB type from `@marble/drizzle`.
+</Step>
+<Step title="Cleanup">
+Remove `@marble/db/hyperdrive` / `@marble/db/workers` imports from api/jobs once call sites are migrated; leave package present until PR3.
+</Step>
+</Steps>
 
-### Migration order (suggested)
+#### Migration order (suggested)
 
-1. Add Hyperdrive Drizzle factory to `@marble/drizzle` (unused by CMS).
-2. Point `apps/api/src/lib/db.ts` at the new factory; keep Prisma factory behind a temporary flag **only if** needed for staged rollout — prefer hard cut with parity tests first.
-3. Migrate `apps/api` routes/modules domain by domain (keys, posts, media, webhooks, etc.).
-4. Point `apps/jobs/src/lib/db.ts` at the same factory; migrate job handlers.
-5. Grep for remaining `@marble/db` imports under `apps/api` and `apps/jobs` — must be zero at PR2 exit (config-only comments OK).
+<Steps>
+<Step title="Add Hyperdrive Drizzle factory">
+Add Hyperdrive Drizzle factory to `@marble/drizzle` (unused by CMS).
+</Step>
+<Step title="Point API factory at Drizzle">
+Point `apps/api/src/lib/db.ts` at the new factory; keep Prisma factory behind a temporary flag **only if** needed for staged rollout — prefer hard cut with parity tests first.
+</Step>
+<Step title="Migrate API domains">
+Migrate `apps/api` routes/modules domain by domain (keys, posts, media, webhooks, etc.).
+</Step>
+<Step title="Point jobs factory and migrate handlers">
+Point `apps/jobs/src/lib/db.ts` at the same factory; migrate job handlers.
+</Step>
+<Step title="Verify zero Prisma imports">
+Grep for remaining `@marble/db` imports under `apps/api` and `apps/jobs` — must be zero at PR2 exit (config-only comments OK).
+</Step>
+</Steps>
 
 ---
 
-## Parity checks
+### Parity checks
 
 Before merging PR2:
 
@@ -102,7 +133,7 @@ Before merging PR2:
 
 ---
 
-## Exit criteria (PR2 complete)
+### Exit criteria (PR2 complete)
 
 PR2 is done when all of the following hold:
 
@@ -116,7 +147,7 @@ PR2 is done when all of the following hold:
 
 ---
 
-## Safety rules (enforce in review)
+### Safety rules (enforce in review)
 
 1. Same database; no dumps/dual-writes/renames for cutover.
 2. Do not start PR2 before PR1 merge.
@@ -127,7 +158,7 @@ PR2 is done when all of the following hold:
 
 ---
 
-## Risk notes specific to PR2
+### Risk notes specific to PR2
 
 - **Driver mismatch:** Hyperdrive expects standard Postgres wire protocol — use `pg` / node-postgres with Drizzle, not the CMS neon-serverless WebSocket client.
 - **Workers runtime:** Confirm `pg` (or the chosen Hyperdrive-compatible binding) works in the Cloudflare Workers / node-compat setup used by api/jobs today.
@@ -136,7 +167,7 @@ PR2 is done when all of the following hold:
 
 ---
 
-## References
+### References
 
 - Index: `docs/drizzle-migration/README.md`
 - PR1: `docs/drizzle-migration/PR-1-cms.md`

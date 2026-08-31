@@ -112,7 +112,7 @@ export async function DELETE(request: Request) {
           mediaDeletedFromR2.push({ id: mediaItem.id, media: mediaItem });
         } catch (error) {
           console.error(
-            `Failed to delete media object from R2 for media ID ${mediaItem.id}. URL: ${mediaItem.url}`,
+            `Failed to delete media object from R2 for media ID ${mediaItem.id}`,
             error
           );
           failedIds.push(mediaItem.id);

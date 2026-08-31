@@ -15,6 +15,7 @@ import {
   inArray,
   or,
   type SQL,
+  sql,
 } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
@@ -42,41 +43,7 @@ const VALID_RESPONSE_FILTERS = [
   "no_response",
 ] as const;
 
-type DeliveryStatus = (typeof VALID_DELIVERY_STATUSES)[number];
 type ResponseFilter = (typeof VALID_RESPONSE_FILTERS)[number];
-
-interface WebhookDeliveryWithRelations {
-  id: string;
-  eventId: string;
-  workspaceId: string;
-  webhookEndpointId: string;
-  url: string;
-  status: string;
-  isTest: boolean;
-  attemptCount: number;
-  maxAttempts: number;
-  nextRetryAt: Date | null;
-  lastAttemptAt: Date | null;
-  deliveredAt: Date | null;
-  failedAt: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
-  event: Parameters<typeof buildWebhookPayload>[0] & {
-    id: string;
-    type: string;
-    createdAt: Date;
-  };
-  attempts: Array<{
-    id: string;
-    attemptNumber: number;
-    success: boolean;
-    statusCode: number | null;
-    responseBody: string | null;
-    errorMessage: string | null;
-    durationMs: number | null;
-    createdAt: Date;
-  }>;
-}
 
 function toPositiveInteger(value: string | null, fallback: number) {
   if (!value) {
@@ -93,25 +60,27 @@ function getResponseFilter(response: string | null): ResponseFilter | null {
     : null;
 }
 
-function latestAttemptMatchesResponse(
-  latestAttempt: WebhookDeliveryWithRelations["attempts"][number] | null,
-  responseFilter: ResponseFilter
-) {
-  if (responseFilter === "no_response") {
-    return !latestAttempt || latestAttempt.statusCode === null;
-  }
+function latestAttemptStatusCodeSql() {
+  return sql`(
+    SELECT ${webhookDeliveryAttempt.statusCode}
+    FROM ${webhookDeliveryAttempt}
+    WHERE ${webhookDeliveryAttempt.deliveryId} = ${webhookDelivery.id}
+    ORDER BY ${webhookDeliveryAttempt.attemptNumber} DESC
+    LIMIT 1
+  )`;
+}
 
-  if (
-    latestAttempt?.statusCode === null ||
-    latestAttempt?.statusCode === undefined
-  ) {
-    return false;
+function buildLatestAttemptResponseCondition(
+  responseFilter: ResponseFilter
+): SQL {
+  const latestStatusCode = latestAttemptStatusCodeSql();
+
+  if (responseFilter === "no_response") {
+    return sql`${latestStatusCode} IS NULL`;
   }
 
   const start = Number.parseInt(responseFilter[0] ?? "0", 10) * 100;
-  return (
-    latestAttempt.statusCode >= start && latestAttempt.statusCode < start + 100
-  );
+  return sql`${latestStatusCode} >= ${start} AND ${latestStatusCode} < ${start + 100}`;
 }
 
 function buildDeliveryConditions(
@@ -127,8 +96,18 @@ function buildDeliveryConditions(
     eq(webhookDelivery.workspaceId, workspaceId),
   ];
 
-  if (status && VALID_DELIVERY_STATUSES.includes(status as DeliveryStatus)) {
-    conditions.push(eq(webhookDelivery.status, status as DeliveryStatus));
+  if (
+    status &&
+    VALID_DELIVERY_STATUSES.includes(
+      status as (typeof VALID_DELIVERY_STATUSES)[number]
+    )
+  ) {
+    conditions.push(
+      eq(
+        webhookDelivery.status,
+        status as (typeof VALID_DELIVERY_STATUSES)[number]
+      )
+    );
   }
 
   if (joinEvent && eventType) {
@@ -170,7 +149,9 @@ async function fetchDeliveriesWithRelations(deliveryIds: string[]) {
     },
   });
 
-  const deliveryMap = new Map(deliveries.map((delivery) => [delivery.id, delivery]));
+  const deliveryMap = new Map(
+    deliveries.map((delivery) => [delivery.id, delivery])
+  );
 
   return deliveryIds.flatMap((deliveryId) => {
     const delivery = deliveryMap.get(deliveryId);
@@ -185,11 +166,12 @@ async function listDeliveries(
   eventType: WebhookEvent | null,
   search: string | undefined,
   page: number,
-  perPage: number
+  perPage: number,
+  responseFilter: ResponseFilter | null = null
 ) {
   const joinEvent = Boolean(eventType || search);
 
-  const where = buildDeliveryConditions(
+  const baseWhere = buildDeliveryConditions(
     webhookEndpointId,
     workspaceId,
     status,
@@ -197,6 +179,10 @@ async function listDeliveries(
     search,
     joinEvent
   );
+
+  const where = responseFilter
+    ? and(baseWhere, buildLatestAttemptResponseCondition(responseFilter))
+    : baseWhere;
 
   if (joinEvent) {
     const [countRow, idRows] = await Promise.all([
@@ -292,66 +278,18 @@ export async function GET(
       ? (event as WebhookEvent)
       : null;
 
-  let totalCount: number;
-  let deliveries: Awaited<ReturnType<typeof fetchDeliveriesWithRelations>>;
-
-  if (responseFilter) {
-    const joinEvent = Boolean(eventType || search);
-    const where = buildDeliveryConditions(
-      id,
-      workspaceId,
-      status,
-      eventType,
-      search,
-      joinEvent
-    );
-
-    const matchingDeliveries = joinEvent
-      ? await fetchDeliveriesWithRelations(
-          (
-            await db
-              .select({ id: webhookDelivery.id })
-              .from(webhookDelivery)
-              .innerJoin(
-                workspaceEvent,
-                eq(webhookDelivery.eventId, workspaceEvent.id)
-              )
-              .where(where)
-              .orderBy(desc(webhookDelivery.createdAt))
-          ).map((row) => row.id)
-        )
-      : await fetchDeliveriesWithRelations(
-          (
-            await db
-              .select({ id: webhookDelivery.id })
-              .from(webhookDelivery)
-              .where(where)
-              .orderBy(desc(webhookDelivery.createdAt))
-          ).map((row) => row.id)
-        );
-
-    const filteredDeliveries = matchingDeliveries.filter((delivery) =>
-      latestAttemptMatchesResponse(
-        delivery.attempts[0] ?? null,
-        responseFilter
-      )
-    );
-
-    totalCount = filteredDeliveries.length;
-    deliveries = filteredDeliveries.slice((page - 1) * perPage, page * perPage);
-  } else {
-    const result = await listDeliveries(
-      id,
-      workspaceId,
-      status,
-      eventType,
-      search,
-      page,
-      perPage
-    );
-    totalCount = result.totalCount;
-    deliveries = result.deliveries;
-  }
+  const result = await listDeliveries(
+    id,
+    workspaceId,
+    status,
+    eventType,
+    search,
+    page,
+    perPage,
+    responseFilter
+  );
+  const totalCount = result.totalCount;
+  const deliveries = result.deliveries;
 
   const pageCount = Math.max(1, Math.ceil(totalCount / perPage));
 
@@ -495,7 +433,12 @@ export async function PATCH(
   const [webhook] = await db
     .update(webhookEndpoint)
     .set(updateData)
-    .where(and(eq(webhookEndpoint.id, id), eq(webhookEndpoint.workspaceId, workspaceId)))
+    .where(
+      and(
+        eq(webhookEndpoint.id, id),
+        eq(webhookEndpoint.workspaceId, workspaceId)
+      )
+    )
     .returning();
 
   if (!webhook) {

@@ -46,7 +46,7 @@ export async function getWorkspaceMediaStorageLimitBytes(
     .orderBy(desc(subscription.createdAt))
     .limit(1);
 
-  const activeSubscription = subscriptions[0] ?? null;
+  const activeSubscription = subscriptions.at(0) ?? null;
   const plan = getWorkspacePlan(activeSubscription);
   return PLAN_LIMITS[plan].maxMediaStorage * BYTES_PER_MB;
 }
