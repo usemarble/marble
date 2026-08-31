@@ -79,7 +79,7 @@ function buildLatestAttemptResponseCondition(
     return sql`${latestStatusCode} IS NULL`;
   }
 
-  const start = Number.parseInt(responseFilter[0] ?? "0", 10) * 100;
+  const start = Number.parseInt(responseFilter.at(0) ?? "0", 10) * 100;
   return sql`${latestStatusCode} >= ${start} AND ${latestStatusCode} < ${start + 100}`;
 }
 
