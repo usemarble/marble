@@ -1,5 +1,6 @@
-import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { cn as mergeClassNames } from "cn";
+
+export const cn = mergeClassNames;
 
 export function calculateReadTime(content: string) {
   const wordsPerMinute = 200;
@@ -8,8 +9,4 @@ export function calculateReadTime(content: string) {
 
   const readingTime = Math.ceil(wordCount / wordsPerMinute);
   return readingTime;
-}
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
 }
