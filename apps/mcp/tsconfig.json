@@ -6,7 +6,6 @@
     "strict": true,
     "skipLibCheck": true,
     "lib": ["ESNext", "WebWorker"],
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     },

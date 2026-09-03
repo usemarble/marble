@@ -9,7 +9,6 @@
         "name": "next"
       }
     ],
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
       "@marble/ui/*": ["../../packages/ui/src/*"]
