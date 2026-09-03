@@ -36,4 +36,4 @@ Feel free to open an issue for bugs or feature requests.
 
 ## License
 
-Marble is released under the [GNU Affero General Public License v3.0](./LICENSE.md).
+Marble is released under the [GNU Affero General Public License v3.0](./LICENSE).
