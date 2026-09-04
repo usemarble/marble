@@ -3,6 +3,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { trimTrailingSlash } from "hono/trailing-slash";
 import { FRAMER_PLUGIN_PATTERN, ROUTES } from "./lib/constants";
+import { restrictLegacyPostStatus } from "./lib/legacy-posts";
 import { analytics } from "./middleware/analytics";
 import { authorization } from "./middleware/authorization";
 import { cache } from "./middleware/cache";
@@ -94,6 +95,18 @@ app.use("/v1/:workspaceId/*", async (c, next) => {
     // Rewrite path (strip /v1 prefix) for legacy router
     const newPath = path.replace("/v1", "");
     const newUrl = new URL(c.req.url);
+    const restrictedStatus = restrictLegacyPostStatus(newUrl, workspaceId);
+
+    if (restrictedStatus) {
+      console.warn(
+        JSON.stringify({
+          event: "legacy_post_status_restricted",
+          workspaceId,
+          requestedStatus: restrictedStatus,
+        })
+      );
+    }
+
     newUrl.pathname = newPath;
     const newRequest = new Request(newUrl.toString(), c.req.raw);
     return legacyV1.fetch(newRequest, c.env, c.executionCtx);
