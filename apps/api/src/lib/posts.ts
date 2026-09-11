@@ -1,9 +1,137 @@
+import {
+  category,
+  post,
+  postToTag,
+  tag,
+} from "@marble/drizzle/schema";
+import type { HyperdriveDb } from "@marble/drizzle/hyperdrive";
+import {
+  and,
+  eq,
+  exists,
+  ilike,
+  inArray,
+  not,
+  or,
+  sql,
+  type SQL,
+} from "drizzle-orm";
 import { z } from "@hono/zod-openapi";
 
-export const buildStatusFilter = (status: "published" | "draft" | "all") =>
-  status === "all"
-    ? { status: { in: ["published", "draft"] as ("published" | "draft")[] } }
-    : { status };
+export function buildStatusFilter(
+  status: "published" | "draft" | "all"
+): SQL | undefined {
+  if (status === "all") {
+    return inArray(post.status, ["published", "draft"]);
+  }
+
+  return eq(post.status, status);
+}
+
+export interface PostsListFilterInput {
+  categories: string[];
+  excludeCategories: string[];
+  tags: string[];
+  excludeTags: string[];
+  query?: string;
+  featured?: string;
+  status: "published" | "draft" | "all";
+}
+
+export function buildPostsListWhere(
+  db: HyperdriveDb,
+  workspaceId: string,
+  filters: PostsListFilterInput
+): SQL {
+  const conditions: SQL[] = [eq(post.workspaceId, workspaceId)];
+
+  const statusCondition = buildStatusFilter(filters.status);
+  if (statusCondition) {
+    conditions.push(statusCondition);
+  }
+
+  if (filters.categories.length > 0) {
+    conditions.push(
+      exists(
+        db
+          .select({ one: sql`1` })
+          .from(category)
+          .where(
+            and(
+              eq(category.id, post.categoryId),
+              inArray(category.slug, filters.categories)
+            )
+          )
+      )
+    );
+  }
+
+  if (filters.excludeCategories.length > 0) {
+    conditions.push(
+      not(
+        exists(
+          db
+            .select({ one: sql`1` })
+            .from(category)
+            .where(
+              and(
+                eq(category.id, post.categoryId),
+                inArray(category.slug, filters.excludeCategories)
+              )
+            )
+        )
+      )
+    );
+  }
+
+  if (filters.tags.length > 0) {
+    conditions.push(
+      exists(
+        db
+          .select({ one: sql`1` })
+          .from(postToTag)
+          .innerJoin(tag, eq(postToTag.b, tag.id))
+          .where(
+            and(eq(postToTag.a, post.id), inArray(tag.slug, filters.tags))
+          )
+      )
+    );
+  }
+
+  if (filters.excludeTags.length > 0) {
+    conditions.push(
+      not(
+        exists(
+          db
+            .select({ one: sql`1` })
+            .from(postToTag)
+            .innerJoin(tag, eq(postToTag.b, tag.id))
+            .where(
+              and(
+                eq(postToTag.a, post.id),
+                inArray(tag.slug, filters.excludeTags)
+              )
+            )
+        )
+      )
+    );
+  }
+
+  if (filters.query) {
+    conditions.push(
+      or(
+        ilike(post.title, `%${filters.query}%`),
+        ilike(post.content, `%${filters.query}%`)
+      ) as SQL
+    );
+  }
+
+  if (filters.featured !== undefined) {
+    conditions.push(eq(post.featured, filters.featured === "true"));
+  }
+
+  return and(...conditions) as SQL;
+}
 
 function castFieldValue(
   value: string,
@@ -38,8 +166,8 @@ export function buildFieldsObject(
     {};
 
   if (allFields) {
-    for (const field of allFields) {
-      result[field.key] = null;
+    for (const fieldRow of allFields) {
+      result[fieldRow.key] = null;
     }
   }
 

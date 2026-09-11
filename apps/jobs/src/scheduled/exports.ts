@@ -1,3 +1,5 @@
+import { exportJob } from "@marble/drizzle/schema";
+import { and, eq, lte } from "drizzle-orm";
 import type { DbClient } from "@/lib/db";
 import type { Env } from "@/types/env";
 
@@ -13,16 +15,16 @@ export async function cleanupExpiredExports({
   let expiredCount = 0;
 
   while (true) {
-    const expiredExports = await db.exportJob.findMany({
-      where: {
-        status: "ready",
-        expiresAt: { lte: now },
-      },
-      select: {
+    const expiredExports = await db.query.exportJob.findMany({
+      where: and(
+        eq(exportJob.status, "ready"),
+        lte(exportJob.expiresAt, now)
+      ),
+      columns: {
         id: true,
         storageKey: true,
       },
-      take: 50,
+      limit: 50,
     });
 
     if (expiredExports.length === 0) {
@@ -39,13 +41,13 @@ export async function cleanupExpiredExports({
         }
       }
 
-      await db.exportJob.update({
-        where: { id: job.id },
-        data: {
+      await db
+        .update(exportJob)
+        .set({
           status: "expired",
           downloadTokenHash: null,
-        },
-      });
+        })
+        .where(eq(exportJob.id, job.id));
       expiredCount += 1;
     }
 

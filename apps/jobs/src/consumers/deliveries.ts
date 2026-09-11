@@ -1,5 +1,11 @@
 import { buildWebhookPayload, serializeEventType } from "@marble/events";
+import {
+  webhookDeliveryAttempt,
+  webhookDelivery,
+} from "@marble/drizzle/schema";
+import { createRecordId } from "@marble/drizzle/id";
 import { WEBHOOK_DELIVERY_TIMEOUT_MS } from "@/lib/constants";
+import type { DbClient } from "@/lib/db";
 import { createDbClient } from "@/lib/db";
 import { buildWebhookRequestBody } from "@/lib/formats";
 import { signPayload } from "@/lib/signing";
@@ -20,8 +26,7 @@ export async function handleWebhookDeliveryQueue(
   batch: MessageBatch<WebhookMessage>,
   env: Env
 ) {
-  const db = createDbClient(env);
-
+  const db = await createDbClient(env);
   for (const message of batch.messages) {
     const { deliveryId } = message.body;
 
@@ -39,7 +44,7 @@ export async function handleWebhookDeliveryQueue(
 }
 
 async function processDelivery(
-  db: ReturnType<typeof createDbClient>,
+  db: DbClient,
   env: Env,
   deliveryId: string
 ) {
@@ -49,12 +54,12 @@ async function processDelivery(
     return;
   }
 
-  const delivery = await db.webhookDelivery.findFirst({
+  const delivery = await db.query.webhookDelivery.findFirst({
     where: webhookDeliveryLeaseWhere(lease),
-    include: {
+    with: {
       event: true,
       webhookEndpoint: {
-        select: {
+        columns: {
           format: true,
           secret: true,
         },
@@ -136,14 +141,13 @@ async function processDelivery(
   } catch (error) {
     const durationMs = Date.now() - startedAt;
 
-    await db.webhookDeliveryAttempt.create({
-      data: {
-        deliveryId: delivery.id,
-        attemptNumber,
-        success: false,
-        errorMessage: error instanceof Error ? error.message : String(error),
-        durationMs,
-      },
+    await db.insert(webhookDeliveryAttempt).values({
+      id: createRecordId(),
+      deliveryId: delivery.id,
+      attemptNumber,
+      success: false,
+      errorMessage: error instanceof Error ? error.message : String(error),
+      durationMs,
     });
 
     if (attemptNumber >= delivery.maxAttempts) {
@@ -168,15 +172,14 @@ async function processDelivery(
   const responseBody = await response.text();
   const durationMs = Date.now() - startedAt;
 
-  await db.webhookDeliveryAttempt.create({
-    data: {
-      deliveryId: delivery.id,
-      attemptNumber,
-      success: response.ok,
-      statusCode: response.status,
-      responseBody: responseBody.slice(0, 5000),
-      durationMs,
-    },
+  await db.insert(webhookDeliveryAttempt).values({
+    id: createRecordId(),
+    deliveryId: delivery.id,
+    attemptNumber,
+    success: response.ok,
+    statusCode: response.status,
+    responseBody: responseBody.slice(0, 5000),
+    durationMs,
   });
 
   if (response.ok) {

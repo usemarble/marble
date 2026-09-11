@@ -1,3 +1,10 @@
+import { createRecordId } from "@marble/drizzle/id";
+import {
+  webhookDelivery,
+  webhookEndpoint,
+  workspaceEvent,
+} from "@marble/drizzle/schema";
+import { and, arrayContains, eq } from "drizzle-orm";
 import { createDbClient } from "@/lib/db";
 import type { Env, EventMessage } from "@/types/env";
 
@@ -5,79 +12,106 @@ export async function handleEventQueue(
   batch: MessageBatch<EventMessage>,
   env: Env
 ) {
-  const db = createDbClient(env);
-
+  const db = await createDbClient(env);
   for (const message of batch.messages) {
-    const { eventId, targetWebhookEndpointId, isTest = false } = message.body;
+      const { eventId, targetWebhookEndpointId, isTest = false } =
+        message.body;
 
-    try {
-      const event = await db.workspaceEvent.findUnique({
-        where: { id: eventId },
-      });
-
-      if (!event) {
-        console.error(`[Events] Event not found: ${eventId}`);
-        message.retry();
-        continue;
-      }
-
-      if (event.processedAt) {
-        message.ack();
-        continue;
-      }
-
-      const webhooks = await db.webhookEndpoint.findMany({
-        where: {
-          ...(targetWebhookEndpointId && { id: targetWebhookEndpointId }),
-          workspaceId: event.workspaceId,
-          ...(targetWebhookEndpointId ? {} : { enabled: true }),
-          ...(targetWebhookEndpointId ? {} : { events: { has: event.type } }),
-        },
-      });
-
-      if (webhooks.length === 0) {
-        await db.workspaceEvent.update({
-          where: { id: event.id },
-          data: { processedAt: new Date() },
+      try {
+        const event = await db.query.workspaceEvent.findFirst({
+          where: eq(workspaceEvent.id, eventId),
         });
-        message.ack();
-        continue;
-      }
 
-      for (const webhook of webhooks) {
-        const delivery = await db.webhookDelivery.upsert({
-          where: {
-            eventId_webhookEndpointId: {
+        if (!event) {
+          console.error(`[Events] Event not found: ${eventId}`);
+          message.retry();
+          continue;
+        }
+
+        if (event.processedAt) {
+          message.ack();
+          continue;
+        }
+
+        const webhookFilters = [
+          eq(webhookEndpoint.workspaceId, event.workspaceId),
+        ];
+
+        if (targetWebhookEndpointId) {
+          webhookFilters.push(
+            eq(webhookEndpoint.id, targetWebhookEndpointId)
+          );
+        } else {
+          webhookFilters.push(eq(webhookEndpoint.enabled, true));
+          webhookFilters.push(
+            arrayContains(webhookEndpoint.events, [event.type])
+          );
+        }
+
+        const webhooks = await db.query.webhookEndpoint.findMany({
+          where: and(...webhookFilters),
+        });
+
+        if (webhooks.length === 0) {
+          await db
+            .update(workspaceEvent)
+            .set({ processedAt: new Date() })
+            .where(eq(workspaceEvent.id, event.id));
+          message.ack();
+          continue;
+        }
+
+        for (const webhook of webhooks) {
+          const inserted = await db
+            .insert(webhookDelivery)
+            .values({
+              id: createRecordId(),
               eventId: event.id,
+              workspaceId: event.workspaceId,
               webhookEndpointId: webhook.id,
-            },
-          },
-          create: {
-            eventId: event.id,
-            workspaceId: event.workspaceId,
-            webhookEndpointId: webhook.id,
-            url: webhook.url,
-            status: "pending",
-            isTest,
-          },
-          update: {},
-        });
+              url: webhook.url,
+              status: "pending",
+              isTest,
+            })
+            .onConflictDoNothing({
+              target: [
+                webhookDelivery.eventId,
+                webhookDelivery.webhookEndpointId,
+              ],
+            })
+            .returning({ id: webhookDelivery.id });
 
-        await env.WEBHOOK_DELIVERY_QUEUE.send({
-          type: "webhook.delivery",
-          deliveryId: delivery.id,
-        });
+          const delivery =
+            inserted[0] ??
+            (await db.query.webhookDelivery.findFirst({
+              where: and(
+                eq(webhookDelivery.eventId, event.id),
+                eq(webhookDelivery.webhookEndpointId, webhook.id)
+              ),
+              columns: { id: true },
+            }));
+
+          if (!delivery) {
+            throw new Error(
+              `Failed to upsert webhook delivery for event ${event.id}`
+            );
+          }
+
+          await env.WEBHOOK_DELIVERY_QUEUE.send({
+            type: "webhook.delivery",
+            deliveryId: delivery.id,
+          });
+        }
+
+        await db
+          .update(workspaceEvent)
+          .set({ processedAt: new Date() })
+          .where(eq(workspaceEvent.id, event.id));
+
+        message.ack();
+      } catch (error) {
+        console.error(`[Events] Failed to process event ${eventId}:`, error);
+        message.retry();
       }
-
-      await db.workspaceEvent.update({
-        where: { id: event.id },
-        data: { processedAt: new Date() },
-      });
-
-      message.ack();
-    } catch (error) {
-      console.error(`[Events] Failed to process event ${eventId}:`, error);
-      message.retry();
     }
-  }
 }

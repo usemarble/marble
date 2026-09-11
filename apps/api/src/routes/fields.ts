@@ -1,7 +1,16 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
-import { Prisma } from "@marble/db/workers";
+import { createRecordId } from "@marble/drizzle/id";
+import {
+  isFieldWorkspaceKeyConflict,
+  isPgSerializationFailure,
+} from "@marble/drizzle/pg-errors";
+import {
+  field as fieldTable,
+  fieldOption,
+  fieldValue,
+} from "@marble/drizzle/schema";
+import { and, asc, count, desc, eq, ne, or } from "drizzle-orm";
 import { createCacheClient } from "@/lib/cache";
-import { createDbClient } from "@/lib/db";
 import { requireWorkspaceId } from "@/lib/workspace";
 import {
   ConflictSchema,
@@ -77,22 +86,6 @@ function areFieldOptionsEqual(
       option.label === currentOption.label
     );
   });
-}
-
-function isUniqueFieldKeyConflict(error: unknown) {
-  return (
-    error instanceof Error &&
-    "code" in error &&
-    (error as Error & { code?: string }).code === "P2002"
-  );
-}
-
-function isTransactionConflict(error: unknown) {
-  return (
-    error instanceof Error &&
-    "code" in error &&
-    (error as Error & { code?: string }).code === "P2034"
-  );
 }
 
 const listFieldsRoute = createRoute({
@@ -249,16 +242,16 @@ const deleteFieldRoute = createRoute({
 fields.openapi(listFieldsRoute, async (c) => {
   try {
     const workspaceId = requireWorkspaceId(c);
-    const db = createDbClient(c.env);
+    const db = c.get("db");
 
-    const fieldList = await db.field.findMany({
-      where: { workspaceId },
-      include: {
+    const fieldList = await db.query.field.findMany({
+      where: eq(fieldTable.workspaceId, workspaceId),
+      with: {
         options: {
-          orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+          orderBy: [asc(fieldOption.position), asc(fieldOption.createdAt)],
         },
       },
-      orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+      orderBy: [asc(fieldTable.position), asc(fieldTable.createdAt)],
     });
 
     return c.json({ fields: fieldList }, 200 as const);
@@ -277,17 +270,17 @@ fields.openapi(listFieldsRoute, async (c) => {
 fields.openapi(getFieldRoute, async (c) => {
   try {
     const workspaceId = requireWorkspaceId(c);
-    const db = createDbClient(c.env);
+    const db = c.get("db");
     const { identifier } = c.req.valid("param");
 
-    const field = await db.field.findFirst({
-      where: {
-        workspaceId,
-        OR: [{ id: identifier }, { key: identifier }],
-      },
-      include: {
+    const field = await db.query.field.findFirst({
+      where: and(
+        eq(fieldTable.workspaceId, workspaceId),
+        or(eq(fieldTable.id, identifier), eq(fieldTable.key, identifier))
+      ),
+      with: {
         options: {
-          orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+          orderBy: [asc(fieldOption.position), asc(fieldOption.createdAt)],
         },
       },
     });
@@ -312,15 +305,15 @@ fields.openapi(getFieldRoute, async (c) => {
 fields.openapi(createFieldRoute, async (c) => {
   try {
     const workspaceId = requireWorkspaceId(c);
-    const db = createDbClient(c.env);
+    const db = c.get("db");
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const body = c.req.valid("json");
 
-    const existing = await db.field.findFirst({
-      where: {
-        workspaceId,
-        key: body.key,
-      },
+    const existing = await db.query.field.findFirst({
+      where: and(
+        eq(fieldTable.workspaceId, workspaceId),
+        eq(fieldTable.key, body.key)
+      ),
     });
 
     if (existing) {
@@ -333,38 +326,70 @@ fields.openapi(createFieldRoute, async (c) => {
       );
     }
 
-    const maxPosition = await db.field.aggregate({
-      where: { workspaceId },
-      _max: { position: true },
-    });
+    const [maxPositionRow] = await db
+      .select({ position: fieldTable.position })
+      .from(fieldTable)
+      .where(eq(fieldTable.workspaceId, workspaceId))
+      .orderBy(desc(fieldTable.position))
+      .limit(1);
 
-    const field = await db.field.create({
-      data: {
+    const fieldId = createRecordId();
+    const now = new Date();
+    const optionWrites = buildFieldOptionWrites(body.options ?? []);
+
+    await db.transaction(async (tx) => {
+      await tx.insert(fieldTable).values({
+        id: fieldId,
         key: body.key,
         name: body.name,
         description: body.description?.trim() || null,
         type: body.type,
         required: body.required ?? false,
-        position: (maxPosition._max.position ?? -1) + 1,
+        position: (maxPositionRow?.position ?? -1) + 1,
         workspaceId,
-        options:
-          (body.options ?? []).length > 0
-            ? { create: buildFieldOptionWrites(body.options ?? []) }
-            : undefined,
-      },
-      include: {
+        updatedAt: now,
+      });
+
+      if (optionWrites.length > 0) {
+        await tx.insert(fieldOption).values(
+          optionWrites.map((option) => ({
+            id: createRecordId(),
+            fieldId,
+            workspaceId,
+            value: option.value,
+            label: option.label,
+            position: option.position,
+            updatedAt: now,
+          }))
+        );
+      }
+    });
+
+    const field = await db.query.field.findFirst({
+      where: eq(fieldTable.id, fieldId),
+      with: {
         options: {
-          orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+          orderBy: [asc(fieldOption.position), asc(fieldOption.createdAt)],
         },
       },
     });
+
+    if (!field) {
+      return c.json(
+        {
+          error: "Failed to create field",
+          message: "An unexpected error occurred",
+        },
+        500 as const
+      );
+    }
 
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "fields"));
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
 
     return c.json({ field }, 201 as const);
   } catch (error) {
-    if (isUniqueFieldKeyConflict(error)) {
+    if (isFieldWorkspaceKeyConflict(error)) {
       return c.json(
         {
           error: "Field key already in use",
@@ -388,19 +413,19 @@ fields.openapi(createFieldRoute, async (c) => {
 fields.openapi(updateFieldRoute, async (c) => {
   try {
     const workspaceId = requireWorkspaceId(c);
-    const db = createDbClient(c.env);
+    const db = c.get("db");
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const { identifier } = c.req.valid("param");
     const body = c.req.valid("json");
 
-    const existingField = await db.field.findFirst({
-      where: {
-        workspaceId,
-        OR: [{ id: identifier }, { key: identifier }],
-      },
-      include: {
+    const existingField = await db.query.field.findFirst({
+      where: and(
+        eq(fieldTable.workspaceId, workspaceId),
+        or(eq(fieldTable.id, identifier), eq(fieldTable.key, identifier))
+      ),
+      with: {
         options: {
-          orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+          orderBy: [asc(fieldOption.position), asc(fieldOption.createdAt)],
         },
       },
     });
@@ -451,12 +476,12 @@ fields.openapi(updateFieldRoute, async (c) => {
       !areFieldOptionsEqual(body.options, existingOptions);
 
     if (body.key && body.key !== existingField.key) {
-      const keyConflict = await db.field.findFirst({
-        where: {
-          workspaceId,
-          key: body.key,
-          id: { not: existingField.id },
-        },
+      const keyConflict = await db.query.field.findFirst({
+        where: and(
+          eq(fieldTable.workspaceId, workspaceId),
+          eq(fieldTable.key, body.key),
+          ne(fieldTable.id, existingField.id)
+        ),
       });
 
       if (keyConflict) {
@@ -470,57 +495,93 @@ fields.openapi(updateFieldRoute, async (c) => {
       }
     }
 
-    const field = await db.$transaction(
+    const updateData: Partial<typeof fieldTable.$inferInsert> = {};
+    if (body.key !== undefined) {
+      updateData.key = body.key;
+    }
+    if (body.name !== undefined) {
+      updateData.name = body.name;
+    }
+    if (body.description !== undefined) {
+      updateData.description = body.description?.trim() || null;
+    }
+    if (body.type !== undefined) {
+      updateData.type = body.type;
+    }
+    if (body.required !== undefined) {
+      updateData.required = body.required;
+    }
+
+    const updatedFieldId = await db.transaction(
       async (tx) => {
         if (typeChanged || optionsChanged) {
-          const fieldValueCount = await tx.fieldValue.count({
-            where: {
-              fieldId: existingField.id,
-              workspaceId,
-            },
-          });
+          const [fieldValueCount] = await tx
+            .select({ value: count() })
+            .from(fieldValue)
+            .where(
+              and(
+                eq(fieldValue.fieldId, existingField.id),
+                eq(fieldValue.workspaceId, workspaceId)
+              )
+            );
 
-          if (fieldValueCount > 0) {
+          if ((fieldValueCount?.value ?? 0) > 0) {
             return null;
           }
         }
 
-        return tx.field.update({
-          where: {
-            id_workspaceId: {
-              id: existingField.id,
-              workspaceId,
-            },
-          },
-          data: {
-            ...(body.key !== undefined ? { key: body.key } : {}),
-            ...(body.name !== undefined ? { name: body.name } : {}),
-            ...(body.description !== undefined
-              ? { description: body.description?.trim() || null }
-              : {}),
-            ...(body.type !== undefined ? { type: body.type } : {}),
-            ...(body.required !== undefined ? { required: body.required } : {}),
-            options:
-              body.options !== undefined || !requiresOptions
-                ? {
-                    deleteMany: {},
-                    create: requiresOptions
-                      ? buildFieldOptionWrites(effectiveOptions)
-                      : [],
-                  }
-                : undefined,
-          },
-          include: {
-            options: {
-              orderBy: [{ position: "asc" }, { createdAt: "asc" }],
-            },
-          },
-        });
+        const now = new Date();
+        const shouldRewriteOptions =
+          body.options !== undefined || !requiresOptions;
+
+        const [updatedField] = await tx
+          .update(fieldTable)
+          .set({
+            ...updateData,
+            updatedAt: now,
+          })
+          .where(
+            and(
+              eq(fieldTable.id, existingField.id),
+              eq(fieldTable.workspaceId, workspaceId)
+            )
+          )
+          .returning({ id: fieldTable.id });
+
+        if (!updatedField) {
+          return null;
+        }
+
+        if (shouldRewriteOptions) {
+          await tx
+            .delete(fieldOption)
+            .where(eq(fieldOption.fieldId, existingField.id));
+
+          const nextOptions = requiresOptions
+            ? buildFieldOptionWrites(effectiveOptions)
+            : [];
+
+          if (nextOptions.length > 0) {
+            await tx.insert(fieldOption).values(
+              nextOptions.map((option) => ({
+                id: createRecordId(),
+                fieldId: existingField.id,
+                workspaceId,
+                value: option.value,
+                label: option.label,
+                position: option.position,
+                updatedAt: now,
+              }))
+            );
+          }
+        }
+
+        return updatedField.id;
       },
-      { isolationLevel: Prisma.TransactionIsolationLevel.Serializable }
+      { isolationLevel: "serializable" }
     );
 
-    if (!field) {
+    if (!updatedFieldId) {
       return c.json(
         {
           error: "Unsafe field change",
@@ -531,12 +592,31 @@ fields.openapi(updateFieldRoute, async (c) => {
       );
     }
 
+    const field = await db.query.field.findFirst({
+      where: eq(fieldTable.id, updatedFieldId),
+      with: {
+        options: {
+          orderBy: [asc(fieldOption.position), asc(fieldOption.createdAt)],
+        },
+      },
+    });
+
+    if (!field) {
+      return c.json(
+        {
+          error: "Field not found",
+          message: "The requested custom field does not exist",
+        },
+        404 as const
+      );
+    }
+
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "fields"));
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
 
     return c.json({ field }, 200 as const);
   } catch (error) {
-    if (isUniqueFieldKeyConflict(error)) {
+    if (isFieldWorkspaceKeyConflict(error)) {
       return c.json(
         {
           error: "Field key already in use",
@@ -546,7 +626,7 @@ fields.openapi(updateFieldRoute, async (c) => {
       );
     }
 
-    if (isTransactionConflict(error)) {
+    if (isPgSerializationFailure(error)) {
       return c.json(
         {
           error: "Field update conflict",
@@ -570,16 +650,16 @@ fields.openapi(updateFieldRoute, async (c) => {
 fields.openapi(deleteFieldRoute, async (c) => {
   try {
     const workspaceId = requireWorkspaceId(c);
-    const db = createDbClient(c.env);
+    const db = c.get("db");
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const { identifier } = c.req.valid("param");
 
-    const existingField = await db.field.findFirst({
-      where: {
-        workspaceId,
-        OR: [{ id: identifier }, { key: identifier }],
-      },
-      select: { id: true },
+    const existingField = await db.query.field.findFirst({
+      where: and(
+        eq(fieldTable.workspaceId, workspaceId),
+        or(eq(fieldTable.id, identifier), eq(fieldTable.key, identifier))
+      ),
+      columns: { id: true },
     });
 
     if (!existingField) {
@@ -592,14 +672,14 @@ fields.openapi(deleteFieldRoute, async (c) => {
       );
     }
 
-    await db.field.delete({
-      where: {
-        id_workspaceId: {
-          id: existingField.id,
-          workspaceId,
-        },
-      },
-    });
+    await db
+      .delete(fieldTable)
+      .where(
+        and(
+          eq(fieldTable.id, existingField.id),
+          eq(fieldTable.workspaceId, workspaceId)
+        )
+      );
 
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "fields"));
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));

@@ -1,7 +1,7 @@
 import { neonConfig, Pool } from "@neondatabase/serverless";
-import { createId as createRecordId } from "@paralleldrive/cuid2";
 import { drizzle } from "drizzle-orm/neon-serverless";
 import ws from "ws";
+import { createRecordId } from "./id";
 import { schema } from "./schema";
 
 neonConfig.webSocketConstructor = ws;

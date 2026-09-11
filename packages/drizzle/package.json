@@ -5,9 +5,16 @@
   "exports": {
     ".": "./src/index.ts",
     "./schema": "./src/schema/index.ts",
-    "./hyperdrive": "./src/hyperdrive.ts"
+    "./hyperdrive": "./src/hyperdrive.ts",
+    "./id": "./src/id.ts",
+    "./pg-errors": "./src/pg-errors.ts"
   },
   "scripts": {
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "db:pull": "drizzle-kit pull",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit"

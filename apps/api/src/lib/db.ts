@@ -1,37 +1,18 @@
-import { createClient as createHyperdriveClient } from "@marble/db/hyperdrive";
-import { createClient as createWorkersClient } from "@marble/db/workers";
+import {
+  createHyperdriveClient,
+  type HyperdriveDb,
+} from "@marble/drizzle/hyperdrive";
+import { createMiddleware } from "hono/factory";
 import type { Env } from "@/types/env";
 
-/**
- * Get the database connection string.
- * In development, uses DATABASE_URL directly to bypass Hyperdrive's local proxy
- * (which can have compatibility issues with Neon's serverless driver).
- * In production, uses Hyperdrive for connection pooling and latency optimization.
- */
-export function getConnectionString(env: Env): string {
-  // if (env.ENVIRONMENT === "development" && env.DATABASE_URL) {
-  //   return env.DATABASE_URL;
-  // }
-  if (!env.HYPERDRIVE?.connectionString) {
-    throw new Error(
-      "Database configuration error: no connection string available"
-    );
-  }
-  return env.HYPERDRIVE.connectionString;
-}
+export type DbClient = HyperdriveDb;
 
 /**
- * Create a Prisma client with the correct adapter for the current env.
- * - DATABASE_URL (dev or BYPASS_HYPERDRIVE): Neon serverless driver
- * - HYPERDRIVE: pg-worker driver (standard Postgres, Hyperdrive-compatible)
+ * Create a Drizzle client for Cloudflare Workers via Hyperdrive.
+ * Uses a per-request pg.Client (see `@marble/drizzle/hyperdrive`); CMS uses
+ * the neon-serverless WebSocket client from `@marble/drizzle`.
  */
-export type DbClient = ReturnType<typeof createDbClient>;
-
-export function createDbClient(env: Env) {
-  // const useDirect = env.ENVIRONMENT === "development";
-  // if (useDirect && env.DATABASE_URL) {
-  //   return createWorkersClient(env.DATABASE_URL);
-  // }
+export async function createDbClient(env: Env): Promise<DbClient> {
   if (!env.HYPERDRIVE?.connectionString) {
     throw new Error(
       "Database configuration error: no connection string available"
@@ -39,3 +20,20 @@ export function createDbClient(env: Env) {
   }
   return createHyperdriveClient(env.HYPERDRIVE.connectionString);
 }
+
+export type DbVariables = {
+  db: DbClient;
+};
+
+export const dbMiddleware = createMiddleware<{
+  Bindings: Env;
+  Variables: DbVariables;
+}>(async (c, next) => {
+  try {
+    c.set("db", await createDbClient(c.env));
+  } catch (error) {
+    console.error("[DB] Database configuration error:", error);
+    return c.json({ error: "Internal server error" }, 500);
+  }
+  await next();
+});

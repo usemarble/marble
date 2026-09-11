@@ -1,9 +1,12 @@
+import { createRecordId } from "@marble/drizzle/id";
+import { workspace, workspaceEvent } from "@marble/drizzle/schema";
+import { eq } from "drizzle-orm";
 import { Hono } from "hono";
-import { createDbClient } from "@/lib/db";
+import type { DbClient } from "@/lib/db";
 import type { Env } from "@/types/env";
 import { InternalEventSchema } from "@/validations/misc";
 
-const events = new Hono<{ Bindings: Env }>();
+const events = new Hono<{ Bindings: Env; Variables: { db: DbClient } }>();
 
 events.post("/", async (c) => {
   let rawBody: unknown;
@@ -31,20 +34,22 @@ events.post("/", async (c) => {
 
   const body = validation.data;
 
-  const db = createDbClient(c.env);
+  const db = c.get("db");
 
-  const workspace = await db.organization.findUnique({
-    where: { id: body.workspaceId },
-    select: { id: true },
+  const foundWorkspace = await db.query.workspace.findFirst({
+    where: eq(workspace.id, body.workspaceId),
+    columns: { id: true },
   });
 
-  if (!workspace) {
+  if (!foundWorkspace) {
     return c.json({ error: "Workspace not found" }, 404);
   }
 
   try {
-    const event = await db.workspaceEvent.create({
-      data: {
+    const [event] = await db
+      .insert(workspaceEvent)
+      .values({
+        id: createRecordId(),
         type: body.type,
         workspaceId: body.workspaceId,
         source: body.source,
@@ -53,8 +58,8 @@ events.post("/", async (c) => {
         actorType: body.actorType,
         actorId: body.actorId,
         payload: body.payload ?? {},
-      },
-    });
+      })
+      .returning();
 
     await c.env.EVENT_QUEUE.send({
       type: "event.fanout",

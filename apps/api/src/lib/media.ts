@@ -1,8 +1,8 @@
+import { createRecordId } from "@marble/drizzle/id";
+import { usageEvent } from "@marble/drizzle/schema";
 import { imageSize } from "image-size";
-import type { createDbClient } from "@/lib/db";
+import type { DbClient } from "@/lib/db";
 import { DEFAULT_CDN_URL } from "./constants";
-
-type DbClient = ReturnType<typeof createDbClient>;
 
 export type MediaType = "image" | "video" | "audio" | "document";
 
@@ -97,11 +97,10 @@ export async function trackMediaUploadUsage(
   workspaceId: string,
   fileSize: number
 ) {
-  await db.usageEvent.create({
-    data: {
-      type: "media_upload",
-      workspaceId,
-      size: fileSize,
-    },
+  await db.insert(usageEvent).values({
+    id: createRecordId(),
+    type: "media_upload",
+    workspaceId,
+    size: fileSize,
   });
 }

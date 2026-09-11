@@ -1,5 +1,13 @@
+import { createRecordId } from "@marble/drizzle/id";
+import {
+  importItem,
+  importJob,
+  post,
+  postToAuthor,
+} from "@marble/drizzle/schema";
 import { markdownToHtml, markdownToTiptap } from "@marble/parser/markdown";
 import { sanitizeHtml } from "@marble/utils/sanitize";
+import { and, eq } from "drizzle-orm";
 import type { DbClient } from "@/lib/db";
 import type { Env } from "@/types/env";
 import type { ImportMarkdownFile } from "@/types/import";
@@ -49,53 +57,55 @@ async function importMarkdownFile({
       );
 
       try {
-        await db.$transaction(async (tx) => {
-          const item = await tx.importItem.create({
-            data: {
-              importJobId: job.id,
-              workspaceId: job.workspaceId,
-              sourceRef: parsed.sourceRef,
-              status: "pending",
-              title: parsed.title,
-              slug,
-              content: cleanContent,
-              contentJson,
-              description: parsed.description,
-              rawCategory: parsed.rawCategory,
-              rawTags: parsed.rawTags,
-              rawAuthor: parsed.rawAuthor,
-              resolvedCategoryId: categoryId,
-            },
-            select: { id: true },
+        await db.transaction(async (tx) => {
+          const itemId = createRecordId();
+          const postId = createRecordId();
+
+          await tx.insert(importItem).values({
+            id: itemId,
+            importJobId: job.id,
+            workspaceId: job.workspaceId,
+            sourceRef: parsed.sourceRef,
+            status: "pending",
+            title: parsed.title,
+            slug,
+            content: cleanContent,
+            contentJson,
+            description: parsed.description,
+            rawCategory: parsed.rawCategory,
+            rawTags: parsed.rawTags,
+            rawAuthor: parsed.rawAuthor,
+            resolvedCategoryId: categoryId,
           });
 
-          const post = await tx.post.create({
-            data: {
-              primaryAuthorId: authorId,
-              title: parsed.title,
-              slug,
-              status: "draft",
-              featured: false,
-              content: cleanContent,
-              contentJson,
-              description: parsed.description,
-              categoryId,
-              publishedAt: now,
-              workspaceId: job.workspaceId,
-              authors: {
-                connect: [{ id: authorId }],
-              },
-            },
-            select: { id: true },
+          await tx.insert(post).values({
+            id: postId,
+            primaryAuthorId: authorId,
+            title: parsed.title,
+            slug,
+            status: "draft",
+            featured: false,
+            content: cleanContent,
+            contentJson,
+            description: parsed.description,
+            categoryId,
+            publishedAt: now,
+            workspaceId: job.workspaceId,
           });
 
-          await tx.importItem.update({
-            where: { id: item.id },
-            data: {
+          await tx.insert(postToAuthor).values({
+            a: authorId,
+            b: postId,
+          });
+
+          await tx
+            .update(importItem)
+            .set({
               status: "imported",
-              postId: post.id,
-            },
-          });
+              postId,
+              updatedAt: now,
+            })
+            .where(eq(importItem.id, itemId));
         });
 
         return "imported" as const;
@@ -112,25 +122,20 @@ async function importMarkdownFile({
       error instanceof Error ? error.message : "Failed to import Markdown file";
     const fallbackTitle = file.sourceRef.split("/").pop() || file.sourceRef;
 
-    await db.importItem.create({
-      data: {
-        importJobId: job.id,
-        workspaceId: job.workspaceId,
-        sourceRef: file.sourceRef,
-        status: "failed",
-        title: fallbackTitle,
-        errors: { message },
-      },
+    await db.insert(importItem).values({
+      id: createRecordId(),
+      importJobId: job.id,
+      workspaceId: job.workspaceId,
+      sourceRef: file.sourceRef,
+      status: "failed",
+      title: fallbackTitle,
+      errors: { message },
     });
 
     return "failed" as const;
   }
 }
 
-/**
- * Parses imported content and creates draft posts directly. The draft posts are
- * the review surface for v1.
- */
 export async function runImport(db: DbClient, env: Env, jobId: string) {
   const job = await getImportJob(db, jobId);
 
@@ -143,12 +148,17 @@ export async function runImport(db: DbClient, env: Env, jobId: string) {
     return;
   }
 
-  const claim = await db.importJob.updateMany({
-    where: { id: job.id, status: "queued" },
-    data: { status: "processing", startedAt: job.startedAt ?? new Date() },
-  });
+  const claimed = await db
+    .update(importJob)
+    .set({
+      status: "processing",
+      startedAt: job.startedAt ?? new Date(),
+      updatedAt: new Date(),
+    })
+    .where(and(eq(importJob.id, job.id), eq(importJob.status, "queued")))
+    .returning({ id: importJob.id });
 
-  if (claim.count === 0) {
+  if (claimed.length === 0) {
     return;
   }
 
@@ -196,24 +206,25 @@ export async function runImport(db: DbClient, env: Env, jobId: string) {
   }
 
   const category = await getUncategorizedCategory(db, job.workspaceId);
-  const author = await getImportAuthor(db, job);
+  const authorRecord = await getImportAuthor(db, job);
   const now = new Date();
   let importedItems = 0;
   let errorItems = 0;
 
-  await db.importJob.update({
-    where: { id: job.id },
-    data: {
+  await db
+    .update(importJob)
+    .set({
       totalItems: files.length,
       readyItems: 0,
       errorItems: 0,
       importedItems: 0,
-    },
-  });
+      updatedAt: new Date(),
+    })
+    .where(eq(importJob.id, job.id));
 
   for (const file of files) {
     const result = await importMarkdownFile({
-      authorId: author.id,
+      authorId: authorRecord.id,
       categoryId: category.id,
       db,
       file,
@@ -228,9 +239,9 @@ export async function runImport(db: DbClient, env: Env, jobId: string) {
     }
   }
 
-  await db.importJob.update({
-    where: { id: job.id },
-    data: {
+  await db
+    .update(importJob)
+    .set({
       status: importedItems > 0 ? "completed" : "failed",
       completedAt: importedItems > 0 ? new Date() : null,
       failedAt: importedItems > 0 ? null : new Date(),
@@ -242,6 +253,7 @@ export async function runImport(db: DbClient, env: Env, jobId: string) {
       readyItems: 0,
       errorItems,
       importedItems,
-    },
-  });
+      updatedAt: new Date(),
+    })
+    .where(eq(importJob.id, job.id));
 }

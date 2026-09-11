@@ -1,17 +1,12 @@
+import { workspace } from "@marble/drizzle/schema";
+import { eq } from "drizzle-orm";
 import type { Context, MiddlewareHandler, Next } from "hono";
-import { createDbClient, type DbClient } from "@/lib/db";
 
 const READ_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
 
 export const authorization =
   (): MiddlewareHandler => async (c: Context, next: Next) => {
-    let db: DbClient;
-    try {
-      db = createDbClient(c.env);
-    } catch {
-      console.error("[Authorization] Database configuration error");
-      return c.json({ error: "Internal server error" }, 500);
-    }
+    const db = c.get("db");
 
     const workspaceId: string | null = c.req.param("workspaceId") ?? null;
     if (!workspaceId) {
@@ -31,16 +26,14 @@ export const authorization =
     }
 
     try {
-      const workspace = await db.organization.findUnique({
-        where: {
-          id: workspaceId,
-        },
-        select: {
+      const foundWorkspace = await db.query.workspace.findFirst({
+        where: eq(workspace.id, workspaceId),
+        columns: {
           id: true,
         },
       });
 
-      if (!workspace) {
+      if (!foundWorkspace) {
         return c.json(
           {
             error: "Invalid workspace",

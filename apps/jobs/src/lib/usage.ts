@@ -1,5 +1,17 @@
+import { createRecordId } from "@marble/drizzle/id";
+import { isPgUniqueViolation } from "@marble/drizzle/pg-errors";
+import {
+  member,
+  subscription,
+  usageAlert,
+  usageEvent,
+  user,
+  workspace,
+  workspaceNotificationPreferences,
+} from "@marble/drizzle/schema";
 import { sendUsageLimitEmail } from "@marble/email";
 import { getWorkspacePlan, PLAN_LIMITS } from "@marble/utils";
+import { and, count, desc, eq, gte, inArray, isNull, lt, or } from "drizzle-orm";
 import { Resend } from "resend";
 import { USAGE_ALERT_THRESHOLDS } from "@/lib/constants";
 import type { DbClient } from "@/lib/db";
@@ -19,48 +31,29 @@ interface WebhookUsageCheck {
   alertKind?: UsageAlertKind;
 }
 
-/**
- * Detects Prisma unique constraint errors without importing Prisma runtime types
- * into the worker bundle.
- */
-function isUniqueConstraintError(error: unknown) {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "code" in error &&
-    error.code === "P2002"
-  );
-}
+const USAGE_ALERT_UNIQUE =
+  "usage_alert_workspaceId_type_kind_periodStart_periodEnd_key";
 
-/**
- * Returns a calendar-safe date for monthly fallback billing cycles, clamping
- * days like the 31st to the last day of shorter months.
- */
 function getValidDate(year: number, month: number, day: number) {
   const lastDay = new Date(year, month + 1, 0).getDate();
   return new Date(year, month, Math.min(day, lastDay));
 }
 
-/**
- * Resolves the billing window used for monthly usage enforcement.
- *
- * Active paid subscriptions use the provider's current period. Workspaces
- * without an active subscription fall back to a monthly cycle anchored to their
- * creation day.
- */
 async function getBillingPeriod(
   db: DbClient,
   workspaceId: string
 ): Promise<UsagePeriod> {
-  const workspace = await db.organization.findUnique({
-    where: { id: workspaceId },
-    select: {
+  const foundWorkspace = await db.query.workspace.findFirst({
+    where: eq(workspace.id, workspaceId),
+    columns: {
       createdAt: true,
+    },
+    with: {
       subscriptions: {
-        where: { status: { in: ["active", "trialing", "canceled"] } },
-        orderBy: { createdAt: "desc" },
-        take: 1,
-        select: {
+        where: inArray(subscription.status, ["active", "trialing", "canceled"]),
+        orderBy: desc(subscription.createdAt),
+        limit: 1,
+        columns: {
           status: true,
           cancelAtPeriodEnd: true,
           currentPeriodStart: true,
@@ -70,7 +63,7 @@ async function getBillingPeriod(
     },
   });
 
-  if (!workspace) {
+  if (!foundWorkspace) {
     const now = new Date();
     return {
       start: new Date(now.getFullYear(), now.getMonth(), 1),
@@ -78,28 +71,28 @@ async function getBillingPeriod(
     };
   }
 
-  const subscription = workspace.subscriptions[0];
+  const activeSubscription = foundWorkspace.subscriptions[0];
   const isActive =
-    subscription?.status === "active" ||
-    subscription?.status === "trialing" ||
-    (subscription?.status === "canceled" &&
-      subscription.cancelAtPeriodEnd &&
-      subscription.currentPeriodEnd &&
-      subscription.currentPeriodEnd > new Date());
+    activeSubscription?.status === "active" ||
+    activeSubscription?.status === "trialing" ||
+    (activeSubscription?.status === "canceled" &&
+      activeSubscription.cancelAtPeriodEnd &&
+      activeSubscription.currentPeriodEnd &&
+      activeSubscription.currentPeriodEnd > new Date());
 
   if (
     isActive &&
-    subscription.currentPeriodStart &&
-    subscription.currentPeriodEnd
+    activeSubscription.currentPeriodStart &&
+    activeSubscription.currentPeriodEnd
   ) {
     return {
-      start: subscription.currentPeriodStart,
-      end: subscription.currentPeriodEnd,
+      start: activeSubscription.currentPeriodStart,
+      end: activeSubscription.currentPeriodEnd,
     };
   }
 
   const now = new Date();
-  const dayOfMonth = workspace.createdAt.getDate();
+  const dayOfMonth = foundWorkspace.createdAt.getDate();
   let start = getValidDate(now.getFullYear(), now.getMonth(), dayOfMonth);
 
   if (start > now) {
@@ -112,10 +105,6 @@ async function getBillingPeriod(
   };
 }
 
-/**
- * Returns the first configured threshold crossed by moving from current usage
- * to the next counted usage value.
- */
 function getCrossedAlertKind(
   currentUsage: number,
   nextUsage: number,
@@ -150,22 +139,18 @@ function getCrossedAlertKind(
   }
 }
 
-/**
- * Checks the current billing-period webhook delivery count, plan limit, and
- * whether sending one more delivery would cross an alert threshold.
- */
 export async function checkWebhookUsage(
   db: DbClient,
   workspaceId: string
 ): Promise<WebhookUsageCheck> {
-  const workspace = await db.organization.findUnique({
-    where: { id: workspaceId },
-    select: {
+  const foundWorkspace = await db.query.workspace.findFirst({
+    where: eq(workspace.id, workspaceId),
+    with: {
       subscriptions: {
-        where: { status: { in: ["active", "trialing", "canceled"] } },
-        orderBy: { createdAt: "desc" },
-        take: 1,
-        select: {
+        where: inArray(subscription.status, ["active", "trialing", "canceled"]),
+        orderBy: desc(subscription.createdAt),
+        limit: 1,
+        columns: {
           plan: true,
           status: true,
           cancelAtPeriodEnd: true,
@@ -175,16 +160,23 @@ export async function checkWebhookUsage(
     },
   });
 
-  const plan = getWorkspacePlan(workspace?.subscriptions[0]);
+  const plan = getWorkspacePlan(foundWorkspace?.subscriptions[0]);
   const limit = PLAN_LIMITS[plan].maxWebhookEvents;
   const period = await getBillingPeriod(db, workspaceId);
-  const currentUsage = await db.usageEvent.count({
-    where: {
-      workspaceId,
-      type: "webhook_delivery",
-      createdAt: { gte: period.start, lt: period.end },
-    },
-  });
+
+  const [countResult] = await db
+    .select({ count: count() })
+    .from(usageEvent)
+    .where(
+      and(
+        eq(usageEvent.workspaceId, workspaceId),
+        eq(usageEvent.type, "webhook_delivery"),
+        gte(usageEvent.createdAt, period.start),
+        lt(usageEvent.createdAt, period.end)
+      )
+    );
+
+  const currentUsage = countResult?.count ?? 0;
 
   return {
     allowed: currentUsage < limit,
@@ -195,30 +187,19 @@ export async function checkWebhookUsage(
   };
 }
 
-/**
- * Records a successful webhook delivery against the workspace's monthly usage.
- * Test deliveries intentionally skip this path in the consumer.
- */
 export async function recordWebhookUsage(
   db: DbClient,
   workspaceId: string,
   endpoint: string
 ) {
-  await db.usageEvent.create({
-    data: {
-      type: "webhook_delivery",
-      workspaceId,
-      endpoint,
-    },
+  await db.insert(usageEvent).values({
+    id: createRecordId(),
+    type: "webhook_delivery",
+    workspaceId,
+    endpoint,
   });
 }
 
-/**
- * Reserves and sends a webhook usage email once per alert kind per billing
- * period. The unique `usage_alert` row is created before sending so concurrent
- * deliveries cannot send duplicate emails. If the email send fails, the
- * reservation is removed so a later delivery can retry the alert.
- */
 export async function sendWebhookUsageAlert(
   db: DbClient,
   {
@@ -244,21 +225,30 @@ export async function sendWebhookUsageAlert(
     return;
   }
 
-  const owner = await db.member.findFirst({
-    where: {
-      organizationId: workspaceId,
-      role: "owner",
-      OR: [
-        { notificationPreferences: null },
-        { notificationPreferences: { usageAlerts: true } },
-      ],
-    },
-    select: {
-      user: { select: { email: true, name: true } },
-    },
-  });
+  const [owner] = await db
+    .select({
+      email: user.email,
+      name: user.name,
+    })
+    .from(member)
+    .innerJoin(user, eq(member.userId, user.id))
+    .leftJoin(
+      workspaceNotificationPreferences,
+      eq(workspaceNotificationPreferences.memberId, member.id)
+    )
+    .where(
+      and(
+        eq(member.organizationId, workspaceId),
+        eq(member.role, "owner"),
+        or(
+          isNull(workspaceNotificationPreferences.id),
+          eq(workspaceNotificationPreferences.usageAlerts, true)
+        )
+      )
+    )
+    .limit(1);
 
-  if (!owner?.user.email) {
+  if (!owner?.email) {
     console.warn(
       `[WebhookUsage] No alertable owner found for workspace ${workspaceId}`
     );
@@ -268,32 +258,38 @@ export async function sendWebhookUsageAlert(
   let alert: { id: string };
 
   try {
-    alert = await db.usageAlert.create({
-      data: {
+    const [created] = await db
+      .insert(usageAlert)
+      .values({
+        id: createRecordId(),
         workspaceId,
         type: "webhook_delivery",
         kind,
         periodStart: period.start,
         periodEnd: period.end,
-        emailSentTo: owner.user.email,
-      },
-      select: {
-        id: true,
-      },
-    });
-  } catch (error) {
-    if (!isUniqueConstraintError(error)) {
-      console.error("[WebhookUsage] Failed to reserve usage alert:", error);
+        emailSentTo: owner.email,
+      })
+      .returning({ id: usageAlert.id });
+
+    if (!created) {
+      console.error("[WebhookUsage] Failed to reserve usage alert");
       return;
     }
+
+    alert = created;
+  } catch (error) {
+    if (isPgUniqueViolation(error, USAGE_ALERT_UNIQUE)) {
+      return;
+    }
+    console.error("[WebhookUsage] Failed to reserve usage alert:", error);
     return;
   }
 
   try {
     const resend = new Resend(resendApiKey);
     await sendUsageLimitEmail(resend, {
-      userEmail: owner.user.email,
-      userName: owner.user.name,
+      userEmail: owner.email,
+      userName: owner.name,
       featureName: "Webhook Events",
       usageAmount,
       limitAmount,
@@ -303,10 +299,9 @@ export async function sendWebhookUsageAlert(
       `[WebhookUsage] Sent ${kind} usage email for workspace ${workspaceId}`
     );
   } catch (error) {
-    await db.usageAlert
-      .delete({
-        where: { id: alert.id },
-      })
+    await db
+      .delete(usageAlert)
+      .where(eq(usageAlert.id, alert.id))
       .catch((deleteError) => {
         console.error(
           "[WebhookUsage] Failed to clear usage alert reservation:",

@@ -1,4 +1,16 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import { createRecordId } from "@marble/drizzle/id";
+import {
+  author,
+  category,
+  field as fieldTable,
+  fieldOption,
+  fieldValue,
+  post as postTable,
+  postToAuthor,
+  postToTag,
+  tag,
+} from "@marble/drizzle/schema";
 import { toPostPayload, withChanges } from "@marble/events";
 import {
   EMPTY_TIPTAP_DOC,
@@ -7,11 +19,24 @@ import {
   normalizePostContent,
 } from "@marble/parser";
 import { sanitizeHtml } from "@marble/utils/sanitize";
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  inArray,
+  ne,
+  or,
+} from "drizzle-orm";
 import { cacheKey, createCacheClient, hashQueryParams } from "@/lib/cache";
-import { createDbClient } from "@/lib/db";
 import { emitEvent } from "@/lib/events";
 import { resolveCustomFieldValuesByKey } from "@/lib/fields";
-import { buildFieldsObject, buildStatusFilter } from "@/lib/posts";
+import {
+  buildFieldsObject,
+  buildPostsListWhere,
+  buildStatusFilter,
+} from "@/lib/posts";
 import { requireWorkspaceId } from "@/lib/workspace";
 import {
   ConflictSchema,
@@ -34,8 +59,153 @@ import {
   UpdatePostResponseSchema,
 } from "@/schemas/posts";
 import type { ApiKeyApp } from "@/types/env";
+import type { DbClient } from "@/lib/db";
 
 const posts = new OpenAPIHono<ApiKeyApp>();
+
+const postListColumns = {
+  id: true,
+  slug: true,
+  title: true,
+  status: true,
+  content: true,
+  featured: true,
+  coverImage: true,
+  description: true,
+  publishedAt: true,
+  updatedAt: true,
+} as const;
+
+const postListWith = {
+  category: {
+    columns: {
+      id: true,
+      name: true,
+      slug: true,
+      description: true,
+    },
+  },
+  tags: {
+    with: {
+      tag: {
+        columns: {
+          id: true,
+          name: true,
+          slug: true,
+          description: true,
+        },
+      },
+    },
+  },
+  authors: {
+    with: {
+      author: {
+        columns: {
+          id: true,
+          name: true,
+          image: true,
+          bio: true,
+          role: true,
+          slug: true,
+        },
+        with: {
+          socials: {
+            columns: {
+              url: true,
+              platform: true,
+            },
+          },
+        },
+      },
+    },
+  },
+  fieldValues: {
+    columns: {
+      value: true,
+    },
+    with: {
+      field: {
+        columns: {
+          key: true,
+          type: true,
+        },
+      },
+    },
+  },
+} as const;
+
+function flattenPostRelations<
+  T extends {
+    tags: Array<{
+      tag: {
+        id: string;
+        name: string;
+        slug: string;
+        description: string | null;
+      };
+    }>;
+    authors: Array<{
+      author: {
+        id: string;
+        name: string;
+        image: string | null;
+        bio: string | null;
+        role: string | null;
+        slug: string;
+        socials: Array<{ url: string; platform: string }>;
+      };
+    }>;
+  },
+>(postRow: T) {
+  return {
+    ...postRow,
+    tags: postRow.tags.map((row) => row.tag),
+    authors: postRow.authors.map((row) => row.author),
+  };
+}
+
+async function writePostCustomFieldValues(
+  tx: Parameters<Parameters<DbClient["transaction"]>[0]>[0],
+  workspaceId: string,
+  postId: string,
+  writes: Array<{ fieldId: string; value: string | null }>
+) {
+  const now = new Date();
+
+  for (const { fieldId, value } of writes) {
+    if (value === null) {
+      await tx
+        .delete(fieldValue)
+        .where(
+          and(
+            eq(fieldValue.postId, postId),
+            eq(fieldValue.fieldId, fieldId),
+            eq(fieldValue.workspaceId, workspaceId)
+          )
+        );
+      continue;
+    }
+
+    await tx
+      .insert(fieldValue)
+      .values({
+        id: createRecordId(),
+        postId,
+        fieldId,
+        workspaceId,
+        value,
+        updatedAt: now,
+      })
+      .onConflictDoUpdate({
+        target: [fieldValue.postId, fieldValue.fieldId],
+        set: {
+          workspaceId,
+          value,
+          updatedAt: now,
+        },
+      });
+  }
+}
 
 const listPostsRoute = createRoute({
   method: "get",
@@ -134,7 +304,7 @@ const createPostRoute = createRoute({
 posts.openapi(listPostsRoute, async (c) => {
   try {
     const workspaceId = requireWorkspaceId(c);
-    const db = createDbClient(c.env);
+    const db = c.get("db");
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
 
     const {
@@ -151,37 +321,15 @@ posts.openapi(listPostsRoute, async (c) => {
       status,
     } = c.req.valid("query");
 
-    const categoryFilter: Record<string, unknown> = {};
-    if (categories.length > 0) {
-      categoryFilter.in = categories;
-    }
-    if (excludeCategories.length > 0) {
-      categoryFilter.notIn = excludeCategories;
-    }
-
-    const tagFilter: Record<string, unknown> = {};
-    if (tags.length > 0) {
-      tagFilter.some = { slug: { in: tags } };
-    }
-    if (excludeTags.length > 0) {
-      tagFilter.none = { slug: { in: excludeTags } };
-    }
-
-    const statusFilter = buildStatusFilter(status);
-
-    // Build the where clause
-    const where = {
-      workspaceId,
-      ...statusFilter,
-      ...(Object.keys(categoryFilter).length > 0
-        ? { category: { slug: categoryFilter } }
-        : {}),
-      ...(Object.keys(tagFilter).length > 0 ? { tags: tagFilter } : {}),
-      ...(query && {
-        OR: [{ title: { contains: query } }, { content: { contains: query } }],
-      }),
-      ...(featured !== undefined && { featured: featured === "true" }),
-    };
+    const where = buildPostsListWhere(db, workspaceId, {
+      categories,
+      excludeCategories,
+      tags,
+      excludeTags,
+      query,
+      featured,
+      status,
+    });
 
     // Generate cache key for count (exclude page and format - they don't affect count)
     const countCacheKey = cacheKey(
@@ -203,9 +351,13 @@ posts.openapi(listPostsRoute, async (c) => {
     );
 
     // Cache count query separately (1 hour TTL, same as data)
-    const totalPosts = await cache.getOrSetCount(countCacheKey, () =>
-      db.post.count({ where })
-    );
+    const totalPosts = await cache.getOrSetCount(countCacheKey, async () => {
+      const [result] = await db
+        .select({ count: count() })
+        .from(postTable)
+        .where(where);
+      return result?.count ?? 0;
+    });
 
     // Generate cache key for data (includes page and format)
     const listCacheKey = cacheKey(
@@ -246,80 +398,27 @@ posts.openapi(listPostsRoute, async (c) => {
       );
     }
 
-    // Infer some additional stuff
     const postsToSkip = (page - 1) * limit;
     const prevPage = page > 1 ? page - 1 : null;
     const nextPage = page < totalPages ? page + 1 : null;
 
-    const postSelect = {
-      id: true,
-      slug: true,
-      title: true,
-      status: true,
-      content: true,
-      featured: true,
-      coverImage: true,
-      description: true,
-      publishedAt: true,
-      updatedAt: true,
-      authors: {
-        select: {
-          id: true,
-          name: true,
-          image: true,
-          bio: true,
-          role: true,
-          slug: true,
-          socials: {
-            select: {
-              url: true,
-              platform: true,
-            },
-          },
-        },
-      },
-      category: {
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          description: true,
-        },
-      },
-      tags: {
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          description: true,
-        },
-      },
-      fieldValues: {
-        select: {
-          value: true,
-          field: {
-            select: {
-              key: true,
-              type: true,
-            },
-          },
-        },
-      },
-    } as const;
-
-    const findManyArgs = {
-      where,
-      orderBy: { publishedAt: order },
-      take: limit,
-      skip: postsToSkip,
-      select: postSelect,
-    };
-
     const [postsData, workspaceFields] = await Promise.all([
-      cache.getOrSet(listCacheKey, () => db.post.findMany(findManyArgs)),
-      db.field.findMany({
-        where: { workspaceId },
-        select: {
+      cache.getOrSet(listCacheKey, () =>
+        db.query.post.findMany({
+          where,
+          orderBy:
+            order === "asc"
+              ? asc(postTable.publishedAt)
+              : desc(postTable.publishedAt),
+          limit,
+          offset: postsToSkip,
+          columns: postListColumns,
+          with: postListWith,
+        })
+      ),
+      db.query.field.findMany({
+        where: eq(fieldTable.workspaceId, workspaceId),
+        columns: {
           key: true,
           type: true,
         },
@@ -328,19 +427,14 @@ posts.openapi(listPostsRoute, async (c) => {
 
     const formattedPosts =
       format === "markdown"
-        ? postsData.map((post) => ({
-            ...post,
-            content: htmlToMarkdown(post.content || ""),
+        ? postsData.map((postRow) => ({
+            ...flattenPostRelations(postRow),
+            content: htmlToMarkdown(postRow.content || ""),
           }))
-        : postsData;
+        : postsData.map((postRow) => flattenPostRelations(postRow));
 
-    const postsWithFields = formattedPosts.map((post) => {
-      const { fieldValues, ...rest } = post as typeof post & {
-        fieldValues: Array<{
-          value: string;
-          field: { key: string; type: string };
-        }>;
-      };
+    const postsWithFields = formattedPosts.map((postRow) => {
+      const { fieldValues, ...rest } = postRow;
       return {
         ...rest,
         fields: buildFieldsObject(fieldValues || [], workspaceFields),
@@ -380,10 +474,15 @@ posts.openapi(getPostRoute, async (c) => {
     const workspaceId = requireWorkspaceId(c);
     const { identifier } = c.req.valid("param");
     const { format, status } = c.req.valid("query");
-    const db = createDbClient(c.env);
+    const db = c.get("db");
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
 
-    const statusFilter = buildStatusFilter(status);
+    const statusCondition = buildStatusFilter(status);
+    const where = and(
+      eq(postTable.workspaceId, workspaceId),
+      or(eq(postTable.slug, identifier), eq(postTable.id, identifier)),
+      statusCondition
+    );
 
     // Cache by identifier (slug or id), format, and status
     const singleCacheKey = cacheKey(
@@ -393,72 +492,15 @@ posts.openapi(getPostRoute, async (c) => {
       hashQueryParams({ format, status })
     );
 
-    const post = await cache.getOrSet(singleCacheKey, () =>
-      db.post.findFirst({
-        where: {
-          workspaceId,
-          OR: [{ slug: identifier }, { id: identifier }],
-          ...statusFilter,
-        },
-        select: {
-          id: true,
-          slug: true,
-          title: true,
-          status: true,
-          content: true,
-          featured: true,
-          coverImage: true,
-          description: true,
-          publishedAt: true,
-          updatedAt: true,
-          authors: {
-            select: {
-              id: true,
-              name: true,
-              image: true,
-              bio: true,
-              role: true,
-              slug: true,
-              socials: {
-                select: {
-                  url: true,
-                  platform: true,
-                },
-              },
-            },
-          },
-          category: {
-            select: {
-              id: true,
-              name: true,
-              slug: true,
-              description: true,
-            },
-          },
-          tags: {
-            select: {
-              id: true,
-              name: true,
-              slug: true,
-              description: true,
-            },
-          },
-          fieldValues: {
-            select: {
-              value: true,
-              field: {
-                select: {
-                  key: true,
-                  type: true,
-                },
-              },
-            },
-          },
-        },
+    const postRow = await cache.getOrSet(singleCacheKey, () =>
+      db.query.post.findFirst({
+        where,
+        columns: postListColumns,
+        with: postListWith,
       })
     );
 
-    if (!post) {
+    if (!postRow) {
       return c.json(
         {
           error: "Post not found",
@@ -469,30 +511,25 @@ posts.openapi(getPostRoute, async (c) => {
       );
     }
 
-    const workspaceFields = await db.field.findMany({
-      where: { workspaceId },
-      select: {
+    const workspaceFields = await db.query.field.findMany({
+      where: eq(fieldTable.workspaceId, workspaceId),
+      columns: {
         key: true,
         type: true,
       },
     });
 
+    const flattenedPost = flattenPostRelations(postRow);
     // Format post based on requested format
     const formattedPost =
       format === "markdown"
         ? {
-            ...post,
-            content: htmlToMarkdown(post.content || ""),
+            ...flattenedPost,
+            content: htmlToMarkdown(flattenedPost.content || ""),
           }
-        : post;
+        : flattenedPost;
 
-    const { fieldValues, ...postRest } =
-      formattedPost as typeof formattedPost & {
-        fieldValues: Array<{
-          value: string;
-          field: { key: string; type: string };
-        }>;
-      };
+    const { fieldValues, ...postRest } = formattedPost;
     const postWithFields = {
       ...postRest,
       fields: buildFieldsObject(fieldValues || [], workspaceFields),
@@ -507,16 +544,16 @@ posts.openapi(getPostRoute, async (c) => {
 posts.openapi(createPostRoute, async (c) => {
   try {
     const workspaceId = requireWorkspaceId(c);
-    const db = createDbClient(c.env);
+    const db = c.get("db");
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const body = c.req.valid("json");
 
     // 1. Check slug uniqueness within workspace
-    const existingPost = await db.post.findFirst({
-      where: {
-        slug: body.slug,
-        workspaceId,
-      },
+    const existingPost = await db.query.post.findFirst({
+      where: and(
+        eq(postTable.slug, body.slug),
+        eq(postTable.workspaceId, workspaceId)
+      ),
     });
 
     if (existingPost) {
@@ -530,14 +567,14 @@ posts.openapi(createPostRoute, async (c) => {
     }
 
     // 2. Validate category exists in workspace
-    const category = await db.category.findFirst({
-      where: {
-        id: body.categoryId,
-        workspaceId,
-      },
+    const categoryRow = await db.query.category.findFirst({
+      where: and(
+        eq(category.id, body.categoryId),
+        eq(category.workspaceId, workspaceId)
+      ),
     });
 
-    if (!category) {
+    if (!categoryRow) {
       return c.json(
         {
           error: "Invalid category",
@@ -551,17 +588,16 @@ posts.openapi(createPostRoute, async (c) => {
     // 3. Validate tags if provided
     let validTagIds: string[] = [];
     if (body.tags && body.tags.length > 0) {
-      const validTags = await db.tag.findMany({
-        where: {
-          id: { in: body.tags },
-          workspaceId,
-        },
-        select: { id: true },
+      const validTags = await db.query.tag.findMany({
+        where: and(
+          inArray(tag.id, body.tags),
+          eq(tag.workspaceId, workspaceId)
+        ),
+        columns: { id: true },
       });
 
-      validTagIds = validTags.map((t) => t.id);
+      validTagIds = validTags.map((tagRow) => tagRow.id);
 
-      // Check if any provided tag IDs were invalid
       const invalidTagIds = body.tags.filter((id) => !validTagIds.includes(id));
       if (invalidTagIds.length > 0) {
         return c.json(
@@ -579,13 +615,13 @@ posts.openapi(createPostRoute, async (c) => {
 
     if (body.authors && body.authors.length > 0) {
       // Validate provided author IDs
-      const validAuthors = await db.author.findMany({
-        where: {
-          id: { in: body.authors },
-          workspaceId,
-          isActive: true,
-        },
-        select: { id: true },
+      const validAuthors = await db.query.author.findMany({
+        where: and(
+          inArray(author.id, body.authors),
+          eq(author.workspaceId, workspaceId),
+          eq(author.isActive, true)
+        ),
+        columns: { id: true },
       });
 
       if (validAuthors.length === 0) {
@@ -599,8 +635,9 @@ posts.openapi(createPostRoute, async (c) => {
         );
       }
 
+      const validAuthorIds = validAuthors.map((authorRow) => authorRow.id);
       const invalidAuthorIds = body.authors.filter(
-        (id) => !validAuthors.map((a) => a.id).includes(id)
+        (id) => !validAuthorIds.includes(id)
       );
       if (invalidAuthorIds.length > 0) {
         return c.json(
@@ -612,17 +649,17 @@ posts.openapi(createPostRoute, async (c) => {
         );
       }
 
-      const validAuthorIdSet = new Set(validAuthors.map((a) => a.id));
+      const validAuthorIdSet = new Set(validAuthorIds);
       authorIds = body.authors.filter((id) => validAuthorIdSet.has(id));
     } else {
       // Fallback: use the first workspace author
-      const firstAuthor = await db.author.findFirst({
-        where: {
-          workspaceId,
-          isActive: true,
-        },
-        orderBy: { createdAt: "asc" },
-        select: { id: true },
+      const firstAuthor = await db.query.author.findFirst({
+        where: and(
+          eq(author.workspaceId, workspaceId),
+          eq(author.isActive, true)
+        ),
+        orderBy: asc(author.createdAt),
+        columns: { id: true },
       });
 
       if (!firstAuthor) {
@@ -643,20 +680,22 @@ posts.openapi(createPostRoute, async (c) => {
     const primaryAuthorId = authorIds[0];
 
     // 5. Resolve custom fields by field key
-    const customFieldDefinitions = await db.field.findMany({
-      where: { workspaceId },
-      select: {
+    const customFieldDefinitions = await db.query.field.findMany({
+      where: eq(fieldTable.workspaceId, workspaceId),
+      columns: {
         id: true,
         key: true,
         name: true,
         type: true,
         required: true,
+      },
+      with: {
         options: {
-          select: {
+          columns: {
             value: true,
             label: true,
           },
-          orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+          orderBy: [asc(fieldOption.position), asc(fieldOption.createdAt)],
         },
       },
     });
@@ -676,7 +715,6 @@ posts.openapi(createPostRoute, async (c) => {
       ? new Date(body.publishedAt)
       : new Date();
 
-    // 7. Create the post
     const normalizedContent = await normalizePostContent(body.content);
     const sanitizedContent = sanitizeHtml(normalizedContent.html);
     let contentJson = EMPTY_TIPTAP_DOC;
@@ -688,9 +726,15 @@ posts.openapi(createPostRoute, async (c) => {
       contentJson = EMPTY_TIPTAP_DOC;
     }
 
-    const postCreated = await db.$transaction(async (tx) => {
-      const createdPost = await tx.post.create({
-        data: {
+    // 7. Create the post
+    const postCreated = await db.transaction(async (tx) => {
+      const postId = createRecordId();
+      const now = new Date();
+
+      const [createdPost] = await tx
+        .insert(postTable)
+        .values({
+          id: postId,
           title: body.title,
           content: sanitizedContent,
           contentJson,
@@ -703,38 +747,53 @@ posts.openapi(createPostRoute, async (c) => {
           publishedAt,
           workspaceId,
           primaryAuthorId,
-          tags:
-            validTagIds.length > 0
-              ? { connect: validTagIds.map((id) => ({ id })) }
-              : undefined,
-          authors: {
-            connect: authorIds.map((id) => ({ id })),
-          },
-        },
-        select: {
-          id: true,
-          slug: true,
-          title: true,
-          status: true,
-          featured: true,
-          publishedAt: true,
-          createdAt: true,
-        },
-      });
-
-      for (const { fieldId, value } of customFieldWrites.values) {
-        if (value === null) {
-          continue;
-        }
-
-        await tx.fieldValue.create({
-          data: {
-            postId: createdPost.id,
-            fieldId,
-            workspaceId,
-            value,
-          },
+          updatedAt: now,
+        })
+        .returning({
+          id: postTable.id,
+          slug: postTable.slug,
+          title: postTable.title,
+          status: postTable.status,
+          featured: postTable.featured,
+          publishedAt: postTable.publishedAt,
+          createdAt: postTable.createdAt,
         });
+
+      if (!createdPost) {
+        throw new Error("Failed to create post");
+      }
+
+      if (validTagIds.length > 0) {
+        await tx.insert(postToTag).values(
+          validTagIds.map((tagId) => ({
+            a: createdPost.id,
+            b: tagId,
+          }))
+        );
+      }
+
+      await tx.insert(postToAuthor).values(
+        authorIds.map((authorId) => ({
+          a: authorId,
+          b: createdPost.id,
+        }))
+      );
+
+      const fieldValueWrites = customFieldWrites.values.filter(
+        (write) => write.value !== null
+      );
+
+      if (fieldValueWrites.length > 0) {
+        await tx.insert(fieldValue).values(
+          fieldValueWrites.map((write) => ({
+            id: createRecordId(),
+            postId: createdPost.id,
+            fieldId: write.fieldId,
+            workspaceId,
+            value: write.value as string,
+            updatedAt: now,
+          }))
+        );
       }
 
       return createdPost;
@@ -852,17 +911,17 @@ const deletePostRoute = createRoute({
 posts.openapi(updatePostRoute, async (c) => {
   try {
     const workspaceId = requireWorkspaceId(c);
-    const db = createDbClient(c.env);
+    const db = c.get("db");
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const { identifier } = c.req.valid("param");
     const body = c.req.valid("json");
 
     // 1. Find the existing post
-    const existingPost = await db.post.findFirst({
-      where: {
-        workspaceId,
-        OR: [{ slug: identifier }, { id: identifier }],
-      },
+    const existingPost = await db.query.post.findFirst({
+      where: and(
+        eq(postTable.workspaceId, workspaceId),
+        or(eq(postTable.slug, identifier), eq(postTable.id, identifier))
+      ),
     });
 
     if (!existingPost) {
@@ -877,12 +936,12 @@ posts.openapi(updatePostRoute, async (c) => {
 
     // 2. If slug is being changed, check uniqueness
     if (body.slug && body.slug !== existingPost.slug) {
-      const slugConflict = await db.post.findFirst({
-        where: {
-          slug: body.slug,
-          workspaceId,
-          id: { not: existingPost.id },
-        },
+      const slugConflict = await db.query.post.findFirst({
+        where: and(
+          eq(postTable.slug, body.slug),
+          eq(postTable.workspaceId, workspaceId),
+          ne(postTable.id, existingPost.id)
+        ),
       });
 
       if (slugConflict) {
@@ -898,11 +957,14 @@ posts.openapi(updatePostRoute, async (c) => {
 
     // 3. Validate category if provided
     if (body.categoryId) {
-      const category = await db.category.findFirst({
-        where: { id: body.categoryId, workspaceId },
+      const categoryRow = await db.query.category.findFirst({
+        where: and(
+          eq(category.id, body.categoryId),
+          eq(category.workspaceId, workspaceId)
+        ),
       });
 
-      if (!category) {
+      if (!categoryRow) {
         return c.json(
           {
             error: "Invalid category",
@@ -915,17 +977,20 @@ posts.openapi(updatePostRoute, async (c) => {
     }
 
     // 4. Validate tags if provided
-    let tagUpdate: { set: { id: string }[] } | undefined;
+    let validTagIds: string[] | undefined;
     if (body.tags !== undefined) {
       if (body.tags.length > 0) {
-        const validTags = await db.tag.findMany({
-          where: { id: { in: body.tags }, workspaceId },
-          select: { id: true },
+        const validTags = await db.query.tag.findMany({
+          where: and(
+            inArray(tag.id, body.tags),
+            eq(tag.workspaceId, workspaceId)
+          ),
+          columns: { id: true },
         });
 
-        const validTagIds = validTags.map((t) => t.id);
+        validTagIds = validTags.map((tagRow) => tagRow.id);
         const invalidTagIds = body.tags.filter(
-          (id) => !validTagIds.includes(id)
+          (id) => !validTagIds?.includes(id)
         );
 
         if (invalidTagIds.length > 0) {
@@ -937,16 +1002,14 @@ posts.openapi(updatePostRoute, async (c) => {
             400 as const
           );
         }
-
-        tagUpdate = { set: validTagIds.map((id) => ({ id })) };
       } else {
         // Empty array = remove all tags
-        tagUpdate = { set: [] };
+        validTagIds = [];
       }
     }
 
     // 5. Validate authors if provided
-    let authorUpdate: { set: { id: string }[] } | undefined;
+    let authorIds: string[] | undefined;
     let primaryAuthorId: string | undefined;
     if (body.authors !== undefined) {
       if (body.authors.length === 0) {
@@ -960,13 +1023,18 @@ posts.openapi(updatePostRoute, async (c) => {
         );
       }
 
-      const validAuthors = await db.author.findMany({
-        where: { id: { in: body.authors }, workspaceId, isActive: true },
-        select: { id: true },
+      const validAuthors = await db.query.author.findMany({
+        where: and(
+          inArray(author.id, body.authors),
+          eq(author.workspaceId, workspaceId),
+          eq(author.isActive, true)
+        ),
+        columns: { id: true },
       });
 
+      const validAuthorIds = validAuthors.map((authorRow) => authorRow.id);
       const invalidAuthorIds = body.authors.filter(
-        (id) => !validAuthors.map((a) => a.id).includes(id)
+        (id) => !validAuthorIds.includes(id)
       );
 
       if (invalidAuthorIds.length > 0) {
@@ -979,34 +1047,33 @@ posts.openapi(updatePostRoute, async (c) => {
         );
       }
 
-      const validAuthorIdSet = new Set(validAuthors.map((a) => a.id));
-      const orderedAuthorIds = body.authors.filter((id) =>
-        validAuthorIdSet.has(id)
-      );
-      authorUpdate = { set: orderedAuthorIds.map((id) => ({ id })) };
-      primaryAuthorId = orderedAuthorIds[0];
+      const validAuthorIdSet = new Set(validAuthorIds);
+      authorIds = body.authors.filter((id) => validAuthorIdSet.has(id));
+      primaryAuthorId = authorIds[0];
     }
 
-    // 6. Resolve custom fields by field key when provided
     let customFieldWrites:
-      | { fieldId: string; fieldType: string; value: string | null }[]
+      | Array<{ fieldId: string; fieldType: string; value: string | null }>
       | undefined;
 
+    // 6. Resolve custom fields by field key when provided
     if (body.fields !== undefined) {
-      const customFieldDefinitions = await db.field.findMany({
-        where: { workspaceId },
-        select: {
+      const customFieldDefinitions = await db.query.field.findMany({
+        where: eq(fieldTable.workspaceId, workspaceId),
+        columns: {
           id: true,
           key: true,
           name: true,
           type: true,
           required: true,
+        },
+        with: {
           options: {
-            select: {
+            columns: {
               value: true,
               label: true,
             },
-            orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+            orderBy: [asc(fieldOption.position), asc(fieldOption.createdAt)],
           },
         },
       });
@@ -1025,7 +1092,7 @@ posts.openapi(updatePostRoute, async (c) => {
     }
 
     // 7. Build update data
-    const updateData: Record<string, unknown> = {};
+    const updateData: Partial<typeof postTable.$inferInsert> = {};
     if (body.title !== undefined) {
       updateData.title = body.title;
     }
@@ -1065,64 +1132,73 @@ posts.openapi(updatePostRoute, async (c) => {
     if (body.publishedAt !== undefined) {
       updateData.publishedAt = new Date(body.publishedAt);
     }
-    if (tagUpdate) {
-      updateData.tags = tagUpdate;
-    }
-    if (authorUpdate) {
-      updateData.authors = authorUpdate;
-    }
     if (primaryAuthorId) {
       updateData.primaryAuthorId = primaryAuthorId;
     }
-    if (customFieldWrites !== undefined) {
-      updateData.updatedAt = new Date();
-    }
+    const postUpdated = await db.transaction(async (tx) => {
+      const now = new Date();
+      const shouldTouchPost =
+        Object.keys(updateData).length > 0 ||
+        validTagIds !== undefined ||
+        authorIds !== undefined ||
+        customFieldWrites !== undefined;
 
-    const postUpdated = await db.$transaction(async (tx) => {
-      const updatedPost = await tx.post.update({
-        where: { id: existingPost.id },
-        data: updateData,
-        select: {
-          id: true,
-          slug: true,
-          title: true,
-          status: true,
-          featured: true,
-          publishedAt: true,
-          updatedAt: true,
-        },
-      });
-
-      for (const { fieldId, value } of customFieldWrites ?? []) {
-        if (value === null) {
-          await tx.fieldValue.deleteMany({
-            where: {
-              postId: existingPost.id,
-              fieldId,
-              workspaceId,
-            },
-          });
-          continue;
-        }
-
-        await tx.fieldValue.upsert({
-          where: {
-            postId_fieldId: {
-              postId: existingPost.id,
-              fieldId,
-            },
-          },
-          update: {
-            value,
-            workspaceId,
-          },
-          create: {
-            postId: existingPost.id,
-            fieldId,
-            workspaceId,
-            value,
-          },
+      const [updatedPost] = await tx
+        .update(postTable)
+        .set({
+          ...updateData,
+          ...(shouldTouchPost ? { updatedAt: now } : {}),
+        })
+        .where(eq(postTable.id, existingPost.id))
+        .returning({
+          id: postTable.id,
+          slug: postTable.slug,
+          title: postTable.title,
+          status: postTable.status,
+          featured: postTable.featured,
+          publishedAt: postTable.publishedAt,
+          updatedAt: postTable.updatedAt,
         });
+
+      if (!updatedPost) {
+        throw new Error("Failed to update post");
+      }
+
+      if (validTagIds !== undefined) {
+        await tx
+          .delete(postToTag)
+          .where(eq(postToTag.a, existingPost.id));
+
+        if (validTagIds.length > 0) {
+          await tx.insert(postToTag).values(
+            validTagIds.map((tagId) => ({
+              a: existingPost.id,
+              b: tagId,
+            }))
+          );
+        }
+      }
+
+      if (authorIds !== undefined) {
+        await tx
+          .delete(postToAuthor)
+          .where(eq(postToAuthor.b, existingPost.id));
+
+        await tx.insert(postToAuthor).values(
+          authorIds.map((authorId) => ({
+            a: authorId,
+            b: existingPost.id,
+          }))
+        );
+      }
+
+      if (customFieldWrites !== undefined) {
+        await writePostCustomFieldValues(
+          tx,
+          workspaceId,
+          existingPost.id,
+          customFieldWrites
+        );
       }
 
       return updatedPost;
@@ -1188,15 +1264,15 @@ posts.openapi(updatePostRoute, async (c) => {
 posts.openapi(deletePostRoute, async (c) => {
   try {
     const workspaceId = requireWorkspaceId(c);
-    const db = createDbClient(c.env);
+    const db = c.get("db");
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const { identifier } = c.req.valid("param");
 
-    const existingPost = await db.post.findFirst({
-      where: {
-        workspaceId,
-        OR: [{ slug: identifier }, { id: identifier }],
-      },
+    const existingPost = await db.query.post.findFirst({
+      where: and(
+        eq(postTable.workspaceId, workspaceId),
+        or(eq(postTable.slug, identifier), eq(postTable.id, identifier))
+      ),
     });
 
     if (!existingPost) {
@@ -1209,9 +1285,7 @@ posts.openapi(deletePostRoute, async (c) => {
       );
     }
 
-    await db.post.delete({
-      where: { id: existingPost.id },
-    });
+    await db.delete(postTable).where(eq(postTable.id, existingPost.id));
 
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "tags"));

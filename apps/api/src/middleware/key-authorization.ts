@@ -1,6 +1,8 @@
+import { apiKey } from "@marble/drizzle/schema";
+import { eq, sql } from "drizzle-orm";
 import type { MiddlewareHandler } from "hono";
 import { hashApiKey } from "@/lib/crypto";
-import { createDbClient, type DbClient } from "@/lib/db";
+import { createDbClient } from "@/lib/db";
 import type { ApiKeyApp } from "@/types/env";
 
 /**
@@ -10,30 +12,24 @@ import type { ApiKeyApp } from "@/types/env";
  */
 export const keyAuthorization =
   (): MiddlewareHandler<ApiKeyApp> => async (c, next) => {
-    let db: DbClient;
-    try {
-      db = createDbClient(c.env);
-    } catch {
-      console.error("[KeyAuth] Database configuration error");
-      return c.json({ error: "Internal server error" }, 500);
-    }
+    const db = c.get("db");
 
-    let apiKey: string | null = null;
+    let apiKeyValue: string | null = null;
 
     const authHeader = c.req.header("Authorization");
     if (authHeader) {
       if (authHeader.startsWith("Bearer ")) {
-        apiKey = authHeader.substring(7);
+        apiKeyValue = authHeader.substring(7);
       } else {
-        apiKey = authHeader;
+        apiKeyValue = authHeader;
       }
     }
 
-    if (!apiKey) {
-      apiKey = c.req.query("key") ?? null;
+    if (!apiKeyValue) {
+      apiKeyValue = c.req.query("key") ?? null;
     }
 
-    if (!apiKey) {
+    if (!apiKeyValue) {
       return c.json(
         {
           error: "Unauthorized",
@@ -45,11 +41,11 @@ export const keyAuthorization =
     }
 
     try {
-      const hashedKey = await hashApiKey(apiKey);
+      const hashedKey = await hashApiKey(apiKeyValue);
 
-      const key = await db.apiKey.findUnique({
-        where: { key: hashedKey },
-        select: {
+      const key = await db.query.apiKey.findFirst({
+        where: eq(apiKey.key, hashedKey),
+        columns: {
           id: true,
           workspaceId: true,
           type: true,
@@ -90,10 +86,16 @@ export const keyAuthorization =
       }
 
       c.executionCtx?.waitUntil(
-        db.apiKey.update({
-          where: { id: key.id },
-          data: { lastUsed: new Date(), requestCount: { increment: 1 } },
-        })
+        (async () => {
+          const bgDb = await createDbClient(c.env);
+          await bgDb
+            .update(apiKey)
+            .set({
+              lastUsed: new Date(),
+              requestCount: sql`${apiKey.requestCount} + 1`,
+            })
+            .where(eq(apiKey.id, key.id));
+        })()
       );
 
       c.set("workspaceId", key.workspaceId);

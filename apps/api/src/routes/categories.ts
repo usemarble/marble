@@ -1,7 +1,9 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import { createRecordId } from "@marble/drizzle/id";
+import { category as categoryTable, post } from "@marble/drizzle/schema";
 import { toCategoryPayload, withChanges } from "@marble/events";
+import { and, count, eq, ne, or, sql } from "drizzle-orm";
 import { cacheKey, createCacheClient, hashQueryParams } from "@/lib/cache";
-import { createDbClient } from "@/lib/db";
 import { emitEvent } from "@/lib/events";
 import { requireWorkspaceId } from "@/lib/workspace";
 import {
@@ -134,7 +136,7 @@ const createCategoryRoute = createRoute({
 categories.openapi(listCategoriesRoute, async (c) => {
   try {
     const workspaceId = requireWorkspaceId(c);
-    const db = createDbClient(c.env);
+    const db = c.get("db");
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
 
     const { limit, page } = c.req.valid("query");
@@ -149,11 +151,14 @@ categories.openapi(listCategoriesRoute, async (c) => {
     );
 
     // Cache count query separately (1 hour TTL, invalidated with posts)
-    const totalCategories = await cache.getOrSetCount(countCacheKey, () =>
-      db.category.count({
-        where: { workspaceId },
-      })
-    );
+    const totalCategories = await cache.getOrSetCount(countCacheKey, async () => {
+      const [result] = await db
+        .select({ value: count() })
+        .from(categoryTable)
+        .where(eq(categoryTable.workspaceId, workspaceId));
+
+      return result?.value ?? 0;
+    });
 
     // Generate cache key for data (includes page)
     const listCacheKey = cacheKey(
@@ -183,38 +188,34 @@ categories.openapi(listCategoriesRoute, async (c) => {
       );
     }
 
-    const categoriesList = await cache.getOrSet(listCacheKey, () =>
-      db.category.findMany({
-        where: {
-          workspaceId,
-        },
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          description: true,
-          _count: {
-            select: {
-              posts: {
-                where: {
-                  status: "published",
-                },
-              },
-            },
-          },
-        },
-        take: limit,
-        skip: categoriesToSkip,
-      })
+    const categoriesList = await cache.getOrSet(listCacheKey, async () =>
+      db
+        .select({
+          id: categoryTable.id,
+          name: categoryTable.name,
+          slug: categoryTable.slug,
+          description: categoryTable.description,
+          postsCount: sql<number>`cast(count(${post.id}) as int)`,
+        })
+        .from(categoryTable)
+        .leftJoin(
+          post,
+          and(eq(post.categoryId, categoryTable.id), eq(post.status, "published"))
+        )
+        .where(eq(categoryTable.workspaceId, workspaceId))
+        .groupBy(categoryTable.id)
+        .limit(limit)
+        .offset(categoriesToSkip)
     );
 
-    const transformedCategories = categoriesList.map((category) => {
-      const { _count, ...rest } = category;
-      return {
+    const transformedCategories = categoriesList.map(
+      ({ postsCount, ...rest }) => ({
         ...rest,
-        count: _count,
-      };
-    });
+        count: {
+          posts: postsCount,
+        },
+      })
+    );
 
     return c.json(
       {
@@ -240,35 +241,40 @@ categories.openapi(getCategoryRoute, async (c) => {
   try {
     const workspaceId = requireWorkspaceId(c);
     const { identifier } = c.req.valid("param");
-    const db = createDbClient(c.env);
+    const db = c.get("db");
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
 
     // Cache by identifier (slug or id)
     const singleCacheKey = cacheKey(workspaceId, "categories", identifier);
 
-    const category = await cache.getOrSet(singleCacheKey, () =>
-      db.category.findFirst({
-        where: {
-          workspaceId,
-          OR: [{ id: identifier }, { slug: identifier }],
-        },
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          description: true,
-          _count: {
-            select: {
-              posts: {
-                where: {
-                  status: "published",
-                },
-              },
-            },
-          },
-        },
-      })
+    const categoryRows = await cache.getOrSet(singleCacheKey, async () =>
+      db
+        .select({
+          id: categoryTable.id,
+          name: categoryTable.name,
+          slug: categoryTable.slug,
+          description: categoryTable.description,
+          postsCount: sql<number>`cast(count(${post.id}) as int)`,
+        })
+        .from(categoryTable)
+        .leftJoin(
+          post,
+          and(eq(post.categoryId, categoryTable.id), eq(post.status, "published"))
+        )
+        .where(
+          and(
+            eq(categoryTable.workspaceId, workspaceId),
+            or(
+              eq(categoryTable.id, identifier),
+              eq(categoryTable.slug, identifier)
+            )
+          )
+        )
+        .groupBy(categoryTable.id)
+        .limit(1)
     );
+
+    const category = categoryRows[0];
 
     if (!category) {
       return c.json(
@@ -280,11 +286,12 @@ categories.openapi(getCategoryRoute, async (c) => {
       );
     }
 
-    // Transform _count to count
-    const { _count, ...rest } = category;
+    const { postsCount, ...rest } = category;
     const transformedCategory = {
       ...rest,
-      count: _count,
+      count: {
+        posts: postsCount,
+      },
     };
 
     return c.json({ category: transformedCategory }, 200 as const);
@@ -297,16 +304,16 @@ categories.openapi(getCategoryRoute, async (c) => {
 categories.openapi(createCategoryRoute, async (c) => {
   try {
     const workspaceId = requireWorkspaceId(c);
-    const db = createDbClient(c.env);
+    const db = c.get("db");
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const body = c.req.valid("json");
 
     // Check for slug uniqueness within workspace
-    const existingCategory = await db.category.findFirst({
-      where: {
-        slug: body.slug,
-        workspaceId,
-      },
+    const existingCategory = await db.query.category.findFirst({
+      where: and(
+        eq(categoryTable.slug, body.slug),
+        eq(categoryTable.workspaceId, workspaceId)
+      ),
     });
 
     if (existingCategory) {
@@ -319,20 +326,32 @@ categories.openapi(createCategoryRoute, async (c) => {
       );
     }
 
-    const categoryCreated = await db.category.create({
-      data: {
+    const [categoryCreated] = await db
+      .insert(categoryTable)
+      .values({
+        id: createRecordId(),
         name: body.name,
         slug: body.slug,
         description: body.description ?? null,
         workspaceId,
-      },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        description: true,
-      },
-    });
+        updatedAt: new Date(),
+      })
+      .returning({
+        id: categoryTable.id,
+        name: categoryTable.name,
+        slug: categoryTable.slug,
+        description: categoryTable.description,
+      });
+
+    if (!categoryCreated) {
+      return c.json(
+        {
+          error: "Failed to create category",
+          message: "An unexpected error occurred",
+        },
+        500 as const
+      );
+    }
 
     // Invalidate cache for categories and posts
     c.executionCtx.waitUntil(
@@ -452,16 +471,19 @@ const deleteCategoryRoute = createRoute({
 categories.openapi(updateCategoryRoute, async (c) => {
   try {
     const workspaceId = requireWorkspaceId(c);
-    const db = createDbClient(c.env);
+    const db = c.get("db");
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const { identifier } = c.req.valid("param");
     const body = c.req.valid("json");
 
-    const existingCategory = await db.category.findFirst({
-      where: {
-        workspaceId,
-        OR: [{ id: identifier }, { slug: identifier }],
-      },
+    const existingCategory = await db.query.category.findFirst({
+      where: and(
+        eq(categoryTable.workspaceId, workspaceId),
+        or(
+          eq(categoryTable.id, identifier),
+          eq(categoryTable.slug, identifier)
+        )
+      ),
     });
 
     if (!existingCategory) {
@@ -476,12 +498,12 @@ categories.openapi(updateCategoryRoute, async (c) => {
 
     // If slug is being changed, check uniqueness
     if (body.slug && body.slug !== existingCategory.slug) {
-      const slugConflict = await db.category.findFirst({
-        where: {
-          slug: body.slug,
-          workspaceId,
-          id: { not: existingCategory.id },
-        },
+      const slugConflict = await db.query.category.findFirst({
+        where: and(
+          eq(categoryTable.slug, body.slug),
+          eq(categoryTable.workspaceId, workspaceId),
+          ne(categoryTable.id, existingCategory.id)
+        ),
       });
 
       if (slugConflict) {
@@ -496,22 +518,33 @@ categories.openapi(updateCategoryRoute, async (c) => {
       }
     }
 
-    const categoryUpdated = await db.category.update({
-      where: { id: existingCategory.id },
-      data: {
+    const [categoryUpdated] = await db
+      .update(categoryTable)
+      .set({
         ...(body.name !== undefined && { name: body.name }),
         ...(body.slug !== undefined && { slug: body.slug }),
         ...(body.description !== undefined && {
           description: body.description,
         }),
-      },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        description: true,
-      },
-    });
+        updatedAt: new Date(),
+      })
+      .where(eq(categoryTable.id, existingCategory.id))
+      .returning({
+        id: categoryTable.id,
+        name: categoryTable.name,
+        slug: categoryTable.slug,
+        description: categoryTable.description,
+      });
+
+    if (!categoryUpdated) {
+      return c.json(
+        {
+          error: "Failed to update category",
+          message: "An unexpected error occurred",
+        },
+        500 as const
+      );
+    }
 
     c.executionCtx.waitUntil(
       cache.invalidateResource(workspaceId, "categories")
@@ -555,18 +588,18 @@ categories.openapi(updateCategoryRoute, async (c) => {
 categories.openapi(deleteCategoryRoute, async (c) => {
   try {
     const workspaceId = requireWorkspaceId(c);
-    const db = createDbClient(c.env);
+    const db = c.get("db");
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const { identifier } = c.req.valid("param");
 
-    const existingCategory = await db.category.findFirst({
-      where: {
-        workspaceId,
-        OR: [{ id: identifier }, { slug: identifier }],
-      },
-      include: {
-        _count: { select: { posts: true } },
-      },
+    const existingCategory = await db.query.category.findFirst({
+      where: and(
+        eq(categoryTable.workspaceId, workspaceId),
+        or(
+          eq(categoryTable.id, identifier),
+          eq(categoryTable.slug, identifier)
+        )
+      ),
     });
 
     if (!existingCategory) {
@@ -579,20 +612,32 @@ categories.openapi(deleteCategoryRoute, async (c) => {
       );
     }
 
+    const [postsCountResult] = await db
+      .select({ value: count() })
+      .from(post)
+      .where(
+        and(
+          eq(post.categoryId, existingCategory.id),
+          eq(post.workspaceId, workspaceId)
+        )
+      );
+
+    const postsCount = postsCountResult?.value ?? 0;
+
     // Prevent deleting a category that has posts
-    if (existingCategory._count.posts > 0) {
+    if (postsCount > 0) {
       return c.json(
         {
           error: "Category has posts",
-          message: `This category has ${existingCategory._count.posts} post(s) assigned to it. Reassign or delete them before deleting this category.`,
+          message: `This category has ${postsCount} post(s) assigned to it. Reassign or delete them before deleting this category.`,
         },
         400 as const
       );
     }
 
-    await db.category.delete({
-      where: { id: existingCategory.id },
-    });
+    await db
+      .delete(categoryTable)
+      .where(eq(categoryTable.id, existingCategory.id));
 
     c.executionCtx.waitUntil(
       cache.invalidateResource(workspaceId, "categories")

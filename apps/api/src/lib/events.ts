@@ -1,5 +1,7 @@
+import { createRecordId } from "@marble/drizzle/id";
+import { workspaceEvent } from "@marble/drizzle/schema";
 import type { EventMessage } from "@marble/events";
-import type { createDbClient } from "@/lib/db";
+import type { DbClient } from "@/lib/db";
 import type { JsonObject } from "@/validations/json";
 import type {
   WORKSPACE_EVENT_ACTOR_TYPES,
@@ -20,12 +22,14 @@ interface EmitEventOptions {
 }
 
 export async function emitEvent(
-  db: ReturnType<typeof createDbClient>,
+  db: DbClient,
   queue: Queue<EventMessage>,
   options: EmitEventOptions
 ) {
-  const event = await db.workspaceEvent.create({
-    data: {
+  const [event] = await db
+    .insert(workspaceEvent)
+    .values({
+      id: createRecordId(),
       type: options.type,
       workspaceId: options.workspaceId,
       source: options.source ?? "api",
@@ -34,8 +38,12 @@ export async function emitEvent(
       actorType: options.actorType,
       actorId: options.actorId,
       payload: options.payload ?? {},
-    },
-  });
+    })
+    .returning();
+
+  if (!event) {
+    throw new Error("Failed to create workspace event");
+  }
 
   await queue.send({ type: "event.fanout", eventId: event.id });
 

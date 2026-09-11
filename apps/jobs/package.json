@@ -7,11 +7,12 @@
     "cf-typegen": "wrangler types --env-interface CloudflareBindings"
   },
   "dependencies": {
-    "@marble/db": "workspace:*",
+    "@marble/drizzle": "workspace:*",
     "@marble/email": "workspace:*",
     "@marble/events": "workspace:*",
     "@marble/parser": "workspace:*",
     "@marble/utils": "workspace:*",
+    "drizzle-orm": "^0.45.2",
     "@upstash/redis": "^1.36.4",
     "fflate": "^0.8.3",
     "gray-matter": "^4.0.3",

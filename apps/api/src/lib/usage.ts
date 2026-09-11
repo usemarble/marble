@@ -1,10 +1,10 @@
+import { member, subscription, usageEvent, workspace } from "@marble/drizzle/schema";
 import { sendUsageLimitEmail } from "@marble/email";
 import { getWorkspacePlan, PLAN_LIMITS, type PlanType } from "@marble/utils";
 import { Redis } from "@upstash/redis/cloudflare";
+import { and, count, desc, eq, gte, inArray, lt } from "drizzle-orm";
 import { Resend } from "resend";
-import type { createDbClient } from "@/lib/db";
-
-type DbClient = ReturnType<typeof createDbClient>;
+import type { DbClient } from "@/lib/db";
 
 const USAGE_KEY_PREFIX = "usage:api";
 const USAGE_META_PREFIX = "usage:meta";
@@ -26,15 +26,17 @@ async function getBillingPeriod(
   db: DbClient,
   workspaceId: string
 ): Promise<BillingPeriod> {
-  const workspace = await db.organization.findUnique({
-    where: { id: workspaceId },
-    select: {
+  const foundWorkspace = await db.query.workspace.findFirst({
+    where: eq(workspace.id, workspaceId),
+    columns: {
       createdAt: true,
+    },
+    with: {
       subscriptions: {
-        where: { status: { in: ["active", "trialing", "canceled"] } },
-        orderBy: { createdAt: "desc" },
-        take: 1,
-        select: {
+        where: inArray(subscription.status, ["active", "trialing", "canceled"]),
+        orderBy: desc(subscription.createdAt),
+        limit: 1,
+        columns: {
           status: true,
           cancelAtPeriodEnd: true,
           currentPeriodStart: true,
@@ -44,7 +46,7 @@ async function getBillingPeriod(
     },
   });
 
-  if (!workspace) {
+  if (!foundWorkspace) {
     const now = new Date();
     return {
       start: new Date(now.getFullYear(), now.getMonth(), 1),
@@ -52,28 +54,28 @@ async function getBillingPeriod(
     };
   }
 
-  const subscription = workspace.subscriptions[0];
+  const activeSubscription = foundWorkspace.subscriptions[0];
   const isValid =
-    subscription &&
-    (subscription.status === "active" ||
-      subscription.status === "trialing" ||
-      (subscription.status === "canceled" &&
-        subscription.cancelAtPeriodEnd &&
-        subscription.currentPeriodEnd &&
-        subscription.currentPeriodEnd > new Date()));
+    activeSubscription &&
+    (activeSubscription.status === "active" ||
+      activeSubscription.status === "trialing" ||
+      (activeSubscription.status === "canceled" &&
+        activeSubscription.cancelAtPeriodEnd &&
+        activeSubscription.currentPeriodEnd &&
+        activeSubscription.currentPeriodEnd > new Date()));
 
   if (
     isValid &&
-    subscription.currentPeriodStart &&
-    subscription.currentPeriodEnd
+    activeSubscription.currentPeriodStart &&
+    activeSubscription.currentPeriodEnd
   ) {
     return {
-      start: subscription.currentPeriodStart,
-      end: subscription.currentPeriodEnd,
+      start: activeSubscription.currentPeriodStart,
+      end: activeSubscription.currentPeriodEnd,
     };
   }
 
-  const dayOfMonth = workspace.createdAt.getDate();
+  const dayOfMonth = foundWorkspace.createdAt.getDate();
   const now = new Date();
 
   const getValidDate = (year: number, month: number, day: number) => {
@@ -119,14 +121,14 @@ async function getUsageMeta(
     return cached;
   }
 
-  const workspace = await db.organization.findUnique({
-    where: { id: workspaceId },
-    select: {
+  const foundWorkspace = await db.query.workspace.findFirst({
+    where: eq(workspace.id, workspaceId),
+    with: {
       subscriptions: {
-        where: { status: { in: ["active", "trialing", "canceled"] } },
-        orderBy: { createdAt: "desc" },
-        take: 1,
-        select: {
+        where: inArray(subscription.status, ["active", "trialing", "canceled"]),
+        orderBy: desc(subscription.createdAt),
+        limit: 1,
+        columns: {
           plan: true,
           status: true,
           cancelAtPeriodEnd: true,
@@ -136,8 +138,8 @@ async function getUsageMeta(
     },
   });
 
-  const subscription = workspace?.subscriptions[0];
-  const plan = getWorkspacePlan(subscription);
+  const activeSubscription = foundWorkspace?.subscriptions[0];
+  const plan = getWorkspacePlan(activeSubscription);
   const limit = PLAN_LIMITS[plan].maxApiRequests;
   const period = await getBillingPeriod(db, workspaceId);
 
@@ -158,20 +160,24 @@ async function seedUsageCounterIfMissing(
   periodEnd: Date
 ): Promise<void> {
   const period = await getBillingPeriod(db, workspaceId);
-  const count = await db.usageEvent.count({
-    where: {
-      workspaceId,
-      type: "api_request",
-      createdAt: { gte: period.start, lt: period.end },
-    },
-  });
+  const [countResult] = await db
+    .select({ count: count() })
+    .from(usageEvent)
+    .where(
+      and(
+        eq(usageEvent.workspaceId, workspaceId),
+        eq(usageEvent.type, "api_request"),
+        gte(usageEvent.createdAt, period.start),
+        lt(usageEvent.createdAt, period.end)
+      )
+    );
 
   const counterKey = `${USAGE_KEY_PREFIX}:${workspaceId}`;
   const ttl = Math.max(
     1,
     Math.floor((periodEnd.getTime() - Date.now()) / 1000)
   );
-  await redis.set(counterKey, count, { ex: ttl, nx: true });
+  await redis.set(counterKey, countResult?.count ?? 0, { ex: ttl, nx: true });
 }
 
 export async function checkApiUsage(
@@ -241,14 +247,14 @@ async function checkApiUsageFromDb(
   db: DbClient,
   workspaceId: string
 ): Promise<UsageCheckResult> {
-  const workspace = await db.organization.findUnique({
-    where: { id: workspaceId },
-    select: {
+  const foundWorkspace = await db.query.workspace.findFirst({
+    where: eq(workspace.id, workspaceId),
+    with: {
       subscriptions: {
-        where: { status: { in: ["active", "trialing", "canceled"] } },
-        orderBy: { createdAt: "desc" },
-        take: 1,
-        select: {
+        where: inArray(subscription.status, ["active", "trialing", "canceled"]),
+        orderBy: desc(subscription.createdAt),
+        limit: 1,
+        columns: {
           plan: true,
           status: true,
           cancelAtPeriodEnd: true,
@@ -258,19 +264,24 @@ async function checkApiUsageFromDb(
     },
   });
 
-  const subscription = workspace?.subscriptions[0];
-  const plan = getWorkspacePlan(subscription);
+  const activeSubscription = foundWorkspace?.subscriptions[0];
+  const plan = getWorkspacePlan(activeSubscription);
   const limit = PLAN_LIMITS[plan].maxApiRequests;
 
   const period = await getBillingPeriod(db, workspaceId);
-  const currentUsage = await db.usageEvent.count({
-    where: {
-      workspaceId,
-      type: "api_request",
-      createdAt: { gte: period.start, lt: period.end },
-    },
-  });
+  const [countResult] = await db
+    .select({ count: count() })
+    .from(usageEvent)
+    .where(
+      and(
+        eq(usageEvent.workspaceId, workspaceId),
+        eq(usageEvent.type, "api_request"),
+        gte(usageEvent.createdAt, period.start),
+        lt(usageEvent.createdAt, period.end)
+      )
+    );
 
+  const currentUsage = countResult?.count ?? 0;
   const percentage = limit > 0 ? (currentUsage / limit) * 100 : 0;
 
   let thresholdCrossed: 75 | 90 | 100 | undefined;
@@ -302,10 +313,18 @@ export async function notifyApiUsageThreshold(
   currentUsage: number,
   limit: number
 ): Promise<void> {
-  const owner = await db.member.findFirst({
-    where: { organizationId: workspaceId, role: "owner" },
-    select: {
-      user: { select: { email: true, name: true } },
+  const owner = await db.query.member.findFirst({
+    where: and(
+      eq(member.organizationId, workspaceId),
+      eq(member.role, "owner")
+    ),
+    with: {
+      user: {
+        columns: {
+          email: true,
+          name: true,
+        },
+      },
     },
   });
 

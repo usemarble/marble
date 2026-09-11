@@ -1,3 +1,6 @@
+import { createRecordId } from "@marble/drizzle/id";
+import { member, usageEvent, workspace } from "@marble/drizzle/schema";
+import { eq } from "drizzle-orm";
 import type { Context, MiddlewareHandler } from "hono";
 import { createDbClient, type DbClient } from "@/lib/db";
 import { createPolarClient } from "@/lib/polar";
@@ -9,7 +12,7 @@ import {
 import type { ApiKeyApp } from "@/types/env";
 
 interface AnalyticsTaskParams {
-  db: ReturnType<typeof createDbClient>;
+  db: DbClient;
   workspaceId: string;
   endpoint: string | null;
   method: string;
@@ -34,12 +37,11 @@ export async function runAnalyticsTask({
   apiKeyType,
 }: AnalyticsTaskParams): Promise<void> {
   try {
-    await db.usageEvent.create({
-      data: {
-        type: "api_request",
-        workspaceId,
-        endpoint,
-      },
+    await db.insert(usageEvent).values({
+      id: createRecordId(),
+      type: "api_request",
+      workspaceId,
+      endpoint,
     });
 
     if (resendApiKey && usageResult?.thresholdCrossed) {
@@ -61,18 +63,20 @@ export async function runAnalyticsTask({
     }
 
     let customerId = workspaceId;
-    const organization = await db.organization.findFirst({
-      where: { id: workspaceId },
-      select: {
+    const foundWorkspace = await db.query.workspace.findFirst({
+      where: eq(workspace.id, workspaceId),
+      with: {
         members: {
-          where: { role: "owner" },
-          select: { userId: true },
+          where: eq(member.role, "owner"),
+          columns: {
+            userId: true,
+          },
         },
       },
     });
 
-    if (organization?.members[0]?.userId) {
-      customerId = organization.members[0].userId;
+    if (foundWorkspace?.members[0]?.userId) {
+      customerId = foundWorkspace.members[0].userId;
     }
 
     if (polarAccessToken) {
@@ -119,7 +123,7 @@ async function checkUsage(
   }
 
   try {
-    const db = createDbClient(c.env);
+    const db = c.get("db");
     const redis =
       REDIS_URL && REDIS_TOKEN
         ? { url: REDIS_URL, token: REDIS_TOKEN }
@@ -167,14 +171,6 @@ export const analytics = (): MiddlewareHandler<ApiKeyApp> => {
 
     const { RESEND_API_KEY, POLAR_ACCESS_TOKEN, ENVIRONMENT } = c.env;
 
-    let db: DbClient;
-    try {
-      db = createDbClient(c.env);
-    } catch {
-      console.error("[Analytics] Database configuration error");
-      return;
-    }
-
     const apiKeyType = c.get("apiKeyType");
     const status = c.res.status ?? 200;
 
@@ -187,18 +183,21 @@ export const analytics = (): MiddlewareHandler<ApiKeyApp> => {
     const endpoint = pathParts.length >= 1 ? `/${pathParts.join("/")}` : null;
 
     c.executionCtx?.waitUntil(
-      runAnalyticsTask({
-        db,
-        workspaceId,
-        endpoint,
-        method,
-        status,
-        usageResult,
-        resendApiKey: RESEND_API_KEY,
-        polarAccessToken: POLAR_ACCESS_TOKEN,
-        environment: ENVIRONMENT,
-        apiKeyType,
-      })
+      (async () => {
+        const bgDb = await createDbClient(c.env);
+        await runAnalyticsTask({
+          db: bgDb,
+          workspaceId,
+          endpoint,
+          method,
+          status,
+          usageResult,
+          resendApiKey: RESEND_API_KEY,
+          polarAccessToken: POLAR_ACCESS_TOKEN,
+          environment: ENVIRONMENT,
+          apiKeyType,
+        });
+      })()
     );
   };
 };

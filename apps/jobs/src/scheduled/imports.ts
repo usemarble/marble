@@ -1,3 +1,5 @@
+import { importJob } from "@marble/drizzle/schema";
+import { and, eq, inArray, lt } from "drizzle-orm";
 import {
   IMPORT_JOB_RETENTION_DAYS,
   IMPORT_STALE_JOB_DAYS,
@@ -54,35 +56,38 @@ export async function cleanupStaleImports({
     now.getTime() - IMPORT_JOB_RETENTION_DAYS * MILLISECONDS_IN_DAY
   );
 
-  const staleJobs = await db.importJob.findMany({
-    where: {
-      createdAt: { lt: staleCutoff },
-      status: { in: ACTIVE_IMPORT_STATUSES },
-    },
-    select: {
+  const staleJobs = await db.query.importJob.findMany({
+    where: and(
+      lt(importJob.createdAt, staleCutoff),
+      inArray(importJob.status, ACTIVE_IMPORT_STATUSES)
+    ),
+    columns: {
       id: true,
       uploadKey: true,
     },
-    take: IMPORT_CLEANUP_BATCH_SIZE,
+    limit: IMPORT_CLEANUP_BATCH_SIZE,
   });
 
   let staleCount = 0;
 
   for (const job of staleJobs) {
-    const staleUpdate = await db.importJob.updateMany({
-      where: {
-        id: job.id,
-        createdAt: { lt: staleCutoff },
-        status: { in: ACTIVE_IMPORT_STATUSES },
-      },
-      data: {
+    const staleUpdate = await db
+      .update(importJob)
+      .set({
         status: "failed",
         failedAt: now,
         errorMessage: "Import timed out before it could complete",
-      },
-    });
+      })
+      .where(
+        and(
+          eq(importJob.id, job.id),
+          lt(importJob.createdAt, staleCutoff),
+          inArray(importJob.status, ACTIVE_IMPORT_STATUSES)
+        )
+      )
+      .returning({ id: importJob.id });
 
-    if (staleUpdate.count === 0) {
+    if (staleUpdate.length === 0) {
       continue;
     }
 
@@ -98,24 +103,22 @@ export async function cleanupStaleImports({
       continue;
     }
 
-    await db.importJob.updateMany({
-      where: { id: job.id },
-      data: {
-        uploadKey: null,
-      },
-    });
+    await db
+      .update(importJob)
+      .set({ uploadKey: null })
+      .where(eq(importJob.id, job.id));
   }
 
-  const oldJobs = await db.importJob.findMany({
-    where: {
-      createdAt: { lt: retentionCutoff },
-      status: { in: ["completed", "failed"] },
-    },
-    select: {
+  const oldJobs = await db.query.importJob.findMany({
+    where: and(
+      lt(importJob.createdAt, retentionCutoff),
+      inArray(importJob.status, ["completed", "failed"])
+    ),
+    columns: {
       id: true,
       uploadKey: true,
     },
-    take: IMPORT_CLEANUP_BATCH_SIZE,
+    limit: IMPORT_CLEANUP_BATCH_SIZE,
   });
 
   let deletedCount = 0;
@@ -131,9 +134,7 @@ export async function cleanupStaleImports({
       continue;
     }
 
-    await db.importJob.delete({
-      where: { id: job.id },
-    });
+    await db.delete(importJob).where(eq(importJob.id, job.id));
     deletedCount += 1;
   }
 

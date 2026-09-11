@@ -1,18 +1,14 @@
+import { webhookDelivery } from "@marble/drizzle/schema";
+import { and, eq, inArray, isNull, lte, or, sql } from "drizzle-orm";
 import { WEBHOOK_DELIVERY_LEASE_MS } from "./constants";
 import type { DbClient } from "./db";
 
-type WebhookDeliveryDelegate = DbClient["webhookDelivery"];
-interface WebhookDeliveryLeaseDb {
-  webhookDelivery: Pick<
-    WebhookDeliveryDelegate,
-    "findUnique" | "updateMany" | "updateManyAndReturn"
-  > & {
-    fields: Pick<WebhookDeliveryDelegate["fields"], "maxAttempts">;
-  };
-}
-type WebhookDeliveryUpdateData = Parameters<
-  DbClient["webhookDelivery"]["updateMany"]
->[0]["data"];
+type WebhookDeliveryUpdateData = Partial<
+  Pick<
+    typeof webhookDelivery.$inferInsert,
+    "status" | "failedAt" | "deliveredAt" | "lastAttemptAt"
+  >
+>;
 
 export interface WebhookDeliveryLease {
   deliveryId: string;
@@ -21,49 +17,49 @@ export interface WebhookDeliveryLease {
 }
 
 export function webhookDeliveryLeaseWhere(lease: WebhookDeliveryLease) {
-  return {
-    id: lease.deliveryId,
-    status: "sending" as const,
-    attemptCount: lease.attemptNumber,
-    lastAttemptAt: lease.claimedAt,
-  };
+  return and(
+    eq(webhookDelivery.id, lease.deliveryId),
+    eq(webhookDelivery.status, "sending"),
+    eq(webhookDelivery.attemptCount, lease.attemptNumber),
+    eq(webhookDelivery.lastAttemptAt, lease.claimedAt)
+  );
 }
 
 export async function claimWebhookDeliveryAttempt(
-  db: WebhookDeliveryLeaseDb,
+  db: DbClient,
   deliveryId: string,
   now = new Date()
 ): Promise<WebhookDeliveryLease | null> {
   const staleBefore = new Date(now.getTime() - WEBHOOK_DELIVERY_LEASE_MS);
-  const maxAttempts = db.webhookDelivery.fields.maxAttempts;
 
-  const claimed = await db.webhookDelivery.updateManyAndReturn({
-    where: {
-      id: deliveryId,
-      attemptCount: { lt: maxAttempts },
-      OR: [
-        { status: { in: ["pending", "retrying"] } },
-        {
-          status: "sending",
-          OR: [
-            { lastAttemptAt: null },
-            { lastAttemptAt: { lte: staleBefore } },
-          ],
-        },
-      ],
-    },
-    data: {
+  const claimableWhere = and(
+    eq(webhookDelivery.id, deliveryId),
+    sql`${webhookDelivery.attemptCount} < ${webhookDelivery.maxAttempts}`,
+    or(
+      inArray(webhookDelivery.status, ["pending", "retrying"]),
+      and(
+        eq(webhookDelivery.status, "sending"),
+        or(
+          isNull(webhookDelivery.lastAttemptAt),
+          lte(webhookDelivery.lastAttemptAt, staleBefore)
+        )
+      )
+    )
+  );
+
+  const claimed = await db
+    .update(webhookDelivery)
+    .set({
       status: "sending",
-      attemptCount: { increment: 1 },
+      attemptCount: sql`${webhookDelivery.attemptCount} + 1`,
       lastAttemptAt: now,
-    },
-    select: {
-      id: true,
-      attemptCount: true,
-      lastAttemptAt: true,
-    },
-    limit: 1,
-  });
+    })
+    .where(claimableWhere)
+    .returning({
+      id: webhookDelivery.id,
+      attemptCount: webhookDelivery.attemptCount,
+      lastAttemptAt: webhookDelivery.lastAttemptAt,
+    });
 
   const delivery = claimed[0];
   if (delivery) {
@@ -78,36 +74,37 @@ export async function claimWebhookDeliveryAttempt(
     };
   }
 
-  // A delivery can exhaust its attempts while a worker is unavailable. Mark
-  // only recoverable states as failed; terminal deliveries remain untouched.
-  const exhausted = await db.webhookDelivery.updateMany({
-    where: {
-      id: deliveryId,
-      attemptCount: { gte: maxAttempts },
-      OR: [
-        { status: { in: ["pending", "retrying"] } },
-        {
-          status: "sending",
-          OR: [
-            { lastAttemptAt: null },
-            { lastAttemptAt: { lte: staleBefore } },
-          ],
-        },
-      ],
-    },
-    data: {
+  const exhaustedWhere = and(
+    eq(webhookDelivery.id, deliveryId),
+    sql`${webhookDelivery.attemptCount} >= ${webhookDelivery.maxAttempts}`,
+    or(
+      inArray(webhookDelivery.status, ["pending", "retrying"]),
+      and(
+        eq(webhookDelivery.status, "sending"),
+        or(
+          isNull(webhookDelivery.lastAttemptAt),
+          lte(webhookDelivery.lastAttemptAt, staleBefore)
+        )
+      )
+    )
+  );
+
+  const exhausted = await db
+    .update(webhookDelivery)
+    .set({
       status: "failed",
       failedAt: now,
-    },
-  });
+    })
+    .where(exhaustedWhere)
+    .returning({ id: webhookDelivery.id });
 
-  if (exhausted.count > 0) {
+  if (exhausted.length > 0) {
     return null;
   }
 
-  const existing = await db.webhookDelivery.findUnique({
-    where: { id: deliveryId },
-    select: { status: true },
+  const existing = await db.query.webhookDelivery.findFirst({
+    where: eq(webhookDelivery.id, deliveryId),
+    columns: { status: true },
   });
 
   if (existing?.status === "sending") {
@@ -120,16 +117,15 @@ export async function claimWebhookDeliveryAttempt(
 }
 
 export async function renewWebhookDeliveryLease(
-  db: WebhookDeliveryLeaseDb,
+  db: DbClient,
   lease: WebhookDeliveryLease,
   now = new Date()
 ): Promise<WebhookDeliveryLease | null> {
-  const renewed = await db.webhookDelivery.updateManyAndReturn({
-    where: webhookDeliveryLeaseWhere(lease),
-    data: { lastAttemptAt: now },
-    select: { lastAttemptAt: true },
-    limit: 1,
-  });
+  const renewed = await db
+    .update(webhookDelivery)
+    .set({ lastAttemptAt: now })
+    .where(webhookDeliveryLeaseWhere(lease))
+    .returning({ lastAttemptAt: webhookDelivery.lastAttemptAt });
 
   const delivery = renewed[0];
   if (!delivery?.lastAttemptAt) {
@@ -140,12 +136,15 @@ export async function renewWebhookDeliveryLease(
 }
 
 export async function updateWebhookDeliveryForLease(
-  db: WebhookDeliveryLeaseDb,
+  db: DbClient,
   lease: WebhookDeliveryLease,
   data: WebhookDeliveryUpdateData
 ) {
-  return db.webhookDelivery.updateMany({
-    where: webhookDeliveryLeaseWhere(lease),
-    data,
-  });
+  const updated = await db
+    .update(webhookDelivery)
+    .set(data)
+    .where(webhookDeliveryLeaseWhere(lease))
+    .returning({ id: webhookDelivery.id });
+
+  return { count: updated.length };
 }

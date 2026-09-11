@@ -98,7 +98,7 @@ Packages contain internal shared modules used across different applications:
    cp apps/api/.dev.vars.example apps/api/.dev.vars
    cp apps/cms/.env.example apps/cms/.env
    cp apps/web/.env.example apps/web/.env
-   cp packages/db/.env.example packages/db/.env
+   cp packages/drizzle/.env.example packages/drizzle/.env
    ```
 
    You'll need:
@@ -119,7 +119,7 @@ Packages contain internal shared modules used across different applications:
 
    ### Option 1: Use Neon (Hosted)
 
-   We use Neon for the database. Create a Neon project and copy your connection string for Prisma
+   We use Neon for the database. Create a Neon project and copy your connection string for Drizzle
    (ensure it includes `sslmode=require`).
 
    - Paste it into the relevant env files:
@@ -131,7 +131,7 @@ Packages contain internal shared modules used across different applications:
    - Paste it into the relevant env files:
    - `apps/api/.dev.vars` → `DATABASE_URL=<YOUR_STRING_HERE>`
    - `apps/cms/.env` → `DATABASE_URL=<YOUR_STRING_HERE>`
-   - `packages/db/.env` → `DATABASE_URL=<YOUR_STRING_HERE>`
+   - `packages/drizzle/.env` → `DATABASE_URL=<YOUR_STRING_HERE>`
 
    - Run migrations:
 
@@ -159,7 +159,7 @@ Packages contain internal shared modules used across different applications:
    If you’re using the local Docker DB, set `DATABASE_URL` in these env files:
    - `apps/api/.dev.vars`
    - `apps/cms/.env`
-   - `packages/db/.env`
+   - `packages/drizzle/.env`
 
    Example:
    ```bash

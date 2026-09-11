@@ -1,7 +1,9 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import { createRecordId } from "@marble/drizzle/id";
+import { post, postToTag, tag as tagTable } from "@marble/drizzle/schema";
 import { toTagPayload, withChanges } from "@marble/events";
+import { and, count, eq, ne, or, sql } from "drizzle-orm";
 import { cacheKey, createCacheClient, hashQueryParams } from "@/lib/cache";
-import { createDbClient } from "@/lib/db";
 import { emitEvent } from "@/lib/events";
 import { requireWorkspaceId } from "@/lib/workspace";
 import {
@@ -130,7 +132,7 @@ const createTagRoute = createRoute({
 });
 
 tags.openapi(listTagsRoute, async (c) => {
-  const db = createDbClient(c.env);
+  const db = c.get("db");
   const workspaceId = requireWorkspaceId(c);
   const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
 
@@ -146,13 +148,14 @@ tags.openapi(listTagsRoute, async (c) => {
   );
 
   // Cache count query separately (1 hour TTL, invalidated with posts)
-  const totalTags = await cache.getOrSetCount(countCacheKey, () =>
-    db.tag.count({
-      where: {
-        workspaceId,
-      },
-    })
-  );
+  const totalTags = await cache.getOrSetCount(countCacheKey, async () => {
+    const [result] = await db
+      .select({ value: count() })
+      .from(tagTable)
+      .where(eq(tagTable.workspaceId, workspaceId));
+
+    return result?.value ?? 0;
+  });
 
   // Generate cache key for data (includes page)
   const listCacheKey = cacheKey(
@@ -182,39 +185,33 @@ tags.openapi(listTagsRoute, async (c) => {
     );
   }
 
-  const tagsList = await cache.getOrSet(listCacheKey, () =>
-    db.tag.findMany({
-      where: {
-        workspaceId,
-      },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        description: true,
-        _count: {
-          select: {
-            posts: {
-              where: {
-                status: "published",
-              },
-            },
-          },
-        },
-      },
-      take: limit,
-      skip: tagsToSkip,
-    })
+  const tagsList = await cache.getOrSet(listCacheKey, async () =>
+    db
+      .select({
+        id: tagTable.id,
+        name: tagTable.name,
+        slug: tagTable.slug,
+        description: tagTable.description,
+        postsCount: sql<number>`cast(count(${post.id}) as int)`,
+      })
+      .from(tagTable)
+      .leftJoin(postToTag, eq(postToTag.b, tagTable.id))
+      .leftJoin(
+        post,
+        and(eq(post.id, postToTag.a), eq(post.status, "published"))
+      )
+      .where(eq(tagTable.workspaceId, workspaceId))
+      .groupBy(tagTable.id)
+      .limit(limit)
+      .offset(tagsToSkip)
   );
 
-  // because I dont want prisma's ugly _count
-  const transformedTags = tagsList.map((tag) => {
-    const { _count, ...rest } = tag;
-    return {
-      ...rest,
-      count: _count,
-    };
-  });
+  const transformedTags = tagsList.map(({ postsCount, ...rest }) => ({
+    ...rest,
+    count: {
+      posts: postsCount,
+    },
+  }));
 
   return c.json(
     {
@@ -234,7 +231,7 @@ tags.openapi(listTagsRoute, async (c) => {
 
 tags.openapi(getTagRoute, async (c) => {
   try {
-    const db = createDbClient(c.env);
+    const db = c.get("db");
     const workspaceId = requireWorkspaceId(c);
     const { identifier } = c.req.valid("param");
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
@@ -242,30 +239,32 @@ tags.openapi(getTagRoute, async (c) => {
     // Cache by identifier (slug or id)
     const singleCacheKey = cacheKey(workspaceId, "tags", identifier);
 
-    // First get the tag
-    const tag = await cache.getOrSet(singleCacheKey, () =>
-      db.tag.findFirst({
-        where: {
-          workspaceId,
-          OR: [{ id: identifier }, { slug: identifier }],
-        },
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          description: true,
-          _count: {
-            select: {
-              posts: {
-                where: {
-                  status: "published",
-                },
-              },
-            },
-          },
-        },
-      })
+    const tagRows = await cache.getOrSet(singleCacheKey, async () =>
+      db
+        .select({
+          id: tagTable.id,
+          name: tagTable.name,
+          slug: tagTable.slug,
+          description: tagTable.description,
+          postsCount: sql<number>`cast(count(${post.id}) as int)`,
+        })
+        .from(tagTable)
+        .leftJoin(postToTag, eq(postToTag.b, tagTable.id))
+        .leftJoin(
+          post,
+          and(eq(post.id, postToTag.a), eq(post.status, "published"))
+        )
+        .where(
+          and(
+            eq(tagTable.workspaceId, workspaceId),
+            or(eq(tagTable.id, identifier), eq(tagTable.slug, identifier))
+          )
+        )
+        .groupBy(tagTable.id)
+        .limit(1)
     );
+
+    const tag = tagRows[0];
 
     if (!tag) {
       return c.json(
@@ -277,11 +276,12 @@ tags.openapi(getTagRoute, async (c) => {
       );
     }
 
-    // Transform _count to count
-    const { _count, ...rest } = tag;
+    const { postsCount, ...rest } = tag;
     const transformedTag = {
       ...rest,
-      count: _count,
+      count: {
+        posts: postsCount,
+      },
     };
 
     return c.json({ tag: transformedTag }, 200 as const);
@@ -293,17 +293,17 @@ tags.openapi(getTagRoute, async (c) => {
 
 tags.openapi(createTagRoute, async (c) => {
   try {
-    const db = createDbClient(c.env);
+    const db = c.get("db");
     const workspaceId = requireWorkspaceId(c);
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const body = c.req.valid("json");
 
     // Check for slug uniqueness within workspace
-    const existingTag = await db.tag.findFirst({
-      where: {
-        slug: body.slug,
-        workspaceId,
-      },
+    const existingTag = await db.query.tag.findFirst({
+      where: and(
+        eq(tagTable.slug, body.slug),
+        eq(tagTable.workspaceId, workspaceId)
+      ),
     });
 
     if (existingTag) {
@@ -316,20 +316,32 @@ tags.openapi(createTagRoute, async (c) => {
       );
     }
 
-    const tagCreated = await db.tag.create({
-      data: {
+    const [tagCreated] = await db
+      .insert(tagTable)
+      .values({
+        id: createRecordId(),
         name: body.name,
         slug: body.slug,
         description: body.description ?? null,
         workspaceId,
-      },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        description: true,
-      },
-    });
+        updatedAt: new Date(),
+      })
+      .returning({
+        id: tagTable.id,
+        name: tagTable.name,
+        slug: tagTable.slug,
+        description: tagTable.description,
+      });
+
+    if (!tagCreated) {
+      return c.json(
+        {
+          error: "Failed to create tag",
+          message: "An unexpected error occurred",
+        },
+        500 as const
+      );
+    }
 
     // Invalidate cache for tags and posts
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "tags"));
@@ -436,18 +448,18 @@ const deleteTagRoute = createRoute({
 
 tags.openapi(updateTagRoute, async (c) => {
   try {
-    const db = createDbClient(c.env);
+    const db = c.get("db");
     const workspaceId = requireWorkspaceId(c);
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const { identifier } = c.req.valid("param");
     const body = c.req.valid("json");
 
     // Find the tag first
-    const existingTag = await db.tag.findFirst({
-      where: {
-        workspaceId,
-        OR: [{ id: identifier }, { slug: identifier }],
-      },
+    const existingTag = await db.query.tag.findFirst({
+      where: and(
+        eq(tagTable.workspaceId, workspaceId),
+        or(eq(tagTable.id, identifier), eq(tagTable.slug, identifier))
+      ),
     });
 
     if (!existingTag) {
@@ -462,12 +474,12 @@ tags.openapi(updateTagRoute, async (c) => {
 
     // If slug is being changed, check uniqueness
     if (body.slug && body.slug !== existingTag.slug) {
-      const slugConflict = await db.tag.findFirst({
-        where: {
-          slug: body.slug,
-          workspaceId,
-          id: { not: existingTag.id },
-        },
+      const slugConflict = await db.query.tag.findFirst({
+        where: and(
+          eq(tagTable.slug, body.slug),
+          eq(tagTable.workspaceId, workspaceId),
+          ne(tagTable.id, existingTag.id)
+        ),
       });
 
       if (slugConflict) {
@@ -481,22 +493,33 @@ tags.openapi(updateTagRoute, async (c) => {
       }
     }
 
-    const tagUpdated = await db.tag.update({
-      where: { id: existingTag.id },
-      data: {
+    const [tagUpdated] = await db
+      .update(tagTable)
+      .set({
         ...(body.name !== undefined && { name: body.name }),
         ...(body.slug !== undefined && { slug: body.slug }),
         ...(body.description !== undefined && {
           description: body.description,
         }),
-      },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        description: true,
-      },
-    });
+        updatedAt: new Date(),
+      })
+      .where(eq(tagTable.id, existingTag.id))
+      .returning({
+        id: tagTable.id,
+        name: tagTable.name,
+        slug: tagTable.slug,
+        description: tagTable.description,
+      });
+
+    if (!tagUpdated) {
+      return c.json(
+        {
+          error: "Failed to update tag",
+          message: "An unexpected error occurred",
+        },
+        500 as const
+      );
+    }
 
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "tags"));
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
@@ -531,16 +554,16 @@ tags.openapi(updateTagRoute, async (c) => {
 
 tags.openapi(deleteTagRoute, async (c) => {
   try {
-    const db = createDbClient(c.env);
+    const db = c.get("db");
     const workspaceId = requireWorkspaceId(c);
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const { identifier } = c.req.valid("param");
 
-    const existingTag = await db.tag.findFirst({
-      where: {
-        workspaceId,
-        OR: [{ id: identifier }, { slug: identifier }],
-      },
+    const existingTag = await db.query.tag.findFirst({
+      where: and(
+        eq(tagTable.workspaceId, workspaceId),
+        or(eq(tagTable.id, identifier), eq(tagTable.slug, identifier))
+      ),
     });
 
     if (!existingTag) {
@@ -553,9 +576,7 @@ tags.openapi(deleteTagRoute, async (c) => {
       );
     }
 
-    await db.tag.delete({
-      where: { id: existingTag.id },
-    });
+    await db.delete(tagTable).where(eq(tagTable.id, existingTag.id));
 
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "tags"));
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));

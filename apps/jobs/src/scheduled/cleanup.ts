@@ -14,7 +14,7 @@ export async function handleCleanup(
     `[Cleanup] Running scheduled cleanup at ${new Date().toISOString()}`
   );
 
-  const db = createDbClient(env);
+  const db = await createDbClient(env);
   const now = new Date();
 
   const results = await Promise.allSettled([

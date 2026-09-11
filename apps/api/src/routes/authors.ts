@@ -1,8 +1,27 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import { createRecordId } from "@marble/drizzle/id";
+import {
+  authorSocial,
+  author as authorTable,
+  post,
+  postToAuthor,
+  subscription,
+} from "@marble/drizzle/schema";
 import { toAuthorPayload, withChanges } from "@marble/events";
 import { getWorkspacePlan, PLAN_LIMITS } from "@marble/utils";
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  gt,
+  inArray,
+  ne,
+  or,
+  sql,
+} from "drizzle-orm";
 import { cacheKey, createCacheClient, hashQueryParams } from "@/lib/cache";
-import { createDbClient } from "@/lib/db";
 import { emitEvent } from "@/lib/events";
 import { requireWorkspaceId } from "@/lib/workspace";
 import {
@@ -96,7 +115,7 @@ const getAuthorRoute = createRoute({
 
 authors.openapi(listAuthorsRoute, async (c) => {
   const workspaceId = requireWorkspaceId(c);
-  const db = createDbClient(c.env);
+  const db = c.get("db");
   const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
 
   const { limit, page } = c.req.valid("query");
@@ -111,18 +130,23 @@ authors.openapi(listAuthorsRoute, async (c) => {
   );
 
   // Cache count query separately (1 hour TTL, invalidated with posts)
-  const totalAuthors = await cache.getOrSetCount(countCacheKey, () =>
-    db.author.count({
-      where: {
-        workspaceId,
-        coAuthoredPosts: {
-          some: {
-            status: "published",
-          },
-        },
-      },
-    })
-  );
+  const totalAuthors = await cache.getOrSetCount(countCacheKey, async () => {
+    const [result] = await db
+      .select({
+        value: sql<number>`count(distinct ${authorTable.id})`,
+      })
+      .from(authorTable)
+      .innerJoin(postToAuthor, eq(postToAuthor.a, authorTable.id))
+      .innerJoin(post, eq(post.id, postToAuthor.b))
+      .where(
+        and(
+          eq(authorTable.workspaceId, workspaceId),
+          eq(post.status, "published")
+        )
+      );
+
+    return Number(result?.value ?? 0);
+  });
 
   // Generate cache key for data (includes page)
   const listCacheKey = cacheKey(
@@ -152,55 +176,86 @@ authors.openapi(listAuthorsRoute, async (c) => {
   }
 
   try {
-    const authorsList = await cache.getOrSet(listCacheKey, () =>
-      db.author.findMany({
-        where: {
-          workspaceId,
-          coAuthoredPosts: {
-            some: {
-              status: "published",
-            },
-          },
-        },
-        select: {
-          id: true,
-          name: true,
-          image: true,
-          slug: true,
-          bio: true,
-          role: true,
-          socials: {
-            select: {
-              url: true,
-              platform: true,
-            },
-          },
-          _count: {
-            select: {
-              coAuthoredPosts: {
-                where: {
-                  status: "published",
-                },
+    const authorsList = await cache.getOrSet(listCacheKey, async () => {
+      const authorRows = await db
+        .selectDistinct({
+          id: authorTable.id,
+          name: authorTable.name,
+          image: authorTable.image,
+          slug: authorTable.slug,
+          bio: authorTable.bio,
+          role: authorTable.role,
+        })
+        .from(authorTable)
+        .innerJoin(postToAuthor, eq(postToAuthor.a, authorTable.id))
+        .innerJoin(post, eq(post.id, postToAuthor.b))
+        .where(
+          and(
+            eq(authorTable.workspaceId, workspaceId),
+            eq(post.status, "published")
+          )
+        )
+        .orderBy(asc(authorTable.name))
+        .limit(limit)
+        .offset(authorsToSkip);
+
+      if (authorRows.length === 0) {
+        return [];
+      }
+
+      const authorIds = authorRows.map((entry) => entry.id);
+
+      const [socialRows, postCountRows] = await Promise.all([
+        db.query.author.findMany({
+          where: inArray(authorTable.id, authorIds),
+          columns: { id: true },
+          with: {
+            socials: {
+              columns: {
+                url: true,
+                platform: true,
               },
             },
           },
+        }),
+        db
+          .select({
+            authorId: postToAuthor.a,
+            postsCount: sql<number>`cast(count(*) as int)`,
+          })
+          .from(postToAuthor)
+          .innerJoin(post, eq(post.id, postToAuthor.b))
+          .where(
+            and(
+              inArray(postToAuthor.a, authorIds),
+              eq(post.status, "published")
+            )
+          )
+          .groupBy(postToAuthor.a),
+      ]);
+
+      const socialsByAuthorId = new Map(
+        socialRows.map((entry) => [entry.id, entry.socials])
+      );
+      const postCountsByAuthorId = new Map(
+        postCountRows.map((entry) => [entry.authorId, entry.postsCount])
+      );
+
+      return authorRows.map((entry) => ({
+        ...entry,
+        socials: socialsByAuthorId.get(entry.id) ?? [],
+        postsCount: postCountsByAuthorId.get(entry.id) ?? 0,
+      }));
+    });
+
+    const transformedAuthors = authorsList.map(
+      ({ postsCount, ...authorEntry }) => ({
+        ...authorEntry,
+        count: {
+          posts: postsCount,
         },
-        orderBy: [{ name: "asc" }],
-        take: limit,
-        skip: authorsToSkip,
       })
     );
-
-    // because I dont want prisma's ugly _count
-    const transformedAuthors = authorsList.map((author) => {
-      const { _count, ...rest } = author;
-      return {
-        ...rest,
-        count: {
-          posts: _count.coAuthoredPosts,
-        },
-      };
-    });
 
     return c.json(
       {
@@ -224,7 +279,7 @@ authors.openapi(listAuthorsRoute, async (c) => {
 authors.openapi(getAuthorRoute, async (c) => {
   const workspaceId = requireWorkspaceId(c);
   const { identifier } = c.req.valid("param");
-  const db = createDbClient(c.env);
+  const db = c.get("db");
   const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
 
   try {
@@ -232,20 +287,22 @@ authors.openapi(getAuthorRoute, async (c) => {
     const singleCacheKey = cacheKey(workspaceId, "authors", identifier);
 
     const author = await cache.getOrSet(singleCacheKey, () =>
-      db.author.findFirst({
-        where: {
-          workspaceId,
-          OR: [{ id: identifier }, { slug: identifier }],
-        },
-        select: {
+      db.query.author.findFirst({
+        where: and(
+          eq(authorTable.workspaceId, workspaceId),
+          or(eq(authorTable.id, identifier), eq(authorTable.slug, identifier))
+        ),
+        columns: {
           id: true,
           name: true,
           image: true,
           slug: true,
           bio: true,
           role: true,
+        },
+        with: {
           socials: {
-            select: {
+            columns: {
               url: true,
               platform: true,
             },
@@ -269,8 +326,6 @@ authors.openapi(getAuthorRoute, async (c) => {
     return c.json({ error: "Failed to fetch author" }, 500 as const);
   }
 });
-
-// ─── POST /v1/authors ───
 
 const createAuthorRoute = createRoute({
   method: "post",
@@ -310,49 +365,57 @@ const createAuthorRoute = createRoute({
   },
 });
 
+// ─── POST /v1/authors ───
+
 authors.openapi(createAuthorRoute, async (c) => {
   try {
-    const db = createDbClient(c.env);
+    const db = c.get("db");
     const workspaceId = requireWorkspaceId(c);
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const body = c.req.valid("json");
 
     // Check plan limits before creating another author.
-    const workspace = await db.organization.findUnique({
-      where: { id: workspaceId },
-      select: {
-        subscriptions: {
-          where: {
-            OR: [
-              { status: "active" },
-              { status: "trialing" },
-              {
-                status: "canceled",
-                cancelAtPeriodEnd: true,
-                currentPeriodEnd: { gt: new Date() },
-              },
-            ],
-          },
-          orderBy: { createdAt: "desc" },
-          take: 1,
-          select: {
-            plan: true,
-            status: true,
-            cancelAtPeriodEnd: true,
-            currentPeriodEnd: true,
-          },
-        },
-      },
-    });
+    const subscriptions = await db
+      .select({
+        plan: subscription.plan,
+        status: subscription.status,
+        cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
+        currentPeriodEnd: subscription.currentPeriodEnd,
+      })
+      .from(subscription)
+      .where(
+        and(
+          eq(subscription.workspaceId, workspaceId),
+          or(
+            eq(subscription.status, "active"),
+            eq(subscription.status, "trialing"),
+            and(
+              eq(subscription.status, "canceled"),
+              eq(subscription.cancelAtPeriodEnd, true),
+              gt(subscription.currentPeriodEnd, new Date())
+            )
+          )
+        )
+      )
+      .orderBy(desc(subscription.createdAt))
+      .limit(1);
 
-    const activeSub = workspace?.subscriptions[0];
+    const activeSub = subscriptions[0];
     const plan = getWorkspacePlan(activeSub);
     const planLimits = PLAN_LIMITS[plan];
 
     if (planLimits.maxAuthors !== Number.MAX_SAFE_INTEGER) {
-      const existingCount = await db.author.count({
-        where: { workspaceId, isActive: true },
-      });
+      const [authorsCount] = await db
+        .select({ value: count() })
+        .from(authorTable)
+        .where(
+          and(
+            eq(authorTable.workspaceId, workspaceId),
+            eq(authorTable.isActive, true)
+          )
+        );
+
+      const existingCount = authorsCount?.value ?? 0;
 
       if (existingCount >= planLimits.maxAuthors) {
         return c.json(
@@ -366,8 +429,11 @@ authors.openapi(createAuthorRoute, async (c) => {
     }
 
     // Check slug uniqueness
-    const existingAuthor = await db.author.findFirst({
-      where: { workspaceId, slug: body.slug },
+    const existingAuthor = await db.query.author.findFirst({
+      where: and(
+        eq(authorTable.workspaceId, workspaceId),
+        eq(authorTable.slug, body.slug)
+      ),
     });
 
     if (existingAuthor) {
@@ -380,36 +446,53 @@ authors.openapi(createAuthorRoute, async (c) => {
       );
     }
 
-    const author = await db.author.create({
-      data: {
-        name: body.name,
-        slug: body.slug,
-        bio: body.bio ?? null,
-        role: body.role ?? null,
-        email: body.email ?? null,
-        image: body.image ?? null,
-        workspaceId,
-        ...(body.socials &&
-          body.socials.length > 0 && {
-            socials: {
-              create: body.socials.map((s) => ({
-                url: s.url,
-                platform: s.platform,
-              })),
-            },
-          }),
-      },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        bio: true,
-        role: true,
-        image: true,
-        socials: {
-          select: { url: true, platform: true },
-        },
-      },
+    const author = await db.transaction(async (tx) => {
+      const [authorRow] = await tx
+        .insert(authorTable)
+        .values({
+          id: createRecordId(),
+          name: body.name,
+          slug: body.slug,
+          bio: body.bio ?? null,
+          role: body.role ?? null,
+          email: body.email ?? null,
+          image: body.image ?? null,
+          workspaceId,
+          updatedAt: new Date(),
+        })
+        .returning({
+          id: authorTable.id,
+          name: authorTable.name,
+          slug: authorTable.slug,
+          bio: authorTable.bio,
+          role: authorTable.role,
+          image: authorTable.image,
+        });
+
+      if (!authorRow) {
+        throw new Error("Failed to create author");
+      }
+
+      const socialRows =
+        body.socials && body.socials.length > 0
+          ? await tx
+              .insert(authorSocial)
+              .values(
+                body.socials.map((social) => ({
+                  id: createRecordId(),
+                  authorId: authorRow.id,
+                  url: social.url,
+                  platform: social.platform,
+                  updatedAt: new Date(),
+                }))
+              )
+              .returning({
+                url: authorSocial.url,
+                platform: authorSocial.platform,
+              })
+          : [];
+
+      return { ...authorRow, socials: socialRows };
     });
 
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
@@ -441,8 +524,6 @@ authors.openapi(createAuthorRoute, async (c) => {
     );
   }
 });
-
-// ─── PATCH /v1/authors/{identifier} ───
 
 const updateAuthorRoute = createRoute({
   method: "patch",
@@ -486,19 +567,21 @@ const updateAuthorRoute = createRoute({
   },
 });
 
+// ─── PATCH /v1/authors/{identifier} ───
+
 authors.openapi(updateAuthorRoute, async (c) => {
   try {
-    const db = createDbClient(c.env);
+    const db = c.get("db");
     const workspaceId = requireWorkspaceId(c);
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const { identifier } = c.req.valid("param");
     const body = c.req.valid("json");
 
-    const existingAuthor = await db.author.findFirst({
-      where: {
-        workspaceId,
-        OR: [{ id: identifier }, { slug: identifier }],
-      },
+    const existingAuthor = await db.query.author.findFirst({
+      where: and(
+        eq(authorTable.workspaceId, workspaceId),
+        or(eq(authorTable.id, identifier), eq(authorTable.slug, identifier))
+      ),
     });
 
     if (!existingAuthor) {
@@ -513,12 +596,12 @@ authors.openapi(updateAuthorRoute, async (c) => {
 
     // If slug is being changed, check uniqueness
     if (body.slug && body.slug !== existingAuthor.slug) {
-      const slugConflict = await db.author.findFirst({
-        where: {
-          slug: body.slug,
-          workspaceId,
-          id: { not: existingAuthor.id },
-        },
+      const slugConflict = await db.query.author.findFirst({
+        where: and(
+          eq(authorTable.slug, body.slug),
+          eq(authorTable.workspaceId, workspaceId),
+          ne(authorTable.id, existingAuthor.id)
+        ),
       });
 
       if (slugConflict) {
@@ -533,39 +616,69 @@ authors.openapi(updateAuthorRoute, async (c) => {
       }
     }
 
-    const updatedAuthor = await db.author.update({
-      where: { id: existingAuthor.id },
-      data: {
-        ...(body.name !== undefined && { name: body.name }),
-        ...(body.slug !== undefined && { slug: body.slug }),
-        ...(body.bio !== undefined && { bio: body.bio }),
-        ...(body.role !== undefined && { role: body.role }),
-        ...(body.email !== undefined && { email: body.email || null }),
-        ...(body.image !== undefined && { image: body.image }),
-        // Socials: delete all existing and recreate (same pattern as CMS)
-        ...(body.socials !== undefined && {
-          socials: {
-            deleteMany: {},
-            ...(body.socials.length > 0 && {
-              create: body.socials.map((s) => ({
-                url: s.url,
-                platform: s.platform,
-              })),
-            }),
-          },
-        }),
-      },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        bio: true,
-        role: true,
-        image: true,
-        socials: {
-          select: { url: true, platform: true },
-        },
-      },
+    const updatedAuthor = await db.transaction(async (tx) => {
+      const [authorRow] = await tx
+        .update(authorTable)
+        .set({
+          ...(body.name !== undefined && { name: body.name }),
+          ...(body.slug !== undefined && { slug: body.slug }),
+          ...(body.bio !== undefined && { bio: body.bio }),
+          ...(body.role !== undefined && { role: body.role }),
+          ...(body.email !== undefined && { email: body.email || null }),
+          ...(body.image !== undefined && { image: body.image }),
+          updatedAt: new Date(),
+        })
+        .where(eq(authorTable.id, existingAuthor.id))
+        .returning({
+          id: authorTable.id,
+          name: authorTable.name,
+          slug: authorTable.slug,
+          bio: authorTable.bio,
+          role: authorTable.role,
+          image: authorTable.image,
+        });
+
+      if (!authorRow) {
+        throw new Error("Author not found");
+      }
+
+      // Socials: delete all existing and recreate (same pattern as CMS)
+      if (body.socials !== undefined) {
+        await tx
+          .delete(authorSocial)
+          .where(eq(authorSocial.authorId, existingAuthor.id));
+
+        const socialRows =
+          body.socials.length > 0
+            ? await tx
+                .insert(authorSocial)
+                .values(
+                  body.socials.map((social) => ({
+                    id: createRecordId(),
+                    authorId: existingAuthor.id,
+                    url: social.url,
+                    platform: social.platform,
+                    updatedAt: new Date(),
+                  }))
+                )
+                .returning({
+                  url: authorSocial.url,
+                  platform: authorSocial.platform,
+                })
+            : [];
+
+        return { ...authorRow, socials: socialRows };
+      }
+
+      const socialRows = await tx
+        .select({
+          url: authorSocial.url,
+          platform: authorSocial.platform,
+        })
+        .from(authorSocial)
+        .where(eq(authorSocial.authorId, existingAuthor.id));
+
+      return { ...authorRow, socials: socialRows };
     });
 
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
@@ -599,8 +712,6 @@ authors.openapi(updateAuthorRoute, async (c) => {
   }
 });
 
-// ─── DELETE /v1/authors/{identifier} ───
-
 const deleteAuthorRoute = createRoute({
   method: "delete",
   path: "/{identifier}",
@@ -630,21 +741,26 @@ const deleteAuthorRoute = createRoute({
   },
 });
 
+// ─── DELETE /v1/authors/{identifier} ───
+
 authors.openapi(deleteAuthorRoute, async (c) => {
   try {
-    const db = createDbClient(c.env);
+    const db = c.get("db");
     const workspaceId = requireWorkspaceId(c);
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const { identifier } = c.req.valid("param");
 
-    const existingAuthor = await db.author.findFirst({
-      where: {
-        workspaceId,
-        OR: [{ id: identifier }, { slug: identifier }],
-      },
-      include: {
+    const existingAuthor = await db.query.author.findFirst({
+      where: and(
+        eq(authorTable.workspaceId, workspaceId),
+        or(eq(authorTable.id, identifier), eq(authorTable.slug, identifier))
+      ),
+      with: {
         socials: {
-          select: { url: true, platform: true },
+          columns: {
+            url: true,
+            platform: true,
+          },
         },
       },
     });
@@ -659,9 +775,7 @@ authors.openapi(deleteAuthorRoute, async (c) => {
       );
     }
 
-    await db.author.delete({
-      where: { id: existingAuthor.id },
-    });
+    await db.delete(authorTable).where(eq(authorTable.id, existingAuthor.id));
 
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));

@@ -1,3 +1,12 @@
+import {
+  author,
+  category,
+  importJob,
+  post,
+} from "@marble/drizzle/schema";
+import { isPgUniqueViolation } from "@marble/drizzle/pg-errors";
+import { createRecordId } from "@marble/drizzle/id";
+import { and, eq } from "drizzle-orm";
 import type { DbClient } from "@/lib/db";
 import { generateSlug } from "@/utils/import-content";
 
@@ -6,19 +15,22 @@ const UNCATEGORIZED_CATEGORY = {
   slug: "uncategorized",
 };
 
+const POST_WORKSPACE_SLUG_UNIQUE = "post_workspaceId_slug_key";
+const AUTHOR_WORKSPACE_SLUG_UNIQUE = "author_workspaceId_slug_key";
+const AUTHOR_WORKSPACE_USER_UNIQUE = "author_workspaceId_userId_key";
+const CATEGORY_WORKSPACE_SLUG_UNIQUE = "category_workspaceId_slug_key";
+
 export const MAX_UNIQUE_SLUG_ATTEMPTS = 25;
 
-/** Detects Prisma unique constraint errors without importing runtime types. */
 export function isUniqueConstraintError(error: unknown) {
   return (
-    typeof error === "object" &&
-    error !== null &&
-    "code" in error &&
-    error.code === "P2002"
+    isPgUniqueViolation(error, POST_WORKSPACE_SLUG_UNIQUE) ||
+    isPgUniqueViolation(error, AUTHOR_WORKSPACE_SLUG_UNIQUE) ||
+    isPgUniqueViolation(error, AUTHOR_WORKSPACE_USER_UNIQUE) ||
+    isPgUniqueViolation(error, CATEGORY_WORKSPACE_SLUG_UNIQUE)
   );
 }
 
-/** Returns a bounded slug candidate for retrying raced unique writes. */
 export function getSlugAttempt(
   preferredSlug: string,
   attempt: number,
@@ -28,7 +40,6 @@ export function getSlugAttempt(
   return attempt === 0 ? baseSlug : `${baseSlug}-${attempt + 1}`;
 }
 
-/** Marks an import job as failed with a user-visible error message. */
 export async function failImportJob({
   db,
   jobId,
@@ -38,17 +49,17 @@ export async function failImportJob({
   jobId: string;
   message: string;
 }) {
-  await db.importJob.update({
-    where: { id: jobId },
-    data: {
+  await db
+    .update(importJob)
+    .set({
       status: "failed",
       failedAt: new Date(),
       errorMessage: message,
-    },
-  });
+      updatedAt: new Date(),
+    })
+    .where(eq(importJob.id, jobId));
 }
 
-/** Finds a unique post slug within the workspace by appending a numeric suffix. */
 export async function getUniquePostSlug(
   db: DbClient,
   workspaceId: string,
@@ -59,9 +70,9 @@ export async function getUniquePostSlug(
   let suffix = 1;
 
   while (
-    await db.post.findUnique({
-      where: { workspaceId_slug: { workspaceId, slug } },
-      select: { id: true },
+    await db.query.post.findFirst({
+      where: and(eq(post.workspaceId, workspaceId), eq(post.slug, slug)),
+      columns: { id: true },
     })
   ) {
     suffix += 1;
@@ -71,7 +82,6 @@ export async function getUniquePostSlug(
   return slug;
 }
 
-/** Finds a unique author slug within the workspace by appending a numeric suffix. */
 export async function getUniqueAuthorSlug(
   db: DbClient,
   workspaceId: string,
@@ -82,9 +92,9 @@ export async function getUniqueAuthorSlug(
   let suffix = 1;
 
   while (
-    await db.author.findUnique({
-      where: { workspaceId_slug: { workspaceId, slug } },
-      select: { id: true },
+    await db.query.author.findFirst({
+      where: and(eq(author.workspaceId, workspaceId), eq(author.slug, slug)),
+      columns: { id: true },
     })
   ) {
     suffix += 1;
@@ -94,7 +104,6 @@ export async function getUniqueAuthorSlug(
   return slug;
 }
 
-/** Resolves the import author from the creating user, or creates a fallback author. */
 export async function getImportAuthor(
   db: DbClient,
   job: NonNullable<Awaited<ReturnType<typeof getImportJob>>>
@@ -111,15 +120,10 @@ export async function getImportAuthor(
       );
 
       try {
-        return await db.author.upsert({
-          where: {
-            workspaceId_userId: {
-              workspaceId: job.workspaceId,
-              userId: job.createdBy.id,
-            },
-          },
-          update: {},
-          create: {
+        const [result] = await db
+          .insert(author)
+          .values({
+            id: createRecordId(),
             name: job.createdBy.name,
             email: job.createdBy.email,
             slug,
@@ -127,9 +131,16 @@ export async function getImportAuthor(
             workspaceId: job.workspaceId,
             userId: job.createdBy.id,
             role: "Writer",
-          },
-          select: { id: true },
-        });
+          })
+          .onConflictDoUpdate({
+            target: [author.workspaceId, author.userId],
+            set: { updatedAt: new Date() },
+          })
+          .returning({ id: author.id });
+
+        if (result) {
+          return result;
+        }
       } catch (error) {
         if (!isUniqueConstraintError(error)) {
           throw error;
@@ -140,52 +151,58 @@ export async function getImportAuthor(
     throw new Error("Could not create an import author with a unique slug");
   }
 
-  return await db.author.upsert({
-    where: {
-      workspaceId_slug: {
-        workspaceId: job.workspaceId,
-        slug: "imported-author",
-      },
-    },
-    update: {},
-    create: {
+  const [result] = await db
+    .insert(author)
+    .values({
+      id: createRecordId(),
       name: "Imported Author",
       slug: "imported-author",
       workspaceId: job.workspaceId,
       role: "Writer",
-    },
-    select: { id: true },
-  });
+    })
+    .onConflictDoUpdate({
+      target: [author.workspaceId, author.slug],
+      set: { updatedAt: new Date() },
+    })
+    .returning({ id: author.id });
+
+  if (!result) {
+    throw new Error("Could not resolve import author");
+  }
+
+  return result;
 }
 
-/** Ensures every import has a category by creating or reusing Uncategorized. */
 export async function getUncategorizedCategory(
   db: DbClient,
   workspaceId: string
 ) {
-  return await db.category.upsert({
-    where: {
-      workspaceId_slug: {
-        workspaceId,
-        slug: UNCATEGORIZED_CATEGORY.slug,
-      },
-    },
-    update: {},
-    create: {
+  const [result] = await db
+    .insert(category)
+    .values({
+      id: createRecordId(),
       ...UNCATEGORIZED_CATEGORY,
       workspaceId,
-    },
-    select: { id: true },
-  });
+    })
+    .onConflictDoUpdate({
+      target: [category.workspaceId, category.slug],
+      set: { updatedAt: new Date() },
+    })
+    .returning({ id: category.id });
+
+  if (!result) {
+    throw new Error("Could not resolve uncategorized category");
+  }
+
+  return result;
 }
 
-/** Loads an import job with the creator data needed for author resolution. */
 export async function getImportJob(db: DbClient, jobId: string) {
-  return await db.importJob.findUnique({
-    where: { id: jobId },
-    include: {
+  return await db.query.importJob.findFirst({
+    where: eq(importJob.id, jobId),
+    with: {
       createdBy: {
-        select: {
+        columns: {
           id: true,
           name: true,
           email: true,

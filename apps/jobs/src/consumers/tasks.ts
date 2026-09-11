@@ -16,8 +16,7 @@ export async function handleTaskQueue(
   batch: MessageBatch<TaskMessage>,
   env: Env
 ) {
-  const db = createDbClient(env);
-
+  const db = await createDbClient(env);
   for (const message of batch.messages) {
     const body = message.body;
 

@@ -31,7 +31,6 @@ apps/jobs/worker-configuration.d.ts
 out/
 build
 dist
-packages/db/src/generated/
 .idea
 
 # Debug

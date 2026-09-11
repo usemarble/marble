@@ -1,8 +1,10 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
+import { createRecordId } from "@marble/drizzle/id";
+import { media as mediaTable } from "@marble/drizzle/schema";
 import { toMediaPayload, withChanges } from "@marble/events";
+import { and, asc, count, desc, eq, ilike, or } from "drizzle-orm";
 import { cacheKey, createCacheClient, hashQueryParams } from "@/lib/cache";
 import { ALLOWED_MEDIA_MIME_TYPES, MAX_UPLOAD_SIZE } from "@/lib/constants";
-import { createDbClient } from "@/lib/db";
 import { emitEvent } from "@/lib/events";
 import {
   extensionFromFile,
@@ -36,6 +38,36 @@ const media = new OpenAPIHono<ApiKeyApp>();
 
 function isUploadedFile(value: unknown): value is File {
   return value !== null && typeof value !== "string";
+}
+
+function buildMediaListWhere(
+  workspaceId: string,
+  query: {
+    type?: "image" | "video" | "audio" | "document";
+    query?: string;
+  }
+) {
+  const conditions = [eq(mediaTable.workspaceId, workspaceId)];
+
+  if (query.type) {
+    conditions.push(eq(mediaTable.type, query.type));
+  }
+
+  if (query.query) {
+    const searchPattern = `%${query.query}%`;
+    const searchCondition = or(
+      ilike(mediaTable.name, searchPattern),
+      ilike(mediaTable.alt, searchPattern),
+      ilike(mediaTable.url, searchPattern),
+      ilike(mediaTable.mimeType, searchPattern)
+    );
+
+    if (searchCondition) {
+      conditions.push(searchCondition);
+    }
+  }
+
+  return and(...conditions);
 }
 
 const listMediaRoute = createRoute({
@@ -192,47 +224,33 @@ const uploadMediaRoute = createRoute({
 
 media.openapi(listMediaRoute, async (c) => {
   try {
-    const db = createDbClient(c.env);
+    const db = c.get("db");
     const workspaceId = requireWorkspaceId(c);
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const query = c.req.valid("query");
     const { limit, page, order, type } = query;
     const skip = (page - 1) * limit;
-
-    const where = {
-      workspaceId,
-      ...(type ? { type } : {}),
-      ...(query.query
-        ? {
-            OR: [
-              { name: { contains: query.query, mode: "insensitive" as const } },
-              { alt: { contains: query.query, mode: "insensitive" as const } },
-              { url: { contains: query.query, mode: "insensitive" as const } },
-              {
-                mimeType: {
-                  contains: query.query,
-                  mode: "insensitive" as const,
-                },
-              },
-            ],
-          }
-        : {}),
-    };
+    const where = buildMediaListWhere(workspaceId, { type, query: query.query });
 
     const key = cacheKey(workspaceId, "media", "list", hashQueryParams(query));
 
     const response = await cache.getOrSet(key, async () => {
-      const [items, totalItems] = await Promise.all([
-        db.media.findMany({
+      const [items, totalItemsResult] = await Promise.all([
+        db.query.media.findMany({
           where,
-          orderBy: { createdAt: order },
-          skip,
-          take: limit,
+          orderBy:
+            order === "asc"
+              ? asc(mediaTable.createdAt)
+              : desc(mediaTable.createdAt),
+          limit,
+          offset: skip,
         }),
-        db.media.count({ where }),
+        db.select({ value: count() }).from(mediaTable).where(where),
       ]);
 
+      const totalItems = totalItemsResult[0]?.value ?? 0;
       const totalPages = Math.ceil(totalItems / limit);
+
       return {
         media: items.map(serializeMedia),
         pagination: {
@@ -278,11 +296,14 @@ media.openapi(listMediaRoute, async (c) => {
 
 media.openapi(getMediaRoute, async (c) => {
   try {
-    const db = createDbClient(c.env);
+    const db = c.get("db");
     const workspaceId = requireWorkspaceId(c);
     const { id } = c.req.valid("param");
 
-    const item = await db.media.findFirst({ where: { id, workspaceId } });
+    const item = await db.query.media.findFirst({
+      where: and(eq(mediaTable.id, id), eq(mediaTable.workspaceId, workspaceId)),
+    });
+
     if (!item) {
       return c.json(
         {
@@ -308,13 +329,16 @@ media.openapi(getMediaRoute, async (c) => {
 
 media.openapi(updateMediaRoute, async (c) => {
   try {
-    const db = createDbClient(c.env);
+    const db = c.get("db");
     const workspaceId = requireWorkspaceId(c);
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const { id } = c.req.valid("param");
     const body = c.req.valid("json");
 
-    const existing = await db.media.findFirst({ where: { id, workspaceId } });
+    const existing = await db.query.media.findFirst({
+      where: and(eq(mediaTable.id, id), eq(mediaTable.workspaceId, workspaceId)),
+    });
+
     if (!existing) {
       return c.json(
         {
@@ -325,13 +349,25 @@ media.openapi(updateMediaRoute, async (c) => {
       );
     }
 
-    const updated = await db.media.update({
-      where: { id },
-      data: {
+    const [updated] = await db
+      .update(mediaTable)
+      .set({
         ...(body.name !== undefined ? { name: body.name } : {}),
         ...(body.alt !== undefined ? { alt: body.alt } : {}),
-      },
-    });
+        updatedAt: new Date(),
+      })
+      .where(eq(mediaTable.id, id))
+      .returning();
+
+    if (!updated) {
+      return c.json(
+        {
+          error: "Failed to update media",
+          message: "An unexpected error occurred",
+        },
+        500 as const
+      );
+    }
 
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "media"));
 
@@ -364,12 +400,15 @@ media.openapi(updateMediaRoute, async (c) => {
 
 media.openapi(deleteMediaRoute, async (c) => {
   try {
-    const db = createDbClient(c.env);
+    const db = c.get("db");
     const workspaceId = requireWorkspaceId(c);
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const { id } = c.req.valid("param");
 
-    const existing = await db.media.findFirst({ where: { id, workspaceId } });
+    const existing = await db.query.media.findFirst({
+      where: and(eq(mediaTable.id, id), eq(mediaTable.workspaceId, workspaceId)),
+    });
+
     if (!existing) {
       return c.json(
         {
@@ -390,7 +429,7 @@ media.openapi(deleteMediaRoute, async (c) => {
       );
     }
 
-    await db.media.delete({ where: { id } });
+    await db.delete(mediaTable).where(eq(mediaTable.id, id));
 
     c.executionCtx.waitUntil(c.env.STORAGE.delete(existing.storageKey));
     c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "media"));
@@ -424,7 +463,7 @@ media.openapi(deleteMediaRoute, async (c) => {
 
 media.openapi(uploadMediaRoute, async (c) => {
   try {
-    const db = createDbClient(c.env);
+    const db = c.get("db");
     const workspaceId = requireWorkspaceId(c);
     const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const formData = await c.req.formData();
@@ -467,7 +506,7 @@ media.openapi(uploadMediaRoute, async (c) => {
       ? getImageDimensions(fileBuffer)
       : {};
     const extension = extensionFromFile(file);
-    const id = crypto.randomUUID();
+    const id = createRecordId();
     const key = `media/${workspaceId}/${id}.${extension}`;
     const nameField = formData.get("name");
     const altField = formData.get("alt");
@@ -486,10 +525,15 @@ media.openapi(uploadMediaRoute, async (c) => {
       },
     });
 
-    let created: Awaited<ReturnType<typeof db.media.create>>;
+    let created: NonNullable<
+      Awaited<ReturnType<typeof db.query.media.findFirst>>
+    >;
+
     try {
-      created = await db.media.create({
-        data: {
+      const [inserted] = await db
+        .insert(mediaTable)
+        .values({
+          id,
           name,
           alt,
           url: publicUrl(c.env.STORAGE_PUBLIC_URL, key),
@@ -500,8 +544,15 @@ media.openapi(uploadMediaRoute, async (c) => {
           height: dimensions.height,
           type: getMediaType(contentType),
           workspaceId,
-        },
-      });
+          updatedAt: new Date(),
+        })
+        .returning();
+
+      if (!inserted) {
+        throw new Error("Failed to create media record");
+      }
+
+      created = inserted;
     } catch (error) {
       await c.env.STORAGE.delete(key);
       throw error;

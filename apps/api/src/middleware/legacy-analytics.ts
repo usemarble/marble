@@ -1,5 +1,5 @@
 import type { Context, MiddlewareHandler, Next } from "hono";
-import { createDbClient, type DbClient } from "@/lib/db";
+import { createDbClient } from "@/lib/db";
 import { checkApiUsage, type UsageCheckResult } from "@/lib/usage";
 import { runAnalyticsTask } from "./analytics";
 
@@ -18,7 +18,7 @@ export const legacyAnalytics = (): MiddlewareHandler => {
 
     if (workspaceId && method !== "OPTIONS") {
       try {
-        const db = createDbClient(c.env);
+        const db = c.get("db");
         const redis =
           REDIS_URL && REDIS_TOKEN
             ? { url: REDIS_URL, token: REDIS_TOKEN }
@@ -42,14 +42,6 @@ export const legacyAnalytics = (): MiddlewareHandler => {
 
     await next();
 
-    let db: DbClient;
-    try {
-      db = createDbClient(c.env);
-    } catch {
-      console.error("[LegacyAnalytics] Database configuration error");
-      return;
-    }
-
     const status = c.res.status ?? 200;
 
     if (!workspaceId || method === "OPTIONS" || status >= 400) {
@@ -64,17 +56,20 @@ export const legacyAnalytics = (): MiddlewareHandler => {
     const { RESEND_API_KEY, POLAR_ACCESS_TOKEN, ENVIRONMENT } = c.env;
 
     c.executionCtx?.waitUntil(
-      runAnalyticsTask({
-        db,
-        workspaceId,
-        endpoint,
-        method,
-        status,
-        usageResult,
-        resendApiKey: RESEND_API_KEY,
-        polarAccessToken: POLAR_ACCESS_TOKEN,
-        environment: ENVIRONMENT,
-      })
+      (async () => {
+        const bgDb = await createDbClient(c.env);
+        await runAnalyticsTask({
+          db: bgDb,
+          workspaceId,
+          endpoint,
+          method,
+          status,
+          usageResult,
+          resendApiKey: RESEND_API_KEY,
+          polarAccessToken: POLAR_ACCESS_TOKEN,
+          environment: ENVIRONMENT,
+        });
+      })()
     );
   };
 };
