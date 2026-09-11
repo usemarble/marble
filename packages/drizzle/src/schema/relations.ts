@@ -1,38 +1,26 @@
 import { relations } from "drizzle-orm";
+import { apiKey } from "./api-keys";
+import { account, session, user, verification } from "./auth";
+import { subscription } from "./billing";
+import { post, postToAuthor, postToTag, shareLink } from "./content";
+import { exportJob, importItem, importJob } from "./data-transfer";
+import { field, fieldOption, fieldValue } from "./fields";
+import { media } from "./media";
+import { author, authorSocial, category, tag } from "./taxonomy";
+import { usageAlert, usageEvent } from "./usage";
 import {
-  account,
-  apiKey,
-  author,
-  authorSocial,
-  category,
-  exportJob,
-  field,
-  fieldOption,
-  fieldValue,
-  importItem,
-  importJob,
-  invitation,
-  media,
-  member,
-  post,
-  postToAuthor,
-  postToTag,
-  session,
-  shareLink,
-  subscription,
-  tag,
-  usageAlert,
-  usageEvent,
-  user,
-  userNotificationPreferences,
-  verification,
   webhookDelivery,
   webhookDeliveryAttempt,
   webhookEndpoint,
-  workspace,
   workspaceEvent,
+} from "./webhooks";
+import {
+  invitation,
+  member,
+  userNotificationPreferences,
+  workspace,
   workspaceNotificationPreferences,
-} from "./tables";
+} from "./workspaces";
 
 export const shareLinkRelations = relations(shareLink, ({ one }) => ({
   post: one(post, {
