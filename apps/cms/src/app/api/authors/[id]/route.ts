@@ -1,5 +1,5 @@
-import { createRecordId, db } from "@marble/drizzle";
-import { authorSocial, author as authorTable } from "@marble/drizzle/schema";
+import { createRecordId, db } from "@marble/db";
+import { authorSocial, author as authorTable } from "@marble/db/schema";
 import { toAuthorPayload, withChanges } from "@marble/events";
 
 import { and, eq, ne } from "drizzle-orm";

@@ -1,9 +1,9 @@
-import { createRecordId, db } from "@marble/drizzle";
+import { createRecordId, db } from "@marble/db";
 import {
   authorSocial,
   author as authorTable,
   subscription,
-} from "@marble/drizzle/schema";
+} from "@marble/db/schema";
 import { toAuthorPayload } from "@marble/events";
 import { and, count, desc, eq, gt, or } from "drizzle-orm";
 import { NextResponse } from "next/server";

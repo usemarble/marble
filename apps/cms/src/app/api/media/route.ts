@@ -1,6 +1,6 @@
 import { DeleteObjectCommand } from "@aws-sdk/client-s3";
-import { db } from "@marble/drizzle";
-import { media } from "@marble/drizzle/schema";
+import { db } from "@marble/db";
+import { media } from "@marble/db/schema";
 import { toMediaPayload } from "@marble/events";
 import { and, eq, inArray } from "drizzle-orm";
 import { NextResponse } from "next/server";

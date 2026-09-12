@@ -1,5 +1,5 @@
-import { createRecordId, db } from "@marble/drizzle";
-import { category as categoryTable } from "@marble/drizzle/schema";
+import { createRecordId, db } from "@marble/db";
+import { category as categoryTable } from "@marble/db/schema";
 import { toCategoryPayload } from "@marble/events";
 
 import { and, eq } from "drizzle-orm";

@@ -1,4 +1,4 @@
-// biome-ignore lint/performance/noBarrelFile: required `@marble/drizzle/schema` export surface
+// biome-ignore lint/performance/noBarrelFile: required `@marble/db/schema` export surface
 export * from "./api-keys";
 export * from "./auth";
 export * from "./billing";

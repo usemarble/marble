@@ -1,5 +1,5 @@
-import { db } from "@marble/drizzle";
-import { subscription, workspace } from "@marble/drizzle/schema";
+import { db } from "@marble/db";
+import { subscription, workspace } from "@marble/db/schema";
 import { and, desc, eq, gt, or } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireWorkspaceAccess } from "@/lib/auth/access";

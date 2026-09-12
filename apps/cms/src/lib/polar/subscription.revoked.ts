@@ -1,7 +1,7 @@
 "use server";
 
-import { db } from "@marble/drizzle";
-import { subscription } from "@marble/drizzle/schema";
+import { db } from "@marble/db";
+import { subscription } from "@marble/db/schema";
 import type { WebhookSubscriptionRevokedPayload } from "@polar-sh/sdk/models/components/webhooksubscriptionrevokedpayload.js";
 import { and, eq, isNull, lte, or } from "drizzle-orm";
 import { isStalePolarEvent } from "./utils";

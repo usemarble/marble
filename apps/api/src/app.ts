@@ -3,6 +3,8 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { trimTrailingSlash } from "hono/trailing-slash";
 import { FRAMER_PLUGIN_PATTERN, ROUTES } from "./lib/constants";
+import type { DbClient } from "./lib/db";
+import { dbMiddleware } from "./lib/db";
 import { restrictLegacyPostStatus } from "./lib/legacy-posts";
 import { analytics } from "./middleware/analytics";
 import { authorization } from "./middleware/authorization";
@@ -23,7 +25,12 @@ import tagsRoutes from "./routes/tags";
 import tasksRoutes from "./routes/tasks";
 import type { ApiKeyApp, Env } from "./types/env";
 
-const app = new OpenAPIHono<{ Bindings: Env }>();
+interface AppEnv {
+  Bindings: Env;
+  Variables: { db: DbClient };
+}
+
+const app = new OpenAPIHono<AppEnv>();
 
 const OPENAPI_CACHE_CONTROL =
   "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800";
@@ -66,6 +73,7 @@ app.use("/cache/invalidate", systemAuth());
 app.route("/cache/invalidate", cacheRoutes);
 
 app.use("/internal/events", systemAuth());
+app.use("/internal/events", dbMiddleware);
 app.route("/internal/events", eventsRoutes);
 
 app.use("/internal/tasks", systemAuth());
@@ -74,7 +82,8 @@ app.route("/internal/tasks", tasksRoutes);
 // Legacy Workspace ID Routes (/v1/:workspaceId/*)
 // MUST be registered BEFORE apiKeyV1 to intercept workspace ID routes
 // Using standard Hono since these are deprecated and don't need to be in the spec
-const legacyV1 = new Hono<{ Bindings: Env }>();
+const legacyV1 = new Hono<AppEnv>();
+legacyV1.use("/:workspaceId/*", dbMiddleware);
 legacyV1.use("/:workspaceId/*", ratelimit("workspace"));
 legacyV1.use("/:workspaceId/*", authorization());
 legacyV1.use("/:workspaceId/*", legacyAnalytics());
@@ -120,6 +129,7 @@ app.use("/v1/:workspaceId/*", async (c, next) => {
 // API Key Routes (/v1/posts, /v1/tags, etc.)
 // Using OpenAPIHono to properly merge specs
 const apiKeyV1 = new OpenAPIHono<ApiKeyApp>();
+apiKeyV1.use("*", dbMiddleware);
 apiKeyV1.use("*", ratelimit("apiKey"));
 apiKeyV1.use("*", keyAuthorization());
 apiKeyV1.use("*", scopeAuthorization());

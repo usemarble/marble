@@ -40,9 +40,6 @@
   "search.exclude": {
     "**/node_modules": true
   },
-  "[prisma]": {
-    "editor.defaultFormatter": "Prisma.prisma"
-  },
   "[javascriptreact]": {
     "editor.defaultFormatter": "biomejs.biome"
   },

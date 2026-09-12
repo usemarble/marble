@@ -1,5 +1,5 @@
-import { createRecordId, db } from "@marble/drizzle";
-import { post, shareLink, subscription } from "@marble/drizzle/schema";
+import { createRecordId, db } from "@marble/db";
+import { post, shareLink, subscription } from "@marble/db/schema";
 import { and, desc, eq, gt, or } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";

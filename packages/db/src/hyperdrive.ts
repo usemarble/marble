@@ -1,28 +1,45 @@
-import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "./generated/workerd/client";
+import { drizzle, type NodePgDatabase } from "drizzle-orm/node-postgres";
+import { Client } from "pg";
+import { schema } from "./schema";
 
 /**
- * Create a Prisma client for Hyperdrive.
- *
- * Uses the pg-worker adapter (standard PostgreSQL protocol) instead of the Neon
- * serverless driver. Compatible with Cloudflare Hyperdrive, which requires
- * direct TCP Postgres connections per CF docs.
- *
- * Pass env.HYPERDRIVE.connectionString from your Worker. Same Prisma Client
- * API for all queries — no schema changes needed.
+ * Hyperdrive client for api/jobs Workers. Uses a per-request pg.Client (not Pool).
+ * CMS must use the neon-serverless WebSocket client from `./index.ts`.
  */
-const createClient = (connectionString: string) => {
-  const url =
-    typeof connectionString === "string"
-      ? connectionString.trim()
-      : String(connectionString || "").trim();
+export type HyperdriveDb = NodePgDatabase<typeof schema>;
 
-  if (!url) {
-    throw new Error("Connection string is required and must be non-empty");
-  }
+/**
+ * Each db carries a dedicated socket, so every `createHyperdriveClient` call must
+ * be paired with `closeHyperdriveClient` (in a `finally`) or the Worker leaks
+ * Hyperdrive/Postgres connections until the runtime tears the isolate down.
+ */
+const openClients = new WeakMap<HyperdriveDb, Client>();
 
-  const adapter = new PrismaPg({ connectionString: url });
-  return new PrismaClient({ adapter });
+export const createHyperdriveClient = async (
+  connectionString: string
+): Promise<HyperdriveDb> => {
+  const client = new Client({ connectionString });
+  await client.connect();
+  const db = drizzle({ client, schema });
+  openClients.set(db, client);
+  return db;
 };
 
-export { createClient };
+/**
+ * Closes the socket behind `db`. Idempotent, and never throws — a failed close
+ * must not mask the error that sent us down the cleanup path.
+ */
+export const closeHyperdriveClient = async (
+  db: HyperdriveDb
+): Promise<void> => {
+  const client = openClients.get(db);
+  if (!client) {
+    return;
+  }
+  openClients.delete(db);
+  try {
+    await client.end();
+  } catch (error) {
+    console.error("[DB] Failed to close Hyperdrive client:", error);
+  }
+};

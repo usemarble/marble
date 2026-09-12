@@ -9,6 +9,8 @@ Working title for the second migration PR: **`apps/api` + `apps/jobs` on Drizzle
 
 This document summarizes PR2 prerequisites, scope, client factory changes, parity checks, exit criteria, and out-of-scope items. It assumes PR1 (CMS + `@marble/drizzle` foundation) is already merged.
 
+> Historical naming: this plan calls the coexistence package `@marble/drizzle`. Its final name after the Prisma implementation was removed is `@marble/db`, located at `packages/db`.
+
 Index: [`README.md`](./README.md).
 
 ---

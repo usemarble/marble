@@ -1,9 +1,5 @@
-import {
-  createRecordId,
-  db,
-  isFieldWorkspaceKeyConflict,
-} from "@marble/drizzle";
-import { field, fieldOption } from "@marble/drizzle/schema";
+import { createRecordId, db, isFieldWorkspaceKeyConflict } from "@marble/db";
+import { field, fieldOption } from "@marble/db/schema";
 import { and, asc, desc, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";

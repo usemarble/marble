@@ -2,8 +2,8 @@ import {
   GetObjectCommand,
   type GetObjectCommandOutput,
 } from "@aws-sdk/client-s3";
-import { db } from "@marble/drizzle";
-import { exportJob } from "@marble/drizzle/schema";
+import { db } from "@marble/db";
+import { exportJob } from "@marble/db/schema";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";

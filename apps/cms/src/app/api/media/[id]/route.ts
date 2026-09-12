@@ -1,5 +1,5 @@
-import { db } from "@marble/drizzle";
-import { media } from "@marble/drizzle/schema";
+import { db } from "@marble/db";
+import { media } from "@marble/db/schema";
 import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { z } from "zod";

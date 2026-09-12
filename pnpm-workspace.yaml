@@ -2,13 +2,13 @@ packages:
   - "apps/*"
   - "packages/*"
 allowBuilds:
-  '@prisma/engines': true
+  '@prisma/engines': false
   '@scarf/scarf': true
   bufferutil: true
   core-js-pure: true
   esbuild: true
   keytar: true
-  prisma: true
+  prisma: false
   puppeteer: true
   sharp: true
   workerd: true

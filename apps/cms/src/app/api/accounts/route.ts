@@ -1,5 +1,5 @@
-import { db } from "@marble/drizzle";
-import { account, user } from "@marble/drizzle/schema";
+import { db } from "@marble/db";
+import { account, user } from "@marble/db/schema";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/auth/session";

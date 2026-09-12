@@ -9,6 +9,8 @@ Working title for the first migration PR: **foundation + `apps/cms` only**.
 
 This document summarizes PR1 scope, phases, exit criteria, and out-of-scope items. It follows the safe Prisma → Drizzle migration plan and the hazard analysis that keeps API/jobs out of the first PR.
 
+> Historical naming: during coexistence, the Drizzle package lived at `packages/drizzle` as `@marble/drizzle`. After Prisma was removed, it was renamed to the retained `packages/db` / `@marble/db` package name.
+
 ---
 
 ### Goal

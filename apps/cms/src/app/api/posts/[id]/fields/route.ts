@@ -1,5 +1,5 @@
-import { createRecordId, db } from "@marble/drizzle";
-import { field, fieldOption, fieldValue, post } from "@marble/drizzle/schema";
+import { createRecordId, db } from "@marble/db";
+import { field, fieldOption, fieldValue, post } from "@marble/db/schema";
 import { sanitizeRichTextHtml } from "@marble/utils/sanitize";
 
 import { and, asc, eq } from "drizzle-orm";

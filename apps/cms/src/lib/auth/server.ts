@@ -1,5 +1,5 @@
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
-import { createRecordId, db } from "@marble/drizzle";
+import { createRecordId, db } from "@marble/db";
 import {
   account,
   accountRelations,
@@ -15,7 +15,7 @@ import {
   verificationRelations,
   workspace,
   workspaceRelations,
-} from "@marble/drizzle/schema";
+} from "@marble/db/schema";
 import {
   checkout,
   polar,

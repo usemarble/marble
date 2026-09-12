@@ -1,3 +1,5 @@
+import { webhookDelivery } from "@marble/db/schema";
+import { and, inArray, lt } from "drizzle-orm";
 import {
   MILLISECONDS_IN_DAY,
   WEBHOOK_DELIVERY_RETENTION_DAYS,
@@ -15,16 +17,18 @@ export async function cleanupOldWebhookDeliveries({
     now.getTime() - WEBHOOK_DELIVERY_RETENTION_DAYS * MILLISECONDS_IN_DAY
   );
 
-  const result = await db.webhookDelivery.deleteMany({
-    where: {
-      createdAt: { lt: cutoff },
-      status: { in: ["success", "failed"] },
-    },
-  });
+  const deleted = await db
+    .delete(webhookDelivery)
+    .where(
+      and(
+        lt(webhookDelivery.createdAt, cutoff),
+        inArray(webhookDelivery.status, ["success", "failed"])
+      )
+    );
 
-  if (result.count > 0) {
+  if (deleted.rowCount) {
     console.log(
-      `[Cleanup] Deleted ${result.count} old webhook delivery row(s)`
+      `[Cleanup] Deleted ${deleted.rowCount} old webhook delivery row(s)`
     );
   }
 }

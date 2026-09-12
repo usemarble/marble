@@ -1,7 +1,7 @@
 import "server-only";
 
-import { db } from "@marble/drizzle";
-import { author } from "@marble/drizzle/schema";
+import { db } from "@marble/db";
+import { author } from "@marble/db/schema";
 import { and, asc, eq } from "drizzle-orm";
 import type { SocialPlatform } from "@/lib/constants";
 import type { Author } from "@/types/author";

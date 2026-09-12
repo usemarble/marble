@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
-import { createRecordId, db } from "@marble/drizzle";
+import { createRecordId, db } from "@marble/db";
 
-import { webhookEndpoint } from "@marble/drizzle/schema";
+import { webhookEndpoint } from "@marble/db/schema";
 
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";

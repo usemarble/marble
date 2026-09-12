@@ -1,7 +1,8 @@
-import { neonConfig } from "@neondatabase/serverless";
-import { PrismaNeon } from "@prisma/adapter-neon";
+/** biome-ignore-all lint/performance/noBarrelFile: Public package entrypoint. */
+import { neonConfig, Pool } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-serverless";
 import ws from "ws";
-import { PrismaClient } from "./generated/node/client";
+import { schema } from "./schema";
 
 neonConfig.webSocketConstructor = ws;
 
@@ -11,23 +12,62 @@ const createClient = () => {
     throw new Error("DATABASE_URL is not set");
   }
 
-  const adapter = new PrismaNeon({ connectionString });
-  return new PrismaClient({ adapter });
+  const pool = new Pool({ connectionString });
+  return drizzle({ client: pool, schema });
 };
 
+type DrizzleDb = ReturnType<typeof createClient>;
+
 declare global {
-  var prisma: PrismaClient | undefined;
+  var drizzleDb: DrizzleDb | undefined;
 }
 
-let db: PrismaClient;
+let db: DrizzleDb;
 
 if (process.env.NODE_ENV === "production") {
   db = createClient();
 } else {
-  if (!global.prisma) {
-    global.prisma = createClient();
+  if (!global.drizzleDb) {
+    global.drizzleDb = createClient();
   }
-  db = global.prisma;
+  db = global.drizzleDb;
 }
 
 export { db };
+export { createRecordId } from "./id";
+export type { DrizzleDb };
+export type TransactionClient = Parameters<
+  Parameters<DrizzleDb["transaction"]>[0]
+>[0];
+
+export {
+  FIELD_WORKSPACE_KEY_UNIQUE_CONSTRAINT,
+  isFieldWorkspaceKeyConflict,
+  isPgSerializationFailure,
+  isPgUniqueViolation,
+} from "./pg-errors";
+
+export type {
+  ApiKeyType,
+  ApiScope,
+  ExportFormat,
+  ExportJobStatus,
+  FieldType,
+  ImportFormat,
+  ImportItemStatus,
+  ImportJobStatus,
+  ImportSource,
+  MediaType,
+  PayloadFormat,
+  PlanType,
+  PostStatus,
+  SubscriptionRecurringInterval,
+  SubscriptionStatus,
+  UsageAlertKind,
+  UsageEventType,
+  WebhookDeliveryStatus,
+  WorkspaceEventActorType,
+  WorkspaceEventResourceType,
+  WorkspaceEventSource,
+  WorkspaceEventType,
+} from "./types";

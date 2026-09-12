@@ -1,5 +1,5 @@
-import { createRecordId, db } from "@marble/drizzle";
-import { exportJob } from "@marble/drizzle/schema";
+import { createRecordId, db } from "@marble/db";
+import { exportJob } from "@marble/db/schema";
 
 import { and, desc, eq, ne } from "drizzle-orm";
 import { NextResponse } from "next/server";

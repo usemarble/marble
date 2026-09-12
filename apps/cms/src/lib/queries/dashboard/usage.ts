@@ -1,7 +1,7 @@
 import "server-only";
 
-import { db } from "@marble/drizzle";
-import { media, usageEvent } from "@marble/drizzle/schema";
+import { db } from "@marble/db";
+import { media, usageEvent } from "@marble/db/schema";
 import { addDays, format, startOfDay, subDays, subHours } from "date-fns";
 import { and, count, desc, eq, gte, isNotNull, lt } from "drizzle-orm";
 import type { UsageDashboardData } from "@/types/dashboard";

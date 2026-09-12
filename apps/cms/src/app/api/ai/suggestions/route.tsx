@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
-import { db } from "@marble/drizzle";
-import { post } from "@marble/drizzle/schema";
+import { db } from "@marble/db";
+import { post } from "@marble/db/schema";
 import { htmlToMarkdown } from "@marble/parser";
 import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";

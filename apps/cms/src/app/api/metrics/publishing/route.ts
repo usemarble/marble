@@ -1,5 +1,5 @@
-import { db } from "@marble/drizzle";
-import { post } from "@marble/drizzle/schema";
+import { db } from "@marble/db";
+import { post } from "@marble/db/schema";
 import { eachDayOfInterval, endOfYear, format, startOfYear } from "date-fns";
 import { and, asc, eq, gte, lte } from "drizzle-orm";
 import { NextResponse } from "next/server";

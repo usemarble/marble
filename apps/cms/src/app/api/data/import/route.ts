@@ -1,7 +1,7 @@
 import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
-import { createRecordId, db } from "@marble/drizzle";
+import { createRecordId, db } from "@marble/db";
 
-import { importJob } from "@marble/drizzle/schema";
+import { importJob } from "@marble/db/schema";
 
 import { desc, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";

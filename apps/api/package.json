@@ -15,6 +15,7 @@
     "@marble/events": "workspace:*",
     "@marble/parser": "workspace:*",
     "@marble/utils": "workspace:*",
+    "drizzle-orm": "^0.45.2",
     "@polar-sh/sdk": "^0.47.1",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.36.4",

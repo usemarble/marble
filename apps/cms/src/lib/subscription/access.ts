@@ -1,5 +1,5 @@
-import { db } from "@marble/drizzle";
-import { subscription } from "@marble/drizzle/schema";
+import { db } from "@marble/db";
+import { subscription } from "@marble/db/schema";
 import { APIError } from "better-auth/api";
 import { and, desc, eq, gt, or } from "drizzle-orm";
 

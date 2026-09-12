@@ -3,12 +3,12 @@ import {
   db,
   isFieldWorkspaceKeyConflict,
   isPgSerializationFailure,
-} from "@marble/drizzle";
+} from "@marble/db";
 import {
   fieldOption,
   field as fieldTable,
   fieldValue,
-} from "@marble/drizzle/schema";
+} from "@marble/db/schema";
 import { and, asc, count, eq, ne } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";

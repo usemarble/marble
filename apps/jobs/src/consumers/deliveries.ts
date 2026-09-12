@@ -1,6 +1,9 @@
+import { createRecordId } from "@marble/db/id";
+import { webhookDelivery, webhookDeliveryAttempt } from "@marble/db/schema";
 import { buildWebhookPayload, serializeEventType } from "@marble/events";
 import { WEBHOOK_DELIVERY_TIMEOUT_MS } from "@/lib/constants";
-import { createDbClient } from "@/lib/db";
+import type { DbClient } from "@/lib/db";
+import { closeDbClient, createDbClient } from "@/lib/db";
 import { buildWebhookRequestBody } from "@/lib/formats";
 import { signPayload } from "@/lib/signing";
 import {
@@ -20,41 +23,40 @@ export async function handleWebhookDeliveryQueue(
   batch: MessageBatch<WebhookMessage>,
   env: Env
 ) {
-  const db = createDbClient(env);
+  const db = await createDbClient(env);
+  try {
+    for (const message of batch.messages) {
+      const { deliveryId } = message.body;
 
-  for (const message of batch.messages) {
-    const { deliveryId } = message.body;
-
-    try {
-      await processDelivery(db, env, deliveryId);
-      message.ack();
-    } catch (error) {
-      console.error(
-        `[Delivery] Failed to deliver ${deliveryId}:`,
-        error instanceof Error ? error.message : error
-      );
-      message.retry();
+      try {
+        await processDelivery(db, env, deliveryId);
+        message.ack();
+      } catch (error) {
+        console.error(
+          `[Delivery] Failed to deliver ${deliveryId}:`,
+          error instanceof Error ? error.message : error
+        );
+        message.retry();
+      }
     }
+  } finally {
+    await closeDbClient(db);
   }
 }
 
-async function processDelivery(
-  db: ReturnType<typeof createDbClient>,
-  env: Env,
-  deliveryId: string
-) {
+async function processDelivery(db: DbClient, env: Env, deliveryId: string) {
   let lease = await claimWebhookDeliveryAttempt(db, deliveryId);
 
   if (!lease) {
     return;
   }
 
-  const delivery = await db.webhookDelivery.findFirst({
+  const delivery = await db.query.webhookDelivery.findFirst({
     where: webhookDeliveryLeaseWhere(lease),
-    include: {
+    with: {
       event: true,
       webhookEndpoint: {
-        select: {
+        columns: {
           format: true,
           secret: true,
         },
@@ -136,14 +138,13 @@ async function processDelivery(
   } catch (error) {
     const durationMs = Date.now() - startedAt;
 
-    await db.webhookDeliveryAttempt.create({
-      data: {
-        deliveryId: delivery.id,
-        attemptNumber,
-        success: false,
-        errorMessage: error instanceof Error ? error.message : String(error),
-        durationMs,
-      },
+    await db.insert(webhookDeliveryAttempt).values({
+      id: createRecordId(),
+      deliveryId: delivery.id,
+      attemptNumber,
+      success: false,
+      errorMessage: error instanceof Error ? error.message : String(error),
+      durationMs,
     });
 
     if (attemptNumber >= delivery.maxAttempts) {
@@ -168,15 +169,14 @@ async function processDelivery(
   const responseBody = await response.text();
   const durationMs = Date.now() - startedAt;
 
-  await db.webhookDeliveryAttempt.create({
-    data: {
-      deliveryId: delivery.id,
-      attemptNumber,
-      success: response.ok,
-      statusCode: response.status,
-      responseBody: responseBody.slice(0, 5000),
-      durationMs,
-    },
+  await db.insert(webhookDeliveryAttempt).values({
+    id: createRecordId(),
+    deliveryId: delivery.id,
+    attemptNumber,
+    success: response.ok,
+    statusCode: response.status,
+    responseBody: responseBody.slice(0, 5000),
+    durationMs,
   });
 
   if (response.ok) {

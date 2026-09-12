@@ -1,5 +1,5 @@
-import { db } from "@marble/drizzle";
-import { tag as tagTable } from "@marble/drizzle/schema";
+import { db } from "@marble/db";
+import { tag as tagTable } from "@marble/db/schema";
 import { toTagPayload, withChanges } from "@marble/events";
 import { and, eq, ne } from "drizzle-orm";
 import { NextResponse } from "next/server";

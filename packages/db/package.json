@@ -4,34 +4,36 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./client": "./src/client.ts",
-    "./browser": "./src/browser.ts",
-    "./workers": "./src/workers.ts",
-    "./hyperdrive": "./src/hyperdrive.ts"
+    "./schema": "./src/schema/index.ts",
+    "./hyperdrive": "./src/hyperdrive.ts",
+    "./id": "./src/id.ts",
+    "./pg-errors": "./src/pg-errors.ts"
   },
   "scripts": {
-    "db:generate": "prisma generate",
-    "db:push": "prisma db push --skip-generate",
-    "db:studio": "prisma studio",
-    "postinstall": "prisma generate",
-    "db:migrate": "prisma migrate dev",
-    "db:deploy": "prisma migrate deploy"
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "db:pull": "drizzle-kit pull",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.1",
-    "@prisma/adapter-neon": "^7.0.0",
-    "@prisma/adapter-pg": "^7.0.0",
-    "@prisma/client": "^7.0.0",
+    "@paralleldrive/cuid2": "^3.3.0",
+    "drizzle-orm": "^0.45.2",
     "pg": "^8.18.0",
     "ws": "^8.18.0"
   },
   "devDependencies": {
     "@marble/tsconfig": "workspace:*",
     "@types/node": "^22.9.0",
+    "@types/pg": "^8.11.11",
     "@types/ws": "^8.5.13",
-    "bufferutil": "^4.0.9",
     "dotenv": "^16.4.7",
-    "prisma": "^7.0.0",
-    "typescript": "^5.9.3"
+    "drizzle-kit": "^0.31.10",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
   }
 }

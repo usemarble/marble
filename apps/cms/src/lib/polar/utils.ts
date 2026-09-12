@@ -2,13 +2,13 @@ import type {
   PlanType as DrizzlePlanType,
   SubscriptionRecurringInterval as DrizzleSubscriptionRecurringInterval,
   SubscriptionStatus as DrizzleSubscriptionStatus,
-} from "@marble/drizzle";
+} from "@marble/db";
 
 export type {
   PlanType,
   SubscriptionRecurringInterval,
   SubscriptionStatus,
-} from "@marble/drizzle";
+} from "@marble/db";
 
 export function isStalePolarEvent(
   lastPolarEventAt: Date | null | undefined,

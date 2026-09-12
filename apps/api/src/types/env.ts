@@ -1,5 +1,6 @@
 import type { EventMessage, TaskMessage } from "@marble/events";
 import type { ApiScope } from "@marble/utils/api-key-scopes";
+import type { DbClient } from "@/lib/db";
 
 export interface Env {
   DATABASE_URL: string;
@@ -18,6 +19,7 @@ export interface Env {
 
 // Context variables set by keyAuthorization middleware
 export interface ApiKeyVariables {
+  db: DbClient;
   workspaceId?: string;
   apiKeyId?: string;
   apiKeyType?: "public" | "private";

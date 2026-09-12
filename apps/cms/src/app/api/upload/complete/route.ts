@@ -1,5 +1,5 @@
-import { createRecordId, db } from "@marble/drizzle";
-import { media, organization } from "@marble/drizzle/schema";
+import { createRecordId, db } from "@marble/db";
+import { media, organization } from "@marble/db/schema";
 import { toMediaPayload } from "@marble/events";
 
 import { eq } from "drizzle-orm";

@@ -1,7 +1,7 @@
 import "server-only";
 
-import { db } from "@marble/drizzle";
-import { category, post, postToTag, tag } from "@marble/drizzle/schema";
+import { db } from "@marble/db";
+import { category, post, postToTag, tag } from "@marble/db/schema";
 import { eq, sql } from "drizzle-orm";
 import type { Category, Tag } from "@/types/dashboard";
 

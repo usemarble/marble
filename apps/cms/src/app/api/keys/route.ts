@@ -1,5 +1,5 @@
-import { createRecordId, db } from "@marble/drizzle";
-import { apiKey } from "@marble/drizzle/schema";
+import { createRecordId, db } from "@marble/db";
+import { apiKey } from "@marble/db/schema";
 import { generateApiKey } from "@marble/utils";
 
 import { and, eq } from "drizzle-orm";

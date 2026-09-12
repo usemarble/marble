@@ -1,10 +1,10 @@
-import { db } from "@marble/drizzle";
+import { db } from "@marble/db";
 import {
   webhookDelivery,
   webhookDeliveryAttempt,
   webhookEndpoint,
   workspaceEvent,
-} from "@marble/drizzle/schema";
+} from "@marble/db/schema";
 import { buildWebhookPayload, serializeEventType } from "@marble/events";
 import {
   and,

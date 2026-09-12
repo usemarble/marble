@@ -1,5 +1,5 @@
-import { db } from "@marble/drizzle";
-import { category as categoryTable, post } from "@marble/drizzle/schema";
+import { db } from "@marble/db";
+import { category as categoryTable, post } from "@marble/db/schema";
 import { toCategoryPayload, withChanges } from "@marble/events";
 import { and, eq, ne } from "drizzle-orm";
 import { NextResponse } from "next/server";

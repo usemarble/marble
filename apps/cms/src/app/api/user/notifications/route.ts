@@ -1,9 +1,9 @@
-import { createRecordId, db } from "@marble/drizzle";
+import { createRecordId, db } from "@marble/db";
 import {
   member,
   userNotificationPreferences,
   workspaceNotificationPreferences,
-} from "@marble/drizzle/schema";
+} from "@marble/db/schema";
 import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";

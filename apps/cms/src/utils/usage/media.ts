@@ -1,11 +1,11 @@
-import { createRecordId, db } from "@marble/drizzle";
+import { createRecordId, db } from "@marble/db";
 import {
   media,
   member,
   subscription,
   usageEvent,
   workspace,
-} from "@marble/drizzle/schema";
+} from "@marble/db/schema";
 import { and, desc, eq, gt, or, sum } from "drizzle-orm";
 import { getWorkspacePlan, PLAN_LIMITS } from "@/lib/plans";
 import { createPolarClient } from "@/lib/polar/client";

@@ -1,13 +1,13 @@
 import "server-only";
 
-import { db } from "@marble/drizzle";
+import { db } from "@marble/db";
 import {
   apiKey,
   field,
   fieldOption,
   fieldValue,
   webhookEndpoint,
-} from "@marble/drizzle/schema";
+} from "@marble/db/schema";
 import { asc, count, desc, eq } from "drizzle-orm";
 import type { APIKey } from "@/types/dashboard";
 import type { CustomField } from "@/types/fields";

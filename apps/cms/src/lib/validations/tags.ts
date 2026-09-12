@@ -1,5 +1,5 @@
-import { db } from "@marble/drizzle";
-import { tag } from "@marble/drizzle/schema";
+import { db } from "@marble/db";
+import { tag } from "@marble/db/schema";
 import { and, eq, inArray } from "drizzle-orm";
 import { NextResponse } from "next/server";
 

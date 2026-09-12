@@ -18,7 +18,7 @@
     "@hookform/resolvers": "^5.2.2",
     "@hugeicons/core-free-icons": "^3.1.1",
     "@hugeicons/react": "^1.1.4",
-    "@marble/drizzle": "workspace:*",
+    "@marble/db": "workspace:*",
     "@marble/editor": "workspace:*",
     "@marble/email": "workspace:*",
     "@marble/events": "workspace:*",

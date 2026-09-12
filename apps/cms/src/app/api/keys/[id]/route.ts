@@ -1,5 +1,5 @@
-import { db } from "@marble/drizzle";
-import { apiKey } from "@marble/drizzle/schema";
+import { db } from "@marble/db";
+import { apiKey } from "@marble/db/schema";
 import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";

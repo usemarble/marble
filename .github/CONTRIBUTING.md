@@ -55,7 +55,7 @@ This directory contains the source code for all related applications:
 
 Packages contain internal shared modules used across different applications:
 
-- **db**: Prisma schema and client shared between the `api` and `cms` apps
+- **db**: Drizzle schema and database clients shared by the `cms`, `api`, and `jobs` apps
 - **editor**: Tiptap-based rich text editor used in the CMS
 - **email**: Email templates for notifications and transactional emails
 - **parser**: Content parsing utilities
@@ -119,7 +119,7 @@ Packages contain internal shared modules used across different applications:
 
    ### Option 1: Use Neon (Hosted)
 
-   We use Neon for the database. Create a Neon project and copy your connection string for Prisma
+   We use Neon for the database. Create a Neon project and copy your connection string for Drizzle
    (ensure it includes `sslmode=require`).
 
    - Paste it into the relevant env files:
