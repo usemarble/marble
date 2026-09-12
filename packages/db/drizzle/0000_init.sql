@@ -11,7 +11,7 @@
 -- constraints, and Postgres requires the index to exist first.
 --
 -- Prisma's migration history is kept, unexecuted, under
--- docs/drizzle-migration/archived-prisma for historical reference.
+-- archive/prisma in this package for historical reference.
 
 -- enums
 DO $$ BEGIN
