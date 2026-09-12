@@ -54,7 +54,7 @@ Any remaining hits must be non-runtime (comments, historical docs) or fixed befo
 - Prefer `drizzle-kit pull` / journal alignment over generating a full “create everything” migration against a DB that already has Prisma-built tables.
 </Step>
 <Step title="Archive Prisma migrations">
-- Move `packages/db/prisma/migrations/` (and related Prisma migration history artifacts) to a durable archive outside `packages/db`, e.g. `docs/drizzle-migration/archived-prisma/migrations/`.
+- Move `packages/db/prisma/migrations/` (and related Prisma migration history artifacts) to a durable archive alongside the Drizzle migrations, at `packages/db/archive/prisma/migrations/`.
 - Keep the archive **read-only historical record** — do not run `prisma migrate` against shared environments after cutover.
 - Preserve enough context (README in the archive folder) to explain that production tables were created under Prisma and ownership moved to Drizzle Kit as of PR3.
 - Do **not** delete this archive when replacing the Prisma-backed package contents in later steps.
@@ -67,7 +67,7 @@ Any remaining hits must be non-runtime (comments, historical docs) or fixed befo
 <Step title="Replace the Prisma-backed package">
 - Remove the Prisma implementation from `packages/db` after all dependents use Drizzle.
 - Move the temporary Drizzle package into `packages/db` and name it `@marble/db`.
-- Leave `docs/drizzle-migration/archived-prisma/` intact — replacing the package must not remove the archived Prisma migration history.
+- Leave `packages/db/archive/prisma/` intact — replacing the package must not remove the archived Prisma migration history.
 - Remove workspace dependencies on `@prisma/client`, Prisma adapters, and related Workers/Hyperdrive Prisma shims.
 - Keep `transpilePackages: ["@marble/db"]` in CMS/Next config for the Drizzle-backed package.
 - Update the lockfile and workspace links.
@@ -75,7 +75,7 @@ Any remaining hits must be non-runtime (comments, historical docs) or fixed befo
 <Step title="Docs and inventory">
 - Mark PR1–PR2 complete in [`README.md`](./README.md).
 - Note in inventory / migration docs that Prisma is archived and Drizzle Kit is the schema owner.
-- Link to the archived Prisma migrations path (`docs/drizzle-migration/archived-prisma/`).
+- Link to the archived Prisma migrations path (`packages/db/archive/prisma/`).
 </Step>
 </Steps>
 
@@ -126,4 +126,4 @@ Any remaining hits must be non-runtime (comments, historical docs) or fixed befo
 - Index: `docs/drizzle-migration/README.md`
 - PR1: `docs/drizzle-migration/PR-1-cms.md`
 - PR2: `docs/drizzle-migration/PR-2-api-jobs.md`
-- Archived Prisma schema: `docs/drizzle-migration/archived-prisma/schema.prisma`
+- Archived Prisma schema: `packages/db/archive/prisma/schema.prisma`

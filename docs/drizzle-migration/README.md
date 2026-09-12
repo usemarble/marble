@@ -20,7 +20,7 @@ Sequenced plans for moving Marble off Prisma onto Drizzle **on the same Neon Pos
 - **Schema / migrations:** Drizzle Kit in [`packages/db`](../../packages/db) (`pnpm db:generate`, `pnpm db:migrate`, `pnpm db:studio`)
 - **CMS runtime:** neon-serverless WebSocket via `@marble/db`
 - **API / jobs runtime:** Hyperdrive + `pg.Client` via `@marble/db/hyperdrive`
-- **Archived Prisma history:** [`archived-prisma/`](./archived-prisma/)
+- **Archived Prisma history:** [`packages/db/archive/prisma/`](../../packages/db/archive/prisma/)
 
 ### Sequencing
 
