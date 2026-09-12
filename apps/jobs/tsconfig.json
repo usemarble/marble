@@ -6,10 +6,11 @@
     "strict": true,
     "skipLibCheck": true,
     "lib": ["ESNext"],
-    "types": ["./worker-configuration.d.ts"],
+    "types": ["node", "./worker-configuration.d.ts"],
     "jsx": "react-jsx",
     "paths": {
       "@/*": ["./src/*"]
     }
-  }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "worker-configuration.d.ts"]
 }

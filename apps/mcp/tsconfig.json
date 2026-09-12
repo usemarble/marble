@@ -4,7 +4,7 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "strict": true,
-    "types": ["./worker-configuration.d.ts"],
+    "types": ["node", "./worker-configuration.d.ts"],
     "skipLibCheck": true,
     "lib": ["ESNext", "WebWorker"],
     "paths": {
@@ -12,5 +12,6 @@
     },
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx"
-  }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "worker-configuration.d.ts"]
 }

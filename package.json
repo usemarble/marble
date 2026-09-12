@@ -19,6 +19,7 @@
     "web:start": "pnpm --filter web preview",
     "cms:start": "pnpm --filter cms start",
     "dev": "turbo run dev",
+    "cf-typegen:check": "pnpm --filter api --filter jobs --filter mcp run cf-typegen:check",
     "lint": "pnpx ultracite@latest check",
     "format": "pnpx ultracite@latest fix",
     "web:dev": "turbo run dev --filter=web",
