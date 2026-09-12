@@ -4,6 +4,7 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "strict": true,
+    "types": ["./worker-configuration.d.ts"],
     "skipLibCheck": true,
     "lib": ["ESNext", "WebWorker"],
     "paths": {

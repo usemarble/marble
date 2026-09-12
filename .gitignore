@@ -24,7 +24,6 @@ coverage
 
 # Cloudflare
 .wrangler
-apps/jobs/worker-configuration.d.ts
 
 # Build Outputs
 .next/
