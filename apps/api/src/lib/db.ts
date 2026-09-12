@@ -49,6 +49,19 @@ export const dbMiddleware = createMiddleware<{
   try {
     await next();
   } finally {
-    await closeDbClient(db);
+    // Release the socket once the response is on its way, not before it.
+    // Awaiting client.end() inline puts a teardown round trip on the critical
+    // path of every request; waitUntil keeps the isolate alive for the close
+    // without delaying the response.
+    //
+    // Hono's executionCtx getter throws when there is no execution context
+    // (unit tests, app.request()), and `c.executionCtx?.` does not help — the
+    // getter throws before the optional chain can apply — so this falls back
+    // to closing inline. closeDbClient is idempotent either way.
+    try {
+      c.executionCtx.waitUntil(closeDbClient(db));
+    } catch {
+      await closeDbClient(db);
+    }
   }
 });
