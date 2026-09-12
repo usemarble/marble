@@ -5,6 +5,7 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy --minify",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings --env-file .env.example",
+    "cf-typegen:check": "wrangler types --env-interface CloudflareBindings --env-file .env.example --check",
     "test": "vitest run"
   },
   "dependencies": {
@@ -25,7 +26,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260508.1",
+    "@types/node": "^22.9.0",
     "vitest": "^3.2.4",
     "wrangler": "^4.90.0"
   }
