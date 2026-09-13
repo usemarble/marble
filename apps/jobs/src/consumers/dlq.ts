@@ -2,7 +2,6 @@ import { exportJob, importJob, webhookDelivery } from "@marble/db/schema";
 import type { QueueMessage } from "@marble/events";
 import { eq } from "drizzle-orm";
 import { closeDbClient, createDbClient } from "@/lib/db";
-import type { Env } from "@/types/env";
 
 /**
  * Single consumer for the shared `marble-dlq`. The DLQ receives the original
@@ -13,11 +12,8 @@ import type { Env } from "@/types/env";
  * (events have no failure state, so they're logged only). Always acks — a
  * dead-lettered message must never retry.
  */
-export async function handleDeadLetterQueue(
-  batch: MessageBatch<QueueMessage>,
-  env: Env
-) {
-  const db = await createDbClient(env);
+export async function handleDeadLetterQueue(batch: MessageBatch<QueueMessage>) {
+  const db = await createDbClient();
   try {
     for (const message of batch.messages) {
       const body = message.body;

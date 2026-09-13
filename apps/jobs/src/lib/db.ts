@@ -1,9 +1,9 @@
+import { env } from "cloudflare:workers";
 import {
   closeHyperdriveClient,
   createHyperdriveClient,
   type HyperdriveDb,
 } from "@marble/db/hyperdrive";
-import type { Env } from "@/types/env";
 
 export type DbClient = HyperdriveDb;
 
@@ -13,7 +13,7 @@ export type DbClient = HyperdriveDb;
  *
  * Every call must be paired with `closeDbClient` in a `finally`.
  */
-export async function createDbClient(env: Env): Promise<DbClient> {
+export async function createDbClient(): Promise<DbClient> {
   if (!env.HYPERDRIVE?.connectionString) {
     throw new Error(
       "Database configuration error: no connection string available"

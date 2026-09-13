@@ -7,15 +7,28 @@ import type { DbClient } from "@/lib/db";
  * `pnpm cf-typegen`, from wrangler.jsonc plus .env.example. Do not restate them
  * here — re-run that script after changing either file.
  *
- * This interface only adds what Wrangler cannot infer:
+ * Augmenting `Cloudflare.Env` rather than declaring a separate interface means
+ * every route to the environment sees the same type: the `env` handler
+ * argument, Hono's `c.env`, and `import { env } from "cloudflare:workers"`.
+ * A standalone interface would only type the first two, leaving the import on
+ * the raw generated shape.
+ *
+ * Only declare what Wrangler cannot infer:
  *   - queue message contracts, which generate as an untyped `Queue`
  *   - vars configured in the Cloudflare dashboard rather than in wrangler.jsonc
  */
-export interface Env extends CloudflareBindings {
-  EVENT_QUEUE: Queue<EventMessage>;
-  TASK_QUEUE: Queue<TaskMessage>;
-  STORAGE_PUBLIC_URL?: string;
+declare global {
+  // biome-ignore lint/style/noNamespace: declaration merging into Cloudflare.Env requires the ambient namespace; there is no module form.
+  namespace Cloudflare {
+    interface Env {
+      EVENT_QUEUE: Queue<EventMessage>;
+      TASK_QUEUE: Queue<TaskMessage>;
+      STORAGE_PUBLIC_URL?: string;
+    }
+  }
 }
+
+export type Env = Cloudflare.Env;
 
 // Context variables set by keyAuthorization middleware
 export interface ApiKeyVariables {

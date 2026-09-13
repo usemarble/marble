@@ -1,15 +1,13 @@
+import { env } from "cloudflare:workers";
 import { exportJob } from "@marble/db/schema";
 import { and, eq, lte } from "drizzle-orm";
 import type { DbClient } from "@/lib/db";
-import type { Env } from "@/types/env";
 
 export async function cleanupExpiredExports({
   db,
-  env,
   now,
 }: {
   db: DbClient;
-  env: Env;
   now: Date;
 }) {
   let expiredCount = 0;

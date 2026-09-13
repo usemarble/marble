@@ -1,3 +1,4 @@
+import { env } from "cloudflare:workers";
 import { createRecordId } from "@marble/db/id";
 import { webhookDelivery, webhookDeliveryAttempt } from "@marble/db/schema";
 import { buildWebhookPayload, serializeEventType } from "@marble/events";
@@ -17,19 +18,18 @@ import {
   updateWebhookDeliveryForLease,
   webhookDeliveryLeaseWhere,
 } from "@/lib/webhook-delivery-lease";
-import type { Env, WebhookMessage } from "@/types/env";
+import type { WebhookMessage } from "@/types/env";
 
 export async function handleWebhookDeliveryQueue(
-  batch: MessageBatch<WebhookMessage>,
-  env: Env
+  batch: MessageBatch<WebhookMessage>
 ) {
-  const db = await createDbClient(env);
+  const db = await createDbClient();
   try {
     for (const message of batch.messages) {
       const { deliveryId } = message.body;
 
       try {
-        await processDelivery(db, env, deliveryId);
+        await processDelivery(db, deliveryId);
         message.ack();
       } catch (error) {
         console.error(
@@ -44,7 +44,7 @@ export async function handleWebhookDeliveryQueue(
   }
 }
 
-async function processDelivery(db: DbClient, env: Env, deliveryId: string) {
+async function processDelivery(db: DbClient, deliveryId: string) {
   let lease = await claimWebhookDeliveryAttempt(db, deliveryId);
 
   if (!lease) {

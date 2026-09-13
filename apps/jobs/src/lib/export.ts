@@ -1,3 +1,4 @@
+import { env } from "cloudflare:workers";
 import {
   author,
   category,
@@ -16,7 +17,6 @@ import { Resend } from "resend";
 import { EXPORT_TTL_MS, getAppUrl } from "@/lib/constants";
 import type { DbClient } from "@/lib/db";
 import { buildZipArchive, stringifyJsonFile } from "@/lib/files";
-import type { Env } from "@/types/env";
 
 function generateToken() {
   const bytes = new Uint8Array(32);
@@ -311,7 +311,7 @@ async function buildExportFiles(db: DbClient, workspaceId: string) {
   };
 }
 
-export async function runExport(db: DbClient, env: Env, jobId: string) {
+export async function runExport(db: DbClient, jobId: string) {
   const job = await db.query.exportJob.findFirst({
     where: eq(exportJob.id, jobId),
     with: {
@@ -403,7 +403,7 @@ export async function runExport(db: DbClient, env: Env, jobId: string) {
 
     if (emailRecipients.length > 0 && env.RESEND_API_KEY) {
       try {
-        const downloadUrl = `${getAppUrl(env)}/api/data/export/${job.id}/download?token=${token}`;
+        const downloadUrl = `${getAppUrl()}/api/data/export/${job.id}/download?token=${token}`;
         const resend = new Resend(env.RESEND_API_KEY);
         let sentCount = 0;
 

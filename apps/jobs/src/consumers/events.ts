@@ -1,3 +1,4 @@
+import { env } from "cloudflare:workers";
 import { createRecordId } from "@marble/db/id";
 import {
   webhookDelivery,
@@ -6,13 +7,10 @@ import {
 } from "@marble/db/schema";
 import { and, arrayContains, eq } from "drizzle-orm";
 import { closeDbClient, createDbClient } from "@/lib/db";
-import type { Env, EventMessage } from "@/types/env";
+import type { EventMessage } from "@/types/env";
 
-export async function handleEventQueue(
-  batch: MessageBatch<EventMessage>,
-  env: Env
-) {
-  const db = await createDbClient(env);
+export async function handleEventQueue(batch: MessageBatch<EventMessage>) {
+  const db = await createDbClient();
   try {
     for (const message of batch.messages) {
       const { eventId, targetWebhookEndpointId, isTest = false } = message.body;
