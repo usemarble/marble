@@ -3,24 +3,19 @@ import { cleanupStaleApiRequests } from "@/scheduled/api-requests";
 import { cleanupOldWebhookDeliveries } from "@/scheduled/deliveries";
 import { cleanupExpiredExports } from "@/scheduled/exports";
 import { cleanupStaleImports } from "@/scheduled/imports";
-import type { Env } from "@/types/env";
 
-export async function handleCleanup(
-  _event: ScheduledEvent,
-  env: Env,
-  _ctx: ExecutionContext
-) {
+export async function handleCleanup() {
   console.log(
     `[Cleanup] Running scheduled cleanup at ${new Date().toISOString()}`
   );
 
-  const db = await createDbClient(env);
+  const db = await createDbClient();
   try {
     const now = new Date();
 
     const results = await Promise.allSettled([
-      cleanupExpiredExports({ db, env, now }),
-      cleanupStaleImports({ db, env, now }),
+      cleanupExpiredExports({ db, now }),
+      cleanupStaleImports({ db, now }),
       cleanupOldWebhookDeliveries({ db, now }),
       cleanupStaleApiRequests({ db, now }),
     ]);

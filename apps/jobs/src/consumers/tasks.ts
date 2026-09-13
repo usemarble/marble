@@ -1,7 +1,7 @@
 import { closeDbClient, createDbClient } from "@/lib/db";
 import { runExport } from "@/lib/export";
 import { runImport } from "@/lib/import";
-import type { Env, TaskMessage } from "@/types/env";
+import type { TaskMessage } from "@/types/env";
 
 /**
  * Consumer for the shared `marble-tasks` queue (max_batch_size: 1).
@@ -12,11 +12,8 @@ import type { Env, TaskMessage } from "@/types/env";
  * stays a thin dispatcher. Handlers must be idempotent because a retry
  * redelivers the same message.
  */
-export async function handleTaskQueue(
-  batch: MessageBatch<TaskMessage>,
-  env: Env
-) {
-  const db = await createDbClient(env);
+export async function handleTaskQueue(batch: MessageBatch<TaskMessage>) {
+  const db = await createDbClient();
   try {
     for (const message of batch.messages) {
       const body = message.body;
@@ -24,10 +21,10 @@ export async function handleTaskQueue(
       try {
         switch (body.type) {
           case "export.process":
-            await runExport(db, env, body.jobId);
+            await runExport(db, body.jobId);
             break;
           case "import.process":
-            await runImport(db, env, body.jobId);
+            await runImport(db, body.jobId);
             break;
           default:
             throw new Error(`Unknown task type: ${JSON.stringify(body)}`);

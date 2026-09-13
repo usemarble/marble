@@ -1,10 +1,10 @@
+import { env } from "cloudflare:workers";
 import { createRecordId } from "@marble/db/id";
 import { importItem, importJob, post, postToAuthor } from "@marble/db/schema";
 import { markdownToHtml, markdownToTiptap } from "@marble/parser/markdown";
 import { sanitizeHtml } from "@marble/utils/sanitize";
 import { and, eq } from "drizzle-orm";
 import type { DbClient } from "@/lib/db";
-import type { Env } from "@/types/env";
 import type { ImportMarkdownFile } from "@/types/import";
 import {
   getImportMarkdownFiles,
@@ -131,7 +131,7 @@ async function importMarkdownFile({
   }
 }
 
-export async function runImport(db: DbClient, env: Env, jobId: string) {
+export async function runImport(db: DbClient, jobId: string) {
   const job = await getImportJob(db, jobId);
 
   if (!job) {

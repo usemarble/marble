@@ -1,3 +1,4 @@
+import { env } from "cloudflare:workers";
 import { importJob } from "@marble/db/schema";
 import { and, eq, inArray, lt } from "drizzle-orm";
 import {
@@ -6,7 +7,6 @@ import {
   MILLISECONDS_IN_DAY,
 } from "@/lib/constants";
 import type { DbClient } from "@/lib/db";
-import type { Env } from "@/types/env";
 
 const IMPORT_CLEANUP_BATCH_SIZE = 100;
 type ActiveImportStatus = "queued" | "discovering" | "processing" | "importing";
@@ -19,11 +19,9 @@ const ACTIVE_IMPORT_STATUSES: ActiveImportStatus[] = [
 ];
 
 async function deleteImportUpload({
-  env,
   id,
   uploadKey,
 }: {
-  env: Env;
   id: string;
   uploadKey: string | null;
 }) {
@@ -42,11 +40,9 @@ async function deleteImportUpload({
 
 export async function cleanupStaleImports({
   db,
-  env,
   now,
 }: {
   db: DbClient;
-  env: Env;
   now: Date;
 }) {
   const staleCutoff = new Date(
@@ -94,7 +90,6 @@ export async function cleanupStaleImports({
     staleCount += 1;
 
     const uploadDeleted = await deleteImportUpload({
-      env,
       id: job.id,
       uploadKey: job.uploadKey,
     });
@@ -125,7 +120,6 @@ export async function cleanupStaleImports({
 
   for (const job of oldJobs) {
     const uploadDeleted = await deleteImportUpload({
-      env,
       id: job.id,
       uploadKey: job.uploadKey,
     });

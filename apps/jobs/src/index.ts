@@ -16,29 +16,26 @@ export default {
     return new Response("Error", { status: 404 });
   },
 
-  async queue(batch: MessageBatch, env: Env, _ctx: ExecutionContext) {
+  async queue(batch: MessageBatch) {
     switch (batch.queue) {
       case "marble-events":
-        await handleEventQueue(batch as MessageBatch<EventMessage>, env);
+        await handleEventQueue(batch as MessageBatch<EventMessage>);
         break;
       case "marble-webhook-deliveries":
-        await handleWebhookDeliveryQueue(
-          batch as MessageBatch<WebhookMessage>,
-          env
-        );
+        await handleWebhookDeliveryQueue(batch as MessageBatch<WebhookMessage>);
         break;
       case "marble-tasks":
-        await handleTaskQueue(batch as MessageBatch<TaskMessage>, env);
+        await handleTaskQueue(batch as MessageBatch<TaskMessage>);
         break;
       case "marble-dlq":
-        await handleDeadLetterQueue(batch as MessageBatch<QueueMessage>, env);
+        await handleDeadLetterQueue(batch as MessageBatch<QueueMessage>);
         break;
       default:
         console.error(`[Jobs] Unknown queue: ${batch.queue}`);
     }
   },
 
-  async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
-    ctx.waitUntil(handleCleanup(event, env, ctx));
+  async scheduled(_event: ScheduledEvent, _env: Env, ctx: ExecutionContext) {
+    ctx.waitUntil(handleCleanup());
   },
 };
