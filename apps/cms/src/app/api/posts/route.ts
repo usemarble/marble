@@ -18,7 +18,7 @@ import { invalidateCache } from "@/lib/cache/invalidate";
 import {
   buildCustomFieldWrites,
   writeCustomFieldValues,
-} from "@/lib/custom-fields";
+} from "@/lib/custom-fields.server";
 import { getDashboardPosts } from "@/lib/queries/dashboard/posts";
 import {
   emitDashboardEvent,
