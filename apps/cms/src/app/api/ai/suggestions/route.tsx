@@ -139,26 +139,36 @@ export async function POST(request: Request) {
     MAX_AI_READABILITY_MODEL_CONTENT_LENGTH
   );
 
-  const result = await generateObject({
-    model: "openai/gpt-5.1-instant",
-    messages: [
-      {
-        role: "system",
-        content: systemPrompt({ metrics: parsedBody.data.metrics }),
-      },
-      {
-        role: "user",
-        content: `
+  let resultJson: string;
+
+  try {
+    const result = await generateObject({
+      model: "openai/gpt-5-mini",
+      system: systemPrompt({ metrics: parsedBody.data.metrics }),
+      prompt: `
         <CONTENT>
         ${modelContent}
         </CONTENT>
-        `,
-      },
-    ],
-    schema: aiReadabilityResponseSchema,
-  });
+      `,
+      schema: aiReadabilityResponseSchema,
+    });
 
-  const resultJson = JSON.stringify(result.object);
+    resultJson = JSON.stringify(result.object);
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Unknown AI Gateway error";
+    console.warn(`AI readability suggestions unavailable: ${message}`);
+
+    return NextResponse.json(
+      { suggestions: [] },
+      {
+        headers: {
+          "Cache-Control": "no-store",
+          "X-Marble-AI-Status": "unavailable",
+        },
+      }
+    );
+  }
 
   await redis.set(cacheKey, resultJson, { ex: 1200 });
 
