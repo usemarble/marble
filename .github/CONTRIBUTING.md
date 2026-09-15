@@ -113,7 +113,7 @@ Packages contain internal shared modules used across different applications:
 
    - Cloudflare R2 credentials for file uploads (see below)
 
-   - Optional: If you want to test payments, set up a [Polar](https://sandbox.polar.sh) sandbox account and fill in the POLAR_* variables.
+   - Optional: If you want to test payments, set up a [Polar](https://sandbox.polar.sh) sandbox account and fill in the POLAR_* variables. Set the Polar webhook endpoint API version to `2026-04`; webhook versions are configured independently from API requests.
 
 4. Database Setup
 
