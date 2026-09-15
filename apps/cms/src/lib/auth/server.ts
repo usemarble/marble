@@ -23,7 +23,6 @@ import {
   usage,
   webhooks,
 } from "@polar-sh/better-auth";
-import { Polar } from "@polar-sh/sdk";
 import {
   APIError,
   createAuthMiddleware,
@@ -49,6 +48,7 @@ import {
   sendVerificationEmail,
   sendWelcomeEmail,
 } from "@/lib/email";
+import { createPolarSdkClient } from "@/lib/polar/client";
 import { handleCustomerCreated } from "@/lib/polar/customer.created";
 import { handleSubscriptionCanceled } from "@/lib/polar/subscription.canceled";
 import { handleSubscriptionCreated } from "@/lib/polar/subscription.created";
@@ -60,10 +60,7 @@ import { redis } from "../redis";
 
 const nanoid = customAlphabet("abcdefghijklmnopqrstuvwxyz0123456789", 6);
 
-const polarClient = new Polar({
-  accessToken: process.env.POLAR_ACCESS_TOKEN,
-  server: process.env.NODE_ENV === "production" ? "production" : "sandbox",
-});
+const polarClient = createPolarSdkClient(process.env.POLAR_ACCESS_TOKEN);
 
 function getCheckoutReferenceId(body: unknown) {
   if (!(body && typeof body === "object" && "referenceId" in body)) {
