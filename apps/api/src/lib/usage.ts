@@ -1,13 +1,31 @@
-import { member, subscription, usageEvent, workspace } from "@marble/db/schema";
+import {
+  member,
+  subscription,
+  usageEvent,
+  user,
+  workspace,
+  workspaceNotificationPreferences,
+} from "@marble/db/schema";
 import { sendUsageLimitEmail } from "@marble/email";
 import {
   getWorkspacePlan,
+  hasHigherPlan,
   isSubscriptionActive,
   PLAN_LIMITS,
   type PlanType,
 } from "@marble/utils";
 import { Redis } from "@upstash/redis/cloudflare";
-import { and, count, desc, eq, gte, inArray, lt } from "drizzle-orm";
+import {
+  and,
+  count,
+  desc,
+  eq,
+  gte,
+  inArray,
+  isNull,
+  lt,
+  or,
+} from "drizzle-orm";
 import { Resend } from "resend";
 import type { DbClient } from "@/lib/db";
 
@@ -105,6 +123,8 @@ export interface UsageCheckResult {
   limit: number;
   percentage: number;
   plan: PlanType;
+  /** When this limit resets, so alerts can name the date. */
+  periodEnd: Date;
   thresholdCrossed?: 75 | 90 | 100;
 }
 
@@ -233,6 +253,7 @@ export async function checkApiUsage(
       limit: meta.limit,
       percentage,
       plan: meta.plan,
+      periodEnd: new Date(meta.periodEnd),
       thresholdCrossed,
     };
   } catch (err) {
@@ -298,9 +319,41 @@ async function checkApiUsageFromDb(
     currentUsage,
     limit,
     percentage,
+    periodEnd: period.end,
     plan,
     thresholdCrossed,
   };
+}
+
+/**
+ * Who hears about a usage limit: the owner plus admins.
+ *
+ * Plain members are excluded because they can neither raise the limit nor
+ * change the plan, so the alert would be noise they cannot act on. Anyone who
+ * turned `usageAlerts` off is respected.
+ */
+export async function getUsageAlertRecipients(
+  db: DbClient,
+  workspaceId: string
+): Promise<{ email: string; name: string | null }[]> {
+  return await db
+    .select({ email: user.email, name: user.name })
+    .from(member)
+    .innerJoin(user, eq(member.userId, user.id))
+    .leftJoin(
+      workspaceNotificationPreferences,
+      eq(workspaceNotificationPreferences.memberId, member.id)
+    )
+    .where(
+      and(
+        eq(member.organizationId, workspaceId),
+        inArray(member.role, ["owner", "admin"]),
+        or(
+          isNull(workspaceNotificationPreferences.id),
+          eq(workspaceNotificationPreferences.usageAlerts, true)
+        )
+      )
+    );
 }
 
 export async function notifyApiUsageThreshold(
@@ -309,26 +362,15 @@ export async function notifyApiUsageThreshold(
   workspaceId: string,
   threshold: 75 | 90 | 100,
   currentUsage: number,
-  limit: number
+  limit: number,
+  plan: PlanType,
+  periodEnd: Date
 ): Promise<void> {
-  const owner = await db.query.member.findFirst({
-    where: and(
-      eq(member.organizationId, workspaceId),
-      eq(member.role, "owner")
-    ),
-    with: {
-      user: {
-        columns: {
-          email: true,
-          name: true,
-        },
-      },
-    },
-  });
+  const recipients = await getUsageAlertRecipients(db, workspaceId);
 
-  if (!owner?.user) {
+  if (recipients.length === 0) {
     console.warn(
-      `[ApiUsage] No owner found for workspace ${workspaceId}, skipping notification`
+      `[ApiUsage] No alertable owner or admin for workspace ${workspaceId}, skipping notification`
     );
     return;
   }
@@ -336,15 +378,21 @@ export async function notifyApiUsageThreshold(
   try {
     const resend = new Resend(resendApiKey);
     await sendUsageLimitEmail(resend, {
-      userEmail: owner.user.email,
-      userName: owner.user.name,
+      userEmail: recipients.map((recipient) => recipient.email),
+      // Only greet by name when there is exactly one reader.
+      userName:
+        recipients.length === 1
+          ? (recipients[0]?.name ?? undefined)
+          : undefined,
       featureName: "API Requests",
       usageAmount: currentUsage,
       limitAmount: limit,
       workspaceId,
+      canUpgrade: hasHigherPlan(plan),
+      resetsAt: periodEnd,
     });
     console.log(
-      `[ApiUsage] Sent ${threshold}% threshold email for workspace ${workspaceId}`
+      `[ApiUsage] Sent ${threshold}% threshold email to ${recipients.length} recipient(s) for workspace ${workspaceId}`
     );
   } catch (error) {
     console.error("[ApiUsage] Failed to send threshold notification:", error);

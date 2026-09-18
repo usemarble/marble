@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   getWorkspacePlan,
+  hasHigherPlan,
   isSubscriptionActive,
   SUBSCRIPTION_ACCESS_GRACE_MS,
 } from "./plans";
@@ -154,6 +155,19 @@ describe("isSubscriptionActive", () => {
         )
       ).toBe(false);
     }
+  });
+});
+
+describe("hasHigherPlan", () => {
+  it("offers an upgrade path below the top plan", () => {
+    expect(hasHigherPlan("free")).toBe(true);
+    expect(hasHigherPlan("hobby")).toBe(true);
+  });
+
+  it("has nothing to upsell on the top plan", () => {
+    // Drives the usage alert copy: telling a pro customer to upgrade is a dead
+    // end, so this must stay false while pro is the most expensive plan.
+    expect(hasHigherPlan("pro")).toBe(false);
   });
 });
 

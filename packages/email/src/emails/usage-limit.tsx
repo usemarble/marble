@@ -23,6 +23,30 @@ interface UsageLimitEmailProps {
   usageAmount?: number;
   limitAmount?: number;
   workspaceId?: string;
+  /**
+   * Whether the workspace has a plan it can move up to. False on the top plan,
+   * where telling someone to upgrade is a dead end.
+   */
+  canUpgrade?: boolean;
+  /** When the limit resets - the one fact a blocked customer actually needs. */
+  resetsAt?: Date | string;
+}
+
+function formatResetDate(resetsAt?: Date | string): string | null {
+  if (!resetsAt) {
+    return null;
+  }
+  const date = resetsAt instanceof Date ? resetsAt : new Date(resetsAt);
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+  // Fixed to UTC so the date cannot shift with the sending server's timezone.
+  return date.toLocaleDateString("en-US", {
+    day: "numeric",
+    month: "long",
+    timeZone: "UTC",
+    year: "numeric",
+  });
 }
 
 function formatNumber(num: number): string {
@@ -40,8 +64,9 @@ export const UsageLimitEmail = ({
   featureName = "Webhooks",
   usageAmount = 75,
   limitAmount = 100,
+  canUpgrade = true,
+  resetsAt,
 }: UsageLimitEmailProps) => {
-  const previewText = `You're approaching your ${featureName} limit`;
   const logoUrl = EMAIL_CONFIG.getLogoUrl();
   const siteurl = EMAIL_CONFIG.getSiteUrl();
   const billingUrl = `${siteurl}/pricing`;
@@ -57,6 +82,29 @@ export const UsageLimitEmail = ({
     : 0;
 
   const remaining = limitValid ? Math.max(0, limitAmount - usageAmount) : 0;
+
+  const resetDate = formatResetDate(resetsAt);
+  const resetsSentence = resetDate
+    ? `on ${resetDate}`
+    : "at the start of your next billing period";
+  const feature = featureName.toLowerCase();
+  const previewText =
+    percentage >= 100
+      ? `You've reached your ${featureName} limit`
+      : `You're approaching your ${featureName} limit`;
+
+  // On the top plan there is nothing to upgrade to, so point at us instead of
+  // at a pricing page the customer has already bought the whole of.
+  let bodyCopy: string;
+  if (percentage >= 100) {
+    bodyCopy = canUpgrade
+      ? `You've reached your ${feature} limit and requests are no longer being processed. They will resume ${resetsSentence}, or as soon as you upgrade your plan.`
+      : `You've reached your ${feature} limit and requests are no longer being processed. They will resume ${resetsSentence}. You are already on our highest plan, so reply to this email and we will raise your limit.`;
+  } else {
+    bodyCopy = canUpgrade
+      ? `To avoid any interruption to your service, consider upgrading your plan. Your usage resets ${resetsSentence}.`
+      : `Your usage resets ${resetsSentence}. If you expect to go over before then, reply to this email and we will raise your limit.`;
+  }
 
   return (
     <Html>
@@ -120,15 +168,15 @@ export const UsageLimitEmail = ({
 
             <Section>
               <Text className="m-0 mb-4 text-[#737373] text-base leading-relaxed">
-                {percentage >= 100
-                  ? `You've reached your ${featureName.toLowerCase()} limit and requests are no longer being processed. They will resume once your usage resets at the start of your next billing period, or you upgrade your plan.`
-                  : "To avoid any interruption to your service, consider upgrading your plan. You can also wait until your usage resets at the start of your next billing period."}
+                {bodyCopy}
               </Text>
             </Section>
 
-            <Section className="my-8 text-center">
-              <EmailButton href={billingUrl}>View Plans</EmailButton>
-            </Section>
+            {canUpgrade ? (
+              <Section className="my-8 text-center">
+                <EmailButton href={billingUrl}>View Plans</EmailButton>
+              </Section>
+            ) : null}
 
             <Hr className="mx-0 mt-[26px] w-full border border-[#eaeaea] border-solid" />
             <Text className="text-[#666666] text-[12px] leading-[24px]">
