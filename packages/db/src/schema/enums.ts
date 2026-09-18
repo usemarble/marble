@@ -96,6 +96,7 @@ export const subscriptionStatusEnum = pgEnum("SubscriptionStatus", [
   "incomplete_expired",
   "unpaid",
   "canceled",
+  "paused",
 ]);
 
 export const usageAlertKindEnum = pgEnum("UsageAlertKind", [

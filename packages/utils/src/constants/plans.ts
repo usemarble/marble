@@ -39,7 +39,7 @@ export const PLAN_LIMITS: Record<PlanType, PlanLimits> = {
     features: {
       inviteMembers: true,
       shareDrafts: true,
-      advancedReadability: false,
+      advancedReadability: true,
       keywordOptimization: false,
       unlimitedPosts: true,
     },
@@ -61,6 +61,26 @@ export const PLAN_LIMITS: Record<PlanType, PlanLimits> = {
 };
 
 /**
+ * How long past `currentPeriodEnd` an `active`/`trialing` subscription keeps
+ * its plan.
+ *
+ * Polar advances `currentPeriodEnd` on every cycle, so a period that ended well
+ * in the past means we missed a webhook rather than that the customer is still
+ * entitled. The window is wide enough that a merely slow or retried webhook
+ * never interrupts a paying customer, and narrow enough that a dropped
+ * `subscription.revoked` cannot grant a paid plan indefinitely.
+ */
+export const SUBSCRIPTION_ACCESS_GRACE_MS = 3 * 24 * 60 * 60 * 1000;
+
+function toDate(value?: string | Date | null): Date | null {
+  if (!value) {
+    return null;
+  }
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+/**
  * Returns true when a subscription should grant its paid plan limits.
  */
 export function isSubscriptionActive(
@@ -68,29 +88,37 @@ export function isSubscriptionActive(
     status?: string;
     cancelAtPeriodEnd?: boolean;
     currentPeriodEnd?: string | Date | null;
-  } | null
+  } | null,
+  now: Date = new Date()
 ): boolean {
   if (!subscription) {
     return false;
   }
 
-  if (subscription.status === "active" || subscription.status === "trialing") {
+  const { status, cancelAtPeriodEnd } = subscription;
+  const periodEnd = toDate(subscription.currentPeriodEnd);
+  const isCurrent = status === "active" || status === "trialing";
+
+  // Polar keeps a subscription `trialing`/`active` after a cancellation is
+  // scheduled, but this app has also historically written `canceled` for that
+  // same state, so both spellings are honoured.
+  const isScheduledCancel = status === "canceled" && cancelAtPeriodEnd === true;
+
+  if (!(isCurrent || isScheduledCancel)) {
+    return false;
+  }
+
+  // A scheduled cancellation has an authoritative end date - honour it exactly,
+  // with no grace, because the customer chose it and Polar revokes on it.
+  if (cancelAtPeriodEnd) {
+    return periodEnd ? periodEnd.getTime() > now.getTime() : isCurrent;
+  }
+
+  if (!periodEnd) {
     return true;
   }
 
-  if (
-    subscription.status === "canceled" &&
-    subscription.cancelAtPeriodEnd &&
-    subscription.currentPeriodEnd
-  ) {
-    const periodEnd =
-      subscription.currentPeriodEnd instanceof Date
-        ? subscription.currentPeriodEnd
-        : new Date(subscription.currentPeriodEnd);
-    return periodEnd > new Date();
-  }
-
-  return false;
+  return periodEnd.getTime() + SUBSCRIPTION_ACCESS_GRACE_MS > now.getTime();
 }
 
 /**

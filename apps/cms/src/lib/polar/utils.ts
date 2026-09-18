@@ -38,6 +38,8 @@ export function getSubscriptionStatus(
       return "trialing";
     case "canceled":
       return "canceled";
+    case "paused":
+      return "paused";
     case "past_due":
     case "incomplete":
     case "unpaid":

@@ -16,10 +16,11 @@ export async function handleSubscriptionRevoked(
   });
 
   if (!existingSubscription) {
-    console.error(
+    // Fail the delivery so Polar retries rather than leaving the workspace on a
+    // paid plan because subscription.created has not been stored yet.
+    throw new Error(
       `subscription.revoked webhook received for a subscription that does not exist: ${subscriptionData.id}`
     );
-    return;
   }
 
   if (
@@ -64,6 +65,9 @@ export async function handleSubscriptionRevoked(
       `Successfully marked subscription ${subscriptionData.id} as revoked/expired for workspace ${existingSubscription.workspaceId}`
     );
   } catch (error) {
+    // Rethrow so the endpoint returns non-2xx and Polar retries: swallowing
+    // here loses the state change permanently.
     console.error("Error updating subscription to revoked in DB:", error);
+    throw error;
   }
 }

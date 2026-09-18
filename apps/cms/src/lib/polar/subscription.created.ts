@@ -123,6 +123,9 @@ export async function handleSubscriptionCreated(
       `Successfully created subscription ${subscriptionData.id} for workspace ${workspaceId}`
     );
   } catch (error) {
+    // Rethrow so the endpoint returns non-2xx and Polar retries: swallowing
+    // here loses the state change permanently.
     console.error("Error creating subscription in DB:", error);
+    throw error;
   }
 }
