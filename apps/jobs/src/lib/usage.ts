@@ -10,7 +10,11 @@ import {
   workspaceNotificationPreferences,
 } from "@marble/db/schema";
 import { sendUsageLimitEmail } from "@marble/email";
-import { getWorkspacePlan, PLAN_LIMITS } from "@marble/utils";
+import {
+  getWorkspacePlan,
+  isSubscriptionActive,
+  PLAN_LIMITS,
+} from "@marble/utils";
 import {
   and,
   count,
@@ -82,17 +86,11 @@ async function getBillingPeriod(
   }
 
   const activeSubscription = foundWorkspace.subscriptions[0];
-  const isActive =
-    activeSubscription?.status === "active" ||
-    activeSubscription?.status === "trialing" ||
-    (activeSubscription?.status === "canceled" &&
-      activeSubscription.cancelAtPeriodEnd &&
-      activeSubscription.currentPeriodEnd &&
-      activeSubscription.currentPeriodEnd > new Date());
+  const isActive = isSubscriptionActive(activeSubscription);
 
   if (
     isActive &&
-    activeSubscription.currentPeriodStart &&
+    activeSubscription?.currentPeriodStart &&
     activeSubscription.currentPeriodEnd
   ) {
     return {

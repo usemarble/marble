@@ -5,7 +5,7 @@ import { Button } from "@marble/ui/components/button";
 import { Card, CardDescription, CardTitle } from "@marble/ui/components/card";
 import { Label } from "@marble/ui/components/label";
 import { Switch } from "@marble/ui/components/switch";
-import { PRICING_PLANS } from "@marble/utils";
+import { getPlanTrialCopy, PRICING_PLANS } from "@marble/utils";
 import { ArrowUpRightIcon, CheckIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -26,6 +26,7 @@ function PageClient() {
   const { activeWorkspace, isFetchingWorkspace, isOwner } = useWorkspace();
   const { currentPlan, isFreePlan, isProPlan } = usePlan();
 
+  const proTrialCopy = getPlanTrialCopy("pro");
   const freePlan = PRICING_PLANS.find((p) => p.id === "free");
   const hobbyPlan = PRICING_PLANS.find((p) => p.id === "hobby");
   const proPlan = PRICING_PLANS.find((p) => p.id === "pro");
@@ -161,7 +162,8 @@ function PageClient() {
           <div>
             <h2 className="font-medium text-lg">Plans</h2>
             <p className="text-muted-foreground text-sm">
-              Upgrade or change your plan. Pro includes a 3 day free trial.
+              Upgrade or change your plan.
+              {proTrialCopy ? ` Pro includes a ${proTrialCopy}.` : ""}
             </p>
           </div>
           {/* Billing Period Toggle */}

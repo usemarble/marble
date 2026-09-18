@@ -21,10 +21,11 @@ export async function handleSubscriptionUpdated(
   });
 
   if (!existingSubscription) {
-    console.error(
+    // Fail the delivery so Polar retries rather than dropping the update
+    // because subscription.created has not been stored yet.
+    throw new Error(
       `subscription.updated webhook received for a subscription that does not exist: ${subscriptionData.id}`
     );
-    return;
   }
 
   if (
@@ -117,6 +118,9 @@ export async function handleSubscriptionUpdated(
       `Successfully updated subscription ${subscriptionData.id} for workspace ${existingSubscription.workspaceId}`
     );
   } catch (error) {
+    // Rethrow so the endpoint returns non-2xx and Polar retries: swallowing
+    // here loses the state change permanently.
     console.error("Error updating subscription in DB:", error);
+    throw error;
   }
 }

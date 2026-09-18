@@ -1,6 +1,11 @@
 import { member, subscription, usageEvent, workspace } from "@marble/db/schema";
 import { sendUsageLimitEmail } from "@marble/email";
-import { getWorkspacePlan, PLAN_LIMITS, type PlanType } from "@marble/utils";
+import {
+  getWorkspacePlan,
+  isSubscriptionActive,
+  PLAN_LIMITS,
+  type PlanType,
+} from "@marble/utils";
 import { Redis } from "@upstash/redis/cloudflare";
 import { and, count, desc, eq, gte, inArray, lt } from "drizzle-orm";
 import { Resend } from "resend";
@@ -55,18 +60,11 @@ async function getBillingPeriod(
   }
 
   const activeSubscription = foundWorkspace.subscriptions[0];
-  const isValid =
-    activeSubscription &&
-    (activeSubscription.status === "active" ||
-      activeSubscription.status === "trialing" ||
-      (activeSubscription.status === "canceled" &&
-        activeSubscription.cancelAtPeriodEnd &&
-        activeSubscription.currentPeriodEnd &&
-        activeSubscription.currentPeriodEnd > new Date()));
+  const isValid = isSubscriptionActive(activeSubscription);
 
   if (
     isValid &&
-    activeSubscription.currentPeriodStart &&
+    activeSubscription?.currentPeriodStart &&
     activeSubscription.currentPeriodEnd
   ) {
     return {

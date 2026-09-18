@@ -1,3 +1,20 @@
+import { getPlanTrialDays } from "@marble/utils";
+
+const proTrialDays = getPlanTrialDays("pro");
+
+/**
+ * Only advertised while the plan actually has a trial configured, so we can
+ * never promise one we do not offer.
+ */
+const trialFAQ = proTrialDays
+  ? [
+      {
+        question: "Do you offer a free trial?",
+        answer: `Yes! The Pro plan includes a ${proTrialDays}-day free trial. You can try all Pro features risk-free for ${proTrialDays} days. If you don't cancel during the trial period, your subscription will automatically renew at the full price. You can cancel anytime during the trial period without being charged.`,
+      },
+    ]
+  : [];
+
 export const FAQs: {
   question: string;
   answer: string;
@@ -73,11 +90,7 @@ export const PRICING_FAQS: {
     answer:
       "Our plans are billed per workspace. This means you can invite as many team members as your plan allows to a workspace without any extra charges per member.",
   },
-  {
-    question: "Do you offer a free trial?",
-    answer:
-      "Yes! The Pro plan includes a 3-day free trial. You can try all Pro features risk-free for 3 days. If you don't cancel during the trial period, your subscription will automatically renew at the full price. You can cancel anytime during the trial period without being charged.",
-  },
+  ...trialFAQ,
   {
     question: "How do I get a refund?",
     answer:

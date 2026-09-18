@@ -5,8 +5,10 @@ import { htmlToMarkdown } from "@marble/parser";
 import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
+import { canPerformAction } from "@/lib/plans";
 import { aiSuggestionsRateLimiter, rateLimitHeaders } from "@/lib/ratelimit";
 import { redis } from "@/lib/redis";
+import { getWorkspacePlanType } from "@/lib/subscription/access";
 import {
   aiReadabilityBodySchema,
   aiReadabilityResponseSchema,
@@ -64,6 +66,14 @@ export async function POST(request: Request) {
   }
 
   const { sessionData, workspaceId } = accessData;
+
+  const plan = await getWorkspacePlanType(workspaceId);
+  if (!canPerformAction(plan, "advancedReadability")) {
+    return NextResponse.json(
+      { error: "Upgrade to Hobby to use AI readability insights" },
+      { status: 403 }
+    );
+  }
 
   const bypassCache = request.headers.get("x-bypass-cache") === "true";
 

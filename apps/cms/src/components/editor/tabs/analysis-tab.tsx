@@ -9,8 +9,13 @@ import {
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
 import { ArrowClockwiseIcon, InfoIcon } from "@phosphor-icons/react";
-import { useCallback, useSyncExternalStore } from "react";
+import { useCallback, useState, useSyncExternalStore } from "react";
+import { UpgradeModal } from "@/components/billing/upgrade-modal";
 import { useReadability } from "@/hooks/use-readability";
+import {
+  getAiSuggestionsErrorMessage,
+  isAiEntitlementError,
+} from "@/lib/ai/readability";
 import { Gauge } from "../../ui/gauge";
 import { HiddenScrollbar } from "../../ui/hidden-scrollbar";
 import type { ReadabilitySuggestion } from "../ai/readability-suggestions";
@@ -20,14 +25,24 @@ interface AnalysisTabProps {
   aiSuggestions?: ReadabilitySuggestion[];
   aiLoading?: boolean;
   onRefreshAi?: () => void;
+  /** Whether the workspace plan includes AI suggestions. */
+  canUseAi?: boolean;
+  /** Request failed outright (rate limited, network, bad response). */
+  aiError?: unknown;
+  /** Request succeeded but the model could not produce suggestions. */
+  aiUnavailable?: boolean;
 }
 
 export function AnalysisTab({
   aiSuggestions,
   aiLoading,
   onRefreshAi,
+  canUseAi = true,
+  aiError,
+  aiUnavailable = false,
 }: AnalysisTabProps) {
   const { editor } = useCurrentEditor();
+  const [isUpgradeOpen, setIsUpgradeOpen] = useState(false);
 
   const subscribe = useCallback(
     (callback: () => void) => {
@@ -53,6 +68,21 @@ export function AnalysisTab({
   );
 
   const textMetrics = useReadability({ editor, text: editorText });
+
+  // The server is the authority on entitlement: a 403 here means the cached
+  // plan is stale, so offer the upgrade rather than a retry that cannot work.
+  const showUpgrade = !canUseAi || isAiEntitlementError(aiError);
+
+  // A failure must explain itself: otherwise an outage or a rate limit is
+  // indistinguishable from "nothing to suggest".
+  let aiFailureMessage: string | null = null;
+  if (!(showUpgrade || aiLoading)) {
+    if (aiError) {
+      aiFailureMessage = getAiSuggestionsErrorMessage(aiError);
+    } else if (aiUnavailable && (aiSuggestions?.length ?? 0) === 0) {
+      aiFailureMessage = "We couldn't generate suggestions just now.";
+    }
+  }
 
   return (
     <HiddenScrollbar className="h-full px-6">
@@ -116,7 +146,7 @@ export function AnalysisTab({
                     ? "Getting Started"
                     : "Suggestions"}
                 </h4>
-                {textMetrics.wordCount > 0 ? (
+                {!showUpgrade && textMetrics.wordCount > 0 ? (
                   <Tooltip>
                     <TooltipTrigger
                       render={
@@ -134,25 +164,65 @@ export function AnalysisTab({
                   </Tooltip>
                 ) : null}
               </div>
-              <Button
-                aria-label="Refresh suggestions"
-                className="h-7 w-7 cursor-pointer"
-                disabled={Boolean(aiLoading)}
-                onClick={onRefreshAi}
-                size="icon"
-                type="button"
-                variant="ghost"
-              >
-                <ArrowClockwiseIcon
-                  className={aiLoading ? "h-4 w-4 animate-spin" : "h-4 w-4"}
-                />
-              </Button>
+              {showUpgrade ? null : (
+                <Button
+                  aria-label="Refresh suggestions"
+                  className="h-7 w-7 cursor-pointer"
+                  disabled={Boolean(aiLoading)}
+                  onClick={onRefreshAi}
+                  size="icon"
+                  type="button"
+                  variant="ghost"
+                >
+                  <ArrowClockwiseIcon
+                    className={aiLoading ? "h-4 w-4 animate-spin" : "h-4 w-4"}
+                  />
+                </Button>
+              )}
             </div>
-            <ReadabilitySuggestions
-              editor={editor ?? null}
-              isLoading={aiLoading}
-              suggestions={aiSuggestions ?? []}
-            />
+            {aiFailureMessage ? (
+              <div className="flex flex-col items-center gap-3 py-6 text-center">
+                <p className="text-balance text-muted-foreground text-sm">
+                  {aiFailureMessage}
+                </p>
+                <Button
+                  disabled={Boolean(aiLoading)}
+                  onClick={onRefreshAi}
+                  size="sm"
+                  type="button"
+                  variant="outline"
+                >
+                  Try again
+                </Button>
+              </div>
+            ) : null}
+            {showUpgrade || aiFailureMessage ? null : (
+              <ReadabilitySuggestions
+                editor={editor ?? null}
+                isLoading={aiLoading}
+                suggestions={aiSuggestions ?? []}
+              />
+            )}
+            {showUpgrade ? (
+              <div className="flex flex-col items-center gap-3 py-6 text-center">
+                <p className="text-balance text-muted-foreground text-sm">
+                  Upgrade your plan for AI suggestions.
+                </p>
+                <Button
+                  onClick={() => setIsUpgradeOpen(true)}
+                  size="sm"
+                  type="button"
+                >
+                  Upgrade
+                </Button>
+                <UpgradeModal
+                  feature="ai-readability"
+                  isOpen={isUpgradeOpen}
+                  onClose={() => setIsUpgradeOpen(false)}
+                  openPricingInNewTab
+                />
+              </div>
+            ) : null}
           </div>
         </div>
       </section>

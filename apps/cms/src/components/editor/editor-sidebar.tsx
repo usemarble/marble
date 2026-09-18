@@ -20,6 +20,7 @@ import { useQuery } from "@tanstack/react-query";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useEditorData } from "@/components/editor/editor-data-provider";
 import { useDebounce } from "@/hooks/use-debounce";
+import { usePlan } from "@/hooks/use-plan";
 import { fetchAiReadabilitySuggestionsObject } from "@/lib/ai/readability";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { useWorkspace } from "@/providers/workspace";
@@ -116,6 +117,9 @@ export function EditorSidebar({ ...props }: EditorSidebarProps) {
     };
   }, [editor, debouncedText]);
 
+  const { canUseFeature } = usePlan();
+  const canUseAi = canUseFeature("advancedReadability");
+
   const [hasFetchedAiOnce, setHasFetchedAiOnce] = useState(false);
 
   // biome-ignore lint/style/noNonNullAssertion: <>
@@ -125,13 +129,14 @@ export function EditorSidebar({ ...props }: EditorSidebarProps) {
   const {
     data: aiData,
     isFetching: aiLoading,
+    error: aiError,
     refetch: refetchAi,
   } = useQuery({
     queryKey: QUERY_KEYS.AI_READABILITY_SUGGESTIONS(
       workspaceId,
       postId ?? "draft"
     ),
-    enabled: editorHTML.trim().length > 0,
+    enabled: canUseAi && editorHTML.trim().length > 0,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
@@ -159,6 +164,7 @@ export function EditorSidebar({ ...props }: EditorSidebarProps) {
   useEffect(() => {
     if (
       activeTab === "analysis" &&
+      canUseAi &&
       !!workspaceId &&
       !hasFetchedAiOnce &&
       editorHTML.trim().length > 0
@@ -166,7 +172,14 @@ export function EditorSidebar({ ...props }: EditorSidebarProps) {
       refetchAi();
       setHasFetchedAiOnce(true);
     }
-  }, [activeTab, workspaceId, hasFetchedAiOnce, editorHTML, refetchAi]);
+  }, [
+    activeTab,
+    canUseAi,
+    workspaceId,
+    hasFetchedAiOnce,
+    editorHTML,
+    refetchAi,
+  ]);
 
   const handleRefreshAi = () => {
     bypassCacheRef.current = true;
@@ -225,8 +238,11 @@ export function EditorSidebar({ ...props }: EditorSidebarProps) {
             >
               <Suspense fallback={<TabLoadingSpinner />}>
                 <AnalysisTab
+                  aiError={aiError}
                   aiLoading={aiLoading}
                   aiSuggestions={aiData?.suggestions ?? []}
+                  aiUnavailable={aiData?.unavailable ?? false}
+                  canUseAi={canUseAi}
                   onRefreshAi={handleRefreshAi}
                 />
               </Suspense>

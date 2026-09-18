@@ -55,7 +55,10 @@ import { handleSubscriptionCreated } from "@/lib/polar/subscription.created";
 import { handleSubscriptionRevoked } from "@/lib/polar/subscription.revoked";
 import { handleSubscriptionUpdated } from "@/lib/polar/subscription.updated";
 import { getLastActiveWorkspaceOrNewOneToSetAsActive } from "@/lib/queries/workspace";
-import { guardWorkspaceSubscription } from "@/lib/subscription/access";
+import {
+  getWorkspaceMembershipLimit,
+  guardWorkspaceInviteSeat,
+} from "@/lib/subscription/access";
 import { redis } from "../redis";
 
 const nanoid = customAlphabet("abcdefghijklmnopqrstuvwxyz0123456789", 6);
@@ -261,8 +264,11 @@ export const auth = betterAuth({
       ],
     }),
     organization({
-      // membershipLimit: 10,
-      // check plan limits and set membershipLimit
+      // Seats come from the workspace's plan. Better Auth enforces this when an
+      // invitation is accepted and when a member is added directly, which is
+      // what keeps seats bought on a trial from outliving the downgrade.
+      membershipLimit: (_user, organization) =>
+        getWorkspaceMembershipLimit(organization.id),
       schema: {
         organization: {
           additionalFields: {
@@ -310,17 +316,8 @@ export const auth = betterAuth({
           }
         },
         beforeCreateInvitation: async ({ organization }) => {
-          await guardWorkspaceSubscription(
-            organization.id,
-            "Upgrade to Pro to invite team members"
-          );
+          await guardWorkspaceInviteSeat(organization.id);
         },
-        // beforeAddMember: async ({ organization }) => {
-        //   await guardWorkspaceSubscription(
-        //     organization.id,
-        //     "Upgrade to Pro to add team members"
-        //   );
-        // },
       },
     }),
     emailOTP({
