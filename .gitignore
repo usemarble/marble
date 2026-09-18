@@ -42,10 +42,7 @@ yarn-error.log*
 *.pem
 
 # Agent skills (install locally via npx skills add)
-.agents/skills/
-.agent/skills/
-.cursor/skills/
-.claude/skills/
+.agents
 
 /docs/**
 !/docs/drizzle-parity/
