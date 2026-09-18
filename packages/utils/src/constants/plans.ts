@@ -108,14 +108,17 @@ export function isSubscriptionActive(
     return false;
   }
 
+  // Without a usable period end there is no way to tell whether access has
+  // lapsed, and granting it would reopen the stale-row hole this bound exists
+  // to close. The column is NOT NULL, so this only catches malformed input.
+  if (!periodEnd) {
+    return false;
+  }
+
   // A scheduled cancellation has an authoritative end date - honour it exactly,
   // with no grace, because the customer chose it and Polar revokes on it.
   if (cancelAtPeriodEnd) {
-    return periodEnd ? periodEnd.getTime() > now.getTime() : isCurrent;
-  }
-
-  if (!periodEnd) {
-    return true;
+    return periodEnd.getTime() > now.getTime();
   }
 
   return periodEnd.getTime() + SUBSCRIPTION_ACCESS_GRACE_MS > now.getTime();

@@ -47,6 +47,15 @@ async function readErrorMessage(response: Response): Promise<string> {
   return response.statusText || "Request failed";
 }
 
+/**
+ * Whether the request failed because the plan does not include the feature.
+ * Reachable when the client's cached subscription is stale, and retrying can
+ * never succeed - the caller should offer an upgrade instead.
+ */
+export function isAiEntitlementError(error: unknown): boolean {
+  return error instanceof AiSuggestionsError && error.status === 403;
+}
+
 /** Reader-facing explanation for a failed suggestions request. */
 export function getAiSuggestionsErrorMessage(error: unknown): string {
   if (error instanceof AiSuggestionsError && error.status === 429) {
@@ -112,7 +121,8 @@ export async function fetchAiReadabilitySuggestionsObject(params: {
   );
 
   if (!parsed.success) {
-    return { suggestions: [], unavailable };
+    // A 2xx we cannot read is a failure, not "nothing to suggest".
+    return { suggestions: [], unavailable: true };
   }
 
   return { suggestions: parsed.data.suggestions, unavailable };

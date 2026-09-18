@@ -12,7 +12,10 @@ import { ArrowClockwiseIcon, InfoIcon } from "@phosphor-icons/react";
 import { useCallback, useState, useSyncExternalStore } from "react";
 import { UpgradeModal } from "@/components/billing/upgrade-modal";
 import { useReadability } from "@/hooks/use-readability";
-import { getAiSuggestionsErrorMessage } from "@/lib/ai/readability";
+import {
+  getAiSuggestionsErrorMessage,
+  isAiEntitlementError,
+} from "@/lib/ai/readability";
 import { Gauge } from "../../ui/gauge";
 import { HiddenScrollbar } from "../../ui/hidden-scrollbar";
 import type { ReadabilitySuggestion } from "../ai/readability-suggestions";
@@ -66,10 +69,14 @@ export function AnalysisTab({
 
   const textMetrics = useReadability({ editor, text: editorText });
 
+  // The server is the authority on entitlement: a 403 here means the cached
+  // plan is stale, so offer the upgrade rather than a retry that cannot work.
+  const showUpgrade = !canUseAi || isAiEntitlementError(aiError);
+
   // A failure must explain itself: otherwise an outage or a rate limit is
   // indistinguishable from "nothing to suggest".
   let aiFailureMessage: string | null = null;
-  if (canUseAi && !aiLoading) {
+  if (!(showUpgrade || aiLoading)) {
     if (aiError) {
       aiFailureMessage = getAiSuggestionsErrorMessage(aiError);
     } else if (aiUnavailable && (aiSuggestions?.length ?? 0) === 0) {
@@ -139,7 +146,7 @@ export function AnalysisTab({
                     ? "Getting Started"
                     : "Suggestions"}
                 </h4>
-                {canUseAi && textMetrics.wordCount > 0 ? (
+                {!showUpgrade && textMetrics.wordCount > 0 ? (
                   <Tooltip>
                     <TooltipTrigger
                       render={
@@ -157,7 +164,7 @@ export function AnalysisTab({
                   </Tooltip>
                 ) : null}
               </div>
-              {canUseAi ? (
+              {showUpgrade ? null : (
                 <Button
                   aria-label="Refresh suggestions"
                   className="h-7 w-7 cursor-pointer"
@@ -171,7 +178,7 @@ export function AnalysisTab({
                     className={aiLoading ? "h-4 w-4 animate-spin" : "h-4 w-4"}
                   />
                 </Button>
-              ) : null}
+              )}
             </div>
             {aiFailureMessage ? (
               <div className="flex flex-col items-center gap-3 py-6 text-center">
@@ -189,14 +196,14 @@ export function AnalysisTab({
                 </Button>
               </div>
             ) : null}
-            {canUseAi && !aiFailureMessage ? (
+            {showUpgrade || aiFailureMessage ? null : (
               <ReadabilitySuggestions
                 editor={editor ?? null}
                 isLoading={aiLoading}
                 suggestions={aiSuggestions ?? []}
               />
-            ) : null}
-            {canUseAi ? null : (
+            )}
+            {showUpgrade ? (
               <div className="flex flex-col items-center gap-3 py-6 text-center">
                 <p className="text-balance text-muted-foreground text-sm">
                   Upgrade your plan for AI suggestions.
@@ -215,7 +222,7 @@ export function AnalysisTab({
                   openPricingInNewTab
                 />
               </div>
-            )}
+            ) : null}
           </div>
         </div>
       </section>

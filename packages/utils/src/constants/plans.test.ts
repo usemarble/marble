@@ -115,6 +115,25 @@ describe("isSubscriptionActive", () => {
     });
   });
 
+  it("denies access when the period end is missing or unparseable", () => {
+    // The column is NOT NULL, so this only guards malformed input - but
+    // granting access here would reopen the stale-row hole entirely.
+    for (const currentPeriodEnd of [null, undefined, "", "not-a-date"]) {
+      expect(
+        isSubscriptionActive(
+          { status: "active", cancelAtPeriodEnd: false, currentPeriodEnd },
+          NOW
+        )
+      ).toBe(false);
+      expect(
+        isSubscriptionActive(
+          { status: "trialing", cancelAtPeriodEnd: true, currentPeriodEnd },
+          NOW
+        )
+      ).toBe(false);
+    }
+  });
+
   it("denies access for statuses that are not entitled", () => {
     for (const status of [
       "canceled",
