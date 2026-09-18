@@ -6,20 +6,36 @@ import {
   type ReactNodeViewRendererOptions,
 } from "@tiptap/react";
 import { Tweet } from "react-tweet";
-export const TWITTER_REGEX_GLOBAL =
-  /(https?:\/\/)?(www\.)?x\.com\/([a-zA-Z0-9_]{1,15})(\/status\/(\d+))?(\/\S*)?/g;
-export const TWITTER_REGEX =
-  /^https?:\/\/(www\.)?x\.com\/([a-zA-Z0-9_]{1,15})(\/status\/(\d+))?(\/\S*)?$/;
 
-export const isValidTwitterUrl = (url: string) => url.match(TWITTER_REGEX);
+/**
+ * A link to a single tweet, with the status id as the first capture group.
+ * Protocol, subdomain (`www.`, `mobile.`), a trailing slash, a query string
+ * (`?s=20`, which is what X's share sheet hands out) and a hash are all
+ * optional, and twitter.com is accepted alongside x.com.
+ */
+const TWEET_HOST = String.raw`\b(?:https?:\/\/)?(?:[\w-]+\.)*(?:twitter|x)\.com`;
+const TWEET_PATH = String.raw`\/(?:#!\/)?[a-zA-Z0-9_]{1,15}\/status(?:es)?\/(\d+)(?:[/?#]\S*)?`;
+const TWEET_URL_SOURCE = `${TWEET_HOST}${TWEET_PATH}`;
+
+export const TWITTER_REGEX_GLOBAL = new RegExp(TWEET_URL_SOURCE, "gi");
+export const TWITTER_REGEX = new RegExp(`^${TWEET_URL_SOURCE}$`, "i");
+
+/**
+ * Reads the status id out of a tweet link. Everything after the id is
+ * ignored, so trailing slashes and tracking params don't produce an empty id
+ * the way splitting on "/" did.
+ */
+export const getTweetId = (url?: string | null): string | null =>
+  url?.match(TWITTER_REGEX)?.[1] ?? null;
+
+export const isValidTwitterUrl = (url: string) => getTweetId(url) !== null;
 
 const TweetComponent = ({
   node,
 }: {
   node: Partial<ReactNodeViewRendererOptions>;
 }) => {
-  const url = (node?.attrs as Record<string, string>)?.src;
-  const tweetId = url?.split("/").pop();
+  const tweetId = getTweetId((node?.attrs as Record<string, string>)?.src);
 
   if (!tweetId) {
     return null;
@@ -160,7 +176,9 @@ export const Twitter = Node.create<TwitterOptions>({
       nodePasteRule({
         find: TWITTER_REGEX_GLOBAL,
         type: this.type,
-        getAttributes: (match) => ({ src: match.input }),
+        // match[0] is the tweet link itself; match.input is the whole pasted
+        // text, which would drag surrounding prose into the src attribute.
+        getAttributes: (match) => ({ src: match[0] }),
       }),
     ];
   },

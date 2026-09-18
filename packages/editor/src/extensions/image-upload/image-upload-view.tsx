@@ -1,6 +1,8 @@
 import type { NodeViewProps } from "@tiptap/core";
 import { NodeViewWrapper } from "@tiptap/react";
 import { useCallback, useEffect, useRef } from "react";
+import { removePlaceholder, replacePlaceholder } from "../../lib/placeholder";
+import { figureContent } from "../figure";
 import { ImageUploadComp } from "./image-upload-comp";
 import type { ImageUploadStorage } from "./index";
 
@@ -36,43 +38,33 @@ export const ImageUploadView = ({
 
   const onUpload = useCallback(
     (url: string) => {
-      if (url && typeof getPos === "function") {
-        const pos = getPos();
-        if (typeof pos === "number") {
-          consumedRef.current = true;
-          if (fileId) {
-            pendingUploads.delete(fileId);
-          }
-
-          editor
-            .chain()
-            .focus()
-            .deleteRange({ from: pos, to: pos + 1 })
-            .setFigure({ src: url, alt: "", caption: "" })
-            .run();
-        }
+      if (!url) {
+        return;
       }
+
+      consumedRef.current = true;
+      if (fileId) {
+        pendingUploads.delete(fileId);
+      }
+
+      // The figure takes over the placeholder's range, so it lands where the
+      // image was dropped or pasted even if the caret has moved on since.
+      replacePlaceholder(
+        { editor, getPos, node },
+        figureContent({ src: url, alt: "", caption: "" })
+      );
     },
-    [getPos, editor, fileId, pendingUploads]
+    [getPos, editor, node, fileId, pendingUploads]
   );
 
   const onCancel = useCallback(() => {
-    if (typeof getPos === "function") {
-      const pos = getPos();
-      if (typeof pos === "number") {
-        consumedRef.current = true;
-        if (fileId) {
-          pendingUploads.delete(fileId);
-        }
-
-        editor
-          .chain()
-          .focus()
-          .deleteRange({ from: pos, to: pos + 1 })
-          .run();
-      }
+    consumedRef.current = true;
+    if (fileId) {
+      pendingUploads.delete(fileId);
     }
-  }, [getPos, editor, fileId, pendingUploads]);
+
+    removePlaceholder({ editor, getPos, node });
+  }, [getPos, editor, node, fileId, pendingUploads]);
 
   // Only render if upload handler is configured
   if (!options.upload) {
