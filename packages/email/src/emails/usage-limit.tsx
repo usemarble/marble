@@ -49,6 +49,17 @@ function formatResetDate(resetsAt?: Date | string): string | null {
   });
 }
 
+/**
+ * Lowercases a feature name for use mid-sentence, leaving acronyms alone so
+ * "API Requests" reads as "API requests" rather than "api requests".
+ */
+function toMidSentence(name: string): string {
+  return name
+    .split(" ")
+    .map((word) => (word === word.toUpperCase() ? word : word.toLowerCase()))
+    .join(" ");
+}
+
 function formatNumber(num: number): string {
   if (num >= 1_000_000) {
     return `${(num / 1_000_000).toFixed(1)}M`;
@@ -87,7 +98,7 @@ export const UsageLimitEmail = ({
   const resetsSentence = resetDate
     ? `on ${resetDate}`
     : "at the start of your next billing period";
-  const feature = featureName.toLowerCase();
+  const feature = toMidSentence(featureName);
   const previewText =
     percentage >= 100
       ? `You've reached your ${featureName} limit`
@@ -132,8 +143,8 @@ export const UsageLimitEmail = ({
                 {greeting}
               </Text>
               <Text className="m-0 mb-4 text-[#737373] text-base leading-relaxed">
-                You've used {percentage}% of your {featureName.toLowerCase()}{" "}
-                limit for this billing period. You currently have{" "}
+                You've used {percentage}% of your {feature} limit for this
+                billing period. You currently have{" "}
                 <strong>{remaining.toLocaleString()}</strong> remaining out of{" "}
                 {limitFormatted} total.
               </Text>
