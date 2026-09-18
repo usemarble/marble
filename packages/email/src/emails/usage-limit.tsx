@@ -28,20 +28,23 @@ interface UsageLimitEmailProps {
    * where telling someone to upgrade is a dead end.
    */
   canUpgrade?: boolean;
-  /** When the limit resets - the one fact a blocked customer actually needs. */
-  resetsAt?: Date | string;
+  /**
+   * When the limit resets - the one fact a blocked customer actually needs.
+   *
+   * A `Date` rather than a string on purpose: a date-time string without an
+   * offset is parsed in the host's timezone, which would disagree with the
+   * UTC formatting below and could print the wrong day. Callers parse their
+   * own strings, where they know the timezone.
+   */
+  resetsAt?: Date;
 }
 
-function formatResetDate(resetsAt?: Date | string): string | null {
-  if (!resetsAt) {
-    return null;
-  }
-  const date = resetsAt instanceof Date ? resetsAt : new Date(resetsAt);
-  if (Number.isNaN(date.getTime())) {
+function formatResetDate(resetsAt?: Date): string | null {
+  if (!resetsAt || Number.isNaN(resetsAt.getTime())) {
     return null;
   }
   // Fixed to UTC so the date cannot shift with the sending server's timezone.
-  return date.toLocaleDateString("en-US", {
+  return resetsAt.toLocaleDateString("en-US", {
     day: "numeric",
     month: "long",
     timeZone: "UTC",

@@ -129,7 +129,8 @@ export async function sendUsageLimitEmail(
     limitAmount: number;
     workspaceId?: string;
     canUpgrade?: boolean;
-    resetsAt?: Date | string;
+    /** A Date, not a string: see `resetsAt` on UsageLimitEmailProps. */
+    resetsAt?: Date;
   }
 ) {
   const reached =
