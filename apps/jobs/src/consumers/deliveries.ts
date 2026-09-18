@@ -88,6 +88,7 @@ async function processDelivery(db: DbClient, deliveryId: string) {
           usageAmount: usage.currentUsage,
           limitAmount: usage.limit,
           period: usage.period,
+          plan: usage.plan,
         });
       } catch (error) {
         console.error("[Delivery] Failed to send webhook usage alert:", error);
@@ -197,6 +198,7 @@ async function processDelivery(db: DbClient, deliveryId: string) {
             usageAmount: usage.currentUsage + 1,
             limitAmount: usage.limit,
             period: usage.period,
+            plan: usage.plan,
           });
         }
       } catch (error) {

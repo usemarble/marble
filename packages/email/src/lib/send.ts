@@ -118,26 +118,41 @@ export async function sendUsageLimitEmail(
     usageAmount,
     limitAmount,
     workspaceId,
+    canUpgrade,
+    resetsAt,
   }: {
-    userEmail: string;
+    /** One address, or several to notify together. */
+    userEmail: string | string[];
     userName?: string;
     featureName?: string;
     usageAmount: number;
     limitAmount: number;
     workspaceId?: string;
+    canUpgrade?: boolean;
+    /** A Date, not a string: see `resetsAt` on UsageLimitEmailProps. */
+    resetsAt?: Date;
   }
 ) {
+  const reached =
+    Number.isFinite(limitAmount) &&
+    limitAmount > 0 &&
+    usageAmount >= limitAmount;
+
   return await resend.emails.send({
     from: EMAIL_CONFIG.from,
     replyTo: EMAIL_CONFIG.replyTo,
     to: userEmail,
-    subject: `You're approaching your ${featureName} limit`,
+    subject: reached
+      ? `You've reached your ${featureName} limit`
+      : `You're approaching your ${featureName} limit`,
     react: UsageLimitEmail({
       userName,
       featureName,
       usageAmount,
       limitAmount,
       workspaceId,
+      canUpgrade,
+      resetsAt,
     }),
   });
 }

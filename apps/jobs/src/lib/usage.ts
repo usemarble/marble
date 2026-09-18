@@ -12,8 +12,10 @@ import {
 import { sendUsageLimitEmail } from "@marble/email";
 import {
   getWorkspacePlan,
+  hasHigherPlan,
   isSubscriptionActive,
   PLAN_LIMITS,
+  type PlanType,
 } from "@marble/utils";
 import {
   and,
@@ -42,6 +44,8 @@ interface WebhookUsageCheck {
   currentUsage: number;
   limit: number;
   period: UsagePeriod;
+  /** Drives whether an alert can honestly suggest upgrading. */
+  plan: PlanType;
   alertKind?: UsageAlertKind;
 }
 
@@ -191,6 +195,7 @@ export async function checkWebhookUsage(
     currentUsage,
     limit,
     period,
+    plan,
     alertKind: getCrossedAlertKind(currentUsage, currentUsage + 1, limit),
   };
 }
@@ -217,6 +222,7 @@ export async function sendWebhookUsageAlert(
     usageAmount,
     limitAmount,
     period,
+    plan,
   }: {
     resendApiKey?: string;
     workspaceId: string;
@@ -224,6 +230,7 @@ export async function sendWebhookUsageAlert(
     usageAmount: number;
     limitAmount: number;
     period: UsagePeriod;
+    plan: PlanType;
   }
 ) {
   if (!resendApiKey) {
@@ -233,7 +240,9 @@ export async function sendWebhookUsageAlert(
     return;
   }
 
-  const [owner] = await db
+  // Owner plus admins: a plain member can neither raise the limit nor change
+  // the plan, so the alert would be noise they cannot act on.
+  const recipients = await db
     .select({
       email: user.email,
       name: user.name,
@@ -247,18 +256,17 @@ export async function sendWebhookUsageAlert(
     .where(
       and(
         eq(member.organizationId, workspaceId),
-        eq(member.role, "owner"),
+        inArray(member.role, ["owner", "admin"]),
         or(
           isNull(workspaceNotificationPreferences.id),
           eq(workspaceNotificationPreferences.usageAlerts, true)
         )
       )
-    )
-    .limit(1);
+    );
 
-  if (!owner?.email) {
+  if (recipients.length === 0) {
     console.warn(
-      `[WebhookUsage] No alertable owner found for workspace ${workspaceId}`
+      `[WebhookUsage] No alertable owner or admin found for workspace ${workspaceId}`
     );
     return;
   }
@@ -275,7 +283,7 @@ export async function sendWebhookUsageAlert(
         kind,
         periodStart: period.start,
         periodEnd: period.end,
-        emailSentTo: owner.email,
+        emailSentTo: recipients.map((r) => r.email).join(", "),
       })
       .returning({ id: usageAlert.id });
 
@@ -296,12 +304,18 @@ export async function sendWebhookUsageAlert(
   try {
     const resend = new Resend(resendApiKey);
     await sendUsageLimitEmail(resend, {
-      userEmail: owner.email,
-      userName: owner.name,
+      userEmail: recipients.map((r) => r.email),
+      // Only greet by name when there is exactly one reader.
+      userName:
+        recipients.length === 1
+          ? (recipients[0]?.name ?? undefined)
+          : undefined,
       featureName: "Webhook Events",
       usageAmount,
       limitAmount,
       workspaceId,
+      canUpgrade: hasHigherPlan(plan),
+      resetsAt: period.end,
     });
     console.log(
       `[WebhookUsage] Sent ${kind} usage email for workspace ${workspaceId}`

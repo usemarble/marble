@@ -61,6 +61,20 @@ export const PLAN_LIMITS: Record<PlanType, PlanLimits> = {
 };
 
 /**
+ * Plans from cheapest to most expensive.
+ *
+ * The last entry has nothing to upsell to, which is what stops us telling a
+ * customer on the top plan to "upgrade" when there is nowhere to upgrade to.
+ */
+export const PLAN_ORDER: readonly PlanType[] = ["free", "hobby", "pro"];
+
+/** Whether a plan has a more expensive plan above it. */
+export function hasHigherPlan(plan: PlanType): boolean {
+  const index = PLAN_ORDER.indexOf(plan);
+  return index >= 0 && index < PLAN_ORDER.length - 1;
+}
+
+/**
  * How long past `currentPeriodEnd` an `active`/`trialing` subscription keeps
  * its plan.
  *

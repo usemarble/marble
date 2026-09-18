@@ -52,7 +52,9 @@ export async function runAnalyticsTask({
           workspaceId,
           usageResult.thresholdCrossed,
           usageResult.currentUsage + 1,
-          usageResult.limit
+          usageResult.limit,
+          usageResult.plan,
+          usageResult.periodEnd
         );
       } catch (usageError) {
         console.error(
