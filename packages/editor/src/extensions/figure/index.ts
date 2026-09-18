@@ -1,4 +1,4 @@
-import type { CommandProps } from "@tiptap/core";
+import type { CommandProps, JSONContent } from "@tiptap/core";
 import { mergeAttributes, Node } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import { FigureView } from "./figure-view";
@@ -13,17 +13,19 @@ const captionToContent = (caption?: string) =>
       ]
     : [{ type: "paragraph" }];
 
+export interface SetFigureOptions {
+  src: string;
+  alt?: string;
+  caption?: string;
+  href?: string;
+  width?: string;
+  align?: "left" | "center" | "right";
+}
+
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     figure: {
-      setFigure: (options: {
-        src: string;
-        alt?: string;
-        caption?: string;
-        href?: string;
-        width?: string;
-        align?: "left" | "center" | "right";
-      }) => ReturnType;
+      setFigure: (options: SetFigureOptions) => ReturnType;
       updateFigure: (attrs: {
         alt?: string;
         caption?: string;
@@ -34,6 +36,20 @@ declare module "@tiptap/core" {
     };
   }
 }
+
+/**
+ * The document content for a figure. Shared so callers that need to place a
+ * figure at a specific position (replacing an upload placeholder, say) build
+ * the exact same node as `setFigure`.
+ */
+export const figureContent = (options: SetFigureOptions): JSONContent => ({
+  type: "figure",
+  attrs: {
+    ...options,
+    caption: null,
+  },
+  content: captionToContent(options.caption),
+});
 
 export const Figure = Node.create({
   name: "figure",
@@ -167,14 +183,7 @@ export const Figure = Node.create({
       setFigure:
         (options) =>
         ({ commands }: CommandProps) =>
-          commands.insertContent({
-            type: this.name,
-            attrs: {
-              ...options,
-              caption: null,
-            },
-            content: captionToContent(options.caption),
-          }),
+          commands.insertContent(figureContent(options)),
       updateFigure:
         (attrs) =>
         ({ commands, tr, state }: CommandProps) => {

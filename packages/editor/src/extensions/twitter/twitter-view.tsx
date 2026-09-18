@@ -1,40 +1,34 @@
 import type { NodeViewProps } from "@tiptap/core";
 import { NodeViewWrapper } from "@tiptap/react";
 import { useCallback } from "react";
+import { getPlaceholderRange, removePlaceholder } from "../../lib/placeholder";
 import { TwitterComp } from "./twitter-comp";
 
-export const TwitterUploadView = ({ getPos, editor }: NodeViewProps) => {
+export const TwitterUploadView = ({ getPos, editor, node }: NodeViewProps) => {
   const onSubmit = useCallback(
     (url: string) => {
-      if (url && typeof getPos === "function") {
-        const pos = getPos();
-        if (typeof pos === "number") {
-          // Replace the twitterUpload node with an actual Twitter embed
-          editor
-            .chain()
-            .focus()
-            .deleteRange({ from: pos, to: pos + 1 })
-            .setTweet({ src: url })
-            .run();
-        }
+      const range = getPlaceholderRange({ editor, getPos, node });
+
+      if (!url || !range) {
+        return;
       }
+
+      // Select the placeholder so the embed replaces it in place rather than
+      // landing wherever the caret happens to be, then let `setTweet` run its
+      // own validation over the URL.
+      editor
+        .chain()
+        .focus()
+        .setNodeSelection(range.from)
+        .setTweet({ src: url })
+        .run();
     },
-    [getPos, editor]
+    [getPos, editor, node]
   );
 
   const onCancel = useCallback(() => {
-    if (typeof getPos === "function") {
-      const pos = getPos();
-      if (typeof pos === "number") {
-        // Remove the placeholder node
-        editor
-          .chain()
-          .focus()
-          .deleteRange({ from: pos, to: pos + 1 })
-          .run();
-      }
-    }
-  }, [getPos, editor]);
+    removePlaceholder({ editor, getPos, node });
+  }, [getPos, editor, node]);
 
   return (
     <NodeViewWrapper className="my-5">

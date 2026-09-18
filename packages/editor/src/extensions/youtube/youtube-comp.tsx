@@ -13,7 +13,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { YouTubeIcon } from "../../components/icons/youtube";
 
 // Extract YouTube video ID from various URL formats
-function extractYouTubeVideoId(url: string): string | null {
+function extractYouTubeVideoId(rawUrl: string): string | null {
+  // Pasted links often carry surrounding whitespace or a trailing newline,
+  // which would otherwise end up inside the captured video id.
+  const url = rawUrl.trim();
+
   if (!url) {
     return null;
   }

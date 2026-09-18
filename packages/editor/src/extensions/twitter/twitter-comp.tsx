@@ -11,17 +11,7 @@ import { cn } from "@marble/ui/lib/utils";
 import type { ChangeEvent, KeyboardEvent } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Twitter } from "../../components/icons/twitter";
-
-// Validate Twitter/X.com URL
-const TWITTER_REGEX =
-  /^https?:\/\/(www\.)?x\.com\/([a-zA-Z0-9_]{1,15})(\/status\/(\d+))?(\/\S*)?$/;
-
-function isValidTwitterUrl(url: string): boolean {
-  if (!url) {
-    return false;
-  }
-  return TWITTER_REGEX.test(url);
-}
+import { isValidTwitterUrl } from "./index";
 
 export const TwitterComp = ({
   onSubmit,
@@ -42,14 +32,18 @@ export const TwitterComp = ({
     return () => cancelAnimationFrame(frame);
   }, []);
 
+  // Links pasted from X often arrive with surrounding whitespace or a
+  // newline, so validate and submit the trimmed value rather than the raw one.
+  const trimmedUrl = url.trim();
+
   const validateAndSubmit = useCallback(() => {
-    if (!isValidTwitterUrl(url)) {
+    if (!isValidTwitterUrl(trimmedUrl)) {
       setError("Invalid Tweet link");
       return;
     }
 
-    onSubmit(url);
-  }, [url, onSubmit]);
+    onSubmit(trimmedUrl);
+  }, [trimmedUrl, onSubmit]);
 
   const handleInputChange = useCallback(
     (e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -72,7 +66,7 @@ export const TwitterComp = ({
     [validateAndSubmit, onCancel]
   );
 
-  const isValidUrl = isValidTwitterUrl(url);
+  const isValidUrl = isValidTwitterUrl(trimmedUrl);
 
   return (
     <Card className="col-span-full gap-4 rounded-[20px] border-none bg-surface p-2">
@@ -102,7 +96,7 @@ export const TwitterComp = ({
 
         <CardFooter className="flex items-center gap-2 px-0 pt-4">
           <Button
-            disabled={!url || !isValidUrl}
+            disabled={!isValidUrl}
             onClick={validateAndSubmit}
             size="sm"
             type="button"

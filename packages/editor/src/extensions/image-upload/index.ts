@@ -1,5 +1,5 @@
 /** biome-ignore-all lint/style/useConsistentTypeDefinitions: <> */
-import type { CommandProps } from "@tiptap/core";
+import type { CommandProps, JSONContent } from "@tiptap/core";
 import { Node } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import type { ImageUploadOptions } from "../../types";
@@ -8,7 +8,12 @@ import { ImageUploadView } from "./image-upload-view";
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     imageUpload: {
-      setImageUpload: (options?: { file?: File }) => ReturnType;
+      /**
+       * `pos` places the placeholder at a specific document position — a drop
+       * lands where the file was dropped, not at the caret. Defaults to the
+       * current selection.
+       */
+      setImageUpload: (options?: { file?: File; pos?: number }) => ReturnType;
     };
   }
 }
@@ -69,21 +74,18 @@ export const ImageUpload = Node.create<ImageUploadOptions>({
       setImageUpload:
         (options) =>
         ({ commands }: CommandProps) => {
-          const { file } = options || {};
+          const { file, pos } = options || {};
+          const content: JSONContent = { type: this.name };
 
           if (file) {
             const fileId = `upload-${Date.now()}-${Math.random()}`;
             extensionStorage.pendingUploads.set(fileId, file);
-
-            return commands.insertContent({
-              type: this.name,
-              attrs: { fileId },
-            });
+            content.attrs = { fileId };
           }
 
-          return commands.insertContent({
-            type: this.name,
-          });
+          return pos === undefined
+            ? commands.insertContent(content)
+            : commands.insertContentAt(pos, content);
         },
     };
   },

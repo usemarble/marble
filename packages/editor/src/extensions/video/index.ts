@@ -1,17 +1,19 @@
-import type { CommandProps } from "@tiptap/core";
+import type { CommandProps, JSONContent } from "@tiptap/core";
 import { mergeAttributes, Node } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import { VideoView } from "./video-view";
 
+export interface SetVideoOptions {
+  src: string;
+  caption?: string;
+  width?: string;
+  align?: "left" | "center" | "right";
+}
+
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     video: {
-      setVideo: (options: {
-        src: string;
-        caption?: string;
-        width?: string;
-        align?: "left" | "center" | "right";
-      }) => ReturnType;
+      setVideo: (options: SetVideoOptions) => ReturnType;
       updateVideo: (attrs: {
         caption?: string;
         width?: string;
@@ -20,6 +22,16 @@ declare module "@tiptap/core" {
     };
   }
 }
+
+/**
+ * The document content for a video. Shared so callers that need to place a
+ * video at a specific position (replacing an upload placeholder, say) build
+ * the exact same node as `setVideo`.
+ */
+export const videoContent = (options: SetVideoOptions): JSONContent => ({
+  type: "video",
+  attrs: options,
+});
 
 export const Video = Node.create({
   name: "video",
@@ -114,10 +126,7 @@ export const Video = Node.create({
       setVideo:
         (options) =>
         ({ commands }: CommandProps) =>
-          commands.insertContent({
-            type: this.name,
-            attrs: options,
-          }),
+          commands.insertContent(videoContent(options)),
       updateVideo:
         (attrs) =>
         ({ commands, tr, state }: CommandProps) => {

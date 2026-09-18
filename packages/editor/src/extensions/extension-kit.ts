@@ -198,12 +198,18 @@ export const ExtensionKit = ({
       "video/ogg",
       "video/quicktime",
     ],
-    onDrop: (currentEditor, files, _pos) => {
-      for (const file of files) {
+    // Drop at the position under the pointer rather than at the caret, which
+    // is usually somewhere else entirely by the time a file is dragged in.
+    // Only the first file is anchored: inserting it leaves the caret just
+    // after it, so the rest queue up behind it in the order they were dropped.
+    onDrop: (currentEditor, files, pos) => {
+      for (const [index, file] of files.entries()) {
+        const options = index === 0 ? { file, pos } : { file };
+
         if (file.type.startsWith("video/")) {
-          currentEditor.chain().focus().setVideoUpload({ file }).run();
+          currentEditor.chain().focus().setVideoUpload(options).run();
         } else {
-          currentEditor.chain().focus().setImageUpload({ file }).run();
+          currentEditor.chain().focus().setImageUpload(options).run();
         }
       }
     },
