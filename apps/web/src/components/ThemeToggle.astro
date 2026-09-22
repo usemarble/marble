@@ -1,5 +1,5 @@
 <div
-  class="theme-toggle inline-flex rounded-full border border-foreground/40 bg-background p-0.5 text-muted-foreground"
+  class="theme-toggle mt-3 inline-flex rounded-full bg-transparent text-muted-foreground"
   role="group"
   aria-label="Color theme"
   data-theme-toggle
@@ -75,8 +75,8 @@
 <style>
   .theme-option {
     display: inline-flex;
-    width: 2rem;
-    height: 2rem;
+    width: 1.5rem;
+    height: 1.5rem;
     cursor: pointer;
     align-items: center;
     justify-content: center;
@@ -97,13 +97,13 @@
   }
 
   .theme-option[aria-pressed="true"] {
-    background: var(--foreground);
-    color: var(--background);
+    background: var(--muted);
+    color: var(--foreground);
   }
 
   .theme-option svg {
-    width: 1rem;
-    height: 1rem;
+    width: 0.75rem;
+    height: 0.75rem;
   }
 </style>
 
