@@ -1,7 +1,7 @@
 ---
 title: "Workspaces & Teams"
 sidebarTitle: "Workspaces & Teams"
-description: "How Marble workspaces isolate posts, media, API keys, and members, plus Owner, Admin, and Member team roles and the difference between members and authors."
+description: "How Marble workspaces isolate content and API keys, manage Owner, Admin, and Member roles, enforce plan seat limits, and send usage alerts."
 ---
 
 A **workspace** is the top-level container for everything in Marble. Each workspace holds its own posts, media, authors, categories, tags, custom fields, API keys, and team members — fully isolated from every other workspace.
@@ -64,6 +64,24 @@ Invite collaborators to a workspace from **Settings → Members**. Each member h
   Workspace members and **authors** are related but distinct. A member is someone
   with dashboard access; an author is a byline attached to posts. See the
   [content model](/concepts/content-model#authors) for how they connect.
+</Tip>
+
+### Plan seat limits
+
+Every workspace plan includes a maximum number of members. Marble counts existing members and any pending invitations that haven't been accepted yet against that cap, so a workspace on its last seat can't queue up extra invites and have them all accepted later.
+
+New invitations are blocked once the cap is reached. Marble returns an error explaining which plan you're on and how many seats it includes, and the **Settings → Members** page shows a banner while the workspace is at or over the cap. Owners see an upgrade prompt in the banner; admins see the same message without the upgrade action.
+
+Downgrades never remove existing members. If a workspace drops to a plan with fewer seats than it currently uses, everyone keeps their access — the workspace simply can't add anyone new until it's back under the cap, either by upgrading again or by removing members.
+
+### Usage alerts
+
+Marble tracks each workspace's monthly API request and webhook event usage against its plan limits. When a workspace crosses 75%, 90%, or 100% of a limit, Marble emails the workspace's owner and admins.
+
+The email names the exact date the limit resets in UTC. On plans below the top tier it links to the pricing page so an owner can upgrade immediately. On the top plan there's nowhere to upgrade to, so the email asks you to reply and the Marble team will raise your limit manually.
+
+<Tip>
+  Each member can turn off **Usage alerts** for a workspace under **Settings → Notifications**. The preference is per-member and per-workspace, so opting out in one workspace doesn't affect any other. Plain members never receive these alerts because they can't change the plan or raise the limit.
 </Tip>
 
 ## Next steps
