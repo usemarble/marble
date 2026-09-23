@@ -239,7 +239,7 @@ const itemVariants = {
     opacity: 1,
     y: 0,
     filter: "blur(0px)",
-    transition: { duration: 0.3, ease: "easeIn" },
+    transition: { duration: 0.3, ease: "easeIn" as const },
   },
   exit: {
     opacity: 0,

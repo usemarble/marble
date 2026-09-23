@@ -6,6 +6,7 @@ export type {
   MediaItem,
   VideoUploadOptions,
 } from "../types";
+export { BlockMove } from "./block-move";
 export { CodeBlock } from "./code-block";
 // Extension Kit
 export {

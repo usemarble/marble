@@ -6,12 +6,17 @@ import {
 } from "@phosphor-icons/react";
 import type { Editor } from "@tiptap/react";
 import { BubbleMenu as TiptapBubbleMenu } from "@tiptap/react/menus";
-import { type JSX, memo, useCallback } from "react";
+import { type JSX, memo, useCallback, useMemo } from "react";
 import { isColumnGripSelected } from "./utils";
 
 interface MenuProps {
   editor: Editor;
   appendTo?: React.RefObject<HTMLElement>;
+  /**
+   * The element the editor scrolls in, so the menu follows the table instead
+   * of staying put when that element scrolls.
+   */
+  scrollTarget?: HTMLElement | null;
 }
 
 interface ShouldShowProps {
@@ -23,6 +28,7 @@ interface ShouldShowProps {
 function TableColumnMenuComponent({
   editor,
   appendTo,
+  scrollTarget,
 }: MenuProps): JSX.Element {
   const shouldShow = useCallback(
     ({ view, state, from }: ShouldShowProps) => {
@@ -52,15 +58,27 @@ function TableColumnMenuComponent({
     editor.chain().focus().deleteColumn().run();
   }, [editor]);
 
+  // Stable identities: the bubble menu re-sends its options to the plugin
+  // whenever these change.
+  const getAppendTarget = useCallback(
+    () => appendTo?.current ?? document.body,
+    [appendTo]
+  );
+  const options = useMemo(
+    () => ({
+      placement: "top" as const,
+      offset: { mainAxis: 24, crossAxis: 0 },
+      scrollTarget: scrollTarget ?? undefined,
+    }),
+    [scrollTarget]
+  );
+
   return (
     <TiptapBubbleMenu
-      appendTo={() => appendTo?.current ?? document.body}
+      appendTo={getAppendTarget}
       className="flex flex-col items-center gap-0.5 overflow-hidden rounded-lg border bg-background p-1 shadow-sm"
       editor={editor}
-      options={{
-        placement: "top",
-        offset: { mainAxis: 24, crossAxis: 0 },
-      }}
+      options={options}
       pluginKey="tableColumnMenu"
       shouldShow={shouldShow}
       updateDelay={0}

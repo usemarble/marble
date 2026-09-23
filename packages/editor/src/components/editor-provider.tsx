@@ -6,7 +6,30 @@ import {
   type UseEditorOptions,
   useEditor,
 } from "@tiptap/react";
+import { useMemo } from "react";
 import { ExtensionKit } from "../extensions/extension-kit";
+
+/**
+ * The default kit merged with any overrides, rebuilt only when its inputs
+ * change. `useEditor` compares extensions by identity on every render and
+ * calls `editor.setOptions()` when they differ, which re-runs every plugin
+ * view, so a fresh kit per render makes each keystroke that re-renders the
+ * host pay for it. Pass a stable (memoised) `extensions` array to benefit.
+ */
+function useEditorExtensions(
+  extensions: AnyExtension[] | undefined,
+  limit: number | undefined,
+  placeholder: string | undefined
+) {
+  return useMemo(
+    () =>
+      deduplicateExtensions(
+        ExtensionKit({ limit, placeholder }),
+        extensions ?? []
+      ),
+    [extensions, limit, placeholder]
+  );
+}
 
 function deduplicateExtensions(
   defaults: AnyExtension[],
@@ -56,11 +79,11 @@ export const EditorProvider = ({
   onUpdate,
   ...props
 }: EditorProviderProps) => {
-  const defaultExtensions = ExtensionKit({ limit, placeholder });
+  const editorExtensions = useEditorExtensions(extensions, limit, placeholder);
 
   return (
     <TiptapEditorProvider
-      extensions={deduplicateExtensions(defaultExtensions, extensions ?? [])}
+      extensions={editorExtensions}
       immediatelyRender={false}
       onUpdate={onUpdate}
       {...props}
@@ -96,12 +119,12 @@ export { EditorContext, useCurrentEditor, useEditor } from "@tiptap/react";
  * ```
  */
 export function useMarbleEditor(options: UseMarbleEditorOptions) {
-  const { limit, placeholder, extensions = [], ...restOptions } = options;
-  const defaultExtensions = ExtensionKit({ limit, placeholder });
+  const { limit, placeholder, extensions, ...restOptions } = options;
+  const editorExtensions = useEditorExtensions(extensions, limit, placeholder);
 
   return useEditor({
     immediatelyRender: false,
-    extensions: deduplicateExtensions(defaultExtensions, extensions),
+    extensions: editorExtensions,
     ...restOptions,
   });
 }

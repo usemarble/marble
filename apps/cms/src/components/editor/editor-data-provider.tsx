@@ -39,6 +39,12 @@ interface EditorDataContextValue {
   isSubmitting: boolean;
   mode: EditorMode;
   postId?: string;
+  /**
+   * Register work that must run right before the form is submitted, such as
+   * writing debounced editor content into the form. Returns an unregister
+   * function.
+   */
+  registerBeforeSubmit: (callback: () => void) => () => void;
   submit: () => void;
 }
 
@@ -156,6 +162,7 @@ export function EditorDataProvider({
   const mode: EditorMode = postId ? "update" : "create";
   const [hasHydrated, setHasHydrated] = useState(false);
   const didInitialize = useRef(false);
+  const beforeSubmitCallbacks = useRef(new Set<() => void>());
 
   const form = useForm<PostEditorValues>({
     resolver: zodResolver(postEditorSchema) as Resolver<PostEditorValues>,
@@ -314,7 +321,18 @@ export function EditorDataProvider({
     [createMutation, mode, updateMutation]
   );
 
+  const registerBeforeSubmit = useCallback((callback: () => void) => {
+    beforeSubmitCallbacks.current.add(callback);
+    return () => {
+      beforeSubmitCallbacks.current.delete(callback);
+    };
+  }, []);
+
   const submit = useCallback(() => {
+    for (const callback of beforeSubmitCallbacks.current) {
+      callback();
+    }
+
     form.handleSubmit(handleValidSubmit, handleInvalidSubmit)();
   }, [form, handleInvalidSubmit, handleValidSubmit]);
 
@@ -328,6 +346,7 @@ export function EditorDataProvider({
       isSubmitting: createMutation.isPending || updateMutation.isPending,
       mode,
       postId,
+      registerBeforeSubmit,
       submit,
     };
   }, [
@@ -339,6 +358,7 @@ export function EditorDataProvider({
     hasHydrated,
     mode,
     postId,
+    registerBeforeSubmit,
     submit,
     updateMutation.isPending,
   ]);

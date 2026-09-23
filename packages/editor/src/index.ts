@@ -30,7 +30,9 @@ export type {
   EditorNodeTaskListProps,
   // Node Component Types
   EditorNodeTextProps,
+  EditorOutlineProps,
   EditorProviderProps,
+  EditorScrollAreaProps,
   // Utility Component Types
   EditorSelectorProps,
   FieldRichTextEditorProps,
@@ -72,17 +74,21 @@ export {
   EditorNodeTaskList,
   // Node Components
   EditorNodeText,
+  EditorOutline,
   EditorProvider,
+  EditorScrollArea,
   // Utility Components
   EditorSelector,
   EditorTableMenus,
   FieldRichTextEditor,
   useCurrentEditor,
   useEditor,
+  useEditorScrollContainer,
   useMarbleEditor,
 } from "./components";
 export * from "./components/ui";
 export {
+  BlockMove,
   CodeBlock,
   configureSlashCommand,
   Figure,
