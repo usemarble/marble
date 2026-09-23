@@ -16,8 +16,10 @@ jobs:
         with:
           node-version-file: package.json
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         name: Install pnpm
+        with:
+          version: 12.6.0
 
       - name: Install dependencies
         run: pnpm install --ignore-scripts

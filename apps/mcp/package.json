@@ -5,12 +5,13 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy --minify",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings --env-file .env.example",
-    "cf-typegen:check": "wrangler types --env-interface CloudflareBindings --env-file .env.example --check"
+    "cf-typegen:check": "wrangler types --env-interface CloudflareBindings --env-file .env.example --check",
+    "lint": "biome check ."
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
     "agents": "^0.12.3",
-    "hono": "^4.12.16",
+    "hono": "^4.13.8",
     "zod": "^4.4.2"
   },
   "devDependencies": {

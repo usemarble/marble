@@ -1,0 +1,37 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "outputs": [".next/**", "!.next/cache/**", "!.next/dev/**"],
+      "env": [
+        "NODE_ENV",
+        "DATABASE_URL",
+        "DIRECT_URL",
+        "BETTER_AUTH_URL",
+        "BETTER_AUTH_SECRET",
+        "GOOGLE_CLIENT_ID",
+        "GOOGLE_CLIENT_SECRET",
+        "GITHUB_ID",
+        "GITHUB_SECRET",
+        "RESEND_API_KEY",
+        "CLOUDFLARE_ACCESS_KEY_ID",
+        "CLOUDFLARE_SECRET_ACCESS_KEY",
+        "CLOUDFLARE_BUCKET_NAME",
+        "CLOUDFLARE_S3_ENDPOINT",
+        "CLOUDFLARE_PUBLIC_URL",
+        "POLAR_ACCESS_TOKEN",
+        "POLAR_WEBHOOK_SECRET",
+        "POLAR_HOBBY_MONTHLY_PRODUCT_ID",
+        "POLAR_HOBBY_YEARLY_PRODUCT_ID",
+        "POLAR_PRO_MONTHLY_PRODUCT_ID",
+        "POLAR_PRO_YEARLY_PRODUCT_ID",
+        "POLAR_SUCCESS_URL",
+        "MARBLE_API_URL",
+        "SYSTEM_SECRET",
+        "REDIS_URL",
+        "REDIS_TOKEN",
+        "AI_GATEWAY_API_KEY"
+      ]
+    }
+  }
+}

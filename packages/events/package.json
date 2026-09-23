@@ -7,5 +7,8 @@
   "devDependencies": {
     "@marble/tsconfig": "workspace:*",
     "typescript": "^5.9.3"
+  },
+  "scripts": {
+    "lint": "biome check ."
   }
 }

@@ -6,7 +6,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "lint": "biome check ."
   },
   "dependencies": {
     "@astrojs/mdx": "^7.0.5",
