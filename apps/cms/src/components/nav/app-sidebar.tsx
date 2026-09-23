@@ -71,7 +71,7 @@ export function AppSidebar({
       : { opacity: 0, x: "100%", filter: "blur(4px)" },
   };
 
-  const transition = { duration: 0.4, type: "spring", bounce: 0 };
+  const transition = { duration: 0.4, type: "spring", bounce: 0 } as const;
 
   return (
     <Sidebar

@@ -8,6 +8,10 @@ export {
 } from "./editor-character-count";
 export { EditorContent } from "./editor-content";
 export {
+  EditorOutline,
+  type EditorOutlineProps,
+} from "./editor-outline";
+export {
   EditorContext,
   EditorProvider,
   type EditorProviderProps,
@@ -16,6 +20,11 @@ export {
   useEditor,
   useMarbleEditor,
 } from "./editor-provider";
+export {
+  EditorScrollArea,
+  type EditorScrollAreaProps,
+  useEditorScrollContainer,
+} from "./editor-scroll-area";
 export { EditorTableMenus } from "./editor-table-menus";
 // Mark Components
 export * from "./marks";

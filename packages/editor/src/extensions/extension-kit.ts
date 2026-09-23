@@ -12,6 +12,7 @@ import { Youtube } from "@tiptap/extension-youtube";
 import { CharacterCount, Placeholder } from "@tiptap/extensions";
 import { Markdown } from "@tiptap/markdown";
 import StarterKit from "@tiptap/starter-kit";
+import { BlockMove } from "./block-move";
 import { CodeBlock } from "./code-block";
 import { Figure } from "./figure";
 import { ImageUpload } from "./image-upload";
@@ -82,14 +83,20 @@ export const ExtensionKit = ({
         class: cn("mt-4 mb-6 border-muted-foreground border-t"),
       },
     },
+    // Where a dragged block will land. Needs to stand out against the page
+    // in both themes; the border colour it used to have was near invisible.
     dropcursor: {
-      color: "var(--border)",
-      width: 4,
+      class: "rounded-full",
+      color: "var(--primary)",
+      width: 3,
     },
   }),
 
   // Typography for smart quotes, dashes, etc.
   Typography,
+
+  // Mod-Shift-ArrowUp/ArrowDown to move blocks
+  BlockMove,
 
   Placeholder.configure({
     includeChildren: true,

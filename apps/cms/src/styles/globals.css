@@ -238,10 +238,6 @@
   ::file-selector-button {
     border-color: var(--color-gray-200, currentcolor);
   }
-
-  html {
-    scrollbar-gutter: stable;
-  }
 }
 
 @utility scrollbar-hide {
@@ -282,9 +278,6 @@
   }
   body {
     @apply bg-background text-foreground;
-  }
-  html {
-    scrollbar-gutter: stable;
   }
   .darkbackground {
     background-color: hsl(150, 4%, 9%);

@@ -284,11 +284,11 @@ export const SlashCommand = Node.create<SlashOptions>({
 export const configureSlashCommand = () =>
   SlashCommand.configure({
     suggestion: {
-      items: async ({ editor, query }) => {
+      items: async ({ editor, query, signal }) => {
         if (!defaultSlashSuggestions) {
           return [];
         }
-        const items = await defaultSlashSuggestions({ editor, query });
+        const items = await defaultSlashSuggestions({ editor, query, signal });
 
         if (!query) {
           return items;
