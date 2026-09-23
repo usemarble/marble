@@ -259,7 +259,7 @@ function EditorPageContent() {
           >
             <div className="flex flex-col">
               <label className="sr-only" htmlFor="title">
-                Enter post your title
+                Enter your post title
               </label>
 
               <TextareaAutosize
