@@ -1,5 +1,6 @@
 import { useCurrentEditor } from "@tiptap/react";
 import { TableColumnMenu, TableRowMenu } from "../extensions/table";
+import { useEditorScrollContainer } from "./editor-scroll-area";
 
 /**
  * EditorTableMenus Component
@@ -21,6 +22,7 @@ import { TableColumnMenu, TableRowMenu } from "../extensions/table";
  */
 export function EditorTableMenus() {
   const { editor } = useCurrentEditor();
+  const scrollContainer = useEditorScrollContainer();
 
   if (!editor) {
     return null;
@@ -28,8 +30,8 @@ export function EditorTableMenus() {
 
   return (
     <>
-      <TableRowMenu editor={editor} />
-      <TableColumnMenu editor={editor} />
+      <TableRowMenu editor={editor} scrollTarget={scrollContainer} />
+      <TableColumnMenu editor={editor} scrollTarget={scrollContainer} />
     </>
   );
 }

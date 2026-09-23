@@ -18,6 +18,7 @@ import { cn } from "@marble/ui/lib/utils";
 import { SpinnerIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { useWatch } from "react-hook-form";
 import { useEditorData } from "@/components/editor/editor-data-provider";
 import { useDebounce } from "@/hooks/use-debounce";
 import { usePlan } from "@/hooks/use-plan";
@@ -50,12 +51,17 @@ export function EditorSidebar({ ...props }: EditorSidebarProps) {
   const { activeWorkspace } = useWorkspace();
   const { editor } = useCurrentEditor();
   const {
-    form: { watch },
+    form: { control },
     isSubmitting,
     mode,
     postId,
   } = useEditorData();
-  const { tags, authors: initialAuthors } = watch();
+  // Only these two: watching the whole form re-rendered the sidebar on every
+  // keystroke, since the editor content is a form field too.
+  const [tags, initialAuthors] = useWatch({
+    control,
+    name: ["tags", "authors"],
+  });
 
   const [editorText, setEditorText] = useState("");
   const [editorHTML, setEditorHTML] = useState("");
@@ -64,23 +70,35 @@ export function EditorSidebar({ ...props }: EditorSidebarProps) {
     if (!editor) {
       return;
     }
-    setEditorText(editor.getText());
-    setEditorHTML(editor.getHTML());
-    const handler = () => {
+
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+
+    const sync = () => {
       const nextText = editor.getText();
       const nextHTML = editor.getHTML();
       setEditorText((prev) => (prev === nextText ? prev : nextText));
       setEditorHTML((prev) => (prev === nextHTML ? prev : nextHTML));
     };
-    editor.on("update", handler);
-    editor.on("create", handler);
+
+    // The metrics and AI suggestions only need the text once typing pauses,
+    // so skip serialising the whole document on every keystroke.
+    const scheduleSync = () => {
+      clearTimeout(timeout);
+      timeout = setTimeout(sync, 500);
+    };
+
+    sync();
+    editor.on("update", scheduleSync);
+    editor.on("create", sync);
     return () => {
-      editor.off("update", handler);
-      editor.off("create", handler);
+      clearTimeout(timeout);
+      editor.off("update", scheduleSync);
+      editor.off("create", sync);
     };
   }, [editor]);
 
-  const debouncedText = useDebounce(editorText, 1500);
+  // Together with the 500ms above, metrics settle ~1.5s after typing stops
+  const debouncedText = useDebounce(editorText, 1000);
 
   const metrics = useMemo(() => {
     if (!editor) {

@@ -14,21 +14,21 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "@tiptap/core": "^3.22.3",
-    "@tiptap/extension-highlight": "3.22.3",
-    "@tiptap/extension-image": "3.22.3",
-    "@tiptap/extension-list": "3.22.3",
-    "@tiptap/extension-subscript": "3.22.3",
-    "@tiptap/extension-superscript": "3.22.3",
-    "@tiptap/extension-table": "3.22.3",
-    "@tiptap/extension-text-align": "3.22.3",
-    "@tiptap/extension-text-style": "3.22.3",
-    "@tiptap/extension-typography": "3.22.3",
-    "@tiptap/extension-youtube": "3.22.3",
-    "@tiptap/extensions": "3.22.3",
-    "@tiptap/starter-kit": "3.22.3",
+    "@tiptap/core": "3.31.3",
+    "@tiptap/extension-highlight": "3.31.3",
+    "@tiptap/extension-image": "3.31.3",
+    "@tiptap/extension-list": "3.31.3",
+    "@tiptap/extension-subscript": "3.31.3",
+    "@tiptap/extension-superscript": "3.31.3",
+    "@tiptap/extension-table": "3.31.3",
+    "@tiptap/extension-text-align": "3.31.3",
+    "@tiptap/extension-text-style": "3.31.3",
+    "@tiptap/extension-typography": "3.31.3",
+    "@tiptap/extension-youtube": "3.31.3",
+    "@tiptap/extensions": "3.31.3",
+    "@tiptap/starter-kit": "3.31.3",
     "linkedom": "^0.18.12",
     "marked": "^16.4.0",
-    "prosemirror-model": "^1.25.4"
+    "prosemirror-model": "^1.25.12"
   }
 }

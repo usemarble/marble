@@ -82,7 +82,7 @@ export function DashboardBody({
   return (
     <div className="flex min-h-full w-full flex-col">
       {showHeader ? (header ?? <PageHeader title={title} />) : null}
-      <section className="scrollbar-stable flex min-h-[calc(100vh-56px)] w-full flex-1 flex-col gap-4 px-4 py-2 md:px-6 lg:px-8 xl:px-12">
+      <section className="flex min-h-[calc(100vh-56px)] w-full flex-1 flex-col gap-4 px-4 py-2 md:px-6 lg:px-8 xl:px-12">
         <div className="flex w-full flex-1 flex-col gap-4 lg:flex-row">
           <div
             className={cn(

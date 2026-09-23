@@ -1,6 +1,12 @@
 "use client";
 
-import { type ComputePositionConfig, offset } from "@floating-ui/dom";
+import {
+  type ComputePositionConfig,
+  computePosition,
+  limitShift,
+  offset,
+  shift,
+} from "@floating-ui/dom";
 import { PlusSignIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@marble/ui/components/button";
@@ -10,6 +16,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuShortcut,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
@@ -22,6 +29,8 @@ import {
 } from "@marble/ui/components/tooltip";
 import { cn } from "@marble/ui/lib/utils";
 import {
+  ArrowDownIcon,
+  ArrowUpIcon,
   CheckSquareIcon,
   CodeIcon,
   CopyIcon,
@@ -42,6 +51,7 @@ import {
   type Node as ProseMirrorNode,
 } from "@tiptap/pm/model";
 import { NodeSelection } from "@tiptap/pm/state";
+import type { EditorView } from "@tiptap/pm/view";
 import { useCurrentEditor } from "@tiptap/react";
 import {
   type ComponentType,
@@ -52,6 +62,9 @@ import {
   useRef,
   useState,
 } from "react";
+import { getEditorPointForRow, isInsideEditor } from "../../lib/editor-gutter";
+import { useMountedEditorView } from "../../lib/use-editor-view";
+import { useEditorScrollContainer } from "../editor-scroll-area";
 
 interface TargetBlock {
   node: ProseMirrorNode;
@@ -111,10 +124,21 @@ const HANDLE_CONTROL_CLASSNAME =
 // Must be referentially stable: DragHandle re-registers its ProseMirror
 // plugin when this prop changes, and `editor.unregisterPlugin` destroys and
 // recreates every plugin view (closing the slash command menu, among others).
+//
+// `shift` keeps the handle inside the visible part of the scroll area, sliding
+// down a tall block (an image, a long paragraph) whose top is scrolled out of
+// view; `limitShift` stops it from leaving the block.
 const HANDLE_POSITION_CONFIG: ComputePositionConfig = {
-  middleware: [offset(12)],
+  middleware: [offset(12), shift({ limiter: limitShift(), padding: 8 })],
   placement: "left-start",
+  strategy: "absolute",
 };
+
+const isMac =
+  typeof navigator !== "undefined" &&
+  navigator.platform.toUpperCase().includes("MAC");
+const MOVE_UP_SHORTCUT = isMac ? "⌘⇧↑" : "Ctrl+Shift+↑";
+const MOVE_DOWN_SHORTCUT = isMac ? "⌘⇧↓" : "Ctrl+Shift+↓";
 
 function getFocusPos(target: TargetBlock) {
   return target.node.isTextblock ? target.pos + 1 : target.pos;
@@ -134,24 +158,14 @@ function canClearFormatting(node: ProseMirrorNode) {
   return CLEAR_FORMATTING_TYPES.has(node.type.name);
 }
 
-function getScrollParent(node: HTMLElement | null) {
-  if (!node) {
-    return null;
+function getTopLevelDom(view: EditorView, pos: number) {
+  let dom = view.nodeDOM(pos) as HTMLElement | null;
+
+  while (dom && dom.parentElement !== view.dom) {
+    dom = dom.parentElement;
   }
 
-  let current: HTMLElement | null = node.parentElement;
-
-  while (current) {
-    const { overflowY } = window.getComputedStyle(current);
-
-    if (overflowY === "auto" || overflowY === "scroll") {
-      return current;
-    }
-
-    current = current.parentElement;
-  }
-
-  return null;
+  return dom;
 }
 
 function serializeNodeToClipboardData(
@@ -177,14 +191,18 @@ export function EditorBlockHandleMenu({
   className,
 }: EditorBlockHandleMenuProps = {}) {
   const { editor } = useCurrentEditor();
+  const view = useMountedEditorView(editor);
+  const scrollContainer = useEditorScrollContainer();
   const [menuOpen, setMenuOpen] = useState(false);
   const [target, setTarget] = useState<TargetBlock | null>(null);
   const menuHandle = useMemo(() => createDropdownMenuHandle(), []);
   const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
-  // Read by handleNodeChange so the callback identity stays stable; an
-  // identity change re-registers the DragHandle plugin, which tears down
-  // every plugin view (see HANDLE_POSITION_CONFIG).
+  const handleContentRef = useRef<HTMLDivElement | null>(null);
+  // Read by the DragHandle callbacks and the DOM listeners below so their
+  // identities stay stable; see HANDLE_POSITION_CONFIG for why that matters.
   const menuOpenRef = useRef(menuOpen);
+  const targetRef = useRef<TargetBlock | null>(null);
+  const isDraggingRef = useRef(false);
 
   useEffect(() => {
     menuOpenRef.current = menuOpen;
@@ -199,50 +217,219 @@ export function EditorBlockHandleMenu({
     editor.view.dispatch(transaction);
   }, [editor, menuOpen]);
 
+  const updateTarget = useCallback((next: TargetBlock | null) => {
+    targetRef.current = next;
+    setTarget(next);
+  }, []);
+
+  // Notion-style hover: the whole row belongs to its block, so the handle
+  // stays up while the pointer travels across the gutter to reach it, and
+  // follows the content when it scrolls.
   useEffect(() => {
-    if (!editor) {
+    if (!view) {
       return;
     }
 
+    const container = scrollContainer ?? view.dom.parentElement;
+
+    if (!container) {
+      return;
+    }
+
+    let pointer: { x: number; y: number } | null = null;
+    // The plugin hides the handle while typing; don't bring it back on the
+    // scrolls that typing causes, only once the mouse moves again.
+    let isTyping = false;
+    let frame = 0;
+
+    const getHandleElement = () => handleContentRef.current?.parentElement;
+
     const hideHandle = () => {
-      setMenuOpen(false);
-      setTarget(null);
-      editor.view.dispatch(editor.state.tr.setMeta("hideDragHandle", true));
+      if (menuOpenRef.current || isDraggingRef.current || !targetRef.current) {
+        return;
+      }
+
+      view.dispatch(view.state.tr.setMeta("hideDragHandle", true));
     };
 
-    const scrollParent = getScrollParent(editor.view.dom as HTMLElement);
+    // The plugin only tracks the pointer over the editor itself, so replay
+    // gutter movement as if it happened on the same row of the editor.
+    const hoverRow = (clientX: number, clientY: number) => {
+      const point = getEditorPointForRow(view, clientX, clientY);
 
-    scrollParent?.addEventListener("scroll", hideHandle, { passive: true });
-    window.addEventListener("scroll", hideHandle, { passive: true });
+      if (!point) {
+        hideHandle();
+        return;
+      }
+
+      view.dom.dispatchEvent(
+        new MouseEvent("mousemove", {
+          bubbles: true,
+          clientX: point.x,
+          clientY: point.y,
+        })
+      );
+    };
+
+    const repositionHandle = () => {
+      const current = targetRef.current;
+      const element = getHandleElement();
+
+      if (!(current && element) || element.style.visibility === "hidden") {
+        return;
+      }
+
+      const dom = getTopLevelDom(view, current.pos);
+
+      if (!dom) {
+        return;
+      }
+
+      computePosition(dom, element, HANDLE_POSITION_CONFIG).then(
+        ({ x, y, strategy }) => {
+          Object.assign(element.style, {
+            left: `${x}px`,
+            position: strategy,
+            top: `${y}px`,
+          });
+        }
+      );
+    };
+
+    const onMouseMove = (event: MouseEvent) => {
+      // Skip the events replayed by hoverRow
+      if (!event.isTrusted) {
+        return;
+      }
+
+      pointer = { x: event.clientX, y: event.clientY };
+      isTyping = false;
+
+      const eventTarget = event.target as Node | null;
+
+      if (
+        isInsideEditor(view, eventTarget) ||
+        getHandleElement()?.contains(eventTarget)
+      ) {
+        return;
+      }
+
+      const rect = view.dom.getBoundingClientRect();
+      const isOverEditorBox =
+        event.clientX >= rect.left &&
+        event.clientX <= rect.right &&
+        event.clientY >= rect.top &&
+        event.clientY <= rect.bottom;
+
+      // Over floating UI laid on top of the text (bubble or table menus)
+      if (isOverEditorBox) {
+        return;
+      }
+
+      hoverRow(event.clientX, event.clientY);
+    };
+
+    const onMouseLeave = () => {
+      pointer = null;
+      hideHandle();
+    };
+
+    // The plugin hides the handle as soon as the pointer leaves the editor.
+    // Leaving for the gutter is handled by onMouseMove instead.
+    const onEditorMouseLeave = (event: MouseEvent) => {
+      const next = event.relatedTarget;
+
+      if (
+        next instanceof Node &&
+        container.contains(next) &&
+        !view.dom.contains(next)
+      ) {
+        event.stopImmediatePropagation();
+      }
+    };
+
+    const onKeyDown = () => {
+      isTyping = true;
+    };
+
+    const onScrollOrResize = () => {
+      if (frame) {
+        return;
+      }
+
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+
+        if (isDraggingRef.current) {
+          return;
+        }
+
+        // The block under a resting pointer changes as the content scrolls
+        if (pointer && !isTyping && !menuOpenRef.current) {
+          hoverRow(pointer.x, pointer.y);
+        }
+
+        repositionHandle();
+      });
+    };
+
+    container.addEventListener("mousemove", onMouseMove);
+    container.addEventListener("mouseleave", onMouseLeave);
+    container.addEventListener("scroll", onScrollOrResize, { passive: true });
+    window.addEventListener("resize", onScrollOrResize);
+    // Capture, so it runs before ProseMirror's own listener on the same node
+    view.dom.addEventListener("mouseleave", onEditorMouseLeave, true);
+    view.dom.addEventListener("keydown", onKeyDown);
 
     return () => {
-      scrollParent?.removeEventListener("scroll", hideHandle);
-      window.removeEventListener("scroll", hideHandle);
+      cancelAnimationFrame(frame);
+      container.removeEventListener("mousemove", onMouseMove);
+      container.removeEventListener("mouseleave", onMouseLeave);
+      container.removeEventListener("scroll", onScrollOrResize);
+      window.removeEventListener("resize", onScrollOrResize);
+      view.dom.removeEventListener("mouseleave", onEditorMouseLeave, true);
+      view.dom.removeEventListener("keydown", onKeyDown);
     };
-  }, [editor]);
+  }, [scrollContainer, view]);
 
   const handleNodeChange = useCallback(
     ({ node, pos }: { node: ProseMirrorNode | null; pos: number }) => {
       if (!editor || !editor.isEditable || !isSupportedNode(node)) {
         if (!menuOpenRef.current) {
-          setTarget(null);
+          updateTarget(null);
         }
         return;
       }
 
       // Avoid re-render churn while the pointer moves within the same block
-      setTarget((previous) =>
-        previous && previous.node === node && previous.pos === pos
-          ? previous
-          : { node, pos }
-      );
+      const previous = targetRef.current;
+
+      if (previous && previous.node === node && previous.pos === pos) {
+        return;
+      }
+
+      updateTarget({ node, pos });
     },
-    [editor]
+    [editor, updateTarget]
   );
 
   const handleElementDragStart = useCallback(() => {
+    isDraggingRef.current = true;
     setMenuOpen(false);
   }, []);
+
+  const handleElementDragEnd = useCallback(() => {
+    isDraggingRef.current = false;
+
+    if (!editor) {
+      return;
+    }
+
+    // Forget the dragged block. Otherwise the plugin thinks it is still
+    // hovered after the drop and won't show the handle for it again until the
+    // pointer visits another block first.
+    editor.view.dispatch(editor.state.tr.setMeta("hideDragHandle", true));
+  }, [editor]);
 
   const selectTargetNode = useCallback(() => {
     if (!editor || !target) {
@@ -322,6 +509,30 @@ export function EditorBlockHandleMenu({
       .insertContentAt(target.pos + currentNode.nodeSize, currentNode.toJSON())
       .run();
   }, [editor, target]);
+
+  const handleMove = useCallback(
+    (direction: "up" | "down") => {
+      if (!editor || !target) {
+        return;
+      }
+
+      const chain = editor.chain().focus();
+
+      if (direction === "up") {
+        chain.moveBlockUp(target.pos);
+      } else {
+        chain.moveBlockDown(target.pos);
+      }
+
+      chain.run();
+
+      // The handle would stay beside whichever block took this one's place;
+      // the moved block is selected instead, so Mod-Shift-Arrow keeps going.
+      updateTarget(null);
+      editor.view.dispatch(editor.state.tr.setMeta("hideDragHandle", true));
+    },
+    [editor, target, updateTarget]
+  );
 
   const handleDelete = useCallback(() => {
     if (!editor || !target) {
@@ -497,12 +708,18 @@ export function EditorBlockHandleMenu({
   const canShowMenu = !!target && editor.isEditable;
   const canTransformTarget = !!target && canTurnInto(target.node);
   const canClearTarget = !!target && canClearFormatting(target.node);
+  // Only evaluated while the menu is open, which is when it is shown
+  const canMoveUp =
+    menuOpen && !!target && editor.can().moveBlockUp(target.pos);
+  const canMoveDown =
+    menuOpen && !!target && editor.can().moveBlockDown(target.pos);
 
   return (
     <DragHandle
       className={cn("z-40", className)}
       computePositionConfig={HANDLE_POSITION_CONFIG}
       editor={editor}
+      onElementDragEnd={handleElementDragEnd}
       onElementDragStart={handleElementDragStart}
       onNodeChange={handleNodeChange}
       pluginKey={HANDLE_PLUGIN_KEY}
@@ -510,11 +727,12 @@ export function EditorBlockHandleMenu({
       <div
         aria-hidden={!canShowMenu}
         className={cn(
-          "flex w-[4.5rem] items-center gap-1 text-muted-foreground transition-opacity",
+          "flex items-center gap-1 text-muted-foreground transition-opacity",
           canShowMenu
             ? "pointer-events-auto opacity-100"
             : "pointer-events-none opacity-0"
         )}
+        ref={handleContentRef}
       >
         <Tooltip>
           <TooltipTrigger
@@ -678,6 +896,26 @@ export function EditorBlockHandleMenu({
             {canTransformTarget || canClearTarget ? (
               <DropdownMenuSeparator />
             ) : null}
+
+            <DropdownMenuItem
+              disabled={!canMoveUp}
+              onClick={() => handleMove("up")}
+            >
+              <ArrowUpIcon className="size-4" />
+              <span>Move up</span>
+              <DropdownMenuShortcut>{MOVE_UP_SHORTCUT}</DropdownMenuShortcut>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              disabled={!canMoveDown}
+              onClick={() => handleMove("down")}
+            >
+              <ArrowDownIcon className="size-4" />
+              <span>Move down</span>
+              <DropdownMenuShortcut>{MOVE_DOWN_SHORTCUT}</DropdownMenuShortcut>
+            </DropdownMenuItem>
+
+            <DropdownMenuSeparator />
 
             <DropdownMenuItem onClick={handleDuplicate}>
               <CopyIcon className="size-4" />
