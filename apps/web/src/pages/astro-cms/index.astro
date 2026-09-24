@@ -1,0 +1,483 @@
+---
+  import { Image } from "astro:assets";
+  import heroImage from "@/assets/images/hero-astro-cms.png";
+  import CodeWindow from "@/components/CodeWindow.astro";
+  import Container from "@/components/Container.astro";
+  import ArrowRight from "@/components/icons/ArrowRight.astro";
+  import CtaSection from "@/components/sections/CtaSection.astro";
+  import FaqSection from "@/components/sections/FaqSection.astro";
+  import ButtonComponent from "@/components/ui/Button.astro";
+  import Layout from "@/layouts/Layout.astro";
+  import { ASTRO_CONFIG } from "@/lib/constants/code-samples";
+  import { SITE } from "@/lib/constants/site";
+  import { REGISTER_URL, TRACKING_EVENTS } from "@/lib/constants/tracking";
+  import { buildBreadcrumbJsonLd, buildFaqJsonLd } from "@/lib/seo";
+
+  const ASTRO_DOCS = "https://docs.marblecms.com/integrations/astro";
+  const ASTRO_EXAMPLE = "https://github.com/usemarble/astro-example";
+  const ASTRO_COLLECTIONS =
+    "https://docs.astro.build/en/guides/content-collections/";
+  const ASTRO_CMS_GUIDE = "https://docs.astro.build/en/guides/cms/";
+
+  const STEPS = [
+    {
+      title: "Write in Marble",
+      description:
+        "Draft posts with images, video, and embeds. Set the slug, description, cover image, authors, category, and tags in the sidebar.",
+    },
+    {
+      title: "Load into a collection",
+      description:
+        "A content loader calls the Marble SDK when Astro builds your site and stores every published post in a collection.",
+    },
+    {
+      title: "Render with getCollection()",
+      description:
+        "Query posts like any other collection and render the sanitized HTML with set:html inside your own layouts.",
+    },
+    {
+      title: "Rebuild on publish",
+      description:
+        "Point a Marble webhook at your host's deploy hook so a new build starts whenever a post changes.",
+    },
+  ];
+
+  const DETAILS = [
+    {
+      title: "Typed SDK",
+      description:
+        "@usemarble/sdk includes TypeScript types for posts, authors, categories, and tags. Add a schema to your collection to type post.data.",
+      href: "https://docs.marblecms.com/tools/sdk",
+      label: "SDK reference",
+    },
+    {
+      title: "Images from Marble's CDN",
+      description:
+        "Uploads get stable CDN URLs. Authorize Marble's media domains in image.domains to optimize cover images with Astro's Image component.",
+      href: "https://docs.marblecms.com/features/media",
+      label: "Media docs",
+    },
+    {
+      title: "Categories for routing",
+      description:
+        "Each post has exactly one category, so routes such as /blog/[category]/[slug] map cleanly. Use tags for everything else.",
+      href: "https://docs.marblecms.com/concepts/content-model",
+      label: "Content model",
+    },
+    {
+      title: "RSS from the same collection",
+      description:
+        "Feed getCollection() into @astrojs/rss to publish a feed. This site builds its RSS feed from Marble posts that way.",
+      href: "/rss.xml",
+      label: "View our feed",
+    },
+    {
+      title: "Custom fields",
+      description:
+        "Add typed fields such as a date, a select, or a rich text summary to your posts without changing your CMS code.",
+      href: "https://docs.marblecms.com/features/custom-fields",
+      label: "Custom fields",
+    },
+    {
+      title: "MCP for AI agents",
+      description:
+        "Let Codex, Claude Code, Cursor, or VS Code find, draft, and update posts in your workspace through scoped tools.",
+      href: "/mcp",
+      label: "Marble MCP",
+    },
+  ];
+
+  const RESOURCES = [
+    {
+      title: "Astro integration guide",
+      description: "Install the SDK, define the collection, and add routes.",
+      href: ASTRO_DOCS,
+    },
+    {
+      title: "Astro blog template",
+      description: "A complete example with tag pages, RSS, and a post layout.",
+      href: ASTRO_EXAMPLE,
+    },
+    {
+      title: "How to build a blog with Astro and a headless CMS",
+      description: "A longer walkthrough on the Marble blog.",
+      href: "/blog/astro-headless-cms-blog",
+    },
+  ];
+
+  const FAQS = [
+    {
+      question: "Does Marble work with Astro content collections?",
+      answer:
+        "Yes. Define a collection with a loader that calls the Marble SDK, then query posts with <code>getCollection()</code> and <code>getStaticPaths()</code> like any other collection.",
+    },
+    {
+      question: "Will my site update when I publish a post?",
+      answer:
+        "A static Astro site shows new content after its next build. Create a deploy hook with your hosting provider and add it as a Marble webhook for post events, so each publish starts a build. Pages rendered on demand fetch the latest content on each request.",
+    },
+    {
+      question: "Are collection entries typed?",
+      answer:
+        "The SDK is fully typed, but Astro types collection entries from a schema. Add a Zod schema to the collection if you want typed <code>post.data</code> in your pages; the <a href='https://github.com/usemarble/astro-example' target='_blank' rel='noopener'>Astro example</a> includes one.",
+    },
+    {
+      question: "Can I use Marble with on-demand rendering?",
+      answer:
+        "Yes. With a server adapter, call the SDK in a page's frontmatter and set <code>export const prerender = false</code>. Cache responses where you can, because each uncached request counts toward your plan's API requests.",
+    },
+    {
+      question: "Why not keep Markdown files in my repository?",
+      answer:
+        "If only developers write, Markdown in the repository is often enough. Marble helps when writers shouldn't need Git, when you want drafts, authors, and a media library outside the codebase, or when several sites share the same content.",
+    },
+    {
+      question: "Is there an Astro starter I can clone?",
+      answer:
+        "Yes. The <a href='https://github.com/usemarble/astro-example' target='_blank' rel='noopener'>Astro example</a> includes post pages, tag pages, and an RSS feed.",
+    },
+  ];
+
+  const structuredData = [
+    buildBreadcrumbJsonLd([
+      { name: "Marble", url: SITE.URL },
+      { name: "Astro CMS", url: new URL("/astro-cms", SITE.URL).toString() },
+    ]),
+    buildFaqJsonLd(FAQS),
+  ];
+
+  const inlineLink =
+    "font-medium text-foreground underline underline-offset-4 hover:text-primary";
+---
+<Layout
+  title={`Astro CMS for Blogs - ${SITE.TITLE}`}
+  description="Use Marble as the headless CMS for your Astro blog. Load posts into content collections with the SDK, render them in your layouts, and rebuild on publish."
+  structuredData={structuredData}
+>
+  <div>
+    <section>
+      <Container
+        class="flex w-full flex-col gap-14 py-24 md:gap-20 md:py-28 lg:py-36"
+      >
+        <div class="flex flex-col gap-8">
+          <div class="relative mx-auto flex flex-col gap-6 text-center">
+            <h1
+              class="relative mx-auto max-w-[25ch] text-4xl font-medium tracking-tight md:text-5xl"
+            >
+              A headless CMS for your Astro blog.
+            </h1>
+            <p
+              class="mx-auto max-w-[54ch] leading-relaxed text-muted-foreground md:text-lg"
+            >
+              Writers publish in Marble. Your Astro site loads posts into a
+              content collection and renders them with your own layouts.
+            </p>
+          </div>
+          <div
+            class="flex w-full flex-col items-center justify-center gap-4 sm:flex-row"
+          >
+            <ButtonComponent
+              href={REGISTER_URL}
+              target="_blank"
+              class="w-full sm:w-auto"
+              data-track={TRACKING_EVENTS.signupClicked}
+              data-context="astro_cms_hero"
+              data-label="Start for free"
+            >
+              Start for free
+            </ButtonComponent>
+            <ButtonComponent
+              href={ASTRO_DOCS}
+              target="_blank"
+              rel="noopener"
+              variant="secondary"
+              class="w-full sm:w-auto"
+            >
+              Read the Astro guide
+            </ButtonComponent>
+          </div>
+        </div>
+
+        <div class="aspect-video w-full overflow-hidden rounded-[8px]">
+          <Image
+            src={heroImage}
+            inferSize
+            alt="The Marble editor with a published post, its cover image, slug, authors, and tags, set against a landscape painting"
+            loading="eager"
+            class="h-auto w-full"
+          />
+        </div>
+      </Container>
+    </section>
+
+    <section>
+      <Container class="py-16 md:py-24">
+        <div class="mb-10 max-w-2xl space-y-4 md:mb-14">
+          <p class="text-sm text-primary">How it works</p>
+          <h2
+            class="text-2xl tracking-tight text-balance md:text-3xl lg:text-4xl"
+          >
+            From draft to static page.
+          </h2>
+          <p class="text-muted-foreground md:text-lg">
+            Marble stores and serves your content. Astro builds it into the
+            pages, feeds, and layouts you already have.
+          </p>
+        </div>
+        <ol class="grid gap-4 sm:grid-cols-2">
+          {STEPS.map((step, index) => (
+            <li class="flex flex-col gap-8 rounded-xl bg-surface p-6">
+              <span
+                class="flex size-8 items-center justify-center rounded-full bg-background font-mono text-xs text-muted-foreground"
+              >
+                {index + 1}
+              </span>
+              <div class="space-y-2">
+                <h3 class="text-lg font-medium">{step.title}</h3>
+                <p class="text-sm leading-relaxed text-muted-foreground">
+                  {step.description}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ol>
+        <p class="mt-10 max-w-3xl leading-relaxed text-muted-foreground">
+          This website is an Astro site too. Its{" "}
+          <a href="/blog" class={inlineLink}>blog</a>,{" "}
+          <a
+            href="/changelog"
+            class={inlineLink}
+            >changelog</a
+          >, and RSS feed are loaded from Marble with a content collection
+          loader.
+        </p>
+      </Container>
+    </section>
+
+    <section>
+      <Container class="py-16 md:py-24">
+        <div class="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-14">
+          <div class="max-w-xl space-y-4">
+            <p class="text-sm text-primary">Integration</p>
+            <h2
+              class="text-2xl tracking-tight text-balance md:text-3xl lg:text-4xl"
+            >
+              One loader, then Astro as usual.
+            </h2>
+            <p class="leading-relaxed text-muted-foreground md:text-lg">
+              Install the Marble SDK and define a collection whose loader
+              fetches your posts. Your pages query it with getCollection() and
+              render the HTML with set:html.
+            </p>
+            <p class="leading-relaxed text-muted-foreground">
+              Static sites pick up new posts on their next build, so add your
+              host's deploy hook as a Marble webhook for post events. Pages
+              rendered on demand fetch on each request instead; cache them where
+              you can, since uncached requests count toward your plan.
+            </p>
+            <div class="flex flex-wrap gap-x-6 gap-y-3">
+              <a
+                href={ASTRO_DOCS}
+                target="_blank"
+                rel="noopener"
+                class="inline-flex items-center gap-1.5 text-sm font-medium text-primary transition-opacity hover:opacity-70"
+              >
+                Astro guide
+                <ArrowRight class="size-3.5 shrink-0"/>
+              </a>
+              <a
+                href="https://docs.marblecms.com/features/webhooks"
+                target="_blank"
+                rel="noopener"
+                class="inline-flex items-center gap-1.5 text-sm font-medium text-primary transition-opacity hover:opacity-70"
+              >
+                Webhook docs
+                <ArrowRight class="size-3.5 shrink-0"/>
+              </a>
+            </div>
+          </div>
+          <CodeWindow
+            filename="src/content.config.ts"
+            lang="ts"
+            code={ASTRO_CONFIG}
+          />
+        </div>
+      </Container>
+    </section>
+
+    <section>
+      <Container class="py-16 md:py-24">
+        <div class="mb-10 max-w-2xl space-y-4 md:mb-14">
+          <h2
+            class="text-2xl tracking-tight text-balance md:text-3xl lg:text-4xl"
+          >
+            Built to fit the Astro content layer.
+          </h2>
+        </div>
+        <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {DETAILS.map((detail) => (
+            <li class="flex flex-col rounded-xl bg-surface p-6">
+              <h3 class="text-lg font-medium">{detail.title}</h3>
+              <p class="mt-3 text-sm leading-relaxed text-muted-foreground">
+                {detail.description}
+              </p>
+              <a
+                href={detail.href}
+                target={detail.href.startsWith("http") ? "_blank" : undefined}
+                rel={detail.href.startsWith("http") ? "noopener" : undefined}
+                class="mt-auto inline-flex items-center gap-1.5 pt-6 text-sm font-medium text-primary transition-opacity hover:opacity-70"
+              >
+                {detail.label}
+                <ArrowRight class="size-3.5 shrink-0" />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </Container>
+    </section>
+
+    <section>
+      <Container class="py-16 md:py-24">
+        <div class="max-w-2xl space-y-4">
+          <h2
+            class="text-2xl tracking-tight text-balance md:text-3xl lg:text-4xl"
+          >
+            Do you need a CMS for your Astro site?
+          </h2>
+          <p class="leading-relaxed text-muted-foreground md:text-lg">
+            Not always. Astro's{" "}
+            <a
+              href={ASTRO_COLLECTIONS}
+              target="_blank"
+              rel="noopener"
+              class={inlineLink}
+              >content collections</a
+            >
+            {" "}
+            can load Markdown and MDX straight from your repository, and Astro's
+            {" "}
+            <a
+              href={ASTRO_CMS_GUIDE}
+              target="_blank"
+              rel="noopener"
+              class={inlineLink}
+              >CMS guide</a
+            >
+            {" "}
+            covers other options.
+          </p>
+        </div>
+        <div class="mt-10 grid gap-4 md:mt-14 md:grid-cols-2">
+          <div class="rounded-xl bg-surface p-6 md:p-8">
+            <h3 class="text-xl font-medium">Marble is a good fit when</h3>
+            <ul
+              class="mt-4 list-disc space-y-3 pl-5 leading-relaxed text-muted-foreground marker:text-primary"
+            >
+              <li>
+                People who don't use Git need to write, edit, and publish.
+              </li>
+              <li>
+                You want drafts, authors, categories, and a media library that
+                live outside your codebase.
+              </li>
+              <li>
+                The same posts should appear on more than one site or app.
+              </li>
+              <li>
+                You want a hosted editor instead of maintaining an admin inside
+                your Astro project.
+              </li>
+            </ul>
+          </div>
+          <div class="rounded-xl bg-surface p-6 md:p-8">
+            <h3 class="text-xl font-medium">Something else fits better when</h3>
+            <ul
+              class="mt-4 list-disc space-y-3 pl-5 leading-relaxed text-muted-foreground marker:text-muted-foreground"
+            >
+              <li>
+                Only developers write, and Markdown files in the repository
+                already work.
+              </li>
+              <li>
+                You want edits committed back to your repository as files. A
+                Git-based CMS does that; Marble stores content in its own
+                database.
+              </li>
+              <li>
+                You need custom content types or a page builder. See{" "}
+                <a href="/compare/sanity" class={inlineLink}
+                  >Marble vs Sanity</a
+                >.
+              </li>
+              <li>
+                You rely on scheduled publishing or several people editing the
+                same post at once. Marble doesn't offer either yet.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </Container>
+    </section>
+
+    <section>
+      <Container class="py-16 md:py-24">
+        <div class="mb-10 max-w-2xl space-y-4 md:mb-14">
+          <h2
+            class="text-2xl tracking-tight text-balance md:text-3xl lg:text-4xl"
+          >
+            Go deeper.
+          </h2>
+          <p class="text-muted-foreground md:text-lg">
+            The guide and template are the full reference for this integration.
+          </p>
+        </div>
+        <ul class="grid gap-4 md:grid-cols-3">
+          {RESOURCES.map((resource) => (
+            <li>
+              <a
+                href={resource.href}
+                target={resource.href.startsWith("http") ? "_blank" : undefined}
+                rel={resource.href.startsWith("http") ? "noopener" : undefined}
+                class="group flex h-full flex-col gap-3 rounded-xl bg-surface p-6 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              >
+                <span class="flex items-start justify-between gap-4">
+                  <span class="text-lg font-medium group-hover:text-primary"
+                    >{resource.title}</span
+                  >
+                  <ArrowRight
+                    class="mt-1.5 size-4 shrink-0 text-primary transition-transform group-hover:translate-x-0.5"
+                  />
+                </span>
+                <span class="text-sm leading-relaxed text-muted-foreground">
+                  {resource.description}
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+        <p class="mt-10 text-sm text-muted-foreground">
+          Using a different framework? See{" "}
+          <a href="/nextjs-cms" class={inlineLink}>Marble for Next.js</a>
+          {" "}
+          or{" "}
+          <a href="/headless-cms" class={inlineLink}
+            >how Marble works as a headless CMS</a
+          >.
+        </p>
+      </Container>
+    </section>
+
+    <FaqSection
+      faqs={FAQS}
+      name="astro-cms-faq"
+      description="Common questions about using Marble with Astro."
+    />
+
+    <CtaSection
+      title="Give your Astro site a CMS."
+      description="Create a workspace, publish your first post, and load it into a content collection with an API key."
+      context="astro_cms_cta"
+      secondary={{ href: ASTRO_EXAMPLE, label: "Clone the template" }}
+    />
+  </div>
+</Layout>

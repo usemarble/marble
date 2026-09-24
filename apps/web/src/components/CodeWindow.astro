@@ -1,0 +1,33 @@
+---
+  // Aliased so the formatter doesn't mistake <Code> for the HTML <code> tag.
+  import { Code as AstroCode } from "astro:components";
+  import type { HTMLAttributes } from "astro/types";
+  import { cn } from "@/lib/utils";
+
+  interface Props extends HTMLAttributes<"figure"> {
+    code: string;
+    filename: string;
+    lang: "astro" | "bash" | "json" | "ts" | "tsx";
+  }
+
+  const { code, filename, lang, class: className, ...attrs } = Astro.props;
+---
+<figure
+  {...attrs}
+  class={cn(
+    "min-w-0 overflow-hidden rounded-xl border border-border bg-surface text-left",
+    className
+  )}
+>
+  <figcaption
+    class="flex h-11 items-center border-b border-border bg-muted/30 px-4 font-mono text-[11px] text-muted-foreground"
+  >
+    {filename}
+  </figcaption>
+  <AstroCode
+    code={code}
+    lang={lang}
+    themes={{ light: "github-light", dark: "github-dark" }}
+    class="bg-transparent! p-4 font-mono text-xs leading-6 sm:p-5 sm:text-sm"
+  />
+</figure>

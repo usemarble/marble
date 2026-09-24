@@ -1,0 +1,43 @@
+---
+  import Container from "@/components/Container.astro";
+
+  interface Props {
+    heading: string;
+    items: Array<{
+      title: string;
+      description: string;
+      meta: string;
+      href: string;
+    }>;
+  }
+
+  const { heading, items } = Astro.props;
+  const headingId = `${heading.toLowerCase().replace(/\W+/g, "-")}-heading`;
+---
+<section aria-labelledby={headingId}>
+  <Container class="py-12 md:py-16">
+    <div class="grid gap-6 md:grid-cols-12">
+      <h2 id={headingId} class="md:col-span-4 lg:col-span-3">{heading}</h2>
+      <ul class="space-y-2 md:col-span-8 lg:col-span-9">
+        {items.map((item) => (
+          <li>
+            <a
+              href={item.href}
+              class="block rounded-lg bg-surface p-4 transition-colors hover:bg-muted/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary md:p-5"
+            >
+              <span class="block text-foreground">{item.title}</span>
+              <span
+                class="mt-1 block max-w-[70ch] leading-relaxed text-muted-foreground"
+              >
+                {item.description}
+              </span>
+              <span class="mt-4 block text-sm text-muted-foreground">
+                {item.meta}
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </Container>
+</section>

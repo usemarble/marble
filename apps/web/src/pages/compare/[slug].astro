@@ -1,0 +1,311 @@
+---
+  import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
+  import Container from "@/components/Container.astro";
+  import CtaSection from "@/components/sections/CtaSection.astro";
+  import FaqSection from "@/components/sections/FaqSection.astro";
+  import ResourceList from "@/components/sections/ResourceList.astro";
+  import ButtonComponent from "@/components/ui/Button.astro";
+  import Layout from "@/layouts/Layout.astro";
+  import {
+    COMPARISONS,
+    COMPARISONS_CHECKED,
+    type ComparisonSource,
+  } from "@/lib/constants/compare";
+  import { SITE } from "@/lib/constants/site";
+  import { REGISTER_URL, TRACKING_EVENTS } from "@/lib/constants/tracking";
+  import { buildBreadcrumbJsonLd, buildFaqJsonLd } from "@/lib/seo";
+
+  export const getStaticPaths = (() =>
+    COMPARISONS.map((comparison) => ({
+      params: { slug: comparison.slug },
+      props: { comparison },
+    }))) satisfies GetStaticPaths;
+
+  type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+
+  const { comparison } = Astro.props as Props;
+  const { name, slug } = comparison;
+  const heading = `Marble vs ${name}`;
+  const pageUrl = new URL(`/compare/${slug}`, SITE.URL).toString();
+
+  const sources = [
+    ...new Map(
+      comparison.rows
+        .flatMap((row) => row.sources ?? [])
+        .map((source): [string, ComparisonSource] => [source.href, source])
+    ).values(),
+  ];
+
+  const resources = [
+    ...COMPARISONS.filter((other) => other.slug !== slug).map((other) => ({
+      title: `Marble vs ${other.name}`,
+      description: other.summary,
+      meta: "Comparison",
+      href: `/compare/${other.slug}`,
+    })),
+    {
+      title: "How Marble works as a headless CMS",
+      description:
+        "The editor-to-API workflow, what's included, and who Marble suits.",
+      meta: "Product",
+      href: "/headless-cms",
+    },
+    {
+      title: "Marble for Next.js",
+      description:
+        "Fetch posts in Server Components and revalidate when you publish.",
+      meta: "Guide",
+      href: "/nextjs-cms",
+    },
+    {
+      title: "Marble for Astro",
+      description:
+        "Load posts into content collections and rebuild on publish.",
+      meta: "Guide",
+      href: "/astro-cms",
+    },
+  ];
+
+  const structuredData = [
+    buildBreadcrumbJsonLd([
+      { name: "Marble", url: SITE.URL },
+      { name: "Compare", url: new URL("/compare", SITE.URL).toString() },
+      { name: heading, url: pageUrl },
+    ]),
+    buildFaqJsonLd(comparison.faqs),
+  ];
+---
+<Layout
+  title={comparison.meta.title}
+  description={comparison.meta.description}
+  structuredData={structuredData}
+>
+  <div>
+    <section>
+      <Container class="flex w-full flex-col gap-8 py-20 md:py-28 lg:py-32">
+        <nav aria-label="Breadcrumb">
+          <ol class="flex items-center gap-2 text-sm text-muted-foreground">
+            <li>
+              <a href="/compare" class="hover:text-foreground">Compare</a>
+            </li>
+            <li aria-hidden="true">/</li>
+            <li aria-current="page" class="text-foreground">{heading}</li>
+          </ol>
+        </nav>
+        <div class="flex max-w-3xl flex-col gap-6">
+          <h1 class="text-4xl font-medium tracking-tight md:text-5xl">
+            {heading}
+          </h1>
+          <p class="leading-relaxed text-muted-foreground md:text-lg">
+            {comparison.intro}
+          </p>
+        </div>
+        <div class="flex w-full flex-col gap-4 sm:flex-row">
+          <ButtonComponent
+            href={REGISTER_URL}
+            target="_blank"
+            class="w-full sm:w-auto"
+            data-track={TRACKING_EVENTS.signupClicked}
+            data-context={`compare_${slug}_hero`}
+            data-label="Start for free"
+          >
+            Start for free
+          </ButtonComponent>
+          <ButtonComponent
+            href="#comparison"
+            variant="secondary"
+            class="w-full sm:w-auto"
+          >
+            See the comparison
+          </ButtonComponent>
+        </div>
+      </Container>
+    </section>
+
+    <section aria-labelledby="short-answer">
+      <Container class="py-12 md:py-16">
+        <h2
+          id="short-answer"
+          class="text-2xl tracking-tight text-balance md:text-3xl lg:text-4xl"
+        >
+          The short answer
+        </h2>
+        <div class="mt-10 grid gap-4 md:grid-cols-2">
+          <div class="rounded-xl bg-surface p-6 md:p-8">
+            <h3 class="text-xl font-medium">Choose Marble when</h3>
+            <ul
+              class="mt-4 list-disc space-y-3 pl-5 leading-relaxed text-muted-foreground marker:text-primary"
+            >
+              {comparison.chooseMarble.map((reason) => <li>{reason}</li>)}
+            </ul>
+          </div>
+          <div class="rounded-xl bg-surface p-6 md:p-8">
+            <h3 class="text-xl font-medium">{`Choose ${name} when`}</h3>
+            <ul
+              class="mt-4 list-disc space-y-3 pl-5 leading-relaxed text-muted-foreground marker:text-muted-foreground"
+            >
+              {comparison.chooseCompetitor.map((reason) => <li>{reason}</li>)}
+            </ul>
+          </div>
+        </div>
+      </Container>
+    </section>
+
+    <section id="comparison" aria-labelledby="comparison-heading">
+      <Container class="py-12 md:py-16">
+        <div class="max-w-2xl space-y-4">
+          <h2
+            id="comparison-heading"
+            class="text-2xl tracking-tight text-balance md:text-3xl lg:text-4xl"
+          >
+            Marble and {name}, side by side
+          </h2>
+          <p class="text-muted-foreground md:text-lg">
+            The differences that change which product fits. Plan and product
+            details link to {name}'s own documentation. Last checked
+            {COMPARISONS_CHECKED}.
+          </p>
+        </div>
+        <div
+          class="mt-10 overflow-x-auto rounded-xl bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          role="region"
+          aria-labelledby="comparison-heading"
+          tabindex="0"
+        >
+          <table class="w-full min-w-[640px] border-collapse text-left text-sm">
+            <thead>
+              <tr class="border-b border-border">
+                <th scope="col" class="w-1/5 p-4 font-medium md:p-5">
+                  <span class="sr-only">Topic</span>
+                </th>
+                <th scope="col" class="w-2/5 p-4 font-medium md:p-5">Marble</th>
+                <th scope="col" class="w-2/5 p-4 font-medium md:p-5">{name}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {comparison.rows.map((row) => (
+                <tr class="border-b border-border last:border-b-0 align-top">
+                  <th scope="row" class="p-4 font-medium md:p-5">
+                    {row.topic}
+                  </th>
+                  <td class="p-4 leading-relaxed text-muted-foreground md:p-5">
+                    {row.marble}
+                  </td>
+                  <td class="p-4 leading-relaxed text-muted-foreground md:p-5">
+                    {row.competitor}
+                    {row.sources && (
+                      <span class="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs">
+                        {row.sources.map((source) => (
+                          <a
+                            href={source.href}
+                            target="_blank"
+                            rel="noopener"
+                            class="underline underline-offset-2 hover:text-foreground"
+                          >
+                            {source.label}
+                          </a>
+                        ))}
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Container>
+    </section>
+
+    <section aria-labelledby="workflow-heading">
+      <Container class="py-12 md:py-16">
+        <h2
+          id="workflow-heading"
+          class="text-2xl tracking-tight text-balance md:text-3xl lg:text-4xl"
+        >
+          What publishing a post looks like
+        </h2>
+        <div class="mt-10 grid gap-4 md:grid-cols-2">
+          {[
+            { label: "With Marble", steps: comparison.workflow.marble },
+            { label: `With ${name}`, steps: comparison.workflow.competitor },
+          ].map((column) => (
+            <div class="rounded-xl bg-surface p-6 md:p-8">
+              <h3 class="text-xl font-medium">{column.label}</h3>
+              <ol class="mt-6 space-y-4">
+                {column.steps.map((step, index) => (
+                  <li class="flex gap-4">
+                    <span
+                      class="flex size-7 shrink-0 items-center justify-center rounded-full bg-background font-mono text-xs text-muted-foreground"
+                    >
+                      {index + 1}
+                    </span>
+                    <span class="leading-relaxed text-muted-foreground">
+                      {step}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          ))}
+        </div>
+      </Container>
+    </section>
+
+    <section aria-labelledby="migration-heading">
+      <Container class="py-12 md:py-16">
+        <div class="grid gap-8 lg:grid-cols-3 lg:gap-20">
+          <h2
+            id="migration-heading"
+            class="text-2xl tracking-tight text-balance md:text-3xl lg:text-4xl"
+          >
+            {comparison.migration.title}
+          </h2>
+          <ol
+            class="faq-answer list-decimal space-y-4 pl-5 leading-relaxed text-muted-foreground marker:text-muted-foreground lg:col-span-2"
+          >
+            {comparison.migration.steps.map((step) => <li set:html={step} />)}
+          </ol>
+        </div>
+      </Container>
+    </section>
+
+    <FaqSection
+      faqs={comparison.faqs}
+      name={`compare-${slug}-faq`}
+      description={`Common questions about choosing between Marble and ${name}.`}
+    />
+
+    <section aria-labelledby="sources-heading">
+      <Container class="py-12 md:py-16">
+        <div class="grid gap-6 md:grid-cols-12">
+          <h2 id="sources-heading" class="md:col-span-4 lg:col-span-3">
+            Sources
+          </h2>
+          <ul class="space-y-2 md:col-span-8 lg:col-span-9">
+            {sources.map((source) => (
+              <li>
+                <a
+                  href={source.href}
+                  target="_blank"
+                  rel="noopener"
+                  class="text-muted-foreground underline underline-offset-2 hover:text-foreground"
+                >
+                  {source.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </Container>
+    </section>
+
+    <ResourceList heading="More resources" items={resources}/>
+
+    <CtaSection
+      title="Try Marble with your own site."
+      description="Create a free workspace, publish a post, and fetch it from your frontend in a few minutes."
+      context={`compare_${slug}_cta`}
+      secondary={{ href: "/pricing", label: "View pricing" }}
+    />
+  </div>
+</Layout>

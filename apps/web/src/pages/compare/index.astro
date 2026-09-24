@@ -1,0 +1,121 @@
+---
+  import { Image } from "astro:assets";
+  import heroImage from "@/assets/images/hero-compare.png";
+  import Container from "@/components/Container.astro";
+  import ArrowRight from "@/components/icons/ArrowRight.astro";
+  import ButtonComponent from "@/components/ui/Button.astro";
+  import Layout from "@/layouts/Layout.astro";
+  import { COMPARISONS, COMPARISONS_CHECKED } from "@/lib/constants/compare";
+  import { SITE } from "@/lib/constants/site";
+  import { REGISTER_URL, TRACKING_EVENTS } from "@/lib/constants/tracking";
+  import { buildBreadcrumbJsonLd } from "@/lib/seo";
+
+  const PRINCIPLES = [
+    "We compare the workflow for publishing posts to a site, not feature counts.",
+    `Claims about other products link to their official pricing or docs, last checked ${COMPARISONS_CHECKED}.`,
+    "Every page says when the other product is the better choice.",
+  ];
+
+  const structuredData = buildBreadcrumbJsonLd([
+    { name: "Marble", url: SITE.URL },
+    { name: "Compare", url: new URL("/compare", SITE.URL).toString() },
+  ]);
+---
+<Layout
+  title={`Compare Marble with Other CMS Platforms - ${SITE.TITLE}`}
+  description="Compare Marble with Ghost and Sanity: what each platform is built for, how publishing works, and when the other product is the better fit."
+  structuredData={structuredData}
+>
+  <div>
+    <section>
+      <Container
+        class="flex w-full flex-col gap-14 py-24 md:gap-20 md:py-28 lg:py-36"
+      >
+        <div class="flex flex-col gap-8">
+          <div class="flex max-w-2xl flex-col gap-6">
+            <h1 class="text-4xl font-medium tracking-tight md:text-5xl">
+              Compare Marble.
+            </h1>
+            <p class="leading-relaxed text-muted-foreground md:text-lg">
+              Plain comparisons of Marble and other content platforms: what each
+              one is built for, how publishing works, and when the other product
+              is the better choice.
+            </p>
+          </div>
+          <div class="flex w-full flex-col gap-4 sm:flex-row">
+            <ButtonComponent
+              href={REGISTER_URL}
+              target="_blank"
+              class="w-full sm:w-auto"
+              data-track={TRACKING_EVENTS.signupClicked}
+              data-context="compare_hub_hero"
+              data-label="Start for free"
+            >
+              Start for free
+            </ButtonComponent>
+            <ButtonComponent
+              href="/headless-cms"
+              variant="secondary"
+              class="w-full sm:w-auto"
+            >
+              How Marble works
+            </ButtonComponent>
+          </div>
+        </div>
+        <div class="aspect-video w-full overflow-hidden rounded-[8px]">
+          <Image
+            src={heroImage}
+            inferSize
+            alt="The Marble editor with a published post, its cover image, slug, authors, and tags, set against a landscape painting"
+            loading="eager"
+            class="h-auto w-full"
+          />
+        </div>
+      </Container>
+    </section>
+
+    <section aria-label="Comparison pages">
+      <Container class="pb-16 md:pb-24">
+        <ul class="border-t border-border border-dashed">
+          {COMPARISONS.map((comparison) => (
+            <li class="border-b border-border border-dashed">
+              <a
+                href={`/compare/${comparison.slug}`}
+                class="group flex items-center justify-between gap-6 py-6 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary md:py-8"
+              >
+                <span class="flex flex-col gap-2">
+                  <span
+                    class="text-xl font-medium group-hover:text-primary md:text-2xl"
+                  >
+                    {`Marble vs ${comparison.name}`}
+                  </span>
+                  <span class="max-w-[62ch] text-muted-foreground">
+                    {comparison.summary}
+                  </span>
+                </span>
+                <ArrowRight
+                  class="size-4 shrink-0 text-primary transition-transform group-hover:translate-x-0.5"
+                />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </Container>
+    </section>
+
+    <section>
+      <Container class="py-16 md:py-24">
+        <div class="max-w-2xl">
+          <h2 class="text-2xl tracking-tight text-balance md:text-3xl">
+            How we write these
+          </h2>
+          <ul
+            class="mt-6 list-disc space-y-3 pl-5 leading-relaxed text-muted-foreground marker:text-primary"
+          >
+            {PRINCIPLES.map((principle) => <li>{principle}</li>)}
+          </ul>
+        </div>
+      </Container>
+    </section>
+  </div>
+</Layout>
