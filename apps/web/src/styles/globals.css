@@ -32,15 +32,15 @@
   --foreground: hsl(0 0% 96%);
   --primary: hsl(244 100% 65%);
   --primary-foreground: hsl(0 0% 98%);
-  --secondary: hsl(240 4% 16%);
+  --secondary: hsl(60 3% 16%);
   --secondary-foreground: hsl(0 0% 96%);
-  --muted: hsl(240 4% 15%);
+  --muted: hsl(60 3% 15%);
   --muted-foreground: hsl(0 0% 68%);
   --accent: hsl(244 100% 65%);
   --accent-foreground: hsl(0 0% 98%);
-  --surface: hsl(240 5% 10%);
+  --surface: hsl(60 3% 10%);
   --surface-foreground: hsl(0 0% 94%);
-  --border: hsl(240 4% 24%);
+  --border: hsl(60 3% 24%);
 }
 
 @theme inline {
@@ -127,5 +127,11 @@ html.theme-changing *::after {
   }
   .faq-answer a {
     @apply text-foreground hover:text-primary underline font-medium;
+  }
+
+  /* <Code> renders both GitHub themes; follow the site theme. */
+  .dark .astro-code,
+  .dark .astro-code span {
+    color: var(--shiki-dark) !important;
   }
 }

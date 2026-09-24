@@ -65,6 +65,10 @@ export const FOOTER_SECTIONS: FooterSection[] = [
         href: "/rss.xml",
       },
       {
+        label: "Compare",
+        href: "/compare",
+      },
+      {
         label: "Contributors",
         href: "/contributors",
       },

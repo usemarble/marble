@@ -44,6 +44,15 @@ Use this file as a compact guide to Marble's public product documentation and ma
 - [Importing Content](https://docs.marblecms.com/features/import): Bring Markdown and MDX files into Marble as draft posts.
 - [Exporting Content](https://docs.marblecms.com/features/export): Export workspace content and metadata as JSON archives.
 
+## Product Guides and Comparisons
+
+- [Headless CMS](https://marblecms.com/headless-cms): What Marble is, the editor-to-API workflow, what's included, and who it suits.
+- [Next.js CMS](https://marblecms.com/nextjs-cms): Using Marble as the CMS for a Next.js blog, with SDK examples and webhook revalidation.
+- [Astro CMS](https://marblecms.com/astro-cms): Using Marble as the CMS for an Astro blog through content collections.
+- [Compare Marble](https://marblecms.com/compare): Comparisons of Marble with other content platforms.
+- [Marble vs Ghost](https://marblecms.com/compare/ghost): When to choose Marble or Ghost, with sourced differences and migration notes.
+- [Marble vs Sanity](https://marblecms.com/compare/sanity): When to choose Marble or Sanity, with sourced differences and migration notes.
+
 ## Framework Integrations
 
 - [Next.js Integration](https://docs.marblecms.com/integrations/nextjs): Use Marble with Next.js App Router and ISR.

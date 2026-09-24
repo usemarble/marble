@@ -1,0 +1,477 @@
+---
+  import { Image } from "astro:assets";
+  import heroImage from "@/assets/images/hero-headless-cms.png";
+  import CodeWindow from "@/components/CodeWindow.astro";
+  import Container from "@/components/Container.astro";
+  import ArrowRight from "@/components/icons/ArrowRight.astro";
+  import CtaSection from "@/components/sections/CtaSection.astro";
+  import FaqSection from "@/components/sections/FaqSection.astro";
+  import ButtonComponent from "@/components/ui/Button.astro";
+  import Layout from "@/layouts/Layout.astro";
+  import { API_POST_RESPONSE } from "@/lib/constants/code-samples";
+  import { SITE } from "@/lib/constants/site";
+  import { REGISTER_URL, TRACKING_EVENTS } from "@/lib/constants/tracking";
+  import { buildBreadcrumbJsonLd, buildFaqJsonLd } from "@/lib/seo";
+
+  const DOCS_URL = "https://docs.marblecms.com";
+  const HEADLESS_EXPLAINER = "https://docs.marblecms.com/concepts/headless-cms";
+
+  const FLOW = [
+    {
+      title: "Write",
+      description:
+        "Draft in a focused editor with headings, lists, code blocks, images, video, and YouTube or X embeds.",
+    },
+    {
+      title: "Organize",
+      description:
+        "Attach authors, one category, tags, a cover image, and any custom fields your site needs.",
+    },
+    {
+      title: "Publish",
+      description:
+        "Set the post to published. It becomes available through the API; drafts stay private.",
+    },
+    {
+      title: "Deliver",
+      description:
+        "Your frontend requests posts with an API key and receives everything it needs to render in one response.",
+    },
+    {
+      title: "React to changes",
+      description:
+        "Webhooks tell your site, Slack, or Discord when posts change, so pages can revalidate or rebuild.",
+    },
+  ];
+
+  const CAPABILITIES = [
+    {
+      title: "Editor",
+      description:
+        "Rich text, code blocks, images, video, and embeds, with a readability score and AI writing suggestions on paid plans.",
+      href: "https://docs.marblecms.com/features/editor",
+    },
+    {
+      title: "Content model",
+      description:
+        "Posts with multiple authors, one category, and many tags. Add typed custom fields for extra metadata.",
+      href: "https://docs.marblecms.com/concepts/content-model",
+    },
+    {
+      title: "REST API and SDK",
+      description:
+        "Sanitized HTML or Markdown, filters for categories, tags, and search, and a typed TypeScript SDK.",
+      href: "https://docs.marblecms.com/api/introduction",
+    },
+    {
+      title: "API keys and scopes",
+      description:
+        "Read-only public keys for published content; private keys with scopes for drafts and write access.",
+      href: "https://docs.marblecms.com/api/introduction",
+    },
+    {
+      title: "Media library",
+      description:
+        "Upload images, video, audio, and documents. Files are served from Marble's CDN with alt text and dimensions.",
+      href: "https://docs.marblecms.com/features/media",
+    },
+    {
+      title: "Webhooks",
+      description:
+        "Signed deliveries in JSON, Slack, or Discord format, with automatic retries and a delivery log.",
+      href: "https://docs.marblecms.com/features/webhooks",
+    },
+    {
+      title: "Team workspaces",
+      description:
+        "Invite teammates as Owner, Admin, or Member. Each workspace keeps its own content, keys, and billing.",
+      href: "https://docs.marblecms.com/concepts/workspaces",
+    },
+    {
+      title: "Import and export",
+      description:
+        "Import Markdown and MDX files as drafts. Export the whole workspace as JSON whenever you want.",
+      href: "https://docs.marblecms.com/features/import",
+    },
+    {
+      title: "MCP server",
+      description:
+        "Connect AI agents to search, draft, and update content through scoped tools.",
+      href: "/mcp",
+    },
+  ];
+
+  const FRAMEWORKS = [
+    {
+      title: "Next.js",
+      description:
+        "Fetch posts in Server Components and revalidate on publish.",
+      href: "/nextjs-cms",
+    },
+    {
+      title: "Astro",
+      description: "Load posts into content collections at build time.",
+      href: "/astro-cms",
+    },
+    {
+      title: "TanStack Start",
+      description: "Fetch posts in route loaders with server functions.",
+      href: "https://docs.marblecms.com/integrations/tanstack",
+    },
+    {
+      title: "Framer",
+      description: "Sync Marble posts into Framer CMS collections.",
+      href: "https://docs.marblecms.com/integrations/framer",
+    },
+  ];
+
+  const FAQS = [
+    {
+      question: "What is a headless CMS?",
+      answer:
+        "A headless CMS stores and manages content, then delivers it through an API instead of rendering your website. You build the frontend with any framework. Read <a href='https://docs.marblecms.com/concepts/headless-cms' target='_blank' rel='noopener'>What is a headless CMS?</a> for a longer explanation.",
+    },
+    {
+      question: "What kind of content is Marble for?",
+      answer:
+        "Blogs, changelogs, product updates, guides, and other post-based content. Every entry is a post with authors, one category, tags, and optional custom fields. If you need arbitrary content types or a page builder, a schema-based CMS is a better fit.",
+    },
+    {
+      question: "Does Marble host my website?",
+      answer:
+        "No. Marble hosts your content and media. You build and deploy the website yourself, with any framework and host.",
+    },
+    {
+      question: "Does Marble have a GraphQL API?",
+      answer:
+        "No. Marble has a REST API, a TypeScript SDK, and an MCP server for AI agents. Posts include their authors, category, tags, and custom fields, so one request is enough to render a page.",
+    },
+    {
+      question: "Is Marble open source?",
+      answer:
+        "Yes. The source code is on <a href='https://github.com/usemarble/marble' target='_blank' rel='noopener'>GitHub</a> under the AGPL-3.0 license. Marble also runs it as a hosted service, so you don't have to operate a server or database.",
+    },
+    {
+      question: "Can I bring my existing posts, and take them with me?",
+      answer:
+        "Yes. Upload Markdown or MDX files, one at a time or as a ZIP, and Marble creates draft posts for review. You can export your workspace as a JSON archive at any time.",
+    },
+    {
+      question: "How much does Marble cost?",
+      answer:
+        "The Free plan includes unlimited posts, 1 GB of media storage, and 5,000 API requests a month. Hobby costs $5 a month and Pro costs $20 a month, with higher limits and more team members. See <a href='/pricing'>pricing</a> for details.",
+    },
+  ];
+
+  const structuredData = [
+    buildBreadcrumbJsonLd([
+      { name: "Marble", url: SITE.URL },
+      {
+        name: "Headless CMS",
+        url: new URL("/headless-cms", SITE.URL).toString(),
+      },
+    ]),
+    buildFaqJsonLd(FAQS),
+  ];
+
+  const inlineLink =
+    "font-medium text-foreground underline underline-offset-4 hover:text-primary";
+---
+<Layout
+  title={`Headless CMS for Blogs and Articles - ${SITE.TITLE}`}
+  description="Marble is an open-source headless CMS for blogs, articles, and changelogs. Write in a clean editor, manage media, and deliver posts to any frontend."
+  structuredData={structuredData}
+>
+  <div>
+    <section>
+      <Container
+        class="flex w-full flex-col gap-14 py-24 md:gap-20 md:py-28 lg:py-36"
+      >
+        <div class="flex flex-col gap-8">
+          <div class="relative mx-auto flex flex-col gap-6 text-center">
+            <h1
+              class="relative mx-auto max-w-[25ch] text-4xl font-medium tracking-tight md:text-5xl"
+            >
+              A headless CMS built for blogs and articles.
+            </h1>
+            <p
+              class="mx-auto max-w-[54ch] leading-relaxed text-muted-foreground md:text-lg"
+            >
+              Write and organize posts in Marble, then deliver them to any
+              website or app through a simple API.
+            </p>
+          </div>
+          <div
+            class="flex w-full flex-col items-center justify-center gap-4 sm:flex-row"
+          >
+            <ButtonComponent
+              href={REGISTER_URL}
+              target="_blank"
+              class="w-full sm:w-auto"
+              data-track={TRACKING_EVENTS.signupClicked}
+              data-context="headless_cms_hero"
+              data-label="Start for free"
+            >
+              Start for free
+            </ButtonComponent>
+            <ButtonComponent
+              href={DOCS_URL}
+              target="_blank"
+              rel="noopener"
+              variant="secondary"
+              class="w-full sm:w-auto"
+            >
+              Read the docs
+            </ButtonComponent>
+          </div>
+        </div>
+
+        <div class="aspect-video w-full overflow-hidden rounded-[8px]">
+          <Image
+            src={heroImage}
+            inferSize
+            alt="The Marble editor with a post, its cover image, slug, authors, and tags, set against a landscape painting"
+            loading="eager"
+            class="h-auto w-full"
+          />
+        </div>
+      </Container>
+    </section>
+
+    <section>
+      <Container class="py-16 md:py-24">
+        <div class="grid gap-8 lg:grid-cols-3 lg:gap-20">
+          <h2
+            class="text-2xl tracking-tight text-balance md:text-3xl lg:text-4xl"
+          >
+            What headless means here.
+          </h2>
+          <div
+            class="space-y-4 leading-relaxed text-muted-foreground md:text-lg lg:col-span-2"
+          >
+            <p>
+              A headless CMS manages content but doesn't render your website.
+              Marble gives your team an editor and a media library, then serves
+              published posts as JSON. Your frontend, built with any framework,
+              decides how they look.
+            </p>
+            <p>
+              That separation lets developers keep their own stack and design,
+              while writers publish without touching code. The trade-off is that
+              you build the pages yourself; Marble doesn't include themes.
+            </p>
+            <a
+              href={HEADLESS_EXPLAINER}
+              target="_blank"
+              rel="noopener"
+              class="inline-flex items-center gap-1.5 text-sm font-medium text-primary transition-opacity hover:opacity-70"
+            >
+              What is a headless CMS?
+              <ArrowRight class="size-3.5 shrink-0"/>
+            </a>
+          </div>
+        </div>
+      </Container>
+    </section>
+
+    <section>
+      <Container class="py-16 md:py-24">
+        <div class="mb-10 max-w-2xl space-y-4 md:mb-14">
+          <p class="text-sm text-primary">Workflow</p>
+          <h2
+            class="text-2xl tracking-tight text-balance md:text-3xl lg:text-4xl"
+          >
+            From the editor to your API.
+          </h2>
+        </div>
+        <div class="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14">
+          <ol class="space-y-6">
+            {FLOW.map((step, index) => (
+              <li class="flex gap-4">
+                <span
+                  class="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface font-mono text-xs text-muted-foreground"
+                >
+                  {index + 1}
+                </span>
+                <div class="space-y-1">
+                  <h3 class="font-medium">{step.title}</h3>
+                  <p class="text-sm leading-relaxed text-muted-foreground">
+                    {step.description}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ol>
+          <CodeWindow
+            filename="GET https://api.marblecms.com/v1/posts/launch-week-recap"
+            lang="json"
+            code={API_POST_RESPONSE}
+          />
+        </div>
+      </Container>
+    </section>
+
+    <section>
+      <Container class="py-16 md:py-24">
+        <div class="mb-10 max-w-2xl space-y-4 md:mb-14">
+          <h2
+            class="text-2xl tracking-tight text-balance md:text-3xl lg:text-4xl"
+          >
+            Everything a publication needs, nothing it doesn't.
+          </h2>
+          <p class="text-muted-foreground md:text-lg">
+            Marble keeps the content model small so the editor stays simple and
+            the API stays predictable.
+          </p>
+        </div>
+        <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {CAPABILITIES.map((capability) => (
+            <li>
+              <a
+                href={capability.href}
+                target={capability.href.startsWith("http") ? "_blank" : undefined}
+                rel={capability.href.startsWith("http") ? "noopener" : undefined}
+                class="group flex h-full flex-col gap-3 rounded-xl bg-surface p-6 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              >
+                <span class="flex items-start justify-between gap-4">
+                  <span class="text-lg font-medium group-hover:text-primary"
+                    >{capability.title}</span
+                  >
+                  <ArrowRight
+                    class="mt-1.5 size-4 shrink-0 text-primary transition-transform group-hover:translate-x-0.5"
+                  />
+                </span>
+                <span class="text-sm leading-relaxed text-muted-foreground">
+                  {capability.description}
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </Container>
+    </section>
+
+    <section>
+      <Container class="py-16 md:py-24">
+        <div class="mb-10 max-w-2xl space-y-4 md:mb-14">
+          <p class="text-sm text-primary">Frameworks</p>
+          <h2
+            class="text-2xl tracking-tight text-balance md:text-3xl lg:text-4xl"
+          >
+            Use it with the frontend you already have.
+          </h2>
+          <p class="text-muted-foreground md:text-lg">
+            Anything that can make an HTTP request can read from Marble. These
+            integrations have guides and examples.
+          </p>
+        </div>
+        <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {FRAMEWORKS.map((framework) => (
+            <li>
+              <a
+                href={framework.href}
+                target={framework.href.startsWith("http") ? "_blank" : undefined}
+                rel={framework.href.startsWith("http") ? "noopener" : undefined}
+                class="group flex h-full flex-col gap-3 rounded-xl bg-surface p-6 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              >
+                <span class="flex items-start justify-between gap-4">
+                  <span class="text-lg font-medium group-hover:text-primary"
+                    >{framework.title}</span
+                  >
+                  <ArrowRight
+                    class="mt-1.5 size-4 shrink-0 text-primary transition-transform group-hover:translate-x-0.5"
+                  />
+                </span>
+                <span class="text-sm leading-relaxed text-muted-foreground">
+                  {framework.description}
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </Container>
+    </section>
+
+    <section>
+      <Container class="py-16 md:py-24">
+        <div class="max-w-2xl space-y-4">
+          <h2
+            class="text-2xl tracking-tight text-balance md:text-3xl lg:text-4xl"
+          >
+            Is Marble the right headless CMS for you?
+          </h2>
+        </div>
+        <div class="mt-10 grid gap-4 md:mt-14 md:grid-cols-2">
+          <div class="rounded-xl bg-surface p-6 md:p-8">
+            <h3 class="text-xl font-medium">Marble suits you if</h3>
+            <ul
+              class="mt-4 list-disc space-y-3 pl-5 leading-relaxed text-muted-foreground marker:text-primary"
+            >
+              <li>
+                You publish articles, a blog, a changelog, or product updates on
+                a site you build.
+              </li>
+              <li>
+                Writers need a clean editor, and developers want a REST API
+                without schemas to maintain.
+              </li>
+              <li>
+                A small team shares a workspace and wants pricing per workspace,
+                not per seat.
+              </li>
+            </ul>
+          </div>
+          <div class="rounded-xl bg-surface p-6 md:p-8">
+            <h3 class="text-xl font-medium">Look elsewhere if</h3>
+            <ul
+              class="mt-4 list-disc space-y-3 pl-5 leading-relaxed text-muted-foreground marker:text-muted-foreground"
+            >
+              <li>
+                You need custom content types, localization, or a visual page
+                builder. See
+                {" "}
+                <a href="/compare/sanity" class={inlineLink}
+                  >Marble vs Sanity</a
+                >.
+              </li>
+              <li>
+                You want newsletters, memberships, and a ready-made theme in one
+                product. See
+                {" "}
+                <a href="/compare/ghost" class={inlineLink}>Marble vs Ghost</a>.
+              </li>
+              <li>
+                You don't want to build a frontend. A traditional CMS with
+                themes will be simpler.
+              </li>
+              <li>
+                You need scheduled publishing or real-time co-editing, which
+                Marble doesn't offer yet.
+              </li>
+            </ul>
+          </div>
+        </div>
+        <p class="mt-10 text-sm text-muted-foreground">
+          Weighing your options?
+          {" "}
+          <a href="/compare" class={inlineLink}>Compare Marble</a>
+          {" "}
+          with other content platforms.
+        </p>
+      </Container>
+    </section>
+
+    <FaqSection
+      faqs={FAQS}
+      name="headless-cms-faq"
+      description="Common questions about Marble as a headless CMS."
+    />
+
+    <CtaSection
+      title="Publish your first post."
+      description="Create a free workspace, write a post, and fetch it from your site with an API key."
+      context="headless_cms_cta"
+      secondary={{ href: "/features", label: "Explore features" }}
+    />
+  </div>
+</Layout>

@@ -1,0 +1,514 @@
+---
+  import { Image } from "astro:assets";
+  import heroImage from "@/assets/images/hero-nextjs-cms.png";
+  import postsImage from "@/assets/images/posts.png";
+  import CodeWindow from "@/components/CodeWindow.astro";
+  import Container from "@/components/Container.astro";
+  import ArrowRight from "@/components/icons/ArrowRight.astro";
+  import CtaSection from "@/components/sections/CtaSection.astro";
+  import FaqSection from "@/components/sections/FaqSection.astro";
+  import ButtonComponent from "@/components/ui/Button.astro";
+  import Layout from "@/layouts/Layout.astro";
+  import { NEXTJS_POST_PAGE } from "@/lib/constants/code-samples";
+  import { SITE } from "@/lib/constants/site";
+  import { REGISTER_URL, TRACKING_EVENTS } from "@/lib/constants/tracking";
+  import { buildBreadcrumbJsonLd, buildFaqJsonLd } from "@/lib/seo";
+
+  const NEXTJS_DOCS = "https://docs.marblecms.com/integrations/nextjs";
+  const NEXTJS_EXAMPLE = "https://github.com/usemarble/nextjs-example";
+  const WEBHOOKS_DOCS = "https://docs.marblecms.com/features/webhooks";
+  const WEBHOOK_ROUTE_EXAMPLE =
+    "https://github.com/usemarble/nextjs-example/blob/master/src/app/api/revalidate/route.ts";
+
+  const STEPS = [
+    {
+      title: "Write in Marble",
+      description:
+        "Draft posts with images, video, and embeds. Set the slug, description, cover image, authors, category, and tags in the sidebar.",
+    },
+    {
+      title: "Fetch on the server",
+      description:
+        "Call the SDK from Server Components or route handlers. Your API key stays in environment variables and never reaches the browser.",
+    },
+    {
+      title: "Render with your components",
+      description:
+        "Content arrives as sanitized HTML, or as Markdown if you prefer. Style it with your own components or Tailwind Typography.",
+    },
+    {
+      title: "Refresh on publish",
+      description:
+        "Revalidate on a timer with ISR, or let a Marble webhook call revalidatePath as soon as a post changes.",
+    },
+  ];
+
+  const DETAILS = [
+    {
+      title: "Typed SDK",
+      description:
+        "@usemarble/sdk includes TypeScript types for posts, authors, categories, tags, and custom fields, plus automatic retries.",
+      href: "https://docs.marblecms.com/tools/sdk",
+      label: "SDK reference",
+    },
+    {
+      title: "Filtering and search",
+      description:
+        "List posts by category or tag, featured posts only, or a search query. Exclude categories such as a changelog from your blog feed.",
+      href: "https://docs.marblecms.com/api/filtering",
+      label: "Filtering options",
+    },
+    {
+      title: "Draft previews",
+      description:
+        "Read unpublished posts with a private key that has the posts_read_drafts scope, then render them on a preview route.",
+      href: "https://docs.marblecms.com/api/introduction",
+      label: "API keys and scopes",
+    },
+    {
+      title: "Media on a CDN",
+      description:
+        "Upload images and video to Marble's media library. Every file gets a stable CDN URL you can use in posts or components.",
+      href: "https://docs.marblecms.com/features/media",
+      label: "Media docs",
+    },
+    {
+      title: "Custom fields",
+      description:
+        "Add typed fields such as a date, a select, or a rich text summary to your posts without changing your CMS code.",
+      href: "https://docs.marblecms.com/features/custom-fields",
+      label: "Custom fields",
+    },
+    {
+      title: "MCP for AI agents",
+      description:
+        "Let Codex, Claude Code, Cursor, or VS Code find, draft, and update posts in your workspace through scoped tools.",
+      href: "/mcp",
+      label: "Marble MCP",
+    },
+  ];
+
+  const RESOURCES = [
+    {
+      title: "Next.js integration guide",
+      description: "Set up the SDK, list pages, and post routes step by step.",
+      href: NEXTJS_DOCS,
+    },
+    {
+      title: "Next.js blog template",
+      description:
+        "A complete example with tag pages, metadata, and webhook revalidation.",
+      href: NEXTJS_EXAMPLE,
+    },
+    {
+      title: "How to build a blog with Next.js and a headless CMS",
+      description: "A longer walkthrough on the Marble blog.",
+      href: "/blog/nextjs-headless-cms-blog",
+    },
+  ];
+
+  const FAQS = [
+    {
+      question: "Does Marble work with the Next.js App Router?",
+      answer:
+        "Yes. The Marble SDK runs in Server Components, route handlers, and generateStaticParams. The Next.js guide and example repo both use the App Router.",
+    },
+    {
+      question: "Do I have to expose my API key to the browser?",
+      answer:
+        "No. Fetch content on the server and keep MARBLE_API_KEY in your environment variables. Public keys are read-only, but Marble recommends using them on the server so nobody else can use up your rate limit.",
+    },
+    {
+      question: "How do pages update after I publish a post?",
+      answer:
+        "Use time-based revalidation with <code>export const revalidate</code>, or subscribe a Marble webhook to post events and call <code>revalidatePath</code> or <code>revalidateTag</code> from a route handler. Marble signs each delivery so you can verify it came from your workspace.",
+    },
+    {
+      question: "Can I preview drafts before they go live?",
+      answer:
+        "Yes. Create a private API key with the posts_read_drafts scope and request posts with the status set to draft. Private keys can hold write scopes, so only use them on the server.",
+    },
+    {
+      question: "Is post content HTML or Markdown?",
+      answer:
+        'HTML by default. Marble sanitizes it before sending it, so you can render it directly. Pass <code>format: "markdown"</code> if you\'d rather render Markdown with your own pipeline.',
+    },
+    {
+      question: "How many API requests will my site use?",
+      answer:
+        "Pages that are statically generated or revalidated with ISR call the API when they build or revalidate, not on every page view. The Free plan includes 5,000 API requests a month, Hobby includes 25,000, and Pro includes 50,000. See <a href='/pricing'>pricing</a> for current limits.",
+    },
+    {
+      question: "Is there a Next.js starter I can clone?",
+      answer:
+        "Yes. The <a href='https://github.com/usemarble/nextjs-example' target='_blank' rel='noopener'>Next.js example</a> includes a post list, post pages, tag pages, metadata, and a webhook route for revalidation.",
+    },
+  ];
+
+  const structuredData = [
+    buildBreadcrumbJsonLd([
+      { name: "Marble", url: SITE.URL },
+      { name: "Next.js CMS", url: new URL("/nextjs-cms", SITE.URL).toString() },
+    ]),
+    buildFaqJsonLd(FAQS),
+  ];
+---
+<Layout
+  title={`Next.js Headless CMS for Blogs - ${SITE.TITLE}`}
+  description="Add a blog to your Next.js app with Marble. Write in a clean editor, fetch posts in Server Components with a typed SDK, and revalidate when you publish."
+  structuredData={structuredData}
+>
+  <div>
+    <section>
+      <Container
+        class="flex w-full flex-col gap-14 py-24 md:gap-20 md:py-28 lg:py-36"
+      >
+        <div class="flex flex-col gap-8">
+          <div class="relative mx-auto flex flex-col gap-6 text-center">
+            <h1
+              class="relative mx-auto max-w-[25ch] text-4xl font-medium tracking-tight md:text-5xl"
+            >
+              A headless CMS for your Next.js blog.
+            </h1>
+            <p
+              class="mx-auto max-w-[54ch] leading-relaxed text-muted-foreground md:text-lg"
+            >
+              Your team writes and publishes in Marble. Your Next.js app fetches
+              posts with a typed SDK and renders them with your own components.
+            </p>
+          </div>
+          <div
+            class="flex w-full flex-col items-center justify-center gap-4 sm:flex-row"
+          >
+            <ButtonComponent
+              href={REGISTER_URL}
+              target="_blank"
+              class="w-full sm:w-auto"
+              data-track={TRACKING_EVENTS.signupClicked}
+              data-context="nextjs_cms_hero"
+              data-label="Start for free"
+            >
+              Start for free
+            </ButtonComponent>
+            <ButtonComponent
+              href={NEXTJS_DOCS}
+              target="_blank"
+              rel="noopener"
+              variant="secondary"
+              class="w-full sm:w-auto"
+            >
+              Read the Next.js guide
+            </ButtonComponent>
+          </div>
+        </div>
+
+        <div class="aspect-video w-full overflow-hidden rounded-[8px]">
+          <Image
+            src={heroImage}
+            inferSize
+            alt="The Marble editor with a published post, its cover image, slug, authors, and tags, set against a landscape painting"
+            loading="eager"
+            class="h-auto w-full"
+          />
+        </div>
+      </Container>
+    </section>
+
+    <section>
+      <Container class="py-16 md:py-24">
+        <div class="mb-10 max-w-2xl space-y-4 md:mb-14">
+          <p class="text-sm text-primary">How it works</p>
+          <h2
+            class="text-2xl tracking-tight text-balance md:text-3xl lg:text-4xl"
+          >
+            From draft to deployed page.
+          </h2>
+          <p class="text-muted-foreground md:text-lg">
+            Marble stores and serves your content. Next.js decides how it looks
+            and when it renders.
+          </p>
+        </div>
+        <ol class="grid gap-4 grid-cols-2">
+          {STEPS.map((step, index) => (
+            <li class="flex flex-col gap-8 rounded-xl bg-surface p-6">
+              <span
+                class="flex size-8 items-center justify-center rounded-full bg-background font-mono text-xs text-muted-foreground"
+              >
+                {index + 1}
+              </span>
+              <div class="space-y-2">
+                <h3 class="text-lg font-medium">{step.title}</h3>
+                <p class="text-sm leading-relaxed text-muted-foreground">
+                  {step.description}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </Container>
+    </section>
+
+    <section>
+      <Container class="py-16 md:py-24">
+        <div
+          class="grid gap-8 rounded-2xl p-3 md:grid-cols-[0.75fr_1.25fr] md:items-center md:p-4 lg:gap-10"
+        >
+          <div class="flex flex-col items-start px-1 py-4 md:px-2">
+            <h2 class="text-2xl tracking-tight text-balance md:text-3xl">
+              Writers publish without a pull request.
+            </h2>
+            <p
+              class="mt-4 max-w-[46ch] leading-relaxed text-muted-foreground md:text-lg"
+            >
+              Posts live in Marble, not in MDX files in your repository. Editors
+              get a focused writing view, a media library, and readability
+              feedback. Developers don't redeploy to fix a typo.
+            </p>
+            <a
+              href="https://docs.marblecms.com/features/editor"
+              target="_blank"
+              rel="noopener"
+              class="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-primary transition-opacity hover:opacity-70"
+            >
+              Explore the editor
+              <ArrowRight class="size-3.5 shrink-0"/>
+            </a>
+          </div>
+          <div class="w-full overflow-hidden rounded-[4px] bg-background">
+            <Image
+              src={postsImage}
+              inferSize
+              alt="The Marble posts view with published and draft posts"
+              class="h-auto w-full"
+            />
+          </div>
+        </div>
+      </Container>
+    </section>
+
+    <section>
+      <Container class="py-16 md:py-24">
+        <div class="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-14">
+          <div class="max-w-xl space-y-4">
+            <p class="text-sm text-primary">Integration</p>
+            <h2
+              class="text-2xl tracking-tight text-balance md:text-3xl lg:text-4xl"
+            >
+              Render a post in one file.
+            </h2>
+            <p class="leading-relaxed text-muted-foreground md:text-lg">
+              Install the Marble SDK, add your API key to the environment, and
+              fetch posts in a Server Component. This page refreshes at most
+              once an hour.
+            </p>
+            <p class="leading-relaxed text-muted-foreground">
+              To update the moment you publish, point a Marble webhook at a
+              route handler that calls revalidatePath. Marble signs every
+              delivery, retries failed ones, and keeps a delivery log.
+            </p>
+            <div class="flex flex-wrap gap-x-6 gap-y-3">
+              <a
+                href={NEXTJS_DOCS}
+                target="_blank"
+                rel="noopener"
+                class="inline-flex items-center gap-1.5 text-sm font-medium text-primary transition-opacity hover:opacity-70"
+              >
+                Next.js guide
+                <ArrowRight class="size-3.5 shrink-0"/>
+              </a>
+              <a
+                href={WEBHOOK_ROUTE_EXAMPLE}
+                target="_blank"
+                rel="noopener"
+                class="inline-flex items-center gap-1.5 text-sm font-medium text-primary transition-opacity hover:opacity-70"
+              >
+                Example webhook route
+                <ArrowRight class="size-3.5 shrink-0"/>
+              </a>
+              <a
+                href={WEBHOOKS_DOCS}
+                target="_blank"
+                rel="noopener"
+                class="inline-flex items-center gap-1.5 text-sm font-medium text-primary transition-opacity hover:opacity-70"
+              >
+                Webhook docs
+                <ArrowRight class="size-3.5 shrink-0"/>
+              </a>
+            </div>
+          </div>
+          <CodeWindow
+            filename="app/blog/[slug]/page.tsx"
+            lang="tsx"
+            code={NEXTJS_POST_PAGE}
+          />
+        </div>
+      </Container>
+    </section>
+
+    <section>
+      <Container class="py-16 md:py-24">
+        <div class="mb-10 max-w-2xl space-y-4 md:mb-14">
+          <h2
+            class="text-2xl tracking-tight text-balance md:text-3xl lg:text-4xl"
+          >
+            Built for the way Next.js apps fetch data.
+          </h2>
+        </div>
+        <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {DETAILS.map((detail) => (
+            <li class="flex flex-col rounded-xl bg-surface p-6">
+              <h3 class="text-lg font-medium">{detail.title}</h3>
+              <p class="mt-3 text-sm leading-relaxed text-muted-foreground">
+                {detail.description}
+              </p>
+              <a
+                href={detail.href}
+                target={detail.href.startsWith("http") ? "_blank" : undefined}
+                rel={detail.href.startsWith("http") ? "noopener" : undefined}
+                class="mt-auto inline-flex items-center gap-1.5 pt-6 text-sm font-medium text-primary transition-opacity hover:opacity-70"
+              >
+                {detail.label}
+                <ArrowRight class="size-3.5 shrink-0" />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </Container>
+    </section>
+
+    <section>
+      <Container class="py-16 md:py-24">
+        <div class="max-w-2xl space-y-4">
+          <h2
+            class="text-2xl tracking-tight text-balance md:text-3xl lg:text-4xl"
+          >
+            Is Marble the right fit for your Next.js site?
+          </h2>
+        </div>
+        <div class="mt-10 grid gap-4 md:mt-14 md:grid-cols-2">
+          <div class="rounded-xl bg-surface p-6 md:p-8">
+            <h3 class="text-xl font-medium">A good fit when</h3>
+            <ul
+              class="mt-4 list-disc space-y-3 pl-5 leading-relaxed text-muted-foreground marker:text-primary"
+            >
+              <li>
+                You're adding a blog, changelog, or resource section to an
+                existing Next.js app or marketing site.
+              </li>
+              <li>
+                People who don't use Git need to write, edit, and publish.
+              </li>
+              <li>
+                Your content fits a post model: authors, a category, tags, and a
+                few custom fields.
+              </li>
+              <li>
+                You want a REST API and SDK instead of a query language to
+                learn.
+              </li>
+            </ul>
+          </div>
+          <div class="rounded-xl bg-surface p-6 md:p-8">
+            <h3 class="text-xl font-medium">Consider something else when</h3>
+            <ul
+              class="mt-4 list-disc space-y-3 pl-5 leading-relaxed text-muted-foreground marker:text-muted-foreground"
+            >
+              <li>
+                Only developers write, and MDX files in the repository already
+                work for you.
+              </li>
+              <li>
+                You need custom content types or a page builder. A schema-based
+                CMS will suit you better. See{" "}
+                <a
+                  href="/compare/sanity"
+                  class="font-medium text-foreground underline underline-offset-4 hover:text-primary"
+                  >Marble vs Sanity</a
+                >.
+              </li>
+              <li>
+                You need built-in newsletters or paid memberships. See{" "}
+                <a
+                  href="/compare/ghost"
+                  class="font-medium text-foreground underline underline-offset-4 hover:text-primary"
+                  >Marble vs Ghost</a
+                >.
+              </li>
+              <li>
+                You rely on scheduled publishing or several people editing the
+                same post at once. Marble doesn't offer either yet.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </Container>
+    </section>
+
+    <section>
+      <Container class="py-16 md:py-24">
+        <div class="mb-10 max-w-2xl space-y-4 md:mb-14">
+          <h2
+            class="text-2xl tracking-tight text-balance md:text-3xl lg:text-4xl"
+          >
+            Go deeper.
+          </h2>
+          <p class="text-muted-foreground md:text-lg">
+            The guide and template are the full reference for this integration.
+          </p>
+        </div>
+        <ul class="grid gap-4 md:grid-cols-3">
+          {RESOURCES.map((resource) => (
+            <li>
+              <a
+                href={resource.href}
+                target={resource.href.startsWith("http") ? "_blank" : undefined}
+                rel={resource.href.startsWith("http") ? "noopener" : undefined}
+                class="group flex h-full flex-col gap-3 rounded-xl bg-surface p-6 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              >
+                <span class="flex items-start justify-between gap-4">
+                  <span class="text-lg font-medium group-hover:text-primary"
+                    >{resource.title}</span
+                  >
+                  <ArrowRight
+                    class="mt-1.5 size-4 shrink-0 text-primary transition-transform group-hover:translate-x-0.5"
+                  />
+                </span>
+                <span class="text-sm leading-relaxed text-muted-foreground">
+                  {resource.description}
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+        <p class="mt-10 text-sm text-muted-foreground">
+          Using a different framework? See{" "}
+          <a
+            href="/astro-cms"
+            class="font-medium text-foreground underline underline-offset-4 hover:text-primary"
+            >Marble for Astro</a
+          >
+          {" "}
+          or{" "}
+          <a
+            href="/headless-cms"
+            class="font-medium text-foreground underline underline-offset-4 hover:text-primary"
+            >how Marble works as a headless CMS</a
+          >.
+        </p>
+      </Container>
+    </section>
+
+    <FaqSection
+      faqs={FAQS}
+      name="nextjs-cms-faq"
+      description="Common questions about using Marble with Next.js."
+    />
+
+    <CtaSection
+      title="Add a blog to your Next.js app."
+      description="Create a workspace, publish your first post, and fetch it from your app with an API key."
+      context="nextjs_cms_cta"
+      secondary={{ href: NEXTJS_EXAMPLE, label: "Clone the template" }}
+    />
+  </div>
+</Layout>
