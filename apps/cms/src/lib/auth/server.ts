@@ -33,6 +33,7 @@ import { nextCookies } from "better-auth/next-js";
 import { emailOTP, organization } from "better-auth/plugins";
 import { and, eq } from "drizzle-orm";
 import { customAlphabet } from "nanoid";
+import { trackRegistrationCompleted } from "@/lib/analytics/registration";
 import {
   createAuthor,
   storeUserImage,
@@ -357,7 +358,7 @@ export const auth = betterAuth({
     },
     user: {
       create: {
-        after: async (user) => {
+        after: async (user, context) => {
           await storeUserImage(user);
 
           if (user.emailVerified) {
@@ -381,6 +382,20 @@ export const auth = betterAuth({
               userId: user.id,
               logo: `https://api.dicebear.com/9.x/glass/svg?seed=${slug}`,
             },
+          });
+
+          const path = context?.path ?? "";
+          const method = path.includes("sign-up/email")
+            ? "email"
+            : path.includes("callback/google")
+              ? "google"
+              : path.includes("callback/github")
+                ? "github"
+                : "unknown";
+          await trackRegistrationCompleted({
+            userId: user.id,
+            cookieHeader: context?.headers?.get("cookie"),
+            method,
           });
         },
       },

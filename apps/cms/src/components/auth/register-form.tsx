@@ -1,5 +1,6 @@
 "use client";
 
+import { getAnonymousId, getSessionId, track } from "@databuddy/sdk";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
@@ -38,6 +39,24 @@ export function RegisterForm() {
   const router = useRouter();
   const [isRedirecting, startTransition] = useTransition();
 
+  async function saveAttribution() {
+    const marketingParams = new URLSearchParams(window.location.search);
+    try {
+      await fetch("/api/analytics/registration", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          marketingAnonymousId: marketingParams.get("anonId"),
+          marketingSessionId: marketingParams.get("sessionId"),
+          appAnonymousId: getAnonymousId(),
+          appSessionId: getSessionId(),
+        }),
+      });
+    } catch {
+      // Analytics must not block registration.
+    }
+  }
+
   const initiateEmailVerification = async (email: string) => {
     // at this point user is already registered
     // so we can redirect to verify even if sending fails
@@ -58,8 +77,10 @@ export function RegisterForm() {
 
   async function onSubmit(formData: CredentialData) {
     setIsCredentialsLoading(true);
+    track("registration_started", { method: "email" });
 
     try {
+      await saveAttribution();
       await authClient.signUp.email(
         {
           email: formData.email.toLowerCase(),
@@ -72,17 +93,20 @@ export function RegisterForm() {
             initiateEmailVerification(formData.email);
           },
           onError: (ctx) => {
+            track("registration_failed", { method: "email" });
             toast.error(ctx.error.message);
           },
         }
       );
     } catch (_error) {
+      track("registration_failed", { method: "email" });
       toast.error("Sign in failed. Please try again.");
     }
     setIsCredentialsLoading(false);
   }
 
   const handleSocialSignIn = async (provider: "google" | "github") => {
+    track("registration_started", { method: provider });
     if (provider === "google") {
       setIsGoogleLoading(true);
     } else {
@@ -90,18 +114,26 @@ export function RegisterForm() {
     }
 
     try {
-      await authClient.signIn.social({
+      await saveAttribution();
+      const result = await authClient.signIn.social({
         provider,
         callbackURL,
       });
+      if (result.error) {
+        track("registration_failed", { method: provider });
+        toast.error(result.error.message || "Your sign in request failed.");
+        return;
+      }
+      setLastUsedAuthMethod(provider);
     } catch (_error) {
+      track("registration_failed", { method: provider });
       toast("Your sign in request failed. Please try again.");
-    }
-    setLastUsedAuthMethod(provider);
-    if (provider === "google") {
-      setIsGoogleLoading(false);
-    } else {
-      setIsGithubLoading(false);
+    } finally {
+      if (provider === "google") {
+        setIsGoogleLoading(false);
+      } else {
+        setIsGithubLoading(false);
+      }
     }
   };
 

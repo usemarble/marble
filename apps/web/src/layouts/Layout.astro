@@ -46,5 +46,39 @@
     <FooterComponent/>
     <ScrollToTop/>
     <SpeedInsights/>
+    <script>
+      import { getTrackingParams } from "@databuddy/sdk";
+      import { SITE } from "@/lib/constants/site";
+
+      // Carry the anonymous marketing visit into the registration flow.
+      document.addEventListener(
+        "click",
+        (event) => {
+          const target = event.target;
+          if (!(target instanceof Element)) {
+            return;
+          }
+          const link = target.closest<HTMLAnchorElement>("a[href]");
+          if (!link) {
+            return;
+          }
+
+          const destination = new URL(link.href);
+          if (
+            destination.origin !== new URL(SITE.APP_URL).origin ||
+            destination.pathname !== "/register"
+          ) {
+            return;
+          }
+
+          const params = new URLSearchParams(getTrackingParams());
+          for (const [key, value] of params) {
+            destination.searchParams.set(key, value);
+          }
+          link.href = destination.toString();
+        },
+        true
+      );
+    </script>
   </body>
 </html>

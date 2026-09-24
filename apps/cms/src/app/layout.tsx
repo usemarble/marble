@@ -49,19 +49,23 @@ const fontSans = Geist({
 function DatabuddyAnalytics() {
   return (
     <>
-      {process.env.NEXT_PUBLIC_DATABUDDY_CLIENT_ID && (
-        <Databuddy
-          clientId={process.env.NEXT_PUBLIC_DATABUDDY_CLIENT_ID}
-          enableBatching={true}
-          skipPatterns={[
-            "/reset",
-            "/reset/**",
-            "/verify",
-            "/verify/**",
-            "/share/**",
-          ]}
-        />
-      )}
+      {process.env.NODE_ENV === "production" &&
+        process.env.NEXT_PUBLIC_DATABUDDY_CLIENT_ID && (
+          <Databuddy
+            clientId={process.env.NEXT_PUBLIC_DATABUDDY_CLIENT_ID}
+            enableBatching={true}
+            skipPatterns={[
+              "/reset",
+              "/reset/**",
+              "/verify",
+              "/verify/**",
+              "/share/**",
+            ]}
+            trackAttributes={true}
+            trackInteractions={true}
+            trackWebVitals={true}
+          />
+        )}
     </>
   );
 }
@@ -82,8 +86,8 @@ export default async function RootLayout({
           />
         )}
       </head>
-      <DatabuddyAnalytics />
       <body className={`${fontSans.className} font-sans antialiased`}>
+        <DatabuddyAnalytics />
         <Providers>{children}</Providers>
       </body>
     </html>

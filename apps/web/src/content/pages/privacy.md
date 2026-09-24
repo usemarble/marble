@@ -2,7 +2,7 @@
 title: Privacy Policy
 published: 2024-12-12
 description: Marble's Privacy Policy. 
-lastUpdated: 2025-09-18
+lastUpdated: 2026-09-24
 ---
 
 Marble ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your information when you use our service ("the Service").
@@ -28,9 +28,9 @@ We collect only the information necessary to provide and improve our service:
 
 ### d. Analytics Data
 
-- **What we collect:** Non-identifiable usage data such as page views, timestamps, and browser type.
-- **Provider:** We use Databuddy.cc, a GDPR-compliant analytics provider that does not track individuals.
-- **Why we collect it:** To monitor performance and improve the Service.
+- **What we collect:** Page views, timestamps, browser information, and anonymous visitor and session IDs. We also record signup actions and completed registrations, without sending your email address or page content to analytics.
+- **Provider:** We use Databuddy.cc for analytics.
+- **Why we collect it:** To monitor performance, understand which pages lead to registration, and improve the Service.
 
 ## 2. How We Use Your Information
 
@@ -71,7 +71,7 @@ To exercise these rights, contact us at [support@marblecms.com](mailto:support@m
 
 ## 6. Cookies and Tracking
 
-We do not use cookies for tracking. Analytics is handled by Databuddy, which does not identify individual users.
+When you go from our website to registration, we pass an anonymous visitor and session ID in the link and store them in a short-lived, first-party cookie on the app. This lets us connect a signup to the visit that led to it. The cookie expires after seven days and is only sent to our authentication endpoint. We do not put your email address in this cookie.
 
 ## 7. Security Measures
 
