@@ -6,13 +6,15 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "lint": "biome check ."
   },
   "dependencies": {
     "@astrojs/mdx": "^7.0.5",
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.3",
     "@astrojs/vercel": "^11.0.5",
+    "@databuddy/sdk": "^2.6.0",
     "@marble/utils": "workspace:*",
     "@tailwindcss/vite": "^4.2.1",
     "@usemarble/sdk": "^1.1.0",

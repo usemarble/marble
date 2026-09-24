@@ -5,7 +5,8 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy --minify",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings --env-file .env.example",
-    "cf-typegen:check": "wrangler types --env-interface CloudflareBindings --env-file .env.example --check"
+    "cf-typegen:check": "wrangler types --env-interface CloudflareBindings --env-file .env.example --check",
+    "lint": "biome check ."
   },
   "dependencies": {
     "@marble/db": "workspace:*",
@@ -17,7 +18,7 @@
     "@upstash/redis": "^1.36.4",
     "fflate": "^0.8.3",
     "gray-matter": "^4.0.3",
-    "hono": "^4.12.18",
+    "hono": "^4.13.8",
     "resend": "^6.12.3"
   },
   "devDependencies": {

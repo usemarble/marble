@@ -20,8 +20,9 @@
     "cms:start": "pnpm --filter cms start",
     "dev": "turbo run dev",
     "cf-typegen:check": "pnpm --filter api --filter jobs --filter mcp run cf-typegen:check",
-    "lint": "pnpx ultracite@latest check",
-    "format": "pnpx ultracite@latest fix",
+    "lint": "turbo run lint",
+    "lint:root": "biome check package.json turbo.json biome.jsonc commitlint.config.ts skills-lock.json tsconfig.json .vscode",
+    "format": "biome check --write .",
     "web:dev": "turbo run dev --filter=web",
     "cms:dev": "turbo run dev --filter=cms",
     "api:dev": "turbo run dev --filter=api",
@@ -37,12 +38,17 @@
     "@commitlint/config-conventional": "^19.8.1",
     "@marble/tsconfig": "workspace:*",
     "husky": "^9.1.7",
-    "turbo": "^2.9.14",
+    "turbo": "2.11.3",
     "typescript": "^5.9.3",
     "ultracite": "7.0.3"
   },
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.13.0"
   },
-  "packageManager": "pnpm@11.24.0"
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "12.6.0"
+    }
+  }
 }

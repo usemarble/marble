@@ -6,7 +6,8 @@
     "./markdown": "./src/editor/markdown.ts"
   },
   "scripts": {
-    "test": "vitest run"
+    "test": "vitest run",
+    "lint": "biome check ."
   },
   "devDependencies": {
     "@marble/tsconfig": "workspace:*",

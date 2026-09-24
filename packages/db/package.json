@@ -17,7 +17,8 @@
     "db:pull": "drizzle-kit pull",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check ."
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.1",

@@ -1,0 +1,9 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "outputs": ["dist/**", ".vercel/**"],
+      "env": ["NODE_ENV", "MARBLE_API_KEY", "DATABUDDY_CLIENT_ID"]
+    }
+  }
+}
