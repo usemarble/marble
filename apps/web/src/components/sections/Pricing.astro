@@ -2,6 +2,7 @@
   import { PRICING_PLANS } from "@marble/utils";
   import Container from "@/components/Container.astro";
   import Button from "@/components/ui/Button.astro";
+  import { REGISTER_URL, TRACKING_EVENTS } from "@/lib/constants/tracking";
   import { cn } from "@/lib/utils";
 ---
 <section>
@@ -60,7 +61,8 @@
                     </div>
                     <div class="py-4">
                       <Button 
-                        href={plan.button.href}
+                        href={REGISTER_URL}
+                        data-track={TRACKING_EVENTS.signupClicked}
                         target="_blank"
                         class="w-full"
                       >
@@ -99,7 +101,8 @@
                   </div>
                   <div class="py-4">
                     <Button 
-                      href={plan.button.href}
+                      href={REGISTER_URL}
+                      data-track={TRACKING_EVENTS.signupClicked}
                       target="_blank"
                       class="w-full"
                       size="sm"

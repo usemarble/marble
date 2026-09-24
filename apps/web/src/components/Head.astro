@@ -51,7 +51,9 @@
     ? "noindex, nofollow"
     : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1";
 
-  const databuddyClientId = getSecret("DATABUDDY_CLIENT_ID");
+  const databuddyClientId = import.meta.env.PROD
+    ? getSecret("DATABUDDY_CLIENT_ID")
+    : undefined;
   const siteStructuredData = buildSiteJsonLd({
     title: SITE.TITLE,
     description: SITE.DESCRIPTION,

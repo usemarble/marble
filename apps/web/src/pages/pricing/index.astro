@@ -6,6 +6,7 @@
   import Layout from "@/layouts/Layout.astro";
   import { PRICING_FAQS } from "@/lib/constants/faqs";
   import { SITE } from "@/lib/constants/site";
+  import { REGISTER_URL, TRACKING_EVENTS } from "@/lib/constants/tracking";
   import { buildFaqJsonLd } from "@/lib/seo";
   import { cn } from "@/lib/utils";
 
@@ -73,7 +74,8 @@
                             </div>
                             <div class="py-4">
                               <Button 
-                                href={plan.button.href}
+                                href={REGISTER_URL}
+                                data-track={TRACKING_EVENTS.signupClicked}
                                 target="_blank"
                                 class="w-full"
                               >
@@ -112,7 +114,8 @@
                           </div>
                           <div class="py-4">
                            <Button 
-                              href={plan.button.href}
+                              href={REGISTER_URL}
+                              data-track={TRACKING_EVENTS.signupClicked}
                               target="_blank"
                               class="w-full"
                               size="sm"
