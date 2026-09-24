@@ -48,50 +48,74 @@ function countSyllables(word: string): number {
   return syllableMatches ? syllableMatches.length : 1;
 }
 
+const VERY_DIFFICULT = {
+  min: 0,
+  level: "Very Difficult",
+  description: "Best understood by university graduates.",
+} as const;
+
+// Flesch reading ease bands, from Flesch's original interpretation table.
+const READABILITY_LEVELS = [
+  {
+    min: 90,
+    level: "Very Easy",
+    description: "Easily understood by an average 11-year-old student.",
+  },
+  {
+    min: 80,
+    level: "Easy",
+    description: "Conversational English for consumers.",
+  },
+  {
+    min: 70,
+    level: "Fairly Easy",
+    description: "Easily understood by 12- to 13-year-old students.",
+  },
+  {
+    min: 60,
+    level: "Standard",
+    description: "Plain English, easily understood by 13- to 15-year-olds.",
+  },
+  {
+    min: 50,
+    level: "Fairly Difficult",
+    description: "Understood by 15- to 18-year-old students.",
+  },
+  {
+    min: 30,
+    level: "Difficult",
+    description: "Best understood by college students.",
+  },
+  VERY_DIFFICULT,
+] as const;
+
 export function getReadabilityLevel(score: number): {
   level: string;
   description: string;
 } {
-  if (score >= 90) {
-    return {
-      level: "Very Easy",
-      description: "Easily understood by an average 11-year-old student",
-    };
+  const match =
+    READABILITY_LEVELS.find((band) => score >= band.min) ?? VERY_DIFFICULT;
+  return { level: match.level, description: match.description };
+}
+
+// Below this score the text is harder than plain English, so point at the
+// input to the formula that is dragging it down instead of describing the
+// audience.
+const PLAIN_ENGLISH_SCORE = 60;
+const LONG_SENTENCE_WORDS = 20;
+
+export function getReadabilityFeedback(metrics: {
+  readabilityScore: number;
+  wordsPerSentence: number;
+}): string {
+  const { readabilityScore, wordsPerSentence } = metrics;
+  if (readabilityScore >= PLAIN_ENGLISH_SCORE) {
+    return getReadabilityLevel(readabilityScore).description;
   }
-  if (score >= 80) {
-    return {
-      level: "Easy",
-      description: "Conversational English for consumers",
-    };
+  if (wordsPerSentence > LONG_SENTENCE_WORDS) {
+    return "Long sentences are the main drag. Splitting a few would make this easier to read.";
   }
-  if (score >= 70) {
-    return {
-      level: "Fairly Easy",
-      description: "Easily understood by 13- to 15-year-old students",
-    };
-  }
-  if (score >= 60) {
-    return {
-      level: "Standard",
-      description: "Easily understood by 15- to 17-year-old students",
-    };
-  }
-  if (score >= 50) {
-    return {
-      level: "Fairly Difficult",
-      description: "Understood by 13- to 15-year-old students",
-    };
-  }
-  if (score >= 30) {
-    return {
-      level: "Difficult",
-      description: "Best understood by university graduates",
-    };
-  }
-  return {
-    level: "Very Difficult",
-    description: "Best understood by university graduates",
-  };
+  return "Long words are the main drag. Simpler alternatives would make this easier to read.";
 }
 
 export function generateSuggestions(metrics: {

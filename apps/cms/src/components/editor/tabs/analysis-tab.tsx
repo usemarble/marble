@@ -2,12 +2,13 @@
 
 import { useCurrentEditor } from "@marble/editor";
 import { Button } from "@marble/ui/components/button";
-import { Separator } from "@marble/ui/components/separator";
+import { Card, CardContent } from "@marble/ui/components/card";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@marble/ui/components/tooltip";
+import { cn } from "@marble/ui/lib/utils";
 import { ArrowClockwiseIcon, InfoIcon } from "@phosphor-icons/react";
 import { useCallback, useState, useSyncExternalStore } from "react";
 import { UpgradeModal } from "@/components/billing/upgrade-modal";
@@ -16,10 +17,30 @@ import {
   getAiSuggestionsErrorMessage,
   isAiEntitlementError,
 } from "@/lib/ai/readability";
-import { Gauge } from "../../ui/gauge";
+import { getReadabilityFeedback } from "@/utils/readability";
+import { Gauge, getGaugeZoneClass } from "../../ui/gauge";
 import { HiddenScrollbar } from "../../ui/hidden-scrollbar";
 import type { ReadabilitySuggestion } from "../ai/readability-suggestions";
 import { ReadabilitySuggestions } from "../ai/readability-suggestions";
+
+function formatReadingTime(minutes: number) {
+  if (minutes === 0) {
+    return "0 min";
+  }
+  if (minutes < 1) {
+    return "<1 min";
+  }
+  return `${Math.round(minutes)} min`;
+}
+
+function StatTile({ label, value }: { label: string; value: number | string }) {
+  return (
+    <div className="flex flex-col gap-0.5 rounded-[12px] bg-background px-3 py-2.5 shadow-xs">
+      <p className="text-muted-foreground text-xs">{label}</p>
+      <p className="font-medium text-sm">{value}</p>
+    </div>
+  );
+}
 
 interface AnalysisTabProps {
   aiSuggestions?: ReadabilitySuggestion[];
@@ -68,6 +89,7 @@ export function AnalysisTab({
   );
 
   const textMetrics = useReadability({ editor, text: editorText });
+  const hasContent = textMetrics.wordCount > 0;
 
   // The server is the authority on entitlement: a 403 here means the cached
   // plan is stale, so offer the upgrade rather than a retry that cannot work.
@@ -88,81 +110,99 @@ export function AnalysisTab({
     <HiddenScrollbar className="h-full px-6">
       <section className="grid gap-6 pt-4 pb-5">
         <div className="flex flex-col gap-4">
-          <div className="space-y-2">
-            <h4 className="font-medium text-sm">Readability</h4>
-            <div className="flex items-center justify-center">
+          <Card className="gap-0 rounded-[20px] border-none bg-surface p-2 pt-0 shadow-none">
+            <div className="flex h-10 select-none items-center gap-1.5 px-1.5">
+              <span className="text-muted-foreground text-xs">Readability</span>
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <InfoIcon
+                      aria-label="How readability is scored"
+                      className="h-3.5 w-3.5 cursor-help text-muted-foreground"
+                    />
+                  }
+                />
+                <TooltipContent className="max-w-64">
+                  <p className="text-xs">
+                    Flesch reading ease, scored 0 to 100 from your average
+                    sentence length and syllables per word. Higher is easier to
+                    read. Aim for 60 or above for most web writing.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+            <CardContent className="flex flex-col items-center gap-3 rounded-[12px] bg-background p-4 shadow-xs">
               <Gauge
-                label="Score"
+                label="Readability score"
                 size={200}
                 value={textMetrics.readabilityScore}
               />
-            </div>
-            {textMetrics.wordCount > 0 && (
-              <div className="space-y-1">
-                <h5 className="font-medium text-sm">Feedback</h5>
-                <p className="text-muted-foreground text-xs">
-                  <span className="font-medium">
-                    {textMetrics.readabilityLevel.level}:
-                  </span>{" "}
-                  {textMetrics.readabilityLevel.description}
-                </p>
-              </div>
-            )}
-          </div>
-
-          <Separator />
-
-          <div className="space-y-3">
-            <h4 className="font-medium text-sm">Text Statistics</h4>
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div className="space-y-1">
-                <p className="text-muted-foreground">Words</p>
-                <p className="font-medium">{textMetrics.wordCount}</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-muted-foreground">Sentences</p>
-                <p className="font-medium">{textMetrics.sentenceCount}</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-muted-foreground">Words per Sentence</p>
-                <p className="font-medium">{textMetrics.wordsPerSentence}</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-muted-foreground">Reading Time</p>
-                <p className="font-medium">
-                  {textMetrics.readingTime.toFixed(0)} minutes
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <Separator />
-
-          <div className="group space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1">
-                <h4 className="font-medium text-sm">
-                  {textMetrics.wordCount === 0
-                    ? "Getting Started"
-                    : "Suggestions"}
-                </h4>
-                {!showUpgrade && textMetrics.wordCount > 0 ? (
-                  <Tooltip>
-                    <TooltipTrigger
-                      render={
-                        <InfoIcon
-                          aria-label="AI generated"
-                          className="h-3.5 w-3.5 cursor-help text-muted-foreground"
-                        />
-                      }
+              {hasContent ? (
+                <div className="space-y-1 text-center">
+                  <p className="flex items-center justify-center gap-1.5 font-medium text-sm">
+                    <span
+                      className={cn(
+                        "size-1.5 rounded-full",
+                        getGaugeZoneClass(textMetrics.readabilityScore)
+                      )}
                     />
-                    <TooltipContent>
-                      <p className="text-xs">
-                        These suggestions are AI-generated
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                ) : null}
+                    {textMetrics.readabilityLevel.level}
+                  </p>
+                  <p className="text-balance text-muted-foreground text-xs">
+                    {getReadabilityFeedback(textMetrics)}
+                  </p>
+                </div>
+              ) : (
+                <p className="text-balance text-center text-muted-foreground text-xs">
+                  Start writing to see how readable your post is.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="gap-0 rounded-[20px] border-none bg-surface p-2 pt-0 shadow-none">
+            <div className="flex h-10 select-none items-center px-1.5">
+              <span className="text-muted-foreground text-xs">
+                Text Statistics
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <StatTile label="Words" value={textMetrics.wordCount} />
+              <StatTile
+                label="Reading Time"
+                value={formatReadingTime(textMetrics.readingTime)}
+              />
+              <StatTile label="Sentences" value={textMetrics.sentenceCount} />
+              <StatTile
+                label="Avg. Words / Sentence"
+                value={textMetrics.wordsPerSentence}
+              />
+            </div>
+          </Card>
+
+          <Card className="group gap-0 rounded-[20px] border-none bg-surface p-2 pt-0 shadow-none">
+            <div className="flex h-10 select-none items-center justify-between gap-2 px-1.5">
+              <div className="flex items-center gap-1.5">
+                <span className="text-muted-foreground text-xs">
+                  {hasContent ? "Suggestions" : "Getting Started"}
+                </span>
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <InfoIcon
+                        aria-label="About suggestions"
+                        className="h-3.5 w-3.5 cursor-help text-muted-foreground"
+                      />
+                    }
+                  />
+                  <TooltipContent className="max-w-64">
+                    <p className="text-xs">
+                      AI-generated ideas for making this post easier to read,
+                      based on its content. Click a suggestion marked with a
+                      pointer to highlight the text it refers to.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
               {showUpgrade ? null : (
                 <Button
@@ -180,50 +220,52 @@ export function AnalysisTab({
                 </Button>
               )}
             </div>
-            {aiFailureMessage ? (
-              <div className="flex flex-col items-center gap-3 py-6 text-center">
-                <p className="text-balance text-muted-foreground text-sm">
-                  {aiFailureMessage}
-                </p>
-                <Button
-                  disabled={Boolean(aiLoading)}
-                  onClick={onRefreshAi}
-                  size="sm"
-                  type="button"
-                  variant="outline"
-                >
-                  Try again
-                </Button>
-              </div>
-            ) : null}
-            {showUpgrade || aiFailureMessage ? null : (
-              <ReadabilitySuggestions
-                editor={editor ?? null}
-                isLoading={aiLoading}
-                suggestions={aiSuggestions ?? []}
-              />
-            )}
-            {showUpgrade ? (
-              <div className="flex flex-col items-center gap-3 py-6 text-center">
-                <p className="text-balance text-muted-foreground text-sm">
-                  Upgrade your plan for AI suggestions.
-                </p>
-                <Button
-                  onClick={() => setIsUpgradeOpen(true)}
-                  size="sm"
-                  type="button"
-                >
-                  Upgrade
-                </Button>
-                <UpgradeModal
-                  feature="ai-readability"
-                  isOpen={isUpgradeOpen}
-                  onClose={() => setIsUpgradeOpen(false)}
-                  openPricingInNewTab
+            <CardContent className="rounded-[12px] bg-background p-4 shadow-xs">
+              {aiFailureMessage ? (
+                <div className="flex flex-col items-center gap-3 py-2 text-center">
+                  <p className="text-balance text-muted-foreground text-sm">
+                    {aiFailureMessage}
+                  </p>
+                  <Button
+                    disabled={Boolean(aiLoading)}
+                    onClick={onRefreshAi}
+                    size="sm"
+                    type="button"
+                    variant="outline"
+                  >
+                    Try again
+                  </Button>
+                </div>
+              ) : null}
+              {showUpgrade || aiFailureMessage ? null : (
+                <ReadabilitySuggestions
+                  editor={editor ?? null}
+                  isLoading={aiLoading}
+                  suggestions={aiSuggestions ?? []}
                 />
-              </div>
-            ) : null}
-          </div>
+              )}
+              {showUpgrade ? (
+                <div className="flex flex-col items-center gap-3 py-2 text-center">
+                  <p className="text-balance text-muted-foreground text-sm">
+                    Upgrade your plan for AI suggestions.
+                  </p>
+                  <Button
+                    onClick={() => setIsUpgradeOpen(true)}
+                    size="sm"
+                    type="button"
+                  >
+                    Upgrade
+                  </Button>
+                  <UpgradeModal
+                    feature="ai-readability"
+                    isOpen={isUpgradeOpen}
+                    onClose={() => setIsUpgradeOpen(false)}
+                    openPricingInNewTab
+                  />
+                </div>
+              ) : null}
+            </CardContent>
+          </Card>
         </div>
       </section>
     </HiddenScrollbar>

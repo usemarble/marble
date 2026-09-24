@@ -1,171 +1,121 @@
 "use client";
 
 import { cn } from "@marble/ui/lib/utils";
-import { motion } from "motion/react";
-import { nanoid } from "nanoid";
-import { useId, useRef } from "react";
 
 interface GaugeProps {
   value: number;
   min?: number;
   max?: number;
+  /** Accessible name for the gauge. */
   label?: string;
   size?: number;
-  strokeWidth?: number;
-  colors?: string[];
   className?: string;
   valueClassName?: string;
-  labelClassName?: string;
   formatValue?: (value: number) => string;
-  onAnimationComplete?: () => void;
-  animate?: boolean;
+}
+
+// Each zone covers an equal third of the arc. Unlit bars keep a faint tint of
+// their zone so the whole scale stays readable at any score.
+const ZONES = [
+  { lit: "fill-red-500", unlit: "fill-red-500/12", dot: "bg-red-500" },
+  {
+    lit: "fill-yellow-500",
+    unlit: "fill-yellow-500/12",
+    dot: "bg-yellow-500",
+  },
+  { lit: "fill-green-500", unlit: "fill-green-500/12", dot: "bg-green-500" },
+] as const;
+
+const BARS_PER_ZONE = 7;
+const BAR_COUNT = ZONES.length * BARS_PER_ZONE;
+
+// Geometry in viewBox units: a half circle centred at (CX, CY) whose bars run
+// from INNER_RADIUS out to INNER_RADIUS + BAR_LENGTH. The value's baseline
+// sits on the bottom edge of the flat end bars, and the view extends a little
+// past it so round digits that overshoot the baseline are not clipped.
+const VIEW_WIDTH = 200;
+const BAR_THICKNESS = 6;
+const CX = VIEW_WIDTH / 2;
+const CY = 96;
+const VALUE_BASELINE = CY + BAR_THICKNESS / 2;
+const VALUE_OVERSHOOT = 4;
+const VIEW_HEIGHT = VALUE_BASELINE + VALUE_OVERSHOOT;
+const INNER_RADIUS = 72;
+const BAR_LENGTH = 20;
+const VALUE_FONT_SIZE = 40;
+
+const BARS = ZONES.flatMap((zone, zoneIndex) =>
+  Array.from({ length: BARS_PER_ZONE }, (_, barIndex) => {
+    const index = zoneIndex * BARS_PER_ZONE + barIndex;
+    return {
+      id: index,
+      zone,
+      // Spread the bars from -180deg (pointing left) to 0deg (pointing
+      // right) so the end bars sit flat on the diameter.
+      angle: (index / (BAR_COUNT - 1)) * 180 - 180,
+    };
+  })
+);
+
+function getLitCount(value: number, min: number, max: number) {
+  const normalizedValue = Math.max(min, Math.min(max, value));
+  return Math.round(((normalizedValue - min) / (max - min)) * BAR_COUNT);
+}
+
+/** Background class for the zone of the last lit bar, e.g. for a legend dot. */
+export function getGaugeZoneClass(value: number, min = 0, max = 100) {
+  return BARS[getLitCount(value, min, max) - 1]?.zone.dot ?? ZONES[0].dot;
 }
 
 export function Gauge({
   value,
   min = 0,
   max = 100,
-  label,
+  label = "Gauge",
   size = 200,
-  strokeWidth = 12,
-  colors = ["#ef4444", "#f97316", "#eab308", "#22c55e"],
   className,
   valueClassName,
-  labelClassName,
-  formatValue = (val) => val.toFixed(1),
-  onAnimationComplete,
-  animate = false,
+  formatValue = (val) => Math.round(val).toString(),
 }: GaugeProps) {
   const normalizedValue = Math.max(min, Math.min(max, value));
-  const percentage = (normalizedValue - min) / (max - min);
-
-  const radius = (size - strokeWidth) / 2;
-  const center = size / 2;
-  const startAngle = Math.PI;
-  const endAngle = 0;
-
-  // Track completed animations
-  const completedAnimations = useRef(new Set<string>());
-  const totalAnimations = useRef(animate ? (label ? 3 : 2) : 0); // path, value, label (if exists)
-
-  const handleAnimationComplete = (animationKey: string) => {
-    if (!animate || !onAnimationComplete) {
-      return;
-    }
-
-    completedAnimations.current.add(animationKey);
-
-    if (completedAnimations.current.size === totalAnimations.current) {
-      onAnimationComplete();
-    }
-  };
-
-  const createArcPath = (
-    startAngle: number,
-    endAngle: number,
-    radius: number
-  ) => {
-    const start = {
-      x: center + radius * Math.cos(startAngle),
-      y: center + radius * Math.sin(startAngle),
-    };
-    const end = {
-      x: center + radius * Math.cos(endAngle),
-      y: center + radius * Math.sin(endAngle),
-    };
-
-    const largeArcFlag = Math.abs(endAngle - startAngle) > Math.PI ? 1 : 0;
-    return `M ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${end.x} ${end.y}`;
-  };
-
-  const fullArcPath = createArcPath(startAngle, endAngle, radius);
-  const gradientId = useId();
-  const circumference = Math.PI * radius;
+  const litCount = getLitCount(value, min, max);
+  const formattedValue = formatValue(normalizedValue);
 
   return (
-    <div
-      className={cn("relative inline-flex flex-col items-center", className)}
+    <svg
+      className={className}
+      height={(size * VIEW_HEIGHT) / VIEW_WIDTH}
+      viewBox={`0 0 ${VIEW_WIDTH} ${VIEW_HEIGHT}`}
+      width={size}
     >
-      <svg
-        className="overflow-visible"
-        height={size * 0.6}
-        viewBox={`0 0 ${size} ${size * 0.6}`}
-        width={size}
-      >
-        <title>Gauge</title>
-        <defs>
-          <linearGradient id={gradientId} x1="0%" x2="100%" y1="0%" y2="0%">
-            {colors.map((color, index) => (
-              <stop
-                key={nanoid()}
-                offset={`${(index / (colors.length - 1)) * 100}%`}
-                stopColor={color}
-              />
-            ))}
-          </linearGradient>
-        </defs>
-
-        <path
-          d={fullArcPath}
-          fill="none"
-          opacity={0.15}
-          stroke="hsl(var(--muted-foreground))"
-          strokeLinecap="round"
-          strokeWidth={strokeWidth}
+      <title>{`${label}: ${formattedValue}`}</title>
+      {BARS.map((bar) => (
+        <rect
+          className={cn(
+            "transition-colors duration-300",
+            bar.id < litCount ? bar.zone.lit : bar.zone.unlit
+          )}
+          height={BAR_THICKNESS}
+          key={bar.id}
+          rx={BAR_THICKNESS / 2}
+          transform={`rotate(${bar.angle} ${CX} ${CY})`}
+          width={BAR_LENGTH}
+          x={CX + INNER_RADIUS}
+          y={CY - BAR_THICKNESS / 2}
         />
-
-        <motion.path
-          animate={{ strokeDashoffset: circumference * (1 - percentage) }}
-          d={fullArcPath}
-          fill="none"
-          initial={
-            animate
-              ? { strokeDashoffset: circumference }
-              : { strokeDashoffset: circumference * (1 - percentage) }
-          }
-          onAnimationComplete={() => handleAnimationComplete("path")}
-          stroke={`url(#${gradientId})`}
-          strokeDasharray={circumference}
-          strokeLinecap="round"
-          strokeWidth={strokeWidth}
-          transition={{
-            duration: 1.5,
-            ease: "easeInOut",
-            delay: 0.2,
-          }}
-        />
-      </svg>
-
-      <div className="absolute inset-0 mt-8 flex flex-col items-center justify-center">
-        <motion.div
-          animate={{ opacity: 1, scale: 1 }}
-          className={cn("font-bold text-4xl text-foreground", valueClassName)}
-          initial={
-            animate ? { opacity: 0, scale: 0.5 } : { opacity: 1, scale: 1 }
-          }
-          onAnimationComplete={() => handleAnimationComplete("value")}
-          transition={{ duration: 0.8, delay: 0.5 }}
-        >
-          <motion.span
-            animate={{ opacity: 1 }}
-            initial={animate ? { opacity: 0 } : { opacity: 1 }}
-            transition={{ duration: 0.5, delay: 1 }}
-          >
-            {formatValue(normalizedValue)}
-          </motion.span>
-        </motion.div>
-        {label && (
-          <motion.div
-            animate={{ opacity: 1, y: 0 }}
-            className={cn("mt-1 text-muted-foreground text-sm", labelClassName)}
-            initial={animate ? { opacity: 0, y: 10 } : { opacity: 1, y: 0 }}
-            onAnimationComplete={() => handleAnimationComplete("label")}
-            transition={{ duration: 0.6, delay: 0.8 }}
-          >
-            {label}
-          </motion.div>
+      ))}
+      <text
+        className={cn(
+          "fill-foreground font-medium tabular-nums",
+          valueClassName
         )}
-      </div>
-    </div>
+        fontSize={VALUE_FONT_SIZE}
+        textAnchor="middle"
+        x={CX}
+        y={VALUE_BASELINE}
+      >
+        {formattedValue}
+      </text>
+    </svg>
   );
 }
