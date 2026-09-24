@@ -5,7 +5,6 @@
   import Container from "@/components/Container.astro";
   import Layout from "@/layouts/Layout.astro";
   import { SITE } from "@/lib/constants/site";
-  import { marble } from "@/lib/marble";
 
   export const prerender = true;
 
@@ -25,7 +24,10 @@
   const { entry } = Astro.props;
 
   const categoriesEntries = await getCollection("categories");
-  const { result } = await marble.posts.list({ categories: [entry.data.slug] });
+  const categoryPosts = (await getCollection("posts"))
+    .map((post) => post.data)
+    .filter((post) => post.category?.slug === entry.data.slug)
+    .sort((a, b) => b.publishedAt.valueOf() - a.publishedAt.valueOf());
   const categoryDescription =
     entry.data.description ??
     `Explore ${entry.data.name.toLowerCase()} articles from the Marble team.`;
@@ -56,9 +58,9 @@
             <CategoryFilter categories={categoriesEntries}/>
           </div>
         </div>
-        {result.posts.length > 0 ? (
+        {categoryPosts.length > 0 ? (
           <ul class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 lg:gap-6">
-            {result.posts.map((post) => (
+            {categoryPosts.map((post) => (
               <CategoryCard entry={post} />
             ))}
           </ul>

@@ -1,15 +1,15 @@
 import { defineCollection } from "astro:content";
 import { highlightContent } from "@marble/utils";
-import { marble } from "./lib/marble";
+import { listAllCategories, listAllPosts } from "./lib/marble";
 import { categorySchema, postSchema } from "./lib/schemas";
 
 const posts = defineCollection({
   loader: async () => {
-    const { result } = await marble.posts.list({
+    const posts = await listAllPosts({
       excludeCategories: ["legal", "changelog"],
     });
     return Promise.all(
-      result.posts.map(async (post) => ({
+      posts.map(async (post) => ({
         ...post,
         content: await highlightContent(post.content),
       }))
@@ -20,9 +20,9 @@ const posts = defineCollection({
 
 const page = defineCollection({
   loader: async () => {
-    const { result } = await marble.posts.list({ categories: ["legal"] });
+    const posts = await listAllPosts({ categories: ["legal"] });
 
-    return result.posts.map((post) => ({
+    return posts.map((post) => ({
       ...post,
       // Astro uses the id as a key to get the entry
       // We can't know the id of the post so we use the slug
@@ -34,10 +34,10 @@ const page = defineCollection({
 
 const changelog = defineCollection({
   loader: async () => {
-    const { result } = await marble.posts.list({ categories: ["changelog"] });
+    const posts = await listAllPosts({ categories: ["changelog"] });
 
     return Promise.all(
-      result.posts.map(async (post) => ({
+      posts.map(async (post) => ({
         ...post,
         id: post.slug,
         content: await highlightContent(post.content),
@@ -49,9 +49,9 @@ const changelog = defineCollection({
 
 const categories = defineCollection({
   loader: async () => {
-    const { result } = await marble.categories.list();
+    const categories = await listAllCategories();
 
-    return result.categories.map((category) => ({
+    return categories.map((category) => ({
       ...category,
       id: category.slug,
     }));
