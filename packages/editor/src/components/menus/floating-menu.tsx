@@ -20,7 +20,8 @@ export const EditorFloatingMenu = ({
 
   return (
     <TiptapFloatingMenu
-      className={cn("flex items-center bg-secondary", className)}
+      // Above the drag handle (z-40), which shares this container.
+      className={cn("z-50 flex items-center bg-secondary", className)}
       editor={editor ?? null}
       {...props}
     />

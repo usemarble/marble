@@ -71,7 +71,7 @@ function TableRowMenuComponent({
   return (
     <TiptapBubbleMenu
       appendTo={getAppendTarget}
-      className="flex flex-col gap-0.5 overflow-hidden rounded-lg border bg-background p-1 shadow-sm"
+      className="z-50 flex flex-col gap-0.5 overflow-hidden rounded-lg border bg-background p-1 shadow-sm"
       editor={editor}
       options={options}
       pluginKey="tableRowMenu"
