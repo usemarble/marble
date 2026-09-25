@@ -716,6 +716,10 @@ export function EditorBlockHandleMenu({
 
   return (
     <DragHandle
+      // The handle is an ambient hover affordance, so it sits below every
+      // menu the writer opened on purpose (all of which use z-50). It shares
+      // a container with them and its gutter position overlaps menus anchored
+      // near the start of a line, so whoever is on top takes the click.
       className={cn("z-40", className)}
       computePositionConfig={HANDLE_POSITION_CONFIG}
       editor={editor}

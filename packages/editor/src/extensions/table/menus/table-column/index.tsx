@@ -76,7 +76,7 @@ function TableColumnMenuComponent({
   return (
     <TiptapBubbleMenu
       appendTo={getAppendTarget}
-      className="flex flex-col items-center gap-0.5 overflow-hidden rounded-lg border bg-background p-1 shadow-sm"
+      className="z-50 flex flex-col items-center gap-0.5 overflow-hidden rounded-lg border bg-background p-1 shadow-sm"
       editor={editor}
       options={options}
       pluginKey="tableColumnMenu"

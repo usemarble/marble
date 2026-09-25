@@ -76,7 +76,11 @@ export const EditorBubbleMenu = ({
   return (
     <TiptapBubbleMenu
       className={cn(
-        "flex rounded-xl border bg-background p-1 shadow",
+        // Above the drag handle (z-40). Both are absolutely positioned
+        // siblings under the editor's container, and a menu anchored near the
+        // start of a line reaches into the gutter the handle hovers in — so
+        // without this the handle paints over the menu and eats the click.
+        "z-50 flex rounded-xl border bg-background p-1 shadow",
         "[&>*:first-child]:rounded-l-[9px]",
         "[&>*:last-child]:rounded-r-[9px]",
         className
