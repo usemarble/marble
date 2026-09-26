@@ -10,9 +10,17 @@ import {
 } from "@phosphor-icons/react";
 import { formatDistanceToNow } from "date-fns";
 import { AnimatePresence, motion } from "motion/react";
-import { type RefObject, useEffect, useId, useRef, useState } from "react";
+import {
+  type CSSProperties,
+  type RefObject,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+} from "react";
 import { useOnClickOutside } from "usehooks-ts";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { blurhashToDataUrl } from "@/lib/blurhash";
 import type { UsageDashboardData } from "@/types/dashboard";
 import type { Media } from "@/types/media";
 import { formatBytes } from "@/utils/string";
@@ -35,6 +43,25 @@ function getMediaTypeIcon(type: string) {
     default:
       return FileIcon;
   }
+}
+
+const PREVIEW_MAX_HEIGHT = "60vh";
+
+// Sizes the preview box from the stored dimensions so the dialog has its final
+// size before the file loads, instead of snapping once the media arrives.
+function getPreviewBoxStyle(file: Media, fallbackRatio: number): CSSProperties {
+  const ratio =
+    file.width && file.height ? file.width / file.height : fallbackRatio;
+  const blurDataUrl =
+    file.type === "image" && file.blurHash
+      ? blurhashToDataUrl(file.blurHash)
+      : undefined;
+
+  return {
+    aspectRatio: ratio,
+    width: `min(100%, calc(${PREVIEW_MAX_HEIGHT} * ${ratio}))`,
+    backgroundImage: blurDataUrl ? `url(${blurDataUrl})` : undefined,
+  };
 }
 
 export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
@@ -139,26 +166,27 @@ export function MediaUsageCard({ data, isLoading }: MediaUsageCardProps) {
                     {selectedFile.type === "image" ? (
                       <motion.div
                         animate={{ opacity: 1 }}
-                        className="flex justify-center"
+                        className="relative mx-auto bg-center bg-cover"
                         exit={{ opacity: 0 }}
                         initial={{ opacity: 0 }}
+                        style={getPreviewBoxStyle(selectedFile, 4 / 3)}
                         transition={{ duration: 0.2 }}
                       >
                         {/** biome-ignore lint/performance/noImgElement: <> */}
                         <img
-                          alt={selectedFile.name}
-                          className="h-auto max-h-[60vh] w-full object-contain"
-                          height={350}
+                          alt={selectedFile.alt || selectedFile.name}
+                          className="absolute inset-0 size-full object-contain"
+                          height={selectedFile.height ?? undefined}
                           src={selectedFile.url}
-                          width={600}
+                          width={selectedFile.width ?? undefined}
                         />
                       </motion.div>
                     ) : selectedFile.type === "video" ? (
-                      <div className="relative flex aspect-video max-h-[60vh] w-full">
-                        <VideoPlayer
-                          className="h-auto max-h-[60vh] w-full object-contain"
-                          src={selectedFile.url}
-                        />
+                      <div
+                        className="relative mx-auto"
+                        style={getPreviewBoxStyle(selectedFile, 16 / 9)}
+                      >
+                        <VideoPlayer src={selectedFile.url} />
                       </div>
                     ) : (
                       <div className="flex min-h-[200px] w-full items-center justify-center bg-muted">
