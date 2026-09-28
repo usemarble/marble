@@ -160,6 +160,17 @@ export const auth = betterAuth({
   },
   secondaryStorage: {
     get: async (key) => await redis.get(key),
+    getAndDelete: async (key) => await redis.getdel(key),
+    // TTL applies only when the counter is created (EXPIRE NX), so the
+    // rate-limit window never slides forward on later increments.
+    increment: async (key, ttl) => {
+      const [count] = await redis
+        .multi()
+        .incr(key)
+        .expire(key, ttl, "NX")
+        .exec<[number, number]>();
+      return count;
+    },
     set: async (key, value, ttl) => {
       if (ttl) {
         await redis.set(key, value, { ex: ttl });
