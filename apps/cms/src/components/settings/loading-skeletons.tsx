@@ -571,7 +571,7 @@ export function BillingSettingsSkeleton() {
 function WebhookSettingsPanelSkeleton() {
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="flex h-13 shrink-0 items-center border-b border-dashed px-5">
+      <div className="flex h-12 shrink-0 items-center border-b border-dashed px-5">
         <Skeleton className="h-5 w-28" />
       </div>
       <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-hidden p-5">
@@ -613,7 +613,7 @@ export function WebhookDetailSettingsSkeleton() {
       showHeader={false}
     >
       <div className="flex min-h-0 flex-1 flex-col bg-background">
-        <div className="flex h-13 shrink-0 items-center gap-2 border-b border-dashed px-4">
+        <div className="flex h-12 shrink-0 items-center gap-2 border-b border-dashed px-4">
           <Skeleton className="size-8 rounded-md" />
           <Skeleton className="size-8 rounded-md" />
         </div>

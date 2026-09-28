@@ -200,7 +200,7 @@ export default function WebhookDetailPage({
         showHeader={false}
       >
         <div className="flex min-h-0 flex-1 flex-col bg-background">
-          <div className="flex h-13 shrink-0 items-center gap-2 border-b border-dashed bg-background px-4">
+          <div className="flex h-12 shrink-0 items-center gap-2 border-b border-dashed bg-background px-4">
             <HeaderSidebarTrigger />
             <Tooltip>
               <TooltipTrigger
@@ -620,7 +620,7 @@ function WebhookSettingsPanel({
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="flex h-13 shrink-0 items-center border-b border-dashed px-5">
+      <div className="flex h-12 shrink-0 items-center border-b border-dashed px-5">
         <h2 className="font-medium text-lg">Edit webhook</h2>
       </div>
       <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto p-5">

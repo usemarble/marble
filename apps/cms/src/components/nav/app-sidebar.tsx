@@ -100,7 +100,7 @@ export function AppSidebar({
                 <SidebarMenu className={cn(open ? "min-w-0 flex-1" : "w-auto")}>
                   <SidebarMenuButton
                     className={cn(
-                      "h-9 border border-transparent transition-colors duration-200 hover:bg-sidebar-accent",
+                      "h-8 border border-transparent transition-colors duration-200 hover:bg-sidebar-accent",
                       !open && "justify-center gap-0"
                     )}
                     render={
@@ -119,7 +119,7 @@ export function AppSidebar({
               <NavSettings />
             </SidebarContent>
             <SidebarFooter className="gap-0 p-0">
-              <SidebarGroup className="px-3">
+              <SidebarGroup className="px-2">
                 <SidebarMenu>
                   <NavExtra asMenuButton />
                 </SidebarMenu>
@@ -151,7 +151,7 @@ export function AppSidebar({
               <NavMain />
             </SidebarContent>
             <SidebarFooter className="gap-0 p-0">
-              <SidebarGroup className="px-3">
+              <SidebarGroup className="px-2">
                 <SidebarMenu>
                   <SidebarMenuButton
                     className={cn(
@@ -202,7 +202,7 @@ function SidebarCollapseTrigger() {
     <AnimatePresence initial={false} mode="popLayout">
       {open && (
         <motion.div
-          className="z-100 flex h-9 w-9 shrink-0 items-center justify-center"
+          className="z-100 flex size-8 shrink-0 items-center justify-center"
           key="sidebar-sidebar-toggle"
           layoutId={isMobile ? undefined : "main-sidebar-toggle"}
           {...motionProps}
@@ -213,7 +213,7 @@ function SidebarCollapseTrigger() {
               render={
                 <SidebarMenuButton
                   aria-label="Collapse sidebar"
-                  className="h-9 w-9 shrink-0 cursor-pointer justify-center border border-transparent p-0"
+                  className="size-8 shrink-0 cursor-pointer justify-center border border-transparent p-0"
                   onClick={toggleSidebar}
                   type="button"
                 >

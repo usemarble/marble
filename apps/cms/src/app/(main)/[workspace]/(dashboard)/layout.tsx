@@ -31,7 +31,7 @@ export default async function DashboardLayout({
       defaultOpen={defaultSidebarOpen}
       style={
         {
-          "--sidebar-width-icon": "3.5rem",
+          "--sidebar-width-icon": "3rem",
         } as React.CSSProperties
       }
     >

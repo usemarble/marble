@@ -89,13 +89,13 @@ export function WorkspaceSwitcher() {
               render={
                 <SidebarMenuButton
                   className={cn(
-                    "h-9 w-full max-w-full cursor-pointer border border-transparent px-2 py-1.5 transition hover:bg-sidebar-accent data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground",
+                    "h-8 w-full max-w-full cursor-pointer border border-transparent px-2 py-1 transition hover:bg-sidebar-accent data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground",
                     isCollapsed && "min-w-0 justify-center rounded-full p-1"
                   )}
                   disabled={isFetchingWorkspace}
                   render={<div />}
                 >
-                  <Avatar className={cn("size-6.5", isCollapsed && "size-6")}>
+                  <Avatar className={cn("size-6.5")}>
                     <AvatarImage
                       className="rounded-[4px]"
                       src={activeWorkspace.logo || undefined}
@@ -130,22 +130,19 @@ export function WorkspaceSwitcher() {
             <div
               className={cn(
                 "flex items-center rounded-md border bg-sidebar-accent",
-                isCollapsed ? "size-10 justify-center p-1" : "gap-2 p-2"
+                isCollapsed ? "size-8 justify-center p-1" : "h-8 gap-2 px-2"
               )}
             >
               <Skeleton
                 className={cn(
                   "shrink-0 rounded-md border",
-                  isCollapsed ? "size-6" : "size-8"
+                  isCollapsed ? "size-6" : "size-6.5"
                 )}
               />
               {!isCollapsed && (
                 <>
-                  <div className="flex w-full flex-col gap-1">
-                    <Skeleton className="h-3 w-3/4 border" />
-                    <Skeleton className="h-3 w-1/2 border" />
-                  </div>
-                  <Skeleton className="ml-auto size-4 rounded-md border" />
+                  <Skeleton className="h-3 w-3/4 border" />
+                  <Skeleton className="ml-auto size-3 rounded-md border" />
                 </>
               )}
             </div>

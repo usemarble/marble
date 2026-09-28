@@ -60,7 +60,7 @@ export function NavMain() {
   const isOverviewActive = !activeSegment;
 
   return (
-    <SidebarGroup className="px-3">
+    <SidebarGroup className="px-2">
       <SidebarGroupLabel className="sr-only">Workspace</SidebarGroupLabel>
       <SidebarMenu>
         <SidebarMenuButton

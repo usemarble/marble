@@ -42,12 +42,12 @@ export const PageHeader = ({ title }: { title?: ReactNode }) => {
   };
 
   return (
-    <header className="sticky top-0 z-50 flex h-13 shrink-0 items-center gap-2 border-b border-dashed bg-background transition-[width,height] ease-linear md:px-4">
+    <header className="sticky top-0 z-50 flex h-12 shrink-0 items-center gap-2 border-b border-dashed bg-background transition-[width,height] ease-linear md:px-4">
       <HeaderSidebarTrigger />
       {/* <div>
         <AppBreadcrumb />
       </div> */}
-      <h1 className="font-medium text-lg capitalize">
+      <h1 className="font-medium text-sm capitalize">
         {title ?? getHeading()}
       </h1>
     </header>

@@ -150,7 +150,7 @@ export default function MediaDetailPage({
       showHeader={false}
     >
       <div className="flex min-h-0 flex-1 flex-col bg-background">
-        <div className="flex h-13 shrink-0 items-center justify-between gap-3 border-b border-dashed bg-background px-4">
+        <div className="flex h-12 shrink-0 items-center justify-between gap-3 border-b border-dashed bg-background px-4">
           <div className="flex items-center gap-2">
             <HeaderSidebarTrigger />
             <Tooltip>
@@ -282,7 +282,7 @@ function MediaDetailsPanel({
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="flex h-13 shrink-0 items-center justify-between gap-3 border-b border-dashed px-5">
+      <div className="flex h-12 shrink-0 items-center justify-between gap-3 border-b border-dashed px-5">
         <h2 className="font-medium text-lg">Details</h2>
         <Button
           disabled={!hasChanges || isSaving || !name.trim()}
