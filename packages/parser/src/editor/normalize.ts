@@ -1,4 +1,5 @@
 import type { JSONContent } from "@tiptap/core";
+import { parseHTML } from "linkedom";
 import { htmlToTiptap } from "./html";
 import { markdownToHtml } from "./markdown";
 
@@ -20,8 +21,6 @@ export interface NormalizedPostContent {
   detectedFormat: PostContentFormat;
 }
 
-const htmlTagPattern = /<\/?[a-z][\s\S]*>/i;
-
 const markdownPatterns = [
   /^#{1,6}\s+.+/m,
   /\*\*[^*]+\*\*/m,
@@ -39,14 +38,12 @@ const markdownPatterns = [
   /^\|.+\|$/m,
 ];
 
-const headingPattern = /^#{1,6}\s+.+/m;
-
 /**
  * Classifies post content as HTML or Markdown for defensive conversion.
  *
- * This intentionally biases toward HTML whenever real tags are present. Marble
- * stores post content as HTML, so ambiguous input should stay on the official
- * write path instead of being reinterpreted as Markdown.
+ * Only top-level text can signal Markdown. Markdown-looking strings in HTML
+ * attributes, paragraphs, and code blocks are literal content; Markdown can
+ * still contain raw HTML blocks alongside Markdown text.
  */
 export function detectPostContentFormat(content: string): PostContentFormat {
   const trimmed = content.trim();
@@ -55,17 +52,15 @@ export function detectPostContentFormat(content: string): PostContentFormat {
     return "html";
   }
 
-  const matchCount = markdownPatterns.filter((pattern) =>
-    pattern.test(trimmed)
-  ).length;
-  const hasStrongMarkdownSignal =
-    matchCount >= 1 || headingPattern.test(trimmed);
+  const { document } = parseHTML(`<html><body>${trimmed}</body></html>`);
+  const topLevelText = Array.from(document.body.childNodes)
+    .filter((node) => node.nodeType === 3)
+    .map((node) => node.textContent ?? "")
+    .join("\n");
 
-  if (htmlTagPattern.test(trimmed) && !hasStrongMarkdownSignal) {
-    return "html";
-  }
-
-  return hasStrongMarkdownSignal ? "markdown" : "html";
+  return markdownPatterns.some((pattern) => pattern.test(topLevelText))
+    ? "markdown"
+    : "html";
 }
 
 /**

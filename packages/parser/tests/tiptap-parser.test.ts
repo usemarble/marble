@@ -215,6 +215,30 @@ describe("normalizePostContent", () => {
     });
   });
 
+  it("preserves HTML posts with Markdown syntax in links and code blocks", async () => {
+    const html =
+      '<p><a target="_blank" href="https://example.com">Guide</a></p>' +
+      '<pre><code class="language-tsx">const props = { __html: post.content };\n' +
+      'const path = "/media/**";</code></pre>';
+
+    expect(detectPostContentFormat(html)).toBe("html");
+
+    const result = await normalizePostContent(html);
+
+    expect(result.detectedFormat).toBe("html");
+    expect(result.html).toBe(html);
+    expect(result.contentJson.content?.[1]).toMatchObject({
+      type: "codeBlock",
+      attrs: { language: "tsx" },
+      content: [
+        {
+          type: "text",
+          text: 'const props = { __html: post.content };\nconst path = "/media/**";',
+        },
+      ],
+    });
+  });
+
   it("preserves raw editor HTML embedded inside markdown", async () => {
     const result = await normalizePostContent(
       '# Title\n\n<figure data-width="75" data-align="left"><img src="https://example.com/image.png" alt="Alt text"><figcaption>Caption</figcaption></figure>'
@@ -238,6 +262,18 @@ describe("normalizePostContent", () => {
         },
       ],
     });
+  });
+
+  it("detects markdown after a leading raw HTML figure", async () => {
+    const content =
+      '<figure data-width="75" data-align="left"><img src="https://example.com/image.png" alt="Example"><figcaption>Caption</figcaption></figure>\n\n# Title';
+
+    expect(detectPostContentFormat(content)).toBe("markdown");
+
+    const result = await normalizePostContent(content);
+
+    expect(result.detectedFormat).toBe("markdown");
+    expect(result.html).toContain("<h1>Title</h1>");
   });
 });
 
