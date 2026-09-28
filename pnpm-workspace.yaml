@@ -12,3 +12,6 @@ allowBuilds:
   puppeteer: true
   sharp: true
   workerd: true
+overrides:
+  # drizzle-orm takes this as an optional peer; one version keeps a single drizzle-orm instance across the workspace.
+  '@upstash/redis': 1.39.0

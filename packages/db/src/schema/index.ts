@@ -7,6 +7,7 @@ export * from "./data-transfer";
 export * from "./enums";
 export * from "./fields";
 export * from "./media";
+export * from "./oauth";
 export * from "./relations";
 export * from "./taxonomy";
 export * from "./usage";
@@ -45,6 +46,16 @@ import {
 } from "./enums";
 import { field, fieldOption, fieldValue } from "./fields";
 import { media } from "./media";
+import {
+  jwks,
+  oauthAccessToken,
+  oauthClient,
+  oauthClientAssertion,
+  oauthClientResource,
+  oauthConsent,
+  oauthRefreshToken,
+  oauthResource,
+} from "./oauth";
 import {
   accountRelations,
   apiKeyRelations,
@@ -141,6 +152,14 @@ export const schema = {
   fieldOption,
   fieldValue,
   apiKey,
+  jwks,
+  oauthClient,
+  oauthResource,
+  oauthClientResource,
+  oauthRefreshToken,
+  oauthAccessToken,
+  oauthConsent,
+  oauthClientAssertion,
   webhookEndpoint,
   workspaceEvent,
   webhookDelivery,
