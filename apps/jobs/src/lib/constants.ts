@@ -1,7 +1,5 @@
 import { env } from "cloudflare:workers";
 
-export const LOCAL_APP_URL = "http://localhost:3000";
-export const PRODUCTION_APP_URL = "https://app.marblecms.com";
 export const MILLISECONDS_IN_DAY = 24 * 60 * 60 * 1000;
 
 export const EXPORT_TTL_MS = MILLISECONDS_IN_DAY;
@@ -27,10 +25,7 @@ export const USAGE_ALERT_THRESHOLDS = {
 export const MARBLE_COLOR = 5_786_879;
 export const MARBLE_AVATAR_URL = "https://marblecms.com/logo.svg";
 
+/** Set per mode in cloudflare.config.ts. */
 export function getAppUrl() {
-  if (env.ENVIRONMENT === "development") {
-    return LOCAL_APP_URL;
-  }
-
-  return env.APP_URL || PRODUCTION_APP_URL;
+  return env.APP_URL;
 }

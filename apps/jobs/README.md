@@ -13,11 +13,8 @@ The worker consumes two primary queues:
 - `marble-webhook-deliveries`: receives `webhookDelivery` IDs and performs the
   outbound HTTP POST.
 
-Both queues are configured with a matching dead-letter queue in
-`wrangler.jsonc`:
-
-- `marble-events-dlq`
-- `marble-webhook-deliveries-dlq`
+Both queues, and `marble-tasks`, send failed messages to the `marble-dlq`
+dead-letter queue, configured in `cloudflare.config.ts`.
 
 ## Event Flow
 
@@ -72,7 +69,17 @@ alert for the same billing period.
 pnpm --filter jobs dev
 ```
 
-Generate Cloudflare binding types after changing `wrangler.jsonc`:
+This runs the Worker through `cf dev --mode dev`. Hyperdrive connects to
+`CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE` from `.env`, and
+`STORAGE` uses the remote `marbledev` R2 bucket. Trigger the hourly cron with:
+
+```txt
+curl -X POST "http://localhost:5173/cdn-cgi/local/explorer/api/local/scheduled?worker=marble-jobs-dev" \
+  -H "content-type: application/json" -d '{"cron":"0 * * * *"}'
+```
+
+`cf dev` writes the binding types to `.cloudflare/types`. Regenerate them after
+changing `cloudflare.config.ts` without running the dev server:
 
 ```txt
 pnpm --filter jobs cf-typegen
@@ -87,7 +94,7 @@ pnpm exec tsc -p apps/jobs/tsconfig.json --noEmit
 Deploy:
 
 ```txt
-pnpm --filter jobs deploy
+pnpm --filter jobs run deploy
 ```
 
 ## Configuration

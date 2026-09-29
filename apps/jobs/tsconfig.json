@@ -6,11 +6,16 @@
     "strict": true,
     "skipLibCheck": true,
     "lib": ["ESNext"],
-    "types": ["node", "./worker-configuration.d.ts"],
+    "types": ["node", "./.cloudflare/types/index.d.ts"],
     "jsx": "react-jsx",
     "paths": {
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "worker-configuration.d.ts"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    ".cloudflare/types/index.d.ts",
+    "cloudflare.config.ts"
+  ]
 }
