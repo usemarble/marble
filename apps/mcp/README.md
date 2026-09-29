@@ -19,13 +19,13 @@ From the repository root:
 pnpm --filter mcp dev
 ```
 
-Wrangler will start the Worker locally, usually at:
+`cf dev` starts the Worker locally through Vite at:
 
 ```txt
 http://localhost:8787
 ```
 
-If that port is already in use, Wrangler may choose another port.
+If that port is already in use, Vite picks the next free port.
 
 ### Authentication
 

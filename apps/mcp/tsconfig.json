@@ -4,7 +4,7 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "strict": true,
-    "types": ["node", "./worker-configuration.d.ts"],
+    "types": ["node", "./.cloudflare/types/index.d.ts"],
     "skipLibCheck": true,
     "lib": ["ESNext", "WebWorker"],
     "paths": {
@@ -13,5 +13,10 @@
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx"
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "worker-configuration.d.ts"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    ".cloudflare/types/index.d.ts",
+    "cloudflare.config.ts"
+  ]
 }
