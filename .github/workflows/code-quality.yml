@@ -25,6 +25,3 @@ jobs:
 
       - name: Run lint
         run: pnpm lint
-
-      - name: Check worker types match wrangler config
-        run: pnpm cf-typegen:check

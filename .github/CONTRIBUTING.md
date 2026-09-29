@@ -95,7 +95,7 @@ Packages contain internal shared modules used across different applications:
    Each app/package that uses environment variables has an example env file. You’ll need to copy and fill those out:
 
    ```bash
-   cp apps/api/.dev.vars.example apps/api/.dev.vars
+   cp apps/api/.env.example apps/api/.env
    cp apps/cms/.env.example apps/cms/.env
    cp apps/web/.env.example apps/web/.env
    cp packages/db/.env.example packages/db/.env
@@ -129,7 +129,7 @@ Packages contain internal shared modules used across different applications:
    ```
 
    - Paste it into the relevant env files:
-   - `apps/api/.dev.vars` → `DATABASE_URL=<YOUR_STRING_HERE>`
+   - `apps/api/.env` → `CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE=<YOUR_STRING_HERE>`
    - `apps/cms/.env` → `DATABASE_URL=<YOUR_STRING_HERE>`
    - `packages/db/.env` → `DATABASE_URL=<YOUR_STRING_HERE>`
 
@@ -157,7 +157,6 @@ Packages contain internal shared modules used across different applications:
    ```
 
    If you’re using the local Docker DB, set `DATABASE_URL` in these env files:
-   - `apps/api/.dev.vars`
    - `apps/cms/.env`
    - `packages/db/.env`
 
@@ -165,6 +164,7 @@ Packages contain internal shared modules used across different applications:
    ```bash
    DATABASE_URL=postgresql://usemarble:justusemarble@localhost:5432/marble
    ```
+   `apps/api/.env.example` already points `CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE` at this database.
    Note: These credentials are for local development only. Do not use them in production.
 
 This will:
@@ -252,7 +252,7 @@ This will:
 - Copy the "UPSTASH_REDIS_REST_TOKEN" value and set it to `REDIS_TOKEN` in your environment files
 
    You'll need to add these to:
-   - `apps/api/.dev.vars` → `REDIS_URL=<YOUR_URL_HERE>` and `REDIS_TOKEN=<YOUR_TOKEN_HERE>`
+   - `apps/api/.env` → `REDIS_URL=<YOUR_URL_HERE>` and `REDIS_TOKEN=<YOUR_TOKEN_HERE>`
    - `apps/cms/.env` → `REDIS_URL=<YOUR_URL_HERE>` and `REDIS_TOKEN=<YOUR_TOKEN_HERE>`
 
 ### Option 2: Docker (Local)
@@ -270,11 +270,11 @@ Expected Redis services:
 - `serverless-redis-http` on `localhost:8079`
 
 Set these in your env files:
-- `apps/api/.dev.vars` → `REDIS_URL=http://localhost:8079` and `REDIS_TOKEN=justusemarble`
+- `apps/api/.env` → `REDIS_URL=http://localhost:8079` and `REDIS_TOKEN=justusemarble`
 - `apps/cms/.env` → `REDIS_URL=http://localhost:8079` and `REDIS_TOKEN=justusemarble`
 
 These values match the local defaults in:
-- `apps/api/.dev.vars.example`
+- `apps/api/.env.example`
 - `apps/cms/.env.example`
 - `docker-compose.yml` (`SRH_TOKEN=justusemarble`, `8079:80`, `6379:6379`)
 
@@ -299,6 +299,12 @@ pnpm cms:dev
 pnpm api:dev
 pnpm web:dev
 pnpm docs:dev
+```
+
+To test queued work (webhooks, exports), run the api and jobs Workers in one local session so messages the api sends reach the jobs consumers:
+
+```bash
+pnpm workers:dev
 ```
 
 ## Contributing to docs
