@@ -19,7 +19,7 @@
     "web:start": "pnpm --filter web preview",
     "cms:start": "pnpm --filter cms start",
     "dev": "turbo run dev",
-    "cf-typegen:check": "pnpm --filter api --filter jobs --filter mcp run cf-typegen:check",
+    "cf-typegen:check": "pnpm --filter api --filter jobs run cf-typegen:check",
     "lint": "turbo run lint",
     "lint:root": "biome check package.json turbo.json biome.jsonc commitlint.config.ts skills-lock.json tsconfig.json .vscode",
     "format": "biome check --write .",
@@ -43,7 +43,7 @@
     "ultracite": "7.0.3"
   },
   "engines": {
-    "node": ">=22.13.0"
+    "node": ">=22.18.0"
   },
   "devEngines": {
     "packageManager": {

@@ -1,4 +1,4 @@
-export const DEFAULT_API_BASE_URL = "https://api.marblecms.com";
+export const MARBLE_API_BASE_URL = "https://api.marblecms.com";
 
 export const MCP_TOOL_GROUPS = [
   {
