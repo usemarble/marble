@@ -1,4 +1,4 @@
-import { closeDbClient, createDbClient } from "@/lib/db";
+import { createDbClient } from "@/lib/db";
 import { runExport } from "@/lib/export";
 import { runImport } from "@/lib/import";
 import type { TaskMessage } from "@/types/env";
@@ -14,32 +14,28 @@ import type { TaskMessage } from "@/types/env";
  */
 export async function handleTaskQueue(batch: MessageBatch<TaskMessage>) {
   const db = await createDbClient();
-  try {
-    for (const message of batch.messages) {
-      const body = message.body;
+  for (const message of batch.messages) {
+    const body = message.body;
 
-      try {
-        switch (body.type) {
-          case "export.process":
-            await runExport(db, body.jobId);
-            break;
-          case "import.process":
-            await runImport(db, body.jobId);
-            break;
-          default:
-            throw new Error(`Unknown task type: ${JSON.stringify(body)}`);
-        }
-
-        message.ack();
-      } catch (error) {
-        console.error(
-          `[Tasks] Failed to process ${body.type} ${body.jobId}:`,
-          error instanceof Error ? error.message : error
-        );
-        message.retry();
+    try {
+      switch (body.type) {
+        case "export.process":
+          await runExport(db, body.jobId);
+          break;
+        case "import.process":
+          await runImport(db, body.jobId);
+          break;
+        default:
+          throw new Error(`Unknown task type: ${JSON.stringify(body)}`);
       }
+
+      message.ack();
+    } catch (error) {
+      console.error(
+        `[Tasks] Failed to process ${body.type} ${body.jobId}:`,
+        error instanceof Error ? error.message : error
+      );
+      message.retry();
     }
-  } finally {
-    await closeDbClient(db);
   }
 }

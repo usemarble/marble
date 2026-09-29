@@ -1,4 +1,4 @@
-import { closeDbClient, createDbClient } from "@/lib/db";
+import { createDbClient } from "@/lib/db";
 import { cleanupStaleApiRequests } from "@/scheduled/api-requests";
 import { cleanupOldWebhookDeliveries } from "@/scheduled/deliveries";
 import { cleanupExpiredExports } from "@/scheduled/exports";
@@ -10,22 +10,18 @@ export async function handleCleanup() {
   );
 
   const db = await createDbClient();
-  try {
-    const now = new Date();
+  const now = new Date();
 
-    const results = await Promise.allSettled([
-      cleanupExpiredExports({ db, now }),
-      cleanupStaleImports({ db, now }),
-      cleanupOldWebhookDeliveries({ db, now }),
-      cleanupStaleApiRequests({ db, now }),
-    ]);
+  const results = await Promise.allSettled([
+    cleanupExpiredExports({ db, now }),
+    cleanupStaleImports({ db, now }),
+    cleanupOldWebhookDeliveries({ db, now }),
+    cleanupStaleApiRequests({ db, now }),
+  ]);
 
-    for (const result of results) {
-      if (result.status === "rejected") {
-        console.error("[Cleanup] Task failed:", result.reason);
-      }
+  for (const result of results) {
+    if (result.status === "rejected") {
+      console.error("[Cleanup] Task failed:", result.reason);
     }
-  } finally {
-    await closeDbClient(db);
   }
 }

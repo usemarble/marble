@@ -23,11 +23,12 @@ not by preference.
 | `apps/api`, `apps/jobs` (Workers) | `@marble/db/hyperdrive` → `createHyperdriveClient()` | `pg.Client`, one per invocation | Cloudflare `HYPERDRIVE` binding |
 
 The CMS client is a long-lived pool created once per process. The Hyperdrive
-client is **not** — it opens a dedicated socket per call, so every
-`createHyperdriveClient` must be paired with `closeHyperdriveClient` in a
-`finally`, including on error paths. Both apps wrap this as `closeDbClient` in
-their own `lib/db.ts`. Skipping the close leaks connections until the isolate is
-torn down and eventually exhausts Hyperdrive's connection capacity.
+client is **not** — create one per invocation (a client can't be reused across
+requests) and don't close it. The Workers runtime cleans up Worker-to-Hyperdrive
+connections when the invocation ends, after any `waitUntil` work, and Hyperdrive
+only holds an origin connection for the length of each query or transaction.
+Closing it early kills queries that background tasks are still running, which
+is how API-triggered webhooks were lost between #380 and the fix.
 
 ## Environment variables
 
