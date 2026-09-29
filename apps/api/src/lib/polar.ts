@@ -12,9 +12,12 @@ function createVersionedHttpClient() {
   return httpClient;
 }
 
-export function createPolarClient(accessToken: string, isProduction = false) {
+export function createPolarClient(
+  accessToken: string,
+  server: "production" | "sandbox" = "sandbox"
+) {
   return new Polar({
-    server: isProduction ? "production" : "sandbox",
+    server,
     accessToken,
     httpClient: createVersionedHttpClient(),
   });

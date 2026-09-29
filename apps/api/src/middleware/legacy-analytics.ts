@@ -53,7 +53,7 @@ export const legacyAnalytics = (): MiddlewareHandler => {
     const endpoint =
       pathParts.length >= 3 ? `/${pathParts.slice(2).join("/")}` : null;
 
-    const { RESEND_API_KEY, POLAR_ACCESS_TOKEN, ENVIRONMENT } = c.env;
+    const { RESEND_API_KEY, POLAR_ACCESS_TOKEN, POLAR_SERVER } = c.env;
 
     c.executionCtx?.waitUntil(
       (async () => {
@@ -68,7 +68,7 @@ export const legacyAnalytics = (): MiddlewareHandler => {
             usageResult,
             resendApiKey: RESEND_API_KEY,
             polarAccessToken: POLAR_ACCESS_TOKEN,
-            environment: ENVIRONMENT,
+            polarServer: POLAR_SERVER,
           });
         } finally {
           await closeDbClient(bgDb);

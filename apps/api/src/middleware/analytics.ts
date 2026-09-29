@@ -20,7 +20,7 @@ interface AnalyticsTaskParams {
   usageResult: UsageCheckResult | null;
   resendApiKey?: string;
   polarAccessToken?: string;
-  environment?: string;
+  polarServer?: "production" | "sandbox";
   apiKeyType?: string;
 }
 
@@ -33,7 +33,7 @@ export async function runAnalyticsTask({
   usageResult,
   resendApiKey,
   polarAccessToken,
-  environment,
+  polarServer,
   apiKeyType,
 }: AnalyticsTaskParams): Promise<void> {
   try {
@@ -82,8 +82,7 @@ export async function runAnalyticsTask({
     }
 
     if (polarAccessToken) {
-      const isProduction = environment === "production";
-      const polar = createPolarClient(polarAccessToken, isProduction);
+      const polar = createPolarClient(polarAccessToken, polarServer);
       try {
         await polar.events.ingest({
           events: [
@@ -171,7 +170,7 @@ export const analytics = (): MiddlewareHandler<ApiKeyApp> => {
 
     await next();
 
-    const { RESEND_API_KEY, POLAR_ACCESS_TOKEN, ENVIRONMENT } = c.env;
+    const { RESEND_API_KEY, POLAR_ACCESS_TOKEN, POLAR_SERVER } = c.env;
 
     const apiKeyType = c.get("apiKeyType");
     const status = c.res.status ?? 200;
@@ -197,7 +196,7 @@ export const analytics = (): MiddlewareHandler<ApiKeyApp> => {
             usageResult,
             resendApiKey: RESEND_API_KEY,
             polarAccessToken: POLAR_ACCESS_TOKEN,
-            environment: ENVIRONMENT,
+            polarServer: POLAR_SERVER,
             apiKeyType,
           });
         } finally {
