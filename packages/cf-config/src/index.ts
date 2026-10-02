@@ -67,6 +67,20 @@ const resources = {
   },
 } as const;
 
+/**
+ * Public URL for each mode's bucket. Production is left to the API's default
+ * (cdn.marblecms.com); other modes must set it, or media URLs they persist
+ * would point at the production CDN, which doesn't hold their objects.
+ */
+const storagePublicUrls = {
+  staging: "https://cdn-staging.marblecms.com",
+  dev: "https://pub-c659f2325f0d4bfdb8a6c4b32626dd02.r2.dev",
+} as const satisfies Record<Exclude<Mode, "production">, string>;
+
+export function storagePublicUrl(mode: Mode) {
+  return mode === "production" ? undefined : storagePublicUrls[mode];
+}
+
 const appUrls = {
   production: "https://app.marblecms.com",
   staging: "https://staging.marblecms.com",
