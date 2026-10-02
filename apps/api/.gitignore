@@ -18,6 +18,7 @@ node_modules/
 # env
 .env
 .env.production
+.env.staging
 .dev.vars
 
 # logs
