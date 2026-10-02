@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "cf dev --mode dev",
     "deploy": "cf deploy",
+    "deploy:staging": "cf deploy --mode staging",
     "cf-typegen": "cf workers types",
     "test": "vitest run",
     "lint": "biome check ."

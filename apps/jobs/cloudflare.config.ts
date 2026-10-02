@@ -1,4 +1,5 @@
 import {
+  appUrl,
   baseWorker,
   dataBindings,
   queues,
@@ -8,15 +9,16 @@ import {
 import type { EventMessage, TaskMessage, WebhookMessage } from "@marble/events";
 import { bindings, defineConfig, triggers } from "cf/config";
 
-const consumer = {
-  maxBatchSize: 10,
-  maxRetries: 3,
-  retryDelay: 60,
-  deadLetterQueue: queues.dlq,
-};
-
 export default defineConfig((ctx) => {
   const mode = resolveMode(ctx.mode);
+  const queue = queues(mode);
+
+  const consumer = {
+    maxBatchSize: 10,
+    maxRetries: 3,
+    retryDelay: 60,
+    deadLetterQueue: queue.dlq,
+  };
 
   return {
     worker: {
@@ -24,11 +26,11 @@ export default defineConfig((ctx) => {
       name: workerName("marble-jobs", mode),
       triggers: [
         triggers.scheduled({ schedule: "0 * * * *" }),
-        triggers.queue({ ...consumer, name: queues.events }),
-        triggers.queue({ ...consumer, name: queues.webhookDeliveries }),
-        triggers.queue({ ...consumer, name: queues.tasks, maxBatchSize: 1 }),
+        triggers.queue({ ...consumer, name: queue.events }),
+        triggers.queue({ ...consumer, name: queue.webhookDeliveries }),
+        triggers.queue({ ...consumer, name: queue.tasks, maxBatchSize: 1 }),
         triggers.queue({
-          name: queues.dlq,
+          name: queue.dlq,
           maxBatchSize: 10,
           maxRetries: 1,
           retryDelay: 60,
@@ -36,14 +38,12 @@ export default defineConfig((ctx) => {
       ],
       env: {
         ...dataBindings(mode),
-        EVENT_QUEUE: bindings.queue<EventMessage>({ name: queues.events }),
+        EVENT_QUEUE: bindings.queue<EventMessage>({ name: queue.events }),
         WEBHOOK_DELIVERY_QUEUE: bindings.queue<WebhookMessage>({
-          name: queues.webhookDeliveries,
+          name: queue.webhookDeliveries,
         }),
-        TASK_QUEUE: bindings.queue<TaskMessage>({ name: queues.tasks }),
-        APP_URL: bindings.text(
-          mode === "dev" ? "http://localhost:3000" : "https://app.marblecms.com"
-        ),
+        TASK_QUEUE: bindings.queue<TaskMessage>({ name: queue.tasks }),
+        APP_URL: bindings.text(appUrl(mode)),
         RESEND_API_KEY: bindings.secret(),
       },
     },
