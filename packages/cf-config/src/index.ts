@@ -20,42 +20,63 @@ export const baseWorker = {
 } satisfies Partial<WorkerConfig>;
 
 /**
- * Omit --mode (or pass --mode production) for production, and pass
- * --mode dev for local development. "dev" rather than "development" so
- * Vite's implicit default mode can never select it.
+ * Omit --mode (or pass --mode production) for production, pass --mode staging
+ * for the staging Workers, and pass --mode dev for local development. "dev"
+ * rather than "development" so Vite's implicit default mode can never select
+ * it.
  */
-export type Mode = "production" | "dev";
+export type Mode = "production" | "staging" | "dev";
 
 export function resolveMode(mode: string | undefined): Mode {
   if (mode === undefined || mode === "production") {
     return "production";
   }
-  if (mode === "dev") {
-    return "dev";
+  if (mode === "staging" || mode === "dev") {
+    return mode;
   }
   throw new Error(
-    `Unknown mode "${mode}". Pass --mode dev, or omit --mode for production.`
+    `Unknown mode "${mode}". Pass --mode staging or --mode dev, or omit --mode for production.`
   );
 }
 
 /**
- * Dev gets its own Worker name so an accidental `cf deploy --mode dev`
- * creates a separate Worker instead of replacing production.
+ * Production keeps the bare name. Every other mode gets a suffix, so
+ * `cf deploy --mode staging` (or an accidental `--mode dev`) creates a
+ * separate Worker instead of replacing production.
  */
 export function workerName(name: string, mode: Mode) {
-  return mode === "dev" ? `${name}-dev` : name;
+  return mode === "production" ? name : `${name}-${mode}`;
 }
 
+/**
+ * Hyperdrive configs point at branches of the Neon `marble` project:
+ * `production`, `staging` (branched from production) and `development`.
+ */
 const resources = {
   production: {
     hyperdriveId: "c0eea431cc454c9b96589cd52f70a009",
     bucket: "marblecms",
+  },
+  staging: {
+    hyperdriveId: "cfc9cc19f6824575b36e711bcf683ef7",
+    bucket: "marblestaging",
   },
   dev: {
     hyperdriveId: "d20494d3ce894268b67505bf684a2395",
     bucket: "marbledev",
   },
 } as const;
+
+const appUrls = {
+  production: "https://app.marblecms.com",
+  staging: "https://staging.marblecms.com",
+  dev: "http://localhost:3000",
+} as const satisfies Record<Mode, string>;
+
+/** The dashboard origin each mode's Workers link and allow requests from. */
+export function appUrl(mode: Mode) {
+  return appUrls[mode];
+}
 
 /**
  * Hyperdrive and R2, used by api and jobs. Locally, Hyperdrive connects to
@@ -71,9 +92,17 @@ export function dataBindings(mode: Mode) {
   };
 }
 
-export const queues = {
-  events: "marble-events",
-  webhookDeliveries: "marble-webhook-deliveries",
-  tasks: "marble-tasks",
-  dlq: "marble-dlq",
-} as const;
+/**
+ * Queue names per mode. Every mode needs its own queues: if staging shared
+ * production's, the production jobs Worker would consume staging messages
+ * whose rows only exist in the staging database.
+ */
+export function queues(mode: Mode) {
+  const suffix = mode === "production" ? "" : `-${mode}`;
+  return {
+    events: `marble-events${suffix}`,
+    webhookDeliveries: `marble-webhook-deliveries${suffix}`,
+    tasks: `marble-tasks${suffix}`,
+    dlq: `marble-dlq${suffix}`,
+  };
+}
