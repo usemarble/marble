@@ -174,12 +174,15 @@ describe("hasHigherPlan", () => {
 describe("getWorkspacePlan", () => {
   it("resolves the paid plan while the subscription is active", () => {
     expect(
-      getWorkspacePlan({
-        plan: "hobby",
-        status: "active",
-        cancelAtPeriodEnd: false,
-        currentPeriodEnd: fromNow(days(10)),
-      })
+      getWorkspacePlan(
+        {
+          plan: "hobby",
+          status: "active",
+          cancelAtPeriodEnd: false,
+          currentPeriodEnd: fromNow(days(10)),
+        },
+        NOW
+      )
     ).toBe("hobby");
   });
 
@@ -189,12 +192,15 @@ describe("getWorkspacePlan", () => {
 
   it("falls back to free once a revoked subscription is no longer entitled", () => {
     expect(
-      getWorkspacePlan({
-        plan: "pro",
-        status: "expired",
-        cancelAtPeriodEnd: false,
-        currentPeriodEnd: fromNow(-days(1)),
-      })
+      getWorkspacePlan(
+        {
+          plan: "pro",
+          status: "expired",
+          cancelAtPeriodEnd: false,
+          currentPeriodEnd: fromNow(-days(1)),
+        },
+        NOW
+      )
     ).toBe("free");
   });
 });
