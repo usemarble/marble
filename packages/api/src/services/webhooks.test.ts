@@ -46,6 +46,32 @@ const rows = (workspaceId: string) =>
   });
 
 describe("dashboard webhooks", () => {
+  it("malformed URLs return validation errors without creating or changing an endpoint", async () => {
+    const f = await fixture();
+    const error = { code: "BAD_REQUEST", message: "Invalid request body" };
+    await expect(
+      f.client.create({ ...f.input, endpoint: "not a URL" })
+    ).rejects.toMatchObject(error);
+    expect(await f.client.list({ workspaceId: f.input.workspaceId })).toEqual(
+      []
+    );
+    const hook = await f.client.create(f.input);
+    await expect(
+      f.client.update({
+        workspaceId: f.input.workspaceId,
+        id: hook.id,
+        endpoint: "not a URL",
+      })
+    ).rejects.toMatchObject(error);
+    expect(
+      (await f.client.get({ workspaceId: f.input.workspaceId, id: hook.id }))
+        .webhook.url
+    ).toBe(f.input.endpoint);
+    await f.flush();
+    expect(await rows(f.input.workspaceId)).toEqual([]);
+    expect(f.events.sent).toEqual([]);
+  });
+
   it("CRUD retains the CMS's absence of events/cache clears and hides the list secret", async () => {
     const f = await fixture();
     const key = `cache:${f.input.workspaceId}:posts:v1:list`;

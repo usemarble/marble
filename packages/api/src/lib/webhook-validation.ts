@@ -56,7 +56,13 @@ export const webhookSchema = z
     format: payloadFormatEnum,
   })
   .superRefine((data, ctx) => {
-    const hostname = new URL(data.endpoint).hostname;
+    let hostname: string;
+    try {
+      hostname = new URL(data.endpoint).hostname;
+    } catch {
+      // Endpoint validation already reports malformed URLs.
+      return;
+    }
 
     switch (data.format) {
       case "discord":
