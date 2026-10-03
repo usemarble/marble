@@ -1,11 +1,14 @@
 import type { DbClient } from "@marble/db";
 import { subscription } from "@marble/db/schema";
 import type { WebhookSubscriptionCanceledPayload } from "@polar-sh/sdk/models/components/webhooksubscriptioncanceledpayload.js";
+import type { Redis } from "@upstash/redis";
 import { and, eq, isNull, lte, or } from "drizzle-orm";
+import { clearWorkspacePlan } from "../access";
 import { getSubscriptionStatus, isStalePolarEvent } from "./utils";
 
 export async function handleSubscriptionCanceled(
   db: DbClient,
+  redis: Redis,
   payload: WebhookSubscriptionCanceledPayload
 ) {
   const { data: subscriptionData } = payload;
@@ -78,6 +81,7 @@ export async function handleSubscriptionCanceled(
       );
       return;
     }
+    await clearWorkspacePlan(redis, existingSubscription.workspaceId);
 
     console.log(
       `Successfully recorded cancellation for subscription ${subscriptionData.id} for workspace ${existingSubscription.workspaceId}`

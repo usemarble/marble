@@ -5,6 +5,7 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
+    "./access": "./src/access.ts",
     "./client": "./src/client.ts",
     "./polar": "./src/polar/client.ts",
     "./subscription": "./src/subscription.ts",

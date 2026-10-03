@@ -1,7 +1,9 @@
 import type { DbClient } from "@marble/db";
 import { subscription } from "@marble/db/schema";
 import type { WebhookSubscriptionUpdatedPayload } from "@polar-sh/sdk/models/components/webhooksubscriptionupdatedpayload.js";
+import type { Redis } from "@upstash/redis";
 import { and, eq, isNull, lte, or } from "drizzle-orm";
+import { clearWorkspacePlan } from "../access";
 import {
   getPlanType,
   getRecurringInterval,
@@ -11,6 +13,7 @@ import {
 
 export async function handleSubscriptionUpdated(
   db: DbClient,
+  redis: Redis,
   payload: WebhookSubscriptionUpdatedPayload
 ) {
   const { data: subscriptionData } = payload;
@@ -112,6 +115,7 @@ export async function handleSubscriptionUpdated(
       );
       return;
     }
+    await clearWorkspacePlan(redis, existingSubscription.workspaceId);
 
     console.log(
       `Successfully updated subscription ${subscriptionData.id} for workspace ${existingSubscription.workspaceId}`

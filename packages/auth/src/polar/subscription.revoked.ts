@@ -1,11 +1,14 @@
 import type { DbClient } from "@marble/db";
 import { subscription } from "@marble/db/schema";
 import type { WebhookSubscriptionRevokedPayload } from "@polar-sh/sdk/models/components/webhooksubscriptionrevokedpayload.js";
+import type { Redis } from "@upstash/redis";
 import { and, eq, isNull, lte, or } from "drizzle-orm";
+import { clearWorkspacePlan } from "../access";
 import { isStalePolarEvent } from "./utils";
 
 export async function handleSubscriptionRevoked(
   db: DbClient,
+  redis: Redis,
   payload: WebhookSubscriptionRevokedPayload
 ) {
   const { data: subscriptionData } = payload;
@@ -59,6 +62,7 @@ export async function handleSubscriptionRevoked(
       );
       return;
     }
+    await clearWorkspacePlan(redis, existingSubscription.workspaceId);
 
     console.log(
       `Successfully marked subscription ${subscriptionData.id} as revoked/expired for workspace ${existingSubscription.workspaceId}`

@@ -35,6 +35,7 @@ import { betterAuth } from "better-auth/minimal";
 import { emailOTP, organization } from "better-auth/plugins";
 import { and, eq } from "drizzle-orm";
 import { customAlphabet } from "nanoid";
+import { clearMembership } from "./access";
 import { trackRegistrationCompleted } from "./analytics";
 import type { AuthEnv } from "./env";
 import {
@@ -61,13 +62,13 @@ export type { AuthEnv } from "./env";
 
 const nanoid = customAlphabet("abcdefghijklmnopqrstuvwxyz0123456789", 6);
 
-function getCheckoutReferenceId(body: unknown) {
-  if (!(body && typeof body === "object" && "referenceId" in body)) {
+function getBodyString(body: unknown, key: string) {
+  if (!(body && typeof body === "object" && key in body)) {
     return;
   }
 
-  const { referenceId } = body as { referenceId?: unknown };
-  return typeof referenceId === "string" ? referenceId : undefined;
+  const value = (body as Record<string, unknown>)[key];
+  return typeof value === "string" ? value : undefined;
 }
 
 async function sendOnboardingEmails(
@@ -142,7 +143,7 @@ export function createAuth({ db, env }: { db: DbClient; env: AuthEnv }) {
           return;
         }
 
-        const referenceId = getCheckoutReferenceId(ctx.body);
+        const referenceId = getBodyString(ctx.body, "referenceId");
 
         if (!referenceId) {
           return;
@@ -171,6 +172,20 @@ export function createAuth({ db, env }: { db: DbClient; env: AuthEnv }) {
           throw new APIError("FORBIDDEN", {
             message: "Only workspace owners can start checkout",
           });
+        }
+      }),
+      after: createAuthMiddleware(async (ctx) => {
+        // leaveOrganization deletes the member without running the
+        // organization hooks, so the cached membership is cleared here.
+        if (ctx.path !== "/organization/leave") {
+          return;
+        }
+
+        const organizationId = getBodyString(ctx.body, "organizationId");
+        const session = await getSessionFromCtx(ctx);
+
+        if (organizationId && session) {
+          await clearMembership(redis, organizationId, session.user.id);
         }
       }),
     },
@@ -287,16 +302,16 @@ export function createAuth({ db, env }: { db: DbClient; env: AuthEnv }) {
               await handleCustomerCreated(payload);
             },
             onSubscriptionCreated: async (payload) => {
-              await handleSubscriptionCreated(db, payload);
+              await handleSubscriptionCreated(db, redis, payload);
             },
             onSubscriptionUpdated: async (payload) => {
-              await handleSubscriptionUpdated(db, payload);
+              await handleSubscriptionUpdated(db, redis, payload);
             },
             onSubscriptionCanceled: async (payload) => {
-              await handleSubscriptionCanceled(db, payload);
+              await handleSubscriptionCanceled(db, redis, payload);
             },
             onSubscriptionRevoked: async (payload) => {
-              await handleSubscriptionRevoked(db, payload);
+              await handleSubscriptionRevoked(db, redis, payload);
             },
           }),
         ],
@@ -334,6 +349,12 @@ export function createAuth({ db, env }: { db: DbClient; env: AuthEnv }) {
           },
           afterAcceptInvitation: async ({ user, organization }) => {
             await createAuthor(db, user, organization);
+          },
+          afterRemoveMember: async ({ user, organization }) => {
+            await clearMembership(redis, organization.id, user.id);
+          },
+          afterUpdateMemberRole: async ({ user, organization }) => {
+            await clearMembership(redis, organization.id, user.id);
           },
           beforeCreateOrganization: async ({ organization }) => {
             await validateWorkspaceSchema({

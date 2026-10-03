@@ -2,7 +2,9 @@ import type { DbClient } from "@marble/db";
 import { createRecordId } from "@marble/db/id";
 import { subscription, user, workspace } from "@marble/db/schema";
 import type { WebhookSubscriptionCreatedPayload } from "@polar-sh/sdk/models/components/webhooksubscriptioncreatedpayload.js";
+import type { Redis } from "@upstash/redis";
 import { eq } from "drizzle-orm";
+import { clearWorkspacePlan } from "../access";
 import {
   getPlanType,
   getRecurringInterval,
@@ -11,6 +13,7 @@ import {
 
 export async function handleSubscriptionCreated(
   db: DbClient,
+  redis: Redis,
   payload: WebhookSubscriptionCreatedPayload
 ) {
   const { data: subscriptionData } = payload;
@@ -117,6 +120,7 @@ export async function handleSubscriptionCreated(
       recurringInterval,
       updatedAt: new Date(),
     });
+    await clearWorkspacePlan(redis, workspaceId);
 
     console.log(
       `Successfully created subscription ${subscriptionData.id} for workspace ${workspaceId}`
