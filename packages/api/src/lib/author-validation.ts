@@ -66,7 +66,6 @@ export const authorSchema = z.object({
     .optional(),
   image: z.string().nullable().optional(),
   email: z
-    .string()
     .email({ message: "Please enter a valid email address" })
     .optional()
     .or(z.literal("")),
