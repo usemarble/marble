@@ -9,7 +9,10 @@ const withJobs = process.env.MARBLE_DEV_WITH_JOBS === "1";
 export default defineConfig(({ mode }) => ({
   resolve: { tsconfigPaths: true },
   build: { minify: true },
-  server: { port: 8787 },
+  // The Worker answers CORS itself (credentialed for the dashboard origin).
+  // Vite's own CORS middleware would answer preflights first, without
+  // Access-Control-Allow-Credentials.
+  server: { port: 8787, cors: false },
   plugins: [
     cloudflare({
       auxiliaryWorkers: withJobs
