@@ -1,12 +1,11 @@
-"use server";
-
-import { db } from "@marble/db";
+import type { DbClient } from "@marble/db";
 import { subscription } from "@marble/db/schema";
 import type { WebhookSubscriptionCanceledPayload } from "@polar-sh/sdk/models/components/webhooksubscriptioncanceledpayload.js";
 import { and, eq, isNull, lte, or } from "drizzle-orm";
 import { getSubscriptionStatus, isStalePolarEvent } from "./utils";
 
 export async function handleSubscriptionCanceled(
+  db: DbClient,
   payload: WebhookSubscriptionCanceledPayload
 ) {
   const { data: subscriptionData } = payload;

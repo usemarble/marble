@@ -7,8 +7,8 @@ import {
   postToTag,
 } from "@marble/db/schema";
 import { toPostPayload } from "@marble/events";
+import { generateSlug } from "@marble/utils";
 import { sanitizeHtml } from "@marble/utils/sanitize";
-
 import { and, asc, eq, inArray } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
@@ -27,7 +27,6 @@ import {
 import { loadPostApiFilters } from "@/lib/search-params";
 import { postUpsertSchema } from "@/lib/validations/post";
 import { validateWorkspaceTags } from "@/lib/validations/tags";
-import { generateSlug } from "@/utils/string";
 
 export async function GET(request: Request) {
   const accessData = await requireActiveWorkspaceAccess();

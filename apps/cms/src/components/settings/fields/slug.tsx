@@ -4,6 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
+import { generateSlug } from "@marble/utils";
+import { type SlugValues, slugSchema } from "@marble/utils/workspace";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useId } from "react";
@@ -13,9 +15,7 @@ import { AsyncButton } from "@/components/ui/async-button";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { organization } from "@/lib/auth/client";
 import { QUERY_KEYS } from "@/lib/queries/keys";
-import { type SlugValues, slugSchema } from "@/lib/validations/workspace";
 import { useWorkspace } from "@/providers/workspace";
-import { generateSlug } from "@/utils/string";
 
 export function Slug() {
   const router = useRouter();

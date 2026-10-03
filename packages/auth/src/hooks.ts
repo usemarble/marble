@@ -1,29 +1,57 @@
-import { createRecordId, db } from "@marble/db";
-import "server-only";
-
-import { PutObjectCommand } from "@aws-sdk/client-s3";
-
+import type { DbClient } from "@marble/db";
+import { createRecordId } from "@marble/db/id";
 import { author as authorTable, user as userTable } from "@marble/db/schema";
-import type { User } from "better-auth";
-import { APIError } from "better-auth/api";
-
-import { and, eq } from "drizzle-orm";
-import { nanoid } from "nanoid";
-import { isAllowedAvatarUrl } from "@/lib/constants";
-import { R2_BUCKET_NAME, R2_PUBLIC_URL, r2 } from "@/lib/r2";
-import { generateSlug } from "@/utils/string";
+import { generateSlug } from "@marble/utils";
 import {
   nameSchema,
   slugSchema,
   timezoneSchema,
-} from "../validations/workspace";
-import type { Organization } from "./types";
+} from "@marble/utils/workspace";
+import type { User } from "better-auth";
+import { APIError } from "better-auth/api";
+import { and, eq } from "drizzle-orm";
+import { nanoid } from "nanoid";
+import type { AuthEnv } from "./env";
+
+const ALLOWED_AVATAR_HOSTS = [
+  "avatars.githubusercontent.com",
+  "googleusercontent.com",
+] as const;
+
+/**
+ * Validates if a URL is from an allowed avatar host with HTTPS protocol
+ */
+function isAllowedAvatarUrl(url: string): boolean {
+  try {
+    const parsedUrl = new URL(url);
+
+    // Enforce HTTPS protocol
+    if (parsedUrl.protocol !== "https:") {
+      return false;
+    }
+
+    const hostname = parsedUrl.hostname;
+
+    // Check if hostname matches exactly or is a subdomain of allowed hosts
+    return ALLOWED_AVATAR_HOSTS.some(
+      (allowedHost) =>
+        hostname === allowedHost || hostname.endsWith(`.${allowedHost}`)
+    );
+  } catch {
+    // Invalid URL
+    return false;
+  }
+}
 
 /**
  * Ensures a Better Auth user has a matching author profile in a workspace.
  * Intended for trusted organization hooks after create/join events.
  */
-export async function createAuthor(user: User, organization: Organization) {
+export async function createAuthor(
+  db: DbClient,
+  user: User,
+  organization: { id: string }
+) {
   try {
     const author = await db.query.author.findFirst({
       where: and(
@@ -71,8 +99,21 @@ export async function createAuthor(user: User, organization: Organization) {
  * Copies a trusted provider avatar into Marble-owned R2 storage for a user.
  * Intended for Better Auth user lifecycle hooks.
  */
-export async function storeUserImage(user: User) {
+export async function storeUserImage(db: DbClient, env: AuthEnv, user: User) {
   if (!user.image) {
+    return;
+  }
+
+  const {
+    CLOUDFLARE_ACCESS_KEY_ID: accessKeyId,
+    CLOUDFLARE_SECRET_ACCESS_KEY: secretAccessKey,
+    CLOUDFLARE_BUCKET_NAME: bucket,
+    CLOUDFLARE_S3_ENDPOINT: endpoint,
+    CLOUDFLARE_PUBLIC_URL: publicUrl,
+  } = env;
+
+  if (!(accessKeyId && secretAccessKey && bucket && endpoint && publicUrl)) {
+    console.warn("R2 is not configured; keeping the provider avatar");
     return;
   }
 
@@ -93,9 +134,18 @@ export async function storeUserImage(user: User) {
     const extension = contentType.split("/")[1];
     const key = `avatars/${user.id}/${nanoid()}.${extension}`;
 
+    // Loaded on demand: only sign-up needs it, and it is a large module for
+    // every other caller of the auth config to evaluate.
+    const { PutObjectCommand, S3Client } = await import("@aws-sdk/client-s3");
+    const r2 = new S3Client({
+      region: "auto",
+      endpoint,
+      credentials: { accessKeyId, secretAccessKey },
+    });
+
     await r2.send(
       new PutObjectCommand({
-        Bucket: R2_BUCKET_NAME,
+        Bucket: bucket,
         Key: key,
         Body: buffer,
         ContentType: contentType,
@@ -103,7 +153,7 @@ export async function storeUserImage(user: User) {
       })
     );
 
-    const avatarUrl = `${R2_PUBLIC_URL}/${key}`;
+    const avatarUrl = `${publicUrl}/${key}`;
 
     await db
       .update(userTable)

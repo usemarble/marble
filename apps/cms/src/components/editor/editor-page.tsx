@@ -23,12 +23,12 @@ import {
 import { SidebarInset, useSidebar } from "@marble/ui/components/sidebar";
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
+import { generateSlug } from "@marble/utils";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { getMediaEditorApiUrl } from "@/lib/search-params";
 import type { MediaCursorListResponse } from "@/types/media";
-import { generateSlug } from "@/utils/string";
 import { TextareaAutosize } from "./textarea-autosize";
 
 /**

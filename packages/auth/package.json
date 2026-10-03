@@ -1,0 +1,41 @@
+{
+  "name": "@marble/auth",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./client": "./src/client.ts",
+    "./polar": "./src/polar/client.ts",
+    "./subscription": "./src/subscription.ts",
+    "./workspace": "./src/workspace.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check ."
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.758.0",
+    "@better-auth/drizzle-adapter": "1.7.6",
+    "@databuddy/sdk": "^2.4.20",
+    "@marble/db": "workspace:*",
+    "@marble/email": "workspace:*",
+    "@marble/utils": "workspace:*",
+    "@polar-sh/better-auth": "^1.8.4",
+    "@polar-sh/sdk": "0.47.1",
+    "@upstash/redis": "^1.39.0",
+    "better-auth": "1.7.6",
+    "drizzle-orm": "^0.45.2",
+    "nanoid": "^5.0.9"
+  },
+  "peerDependencies": {
+    "react": "^19.3.0"
+  },
+  "devDependencies": {
+    "@marble/tsconfig": "workspace:*",
+    "@types/node": "^22.9.0",
+    "@types/react": "19.3.0",
+    "react": "^19.3.0",
+    "typescript": "^5.9.3"
+  }
+}

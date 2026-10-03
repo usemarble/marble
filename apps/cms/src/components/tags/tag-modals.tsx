@@ -29,13 +29,13 @@ import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { Textarea } from "@marble/ui/components/textarea";
+import { generateSlug } from "@marble/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { type CreateTagValues, tagSchema } from "@/lib/validations/workspace";
-import { generateSlug } from "@/utils/string";
 import { AsyncButton } from "../ui/async-button";
 import type { Tag } from "./columns";
 

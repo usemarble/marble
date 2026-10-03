@@ -1,4 +1,4 @@
-import { db } from "@marble/db";
+import type { DbClient } from "@marble/db";
 import { invitation, member, subscription } from "@marble/db/schema";
 import { getWorkspacePlan, PLAN_LIMITS, type PlanType } from "@marble/utils";
 import { APIError } from "better-auth/api";
@@ -10,7 +10,7 @@ import { and, count, desc, eq, gt, inArray } from "drizzle-orm";
  * The SQL only narrows candidates - `getWorkspacePlan` makes the entitlement
  * decision, so the period and grace rules live in exactly one place.
  */
-async function findLatestSubscription(workspaceId: string) {
+async function findLatestSubscription(db: DbClient, workspaceId: string) {
   const found = await db.query.subscription.findFirst({
     where: and(
       eq(subscription.workspaceId, workspaceId),
@@ -29,9 +29,10 @@ async function findLatestSubscription(workspaceId: string) {
 }
 
 export async function getWorkspacePlanType(
+  db: DbClient,
   workspaceId: string
 ): Promise<PlanType> {
-  return getWorkspacePlan(await findLatestSubscription(workspaceId));
+  return getWorkspacePlan(await findLatestSubscription(db, workspaceId));
 }
 
 /**
@@ -41,9 +42,10 @@ export async function getWorkspacePlanType(
  * enforces when an invitation is accepted and when a member is added directly.
  */
 export async function getWorkspaceMembershipLimit(
+  db: DbClient,
   workspaceId: string
 ): Promise<number> {
-  const plan = await getWorkspacePlanType(workspaceId);
+  const plan = await getWorkspacePlanType(db, workspaceId);
   return PLAN_LIMITS[plan].maxMembers;
 }
 
@@ -54,8 +56,11 @@ export async function getWorkspaceMembershipLimit(
  * workspace on its last seat could send any number of invitations that each
  * pass this check individually and then all be accepted.
  */
-export async function guardWorkspaceInviteSeat(workspaceId: string) {
-  const plan = await getWorkspacePlanType(workspaceId);
+export async function guardWorkspaceInviteSeat(
+  db: DbClient,
+  workspaceId: string
+) {
+  const plan = await getWorkspacePlanType(db, workspaceId);
   const limits = PLAN_LIMITS[plan];
 
   if (!limits.features.inviteMembers) {

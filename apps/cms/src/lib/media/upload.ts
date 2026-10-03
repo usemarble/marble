@@ -1,7 +1,7 @@
+import { generateSlug } from "@marble/utils";
 import axios from "axios";
 import { encode } from "blurhash";
 import type { PresignedUrlResponse, UploadType } from "@/types/media";
-import { generateSlug } from "@/utils/string";
 
 interface UploadMetadata {
   mimeType?: string;

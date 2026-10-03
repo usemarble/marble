@@ -1,9 +1,5 @@
-import "server-only";
-
 import { Databuddy } from "@databuddy/sdk/node";
-
-const MARKETING_WEBSITE_ID = process.env.NEXT_PUBLIC_DATABUDDY_WEB_CLIENT_ID;
-const DASHBOARD_WEBSITE_ID = process.env.NEXT_PUBLIC_DATABUDDY_CLIENT_ID;
+import type { AuthEnv } from "./env";
 
 function cookieValue(header: string | null | undefined, name: string) {
   const value = header
@@ -24,19 +20,21 @@ function cookieValue(header: string | null | undefined, name: string) {
 }
 
 export async function trackRegistrationCompleted({
+  env,
   userId,
   cookieHeader,
   method,
 }: {
+  env: AuthEnv;
   userId: string;
   cookieHeader?: string | null;
   method: "email" | "google" | "github" | "unknown";
 }) {
-  if (process.env.NODE_ENV !== "production") {
+  if (env.NODE_ENV !== "production") {
     return;
   }
 
-  const apiKey = process.env.DATABUDDY_API_KEY?.trim();
+  const apiKey = env.DATABUDDY_API_KEY?.trim();
   if (!apiKey) {
     console.warn("DATABUDDY_API_KEY is missing; registration was not tracked");
     return;
@@ -49,7 +47,8 @@ export async function trackRegistrationCompleted({
   );
   const appAnonymousId = cookieValue(cookieHeader, "marble_app_id");
   const appSessionId = cookieValue(cookieHeader, "marble_app_session");
-  const dashboardWebsiteId = DASHBOARD_WEBSITE_ID;
+  const dashboardWebsiteId = env.DATABUDDY_CLIENT_ID;
+  const marketingWebsiteId = env.DATABUDDY_WEB_CLIENT_ID;
   const destinations = [
     ...(dashboardWebsiteId
       ? [
@@ -60,10 +59,10 @@ export async function trackRegistrationCompleted({
           },
         ]
       : []),
-    ...(marketingAnonymousId && MARKETING_WEBSITE_ID
+    ...(marketingAnonymousId && marketingWebsiteId
       ? [
           {
-            websiteId: MARKETING_WEBSITE_ID,
+            websiteId: marketingWebsiteId,
             anonymousId: marketingAnonymousId,
             sessionId: marketingSessionId,
           },

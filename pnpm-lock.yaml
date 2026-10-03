@@ -275,9 +275,6 @@ importers:
       '@aws-sdk/s3-request-presigner':
         specifier: ^3.758.0
         version: 3.1111.0
-      '@better-auth/drizzle-adapter':
-        specifier: 1.7.6
-        version: 1.7.6(@better-auth/core@1.7.6(@better-auth/utils@0.4.2)(@better-fetch/fetch@1.3.2)(@opentelemetry/api@1.9.0)(better-call@1.4.0(zod@4.6.5))(jose@6.2.9)(kysely@0.28.17)(nanostores@1.5.1))(@better-auth/utils@0.4.2)(drizzle-orm@0.45.2(@cloudflare/workers-types@5.20260911.1)(@electric-sql/pglite@0.4.3)(@neondatabase/serverless@1.1.0)(@opentelemetry/api@1.9.0)(@prisma/client@7.9.1(prisma@7.9.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(magicast@0.5.4)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3))(typescript@5.9.3))(@types/pg@8.21.0)(@upstash/redis@1.39.0)(kysely@0.28.17)(mysql2@3.15.3)(pg@8.23.0)(postgres@3.4.7)(prisma@7.9.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(magicast@0.5.4)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)))
       '@better-fetch/fetch':
         specifier: 1.3.2
         version: 1.3.2
@@ -293,6 +290,9 @@ importers:
       '@hugeicons/react':
         specifier: ^1.1.4
         version: 1.1.9(react@19.3.0)
+      '@marble/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
       '@marble/db':
         specifier: workspace:*
         version: link:../../packages/db
@@ -317,9 +317,6 @@ importers:
       '@phosphor-icons/react':
         specifier: ^2.1.10
         version: 2.1.10(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@polar-sh/better-auth':
-        specifier: ^1.8.4
-        version: 1.8.4(@polar-sh/sdk@0.47.1)(@stripe/react-stripe-js@4.0.2(@stripe/stripe-js@7.9.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(@stripe/stripe-js@7.9.0)(better-auth@1.7.6(4807172039406efd82c225bfb9359568))(react@19.3.0)(zod@4.6.5)
       '@polar-sh/sdk':
         specifier: 0.47.1
         version: 0.47.1
@@ -413,9 +410,6 @@ importers:
       recharts:
         specifier: ^2.15.3
         version: 2.15.4(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      resend:
-        specifier: ^6.12.3
-        version: 6.20.0(@react-email/render@2.1.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
       server-only:
         specifier: ^0.0.1
         version: 0.0.1
@@ -612,6 +606,61 @@ importers:
       '@tailwindcss/typography':
         specifier: ^0.5.19
         version: 0.5.20(tailwindcss@4.3.3)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
+  packages/auth:
+    dependencies:
+      '@aws-sdk/client-s3':
+        specifier: ^3.758.0
+        version: 3.1111.0
+      '@better-auth/drizzle-adapter':
+        specifier: 1.7.6
+        version: 1.7.6(@better-auth/core@1.7.6(@better-auth/utils@0.4.2)(@better-fetch/fetch@1.3.2)(@opentelemetry/api@1.9.0)(better-call@1.4.0(zod@4.6.5))(jose@6.2.9)(kysely@0.28.17)(nanostores@1.5.1))(@better-auth/utils@0.4.2)(drizzle-orm@0.45.2(@cloudflare/workers-types@5.20260911.1)(@electric-sql/pglite@0.4.3)(@neondatabase/serverless@1.1.0)(@opentelemetry/api@1.9.0)(@prisma/client@7.9.1(prisma@7.9.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(magicast@0.5.4)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3))(typescript@5.9.3))(@types/pg@8.21.0)(@upstash/redis@1.39.0)(kysely@0.28.17)(mysql2@3.15.3)(pg@8.23.0)(postgres@3.4.7)(prisma@7.9.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(magicast@0.5.4)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)))
+      '@databuddy/sdk':
+        specifier: ^2.4.20
+        version: 2.6.0(react@19.3.0)
+      '@marble/db':
+        specifier: workspace:*
+        version: link:../db
+      '@marble/email':
+        specifier: workspace:*
+        version: link:../email
+      '@marble/utils':
+        specifier: workspace:*
+        version: link:../utils
+      '@polar-sh/better-auth':
+        specifier: ^1.8.4
+        version: 1.8.4(@polar-sh/sdk@0.47.1)(@stripe/react-stripe-js@4.0.2(@stripe/stripe-js@7.9.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(@stripe/stripe-js@7.9.0)(better-auth@1.7.6(4807172039406efd82c225bfb9359568))(react@19.3.0)(zod@4.6.5)
+      '@polar-sh/sdk':
+        specifier: 0.47.1
+        version: 0.47.1
+      '@upstash/redis':
+        specifier: 1.39.0
+        version: 1.39.0
+      better-auth:
+        specifier: 1.7.6
+        version: 1.7.6(4807172039406efd82c225bfb9359568)
+      drizzle-orm:
+        specifier: ^0.45.2
+        version: 0.45.2(@cloudflare/workers-types@5.20260911.1)(@electric-sql/pglite@0.4.3)(@neondatabase/serverless@1.1.0)(@opentelemetry/api@1.9.0)(@prisma/client@7.9.1(prisma@7.9.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(magicast@0.5.4)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3))(typescript@5.9.3))(@types/pg@8.21.0)(@upstash/redis@1.39.0)(kysely@0.28.17)(mysql2@3.15.3)(pg@8.23.0)(postgres@3.4.7)(prisma@7.9.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(magicast@0.5.4)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3))
+      nanoid:
+        specifier: ^5.0.9
+        version: 5.1.16
+    devDependencies:
+      '@marble/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
+      '@types/node':
+        specifier: ^22.9.0
+        version: 22.20.1
+      '@types/react':
+        specifier: 19.3.0
+        version: 19.3.0
+      react:
+        specifier: ^19.3.0
+        version: 19.3.0
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -1009,6 +1058,9 @@ importers:
       shiki:
         specifier: ^3.12.2
         version: 3.23.0
+      zod:
+        specifier: ^4.3.6
+        version: 4.6.5
     devDependencies:
       '@marble/tsconfig':
         specifier: workspace:*

@@ -1,20 +1,8 @@
+import { createAuthClient } from "@marble/auth/client";
 import { toast } from "@marble/ui/components/sonner";
-import { polarClient } from "@polar-sh/better-auth/client";
-import {
-  emailOTPClient,
-  inferOrgAdditionalFields,
-  organizationClient,
-} from "better-auth/client/plugins";
-import { createAuthClient } from "better-auth/react";
-import type { auth } from "./server";
 
 export const authClient = createAuthClient({
   baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
-  plugins: [
-    organizationClient({ schema: inferOrgAdditionalFields<typeof auth>() }),
-    emailOTPClient(),
-    polarClient(),
-  ],
   fetchOptions: {
     onError(e) {
       if (e.error.status === 429) {

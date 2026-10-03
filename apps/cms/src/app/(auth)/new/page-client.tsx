@@ -13,6 +13,12 @@ import { Input } from "@marble/ui/components/input";
 import { Label } from "@marble/ui/components/label";
 import { toast } from "@marble/ui/components/sonner";
 import { cn } from "@marble/ui/lib/utils";
+import { generateSlug } from "@marble/utils";
+import {
+  type CreateWorkspaceValues,
+  timezones,
+  workspaceSchema,
+} from "@marble/utils/workspace";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
@@ -21,12 +27,6 @@ import { AsyncButton } from "@/components/ui/async-button";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { TimezoneSelector } from "@/components/ui/timezone-selector";
 import { organization } from "@/lib/auth/client";
-import { timezones } from "@/lib/constants";
-import {
-  type CreateWorkspaceValues,
-  workspaceSchema,
-} from "@/lib/validations/workspace";
-import { generateSlug } from "@/utils/string";
 
 function PageClientInner() {
   const {

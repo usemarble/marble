@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { getWorkspacePlanType } from "@marble/auth/subscription";
 import { db } from "@marble/db";
 import { post } from "@marble/db/schema";
 import { htmlToMarkdown } from "@marble/parser";
@@ -8,7 +9,6 @@ import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { canPerformAction } from "@/lib/plans";
 import { aiSuggestionsRateLimiter, rateLimitHeaders } from "@/lib/ratelimit";
 import { redis } from "@/lib/redis";
-import { getWorkspacePlanType } from "@/lib/subscription/access";
 import {
   aiReadabilityBodySchema,
   aiReadabilityResponseSchema,
@@ -67,7 +67,7 @@ export async function POST(request: Request) {
 
   const { sessionData, workspaceId } = accessData;
 
-  const plan = await getWorkspacePlanType(workspaceId);
+  const plan = await getWorkspacePlanType(db, workspaceId);
   if (!canPerformAction(plan, "advancedReadability")) {
     return NextResponse.json(
       { error: "Upgrade to Hobby to use AI readability insights" },

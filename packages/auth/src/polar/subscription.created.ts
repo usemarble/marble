@@ -1,7 +1,5 @@
-"use server";
-
-import { createRecordId, db } from "@marble/db";
-
+import type { DbClient } from "@marble/db";
+import { createRecordId } from "@marble/db/id";
 import { subscription, user, workspace } from "@marble/db/schema";
 import type { WebhookSubscriptionCreatedPayload } from "@polar-sh/sdk/models/components/webhooksubscriptioncreatedpayload.js";
 import { eq } from "drizzle-orm";
@@ -12,6 +10,7 @@ import {
 } from "./utils";
 
 export async function handleSubscriptionCreated(
+  db: DbClient,
   payload: WebhookSubscriptionCreatedPayload
 ) {
   const { data: subscriptionData } = payload;

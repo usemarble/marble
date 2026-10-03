@@ -21,6 +21,7 @@ import {
 import { toast } from "@marble/ui/components/sonner";
 import { Textarea } from "@marble/ui/components/textarea";
 import { cn } from "@marble/ui/lib/utils";
+import { generateSlug } from "@marble/utils";
 import {
   CircleNotchIcon,
   ImageIcon,
@@ -41,7 +42,6 @@ import {
 } from "@/lib/validations/authors";
 import type { Author } from "@/types/author";
 import { detectPlatform, getPlatformIcon } from "@/utils/author";
-import { generateSlug } from "@/utils/string";
 import { AsyncButton } from "../ui/async-button";
 import { CopyButton } from "../ui/copy-button";
 

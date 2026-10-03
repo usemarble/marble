@@ -1,5 +1,3 @@
-"use server";
-
 import type { WebhookCustomerCreatedPayload } from "@polar-sh/sdk/models/components/webhookcustomercreatedpayload.js";
 
 export async function handleCustomerCreated(
