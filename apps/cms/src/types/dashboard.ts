@@ -1,4 +1,4 @@
-import type { ApiScope } from "@/utils/keys";
+import type { RouterOutputs } from "@marble/api/routers";
 import type { Media, MediaType } from "./media";
 
 export interface Category {
@@ -36,18 +36,7 @@ export interface Post {
   }>;
 }
 
-export interface APIKey {
-  id: string;
-  name: string;
-  preview: string;
-  type: "public" | "private";
-  scopes: ApiScope[];
-  requestCount: number;
-  enabled: boolean;
-  lastUsed: Date | null;
-  expiresAt: Date | null;
-  createdAt: Date;
-}
+export type APIKey = RouterOutputs["keys"]["list"][number];
 
 type DashboardRecentUpload = Pick<
   Media,

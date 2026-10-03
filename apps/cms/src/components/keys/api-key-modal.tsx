@@ -3,6 +3,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Key01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import {
+  type CreateApiKeyValues,
+  createApiKeySchema,
+} from "@marble/api/lib/key-validation";
 import { Button } from "@marble/ui/components/button";
 import {
   Dialog,
@@ -31,11 +35,7 @@ import { useForm } from "react-hook-form";
 import { CopyButton } from "@/components/ui/copy-button";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { QUERY_KEYS } from "@/lib/queries/keys";
-import {
-  type CreateApiKeyValues,
-  createApiKeySchema,
-} from "@/lib/validations/keys";
+import { orpc } from "@/lib/orpc";
 import { AsyncButton } from "../ui/async-button";
 import type { APIKey } from "./columns";
 
@@ -72,32 +72,13 @@ export function ApiKeyModal({ data, mode, open, setOpen }: ApiKeyModalProps) {
   const type = watch("type");
 
   const { mutate: createKey, isPending: isCreating } = useMutation({
-    mutationFn: async (formData: CreateApiKeyValues) => {
-      const res = await fetch("/api/keys", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          type: formData.type,
-          expiresAt: formData.expiresAt,
-        }),
-      });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || "Failed to create API key");
-      }
-
-      return res.json();
-    },
+    ...orpc.keys.create.mutationOptions(),
     onSuccess: (responseData) => {
       setCreatedKey(responseData.key);
       toast.success("API key created successfully");
       if (workspaceId) {
         queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.KEYS(workspaceId),
+          queryKey: orpc.keys.key({ input: { workspaceId } }),
         });
       }
     },
@@ -107,34 +88,13 @@ export function ApiKeyModal({ data, mode, open, setOpen }: ApiKeyModalProps) {
   });
 
   const { mutate: updateKey, isPending: isUpdating } = useMutation({
-    mutationFn: async (formData: CreateApiKeyValues) => {
-      if (!data?.id) {
-        throw new Error("API key ID is required");
-      }
-
-      const res = await fetch(`/api/keys/${data.id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: formData.name,
-        }),
-      });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || "Failed to update API key");
-      }
-
-      return res.json();
-    },
+    ...orpc.keys.update.mutationOptions(),
     onSuccess: () => {
       toast.success("API key updated successfully");
       setOpen(false);
       if (workspaceId) {
         queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.KEYS(workspaceId),
+          queryKey: orpc.keys.key({ input: { workspaceId } }),
         });
       }
       reset();
@@ -146,9 +106,11 @@ export function ApiKeyModal({ data, mode, open, setOpen }: ApiKeyModalProps) {
 
   const onSubmit = async (formData: CreateApiKeyValues) => {
     if (mode === "create") {
-      createKey(formData);
-    } else {
-      updateKey(formData);
+      if (workspaceId) {
+        createKey({ ...formData, workspaceId });
+      }
+    } else if (workspaceId && data?.id) {
+      updateKey({ workspaceId, id: data.id, name: formData.name });
     }
   };
 

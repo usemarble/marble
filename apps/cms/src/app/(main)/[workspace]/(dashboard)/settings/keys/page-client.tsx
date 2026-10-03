@@ -8,52 +8,40 @@ import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useState } from "react";
-import { toast } from "sonner";
-import { type APIKey, columns } from "@/components/keys/columns";
+import { columns } from "@/components/keys/columns";
 import { DataTable } from "@/components/keys/data-table";
 import { DashboardBody } from "@/components/layout/wrapper";
 import { ApiKeysSettingsSkeleton } from "@/components/settings/loading-skeletons";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { QUERY_KEYS } from "@/lib/queries/keys";
+import { orpc } from "@/lib/orpc";
 import { useWorkspace } from "@/providers/workspace";
 
 const CreateKeyModal = dynamic(() =>
   import("@/components/keys/api-key-modal").then((mod) => mod.ApiKeyModal)
 );
 
-function PageClient({ initialKeys }: { initialKeys?: APIKey[] }) {
+function PageClient() {
   const workspaceId = useWorkspaceId();
   const { isFetchingWorkspace } = useWorkspace();
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const { data: keys, isLoading } = useQuery({
-    // biome-ignore lint/style/noNonNullAssertion: <>
-    queryKey: QUERY_KEYS.KEYS(workspaceId!),
-    staleTime: 1000 * 60 * 60,
-    queryFn: async () => {
-      try {
-        const res = await fetch("/api/keys");
-        if (!res.ok) {
-          throw new Error(
-            `Failed to fetch keys: ${res.status} ${res.statusText}`
-          );
-        }
-        const data: APIKey[] = await res.json();
-        return data;
-      } catch (error) {
-        toast.error(
-          error instanceof Error ? error.message : "Failed to fetch keys"
-        );
-        throw error instanceof Error
-          ? error
-          : new Error("Failed to fetch keys");
-      }
-    },
-    enabled: !!workspaceId && !isFetchingWorkspace,
-    initialData: initialKeys,
-  });
+  const {
+    data: keys,
+    isLoading,
+    error,
+  } = useQuery(
+    orpc.keys.list.queryOptions({
+      input: { workspaceId: workspaceId ?? "" },
+      staleTime: 1000 * 60 * 60,
+      enabled: !!workspaceId && !isFetchingWorkspace,
+    })
+  );
 
   if (isFetchingWorkspace || !workspaceId || isLoading) {
     return <ApiKeysSettingsSkeleton />;
+  }
+
+  if (error) {
+    return <DashboardBody size="compact">{error.message}</DashboardBody>;
   }
 
   return (

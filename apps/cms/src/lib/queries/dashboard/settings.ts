@@ -1,38 +1,9 @@
 import "server-only";
 
 import { db } from "@marble/db";
-import { apiKey, field, fieldOption, fieldValue } from "@marble/db/schema";
-import { asc, count, desc, eq } from "drizzle-orm";
-import type { APIKey } from "@/types/dashboard";
+import { field, fieldOption, fieldValue } from "@marble/db/schema";
+import { asc, count, eq } from "drizzle-orm";
 import type { CustomField } from "@/types/fields";
-import type { ApiScope } from "@/utils/keys";
-
-export async function getDashboardApiKeys(
-  workspaceId: string
-): Promise<APIKey[]> {
-  const keys = await db
-    .select({
-      id: apiKey.id,
-      name: apiKey.name,
-      preview: apiKey.preview,
-      type: apiKey.type,
-      scopes: apiKey.scopes,
-      enabled: apiKey.enabled,
-      requestCount: apiKey.requestCount,
-      lastUsed: apiKey.lastUsed,
-      expiresAt: apiKey.expiresAt,
-      createdAt: apiKey.createdAt,
-    })
-    .from(apiKey)
-    .where(eq(apiKey.workspaceId, workspaceId))
-    .orderBy(desc(apiKey.createdAt));
-
-  return keys.map((key) => ({
-    ...key,
-    type: key.type as APIKey["type"],
-    scopes: key.scopes as ApiScope[],
-  }));
-}
 
 export async function getDashboardCustomFields(
   workspaceId: string

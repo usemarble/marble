@@ -15,8 +15,6 @@ export const QUERY_KEYS = {
 
   CUSTOM_FIELDS: (workspaceId: string) => ["custom-fields", workspaceId],
 
-  KEYS: (workspaceId: string) => ["keys", workspaceId],
-
   BILLING_USAGE: (workspaceId: string) => ["billing-usage", workspaceId],
 
   USAGE_DASHBOARD: (workspaceId: string) => ["usage-dashboard", workspaceId],

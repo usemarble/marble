@@ -1,11 +1,9 @@
+import { API_KEY_SCOPES } from "@marble/utils";
 import { z } from "zod";
-import { type ApiScope, VALID_SCOPES } from "@/utils/keys";
 
 export const apiKeyTypeEnum = z.enum(["public", "private"]);
 
-export const apiScopeEnum = z.enum(
-  VALID_SCOPES as unknown as [ApiScope, ...ApiScope[]]
-);
+export const apiScopeEnum = z.enum(API_KEY_SCOPES);
 
 export const createApiKeySchema = z.object({
   name: z

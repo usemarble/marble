@@ -1,6 +1,7 @@
 import type { InferRouterOutputs, RouterClient } from "@orpc/server";
 import { authorsRouter } from "./authors";
 import { categoriesRouter } from "./categories";
+import { keysRouter } from "./keys";
 import { meRouter } from "./me";
 import { postsRouter } from "./posts";
 import { tagsRouter } from "./tags";
@@ -12,6 +13,7 @@ export const appRouter = {
   categories: categoriesRouter,
   tags: tagsRouter,
   me: meRouter,
+  keys: keysRouter,
   posts: postsRouter,
   workspaces: workspacesRouter,
   webhooks: webhooksRouter,
