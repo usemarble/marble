@@ -1,3 +1,4 @@
+import { env } from "cloudflare:workers";
 import type {
   EventMessage,
   QueueMessage,
@@ -24,16 +25,16 @@ export default {
 
   async queue(batch: MessageBatch) {
     switch (batch.queue) {
-      case "marble-events":
+      case env.QUEUE_EVENTS:
         await handleEventQueue(batch as MessageBatch<EventMessage>);
         break;
-      case "marble-webhook-deliveries":
+      case env.QUEUE_WEBHOOK_DELIVERIES:
         await handleWebhookDeliveryQueue(batch as MessageBatch<WebhookMessage>);
         break;
-      case "marble-tasks":
+      case env.QUEUE_TASKS:
         await handleTaskQueue(batch as MessageBatch<TaskMessage>);
         break;
-      case "marble-dlq":
+      case env.QUEUE_DLQ:
         await handleDeadLetterQueue(batch as MessageBatch<QueueMessage>);
         break;
       default:

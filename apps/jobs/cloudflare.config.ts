@@ -45,6 +45,12 @@ export default defineConfig((ctx) => {
           name: queue.webhookDeliveries,
         }),
         TASK_QUEUE: bindings.queue<TaskMessage>({ name: queue.tasks }),
+        // Queue names differ per mode (marble-events-staging, ...), so the
+        // consumer dispatches on these rather than on literals.
+        QUEUE_EVENTS: bindings.text(queue.events),
+        QUEUE_WEBHOOK_DELIVERIES: bindings.text(queue.webhookDeliveries),
+        QUEUE_TASKS: bindings.text(queue.tasks),
+        QUEUE_DLQ: bindings.text(queue.dlq),
         APP_URL: bindings.text(appUrl(mode)),
         RESEND_API_KEY: bindings.secret(),
       },
