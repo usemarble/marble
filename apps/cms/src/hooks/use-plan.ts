@@ -26,10 +26,7 @@ export function usePlan() {
     [activeWorkspace?.subscription]
   );
 
-  const currentMemberCount = useMemo(
-    () => activeWorkspace?.members?.length || 0,
-    [activeWorkspace?.members]
-  );
+  const currentMemberCount = activeWorkspace?.memberCount ?? 0;
 
   const planLimits: PlanLimits = useMemo(
     () => getPlanLimits(currentPlan),

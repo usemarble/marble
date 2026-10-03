@@ -21,9 +21,11 @@ import {
 } from "@marble/ui/components/sheet";
 import { toast } from "@marble/ui/components/sonner";
 import { CalendarIcon } from "@phosphor-icons/react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { organization } from "@/lib/auth/client";
-import { useWorkspace } from "@/providers/workspace";
+import { orpc } from "@/lib/orpc";
 import { AsyncButton } from "../ui/async-button";
 import type { TeamMemberRow } from "./columns";
 
@@ -34,7 +36,8 @@ interface ProfileSheetProps {
 }
 
 export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
-  const { refreshActiveWorkspace } = useWorkspace();
+  const workspaceId = useWorkspaceId();
+  const queryClient = useQueryClient();
   const [role, setRole] = useState(member.role);
   const [loading, setLoading] = useState(false);
 
@@ -45,18 +48,26 @@ export function ProfileSheet({ open, setOpen, member }: ProfileSheetProps) {
   }, [member.role]);
 
   async function handleSave() {
+    if (!workspaceId) {
+      toast.error("No active workspace found");
+      return;
+    }
+
     setLoading(true);
     try {
       const { error } = await organization.updateMemberRole({
         memberId: member.id,
         role,
+        organizationId: workspaceId,
       });
 
       if (error) {
         throw new Error(error.message);
       }
 
-      await refreshActiveWorkspace();
+      await queryClient.invalidateQueries({
+        queryKey: orpc.workspaces.members.list.key({ input: { workspaceId } }),
+      });
       toast.success("Role updated");
       setOpen(false);
     } catch (error) {

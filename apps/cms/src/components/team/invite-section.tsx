@@ -1,5 +1,6 @@
 "use client";
 
+import type { RouterOutputs } from "@marble/api/routers";
 import { Badge } from "@marble/ui/components/badge";
 import { Button } from "@marble/ui/components/button";
 import { Card, CardDescription, CardTitle } from "@marble/ui/components/card";
@@ -18,23 +19,18 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { organization } from "@/lib/auth/client";
 import { orpc } from "@/lib/orpc";
-import { useWorkspace } from "@/providers/workspace";
 
-interface Invite {
-  id: string;
-  email: string;
-  role: string | null;
-  status: string;
-  expiresAt: string | Date;
-  inviterId: string;
-}
+type Invite = RouterOutputs["workspaces"]["invitations"]["list"][number];
 
 interface InviteSectionProps {
   invitations: Invite[];
+  workspaceId: string;
 }
 
-export function InviteSection({ invitations }: InviteSectionProps) {
-  const { refreshActiveWorkspace } = useWorkspace();
+export function InviteSection({
+  invitations,
+  workspaceId,
+}: InviteSectionProps) {
   const queryClient = useQueryClient();
 
   const pendingInvitations = invitations.filter(
@@ -53,6 +49,7 @@ export function InviteSection({ invitations }: InviteSectionProps) {
       const { data, error } = await organization.inviteMember({
         email,
         role: role as "owner" | "admin" | "member",
+        organizationId: workspaceId,
         resend: true,
       });
 
@@ -73,9 +70,10 @@ export function InviteSection({ invitations }: InviteSectionProps) {
       });
 
       await queryClient.invalidateQueries({
-        queryKey: orpc.workspaces.list.key(),
+        queryKey: orpc.workspaces.invitations.list.key({
+          input: { workspaceId },
+        }),
       });
-      await refreshActiveWorkspace();
     },
     onError: (error, _variables) => {
       toast.error(
@@ -110,9 +108,10 @@ export function InviteSection({ invitations }: InviteSectionProps) {
       });
 
       await queryClient.invalidateQueries({
-        queryKey: orpc.workspaces.list.key(),
+        queryKey: orpc.workspaces.invitations.list.key({
+          input: { workspaceId },
+        }),
       });
-      await refreshActiveWorkspace();
     },
     onError: (error, _variables) => {
       toast.error(
