@@ -147,9 +147,10 @@ export function getWorkspacePlan(
     status?: string;
     cancelAtPeriodEnd?: boolean;
     currentPeriodEnd?: string | Date | null;
-  } | null
+  } | null,
+  now: Date = new Date()
 ): PlanType {
-  if (!subscription?.plan || !isSubscriptionActive(subscription)) {
+  if (!subscription?.plan || !isSubscriptionActive(subscription, now)) {
     return "free";
   }
 
