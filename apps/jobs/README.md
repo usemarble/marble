@@ -18,8 +18,11 @@ dead-letter queue, configured in `cloudflare.config.ts`.
 
 ## Event Flow
 
-1. API or CMS creates a `workspaceEvent`.
-2. The event ID is sent to `marble-events`.
+1. API or CMS creates a `workspaceEvent` (in the same transaction as the change
+   it describes, for the API's writes).
+2. After the commit, the event ID is sent to `marble-events` and the row is
+   stamped `enqueuedAt`. A cron every five minutes re-sends events that are
+   still unstamped after a minute (see "Outbox sweep" below).
 3. The jobs worker loads the event and finds matching webhook endpoints.
 4. For each endpoint, the worker upserts a `webhookDelivery` row and enqueues
    the delivery ID to `marble-webhook-deliveries`.
@@ -30,6 +33,19 @@ dead-letter queue, configured in `cloudflare.config.ts`.
 Fan-out is idempotent through the unique `(eventId, webhookEndpointId)` delivery
 constraint. If an event message is retried after a partial fan-out, existing
 delivery rows are reused instead of duplicated.
+
+## Outbox sweep
+
+The `*/5 * * * *` cron calls `sweepEvents` from `@marble/api`: it re-sends
+workspace events that were committed but never reached the queue (the send
+failed, or the Worker was recycled before it ran) and have not been processed.
+Delivery is therefore at-least-once; the fan-out is idempotent. The hourly cron
+keeps running cleanup. Both expressions live in `src/crons.ts`.
+
+Queue batches are dispatched on the per-mode queue names, which
+`cloudflare.config.ts` provides as `QUEUE_EVENTS`, `QUEUE_WEBHOOK_DELIVERIES`,
+`QUEUE_TASKS` and `QUEUE_DLQ` (staging and dev queues carry a `-staging` or
+`-dev` suffix).
 
 ## Webhook Delivery Behavior
 

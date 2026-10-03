@@ -7,6 +7,32 @@ on:
 jobs:
   tests:
     runs-on: ubuntu-latest
+    # The same services as the root docker-compose.yml. Tests in @marble/api,
+    # @marble/auth and @marble/db create their own database on this Postgres.
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: usemarble
+          POSTGRES_PASSWORD: justusemarble
+          POSTGRES_DB: marble
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U usemarble"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis
+      serverless-redis-http:
+        image: hiett/serverless-redis-http:latest
+        env:
+          SRH_MODE: env
+          SRH_TOKEN: justusemarble
+          SRH_CONNECTION_STRING: redis://redis:6379
+        ports:
+          - 8079:80
     steps:
       - name: Checkout
         uses: actions/checkout@v5

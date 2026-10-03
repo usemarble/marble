@@ -30,6 +30,14 @@ only holds an origin connection for the length of each query or transaction.
 Closing it early kills queries that background tasks are still running, which
 is how API-triggered webhooks were lost between #380 and the fix.
 
+## Testing against Postgres
+
+`@marble/db/testing` exports `createTestDatabase()`: it creates a throwaway
+database on the docker-compose Postgres (`docker compose up -d`), applies every
+migration in `drizzle/` to it and returns a Hyperdrive-shaped client. Call it in
+`beforeAll` and `close()` in `afterAll`; each test file gets its own database, so
+files run in parallel. Set `TEST_POSTGRES_URL` to use a different server.
+
 ## Environment variables
 
 | Variable | Used by | Notes |
