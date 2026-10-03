@@ -24,13 +24,13 @@ Before merging to staging, set these new secrets on `marble-api-staging`:
 | Secret | Value |
 | --- | --- |
 | `BETTER_AUTH_SECRET` | A staging-only auth secret of at least 32 characters |
-| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Staging Google OAuth credentials |
-| `GITHUB_ID`, `GITHUB_SECRET` | Staging GitHub OAuth credentials |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Google OAuth credentials |
+| `GITHUB_ID`, `GITHUB_SECRET` | GitHub OAuth credentials |
 | `POLAR_WEBHOOK_SECRET` | Secret for the sandbox webhook below |
-| `POLAR_SUCCESS_URL` | `https://staging.marblecms.com/api/polar/success?checkout_id={CHECKOUT_ID}` |
-| `POLAR_HOBBY_MONTHLY_PRODUCT_ID`, `POLAR_HOBBY_YEARLY_PRODUCT_ID` | Sandbox Hobby products |
-| `POLAR_PRO_MONTHLY_PRODUCT_ID`, `POLAR_PRO_YEARLY_PRODUCT_ID` | Sandbox Pro products |
-| `DATABUDDY_API_KEY`, `DATABUDDY_CLIENT_ID`, `DATABUDDY_WEB_CLIENT_ID` | Registration analytics credentials/property IDs; registration tracking runs only in production |
+
+Polar product IDs, the checkout success URL and the Databuddy client IDs are
+plain values in `cloudflare.config.ts`. `DATABUDDY_API_KEY` is declared only in
+production, where registration tracking runs.
 
 The existing `POLAR_ACCESS_TOKEN`, `REDIS_URL`, `REDIS_TOKEN`, `RESEND_API_KEY`
 and `SYSTEM_SECRET` remain declared. The Polar token must target the sandbox,

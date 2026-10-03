@@ -1,10 +1,12 @@
 import { Separator } from "@marble/ui/components/separator";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { LoginForm } from "@/components/auth/login-form";
 import MarbleIcon from "@/components/icons/marble";
 import { safeRedirectPath } from "@/lib/auth/redirect";
+import { getServerSession } from "@/lib/auth/session";
 import { SITE_CONFIG } from "@/utils/site";
 
 export const metadata: Metadata = {
@@ -26,6 +28,10 @@ export default async function LoginPage(props: PageProps) {
   const from = safeRedirectPath(
     Array.isArray(searchParams.from) ? searchParams.from[0] : searchParams.from
   );
+  const session = await getServerSession();
+  if (session?.user.emailVerified) {
+    redirect(from);
+  }
   const encodedFrom = encodeURIComponent(from);
 
   return (

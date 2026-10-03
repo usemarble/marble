@@ -1,4 +1,5 @@
 import {
+  apiUrl,
   appUrl,
   baseWorker,
   dataBindings,
@@ -10,16 +11,33 @@ import {
 import type { EventMessage, TaskMessage } from "@marble/events";
 import { bindings, defineConfig } from "cf/config";
 
+/**
+ * Polar product IDs aren't secret. Staging and dev share the sandbox
+ * organization's products.
+ */
+const sandboxProducts = {
+  hobbyMonthly: "e98c76bc-b8b5-4f75-8760-a604ecc0af88",
+  hobbyYearly: "3c676289-33e0-4043-a4a5-9e9fc19751a2",
+  proMonthly: "fc74a674-7e10-49bd-9c36-a85d66d8148f",
+  proYearly: "713a1ba9-bb0b-4afd-bdd0-2be3d2b61b39",
+};
+const polarProducts = {
+  production: {
+    hobbyMonthly: "1937233e-34dc-4c5c-ac90-4e563ec0bede",
+    hobbyYearly: "43141d97-d052-4c18-af81-410ab6b01fd0",
+    proMonthly: "39f66f1d-2d68-4683-a226-6758aae8b605",
+    proYearly: "dde9531b-c321-474e-a6c3-a69ce45dd940",
+  },
+  staging: sandboxProducts,
+  dev: sandboxProducts,
+};
+
 export default defineConfig((ctx) => {
   const mode = resolveMode(ctx.mode);
   const queue = queues(mode);
   const publicUrl = storagePublicUrl(mode);
   const dashboardOrigin = appUrl(mode);
-  const authUrl = {
-    production: "https://api.marblecms.com",
-    staging: "https://api-staging.marblecms.com",
-    dev: "http://localhost:8787",
-  }[mode];
+  const products = polarProducts[mode];
 
   return {
     worker: {
@@ -37,13 +55,27 @@ export default defineConfig((ctx) => {
         ),
         MODE: bindings.text(mode),
         APP_URL: bindings.text(dashboardOrigin),
-        BETTER_AUTH_URL: bindings.text(authUrl),
+        BETTER_AUTH_URL: bindings.text(apiUrl(mode)),
         AUTH_COOKIE_DOMAIN: bindings.text(
           mode === "dev" ? "" : ".marblecms.com"
         ),
         AUTH_COOKIE_PREFIX: bindings.text(workerName("marble", mode)),
         POLAR_SERVER: bindings.text(
           mode === "production" ? "production" : "sandbox"
+        ),
+        POLAR_SUCCESS_URL: bindings.text(
+          `${dashboardOrigin}/api/polar/success?checkout_id={CHECKOUT_ID}`
+        ),
+        POLAR_HOBBY_MONTHLY_PRODUCT_ID: bindings.text(products.hobbyMonthly),
+        POLAR_HOBBY_YEARLY_PRODUCT_ID: bindings.text(products.hobbyYearly),
+        POLAR_PRO_MONTHLY_PRODUCT_ID: bindings.text(products.proMonthly),
+        POLAR_PRO_YEARLY_PRODUCT_ID: bindings.text(products.proYearly),
+        // Registration analytics only run in production.
+        DATABUDDY_CLIENT_ID: bindings.text(
+          mode === "production" ? "CG1SRcfYdIQoCeBrPpbJ_" : ""
+        ),
+        DATABUDDY_WEB_CLIENT_ID: bindings.text(
+          mode === "production" ? "Dq_1D8IsZscrCY2rNneFZ" : ""
         ),
         // cf deploy deletes any secret not declared here.
         BETTER_AUTH_SECRET: bindings.secret(),
@@ -53,17 +85,12 @@ export default defineConfig((ctx) => {
         GITHUB_SECRET: bindings.secret(),
         POLAR_ACCESS_TOKEN: bindings.secret(),
         POLAR_WEBHOOK_SECRET: bindings.secret(),
-        POLAR_SUCCESS_URL: bindings.secret(),
-        POLAR_HOBBY_MONTHLY_PRODUCT_ID: bindings.secret(),
-        POLAR_HOBBY_YEARLY_PRODUCT_ID: bindings.secret(),
-        POLAR_PRO_MONTHLY_PRODUCT_ID: bindings.secret(),
-        POLAR_PRO_YEARLY_PRODUCT_ID: bindings.secret(),
         REDIS_URL: bindings.secret(),
         REDIS_TOKEN: bindings.secret(),
         RESEND_API_KEY: bindings.secret(),
-        DATABUDDY_API_KEY: bindings.secret(),
-        DATABUDDY_CLIENT_ID: bindings.secret(),
-        DATABUDDY_WEB_CLIENT_ID: bindings.secret(),
+        ...(mode === "production" && {
+          DATABUDDY_API_KEY: bindings.secret(),
+        }),
         SYSTEM_SECRET: bindings.secret(),
       },
     },

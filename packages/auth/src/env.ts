@@ -23,7 +23,7 @@ export interface AuthEnv {
   REDIS_URL: string;
   REDIS_TOKEN: string;
   RESEND_API_KEY: string;
-  DATABUDDY_API_KEY: string;
+  DATABUDDY_API_KEY?: string;
   DATABUDDY_CLIENT_ID: string;
   DATABUDDY_WEB_CLIENT_ID: string;
   STORAGE: {

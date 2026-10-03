@@ -1,9 +1,8 @@
 import { db } from "@marble/db";
 import { member, workspace } from "@marble/db/schema";
 import { and, eq } from "drizzle-orm";
-import { headers } from "next/headers";
 import { NextResponse } from "next/server";
-import { authClient } from "./client";
+import { getServerSession } from "./session";
 
 /**
  * Requires access to the workspace currently stored in the Better Auth session.
@@ -13,13 +12,7 @@ import { authClient } from "./client";
  */
 export async function requireActiveWorkspaceAccess() {
   try {
-    const { data: sessionData, error: sessionError } =
-      await authClient.getSession({
-        fetchOptions: { headers: await headers() },
-      });
-    if (sessionError) {
-      throw new Error(sessionError.message);
-    }
+    const sessionData = await getServerSession();
     const workspaceId = sessionData?.session.activeOrganizationId;
 
     if (!sessionData?.user.emailVerified || !workspaceId) {
@@ -83,13 +76,7 @@ export async function requireActiveWorkspaceAccess() {
  */
 export async function requireWorkspaceAccess(workspaceSlug: string) {
   try {
-    const { data: sessionData, error: sessionError } =
-      await authClient.getSession({
-        fetchOptions: { headers: await headers() },
-      });
-    if (sessionError) {
-      throw new Error(sessionError.message);
-    }
+    const sessionData = await getServerSession();
 
     if (!sessionData?.user.emailVerified) {
       return {

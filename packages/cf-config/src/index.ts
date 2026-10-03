@@ -92,6 +92,17 @@ export function appUrl(mode: Mode) {
   return appUrls[mode];
 }
 
+const apiUrls = {
+  production: "https://api.marblecms.com",
+  staging: "https://api-staging.marblecms.com",
+  dev: "http://localhost:8787",
+} as const satisfies Record<Mode, string>;
+
+/** The API Worker's origin in each mode; better-auth's baseURL. */
+export function apiUrl(mode: Mode) {
+  return apiUrls[mode];
+}
+
 /**
  * Hyperdrive and R2, used by api and jobs. Locally, Hyperdrive connects to
  * CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE from the app's .env.

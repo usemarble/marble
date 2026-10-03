@@ -1,6 +1,5 @@
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { authClient } from "@/lib/auth/client";
+import { getServerSession } from "@/lib/auth/session";
 import { UserProvider } from "@/providers/user";
 
 export default async function MainLayout({
@@ -8,14 +7,12 @@ export default async function MainLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { data: session, error } = await authClient.getSession({
-    fetchOptions: { headers: await headers() },
-  });
-  if (error) {
-    throw new Error(error.message);
-  }
+  const session = await getServerSession();
   if (!session?.user) {
     redirect("/login");
+  }
+  if (!session.user.emailVerified) {
+    redirect(`/verify?email=${encodeURIComponent(session.user.email)}`);
   }
 
   return (
