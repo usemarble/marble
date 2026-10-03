@@ -8,6 +8,8 @@
     "lib": ["ESNext"],
     "types": ["node", "./.cloudflare/types/index.d.ts"],
     "jsx": "react-jsx",
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
     "paths": {
       "@/*": ["./src/*"]
     }

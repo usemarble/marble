@@ -17,6 +17,7 @@
     "@marble/utils": "workspace:*",
     "@upstash/redis": "^1.39.0",
     "drizzle-orm": "^0.45.2",
+    "evlog": "2.29.0",
     "fflate": "^0.8.3",
     "gray-matter": "^4.0.3",
     "hono": "^4.13.8",
