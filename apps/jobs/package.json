@@ -9,6 +9,7 @@
     "lint": "biome check ."
   },
   "dependencies": {
+    "@marble/api": "workspace:*",
     "@marble/db": "workspace:*",
     "@marble/email": "workspace:*",
     "@marble/events": "workspace:*",

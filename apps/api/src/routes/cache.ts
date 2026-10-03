@@ -1,5 +1,5 @@
+import { createCacheClient } from "@marble/api/lib/cache";
 import { Hono } from "hono";
-import { createCacheClient } from "@/lib/cache";
 import type { Env } from "@/types/env";
 import { SystemCacheInvalidateSchema } from "@/validations/misc";
 

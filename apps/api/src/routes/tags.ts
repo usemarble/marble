@@ -1,9 +1,13 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import {
+  cacheKey,
+  createCacheClient,
+  hashQueryParams,
+} from "@marble/api/lib/cache";
 import { createRecordId } from "@marble/db/id";
 import { post, postToTag, tag as tagTable } from "@marble/db/schema";
 import { toTagPayload, withChanges } from "@marble/events";
 import { and, asc, count, eq, ne, or, sql } from "drizzle-orm";
-import { cacheKey, createCacheClient, hashQueryParams } from "@/lib/cache";
 import { emitEvent } from "@/lib/events";
 import { requireWorkspaceId } from "@/lib/workspace";
 import {

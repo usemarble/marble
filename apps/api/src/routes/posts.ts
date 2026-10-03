@@ -1,4 +1,9 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import {
+  cacheKey,
+  createCacheClient,
+  hashQueryParams,
+} from "@marble/api/lib/cache";
 import { createRecordId } from "@marble/db/id";
 import {
   author,
@@ -20,7 +25,6 @@ import {
 } from "@marble/parser";
 import { sanitizeHtml } from "@marble/utils/sanitize";
 import { and, asc, count, desc, eq, inArray, ne, or, sql } from "drizzle-orm";
-import { cacheKey, createCacheClient, hashQueryParams } from "@/lib/cache";
 import type { DbClient } from "@/lib/db";
 import { emitEvent } from "@/lib/events";
 import { resolveCustomFieldValuesByKey } from "@/lib/fields";

@@ -11,6 +11,15 @@ const MAX_CACHE_VALUE_BYTES = 8 * 1024 * 1024;
 
 export type CacheClient = ReturnType<typeof createCacheClient>;
 
+/** Resources the dashboard and `/v1` cache per workspace. */
+export type CacheResource =
+  | "posts"
+  | "categories"
+  | "tags"
+  | "authors"
+  | "media"
+  | "fields";
+
 /**
  * Create a cache client with helper methods for the cache-aside pattern.
  * Uses Upstash Redis for storage.
@@ -167,7 +176,7 @@ export function createCacheClient(url: string, token: string) {
      */
     async invalidateResource(
       workspaceId: string,
-      resource: "posts" | "categories" | "tags" | "authors" | "media" | "fields"
+      resource: CacheResource
     ): Promise<number> {
       return this.invalidate(`${CACHE_PREFIX}:${workspaceId}:${resource}:*`);
     },
