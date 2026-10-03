@@ -1,4 +1,4 @@
-import type { PlanType } from "@/lib/plans";
+import type { PlanType } from "@marble/utils";
 
 export interface Workspace {
   id: string;

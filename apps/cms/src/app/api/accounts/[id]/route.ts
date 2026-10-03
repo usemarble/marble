@@ -1,16 +1,22 @@
 import { db } from "@marble/db";
 import { account } from "@marble/db/schema";
 import { and, eq } from "drizzle-orm";
+import { headers } from "next/headers";
 import { NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth/session";
+import { authClient } from "@/lib/auth/client";
 
 export async function DELETE(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await getServerSession();
+  const { data: session, error: sessionError } = await authClient.getSession({
+    fetchOptions: { headers: await headers() },
+  });
+  if (sessionError) {
+    throw new Error(sessionError.message);
+  }
 
-  if (!session || !session.user) {
+  if (!session?.user.emailVerified) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

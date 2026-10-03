@@ -1,57 +1,28 @@
-import { findWorkspaceToActivate } from "@marble/auth/workspace";
 import { db } from "@marble/db";
 import { member, subscription, workspace } from "@marble/db/schema";
+import { getWorkspacePlan } from "@marble/utils";
 import { and, desc, eq, gt, or } from "drizzle-orm";
-import type { RequestCookies } from "next/dist/compiled/@edge-runtime/cookies";
-import { getServerSession } from "@/lib/auth/session";
-import { getWorkspacePlan } from "@/lib/plans";
+import { headers } from "next/headers";
+import { authClient } from "@/lib/auth/client";
 import type { Workspace } from "@/types/workspace";
-import { getLastVisitedWorkspace } from "@/utils/workspace/client";
-
-/**
- * Determines which workspace should be activated for a given user, preferring
- * the last visited workspace stored in cookies. See `findWorkspaceToActivate`
- * for the fallback order.
- *
- * @param userId - The ID of the user to look up workspaces for.
- * @param cookies - Optional Next.js `RequestCookies` object, used to read the last visited workspace.
- * @returns An object containing `{ slug, id }` for the selected workspace, or `undefined` if none found.
- */
-export async function getLastActiveWorkspaceOrNewOneToSetAsActive(
-  userId: string,
-  cookies?: RequestCookies
-) {
-  const lastVisitedSlug = cookies
-    ? getLastVisitedWorkspace(cookies)
-    : undefined;
-  return await findWorkspaceToActivate(db, userId, lastVisitedSlug);
-}
-
-/**
- * Fetches the initial workspace data for the active user.
- *
- * If a workspace slug is provided, the function fetches that workspace.
- * Otherwise, it falls back to the user's currently active session workspace.
- *
- * @param {string} [workspaceSlug] - Optional slug of the workspace to fetch.
- * @returns {Promise<Workspace|null>} The workspace data or null if not found.
- */
-export async function getInitialWorkspaceData(
-  workspaceSlug?: string
-): Promise<Workspace | null> {
-  const data = await getWorkspaceLayoutData(workspaceSlug);
-  return data?.workspace ?? null;
-}
 
 export async function getWorkspaceLayoutData(workspaceSlug?: string): Promise<{
   activeOrganizationId: string | null;
   workspace: Workspace | null;
 } | null> {
   try {
-    const session = await getServerSession();
+    const { data: session, error: sessionError } = await authClient.getSession({
+      fetchOptions: { headers: await headers() },
+    });
+    if (sessionError) {
+      throw new Error(sessionError.message);
+    }
     const activeOrganizationId = session?.session?.activeOrganizationId ?? null;
 
-    if (!session?.user || (!activeOrganizationId && !workspaceSlug)) {
+    if (
+      !session?.user.emailVerified ||
+      (!activeOrganizationId && !workspaceSlug)
+    ) {
       return null;
     }
 
@@ -152,26 +123,4 @@ export async function getWorkspaceLayoutData(workspaceSlug?: string): Promise<{
     console.error("Error fetching initial workspace data:", error);
     return null;
   }
-}
-
-/**
- * Validates whether the given workspace slug exists and the active user has access to it.
- *
- * @param slug - The workspace slug to validate.
- * @returns {Promise<boolean>} True if the workspace exists and the user is a member.
- */
-export async function validateWorkspaceAccess(slug: string): Promise<boolean> {
-  const session = await getServerSession();
-  if (!session?.user) {
-    return false;
-  }
-
-  const rows = await db
-    .select({ id: workspace.id })
-    .from(workspace)
-    .innerJoin(member, eq(member.organizationId, workspace.id))
-    .where(and(eq(workspace.slug, slug), eq(member.userId, session.user.id)))
-    .limit(1);
-
-  return Boolean(rows.at(0));
 }

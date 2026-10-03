@@ -2,10 +2,11 @@ import { createAuthClient } from "@marble/auth/client";
 import { toast } from "@marble/ui/components/sonner";
 
 export const authClient = createAuthClient({
-  baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
   fetchOptions: {
+    credentials: "include",
     onError(e) {
-      if (e.error.status === 429) {
+      if (typeof window !== "undefined" && e.error.status === 429) {
         toast.error("Too many requests. Please try again later.");
       }
     },

@@ -11,18 +11,9 @@ import type { DbClient } from "@/lib/db";
  * every route to the environment sees the same type: the `env` handler
  * argument, Hono's `c.env`, and `import { env } from "cloudflare:workers"`.
  *
- * Only declare what the config does not: optional values that are unset by
- * default and fall back to a constant in code.
+ * Optional values not declared by the config can be added through namespace
+ * augmentation here; required bindings belong in cloudflare.config.ts.
  */
-declare global {
-  // biome-ignore lint/style/noNamespace: declaration merging into Cloudflare.Env requires the ambient namespace; there is no module form.
-  namespace Cloudflare {
-    interface Env {
-      STORAGE_PUBLIC_URL?: string;
-    }
-  }
-}
-
 export type Env = Cloudflare.Env;
 
 // Context variables set by keyAuthorization middleware

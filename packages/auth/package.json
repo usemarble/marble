@@ -12,10 +12,10 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "lint": "biome check ."
+    "lint": "biome check .",
+    "test": "vitest run"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.758.0",
     "@better-auth/drizzle-adapter": "1.7.6",
     "@databuddy/sdk": "^2.4.20",
     "@marble/db": "workspace:*",
@@ -32,10 +32,12 @@
     "react": "^19.3.0"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "5.20260911.1",
     "@marble/tsconfig": "workspace:*",
     "@types/node": "^22.9.0",
     "@types/react": "19.3.0",
     "react": "^19.3.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
   }
 }

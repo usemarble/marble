@@ -29,6 +29,9 @@ export async function POST(request: Request) {
       secure: new URL(request.url).protocol === "https:",
       sameSite: "lax",
       path: "/api/auth",
+      ...(new URL(request.url).hostname.endsWith(".marblecms.com") && {
+        domain: ".marblecms.com",
+      }),
       maxAge: 60 * 60 * 24 * 7,
     });
   }

@@ -81,7 +81,7 @@ export function LoginForm() {
     try {
       await authClient.signIn.social({
         provider,
-        callbackURL,
+        callbackURL: new URL(callbackURL, window.location.origin).href,
       });
     } catch (_error) {
       toast("Sign in failed. Please try again.");

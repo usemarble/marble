@@ -1,13 +1,20 @@
 import { db } from "@marble/db";
 import { account, user } from "@marble/db/schema";
 import { eq } from "drizzle-orm";
+import { headers } from "next/headers";
 import { NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth/session";
+import { authClient } from "@/lib/auth/client";
 
 export async function GET() {
-  const sessionData = await getServerSession();
+  const { data: sessionData, error: sessionError } =
+    await authClient.getSession({
+      fetchOptions: { headers: await headers() },
+    });
+  if (sessionError) {
+    throw new Error(sessionError.message);
+  }
 
-  if (!sessionData) {
+  if (!sessionData?.user.emailVerified) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 

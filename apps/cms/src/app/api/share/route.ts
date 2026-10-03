@@ -1,10 +1,10 @@
 import { createRecordId, db } from "@marble/db";
 import { post, shareLink, subscription } from "@marble/db/schema";
+import { canPerformAction, getWorkspacePlan } from "@marble/utils";
 import { and, desc, eq, gt, or } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
-import { canPerformAction, getWorkspacePlan } from "@/lib/plans";
 import { shareLinkSchema } from "@/lib/validations/post";
 
 export async function POST(request: Request) {

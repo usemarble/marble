@@ -5,11 +5,11 @@ import {
   subscription,
 } from "@marble/db/schema";
 import { toAuthorPayload } from "@marble/events";
+import { getWorkspacePlan, PLAN_LIMITS } from "@marble/utils";
 import { and, count, desc, eq, gt, or } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireActiveWorkspaceAccess } from "@/lib/auth/access";
 import { invalidateCache } from "@/lib/cache/invalidate";
-import { getWorkspacePlan, PLAN_LIMITS } from "@/lib/plans";
 import { getDashboardAuthors } from "@/lib/queries/dashboard/authors";
 import {
   emitDashboardEvent,

@@ -1,9 +1,10 @@
 import { db } from "@marble/db";
 import { member, subscription, workspace } from "@marble/db/schema";
+import { getWorkspacePlan } from "@marble/utils";
 import { and, desc, eq, gt, inArray, or } from "drizzle-orm";
+import { headers } from "next/headers";
 import { NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth/session";
-import { getWorkspacePlan } from "@/lib/plans";
+import { authClient } from "@/lib/auth/client";
 
 function activeSubscriptionFilter() {
   return or(
@@ -18,9 +19,15 @@ function activeSubscriptionFilter() {
 }
 
 export async function GET() {
-  const sessionData = await getServerSession();
+  const { data: sessionData, error: sessionError } =
+    await authClient.getSession({
+      fetchOptions: { headers: await headers() },
+    });
+  if (sessionError) {
+    throw new Error(sessionError.message);
+  }
 
-  if (!sessionData) {
+  if (!sessionData?.user.emailVerified) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 

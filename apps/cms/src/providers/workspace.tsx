@@ -11,7 +11,8 @@ import {
   useState,
 } from "react";
 import { toast } from "sonner";
-import { organization } from "@/lib/auth/client";
+import PageLoader from "@/components/shared/page-loader";
+import { organization, useSession } from "@/lib/auth/client";
 import {
   WORKSPACE_SCOPED_PREFIXES,
   type WorkspaceScopedPrefix,
@@ -41,6 +42,29 @@ export function WorkspaceProvider({
     initialWorkspace
   );
   const [isSwitchingWorkspace, setIsSwitchingWorkspace] = useState(false);
+  const { data: session } = useSession();
+  const workspaceId = activeWorkspace?.id;
+  const activeOrganizationId = session?.session.activeOrganizationId;
+
+  useEffect(() => {
+    if (
+      isSwitchingWorkspace ||
+      !(workspaceId && session) ||
+      activeOrganizationId === workspaceId
+    ) {
+      return;
+    }
+    organization
+      .setActive({ organizationId: workspaceId })
+      .then(({ error }) => {
+        if (error) {
+          toast.error(error.message || "Failed to activate workspace");
+        }
+      })
+      .catch((error) => {
+        console.error("Failed to activate workspace", error);
+      });
+  }, [activeOrganizationId, isSwitchingWorkspace, session, workspaceId]);
 
   const { data: usersWorkspaces } = useQuery({
     queryKey: QUERY_KEYS.WORKSPACE_LIST,
@@ -126,7 +150,8 @@ export function WorkspaceProvider({
     setIsSwitchingWorkspace(false);
   }, [initialWorkspace]);
 
-  const isFetchingWorkspace = isSwitchingWorkspace;
+  const isFetchingWorkspace =
+    isSwitchingWorkspace || !session || activeOrganizationId !== workspaceId;
   const isOwner = activeWorkspace?.currentUserRole === "owner";
   const isAdmin = activeWorkspace?.currentUserRole === "admin";
   const isMember = activeWorkspace?.currentUserRole === "member";
@@ -146,7 +171,7 @@ export function WorkspaceProvider({
         currentUserRole,
       }}
     >
-      {children}
+      {isFetchingWorkspace ? <PageLoader /> : children}
     </WorkspaceContext.Provider>
   );
 }

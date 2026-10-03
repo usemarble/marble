@@ -1,5 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
 import {
   canInviteMoreMembers,
   canPerformAction,
@@ -9,7 +7,9 @@ import {
   isOverLimit,
   type PlanLimits,
   type PlanType,
-} from "@/lib/plans";
+} from "@marble/utils";
+import { useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { useWorkspace } from "@/providers/workspace";
 import type { UsageDashboardData } from "@/types/dashboard";

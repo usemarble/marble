@@ -30,7 +30,7 @@ export async function trackRegistrationCompleted({
   cookieHeader?: string | null;
   method: "email" | "google" | "github" | "unknown";
 }) {
-  if (env.NODE_ENV !== "production") {
+  if (env.MODE !== "production") {
     return;
   }
 

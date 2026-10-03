@@ -8,7 +8,6 @@ const nextConfig: NextConfig = {
     "@marble/db",
     "@marble/ui",
     "@marble/parser",
-    "@marble/email",
   ],
   reactCompiler: true,
   experimental: {

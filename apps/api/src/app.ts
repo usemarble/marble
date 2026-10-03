@@ -1,4 +1,5 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
+import { createAuth } from "@marble/auth";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { trimTrailingSlash } from "hono/trailing-slash";
@@ -47,7 +48,23 @@ const openApiDocument = {
   security: [{ apiKey: [] }],
 };
 
-// Global middleware — CORS must be first so preflight and cross-origin responses work
+// Auth has credentialed CORS and runs before the public API's middleware.
+app.use(
+  "/api/auth/*",
+  cors({
+    origin: (_origin, c) => c.env.APP_URL,
+    credentials: true,
+    allowHeaders: ["Content-Type", "Authorization"],
+    allowMethods: ["GET", "POST", "OPTIONS"],
+  })
+);
+app.use("/api/auth/*", dbMiddleware);
+app.all("/api/auth/*", (c) => {
+  const auth = createAuth({ db: c.get("db"), env: c.env });
+  return auth.handler(c.req.raw);
+});
+
+// Public API CORS remains permissive for content consumers.
 app.use(
   "*",
   cors({

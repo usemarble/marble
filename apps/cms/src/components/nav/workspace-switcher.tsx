@@ -26,9 +26,9 @@ import {
 } from "@marble/ui/components/sidebar";
 import { Skeleton } from "@marble/ui/components/skeleton";
 import { cn } from "@marble/ui/lib/utils";
+import { getWorkspacePlan } from "@marble/utils";
 import { CheckIcon, PlusIcon } from "@phosphor-icons/react";
 import { useState } from "react";
-import { getWorkspacePlan } from "@/lib/plans";
 import type { Workspace } from "@/types/workspace";
 import { useWorkspace } from "../../providers/workspace";
 import { CreateWorkspaceDialog } from "./create-workspace-dialog";

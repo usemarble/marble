@@ -117,7 +117,7 @@ export function RegisterForm() {
       await saveAttribution();
       const result = await authClient.signIn.social({
         provider,
-        callbackURL,
+        callbackURL: new URL(callbackURL, window.location.origin).href,
       });
       if (result.error) {
         track("registration_failed", { method: provider });

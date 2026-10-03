@@ -1,6 +1,6 @@
 import type { DbClient } from "@marble/db";
 import { createRecordId } from "@marble/db/id";
-import { author as authorTable, user as userTable } from "@marble/db/schema";
+import { author as authorTable } from "@marble/db/schema";
 import { generateSlug } from "@marble/utils";
 import {
   nameSchema,
@@ -99,21 +99,8 @@ export async function createAuthor(
  * Copies a trusted provider avatar into Marble-owned R2 storage for a user.
  * Intended for Better Auth user lifecycle hooks.
  */
-export async function storeUserImage(db: DbClient, env: AuthEnv, user: User) {
+export async function storeUserImage(env: AuthEnv, user: User) {
   if (!user.image) {
-    return;
-  }
-
-  const {
-    CLOUDFLARE_ACCESS_KEY_ID: accessKeyId,
-    CLOUDFLARE_SECRET_ACCESS_KEY: secretAccessKey,
-    CLOUDFLARE_BUCKET_NAME: bucket,
-    CLOUDFLARE_S3_ENDPOINT: endpoint,
-    CLOUDFLARE_PUBLIC_URL: publicUrl,
-  } = env;
-
-  if (!(accessKeyId && secretAccessKey && bucket && endpoint && publicUrl)) {
-    console.warn("R2 is not configured; keeping the provider avatar");
     return;
   }
 
@@ -130,37 +117,14 @@ export async function storeUserImage(db: DbClient, env: AuthEnv, user: User) {
 
     const contentType = response.headers.get("content-type") || "image/png";
     const arrayBuffer = await response.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
     const extension = contentType.split("/")[1];
     const key = `avatars/${user.id}/${nanoid()}.${extension}`;
 
-    // Loaded on demand: only sign-up needs it, and it is a large module for
-    // every other caller of the auth config to evaluate.
-    const { PutObjectCommand, S3Client } = await import("@aws-sdk/client-s3");
-    const r2 = new S3Client({
-      region: "auto",
-      endpoint,
-      credentials: { accessKeyId, secretAccessKey },
+    await env.STORAGE.put(key, arrayBuffer, {
+      httpMetadata: { contentType },
     });
 
-    await r2.send(
-      new PutObjectCommand({
-        Bucket: bucket,
-        Key: key,
-        Body: buffer,
-        ContentType: contentType,
-        ContentLength: buffer.length,
-      })
-    );
-
-    const avatarUrl = `${publicUrl}/${key}`;
-
-    await db
-      .update(userTable)
-      .set({
-        image: avatarUrl,
-      })
-      .where(eq(userTable.id, user.id));
+    const avatarUrl = `${env.STORAGE_PUBLIC_URL}/${key}`;
 
     return { avatarUrl };
   } catch (error) {

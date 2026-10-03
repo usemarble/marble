@@ -1,9 +1,9 @@
 import { db } from "@marble/db";
 import { subscription, workspace } from "@marble/db/schema";
+import { getWorkspacePlan } from "@marble/utils";
 import { and, desc, eq, gt, or } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireWorkspaceAccess } from "@/lib/auth/access";
-import { getWorkspacePlan } from "@/lib/plans";
 
 function activeSubscriptionFilter() {
   return or(

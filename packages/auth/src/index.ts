@@ -45,7 +45,7 @@ import {
   validateWorkspaceSlug,
   validateWorkspaceTimezone,
 } from "./hooks";
-import { createPolarSdkClient, polarServer } from "./polar/client";
+import { createPolarSdkClient } from "./polar/client";
 import { handleCustomerCreated } from "./polar/customer.created";
 import { handleSubscriptionCanceled } from "./polar/subscription.canceled";
 import { handleSubscriptionCreated } from "./polar/subscription.created";
@@ -99,24 +99,23 @@ async function sendOnboardingEmails(
 
 /**
  * Builds Marble's better-auth instance. A factory rather than a singleton
- * because the database client differs by runtime: the CMS passes its
- * neon-serverless pool, while a Worker opens a Hyperdrive client per
- * invocation and must build auth inside the request with it.
+ * because the Worker's Hyperdrive client belongs to one invocation.
  */
 export function createAuth({ db, env }: { db: DbClient; env: AuthEnv }) {
   const redis = new Redis({ url: env.REDIS_URL, token: env.REDIS_TOKEN });
   const mailer = createAuthMailer({
     resendApiKey: env.RESEND_API_KEY,
-    development: env.NODE_ENV === "development",
+    development: env.MODE === "dev",
   });
   const polarClient = createPolarSdkClient(
     env.POLAR_ACCESS_TOKEN,
-    polarServer(env)
+    env.POLAR_SERVER
   );
 
   const auth = betterAuth({
     secret: env.BETTER_AUTH_SECRET,
     baseURL: env.BETTER_AUTH_URL,
+    trustedOrigins: [env.APP_URL],
     database: drizzleAdapter(db, {
       provider: "pg",
       schema: {
@@ -225,15 +224,16 @@ export function createAuth({ db, env }: { db: DbClient; env: AuthEnv }) {
     },
     socialProviders: {
       google: {
-        clientId: env.GOOGLE_CLIENT_ID || "",
-        clientSecret: env.GOOGLE_CLIENT_SECRET || "",
+        clientId: env.GOOGLE_CLIENT_ID,
+        clientSecret: env.GOOGLE_CLIENT_SECRET,
       },
       github: {
-        clientId: env.GITHUB_ID || "",
-        clientSecret: env.GITHUB_SECRET || "",
+        clientId: env.GITHUB_ID,
+        clientSecret: env.GITHUB_SECRET,
       },
     },
     advanced: {
+      useSecureCookies: env.MODE !== "dev",
       database: {
         // Prisma applied @default(cuid()) in the client; Drizzle has no DB default.
         generateId: () => createRecordId(),
@@ -247,7 +247,7 @@ export function createAuth({ db, env }: { db: DbClient; env: AuthEnv }) {
           domain: env.AUTH_COOKIE_DOMAIN,
         },
       }),
-      ...(env.AUTH_COOKIE_PREFIX && { cookiePrefix: env.AUTH_COOKIE_PREFIX }),
+      cookiePrefix: env.AUTH_COOKIE_PREFIX,
     },
     organization: {
       modelName: "workspace",
@@ -255,7 +255,7 @@ export function createAuth({ db, env }: { db: DbClient; env: AuthEnv }) {
     plugins: [
       polar({
         client: polarClient,
-        createCustomerOnSignUp: env.NODE_ENV === "production",
+        createCustomerOnSignUp: env.MODE !== "dev",
         authenticatedUsersOnly: true,
         use: [
           portal(),
@@ -263,26 +263,26 @@ export function createAuth({ db, env }: { db: DbClient; env: AuthEnv }) {
           checkout({
             products: [
               {
-                productId: env.POLAR_HOBBY_MONTHLY_PRODUCT_ID || "",
+                productId: env.POLAR_HOBBY_MONTHLY_PRODUCT_ID,
                 slug: "hobby",
               },
               {
-                productId: env.POLAR_HOBBY_YEARLY_PRODUCT_ID || "",
+                productId: env.POLAR_HOBBY_YEARLY_PRODUCT_ID,
                 slug: "hobby-yearly",
               },
               {
-                productId: env.POLAR_PRO_MONTHLY_PRODUCT_ID || "",
+                productId: env.POLAR_PRO_MONTHLY_PRODUCT_ID,
                 slug: "pro",
               },
               {
-                productId: env.POLAR_PRO_YEARLY_PRODUCT_ID || "",
+                productId: env.POLAR_PRO_YEARLY_PRODUCT_ID,
                 slug: "pro-yearly",
               },
             ],
-            successUrl: env.POLAR_SUCCESS_URL || "",
+            successUrl: env.POLAR_SUCCESS_URL,
           }),
           webhooks({
-            secret: env.POLAR_WEBHOOK_SECRET || "",
+            secret: env.POLAR_WEBHOOK_SECRET,
             onCustomerCreated: async (payload) => {
               await handleCustomerCreated(payload);
             },
@@ -397,7 +397,15 @@ export function createAuth({ db, env }: { db: DbClient; env: AuthEnv }) {
       user: {
         create: {
           after: async (user, context) => {
-            await storeUserImage(db, env, user);
+            const avatar = await storeUserImage(env, user);
+            if (avatar) {
+              const { internalAdapter } = await auth.$context;
+              // Better Auth also refreshes Redis sessions when a user changes.
+              await internalAdapter.updateUser(user.id, {
+                image: avatar.avatarUrl,
+              });
+              user.image = avatar.avatarUrl;
+            }
 
             if (user.emailVerified) {
               await sendOnboardingEmails(mailer, user);
