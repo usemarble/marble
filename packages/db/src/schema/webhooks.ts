@@ -1,4 +1,5 @@
 import { createId } from "@paralleldrive/cuid2";
+import { sql } from "drizzle-orm";
 import {
   boolean,
   foreignKey,
@@ -71,12 +72,18 @@ export const workspaceEvent = pgTable(
     actorType: workspaceEventActorTypeEnum(),
     actorId: text("actorId"),
     payload: jsonb("payload").default({}).notNull(),
+    // Set once the fan-out message is on the queue. A row still null after a
+    // grace period was committed but never sent, and the jobs sweep re-sends it.
+    enqueuedAt: timestamp({ precision: 3, mode: "date" }),
     processedAt: timestamp({ precision: 3, mode: "date" }),
     createdAt: timestamp("createdAt", { precision: 3, mode: "date" })
       .$defaultFn(() => new Date())
       .notNull(),
   },
   (table) => [
+    index("workspace_event_unenqueued_idx")
+      .using("btree", table.createdAt.asc().nullsLast().op("timestamp_ops"))
+      .where(sql`${table.enqueuedAt} is null`),
     index("workspace_event_workspaceId_createdAt_idx").using(
       "btree",
       table.workspaceId.asc().nullsLast().op("text_ops"),
