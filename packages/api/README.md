@@ -2,8 +2,9 @@
 
 The dashboard's backend, independent of any transport: oRPC routers, the
 context type and the services that hold the business logic. `apps/api` mounts it
-at `/rpc` and builds the per-request context; `apps/cms` imports only the router
-**type**. This package never imports from `apps/*`.
+at `/rpc` and builds the per-request context; `apps/cms` imports the router
+**type** and browser-safe validation helpers. This package never imports from
+`apps/*`.
 
 ```
 src/context.ts      ServiceContext and Context (types only)
@@ -60,3 +61,32 @@ Delivery is at-least-once; the fan-out consumer is idempotent.
 `pnpm --filter @marble/api test` needs the root `docker compose up -d` (Postgres
 and the Redis HTTP proxy). Each test file migrates its own throwaway database
 with `@marble/db/testing`.
+
+## How to move a resource
+
+1. Read the CMS routes, their validation and query helpers, and every caller.
+   Port their queries, rules, errors and DTOs into `services/<resource>.ts`
+   using the request's `ServiceContext`. Services are dashboard-only in
+   MAB-201; leave `/v1` logic alone until MAB-204. Record existing bugs and
+   differences instead of fixing them during the port.
+2. Put every write through `transact`. Write the same events inside it, with
+   `source: "dashboard"` and the resolved actor; register the same resource
+   invalidations there. Never call the CMS's event or cache relays. Preserve
+   writes that previously emitted no event or invalidation.
+3. Add a resource router built from `workspaceProcedure`, with an explicit
+   `workspaceId`, `.route({ method, path, tags })`, and DTO output schemas.
+   Translate service errors at this boundary. Add it to `routers/index.ts`.
+4. Keep page metadata and render a client component. Read filters on the
+   client and use `orpc.<resource>.*.queryOptions` / `mutationOptions` with
+   `useWorkspace()`'s ID. Invalidate oRPC keys scoped to that ID after writes.
+   Remove server fetches, initial data and casted JSON responses, then delete
+   the old Next routes and unused helpers. Import shared browser-safe
+   validation directly from this package; leave no compatibility exports.
+5. Use `@marble/db/testing` and the request/queue helpers in `src/testing.ts`
+   for behavior tests: events and transitions, rollback, and workspace
+   scoping. Verify with `cf dev` and jobs together, checking outbox stamps,
+   fan-out and fresh `/v1` reads. Run package checks and the Worker build;
+   compare `/openapi.json` to a capture from before the port.
+
+Posts also expose `posts.fields.list/get` for the new and existing editors;
+field definition writes and the settings UI remain Step 5.
