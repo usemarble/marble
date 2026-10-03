@@ -4,6 +4,7 @@ import {
   createCacheClient,
   hashQueryParams,
 } from "@marble/api/lib/cache";
+import { transact } from "@marble/api/lib/transaction";
 import { createRecordId } from "@marble/db/id";
 import {
   authorSocial,
@@ -26,7 +27,7 @@ import {
   or,
   sql,
 } from "drizzle-orm";
-import { emitEvent } from "@/lib/events";
+import { serviceContext } from "@/lib/context";
 import { requireWorkspaceId } from "@/lib/workspace";
 import {
   AuthorResponseSchema,
@@ -375,7 +376,6 @@ authors.openapi(createAuthorRoute, async (c) => {
   try {
     const db = c.get("db");
     const workspaceId = requireWorkspaceId(c);
-    const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const body = c.req.valid("json");
 
     // Check plan limits before creating another author.
@@ -450,70 +450,67 @@ authors.openapi(createAuthorRoute, async (c) => {
       );
     }
 
-    const author = await db.transaction(async (tx) => {
-      const [authorRow] = await tx
-        .insert(authorTable)
-        .values({
-          id: createRecordId(),
-          name: body.name,
-          slug: body.slug,
-          bio: body.bio ?? null,
-          role: body.role ?? null,
-          email: body.email ?? null,
-          image: body.image ?? null,
+    const author = await transact(
+      serviceContext(c),
+      async ({ tx, emitEvent, invalidate }) => {
+        const [authorRow] = await tx
+          .insert(authorTable)
+          .values({
+            id: createRecordId(),
+            name: body.name,
+            slug: body.slug,
+            bio: body.bio ?? null,
+            role: body.role ?? null,
+            email: body.email ?? null,
+            image: body.image ?? null,
+            workspaceId,
+            updatedAt: new Date(),
+          })
+          .returning({
+            id: authorTable.id,
+            name: authorTable.name,
+            slug: authorTable.slug,
+            bio: authorTable.bio,
+            role: authorTable.role,
+            image: authorTable.image,
+          });
+
+        if (!authorRow) {
+          throw new Error("Failed to create author");
+        }
+
+        const socialRows =
+          body.socials && body.socials.length > 0
+            ? await tx
+                .insert(authorSocial)
+                .values(
+                  body.socials.map((social) => ({
+                    id: createRecordId(),
+                    authorId: authorRow.id,
+                    url: social.url,
+                    platform: social.platform,
+                    updatedAt: new Date(),
+                  }))
+                )
+                .returning({
+                  url: authorSocial.url,
+                  platform: authorSocial.platform,
+                })
+            : [];
+
+        const created = { ...authorRow, socials: socialRows };
+        invalidate(workspaceId, "authors");
+        await emitEvent({
+          type: "author_created",
           workspaceId,
-          updatedAt: new Date(),
-        })
-        .returning({
-          id: authorTable.id,
-          name: authorTable.name,
-          slug: authorTable.slug,
-          bio: authorTable.bio,
-          role: authorTable.role,
-          image: authorTable.image,
+          resourceType: "author",
+          resourceId: created.id,
+          actorType: "api_key",
+          actorId: c.get("apiKeyId"),
+          payload: toAuthorPayload(created),
         });
-
-      if (!authorRow) {
-        throw new Error("Failed to create author");
+        return created;
       }
-
-      const socialRows =
-        body.socials && body.socials.length > 0
-          ? await tx
-              .insert(authorSocial)
-              .values(
-                body.socials.map((social) => ({
-                  id: createRecordId(),
-                  authorId: authorRow.id,
-                  url: social.url,
-                  platform: social.platform,
-                  updatedAt: new Date(),
-                }))
-              )
-              .returning({
-                url: authorSocial.url,
-                platform: authorSocial.platform,
-              })
-          : [];
-
-      return { ...authorRow, socials: socialRows };
-    });
-
-    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
-
-    const apiKeyId = c.get("apiKeyId");
-    c.executionCtx.waitUntil(
-      emitEvent(db, c.env.EVENT_QUEUE, {
-        type: "author_created",
-        workspaceId,
-        resourceType: "author",
-        resourceId: author.id,
-        actorType: "api_key",
-        actorId: apiKeyId,
-        payload: toAuthorPayload(author),
-      }).catch((error) => {
-        console.error("[authors.create] Failed to emit author_created:", error);
-      })
     );
 
     return c.json({ author }, 201 as const);
@@ -577,7 +574,6 @@ authors.openapi(updateAuthorRoute, async (c) => {
   try {
     const db = c.get("db");
     const workspaceId = requireWorkspaceId(c);
-    const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const { identifier } = c.req.valid("param");
     const body = c.req.valid("json");
 
@@ -620,87 +616,85 @@ authors.openapi(updateAuthorRoute, async (c) => {
       }
     }
 
-    const updatedAuthor = await db.transaction(async (tx) => {
-      const [authorRow] = await tx
-        .update(authorTable)
-        .set({
-          ...(body.name !== undefined && { name: body.name }),
-          ...(body.slug !== undefined && { slug: body.slug }),
-          ...(body.bio !== undefined && { bio: body.bio }),
-          ...(body.role !== undefined && { role: body.role }),
-          ...(body.email !== undefined && { email: body.email || null }),
-          ...(body.image !== undefined && { image: body.image }),
-          updatedAt: new Date(),
-        })
-        .where(eq(authorTable.id, existingAuthor.id))
-        .returning({
-          id: authorTable.id,
-          name: authorTable.name,
-          slug: authorTable.slug,
-          bio: authorTable.bio,
-          role: authorTable.role,
-          image: authorTable.image,
+    const updatedAuthor = await transact(
+      serviceContext(c),
+      async ({ tx, emitEvent, invalidate }) => {
+        const [authorRow] = await tx
+          .update(authorTable)
+          .set({
+            ...(body.name !== undefined && { name: body.name }),
+            ...(body.slug !== undefined && { slug: body.slug }),
+            ...(body.bio !== undefined && { bio: body.bio }),
+            ...(body.role !== undefined && { role: body.role }),
+            ...(body.email !== undefined && { email: body.email || null }),
+            ...(body.image !== undefined && { image: body.image }),
+            updatedAt: new Date(),
+          })
+          .where(eq(authorTable.id, existingAuthor.id))
+          .returning({
+            id: authorTable.id,
+            name: authorTable.name,
+            slug: authorTable.slug,
+            bio: authorTable.bio,
+            role: authorTable.role,
+            image: authorTable.image,
+          });
+
+        if (!authorRow) {
+          throw new Error("Author not found");
+        }
+
+        // Socials: delete all existing and recreate (same pattern as CMS)
+        let socialRows: Pick<
+          typeof authorSocial.$inferSelect,
+          "url" | "platform"
+        >[];
+        if (body.socials !== undefined) {
+          await tx
+            .delete(authorSocial)
+            .where(eq(authorSocial.authorId, existingAuthor.id));
+
+          socialRows =
+            body.socials.length > 0
+              ? await tx
+                  .insert(authorSocial)
+                  .values(
+                    body.socials.map((social) => ({
+                      id: createRecordId(),
+                      authorId: existingAuthor.id,
+                      url: social.url,
+                      platform: social.platform,
+                      updatedAt: new Date(),
+                    }))
+                  )
+                  .returning({
+                    url: authorSocial.url,
+                    platform: authorSocial.platform,
+                  })
+              : [];
+        } else {
+          socialRows = await tx
+            .select({
+              url: authorSocial.url,
+              platform: authorSocial.platform,
+            })
+            .from(authorSocial)
+            .where(eq(authorSocial.authorId, existingAuthor.id));
+        }
+
+        const updated = { ...authorRow, socials: socialRows };
+        invalidate(workspaceId, "authors");
+        await emitEvent({
+          type: "author_updated",
+          workspaceId,
+          resourceType: "author",
+          resourceId: updated.id,
+          actorType: "api_key",
+          actorId: c.get("apiKeyId"),
+          payload: withChanges(toAuthorPayload(updated), Object.keys(body)),
         });
-
-      if (!authorRow) {
-        throw new Error("Author not found");
+        return updated;
       }
-
-      // Socials: delete all existing and recreate (same pattern as CMS)
-      if (body.socials !== undefined) {
-        await tx
-          .delete(authorSocial)
-          .where(eq(authorSocial.authorId, existingAuthor.id));
-
-        const socialRows =
-          body.socials.length > 0
-            ? await tx
-                .insert(authorSocial)
-                .values(
-                  body.socials.map((social) => ({
-                    id: createRecordId(),
-                    authorId: existingAuthor.id,
-                    url: social.url,
-                    platform: social.platform,
-                    updatedAt: new Date(),
-                  }))
-                )
-                .returning({
-                  url: authorSocial.url,
-                  platform: authorSocial.platform,
-                })
-            : [];
-
-        return { ...authorRow, socials: socialRows };
-      }
-
-      const socialRows = await tx
-        .select({
-          url: authorSocial.url,
-          platform: authorSocial.platform,
-        })
-        .from(authorSocial)
-        .where(eq(authorSocial.authorId, existingAuthor.id));
-
-      return { ...authorRow, socials: socialRows };
-    });
-
-    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
-    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
-
-    const apiKeyId = c.get("apiKeyId");
-    c.executionCtx.waitUntil(
-      emitEvent(db, c.env.EVENT_QUEUE, {
-        type: "author_updated",
-        workspaceId,
-        resourceType: "author",
-        resourceId: updatedAuthor.id,
-        actorType: "api_key",
-        actorId: apiKeyId,
-        payload: withChanges(toAuthorPayload(updatedAuthor), Object.keys(body)),
-      }).catch((error) => {
-        console.error("[authors.update] Failed to emit author_updated:", error);
-      })
     );
 
     return c.json({ author: updatedAuthor }, 200 as const);
@@ -751,7 +745,6 @@ authors.openapi(deleteAuthorRoute, async (c) => {
   try {
     const db = c.get("db");
     const workspaceId = requireWorkspaceId(c);
-    const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const { identifier } = c.req.valid("param");
 
     const existingAuthor = await db.query.author.findFirst({
@@ -779,25 +772,20 @@ authors.openapi(deleteAuthorRoute, async (c) => {
       );
     }
 
-    await db.delete(authorTable).where(eq(authorTable.id, existingAuthor.id));
+    await transact(serviceContext(c), async ({ tx, emitEvent, invalidate }) => {
+      await tx.delete(authorTable).where(eq(authorTable.id, existingAuthor.id));
 
-    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
-    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
-
-    const apiKeyId = c.get("apiKeyId");
-    c.executionCtx.waitUntil(
-      emitEvent(db, c.env.EVENT_QUEUE, {
+      invalidate(workspaceId, "authors");
+      await emitEvent({
         type: "author_deleted",
         workspaceId,
         resourceType: "author",
         resourceId: existingAuthor.id,
         actorType: "api_key",
-        actorId: apiKeyId,
+        actorId: c.get("apiKeyId"),
         payload: toAuthorPayload(existingAuthor),
-      }).catch((error) => {
-        console.error("[authors.delete] Failed to emit author_deleted:", error);
-      })
-    );
+      });
+    });
 
     return c.json({ id: existingAuthor.id }, 200 as const);
   } catch (error) {

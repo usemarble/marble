@@ -1,9 +1,11 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import type { DbTransaction } from "@marble/api/context";
 import {
   cacheKey,
   createCacheClient,
   hashQueryParams,
 } from "@marble/api/lib/cache";
+import { transact } from "@marble/api/lib/transaction";
 import { createRecordId } from "@marble/db/id";
 import {
   author,
@@ -25,8 +27,7 @@ import {
 } from "@marble/parser";
 import { sanitizeHtml } from "@marble/utils/sanitize";
 import { and, asc, count, desc, eq, inArray, ne, or, sql } from "drizzle-orm";
-import type { DbClient } from "@/lib/db";
-import { emitEvent } from "@/lib/events";
+import { serviceContext } from "@/lib/context";
 import { resolveCustomFieldValuesByKey } from "@/lib/fields";
 import {
   buildFieldsObject,
@@ -160,7 +161,7 @@ function flattenPostRelations<
 }
 
 async function writePostCustomFieldValues(
-  tx: Parameters<Parameters<DbClient["transaction"]>[0]>[0],
+  tx: DbTransaction,
   workspaceId: string,
   postId: string,
   writes: Array<{ fieldId: string; value: string | null }>
@@ -562,7 +563,6 @@ posts.openapi(createPostRoute, async (c) => {
   try {
     const workspaceId = requireWorkspaceId(c);
     const db = c.get("db");
-    const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const body = c.req.valid("json");
 
     // 1. Check slug uniqueness within workspace
@@ -746,101 +746,94 @@ posts.openapi(createPostRoute, async (c) => {
     }
 
     // 7. Create the post
-    const postCreated = await db.transaction(async (tx) => {
-      const postId = createRecordId();
-      const now = new Date();
+    const postCreated = await transact(
+      serviceContext(c),
+      async ({ tx, emitEvent, invalidate }) => {
+        const postId = createRecordId();
+        const now = new Date();
 
-      const [createdPost] = await tx
-        .insert(postTable)
-        .values({
-          id: postId,
-          title: body.title,
-          content: sanitizedContent,
-          contentJson,
-          description: body.description,
-          slug: body.slug,
-          categoryId: body.categoryId,
-          status: body.status,
-          featured: body.featured ?? false,
-          coverImage: body.coverImage ?? null,
-          publishedAt,
+        const [createdPost] = await tx
+          .insert(postTable)
+          .values({
+            id: postId,
+            title: body.title,
+            content: sanitizedContent,
+            contentJson,
+            description: body.description,
+            slug: body.slug,
+            categoryId: body.categoryId,
+            status: body.status,
+            featured: body.featured ?? false,
+            coverImage: body.coverImage ?? null,
+            publishedAt,
+            workspaceId,
+            primaryAuthorId,
+            updatedAt: now,
+          })
+          .returning({
+            id: postTable.id,
+            slug: postTable.slug,
+            title: postTable.title,
+            status: postTable.status,
+            featured: postTable.featured,
+            publishedAt: postTable.publishedAt,
+            createdAt: postTable.createdAt,
+          });
+
+        if (!createdPost) {
+          throw new Error("Failed to create post");
+        }
+
+        if (validTagIds.length > 0) {
+          await tx.insert(postToTag).values(
+            validTagIds.map((tagId) => ({
+              a: createdPost.id,
+              b: tagId,
+            }))
+          );
+        }
+
+        await tx.insert(postToAuthor).values(
+          authorIds.map((authorId) => ({
+            a: authorId,
+            b: createdPost.id,
+          }))
+        );
+
+        const fieldValueWrites = customFieldWrites.values.filter(
+          (write) => write.value !== null
+        );
+
+        if (fieldValueWrites.length > 0) {
+          await tx.insert(fieldValue).values(
+            fieldValueWrites.map((write) => ({
+              id: createRecordId(),
+              postId: createdPost.id,
+              fieldId: write.fieldId,
+              workspaceId,
+              value: write.value as string,
+              updatedAt: now,
+            }))
+          );
+        }
+
+        // 8. Invalidate cache and emit the event with the commit
+        invalidate(workspaceId, "posts");
+        await emitEvent({
+          type:
+            createdPost.status === "published"
+              ? "post_published"
+              : "post_created",
           workspaceId,
-          primaryAuthorId,
-          updatedAt: now,
-        })
-        .returning({
-          id: postTable.id,
-          slug: postTable.slug,
-          title: postTable.title,
-          status: postTable.status,
-          featured: postTable.featured,
-          publishedAt: postTable.publishedAt,
-          createdAt: postTable.createdAt,
+          resourceType: "post",
+          resourceId: createdPost.id,
+          actorType: "api_key",
+          actorId: c.get("apiKeyId"),
+          payload: toPostPayload(createdPost),
         });
 
-      if (!createdPost) {
-        throw new Error("Failed to create post");
+        return createdPost;
       }
-
-      if (validTagIds.length > 0) {
-        await tx.insert(postToTag).values(
-          validTagIds.map((tagId) => ({
-            a: createdPost.id,
-            b: tagId,
-          }))
-        );
-      }
-
-      await tx.insert(postToAuthor).values(
-        authorIds.map((authorId) => ({
-          a: authorId,
-          b: createdPost.id,
-        }))
-      );
-
-      const fieldValueWrites = customFieldWrites.values.filter(
-        (write) => write.value !== null
-      );
-
-      if (fieldValueWrites.length > 0) {
-        await tx.insert(fieldValue).values(
-          fieldValueWrites.map((write) => ({
-            id: createRecordId(),
-            postId: createdPost.id,
-            fieldId: write.fieldId,
-            workspaceId,
-            value: write.value as string,
-            updatedAt: now,
-          }))
-        );
-      }
-
-      return createdPost;
-    });
-
-    // 8. Invalidate cache
-    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
-    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "tags"));
-    c.executionCtx.waitUntil(
-      cache.invalidateResource(workspaceId, "categories")
-    );
-    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
-
-    const apiKeyId = c.get("apiKeyId");
-    const eventType =
-      postCreated.status === "published" ? "post_published" : "post_created";
-    c.executionCtx.waitUntil(
-      emitEvent(db, c.env.EVENT_QUEUE, {
-        type: eventType,
-        workspaceId,
-        resourceType: "post",
-        resourceId: postCreated.id,
-        actorType: "api_key",
-        actorId: apiKeyId,
-        payload: toPostPayload(postCreated),
-      }).catch((error) => {
-        console.error(`[posts.create] Failed to emit ${eventType}:`, error);
-      })
     );
 
     return c.json({ post: postCreated }, 201 as const);
@@ -931,7 +924,6 @@ posts.openapi(updatePostRoute, async (c) => {
   try {
     const workspaceId = requireWorkspaceId(c);
     const db = c.get("db");
-    const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const { identifier } = c.req.valid("param");
     const body = c.req.valid("json");
 
@@ -1180,110 +1172,101 @@ posts.openapi(updatePostRoute, async (c) => {
       );
     }
 
-    const postUpdated = await db.transaction(async (tx) => {
-      const now = new Date();
+    const postUpdated = await transact(
+      serviceContext(c),
+      async ({ tx, emitEvent, invalidate }) => {
+        const now = new Date();
 
-      const [updatedPost] = await tx
-        .update(postTable)
-        .set({
-          ...updateData,
-          updatedAt: now,
-        })
-        .where(eq(postTable.id, existingPost.id))
-        .returning({
-          id: postTable.id,
-          slug: postTable.slug,
-          title: postTable.title,
-          status: postTable.status,
-          featured: postTable.featured,
-          publishedAt: postTable.publishedAt,
-          updatedAt: postTable.updatedAt,
-        });
+        const [updatedPost] = await tx
+          .update(postTable)
+          .set({
+            ...updateData,
+            updatedAt: now,
+          })
+          .where(eq(postTable.id, existingPost.id))
+          .returning({
+            id: postTable.id,
+            slug: postTable.slug,
+            title: postTable.title,
+            status: postTable.status,
+            featured: postTable.featured,
+            publishedAt: postTable.publishedAt,
+            updatedAt: postTable.updatedAt,
+          });
 
-      if (!updatedPost) {
-        throw new Error("Failed to update post");
-      }
+        if (!updatedPost) {
+          throw new Error("Failed to update post");
+        }
 
-      if (validTagIds !== undefined) {
-        await tx.delete(postToTag).where(eq(postToTag.a, existingPost.id));
+        if (validTagIds !== undefined) {
+          await tx.delete(postToTag).where(eq(postToTag.a, existingPost.id));
 
-        if (validTagIds.length > 0) {
-          await tx.insert(postToTag).values(
-            validTagIds.map((tagId) => ({
-              a: existingPost.id,
-              b: tagId,
+          if (validTagIds.length > 0) {
+            await tx.insert(postToTag).values(
+              validTagIds.map((tagId) => ({
+                a: existingPost.id,
+                b: tagId,
+              }))
+            );
+          }
+        }
+
+        if (authorIds !== undefined) {
+          await tx
+            .delete(postToAuthor)
+            .where(eq(postToAuthor.b, existingPost.id));
+
+          await tx.insert(postToAuthor).values(
+            authorIds.map((authorId) => ({
+              a: authorId,
+              b: existingPost.id,
             }))
           );
         }
-      }
 
-      if (authorIds !== undefined) {
-        await tx
-          .delete(postToAuthor)
-          .where(eq(postToAuthor.b, existingPost.id));
+        if (customFieldWrites !== undefined) {
+          await writePostCustomFieldValues(
+            tx,
+            workspaceId,
+            existingPost.id,
+            customFieldWrites
+          );
+        }
 
-        await tx.insert(postToAuthor).values(
-          authorIds.map((authorId) => ({
-            a: authorId,
-            b: existingPost.id,
-          }))
-        );
-      }
+        // 8. Invalidate cache and emit the event with the commit
+        invalidate(workspaceId, "posts");
 
-      if (customFieldWrites !== undefined) {
-        await writePostCustomFieldValues(
-          tx,
+        let eventType: "post_published" | "post_unpublished" | "post_updated";
+
+        if (
+          existingPost.status !== "published" &&
+          updatedPost.status === "published"
+        ) {
+          eventType = "post_published";
+        } else if (
+          existingPost.status === "published" &&
+          updatedPost.status !== "published"
+        ) {
+          eventType = "post_unpublished";
+        } else {
+          eventType = "post_updated";
+        }
+
+        await emitEvent({
+          type: eventType,
           workspaceId,
-          existingPost.id,
-          customFieldWrites
-        );
+          resourceType: "post",
+          resourceId: updatedPost.id,
+          actorType: "api_key",
+          actorId: c.get("apiKeyId"),
+          payload:
+            eventType === "post_updated"
+              ? withChanges(toPostPayload(updatedPost), Object.keys(body))
+              : toPostPayload(updatedPost),
+        });
+
+        return updatedPost;
       }
-
-      return updatedPost;
-    });
-
-    // 8. Invalidate cache
-    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
-    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "tags"));
-    c.executionCtx.waitUntil(
-      cache.invalidateResource(workspaceId, "categories")
-    );
-    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
-
-    // 9. Emit events
-    const apiKeyId = c.get("apiKeyId");
-    let eventType: "post_published" | "post_unpublished" | "post_updated";
-
-    if (
-      existingPost.status !== "published" &&
-      postUpdated.status === "published"
-    ) {
-      eventType = "post_published";
-    } else if (
-      existingPost.status === "published" &&
-      postUpdated.status !== "published"
-    ) {
-      eventType = "post_unpublished";
-    } else {
-      eventType = "post_updated";
-    }
-
-    const payload =
-      eventType === "post_updated"
-        ? withChanges(toPostPayload(postUpdated), Object.keys(body))
-        : toPostPayload(postUpdated);
-    c.executionCtx.waitUntil(
-      emitEvent(db, c.env.EVENT_QUEUE, {
-        type: eventType,
-        workspaceId,
-        resourceType: "post",
-        resourceId: postUpdated.id,
-        actorType: "api_key",
-        actorId: apiKeyId,
-        payload,
-      }).catch((error) => {
-        console.error(`[posts.update] Failed to emit ${eventType}:`, error);
-      })
     );
 
     return c.json({ post: postUpdated }, 200 as const);
@@ -1303,7 +1286,6 @@ posts.openapi(deletePostRoute, async (c) => {
   try {
     const workspaceId = requireWorkspaceId(c);
     const db = c.get("db");
-    const cache = createCacheClient(c.env.REDIS_URL, c.env.REDIS_TOKEN);
     const { identifier } = c.req.valid("param");
 
     const existingPost = await db.query.post.findFirst({
@@ -1323,29 +1305,20 @@ posts.openapi(deletePostRoute, async (c) => {
       );
     }
 
-    await db.delete(postTable).where(eq(postTable.id, existingPost.id));
+    await transact(serviceContext(c), async ({ tx, emitEvent, invalidate }) => {
+      await tx.delete(postTable).where(eq(postTable.id, existingPost.id));
 
-    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "posts"));
-    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "tags"));
-    c.executionCtx.waitUntil(
-      cache.invalidateResource(workspaceId, "categories")
-    );
-    c.executionCtx.waitUntil(cache.invalidateResource(workspaceId, "authors"));
-
-    const apiKeyId = c.get("apiKeyId");
-    c.executionCtx.waitUntil(
-      emitEvent(db, c.env.EVENT_QUEUE, {
+      invalidate(workspaceId, "posts");
+      await emitEvent({
         type: "post_deleted",
         workspaceId,
         resourceType: "post",
         resourceId: existingPost.id,
         actorType: "api_key",
-        actorId: apiKeyId,
+        actorId: c.get("apiKeyId"),
         payload: toPostPayload(existingPost),
-      }).catch((error) => {
-        console.error("[posts.delete] Failed to emit post_deleted:", error);
-      })
-    );
+      });
+    });
 
     return c.json({ id: existingPost.id }, 200 as const);
   } catch (error) {

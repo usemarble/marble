@@ -45,6 +45,10 @@ events.post("/", async (c) => {
     return c.json({ error: "Workspace not found" }, 404);
   }
 
+  // A test event is sent to one endpoint, which the sweep can't rebuild from
+  // the row, so it is never swept: its caller sees a failed send as an error.
+  const sweepable = !(body.isTest || body.targetWebhookEndpointId);
+
   try {
     const [event] = await db
       .insert(workspaceEvent)
@@ -58,6 +62,7 @@ events.post("/", async (c) => {
         actorType: body.actorType,
         actorId: body.actorId,
         payload: body.payload ?? {},
+        enqueuedAt: sweepable ? undefined : new Date(),
       })
       .returning();
 
@@ -67,6 +72,13 @@ events.post("/", async (c) => {
       targetWebhookEndpointId: body.targetWebhookEndpointId,
       isTest: body.isTest,
     });
+
+    if (sweepable) {
+      await db
+        .update(workspaceEvent)
+        .set({ enqueuedAt: new Date() })
+        .where(eq(workspaceEvent.id, event.id));
+    }
 
     return c.json({ ok: true, eventId: event.id });
   } catch (error) {
