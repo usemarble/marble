@@ -3,6 +3,10 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  authorSchema,
+  type CreateAuthorValues,
+} from "@marble/api/lib/author-validation";
+import {
   Avatar,
   AvatarFallback,
   AvatarImage,
@@ -35,11 +39,7 @@ import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { uploadFile } from "@/lib/media/upload";
-import { QUERY_KEYS } from "@/lib/queries/keys";
-import {
-  authorSchema,
-  type CreateAuthorValues,
-} from "@/lib/validations/authors";
+import { orpc } from "@/lib/orpc";
 import type { Author } from "@/types/author";
 import { detectPlatform, getPlatformIcon } from "@/utils/author";
 import { AsyncButton } from "../ui/async-button";
@@ -127,66 +127,50 @@ export const AuthorSheet = ({
     },
   });
 
-  const { mutate: createAuthor, isPending: isCreating } = useMutation({
-    mutationFn: async (data: CreateAuthorValues) => {
-      const res = await fetch("/api/authors", {
-        method: "POST",
-        body: JSON.stringify(data),
-      });
+  const { mutate: createAuthor, isPending: isCreating } = useMutation(
+    orpc.authors.create.mutationOptions({
+      onSuccess: (data) => {
+        setOpen(false);
+        toast.success("Author created successfully");
+        if (workspaceId) {
+          queryClient.invalidateQueries({
+            queryKey: orpc.authors.key({ input: { workspaceId } }),
+          });
+          queryClient.invalidateQueries({
+            queryKey: orpc.posts.key({ input: { workspaceId } }),
+          });
+        }
+        if (onAuthorCreated) {
+          onAuthorCreated(data);
+        }
+        resetAuthorForm();
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    })
+  );
 
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || "Failed to create author");
-      }
-
-      return res.json();
-    },
-    onSuccess: (data) => {
-      setOpen(false);
-      toast.success("Author created successfully");
-      if (workspaceId) {
-        queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.AUTHORS(workspaceId),
-        });
-      }
-      if (onAuthorCreated) {
-        onAuthorCreated(data);
-      }
-      resetAuthorForm();
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
-
-  const { mutate: updateAuthor, isPending: isUpdating } = useMutation({
-    mutationFn: async (data: CreateAuthorValues) => {
-      const res = await fetch(`/api/authors/${authorData.id}`, {
-        method: "PATCH",
-        body: JSON.stringify(data),
-      });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || "Failed to update author");
-      }
-
-      return res.json();
-    },
-    onSuccess: () => {
-      setOpen(false);
-      toast.success("Author updated successfully");
-      if (workspaceId) {
-        queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.AUTHORS(workspaceId),
-        });
-      }
-      resetAuthorForm();
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
+  const { mutate: updateAuthor, isPending: isUpdating } = useMutation(
+    orpc.authors.update.mutationOptions({
+      onSuccess: () => {
+        setOpen(false);
+        toast.success("Author updated successfully");
+        if (workspaceId) {
+          queryClient.invalidateQueries({
+            queryKey: orpc.authors.key({ input: { workspaceId } }),
+          });
+          queryClient.invalidateQueries({
+            queryKey: orpc.posts.key({ input: { workspaceId } }),
+          });
+        }
+        resetAuthorForm();
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    })
+  );
 
   const addSocialLink = () => {
     append({ url: "", platform: "website" });
@@ -210,9 +194,9 @@ export const AuthorSheet = ({
     };
 
     if (mode === "create") {
-      createAuthor(submissionData);
-    } else {
-      updateAuthor(submissionData);
+      createAuthor({ ...submissionData, workspaceId });
+    } else if (authorData.id) {
+      updateAuthor({ ...submissionData, workspaceId, id: authorData.id });
     }
   };
 

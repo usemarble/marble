@@ -1,5 +1,17 @@
 import { z } from "zod";
-import { SOCIAL_PLATFORMS, type SocialPlatform } from "@/lib/constants";
+export const socialPlatformSchema = z.enum([
+  "x",
+  "github",
+  "facebook",
+  "instagram",
+  "youtube",
+  "tiktok",
+  "linkedin",
+  "website",
+  "onlyfans",
+  "discord",
+  "bluesky",
+]);
 
 const socialLinkSchema = z.object({
   id: z.string().optional().nullable(),
@@ -36,9 +48,7 @@ const socialLinkSchema = z.object({
         message: "Please enter a valid domain (e.g., example.com)",
       }
     ),
-  platform: z.enum(
-    Object.keys(SOCIAL_PLATFORMS) as [SocialPlatform, ...SocialPlatform[]]
-  ),
+  platform: socialPlatformSchema,
 });
 
 // Author Schema

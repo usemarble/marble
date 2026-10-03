@@ -17,7 +17,7 @@ import {
 import { toast } from "@marble/ui/components/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { QUERY_KEYS } from "@/lib/queries/keys";
+import { orpc } from "@/lib/orpc";
 import { AsyncButton } from "../ui/async-button";
 
 export const DeleteAuthorModal = ({
@@ -34,32 +34,25 @@ export const DeleteAuthorModal = ({
   const queryClient = useQueryClient();
   const workspaceId = useWorkspaceId();
 
-  const { mutate: deleteAuthor, isPending } = useMutation({
-    mutationFn: async () => {
-      const res = await fetch(`/api/authors/${id}`, {
-        method: "DELETE",
-      });
-
-      if (!res.ok) {
-        const errorText = await res.json().catch(() => "Unknown error");
-        throw new Error(errorText.error || "Failed to delete author");
-      }
-
-      return true;
-    },
-    onSuccess: () => {
-      toast.success("Author deleted successfully");
-      if (workspaceId) {
-        queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.AUTHORS(workspaceId),
-        });
-      }
-      setOpen(false);
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
+  const { mutate: deleteAuthor, isPending } = useMutation(
+    orpc.authors.delete.mutationOptions({
+      onSuccess: () => {
+        toast.success("Author deleted successfully");
+        if (workspaceId) {
+          queryClient.invalidateQueries({
+            queryKey: orpc.authors.key({ input: { workspaceId } }),
+          });
+          queryClient.invalidateQueries({
+            queryKey: orpc.posts.key({ input: { workspaceId } }),
+          });
+        }
+        setOpen(false);
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    })
+  );
 
   return (
     <AlertDialog onOpenChange={setOpen} open={open}>
@@ -91,7 +84,9 @@ export const DeleteAuthorModal = ({
               isLoading={isPending}
               onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                 e.preventDefault();
-                deleteAuthor();
+                if (workspaceId) {
+                  deleteAuthor({ workspaceId, id });
+                }
               }}
               size="sm"
               variant="destructive"
