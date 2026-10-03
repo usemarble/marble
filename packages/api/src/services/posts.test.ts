@@ -1,5 +1,11 @@
 import { createRecordId } from "@marble/db/id";
-import { author, category, post, workspaceEvent } from "@marble/db/schema";
+import {
+  author,
+  category,
+  field,
+  post,
+  workspaceEvent,
+} from "@marble/db/schema";
 import { createTestDatabase, type TestDatabase } from "@marble/db/testing";
 import { createRouterClient } from "@orpc/server";
 import { Redis } from "@upstash/redis";
@@ -177,6 +183,48 @@ describe("dashboard post writes", () => {
       await testDb.db.query.post.findFirst({ where: eq(post.id, id) })
     ).toBeUndefined();
     expect(await redis.get(key)).toBeNull();
+  });
+
+  it("a custom-field update emits post_updated and invalidates posts", async () => {
+    const { client, input, user, events, flush } = await fixture();
+    const { id } = await client.create(input);
+    await flush();
+    const fieldId = createRecordId();
+    await testDb.db.insert(field).values({
+      id: fieldId,
+      workspaceId: input.workspaceId,
+      key: "subtitle",
+      name: "Subtitle",
+      type: "text",
+    });
+    const key = `cache:${input.workspaceId}:posts:v1:${id}`;
+    await redis.set(key, "stale");
+
+    await client.fields.update({
+      workspaceId: input.workspaceId,
+      id,
+      values: { [fieldId]: "A subtitle" },
+    });
+    await flush();
+
+    const latest = (await eventRows(input.workspaceId)).at(-1);
+    expect(latest).toMatchObject({
+      type: "post_updated",
+      source: "dashboard",
+      actorType: "user",
+      actorId: user.id,
+      resourceId: id,
+      payload: { id, changes: ["fields"] },
+    });
+    expect(latest?.enqueuedAt).toBeInstanceOf(Date);
+    expect(events.sent.at(-1)).toEqual({
+      type: "event.fanout",
+      eventId: latest?.id,
+    });
+    expect(await redis.get(key)).toBeNull();
+    expect(
+      await client.fields.get({ workspaceId: input.workspaceId, id })
+    ).toMatchObject({ values: { [fieldId]: "A subtitle" } });
   });
 
   it("a commit failure rolls back the post and outbox and clears nothing", async () => {

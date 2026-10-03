@@ -240,7 +240,13 @@ export const postsRouter = {
       .input(postInput.extend({ values: customFieldsPayloadSchema }))
       .output(z.object({ success: z.boolean() }))
       .handler(({ context, input }) =>
-        updatePostFields(context, context.workspaceId, input.id, input.values)
+        updatePostFields(
+          context,
+          context.workspaceId,
+          input.id,
+          context.session.user,
+          input.values
+        )
       ),
   },
 };

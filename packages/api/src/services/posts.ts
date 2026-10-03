@@ -798,6 +798,7 @@ export async function updatePostFields(
   ctx: ServiceContext,
   workspaceId: string,
   id: string,
+  actor: PostActor,
   input: unknown
 ) {
   await requirePost(ctx, workspaceId, id);
@@ -822,10 +823,30 @@ export async function updatePostFields(
     throw customFieldFailure(resolvedValues.error);
   }
   if (resolvedValues.values.length > 0) {
-    // The CMS's fields-only write emits no event and invalidates no cache.
-    await transact(ctx, ({ tx }) =>
-      writeCustomFieldValues(tx, workspaceId, id, resolvedValues)
-    );
+    // A custom-field change is a post change: /v1 serves the values, and
+    // webhooks report it, as /v1's own update does.
+    await transact(ctx, async ({ tx, emitEvent, invalidate }) => {
+      await writeCustomFieldValues(tx, workspaceId, id, resolvedValues);
+      const [updatedPost] = await tx
+        .update(post)
+        .set({ updatedAt: new Date() })
+        .where(and(eq(post.id, id), eq(post.workspaceId, workspaceId)))
+        .returning();
+      if (!updatedPost) {
+        throw new PostError(404, "Post not found");
+      }
+      await emitEvent({
+        type: "post_updated",
+        workspaceId,
+        source: "dashboard",
+        resourceType: "post",
+        resourceId: id,
+        actorType: "user",
+        actorId: actor.id,
+        payload: withChanges(toPostPayload(updatedPost), ["fields"]),
+      });
+      invalidate(workspaceId, "posts");
+    });
   }
   return { success: true };
 }
