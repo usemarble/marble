@@ -15,8 +15,8 @@ import {
 } from "@marble/ui/components/alert-dialog";
 import { toast } from "@marble/ui/components/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { QUERY_KEYS } from "@/lib/queries/keys";
+import { orpc } from "@/lib/orpc";
+import { useWorkspace } from "@/providers/workspace";
 import { AsyncButton } from "../ui/async-button";
 
 export const DeletePostModal = ({
@@ -31,34 +31,27 @@ export const DeletePostModal = ({
   view: "table" | "grid";
 }) => {
   const queryClient = useQueryClient();
-  const workspaceId = useWorkspaceId();
+  const { activeWorkspace } = useWorkspace();
+  const workspaceId = activeWorkspace?.id;
 
-  const { mutate: deletePost, isPending } = useMutation({
-    mutationFn: async (postId: string) => {
-      const res = await fetch(`/api/posts/${postId}`, {
-        method: "DELETE",
-      });
-
-      if (!res.ok) {
-        const error = await res.json().catch(() => ({}));
-        throw new Error(error.error || "Failed to delete post");
-      }
-    },
-    onSuccess: () => {
-      toast.success("Post deleted");
-      if (workspaceId) {
-        queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.POSTS(workspaceId),
-        });
-      }
-      setOpen(false);
-    },
-    onError: (error) => {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to delete post."
-      );
-    },
-  });
+  const { mutate: deletePost, isPending } = useMutation(
+    orpc.posts.delete.mutationOptions({
+      onSuccess: () => {
+        toast.success("Post deleted");
+        if (workspaceId) {
+          queryClient.invalidateQueries({
+            queryKey: orpc.posts.key({ input: { workspaceId } }),
+          });
+        }
+        setOpen(false);
+      },
+      onError: (error) => {
+        toast.error(
+          error instanceof Error ? error.message : "Failed to delete post."
+        );
+      },
+    })
+  );
 
   return (
     <AlertDialog onOpenChange={setOpen} open={open}>
@@ -99,7 +92,9 @@ export const DeletePostModal = ({
               isLoading={isPending}
               onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                 e.preventDefault();
-                deletePost(id);
+                if (workspaceId) {
+                  deletePost({ workspaceId, id });
+                }
               }}
               size="sm"
               variant="destructive"

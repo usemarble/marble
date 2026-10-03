@@ -1,8 +1,8 @@
 "use client";
 
+import type { PostEditorValues } from "@marble/api/lib/post-validation";
 import { Separator } from "@marble/ui/components/separator";
 import { useFormContext } from "react-hook-form";
-import type { PostEditorValues } from "@/lib/validations/post";
 import { HiddenScrollbar } from "../../ui/hidden-scrollbar";
 import { AuthorSelector } from "../fields/author-selector";
 import { CategorySelector } from "../fields/category-selector";

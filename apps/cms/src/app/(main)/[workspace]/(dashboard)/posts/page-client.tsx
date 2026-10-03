@@ -14,13 +14,11 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { DashboardBody } from "@/components/layout/wrapper";
-import { columns, type Post } from "@/components/posts/columns";
+import { columns } from "@/components/posts/columns";
 import { PostDataView } from "@/components/posts/data-view";
 import PageLoader from "@/components/shared/page-loader";
-import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import type { PostListResponse } from "@/lib/queries/dashboard/posts";
-import { QUERY_KEYS } from "@/lib/queries/keys";
-import { getPostApiUrl, usePostPageFilters } from "@/lib/search-params";
+import { orpc } from "@/lib/orpc";
+import { usePostPageFilters } from "@/lib/search-params";
 import { useWorkspace } from "@/providers/workspace";
 
 const PostsImportModal = dynamic(
@@ -29,15 +27,9 @@ const PostsImportModal = dynamic(
   { ssr: false }
 );
 
-function PageClient({
-  initialPosts,
-  initialPostsKey,
-}: {
-  initialPosts?: PostListResponse;
-  initialPostsKey?: string;
-}) {
-  const workspaceId = useWorkspaceId();
+function PageClient() {
   const { activeWorkspace, isFetchingWorkspace } = useWorkspace();
+  const workspaceId = activeWorkspace?.id;
   const [filters] = usePostPageFilters();
   const apiFilters = useMemo(
     () => ({
@@ -59,29 +51,15 @@ function PageClient({
   );
 
   const [importOpen, setImportOpen] = useState(false);
-  const currentPostsKey = JSON.stringify(apiFilters);
 
-  const { data, error, isError, isFetching, isLoading } = useQuery({
-    queryKey: workspaceId
-      ? [...QUERY_KEYS.POSTS(workspaceId), apiFilters]
-      : ["posts", "disabled"],
-    placeholderData: keepPreviousData,
-    staleTime: 1000 * 60 * 60,
-    queryFn: async () => {
-      const res = await fetch(getPostApiUrl("/api/posts", apiFilters));
-      if (!res.ok) {
-        throw new Error("Failed to fetch posts");
-      }
-      return (await res.json()) as {
-        hasAnyPosts: boolean;
-        pageCount: number;
-        posts: Post[];
-        totalCount: number;
-      };
-    },
-    enabled: Boolean(workspaceId) && !isFetchingWorkspace,
-    initialData: initialPostsKey === currentPostsKey ? initialPosts : undefined,
-  });
+  const { data, error, isError, isFetching, isLoading } = useQuery(
+    orpc.posts.list.queryOptions({
+      input: { workspaceId: workspaceId ?? "", ...apiFilters },
+      placeholderData: keepPreviousData,
+      staleTime: 1000 * 60 * 60,
+      enabled: Boolean(workspaceId) && !isFetchingWorkspace,
+    })
+  );
 
   if (isFetchingWorkspace || !workspaceId || (isLoading && !data)) {
     return <PageLoader />;

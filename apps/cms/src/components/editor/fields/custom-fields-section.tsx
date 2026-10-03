@@ -1,5 +1,10 @@
 "use client";
 
+import {
+  SUPPORTED_CUSTOM_FIELD_TYPES,
+  validateCustomFieldValue,
+} from "@marble/api/lib/custom-fields";
+import type { PostEditorValues } from "@marble/api/lib/post-validation";
 import { FieldRichTextEditor } from "@marble/editor";
 import { Badge } from "@marble/ui/components/badge";
 import { Button } from "@marble/ui/components/button";
@@ -39,11 +44,6 @@ import { useMemo, useState } from "react";
 import { useController, useFormContext } from "react-hook-form";
 import { useEditorData } from "@/components/editor/editor-data-provider";
 import { ErrorMessage } from "@/components/ui/error-message";
-import {
-  SUPPORTED_CUSTOM_FIELD_TYPES,
-  validateCustomFieldValue,
-} from "@/lib/custom-fields";
-import type { PostEditorValues } from "@/lib/validations/post";
 import type { CustomField } from "@/types/fields";
 import { FieldInfo } from "./field-info";
 

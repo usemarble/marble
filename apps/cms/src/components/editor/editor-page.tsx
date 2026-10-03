@@ -1,5 +1,6 @@
 "use client";
 
+import type { PostEditorValues } from "@marble/api/lib/post-validation";
 import { MarbleEditorMenus } from "@/components/editor/editor";
 import { useEditorData } from "@/components/editor/editor-data-provider";
 import { EditorHeader } from "@/components/editor/editor-header";
@@ -7,7 +8,6 @@ import { EditorSidebar } from "@/components/editor/editor-sidebar";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { MAX_MEDIA_FILE_SIZE } from "@/lib/constants";
 import { uploadFile } from "@/lib/media/upload";
-import type { PostEditorValues } from "@/lib/validations/post";
 import "@/styles/editor.css";
 import {
   type Editor,

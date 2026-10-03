@@ -1,7 +1,5 @@
 export const QUERY_KEYS = {
   // Workspace-scoped resources
-  POSTS: (workspaceId: string) => ["posts", workspaceId],
-  POST: (workspaceId: string, postId: string) => ["posts", workspaceId, postId],
 
   TAGS: (workspaceId: string) => ["tags", workspaceId],
   TAG: (workspaceId: string, tagId: string) => ["tags", workspaceId, tagId],

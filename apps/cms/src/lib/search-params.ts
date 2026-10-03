@@ -109,12 +109,6 @@ const postPageSearchParams = {
 export const usePostPageFilters = (options: Options = {}) =>
   useQueryStates(postPageSearchParams, options);
 
-export const loadPostApiFilters = createLoader(postPageSearchParams);
-
-export const getPostApiUrl = createSerializer(postPageSearchParams, {
-  clearOnDefault: false,
-});
-
 // Webhook deliveries (URL + React Query API share the same shape)
 const WEBHOOK_DELIVERY_STATUSES = [
   "all",

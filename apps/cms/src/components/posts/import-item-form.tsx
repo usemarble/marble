@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { type PostValues, postSchema } from "@marble/api/lib/post-validation";
 import { Button } from "@marble/ui/components/button";
 import { DialogClose } from "@marble/ui/components/dialog";
 import { Input } from "@marble/ui/components/input";
@@ -15,11 +16,7 @@ import { SlugField } from "@/components/editor/fields/slug-field";
 import { StatusField } from "@/components/editor/fields/status-field";
 import { AsyncButton } from "@/components/ui/async-button";
 import { ErrorMessage } from "@/components/ui/error-message";
-import {
-  type PostImportValues,
-  type PostValues,
-  postSchema,
-} from "@/lib/validations/post";
+import type { PostImportValues } from "@/lib/validations/post";
 
 interface ImportItemFormProps {
   name: string;
