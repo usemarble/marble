@@ -4,16 +4,14 @@ import { toast } from "@marble/ui/components/sonner";
 import { Switch } from "@marble/ui/components/switch";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { DashboardBody } from "@/components/layout/wrapper";
-import { NotificationsSettingsSkeleton } from "@/components/settings/loading-skeletons";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import {
-  DEFAULT_NOTIFICATION_PREFERENCES,
-  type NotificationPreferences,
   type NotificationToggleItem,
   USER_NOTIFICATION_ITEMS,
   WORKSPACE_NOTIFICATION_ITEMS,
 } from "@/lib/notifications";
-import { QUERY_KEYS } from "@/lib/queries/keys";
-import { request } from "@/utils/fetch/client";
+import { orpc } from "@/lib/orpc";
+import Loading from "./loading";
 
 function NotificationToggle({
   item,
@@ -83,87 +81,79 @@ function NotificationGroup({
 
 function PageClient() {
   const queryClient = useQueryClient();
+  const workspaceId = useWorkspaceId();
 
-  const { data: preferences, isLoading } = useQuery({
-    queryKey: QUERY_KEYS.NOTIFICATION_PREFERENCES,
-    queryFn: async () => {
-      const response =
-        await request<NotificationPreferences>("user/notifications");
-      return response.data;
-    },
-  });
+  const {
+    data: preferences,
+    isLoading,
+    error,
+  } = useQuery(
+    orpc.me.notifications.get.queryOptions({
+      input: { workspaceId: workspaceId ?? "" },
+      enabled: Boolean(workspaceId),
+    })
+  );
 
   const {
     mutate: toggle,
     variables: pendingToggle,
     isPending: isToggleMutationPending,
-  } = useMutation({
-    mutationFn: async ({
-      scope,
-      key,
-      value,
-    }: {
-      scope: "user" | "workspace";
-      key: string;
-      value: boolean;
-    }) => {
-      const response = await request("user/notifications", "PATCH", {
-        scope,
-        key,
-        value,
-      });
-      return response.data;
-    },
-    onMutate: async ({ scope, key, value }) => {
-      await queryClient.cancelQueries({
-        queryKey: QUERY_KEYS.NOTIFICATION_PREFERENCES,
-      });
+  } = useMutation(
+    orpc.me.notifications.update.mutationOptions({
+      onMutate: async ({ workspaceId: id, scope, key, value }) => {
+        const queryKey = orpc.me.notifications.get.queryKey({
+          input: { workspaceId: id },
+        });
+        await queryClient.cancelQueries({ queryKey });
 
-      const previous = queryClient.getQueryData<NotificationPreferences>(
-        QUERY_KEYS.NOTIFICATION_PREFERENCES
-      );
-
-      const current = previous ?? DEFAULT_NOTIFICATION_PREFERENCES;
-
-      queryClient.setQueryData<NotificationPreferences>(
-        QUERY_KEYS.NOTIFICATION_PREFERENCES,
-        {
-          ...current,
-          [scope]: {
-            ...current[scope],
-            [key]: value,
-          },
+        const previous = queryClient.getQueryData(queryKey);
+        if (previous) {
+          queryClient.setQueryData(queryKey, {
+            ...previous,
+            [scope]: {
+              ...previous[scope],
+              [key]: value,
+            },
+          });
         }
-      );
 
-      return { previous };
-    },
-    onSuccess: (_data, variables) => {
-      toast.success(
-        `${variables.value ? "Enabled" : "Disabled"} notification preference`
-      );
-    },
-    onError: (_error, _variables, context) => {
-      if (context?.previous) {
-        queryClient.setQueryData(
-          QUERY_KEYS.NOTIFICATION_PREFERENCES,
-          context.previous
+        return { previous, queryKey };
+      },
+      onSuccess: (_data, variables) => {
+        toast.success(
+          `${variables.value ? "Enabled" : "Disabled"} notification preference`
         );
-      }
-      toast.error("Failed to update preference");
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.NOTIFICATION_PREFERENCES,
-      });
-      queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.USER,
-      });
-    },
-  });
+      },
+      onError: (_error, _variables, context) => {
+        if (context?.previous) {
+          queryClient.setQueryData(context.queryKey, context.previous);
+        }
+        toast.error("Failed to update preference");
+      },
+      onSettled: () => {
+        queryClient.invalidateQueries({
+          queryKey: orpc.me.notifications.key(),
+        });
+      },
+    })
+  );
+
+  if (!workspaceId || isLoading) {
+    return <Loading />;
+  }
+
+  if (error || !preferences) {
+    return (
+      <DashboardBody>
+        <p className="text-muted-foreground text-sm">
+          {error?.message ?? "Failed to load notification preferences"}
+        </p>
+      </DashboardBody>
+    );
+  }
 
   const handleToggle = (item: NotificationToggleItem, value: boolean) => {
-    toggle({ scope: item.scope, key: item.key, value });
+    toggle({ workspaceId, scope: item.scope, key: item.key, value });
   };
 
   const isPending = (item: NotificationToggleItem) =>
@@ -171,15 +161,8 @@ function PageClient() {
     pendingToggle?.scope === item.scope &&
     pendingToggle?.key === item.key;
 
-  const getChecked = (item: NotificationToggleItem): boolean => {
-    const source = preferences ?? DEFAULT_NOTIFICATION_PREFERENCES;
-    const scopePrefs = source[item.scope];
-    return (scopePrefs as Record<string, boolean>)[item.key] ?? false;
-  };
-
-  if (isLoading) {
-    return <NotificationsSettingsSkeleton />;
-  }
+  const getChecked = (item: NotificationToggleItem): boolean =>
+    (preferences[item.scope] as Record<string, boolean>)[item.key] ?? false;
 
   return (
     <DashboardBody className="flex flex-col gap-8 py-12" size="compact">

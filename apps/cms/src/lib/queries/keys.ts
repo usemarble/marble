@@ -29,8 +29,4 @@ export const QUERY_KEYS = {
     "publishing-metrics",
     workspaceId,
   ],
-
-  // Globally scoped
-  USER: ["user"],
-  NOTIFICATION_PREFERENCES: ["notification-preferences"],
 };

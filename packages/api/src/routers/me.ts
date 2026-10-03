@@ -2,6 +2,7 @@ import { ORPCError } from "@orpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../index";
 import { getProfile, ProfileError, updateProfile } from "../services/profile";
+import { notificationsRouter } from "./notifications";
 
 const profileOutput = z.object({
   id: z.string(),
@@ -55,4 +56,5 @@ export const meRouter = {
     .handler(({ context, input }) =>
       updateProfile(context, context.session.user.id, input)
     ),
+  notifications: notificationsRouter,
 };
