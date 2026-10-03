@@ -35,7 +35,7 @@ import { betterAuth } from "better-auth/minimal";
 import { emailOTP, organization } from "better-auth/plugins";
 import { and, eq } from "drizzle-orm";
 import { customAlphabet } from "nanoid";
-import { clearMembership } from "./access";
+import { clearMembership, clearWorkspacePlan } from "./access";
 import { trackRegistrationCompleted } from "./analytics";
 import type { AuthEnv } from "./env";
 import {
@@ -112,6 +112,9 @@ export function createAuth({ db, env }: { db: DbClient; env: AuthEnv }) {
     env.POLAR_ACCESS_TOKEN,
     env.POLAR_SERVER
   );
+  // Deleting a workspace removes its members before afterDeleteOrganization
+  // runs, so their IDs are read first to clear their cached memberships.
+  const membersOfDeletedWorkspaces = new Map<string, string[]>();
 
   const auth = betterAuth({
     secret: env.BETTER_AUTH_SECRET,
@@ -355,6 +358,27 @@ export function createAuth({ db, env }: { db: DbClient; env: AuthEnv }) {
           },
           afterUpdateMemberRole: async ({ user, organization }) => {
             await clearMembership(redis, organization.id, user.id);
+          },
+          beforeDeleteOrganization: async ({ organization }) => {
+            const members = await db
+              .select({ userId: member.userId })
+              .from(member)
+              .where(eq(member.organizationId, organization.id));
+            membersOfDeletedWorkspaces.set(
+              organization.id,
+              members.map((row) => row.userId)
+            );
+          },
+          afterDeleteOrganization: async ({ organization }) => {
+            const userIds =
+              membersOfDeletedWorkspaces.get(organization.id) ?? [];
+            membersOfDeletedWorkspaces.delete(organization.id);
+            await Promise.all([
+              clearWorkspacePlan(redis, organization.id),
+              ...userIds.map((userId) =>
+                clearMembership(redis, organization.id, userId)
+              ),
+            ]);
           },
           beforeCreateOrganization: async ({ organization }) => {
             await validateWorkspaceSchema({

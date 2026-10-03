@@ -4,7 +4,12 @@ import { createTestDatabase, type TestDatabase } from "@marble/db/testing";
 import { Redis } from "@upstash/redis";
 import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { findMembership, membershipKey } from "./access";
+import {
+  findMembership,
+  findWorkspacePlan,
+  membershipKey,
+  planKey,
+} from "./access";
 import { createAuth } from "./index";
 import { testEnv } from "./test-env";
 
@@ -142,6 +147,24 @@ describe("membership cache", () => {
       body: { organizationId: workspaceId },
     });
 
+    expect(await lookup(workspaceId, teammate.id)).toBeNull();
+  });
+
+  it("is cleared for every member when the workspace is deleted", async () => {
+    const { owner, teammate, workspaceId } = await workspaceWithMember();
+    await lookup(workspaceId, owner.id);
+    await lookup(workspaceId, teammate.id);
+    await findWorkspacePlan({ db: testDb.db, redis }, workspaceId);
+    expect(await redis.get(planKey(workspaceId))).not.toBeNull();
+
+    await auth.api.deleteOrganization({
+      headers: owner.headers,
+      body: { organizationId: workspaceId },
+    });
+
+    expect(await redis.get(membershipKey(workspaceId, owner.id))).toBeNull();
+    expect(await redis.get(membershipKey(workspaceId, teammate.id))).toBeNull();
+    expect(await redis.get(planKey(workspaceId))).toBeNull();
     expect(await lookup(workspaceId, teammate.id)).toBeNull();
   });
 });
