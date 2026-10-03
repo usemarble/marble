@@ -10,10 +10,10 @@ import { useState } from "react";
 import { columns } from "@/components/categories/columns";
 import { DataTable } from "@/components/categories/data-table";
 import { DashboardBody } from "@/components/layout/wrapper";
-import PageLoader from "@/components/shared/page-loader";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { orpc } from "@/lib/orpc";
 import { useWorkspace } from "@/providers/workspace";
+import Loading from "./loading";
 
 const CategoryModal = dynamic(() =>
   import("@/components/categories/category-modals").then(
@@ -39,7 +39,7 @@ function PageClient() {
   );
 
   if (isFetchingWorkspace || !workspaceId || isLoading) {
-    return <PageLoader />;
+    return <Loading />;
   }
 
   if (error) {

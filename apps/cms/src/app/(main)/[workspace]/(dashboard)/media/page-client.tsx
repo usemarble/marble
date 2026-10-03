@@ -5,7 +5,6 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { DashboardBody } from "@/components/layout/wrapper";
 import { MediaDataTable } from "@/components/media/media-data-table";
-import PageLoader from "@/components/shared/page-loader";
 import { useMediaActions } from "@/hooks/use-media-actions";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { uploadFile } from "@/lib/media/upload";
@@ -18,6 +17,7 @@ import type {
   MediaQueryKey,
 } from "@/types/media";
 import { toMediaType } from "@/utils/media";
+import Loading from "./loading";
 
 function PageClient({
   initialMedia,
@@ -150,7 +150,7 @@ function PageClient({
   };
 
   if (isFetchingWorkspace || !workspaceId || isLoading) {
-    return <PageLoader />;
+    return <Loading />;
   }
 
   if (isError) {

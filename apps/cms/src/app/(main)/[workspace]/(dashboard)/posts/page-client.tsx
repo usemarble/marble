@@ -16,10 +16,10 @@ import { useMemo, useState } from "react";
 import { DashboardBody } from "@/components/layout/wrapper";
 import { columns } from "@/components/posts/columns";
 import { PostDataView } from "@/components/posts/data-view";
-import PageLoader from "@/components/shared/page-loader";
 import { orpc } from "@/lib/orpc";
 import { usePostPageFilters } from "@/lib/search-params";
 import { useWorkspace } from "@/providers/workspace";
+import Loading from "./loading";
 
 const PostsImportModal = dynamic(
   () =>
@@ -62,7 +62,7 @@ function PageClient() {
   );
 
   if (isFetchingWorkspace || !workspaceId || (isLoading && !data)) {
-    return <PageLoader />;
+    return <Loading />;
   }
 
   if (isError && !data) {

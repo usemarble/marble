@@ -4,10 +4,10 @@ import { useQuery } from "@tanstack/react-query";
 import { columns } from "@/components/authors/columns";
 import { AuthorDataTable } from "@/components/authors/data-table";
 import { DashboardBody } from "@/components/layout/wrapper";
-import PageLoader from "@/components/shared/page-loader";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { orpc } from "@/lib/orpc";
 import { useWorkspace } from "@/providers/workspace";
+import Loading from "./loading";
 
 function PageClient() {
   const workspaceId = useWorkspaceId();
@@ -25,7 +25,7 @@ function PageClient() {
   );
 
   if (isFetchingWorkspace || !workspaceId || isLoading) {
-    return <PageLoader />;
+    return <Loading />;
   }
 
   if (error) {

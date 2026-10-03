@@ -6,11 +6,11 @@ import { MediaUsageCard } from "@/components/home/media-usage-card";
 import { PublishingActivityCard } from "@/components/home/publishing-activity-card";
 import { WebhookUsageCard } from "@/components/home/webhook-usage-card";
 import { DashboardBody } from "@/components/layout/wrapper";
-import PageLoader from "@/components/shared/page-loader";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { QUERY_KEYS } from "@/lib/queries/keys";
 import { useWorkspace } from "@/providers/workspace";
 import type { UsageDashboardData } from "@/types/dashboard";
+import Loading from "./loading";
 
 export default function PageClient({
   initialUsage,
@@ -37,7 +37,7 @@ export default function PageClient({
   });
 
   if (isFetchingWorkspace || !workspaceId || isPending) {
-    return <PageLoader />;
+    return <Loading />;
   }
 
   if (isError) {
