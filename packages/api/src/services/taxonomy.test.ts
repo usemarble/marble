@@ -175,11 +175,9 @@ for (const [resource, singular, router, table] of [
       expect(
         await home.client.list({ workspaceId: home.input.workspaceId })
       ).toEqual([]);
-      if (singular === "tag") {
-        await expect(
-          home.client.update({ ...home.input, id })
-        ).rejects.toMatchObject(notFound);
-      }
+      await expect(
+        home.client.update({ ...home.input, id })
+      ).rejects.toMatchObject(notFound);
       await expect(
         home.client.delete({ workspaceId: home.input.workspaceId, id })
       ).rejects.toMatchObject(notFound);

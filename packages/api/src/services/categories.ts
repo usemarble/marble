@@ -105,6 +105,13 @@ export async function updateCategory(
   input: unknown
 ) {
   const values = parseCategory(input);
+  const existing = await ctx.db.query.category.findFirst({
+    where: and(eq(category.id, id), eq(category.workspaceId, workspaceId)),
+    columns: { id: true },
+  });
+  if (!existing) {
+    throw new CategoryError(404, "Category not found");
+  }
   const existingSlug = await ctx.db.query.category.findFirst({
     where: and(
       eq(category.slug, values.slug),
@@ -127,7 +134,7 @@ export async function updateCategory(
       .where(and(eq(category.id, id), eq(category.workspaceId, workspaceId)))
       .returning();
     if (!updated) {
-      throw new Error("Record to update not found.");
+      throw new CategoryError(404, "Category not found");
     }
     await emitEvent({
       type: "category_updated",
