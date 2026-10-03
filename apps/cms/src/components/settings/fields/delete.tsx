@@ -40,9 +40,12 @@ export function Delete() {
 
   const { mutate: deleteWorkspace, isPending } = useMutation({
     mutationFn: async ({ organizationId }: { organizationId: string }) => {
-      await organization.delete({
+      const { error } = await organization.delete({
         organizationId,
       });
+      if (error) {
+        throw new Error(error.message);
+      }
     },
     onSuccess: async () => {
       const remainingWorkspaces = workspaceList?.filter(

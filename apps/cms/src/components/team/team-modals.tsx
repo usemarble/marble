@@ -44,7 +44,7 @@ export function RemoveMemberModal({
 
     setLoading(true);
     try {
-      await organization.removeMember({
+      const { error } = await organization.removeMember({
         memberIdOrEmail: member.id,
         organizationId: activeWorkspace.id,
         fetchOptions: {
@@ -62,6 +62,9 @@ export function RemoveMemberModal({
           },
         },
       });
+      if (error) {
+        toast.error(error.message || "Failed to remove member");
+      }
     } catch (_error) {
       toast.error("Failed to remove member");
     }
