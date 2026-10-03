@@ -33,6 +33,8 @@ export interface EventOptions {
   actorType?: WorkspaceEventActorType;
   actorId?: string;
   payload?: EventPayload;
+  /** Targeted manual tests are sent directly and never recovered by the sweep. */
+  testWebhookEndpointId?: string;
 }
 
 /** Writes the outbox row. Call it inside the transaction making the change. */
@@ -49,6 +51,9 @@ export async function insertEvent(tx: DbTransaction, options: EventOptions) {
       actorType: options.actorType,
       actorId: options.actorId,
       payload: options.payload ?? {},
+      // The row has no target column. Never let a sweep broadcast a manual
+      // test as an ordinary, billable event to all subscribers.
+      enqueuedAt: options.testWebhookEndpointId ? new Date() : undefined,
     })
     .returning({ id: workspaceEvent.id });
 

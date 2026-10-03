@@ -1,17 +1,10 @@
 import "server-only";
 
 import { db } from "@marble/db";
-import {
-  apiKey,
-  field,
-  fieldOption,
-  fieldValue,
-  webhookEndpoint,
-} from "@marble/db/schema";
+import { apiKey, field, fieldOption, fieldValue } from "@marble/db/schema";
 import { asc, count, desc, eq } from "drizzle-orm";
 import type { APIKey } from "@/types/dashboard";
 import type { CustomField } from "@/types/fields";
-import type { WebhookListItem } from "@/types/webhook";
 import type { ApiScope } from "@/utils/keys";
 
 export async function getDashboardApiKeys(
@@ -38,31 +31,6 @@ export async function getDashboardApiKeys(
     ...key,
     type: key.type as APIKey["type"],
     scopes: key.scopes as ApiScope[],
-  }));
-}
-
-export async function getDashboardWebhooks(
-  workspaceId: string
-): Promise<WebhookListItem[]> {
-  const webhooks = await db
-    .select({
-      id: webhookEndpoint.id,
-      name: webhookEndpoint.name,
-      url: webhookEndpoint.url,
-      events: webhookEndpoint.events,
-      enabled: webhookEndpoint.enabled,
-      format: webhookEndpoint.format,
-      createdAt: webhookEndpoint.createdAt,
-      updatedAt: webhookEndpoint.updatedAt,
-    })
-    .from(webhookEndpoint)
-    .where(eq(webhookEndpoint.workspaceId, workspaceId))
-    .orderBy(desc(webhookEndpoint.createdAt));
-
-  return webhooks.map((webhook) => ({
-    ...webhook,
-    createdAt: webhook.createdAt.toISOString(),
-    updatedAt: webhook.updatedAt.toISOString(),
   }));
 }
 

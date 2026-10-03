@@ -90,3 +90,11 @@ with `@marble/db/testing`.
 
 Posts also expose `posts.fields.list/get` for the new and existing editors;
 field definition writes and the settings UI remain Step 5.
+
+Manual webhook tests use `emitEvent({ ..., testWebhookEndpointId })`. Since the
+outbox row has no target endpoint, it is marked unsweepable in the transaction
+and the targeted `isTest` queue message is awaited after commit. A failed send
+returns an error so the user can retry; the sweep must never broadcast it to
+subscribers or turn it into a billable delivery. Ordinary events still use the
+recoverable outbox. Webhook and API-key CRUD emit no events and clear no server
+caches, matching their original CMS handlers.

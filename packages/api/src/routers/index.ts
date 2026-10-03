@@ -4,6 +4,7 @@ import { categoriesRouter } from "./categories";
 import { meRouter } from "./me";
 import { postsRouter } from "./posts";
 import { tagsRouter } from "./tags";
+import { webhooksRouter } from "./webhooks";
 import { workspacesRouter } from "./workspaces";
 
 export const appRouter = {
@@ -13,6 +14,7 @@ export const appRouter = {
   me: meRouter,
   posts: postsRouter,
   workspaces: workspacesRouter,
+  webhooks: webhooksRouter,
 };
 
 export type AppRouter = typeof appRouter;

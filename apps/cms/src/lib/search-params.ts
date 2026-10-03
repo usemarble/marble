@@ -153,9 +153,3 @@ const webhookDeliveriesSearchParams = {
 
 export const useWebhookDeliveriesFilters = (options: Options = {}) =>
   useQueryStates(webhookDeliveriesSearchParams, options);
-
-// Defaults ("all", "", page 1, perPage 20) are cleared, so the serialized
-// query only carries active filters — exactly what the GET handler expects.
-export const getWebhookDeliveriesApiUrl = createSerializer(
-  webhookDeliveriesSearchParams
-);

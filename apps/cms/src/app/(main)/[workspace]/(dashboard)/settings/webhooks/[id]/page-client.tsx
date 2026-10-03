@@ -2,6 +2,11 @@
 
 import { ArrowLeft02Icon, Copy01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import {
+  type WebhookEvent,
+  webhookEvents,
+  webhookUpdateSchema,
+} from "@marble/api/lib/webhook-validation";
 import { Badge } from "@marble/ui/components/badge";
 import { Button } from "@marble/ui/components/button";
 import { Checkbox } from "@marble/ui/components/checkbox";
@@ -39,7 +44,7 @@ import {
 } from "@tanstack/react-query";
 import { format } from "date-fns";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Fragment, useEffect, useState } from "react";
 import { HeaderSidebarTrigger } from "@/components/layout/header-sidebar-trigger";
 import { DashboardBody } from "@/components/layout/wrapper";
@@ -47,19 +52,13 @@ import { WebhookDetailSettingsSkeleton } from "@/components/settings/loading-ske
 import { DataTablePagination } from "@/components/ui/data-table-pagination";
 import { DeleteWebhookModal } from "@/components/webhooks/delete-webhook";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { QUERY_KEYS } from "@/lib/queries/keys";
+import { orpc } from "@/lib/orpc";
 import {
-  getWebhookDeliveriesApiUrl,
   isWebhookDeliveryStatus,
   isWebhookResponseFilter,
   useWebhookDeliveriesFilters,
 } from "@/lib/search-params";
-import { type WebhookEvent, webhookEvents } from "@/lib/validations/webhook";
-import type {
-  Webhook,
-  WebhookDelivery,
-  WebhookDetailResponse,
-} from "@/types/webhook";
+import type { Webhook, WebhookDelivery } from "@/types/webhook";
 
 const deliveryStatuses = [
   { label: "All Statuses", value: "all" },
@@ -85,39 +84,31 @@ const formatOptions = [
   { label: "Slack", value: "slack" },
 ];
 
-interface WebhookDetailPageProps {
-  id: string;
-  workspace: string;
-}
-
-export default function WebhookDetailPage({
-  id,
-  workspace,
-}: WebhookDetailPageProps) {
+export default function WebhookDetailPage() {
+  const { id, workspace } = useParams<{ id: string; workspace: string }>();
   const workspaceId = useWorkspaceId();
   const queryClient = useQueryClient();
   const router = useRouter();
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [isSendingTest, setIsSendingTest] = useState(false);
   const [filters, setFilters] = useWebhookDeliveriesFilters();
   const { page, status, response, event, search } = filters;
 
-  const { data, error, isError, isLoading, isFetching } = useQuery({
-    queryKey: ["webhook-detail", workspaceId, id, filters],
-    queryFn: async (): Promise<WebhookDetailResponse> => {
-      const response = await fetch(
-        getWebhookDeliveriesApiUrl(`/api/webhooks/${id}`, filters)
-      );
-
-      if (!response.ok) {
-        const data = await response.json().catch(() => null);
-        throw new Error(data?.error || "Failed to fetch webhook");
-      }
-
-      return response.json();
-    },
+  const queryOptions = orpc.webhooks.get.queryOptions({
+    input: { workspaceId: workspaceId ?? "", id, ...filters },
     enabled: Boolean(workspaceId),
     placeholderData: keepPreviousData,
+  });
+  const { data, error, isError, isLoading, isFetching } =
+    useQuery(queryOptions);
+  const { mutate: sendTest, isPending: isSendingTest } = useMutation({
+    ...orpc.webhooks.test.mutationOptions(),
+    onSuccess: () => {
+      toast.success("Test webhook queued");
+      queryClient.invalidateQueries({
+        queryKey: orpc.webhooks.key({ input: { workspaceId } }),
+      });
+    },
+    onError: (error) => toast.error(error.message),
   });
 
   const webhook = data?.webhook;
@@ -135,27 +126,9 @@ export default function WebhookDetailPage({
     }
   };
 
-  const handleSendTest = async () => {
-    setIsSendingTest(true);
-
-    try {
-      const res = await fetch(`/api/webhooks/${id}/test`, { method: "POST" });
-      const result = await res.json().catch(() => null);
-
-      if (!res.ok) {
-        throw new Error(result?.error ?? "Failed to send test webhook");
-      }
-
-      toast.success("Test webhook queued");
-      queryClient.invalidateQueries({
-        queryKey: ["webhook-detail", workspaceId, id],
-      });
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to send test webhook"
-      );
-    } finally {
-      setIsSendingTest(false);
+  const handleSendTest = () => {
+    if (workspaceId) {
+      sendTest({ workspaceId, id });
     }
   };
 
@@ -181,17 +154,12 @@ export default function WebhookDetailPage({
         contextView={
           <WebhookSettingsPanel
             onUpdated={(updatedWebhook) => {
-              queryClient.setQueryData<WebhookDetailResponse>(
-                ["webhook-detail", workspaceId, id, filters],
-                (current) =>
-                  current ? { ...current, webhook: updatedWebhook } : current
+              queryClient.setQueryData(queryOptions.queryKey, (current) =>
+                current ? { ...current, webhook: updatedWebhook } : current
               );
-
-              if (workspaceId) {
-                queryClient.invalidateQueries({
-                  queryKey: QUERY_KEYS.WEBHOOKS(workspaceId),
-                });
-              }
+              queryClient.invalidateQueries({
+                queryKey: orpc.webhooks.key({ input: { workspaceId } }),
+              });
             }}
             webhook={webhook}
           />
@@ -551,20 +519,19 @@ function WebhookSettingsPanel({
   onUpdated: (webhook: Webhook) => void;
   webhook: Webhook;
 }) {
+  const workspaceId = useWorkspaceId();
   const [name, setName] = useState(webhook.name);
   const [endpoint, setEndpoint] = useState(webhook.url);
   const [formatValue, setFormatValue] = useState(webhook.format);
   const [enabled, setEnabled] = useState(webhook.enabled);
-  const [events, setEvents] = useState<WebhookEvent[]>(
-    webhook.events as WebhookEvent[]
-  );
+  const [events, setEvents] = useState(webhook.events);
 
   useEffect(() => {
     setName(webhook.name);
     setEndpoint(webhook.url);
     setFormatValue(webhook.format);
     setEnabled(webhook.enabled);
-    setEvents(webhook.events as WebhookEvent[]);
+    setEvents(webhook.events);
   }, [webhook]);
 
   const hasChanges =
@@ -575,28 +542,7 @@ function WebhookSettingsPanel({
     events.join(",") !== webhook.events.join(",");
 
   const { isPending, mutate: updateWebhook } = useMutation({
-    mutationFn: async () => {
-      const response = await fetch(`/api/webhooks/${webhook.id}`, {
-        body: JSON.stringify({
-          name: name.trim(),
-          endpoint: endpoint.trim(),
-          format: formatValue,
-          events,
-          enabled,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: "PATCH",
-      });
-
-      if (!response.ok) {
-        const data = await response.json().catch(() => null);
-        throw new Error(data?.error || "Failed to update webhook");
-      }
-
-      return response.json() as Promise<Webhook>;
-    },
+    ...orpc.webhooks.update.mutationOptions(),
     onError: (error) => {
       toast.error(
         error instanceof Error ? error.message : "Failed to update webhook"
@@ -716,7 +662,22 @@ function WebhookSettingsPanel({
           disabled={
             !hasChanges || isPending || !name.trim() || events.length === 0
           }
-          onClick={() => updateWebhook()}
+          onClick={() => {
+            const parsed = webhookUpdateSchema.safeParse({
+              name: name.trim(),
+              endpoint: endpoint.trim(),
+              format: formatValue,
+              events,
+              enabled,
+            });
+            if (!parsed.success) {
+              toast.error("Invalid request body");
+              return;
+            }
+            if (workspaceId) {
+              updateWebhook({ workspaceId, id: webhook.id, ...parsed.data });
+            }
+          }}
         >
           Save
         </Button>

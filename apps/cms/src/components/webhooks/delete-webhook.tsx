@@ -17,7 +17,7 @@ import { toast } from "@marble/ui/components/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AsyncButton } from "@/components/ui/async-button";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { QUERY_KEYS } from "@/lib/queries/keys";
+import { orpc } from "@/lib/orpc";
 
 interface DeleteWebhookModalProps {
   webhookId: string;
@@ -38,21 +38,14 @@ export function DeleteWebhookModal({
   const queryClient = useQueryClient();
 
   const { mutate: deleteWebhook, isPending } = useMutation({
-    mutationFn: async () => {
-      const response = await fetch(`/api/webhooks/${webhookId}`, {
-        method: "DELETE",
-      });
-      if (!response.ok) {
-        throw new Error("Failed to delete webhook");
-      }
-    },
+    ...orpc.webhooks.delete.mutationOptions(),
     onSuccess: () => {
       toast.success("Webhook deleted successfully");
       onDelete();
       onOpenChange(false);
       if (workspaceId) {
         queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.WEBHOOKS(workspaceId),
+          queryKey: orpc.webhooks.key({ input: { workspaceId } }),
         });
       }
     },
@@ -91,7 +84,9 @@ export function DeleteWebhookModal({
               isLoading={isPending}
               onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                 e.preventDefault();
-                deleteWebhook();
+                if (workspaceId) {
+                  deleteWebhook({ workspaceId, id: webhookId });
+                }
               }}
               size="sm"
               variant="destructive"

@@ -1,6 +1,11 @@
 import { isSafeWebhookUrl } from "@marble/utils";
 import { z } from "zod";
-import { VALID_DISCORD_DOMAINS, VALID_SLACK_DOMAINS } from "../constants";
+export const VALID_DISCORD_DOMAINS = [
+  "discord.com",
+  "canary.discord.com",
+  "ptb.discord.com",
+];
+export const VALID_SLACK_DOMAINS = ["hooks.slack.com"];
 
 export const webhookEventEnum = z.enum([
   "post_published",

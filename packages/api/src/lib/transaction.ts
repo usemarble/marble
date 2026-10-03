@@ -1,3 +1,4 @@
+import type { EventMessage } from "@marble/events";
 import type { DbTransaction, ServiceContext } from "../context";
 import { invalidateCache } from "../services/cache";
 import {
@@ -11,7 +12,7 @@ import type { CacheResource } from "./cache";
 export interface UnitOfWork {
   tx: DbTransaction;
   /** Writes the outbox row in this transaction; it is sent after commit. */
-  emitEvent(options: EventOptions): Promise<void>;
+  emitEvent(options: EventOptions): Promise<{ id: string }>;
   /** Clears the cached reads of `resource` (and its dependents) after commit. */
   invalidate(workspaceId: string, resource: CacheResource): void;
 }
@@ -27,6 +28,7 @@ export async function transact<T>(
   write: (work: UnitOfWork) => Promise<T>
 ): Promise<T> {
   const eventIds: string[] = [];
+  const testMessages: EventMessage[] = [];
   const invalidations = new Map<string, [string, CacheResource]>();
 
   const result = await ctx.db.transaction((tx) =>
@@ -34,7 +36,17 @@ export async function transact<T>(
       tx,
       async emitEvent(options) {
         const event = await insertEvent(tx, options);
-        eventIds.push(event.id);
+        if (options.testWebhookEndpointId) {
+          testMessages.push({
+            type: "event.fanout",
+            eventId: event.id,
+            targetWebhookEndpointId: options.testWebhookEndpointId,
+            isTest: true,
+          });
+        } else {
+          eventIds.push(event.id);
+        }
+        return event;
       },
       invalidate(workspaceId, resource) {
         invalidations.set(`${workspaceId}:${resource}`, [
@@ -50,6 +62,12 @@ export async function transact<T>(
   }
   for (const [workspaceId, resource] of invalidations.values()) {
     ctx.defer(invalidateCache(ctx, workspaceId, resource));
+  }
+
+  // Unlike recoverable writes, manual tests must report a failed send to the
+  // caller. Await it after commit: a rollback never sends a queue message.
+  for (const message of testMessages) {
+    await ctx.queues.events.send(message);
   }
 
   return result;

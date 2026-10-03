@@ -10,8 +10,6 @@ export const QUERY_KEYS = {
 
   TEAM: (workspaceId: string) => ["team", workspaceId],
 
-  WEBHOOKS: (workspaceId: string) => ["webhooks", workspaceId],
-
   EXPORTS: (workspaceId: string) => ["exports", workspaceId],
   IMPORTS: (workspaceId: string) => ["imports", workspaceId],
 
